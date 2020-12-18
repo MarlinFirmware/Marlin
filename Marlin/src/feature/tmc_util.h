@@ -103,9 +103,11 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     inline uint16_t get_microstep_counter() { return TMC::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return this->en_pwm_mode(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_pwm_mode(this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -170,9 +172,11 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     inline uint16_t get_microstep_counter() { return TMC2208Stepper::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -216,9 +220,11 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     inline uint16_t get_microstep_counter() { return TMC2209Stepper::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)

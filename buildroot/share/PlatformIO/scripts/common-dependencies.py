@@ -16,6 +16,30 @@ except ImportError:
 	# PIO >= 4.4
 	from platformio.package.meta import PackageSpec as PackageManager
 
+PIO_VERSION_MIN = (5, 0, 3)
+try:
+	from platformio import VERSION as PIO_VERSION
+	weights = (1000, 100, 1)
+	version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
+	version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
+	if version_cur < version_min:
+		print()
+		print("**************************************************")
+		print("******      An update to PlatformIO is      ******")
+		print("******  required to build Marlin Firmware.  ******")
+		print("******                                      ******")
+		print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
+		print("******      Current Version: ", PIO_VERSION, "    ******")
+		print("******                                      ******")
+		print("******   Update PlatformIO and try again.   ******")
+		print("**************************************************")
+		print()
+		exit(1)
+except SystemExit:
+	exit(1)
+except:
+	print("Can't detect PlatformIO Version")
+
 Import("env")
 
 #print(env.Dump())
@@ -208,7 +232,8 @@ def search_compiler():
 		for filepath in os.listdir(pathdir):
 			if not filepath.endswith(gcc):
 				continue
-
+			# Use entire path to not rely on env PATH
+			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
 				blab('Caching g++ for current env')
@@ -233,7 +258,7 @@ def load_marlin_features():
 	build_flags = env.ParseFlagsExtended(build_flags)
 
 	cxx = search_compiler()
-	cmd = [cxx]
+	cmd = ['"' + cxx + '"']
 
 	# Build flags from board.json
 	#if 'BOARD' in env:

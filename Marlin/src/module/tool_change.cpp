@@ -73,10 +73,6 @@
   #include "../feature/solenoid.h"
 #endif
 
-#if ENABLED(MK2_MULTIPLEXER)
-  #include "../feature/snmm.h"
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -89,8 +85,10 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(PRUSA_MMU2)
-  #include "../feature/mmu2/mmu2.h"
+#if HAS_PRUSA_MMU1
+  #include "../feature/mmu/mmu.h"
+#elif HAS_PRUSA_MMU2
+  #include "../feature/mmu/mmu2.h"
 #endif
 
 #if HAS_LCD_MENU
@@ -123,7 +121,7 @@
       if (e < EXTRUDERS - 1)
     #endif
     {
-      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e]);
+      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
   }
@@ -799,8 +797,8 @@ void tool_change_prime() {
     // Park
     #if ENABLED(TOOLCHANGE_PARK)
       if (ok) {
-        TERN(TOOLCHANGE_PARK_Y_ONLY,,current_position.x = toolchange_settings.change_point.x);
-        TERN(TOOLCHANGE_PARK_X_ONLY,,current_position.y = toolchange_settings.change_point.y);
+        IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
+        IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
         planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
         planner.synchronize();
       }
@@ -863,7 +861,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       mixer.T(new_tool);
     #endif
 
-  #elif ENABLED(PRUSA_MMU2)
+  #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
 
@@ -998,8 +996,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && DISABLED(SWITCHING_NOZZLE)
         if (can_move_away && toolchange_settings.enable_park) {
-          TERN(TOOLCHANGE_PARK_Y_ONLY,,current_position.x = toolchange_settings.change_point.x);
-          TERN(TOOLCHANGE_PARK_X_ONLY,,current_position.y = toolchange_settings.change_point.y);
+          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
+          IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
         }
@@ -1171,8 +1169,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
       #endif
 
-      TERN_(PRUSA_MMU2, mmu2.tool_change(new_tool));
-
       TERN_(SWITCHING_NOZZLE_TWO_SERVOS, lower_nozzle(new_tool));
 
     } // (new_tool != old_tool)
@@ -1184,7 +1180,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       enable_solenoid_on_active_extruder();
     #endif
 
-    #if ENABLED(MK2_MULTIPLEXER)
+    #if HAS_PRUSA_MMU1
       if (new_tool >= E_STEPPERS) return invalid_extruder_error(new_tool);
       select_multiplexed_stepper(new_tool);
     #endif
@@ -1209,25 +1205,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
+  #define DEBUG_OUT ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../core/debug_out.h"
+
   bool extruder_migration() {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-          SERIAL_ECHOLN("Migration Source Too Cold");
-        #endif
+        DEBUG_ECHOLNPGM("Migration Source Too Cold");
         return false;
       }
     #endif
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHO_MSG("No Migration Target");
-        SERIAL_ECHO_MSG("Target: ", migration.target,
-                        " Last: ", migration.last,
-                        " Active: ", active_extruder);
-      #endif
+      DEBUG_ECHO_MSG("No Migration Target");
+      DEBUG_ECHO_MSG("Target: ", migration.target, " Last: ", migration.last, " Active: ", active_extruder);
       migration.automode = false;
       return false;
     }
@@ -1237,9 +1230,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     uint8_t migration_extruder = active_extruder;
 
     if (migration.target) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration using fixed target");
-      #endif
+      DEBUG_ECHOLNPGM("Migration using fixed target");
       // Specified target ok?
       const int16_t t = migration.target - 1;
       if (t != active_extruder) migration_extruder = t;
@@ -1248,16 +1239,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       migration_extruder++;
 
     if (migration_extruder == active_extruder) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration source matches active");
-      #endif
+      DEBUG_ECHOLNPGM("Migration source matches active");
       return false;
     }
 
     // Migration begins
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Beginning migration");
-    #endif
+    DEBUG_ECHOLNPGM("Beginning migration");
 
     migration.in_progress = true; // Prevent runout script
     planner.synchronize();
@@ -1303,9 +1290,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Migration Complete");
-    #endif
+    DEBUG_ECHOLNPGM("Migration Complete");
     return true;
   }
 

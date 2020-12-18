@@ -181,7 +181,7 @@
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
- *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires PRUSA_MMU2)
+ *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires an MMU_MODEL version 2 or 2S)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
@@ -230,6 +230,9 @@
  * M512 - Set/Change/Remove Password
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
+ * M552 - Get or set IP address. Enable/disable network interface. (Requires enabled Ethernet port)
+ * M553 - Get or set IP netmask. (Requires enabled Ethernet port)
+ * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -239,6 +242,7 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
@@ -465,7 +469,7 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+  #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
   #endif
 
@@ -538,7 +542,7 @@ private:
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-    static void M32();
+    TERN_(HAS_MEDIA_SUBCALLS, static void M32());
     TERN_(LONG_FILENAME_HOST_SUPPORT, static void M33());
     #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();
@@ -732,7 +736,7 @@ private:
     static void M402();
   #endif
 
-  TERN_(PRUSA_MMU2, static void M403());
+  TERN_(HAS_PRUSA_MMU2, static void M403());
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static void M404();
@@ -766,17 +770,19 @@ private:
 
   #if ENABLED(PASSWORD_FEATURE)
     static void M510();
-    #if ENABLED(PASSWORD_UNLOCK_GCODE)
-      static void M511();
-    #endif
-    #if ENABLED(PASSWORD_CHANGE_GCODE)
-      static void M512();
-    #endif
+    TERN_(PASSWORD_UNLOCK_GCODE, static void M511());
+    TERN_(PASSWORD_CHANGE_GCODE, static void M512());
   #endif
 
   TERN_(SDSUPPORT, static void M524());
 
   TERN_(SD_ABORT_ON_ENDSTOP_HIT, static void M540());
+
+  #if HAS_ETHERNET
+    static void M552();
+    static void M553();
+    static void M554();
+  #endif
 
   TERN_(BAUD_RATE_GCODE, static void M575());
 
@@ -801,6 +807,8 @@ private:
     static void M701();
     static void M702();
   #endif
+
+  TERN_(GCODE_REPEAT_MARKERS, static void M808());
 
   TERN_(GCODE_MACROS, static void M810_819());
 

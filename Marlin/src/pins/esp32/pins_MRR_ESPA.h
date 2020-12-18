@@ -32,7 +32,7 @@
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "MRR ESPA only supports one E Stepper. Comment out this line to continue."
 #elif HOTENDS > 1
-  #error "MRR ESPA currently supports only one hotend. Comment out this line to continue."
+  #error "MRR ESPA only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME       "MRR ESPA"
@@ -42,12 +42,10 @@
 //
 // Disable I2S stepper stream
 //
-#ifdef I2S_STEPPER_STREAM
-  #undef I2S_STEPPER_STREAM
-#endif
-#define I2S_WS                                -1
-#define I2S_BCK                               -1
-#define I2S_DATA                              -1
+#undef I2S_STEPPER_STREAM
+#undef I2S_WS
+#undef I2S_BCK
+#undef I2S_DATA
 
 //
 // Limit Switches

@@ -142,10 +142,10 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
   UNUSED(mode);
 
-  if (wait)
-    return thermalManager.wait_for_hotend(active_extruder);
+  if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
-  wait_for_heatup = true; // Allow interruption by Emergency Parser M108
+  // Allow interruption by Emergency Parser M108
+  wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
   while (wait_for_heatup && ABS(thermalManager.degHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > TEMP_WINDOW)
     idle();
   wait_for_heatup = false;
@@ -199,17 +199,18 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     first_impatient_beep(max_beep_count);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;    // LCD click or M108 will clear this
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
         #endif
       ;
-      host_action_prompt_begin(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool);
-      host_action_prompt_button(CONTINUE_STR);
-      host_action_prompt_show();
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
+
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
+
     while (wait_for_user) {
       impatient_beep(max_beep_count);
       idle_no_sleep();
@@ -295,6 +296,18 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 }
 
 /**
+ * Disabling E steppers for manual filament change should be fine
+ * as long as users don't spin the E motor ridiculously fast and
+ * send current back to their board, potentially frying it.
+ */
+inline void disable_active_extruder() {
+  #if HAS_E_STEPPER_ENABLE
+    disable_e_stepper(active_extruder);
+    safe_delay(100);
+  #endif
+}
+
+/**
  * Unload filament from the hotend
  *
  * - Fail if the a safe temperature was not reached
@@ -356,11 +369,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = saved_acceleration;
   #endif
 
-  // Disable E steppers for manual change
-  #if HAS_E_STEPPER_ENABLE
-    disable_e_stepper(active_extruder);
-    safe_delay(100);
-  #endif
+  // Disable the Extruder for manual change
+  disable_active_extruder();
 
   return true;
 }
@@ -445,6 +455,9 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #if ENABLED(DUAL_X_CARRIAGE)
     set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
+
+  // Disable the Extruder for manual change
+  disable_active_extruder();
 
   return true;
 }

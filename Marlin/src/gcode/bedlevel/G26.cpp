@@ -136,7 +136,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
+  void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
 #endif
 
 constexpr float g26_e_axis_feedrate = 0.025;
@@ -405,7 +405,7 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU && !HAS_TOUCH_XPT2046 // ui.button_pressed issue with touchscreen
+  #if HAS_LCD_MENU && !HAS_TOUCH_BUTTONS // ui.button_pressed issue with touchscreen
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       float Total_Prime = 0.0;
     #endif
@@ -783,7 +783,7 @@ void GcodeSuite::G26() {
 
         const feedRate_t old_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
-        plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
+        plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 

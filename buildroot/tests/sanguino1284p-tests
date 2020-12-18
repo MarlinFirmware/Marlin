@@ -11,7 +11,11 @@ set -e
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_SANGUINOLOLU_12
-exec_test $1 $2 "Default Configuration"
+opt_set LCD_LANGUAGE de
+opt_enable MINIPANEL USE_CONTROLLER_FAN CONTROLLER_FAN_EDITABLE
+opt_set CONTROLLER_FAN_PIN 27
+exec_test $1 $2 "Default Configuration | MINIPANAL | CONTROLLER_FAN" "$3"
+
 
 # clean up
 restore_configs

@@ -42,7 +42,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef USE_USB_COMPOSITE
+#if HAS_SD_HOST_DRIVE
   #include "msc_sd.h"
 #endif
 
@@ -61,7 +61,7 @@
 #endif
 
 #ifdef SERIAL_USB
-  #ifndef USE_USB_COMPOSITE
+  #if !HAS_SD_HOST_DRIVE
     #define UsbSerial Serial
   #else
     #define UsbSerial MarlinCompositeSerial
@@ -109,6 +109,8 @@
   #else
     #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
+
+  #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
 #endif
 
 // Set interrupt grouping for this MCU
@@ -124,7 +126,7 @@ void HAL_idletask();
 #endif
 
 #ifndef digitalPinHasPWM
-  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
+  #define digitalPinHasPWM(P) !!PIN_MAP[P].timer_device
   #define NO_COMPILE_TIME_PWM
 #endif
 
@@ -200,17 +202,9 @@ extern "C" {
 
 extern "C" char* _sbrk(int incr);
 
-/*
-static int freeMemory() {
-  volatile int top;
-  top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
-  return top;
-}
-*/
-
-static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
-  return &top - reinterpret_cast<char*>(_sbrk(0));
+  return &top - _sbrk(0);
 }
 
 #pragma GCC diagnostic pop
@@ -244,3 +238,20 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Timer PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

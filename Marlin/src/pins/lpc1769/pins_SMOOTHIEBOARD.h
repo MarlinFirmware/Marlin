@@ -169,7 +169,7 @@
  * Set from 0 - 127 with stop bit.
  * (Ex. 3F << 1 | 1)
  */
-#define DIGIPOTS_I2C_SCL                   P0_0
+#define DIGIPOTS_I2C_SCL                   P0_00
 #define DIGIPOTS_I2C_SDA_X                 P0_04
 #define DIGIPOTS_I2C_SDA_Y                 P0_10
 #define DIGIPOTS_I2C_SDA_Z                 P0_19

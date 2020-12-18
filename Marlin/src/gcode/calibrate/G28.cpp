@@ -50,6 +50,10 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
@@ -126,7 +130,15 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
-    destination.set(safe_homing_xy, current_position.z);
+    constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    #if HAS_HOME_OFFSET
+      xy_float_t okay_homing_xy = safe_homing_xy;
+      okay_homing_xy -= home_offset;
+    #else
+      constexpr xy_float_t okay_homing_xy = safe_homing_xy;
+    #endif
+
+    destination.set(okay_homing_xy, current_position.z);
 
     TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
@@ -199,8 +211,6 @@ void GcodeSuite::G28() {
 
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
-  TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
-
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
@@ -222,17 +232,17 @@ void GcodeSuite::G28() {
     return;
   }
 
+  TERN_(DWIN_CREALITY_LCD, DWIN_StartHoming());
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
+
   planner.synchronize();          // Wait for planner moves to finish!
 
   SET_SOFT_ENDSTOP_LOOSE(false);  // Reset a leftover 'loose' motion state
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-
-    // Cancel the active G29 session
-    TERN_(PROBE_MANUALLY, g29_in_progress = false);
-
-    TERN_(RESTORE_LEVELING_AFTER_G28, const bool leveling_was_active = planner.leveling_active);
+    const bool leveling_restore_state = ENABLED(ENABLE_LEVELING_AFTER_G28) || TERN0(RESTORE_LEVELING_AFTER_G28, planner.leveling_active);
+    TERN_(PROBE_MANUALLY, g29_in_progress = false);  // Cancel the active G29 session
     set_bed_leveling_enabled(false);
   #endif
 
@@ -305,21 +315,20 @@ void GcodeSuite::G28() {
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
-    #if Z_HOME_DIR > 0  // If homing away from BED do Z first
+    #if ENABLED(HOME_Z_FIRST)
 
       if (doZ) homeaxis(Z_AXIS);
 
     #endif
 
-    const float z_homing_height =
-      ENABLED(UNKNOWN_Z_NO_RAISE) && !TEST(axis_known_position, Z_AXIS)
-        ? 0
-        : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
+    const float z_homing_height = TERN1(UNKNOWN_Z_NO_RAISE, axis_is_trusted(Z_AXIS))
+                                  ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
+                                  : 0;
 
-    if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
+    if (z_homing_height && (doX || doY || TERN0(Z_SAFE_HOMING, doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
+      do_z_clearance(z_homing_height, axis_is_trusted(Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
     #if ENABLED(QUICK_HOME)
@@ -329,7 +338,7 @@ void GcodeSuite::G28() {
     #endif
 
     // Home Y (before X)
-    if (ENABLED(HOME_Y_BEFORE_X) && (doY || (ENABLED(CODEPENDENT_XY_HOMING) && doX)))
+    if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
       homeaxis(Y_AXIS);
 
     // Home X
@@ -365,18 +374,18 @@ void GcodeSuite::G28() {
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
-    #if Z_HOME_DIR < 0
-
+    #if DISABLED(HOME_Z_FIRST)
       if (doZ) {
+        #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+          stepper.set_all_z_lock(false);
+          stepper.set_separate_multi_axis(false);
+        #endif
+
         TERN_(BLTOUCH, bltouch.init());
-
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
-
         probe.move_z_after_homing();
-
-      } // doZ
-
-    #endif // Z_HOME_DIR < 0
+      }
+    #endif
 
     sync_plan_position();
 
@@ -426,7 +435,7 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_was_active));
+  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
 
   restore_feedrate_and_scaling();
 
@@ -454,6 +463,7 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   report_current_position();
 

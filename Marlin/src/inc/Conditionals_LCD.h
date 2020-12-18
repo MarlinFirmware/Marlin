@@ -26,16 +26,6 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// Kinematics
-#if ENABLED(MORGAN_SCARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ENABLED(DELTA)
-  #define IS_KINEMATIC 1
-#else
-  #define IS_CARTESIAN 1
-#endif
-
 // MKS_LCD12864 is a variant of MKS_MINI_12864
 #if ENABLED(MKS_LCD12864)
   #define MKS_MINI_12864
@@ -235,7 +225,7 @@
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
-#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
+#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER)
 
   #define IS_RRD_FG_SC 1
 
@@ -341,7 +331,7 @@
   #define DOGLCD
   #define IS_ULTIPANEL 1
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(TFT_LVGL_UI)
+#elif HAS_TFT_LVGL_UI
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -482,6 +472,10 @@
   #endif
 #endif
 
+#if EITHER(HAS_DISPLAY, GLOBAL_STATUS_MESSAGE)
+  #define HAS_STATUS_MESSAGE 1
+#endif
+
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
   #define HAS_LCD_MENU 1
 #endif
@@ -494,6 +488,36 @@
     #define LCD_PIXEL_HEIGHT 64
   #endif
 #endif
+
+/**
+ *  Multi-Material-Unit supported models
+ */
+#define PRUSA_MMU1      1
+#define PRUSA_MMU2      2
+#define PRUSA_MMU2S     3
+#define SMUFF_EMU_MMU2  12
+#define SMUFF_EMU_MMU2S 13
+
+#ifdef MMU_MODEL
+  #define HAS_MMU 1
+  #if MMU_MODEL == PRUSA_MMU1
+    #define HAS_PRUSA_MMU1 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2
+    #define HAS_PRUSA_MMU2 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+    #define HAS_PRUSA_MMU2 1
+    #define HAS_PRUSA_MMU2S 1
+  #endif
+  #if MMU_MODEL >= SMUFF_EMU_MMU2
+    #define HAS_SMUFF 1
+  #endif
+#endif
+
+#undef PRUSA_MMU1
+#undef PRUSA_MMU2
+#undef PRUSA_MMU2S
+#undef SMUFF_EMU_MMU2
+#undef SMUFF_EMU_MMU2S
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -512,8 +536,6 @@
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
-  #undef MK2_MULTIPLEXER
-  #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
 #elif EXTRUDERS > 1
   #define HAS_MULTI_EXTRUDER 1
@@ -539,17 +561,17 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif ENABLED(PRUSA_MMU2)
+#elif HAS_PRUSA_MMU2
   #define E_STEPPERS 1
 #endif
 
-// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
-#if EITHER(MK2_MULTIPLEXER, SWITCHING_NOZZLE)
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
-#if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+#if HAS_MMU
   #define SINGLENOZZLE
 #endif
 
@@ -675,6 +697,101 @@
   #define HAS_BED_PROBE 1
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if NUM_RUNOUT_SENSORS >= 1
+    #ifndef FIL_RUNOUT1_STATE
+      #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT1_PULLUP
+      #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT1_PULLDOWN
+      #define FIL_RUNOUT1_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 2
+    #ifndef FIL_RUNOUT2_STATE
+      #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT2_PULLUP
+      #define FIL_RUNOUT2_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT2_PULLDOWN
+      #define FIL_RUNOUT2_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 3
+    #ifndef FIL_RUNOUT3_STATE
+      #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT3_PULLUP
+      #define FIL_RUNOUT3_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT3_PULLDOWN
+      #define FIL_RUNOUT3_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 4
+    #ifndef FIL_RUNOUT4_STATE
+      #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT4_PULLUP
+      #define FIL_RUNOUT4_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT4_PULLDOWN
+      #define FIL_RUNOUT4_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 5
+    #ifndef FIL_RUNOUT5_STATE
+      #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT5_PULLUP
+      #define FIL_RUNOUT5_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT5_PULLDOWN
+      #define FIL_RUNOUT5_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 6
+    #ifndef FIL_RUNOUT6_STATE
+      #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT6_PULLUP
+      #define FIL_RUNOUT6_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT6_PULLDOWN
+      #define FIL_RUNOUT6_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 7
+    #ifndef FIL_RUNOUT7_STATE
+      #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT7_PULLUP
+      #define FIL_RUNOUT7_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT7_PULLDOWN
+      #define FIL_RUNOUT7_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 8
+    #ifndef FIL_RUNOUT8_STATE
+      #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT8_PULLUP
+      #define FIL_RUNOUT8_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT8_PULLDOWN
+      #define FIL_RUNOUT8_PULLDOWN FIL_RUNOUT_PULLDOWN
+    #endif
+  #endif
+#endif // FILAMENT_RUNOUT_SENSOR
+
+#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #undef PROBE_MANUALLY
+#endif
+
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
@@ -705,6 +822,10 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
+
+#if Z_HOME_DIR > 0
+  #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 
 /**
@@ -747,6 +868,7 @@
   #define HAS_PROBING_PROCEDURE 1
 #endif
 #if !HAS_LEVELING
+  #undef PROBE_MANUALLY
   #undef RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -755,21 +877,58 @@
   #define GRID_LOOP(A,B) LOOP_L_N(A, GRID_MAX_POINTS_X) LOOP_L_N(B, GRID_MAX_POINTS_Y)
 #endif
 
-#ifndef INVERT_X_DIR
-  #define INVERT_X_DIR false
-#endif
-#ifndef INVERT_Y_DIR
-  #define INVERT_Y_DIR false
-#endif
-#ifndef INVERT_Z_DIR
-  #define INVERT_Z_DIR false
-#endif
-#ifndef INVERT_E_DIR
-  #define INVERT_E_DIR false
-#endif
-
+// Slim menu optimizations
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
+#endif
+
+/**
+ * CoreXY, CoreXZ, and CoreYZ - and their reverse
+ */
+#if EITHER(COREXY, COREYX)
+  #define CORE_IS_XY 1
+#endif
+#if EITHER(COREXZ, COREZX)
+  #define CORE_IS_XZ 1
+#endif
+#if EITHER(COREYZ, COREZY)
+  #define CORE_IS_YZ 1
+#endif
+#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+  #define IS_CORE 1
+#endif
+#if IS_CORE
+  #if CORE_IS_XY
+    #define CORE_AXIS_1 A_AXIS
+    #define CORE_AXIS_2 B_AXIS
+    #define NORMAL_AXIS Z_AXIS
+  #elif CORE_IS_XZ
+    #define CORE_AXIS_1 A_AXIS
+    #define NORMAL_AXIS Y_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #elif CORE_IS_YZ
+    #define NORMAL_AXIS X_AXIS
+    #define CORE_AXIS_1 B_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #endif
+  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
+#elif ENABLED(MARKFORGED_XY)
+  // Markforged kinematics
+  #define CORE_AXIS_1 A_AXIS
+  #define CORE_AXIS_2 B_AXIS
+  #define NORMAL_AXIS Z_AXIS
+#endif
+
+#if ENABLED(MORGAN_SCARA)
+  #define IS_SCARA 1
+  #define IS_KINEMATIC 1
+#elif ENABLED(DELTA)
+  #define IS_KINEMATIC 1
+#else
+  #define IS_CARTESIAN 1
+  #if !IS_CORE
+    #define IS_FULL_CARTESIAN 1
+  #endif
 #endif
 
 // This flag indicates some kind of jerk storage is needed
@@ -786,12 +945,96 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
-#endif
-
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
   #define HAS_USB_SERIAL 1
+#endif
+#if SERIAL_PORT_2 == -2
+  #define HAS_ETHERNET 1
+#endif
+
+// Fallback Stepper Driver types that don't depend on Configuration_adv.h
+#ifndef X_DRIVER_TYPE
+  #define X_DRIVER_TYPE  A4988
+#endif
+#ifndef X2_DRIVER_TYPE
+  #define X2_DRIVER_TYPE A4988
+#endif
+#ifndef Y_DRIVER_TYPE
+  #define Y_DRIVER_TYPE  A4988
+#endif
+#ifndef Y2_DRIVER_TYPE
+  #define Y2_DRIVER_TYPE A4988
+#endif
+#ifndef Z_DRIVER_TYPE
+  #define Z_DRIVER_TYPE  A4988
+#endif
+#ifndef Z2_DRIVER_TYPE
+  #define Z2_DRIVER_TYPE A4988
+#endif
+#ifndef Z3_DRIVER_TYPE
+  #define Z3_DRIVER_TYPE A4988
+#endif
+#ifndef Z4_DRIVER_TYPE
+  #define Z4_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 0
+  #undef E0_DRIVER_TYPE
+#elif !defined(E0_DRIVER_TYPE)
+  #define E0_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 1
+  #undef E1_DRIVER_TYPE
+#elif !defined(E1_DRIVER_TYPE)
+  #define E1_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 2
+  #undef E2_DRIVER_TYPE
+#elif !defined(E2_DRIVER_TYPE)
+  #define E2_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 3
+  #undef E3_DRIVER_TYPE
+#elif !defined(E3_DRIVER_TYPE)
+  #define E3_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 4
+  #undef E4_DRIVER_TYPE
+#elif !defined(E4_DRIVER_TYPE)
+  #define E4_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 5
+  #undef E5_DRIVER_TYPE
+#elif !defined(E5_DRIVER_TYPE)
+  #define E5_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 6
+  #undef E6_DRIVER_TYPE
+#elif !defined(E6_DRIVER_TYPE)
+  #define E6_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 7
+  #undef E7_DRIVER_TYPE
+#elif !defined(E7_DRIVER_TYPE)
+  #define E7_DRIVER_TYPE A4988
+#endif
+
+// Fallback axis inverting
+#ifndef INVERT_X_DIR
+  #define INVERT_X_DIR false
+#endif
+#ifndef INVERT_Y_DIR
+  #define INVERT_Y_DIR false
+#endif
+#ifndef INVERT_Z_DIR
+  #define INVERT_Z_DIR false
+#endif
+#ifndef INVERT_E_DIR
+  #define INVERT_E_DIR false
+#endif
+
+// Fallback SPI Speed
+#ifndef SPI_SPEED
+  #define SPI_SPEED SPI_FULL_SPEED
 #endif
 
 /**
@@ -885,16 +1128,16 @@
 // FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
 #if ENABLED(TFT_INTERFACE_FSMC)
   #define HAS_FSMC_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_FSMC_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_FSMC 1
   #endif
 #elif ENABLED(TFT_INTERFACE_SPI)
   #define HAS_SPI_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_SPI_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_SPI 1
   #endif
 #endif
@@ -925,8 +1168,24 @@
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #undef TOUCH_SCREEN_CALIBRATION
   #if !HAS_TFT_LVGL_UI
-    #define HAS_TOUCH_XPT2046 1
+    #define HAS_TOUCH_BUTTONS 1
+  #endif
+#endif
+
+// XPT2046_** Compatibility
+#if !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
+  #if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET)
+    #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
+    #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
+    #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
+    #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
+    #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+  #else
+    #define TOUCH_CALIBRATION_X  0
+    #define TOUCH_CALIBRATION_Y  0
+    #define TOUCH_OFFSET_X       0
+    #define TOUCH_OFFSET_Y       0
+    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif

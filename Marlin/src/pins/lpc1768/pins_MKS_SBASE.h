@@ -131,9 +131,9 @@
 #define PIN_P2_11                          P2_11  // Interrupt Capable
 
 //
-// Průša i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MMU1 (Multi Material Multiplexer) Support
 //
-#if ENABLED(MK2_MULTIPLEXER)
+#if HAS_PRUSA_MMU1
   #define E_MUX0_PIN                       P1_23  // J8-3
   #define E_MUX1_PIN                       P2_12  // J8-4
   #define E_MUX2_PIN                       P2_11  // J8-5

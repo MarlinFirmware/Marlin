@@ -42,7 +42,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tarcheta sacada");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu prencipal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inicio automatico");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inicio automatico");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Amortar motors");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Levar a l'orichen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Orichen X");
@@ -85,7 +85,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mover Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
@@ -121,7 +121,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimiento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");

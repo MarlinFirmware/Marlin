@@ -39,7 +39,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
@@ -140,6 +140,7 @@ namespace ExtUI {
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const float zval);
+      void onMeshLevelingStart();
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
@@ -302,6 +303,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
+  bool isPrintingPaused();
 
   void printFile(const char *filename);
   void stopPrint();
@@ -343,11 +345,16 @@ namespace ExtUI {
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
+  void onPrintFinished();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired_P(PGM_P const pstr);
   void onStatusChanged(const char * const msg);
   void onStatusChanged_P(PGM_P const pstr);
+  void onHomingStart();
+  void onHomingComplete();
+  void onSteppersDisabled();
+  void onSteppersEnabled();
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);

@@ -113,6 +113,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    if (!buzzer_enabled) return;
     lcd.buzz(duration, freq);
   }
 #endif
@@ -505,18 +506,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   lcd_put_wchar('X' + uint8_t(axis));
   if (blink)
     lcd_put_u8str(value);
-  else {
-    if (!TEST(axis_homed, axis))
-      while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
-    else {
-      #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!TEST(axis_known_position, axis))
-          lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
-        else
-      #endif
-          lcd_put_u8str(value);
-    }
-  }
+  else if (axis_should_home(axis))
+    while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
+    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+  else
+    lcd_put_u8str(value);
 }
 
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
@@ -706,6 +701,35 @@ void MarlinUI::draw_status_message(const bool blink) {
  *  |01234567890123456789|
  */
 
+inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink) {
+  char buffer[14];
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+    if (show_remain) {
+      #if ENABLED(USE_M73_REMAINING_TIME)
+        duration_t remaining = ui.get_remaining_time();
+      #else
+        uint8_t progress = ui.get_progress_percent();
+        uint32_t elapsed = print_job_timer.duration();
+        duration_t remaining = (progress > 0) ? ((elapsed * 25600 / progress) >> 8) - elapsed : 0;
+      #endif
+      timepos -= remaining.toDigital(buffer);
+      lcd_put_wchar(timepos, 2, 'R');
+    }
+  #else
+    constexpr bool show_remain = false;
+  #endif
+
+  if (!show_remain) {
+    duration_t elapsed = print_job_timer.duration();
+    timepos -= elapsed.toDigital(buffer);
+    lcd_put_wchar(timepos, 2, LCD_STR_CLOCK[0]);
+  }
+  lcd_put_u8str(buffer);
+  return timepos;
+}
+
 void MarlinUI::draw_status_screen() {
 
   const bool blink = get_blink();
@@ -844,33 +868,7 @@ void MarlinUI::draw_status_screen() {
       lcd_put_u8str(i16tostr3rj(feedrate_percentage));
       lcd_put_wchar('%');
 
-      char buffer[14];
-      uint8_t timepos = 0;
-      #if ENABLED(SHOW_REMAINING_TIME)
-        const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
-        if (show_remain) {
-          #if ENABLED(USE_M73_REMAINING_TIME)
-            duration_t remaining = get_remaining_time();
-          #else
-            uint8_t progress = get_progress_percent();
-            uint32_t elapsed = print_job_timer.duration();
-            duration_t remaining = (progress > 0) ? ((elapsed * 25600 / progress) >> 8) - elapsed : 0;
-          #endif
-          const uint8_t len = remaining.toDigital(buffer);
-          timepos = LCD_WIDTH - 1 - len;
-          lcd_put_wchar(timepos, 2, 'R');
-        }
-      #else
-        constexpr bool show_remain = false;
-      #endif
-
-      if (!show_remain) {
-        duration_t elapsed = print_job_timer.duration();
-        const uint8_t len = elapsed.toDigital(buffer);
-        timepos = LCD_WIDTH - 1 - len;
-        lcd_put_wchar(timepos, 2, LCD_STR_CLOCK[0]);
-      }
-      lcd_put_u8str(buffer);
+      const uint8_t timepos = draw_elapsed_or_remaining_time(LCD_WIDTH - 1, blink);
 
       #if LCD_WIDTH >= 20
         lcd_moveto(timepos - 7, 2);
@@ -954,7 +952,7 @@ void MarlinUI::draw_status_screen() {
     #elif HAS_MULTI_HOTEND && HAS_HEATED_BED
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
-      #define DREW_PRINT_PROGRESS
+      #define DREW_PRINT_PROGRESS 1
       _draw_print_progress();
     #endif
 
@@ -962,14 +960,15 @@ void MarlinUI::draw_status_screen() {
     // Elapsed Time or SD Percent
     //
     lcd_moveto(LCD_WIDTH - 9, 2);
-    #if HAS_PRINT_PROGRESS && !defined(DREW_PRINT_PROGRESS)
+
+    #if HAS_PRINT_PROGRESS && !DREW_PRINT_PROGRESS
+
       _draw_print_progress();
+
     #else
-      duration_t elapsed = print_job_timer.duration();
-      char buffer[14];
-      (void)elapsed.toDigital(buffer);
-      lcd_put_wchar(LCD_STR_CLOCK[0]);
-      lcd_put_u8str(buffer);
+
+      (void)draw_elapsed_or_remaining_time(LCD_WIDTH - 4, blink);
+
     #endif
 
   #endif // LCD_INFO_SCREEN_STYLE 1
@@ -1036,7 +1035,7 @@ void MarlinUI::draw_status_screen() {
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
     uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
-    if (value != nullptr) {
+    if (value) {
       lcd_put_wchar(':'); n--;
       const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
       const lcd_uint_t valrow = n < len ? 2 : 1;    // Value on the next row if it won't fit

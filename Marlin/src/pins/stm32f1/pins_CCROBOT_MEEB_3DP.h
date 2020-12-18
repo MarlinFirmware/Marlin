@@ -24,7 +24,7 @@
 #if NOT_TARGET(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "CCROBOT-ONLINE MEEB_3DP only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "CCROBOT-ONLINE MEEB_3DP only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 // https://github.com/ccrobot-online/MEEB_3DP
@@ -165,7 +165,6 @@
 // SD-NAND
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI1
   #define SD_DETECT_PIN                     -1
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6

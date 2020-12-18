@@ -180,7 +180,7 @@ bool Stepper::abort_current_block;
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 uint8_t Stepper::steps_per_isr;
 
-TERN(ADAPTIVE_STEP_SMOOTHING,,constexpr) uint8_t Stepper::oversampling_factor;
+IF_DISABLED(ADAPTIVE_STEP_SMOOTHING, constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -2255,7 +2255,6 @@ uint32_t Stepper::block_phase_isr() {
         interval = LA_isr_rate;
       }
       else if (step_events_completed < decelerate_after && LA_current_adv_steps < LA_max_adv_steps) {
-             //step_events_completed <= (uint32_t)accelerate_until) {
         LA_steps++;
         LA_current_adv_steps++;
         interval = LA_isr_rate;
@@ -2265,6 +2264,8 @@ uint32_t Stepper::block_phase_isr() {
     }
     else
       interval = LA_ADV_NEVER;
+
+    if (!LA_steps) return interval; // Leave pins alone if there are no steps!
 
     DIR_WAIT_BEFORE();
 
@@ -2962,7 +2963,7 @@ void Stepper::report_positions() {
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
     void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
-      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
+      if (WITHIN(driver, 0, MOTOR_CURRENT_COUNT - 1))
         motor_current_setting[driver] = current; // update motor_current_setting
 
       if (!initialized) return;

@@ -84,7 +84,7 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
-  static int codenum;                     // 123
+  static uint16_t codenum;                // 123
   #if ENABLED(USE_GCODE_SUBCODES)
     static uint8_t subcode;               // .1
   #endif
@@ -244,8 +244,11 @@ public:
     static bool chain();
   #endif
 
+  // Test whether the parsed command matches the input
+  static inline bool is_command(const char ltr, const uint16_t num) { return command_letter == ltr && codenum == num; }
+
   // The code value pointer was set
-  FORCE_INLINE static bool has_value() { return value_ptr != nullptr; }
+  FORCE_INLINE static bool has_value() { return !!value_ptr; }
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
@@ -326,6 +329,10 @@ public:
 
   #endif
 
+  static inline bool using_inch_units() { return mm_to_linear_unit(1.0f) != 1.0f; }
+
+  #define IN_TO_MM(I)        ((I) * 25.4f)
+  #define MM_TO_IN(M)        ((M) / 25.4f)
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
