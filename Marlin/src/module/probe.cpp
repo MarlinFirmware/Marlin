@@ -376,9 +376,6 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool deploy_stow_condition = true;
   #endif
 
-  // If preheating is required before any probing...
-  TERN_(PREHEAT_BEFORE_PROBING, preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
-
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)
     const bool unknown_condition = axis_is_trusted(Z_AXIS);
@@ -422,6 +419,9 @@ bool Probe::set_deployed(const bool deploy) {
     probe_specific_action(deploy);
 
   #endif
+
+  // If preheating is required before any probing...
+  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
   do_blocking_move_to(old_xy);
   endstops.enable_z_probe(deploy);
