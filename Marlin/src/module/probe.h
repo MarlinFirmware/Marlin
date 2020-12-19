@@ -202,7 +202,7 @@ public:
     static void servo_probe_init();
   #endif
 
-  #if QUIET_PROBING
+  #if HAS_QUIET_PROBING
     static void set_probing_paused(const bool p);
   #endif
 

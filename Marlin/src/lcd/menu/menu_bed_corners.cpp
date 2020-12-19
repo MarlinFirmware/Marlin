@@ -104,7 +104,7 @@ static int8_t bed_corner;
     #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
       bltouch.deploy(); // DEPLOY in LOW SPEED MODE on every probe action
     #endif
-    TERN_(QUIET_PROBING, probe.set_probing_paused(true));
+    TERN_(HAS_QUIET_PROBING, probe.set_probing_paused(true));
 
     // Move down until the probe is triggered
     do_blocking_move_to_z(last_z - (LEVEL_CORNERS_PROBE_TOLERANCE), manual_feedrate_mm_s.z);
@@ -141,7 +141,7 @@ static int8_t bed_corner;
       TERN_(LEVEL_CORNERS_VERIFY_RAISED, verify_corner = true);
     }
 
-    TERN_(QUIET_PROBING, probe.set_probing_paused(false));
+    TERN_(HAS_QUIET_PROBING, probe.set_probing_paused(false));
 
     #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
       bltouch.stow();

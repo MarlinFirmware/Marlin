@@ -73,7 +73,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if QUIET_PROBING
+#if HAS_QUIET_PROBING
   #include "stepper/indirection.h"
 #endif
 
@@ -236,7 +236,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #endif // Z_PROBE_ALLEN_KEY
 
-#if QUIET_PROBING
+#if HAS_QUIET_PROBING
 
   void Probe::set_probing_paused(const bool p) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause(p));
@@ -254,7 +254,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     );
   }
 
-#endif // QUIET_PROBING
+#endif // HAS_QUIET_PROBING
 
 /**
  * Raise Z to a minimum height to make room for a probe to move
@@ -437,7 +437,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     endstops.enable(true);
   #endif
 
-  TERN_(QUIET_PROBING, set_probing_paused(true));
+  TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
 
   // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
@@ -451,7 +451,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     #endif
   ;
 
-  TERN_(QUIET_PROBING, set_probing_paused(false));
+  TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
