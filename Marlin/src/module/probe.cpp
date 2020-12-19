@@ -488,7 +488,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
    * @return TRUE if the tare cold not be completed
    */
   bool Probe::tare() {
-    #if ENABLED(PROBE_TARE_ONLY_WHILE_INACTIVE)
+    #if BOTH(PROBE_ACTIVATION_SWITCH, PROBE_TARE_ONLY_WHILE_INACTIVE)
       if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE) {
         SERIAL_ECHOLNPGM("Cannot tare an active probe");
         return true;
