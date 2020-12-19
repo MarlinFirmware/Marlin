@@ -280,13 +280,11 @@ void Endstops::init() {
     #endif
   #endif
 
-  #if PIN_EXISTS(PROBE_ACTIVE_INPUT)
-    SET_INPUT(PROBE_ACTIVE_INPUT_PIN);
+  #if PIN_EXISTS(PROBE_ACTIVATION_SWITCH)
+    SET_INPUT(PROBE_ACTIVATION_SWITCH_PIN);
   #endif
 
-  #if ENABLED(PROBE_TARE)
-    probe.tare_z_probe();
-  #endif
+  TERN_(PROBE_TARE, probe.tare());
 
   TERN_(ENDSTOP_INTERRUPTS_FEATURE, setup_endstop_interrupts());
 
@@ -466,8 +464,8 @@ void _O2 Endstops::report_states() {
   #if HAS_Z4_MAX
     ES_REPORT(Z4_MAX);
   #endif
-  #if ENABLED(PROBE_ACTIVE_INPUT)
-    print_es_state(READ(PROBE_ACTIVE_INPUT_PIN) == PROBE_ACTIVE_INPUT_STATE, PSTR("Probe Enable Pin"));
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
+    print_es_state(READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE, PSTR("Probe Enable Pin"));
   #endif
   #if HAS_CUSTOM_PROBE_PIN
     print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
@@ -618,8 +616,8 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if ENABLED(PROBE_ACTIVE_INPUT)
-    if (READ(PROBE_ACTIVE_INPUT_PIN) == PROBE_ACTIVE_INPUT_STATE)
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
+    if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE)
   #endif
     {
       UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));

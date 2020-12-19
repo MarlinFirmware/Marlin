@@ -207,7 +207,7 @@ public:
   #endif
 
   #if ENABLED(PROBE_TARE)
-    static bool tare_z_probe();
+    static bool tare();
   #endif
 
 private:

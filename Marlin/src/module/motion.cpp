@@ -1594,7 +1594,7 @@ void homeaxis(const AxisEnum axis) {
       if (bltouch.deploy()) return; // The initial DEPLOY
     #endif
     #if BOTH(HOMING_Z_WITH_PROBE, PROBE_TARE)
-      if (probe.tare_z_probe()) return;
+      if (probe.tare()) return;
     #endif
   }
 

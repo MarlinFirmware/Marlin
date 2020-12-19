@@ -487,9 +487,9 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
    *
    * @return TRUE if the tare cold not be completed
    */
-  bool Probe::tare_z_probe() {
+  bool Probe::tare() {
     #if ENABLED(PROBE_TARE_ONLY_WHILE_INACTIVE)
-      if ((READ(PROBE_ACTIVE_INPUT_PIN) == PROBE_ACTIVE_INPUT_STATE)) {
+      if ((READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE)) {
         SERIAL_ECHOLN("Cannot tare probe, already active");
         return true;
       }
@@ -522,7 +522,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     // Do a first probe at the fast speed
 
     #if ENABLED(PROBE_TARE)
-      if(tare_z_probe()) return true;
+      if (tare()) return true;
     #endif
 
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
@@ -550,7 +550,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
     // Do a first probe at the fast speed
     #if ENABLED(PROBE_TARE)
-      if(tare_z_probe()) return NAN;
+      if (tare()) return NAN;
     #endif
 
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
@@ -590,10 +590,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     )
   #endif
     {
+      // If the probe won't tare, return
+      if (TERN0(PROBE_TARE, tare()) return true;
+
       // Probe downward slowly to find the bed
-      #if ENABLED(PROBE_TARE)
-        if(tare_z_probe()) return true;
-      #endif
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
                        sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
 
