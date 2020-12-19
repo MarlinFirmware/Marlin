@@ -48,6 +48,9 @@ SCREEN_TABLE {
 #if ENABLED(CALIBRATION_GCODE)
   DECL_SCREEN(ConfirmAutoCalibrationDialogBox),
 #endif
+#if ENABLED(CUSTOM_USER_MENUS)
+  DECL_SCREEN(CustomUserMenus),
+#endif
   DECL_SCREEN(SpinnerDialogBox),
   DECL_SCREEN(AboutScreen),
 #if ENABLED(PRINTCOUNTER)

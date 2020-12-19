@@ -106,6 +106,9 @@ enum {
 #if ENABLED(SDSUPPORT)
   FILES_SCREEN_CACHE,
 #endif
+#if ENABLED(CUSTOM_USER_MENUS)
+  CUSTOM_USER_MENUS_SCREEN_CACHE,
+#endif
   CHANGE_FILAMENT_SCREEN_CACHE,
   INTERFACE_SETTINGS_SCREEN_CACHE,
   INTERFACE_SOUNDS_SCREEN_CACHE,
@@ -246,6 +249,14 @@ class ConfirmUserRequestAlertBox : public AlertDialogBox {
     static void hide();
     static void show(const char*);
 };
+
+#if ENABLED(CUSTOM_USER_MENUS)
+class CustomUserMenus : public BaseScreen, public CachedScreen<CUSTOM_USER_MENUS_SCREEN_CACHE> {
+  public:
+    static void onRedraw(draw_mode_t);
+    static bool onTouchEnd(uint8_t tag);
+};
+#endif
 
 class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_CACHE,SPINNER_DL_SIZE> {
   public:
