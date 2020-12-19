@@ -1589,14 +1589,12 @@ void homeaxis(const AxisEnum axis) {
   // Fast move towards endstop until triggered
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
-  if (axis == Z_AXIS) {
-    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (bltouch.deploy()) return; // The initial DEPLOY
-    #endif
-    #if BOTH(HOMING_Z_WITH_PROBE, PROBE_TARE)
-      if (probe.tare()) return;
-    #endif
-  }
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS) {
+      if (TERN0(BLTOUCH, bltouch.deploy())) return;
+      if (TERN0(PROBE_TARE, probe.tare())) return;
+    }
+  #endif
 
   #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
     const xy_float_t backoff = SENSORLESS_BACKOFF_MM;

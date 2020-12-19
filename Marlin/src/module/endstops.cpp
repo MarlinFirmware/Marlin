@@ -616,12 +616,15 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE)
+  #if HAS_BED_PROBE
+    // When closing the gap check the enabled probe
+    const bool do_check_probe = (true
+      #if ENABLED(PROBE_ACTIVATION_SWITCH)
+        || READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE;
+      #endif
+    );
+    if (do_check_probe) UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
   #endif
-    {
-      UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
-    }
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS
     // Check both Z dual endstops

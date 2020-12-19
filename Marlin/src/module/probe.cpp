@@ -483,23 +483,22 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   /**
    * @brief Tare the Z probe
    *
-   * @details Signals to the probe to tare measurement
+   * @details Signal to the probe to tare itself
    *
    * @return TRUE if the tare cold not be completed
    */
   bool Probe::tare() {
     #if ENABLED(PROBE_TARE_ONLY_WHILE_INACTIVE)
-      if ((READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE)) {
-        SERIAL_ECHOLN("Cannot tare probe, already active");
+      if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE) {
+        SERIAL_ECHOLNPGM("Cannot tare an active probe");
         return true;
       }
     #endif
 
-    SERIAL_ECHOLN("Taring the probe");
-    const uint8_t value = !PROBE_TARE_STATE ? HIGH : LOW;
+    SERIAL_ECHOLNPGM("Taring probe");
     OUT_WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
-    OUT_WRITE(PROBE_TARE_PIN, value);
+    OUT_WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
     delay(PROBE_TARE_DELAY);
 
     endstops.hit_on_purpose();
@@ -591,7 +590,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
     {
       // If the probe won't tare, return
-      if (TERN0(PROBE_TARE, tare()) return true;
+      if (TERN0(PROBE_TARE, tare())) return true;
 
       // Probe downward slowly to find the bed
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
