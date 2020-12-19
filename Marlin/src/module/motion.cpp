@@ -1321,7 +1321,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
 
@@ -1360,7 +1360,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 
