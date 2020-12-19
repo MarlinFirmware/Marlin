@@ -36,12 +36,9 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if EITHER(PROBE_TEMP_COMPENSATION, PREHEAT_BEFORE_LEVELING)
-  #include "../../../module/temperature.h"
-#endif
-
 #if ENABLED(PROBE_TEMP_COMPENSATION)
   #include "../../../feature/probe_temp_comp.h"
+  #include "../../../module/temperature.h"
 #endif
 
 #if HAS_DISPLAY
@@ -404,33 +401,13 @@ G29_TYPE GcodeSuite::G29() {
       ExtUI::onMeshLevelingStart();
     #endif
 
-    if (!faux) remember_feedrate_scaling_off();
+    if (!faux) {
+      remember_feedrate_scaling_off();
 
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      #ifndef LEVELING_NOZZLE_TEMP
-        #define LEVELING_NOZZLE_TEMP 0
+      #if ENABLED(PREHEAT_BEFORE_LEVELING)
+        if (!dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
       #endif
-      #ifndef LEVELING_BED_TEMP
-        #define LEVELING_BED_TEMP 0
-      #endif
-      if (!dryrun && !faux) {
-        const uint16_t hotendPreheat = TERN0(HAS_HOTEND,     thermalManager.degHotend(0) < (LEVELING_NOZZLE_TEMP)) ? (LEVELING_NOZZLE_TEMP) : 0,
-                          bedPreheat = TERN0(HAS_HEATED_BED, thermalManager.degBed()     < (LEVELING_BED_TEMP))    ? (LEVELING_BED_TEMP)    : 0;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Preheating "
-          #if HAS_HOTEND
-            "hotend (", hotendPreheat, ") " TERN_(HAS_HEATED_BED, "and ")
-          #endif
-          #if HAS_HEATED_BED
-            "bed (", bedPreheat, ")"
-          #endif
-        );
-        TERN_(HAS_HOTEND,     if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0));
-        TERN_(HAS_HEATED_BED, if (bedPreheat)    thermalManager.setTargetBed(bedPreheat));
-        TERN_(HAS_HOTEND,     if (hotendPreheat) thermalManager.wait_for_hotend(0));
-        TERN_(HAS_HEATED_BED, if (bedPreheat)    thermalManager.wait_for_bed_heating());
-        UNUSED(hotendPreheat); UNUSED(bedPreheat);
-      }
-    #endif
+    }
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
