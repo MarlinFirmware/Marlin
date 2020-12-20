@@ -465,7 +465,7 @@ void _O2 Endstops::report_states() {
     ES_REPORT(Z4_MAX);
   #endif
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    print_es_state(READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE, PSTR("Probe Enable Pin"));
+    print_es_state(READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE, PSTR(STR_PROBE_EN));
   #endif
   #if HAS_CUSTOM_PROBE_PIN
     print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
