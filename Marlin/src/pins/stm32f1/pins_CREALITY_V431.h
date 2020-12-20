@@ -21,7 +21,7 @@
  */
 
 /**
- * CREALITY v4.2.7 (STM32F103) board pin assignments
+ * CREALITY v4.3.1 (STM32F103) board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)
@@ -29,7 +29,7 @@
 #endif
 
 #define BOARD_INFO_NAME      "Creality v4.3.1"
-#define DEFAULT_MACHINE_NAME "Ender 6"
+#define DEFAULT_MACHINE_NAME "Creality3D"
 
 //
 // Steppers
