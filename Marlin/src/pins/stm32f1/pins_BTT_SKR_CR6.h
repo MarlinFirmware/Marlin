@@ -140,31 +140,18 @@
  * TMC2209 stepper drivers
  * Hardware serial communication ports.
  */
+
 #if HAS_TMC220x
-
-  //
-  // TMC2208 mode
-  //
-  // #define TMC2208_STANDALONE
-
   #define X_HARDWARE_SERIAL  MSerial4
   #define Y_HARDWARE_SERIAL  MSerial4
   #define Z_HARDWARE_SERIAL  MSerial4
   #define E0_HARDWARE_SERIAL MSerial4
-
-  //
-  // TMC2208 Software serial
-  //
-  // #define HAVE_SW_SERIAL
-
-  // Reduce baud rate to improve software serial reliability
-  // #define TMC_BAUD_RATE 19200
-
 #endif
 
 //
 // SD Card
 //
+
 #define HAS_ONBOARD_SD
 
 #ifndef SDCARD_CONNECTION
