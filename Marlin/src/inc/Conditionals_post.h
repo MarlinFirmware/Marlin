@@ -1647,6 +1647,54 @@
   #ifndef E7_INTERPOLATE
     #define E7_INTERPOLATE INTERPOLATE
   #endif
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  0
+  #endif
+  #ifndef X2_SLAVE_ADDRESS
+    #define X2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Y2_SLAVE_ADDRESS
+    #define Y2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z2_SLAVE_ADDRESS
+    #define Z2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z3_SLAVE_ADDRESS
+    #define Z3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z4_SLAVE_ADDRESS
+    #define Z4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E1_SLAVE_ADDRESS
+    #define E1_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E2_SLAVE_ADDRESS
+    #define E2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E3_SLAVE_ADDRESS
+    #define E3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E4_SLAVE_ADDRESS
+    #define E4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E5_SLAVE_ADDRESS
+    #define E5_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E6_SLAVE_ADDRESS
+    #define E6_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E7_SLAVE_ADDRESS
+    #define E7_SLAVE_ADDRESS 0
+  #endif
 #endif
 
 #if (HAS_E_DRIVER(TMC2660) \
