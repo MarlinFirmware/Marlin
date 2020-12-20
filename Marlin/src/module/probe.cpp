@@ -326,15 +326,17 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 }
 
 #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-  #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
-    #define WAIT_FOR_NOZZLE_HEAT
-  #endif
-  #if PROBING_BED_TEMP || LEVELING_BED_TEMP
-    #define WAIT_FOR_BED_HEAT
-  #endif
 
-  // Do preheating as required before leveling or probing...
+  /**
+   * Do preheating as required before leveling or probing
+   */
   void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
+    #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
+      #define WAIT_FOR_NOZZLE_HEAT
+    #endif
+    #if PROBING_BED_TEMP || LEVELING_BED_TEMP
+      #define WAIT_FOR_BED_HEAT
+    #endif
     const uint16_t hotendPreheat = TERN0(WAIT_FOR_NOZZLE_HEAT, thermalManager.degHotend(0) < hotend_temp) ? hotend_temp : 0,
                       bedPreheat = TERN0(WAIT_FOR_BED_HEAT,    thermalManager.degBed()     < bed_temp)    ? bed_temp    : 0;
     DEBUG_ECHOPGM("Preheating ");
