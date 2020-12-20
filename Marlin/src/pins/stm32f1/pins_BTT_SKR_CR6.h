@@ -172,10 +172,12 @@
   #define SDCARD_CONNECTION ONBOARD
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1    // SPI1
-#define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
+#if SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN      PC4
 
-#define SD_DETECT_PIN      PC4
+  #define ON_BOARD_SPI_DEVICE 1    // SPI1
+  #define ONBOARD_SD_CS_PIN  PA4   // Chip select for "System" SD card
+#endif
 
 //
 // Misc. Functions
