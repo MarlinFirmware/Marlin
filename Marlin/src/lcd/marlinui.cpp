@@ -923,7 +923,7 @@ void MarlinUI::update() {
 
       TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
 
-      if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
+      if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
       uint8_t abs_diff = ABS(encoderDiff);

@@ -367,8 +367,9 @@
 #define BOARD_FLYF407ZG               4217  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4218  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4219  // MKS Robin Pro V2 (STM32F407VE)
-#define BOARD_ANET_ET4                4220  // ANET ET4-MB_V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4221  // ANET ET4P-MB_V1.x (STM32F407VGT6)
+#define BOARD_MKS_ROBIN_NANO_V3       4220  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_ANET_ET4                4221  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4222  // ANET ET4P V1.x (STM32F407VGT6)
 
 //
 // ARM Cortex M7
