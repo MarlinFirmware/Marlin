@@ -325,6 +325,36 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #endif
 }
 
+#if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+
+  /**
+   * Do preheating as required before leveling or probing
+   */
+  void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
+    #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
+      #define WAIT_FOR_NOZZLE_HEAT
+    #endif
+    #if PROBING_BED_TEMP || LEVELING_BED_TEMP
+      #define WAIT_FOR_BED_HEAT
+    #endif
+    const uint16_t hotendPreheat = TERN0(WAIT_FOR_NOZZLE_HEAT, thermalManager.degHotend(0) < hotend_temp) ? hotend_temp : 0,
+                      bedPreheat = TERN0(WAIT_FOR_BED_HEAT,    thermalManager.degBed()     < bed_temp)    ? bed_temp    : 0;
+    DEBUG_ECHOPGM("Preheating ");
+    if (hotendPreheat) {
+      DEBUG_ECHOPAIR("hotend (", hotendPreheat, ") ");
+      if (bedPreheat) DEBUG_ECHOPGM("and ");
+    }
+    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ") ");
+    DEBUG_EOL();
+
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.setTargetBed(bedPreheat));
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.wait_for_hotend(0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.wait_for_bed_heating());
+  }
+
+#endif
+
 /**
  * Attempt to deploy or stow the probe
  *
@@ -391,6 +421,9 @@ bool Probe::set_deployed(const bool deploy) {
     probe_specific_action(deploy);
 
   #endif
+
+  // If preheating is required before any probing...
+  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
   do_blocking_move_to(old_xy);
   endstops.enable_z_probe(deploy);
