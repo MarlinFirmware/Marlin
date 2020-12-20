@@ -37,11 +37,22 @@ namespace FTDI {
     // split and still allow the ellipsis to fit.
     int16_t lineWidth = 0;
     char *breakPoint   = str;
-    for (char* c = str; *c; c++) {
-      lineWidth += fm.get_char_width(*c);
-      if (lineWidth + ellipsisWidth < w)
-        breakPoint = c;
-    }
+    #ifdef TOUCH_UI_USE_UTF8
+      char *tstr = str;
+      while (*tstr) {
+        breakPoint = tstr;
+        const utf8_char_t c = get_utf8_char_and_inc(tstr);
+        lineWidth += fm.get_char_width(c);
+        if (lineWidth + ellipsisWidth < w)
+          break;
+      }
+    #else
+      for (char* c = str; *c; c++) {
+        lineWidth += fm.get_char_width(*c);
+        if (lineWidth + ellipsisWidth < w)
+          breakPoint = c;
+      }
+    #endif
 
     if (lineWidth > w) {
       *breakPoint = '\0';

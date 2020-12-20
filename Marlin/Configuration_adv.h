@@ -1546,6 +1546,8 @@
   // Unsupported characters are shown as '?'.
   //#define TOUCH_UI_USE_UTF8
   #if ENABLED(TOUCH_UI_USE_UTF8)
+    //#define TOUCH_UI_UTF8_CYRILLIC_CHARSET // Russian subset of characters, costs about 27KiB of flash
+
     // Western accents support. These accented characters use
     // combined bitmaps and require relatively little storage.
     #define TOUCH_UI_UTF8_WESTERN_CHARSET
