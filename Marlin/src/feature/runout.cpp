@@ -84,6 +84,8 @@ void event_filament_runout(const uint8_t extruder) {
     }
   #endif
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(extruder));
+
   const char tool = '0'
     #if E_STEPPERS > 1
       + extruder
