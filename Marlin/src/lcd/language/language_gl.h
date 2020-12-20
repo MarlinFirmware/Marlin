@@ -92,12 +92,8 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefriar");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Láser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Láser Apagado");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Láser Aceso");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potencia Láser");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Control Fuso");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Fuso Apagado");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Fuso Aceso");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potencia Fuso");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Inverter xiro");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Acender");

@@ -98,12 +98,8 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Охлаждение");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Частота");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Управление лазером");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Выключить лазер");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Включить лазер");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Мощность лазера");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Управление шпинделем");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Выключить шпиндель");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Включить шпиндель");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Мощность шпинделя");
   #else

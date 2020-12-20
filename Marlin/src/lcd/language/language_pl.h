@@ -89,12 +89,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Rozgrzej własne ust.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Chłodzenie");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Sterowanie Lasera");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Wyłącz Laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Włącz Laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Zasilanie Lasera");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Sterowanie wrzeciona");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Wyłącz wrzeciono");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Włącz wrzeciono");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Zasilanie wrzeciona");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Rewers wrzeciona");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Włącz zasilacz");

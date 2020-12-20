@@ -94,12 +94,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Visszahütés");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lézer Vezérlés");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Lézer Ki");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Lézer Be");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Lézer Teljesítmény");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Orsó Vezérlés");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Orsó Ki");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Orsó Be");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Orsó Teljesítmény");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Orsó Hátra");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Bekapcsolás");
