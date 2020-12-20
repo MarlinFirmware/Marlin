@@ -146,7 +146,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Індекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Власні команди");
-  
+
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест зонду");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 точка");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Зонд за межами");
@@ -814,14 +814,12 @@ namespace Language_uk {
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Звук");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Верхній лівий");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Нижній лівий");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Верхній правий");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Нижній правий");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Калібрування успішне");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Збій калібрування");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Верхній лівий");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Нижній лівий");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Верхній правий");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Нижній правий");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Калібрування успішне");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Збій калібрування");
 }
 
 #if FAN_COUNT == 1

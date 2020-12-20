@@ -812,14 +812,12 @@ namespace Language_ru {
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Звук");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Верхний левый");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Нижний левый");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Верхний правый");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Нижний правый");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Калибровка успешна");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Ошибка калибровки");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Верхний левый");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Нижний левый");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Верхний правый");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Нижний правый");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Калибровка успешна");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Ошибка калибровки");
 }
 
 #if FAN_COUNT == 1
