@@ -12,6 +12,12 @@
     "mcu": "atmega2560",
     "variant": "fysetcf6"
   },
+  "debug": {
+    "simavr_target": "atmega2560",
+    "avr-stub": {
+      "speed": 115200
+    }
+  },
   "frameworks": [
     "arduino"
   ],
