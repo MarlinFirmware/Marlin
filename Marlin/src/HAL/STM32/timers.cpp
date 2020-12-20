@@ -171,7 +171,7 @@ static constexpr uintptr_t default_preferred_timers[] = {
   // default selection order is fine
   static constexpr uintptr_t mcu_preferred_timers[] = {0};
 #else
-  #error "MCU not yet supported in this HAL"A0
+  #error "MCU not yet supported in this HAL"
 #endif
 
 #define _TIMER_DEV(X) TIM##X
