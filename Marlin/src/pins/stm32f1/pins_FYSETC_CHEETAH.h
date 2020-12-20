@@ -86,6 +86,7 @@
   #define Z_HARDWARE_SERIAL  MSerial2
   #define E0_HARDWARE_SERIAL MSerial2
 
+  // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
   #endif

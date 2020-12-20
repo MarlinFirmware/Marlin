@@ -49,11 +49,11 @@
   #define CONTROLLER_FAN_PIN               FAN1_PIN
 #endif
 
-/**
- * TMC220x stepper drivers
- * Hardware serial communication ports.
- */
 #if HAS_TMC_UART
+  /**
+   * TMC220x stepper drivers
+   * Hardware serial communication ports
+   */
   #define X_HARDWARE_SERIAL  MSerial4
   #define Y_HARDWARE_SERIAL  MSerial4
   #define Z_HARDWARE_SERIAL  MSerial4
