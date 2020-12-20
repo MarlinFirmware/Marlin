@@ -34,8 +34,12 @@
 * (T=397)/(B=417)/(b=141)
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
-//#define BMG                        //(B) Uncomment to change Extruder step(417).
-//#define Mini                       //(b) Uncomment BMG&Mini to change Extruder step(141).
+
+// Uncomment for BMG Extruder (B) Extruder step(417).
+//#define EXTRUDER_STEPS 417
+
+//Uncomment for BMG Mini (b) Extruder step(141).
+//#define EXTRUDER_STEPS 141         
 
 //#define FLYING                     //(Y) Uncomment to change Extruder flying (You must modified the parameters of DELTA part)
 
@@ -69,11 +73,8 @@
 //Choice add menu on TFT: (OPT)
 #define LCD_INFO_MENU              // Informations printer.
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
-#define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle.
 #define PID_AUTOTUNE_MENU          // tune auto PID
-
-#define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
 
 // ---Expe tools
 //#define LEVEL_BED_CORNERS
@@ -101,6 +102,20 @@
   #define TFT_DRIVER AUTO
   #define TFT_INTERFACE_FSMC
   #define TFT_RES_320x240
+#endif
+
+//variables to calculate steps and current
+#ifndef EXTRUDER_STEPS
+  #define EXTRUDER_STEPS 397
+#endif
+#ifndef XYZ_CURRENT
+  #define XYZ_CURRENT       900
+#endif
+#ifndef XYZ_CURRENT_HOME
+  #define XYZ_CURRENT_HOME  800
+#endif  
+ #ifndef E_CURRENT
+  #define E_CURRENT         850
 #endif
 
 //Set for A4988 
