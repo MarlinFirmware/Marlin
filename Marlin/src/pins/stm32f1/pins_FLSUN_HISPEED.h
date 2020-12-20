@@ -32,7 +32,7 @@
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "FLSUN HiSpeedV1 supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "FLSUN HiSpeedV1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME      "FLSun HiSpeedV1"
@@ -60,9 +60,9 @@
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
 #define SPI_DEVICE 2
-#define SCK_PIN                           PB13  // SPI2
-#define MISO_PIN                          PB14  // SPI2
-#define MOSI_PIN                          PB15  // SPI2
+#define SCK_PIN                            PB13  // SPI2
+#define MISO_PIN                           PB14  // SPI2
+#define MOSI_PIN                           PB15  // SPI2
 
 // SPI Flash
 #define HAS_SPI_FLASH                       1
@@ -310,8 +310,8 @@
 #endif
 
 #if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
-  #define TFT_CS_PIN                        PD7  // NE4
-  #define TFT_RS_PIN                        PD11   // A0
+  #define TFT_CS_PIN                        PD7   // NE4
+  #define TFT_RS_PIN                        PD11  // A0
 #endif
 
 #if HAS_FSMC_TFT
@@ -324,10 +324,10 @@
    * If the screen stays white, disable 'LCD_RESET_PIN'
    * to let the bootloader init the screen.
    *
-   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  //#define TFT_RESET_PIN                     PC6   // FSMC_RST
+  //#define TFT_RESET_PIN                   PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
   #define FSMC_CS_PIN                 TFT_CS_PIN  // NE4
   #define FSMC_RS_PIN                 TFT_RS_PIN  // A0
@@ -335,12 +335,12 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-  #if ENABLED(TFT_CLASSIC_UI)
+  #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
-  #endif
+  #endif  
   #define TFT_BUFFER_SIZE                  14400
 #elif HAS_GRAPHICAL_TFT
   #define TFT_RESET_PIN                     PC6

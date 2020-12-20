@@ -1647,6 +1647,54 @@
   #ifndef E7_INTERPOLATE
     #define E7_INTERPOLATE INTERPOLATE
   #endif
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  0
+  #endif
+  #ifndef X2_SLAVE_ADDRESS
+    #define X2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Y2_SLAVE_ADDRESS
+    #define Y2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z2_SLAVE_ADDRESS
+    #define Z2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z3_SLAVE_ADDRESS
+    #define Z3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z4_SLAVE_ADDRESS
+    #define Z4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E1_SLAVE_ADDRESS
+    #define E1_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E2_SLAVE_ADDRESS
+    #define E2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E3_SLAVE_ADDRESS
+    #define E3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E4_SLAVE_ADDRESS
+    #define E4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E5_SLAVE_ADDRESS
+    #define E5_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E6_SLAVE_ADDRESS
+    #define E6_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E7_SLAVE_ADDRESS
+    #define E7_SLAVE_ADDRESS 0
+  #endif
 #endif
 
 #if (HAS_E_DRIVER(TMC2660) \
@@ -2317,11 +2365,7 @@
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
   #ifndef XY_PROBE_SPEED
-    #ifdef HOMING_FEEDRATE_XY
-      #define XY_PROBE_SPEED HOMING_FEEDRATE_XY
-    #else
-      #define XY_PROBE_SPEED 4000
-    #endif
+    #define XY_PROBE_SPEED ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
@@ -2377,7 +2421,7 @@
 #endif
 
 #if HAS_BED_PROBE && (EITHER(PROBING_HEATERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
-  #define QUIET_PROBING 1
+  #define HAS_QUIET_PROBING 1
 #endif
 #if EITHER(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
