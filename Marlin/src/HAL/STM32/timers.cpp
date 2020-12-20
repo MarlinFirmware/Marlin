@@ -146,12 +146,7 @@ static constexpr uintptr_t default_preferred_timers[] = {
 
 // mcu_preferred_timers allows a customized list of timers to be considered before the
 // default_preferred_timers above.
-#ifdef STM32F0xx
-  static constexpr uintptr_t mcu_preferred_timers[] = {
-      uintptr_t(TIM16),
-      uintptr_t(TIM17)
-  }
-#elif defined(STM32F1xx)
+#if defined(STM32F1xx)
   // Customized preferences for F1 chips
   // This defers to historic precedent, since these timers were most likely left without
   // usage by fans.
@@ -171,36 +166,39 @@ static constexpr uintptr_t default_preferred_timers[] = {
     #endif
     uintptr_t(TIM2),
     uintptr_t(TIM4),
-  };
-#elif defined(STM32F4xx) || defined(STM32F7xx)
+    };
+#elif defined(STM32F0xx) || defined(STM32F4xx) || defined(STM32F7xx)
   // default selection order is fine
   static constexpr uintptr_t mcu_preferred_timers[] = {0};
+#else
+  #error "MCU not yet supported in this HAL"A0
 #endif
 
 #define _TIMER_DEV(X) TIM##X
 #define TIMER_DEV(X) _TIMER_DEV(X)
 
 static constexpr uintptr_t timers_in_use[] = {
-  #if HAS_TMC_SW_SERIAL
-    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if ENABLED(SPEAKER)
-    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if HAS_SERVOS
-    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #ifdef STEP_TIMER
-    uintptr_t(TIMER_DEV(STEP_TIMER)),
-  #endif
-  #ifdef TEMP_TIMER
-    uintptr_t(TIMER_DEV(TEMP_TIMER))
-  #endif
+    #if HAS_TMC_SW_SERIAL
+      uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #if ENABLED(SPEAKER)
+      uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #if HAS_SERVOS
+      uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #ifdef STEP_TIMER
+      uintptr_t(TIMER_DEV(STEP_TIMER)),
+    #endif
+    #ifdef TEMP_TIMER
+      uintptr_t(TIMER_DEV(TEMP_TIMER)),
+    #endif
+    0u
   };
 
 static constexpr bool is_timer_in_use(uintptr_t timer) {
   for (auto timer_in_use : timers_in_use)
-    if (timer_in_use == timer) return true;
+    if (timer_in_use && timer_in_use == timer) return true;
   return false;
 }
 
