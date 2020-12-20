@@ -1409,6 +1409,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable it or comment out this line to continue."
   #endif
 
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
+    #ifndef PROBE_ACTIVATION_SWITCH_STATE
+      #error "PROBE_ACTIVATION_SWITCH_STATE is required for PROBE_ACTIVATION_SWITCH."
+    #elif !PIN_EXISTS(PROBE_ACTIVATION_SWITCH)
+      #error "A PROBE_ACTIVATION_SWITCH_PIN is required for PROBE_ACTIVATION_SWITCH."
+    #endif
+  #endif
+
 #else
 
   /**
@@ -1512,6 +1520,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #endif
+#endif
+
+#if BOTH(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #error "Disable PREHEAT_BEFORE_LEVELING when using PREHEAT_BEFORE_PROBING."
 #endif
 
 /**
