@@ -80,12 +80,12 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#define X_HARDWARE_SERIAL  MSerial2
-#define Y_HARDWARE_SERIAL  MSerial2
-#define Z_HARDWARE_SERIAL  MSerial2
-#define E0_HARDWARE_SERIAL MSerial2
+#if HAS_TMC_UART
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
 
-#if HAS_TRINAMIC_CONFIG
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
   #endif

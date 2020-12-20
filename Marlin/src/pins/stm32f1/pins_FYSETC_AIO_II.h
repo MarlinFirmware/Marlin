@@ -111,9 +111,7 @@
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 
-#endif
-
-#if HAS_TRINAMIC_CONFIG
+  // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
   #endif
