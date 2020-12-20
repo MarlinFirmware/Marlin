@@ -61,7 +61,13 @@ public:
   static void validate_calibration();
 
   static touch_calibration_t calibration;
+  static uint8_t             failed_count;
   static void calibration_reset() { calibration = { TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION }; }
+  // Don't nuke the current touchscreen calibration if it'll be replaced by invalid values, else it'll make navigation in the printer unusable
+  static void calibration_smart_reset() { 
+    if (need_calibration() && (TOUCH_CALIBRATION_X || TOUCH_CALIBRATION_Y || TOUCH_OFFSET_X || TOUCH_OFFSET_Y)) calibration_reset(); 
+    else failed_count = (uint8_t)(-1); // Remember a reset was asked so we can substitute the value with a zeroed area if queried to save in EEPROM
+  }
   static bool need_calibration() { return !calibration.offset_x && !calibration.offset_y && !calibration.x && !calibration.y; }
 
   static calibrationState calibration_start() {
@@ -75,10 +81,12 @@ public:
     calibration_points[CALIBRATION_TOP_RIGHT].y = 30;
     calibration_points[CALIBRATION_BOTTOM_RIGHT].x = TFT_WIDTH - 31;
     calibration_points[CALIBRATION_BOTTOM_RIGHT].y = TFT_HEIGHT - 31;
+    failed_count = 0;
     return calibration_state;
   }
   static void calibration_end() { calibration_state = CALIBRATION_NONE; }
   static calibrationState get_calibration_state() { return calibration_state; }
+  static void calibration_loaded() { if (need_calibration()) calibration_reset(); }
 
   static bool handleTouch(uint16_t x, uint16_t y);
 };

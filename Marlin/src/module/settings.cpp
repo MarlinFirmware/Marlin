@@ -1357,7 +1357,12 @@ void MarlinSettings::postprocess() {
     // TOUCH_SCREEN_CALIBRATION
     //
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      EEPROM_WRITE(touch_calibration.calibration);
+      if (touch_calibration.failed_count != (uint8_t)-1) EEPROM_WRITE(touch_calibration.calibration);
+      else {
+        // Calibration should have been restored to a zero'd default yet it's in use (so it's not zero), so let's write zeros instead
+        for (uint8_t c = 0, t = 0; t < sizeof(touch_calibration.calibration); t++)
+          EEPROM_WRITE(c);
+      }
     #endif
 
     //
@@ -2242,6 +2247,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         _FIELD_TEST(touch_calibration_data);
         EEPROM_READ(touch_calibration.calibration);
+        touch_calibration.calibration_loaded();
       #endif
 
       //
@@ -2573,7 +2579,7 @@ void MarlinSettings::reset() {
   //
   // TOUCH_SCREEN_CALIBRATION
   //
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_smart_reset());
 
   //
   // Buzzer enable/disable
