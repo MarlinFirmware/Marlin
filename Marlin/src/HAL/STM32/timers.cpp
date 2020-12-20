@@ -66,40 +66,182 @@
   #endif
 #endif
 
+// This list is based on the framework code in SoftwareSerial.cpp, which attempts to select the
+// timer least likely to be used on the system. This roughly correlates to how many external pins
+// these connect to, and how uncommon they are across MCU lines. Use this as the fallback order
+// if a match cannot be found the the MCU-specific list.
+static constexpr uintptr_t default_preferred_timers[] = {
+  #if defined (TIM18_BASE)
+    uintptr_t(TIM18),
+  #endif
+  #if defined (TIM7_BASE)
+    uintptr_t(TIM7),
+  #endif
+  #if defined (TIM6_BASE)
+    uintptr_t(TIM6),
+  #endif
+  #if defined (TIM22_BASE)
+    uintptr_t(TIM22),
+  #endif
+  #if defined (TIM21_BASE)
+    uintptr_t(TIM21),
+  #endif
+  #if defined (TIM17_BASE)
+    uintptr_t(TIM17),
+  #endif
+  #if defined (TIM16_BASE)
+    uintptr_t(TIM16),
+  #endif
+  #if defined (TIM15_BASE)
+    uintptr_t(TIM15),
+  #endif
+  #if defined (TIM14_BASE)
+    uintptr_t(TIM14),
+  #endif
+  #if defined (TIM13_BASE)
+    uintptr_t(TIM13),
+  #endif
+  #if defined (TIM11_BASE)
+    uintptr_t(TIM11),
+  #endif
+  #if defined (TIM10_BASE)
+    uintptr_t(TIM10),
+  #endif
+  #if defined (TIM12_BASE)
+    uintptr_t(TIM12),
+  #endif
+  #if defined (TIM19_BASE)
+    uintptr_t(TIM19),
+  #endif
+  #if defined (TIM9_BASE)
+    uintptr_t(TIM9),
+  #endif
+  #if defined (TIM5_BASE)
+    uintptr_t(TIM5),
+  #endif
+  #if defined (TIM4_BASE)
+    uintptr_t(TIM4),
+  #endif
+  #if defined (TIM3_BASE)
+    uintptr_t(TIM3),
+  #endif
+  #if defined (TIM2_BASE)
+    uintptr_t(TIM2),
+  #endif
+  #if defined (TIM20_BASE)
+    uintptr_t(TIM20),
+  #endif
+  #if defined (TIM8_BASE)
+    uintptr_t(TIM8),
+  #endif
+  #if defined (TIM1_BASE)
+    uintptr_t(TIM1),
+  #endif
+};
+
+// The platform's SoftwareSerial.cpp will use the first timer from the list above.
+#if HAS_TMC_SW_SERIAL && !defined(TIMER_SERIAL)
+  constexpr auto TIMER_SERIAL = default_preferred_timers[0];
+#endif
+
+// mcu_preferred_timers allows a customized list of timers to be considered before the
+// default_preferred_timers above.
 #ifdef STM32F0xx
-  #define MCU_STEP_TIMER 16
-  #define MCU_TEMP_TIMER 17
+  static constexpr uintptr_t mcu_preferred_timers[] = {
+      uintptr_t(TIM16),
+      uintptr_t(TIM17)
+  }
 #elif defined(STM32F1xx)
-  #define MCU_STEP_TIMER  4
-  #define MCU_TEMP_TIMER  2
-#elif defined(STM32F401xC) || defined(STM32F401xE)
-  #define MCU_STEP_TIMER  9
-  #define MCU_TEMP_TIMER 10
+  // Customized preferences for F1 chips
+  // This defers to historic precedent, since these timers were most likely left without
+  // usage by fans.
+  // TIM6/7 - Basic timers with no pin connections. Cannot conflict with fans.
+  // TIM5   - Previous default in STM32F1 HAL, most likely free on most boards
+  // TIM2   - Previous default in both STM32 and STM32F1 HALs
+  // TIM4   - Previous default in STM32 HAL and for value-line chips in STM32F1 HAL
+  static constexpr uintptr_t mcu_preferred_timers[] = {
+    #if defined (TIM6_BASE)
+      uintptr_t(TIM6),
+    #endif
+    #if defined (TIM7_BASE)
+      uintptr_t(TIM7),
+    #endif
+    #if defined (TIM5_BASE)
+      uintptr_t(TIM5),
+    #endif
+    uintptr_t(TIM2),
+    uintptr_t(TIM4),
+  };
 #elif defined(STM32F4xx) || defined(STM32F7xx)
-  #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
-  #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
+  // default selection order is fine
+  static constexpr uintptr_t mcu_preferred_timers[] = {0};
+#endif
+
+#define _TIMER_DEV(X) TIM##X
+#define TIMER_DEV(X) _TIMER_DEV(X)
+
+static constexpr uintptr_t timers_in_use[] = {
+  #if HAS_TMC_SW_SERIAL
+    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if ENABLED(SPEAKER)
+    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if HAS_SERVOS
+    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #ifdef STEP_TIMER
+    uintptr_t(TIMER_DEV(STEP_TIMER)),
+  #endif
+  #ifdef TEMP_TIMER
+    uintptr_t(TIMER_DEV(TEMP_TIMER))
+  #endif
+  };
+
+static constexpr bool is_timer_in_use(uintptr_t timer) {
+  for (auto timer_in_use : timers_in_use)
+    if (timer_in_use == timer) return true;
+  return false;
+}
+
+static constexpr bool is_timer_in_mcu_preferred_list(uintptr_t timer) {
+  for (auto preferred_timer : mcu_preferred_timers)
+    if (timer == preferred_timer) return true;
+  return false;
+}
+
+// Choose an available timer. 1-indexed instance allows skipping already used timers.
+static constexpr uintptr_t get_free_timer(int instance) {
+  int found = 0;
+  for (auto timer : mcu_preferred_timers)
+    if (timer && !is_timer_in_use(timer) && instance == ++found)
+      return timer;
+  for (auto timer : default_preferred_timers)
+    if (timer && !is_timer_in_use(timer) && !is_timer_in_mcu_preferred_list(timer) && instance == ++found)
+      return timer;
+  return 0;
+}
+
+#ifdef STEP_TIMER
+  #define TEMP_TIMER_SEARCH_INDEX 1
+  #define STEP_TIMER_DEV TIMER_DEV(STEP_TIMER)
+#else
+  constexpr uintptr_t MCU_STEP_TIMER = get_free_timer(1);
+  static_assert(0u != MCU_STEP_TIMER, "Available timer could not be found for STEP_TIMER");
+  #define TEMP_TIMER_SEARCH_INDEX 2
+  #define STEP_TIMER_DEV ((TIM_TypeDef*)(MCU_STEP_TIMER))
+#endif
+#ifdef TEMP_TIMER
+  #define TEMP_TIMER_DEV TIMER_DEV(TEMP_TIMER)
+#else
+  constexpr uintptr_t MCU_TEMP_TIMER = get_free_timer(TEMP_TIMER_SEARCH_INDEX);
+  static_assert(0u != MCU_TEMP_TIMER, "Available timer could not be found for TEMP_TIMER");
+  #define TEMP_TIMER_DEV ((TIM_TypeDef*)(MCU_TEMP_TIMER))
 #endif
 
 #ifndef HAL_TIMER_RATE
   #define HAL_TIMER_RATE GetStepperTimerClkFreq()
 #endif
-
-#ifndef STEP_TIMER
-  #define STEP_TIMER MCU_STEP_TIMER
-#endif
-#ifndef TEMP_TIMER
-  #define TEMP_TIMER MCU_TEMP_TIMER
-#endif
-
-#define __TIMER_DEV(X) TIM##X
-#define _TIMER_DEV(X) __TIMER_DEV(X)
-#define STEP_TIMER_DEV _TIMER_DEV(STEP_TIMER)
-#define TEMP_TIMER_DEV _TIMER_DEV(TEMP_TIMER)
-
-#define __TIMER_IRQ_NAME(X) TIM##X##_IRQn
-#define _TIMER_IRQ_NAME(X) __TIMER_IRQ_NAME(X)
-#define STEP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(STEP_TIMER)
-#define TEMP_TIMER_IRQ_NAME _TIMER_IRQ_NAME(TEMP_TIMER)
 
 // ------------------------
 // Private Variables
@@ -197,77 +339,10 @@ void SetTimerInterruptPriorities() {
   TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIO, 0));
 }
 
-// This is a terrible hack to replicate the behavior used in the framework's SoftwareSerial.cpp
-// to choose a serial timer. It will select TIM7 on most boards used by Marlin, but this is more
-// resiliant to new MCUs which may not have a TIM7. Best practice is to explicitly specify
-// TIMER_SERIAL to avoid relying on framework selections which may not be predictable.
-#if !defined(TIMER_SERIAL)
-  #if defined (TIM18_BASE)
-    #define TIMER_SERIAL TIM18
-  #elif defined (TIM7_BASE)
-    #define TIMER_SERIAL TIM7
-  #elif defined (TIM6_BASE)
-    #define TIMER_SERIAL TIM6
-  #elif defined (TIM22_BASE)
-    #define TIMER_SERIAL TIM22
-  #elif defined (TIM21_BASE)
-    #define TIMER_SERIAL TIM21
-  #elif defined (TIM17_BASE)
-    #define TIMER_SERIAL TIM17
-  #elif defined (TIM16_BASE)
-    #define TIMER_SERIAL TIM16
-  #elif defined (TIM15_BASE)
-    #define TIMER_SERIAL TIM15
-  #elif defined (TIM14_BASE)
-    #define TIMER_SERIAL TIM14
-  #elif defined (TIM13_BASE)
-    #define TIMER_SERIAL TIM13
-  #elif defined (TIM11_BASE)
-    #define TIMER_SERIAL TIM11
-  #elif defined (TIM10_BASE)
-    #define TIMER_SERIAL TIM10
-  #elif defined (TIM12_BASE)
-    #define TIMER_SERIAL TIM12
-  #elif defined (TIM19_BASE)
-    #define TIMER_SERIAL TIM19
-  #elif defined (TIM9_BASE)
-    #define TIMER_SERIAL TIM9
-  #elif defined (TIM5_BASE)
-    #define TIMER_SERIAL TIM5
-  #elif defined (TIM4_BASE)
-    #define TIMER_SERIAL TIM4
-  #elif defined (TIM3_BASE)
-    #define TIMER_SERIAL TIM3
-  #elif defined (TIM2_BASE)
-    #define TIMER_SERIAL TIM2
-  #elif defined (TIM20_BASE)
-    #define TIMER_SERIAL TIM20
-  #elif defined (TIM8_BASE)
-    #define TIMER_SERIAL TIM8
-  #elif defined (TIM1_BASE)
-    #define TIMER_SERIAL TIM1
-  #else
-    #error No suitable timer found for SoftwareSerial, define TIMER_SERIAL in variant.h
-  #endif
-#endif
-
-// Place all timers used into an array, then recursively check for duplicates during compilation.
-// This does not currently account for timers used for PWM, such as for fans.
-// Timers are actually pointers. Convert to integers to simplify constexpr logic.
-static constexpr uintptr_t timers_in_use[] = {
-  uintptr_t(TEMP_TIMER_DEV),  // Override in pins file
-  uintptr_t(STEP_TIMER_DEV),  // Override in pins file
-  #if HAS_TMC_SW_SERIAL
-    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if ENABLED(SPEAKER)
-    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if HAS_SERVOS
-    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  };
-
+// This does not include automatically assigned TEMP and STEP timers in
+// conflict detection, since they won't be assigned if already in use.
+// This does NOT account for PWM outputs such as fans, lasers, etc. When they
+// are available at build-time they should impact automatic timer selection.
 static constexpr bool verify_no_duplicate_timers() {
   LOOP_L_N(i, COUNT(timers_in_use))
     LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
