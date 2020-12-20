@@ -100,8 +100,6 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Вимкнути нагрів");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Частота");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Керування лазером");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Вимкнути лазер");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Увімкнути лазер");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потужність лазера");
     PROGMEM Language_Str MSG_SPINDLE_MENU                  = _UxGT("Керування шпінделем");
@@ -109,8 +107,6 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потуж.лазера");
     PROGMEM Language_Str MSG_SPINDLE_MENU                  = _UxGT("Керув. шпінделем");
   #endif
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Вимкнути шпіндель");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Увімкнути шпіндель");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потуж. шпінделя");
   #else
