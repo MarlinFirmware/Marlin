@@ -512,6 +512,33 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   return !probe_triggered;
 }
 
+#if ENABLED(PROBE_TARE)
+  /**
+   * @brief Tare the Z probe
+   *
+   * @details Signal to the probe to tare itself
+   *
+   * @return TRUE if the tare cold not be completed
+   */
+  bool Probe::tare() {
+    #if BOTH(PROBE_ACTIVATION_SWITCH, PROBE_TARE_ONLY_WHILE_INACTIVE)
+      if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE) {
+        SERIAL_ECHOLNPGM("Cannot tare an active probe");
+        return true;
+      }
+    #endif
+
+    SERIAL_ECHOLNPGM("Taring probe");
+    OUT_WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
+    delay(PROBE_TARE_TIME);
+    OUT_WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    delay(PROBE_TARE_DELAY);
+
+    endstops.hit_on_purpose();
+    return false;
+  }
+#endif
+
 /**
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *
@@ -523,8 +550,11 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
+  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Do a first probe at the fast speed
+
+    if (TERN0(PROBE_TARE, tare())) return true;
+
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -549,6 +579,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
+    if (TERN0(PROBE_TARE, tare())) return NAN;
+
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
@@ -586,6 +618,9 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     )
   #endif
     {
+      // If the probe won't tare, return
+      if (TERN0(PROBE_TARE, tare())) return true;
+
       // Probe downward slowly to find the bed
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
                        sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
