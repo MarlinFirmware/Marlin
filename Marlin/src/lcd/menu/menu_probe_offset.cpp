@@ -81,20 +81,20 @@ void probe_offset_wizard_menu() {
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
 
-  if ((SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+  if ((FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
     char tmp[20], numstr[10];
     // Determine digits needed right of decimal
-    const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                         !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-    sprintf_P(tmp, GET_TEXT(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+    const uint8_t digs = !UNEAR_ZERO((FINE_MANUAL_MOVE) * 1000 - int((FINE_MANUAL_MOVE) * 1000)) ? 4 :
+                         !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
+    sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
     #if DISABLED(HAS_GRAPHICAL_TFT)
       extern const char NUL_STR[];
-      SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
+      SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
       MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       lcd_put_u8str(tmp);
       MENU_ITEM_ADDON_END();
     #else
-      SUBMENU_P(tmp, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
+      SUBMENU_P(tmp, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
     #endif
   }
 
@@ -146,7 +146,7 @@ void prepare_for_probe_offset_wizard() {
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
   current_position += probe.offset_xy;
-  line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
+  line_to_current_position(MMM_TO_MMS(XY_PROBE_SPEED));
   ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 
