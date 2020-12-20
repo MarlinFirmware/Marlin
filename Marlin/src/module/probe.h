@@ -51,6 +51,10 @@ public:
 
     static xyz_pos_t offset;
 
+    #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      static void preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp);
+    #endif
+
     static bool set_deployed(const bool deploy);
 
     #if IS_KINEMATIC
@@ -202,8 +206,12 @@ public:
     static void servo_probe_init();
   #endif
 
-  #if QUIET_PROBING
+  #if HAS_QUIET_PROBING
     static void set_probing_paused(const bool p);
+  #endif
+
+  #if ENABLED(PROBE_TARE)
+    static bool tare();
   #endif
 
 private:

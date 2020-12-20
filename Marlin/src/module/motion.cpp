@@ -1321,7 +1321,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
 
@@ -1360,7 +1360,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 
@@ -1589,8 +1589,11 @@ void homeaxis(const AxisEnum axis) {
   // Fast move towards endstop until triggered
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
-  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-    if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS) {
+      if (TERN0(BLTOUCH, bltouch.deploy())) return;
+      if (TERN0(PROBE_TARE, probe.tare())) return;
+    }
   #endif
 
   #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
