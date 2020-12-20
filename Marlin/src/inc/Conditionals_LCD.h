@@ -655,7 +655,7 @@
   #undef DISTINCT_E_FACTORS
   #define DISTINCT_E 1
   #define XYZE_N XYZE
-  #define NUM_AXIS_N INCREMENT(LINEAR_AXES)
+  #define NUM_AXIS_N NUM_AXIS
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
