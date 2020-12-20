@@ -44,12 +44,6 @@
 #define SDSS                              SS_PIN
 
 //
-// Timers
-//
-#define STEP_TIMER                             6
-#define TEMP_TIMER                             7
-
-//
 // Limit Switches
 //
 #define X_MAX_PIN                           PC13

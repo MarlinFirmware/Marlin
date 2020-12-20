@@ -40,27 +40,6 @@
 #endif
 
 /**
- * Timer assignments
- *
- * TIM1 -
- * TIM2 - Hardware PWM (Fan/Heater Pins)
- * TIM3 - Hardware PWM (Servo Pins)
- * TIM4 - STEP_TIMER (Marlin)
- * TIM5 -
- * TIM6 - TIMER_TONE (variant.h)
- * TIM7 - TIMER_SERVO (variant.h)
- * TIM9 - TIMER_SERIAL (platformio.ini)
- * TIM10 - For some reason trips Watchdog when used for SW Serial
- * TIM11 -
- * TIM12 -
- * TIM13 -
- * TIM14 - TEMP_TIMER (Marlin)
- *
- */
-#define STEP_TIMER                             4
-#define TEMP_TIMER                            14
-
-/**
  * These pin assignments are arbitrary and intending for testing purposes.
  * Assignments may not be ideal, and not every assignment has been tested.
  * Proceed at your own risk.

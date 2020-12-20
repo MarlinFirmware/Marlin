@@ -34,9 +34,6 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
-// Avoid conflict with TIMER_TONE defined in variant
-#define STEP_TIMER 10
-
 //
 // EEPROM Emulation
 //
