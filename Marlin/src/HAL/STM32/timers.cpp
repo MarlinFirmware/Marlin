@@ -139,6 +139,85 @@ static constexpr uintptr_t default_preferred_timers[] = {
   #endif
 };
 
+struct timer_map_t {uintptr_t base_address; uint32_t number; };
+
+static constexpr timer_map_t timer_map[] = {
+  #if defined (TIM18_BASE)
+    {uintptr_t(TIM18), 18u},
+  #endif
+  #if defined (TIM7_BASE)
+    {uintptr_t(TIM7), 7u},
+  #endif
+  #if defined (TIM6_BASE)
+    {uintptr_t(TIM6), 6u},
+  #endif
+  #if defined (TIM22_BASE)
+    {uintptr_t(TIM22), 22u},
+  #endif
+  #if defined (TIM21_BASE)
+    {uintptr_t(TIM21), 21u},
+  #endif
+  #if defined (TIM17_BASE)
+    {uintptr_t(TIM17), 17u},
+  #endif
+  #if defined (TIM16_BASE)
+    {uintptr_t(TIM16), 16u},
+  #endif
+  #if defined (TIM15_BASE)
+    {uintptr_t(TIM15), 15u},
+  #endif
+  #if defined (TIM14_BASE)
+    {uintptr_t(TIM14), 14u},
+  #endif
+  #if defined (TIM13_BASE)
+    {uintptr_t(TIM13), 13u},
+  #endif
+  #if defined (TIM11_BASE)
+    {uintptr_t(TIM11), 11u},
+  #endif
+  #if defined (TIM10_BASE)
+    {uintptr_t(TIM10), 10u},
+  #endif
+  #if defined (TIM12_BASE)
+    {uintptr_t(TIM12), 12u},
+  #endif
+  #if defined (TIM19_BASE)
+    {uintptr_t(TIM19), 19u},
+  #endif
+  #if defined (TIM9_BASE)
+    {uintptr_t(TIM9), 9u},
+  #endif
+  #if defined (TIM5_BASE)
+    {uintptr_t(TIM5), 5u},
+  #endif
+  #if defined (TIM4_BASE)
+    {uintptr_t(TIM4), 4u},
+  #endif
+  #if defined (TIM3_BASE)
+    {uintptr_t(TIM3), 3u},
+  #endif
+  #if defined (TIM2_BASE)
+    {uintptr_t(TIM2), 2u},
+  #endif
+  #if defined (TIM20_BASE)
+    {uintptr_t(TIM20), 20u},
+  #endif
+  #if defined (TIM8_BASE)
+    {uintptr_t(TIM8), 8u},
+  #endif
+  #if defined (TIM1_BASE)
+    {uintptr_t(TIM1), 1u}
+  #endif
+};
+
+constexpr uint32_t get_timer_num_from_base_address(uintptr_t ba) {
+  for (const auto &tim : timer_map)
+    if (tim.base_address == ba) return tim.number;
+  return UINT32_MAX;
+}
+
+
+
 // The platform's SoftwareSerial.cpp will use the first timer from the list above.
 #if HAS_TMC_SW_SERIAL && !defined(TIMER_SERIAL)
   constexpr auto TIMER_SERIAL = default_preferred_timers[0];
@@ -241,6 +320,66 @@ static constexpr uintptr_t get_free_timer(int instance) {
   #define HAL_TIMER_RATE GetStepperTimerClkFreq()
 #endif
 
+// static constexpr uintptr_t final_timers_in_use[] = {
+//     #if HAS_TMC_SW_SERIAL
+//       uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+//     #endif
+//     #if ENABLED(SPEAKER)
+//       uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+//     #endif
+//     #if HAS_SERVOS
+//       uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+//     #endif
+//     #ifdef STEP_TIMER
+//       uintptr_t(TIMER_DEV(STEP_TIMER)),
+//     #else
+//       MCU_STEP_TIMER,
+//     #endif
+//     #ifdef TEMP_TIMER
+//       uintptr_t(TIMER_DEV(TEMP_TIMER)),
+//     #else
+//       MCU_TEMP_TIMER,
+//     #endif
+//     0u
+//   };
+
+// constexpr behavior isn't very consistent. Timers are actually pointers to the timer
+// base address. GCC is willing to turn this into an integer inside an array declaration,
+// but disallows using it directly.
+#ifdef TIMER_SERIAL
+  static constexpr uintptr_t TIMER_SERIAL_UINTPTR[] = {uintptr_t(TIMER_SERIAL)};
+#endif
+#if ENABLED(SPEAKER)
+  static constexpr uintptr_t TIMER_TONE_UINTPTR[] = {uintptr_t(TIMER_TONE)};
+#endif
+#if HAS_SERVOS
+  static constexpr uintptr_t TIMER_SERVO_UINTPTR[] = {uintptr_t(TIMER_SERVO)};
+#endif
+
+static constexpr uint32_t final_timers_in_use_readable[] = {
+    #if HAS_TMC_SW_SERIAL
+      get_timer_num_from_base_address(TIMER_SERIAL_UINTPTR[0]),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #if ENABLED(SPEAKER)
+      get_timer_num_from_base_address(TIMER_TONE_UINTPTR[0]),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #if HAS_SERVOS
+      get_timer_num_from_base_address(TIMER_SERVO_UINTPTR[0]),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    #endif
+    #ifdef STEP_TIMER
+      STEP_TIMER,
+    #else
+      get_timer_num_from_base_address(MCU_STEP_TIMER),
+    #endif
+    #ifdef TEMP_TIMER
+      TEMP_TIMER,
+    #else
+      get_timer_num_from_base_address(MCU_TEMP_TIMER),
+    #endif
+  };
+
+
+
 // ------------------------
 // Private Variables
 // ------------------------
@@ -342,9 +481,9 @@ void SetTimerInterruptPriorities() {
 // This does NOT account for PWM outputs such as fans, lasers, etc. When they
 // are available at build-time they should impact automatic timer selection.
 static constexpr bool verify_no_duplicate_timers() {
-  LOOP_L_N(i, COUNT(timers_in_use))
-    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
-      if (timers_in_use[i] == timers_in_use[j]) return false;
+  LOOP_L_N(i, COUNT(final_timers_in_use_readable))
+    LOOP_S_L_N(j, i + 1, COUNT(final_timers_in_use_readable))
+      if (final_timers_in_use_readable[i] == final_timers_in_use_readable[j]) return false;
   return true;
 }
 
