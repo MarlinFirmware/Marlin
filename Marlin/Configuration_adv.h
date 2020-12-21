@@ -1376,6 +1376,15 @@
 //#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
 
 /**
+ * By default the framework is responsible by the IO on the shared media.
+ * Turn this on if you need that Marlin take care of the shared media IO.
+ * It is usefull if shared media isn't working fine for some boards.
+ */
+#if ENABLED(SDSUPPORT) && DISABLED(NO_SD_HOST_DRIVE)
+  #define USE_MARLIN_DISKIO_FOR_HOST_DRIVE
+#endif
+
+/**
  * Additional options for Graphical Displays
  *
  * Use the optimizations here to improve printing performance,
