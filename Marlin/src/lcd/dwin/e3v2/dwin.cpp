@@ -86,7 +86,7 @@
 #endif
 
 #ifndef MACHINE_SIZE
-  #define MACHINE_SIZE "220x220x250"
+  #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
 #ifndef CORP_WEBSITE_C
   #define CORP_WEBSITE_C "www.cxsw3d.com"
