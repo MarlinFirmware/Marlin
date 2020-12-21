@@ -74,8 +74,8 @@ void TFT_FSMC::Init() {
   Timing.AddressHoldTime = 15;
   Timing.DataSetupTime = 24;
   Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision = TERN(TFT_INTERFACE_FSMC_8BIT, 0, 16);
-  Timing.DataLatency = TERN(TFT_INTERFACE_FSMC_8BIT, 0, 17);
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
   // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
