@@ -30,52 +30,49 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-
+#define _ITEM_TAG(N) (10+N)
 #define _USER_DESC(N) USER_DESC_##N
 #define _USER_GCODE(N) USER_GCODE_##N
-#define HAS_USER_ITEM(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-#define _ITEM_TAG(N) (10+N)
 #define _USER_ITEM(N) .tag(_ITEM_TAG(N)).button(USER_ITEM_POS(N), _USER_DESC(N))
-#define _MORE_THAN_FIFTEEN HAS_USER_ITEM(16) || HAS_USER_ITEM(17) || HAS_USER_ITEM(18) || HAS_USER_ITEM(19) || HAS_USER_ITEM(20)
-#define _MORE_THAN_TEN HAS_USER_ITEM(11) || HAS_USER_ITEM(12) || HAS_USER_ITEM(13) || HAS_USER_ITEM(14) || HAS_USER_ITEM(15) || _MORE_THAN_FIFTEEN
-#define _MORE_THAN_FIVE HAS_USER_ITEM(6) || HAS_USER_ITEM(7) || HAS_USER_ITEM(8) || HAS_USER_ITEM(9) || HAS_USER_ITEM(10) || _MORE_THAN_TEN
-#if ENABLED(USER_SCRIPT_RETURN)
-  #define _RETURN_COMMAND GOTO_SCREEN(StatusScreen)
-#else
-  #define _RETURN_COMMAND ;
-#endif
-#define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); _RETURN_COMMAND; break;
+#define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
+
+#define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+#define HAS_USER_ITEM(V...) DO(HAS,||,V)
 
 void CustomUserMenus::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
-       .cmd(CLEAR(true,true,true));
+       .cmd(CLEAR(true, true, true));
   }
 
-    #ifdef TOUCH_UI_PORTRAIT
-      #define GRID_ROWS 11
-      #if _MORE_THAN_TEN
-        #define GRID_COLS 2
-      #else
-        #define GRID_COLS 1
-      #endif 
-      #define USER_ITEM_POS(N)        BTN_POS((1+((N-1)/10)), ((N-1) % 10 + 1)), BTN_SIZE(1,1)
-      #define BACK_POS                BTN_POS(1,11), BTN_SIZE(1,1)
+  #if HAS_USER_ITEM(16, 17, 18, 19, 20)
+    #define _MORE_THAN_FIFTEEN 1
+  #else
+    #define _MORE_THAN_FIFTEEN 0
+  #endif
+  #if _MORE_THAN_FIFTEEN || HAS_USER_ITEM(11, 12, 13, 14, 15)
+    #define _MORE_THAN_TEN 1
+  #else
+    #define _MORE_THAN_TEN 0
+  #endif
+
+  #ifdef TOUCH_UI_PORTRAIT
+    #define GRID_ROWS 11
+    #define GRID_COLS (1 + _MORE_THAN_TEN)
+    #define USER_ITEM_POS(N) BTN_POS((1+((N-1)/10)), ((N-1) % 10 + 1)), BTN_SIZE(1,1)
+    #define BACK_POS         BTN_POS(1,11), BTN_SIZE(1,1)
+  #else
+    #if _MORE_THAN_TEN || HAS_USER_ITEM(6, 7, 8, 9, 10)
+      #define _MORE_THAN_FIVE 1
     #else
-      #define GRID_ROWS 6
-      #if _MORE_THAN_FIFTEEN
-        #define GRID_COLS 4
-      #elif _MORE_THAN_TEN
-        #define GRID_COLS 3
-      #elif _MORE_THAN_FIVE
-        #define GRID_COLS 2
-      #else
-        #define GRID_COLS 1
-      #endif
-      #define USER_ITEM_POS(N)        BTN_POS((1+((N-1)/5)), ((N-1) % 5 + 1)), BTN_SIZE(1,1)
-      #define BACK_POS                BTN_POS(1,6), BTN_SIZE(GRID_COLS,1)
+      #define _MORE_THAN_FIVE 0
     #endif
+    #define GRID_ROWS 6
+    #define GRID_COLS (1 + _MORE_THAN_FIVE + _MORE_THAN_TEN + _MORE_THAN_FIFTEEN)
+    #define USER_ITEM_POS(N) BTN_POS((1+((N-1)/5)), ((N-1) % 5 + 1)), BTN_SIZE(1,1)
+    #define BACK_POS         BTN_POS(1,6), BTN_SIZE(GRID_COLS,1)
+  #endif
 
   if (what & FOREGROUND) {
     CommandProcessor cmd;
