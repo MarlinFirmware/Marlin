@@ -219,7 +219,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, prog
        .font(font_small)
        .text( BTN_POS(1,_line), BTN_SIZE(4,1), label);
     _button_style(cmd, TEXT_AREA);
-    cmd.fgcolor(_color).button( BTN_POS(5,_line), BTN_SIZE(5,1), F(""), OPT_FLAT);
+    cmd.fgcolor(_color).button(BTN_POS(5,_line), BTN_SIZE(5,1), F(""), OPT_FLAT);
   }
 
   cmd.font(font_medium);
@@ -282,7 +282,7 @@ void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, progmem_str
     _button_style(cmd, TEXT_AREA);
     cmd.fgcolor(_color)
        .tag(tag)
-       .button( BTN_POS(5,_line), BTN_SIZE(9,1), F(""), OPT_FLAT);
+       .button(BTN_POS(5,_line), BTN_SIZE(9,1), F(""), OPT_FLAT);
   }
 
   if (_what & FOREGROUND) {

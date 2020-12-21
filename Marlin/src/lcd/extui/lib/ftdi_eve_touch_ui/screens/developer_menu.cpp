@@ -57,32 +57,32 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
       #define GRID_COLS 1
       cmd.font(font_large)         .text  ( BTN_POS(1,1), BTN_SIZE(1,1), F("Developer Menu"))
          .colors(normal_btn)
-         .tag(2).font(font_medium) .button( BTN_POS(1,2), BTN_SIZE(1,1), F("Show All Widgets"))
-         .tag(3)                   .button( BTN_POS(1,3), BTN_SIZE(1,1), F("Stress Test"))
-         .tag(4)                   .button( BTN_POS(1,4), BTN_SIZE(1,1), F("Show Touch Registers"))
-         .tag(5)                   .button( BTN_POS(1,5), BTN_SIZE(1,1), F("Play Song"))
-         .tag(6).enabled(has_media).button( BTN_POS(1,6), BTN_SIZE(1,1), F("Play Video from Media"))
-         .tag(7).enabled(has_flash).button( BTN_POS(1,7), BTN_SIZE(1,1), F("Play Video from SPI Flash"))
-         .tag(8).enabled(has_flash).button( BTN_POS(1,8), BTN_SIZE(1,1), F("Load Video to SPI Flash"))
-         .tag(9).enabled(has_flash).button( BTN_POS(1,9), BTN_SIZE(1,1), F("Erase SPI Flash"))
+         .tag(2).font(font_medium) .button(BTN_POS(1,2), BTN_SIZE(1,1), F("Show All Widgets"))
+         .tag(3)                   .button(BTN_POS(1,3), BTN_SIZE(1,1), F("Stress Test"))
+         .tag(4)                   .button(BTN_POS(1,4), BTN_SIZE(1,1), F("Show Touch Registers"))
+         .tag(5)                   .button(BTN_POS(1,5), BTN_SIZE(1,1), F("Play Song"))
+         .tag(6).enabled(has_media).button(BTN_POS(1,6), BTN_SIZE(1,1), F("Play Video from Media"))
+         .tag(7).enabled(has_flash).button(BTN_POS(1,7), BTN_SIZE(1,1), F("Play Video from SPI Flash"))
+         .tag(8).enabled(has_flash).button(BTN_POS(1,8), BTN_SIZE(1,1), F("Load Video to SPI Flash"))
+         .tag(9).enabled(has_flash).button(BTN_POS(1,9), BTN_SIZE(1,1), F("Erase SPI Flash"))
 
          .tag(1).colors(action_btn)
-                                   .button( BTN_POS(1,10), BTN_SIZE(1,1), F("Back"));
+                                   .button(BTN_POS(1,10), BTN_SIZE(1,1), F("Back"));
     #else
       #define GRID_ROWS 6
       #define GRID_COLS 2
       cmd.font(font_medium)        .text  ( BTN_POS(1,1), BTN_SIZE(2,1), F("Developer Menu"))
          .colors(normal_btn)
-         .tag(2).font(font_small)  .button( BTN_POS(1,2), BTN_SIZE(1,1), F("Show All Widgets"))
-         .tag(3)                   .button( BTN_POS(1,3), BTN_SIZE(1,1), F("Show Touch Registers"))
-         .tag(9)                   .button( BTN_POS(1,4), BTN_SIZE(1,1), F("Show Pin States"))
-         .tag(4)                   .button( BTN_POS(1,5), BTN_SIZE(1,1), F("Play Song"))
-         .tag(5).enabled(has_media).button( BTN_POS(2,2), BTN_SIZE(1,1), F("Play Video from Media"))
-         .tag(6).enabled(has_flash).button( BTN_POS(2,3), BTN_SIZE(1,1), F("Play Video from SPI Flash"))
-         .tag(7).enabled(has_flash).button( BTN_POS(2,4), BTN_SIZE(1,1), F("Load Video to SPI Flash"))
-         .tag(8).enabled(has_flash).button( BTN_POS(2,5), BTN_SIZE(1,1), F("Erase SPI Flash"))
+         .tag(2).font(font_small)  .button(BTN_POS(1,2), BTN_SIZE(1,1), F("Show All Widgets"))
+         .tag(3)                   .button(BTN_POS(1,3), BTN_SIZE(1,1), F("Show Touch Registers"))
+         .tag(9)                   .button(BTN_POS(1,4), BTN_SIZE(1,1), F("Show Pin States"))
+         .tag(4)                   .button(BTN_POS(1,5), BTN_SIZE(1,1), F("Play Song"))
+         .tag(5).enabled(has_media).button(BTN_POS(2,2), BTN_SIZE(1,1), F("Play Video from Media"))
+         .tag(6).enabled(has_flash).button(BTN_POS(2,3), BTN_SIZE(1,1), F("Play Video from SPI Flash"))
+         .tag(7).enabled(has_flash).button(BTN_POS(2,4), BTN_SIZE(1,1), F("Load Video to SPI Flash"))
+         .tag(8).enabled(has_flash).button(BTN_POS(2,5), BTN_SIZE(1,1), F("Erase SPI Flash"))
          .tag(1).colors(action_btn)
-                                   .button( BTN_POS(1,6), BTN_SIZE(2,1), F("Back"));
+                                   .button(BTN_POS(1,6), BTN_SIZE(2,1), F("Back"));
     #endif
   }
 }

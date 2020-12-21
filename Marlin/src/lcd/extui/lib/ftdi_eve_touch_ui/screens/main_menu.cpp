@@ -69,20 +69,20 @@ void MainMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-       .tag( 2).button( AUTO_HOME_POS,       GET_TEXT_F(MSG_AUTO_HOME))
+       .tag( 2).button(AUTO_HOME_POS,       GET_TEXT_F(MSG_AUTO_HOME))
        .enabled(ENABLED(NOZZLE_CLEAN_FEATURE))
-       .tag( 3).button( CLEAN_NOZZLE_POS,    GET_TEXT_F(MSG_CLEAN_NOZZLE))
-       .tag( 4).button( MOVE_AXIS_POS,       GET_TEXT_F(MSG_MOVE_AXIS))
-       .tag( 5).button( DISABLE_STEPPERS_POS,GET_TEXT_F(MSG_DISABLE_STEPPERS))
-       .tag( 6).button( TEMPERATURE_POS,     GET_TEXT_F(MSG_TEMPERATURE))
+       .tag( 3).button(CLEAN_NOZZLE_POS,    GET_TEXT_F(MSG_CLEAN_NOZZLE))
+       .tag( 4).button(MOVE_AXIS_POS,       GET_TEXT_F(MSG_MOVE_AXIS))
+       .tag( 5).button(DISABLE_STEPPERS_POS,GET_TEXT_F(MSG_DISABLE_STEPPERS))
+       .tag( 6).button(TEMPERATURE_POS,     GET_TEXT_F(MSG_TEMPERATURE))
        .enabled(IF_DISABLED(TOUCH_UI_LULZBOT_BIO, 1))
-       .tag( 7).button( FILAMENTCHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
-       .tag( 8).button( ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
+       .tag( 7).button(FILAMENTCHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
+       .tag( 8).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
        .enabled(TERN_(HAS_LEVELING, 1))
-       .tag( 9).button( LEVELING_POS,        GET_TEXT_F(MSG_LEVELING))
-       .tag(10).button( ABOUT_PRINTER_POS,   GET_TEXT_F(MSG_INFO_MENU))
+       .tag( 9).button(LEVELING_POS,        GET_TEXT_F(MSG_LEVELING))
+       .tag(10).button(ABOUT_PRINTER_POS,   GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
-       .tag(1).button( BACK_POS,             GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS,             GET_TEXT_F(MSG_BACK));
   }
 }
 

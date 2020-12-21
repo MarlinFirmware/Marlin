@@ -66,13 +66,13 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     cmd.tag(6)
        .fgcolor(Theme::axis_label)
        .font(Theme::font_large)
-                               .button( UNION_POS(X_LBL_POS, X_VAL_POS), F(""), OPT_FLAT)
-                               .button( UNION_POS(Y_LBL_POS, Y_VAL_POS), F(""), OPT_FLAT)
-                               .button( UNION_POS(Z_LBL_POS, Z_VAL_POS), F(""), OPT_FLAT)
+                               .button(UNION_POS(X_LBL_POS, X_VAL_POS), F(""), OPT_FLAT)
+                               .button(UNION_POS(Y_LBL_POS, Y_VAL_POS), F(""), OPT_FLAT)
+                               .button(UNION_POS(Z_LBL_POS, Z_VAL_POS), F(""), OPT_FLAT)
        .font(Theme::font_medium)
-       .fgcolor(Theme::x_axis) .button( X_VAL_POS, F(""), OPT_FLAT)
-       .fgcolor(Theme::y_axis) .button( Y_VAL_POS, F(""), OPT_FLAT)
-       .fgcolor(Theme::z_axis) .button( Z_VAL_POS, F(""), OPT_FLAT)
+       .fgcolor(Theme::x_axis) .button(X_VAL_POS, F(""), OPT_FLAT)
+       .fgcolor(Theme::y_axis) .button(Y_VAL_POS, F(""), OPT_FLAT)
+       .fgcolor(Theme::z_axis) .button(Z_VAL_POS, F(""), OPT_FLAT)
        .font(Theme::font_small)
                                .text  ( X_LBL_POS, GET_TEXT_F(MSG_AXIS_X))
                                .text  ( Y_LBL_POS, GET_TEXT_F(MSG_AXIS_Y))
@@ -137,9 +137,9 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
   if (what & BACKGROUND) {
     cmd.font(Theme::font_small)
        .tag(5)
-       .fgcolor(temp)     .button( TEMP_RECT_1, F(""), OPT_FLAT)
-                          .button( TEMP_RECT_2, F(""), OPT_FLAT)
-       .fgcolor(fan_speed).button( FAN_POS,     F(""), OPT_FLAT)
+       .fgcolor(temp)     .button(TEMP_RECT_1, F(""), OPT_FLAT)
+                          .button(TEMP_RECT_2, F(""), OPT_FLAT)
+       .fgcolor(fan_speed).button(FAN_POS,     F(""), OPT_FLAT)
        .tag(0);
 
     // Draw Extruder Bitmap on Extruder Temperature Button
@@ -269,7 +269,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
        .enabled(has_media)
        .tag(3).button(MEDIA_BTN_POS, isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA))
        .colors(!has_media ? action_btn : normal_btn)
-       .tag(4).button( MENU_BTN_POS, GET_TEXT_F(MSG_BUTTON_MENU));
+       .tag(4).button(MENU_BTN_POS, GET_TEXT_F(MSG_BUTTON_MENU));
   }
   #undef  GRID_COLS
 }
@@ -287,7 +287,7 @@ void StatusScreen::draw_status_message(draw_mode_t what, const char* message) {
     CommandProcessor cmd;
     cmd.fgcolor(Theme::status_msg)
        .tag(0)
-       .button( STATUS_POS, F(""), OPT_FLAT);
+       .button(STATUS_POS, F(""), OPT_FLAT);
 
     draw_text_box(cmd, STATUS_POS, message, OPT_CENTER, font_large);
   }

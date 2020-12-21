@@ -53,16 +53,16 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.font(Theme::font_medium)
        .colors(normal_btn)
-       .tag(2).button( BTN_POS(1,2), w, h, F("Dark Chocolate"))
-       .tag(3).button( BTN_POS(1,3), w, h, F("Milk Chocolate"))
-       .tag(4).button( BTN_POS(1,4), w, h, F("White Chocolate"));
+       .tag(2).button(BTN_POS(1,2), w, h, F("Dark Chocolate"))
+       .tag(3).button(BTN_POS(1,3), w, h, F("Milk Chocolate"))
+       .tag(4).button(BTN_POS(1,4), w, h, F("White Chocolate"));
     if (has_extra_heater()) {
-        cmd.tag(5).button( BTN_POS(2,2), w, h, F("Dark Chocolate"))
-           .tag(6).button( BTN_POS(2,3), w, h, F("Milk Chocolate"))
-           .tag(7).button( BTN_POS(2,4), w, h, F("White Chocolate"));
+        cmd.tag(5).button(BTN_POS(2,2), w, h, F("Dark Chocolate"))
+           .tag(6).button(BTN_POS(2,3), w, h, F("Milk Chocolate"))
+           .tag(7).button(BTN_POS(2,4), w, h, F("White Chocolate"));
     }
     cmd.colors(action_btn)
-       .tag(1) .button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+       .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
   }
 }
 
