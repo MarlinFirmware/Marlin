@@ -124,14 +124,14 @@ class unified_bed_leveling {
 
     static int8_t cell_index_x(const float &x) {
       const int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
-      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
+      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);   // -1 is appropriate if we want all movement to the X_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
                                                           // that is OK because something else should be keeping that from
                                                           // happening and should not be worried about at this level.
     static int8_t cell_index_y(const float &y) {
       const int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
-      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
+      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);   // -1 is appropriate if we want all movement to the Y_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
                                                           // that is OK because something else should be keeping that from
