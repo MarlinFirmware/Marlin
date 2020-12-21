@@ -41,9 +41,7 @@ void GcodeSuite::G34() {
   // Home before the alignment procedure
   if (!all_axes_trusted()) home_all_axes();
 
-  #if (HAS_LEVELING)
-    TEMPORARY_BED_LEVELING_STATE(false);
-  #endif
+  TERN_(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
   
   SET_SOFT_ENDSTOP_LOOSE(true);
   TemporaryGlobalEndstopsState unlock_z(false);
