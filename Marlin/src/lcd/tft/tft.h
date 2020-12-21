@@ -30,7 +30,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if IS_ANET_ET
+#if TFT_INTERFACE_FSMC_8BIT
+  // When we have a 8 bit interface, we need to invert the bytes of the color
   #define ENDIAN_COLOR(C) (((C) >> 8) | ((C) << 8))
 #else
   #define ENDIAN_COLOR(C) (C)
