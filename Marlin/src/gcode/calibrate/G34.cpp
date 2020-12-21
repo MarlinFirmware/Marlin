@@ -41,8 +41,11 @@ void GcodeSuite::G34() {
   // Home before the alignment procedure
   if (!all_axes_trusted()) home_all_axes();
 
+  #if (HAS_LEVELING)
+    TEMPORARY_BED_LEVELING_STATE(false);
+  #endif
+  
   SET_SOFT_ENDSTOP_LOOSE(true);
-  TEMPORARY_BED_LEVELING_STATE(false);
   TemporaryGlobalEndstopsState unlock_z(false);
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
