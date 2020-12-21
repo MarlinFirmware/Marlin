@@ -14,12 +14,12 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201213
+ Update Marlin-BugFix 20201221
   - Last fix by Marlin,
-  - **New_Core** size reduction and build optimization,
+  - Fix Feedback Users(Fan, CalDelta, Accel,...)
+  - **FIX New_Core** size reduction and build optimization,
   - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
   - No fix for "Mesh Edit".
-  - Validate Connecttion Rpi/OctoPi direct (No_USB).
   
   ## Validate:
 
@@ -60,7 +60,7 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 
 Typically the probe for the QQS-Pro printers.
   
-  * Z Probe Offset of -16.2mm 
+  * Z Probe Offset (-16.2mm)
 
     ![Version Probe](../../docs/images/VersionProbe.jpg)
   
@@ -215,7 +215,14 @@ Enjoy....🙃
  Massive thank you in advance :heart:
 
 # Version history
-## Marlin 2.0 Bugfix Branch 
+## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20201213 
+  - Last fix by Marlin,
+  - **New_Core** size reduction and build optimization,
+  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - No fix for "Mesh Edit".
+  - Validate Connecttion Rpi/OctoPi direct (No_USB).
+
  Update Marlin-BugFix 20201120
   - Last fix by feedback users.
   - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
