@@ -55,6 +55,11 @@
   #include "../../../../feature/pause.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../../../tft_io/touch_calibration.h"
+  #include "draw_touch_calibration.h"
+#endif
+
 extern lv_group_t *g;
 static lv_obj_t *scr, *tempText1, *filament_bar;
 
@@ -161,6 +166,13 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   else if (DIALOG_IS(REVERT_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.reset());
     clear_cur_ui();
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) {
+        disp_state_stack._disp_index--; // We are asynchronous from the dialog, so let's remove the dialog from the stack
+        lv_draw_touch_calibration_screen();
+      }
+      else
+    #endif
     draw_return_ui();
   }
   else if (DIALOG_IS(WIFI_CONFIG_TIPS)) {
