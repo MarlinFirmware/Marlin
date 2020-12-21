@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Build tests for rumba32_mks
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_MKS
+opt_set SERIAL_PORT -1
+opt_set X_DRIVER_TYPE TMC2130
+opt_set Y_DRIVER_TYPE TMC2208
+exec_test $1 $2 "rumba32_mks Default Config with Mixed TMC Drivers"
+
+# cleanup
+restore_configs
