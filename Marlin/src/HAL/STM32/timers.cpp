@@ -139,78 +139,78 @@ static constexpr uintptr_t default_preferred_timers[] = {
   #endif
 };
 
-struct timer_map_t {uintptr_t base_address; uint32_t number; };
+struct timer_map_t {uintptr_t base_address; int number; };
 
 static constexpr timer_map_t timer_map[] = {
   #if defined (TIM18_BASE)
-    {uintptr_t(TIM18), 18u},
+    {uintptr_t(TIM18), 18},
   #endif
   #if defined (TIM7_BASE)
-    {uintptr_t(TIM7), 7u},
+    {uintptr_t(TIM7), 7},
   #endif
   #if defined (TIM6_BASE)
-    {uintptr_t(TIM6), 6u},
+    {uintptr_t(TIM6), 6},
   #endif
   #if defined (TIM22_BASE)
-    {uintptr_t(TIM22), 22u},
+    {uintptr_t(TIM22), 22},
   #endif
   #if defined (TIM21_BASE)
-    {uintptr_t(TIM21), 21u},
+    {uintptr_t(TIM21), 21},
   #endif
   #if defined (TIM17_BASE)
-    {uintptr_t(TIM17), 17u},
+    {uintptr_t(TIM17), 17},
   #endif
   #if defined (TIM16_BASE)
-    {uintptr_t(TIM16), 16u},
+    {uintptr_t(TIM16), 16},
   #endif
   #if defined (TIM15_BASE)
-    {uintptr_t(TIM15), 15u},
+    {uintptr_t(TIM15), 15},
   #endif
   #if defined (TIM14_BASE)
-    {uintptr_t(TIM14), 14u},
+    {uintptr_t(TIM14), 14},
   #endif
   #if defined (TIM13_BASE)
-    {uintptr_t(TIM13), 13u},
+    {uintptr_t(TIM13), 13},
   #endif
   #if defined (TIM11_BASE)
-    {uintptr_t(TIM11), 11u},
+    {uintptr_t(TIM11), 11},
   #endif
   #if defined (TIM10_BASE)
-    {uintptr_t(TIM10), 10u},
+    {uintptr_t(TIM10), 10},
   #endif
   #if defined (TIM12_BASE)
-    {uintptr_t(TIM12), 12u},
+    {uintptr_t(TIM12), 12},
   #endif
   #if defined (TIM19_BASE)
-    {uintptr_t(TIM19), 19u},
+    {uintptr_t(TIM19), 19},
   #endif
   #if defined (TIM9_BASE)
-    {uintptr_t(TIM9), 9u},
+    {uintptr_t(TIM9), 9},
   #endif
   #if defined (TIM5_BASE)
-    {uintptr_t(TIM5), 5u},
+    {uintptr_t(TIM5), 5},
   #endif
   #if defined (TIM4_BASE)
-    {uintptr_t(TIM4), 4u},
+    {uintptr_t(TIM4), 4},
   #endif
   #if defined (TIM3_BASE)
-    {uintptr_t(TIM3), 3u},
+    {uintptr_t(TIM3), 3},
   #endif
   #if defined (TIM2_BASE)
-    {uintptr_t(TIM2), 2u},
+    {uintptr_t(TIM2), 2},
   #endif
   #if defined (TIM20_BASE)
-    {uintptr_t(TIM20), 20u},
+    {uintptr_t(TIM20), 20},
   #endif
   #if defined (TIM8_BASE)
-    {uintptr_t(TIM8), 8u},
+    {uintptr_t(TIM8), 8},
   #endif
   #if defined (TIM1_BASE)
-    {uintptr_t(TIM1), 1u}
+    {uintptr_t(TIM1), 1}
   #endif
 };
 
-constexpr uint32_t get_timer_num_from_base_address(uintptr_t ba) {
+constexpr int get_timer_num_from_base_address(uintptr_t ba) {
   for (const auto &tim : timer_map)
     if (tim.base_address == ba) return tim.number;
   return UINT32_MAX;
@@ -346,7 +346,7 @@ static constexpr uintptr_t get_free_timer(int instance) {
 // constexpr behavior isn't very consistent. Timers are actually pointers to the timer
 // base address. GCC is willing to turn this into an integer inside an array declaration,
 // but disallows using it directly.
-#ifdef TIMER_SERIAL
+#ifdef HAS_TMC_SW_SERIAL
   static constexpr uintptr_t TIMER_SERIAL_UINTPTR[] = {uintptr_t(TIMER_SERIAL)};
 #endif
 #if ENABLED(SPEAKER)
@@ -356,25 +356,33 @@ static constexpr uintptr_t get_free_timer(int instance) {
   static constexpr uintptr_t TIMER_SERVO_UINTPTR[] = {uintptr_t(TIMER_SERVO)};
 #endif
 
-static constexpr uint32_t final_timers_in_use_readable[] = {
+enum class TimerPurpose {
+  TP_SERIAL,
+  TP_TONE,
+  TP_SERVO,
+  TP_STEP,
+  TP_TEMP
+  };
+
+static constexpr struct { TimerPurpose p; int t; } final_timers_in_use_readable[] = {
     #if HAS_TMC_SW_SERIAL
-      get_timer_num_from_base_address(TIMER_SERIAL_UINTPTR[0]),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+      {TimerPurpose::TP_SERIAL, get_timer_num_from_base_address(TIMER_SERIAL_UINTPTR[0])},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
     #endif
     #if ENABLED(SPEAKER)
-      get_timer_num_from_base_address(TIMER_TONE_UINTPTR[0]),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+      {TimerPurpose::TP_TONE, get_timer_num_from_base_address(TIMER_TONE_UINTPTR[0])},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
     #endif
     #if HAS_SERVOS
-      get_timer_num_from_base_address(TIMER_SERVO_UINTPTR[0]),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+      {TimerPurpose::TP_SERVO, get_timer_num_from_base_address(TIMER_SERVO_UINTPTR[0])},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
     #endif
     #ifdef STEP_TIMER
-      STEP_TIMER,
+      {TimerPurpose::TP_STEP, STEP_TIMER},
     #else
-      get_timer_num_from_base_address(MCU_STEP_TIMER),
+      {TimerPurpose::TP_STEP, get_timer_num_from_base_address(MCU_STEP_TIMER)},
     #endif
     #ifdef TEMP_TIMER
-      TEMP_TIMER,
+      {TimerPurpose::TP_TEMP, TEMP_TIMER},
     #else
-      get_timer_num_from_base_address(MCU_TEMP_TIMER),
+      {TimerPurpose::TP_TEMP, get_timer_num_from_base_address(MCU_TEMP_TIMER)},
     #endif
   };
 
