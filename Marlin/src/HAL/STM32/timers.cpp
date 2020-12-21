@@ -27,7 +27,6 @@
 // Local defines
 // ------------------------
 
-
 // Default timer priorities. Override by specifying alternate priorities in the board pins file.
 // The TONE timer is not present here, as it currently cannot be set programmatically. It is set
 // by defining TIM_IRQ_PRIO in the variant.h or platformio.ini file, which adjusts the default
@@ -66,82 +65,20 @@
   #endif
 #endif
 
+// Convert from timer number to timer name, such as "TIM1"
+#define _TIMER_DEV(X) TIM##X
+#define TIMER_DEV(X) _TIMER_DEV(X)
+
+// ------------------------
+// Automatic timer selection for STEP / TEMP ISRs
+// ------------------------
+
 // This list is based on the framework code in SoftwareSerial.cpp, which attempts to select the
 // timer least likely to be used on the system. This roughly correlates to how many external pins
 // these connect to, and how uncommon they are across MCU lines. Use this as the fallback order
 // if a match cannot be found the the MCU-specific list.
-static constexpr uintptr_t default_preferred_timers[] = {
-  #if defined (TIM18_BASE)
-    uintptr_t(TIM18),
-  #endif
-  #if defined (TIM7_BASE)
-    uintptr_t(TIM7),
-  #endif
-  #if defined (TIM6_BASE)
-    uintptr_t(TIM6),
-  #endif
-  #if defined (TIM22_BASE)
-    uintptr_t(TIM22),
-  #endif
-  #if defined (TIM21_BASE)
-    uintptr_t(TIM21),
-  #endif
-  #if defined (TIM17_BASE)
-    uintptr_t(TIM17),
-  #endif
-  #if defined (TIM16_BASE)
-    uintptr_t(TIM16),
-  #endif
-  #if defined (TIM15_BASE)
-    uintptr_t(TIM15),
-  #endif
-  #if defined (TIM14_BASE)
-    uintptr_t(TIM14),
-  #endif
-  #if defined (TIM13_BASE)
-    uintptr_t(TIM13),
-  #endif
-  #if defined (TIM11_BASE)
-    uintptr_t(TIM11),
-  #endif
-  #if defined (TIM10_BASE)
-    uintptr_t(TIM10),
-  #endif
-  #if defined (TIM12_BASE)
-    uintptr_t(TIM12),
-  #endif
-  #if defined (TIM19_BASE)
-    uintptr_t(TIM19),
-  #endif
-  #if defined (TIM9_BASE)
-    uintptr_t(TIM9),
-  #endif
-  #if defined (TIM5_BASE)
-    uintptr_t(TIM5),
-  #endif
-  #if defined (TIM4_BASE)
-    uintptr_t(TIM4),
-  #endif
-  #if defined (TIM3_BASE)
-    uintptr_t(TIM3),
-  #endif
-  #if defined (TIM2_BASE)
-    uintptr_t(TIM2),
-  #endif
-  #if defined (TIM20_BASE)
-    uintptr_t(TIM20),
-  #endif
-  #if defined (TIM8_BASE)
-    uintptr_t(TIM8),
-  #endif
-  #if defined (TIM1_BASE)
-    uintptr_t(TIM1),
-  #endif
-};
-
-struct timer_map_t {uintptr_t base_address; int number; };
-
-static constexpr timer_map_t timer_map[] = {
+// static constexpr uintptr_t default_preferred_timers[] = {
+static constexpr struct {uintptr_t base_address; int timer_number; } default_preferred_timers[] = {
   #if defined (TIM18_BASE)
     {uintptr_t(TIM18), 18},
   #endif
@@ -210,25 +147,22 @@ static constexpr timer_map_t timer_map[] = {
   #endif
 };
 
-constexpr int get_timer_num_from_base_address(uintptr_t ba) {
-  for (const auto &tim : timer_map)
-    if (tim.base_address == ba) return tim.number;
-  return UINT32_MAX;
+// Convert from a timer base address to its integer timer number.
+static constexpr int get_timer_num_from_base_address(uintptr_t base_address) {
+  for (const auto &timer : default_preferred_timers)
+    if (timer.base_address == base_address) return timer.timer_number;
+  return 0;
 }
 
-
-
-// The platform's SoftwareSerial.cpp will use the first timer from the list above.
+// The platform's SoftwareSerial.cpp will use the first timer from default_preferred_timers.
 #if HAS_TMC_SW_SERIAL && !defined(TIMER_SERIAL)
-  constexpr auto TIMER_SERIAL = default_preferred_timers[0];
+  constexpr auto TIMER_SERIAL = default_preferred_timers[0].timer_number;
 #endif
 
-// mcu_preferred_timers allows a customized list of timers to be considered before the
-// default_preferred_timers above.
+// Provide a customized preferred timer order that is MCU-specific.
 #if defined(STM32F1xx)
-  // Customized preferences for F1 chips
-  // This defers to historic precedent, since these timers were most likely left without
-  // usage by fans.
+  // Customized preferences for F1 chips. Not all timers exist on all models.
+  // This favors historic precedent to hopefully avoid fan conflcits.
   // TIM6/7 - Basic timers with no pin connections. Cannot conflict with fans.
   // TIM5   - Previous default in STM32F1 HAL, most likely free on most boards
   // TIM2   - Previous default in both STM32 and STM32F1 HALs
@@ -253,10 +187,7 @@ constexpr int get_timer_num_from_base_address(uintptr_t ba) {
   #error "MCU not yet supported in this HAL"
 #endif
 
-#define _TIMER_DEV(X) TIM##X
-#define TIMER_DEV(X) _TIMER_DEV(X)
-
-static constexpr uintptr_t timers_in_use[] = {
+static constexpr uintptr_t timers_already_in_use[] = {
     #if HAS_TMC_SW_SERIAL
       uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
     #endif
@@ -275,30 +206,33 @@ static constexpr uintptr_t timers_in_use[] = {
     0u
   };
 
-static constexpr bool is_timer_in_use(uintptr_t timer) {
-  for (auto timer_in_use : timers_in_use)
-    if (timer_in_use && timer_in_use == timer) return true;
+static constexpr bool is_timer_in_use(uintptr_t base_address) {
+  for (auto timer_in_use : timers_already_in_use)
+    if (timer_in_use && timer_in_use == base_address) return true;
   return false;
 }
 
-static constexpr bool is_timer_in_mcu_preferred_list(uintptr_t timer) {
+static constexpr bool is_timer_in_mcu_preferred_list(uintptr_t base_address) {
   for (auto preferred_timer : mcu_preferred_timers)
-    if (timer == preferred_timer) return true;
+    if (preferred_timer && preferred_timer == base_address) return true;
   return false;
 }
 
 // Choose an available timer. 1-indexed instance allows skipping already used timers.
 static constexpr uintptr_t get_free_timer(int instance) {
   int found = 0;
+  // First check for an available timer in the MCU-preferred list
   for (auto timer : mcu_preferred_timers)
     if (timer && !is_timer_in_use(timer) && instance == ++found)
       return timer;
+  // Fall back to the default list if a timer cannot be found on the MCU-preferred list
   for (auto timer : default_preferred_timers)
-    if (timer && !is_timer_in_use(timer) && !is_timer_in_mcu_preferred_list(timer) && instance == ++found)
-      return timer;
+    if (timer.base_address && !is_timer_in_use(timer.base_address) && !is_timer_in_mcu_preferred_list(timer.base_address) && instance == ++found)
+      return timer.base_address;
   return 0;
 }
 
+// Select free timers for STEP and TEMP, if not already specified by the pins file
 #ifdef STEP_TIMER
   #define TEMP_TIMER_SEARCH_INDEX 1
   #define STEP_TIMER_DEV TIMER_DEV(STEP_TIMER)
@@ -316,77 +250,62 @@ static constexpr uintptr_t get_free_timer(int instance) {
   #define TEMP_TIMER_DEV ((TIM_TypeDef*)(MCU_TEMP_TIMER))
 #endif
 
-#ifndef HAL_TIMER_RATE
-  #define HAL_TIMER_RATE GetStepperTimerClkFreq()
-#endif
 
-// static constexpr uintptr_t final_timers_in_use[] = {
-//     #if HAS_TMC_SW_SERIAL
-//       uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-//     #endif
-//     #if ENABLED(SPEAKER)
-//       uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-//     #endif
-//     #if HAS_SERVOS
-//       uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-//     #endif
-//     #ifdef STEP_TIMER
-//       uintptr_t(TIMER_DEV(STEP_TIMER)),
-//     #else
-//       MCU_STEP_TIMER,
-//     #endif
-//     #ifdef TEMP_TIMER
-//       uintptr_t(TIMER_DEV(TEMP_TIMER)),
-//     #else
-//       MCU_TEMP_TIMER,
-//     #endif
-//     0u
-//   };
-
-// constexpr behavior isn't very consistent. Timers are actually pointers to the timer
-// base address. GCC is willing to turn this into an integer inside an array declaration,
-// but disallows using it directly.
+// constexpr doesn't like using the base address pointers that timers evaluate to.
+// We can get away with casting them to uintptr_t, if we do so inside an array.
+// For some reason GCC will not do it directly to an integer.
 #ifdef HAS_TMC_SW_SERIAL
-  static constexpr uintptr_t TIMER_SERIAL_UINTPTR[] = {uintptr_t(TIMER_SERIAL)};
+  static constexpr uintptr_t timer_serial_arr[] = {uintptr_t(TIMER_SERIAL)};
+  static constexpr uintptr_t timer_serial = timer_serial_arr[0];
 #endif
 #if ENABLED(SPEAKER)
-  static constexpr uintptr_t TIMER_TONE_UINTPTR[] = {uintptr_t(TIMER_TONE)};
+  static constexpr uintptr_t timer_tone_arr[] = {uintptr_t(TIMER_TONE)};
+  static constexpr uintptr_t timer_tone = timer_tone_arr[0];
 #endif
 #if HAS_SERVOS
-  static constexpr uintptr_t TIMER_SERVO_UINTPTR[] = {uintptr_t(TIMER_SERVO)};
+  static constexpr uintptr_t timer_servo_arr[] = {uintptr_t(TIMER_SERVO)};
+  static constexpr uintptr_t timer_servo = timer_servo_arr[0];
 #endif
 
-enum class TimerPurpose {
-  TP_SERIAL,
-  TP_TONE,
-  TP_SERVO,
-  TP_STEP,
-  TP_TEMP
-  };
+enum TimerPurpose { TP_SERIAL, TP_TONE, TP_SERVO, TP_STEP, TP_TEMP };
 
-static constexpr struct { TimerPurpose p; int t; } final_timers_in_use_readable[] = {
-    #if HAS_TMC_SW_SERIAL
-      {TimerPurpose::TP_SERIAL, get_timer_num_from_base_address(TIMER_SERIAL_UINTPTR[0])},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-    #endif
-    #if ENABLED(SPEAKER)
-      {TimerPurpose::TP_TONE, get_timer_num_from_base_address(TIMER_TONE_UINTPTR[0])},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-    #endif
-    #if HAS_SERVOS
-      {TimerPurpose::TP_SERVO, get_timer_num_from_base_address(TIMER_SERVO_UINTPTR[0])},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-    #endif
-    #ifdef STEP_TIMER
-      {TimerPurpose::TP_STEP, STEP_TIMER},
-    #else
-      {TimerPurpose::TP_STEP, get_timer_num_from_base_address(MCU_STEP_TIMER)},
-    #endif
-    #ifdef TEMP_TIMER
-      {TimerPurpose::TP_TEMP, TEMP_TIMER},
-    #else
-      {TimerPurpose::TP_TEMP, get_timer_num_from_base_address(MCU_TEMP_TIMER)},
-    #endif
-  };
+// Final list of timers, to enable checking for conflicts.
+// Includes the purpose of each timer to ease debugging when evaluating at build-time.
+static constexpr struct { TimerPurpose p; int t; } final_timers_in_use[] = {
+  #if HAS_TMC_SW_SERIAL
+    {TimerPurpose::TP_SERIAL, get_timer_num_from_base_address(timer_serial)},  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if ENABLED(SPEAKER)
+    {TimerPurpose::TP_TONE, get_timer_num_from_base_address(timer_tone)},    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if HAS_SERVOS
+    {TimerPurpose::TP_SERVO, get_timer_num_from_base_address(timer_servo)},   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #ifdef STEP_TIMER
+    {TimerPurpose::TP_STEP, STEP_TIMER},
+  #else
+    {TimerPurpose::TP_STEP, get_timer_num_from_base_address(MCU_STEP_TIMER)},
+  #endif
+  #ifdef TEMP_TIMER
+    {TimerPurpose::TP_TEMP, TEMP_TIMER},
+  #else
+    {TimerPurpose::TP_TEMP, get_timer_num_from_base_address(MCU_TEMP_TIMER)},
+  #endif
+};
 
+// This does NOT account for PWM outputs such as fans, lasers, etc. When they
+// are available at build-time this automatic timer selection should be updated.
+static constexpr bool verify_no_timer_conflicts() {
+  LOOP_L_N(i, COUNT(final_timers_in_use))
+    LOOP_S_L_N(j, i + 1, COUNT(final_timers_in_use))
+      if (final_timers_in_use[i].t == final_timers_in_use[j].t) return false;
+  return true;
+}
 
+// If this assertion fails at compile time, review the final_timers_in_use array.
+// If default_envs is defined properly in platformio.ini, VS Code can evaluate the array
+// when hovering over it, making it easy to identify the conflicting timers.
+static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected");
 
 // ------------------------
 // Private Variables
@@ -426,7 +345,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
          */
 
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
-        timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
+        timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (GetStepperTimerClkFreq()) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
         break;
       case TEMP_TIMER_NUM: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);
@@ -484,20 +403,5 @@ void SetTimerInterruptPriorities() {
   TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIO, 0));
 }
 
-// This does not include automatically assigned TEMP and STEP timers in
-// conflict detection, since they won't be assigned if already in use.
-// This does NOT account for PWM outputs such as fans, lasers, etc. When they
-// are available at build-time they should impact automatic timer selection.
-static constexpr bool verify_no_duplicate_timers() {
-  LOOP_L_N(i, COUNT(final_timers_in_use_readable))
-    LOOP_S_L_N(j, i + 1, COUNT(final_timers_in_use_readable))
-      if (final_timers_in_use_readable[i] == final_timers_in_use_readable[j]) return false;
-  return true;
-}
-
-// If this assertion fails at compile time, review the timers_in_use array. If default_envs is
-// defined properly in platformio.ini, VS Code can evaluate the array when hovering over it,
-// making it easy to identify the conflicting timers.
-static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
