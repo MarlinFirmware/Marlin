@@ -951,6 +951,10 @@ namespace ExtUI {
     TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
   }
 
+  bool isWaitingOnUser() {
+    return TERN(HAS_RESUME_CONTINUE, wait_for_user, false);
+  }
+
   void printFile(const char *filename) {
     UNUSED(filename);
     IFSD(card.openAndPrintFile(filename), NOOP);
@@ -1069,6 +1073,10 @@ void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
     flags.printer_killed = true;
     onPrinterKilled(error, component);
   }
+}
+
+void MarlinUI::buzz(const long duration, const uint16_t freq) {
+  ExtUI::onPlayTone(duration, freq);
 }
 
 #endif // EXTENSIBLE_UI

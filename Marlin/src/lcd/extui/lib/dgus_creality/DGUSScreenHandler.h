@@ -22,7 +22,7 @@
 #pragma once
 
 #include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 
 #include "../../../../inc/MarlinConfig.h"
 
@@ -54,12 +54,6 @@ public:
   static void HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change Flowrate"
   static void HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr);
-  #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
-    // Hook for manual move option
-    static void HandleManualMoveOption(DGUS_VP_Variable &var, void *val_ptr);
-  #endif
-  // Hook for manual move.
-  static void HandleManualMove(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for manual extrude.
   static void HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for motor lock and unlook
@@ -72,6 +66,12 @@ public:
   static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+
+  static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
+
+  // Hook for move to position
+  static void HandlePositionChange(DGUS_VP_Variable &var, void *val_ptr);
+
   #if HAS_PID_HEATING
     // Hook for "Change this temperature PID para"
     static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
@@ -80,15 +80,15 @@ public:
   #endif
   #if HAS_BED_PROBE
     // Hook for "Change probe offset z"
-    static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
+
+    static void OnMeshLevelingStart();
+
+    static void OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos);
   #endif
   #if ENABLED(BABYSTEPPING)
     // Hook for live z adjust action
     static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
-  #endif
-  #if HAS_FAN
-    // Hook for fan control
-    static void HandleFanControl(DGUS_VP_Variable &var, void *val_ptr);
   #endif
   // Hook for heater control
   static void HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr);
@@ -126,7 +126,27 @@ public:
     static void SDCardRemoved();
     /// Marlin informed us about a bad SD Card.
     static void SDCardError();
+
+    static void SetPrintingFromHost();
   #endif
+
+  static void HandleLEDToggle();
+
+  static void HandleFanToggle();
+
+  static void HandleStepperState(bool is_enabled);
+
+  static void FilamentRunout();
+
+  static void OnFactoryReset();
+
+#if HAS_BUZZER
+  static void Buzzer(const uint16_t frequency, const uint16_t duration);
+#endif
+
+  static void OnHomingStart();
+  static void OnHomingComplete();
+  static void OnPrintFinished();
 
   // OK Button the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
@@ -134,13 +154,13 @@ public:
   // Update data after went to new screen (by display or by GotoScreen)
   // remember: store the last-displayed screen, so it can get returned to.
   // (e.g for pop up messages)
-  static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
+  static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_current_screen=true);
 
   // Recall the remembered screen.
   static void PopToOldScreen();
 
   // Make the display show the screen and update all VPs in it.
-  static void GotoScreen(DGUSLCD_Screens screen, bool ispopup = false);
+  static void GotoScreen(DGUSLCD_Screens screen, bool save_current_screen = true);
 
   static void UpdateScreenVPData();
 
@@ -163,6 +183,9 @@ public:
   #if ENABLED(DGUS_UI_WAITING)
     static void DGUSLCD_SendWaitingStatusToDisplay(DGUS_VP_Variable &var);
   #endif
+
+  static void DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendAboutPrintSize(DGUS_VP_Variable &var);
 
   /// Send a value from 0..100 to a variable with a range from 0..255
   static void DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr);
@@ -188,17 +211,14 @@ public:
     }
   }
 
-  template<unsigned int decimals>
-  static void DGUSLCD_SendFloatAsLongValueToDisplay(uint16_t vp, float var) {
-    var *= cpow(10, decimals);
-    dgusdisplay.WriteVariable(vp, (long)var);
-  }
-
-  template<unsigned int decimals>
-  static void DGUSLCD_SendFloatAsIntValueToDisplay(uint16_t vp, float var) {
-    DEBUG_ECHOLNPAIR_F(" >> ", var, 6);
-    var *= cpow(10, decimals);
-    dgusdisplay.WriteVariable(vp, (int16_t)var);
+  // Send an icon to the display, depending on whether it is true or false
+  template<unsigned int value_if_true, unsigned int value_if_false>
+  static void DGUSLCD_SendIconValue(DGUS_VP_Variable &var) {
+    if (var.memadr) {
+      bool value = *(bool *)var.memadr;
+      uint16_t valueToSend = value ? value_if_true : value_if_false;
+      dgusdisplay.WriteVariable(var.VP, valueToSend);
+    }
   }
 
   /// Send a float value to the display.
@@ -221,7 +241,12 @@ public:
 
   static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
 
-  static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
+  static void updateCurrentScreen(DGUSLCD_Screens current);
+
+  static bool HandlePendingUserConfirmation();
+
+  static float feed_amount;
+  static bool are_steppers_enabled;
 
 private:
   static DGUSLCD_Screens current_screen;  ///< currently on screen
@@ -234,12 +259,12 @@ private:
 
   static uint16_t ConfirmVP;    ///< context for confirm screen (VP that will be emulated-sent on "OK").
 
+  static uint8_t MeshLevelIndex;
+
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser
     static int16_t file_to_print; ///< touched file to be confirmed
   #endif
-
-  static void (*confirm_action_cb)();
 };
 
 extern DGUSScreenHandler ScreenHandler;

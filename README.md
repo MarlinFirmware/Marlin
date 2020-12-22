@@ -1,136 +1,102 @@
-# Marlin 3D Printer Firmware
+# Community firmware for the Creality CR-6 3D printer
 
-![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
-![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
-[![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
+**This branch is for the Creality CR-6 SE with stock v4.5.2 motherboard and the stock display.**
 
-<img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
+_For other configurations for the Creality CR-6 printer (like BigTreeTech SKR board and optional BTT TFT v3.0 display - please check the [branches and development section](#development-and-compile-it-yourself) section below._
 
-Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
-Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
+## Downloads
 
-## Marlin 2.0 Bugfix Branch
+Please find official releases in the [Releases section](https://github.com/CR6Community/Marlin/releases). Take the release which belongs to the particular touch screen firmware you are going to flash. Please read the release notes *carefully* - it contains all the instructions you need.
 
-__Not for production use. Use with caution!__
+Ensure you take the right assets: the `firmware[suffix].bin`. You should not download the `Source code` archive if you are downloading with the purpose of directly flashing your printer.
 
-Marlin 2.0 takes this popular RepRap firmware to the next level by adding support for much faster 32-bit and ARM-based boards while improving support for 8-bit AVR boards. Read about Marlin's decision to use a "Hardware Abstraction Layer" below.
+*Support for the [BTT SKR board](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) is experimental.*
 
-This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
+### Development and compile-it-yourself
 
-Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
+There are several branches in this project for your convenience. You can directly build them if you have the Platform.io plugin installed in Visual Studio code:
 
-## Building Marlin 2.0
+- **[`extui`](https://github.com/CR6Community/Marlin/tree/extui)** - main source branch for CR-6 SE community firmware development; rewritten from scratch; paired with the [`extui`](https://github.com/CR6Community/CR-6-Touchscreen/tree/extui) branch of the CR-6 touch screen repository. This branch is used if you run the *stock* CR-6 mainboard (v4.5.2 `BOARD_CREALITY_V452` or v4.5.3 `BOARD_CREALITY_V453`).
+- **[`extui-btt-skr-stock-tft`](https://github.com/CR6Community/Marlin/tree/extui-btt-skr-stock-tft)** - The same as `extui` but for the Big Tree Tech SKR-CR6 motherboard _and_ when you use the stock Creality CR-6 display
+- **[`extui-btt-skr-tft3`](https://github.com/CR6Community/Marlin/tree/extui-btt-skr-tft3)** - Up-to-date Marlin for the CR-6 with the Big Tree Tech SKR-CR6 motherboard _and_ when you use the Big Tree Tech TFT
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](https://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
+Legacy branches:
 
-## Hardware Abstraction Layer (HAL)
+- **[`creality-cr6-merge-attempt`](https://github.com/CR6Community/Marlin/tree/creality-cr6-merge-attempt)** - initial branch based on Creality v1.0.3.7 firmware source code release and upgraded until the community firmware 3 release. All new releases are released from the `extui` branch.
 
-Marlin 2.0 introduces a layer of abstraction so that all the existing high-level code can be built for 32-bit platforms while still retaining full 8-bit AVR compatibility. Retaining AVR compatibility and a single code-base is important to us, because we want to make sure that features and patches get as much testing and attention as possible, and that all platforms always benefit from the latest improvements.
+Original source code tracking:
 
-### Current HALs
+- **[`cr6-creality-changes`](https://github.com/CR6Community/Marlin/tree/cr6-creality-changes)** - tracks the changes from the Creality source code dump against Marlin upstream. As of now we have the Creality v1.0.3.7 firmware on this branch, based on Marlin pre-2.0.
 
-  #### AVR (8-bit)
+    - **[`v1.0.3.7`](https://github.com/CR6Community/Marlin/tree/official-fw/v1.0.3.7)**
+    - **[`v1.0.4.1`](https://github.com/CR6Community/Marlin/tree/official-fw/v1.0.4.1)**
 
-  board|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Arduino AVR](https://www.arduino.cc/)|ATmega, ATTiny, etc.|16-20MHz|64-256k|2-16k|5V|no
+- **[`cr6-btt-dump`](https://github.com/CR6Community/Marlin/tree/cr6-btt-dump) - tracks the changes from the [Big Tree Tech SKR board firmware](https://github.com/bigtreetech/BIGTREETECH-SKR-CR6/tree/master/firmware/BTT-SKR-CR6)** source code (which does not have any git history). It appears the for the moment BTT source code is based on the Creality v1.0.3.7 source code release.
 
-  #### DUE
+## Purpose of this community firmware
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Arduino Due](https://www.arduino.cc/en/Guide/ArduinoDue), [RAMPS-FD](https://www.reprap.org/wiki/RAMPS-FD), etc.|[SAM3X8E ARM-Cortex M3](https://www.microchip.com/wwwproducts/en/ATsam3x8e)|84MHz|512k|64+32k|3.3V|no
+This fork of Marlin is meant for:
 
-  #### ESP32
+- Providing up to date and stable Marlin for the CR-6 SE native and [BTT SKR CR6](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) motherboard
+- [Expanding the features](https://github.com/CR6Community/CR-6-touchscreen) of the limited Creality CR-6 stock touch screen
 
-  board|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [ESP32](https://www.espressif.com/en/products/hardware/esp32/overview)|Tensilica Xtensa LX6|160-240MHz variants|---|---|3.3V|---
+Once upstream Marlin supports the strain gauge, [currently being whipped into shape in this PR @Sebazzz has submitted](https://github.com/MarlinFirmware/Marlin/pull/19958), the future of this project will probably be:
 
-  #### LPC1768 / LPC1769
+- Still expanding the features of the touch screen and merge upstream
+- Continuously update this fork to the latest Marlin stable versions
+- Provide builds for the CR-6 and SKR boards for the less technically inclined
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Re-ARM](https://www.kickstarter.com/projects/1245051645/re-arm-for-ramps-simple-32-bit-upgrade)|[LPC1768 ARM-Cortex M3](https://www.nxp.com/products/microcontrollers-and-processors/arm-based-processors-and-mcus/lpc-cortex-m-mcus/lpc1700-cortex-m3/512kb-flash-64kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|100MHz|512k|32+16+16k|3.3-5V|no
-  [MKS SBASE](https://reprap.org/forum/read.php?13,499322)|LPC1768 ARM-Cortex M3|100MHz|512k|32+16+16k|3.3-5V|no
-  [Selena Compact](https://github.com/Ales2-k/Selena)|LPC1768 ARM-Cortex M3|100MHz|512k|32+16+16k|3.3-5V|no
-  [Azteeg X5 GT](https://www.panucatt.com/azteeg_X5_GT_reprap_3d_printer_controller_p/ax5gt.htm)|LPC1769 ARM-Cortex M3|120MHz|512k|32+16+16k|3.3-5V|no
-  [Smoothieboard](https://reprap.org/wiki/Smoothieboard)|LPC1769 ARM-Cortex M3|120MHz|512k|64k|3.3-5V|no
+## Community firmware support & communities
 
-  #### SAMD51
+Get in touch with the developers! We [have our own Discord server](https://discord.gg/RKrxYy3Q9N).
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Adafruit Grand Central M4](https://www.adafruit.com/product/4064)|[SAMD51P20A ARM-Cortex M4](https://www.microchip.com/wwwproducts/en/ATSAMD51P20A)|120MHz|1M|256k|3.3V|yes
+The following CR-6 communities exist:
 
-  #### STM32F1
+- [Facebook independend CR-6 community](https://www.facebook.com/groups/cr6community)
+- [Reddit /r/CR6](https://www.reddit.com/r/CR6/)
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Arduino STM32](https://github.com/rogerclarkmelbourne/Arduino_STM32)|[STM32F1](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html) ARM-Cortex M3|72MHz|256-512k|48-64k|3.3V|no
-  [Geeetech3D GTM32](https://github.com/Geeetech3D/Diagram/blob/master/Rostock301/Hardware_GTM32_PRO_VB.pdf)|[STM32F1](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html) ARM-Cortex M3|72MHz|256-512k|48-64k|3.3V|no
+Communities hosted by Creality:
 
-  #### STM32F4
+- [Official CR-6 user group](https://www.facebook.com/groups/CR6SECR6MAX)
+- [Official Creality user group](https://www.facebook.com/groups/creality3dofficial)
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [STEVAL-3DP001V1](https://www.st.com/en/evaluation-tools/steval-3dp001v1.html)|[STM32F401VE Arm-Cortex M4](https://www.st.com/en/microcontrollers-microprocessors/stm32f401ve.html)|84MHz|512k|64+32k|3.3-5V|yes
+Other communities:
 
-  #### Teensy++ 2.0
+- [Reddit /r/3dprinting](https://www.reddit.com/r/3dprinting/)
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Teensy++ 2.0](https://www.microchip.com/wwwproducts/en/AT90USB1286)|[AT90USB1286](https://www.microchip.com/wwwproducts/en/AT90USB1286)|16MHz|128k|8k|5V|no
+### General Marlin support
 
-  #### Teensy 3.1 / 3.2
+For general Marlin support, please check:
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)|[MK20DX256VLH7](https://www.mouser.com/ProductDetail/NXP-Freescale/MK20DX256VLH7) ARM-Cortex M4|72MHz|256k|32k|3.3V-5V|yes
+- [Marlin Documentation](http://marlinfw.org) - Official Marlin documentation
+- [Marlin Discord](https://discord.gg/n5NJ59y) - Discuss issues with Marlin users and developers
+- Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
+- RepRap.org [Marlin Forum](http://forums.reprap.org/list.php?415)
+- [Tom's 3D Forums](https://forum.toms3d.org/)
+- Facebook Group ["Marlin Firmware for 3D Printers"](https://www.facebook.com/groups/3Dtechtalk/)
+- [Marlin Configuration](https://www.youtube.com/results?search_query=marlin+configuration) on YouTube
 
-  #### Teensy 3.5 / 3.6
 
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Teensy 3.5](https://www.pjrc.com/store/teensy35.html)|[MK64FX512VMD12](https://www.mouser.com/ProductDetail/NXP-Freescale/MK64FX512VMD12) ARM-Cortex M4|120MHz|512k|192k|3.3-5V|yes
-  [Teensy 3.6](https://www.pjrc.com/store/teensy36.html)|[MK66FX1M0VMD18](https://www.mouser.com/ProductDetail/NXP-Freescale/MK66FX1M0VMD18) ARM-Cortex M4|180MHz|1M|256k|3.3V|yes
+## Reporting issues
 
-  #### Teensy 4.0 / 4.1
-
-  boards|processor|speed|flash|sram|logic|fpu
-  ----|---------|-----|-----|----|-----|---
-  [Teensy 4.0](https://www.pjrc.com/store/teensy40.html)|[IMXRT1062DVL6A](https://www.mouser.com/new/nxp-semiconductors/nxp-imx-rt1060-crossover-processor/) ARM-Cortex M7|600MHz|1M|2M|3.3V|yes
-  [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)|[IMXRT1062DVJ6A](https://www.mouser.com/new/nxp-semiconductors/nxp-imx-rt1060-crossover-processor/) ARM-Cortex M7|600MHz|1M|2M|3.3V|yes
-
-## Submitting Patches
-
-Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x)) branch.
-
-- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
-- Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
-- Please submit Feature Requests and Bug Reports to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues/new/choose). Support resources are also listed there.
-- Whenever you add new features, be sure to add tests to `buildroot/tests` and then run your tests locally, if possible.
-  - It's optional: Running all the tests on Windows might take a long time, and they will run anyway on GitHub.
-  - If you're running the tests on Linux (or on WSL with the code on a Linux volume) the speed is much faster.
-  - You can use `make tests-all-local` or `make tests-single-local TEST_TARGET=...`.
-  - If you prefer Docker you can use `make tests-all-local-docker` or `make tests-all-local-docker TEST_TARGET=...`.
-
-### [RepRap.org Wiki Page](https://reprap.org/wiki/Marlin)
+- Submit **bug fixes** as pull requests to the current active default branch (`extui`)
+- Follow the [coding standards](https://marlinfw.org/docs/development/coding_standards.html)
+- Please submit your questions and concerns in the [issue tracker](https://github.com/MarlinFirmware/Marlin/issues)
 
 ## Credits
 
-The current Marlin dev team consists of:
+The current core CR-6 Community firmware dev team consists of:
 
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [Donate](https://www.thinkyhead.com/donate-to-marlin) / Flattr: [![Flattr Scott](https://api.flattr.com/button/flattr-badge-small.png)](https://flattr.com/submit/auto?user_id=thinkyhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
- - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portugal
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+ - Sebastiaan Dammann [[@Sebazzz](https://github.com/Sebazzz)] - Netherlands &nbsp; ([Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=B7XURY2X39GS6&item_name=CR-6+development&currency_code=EUR) | [Website](https://damsteen.nl))
+ - Juan Rodriguez [[@Nushio](https://github.com/Nushio)] - Mexico
+ - Romain [[@grobux](https://github.com/grobux)] - France
+ - Nick Acker [[@nickacker](https://github.com/nickacker)] - USA
+ - And more...
+
+We stand on the shoulders of giants. Don't forget to send your love [upstream too](https://github.com/MarlinFirmware/Marlin)!
 
 ## License
 
-Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin and the Creality CR-6 Community Firmware is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.

@@ -187,6 +187,7 @@ namespace ExtUI {
   void setFeedrate_percent(const float);
   void setFlow_percent(const int16_t, const extruder_t);
   void setUserConfirmed();
+  bool isWaitingOnUser();
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);

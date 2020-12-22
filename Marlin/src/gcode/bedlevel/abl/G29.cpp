@@ -592,8 +592,11 @@ G29_TYPE GcodeSuite::G29() {
     measured_z = 0;
 
     #if ABL_GRID
-
-      bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+        bool zig = 1;
+      #else
+        bool zig = (PR_OUTER_END & 1); // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      #endif
 
       measured_z = 0;
 
