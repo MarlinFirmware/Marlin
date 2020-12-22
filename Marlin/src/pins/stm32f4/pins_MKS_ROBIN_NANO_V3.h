@@ -31,6 +31,9 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
+// Avoid conflict with TIMER_TONE
+#define STEP_TIMER 13
+
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation

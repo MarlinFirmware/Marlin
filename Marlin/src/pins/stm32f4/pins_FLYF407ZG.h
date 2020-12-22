@@ -31,6 +31,10 @@
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
+// Avoid conflict with fans and TIMER_TONE
+#define TEMP_TIMER 3
+#define STEP_TIMER 5
+
 //
 // EEPROM Emulation
 //
