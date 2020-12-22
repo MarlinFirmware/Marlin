@@ -130,7 +130,13 @@ namespace ExtUI {
   float getFeedrate_percent();
   int16_t getFlowPercentage(const extruder_t);
   uint8_t getProgress_percent();
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    uint16_t getProgress_permyriad();
+  #endif
   uint32_t getProgress_seconds_elapsed();
+  #if ENABLED(SHOW_REMAINING_TIME)
+    uint32_t getProgress_seconds_remaining();
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive();

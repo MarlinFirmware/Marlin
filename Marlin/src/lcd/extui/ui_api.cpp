@@ -811,10 +811,22 @@ namespace ExtUI {
     return ui.get_progress_percent();
   }
 
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    uint16_t getProgress_permyriad() {
+      return ui.get_progress_permyriad();
+    }
+  #endif
+
   uint32_t getProgress_seconds_elapsed() {
     const duration_t elapsed = print_job_timer.duration();
     return elapsed.value;
   }
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    uint32_t getProgress_seconds_remaining() {
+      return ui.get_remaining_time();
+    }
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
