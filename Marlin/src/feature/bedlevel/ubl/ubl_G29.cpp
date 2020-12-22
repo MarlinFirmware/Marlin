@@ -978,8 +978,7 @@
         safe_delay(50);
       #endif
 
-      do
-      {
+      do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, pos, false, &done_flags);
 
         if (lpos.x < 0) break;                              // Stop when there are no more reachable points
