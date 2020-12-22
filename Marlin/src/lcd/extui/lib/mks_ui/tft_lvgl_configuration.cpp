@@ -217,12 +217,7 @@ void tft_lvgl_init() {
   #endif
 
   if (ready) {
-    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
-      else lv_draw_ready_print();
-    #else
-      lv_draw_ready_print();
-    #endif
+    lv_draw_ready_print();
   }
 
   if (mks_test_flag == 0x1E)
