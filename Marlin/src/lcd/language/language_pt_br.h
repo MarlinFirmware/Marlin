@@ -103,7 +103,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comando customizado");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comando customizado");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Teste de sonda");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Ponto");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");

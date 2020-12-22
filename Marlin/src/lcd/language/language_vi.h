@@ -96,7 +96,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Mục lục X");                            // Index X
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Mục lục Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Giá trị Z");                            // Z Value
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Các lệnh tự chọn");                     // Custom Commands
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Các lệnh tự chọn");                     // Custom Commands
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Đang chạy G29");                        // Doing G29
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Công cụ UBL");                          // UBL tools
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("San Lấp Bàn Thống Nhất (UBL)");         // Unified Bed Leveling
