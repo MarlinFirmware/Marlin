@@ -45,7 +45,7 @@ void TouchCalibration::validate_calibration() {
   else {
     calibration_state = CALIBRATION_FAIL;
     calibration_reset();
-    // If we fails, let's retry up to 5 times before reporting the failure
+    // Retry up to 5 times before reporting the failure
     if (need_calibration() && failed_count++ < 5) calibration_state = CALIBRATION_TOP_LEFT;
   }
 
