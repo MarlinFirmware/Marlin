@@ -56,22 +56,23 @@
     // A move within the same cell needs no splitting
     if (istart == iend) {
 
-      // For a move off the bed, use a constant Z raise
-      if (!WITHIN(iend.x, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iend.y, 0, GRID_MAX_POINTS_Y - 1)) {
-
-        // Note: There is no Z Correction in this case. We are off the grid and don't know what
-        // a reasonable correction would be.  If the user has specified a UBL_Z_RAISE_WHEN_OFF_MESH
-        // value, that will be used instead of a calculated (Bi-Linear interpolation) correction.
-
-        #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-          end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
-        #endif
-        planner.buffer_segment(end, scaled_fr_mm_s, extruder);
-        current_position = destination;
-        return;
-      }
-
       FINAL_MOVE:
+
+      // When UBL_Z_RAISE_WHEN_OFF_MESH is disabled Z correction is extrapolated from the edge of the mesh
+      #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+        // For a move off the UBL mesh, use a constant Z raise
+        if (!cell_index_x_valid(end.x) || !cell_index_y_valid(end.y)) {
+
+          // Note: There is no Z Correction in this case. We are off the mesh and don't know what
+          // a reasonable correction would be, UBL_Z_RAISE_WHEN_OFF_MESH will be used instead of
+          // a calculated (Bi-Linear interpolation) correction.
+
+          end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
+          planner.buffer_segment(end, scaled_fr_mm_s, extruder);
+          current_position = destination;
+          return;
+        }
+      #endif
 
       // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
       const float xratio = (end.x - mesh_index_to_xpos(iend.x)) * RECIPROCAL(MESH_X_DIST),
