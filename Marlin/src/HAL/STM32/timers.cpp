@@ -27,7 +27,6 @@
 // Local defines
 // ------------------------
 
-
 // Default timer priorities. Override by specifying alternate priorities in the board pins file.
 // The TONE timer is not present here, as it currently cannot be set programmatically. It is set
 // by defining TIM_IRQ_PRIO in the variant.h or platformio.ini file, which adjusts the default
@@ -95,7 +94,6 @@
 #define _TIMER_DEV(X) __TIMER_DEV(X)
 #define STEP_TIMER_DEV _TIMER_DEV(STEP_TIMER)
 #define TEMP_TIMER_DEV _TIMER_DEV(TEMP_TIMER)
-
 
 // ------------------------
 // Private Variables
@@ -203,71 +201,71 @@ void SetTimerInterruptPriorities() {
 // this list will be automatically used by SoftwareSerial if it is not already defined
 // in the board's variant or compiler options.
 static constexpr struct {uintptr_t base_address; int timer_number;} stm32_timer_map[] = {
-  #if defined (TIM18_BASE)
-    {uintptr_t(TIM18), 18},
+  #ifdef TIM18_BASE
+    { uintptr_t(TIM18), 18 },
   #endif
-  #if defined (TIM7_BASE)
-    {uintptr_t(TIM7), 7},
+  #ifdef TIM7_BASE
+    { uintptr_t(TIM7),   7 },
   #endif
-  #if defined (TIM6_BASE)
-    {uintptr_t(TIM6), 6},
+  #ifdef TIM6_BASE
+    { uintptr_t(TIM6),   6 },
   #endif
-  #if defined (TIM22_BASE)
-    {uintptr_t(TIM22), 22},
+  #ifdef TIM22_BASE
+    { uintptr_t(TIM22), 22 },
   #endif
-  #if defined (TIM21_BASE)
-    {uintptr_t(TIM21), 21},
+  #ifdef TIM21_BASE
+    { uintptr_t(TIM21), 21 },
   #endif
-  #if defined (TIM17_BASE)
-    {uintptr_t(TIM17), 17},
+  #ifdef TIM17_BASE
+    { uintptr_t(TIM17), 17 },
   #endif
-  #if defined (TIM16_BASE)
-    {uintptr_t(TIM16), 16},
+  #ifdef TIM16_BASE
+    { uintptr_t(TIM16), 16 },
   #endif
-  #if defined (TIM15_BASE)
-    {uintptr_t(TIM15), 15},
+  #ifdef TIM15_BASE
+    { uintptr_t(TIM15), 15 },
   #endif
-  #if defined (TIM14_BASE)
-    {uintptr_t(TIM14), 14},
+  #ifdef TIM14_BASE
+    { uintptr_t(TIM14), 14 },
   #endif
-  #if defined (TIM13_BASE)
-    {uintptr_t(TIM13), 13},
+  #ifdef TIM13_BASE
+    { uintptr_t(TIM13), 13 },
   #endif
-  #if defined (TIM11_BASE)
-    {uintptr_t(TIM11), 11},
+  #ifdef TIM11_BASE
+    { uintptr_t(TIM11), 11 },
   #endif
-  #if defined (TIM10_BASE)
-    {uintptr_t(TIM10), 10},
+  #ifdef TIM10_BASE
+    { uintptr_t(TIM10), 10 },
   #endif
-  #if defined (TIM12_BASE)
-    {uintptr_t(TIM12), 12},
+  #ifdef TIM12_BASE
+    { uintptr_t(TIM12), 12 },
   #endif
-  #if defined (TIM19_BASE)
-    {uintptr_t(TIM19), 19},
+  #ifdef TIM19_BASE
+    { uintptr_t(TIM19), 19 },
   #endif
-  #if defined (TIM9_BASE)
-    {uintptr_t(TIM9), 9},
+  #ifdef TIM9_BASE
+    { uintptr_t(TIM9),   9 },
   #endif
-  #if defined (TIM5_BASE)
-    {uintptr_t(TIM5), 5},
+  #ifdef TIM5_BASE
+    { uintptr_t(TIM5),   5 },
   #endif
-  #if defined (TIM4_BASE)
-    {uintptr_t(TIM4), 4},
+  #ifdef TIM4_BASE
+    { uintptr_t(TIM4),   4 },
   #endif
-  #if defined (TIM3_BASE)
-    {uintptr_t(TIM3), 3},
+  #ifdef TIM3_BASE
+    { uintptr_t(TIM3),   3 },
   #endif
-  #if defined (TIM2_BASE)
-    {uintptr_t(TIM2), 2},
+  #ifdef TIM2_BASE
+    { uintptr_t(TIM2),   2 },
   #endif
-  #if defined (TIM20_BASE)
-    {uintptr_t(TIM20), 20},
+  #ifdef TIM20_BASE
+    { uintptr_t(TIM20), 20 },
   #endif
-  #if defined (TIM8_BASE)
-    {uintptr_t(TIM8), 8},
+  #ifdef TIM8_BASE
+    { uintptr_t(TIM8),   8 },
   #endif
-  #if defined (TIM1_BASE)
-    {uintptr_t(TIM1), 1}
+  #ifdef TIM1_BASE
+    { uintptr_t(TIM1),   1 }
   #endif
 };
 
