@@ -75,8 +75,20 @@
 #define TOUCH_LANDSCAPE         1
 #define TOUCH_PORTRAIT          2
 
+#ifndef TOUCH_CALIBRATION_X
+  #define TOUCH_CALIBRATION_X   0
+#endif
+#ifndef TOUCH_CALIBRATION_Y
+  #define TOUCH_CALIBRATION_Y   0
+#endif
+#ifndef TOUCH_OFFSET_X
+  #define TOUCH_OFFSET_X        0
+#endif
+#ifndef TOUCH_OFFSET_Y
+  #define TOUCH_OFFSET_Y        0
+#endif
 #ifndef TOUCH_ORIENTATION
-  #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+  #define TOUCH_ORIENTATION     TOUCH_LANDSCAPE
 #endif
 
 #define SSD1963         0x5761

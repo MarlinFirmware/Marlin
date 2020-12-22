@@ -92,12 +92,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Abkühlen");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenz");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser aus");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser an");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laserleistung");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindel-Steuerung");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindel aus");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindel an");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindelleistung");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindelrichtung");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Netzteil ein");
