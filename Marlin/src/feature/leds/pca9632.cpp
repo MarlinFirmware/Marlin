@@ -103,6 +103,9 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
     data[1 + (PCA9632_RED >> 1)] = vr;
     data[1 + (PCA9632_GRN >> 1)] = vg;
     data[1 + (PCA9632_BLU >> 1)] = vb;
+    Wire.beginTransmission(I2C_ADDRESS(addr));
+    Wire.write(data, len);
+    Wire.endTransmission();
   #else
     PCA9632_WriteRegister(addr, regadd + (PCA9632_RED >> 1), vr);
     PCA9632_WriteRegister(addr, regadd + (PCA9632_GRN >> 1), vg);
@@ -111,9 +114,6 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
       PCA9632_WriteRegister(addr, regadd + (PCA9632_WHT >> 1), vw);
     #endif
   #endif
-  Wire.beginTransmission(I2C_ADDRESS(addr));
-  Wire.write(data, len);
-  Wire.endTransmission();
 }
 
 #if 0
