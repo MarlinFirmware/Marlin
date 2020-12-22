@@ -122,20 +122,29 @@ class unified_bed_leveling {
 
     FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
+    static int8_t cell_index_x_raw(const float &x) {
+      return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST));
+    }
+
+    static int8_t cell_index_y_raw(const float &y) {
+      return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
+    }
+
+    static int8_t cell_index_x_valid(const float &x) {
+      return WITHIN(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X - 2));
+    }
+
+    static int8_t cell_index_y_valid(const float &y) {
+      return WITHIN(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y - 2));
+    }
+
     static int8_t cell_index_x(const float &x) {
-      const int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
-      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
-    }                                                     // position. But with this defined this way, it is possible
-                                                          // to extrapolate off of this point even further out. Probably
-                                                          // that is OK because something else should be keeping that from
-                                                          // happening and should not be worried about at this level.
+      return constrain(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X) - 2);
+    }
+
     static int8_t cell_index_y(const float &y) {
-      const int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
-      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
-    }                                                     // position. But with this defined this way, it is possible
-                                                          // to extrapolate off of this point even further out. Probably
-                                                          // that is OK because something else should be keeping that from
-                                                          // happening and should not be worried about at this level.
+      return constrain(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y) - 2);
+    }
 
     static inline xy_int8_t cell_indexes(const float &x, const float &y) {
       return { cell_index_x(x), cell_index_y(y) };
