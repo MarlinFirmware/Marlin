@@ -159,13 +159,13 @@ static inline int freeMemory() {
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-inline void HAL_adc_init() {}
-
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
+#define HAL_ADC_RESOLUTION  ADC_RESOLUTION // 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
+
+inline void HAL_adc_init() { analogReadResolution(HAL_ADC_RESOLUTION); }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
