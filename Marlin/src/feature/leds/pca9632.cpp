@@ -68,12 +68,12 @@
 #ifndef PCA9632_BLU
   #define PCA9632_BLU 0x04
 #endif
-#ifndef PCA9632_WHT
+#if HAS_WHITE_LED && !defined(PCA9632_WHT)
   #define PCA9632_WHT 0x06
 #endif
 
 // If any of the color indexes are greater than 0x04 they can't use auto increment
-#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04 || defined(PCA9632_WHT))
+#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04 || PCA9632_WHT > 0x04)
   #define PCA9632_NO_AUTO_INC
 #endif
 
@@ -93,10 +93,10 @@ static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte
 }
 
 static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb
-        #if ENABLED(PCA9632_RGBW)
-          , const byte vw
-        #endif
-                                                                                                                    ) {
+  #if ENABLED(PCA9632_RGBW)
+    , const byte vw
+  #endif
+) {
   #if DISABLED(PCA9632_NO_AUTO_INC)
     uint8_t data[4], len = 4;
     data[0] = PCA9632_AUTO_IND | regadd;
@@ -107,7 +107,6 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
     PCA9632_WriteRegister(addr, regadd + (PCA9632_RED >> 1), vr);
     PCA9632_WriteRegister(addr, regadd + (PCA9632_GRN >> 1), vg);
     PCA9632_WriteRegister(addr, regadd + (PCA9632_BLU >> 1), vb);
-
     #if ENABLED(PCA9632_RGBW)
       PCA9632_WriteRegister(addr, regadd + (PCA9632_WHT >> 1), vw);
     #endif
@@ -144,11 +143,10 @@ void PCA9632_set_led_color(const LEDColor &color) {
                     ;
 
   PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
-                              #if ENABLED(PCA9632_RGBW)
-                                , color.w
-                              #endif
-
-                                                                                      );
+    #if ENABLED(PCA9632_RGBW)
+      , color.w
+    #endif
+  );
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
 
