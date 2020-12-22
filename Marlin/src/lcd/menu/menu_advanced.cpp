@@ -505,13 +505,7 @@ void menu_backlash();
 
     static void lcd_set_serial_baud(const uint8_t p) {
       START_MENU();
-      MENU_BACK(
-        #if NUM_SERIAL > 1
-          MSG_SET_BAUDRATE
-        #else
-          MSG_ADVANCED_SETTINGS
-        #endif
-      );
+      MENU_BACK(TERN(HAS_MULTI_SERIAL, MSG_SET_BAUDRATE, MSG_ADVANCED_SETTINGS);
       ACTION_ITEM(MSG_SERIAL_BAUD_2400,    []{ enqueue_M575(p,    2400) });
       ACTION_ITEM(MSG_SERIAL_BAUD_4800,    []{ enqueue_M575(p,    4800) });
       ACTION_ITEM(MSG_SERIAL_BAUD_9600,    []{ enqueue_M575(p,    9600) });
@@ -536,7 +530,7 @@ void menu_backlash();
       static void lcd_set_serial2_baud() { lcd_set_serial_baud(1); }
     #endif
 
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static void lcd_select_serial_baud() {
         START_MENU();
         MENU_BACK(MSG_ADVANCED_SETTINGS);
