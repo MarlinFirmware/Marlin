@@ -54,82 +54,111 @@
   void custom_menus_main() {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
-    #define HAS_CUSTOM_MENU_ITEM(N) (defined(CUSTOM_MENU_MAIN_DESC_##N) && defined(CUSTOM_MENU_MAIN_GCODE_##N))
-    #define CUSTOM_MENU_ITEM(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_MAIN_DESC_##N), []{ _lcd_custom_menu_main_gcode(PSTR(CUSTOM_MENU_MAIN_GCODE_##N _DONE_SCRIPT)); });
-    #if HAS_CUSTOM_MENU_ITEM(1)
-      CUSTOM_MENU_ITEM(1);
+    #define HAS_CUSTOM_ITEM_MAIN(N) (defined(CUSTOM_MENU_MAIN_DESC_##N) && defined(CUSTOM_MENU_MAIN_GCODE_##N))
+    #define CUSTOM_TEST_MAIN(N) { \
+      constexpr char c = CUSTOM_MENU_MAIN_GCODE_##N[strlen(CUSTOM_MENU_MAIN_GCODE_##N) - 1]; \
+      static_assert(c != '\n' && c != '\r', "CUSTOM_MENU_MAIN_GCODE_" STRINGIFY(N) " cannot have a newline at the end. Please remove it."); \
+    }
+    #define CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_MAIN_DESC_##N), []{ _lcd_custom_menu_main_gcode(PSTR(CUSTOM_MENU_MAIN_GCODE_##N _DONE_SCRIPT)); });
+    #if HAS_CUSTOM_ITEM_MAIN(1)
+      CUSTOM_TEST_MAIN(1);
+      CUSTOM_ITEM_MAIN(1);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(2)
-      CUSTOM_MENU_ITEM(2);
+    #if HAS_CUSTOM_ITEM_MAIN(2)
+      CUSTOM_TEST_MAIN(2);
+      CUSTOM_ITEM_MAIN(2);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(3)
-      CUSTOM_MENU_ITEM(3);
+    #if HAS_CUSTOM_ITEM_MAIN(3)
+      CUSTOM_TEST_MAIN(3);
+      CUSTOM_ITEM_MAIN(3);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(4)
-      CUSTOM_MENU_ITEM(4);
+    #if HAS_CUSTOM_ITEM_MAIN(4)
+      CUSTOM_TEST_MAIN(4);
+      CUSTOM_ITEM_MAIN(4);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(5)
-      CUSTOM_MENU_ITEM(5);
+    #if HAS_CUSTOM_ITEM_MAIN(5)
+      CUSTOM_TEST_MAIN(5);
+      CUSTOM_ITEM_MAIN(5);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(6)
-      CUSTOM_MENU_ITEM(6);
+    #if HAS_CUSTOM_ITEM_MAIN(6)
+      CUSTOM_TEST_MAIN(6);
+      CUSTOM_ITEM_MAIN(6);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(7)
-      CUSTOM_MENU_ITEM(7);
+    #if HAS_CUSTOM_ITEM_MAIN(7)
+      CUSTOM_TEST_MAIN(7);
+      CUSTOM_ITEM_MAIN(7);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(8)
-      CUSTOM_MENU_ITEM(8);
+    #if HAS_CUSTOM_ITEM_MAIN(8)
+      CUSTOM_TEST_MAIN(8);
+      CUSTOM_ITEM_MAIN(8);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(9)
-      CUSTOM_MENU_ITEM(9);
+    #if HAS_CUSTOM_ITEM_MAIN(9)
+      CUSTOM_TEST_MAIN(9);
+      CUSTOM_ITEM_MAIN(9);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(10)
-      CUSTOM_MENU_ITEM(10);
+    #if HAS_CUSTOM_ITEM_MAIN(10)
+      CUSTOM_TEST_MAIN(10);
+      CUSTOM_ITEM_MAIN(10);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(11)
-      CUSTOM_MENU_ITEM(11);
+    #if HAS_CUSTOM_ITEM_MAIN(11)
+      CUSTOM_TEST_MAIN(11);
+      CUSTOM_ITEM_MAIN(11);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(12)
-      CUSTOM_MENU_ITEM(12);
+    #if HAS_CUSTOM_ITEM_MAIN(12)
+      CUSTOM_TEST_MAIN(12);
+      CUSTOM_ITEM_MAIN(12);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(13)
-      CUSTOM_MENU_ITEM(13);
+    #if HAS_CUSTOM_ITEM_MAIN(13)
+      CUSTOM_TEST_MAIN(13);
+      CUSTOM_ITEM_MAIN(13);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(14)
-      CUSTOM_MENU_ITEM(14);
+    #if HAS_CUSTOM_ITEM_MAIN(14)
+      CUSTOM_TEST_MAIN(14);
+      CUSTOM_ITEM_MAIN(14);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(15)
-      CUSTOM_MENU_ITEM(15);
+    #if HAS_CUSTOM_ITEM_MAIN(15)
+      CUSTOM_TEST_MAIN(15);
+      CUSTOM_ITEM_MAIN(15);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(16)
-      CUSTOM_MENU_ITEM(16);
+    #if HAS_CUSTOM_ITEM_MAIN(16)
+      CUSTOM_TEST_MAIN(16);
+      CUSTOM_ITEM_MAIN(16);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(17)
-      CUSTOM_MENU_ITEM(17);
+    #if HAS_CUSTOM_ITEM_MAIN(17)
+      CUSTOM_TEST_MAIN(17);
+      CUSTOM_ITEM_MAIN(17);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(18)
-      CUSTOM_MENU_ITEM(18);
+    #if HAS_CUSTOM_ITEM_MAIN(18)
+      CUSTOM_TEST_MAIN(18);
+      CUSTOM_ITEM_MAIN(18);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(19)
-      CUSTOM_MENU_ITEM(19);
+    #if HAS_CUSTOM_ITEM_MAIN(19)
+      CUSTOM_TEST_MAIN(19);
+      CUSTOM_ITEM_MAIN(19);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(20)
-      CUSTOM_MENU_ITEM(20);
+    #if HAS_CUSTOM_ITEM_MAIN(20)
+      CUSTOM_TEST_MAIN(20);
+      CUSTOM_ITEM_MAIN(20);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(21)
-      CUSTOM_MENU_ITEM(21);
+    #if HAS_CUSTOM_ITEM_MAIN(21)
+      CUSTOM_TEST_MAIN(21);
+      CUSTOM_ITEM_MAIN(21);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(22)
-      CUSTOM_MENU_ITEM(22);
+    #if HAS_CUSTOM_ITEM_MAIN(22)
+      CUSTOM_TEST_MAIN(22);
+      CUSTOM_ITEM_MAIN(22);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(23)
-      CUSTOM_MENU_ITEM(23);
+    #if HAS_CUSTOM_ITEM_MAIN(23)
+      CUSTOM_TEST_MAIN(23);
+      CUSTOM_ITEM_MAIN(23);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(24)
-      CUSTOM_MENU_ITEM(24);
+    #if HAS_CUSTOM_ITEM_MAIN(24)
+      CUSTOM_TEST_MAIN(24);
+      CUSTOM_ITEM_MAIN(24);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(25)
-      CUSTOM_MENU_ITEM(25);
+    #if HAS_CUSTOM_ITEM_MAIN(25)
+      CUSTOM_TEST_MAIN(25);
+      CUSTOM_ITEM_MAIN(25);
     #endif
     END_MENU();
   }
@@ -147,82 +176,111 @@
   void custom_menus_configuration() {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
-    #define HAS_CUSTOM_MENU_ITEM(N) (defined(CUSTOM_MENU_CONFIGURATION_DESC_##N) && defined(CUSTOM_MENU_CONFIGURATION_GCODE_##N))
-    #define CUSTOM_MENU_ITEM(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_CONFIGURATION_DESC_##N), []{ _lcd_custom_menus_configuration_gcode(PSTR(CUSTOM_MENU_CONFIGURATION_GCODE_##N _DONE_SCRIPT)); }); // ***********************
-    #if HAS_CUSTOM_MENU_ITEM(1)
-      CUSTOM_MENU_ITEM(1);
+    #define HAS_CUSTOM_ITEM_CONF(N) (defined(CUSTOM_MENU_CONFIGURATION_DESC_##N) && defined(CUSTOM_MENU_CONFIGURATION_GCODE_##N))
+    #define CUSTOM_TEST_CONF(N) { \
+      constexpr char chr = CUSTOM_MENU_CONFIGURATION_GCODE_##N[strlen(CUSTOM_MENU_CONFIGURATION_GCODE_##N) - 1]; \
+      static_assert(chr != '\n' && chr != '\r', "CUSTOM_MENU_CONFIGURATION_GCODE_" STRINGIFY(N) " cannot have a newline at the end. Please remove it.");
+    }
+    #define CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_CONFIGURATION_DESC_##N), []{ _lcd_custom_menus_configuration_gcode(PSTR(CUSTOM_MENU_CONFIGURATION_GCODE_##N _DONE_SCRIPT)); }); // ***********************
+    #if HAS_CUSTOM_ITEM_CONF(1)
+      CUSTOM_TEST_CONF(1);
+      CUSTOM_ITEM_CONF(1);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(2)
-      CUSTOM_MENU_ITEM(2);
+    #if HAS_CUSTOM_ITEM_CONF(2)
+      CUSTOM_TEST_CONF(2);
+      CUSTOM_ITEM_CONF(2);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(3)
-      CUSTOM_MENU_ITEM(3);
+    #if HAS_CUSTOM_ITEM_CONF(3)
+      CUSTOM_TEST_CONF(3);
+      CUSTOM_ITEM_CONF(3);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(4)
-      CUSTOM_MENU_ITEM(4);
+    #if HAS_CUSTOM_ITEM_CONF(4)
+      CUSTOM_TEST_CONF(4);
+      CUSTOM_ITEM_CONF(4);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(5)
-      CUSTOM_MENU_ITEM(5);
+    #if HAS_CUSTOM_ITEM_CONF(5)
+      CUSTOM_TEST_CONF(5);
+      CUSTOM_ITEM_CONF(5);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(6)
-      CUSTOM_MENU_ITEM(6);
+    #if HAS_CUSTOM_ITEM_CONF(6)
+      CUSTOM_TEST_CONF(6);
+      CUSTOM_ITEM_CONF(6);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(7)
-      CUSTOM_MENU_ITEM(7);
+    #if HAS_CUSTOM_ITEM_CONF(7)
+      CUSTOM_TEST_CONF(7);
+      CUSTOM_ITEM_CONF(7);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(8)
-      CUSTOM_MENU_ITEM(8);
+    #if HAS_CUSTOM_ITEM_CONF(8)
+      CUSTOM_TEST_CONF(8);
+      CUSTOM_ITEM_CONF(8);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(9)
-      CUSTOM_MENU_ITEM(9);
+    #if HAS_CUSTOM_ITEM_CONF(9)
+      CUSTOM_TEST_CONF(9);
+      CUSTOM_ITEM_CONF(9);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(10)
-      CUSTOM_MENU_ITEM(10);
+    #if HAS_CUSTOM_ITEM_CONF(10)
+      CUSTOM_TEST_CONF(10);
+      CUSTOM_ITEM_CONF(10);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(11)
-      CUSTOM_MENU_ITEM(11);
+    #if HAS_CUSTOM_ITEM_CONF(11)
+      CUSTOM_TEST_CONF(11);
+      CUSTOM_ITEM_CONF(11);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(12)
-      CUSTOM_MENU_ITEM(12);
+    #if HAS_CUSTOM_ITEM_CONF(12)
+      CUSTOM_TEST_CONF(12);
+      CUSTOM_ITEM_CONF(12);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(13)
-      CUSTOM_MENU_ITEM(13);
+    #if HAS_CUSTOM_ITEM_CONF(13)
+      CUSTOM_TEST_CONF(13);
+      CUSTOM_ITEM_CONF(13);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(14)
-      CUSTOM_MENU_ITEM(14);
+    #if HAS_CUSTOM_ITEM_CONF(14)
+      CUSTOM_TEST_CONF(14);
+      CUSTOM_ITEM_CONF(14);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(15)
-      CUSTOM_MENU_ITEM(15);
+    #if HAS_CUSTOM_ITEM_CONF(15)
+      CUSTOM_TEST_CONF(15);
+      CUSTOM_ITEM_CONF(15);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(16)
-      CUSTOM_MENU_ITEM(16);
+    #if HAS_CUSTOM_ITEM_CONF(16)
+      CUSTOM_TEST_CONF(16);
+      CUSTOM_ITEM_CONF(16);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(17)
-      CUSTOM_MENU_ITEM(17);
+    #if HAS_CUSTOM_ITEM_CONF(17)
+      CUSTOM_TEST_CONF(17);
+      CUSTOM_ITEM_CONF(17);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(18)
-      CUSTOM_MENU_ITEM(18);
+    #if HAS_CUSTOM_ITEM_CONF(18)
+      CUSTOM_TEST_CONF(18);
+      CUSTOM_ITEM_CONF(18);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(19)
-      CUSTOM_MENU_ITEM(19);
+    #if HAS_CUSTOM_ITEM_CONF(19)
+      CUSTOM_TEST_CONF(19);
+      CUSTOM_ITEM_CONF(19);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(20)
-      CUSTOM_MENU_ITEM(20);
+    #if HAS_CUSTOM_ITEM_CONF(20)
+      CUSTOM_TEST_CONF(20);
+      CUSTOM_ITEM_CONF(20);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(21)
-      CUSTOM_MENU_ITEM(21);
+    #if HAS_CUSTOM_ITEM_CONF(21)
+      CUSTOM_TEST_CONF(21);
+      CUSTOM_ITEM_CONF(21);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(22)
-      CUSTOM_MENU_ITEM(22);
+    #if HAS_CUSTOM_ITEM_CONF(22)
+      CUSTOM_TEST_CONF(22);
+      CUSTOM_ITEM_CONF(22);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(23)
-      CUSTOM_MENU_ITEM(23);
+    #if HAS_CUSTOM_ITEM_CONF(23)
+      CUSTOM_TEST_CONF(23);
+      CUSTOM_ITEM_CONF(23);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(24)
-      CUSTOM_MENU_ITEM(24);
+    #if HAS_CUSTOM_ITEM_CONF(24)
+      CUSTOM_TEST_CONF(24);
+      CUSTOM_ITEM_CONF(24);
     #endif
-    #if HAS_CUSTOM_MENU_ITEM(25)
-      CUSTOM_MENU_ITEM(25);
+    #if HAS_CUSTOM_ITEM_CONF(25)
+      CUSTOM_TEST_CONF(25);
+      CUSTOM_ITEM_CONF(25);
     #endif
     END_MENU();
   }
