@@ -101,8 +101,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_touch_calibration_screen() {
-//  disp_state_stack._disp_index = 0;
-//  ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(TOUCH_CALIBRATION_UI, "");
 
   status_label = lv_label_create(scr, "");
