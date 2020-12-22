@@ -88,10 +88,6 @@ void MarlinUI::clear_lcd() {
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
-  #ifndef BOOTSCREEN_TIMEOUT
-    #define BOOTSCREEN_TIMEOUT 1500
-  #endif
-
   void MarlinUI::show_bootscreen() {
     tft.queue.reset();
 
@@ -106,7 +102,7 @@ void MarlinUI::clear_lcd() {
     safe_delay(BOOTSCREEN_TIMEOUT);
     clear_lcd();
   }
-#endif // SHOW_BOOTSCREEN
+#endif
 
 void MarlinUI::draw_kill_screen() {
   tft.queue.reset();
@@ -418,21 +414,21 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
   extern screenFunc_t _manual_move_func_ptr;
   if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
 
-    #define SLIDER_LENGHT 224
+    #define SLIDER_LENGTH 224
     #define SLIDER_Y_POSITION 140
 
-    tft.canvas((TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION, SLIDER_LENGHT, 16);
+    tft.canvas((TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION, SLIDER_LENGTH, 16);
     tft.set_background(COLOR_BACKGROUND);
 
-    int16_t position = (SLIDER_LENGHT - 2) * ui.encoderPosition / maxEditValue;
+    int16_t position = (SLIDER_LENGTH - 2) * ui.encoderPosition / maxEditValue;
     tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
     tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
-    tft.add_bar(position + 1, 6, SLIDER_LENGHT - 2 - position, 4, COLOR_SLIDER_INACTIVE);
-    tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
+    tft.add_bar(position + 1, 6, SLIDER_LENGTH - 2 - position, 4, COLOR_SLIDER_INACTIVE);
+    tft.add_bar(SLIDER_LENGTH - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
 
     #if ENABLED(TOUCH_SCREEN)
-      tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGHT, 32, maxEditValue);
+      tft.add_image((SLIDER_LENGTH - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
+      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
   }
 

@@ -1765,14 +1765,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   /* <-- add a slash to enable
-    SERIAL_ECHOLNPAIR("  _populate_block FR:", fr_mm_s,
-                      " A:", target.a, " (", da, " steps)"
-                      " B:", target.b, " (", db, " steps)"
-                      " C:", target.c, " (", dc, " steps)"
-                      #if EXTRUDERS
-                        " E:", target.e, " (", de, " steps)"
-                      #endif
-                    );
+    SERIAL_ECHOLNPAIR(
+      "  _populate_block FR:", fr_mm_s,
+      " A:", target.a, " (", da, " steps)"
+      " B:", target.b, " (", db, " steps)"
+      " C:", target.c, " (", dc, " steps)"
+      #if EXTRUDERS
+        " E:", target.e, " (", de, " steps)"
+      #endif
+    );
   //*/
 
   #if EITHER(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)

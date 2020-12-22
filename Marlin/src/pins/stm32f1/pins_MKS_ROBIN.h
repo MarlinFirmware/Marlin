@@ -23,7 +23,6 @@
 
 /**
  * MKS Robin (STM32F130ZET6) board pin assignments
- *
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
@@ -121,17 +120,8 @@
 #define PS_ON_PIN                           PA3   // PW_OFF
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
-#ifdef ARDUINO_ARCH_STM32F1
-  #define BEEPER_PIN                        PC13
-#else
-  #define BEEPER_PIN                        -1
-#endif
+#define BEEPER_PIN                          PC13
 #define LED_PIN                             PB2
-
-#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-#endif
 
 #if HAS_FSMC_TFT
   /**
@@ -140,23 +130,27 @@
    * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
-   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * If the screen stays white, disable 'TFT_RESET_PIN'
    * to let the bootloader init the screen.
    *
-   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  //#define LCD_RESET_PIN                   PF6
-  #define LCD_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
+
   #define FSMC_CS_PIN                 TFT_CS_PIN
   #define FSMC_RS_PIN                 TFT_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-#elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
+
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 #endif
 
 #if NEED_TOUCH_PINS
@@ -170,11 +164,22 @@
 // SPI1(PA7) & SPI3(PB5) not available
 #define SPI_DEVICE                             2
 
+#define SDIO_SUPPORT
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
-  #define SD_DETECT_PIN                     PF12  // SD_CD
+  /**
+   * MKS Robin has a few hardware revisions
+   * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
+   *
+   * MKS Robin <= V2.3 have no SD_DETECT_PIN.
+   * MKS Robin >= V2.4 have SD_DETECT_PIN on PF12.
+   *
+   * Uncomment here or add SD_DETECT_PIN to Configuration.h.
+   */
+  //#define SD_DETECT_PIN                   -1
+  //#define SD_DETECT_PIN                   PF12  // SD_CD
 #else
   // SD as custom software SPI (SDIO pins)
   #define SCK_PIN                           PC12

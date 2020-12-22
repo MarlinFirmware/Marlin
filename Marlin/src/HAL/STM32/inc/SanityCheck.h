@@ -55,3 +55,7 @@
 #if ENABLED(BAUD_RATE_GCODE)
   #error "BAUD_RATE_GCODE is not yet supported on STM32."
 #endif
+
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32F4xx, STM32F1xx)
+  #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32F4 and STM32F1 hardware."
+#endif
