@@ -24,7 +24,7 @@
 #if PIO_PLATFORM_VERSION < 1001
   #error "nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically."
 #endif
-#if PIO_FRAMEWORK_VERSION < 2005
+#if PIO_FRAMEWORK_VERSION < 2006
   #error "framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries."
 #endif
 
@@ -97,8 +97,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX0(P) (P == P0_03)
   #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
-  #elif ENABLED(MK2_MULTIPLEXER) && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
-    #error "Serial port pins (0) conflict with MK2 multiplexer pins!"
+  #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
+    #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
   #elif (AXIS_HAS_SPI(X) && IS_TX0(X_CS_PIN)) || (AXIS_HAS_SPI(Y) && IS_RX0(Y_CS_PIN))
     #error "Serial port pins (0) conflict with X/Y axis SPI pins!"
   #endif

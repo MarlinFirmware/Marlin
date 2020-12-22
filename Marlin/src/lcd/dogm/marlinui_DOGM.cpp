@@ -123,7 +123,7 @@ bool MarlinUI::detected() { return true; }
           custom_start_bmp
         #endif
       ;
-      TERN(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
+      UNUSED(frame);
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
@@ -144,10 +144,16 @@ bool MarlinUI::detected() { return true; }
         constexpr millis_t d = 0;
         constexpr uint8_t f = 0;
       #else
-        constexpr millis_t d = CUSTOM_BOOTSCREEN_FRAME_TIME;
+        #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
+          constexpr millis_t d = CUSTOM_BOOTSCREEN_FRAME_TIME;
+        #endif
         LOOP_L_N(f, COUNT(custom_bootscreen_animation))
       #endif
         {
+          #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
+            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_frame_time) - 1);
+            const millis_t d = custom_bootscreen_frame_time[fr];
+          #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
           if (d) safe_delay(d);
@@ -156,7 +162,9 @@ bool MarlinUI::detected() { return true; }
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
       #endif
-      safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+      #if CUSTOM_BOOTSCREEN_TIMEOUT
+        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+      #endif
     }
   #endif // SHOW_CUSTOM_BOOTSCREEN
 
@@ -423,7 +431,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex, itemString);
 
     // If a value is included, print a colon, then print the value right-justified
-    if (value != nullptr) {
+    if (value) {
       lcd_put_wchar(':');
       if (extra_row) {
         // Assume that value is numeric (with no descender)
@@ -461,8 +469,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
+        const uint8_t maxlen = LCD_WIDTH - isDir;
         if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
-        constexpr uint8_t maxlen = LCD_WIDTH - 1;
         const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
         pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');

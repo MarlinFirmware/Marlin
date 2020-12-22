@@ -205,7 +205,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_enable.bin",
   "bmp_return.bin",
 
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     // wifi screen
     "bmp_wifi.bin",
   #endif
@@ -488,6 +488,7 @@ uint8_t public_buf[512];
   }
 
   void UpdateAssets() {
+    if (!card.isMounted()) return;
     SdFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 

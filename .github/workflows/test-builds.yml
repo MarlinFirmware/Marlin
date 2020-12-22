@@ -36,9 +36,11 @@ jobs:
         # Base Environments
 
         - DUE
+        - DUE_archim
         - esp32
         - linux_native
         - mega2560
+        - at90usb1286_dfu
         - teensy31
         - teensy35
         - teensy41
@@ -46,13 +48,13 @@ jobs:
 
         # Extended AVR Environments
 
-        - FYSETC_F6_13
+        - FYSETC_F6
         - mega1280
         - rambo
         - sanguino1284p
         - sanguino644p
 
-        # Extended STM32 Environments
+        # STM32F1 (Maple) Environments
 
         - STM32F103RC_btt
         - STM32F103RC_btt_USB
@@ -62,40 +64,39 @@ jobs:
         - STM32F103RC_meeb
         - jgaurora_a5s_a1
         - STM32F103VE_longer
+        - mks_robin
+        - mks_robin_lite
+        - mks_robin_pro
+        - STM32F103RET6_creality
+        - mks_robin_nano35
+
+        # STM32 (ST) Environments
+
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
-        - mks_robin
         - mks_robin_stm32
         - ARMED
         - FYSETC_S6
         - STM32F070CB_malyan
         - STM32F070RB_malyan
         - malyan_M300
-        - mks_robin_lite
         - FLYF407ZG
         - rumba32
-        - mks_robin_pro
-        - STM32F103RET6_creality
         - LERDGEX
-        - mks_robin_nano35
+        - mks_robin_nano35_stm32
         - NUCLEO_F767ZI
+        - REMRAM_V1
 
         # Put lengthy tests last
 
         - LPC1768
         - LPC1769
 
-        # STM32 with non-STM framework. both broken for now. they should use HAL_STM32 which is working.
-
-        #- STM32F4
-        #- STM32F7
-
         # Non-working environment tests
         #- at90usb1286_cdc
-        #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
 
@@ -117,8 +118,4 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        # Inline tests script
-        chmod +x buildroot/bin/*
-        chmod +x buildroot/tests/*
-        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
-        run_tests . ${{ matrix.test-platform }}
+        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}

@@ -16,12 +16,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MESH)
+#if BOTH(TOUCH_UI_FTDI_EVE, AUTO_BED_LEVELING_UBL)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -78,9 +78,9 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
       }
     }
   }
-  if (val_cnt) {
+  if (val_cnt)
     val_mean /= val_cnt;
-  } else {
+  else {
     val_mean = 0;
     val_min  = 0;
     val_max  = 0;
@@ -250,7 +250,7 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .text(Z_VALUE_POS, str)
      .colors(action_btn)
-     .tag(1).button( OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
+     .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
   switch (screen_data.BedMeshScreen.message) {
@@ -327,11 +327,10 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
       screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_NONE;
       break;
     case ExtUI::MESH_FINISH:
-      if (screen_data.BedMeshScreen.count == GRID_MAX_POINTS && isMeshComplete(ExtUI::getMeshArray())) {
+      if (screen_data.BedMeshScreen.count == GRID_MAX_POINTS && isMeshComplete(ExtUI::getMeshArray()))
         screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_COMPLETE;
-      } else {
+      else
         screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_INCOMPLETE;
-      }
       screen_data.BedMeshScreen.count = GRID_MAX_POINTS;
       break;
     case ExtUI::PROBE_START:

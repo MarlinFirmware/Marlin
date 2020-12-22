@@ -64,7 +64,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
       ubl.encoder_diff > 0 ? 0.005f : -0.005f
     );
     ubl.encoder_diff = 0;
-    TERN(IS_TFTGLCD_PANEL,,ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
+    IF_DISABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
   }
   TERN_(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
 
@@ -524,7 +524,7 @@ void _ubl_map_screen_homing() {
  */
 void _ubl_goto_map_screen() {
   if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
-  if (!all_axes_known()) {
+  if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }

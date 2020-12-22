@@ -31,10 +31,10 @@ public:
   Password() { is_locked = false; }
 
   static void lock_machine();
+  static void authentication_check();
 
   #if HAS_LCD_MENU
     static void access_menu_password();
-    static void authentication_check();
     static void authentication_done();
     static void media_gatekeeper();
 
@@ -47,7 +47,7 @@ public:
     static void start_over();
 
     static void digit_entered();
-    static void set_password_done();
+    static void set_password_done(const bool with_set=true);
     static void menu_password_report();
 
     static void remove_password();

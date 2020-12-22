@@ -61,11 +61,7 @@
 #define _O3          __attribute__((optimize("O3")))
 
 #ifndef UNUSED
-  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-    #define UNUSED(X) (void)X
-  #else
-    #define UNUSED(x) ((void)(x))
-  #endif
+  #define UNUSED(x) ((void)(x))
 #endif
 
 // Clock speed factors
@@ -155,7 +151,7 @@
 
 #endif
 
-// Macros to chain up to 12 conditions
+// Macros to chain up to 14 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
 #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
@@ -168,6 +164,8 @@
 #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
 #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+#define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
+#define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
@@ -195,6 +193,9 @@
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+#define IF_ENABLED          TERN_
+#define IF_DISABLED(O,A)    TERN(O,,A)
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)

@@ -29,6 +29,7 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
+#include "Servo.h"
 #include "watchdog.h"
 #include "MarlinSerial.h"
 
@@ -110,6 +111,8 @@
 typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB libServo
+#define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+#define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // ------------------------
 // Public Variables
@@ -156,13 +159,13 @@ static inline int freeMemory() {
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-inline void HAL_adc_init() {}
-
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
+#define HAL_ADC_RESOLUTION  ADC_RESOLUTION // 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
+
+inline void HAL_adc_init() { analogReadResolution(HAL_ADC_RESOLUTION); }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
@@ -187,3 +190,22 @@ void HAL_SYSTICK_Callback();
 
 #define HAL_SYSTICK_VALUE (SysTick->VAL)
 #define HAL_SYSTICK_OVERFLOW_VALUE (SysTick->LOAD + 1)
+
+extern volatile uint32_t systick_uptime_millis;
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Timer PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

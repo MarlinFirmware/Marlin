@@ -34,15 +34,14 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
-// Change the priority to 3. Priority 2 is for software serial.
-//#define TEMP_TIMER_IRQ_PRIO                  3
+// Avoid conflict with TIMER_TONE defined in variant
+#define STEP_TIMER 10
 
 //
 // EEPROM Emulation
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
 
@@ -51,7 +50,7 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x0800  // 2KB
 #endif
 
 //
@@ -256,6 +255,11 @@
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif

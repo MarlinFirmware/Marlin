@@ -26,7 +26,7 @@
 
 #if ENABLED(DGUS_LCD_UI_HIPRECY)
 
-#include "../DGUSDisplayDef.h"
+#include "DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 

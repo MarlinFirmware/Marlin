@@ -38,12 +38,22 @@
   };
 #endif
 
+#if HAS_CUSTOM_PROBE_PIN
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+#else
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+#endif
+
 class Probe {
 public:
 
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
+
+    #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      static void preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp);
+    #endif
 
     static bool set_deployed(const bool deploy);
 
@@ -112,9 +122,9 @@ public:
   FORCE_INLINE static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
     return (
       #if IS_KINEMATIC
-         can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
+        can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
       #else
-         can_reach(lf) && can_reach(rb)
+        can_reach(lf) && can_reach(rb)
       #endif
     );
   }
@@ -122,7 +132,7 @@ public:
   // Use offset_xy for read only access
   // More optimal the XY offset is known to always be zero.
   #if HAS_PROBE_XY_OFFSET
-    static const xyz_pos_t &offset_xy;
+    static const xy_pos_t &offset_xy;
   #else
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
@@ -145,25 +155,25 @@ public:
       return TERN(IS_KINEMATIC,
         (X_CENTER) - probe_radius(),
         _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.x);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float max_x() {
       return TERN(IS_KINEMATIC,
         (X_CENTER) + probe_radius(),
         _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.x);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float min_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) - probe_radius(),
         _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.y);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
     static inline float max_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) + probe_radius(),
         _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.y);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
 
     #if NEEDS_THREE_PROBE_POINTS
@@ -196,8 +206,12 @@ public:
     static void servo_probe_init();
   #endif
 
-  #if QUIET_PROBING
+  #if HAS_QUIET_PROBING
     static void set_probing_paused(const bool p);
+  #endif
+
+  #if ENABLED(PROBE_TARE)
+    static bool tare();
   #endif
 
 private:

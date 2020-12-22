@@ -354,6 +354,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define MENU_ITEM_P(TYPE, PLABEL, V...)                 _MENU_ITEM_P(TYPE, false, PLABEL, ##V)
 #define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
 
+#define BACK_ITEM_P(PLABEL)                              MENU_ITEM_P(back, PLABEL)
 #define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
 
 #define ACTION_ITEM_N_S_P(N, S, PLABEL, ACTION)      MENU_ITEM_N_S_P(function, N, S, PLABEL, ACTION)

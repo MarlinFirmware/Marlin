@@ -1,6 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -99,7 +103,7 @@ void XPT2046::Init() {
     #endif
   }
   else {
-    SPIx.Instance = NULL;
+    SPIx.Instance = nullptr;
     SET_INPUT(TOUCH_MISO_PIN);
     SET_OUTPUT(TOUCH_MOSI_PIN);
     SET_OUTPUT(TOUCH_SCK_PIN);
@@ -183,3 +187,4 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
 }
 
 #endif // HAS_TFT_XPT2046
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

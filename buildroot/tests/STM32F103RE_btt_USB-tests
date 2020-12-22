@@ -13,7 +13,19 @@ restore_configs
 opt_set MOTHERBOARD BOARD_BTT_SKR_E3_DIP
 opt_set SERIAL_PORT 1
 opt_set SERIAL_PORT_2 -1
-exec_test $1 $2 "BigTreeTech SKR E3 DIP v1.0 - Basic Configuration"
+exec_test $1 $2 "BigTreeTech SKR E3 DIP v1.0 - Basic Configuration" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_SKR_CR6
+opt_set SERIAL_PORT -1
+opt_set SERIAL_PORT_2 2
+opt_set TEMP_SENSOR_BED 1
+opt_enable CR10_STOCKDISPLAY \
+           NOZZLE_AS_PROBE Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN Z_SAFE_HOMING \
+           PROBE_ACTIVATION_SWITCH PROBE_TARE PROBE_TARE_ONLY_WHILE_INACTIVE \
+           PROBING_HEATERS_OFF PREHEAT_BEFORE_PROBING
+opt_disable NOZZLE_TO_PROBE_OFFSET
+exec_test $1 $2 "BigTreeTech SKR CR6 PROBE_ACTIVATION_SWITCH, Probe Tare" "$3"
 
 # clean up
 restore_configs

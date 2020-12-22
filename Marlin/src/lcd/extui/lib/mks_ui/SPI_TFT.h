@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
 

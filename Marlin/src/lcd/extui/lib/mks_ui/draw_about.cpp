@@ -50,20 +50,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_about(void) {
   scr = lv_screen_create(ABOUT_UI);
-
-  // Create an Image button
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_A_RETURN);
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
-  #endif
-
-  // Create a label on the image button
-  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_A_RETURN);
 
   //fw_version = lv_label_create(scr, SHORT_BUILD_VERSION);
   //lv_obj_align(fw_version, nullptr, LV_ALIGN_CENTER, 0, -60);
