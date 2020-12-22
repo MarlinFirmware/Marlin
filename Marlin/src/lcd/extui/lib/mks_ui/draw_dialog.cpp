@@ -167,13 +167,15 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     TERN_(EEPROM_SETTINGS, (void)settings.reset());
     clear_cur_ui();
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      if (touch_calibration.need_calibration()) {
+      const bool do_draw_cal = touch_calibration.need_calibration();
+      if (do_draw_cal) {
         disp_state_stack._disp_index--; // We are asynchronous from the dialog, so let's remove the dialog from the stack
         lv_draw_touch_calibration_screen();
       }
-      else
+    #else
+      constexpr bool do_draw_cal = false;
     #endif
-    draw_return_ui();
+    if (!do_draw_cal) draw_return_ui();
   }
   else if (DIALOG_IS(WIFI_CONFIG_TIPS)) {
     uiCfg.configWifi = 1;
@@ -193,9 +195,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
 static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-    #endif
+    TERN_(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     thermalManager.temp_hotend[uiCfg.curSprayerChoose].target= uiCfg.desireSprayerTempBak;
