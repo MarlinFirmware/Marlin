@@ -81,7 +81,10 @@ public:
   }
   static void calibration_end() { calibration_state = CALIBRATION_NONE; }
   static calibrationState get_calibration_state() { return calibration_state; }
-  static bool calibration_loaded() { if (!need_calibration()) return true; calibration_reset(); return !need_calibration(); }
+  static bool calibration_loaded() {
+    if (need_calibration()) calibration_reset();
+    return !need_calibration();
+  }
 
   static bool handleTouch(uint16_t x, uint16_t y);
 };
