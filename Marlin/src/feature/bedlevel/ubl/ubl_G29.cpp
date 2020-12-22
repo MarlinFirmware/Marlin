@@ -972,6 +972,12 @@
 
       MeshFlags done_flags{0};
       const xy_int8_t &lpos = location.pos;
+
+      #if IS_TFTGLCD_PANEL
+        lcd_mesh_edit_setup(0);                             // Change current screen before calling ui.ubl_plot
+        safe_delay(50);
+      #endif
+
       do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, pos, false, &done_flags);
 
