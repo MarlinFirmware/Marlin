@@ -329,11 +329,14 @@
 #define BOARD_CHITU3D_V6              4036  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V452           4039  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4040  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4041  // FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4042  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4043  // STM32F103RET6 Libmaple-based controller
+#define BOARD_CREALITY_V431           4039  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V452           4040  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4041  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4042  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4043  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4044  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4045  // STM32F103RET6 Libmaple-based controller
+#define BOARD_BTT_SKR_CR6             4046  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
 
 //
 // ARM Cortex-M4F
@@ -366,6 +369,9 @@
 #define BOARD_FLYF407ZG               4217  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4218  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4219  // MKS Robin Pro V2 (STM32F407VE)
+#define BOARD_MKS_ROBIN_NANO_V3       4220  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_ANET_ET4                4221  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4222  // ANET ET4P V1.x (STM32F407VGT6)
 
 //
 // ARM Cortex M7

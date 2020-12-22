@@ -76,11 +76,11 @@ static int8_t bed_corner;
  * Level corners, starting in the front-left corner.
  */
 #if ENABLED(LEVEL_CORNERS_USE_PROBE)
-  
+
   void _lcd_draw_probing() {
     if (ui.should_draw()) MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH));
   }
-  
+
   void _lcd_draw_raise(){
     if (ui.should_draw()) MenuItem_confirm::select_screen(
         GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
@@ -100,14 +100,14 @@ static int8_t bed_corner;
         , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
         , (const char*)nullptr, PSTR("?")
       );
-  }  
+  }
 
   bool _lcd_level_bed_corners_probe(bool verify = false){
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearence if needed
     #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
       bltouch.deploy(); // DEPLOY in LOW SPEED MODE on every probe action
     #endif
-    do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, manual_feedrate_mm_s.z); // Move down to lower tolerance 
+    do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, manual_feedrate_mm_s.z); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))){ // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
@@ -136,7 +136,7 @@ static int8_t bed_corner;
       probe_triggered = PROBE_TRIGGERED();
       if (probe_triggered) {
         endstops.hit_on_purpose();
-        #if ENABLED(LEVEL_CORNERS_AUDIO_FEEDBACK) 
+        #if ENABLED(LEVEL_CORNERS_AUDIO_FEEDBACK)
           ui.buzz(200,600);
         #endif
       }
@@ -150,13 +150,13 @@ static int8_t bed_corner;
   }
 
   void _lcd_test_corners() {
-    
+
     ui.goto_screen(_lcd_draw_probing);
     bed_corner = TERN0(LEVEL_CENTER_TOO, 4);
     last_z = LEVEL_CORNERS_HEIGHT;
     endstops.enable_z_probe(true);
     good_points = 0;
-    
+
     do {
       do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearence
       // select next corner coordnates
@@ -179,19 +179,19 @@ static int8_t bed_corner;
           #if ENABLED(LEVEL_CORNERS_VERIFY_RAISED) // verify
             while (!_lcd_level_bed_corners_probe(true)){ // loop while corner verified
               if(!_lcd_level_bed_corners_raise()) { // prompt user to raise bed if needed
-                if (corner_probing_done) return; // done selected 
+                if (corner_probing_done) return; // done selected
                 break; // skip selected
-              } 
+              }
             }
           #endif // end verify
         } else { // skip or done selected
           if (corner_probing_done) return; // done selected
-        } 
+        }
       }
-      
+
       if (bed_corner != 4) good_points++; // ignore center
       if (++bed_corner > 3) bed_corner = 0;
-      
+
     } while (good_points < 4); // loop until all corners whitin tolerance
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling

@@ -44,6 +44,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("SD-картка вставлена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("SD-картка видалена");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Вставте SD-картку");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_SD_INIT_FAIL                  = _UxGT("Збій ініціалізації SD");
+  #else
+    PROGMEM Language_Str MSG_SD_INIT_FAIL                  = _UxGT("Збій ініціаліз. SD");
+  #endif
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Помилка зчитування");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB диск видалений");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("Помилка USB диску");
@@ -67,6 +72,9 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Паркування Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Паркування Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Авто Z-вирівнювання");
+  PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Ітерація: %i");
+  PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Зменьшення точності!");
+  PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Точність досягнута");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Паркування XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Почати");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Наступна точка");
@@ -100,8 +108,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Вимкнути нагрів");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Частота");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Керування лазером");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Вимкнути лазер");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Увімкнути лазер");
+  PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Перемкнути лазер");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потужність лазера");
     PROGMEM Language_Str MSG_SPINDLE_MENU                  = _UxGT("Керування шпінделем");
@@ -109,14 +116,15 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потуж.лазера");
     PROGMEM Language_Str MSG_SPINDLE_MENU                  = _UxGT("Керув. шпінделем");
   #endif
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Вимкнути шпіндель");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Увімкнути шпіндель");
+  PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Перемкнути шпіндель");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потуж. шпінделя");
   #else
     PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потуж. шпінд.");
   #endif
+  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Шпіндель вперед");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Напрямок шпінделя");
+
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Увімкнути живлення");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Вимкнути живлення");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Екструзія");
@@ -138,15 +146,20 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Індекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Власні команди");
+
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест зонду");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 точка");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Зонд за межами");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Відхилення");
+
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Меню IDEX");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Зміщення сопел");
   PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Авто паркування");
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Розмноження");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Дзеркальна копія");
-  PROGMEM Language_Str MSG_IDEX_MODE_FU1L_CTRL             = _UxGT("Повний контроль");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Повний контроль");
+  PROGMEM Language_Str MSG_IDEX_DUPE_GAP                   = _UxGT("Дублювати X-зазор");
+
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("Друге сопло X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("Друге сопло Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("Друге сопло Z");
@@ -271,6 +284,14 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Фіолетовий");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Білий");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("За умовчанням");
+  PROGMEM Language_Str MSG_LED_CHANNEL_N                   = _UxGT("Канал =");
+  PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Світло #2");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_NEO2_PRESETS                  = _UxGT("Світло #2 передустановки");
+  #else
+    PROGMEM Language_Str MSG_NEO2_PRESETS                  = _UxGT("Світло #2 передустан.");
+  #endif
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Яскравість");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Свої кольори");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Рівень червоного");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Рівень зеленого");
@@ -286,7 +307,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло дуже холодне");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Рух по %sмм");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Рух по %sмм");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Рух по 0.1мм");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Рух по 1мм");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Рух по 10мм");
@@ -416,10 +437,12 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Готово");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Назад");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Продовжити");
+  PROGMEM Language_Str MSG_BUTTON_SKIP                     = _UxGT("Пропустити");
 
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Призупинення...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Призупинити друк");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Відновити друк");
+  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Старт з хосту");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Скасувати друк");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Друк об'єкта");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Завершити об'єкт");
@@ -517,6 +540,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Тест зміщення X");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Тест зміщення Y");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Тест зміщення Z");
+  PROGMEM Language_Str MSG_MOVE_NOZZLE_TO_BED              = _UxGT("Рухати сопло до столу");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Мікрокрок X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Мікрокрок Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Мікрокрок Z");
@@ -538,13 +562,16 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Охолодження...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Нагрів столу...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Нагрів камери...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Нагрів зонду...");
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_BED_COOLING                   = _UxGT("Охолодження столу...");
     PROGMEM Language_Str MSG_CHAMBER_COOLING               = _UxGT("Охолодження камери...");
+    PROGMEM Language_Str MSG_PROBE_COOLING                 = _UxGT("Охолодження зонду...");
     PROGMEM Language_Str MSG_DELTA_CALIBRATE               = _UxGT("Калібрування Delta");
   #else
     PROGMEM Language_Str MSG_BED_COOLING                   = _UxGT("Охол. столу...");
     PROGMEM Language_Str MSG_CHAMBER_COOLING               = _UxGT("Охол. камери...");
+    PROGMEM Language_Str MSG_PROBE_COOLING                 = _UxGT("Охол. зонду...");
     PROGMEM Language_Str MSG_DELTA_CALIBRATE               = _UxGT("Калібрув. Delta");
   #endif
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Калібрувати X");
@@ -602,6 +629,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Підсвітка");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Яскравість світла");
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("НЕ ТОЙ ПРИНТЕР");
+
   PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS           = _UxGT("Завершено");
   PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT             = _UxGT("Екструдовано");
   #if LCD_WIDTH >= 20
@@ -666,6 +694,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("Перезапуск MMU");
   PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Перезапуск MMU...");
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Видаліть, натисніть");
+
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MIX                           = _UxGT("Змішування");
   #else
@@ -685,8 +714,8 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_END_VTOOL                     = _UxGT("Кінець В-інструменту");
     PROGMEM Language_Str MSG_GRADIENT_ALIAS                = _UxGT("Псевдонім В-інструменту");
     PROGMEM Language_Str MSG_RESET_VTOOLS                  = _UxGT("Зкидання В-інструментів");
-    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-інструменти зкинуті");
     PROGMEM Language_Str MSG_COMMIT_VTOOL                  = _UxGT("Змішати В-інструменти");
+    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-інструменти зкинуті");
   #else
     PROGMEM Language_Str MSG_TOGGLE_MIX                    = _UxGT("Перемкнути змішув.");
     PROGMEM Language_Str MSG_ACTIVE_VTOOL                  = _UxGT("Актив.В-інструм.");
@@ -694,8 +723,8 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_END_VTOOL                     = _UxGT("В-інструм. кін.");
     PROGMEM Language_Str MSG_GRADIENT_ALIAS                = _UxGT("Псевдонім В-інстр.");
     PROGMEM Language_Str MSG_RESET_VTOOLS                  = _UxGT("Зкидання В-інструм");
-    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-інструм. зкинуті");
     PROGMEM Language_Str MSG_COMMIT_VTOOL                  = _UxGT("Змішати В-інструм.");
+    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-інструм. зкинуті");
   #endif
   PROGMEM Language_Str MSG_START_Z                         = _UxGT("Початок Z");
   PROGMEM Language_Str MSG_END_Z                           = _UxGT(" Кінець Z");
@@ -713,6 +742,21 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_BAD_PAGE                      = _UxGT("Погана сторінка");
     PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Погана швидк.стор");
   #endif
+
+  PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Редагувати пароль");
+  PROGMEM Language_Str MSG_LOGIN_REQUIRED                  = _UxGT("Потрібен логін");
+  PROGMEM Language_Str MSG_PASSWORD_SETTINGS               = _UxGT("Параметри паролю");
+  PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Введіть цифру");
+  PROGMEM Language_Str MSG_CHANGE_PASSWORD                 = _UxGT("Змінити пароль");
+  PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Видалити пароль");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Пароль це ");
+  PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Старт через");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS        = _UxGT("Запам'ятай для збереження!");
+  #else
+    PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS        = _UxGT("Запам'ятай, збережи!");
+  #endif
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Пароль видалений");
 
   PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING             = _UxGT(MSG_1_LINE("Паркування..."));
   #if LCD_HEIGHT >= 4
@@ -758,6 +802,24 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Час нагрівача збіг");
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Поновити нагрів");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Нагрівання...");
+
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Майстер Z-зонда");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING          = _UxGT("Зондув. контрольної точки Z");
+    PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зондування");
+  #else
+    PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING          = _UxGT("Зондув.контр.точки Z");
+    PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зондув.");
+  #endif
+
+  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Звук");
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Верхній лівий");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Нижній лівий");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Верхній правий");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Нижній правий");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Калібрування успішне");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Збій калібрування");
 }
 
 #if FAN_COUNT == 1
