@@ -250,7 +250,7 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .text(Z_VALUE_POS, str)
      .colors(action_btn)
-     .tag(1).button( OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
+     .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
   switch (screen_data.BedMeshScreen.message) {
