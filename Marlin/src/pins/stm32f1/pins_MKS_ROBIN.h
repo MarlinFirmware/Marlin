@@ -181,15 +181,16 @@
   #define SS_PIN                            -1
   #define SDSS                              PD2
 #endif
-#define ONBOARD_SD_CS_PIN                 PC11
+#define ONBOARD_SD_CS_PIN                   PC11
 
 /**
  * MKS Robin has a few hardware revisions
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  *
- * MKS Robin less or equal to V2.3 don't have SD_DETECT_PIN.
- * MKS Robin greater or equal to V2.4 have SD_DETECT_PIN at PF12.
- * If your board has an SD_DETECT pin, uncomment it below or add it do your Configuration.h.
+ * MKS Robin <= V2.3 have no SD_DETECT_PIN.
+ * MKS Robin >= V2.4 have SD_DETECT_PIN on PF12.
+ *
+ * Uncomment here or add SD_DETECT_PIN to Configuration.h.
  */
 //#define SD_DETECT_PIN                     PF12  // SD_CD
 
@@ -284,8 +285,6 @@
 //
 #if HAS_TMC_UART
   /**
-   * TMC2208/TMC2209 stepper drivers
-   *
    * This board does not have dedicated TMC UART pins. Custom wiring is needed.
    * You may uncomment one of the options below, or add it to your Configuration.h.
    *
