@@ -98,13 +98,13 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   #endif
 ) {
   #if DISABLED(PCA9632_NO_AUTO_INC)
-    uint8_t data[4], len = 4;
+    uint8_t data[4];
     data[0] = PCA9632_AUTO_IND | regadd;
     data[1 + (PCA9632_RED >> 1)] = vr;
     data[1 + (PCA9632_GRN >> 1)] = vg;
     data[1 + (PCA9632_BLU >> 1)] = vb;
     Wire.beginTransmission(I2C_ADDRESS(addr));
-    Wire.write(data, len);
+    Wire.write(data, sizeof(data));
     Wire.endTransmission();
   #else
     PCA9632_WriteRegister(addr, regadd + (PCA9632_RED >> 1), vr);
