@@ -399,7 +399,7 @@
    *
    *   c    - The unicode code point to draw. If the renderer does not
    *          support the character, it should return false.
-
+   *
    * Returns: Whether the character was supported.
    */
 
