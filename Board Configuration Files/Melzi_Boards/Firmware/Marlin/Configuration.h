@@ -17,6 +17,12 @@
 //===========================================================================
 
 //#define AC_MEGA_ZERO
+//#define AC_MEGA_ZERO_V2
+
+// If you are using our EZOut V2 (connects to LCD header) filament sensor kit please follow the install guide
+// and then uncomment the #define EZOUT_ENABLE line below. Installs the same as an Ender 3 in the guide.
+// Do NOT ever connect our filament sensor without the supplied adapter board.
+//#define EZOUT_ENABLE
 
 // EZABL Probe Mounts
 //#define AC_MEGA_ZERO_OEM
