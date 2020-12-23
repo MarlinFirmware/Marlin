@@ -1016,7 +1016,7 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename[0] ? card.longFilename : card.filename, "");
+    return IFSD(card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {

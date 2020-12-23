@@ -1077,7 +1077,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 
   // If we have a longFilename buffer, mark it as invalid.
   // If a long filename is found it will be filled automatically.
-  if (longFilename) longFilename[0] = '\0';
+  if (longFilename) { longFilename[0] = '\0'; longFilename[1] = '\0'; }
 
   while (1) {
 
@@ -1089,7 +1089,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 
     // skip deleted entry and entry for .  and ..
     if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') {
-      if (longFilename) longFilename[0] = '\0';     // Invalidate erased file long name, if any
+      if (longFilename) { longFilename[0] = '\0'; longFilename[1] = '\0'; } // Invalidate erased file long name, if any
       continue;
     }
 

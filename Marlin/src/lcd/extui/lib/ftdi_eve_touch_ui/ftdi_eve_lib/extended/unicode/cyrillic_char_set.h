@@ -1,9 +1,10 @@
-/******************
- * font_bitmaps.h *
- ******************/
+/**********************
+ * cyrillic_char_set.h *
+ **********************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2019 - Aleph Objects, Inc.                  *
+ *   Written By Kirill Shashlov 2020                                        *
+ *              Marcio Teixeira 2019 - Aleph Objects, Inc.                  *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -19,12 +20,13 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#pragma once
-
-class CommandProcessor;
-
 namespace FTDI {
-  uint32_t write_rle_data(uint32_t addr, const uint8_t *data, size_t n);
-  void set_font_bitmap(CommandProcessor& cmd, CLCD::FontMetrics &fm, uint8_t handle);
-  void ext_vertex2ii(CommandProcessor &cmd, int x, int y, uint8_t handle, uint8_t cell);
+  class CyrillicCharSet {
+    private:
+      static uint32_t bitmap_addr;
+    public:
+      static uint32_t load_data(uint32_t addr);
+      static void load_bitmaps(CommandProcessor&);
+      static bool render_glyph(CommandProcessor*, int &x, int &y, font_size_t, utf8_char_t);
+  };
 }
