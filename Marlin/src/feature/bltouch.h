@@ -23,6 +23,10 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if DISABLED(BLTOUCH_HS_MODE)
+  #define BLTOUCH_SLOW_MODE 1
+#endif
+
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 

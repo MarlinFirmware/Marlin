@@ -143,16 +143,6 @@ xyze_pos_t destination; // {0}
 feedRate_t feedrate_mm_s = MMM_TO_MMS(1500);
 int16_t feedrate_percentage = 100;
 
-// Homing feedrate is const progmem - compare to constexpr in the header
-const feedRate_t homing_feedrate_mm_s[XYZ] PROGMEM = {
-  #if ENABLED(DELTA)
-    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
-  #else
-    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
-  #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z)
-};
-
 // Cartesian conversion result goes here:
 xyz_pos_t cartes;
 
@@ -195,7 +185,7 @@ xyz_pos_t cartes;
 #endif
 
 #if HAS_ABL_NOT_UBL
-  float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
+  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
 #endif
 
 /**
@@ -510,7 +500,7 @@ void do_z_clearance(const float &zclear, const bool z_trusted/*=true*/, const bo
   const bool rel = raise_on_untrusted && !z_trusted;
   float zdest = zclear + (rel ? current_position.z : 0.0f);
   if (!lower_allowed) NOLESS(zdest, current_position.z);
-  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(TERN(HAS_BED_PROBE, Z_PROBE_SPEED_FAST, HOMING_FEEDRATE_Z)));
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
 }
 
 //
@@ -1331,7 +1321,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
 
@@ -1370,7 +1360,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 
@@ -1490,10 +1480,12 @@ void set_axis_never_homed(const AxisEnum axis) {
             effectorBackoutDir, // Direction in which the effector mm coordinates move away from endstop.
             stepperBackoutDir;  // Direction in which the TMC µstep count(phase) move away from endstop.
 
+    #define PHASE_PER_MICROSTEP(N) (256 / _MAX(1, N##_MICROSTEPS))
+
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
-          phasePerUStep = 256 / (X_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(X);
           phaseCurrent = stepperX.get_microstep_counter();
           effectorBackoutDir = -X_HOME_DIR;
           stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1501,7 +1493,7 @@ void set_axis_never_homed(const AxisEnum axis) {
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
-          phasePerUStep = 256 / (Y_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Y);
           phaseCurrent = stepperY.get_microstep_counter();
           effectorBackoutDir = -Y_HOME_DIR;
           stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1509,7 +1501,7 @@ void set_axis_never_homed(const AxisEnum axis) {
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
-          phasePerUStep = 256 / (Z_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Z);
           phaseCurrent = stepperZ.get_microstep_counter();
           effectorBackoutDir = -Z_HOME_DIR;
           stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1597,8 +1589,11 @@ void homeaxis(const AxisEnum axis) {
   // Fast move towards endstop until triggered
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
-  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-    if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS) {
+      if (TERN0(BLTOUCH, bltouch.deploy())) return;
+      if (TERN0(PROBE_TARE, probe.tare())) return;
+    }
   #endif
 
   #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
@@ -1609,7 +1604,7 @@ void homeaxis(const AxisEnum axis) {
 
   do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir);
 
-  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
     if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
   #endif
 
@@ -1647,7 +1642,7 @@ void homeaxis(const AxisEnum axis) {
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
-    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
+    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
       if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
     #endif
 
@@ -1839,7 +1834,7 @@ void homeaxis(const AxisEnum axis) {
       current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
       line_to_current_position(
         #if HOMING_Z_WITH_PROBE
-          (axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) :
+          (axis == Z_AXIS) ? z_probe_fast_mm_s :
         #endif
         homing_feedrate(axis)
       );

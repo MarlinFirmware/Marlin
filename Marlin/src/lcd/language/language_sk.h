@@ -102,12 +102,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Schladiť");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Nastavenie lasera");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Vypnúť laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Zapnúť laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon lasera");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Nastavenie vretena");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Vypnúť vreteno");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Zapnúť vreteno");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Výkon vretena");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spätný chod");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Zapnúť napájanie");
@@ -247,7 +243,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudér");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudér *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend je studený");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Posunúť o %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Posunúť o %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunúť o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunúť o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunúť o 10mm");
@@ -656,12 +652,10 @@ namespace Language_sk {
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Zvuk");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Ľavý horný");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Ľavý dolný");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Pravý horný");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Pravý dolný");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Kalibrácia dokončená");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Kalibrácia zlyhala");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Ľavý horný");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Ľavý dolný");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Pravý horný");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Pravý dolný");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Kalibrácia dokončená");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrácia zlyhala");
 }

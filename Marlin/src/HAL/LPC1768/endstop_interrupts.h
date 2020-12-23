@@ -46,79 +46,79 @@ void setup_endstop_interrupts() {
 
   #if HAS_X_MAX
     #if !LPC1768_PIN_INTERRUPT_M(X_MAX_PIN)
-      #error "X_MAX_PIN is not INTERRUPT-capable."
+      #error "X_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(X_MAX_PIN);
   #endif
   #if HAS_X_MIN
     #if !LPC1768_PIN_INTERRUPT_M(X_MIN_PIN)
-      #error "X_MIN_PIN is not INTERRUPT-capable."
+      #error "X_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(X_MIN_PIN);
   #endif
   #if HAS_Y_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Y_MAX_PIN)
-      #error "Y_MAX_PIN is not INTERRUPT-capable."
+      #error "Y_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Y_MAX_PIN);
   #endif
   #if HAS_Y_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Y_MIN_PIN)
-      #error "Y_MIN_PIN is not INTERRUPT-capable."
+      #error "Y_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Y_MIN_PIN);
   #endif
   #if HAS_Z_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Z_MAX_PIN)
-      #error "Z_MAX_PIN is not INTERRUPT-capable."
+      #error "Z_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z_MAX_PIN);
   #endif
   #if HAS_Z_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_PIN)
-      #error "Z_MIN_PIN is not INTERRUPT-capable."
+      #error "Z_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
      _ATTACH(Z_MIN_PIN);
   #endif
   #if HAS_Z2_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Z2_MAX_PIN)
-      #error "Z2_MAX_PIN is not INTERRUPT-capable."
+      #error "Z2_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z2_MAX_PIN);
   #endif
   #if HAS_Z2_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Z2_MIN_PIN)
-      #error "Z2_MIN_PIN is not INTERRUPT-capable."
+      #error "Z2_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z2_MIN_PIN);
   #endif
   #if HAS_Z3_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Z3_MAX_PIN)
-      #error "Z3_MIN_PIN is not INTERRUPT-capable."
+      #error "Z3_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z3_MAX_PIN);
   #endif
   #if HAS_Z3_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Z3_MIN_PIN)
-      #error "Z3_MIN_PIN is not INTERRUPT-capable."
+      #error "Z3_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z3_MIN_PIN);
   #endif
   #if HAS_Z4_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Z4_MAX_PIN)
-      #error "Z4_MIN_PIN is not INTERRUPT-capable."
+      #error "Z4_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z4_MAX_PIN);
   #endif
   #if HAS_Z4_MIN
     #if !LPC1768_PIN_INTERRUPT_M(Z4_MIN_PIN)
-      #error "Z4_MIN_PIN is not INTERRUPT-capable."
+      #error "Z4_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z4_MIN_PIN);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
     #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_PROBE_PIN)
-      #error "Z_MIN_PROBE_PIN is not INTERRUPT-capable."
+      #error "Z_MIN_PROBE_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z_MIN_PROBE_PIN);
   #endif

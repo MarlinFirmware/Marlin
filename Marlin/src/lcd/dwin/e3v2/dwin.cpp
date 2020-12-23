@@ -86,7 +86,7 @@
 #endif
 
 #ifndef MACHINE_SIZE
-  #define MACHINE_SIZE "220x220x250"
+  #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
 #ifndef CORP_WEBSITE_C
   #define CORP_WEBSITE_C "www.cxsw3d.com"
@@ -1166,7 +1166,7 @@ void HMI_Move_X() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(X_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
@@ -1189,7 +1189,7 @@ void HMI_Move_Y() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(Y_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
@@ -1212,7 +1212,7 @@ void HMI_Move_Z() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_Z), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
@@ -1690,7 +1690,7 @@ inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
     return;
   }
 
-  card.getfilename_sorted(item - is_subdir);
+  card.getfilename_sorted(SD_ORDER(item - is_subdir, card.get_num_Files()));
   char * const name = card.longest_filename();
 
   #if ENABLED(SCROLL_LONG_FILENAMES)

@@ -89,12 +89,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降温");     //"Cooldown"
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("切割频率");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("激光控制");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("激光关");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("激光开");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("激光电源");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("主轴控制");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("主轴关");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("主轴开");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("主轴电源");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("主轴反转");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("电源打开");     //"Switch power on"
@@ -230,7 +226,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("挤出机");     //"Extruder"
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("挤出机 *");     //"Extruder"
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("热端太冷");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("移动 %s mm");     //"Move 0.025mm"
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("移动 %s mm");     //"Move 0.025mm"
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("移动 0.1 mm");     //"Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移动 1 mm");     //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"

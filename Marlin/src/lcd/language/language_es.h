@@ -95,12 +95,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Enfriar");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Láser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Apagar Láser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Encender Láser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potencia Láser");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Control Mandrino");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Apagar Mandrino");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Encender Mandrino");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potencia Mandrino");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Invertir giro");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Encender Fuente");
@@ -236,7 +232,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrusor *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend muy frio");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");

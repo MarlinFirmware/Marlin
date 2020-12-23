@@ -22,7 +22,7 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 /* The Display List Cache mechanism stores the display list corresponding
  * to a menu into RAM_G so that on subsequent calls drawing the menu does
