@@ -455,9 +455,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     thermalManager.wait_for_bed_heating();
   #endif
 
-  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-    if (bltouch.deploy()) return true; // DEPLOY in LOW SPEED MODE on every probe action
-  #endif
+  if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -496,9 +494,8 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
-  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-    if (probe_triggered && bltouch.stow()) return true; // STOW in LOW SPEED MODE on trigger on every probe action
-  #endif
+  if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
+    return true;
 
   // Clear endstop flags
   endstops.hit_on_purpose();
