@@ -141,7 +141,7 @@ static int8_t bed_corner;
 
   void _lcd_test_corners() {
     ui.goto_screen(_lcd_draw_probing);
-    bed_corner = TERN0(LEVEL_CENTER_TOO, 4);
+    bed_corner = TERN(LEVEL_CENTER_TOO, 4, 0);
     last_z = LEVEL_CORNERS_HEIGHT;
     endstops.enable_z_probe(true);
     good_points = 0;
