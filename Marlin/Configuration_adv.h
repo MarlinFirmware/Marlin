@@ -1740,8 +1740,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  // Store mesh offsets as steps rather than mm.
-  // This will also store the values as int16_t to save EEPROM space
+  // Store mesh with less precision save EEPROM space
   //#define OPTIMIZED_MESH_STORAGE
 #endif
 
