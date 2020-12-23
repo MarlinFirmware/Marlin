@@ -1546,8 +1546,6 @@
   // Unsupported characters are shown as '?'.
   //#define TOUCH_UI_USE_UTF8
   #if ENABLED(TOUCH_UI_USE_UTF8)
-    //#define TOUCH_UI_UTF8_CYRILLIC_CHARSET // Russian subset of characters, costs about 27KiB of flash
-
     // Western accents support. These accented characters use
     // combined bitmaps and require relatively little storage.
     #define TOUCH_UI_UTF8_WESTERN_CHARSET
@@ -1565,6 +1563,9 @@
       //#define TOUCH_UI_UTF8_FRACTIONS     // ¼ ½ ¾
       //#define TOUCH_UI_UTF8_SYMBOLS       // µ ¶ ¦ § ¬
     #endif
+
+    // Cyrillic character set, costs about 27KiB of flash
+    //#define TOUCH_UI_UTF8_CYRILLIC_CHARSET
   #endif
 
   // Use a smaller font when labels don't fit buttons
