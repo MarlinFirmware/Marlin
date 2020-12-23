@@ -88,7 +88,7 @@ void TFT_SPI::Init() {
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream4;
-        DMAtx.Init.Channel = DMA_CHANNEL_4;
+        DMAtx.Init.Channel = DMA_CHANNEL_0;
       #endif
     }
   #endif
@@ -101,7 +101,7 @@ void TFT_SPI::Init() {
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream5;
-        DMAtx.Init.Channel = DMA_CHANNEL_5;
+        DMAtx.Init.Channel = DMA_CHANNEL_0;
       #endif
     }
   #endif
