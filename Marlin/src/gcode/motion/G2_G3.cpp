@@ -98,7 +98,7 @@ void plan_arc(
     // Angular travel too small to detect? Just return.
     if (!angular_travel) return;
 
-    // Make sure angular travel over 180 degrees goes the other way around
+    // Make sure angular travel over 180 degrees goes the other way around.
     switch (((angular_travel < 0) << 1) | clockwise) {
       case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
