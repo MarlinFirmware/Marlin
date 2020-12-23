@@ -370,7 +370,7 @@ public:
         #if ENABLED(USE_M73_REMAINING_TIME)
           static uint32_t remaining_time;
           FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ? remaining_time : _calculated_remaining_time(); }
+          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
           FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
         #else
           FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
