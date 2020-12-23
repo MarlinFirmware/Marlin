@@ -32,10 +32,10 @@
 using namespace FTDI;
 using namespace Theme;
 
-#ifdef TOUCH_UI_PORTRAIT
-    #define GRID_ROWS 16
+#if ENABLED(TOUCH_UI_PORTRAIT)
+  #define GRID_ROWS 16
 #else
-    #define GRID_ROWS 16
+  #define GRID_ROWS 16
 #endif
 
 void StatusScreen::draw_axis_position(draw_mode_t what) {
@@ -43,7 +43,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
   #define GRID_COLS 3
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define X_LBL_POS  BTN_POS(1, 9), BTN_SIZE(1,2)
     #define Y_LBL_POS  BTN_POS(1,11), BTN_SIZE(1,2)
     #define Z_LBL_POS  BTN_POS(1,13), BTN_SIZE(1,2)
@@ -103,15 +103,15 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
     cmd.tag(6)
        .font(Theme::font_medium)
-       .text  ( X_VAL_POS, x_str)
-       .text  ( Y_VAL_POS, y_str)
-       .text  ( Z_VAL_POS, z_str);
+       .text(X_VAL_POS, x_str)
+       .text(Y_VAL_POS, y_str)
+       .text(Z_VAL_POS, z_str);
   }
 
   #undef GRID_COLS
 }
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 8
 #else
   #define GRID_COLS 12
@@ -164,17 +164,12 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd (BITMAP_SIZE  (Fan_Icon_Info))
        .icon(ICON_POS(FAN_POS), Fan_Icon_Info, icon_scale);
 
-    #ifdef TOUCH_UI_USE_UTF8
-      load_utf8_bitmaps(cmd); // Restore font bitmap handles
-    #endif
+    TERN_(TOUCH_UI_USE_UTF8, load_utf8_bitmaps(cmd)); // Restore font bitmap handles
   }
 
   if (what & FOREGROUND) {
     using namespace ExtUI;
-    char e0_str[20];
-    char e1_str[20];
-    char bed_str[20];
-    char fan_str[20];
+    char e0_str[20], e1_str[20], bed_str[20], fan_str[20];
 
     sprintf_P(fan_str, PSTR("%-3d %%"), int8_t(getActualFan_percent(FAN0)));
 
@@ -187,7 +182,6 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       format_temp_and_idle(e0_str, getActualTemp_celsius(H0));
     else
       format_temp_and_temp(e0_str, getActualTemp_celsius(H0), getTargetTemp_celsius(H0));
-
 
     #if HAS_MULTI_EXTRUDER
       if (isHeaterIdle(H1))
@@ -208,14 +202,13 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 }
 
 void StatusScreen::_format_time(char *outstr, uint32_t time) {
-  const uint8_t hrs = (time)/3600;
-  const uint8_t min = (time/60)%60;
-  const uint8_t sec = time%60;
-  if (hrs > 0) {
+  const uint8_t hrs = time / 3600,
+                min = (time / 60) % 60,
+                sec = time % 60;
+  if (hrs)
     sprintf_P(outstr, PSTR("%02d:%02d"), hrs, min);
-  } else {
+  else
     sprintf_P(outstr, PSTR("%02d:%02ds"), min, sec);
-  }
 }
 
 void StatusScreen::draw_progress(draw_mode_t what) {
@@ -276,27 +269,29 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     }
 
     char progress_str[10];
-    #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-      sprintf_P(progress_str, PSTR("%3d.%02d%%"), (uint8_t)(current_progress / 100), current_progress % 100);
-    #else
-      sprintf_P(progress_str, PSTR("%3d%%"), (uint8_t)(current_progress / 100));
-    #endif
+    sprintf_P(progress_str,
+      #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
+        PSTR("%3d.%02d%%"), uint8_t(current_progress / 100), current_progress % 100
+      #else
+        PSTR("%3d%%"), uint8_t(current_progress / 100)
+      #endif
+    );
 
     #if ENABLED(TOUCH_UI_PORTRAIT)
       const uint16_t texts_pos_h = show_progress_bar ? (BTN_H(1)) : (BTN_H(2));
       cmd.font(font_medium)
-        .tag(7).text(TIME_POS_X, PROGRESSZONE_FIRSTLINE_Y, TIME_POS_W, texts_pos_h, elapsed_str)
-      #if ENABLED(SHOW_REMAINING_TIME)
-               .text(REMAINING_POS_X, PROGRESSZONE_FIRSTLINE_Y, REMAINING_POS_W, texts_pos_h, remaining_str)
-      #endif
-               .text(PROGRESS_POS_X, PROGRESSZONE_FIRSTLINE_Y, PROGRESS_POS_W, texts_pos_h, progress_str);
+         .tag(7).text(TIME_POS_X, PROGRESSZONE_FIRSTLINE_Y, TIME_POS_W, texts_pos_h, elapsed_str)
+         #if ENABLED(SHOW_REMAINING_TIME)
+           .text(REMAINING_POS_X, PROGRESSZONE_FIRSTLINE_Y, REMAINING_POS_W, texts_pos_h, remaining_str)
+         #endif
+         .text(PROGRESS_POS_X, PROGRESSZONE_FIRSTLINE_Y, PROGRESS_POS_W, texts_pos_h, progress_str);
     #else
       cmd.font(font_medium)
-        .tag(7).text(TIME_POS, elapsed_str)
-      #if ENABLED(SHOW_REMAINING_TIME)
-               .text(REMAINING_POS, remaining_str)
-      #endif
-               .text(PROGRESS_POS, progress_str);
+         .tag(7).text(TIME_POS, elapsed_str)
+         #if ENABLED(SHOW_REMAINING_TIME)
+           .text(REMAINING_POS, remaining_str)
+         #endif
+         .text(PROGRESS_POS, progress_str);
     #endif
   }
 
@@ -390,7 +385,7 @@ void StatusScreen::loadBitmaps() {
   CLCD::mem_write_pgm(base + Fan_Icon_Info.RAMG_offset,      Fan_Icon,      sizeof(Fan_Icon));
 
   // Load fonts for internationalization
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     load_utf8_data(base + UTF8_FONT_OFFSET);
   #endif
 }
