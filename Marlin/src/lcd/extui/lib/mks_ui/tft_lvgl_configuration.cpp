@@ -214,11 +214,12 @@ void tft_lvgl_init() {
     }
   #endif
 
-  if (ready) {
-    const bool need_cal = TERN0(TOUCH_SCREEN_CALIBRATION, touch_calibration.need_calibration());
-    TERN_(TOUCH_SCREEN_CALIBRATION, if (need_cal) lv_draw_touch_calibration_screen());
-    if (!need_cal) lv_draw_ready_print();
-  }
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
+    else lv_draw_ready_print();
+  #else
+    lv_draw_ready_print();
+  #endif
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
