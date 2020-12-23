@@ -1563,6 +1563,9 @@
       //#define TOUCH_UI_UTF8_FRACTIONS     // ¼ ½ ¾
       //#define TOUCH_UI_UTF8_SYMBOLS       // µ ¶ ¦ § ¬
     #endif
+
+    // Cyrillic character set, costs about 27KiB of flash
+    //#define TOUCH_UI_UTF8_CYRILLIC_CHARSET
   #endif
 
   // Use a smaller font when labels don't fit buttons
