@@ -1280,6 +1280,15 @@
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 
+  // Default M20 File Listing behavior
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    //#define M20_DEFER_DOS_FILENAMES     // Hide DOS 8.3 filenames in listings by default
+    //#define M20_REPORT_LONG_FILENAMES   // Include long filenames in listings by default
+  #endif
+
+  // List folders ahead of the .gcode file listing
+  //#define M20_REPORT_DIRECTORY_NAMES
+
   // Enable this option to scroll long filenames in the SD card menu
   //#define SCROLL_LONG_FILENAMES
 

@@ -158,6 +158,7 @@ CardReader::CardReader() {
 
 //
 // Get a DOS 8.3 filename in its useful form
+// Requires a file specified
 //
 char *createFilename(char * const buffer, const dir_t &p) {
   char *pos = buffer;
@@ -226,20 +227,110 @@ void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
 //
 // Get file/folder info for an item by name
 //
-void CardReader::selectByName(SdFile dir, const char * const match) {
+void CardReader::selectByName(SdFile dir, const char * const match, const bool debug/*=false*/) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0; cnt++) {
     if (is_dir_or_gcode(p)) {
       createFilename(filename, p);
-      if (strcasecmp(match, filename) == 0) return;
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        // Check for match using Long_File_Name or short filename
+        if (strcasecmp(match, longFilename) == 0 || strcasecmp(match, filename) == 0) {
+          #if ENABLED(DEBUG_CARDREADER)
+            //debug = true;
+            if (debug) {
+              DEBUG_ECHOLNPAIR("\n"
+                " DEBUG -SelectByName- LONG FileName: ", longFilename,
+                "-- Created FileName: ", filename,
+                " -- Search Term: ", match,
+                " -- Match Success: TRUE"
+              );
+            }
+          #endif
+
+          // Workaround for a DOS8.3 name identical to long name.
+          if (strncasecmp(filename, longFilename, 3) != 0) {
+            //debug = true;
+            if (TERN0(DEBUG_CARDREADER, debug)) {
+              DEBUG_ECHOLNPAIR("DEBUG: Mismatch! Copying filename to longFilename");
+              DEBUG_ECHOLNPAIR("DEBUG: filename = ", filename);
+              DEBUG_ECHOLNPAIR("DEBUG: longFilename = ", longFilename);
+            }
+            strcpy(longFilename, filename);
+          }
+          return;
+        }
+        else {
+          // Match Not Found -> Wipe out the filenames to avoid returning a path to a different file
+          //if (debug) DEBUG_ECHOLNPGM("FALSE");
+          filename[0] = longFilename[0] = '\0';
+        }
+      #else
+        if (strcasecmp(match, filename) == 0) {
+          if (debug) DEBUG_ECHOLNPGM(" DEBUG SelectByName - MatchFound");
+          return;
+        }
+        else if (debug)
+          DEBUG_ECHOLNPGM("FALSE");
+      #endif
     }
   }
 }
 
+#if ENABLED(M20_REPORT_DIRECTORY_NAMES)
+  //
+  // Recursive method to list all directories within a folder
+  //
+  void CardReader::printDirListing(SdFile parent, const bool print_dos_names, const bool print_long_names, const char * const prepend/*=nullptr*/) {
+    dir_t p;
+    while (parent.readDir(&p, longFilename) > 0) {
+      if (DIR_IS_SUBDIR(&p)) {
+
+        // Get the short name for the item, which we know is a folder
+        char dosFilename[FILENAME_LENGTH];
+        createFilename(dosFilename, p);
+
+        // Allocate enough stack space to do the work ( full path to a folder, trailing slash, and nul )
+        const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
+        const size_t lenPrePend = prepend_is_empty ? 1 : strlen(prepend),
+                            len = lenPrePend + strlen(dosFilename) + 1 + 1;
+        char path[len];
+
+        // Append the FOLDERNAME12/ to the passed string.
+        // It contains the full path to the "parent" argument.
+        // We now have the full path to the item in this folder.
+        strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+        strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
+        strcat(path, "/");                              // 1 character
+
+        #if DISABLED(LONG_FILENAME_HOST_SUPPORT)
+          SERIAL_ECHOLN(path); // All this work is already done!
+        #else
+          const size_t plen = lenPrePend + strlen(longFilename) + 2;
+          // Generate the name of the file path then display
+          char Fpath[plen];
+          strcpy(Fpath, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+          strcat(Fpath, longFilename);
+          strcat(Fpath, "/");
+          SERIAL_ECHOLN(Fpath); // Echo Result
+        #endif
+
+        // Get a new directory object using the full path
+        // and dive recursively into it.
+        SdFile child;
+        if (!child.open(&parent, dosFilename, O_READ)) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPAIR(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
+        }
+        printDirListing(child, print_dos_names, print_long_names, path);
+      }
+    }
+  }
+#endif
+
 //
 // Recursive method to list all files within a folder
 //
-void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/) {
+void CardReader::printListing(SdFile parent, const bool print_dos_names, const bool print_long_names, const char * const prepend/*=nullptr*/) {
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -250,7 +341,7 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
       const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
-      const int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(dosFilename) + 1 + 1;
+      const size_t len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(dosFilename) + 1 + 1;
       char path[len];
 
       // Append the FOLDERNAME12/ to the passed string.
@@ -269,26 +360,49 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPAIR(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
       }
-      printListing(child, path);
+      printListing(child, print_dos_names, print_long_names, path);
       // close() is done automatically by destructor of SdFile
     }
     else if (is_dir_or_gcode(p)) {
-      createFilename(filename, p);
-      if (prepend) SERIAL_ECHO(prepend);
-      SERIAL_ECHO(filename);
-      SERIAL_CHAR(' ');
-      SERIAL_ECHOLN(p.fileSize);
-    }
-  }
-}
+      createFilename(filename, p);          // Parse the string and retrieve a DOS 8.3 FileName+
 
-//
-// List all files on the SD card
-//
-void CardReader::ls() {
-  if (flag.mounted) {
-    root.rewind();
-    printListing(root);
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+
+        if (print_dos_names) {              // Print the path element and DOS 8.3 filename
+          if (prepend) SERIAL_ECHO(prepend);
+          SERIAL_ECHO(filename);
+        }
+
+        if (print_long_names) {             // Print the Long FileName
+          if (print_dos_names) SERIAL_ECHOPGM(" --> ");
+          if (prepend) {
+            // Allocate stack to join strings before passing to printLongPath
+            const size_t plen = strlen(prepend),
+                          len = plen + strlen(filename) + 1;
+            // Generate the name of the file path then display
+            char Fpath[len];
+            strcpy(Fpath, prepend);
+            strcpy(&Fpath[plen], filename);
+            printLongPath(Fpath);
+          }
+          else {
+            // File is in the root directory
+            const int len = 1 + strlen(filename) + 1; // slash, filename, terninating nul
+            char Fpath[len];
+            Fpath[0] = '/';
+            strcpy(&Fpath[1], filename);
+            printLongPath(Fpath);
+          }
+        }
+      #else
+        // If Long_FileName_Host_Support is disabled -> Print the DOS8.3 filenames
+        if (prepend) SERIAL_ECHO(prepend);
+        SERIAL_ECHO(filename);
+      #endif
+
+      // Print the FileSize
+      SERIAL_ECHOLNPAIR(" ", p.fileSize, " bytes");
+    }
   }
 }
 
@@ -297,7 +411,7 @@ void CardReader::ls() {
   //
   // Get a long pretty path based on a DOS 8.3 path
   //
-  void CardReader::printLongPath(char * const path) {
+  void CardReader::printLongPath(char * const path, const bool print_eol/*=false*/) {
 
     int i, pathLen = strlen(path);
 
@@ -332,7 +446,7 @@ void CardReader::ls() {
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
 
-      // SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
+      //SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
 
       // Open the sub-item as the new dive parent
       SdFile dir;
@@ -348,10 +462,29 @@ void CardReader::ls() {
 
     } // while i<pathLen
 
-    SERIAL_EOL();
+    if (print_eol) SERIAL_EOL();
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT
+
+//
+// List all files on the SD card
+//
+void CardReader::ls(const bool print_dos_names, const bool print_long_names) {
+  if (flag.mounted) {
+    #if ENABLED(M20_REPORT_DIRECTORY_NAMES)
+      root.rewind();
+      SERIAL_ECHOLNPGM(STR_BEGIN_DIR_LIST);
+      card.printDirListing(root, print_dos_names, print_long_names);
+      SERIAL_ECHOLNPGM(STR_END_DIR_LIST);
+      SERIAL_ECHOLNPGM(" ");
+    #endif
+    root.rewind();
+    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
+    printListing(root, print_dos_names, print_long_names);
+    SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
+  }
+}
 
 //
 // Echo the DOS 8.3 filename (and long filename, if any)
@@ -641,7 +774,7 @@ void CardReader::openFileWrite(char * const path) {
   endFilePrint();
 
   SdFile *diveDir;
-  const char * const fname = diveToFile(false, diveDir, path);
+  const char * const fname = diveToFile(false, diveDir, path, true);
   if (!fname) return;
 
   #if ENABLED(SDCARD_READONLY)
@@ -726,7 +859,7 @@ void CardReader::write_command(char * const buf) {
   char* end = buf + strlen(buf) - 1;
 
   file.writeError = false;
-  if ((npos = strchr(buf, 'N'))) {
+  if ((npos = strchr(buf, 'N')) != nullptr) {
     begin = strchr(npos, ' ') + 1;
     end = strchr(npos, '*') - 1;
   }
@@ -843,7 +976,7 @@ uint16_t CardReader::countFilesInWorkDir() {
  *
  * A nullptr result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, const char * const path, const bool echo/*=false*/) {
+const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, const char * const path, const bool is_new_file/*=false*/) {
   // Track both parent and subfolder
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;
@@ -854,12 +987,15 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
   DEBUG_ECHOLNPAIR("diveToFile: path = '", path, "'");
 
   if (path[0] == '/') {               // Starting at the root directory?
+    DEBUG_ECHOLNPGM("Starting from ROOT");
     diveDir = &root;
+    diveDir->rewind();                // Redundant rewind, but no harm
     item_name_adr++;
     DEBUG_ECHOLNPAIR("diveToFile: CWD to root: ", hex_address((void*)diveDir));
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
+    DEBUG_ECHOLNPGM("Starting from WorkingDirectory");
     diveDir = &workDir;               // Dive from workDir (as set by the UI)
 
   startDir = diveDir;
@@ -879,12 +1015,19 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
     strncpy(dosSubdirname, item_name_adr, len);
     dosSubdirname[len] = 0;
 
-    if (echo) SERIAL_ECHOLN(dosSubdirname);
-
     DEBUG_ECHOLNPAIR("diveToFile: sub = ", hex_address((void*)sub));
 
-    // Open diveDir (closing first)
+    // Close before dive or select
     sub->close();
+
+    #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+      // Select the folder by name and ensure the DOS8.3 name is used
+      DEBUG_ECHOLNPAIR("Search for folder: ", dosSubdirname);
+      selectByName(*diveDir, dosSubdirname);
+      if (filename[0]) strcpy(dosSubdirname, filename);
+    #endif
+
+    // Open diveDir (closing first, above)
     if (!sub->open(diveDir, dosSubdirname, O_READ)) {
       openFailed(dosSubdirname);
       item_name_adr = nullptr;
@@ -914,7 +1057,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
 
     // Next path atom address
     item_name_adr = name_end + 1;
-  }
+  } // end while loop
 
   if (update_cwd) {
     workDir = *diveDir;
@@ -923,6 +1066,18 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
 
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    if (!is_new_file) {
+      // Expecting a file that already exists - Search and select
+      diveDir->rewind();
+      DEBUG_ECHOLNPAIR("Search for file: ", item_name_adr);
+      selectByName(*diveDir, item_name_adr);
+      DEBUG_ECHOLNPAIR("diveToFile: Return String = ", filename);
+      return filename;
+    }
+  #endif
+
+  DEBUG_ECHOLNPAIR("diveToFile: Return String = ", item_name_adr);
   return item_name_adr;
 }
 

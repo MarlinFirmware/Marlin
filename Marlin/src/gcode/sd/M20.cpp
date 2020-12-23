@@ -32,9 +32,12 @@
  */
 void GcodeSuite::M20() {
   if (card.flag.mounted) {
-    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
-    card.ls();
-    SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
+    card.ls(
+      parser.boolval('S', DISABLED(M20_DEFER_DOS_FILENAMES)),
+      parser.boolval('L', ENABLED(M20_REPORT_LONG_FILENAMES))
+    );
+    if (DISABLED(LONG_FILENAME_HOST_SUPPORT) && parser.boolval('L'))
+      SERIAL_ECHOLNPGM("ERROR: LONG_FILENAME_HOST_SUPPORT Not Enabled!");
   }
   else
     SERIAL_ECHO_MSG(STR_NO_MEDIA);
