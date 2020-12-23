@@ -16,11 +16,11 @@
 #define STOCK                       // env = hispeed (Default)
 
 /*------Drivers-(1 CHOICE)-----*/
-#define QQS                        //(S) For 4xA4988(green or red color) (Default)
+//#define QQS                        //(S) For 4xA4988(green or red color) (Default)
 //#define QQS_TMC                    //(8) For 4xTMC220x_STANDALONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
-//#define QQS_UARTx                  //(U8/U9) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
+#define QQS_UARTx                  //(U8/U9) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
 //#define QQS_UART9                  //(UH) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /**===============================================================
@@ -37,7 +37,7 @@
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
 
 /*----  Modules -----*/
-#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default)
+//#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default)
 /*For LedStrip which need an external power source on Vcc pin.*/
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PC7)
 
