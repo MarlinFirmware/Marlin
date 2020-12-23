@@ -92,14 +92,18 @@ void plan_arc(
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
   }
   else {
-    //Calculate angle
+    // Calculate the angle
     angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
-    // Make sure angular travel over 180 degrees goes the other way around, but ensure zero stays zero
-    if (angular_travel) { //only if != 0
+
+    // Angular travel too small to detect? Just return.
+    if (!angular_travel) return;
+
+    // Make sure angular travel over 180 degrees goes the other way around
     switch (((angular_travel < 0) << 1) | clockwise) {
       case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
-    } } else return; //Target != position, but angle == 0? Bail. In future, maybe add logic to replace G2/G3 with single G1 command to target position.
+    }
+
     #ifdef MIN_ARC_SEGMENTS
       min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
       NOLESS(min_segments, 1U);
