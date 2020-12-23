@@ -42,9 +42,7 @@
 
   #include "math.h"
 
-  void unified_bed_leveling::echo_name() {
-    SERIAL_ECHOPGM("Unified Bed Leveling");
-  }
+  void unified_bed_leveling::echo_name() { SERIAL_ECHOPGM("Unified Bed Leveling"); }
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
@@ -68,9 +66,9 @@
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #if ENABLED(MESH_STORE_STEPS)
-    constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
-    constexpr float z_steps_per_unit = default_axis_steps_per_unit[2];
-    constexpr float z_units_per_step = RECIPROCAL(default_axis_steps_per_unit[2]);
+    constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT,
+                    z_steps_per_unit = default_axis_steps_per_unit[Z_AXIS],
+                    z_units_per_step = RECIPROCAL(default_axis_steps_per_unit[Z_AXIS]);
     #define Z_STEPS_NAN INT16_MAX
   #endif
 
@@ -92,9 +90,7 @@
 
   volatile int16_t unified_bed_leveling::encoder_diff;
 
-  unified_bed_leveling::unified_bed_leveling() {
-    reset();
-  }
+  unified_bed_leveling::unified_bed_leveling() { reset(); }
 
   void unified_bed_leveling::reset() {
     const bool was_enabled = planner.leveling_active;
@@ -121,34 +117,25 @@
 
   #if ENABLED(MESH_STORE_STEPS)
     static int16_t z_to_z_step(const float &z) {
-      if (isnan(z)) {
-        return Z_STEPS_NAN;
-      }
-      float z_steps_float = z * z_steps_per_unit;
-      z_steps_float = (z_steps_float > 0) ? FLOOR(z_steps_float + 0.5) : CEIL(z_steps_float - 0.5);
-      if ((z_steps_float == Z_STEPS_NAN) || (z_steps_float > INT16_MAX) || (z_steps_float < INT16_MIN)) {
-        return Z_STEPS_NAN; // if the z value is out of range, return our version of NaN
-      }
-      return (int16_t)z_steps_float;
+      if (isnan(z)) return Z_STEPS_NAN;
+      const int32_t z_steps = truncf(z * z_steps_per_unit);
+      if (z_steps == Z_STEPS_NAN || !WITHIN(z_steps, INT16_MIN, INT16_MAX))
+        return Z_STEPS_NAN; // If z is out of range, return our custom 'NaN'
+      return int16_t(z_steps);
     }
 
     static float z_step_to_z(const int16_t &z_step) {
-      if (z_step == Z_STEPS_NAN) {
-        return NAN;
-      }
-      return z_step * z_units_per_step;
+      return z_step == Z_STEPS_NAN ? NAN : z_step * z_units_per_step;
     }
 
     void unified_bed_leveling::set_z_step_values(const bed_mesh_t &values, bed_mesh_steps_t &step_values) {
-      GRID_LOOP(x, y) {
+      GRID_LOOP(x, y)
         step_values[x][y] = z_to_z_step(values[x][y]);
-      }
     }
 
     void unified_bed_leveling::set_z_values(const bed_mesh_steps_t &step_values, bed_mesh_t &values) {
-      GRID_LOOP(x, y) {
+      GRID_LOOP(x, y)
         values[x][y] = z_step_to_z(step_values[x][y]);
-      }
     }
 
   #endif // MESH_STORE_STEPS
@@ -167,7 +154,7 @@
 
   static void serial_echo_column_labels(const uint8_t sp) {
     SERIAL_ECHO_SP(7);
-    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+    LOOP_L_N(i, GRID_MAX_POINTS_X)
       if (i < 10) SERIAL_CHAR(' ');
       SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);
