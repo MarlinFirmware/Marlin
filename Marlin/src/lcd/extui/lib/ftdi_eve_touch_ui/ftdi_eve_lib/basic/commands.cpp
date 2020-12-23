@@ -211,6 +211,14 @@ void CLCD::mem_write_32(uint32_t reg_address, uint32_t data) {
   spi_ftdi_deselect();
 }
 
+// Fill area of len size with repeated data bytes
+void CLCD::mem_write_fill(uint32_t reg_address, uint8_t data, uint16_t len) {
+  spi_ftdi_select();
+  spi_write_addr(reg_address);
+  while (len--) spi_write_8(data);
+  spi_ftdi_deselect();
+}
+
 /******************* FT800/810 Co-processor Commands *********************************/
 
 #if FTDI_API_LEVEL == 800
