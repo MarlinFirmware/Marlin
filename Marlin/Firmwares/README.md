@@ -41,7 +41,11 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 
 **Hardware for the QQS-Pro printers.**
   
-  * MotherBoards: [HiSpeedv1_&_RobinMini](/HISPEED)[NANOv1.2](/NANO)[SKR](/SKR)
+  * MotherBoards: 
+    [HiSpeedv1_&_RobinMini](./HISPEED)
+    [NANOv1.2](./NANO)
+    [SKR](./SKR)
+    
     With integrated stepper drivers(A4988)=>(Sxxx-Robin_mini.bin)
 
     ![First Version-A4988](../../docs/images/HiSpeed.jpg)
@@ -178,7 +182,7 @@ Caption:
 ![Tests](../../docs/images/Tests.png)
 ![MotorMounts](../../docs/images/BottomPulley.png)
 
-  # For the Wifi Module (ESP3DV2 directory):
+  # For the Wifi Module (ESP3DV2 [directory](./ESP3DV2)):
 
 ![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
 
