@@ -29,7 +29,7 @@
   #define FTDI_EXTENDED
 #endif
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
   #include "unicode/font_size_t.h"
   #include "unicode/unicode.h"
   #include "unicode/standard_char_set.h"

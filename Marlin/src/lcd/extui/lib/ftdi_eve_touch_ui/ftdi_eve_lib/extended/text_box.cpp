@@ -21,7 +21,7 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 namespace FTDI {
   /**
@@ -103,7 +103,7 @@ namespace FTDI {
         if (line[line_len - 1] == '\n' || line[line_len - 1] == ' ')
           line[line_len - 1] = 0;
 
-        #ifdef TOUCH_UI_USE_UTF8
+        #if ENABLED(TOUCH_UI_USE_UTF8)
           if (has_utf8_chars(line)) {
             draw_utf8_text(cmd, x + dx, y + dy, line, fm.fs, options & ~OPT_CENTERY);
           } else

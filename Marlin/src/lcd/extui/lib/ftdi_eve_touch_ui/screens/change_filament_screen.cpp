@@ -101,7 +101,7 @@ void ChangeFilamentScreen::onExit() {
 void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_COLS 2
     #define GRID_ROWS 11
   #else
@@ -114,13 +114,13 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .font(font_large)
     #else
        .font(font_medium)
     #endif
        .text(BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_EXTRUDER_SELECTION))
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
     #else
        .text(BTN_POS(3,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
@@ -142,14 +142,14 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const rgb_t tcol = getWarmColor(getActualTemp_celsius(e), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
     cmd.cmd(COLOR_RGB(tcol))
        .tag(15)
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .rectangle(BTN_POS(2,7), BTN_SIZE(1,1))
     #else
        .rectangle(BTN_POS(3,2), BTN_SIZE(2,1))
     #endif
        .cmd(COLOR_RGB(tcol.luminance() > 128 ? 0x000000 : 0xFFFFFF))
        .font(font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(2,7), BTN_SIZE(1,1), e_str)
     #else
        .text(BTN_POS(3,2), BTN_SIZE(2,1), e_str)
@@ -177,7 +177,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
       const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
     #endif
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       cmd.font(font_large)
     #else
       cmd.font(font_medium)
@@ -198,7 +198,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
 
     cmd.font(
-      #ifdef TOUCH_UI_PORTRAIT
+      #if ENABLED(TOUCH_UI_PORTRAIT)
         font_large
       #else
         font_small
@@ -227,7 +227,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     .cmd(COLOR_MASK(1,1,1,1))
 
     .cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .font(font_large)
        .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), GET_TEXT_F(MSG_UNLOAD_FILAMENT))
                                             .text   (BTN_POS(2,8),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LOAD_FILAMENT))

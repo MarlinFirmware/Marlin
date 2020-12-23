@@ -38,7 +38,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 9
     #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)

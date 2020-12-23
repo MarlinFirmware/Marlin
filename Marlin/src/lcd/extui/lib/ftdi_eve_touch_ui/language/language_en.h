@@ -146,7 +146,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
   PROGMEM Language_Str MSG_SHOW_MESH                = u8"Show Bed Mesh";
 
-  #ifdef TOUCH_UI_LULZBOT_BIO
+  #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str MSG_RAISE_PLUNGER          = u8"Raise Plunger";
     PROGMEM Language_Str MSG_RELEASE_XY_AXIS        = u8"Release X and Y Axis";

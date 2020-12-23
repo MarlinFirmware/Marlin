@@ -158,7 +158,7 @@ class UncachedScreen {
       using namespace FTDI;
       CommandProcessor cmd;
       cmd.cmd(CMD_DLSTART);
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         load_utf8_bitmaps(cmd);
       #endif
 
@@ -199,7 +199,7 @@ class CachedScreen {
       CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         load_utf8_bitmaps(cmd);
       #endif
       current_screen.onRedraw(BACKGROUND);
@@ -222,7 +222,7 @@ class CachedScreen {
         dlcache.append();
       }
       else {
-        #ifdef TOUCH_UI_USE_UTF8
+        #if ENABLED(TOUCH_UI_USE_UTF8)
           load_utf8_bitmaps(cmd);
         #endif
         current_screen.onRedraw(BACKGROUND);

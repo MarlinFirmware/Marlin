@@ -32,7 +32,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 8
 #else
     #define GRID_ROWS 8
@@ -43,7 +43,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
 
   #define GRID_COLS 3
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define X_LBL_POS  BTN_POS(1,5), BTN_SIZE(1,1)
     #define Y_LBL_POS  BTN_POS(1,6), BTN_SIZE(1,1)
     #define Z_LBL_POS  BTN_POS(1,7), BTN_SIZE(1,1)
@@ -111,7 +111,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
   #undef GRID_COLS
 }
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 8
 #else
   #define GRID_COLS 12
@@ -164,7 +164,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd (BITMAP_SIZE  (Fan_Icon_Info))
        .icon(ICON_POS(FAN_POS), Fan_Icon_Info, icon_scale);
 
-    #ifdef TOUCH_UI_USE_UTF8
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       load_utf8_bitmaps(cmd); // Restore font bitmap handles
     #endif
   }
@@ -334,7 +334,7 @@ void StatusScreen::loadBitmaps() {
   CLCD::mem_write_pgm(base + Fan_Icon_Info.RAMG_offset,      Fan_Icon,      sizeof(Fan_Icon));
 
   // Load fonts for internationalization
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     load_utf8_data(base + UTF8_FONT_OFFSET);
   #endif
 }

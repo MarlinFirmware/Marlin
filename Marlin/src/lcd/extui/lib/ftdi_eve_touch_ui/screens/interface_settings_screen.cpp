@@ -58,7 +58,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
 
     #define GRID_COLS 4
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 7
     #else
       #define GRID_ROWS 6
@@ -86,7 +86,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -106,7 +106,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #endif
     #undef EDGE_R
     #define EDGE_R 0
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .colors(normal_btn)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)

@@ -53,7 +53,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_large
     #else
       font_medium
