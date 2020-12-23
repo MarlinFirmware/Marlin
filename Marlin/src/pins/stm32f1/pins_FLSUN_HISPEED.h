@@ -32,13 +32,16 @@
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "FLSUN HiSpeedV1 supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "FLSUN HiSpeedV1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME      "FLSun HiSpeedV1"
 #define BOARD_WEBSITE_URL    "github.com/Foxies-CSTL"
 
 #define BOARD_NO_NATIVE_USB
+
+// Avoid conflict with TIMER_SERVO when using the STM32 HAL
+#define TEMP_TIMER 5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -60,6 +63,9 @@
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
 #define SPI_DEVICE 2
+#define SCK_PIN                            PB13  // SPI2
+#define MISO_PIN                           PB14  // SPI2
+#define MOSI_PIN                           PB15  // SPI2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
@@ -114,11 +120,7 @@
  * Several wiring options are provided below, defaulting to
  * to the most compatible.
  */
-
-//
-// Drivers
-//
-#if HAS_TMC220x
+#if HAS_TMC_UART
   // SoftwareSerial with one pin per driver
   // Compatible with TMC2208 and TMC2209 drivers
   #define X_SERIAL_TX_PIN                   PA10  // RXD1
@@ -137,20 +139,20 @@
     #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
 
-/**
- * MKS Robin_Wifi or another ESP8266 module
- *
- *      __ESP(M1)__       -J1-
- *  GND| 15 | | 08 |+3v3  (22)  RXD1      (PA10)
- *     | 16 | | 07 |MOSI  (21)  TXD1      (PA9)   Active LOW, probably OK to leave floating
- *  IO2| 17 | | 06 |MISO  (19)  IO1       (PC7)   Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *  IO0| 18 | | 05 |CLK   (18)  IO0       (PA8)   Must be HIGH (ESP3D software configures this with a pullup so OK to leave as floating)
- *  IO1| 19 | | 03 |EN    (03)  WIFI_EN           Must be HIGH for module to run
- *     | nc | | nc |      (01)  WIFI_CTRL (PA5)
- *   RX| 21 | | nc |
- *   TX| 22 | | 01 |RST
- *       ￣￣ AE￣￣
- */
+  /**
+   * MKS Robin_Wifi or another ESP8266 module
+   *
+   *      __ESP(M1)__       -J1-
+   *  GND| 15 | | 08 |+3v3  (22)  RXD1      (PA10)
+   *     | 16 | | 07 |MOSI  (21)  TXD1      (PA9)   Active LOW, probably OK to leave floating
+   *  IO2| 17 | | 06 |MISO  (19)  IO1       (PC7)   Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+   *  IO0| 18 | | 05 |CLK   (18)  IO0       (PA8)   Must be HIGH (ESP3D software configures this with a pullup so OK to leave as floating)
+   *  IO1| 19 | | 03 |EN    (03)  WIFI_EN           Must be HIGH for module to run
+   *     | nc | | nc |      (01)  WIFI_CTRL (PA5)
+   *   RX| 21 | | nc |
+   *   TX| 22 | | 01 |RST
+   *       ￣￣ AE￣￣
+   */
   // Module ESP-WIFI
   #define ESP_WIFI_MODULE_COM                  2  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
@@ -269,43 +271,42 @@
   #error "FLSun HiSpeed default BEEPER_PIN is not a SPEAKER."
 #endif
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers
- * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
- * ILI9488 is not supported
- * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
+#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
+  #define TFT_CS_PIN                        PD7   // NE4
+  #define TFT_RS_PIN                        PD11  // A0
+#endif
 
-// QQS-Pro uses MKS Robin TFT v2.0 320x240
-
-// Shared FSMC Configs
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
-  #define TFT_RESET_PIN                     PC6   // FSMC_RST
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
+  //#define TFT_RESET_PIN                   PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
+  #define FSMC_CS_PIN                 TFT_CS_PIN  // NE4
+  #define FSMC_RS_PIN                 TFT_RS_PIN  // A0
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TFT_BUFFER_SIZE                  14400
-  #if ENABLED(TFT_CLASSIC_UI)
-    #define TFT_MARLINBG_COLOR            0x3186  // White
-    #define TFT_MARLINUI_COLOR            0xC7B6  // green
+  #ifdef TFT_CLASSIC_UI
+    #define TFT_MARLINBG_COLOR            0x3186  // Grey
+    #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
+  #define TFT_BUFFER_SIZE                  14400
+#elif HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
 #endif
 
 #if NEED_TOUCH_PINS
@@ -313,4 +314,5 @@
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define TOUCH_INT_PIN                     -1
 #endif

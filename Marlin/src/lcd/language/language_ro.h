@@ -91,12 +91,8 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Racire");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecventa");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Laser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Oprit");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser Pornit");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Puterea Laserului");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Controlul Spindle");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindle Oprit");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindle Pornit");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Puterea Spindle");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Invers");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Porneste");
@@ -232,7 +228,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Capat Prea Rece");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Move %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Move %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Move 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Move 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Move 10mm");
