@@ -55,6 +55,9 @@
       #if MAX31855_USES_SW_SPI
         , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
     );
   #endif
   #if MAX6675_1_IS_MAX31855 && PIN_EXISTS(MAX31855_CS2)
@@ -62,6 +65,9 @@
     Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_CS2_PIN
       #if MAX31855_USES_SW_SPI
         , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
       #endif
     );
   #endif
@@ -74,17 +80,23 @@
   #endif
   #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
     #define HAS_MAX31865_TEMP 1
-    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
-      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
-      #endif
-    );
+      Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
+        #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
+          , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+        #endif
+        #if ENABLED(LARGE_PINMAP)
+          , HIGH
+        #endif
+      );
   #endif
   #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
     #define HAS_MAX31865_TEMP 1
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
       #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+          , HIGH
       #endif
     );
   #endif
@@ -101,6 +113,9 @@
       #if MAX6675_USES_SW_SPI
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
     );
   #endif
   #if MAX6675_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
@@ -109,24 +124,16 @@
       #if MAX6675_USES_SW_SPI
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
     );
   #endif
 #endif
 
-/*
 #if !HAS_MAX6675_TEMP && !HAS_MAX31855_TEMP && !HAS_MAX31865_TEMP
   #define NO_THERMO_TEMPS 1
 #endif
-
-#if (HEATER_0_USES_MAX6675 || HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO) && NO_THERMO_TEMPS
-  #define MAX6675_SEPARATE_SPI 1
-#endif
-
-
-#if MAX6675_SEPARATE_SPI
-  #include "../libs/private_spi.h"
-#endif
-*/
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
@@ -1701,13 +1708,6 @@ void Temperature::updateTemperaturesFromRawValues() {
   raw_temps_ready = false;
 }
 
-/*
-#if MAX6675_SEPARATE_SPI
-  template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
-#endif
-*/
-
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef ALFAWISE_UX0
   #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
@@ -1851,8 +1851,6 @@ void Temperature::init() {
   #if ENABLED(USE_CONTROLLER_FAN)
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
-
-  //TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
 
   HAL_adc_init();
 
@@ -2272,8 +2270,6 @@ void Temperature::disable_all_heaters() {
       static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
       #define MAX6675_TEMP(I) max6675_temp_previous[I]
       #define MAX6675_SEL(A,B) (hindex ? (B) : (A))
-      //#define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
-      //#define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
     #else
       constexpr uint8_t hindex = 0;
       #define MAX6675_TEMP(I) max6675_temp
@@ -2282,15 +2278,6 @@ void Temperature::disable_all_heaters() {
       #else
         #define MAX6675_SEL(A,B) A
       #endif
-      /*
-      #if HEATER_0_USES_MAX6675
-        #define MAX6675_WRITE(V)          WRITE(MAX6675_SS_PIN, V)
-        #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS_PIN)
-      #else
-        #define MAX6675_WRITE(V)          WRITE(MAX6675_SS2_PIN, V)
-        #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS2_PIN)
-      #endif
-      */
     #endif
 
     static uint8_t max6675_errors[COUNT_6675] = { 0 };
@@ -2301,34 +2288,7 @@ void Temperature::disable_all_heaters() {
     if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
-    /*
-    //
-    // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
-    //
-    #if !MAX6675_SEPARATE_SPI && NO_THERMO_TEMPS
-      spiBegin();
-      spiInit(MAX6675_SPEED_BITS);
-    #endif
-
-    #if NO_THERMO_TEMPS
-      MAX6675_WRITE(LOW);  // enable TT_MAX6675
-      DELAY_NS(100);       // Ensure 100ns delay
-    #endif
-    */
-
     max6675_temp = 0;
-
-    /*
-    // Read a big-endian temperature value
-    #if NO_THERMO_TEMPS
-      for (uint8_t i = sizeof(max6675_temp); i--;) {
-        max6675_temp |= TERN(MAX6675_SEPARATE_SPI, max6675_spi.receive(), spiRec());
-        if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
-      }
-        MAX6675_WRITE(HIGH); // disable TT_MAX6675
-    #endif
-    */
-
     #if HAS_MAX31855_TEMP
       Adafruit_MAX31855 &max855ref = MAX6675_SEL(max31855_0, max31855_1);
       max6675_temp = max855ref.readRaw32();
@@ -2344,12 +2304,7 @@ void Temperature::disable_all_heaters() {
       max6675_temp = max6675ref.readRaw16();
     #endif
 
-    // At the present time we do not have the ability to set the MAX31865 HIGH threshold
-    // or thr LOW threshold, so no need to check for them, zero these bits out
-    const uint8_t fault_31865 = TERN1(HAS_MAX31865_TEMP, (max865ref.readFault() & 0x3FU));
-
-
-    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
+    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK)) {
       max6675_errors[hindex]++;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
@@ -2363,10 +2318,13 @@ void Temperature::disable_all_heaters() {
             else if (max6675_temp & 4)
               SERIAL_ECHOLNPAIR("Fault : (", max6675_temp & 4 ,")  >> Short to VCC");
         #elif MAX6675_HAS_MAX31865
-          const uint8_t fault_31865 = max865ref.readFault();
-            max865ref.clearFault();
+          // At the present time we do not have the ability to set the MAX31865 HIGH threshold
+          // or thr LOW threshold, so no need to check for them, zero these bits out
+          const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
+          max865ref.clearFault();
           if (fault_31865) {
-            SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
+            SERIAL_ECHOLN();
+            SERIAL_ECHOLNPAIR("MAX31865 Fault :(", fault_31865, ")  >>");
             if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
             if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
@@ -3082,7 +3040,15 @@ void Temperature::tick() {
     SERIAL_ECHO(c);
     SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
+      // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
+      #if NO_THERMO_TEMPS
+        SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
+      #else
+        if (k == 'T')
+          SERIAL_ECHOPAIR(" (", r);
+        else
+          SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
+      #endif
       SERIAL_CHAR(')');
     #endif
     delay(2);
