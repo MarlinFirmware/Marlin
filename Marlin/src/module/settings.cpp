@@ -2385,20 +2385,14 @@ void MarlinSettings::postprocess() {
                                                           // or down a little bit without disrupting the mesh data
     }
 
+    #define MESH_DATA_SIZE sizeof(TERN(MESH_STORE_STEPS, bed_mesh_steps_t, ubl.z_values))
+
     uint16_t MarlinSettings::calc_num_meshes() {
-      #if ENABLED(MESH_STORE_STEPS)
-        return (meshes_end - meshes_start_index()) / sizeof(bed_mesh_steps_t);
-      #else
-        return (meshes_end - meshes_start_index()) / sizeof(ubl.z_values);
-      #endif
+      return (meshes_end - meshes_start_index()) / MESH_DATA_SIZE;
     }
 
     int MarlinSettings::mesh_slot_offset(const int8_t slot) {
-      #if ENABLED(MESH_STORE_STEPS)
-        return meshes_end - (slot + 1) * sizeof(bed_mesh_steps_t);
-      #else
-        return meshes_end - (slot + 1) * sizeof(ubl.z_values);
-      #endif
+      return meshes_end - (slot + 1) * MESH_DATA_SIZE;
     }
 
     void MarlinSettings::store_mesh(const int8_t slot) {
@@ -2419,15 +2413,13 @@ void MarlinSettings::postprocess() {
           int16_t z_step_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
           unified_bed_leveling::set_z_step_values(ubl.z_values, z_step_values);
           uint8_t * const src = (uint8_t*)&z_step_values;
-          size_t size = sizeof(bed_mesh_steps_t);
         #else
           uint8_t * const src = (uint8_t*)&ubl.z_values;
-          size_t size = sizeof(ubl.z_values);
         #endif
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool status = persistentStore.write_data(pos, src, size, &crc);
+        const bool status = persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
@@ -2456,24 +2448,22 @@ void MarlinSettings::postprocess() {
         #if ENABLED(MESH_STORE_STEPS)
           int16_t z_step_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
           uint8_t * const dest = (uint8_t*)&z_step_values;
-          size_t size = sizeof(z_step_values);
         #else
           uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
-          size_t size = sizeof(ubl.z_values);
         #endif
 
         persistentStore.access_start();
-        const uint16_t status = persistentStore.read_data(pos, dest, size, &crc);
+        const uint16_t status = persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
         #if ENABLED(MESH_STORE_STEPS)
-          if (into != nullptr) {
+          if (into) {
             float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
             unified_bed_leveling::set_z_values(z_step_values, z_values);
             memcpy(into, z_values, sizeof(z_values));
-          } else {
-            unified_bed_leveling::set_z_values(z_step_values, ubl.z_values);
           }
+          else
+            unified_bed_leveling::set_z_values(z_step_values, ubl.z_values);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
