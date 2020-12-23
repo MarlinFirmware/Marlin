@@ -89,7 +89,7 @@ The current core CR-6 Community firmware dev team consists of:
 
  - Sebastiaan Dammann [[@Sebazzz](https://github.com/Sebazzz)] - Netherlands &nbsp; ([Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=B7XURY2X39GS6&item_name=CR-6+development&currency_code=EUR) | [Website](https://damsteen.nl))
  - Juan Rodriguez [[@Nushio](https://github.com/Nushio)] - Mexico
- - Romain [[@grobux](https://github.com/grobux)] - France
+ - Romain [[@grobux](https://github.com/grobux)] - France ([Donate](https://www.paypal.com/donate?hosted_button_id=CP2SAW4W9RBT4))
  - Nick Acker [[@nickacker](https://github.com/nickacker)] - USA
  - And more...
 
