@@ -41,12 +41,12 @@ namespace Language_it {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 1;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Italian");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Italiano");
 
-  PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" pronto.");
+  PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" pronta.");
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
-  PROGMEM Language_Str MSG_YES                             = _UxGT("SI");
-  PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
+  PROGMEM Language_Str MSG_YES                             = _UxGT("Si");
+  PROGMEM Language_Str MSG_NO                              = _UxGT("No");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Indietro");
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Annullando...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media inserito");
@@ -72,8 +72,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home asse Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Allineam.automat. Z");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("Iterazione G34: %i");
-  PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Precis.in calo!");
-  PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Precis.raggiunta");
+  PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Precisione in calo!");
+  PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Precisione raggiunta");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Home assi XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Premi per iniziare");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Punto successivo");
@@ -118,10 +118,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Muovi Asse");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Livella piano");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Livella piano");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Livella spigoli");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Sollevare il letto finché la sonda non viene attivata");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tutti gli angoli entro tolleranza. Livella il piano");
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo spigolo");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Calibra piano");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo punto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifica Mesh");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Modif. Mesh Fermata");
@@ -447,7 +447,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Metti BLTouch a 5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Metti BLTouch a OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Segnala modo");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("PERICOLO: Impostazioni errate possono cause danni! Procedo comunque?");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("PERICOLO: impostazioni errate possono cause danni! Procedo comunque?");
   PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Inizializ.TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Test Z offset");
@@ -644,12 +644,12 @@ namespace Language_it {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Ripresa..."));
   #endif // LCD_HEIGHT < 4
 
-  PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("Drivers TMC");
-  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Driver in uso");
+  PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("Driver TMC");
+  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Correnti driver");
   PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Soglia modo ibrido");
-  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Azzer. senza sens.");
-  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Modo stepping");
-  PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("StealthChop abil.");
+  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Sensorless homing");
+  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Stealthchop");
+  PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("Stealthchop");
 
   PROGMEM Language_Str MSG_SERVICE_RESET                   = _UxGT("Resetta");
   PROGMEM Language_Str MSG_SERVICE_IN                      = _UxGT(" tra:");
@@ -667,16 +667,16 @@ namespace Language_it {
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Riscalda");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Riscaldando...");
 
-  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Proc.guid.sonda Z");
-  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Tasteggio rif.Z");
-  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Movim.a pos.tasteg.");
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Wizard Z offset");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Altezza di riferimento sonda");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Spostati in posizione di rilevazione");
 
-  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Suono");
+  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Suoni");
 
-  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Alto Sinistra");
-  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Basso Sinistra");
-  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Alto Destra");
-  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Basso Destra");
+ PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Alto sinistra");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Basso sinistra");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Alto destra");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Basso destra");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibrazione completata");
-  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibrazion fallita");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibrazione fallita");
 }

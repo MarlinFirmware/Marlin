@@ -37,7 +37,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
