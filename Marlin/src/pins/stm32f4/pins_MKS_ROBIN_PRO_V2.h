@@ -243,7 +243,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-// #define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH 1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -264,7 +264,7 @@
  *                EXP1                                               EXP2
  */
 
-#if EITHER(TFT_480x320_SPI, TFT_LVGL_UI_SPI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
   #endif

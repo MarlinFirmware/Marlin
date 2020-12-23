@@ -255,7 +255,7 @@
  *                EXP1                                               EXP2
  */
 
-#if EITHER(TFT_480x320_SPI, TFT_LVGL_UI_SPI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
   #endif
