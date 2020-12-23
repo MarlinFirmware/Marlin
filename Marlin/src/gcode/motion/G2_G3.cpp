@@ -41,13 +41,12 @@
 #endif
 
 /**
- * Plan an arc in 2 dimensions
+ * Plan an arc in 2 dimensions, with optional linear motion in a 3rd dimension
  *
- * The arc is approximated by generating many small linear segments.
- * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
- * Arcs should only be made relatively large (over 5mm), as larger arcs with
- * larger segments will tend to be more efficient. Your slicer should have
- * options for G2/G3 arc generation. In future these options may be GCode tunable.
+ * The arc is traced by generating many small linear segments, as configured by
+ * MM_PER_ARC_SEGMENT (Default 1mm). In the future we hope more slicers will include
+ * an option to generate G2/G3 arcs for curved surfaces, as this will allow faster
+ * boards to produce much smoother curved surfaces.
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
