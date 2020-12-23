@@ -214,12 +214,9 @@ void tft_lvgl_init() {
     }
   #endif
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
-    else lv_draw_ready_print();
-  #else
+  if (ready) {
     lv_draw_ready_print();
-  #endif
+  }
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
