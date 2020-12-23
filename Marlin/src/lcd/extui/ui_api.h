@@ -131,7 +131,7 @@ namespace ExtUI {
   float getFeedrate_percent();
   int16_t getFlowPercentage(const extruder_t);
 
-  inline getProgress_percent() { return ui.get_progress_percent(); }
+  inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
 
   #if HAS_PRINT_PROGRESS_PERMYRIAD
     inline uint16_t getProgress_permyriad() { return ui.get_progress_permyriad(); }
