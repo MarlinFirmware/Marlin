@@ -65,7 +65,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "https://github.com/CR6Community/Marlin"
+#define WEBSITE_URL "github.com/CR6Community"
 
 /**
  * Set the vendor info the serial USB interface, if changable

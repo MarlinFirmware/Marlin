@@ -184,6 +184,7 @@ public:
     static void DGUSLCD_SendWaitingStatusToDisplay(DGUS_VP_Variable &var);
   #endif
 
+  static void DGUSLCD_SendAboutFirmwareWebsite(DGUS_VP_Variable &var);
   static void DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var);
   static void DGUSLCD_SendAboutPrintSize(DGUS_VP_Variable &var);
 
@@ -240,8 +241,6 @@ public:
   static inline bool IsScreenComplete() { return ScreenComplete; }
 
   static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
-
-  static void updateCurrentScreen(DGUSLCD_Screens current);
 
   static bool HandlePendingUserConfirmation();
 

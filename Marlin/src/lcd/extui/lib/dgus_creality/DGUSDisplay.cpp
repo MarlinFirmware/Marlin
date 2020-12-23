@@ -230,22 +230,11 @@ void DGUSDisplay::ProcessRx() {
           if (vp == 0x14 /*PIC_Now*/) {
             const uint16_t screen_id = tmp[3] << 8 | tmp[4];
 
-            // In the code below DGUSLCD_SCREEN_BOOT acts as a sentinel
-            if (screen_id == 255) {
-              // DGUS OS sometimes randomly sends 255 back as an answer. Possible buffer overrun?
-              ReadCurrentScreen(); // Request again
-            } else if (displayRequest != DGUSLCD_SCREEN_BOOT && screen_id != displayRequest) {
-              // A display was requested. If the screen didn't yet switch to that display, we won't give that value back, otherwise the code gets confused.
-              // The DWIN display mostly honours the PIC_SET requests from the firmware, so after a while we may want to nudge it to the correct screen
-              DEBUG_ECHOPAIR(" Got a response on the current screen: ", screen_id);
-              DEBUG_ECHOLNPAIR(" - however, we've requested screen ", displayRequest);
-            } else {
-              displayRequest = DGUSLCD_SCREEN_BOOT;
-
-              if (current_screen_update_callback != nullptr) {
-                current_screen_update_callback(static_cast<DGUSLCD_Screens>(screen_id));
-              }
-            }
+            // A display was requested. If the screen didn't yet switch to that display, we won't give that value back, otherwise the code gets confused.
+            // The DWIN display mostly honours the PIC_SET requests from the firmware, so after a while we may want to nudge it to the correct screen
+            DEBUG_ECHOPAIR(" Got a response on the current screen: ", screen_id);
+            DEBUG_ECHOLNPAIR(" - however, we've requested screen ", displayRequest);
+            UNUSED(screen_id);
           } else {
             //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
             //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
@@ -259,9 +248,6 @@ void DGUSDisplay::ProcessRx() {
             }
             else
               DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
-
-            // Always ask for a screen update so we can send a screen update earlier, this prevents a flash of unstyled screen
-            ReadCurrentScreen();
           }
 
           rx_datagram_state = DGUS_IDLE;
@@ -304,10 +290,6 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   DEBUG_ECHOLNPAIR("GotoScreen ", screen);
   const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
-}
-
-void DGUSDisplay::ReadCurrentScreen() {
-  ReadVariable(0x14 /*PIC_NOW*/);
 }
 
 rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;

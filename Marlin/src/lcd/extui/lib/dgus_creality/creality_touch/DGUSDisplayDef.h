@@ -185,6 +185,9 @@ constexpr uint16_t VP_PRINTER_BEDSIZE_LEN = 12;
 constexpr uint16_t VP_MARLIN_VERSION = 0x2222;
 constexpr uint8_t VP_MARLIN_VERSION_LEN = 20;   // there is more space on the display, if needed.
 
+constexpr uint16_t VP_MARLIN_WEBSITE = 0x2242;
+constexpr uint8_t VP_MARLIN_WEBSITE_LEN = 32;  
+
 // Material preheat settings
 constexpr uint16_t VP_PREHEAT_PLA_HOTEND_TEMP = 0x1102;
 constexpr uint16_t VP_PREHEAT_PLA_BED_TEMP = 0x1104;

@@ -64,9 +64,6 @@ uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 bool DGUSScreenHandler::are_steppers_enabled = true;
 float DGUSScreenHandler::feed_amount = true;
 
-//DGUSDisplay dgusdisplay;
-UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
-
 // endianness swap
 uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
 
@@ -155,6 +152,12 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
   char buf[32];
   elapsed.toString(buf);
   dgusdisplay.WriteVariable(VP_PrintTime, buf, var.size, true);
+}
+
+void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareWebsite(DGUS_VP_Variable &var) {
+  const char* websiteUrl = PSTR(WEBSITE_URL);
+
+  dgusdisplay.WriteVariablePGM(var.VP, websiteUrl, strlen(websiteUrl), true);
 }
 
 void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var) {
@@ -1040,10 +1043,10 @@ void DGUSScreenHandler::HandleFanToggle() {
 }
 
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_current_screen) {
-  DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
+  SERIAL_ECHOLNPAIR("SetNewScreen: ", newscreen);
 
   if (save_current_screen && current_screen != DGUSLCD_SCREEN_POPUP && current_screen != DGUSLCD_SCREEN_CONFIRM) {
-    DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
+    SERIAL_ECHOLNPAIR("SetNewScreen (saving): ", newscreen);
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
     past_screens[0] = current_screen;
   }
@@ -1066,15 +1069,6 @@ void DGUSScreenHandler::PopToOldScreen() {
     } else {
       GotoScreen(DGUSLCD_SCREEN_MAIN, false);
     }
-  }
-}
-
-void DGUSScreenHandler::updateCurrentScreen(DGUSLCD_Screens current) {
-  if (current_screen != current) {
-    DEBUG_ECHOPAIR("Screen updated at display side: Was ", current_screen);
-    DEBUG_ECHOLNPAIR(", is now: ", current);
-
-    UpdateNewScreen(current, current != DGUSLCD_SCREEN_POPUP && current != DGUSLCD_SCREEN_CONFIRM);
   }
 }
 
@@ -1153,9 +1147,6 @@ bool DGUSScreenHandler::loop() {
   if (!IsScreenComplete() || ELAPSED(ms, next_event_ms)) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
     UpdateScreenVPData();
-
-    // Read which screen is currently triggered - navigation at display side may occur
-    if (dgusdisplay.isInitialized()) dgusdisplay.ReadCurrentScreen();
   }
 
   if (dgusdisplay.isInitialized()) {

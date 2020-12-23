@@ -309,6 +309,7 @@ const uint16_t VPList_Info[] PROGMEM = {
   VP_Feedrate_Percentage,
 
   VP_PRINTER_BEDSIZE,
+  VP_MARLIN_WEBSITE,
   VP_MARLIN_VERSION,
 
   0x0000
@@ -424,6 +425,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // About info
+  VPHELPER(VP_MARLIN_WEBSITE, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareWebsite),
   VPHELPER(VP_MARLIN_VERSION, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
   VPHELPER(VP_PRINTER_BEDSIZE, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
 
