@@ -47,19 +47,20 @@ namespace FTDI {
      * pointer to the next character */
 
     utf8_char_t get_utf8_char_and_inc(const char *&c);
+    utf8_char_t get_utf8_char_and_inc(char *&c);
 
     /* Returns the next character in a UTF8 string, without incrementing */
 
     inline utf8_char_t get_utf8_char(const char *c) {return get_utf8_char_and_inc(c);}
 
-    void load_utf8_data(uint16_t addr);
+    void load_utf8_data(uint32_t addr);
   #else
     typedef char utf8_char_t;
 
     inline utf8_char_t get_utf8_char_and_inc(const char *&c) {return *c++;}
     inline utf8_char_t get_utf8_char(const char *c) {return *c;}
 
-    inline void load_utf8_data(uint16_t) {}
+    inline void load_utf8_data(uint32_t) {}
   #endif
 
   void load_utf8_bitmaps(CommandProcessor& cmd);
