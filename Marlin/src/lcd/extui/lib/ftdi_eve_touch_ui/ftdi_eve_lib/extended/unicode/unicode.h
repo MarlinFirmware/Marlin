@@ -24,7 +24,7 @@
 class CommandProcessor;
 
 namespace FTDI {
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     typedef uint16_t utf8_char_t;
 
     /**
@@ -75,14 +75,14 @@ namespace FTDI {
   // Similar to CLCD::FontMetrics, but can be used with UTF8 encoded strings.
 
   struct FontMetrics {
-    #ifdef TOUCH_UI_USE_UTF8
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       font_size_t fs;
     #else
       CLCD::FontMetrics fm;
     #endif
 
     inline void load(uint8_t rom_font_size) {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         fs = font_size_t::from_romfont(rom_font_size);
       #else
         fm.load(rom_font_size);
@@ -90,7 +90,7 @@ namespace FTDI {
     }
 
     inline uint16_t get_char_width(utf8_char_t c) const {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         return get_utf8_char_width(c, fs);
       #else
         return fm.char_widths[(uint8_t)c];
@@ -98,7 +98,7 @@ namespace FTDI {
     }
 
     inline uint8_t get_height() const {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         return fs.get_height();
       #else
         return fm.height;
