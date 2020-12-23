@@ -42,7 +42,7 @@ struct mesh_index_pair;
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
-  typedef int16_t bed_mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+  typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 class unified_bed_leveling {
@@ -111,8 +111,8 @@ class unified_bed_leveling {
 
     static bed_mesh_t z_values;
     #if ENABLED(OPTIMIZED_MESH_STORAGE)
-      static void set_store_from_mesh(const bed_mesh_t &in_values, bed_mesh_store_t &stored_values);
-      static void set_mesh_from_store(const bed_mesh_store_t &stored_values, bed_mesh_t &out_values);
+      static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
+      static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
     #endif
     static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
                        _mesh_index_to_ypos[GRID_MAX_POINTS_Y];

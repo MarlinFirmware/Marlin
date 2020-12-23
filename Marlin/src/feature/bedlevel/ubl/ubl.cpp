@@ -114,7 +114,7 @@
     #define MESH_STORE_SCALING 1000
     #define Z_STEPS_NAN INT16_MAX
 
-    void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, bed_mesh_store_t &stored_values) {
+    void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
       auto z_to_store = [](const float &z) {
         if (isnan(z)) return Z_STEPS_NAN;
         const int32_t z_scaled = truncf(z * (MESH_STORE_SCALING));
@@ -125,7 +125,7 @@
       GRID_LOOP(x, y) stored_values[x][y] = z_to_store(in_values[x][y]);
     }
 
-    void unified_bed_leveling::set_mesh_from_store(const bed_mesh_store_t &stored_values, bed_mesh_t &out_values) {
+    void unified_bed_leveling::set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values) {
       auto store_to_z = [](const int16_t z_scaled) {
         return z_scaled == Z_STEPS_NAN ? NAN : z_scaled / float(MESH_STORE_SCALING);
       };
