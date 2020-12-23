@@ -17,6 +17,7 @@ Ensure you take the right assets: the `firmware[suffix].bin`. You should not dow
 There are several branches in this project for your convenience. You can directly build them if you have the Platform.io plugin installed in Visual Studio code:
 
 - **[`extui`](https://github.com/CR6Community/Marlin/tree/extui)** - main source branch for CR-6 SE community firmware development; rewritten from scratch; paired with the [`extui`](https://github.com/CR6Community/CR-6-Touchscreen/tree/extui) branch of the CR-6 touch screen repository. This branch is used if you run the *stock* CR-6 mainboard (v4.5.2 `BOARD_CREALITY_V452` or v4.5.3 `BOARD_CREALITY_V453`).
+- **[`extui-cr6-max`](https://github.com/CR6Community/Marlin/tree/extui-cr6-max)** - The same as `extui` but for the CR-6 MAX
 - **[`extui-btt-skr-stock-tft`](https://github.com/CR6Community/Marlin/tree/extui-btt-skr-stock-tft)** - The same as `extui` but for the Big Tree Tech SKR-CR6 motherboard _and_ when you use the stock Creality CR-6 display
 - **[`extui-btt-skr-tft3`](https://github.com/CR6Community/Marlin/tree/extui-btt-skr-tft3)** - Up-to-date Marlin for the CR-6 with the Big Tree Tech SKR-CR6 motherboard _and_ when you use the Big Tree Tech TFT
 
