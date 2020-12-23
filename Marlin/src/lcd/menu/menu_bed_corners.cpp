@@ -68,6 +68,10 @@ extern const char G28_STR[];
 
 static int8_t bed_corner;
 
+constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
+constexpr xy_pos_t lf { (X_MIN_BED) + lfrb[0], (Y_MIN_BED) + lfrb[1] },
+                   rb { (X_MAX_BED) - lfrb[2], (Y_MAX_BED) - lfrb[3] };
+
 /**
  * Level corners, starting in the front-left corner.
  */
@@ -148,15 +152,13 @@ static int8_t bed_corner;
 
     do {
       do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearance
-      // select next corner coordnates
-      float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
-      xy_pos_t lf { (X_MIN_BED) + lfrb[0] - probe.offset_xy.x , (Y_MIN_BED) + lfrb[1] - probe.offset_xy.y },
-              rb { (X_MAX_BED) - lfrb[2] - probe.offset_xy.x , (Y_MAX_BED) - lfrb[3] - probe.offset_xy.y };
+      // Select next corner coordinates
+      xy_pos_t alf = lf - probe.offset_xy, arb = rb - probe.offset_xy;
       switch (bed_corner) {
-        case 0: current_position   = lf;   break; // copy xy
-        case 1: current_position.x = rb.x; break;
-        case 2: current_position.y = rb.y; break;
-        case 3: current_position.x = lf.x; break;
+        case 0: current_position   = alf;   break; // copy xy
+        case 1: current_position.x = arb.x; break;
+        case 2: current_position.y = arb.y; break;
+        case 3: current_position.x = alf.x; break;
         #if ENABLED(LEVEL_CENTER_TOO)
           case 4: current_position.set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); break;
         #endif
@@ -190,9 +192,6 @@ static int8_t bed_corner;
 #else // !LEVEL_CORNERS_USE_PROBE
 
   static inline void _lcd_goto_next_corner() {
-    constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
-    constexpr xy_pos_t lf { (X_MIN_BED) + lfrb[0], (Y_MIN_BED) + lfrb[1] },
-                       rb { (X_MAX_BED) - lfrb[2], (Y_MAX_BED) - lfrb[3] };
     line_to_z(LEVEL_CORNERS_Z_HOP);
     switch (bed_corner) {
       case 0: current_position   = lf;   break; // copy xy
