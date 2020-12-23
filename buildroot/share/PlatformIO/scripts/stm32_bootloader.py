@@ -6,9 +6,7 @@ board = DefaultEnvironment().BoardConfig()
 
 def noencrypt(source, target, env):
   firmware = os.path.join(target[0].dir.path, board.get("build.firmware"))
-  # do not overwrite encrypted firmware if present
-  if not os.path.isfile(firmware):
-    shutil.copy(target[0].path, firmware)
+  shutil.copy(target[0].path, firmware)
 
 if 'offset' in board.get("build").keys():
   LD_FLASH_OFFSET = board.get("build.offset")
@@ -26,5 +24,7 @@ if 'offset' in board.get("build").keys():
     if "-Wl,--defsym=LD_MAX_DATA_SIZE" in flag:
       env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_DATA_SIZE=" + str(maximum_ram_size - 40)
 
-  if 'firmware' in board.get("build").keys():
-    env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", noencrypt);
+board_keys = board.get("build").keys()
+# Only copy file if there's no encryptation
+if 'firmware' in board_keys and not 'encrypt' in board_keys:
+  env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", noencrypt)
