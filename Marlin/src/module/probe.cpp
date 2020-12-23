@@ -575,9 +575,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   // Double-probing does a fast probe followed by a slow probe
   #if TOTAL_PROBING == 2
 
-    // Do a first probe at the fast speed
+    // Attempt to tare the probe
     if (TERN0(PROBE_TARE, tare())) return NAN;
 
+    // Do a first probe at the fast speed
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
