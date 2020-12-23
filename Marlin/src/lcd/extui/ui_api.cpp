@@ -245,7 +245,7 @@ namespace ExtUI {
   }
 
   #ifdef TOUCH_UI_LCD_TEMP_SCALING
-    #define GET_TEMP_ADJUSTMENT(A) float(A)/TOUCH_UI_LCD_TEMP_SCALING
+    #define GET_TEMP_ADJUSTMENT(A) (float(A) / (TOUCH_UI_LCD_TEMP_SCALING))
   #else
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
@@ -806,10 +806,6 @@ namespace ExtUI {
       void setBacklashSmoothing_mm(const float value) { backlash.smoothing_mm = constrain(value, 0, 999); }
     #endif
   #endif
-
-  uint8_t getProgress_percent() {
-    return ui.get_progress_percent();
-  }
 
   uint32_t getProgress_seconds_elapsed() {
     const duration_t elapsed = print_job_timer.duration();
