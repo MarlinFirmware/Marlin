@@ -1185,11 +1185,8 @@
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
-  #undef TOUCH_SCREEN
-  #if !HAS_TFT_LVGL_UI
-    #define HAS_TOUCH_BUTTONS 1
-  #endif
+#if ENABLED(TOUCH_SCREEN) && ENABLED(TFT_CLASSIC_UI)
+  #define HAS_TOUCH_BUTTONS 1
 #endif
 
 // XPT2046_** Compatibility
