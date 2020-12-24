@@ -88,7 +88,7 @@ void TFT_SPI::Init() {
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream4;
-        DMAtx.Init.Channel = DMA_CHANNEL_4;
+        DMAtx.Init.Channel = DMA_CHANNEL_0;
       #endif
     }
   #endif
@@ -101,7 +101,7 @@ void TFT_SPI::Init() {
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream5;
-        DMAtx.Init.Channel = DMA_CHANNEL_5;
+        DMAtx.Init.Channel = DMA_CHANNEL_0;
       #endif
     }
   #endif
@@ -183,6 +183,9 @@ bool TFT_SPI::isBusy() {
 }
 
 void TFT_SPI::Abort() {
+  // Wait for any running spi
+  while ((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
+  while ((SPIx.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY) {}
   // First, abort any running dma
   HAL_DMA_Abort(&DMAtx);
   // DeInit objects
@@ -223,6 +226,9 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   __HAL_SPI_ENABLE(&SPIx);
 
   SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   /* Enable Tx DMA Request */
+
+  HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
+  Abort();
 }
 
 #endif // HAS_SPI_TFT

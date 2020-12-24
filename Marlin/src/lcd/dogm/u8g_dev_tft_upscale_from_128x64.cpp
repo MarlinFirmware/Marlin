@@ -339,6 +339,8 @@ static uint8_t page;
   }
 #endif // HAS_TOUCH_BUTTONS
 
+static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
+
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
@@ -352,19 +354,21 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, nullptr);
-      tftio.Init();
-      tftio.InitTFT();
-      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
 
       if (preinit) {
         preinit = false;
         return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
       }
 
+      if (msgInitCount) return -1;
+      tftio.Init();
+      tftio.InitTFT();
+      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+
       // Clear Screen
       setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
       #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, uint32_t(TFT_WIDTH) * (TFT_HEIGHT));
+        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
         for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
@@ -420,8 +424,6 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
-static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
-
 uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
@@ -433,8 +435,6 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
   switch (msg) {
     case U8G_COM_MSG_STOP: break;
     case U8G_COM_MSG_INIT:
-      u8g_SetPIOutput(u8g, U8G_PI_RESET);
-      u8g_Delay(50);
       isCommand = 0;
       break;
 
@@ -443,7 +443,6 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
       break;
 
     case U8G_COM_MSG_RESET:
-      u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:

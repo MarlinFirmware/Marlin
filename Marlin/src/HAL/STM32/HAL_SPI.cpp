@@ -157,7 +157,6 @@ static SPISettings spiConfig;
       SPI.setMISO(MISO_PIN);
       SPI.setMOSI(MOSI_PIN);
       SPI.setSCLK(SCK_PIN);
-      SPI.setSSEL(SS_PIN);
     #endif
 
     SPI.begin();

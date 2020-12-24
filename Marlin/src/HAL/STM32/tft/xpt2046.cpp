@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_XPT2046
+#if HAS_TFT_XPT2046 || HAS_TOUCH_BUTTONS
 
 #include "xpt2046.h"
 #include "pinconfig.h"
@@ -31,7 +31,6 @@
 uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 SPI_HandleTypeDef XPT2046::SPIx;
-DMA_HandleTypeDef XPT2046::DMAtx;
 
 void XPT2046::Init() {
   SPI_TypeDef *spiInstance;
@@ -71,34 +70,16 @@ void XPT2046::Init() {
       if (SPIx.Instance == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
         SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
-        #ifdef STM32F1xx
-          DMAtx.Instance = DMA1_Channel3;
-        #elif defined(STM32F4xx)
-          DMAtx.Instance = DMA2_Stream3; // DMA2_Stream5
-        #endif
-        //SERIAL_ECHO_MSG(" Touch Screen on SPI1");
       }
     #endif
     #ifdef SPI2_BASE
       if (SPIx.Instance == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
-        #ifdef STM32F1xx
-          DMAtx.Instance = DMA1_Channel5;
-        #elif defined(STM32F4xx)
-          DMAtx.Instance = DMA1_Stream4;
-        #endif
-        //SERIAL_ECHO_MSG(" Touch Screen on SPI2");
       }
     #endif
     #ifdef SPI3_BASE
       if (SPIx.Instance == SPI3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
-        #ifdef STM32F1xx
-          DMAtx.Instance = DMA2_Channel2;
-        #elif defined(STM32F4xx)
-          DMAtx.Instance = DMA1_Stream5;  // DMA1_Stream7
-        #endif
-        //SERIAL_ECHO_MSG(" Touch Screen on SPI3");
       }
     #endif
   }
@@ -107,7 +88,6 @@ void XPT2046::Init() {
     SET_INPUT(TOUCH_MISO_PIN);
     SET_OUTPUT(TOUCH_MOSI_PIN);
     SET_OUTPUT(TOUCH_SCK_PIN);
-    //SERIAL_ECHO_MSG(" Touch Screen on Software SPI");
   }
 
   getRawData(XPT2046_Z1);

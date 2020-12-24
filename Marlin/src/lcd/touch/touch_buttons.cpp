@@ -32,6 +32,7 @@ XPT2046 touchIO;
 #endif
 
 #include "../marlinui.h" // For EN_C bit mask
+#include "../tft_io/tft_io.h"
 
 #define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
 #define DOGM_AREA_TOP    TFT_PIXEL_OFFSET_Y
@@ -49,7 +50,8 @@ uint8_t TouchButtons::read_buttons() {
   #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
-    if (!touchIO.getRawPoint(&x, &y)) return 0;
+    const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
+    if (!is_touched) return 0;
 
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       const calibrationState state = touch_calibration.get_calibration_state();
