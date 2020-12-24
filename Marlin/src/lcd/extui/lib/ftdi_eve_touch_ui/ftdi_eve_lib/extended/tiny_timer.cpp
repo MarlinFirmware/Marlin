@@ -21,15 +21,11 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 bool tiny_timer_t::elapsed(tiny_time_t duration) {
   uint8_t now = tiny_time_t::tiny_time(
-    #ifdef __MARLIN_FIRMWARE__
-      ExtUI::safe_millis()
-    #else
-      millis()
-    #endif
+    TERN(__MARLIN_FIRMWARE__, ExtUI::safe_millis(), millis())
   );
   uint8_t elapsed = now - _start;
   return elapsed >= duration._duration;
@@ -37,11 +33,7 @@ bool tiny_timer_t::elapsed(tiny_time_t duration) {
 
 void tiny_timer_t::start() {
   _start = tiny_time_t::tiny_time(
-    #ifdef __MARLIN_FIRMWARE__
-      ExtUI::safe_millis()
-    #else
-      millis()
-    #endif
+    TERN(__MARLIN_FIRMWARE__, ExtUI::safe_millis(), millis())
   );
 }
 #endif // FTDI_EXTENDED

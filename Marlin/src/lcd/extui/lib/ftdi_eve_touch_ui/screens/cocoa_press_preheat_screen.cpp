@@ -78,7 +78,7 @@ void PreheatTimerScreen::draw_interaction_buttons(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .tag(1).button( BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
   }
 }
 
@@ -101,7 +101,7 @@ void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, progmem_st
        .font(font_small);
     if (what & BACKGROUND) {
         cmd.text(   SUB_POS(1,1), SUB_SIZE(9,1), label)
-           .button( SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
+           .button(SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
     }
 
     if (what & FOREGROUND) {

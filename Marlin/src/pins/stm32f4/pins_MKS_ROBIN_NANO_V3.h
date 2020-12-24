@@ -31,6 +31,9 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
+// Avoid conflict with TIMER_TONE
+#define STEP_TIMER 10
+
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
@@ -252,7 +255,7 @@
  *                EXP1                                               EXP2
  */
 
-#if EITHER(TFT_480x320_SPI, TFT_LVGL_UI_SPI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
   #endif
@@ -342,26 +345,6 @@
     #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
-
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-  #define SPI_TFT_CS_PIN                    PD11
-  #define SPI_TFT_SCK_PIN                   PA5
-  #define SPI_TFT_MISO_PIN                  PA6
-  #define SPI_TFT_MOSI_PIN                  PA7
-  #define SPI_TFT_DC_PIN                    PD10
-  #define SPI_TFT_RST_PIN                   PC6
-
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
-  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
-  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
-
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PE13
 #endif // HAS_SPI_LCD
 
 #define HAS_OTG_USB_HOST_SUPPORT
