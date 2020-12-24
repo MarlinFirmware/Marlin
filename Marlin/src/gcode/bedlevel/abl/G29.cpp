@@ -397,10 +397,6 @@ G29_TYPE GcodeSuite::G29() {
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #endif
 
-    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
-      ExtUI::onMeshLevelingStart();
-    #endif
-
     if (!faux) {
       remember_feedrate_scaling_off();
 
@@ -506,6 +502,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float newz = measured_z + zoffset;
         z_values[meshCount.x][meshCount.y] = newz;
+
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), meshCount.x, SP_Y_STR, meshCount.y, SP_Z_STR, measured_z + zoffset);
@@ -587,6 +584,11 @@ G29_TYPE GcodeSuite::G29() {
 
   #else // !PROBE_MANUALLY
   {
+
+    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
+      ExtUI::onMeshLevelingStart();
+    #endif
+
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     measured_z = 0;
