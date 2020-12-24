@@ -160,7 +160,11 @@ void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_PREPAREENTERKEY:
-            switch (buttonValue){ 
+            switch (buttonValue){
+                case 3:
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE10MM);
+                    break;
+
                 case 6:
                     // Disable steppers
                     ScreenHandler.HandleMotorLockUnlock(var, &buttonValue);
