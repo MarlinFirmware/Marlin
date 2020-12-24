@@ -568,7 +568,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
 
     settings.save();
 
-    GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL);
+    PopToOldScreen();
   } else {
     // We've already updated the icon, so nothing left
   }
