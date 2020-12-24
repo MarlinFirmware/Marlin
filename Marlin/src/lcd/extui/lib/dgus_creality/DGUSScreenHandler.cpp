@@ -55,6 +55,7 @@ uint16_t DGUSScreenHandler::ConfirmVP;
   static ExtUI::FileList filelist;
 #endif
 
+creality_dwin_settings_t DGUSScreenHandler::Settings = {.settings_size = sizeof(creality_dwin_settings_t)};
 DGUSLCD_Screens DGUSScreenHandler::current_screen;
 DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS] = {DGUSLCD_SCREEN_MAIN};
 uint8_t DGUSScreenHandler::update_ptr;
@@ -85,6 +86,51 @@ void DGUSScreenHandler::sendinfoscreen(const char* line1, const char* line2, con
   //  ramcopy.memadr = (void*) line4;
   //  l4inflash ? DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(ramcopy) : DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
   //}
+}
+
+void DGUSScreenHandler::DefaultSettings() {
+  Settings.settings_size = sizeof(creality_dwin_settings_t);
+  Settings.led_state = false;
+}
+
+void DGUSScreenHandler::LoadSettings(const char* buff) {
+  static_assert(
+    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
+    "Insufficient space in EEPROM for UI parameters"
+  );
+
+  creality_dwin_settings_t eepromSettings;
+  memcpy(&eepromSettings, buff, sizeof(eepromSettings));
+
+  // If size is not the same, discard settings
+  if (eepromSettings.settings_size != sizeof(eepromSettings)) {
+    SERIAL_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - size incorrect");
+
+    ScreenHandler.DefaultSettings();
+    return;
+  }
+
+  // Copy into final location
+  SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
+  memcpy(&Settings, &eepromSettings, sizeof(eepromSettings));
+
+  // Apply settings
+  caselight.on = Settings.led_state;
+  caselight.update(Settings.led_state);
+}
+
+void DGUSScreenHandler::StoreSettings(char* buff) {
+  static_assert(
+    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
+    "Insufficient space in EEPROM for UI parameters"
+  );
+
+  // Update settings
+  Settings.led_state = caselight.on;
+
+  // Write to buffer
+  SERIAL_ECHOLNPGM("Saving DWIN LCD setting from EEPROM");
+  memcpy(buff, &Settings, sizeof(Settings));
 }
 
 void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1, bool l2, bool l3, bool l4) {
@@ -429,6 +475,7 @@ void DGUSScreenHandler::FilamentRunout() {
 }
 
 void DGUSScreenHandler::OnFactoryReset() {
+  ScreenHandler.DefaultSettings();
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
 }
 
@@ -1032,6 +1079,7 @@ void DGUSScreenHandler::HandleLEDToggle() {
 
   caselight.on = newState;
   caselight.update(newState);
+  settings.save();
 
   ForceCompleteUpdate();
 }

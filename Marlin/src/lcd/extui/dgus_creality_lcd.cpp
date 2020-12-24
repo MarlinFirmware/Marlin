@@ -148,6 +148,8 @@ bool hasPrintTimer = false;
     // Example:
     //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
     //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
+
+    ScreenHandler.StoreSettings(buff);
   }
 
   void onLoadSettings(const char *buff) {
@@ -158,6 +160,8 @@ bool hasPrintTimer = false;
     // Example:
     //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+
+    ScreenHandler.LoadSettings(buff);
   }
 
   void onConfigurationStoreWritten(bool success) {

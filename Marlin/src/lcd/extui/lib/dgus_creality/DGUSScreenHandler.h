@@ -28,11 +28,20 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
+struct creality_dwin_settings_t {
+  size_t settings_size;
+  bool led_state;
+};
+
 class DGUSScreenHandler {
 public:
   DGUSScreenHandler() = default;
 
   static bool loop();
+
+  static void DefaultSettings();
+  static void LoadSettings(const char* buff);
+  static void StoreSettings(char* buff);
 
   /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   /// The bools specifing whether the strings are in RAM or FLASH.
@@ -264,6 +273,8 @@ private:
     static int16_t top_file;    ///< file on top of file chooser
     static int16_t file_to_print; ///< touched file to be confirmed
   #endif
+
+  static creality_dwin_settings_t Settings;
 };
 
 extern DGUSScreenHandler ScreenHandler;
