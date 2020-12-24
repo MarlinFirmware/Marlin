@@ -62,7 +62,7 @@ uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 bool DGUSScreenHandler::are_steppers_enabled = true;
-float DGUSScreenHandler::feed_amount = true;
+float DGUSScreenHandler::feed_amount = 100;
 
 // endianness swap
 uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }

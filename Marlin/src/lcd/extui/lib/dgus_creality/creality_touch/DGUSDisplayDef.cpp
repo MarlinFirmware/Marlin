@@ -128,6 +128,7 @@ const uint16_t VPList_Feed[] PROGMEM = {
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
 
+  VP_FEED_AMOUNT,
 
   0x0000
 };
@@ -447,7 +448,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_CONFIRMED, nullptr, ScreenHandler.ScreenConfirmedOK, nullptr),
 
   // Feed
-  VPHELPER(VP_FEED_AMOUNT, &ScreenHandler.feed_amount, ScreenHandler.HandleFeedAmountChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+  VPHELPER(VP_FEED_AMOUNT, &ScreenHandler.feed_amount, ScreenHandler.HandleFeedAmountChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
   // Creality has the same button ID mapped all over the place, so let the generic handler figure it out
   VPHELPER(VP_BUTTON_MAINENTERKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),

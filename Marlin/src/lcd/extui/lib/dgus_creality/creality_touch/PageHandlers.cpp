@@ -8,6 +8,7 @@
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
 #include "../../../../../feature/pause.h"
+#include "../../../../../gcode/gcode.h"
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 #include "../../../../../feature/runout.h"
@@ -169,6 +170,10 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
                     break;
             }
+        break;
+
+        case VP_BUTTON_HEATLOADSTARTKEY: 
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_FEED);
         break;
 
         case VP_BUTTON_COOLDOWN:
@@ -350,16 +355,32 @@ void InfoMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 }
 
  void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
-    thermalManager.setTargetHotend(celsius, ExtUI::H0);
+     // Heat if necessary
+    if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > 2) {
+        thermalManager.setTargetHotend(celsius, ExtUI::H0);
+        thermalManager.wait_for_hotend(ExtUI::H0, false);
+    }
 
-    char cmd[32];
+    // Remember if E was relative
+    bool axisWasRelative = GcodeSuite::axis_is_relative(E_AXIS);
+    GcodeSuite::set_e_relative();
+
+    // Inject E axis move command
+    char cmd[64];
     sprintf_P(cmd, command, ScreenHandler.feed_amount);
     
     SERIAL_ECHOPAIR("Injecting command: ", cmd);
     ExtUI::injectCommands(cmd);
 
+    // Handle commands (possibly 2)
     SERIAL_ECHOPGM_P("- waiting for queue");
     queue.advance();
+    planner.synchronize();
+
+    // Restore E axis state
+    if (!axisWasRelative) {
+        GcodeSuite::set_e_absolute();
+    }
 
     SERIAL_ECHOPGM_P("- done");
 }
@@ -377,7 +398,7 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case 1:
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
 
-            change_filament_with_temp(PSTR("M701 L%f"), celsius);
+            change_filament_with_temp(PSTR("G1 E%f F80"), celsius);
 
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
         break;
