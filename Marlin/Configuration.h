@@ -712,7 +712,7 @@
   #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
-  //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
+  #define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
   #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OCTO
 
 #endif
@@ -856,7 +856,11 @@
 #define XYZ_FULL_STEPS_PER_ROTATION 200
 #define XYZ_MICROSTEPS 16
 #define XYZ_BELT_PITCH 2
-#define XYZ_PULLEY_TEETH 16
+#ifdef XP
+  #define XYZ_PULLEY_TEETH 20
+#else
+  #define XYZ_PULLEY_TEETH 16
+#endif
 
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
@@ -912,7 +916,7 @@
  */
 #define CLASSIC_JERK  //DELTA
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_XJERK 5.0
   #define DEFAULT_YJERK DEFAULT_XJERK
   #define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
 
@@ -1159,15 +1163,20 @@
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 20
 
-// X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED  (66*60)
+// X and Y axis travel speed (mm/min) between probes 
+//#define XY_PROBE_SPEED (16*60)    // 960KLP
+#define XY_PROBE_SPEED  (66*60) //3000
+//#define XY_PROBE_SPEED  (30*60) //4020
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-//#define Z_PROBE_SPEED_FAST (50*60)
-#define Z_PROBE_SPEED_FAST (80*60)
+//FEEDRATE_Z
+//#define Z_PROBE_SPEED_FAST (30*60)   //1800 => /3 KLP
+//#define Z_PROBE_SPEED_FAST (50*60)  //3000
+#define Z_PROBE_SPEED_FAST (30*60)  //1800
+//#define Z_PROBE_SPEED_FAST (100*60)  //6000
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 6)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST /4) //450
 
 /**
  * Probe Activation Switch
@@ -1206,7 +1215,7 @@
  * A total of 3 or more adds more slow probes, taking the average.
  */
 #define MULTIPLE_PROBING 2
-#define EXTRA_PROBING    1
+//#define EXTRA_PROBING    1
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1585,7 +1594,7 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 10             // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 30             // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 8       // Don't use more than 15 points per axis, implementation limited.
   /// 10=53points, 13=90points, 15=110points
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
@@ -1674,7 +1683,7 @@
 
 // Homing speeds (mm/min)
 //#define HOMING_FEEDRATE_Z  (100*60)   //6000
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (100*60) }
+#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (100*60) }  //5400
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1801,6 +1810,11 @@
 #define PREHEAT_4_TEMP_HOTEND 240
 #define PREHEAT_4_TEMP_BED     60
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_5_LABEL       "UBL"
+#define PREHEAT_5_TEMP_HOTEND   0
+#define PREHEAT_5_TEMP_BED     50
+#define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -2695,7 +2709,7 @@
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 // :[0,1,2,3,4,5,6,7]
-#define SOFT_PWM_SCALE 0
+#define SOFT_PWM_SCALE 1
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
 // be used to mitigate the associated resolution loss. If enabled,

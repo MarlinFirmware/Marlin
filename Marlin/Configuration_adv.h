@@ -1209,7 +1209,7 @@
 
   //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
 
-  #define EVENT_GCODE_SD_ABORT "G27"        // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G28"        // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
@@ -1996,7 +1996,7 @@
 #define SERIAL_OVERRUN_PROTECTION
 
 // For serial echo, the number of digits after the decimal point
-#define SERIAL_FLOAT_PRECISION 4
+//#define SERIAL_FLOAT_PRECISION 4
 
 // @section extras
 
@@ -2311,8 +2311,8 @@
 
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       XYZ_CURRENT        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  XYZ_CURRENT_HOME  // (mA) RMS current for sensorless homing
-    #define X_MICROSTEPS    XYZ_MICROSTEPS        // 0..256
+    #define X_CURRENT_HOME  XYZ_CURRENT_HOME   // (mA) RMS current for sensorless homing
+    #define X_MICROSTEPS    XYZ_MICROSTEPS     // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis

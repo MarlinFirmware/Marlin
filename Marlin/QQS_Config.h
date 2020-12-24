@@ -10,7 +10,7 @@
 * -For NeoPixel use special library(v1.4.2)and commented error in SanityCheck.h (src/HAL/STM32F1/inc) for pass error check.
 * -For 2209 change TMC2208 by TMC2209 at the bottom file.
 */
-
+//#define XP
 //========= Hardware ==========//
 /*-------Motherboard-----------*/
 #define STOCK                       // env = hispeed (Default)
