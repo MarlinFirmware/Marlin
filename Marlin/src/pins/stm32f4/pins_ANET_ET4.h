@@ -139,11 +139,15 @@
 #define TFT_RS_PIN                          PD13
 #define TFT_INTERFACE_FSMC_8BIT
 
+#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
+#define FSMC_CS_PIN                   TFT_CS_PIN
+#define FSMC_RS_PIN                   TFT_RS_PIN
+
 //
 // Touch Screen
 // https://ldm-systems.ru/f/doc/catalog/HY-TFT-2,8/XPT2046.pdf
 //
-#if ENABLED(TOUCH_SCREEN)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB2
   #define TOUCH_SCK_PIN                     PB0
   #define TOUCH_MOSI_PIN                    PE5

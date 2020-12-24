@@ -3242,7 +3242,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Touch Buttons
  */
-#if ENABLED(TOUCH_SCREEN)
+#if ENABLED(TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)
   #ifndef TOUCH_CALIBRATION_X
     #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
   #endif
