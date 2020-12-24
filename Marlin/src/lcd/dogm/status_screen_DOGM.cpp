@@ -892,6 +892,10 @@ void MarlinUI::draw_status_message(const bool blink) {
     }
     else {
       // String is longer than the available space
+      if (blink != last_blink) {
+        last_blink = blink;
+        advance_status_scroll();
+      }
 
       // Get a pointer to the next valid UTF8 character
       // and the string remaining length
@@ -910,11 +914,6 @@ void MarlinUI::draw_status_message(const bool blink) {
             lcd_put_wchar(' ');
           }
         }
-      }
-
-      if (last_blink != blink) {
-        last_blink = blink;
-        advance_status_scroll();
       }
     }
 
