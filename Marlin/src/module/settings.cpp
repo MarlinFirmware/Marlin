@@ -2385,12 +2385,14 @@ void MarlinSettings::postprocess() {
                                                           // or down a little bit without disrupting the mesh data
     }
 
+    #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, ubl.z_values))
+
     uint16_t MarlinSettings::calc_num_meshes() {
-      return (meshes_end - meshes_start_index()) / sizeof(ubl.z_values);
+      return (meshes_end - meshes_start_index()) / MESH_STORE_SIZE;
     }
 
     int MarlinSettings::mesh_slot_offset(const int8_t slot) {
-      return meshes_end - (slot + 1) * sizeof(ubl.z_values);
+      return meshes_end - (slot + 1) * MESH_STORE_SIZE;
     }
 
     void MarlinSettings::store_mesh(const int8_t slot) {
@@ -2407,9 +2409,17 @@ void MarlinSettings::postprocess() {
         int pos = mesh_slot_offset(slot);
         uint16_t crc = 0;
 
+        #if ENABLED(OPTIMIZED_MESH_STORAGE)
+          int16_t z_mesh_store[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+          ubl.set_store_from_mesh(ubl.z_values, z_mesh_store);
+          uint8_t * const src = (uint8_t*)&z_mesh_store;
+        #else
+          uint8_t * const src = (uint8_t*)&ubl.z_values;
+        #endif
+
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool status = persistentStore.write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        const bool status = persistentStore.write_data(pos, src, MESH_STORE_SIZE, &crc);
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
@@ -2435,11 +2445,26 @@ void MarlinSettings::postprocess() {
 
         int pos = mesh_slot_offset(slot);
         uint16_t crc = 0;
-        uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
+        #if ENABLED(OPTIMIZED_MESH_STORAGE)
+          int16_t z_mesh_store[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+          uint8_t * const dest = (uint8_t*)&z_mesh_store;
+        #else
+          uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
+        #endif
 
         persistentStore.access_start();
-        const uint16_t status = persistentStore.read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        const uint16_t status = persistentStore.read_data(pos, dest, MESH_STORE_SIZE, &crc);
         persistentStore.access_finish();
+
+        #if ENABLED(OPTIMIZED_MESH_STORAGE)
+          if (into) {
+            float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+            ubl.set_mesh_from_store(z_mesh_store, z_values);
+            memcpy(into, z_values, sizeof(z_values));
+          }
+          else
+            ubl.set_mesh_from_store(z_mesh_store, ubl.z_values);
+        #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else        DEBUG_ECHOLNPAIR("Mesh loaded from slot ", slot);

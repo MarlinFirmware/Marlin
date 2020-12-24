@@ -286,6 +286,7 @@
 #define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
+#define TRUNC(x)    truncf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))

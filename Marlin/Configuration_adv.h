@@ -1739,6 +1739,10 @@
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
 #endif
 
+#if BOTH(AUTO_BED_LEVELING_UBL, EEPROM_SETTINGS)
+  //#define OPTIMIZED_MESH_STORAGE  // Store mesh with less precision to save EEPROM space
+#endif
+
 /**
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
