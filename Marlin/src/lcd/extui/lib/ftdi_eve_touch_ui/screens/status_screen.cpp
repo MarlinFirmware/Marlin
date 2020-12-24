@@ -352,6 +352,13 @@ void StatusScreen::setStatusMessage(progmem_str message) {
 }
 
 void StatusScreen::setStatusMessage(const char* message) {
+  if (CommandProcessor::is_processing()) {
+    #if ENABLED(TOUCH_UI_DEBUG)
+      SERIAL_ECHO_MSG("Cannot update status message, command processor busy");
+    #endif
+    return;
+  }
+
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART)
      .cmd(CLEAR_COLOR_RGB(Theme::bg_color))
@@ -366,8 +373,7 @@ void StatusScreen::setStatusMessage(const char* message) {
   storeBackground();
 
   #if ENABLED(TOUCH_UI_DEBUG)
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("New status message: ", message);
+    SERIAL_ECHO_MSG("New status message: ", message);
   #endif
 
   if (AT_SCREEN(StatusScreen)) {
