@@ -497,7 +497,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
 
   MeshLevelIndex++;
 
-  DEBUG_ECHOLNPAIR("Mesh level index: ", MeshLevelIndex);
+  SERIAL_ECHOLNPAIR("Mesh level index: ", MeshLevelIndex);
 
   // Update icon
   constexpr uint16_t DGUS_GRID_MAX_POINTS = 4 * 4; // For now we hardcode the maximum to 16 points
