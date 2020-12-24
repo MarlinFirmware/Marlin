@@ -280,7 +280,7 @@
      *                -----                      -----
      *                 LCD                        LCD
      */
-   
+
     #define LCD_PINS_RS             EXPA1_07_PIN
 
     #define BTN_EN1                 EXPA1_05_PIN

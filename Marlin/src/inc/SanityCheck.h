@@ -1878,7 +1878,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
   #elif !HAS_TEMP_ADC_PROBE
     #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif !ENABLED(FIX_MOUNTED_PROBE)
+  #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
   #endif
 #endif
