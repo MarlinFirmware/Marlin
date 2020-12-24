@@ -219,6 +219,8 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   #endif
 
   VP_X_POSITION, VP_Y_POSITION, VP_Z_POSITION,
+  VP_X_POSITION_SP, VP_Y_POSITION_SP, VP_Z_POSITION_SP,
+
   VP_Z_OFFSET,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
@@ -436,6 +438,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_X_POSITION, &current_position.x, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Y_POSITION, &current_position.y, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  VPHELPER(VP_X_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<X_AXIS>),
+  VPHELPER(VP_Y_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
+  VPHELPER(VP_Z_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
   VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 

@@ -353,8 +353,11 @@ constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
 
 // Movement screen
 constexpr uint16_t VP_X_POSITION = 0x1048;
+constexpr uint16_t VP_X_POSITION_SP = 0x4000;
 constexpr uint16_t VP_Y_POSITION = 0x104A;
+constexpr uint16_t VP_Y_POSITION_SP = 0x4030;
 constexpr uint16_t VP_Z_POSITION = 0x104C;
+constexpr uint16_t VP_Z_POSITION_SP = 0x4060;
 constexpr uint16_t VP_BUTTON_MOVEKEY = 0x1046;
 
 // Icons

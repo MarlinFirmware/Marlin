@@ -78,7 +78,6 @@ public:
   static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
-
   static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
 
   // Hook for move to position
@@ -249,6 +248,18 @@ public:
       dgusdisplay.WriteVariable(var.VP, (int16_t)f);
     }
   }
+
+  template<AxisEnum Axis>
+  static void SendAxisTrustValue(DGUS_VP_Variable &var) {
+    bool trust = axis_is_trusted(Axis);
+
+    uint16_t color = trust ? 0xFFFF /*White*/ : 0XF800 /*Red*/;
+    dgusdisplay.SetVariableDisplayColor(var.VP, color);
+
+    //PGM_P suffix = trust ? nullptr : "???";
+    //dgusdisplay.SetVariableAppendText(var.VP, suffix);
+  }
+
 
   /// Force an update of all VP on the current screen.
   static inline void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }

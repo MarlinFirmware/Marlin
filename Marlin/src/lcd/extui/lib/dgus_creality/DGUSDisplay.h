@@ -68,6 +68,9 @@ public:
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
 
+  static void SetVariableDisplayColor(uint16_t sp, uint16_t color);
+  static void SetVariableAppendText(uint16_t sp, PGM_P appendText);
+
   static void ReadVariable(uint16_t adr);
 
   // Utility functions for bridging ui_api and dgus
