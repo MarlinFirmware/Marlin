@@ -126,15 +126,11 @@ Joystick joystick;
     // Recursion barrier
     static bool injecting_now; // = false;
     if (injecting_now) return;
-    
-    if(ENABLED(JOY_NO_MOVE_BEFORE_HOME) && ( // if enabled 
-        !(                                   // Return true if any of the following returns false
-        (TEST(axis_homed, Y_AXIS) || ! ENABLED(HAS_JOY_ADC_X)) && // if x is homed OR x joy NOT enabled this axis is good 
-        (TEST(axis_homed, X_AXIS) || ! ENABLED(HAS_JOY_ADC_Y)) && // if y is homed OR y joy NOT enabled this axis is good 
-        (TEST(axis_homed, Z_AXIS) || ! ENABLED(HAS_JOY_ADC_Z))    // if z is homed OR z joy NOT enabled this axis is good
-        ))){
-      return;
-    }
+
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+        return;
+    #endif
 
     static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag
