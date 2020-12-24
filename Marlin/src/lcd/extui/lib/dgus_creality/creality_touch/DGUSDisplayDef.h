@@ -188,6 +188,13 @@ constexpr uint8_t VP_MARLIN_VERSION_LEN = 20;   // there is more space on the di
 constexpr uint16_t VP_MARLIN_WEBSITE = 0x2242;
 constexpr uint8_t VP_MARLIN_WEBSITE_LEN = 32;  
 
+constexpr uint16_t VP_STANDBY_BACKLIGHT_ICON = 0x2280;
+constexpr uint16_t VP_STANDBY_BACKLIGHT_TOGGLE = 0x2282;
+
+constexpr uint16_t VP_MUTE_ICON = 0x2284;
+constexpr uint16_t VP_MUTE_TOGGLE = 0x2286;
+
+
 // Material preheat settings
 constexpr uint16_t VP_PREHEAT_PLA_HOTEND_TEMP = 0x1102;
 constexpr uint16_t VP_PREHEAT_PLA_BED_TEMP = 0x1104;

@@ -292,6 +292,22 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
 
+void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_sound) {
+  unsigned char cfg_bits = 0x0;
+  cfg_bits |= 1UL << 5; // 5: load 22 touch file
+  cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
+  if (enable_sound) cfg_bits |= 1UL << 3; // 3: audio
+  if (enable_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
+  cfg_bits |= 1UL << 1; // 1 & 0: 270 degrees orientation of display
+  cfg_bits |= 1UL << 0; 
+
+  DEBUG_ECHOLNPAIR("Update touch screen config - standby ", enable_standby);
+  DEBUG_ECHOLNPAIR("Update touch screen config - sound ", enable_sound);
+
+  const unsigned char config_set[] = { 0x5A, 0x00, (unsigned char) (cfg_bits >> 8U), (unsigned char) (cfg_bits & 0xFFU) };
+  WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
+}
+
 rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;
 uint8_t DGUSDisplay::rx_datagram_len = 0;
 bool DGUSDisplay::Initialized = false;
