@@ -117,7 +117,7 @@
     void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
       auto z_to_store = [](const float &z) {
         if (isnan(z)) return Z_STEPS_NAN;
-        const int32_t z_scaled = truncf(z * mesh_store_scaling);
+        const int32_t z_scaled = TRUNC(z * mesh_store_scaling);
         if (z_scaled == Z_STEPS_NAN || !WITHIN(z_scaled, INT16_MIN, INT16_MAX))
           return Z_STEPS_NAN; // If Z is out of range, return our custom 'NaN'
         return int16_t(z_scaled);
