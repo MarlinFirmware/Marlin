@@ -33,6 +33,10 @@
 
 #include "../../feature/mixing.h"
 
+#if HAS_GRAPHICAL_TFT
+  #include "../tft/tft.h"
+#endif
+
 #define CHANNEL_MIX_EDITING !HAS_DUAL_MIXING
 
 #if ENABLED(GRADIENT_MIX)
@@ -67,6 +71,11 @@
       mixer.refresh_gradient();
       ui.goto_previous_screen();
     }
+    #if HAS_GRAPHICAL_TFT
+      else {
+        tft.draw_edit_screen_buttons();
+      }
+    #endif
   }
 
   void lcd_mixer_edit_gradient_menu() {
@@ -154,6 +163,10 @@ void lcd_mixer_mix_edit() {
       mixer.update_vtool_from_mix();
       ui.goto_previous_screen();
     }
+
+    #if HAS_GRAPHICAL_TFT
+      tft.draw_edit_screen_buttons();
+    #endif
 
   #else
 
