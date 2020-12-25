@@ -358,7 +358,7 @@ void disp_gcode_icon(uint8_t file_num) {
 uint32_t lv_open_gcode_file(char *path) {
   #if ENABLED(SDSUPPORT)
     uint32_t *ps4;
-    uint32_t pre_sread_cnt = 0;
+    uint32_t pre_sread_cnt = (uint32_t)-1;
     char *cur_name;
 
     cur_name = strrchr(path, '/');
@@ -399,6 +399,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
     char temp_test[200];
     volatile uint16_t *p_index;
 
+    watchdog_refresh();
     memset(public_buf, 0, 200);
 
     while (card.isFileOpen()) {
@@ -418,7 +419,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       uint16_t c = card.get();
       // check if we have more data or finished the line (CR)
       if (c == '\r') break;
-      card.setIndex(card.getIndex());
+      card.setIndex(card.getIndex() - 1);
       k++;
       j = 0;
       ignore_start = false;
