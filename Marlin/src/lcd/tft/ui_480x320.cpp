@@ -439,6 +439,10 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
     #endif
   }
 
+  tft.draw_edit_screen_buttons();
+}
+
+void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
     add_control(64, 256, DECREASE, imgDecrease);
     add_control(352, 256, INCREASE, imgIncrease);
