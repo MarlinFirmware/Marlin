@@ -453,3 +453,5 @@
 #endif // HAS_WIRED_LCD
 
 #undef TP
+
+#define HAS_OTG_USB_HOST_SUPPORT
