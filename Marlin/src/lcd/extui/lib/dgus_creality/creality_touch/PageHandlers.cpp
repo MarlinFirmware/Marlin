@@ -232,6 +232,14 @@ void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
             }
         break;
 
+        case VP_BUTTON_PAUSEPRINTKEY:
+            switch (buttonValue) {
+                case 1:
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
+                    break;
+            }
+        break;
+
         case VP_BUTTON_STOPPRINTKEY:
             switch (buttonValue) {
                 case 1:
