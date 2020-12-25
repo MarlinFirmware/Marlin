@@ -98,6 +98,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     _change_filament_with_custom
   );
   END_MENU();
+  MenuItemBase::itemIndex = extruder;
 }
 
 /**
