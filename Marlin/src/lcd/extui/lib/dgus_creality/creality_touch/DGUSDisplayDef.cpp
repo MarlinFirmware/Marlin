@@ -222,6 +222,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   VP_X_POSITION_SP, VP_Y_POSITION_SP, VP_Z_POSITION_SP,
 
   VP_Z_OFFSET,
+  VP_Flowrate_E0,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
 
@@ -264,6 +265,8 @@ const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
 
 const uint16_t VPList_TuneScreen[] PROGMEM = {
   VP_PrintTime,
+
+  VP_Flowrate_E0,
 
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
@@ -400,6 +403,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // TODO:
 
   #if HOTENDS >= 1
+    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   #endif

@@ -672,19 +672,11 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 
 void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr) {
   #if EXTRUDERS
-    uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
-    uint8_t target_extruder;
-    switch (var.VP) {
-      default: return;
-      #if HOTENDS >= 1
-        case VP_Flowrate_E0: target_extruder = 0; break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_Flowrate_E1: target_extruder = 1; break;
-      #endif
-    }
+    uint16_t newValue = swap16(*(uint16_t*)val_ptr);
+    
+    SERIAL_ECHOLNPAIR("Flow rate changed: ", newValue);
+    ExtUI::setFlow_percent(newValue, ExtUI::E0);
 
-    planner.set_flow(target_extruder, newvalue);
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   #else
     UNUSED(var); UNUSED(val_ptr);
