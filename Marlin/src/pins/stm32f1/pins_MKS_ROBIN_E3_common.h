@@ -82,7 +82,7 @@
 #define E0_DIR_PIN                          PB3
 #define E0_ENABLE_PIN                       PB5
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *

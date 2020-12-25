@@ -94,7 +94,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Yジク イドウ");                  // "Move Y"
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Zジク イドウ");                  // "Move Z"
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("エクストルーダー");                // "Extruder"
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("%smm イドウ");                  // "Move 0.025mm"
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("%smm イドウ");                  // "Move 0.025mm"
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm イドウ");                 // "Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("  1mm イドウ");                 // "Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT(" 10mm イドウ");                 // "Move 10mm"

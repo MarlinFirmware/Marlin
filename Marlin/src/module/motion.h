@@ -57,7 +57,7 @@ extern xyz_pos_t cartes;
 #endif
 
 #if HAS_ABL_NOT_UBL
-  extern float xy_probe_feedrate_mm_s;
+  extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
@@ -65,20 +65,40 @@ extern xyz_pos_t cartes;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
+constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_SPEED_FAST);
+
 /**
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-extern const feedRate_t homing_feedrate_mm_s[XYZ];
-FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
+constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
+  float v;
+  #if ENABLED(DELTA)
+    v = homing_feedrate_mm_m.z;
+  #else
+    switch (a) {
+      case X_AXIS: v = homing_feedrate_mm_m.x; break;
+      case Y_AXIS: v = homing_feedrate_mm_m.y; break;
+      case Z_AXIS:
+          default: v = homing_feedrate_mm_m.z;
+    }
+  #endif
+  return MMM_TO_MMS(v);
+}
+
 feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
+/**
+ * The default feedrate for many moves, set by the most recent move
+ */
 extern feedRate_t feedrate_mm_s;
 
 /**
- * Feedrate scaling
+ * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
  */
 extern int16_t feedrate_percentage;
+#define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
