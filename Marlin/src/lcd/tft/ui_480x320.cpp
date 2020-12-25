@@ -659,6 +659,23 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 }
 
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
+  #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
+  tft.canvas(col * TFT_COL_WIDTH, 4 + 45 * row, TFT_WIDTH - (col * TFT_COL_WIDTH), 43);
+  tft.set_background(COLOR_BACKGROUND);
+}
+
+int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
+  tft_string.set(utf8_str_P);
+  tft_string.trim();
+  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  return tft_string.width();
+}
+
+int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+  return lcd_put_u8str_max_P(utf8_str, max_length);
+}
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../feature/babystep.h"
 #endif
