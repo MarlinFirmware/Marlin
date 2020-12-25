@@ -1376,13 +1376,6 @@
    */
   //#define SDCARD_CONNECTION LCD
 
-  #define MULTI_MEDIA_SUPPORT
-  #if ENABLED(MULTI_MEDIA_SUPPORT)
-    #define MULTI_MEDIA_SD_ONBOARD
-    // #define MULTI_MEDIA_SD_LCD
-    #define MULTI_MEDIA_USB_FLASH_DRIVE
-  #endif
-
 #endif // SDSUPPORT
 
 /**
