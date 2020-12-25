@@ -1323,9 +1323,6 @@
    */
   //#define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #define USB_CS_PIN    SDSS
-    #define USB_INTR_PIN  SD_DETECT_PIN
-
     /**
      * USB Host Shield Library
      *
@@ -1337,6 +1334,16 @@
      *   [1] This requires USB_INTR_PIN to be interrupt-capable.
      */
     //#define USE_UHS3_USB
+
+    /**
+     * Native USB Host supported by some boards (USB OTG)
+     */
+    //#define USE_OTG_USB_HOST
+
+    #if DISABLED(USE_OTG_USB_HOST)
+      #define USB_CS_PIN    SDSS
+      #define USB_INTR_PIN  SD_DETECT_PIN
+    #endif
   #endif
 
   /**
@@ -1368,6 +1375,13 @@
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
   //#define SDCARD_CONNECTION LCD
+
+  #define MULTI_MEDIA_SUPPORT
+  #if ENABLED(MULTI_MEDIA_SUPPORT)
+    #define MULTI_MEDIA_SD_ONBOARD
+    // #define MULTI_MEDIA_SD_LCD
+    #define MULTI_MEDIA_USB_FLASH_DRIVE
+  #endif
 
 #endif // SDSUPPORT
 

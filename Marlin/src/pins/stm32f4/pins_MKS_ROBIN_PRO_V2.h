@@ -362,3 +362,5 @@
 
   #endif // !MKS_MINI_12864
 #endif // HAS_SPI_LCD
+
+#define HAS_OTG_USB_HOST_SUPPORT
