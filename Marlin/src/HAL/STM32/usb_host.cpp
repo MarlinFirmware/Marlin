@@ -20,9 +20,11 @@
  *
  */
 
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
 #include "../../inc/MarlinConfig.h"
 
-#ifdef USBHOST
+#if BOTH(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
 #include "../shared/Marduino.h"
@@ -111,4 +113,5 @@ uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t b
   return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast <uint8_t*>(buf), blocks) != USBH_OK;
 }
 
-#endif // USBHOST
+#endif // BOTH(USE_OTG_USB_HOST, USBHOST)
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
