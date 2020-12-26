@@ -114,6 +114,8 @@ extern "C" {
 #define NUM_ANALOG_INPUTS       7
 #define NUM_ANALOG_FIRST        80
 
+#define ADC_RESOLUTION          12
+
 // PWM resolution
 // #define PWM_RESOLUTION          12
 #define PWM_FREQUENCY           20000 // >= 20 Khz => inaudible noise for fans

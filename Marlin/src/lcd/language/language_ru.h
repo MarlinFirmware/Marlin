@@ -694,7 +694,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Компонент =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Смеситель");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Градиент");
-  PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Полний градиент");
+  PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Полный градиент");
   PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("Цикличное смешивание");
   PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Градиент смешивания");
   PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("Сменить градиент");
@@ -705,8 +705,8 @@ namespace Language_ru {
     PROGMEM Language_Str MSG_END_VTOOL                     = _UxGT("Конец В-инструмента");
     PROGMEM Language_Str MSG_GRADIENT_ALIAS                = _UxGT("Псевдоним В-инструмента");
     PROGMEM Language_Str MSG_RESET_VTOOLS                  = _UxGT("Сброс В-инструментов");
-    PROGMEM Language_Str MSG_COMMIT_VTOOL                  = _UxGT("Смешать В-инструменти");
-    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-инструменти сброшены");
+    PROGMEM Language_Str MSG_COMMIT_VTOOL                  = _UxGT("Смешать В-инструменты");
+    PROGMEM Language_Str MSG_VTOOLS_RESET                  = _UxGT("В-инструменты сброшены");
   #else
     PROGMEM Language_Str MSG_TOGGLE_MIX                    = _UxGT("Перекл. смешивание");
     PROGMEM Language_Str MSG_ACTIVE_VTOOL                  = _UxGT("Актив.В-инструм.");
@@ -728,10 +728,10 @@ namespace Language_ru {
 
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_BAD_PAGE                      = _UxGT("Плохой индекс страницы");
-    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Полохая скорость страницы");
+    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Плохая скорость страницы");
   #else
-    PROGMEM Language_Str MSG_BAD_PAGE                      = _UxGT("Полохая страница");
-    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Полохая скор.стран.");
+    PROGMEM Language_Str MSG_BAD_PAGE                      = _UxGT("Плохая страница");
+    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Плохая скор.стран.");
   #endif
 
   PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Редактировать пароль");
@@ -779,10 +779,10 @@ namespace Language_ru {
   #endif
 
   PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("Драйвера TMC");
-  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Текущие настройки");
+  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("Ток двигателей");
   PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("Гибридный режим");
   PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("Режим без эндстопов");
-  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Режим шага");
+  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("Режим драйвера");
   PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("Тихий режим вкл");
 
   PROGMEM Language_Str MSG_SERVICE_RESET                   = _UxGT("Сброс");
