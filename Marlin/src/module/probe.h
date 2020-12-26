@@ -202,7 +202,7 @@ public:
     public:
       static constexpr bool can_reach(const xy_pos_t &point) {
         #if IS_KINEMATIC
-          return HYPOT2(point.x, point.y) <= sq(probe_radius());
+          return HYPOT2(point.x, point.y) <= sq(probe_radius(default_probe_xy_offset));
         #else
           return WITHIN(point.x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
               && WITHIN(point.y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
