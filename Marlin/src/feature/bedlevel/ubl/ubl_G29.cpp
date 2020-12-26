@@ -543,7 +543,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch ((int)truncf(cvf * 10.0f) - 30) {   // 3.1 -> 1
+            switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
@@ -727,7 +727,7 @@
      * Probe all invalidated locations of the mesh that can be reached by the probe.
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
-    void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
+    void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &nearby, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
       probe.deploy(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
 
       TERN_(HAS_LCD_MENU, ui.capture());
@@ -758,7 +758,7 @@
 
         best = do_furthest
           ? find_furthest_invalid_mesh_point()
-          : find_closest_mesh_point_of_type(INVALID, near, true);
+          : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
         if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
@@ -788,8 +788,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(near.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
-        constrain(near.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
+        constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
+        constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -972,6 +972,12 @@
 
       MeshFlags done_flags{0};
       const xy_int8_t &lpos = location.pos;
+
+      #if IS_TFTGLCD_PANEL
+        lcd_mesh_edit_setup(0);                             // Change current screen before calling ui.ubl_plot
+        safe_delay(50);
+      #endif
+
       do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, pos, false, &done_flags);
 
@@ -1206,7 +1212,7 @@
 
       found_a_NAN = true;
 
-      xy_int8_t near { -1, -1 };
+      xy_int8_t nearby { -1, -1 };
       float d1, d2 = 99999.9f;
       GRID_LOOP(k, l) {
         if (isnan(z_values[k][l])) continue;
@@ -1221,7 +1227,7 @@
 
         if (d1 < d2) {    // Invalid mesh point (i,j) is closer to the defined point (k,l)
           d2 = d1;
-          near.set(i, j);
+          nearby.set(i, j);
         }
       }
 
@@ -1229,8 +1235,8 @@
       // At this point d2 should have the near defined mesh point to invalid mesh point (i,j)
       //
 
-      if (found_a_real && near.x >= 0 && d2 > farthest.distance) {
-        farthest.pos = near;      // Found an invalid location farther from the defined mesh point
+      if (found_a_real && nearby.x >= 0 && d2 > farthest.distance) {
+        farthest.pos = nearby; // Found an invalid location farther from the defined mesh point
         farthest.distance = d2;
       }
     } // GRID_LOOP

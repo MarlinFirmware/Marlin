@@ -43,11 +43,9 @@ float z_measured[G35_PROBE_COUNT] = { 0 };
 static uint8_t tram_index = 0;
 
 bool probe_single_point() {
-  // In BLTOUCH HS mode, the probe travels in a deployed state.
-  // Users of Tramming Wizard might have a badly misaligned bed, so raise Z by the
-  // length of the deployed pin (BLTOUCH stroke < 7mm)
-  do_blocking_move_to_z((Z_CLEARANCE_BETWEEN_PROBES) + TERN0(BLTOUCH_HS_MODE, 7));
-  const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[tram_index], PROBE_PT_RAISE, 0, true);
+  do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
+  // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
+  const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[tram_index], TERN(BLTOUCH_HS_MODE, PROBE_PT_STOW, PROBE_PT_RAISE), 0, true);
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
 
@@ -81,7 +79,10 @@ void tramming_wizard_menu() {
   LOOP_L_N(i, G35_PROBE_COUNT)
     SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), []{ _menu_single_probe(MenuItemBase::itemIndex); });
 
-  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen_no_defer(); });
+  ACTION_ITEM(MSG_BUTTON_DONE, []{
+    probe.stow(); // Stow before exiting Tramming Wizard
+    ui.goto_previous_screen_no_defer();
+  });
   END_MENU();
 }
 

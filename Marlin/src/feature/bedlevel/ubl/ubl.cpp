@@ -42,9 +42,7 @@
 
   #include "math.h"
 
-  void unified_bed_leveling::echo_name() {
-    SERIAL_ECHOPGM("Unified Bed Leveling");
-  }
+  void unified_bed_leveling::echo_name() { SERIAL_ECHOPGM("Unified Bed Leveling"); }
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
@@ -86,9 +84,7 @@
 
   volatile int16_t unified_bed_leveling::encoder_diff;
 
-  unified_bed_leveling::unified_bed_leveling() {
-    reset();
-  }
+  unified_bed_leveling::unified_bed_leveling() { reset(); }
 
   void unified_bed_leveling::reset() {
     const bool was_enabled = planner.leveling_active;
@@ -113,6 +109,31 @@
     }
   }
 
+  #if ENABLED(OPTIMIZED_MESH_STORAGE)
+
+    constexpr float mesh_store_scaling = 1000;
+    constexpr int16_t Z_STEPS_NAN = INT16_MAX;
+
+    void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
+      auto z_to_store = [](const float &z) {
+        if (isnan(z)) return Z_STEPS_NAN;
+        const int32_t z_scaled = TRUNC(z * mesh_store_scaling);
+        if (z_scaled == Z_STEPS_NAN || !WITHIN(z_scaled, INT16_MIN, INT16_MAX))
+          return Z_STEPS_NAN; // If Z is out of range, return our custom 'NaN'
+        return int16_t(z_scaled);
+      };
+      GRID_LOOP(x, y) stored_values[x][y] = z_to_store(in_values[x][y]);
+    }
+
+    void unified_bed_leveling::set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values) {
+      auto store_to_z = [](const int16_t z_scaled) {
+        return z_scaled == Z_STEPS_NAN ? NAN : z_scaled / mesh_store_scaling;
+      };
+      GRID_LOOP(x, y) out_values[x][y] = store_to_z(stored_values[x][y]);
+    }
+
+  #endif // OPTIMIZED_MESH_STORAGE
+
   static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
     SERIAL_ECHO_SP(sp);
     SERIAL_CHAR('(');
@@ -127,7 +148,7 @@
 
   static void serial_echo_column_labels(const uint8_t sp) {
     SERIAL_ECHO_SP(7);
-    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+    LOOP_L_N(i, GRID_MAX_POINTS_X) {
       if (i < 10) SERIAL_CHAR(' ');
       SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);

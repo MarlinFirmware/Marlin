@@ -19,20 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-// Longer UI assumptions
+/**
+ * Creality v4.5.2 (STM32F103RET6) board pin assignments
+ */
+
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Longer UI supports only 1 hotend / E-stepper."
+  #error "Creality v4.5.2 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "LGT Kit 1.0"
+#define BOARD_NAME "Creality v4.5.2"
 
-#define SD_DETECT_PIN                         49
-#define FIL_RUNOUT_PIN                         2
-#define Z_MIN_PIN                             35
+#define HEATER_0_PIN                        PA1   // HEATER1
+#define HEATER_BED_PIN                      PA2   // HOT BED
+#define FAN_PIN                             PA0   // FAN
+#define PROBE_ACTIVATION_SWITCH_PIN         PC6   // Optoswitch to Enable Z Probe
 
-//
-// Import RAMPS 1.4 pins
-//
-#include "pins_RAMPS.h"
+#include "pins_CREALITY_V45x.h"

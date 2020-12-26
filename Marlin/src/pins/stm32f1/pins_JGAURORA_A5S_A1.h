@@ -31,10 +31,10 @@
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "JGAurora A5S A1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "JGAurora A5S A1 board"
+#define BOARD_INFO_NAME "JGAurora A5S A1"
 
 #define BOARD_NO_NATIVE_USB
 
