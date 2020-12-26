@@ -227,12 +227,11 @@ public:
   }
 
   // Send an icon to the display, depending on whether it is true or false
-  template<unsigned int value_if_true, unsigned int value_if_false, unsigned int value_offset>
+  template<unsigned int value_if_true, unsigned int value_if_false>
   static void DGUSLCD_SendIconValue(DGUS_VP_Variable &var) {
     if (var.memadr) {
       bool value = *(bool *)var.memadr;
       uint16_t valueToSend = value ? value_if_true : value_if_false;
-      valueToSend += value_offset;
       dgusdisplay.WriteVariable(var.VP, valueToSend);
     }
   }
