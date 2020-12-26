@@ -31,16 +31,26 @@ touch_calibration_point_t TouchCalibration::calibration_points[4];
 uint8_t TouchCalibration::failed_count;
 
 void TouchCalibration::validate_calibration() {
-  const bool landscape = validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3);
-  const bool portrait = validate_precision_y(0, 1) && validate_precision_y(2, 3) && validate_precision_x(0, 2) && validate_precision_x(1, 3);
+  #define VALIDATE_PRECISION(XY, A, B) validate_precision_##XY(CALIBRATION_##A, CALIBRATION_##B)
+  const bool landscape = VALIDATE_PRECISION(x, TOP_LEFT, BOTTOM_LEFT) &&
+                         VALIDATE_PRECISION(x, TOP_RIGHT, BOTTOM_RIGHT) &&
+                         VALIDATE_PRECISION(y, TOP_LEFT, TOP_RIGHT) &&
+                         VALIDATE_PRECISION(y, BOTTOM_LEFT, BOTTOM_RIGHT);
+  const bool portrait = VALIDATE_PRECISION(y, TOP_LEFT, BOTTOM_LEFT) &&
+                        VALIDATE_PRECISION(y, TOP_RIGHT, BOTTOM_RIGHT) &&
+                        VALIDATE_PRECISION(x, TOP_LEFT, TOP_RIGHT) &&
+                        VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
+  #undef VALIDATE_PRECISION
 
   if (landscape || portrait) {
     calibration_state = CALIBRATION_SUCCESS;
-    calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_x + calibration_points[2].raw_x - calibration_points[1].raw_x - calibration_points[0].raw_x);
-    calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_y - calibration_points[2].raw_y + calibration_points[1].raw_y - calibration_points[0].raw_y);
-    calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_x + calibration_points[1].raw_x) * calibration.x) >> 17);
-    calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_y + calibration_points[2].raw_y) * calibration.y) >> 17);
+    #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
+    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x + CAL_PTS(TOP_RIGHT).raw_x - CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
+    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y - CAL_PTS(TOP_RIGHT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
+    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x) * calibration.x) >> 17);
+    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(TOP_RIGHT).raw_y) * calibration.y) >> 17);
     calibration.orientation = landscape ? TOUCH_LANDSCAPE : TOUCH_PORTRAIT;
+    #undef CAL_PTS
   }
   else {
     calibration_state = CALIBRATION_FAIL;
