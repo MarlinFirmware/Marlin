@@ -145,6 +145,13 @@ void DGUSScreenHandler::SetTouchScreenConfiguration() {
   dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness);
 }
 
+void DGUSScreenHandler::OnPowerlossResume() {
+  GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
+
+  // Send print filename
+  dgusdisplay.WriteVariable(VP_SD_Print_Filename, PrintJobRecovery::info.sd_filename, VP_SD_FileName_LEN, true);
+}
+
 void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1, bool l2, bool l3, bool l4) {
   if (current_screen == DGUSLCD_SCREEN_CONFIRM) {
     // Already showing a pop up, so we need to cancel that first.

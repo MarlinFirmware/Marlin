@@ -46,6 +46,7 @@ public:
   static void LoadSettings(const char* buff);
   static void StoreSettings(char* buff);
   static void SetTouchScreenConfiguration();
+  static void OnPowerlossResume();
 
   /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   /// The bools specifing whether the strings are in RAM or FLASH.

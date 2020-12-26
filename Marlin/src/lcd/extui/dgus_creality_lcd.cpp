@@ -35,6 +35,10 @@
 #include "lib/dgus_creality/DGUSDisplayDef.h"
 #include "lib/dgus_creality/DGUSScreenHandler.h"
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
+#endif
+
 extern const char NUL_STR[];
 
 namespace ExtUI {
@@ -75,7 +79,7 @@ bool hasPrintTimer = false;
   void onPrintTimerStarted() {
     hasPrintTimer = true;
 
-    if (!ExtUI::isPrintingFromMedia()) {
+    if (!ExtUI::isPrintingFromMedia() && !(PrintJobRecovery::valid() && PrintJobRecovery::exists())) {
       ScreenHandler.SetPrintingFromHost();
     }
 
@@ -198,7 +202,7 @@ bool hasPrintTimer = false;
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
       // Called on resume from power-loss
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
+      ScreenHandler.OnPowerlossResume();
     }
   #endif
 
