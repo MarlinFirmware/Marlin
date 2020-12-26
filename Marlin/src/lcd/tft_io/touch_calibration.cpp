@@ -23,6 +23,11 @@
 
 #include "touch_calibration.h"
 
+#define TOUCH_CALIBRATION_MAX_RETRIES 5
+
+#define DEBUG_OUT ENABLED(DEBUG_TOUCH_CALIBRATION)
+#include "../../core/debug_out.h"
+
 TouchCalibration touch_calibration;
 
 touch_calibration_t TouchCalibration::calibration;
@@ -55,8 +60,7 @@ void TouchCalibration::validate_calibration() {
   else {
     calibration_state = CALIBRATION_FAIL;
     calibration_reset();
-    // Retry up to 5 times before reporting the failure
-    if (need_calibration() && failed_count++ < 5) calibration_state = CALIBRATION_TOP_LEFT;
+    if (need_calibration() && failed_count++ < TOUCH_CALIBRATION_MAX_RETRIES) calibration_state = CALIBRATION_TOP_LEFT;
   }
 
   if (calibration_state == CALIBRATION_SUCCESS) {
@@ -78,6 +82,7 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;
     calibration_points[calibration_state].raw_y = y;
+    DEBUG_ECHOLNPAIR("TouchCalibration - State: ", calibration_state, ", x: ", calibration_points[calibration_state].x, ", raw_x: ", x, ", y: ", calibration_points[calibration_state].y, ", raw_y: ", y);
   }
 
   switch (calibration_state) {
