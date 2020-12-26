@@ -219,7 +219,7 @@ Enjoy....🙃
  <br/><br/>
 
  <br/><br/>
-  [![BuyMeCoffee](../../docs/icons/BMC.png)](https://www.buymeacoffee.com/Foxies)<br/>[![Donate](https://img.shields.io/badge/BuyMeCoffe-Thanks-orange)](https://www.buymeacoffee.com/Foxies)
+  [![BuyMeCoffee](../../docs/icons/BMC_Black.png)](https://www.buymeacoffee.com/Foxies)<br/>[![Donate](https://img.shields.io/badge/BuyMeACoffee-Thanks-orange)](https://www.buymeacoffee.com/Foxies)
  <br/><br/>
 
 
