@@ -217,6 +217,9 @@ Enjoy....🙃
  <br/><br/>
   [![paypal.me](../../docs/icons/paypal_50px.png)](https://www.paypal.me/Foxies40)<br/>[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/Foxies40)
  <br/><br/>
+
+  <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="Foxies" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+  
   You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
  Massive thank you in advance :heart:
