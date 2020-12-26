@@ -95,6 +95,8 @@ void DGUSScreenHandler::DefaultSettings() {
 
   Settings.display_standby = true;
   Settings.display_sound = true;
+
+  Settings.standby_screen_brightness = 10;
 }
 
 void DGUSScreenHandler::LoadSettings(const char* buff) {
@@ -140,7 +142,7 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 }
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
-  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound);
+  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness);
 }
 
 void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1, bool l2, bool l3, bool l4) {
@@ -1088,6 +1090,19 @@ void DGUSScreenHandler::HandleLEDToggle() {
 
 void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void *val_ptr) {
   Settings.display_sound = !Settings.display_sound;
+  ScreenHandler.SetTouchScreenConfiguration();
+
+  settings.save();
+  ForceCompleteUpdate();
+
+  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+}
+
+void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
+  uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
+
+  SERIAL_ECHOLNPAIR("HandleTouchScreenStandbyBrightnessSetting: ", newvalue);
+  Settings.standby_screen_brightness = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
   settings.save();

@@ -33,6 +33,7 @@ struct creality_dwin_settings_t {
   bool led_state;
   bool display_standby;
   bool display_sound;
+  int16_t standby_screen_brightness;
 };
 
 class DGUSScreenHandler {
@@ -85,6 +86,7 @@ public:
 
   static void HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr);
 
   #if HAS_PID_HEATING
     // Hook for "Change this temperature PID para"

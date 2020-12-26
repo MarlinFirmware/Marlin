@@ -115,6 +115,7 @@ const uint16_t VPList_Control[] PROGMEM = {
   VP_LED_TOGGLE,
   VP_MUTE_ICON,
   VP_STANDBY_BACKLIGHT_ICON,
+  VP_SCREEN_BACKLIGHT_STANDBY,
 
   0x0000
 };
@@ -491,6 +492,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Additional buttons
   VPHELPER(VP_MUTE_TOGGLE, nullptr, ScreenHandler.HandleToggleTouchScreenMute, nullptr),
   VPHELPER(VP_STANDBY_BACKLIGHT_TOGGLE, nullptr, ScreenHandler.HandleToggleTouchScreenStandbySetting, nullptr),
+
+  // Additional settings
+  VPHELPER(VP_SCREEN_BACKLIGHT_STANDBY, &ScreenHandler.Settings.standby_screen_brightness, ScreenHandler.HandleTouchScreenStandbyBrightnessSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   // Icons
   VPHELPER(VP_STEPPERS, &ScreenHandler.are_steppers_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_OFF, ICON_TOGGLE_ON>)),

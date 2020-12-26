@@ -308,7 +308,8 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
 
-void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_sound) {
+void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_sound, uint8_t standby_brightness) {
+  // Main configuration (System_Config)
   unsigned char cfg_bits = 0x0;
   cfg_bits |= 1UL << 5; // 5: load 22 touch file
   cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
@@ -322,6 +323,10 @@ void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_s
 
   const unsigned char config_set[] = { 0x5A, 0x00, (unsigned char) (cfg_bits >> 8U), (unsigned char) (cfg_bits & 0xFFU) };
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
+
+  // Standby brightness (LED_Config)
+  const unsigned char brightness_set[] = { 100 /*% active*/,  standby_brightness /*% standby*/ };
+  WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
 }
 
 rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;

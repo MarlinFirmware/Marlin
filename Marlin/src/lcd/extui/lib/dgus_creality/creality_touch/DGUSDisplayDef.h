@@ -194,6 +194,8 @@ constexpr uint16_t VP_STANDBY_BACKLIGHT_TOGGLE = 0x2282;
 constexpr uint16_t VP_MUTE_ICON = 0x2284;
 constexpr uint16_t VP_MUTE_TOGGLE = 0x2286;
 
+constexpr uint16_t VP_SCREEN_BACKLIGHT_STANDBY = 0x228D;
+
 
 // Material preheat settings
 constexpr uint16_t VP_PREHEAT_PLA_HOTEND_TEMP = 0x1102;
