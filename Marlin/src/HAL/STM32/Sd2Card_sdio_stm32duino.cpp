@@ -107,7 +107,7 @@
   // SDIO Max Clock (naming from STM Manual, don't change)
   #define SDIOCLK 48000000
 
-  static uint32_t sdio_set_clock(uint32_t clk) {
+  static uint32_t clock2divider(uint32_t clk) {
     /*
      * limit the SDIO master clock to 8/3 of PCLK2. See STM32 Manuals
      * Also limited to no more than 48Mhz (SDIOCLK).
@@ -128,7 +128,7 @@
     Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
     Init.BusWide             = hsd.Init.BusWide;
     Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
-    Init.ClockDiv            = sdio_set_clock(SDIO_CLOCK);
+    Init.ClockDiv            = clock2divider(SDIO_CLOCK);
 
     /* Initialize SDIO peripheral interface with default configuration */
     SDIO_Init(hsd.Instance, Init);
