@@ -70,7 +70,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(M.A.R.C. unofficial Manual Mesh)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(M.A.R.C. unofficial BLTouch)" // Who made the changes.
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -121,7 +121,8 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000 // M.A.R.C. increase serial performace
+#define LCDBAUDRATE 115200    // M.A.R.C. independent Baudrate for LCD
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -497,16 +498,18 @@
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
+// Ender 3 v2 (M.A.R.C. Actual Hotend PID parameters)
+// After burn new firmware execute M106 S255; M303 E0 S210 C15 U1; for PID
+// Save to EEPROM with M500;
+
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
-    #define DEFAULT_Kp_LIST {  28.72,  28.72 }
-    #define DEFAULT_Ki_LIST {   2.62,   2.62 }
-    #define DEFAULT_Kd_LIST {  78.81,  78.81 }
+    #define DEFAULT_Kp_LIST {  22.89,  22.89 }
+    #define DEFAULT_Ki_LIST {   1.87,   1.87 }
+    #define DEFAULT_Kd_LIST {  70.18,  70.18 }
   #else
-    // Ender 3 v2 (M.A.R.C. Actual Hotend PID parameters)
-    // After burn new firmware execute M106 S255; M303 E0 S210 C15 U1; for PID
-    // Save to EEPROM with M500;
+    // Ender 3 v2
     #define DEFAULT_Kp  22.89
     #define DEFAULT_Ki   1.87
     #define DEFAULT_Kd  70.18
@@ -750,7 +753,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 93 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 97.9 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -834,7 +837,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION	// M.A.R.C. Active S-Curve Acceleration
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -850,10 +853,10 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN	// M.A.R.C. Probe connected to BLTouch port
 
 // Force the use of the probe for Z-axis homing
-//#define USE_PROBE_FOR_Z_HOMING
+#define USE_PROBE_FOR_Z_HOMING    // M.A.R.C. BLTouch for Z Homming
 
 /**
  * Z_MIN_PROBE_PIN
@@ -870,6 +873,7 @@
  *      - normally-closed switches to GND and D32.
  *      - normally-open switches to 5V and D32.
  */
+// M.A.R.C. BLTouch IN port PB1 as well as using the z-limit-switch
 //#define Z_MIN_PROBE_PIN 32 // Pin 32 is the RAMPS default
 
 /**
@@ -884,8 +888,8 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#define PROBE_MANUALLY //Dae activo para mesh manual
-#define MANUAL_PROBE_START_Z 0.2 //Dae activo para mesh manual
+//#define PROBE_MANUALLY
+//#define MANUAL_PROBE_START_Z 0.2
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -908,7 +912,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH   // M.A.R.C. Activate BLTouch
 
 /**
  * Pressure sensor with a BLTouch-like interface
@@ -1005,14 +1009,15 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 } //Dae pongo todo a cero para mesh manual
+#define NOZZLE_TO_PROBE_OFFSET { -41.5, -7, -1.60 } // M.A.R.C. BLTouch offset for support: https://www.thingiverse.com/thing:4605354
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (50*60)
+//#define XY_PROBE_SPEED (50*60)
+#define XY_PROBE_SPEED (150*60)	// M.A.R.C. increase x3 travel speed
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST (4*60)
@@ -1056,8 +1061,8 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2
-//#define EXTRA_PROBING    1
+#define MULTIPLE_PROBING 2    // M.A.R.C. BLTouch Improve accuracy
+#define EXTRA_PROBING    1    // M.A.R.C. BLTouch Improve accuracy
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1085,7 +1090,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 10
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST	// M.A.R.C. Enable M48 repeatability test
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1107,6 +1112,7 @@
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+#define DELAY_BEFORE_PROBING 100  // (ms) To prevent vibrations from triggering piezo sensors // M.A.R.C. increase accuracy
 
 // Require minimum nozzle and/or bed temperature for probing.
 //#define PREHEAT_BEFORE_PROBING
@@ -1228,7 +1234,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-#define FILAMENT_RUNOUT_SENSOR 		// DAE activo el sensor de falta de filamento 
+#define FILAMENT_RUNOUT_SENSOR 		// DAE Activate runout sensor 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -1293,16 +1299,16 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_BILINEAR    // M.A.R.C. BLTouch auto level
 //#define AUTO_BED_LEVELING_UBL
-#define MESH_BED_LEVELING //Dae activo para mesh manual
+//#define MESH_BED_LEVELING
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-#define RESTORE_LEVELING_AFTER_G28  //DAE activo para mesh manual
+#define RESTORE_LEVELING_AFTER_G28    // M.A.R.C. restore leveling after homming
 //#define ENABLE_LEVELING_AFTER_G28
 
 /**
@@ -1351,7 +1357,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 3	// M.A.R.C. increase grid points to 5
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1399,8 +1405,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 15          // Set Mesh bounds as an inset region of the bed //Dae cambio de 10 a 15
-  #define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited. //Dae cambio a 5 puntos
+  #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
+  #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -1455,7 +1461,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING   // M.A.R.C. BLTouch Z Homing on XY of bed
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE - 10) / 2)    // X point for Z homing
@@ -1592,7 +1598,7 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-#define NOZZLE_PARK_FEATURE //Dae activo por motivo delfilament runout sensor
+#define NOZZLE_PARK_FEATURE //DAE activo por motivo del filament runout sensor
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
