@@ -47,21 +47,28 @@ void TouchCalibration::validate_calibration() {
                         VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
   #undef VALIDATE_PRECISION
 
-  if (landscape || portrait) {
+  #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
+  if (landscape) {
     calibration_state = CALIBRATION_SUCCESS;
-    #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
     calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x + CAL_PTS(TOP_RIGHT).raw_x - CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
     calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y - CAL_PTS(TOP_RIGHT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
     calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x) * calibration.x) >> 17);
     calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(TOP_RIGHT).raw_y) * calibration.y) >> 17);
-    calibration.orientation = landscape ? TOUCH_LANDSCAPE : TOUCH_PORTRAIT;
-    #undef CAL_PTS
+    calibration.orientation = TOUCH_LANDSCAPE;
+  }
+  else if (portrait) {
+    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y + CAL_PTS(TOP_RIGHT).raw_y - CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
+    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x - CAL_PTS(TOP_RIGHT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
+    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y) * calibration.x) >> 17);
+    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(TOP_RIGHT).raw_x) * calibration.y) >> 17);
+    calibration.orientation = TOUCH_PORTRAIT;
   }
   else {
     calibration_state = CALIBRATION_FAIL;
     calibration_reset();
     if (need_calibration() && failed_count++ < TOUCH_CALIBRATION_MAX_RETRIES) calibration_state = CALIBRATION_TOP_LEFT;
   }
+  #undef CAL_PTS
 
   if (calibration_state == CALIBRATION_SUCCESS) {
     SERIAL_ECHOLNPGM("Touch screen calibration completed");
