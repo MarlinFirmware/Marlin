@@ -362,3 +362,13 @@ constexpr uint16_t VP_BUTTON_MOVEKEY = 0x1046;
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;
 constexpr uint16_t ICON_TOGGLE_OFF = 2;
+
+// Toggles
+constexpr uint16_t ICON_FAN_TOGGLE_ON = 1;
+constexpr uint16_t ICON_FAN_TOGGLE_OFF = 2;
+constexpr uint16_t ICON_LED_TOGGLE_ON = 3;
+constexpr uint16_t ICON_LED_TOGGLE_OFF = 4;
+constexpr uint16_t ICON_SOUND_TOGGLE_ON = 5;
+constexpr uint16_t ICON_SOUND_TOGGLE_OFF = 6;
+constexpr uint16_t ICON_STANDBY_TOGGLE_ON = 7;
+constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
