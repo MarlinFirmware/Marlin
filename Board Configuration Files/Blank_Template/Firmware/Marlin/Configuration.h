@@ -172,6 +172,15 @@
 #define X_HOME_LOCATION -10
 #define Y_HOME_LOCATION -10
 
+// PID BED TEMPERATURE CONTROL ---------------------
+// If you want PID Bed Temperature control enable the below line. You will need to tune it for your machine.
+// See the PID Bed setup guide here: https://support.th3dstudio.com/hc/en-us/articles/360054750691
+//#define ENABLE_PIDBED
+
+// FINE BABYSTEPPING -------------------------------
+// Enabling the below line will set the babystep resolution from 0.025mm to 0.010mm for finer control.
+//#define FINE_BABYSTEPPING
+
 // LINEAR ADVANCE ----------------------------------
 // See here on how to use Linear Advance: http://marlinfw.org/docs/features/lin_advance.html
 //#define LINEAR_ADVANCE

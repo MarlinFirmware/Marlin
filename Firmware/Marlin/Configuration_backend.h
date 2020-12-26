@@ -109,6 +109,10 @@
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
 #endif
+#if ENABLED(SUNLU_S8_5015_EZABL)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -47, -11, 0 }
+#endif
 #if ENABLED(AC_MEGA_ZERO_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -52, -19, 0 }
