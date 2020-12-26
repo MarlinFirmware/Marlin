@@ -1192,6 +1192,11 @@ void DGUSScreenHandler::UpdateScreenVPData() {
 }
 
 void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool save_current_screen) {
+  if (current_screen == screen) {
+     // Ignore this request
+     return;
+  }
+
   DEBUG_ECHOLNPAIR("Issuing command to go to screen: ", screen);
   dgusdisplay.RequestScreen(screen);
   UpdateNewScreen(screen, save_current_screen);

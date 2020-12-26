@@ -115,7 +115,11 @@ bool hasPrintTimer = false;
       ScreenHandler.setstatusmessagePGM(msg);
       ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, true, false, true);
 
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
+      if (ExtUI::isPrinting()) {
+        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
+      } else {
+        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
+      }
     }
     else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
       DEBUG_ECHOLNPAIR("User confirmation canceled");
