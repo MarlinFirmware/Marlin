@@ -200,13 +200,17 @@ public:
       static constexpr xy_pos_t default_probe_xy_offset = {default_probe_xyz_offset.x, default_probe_xyz_offset.y};
 
     public:
-      static constexpr bool can_reach(const xy_pos_t &point) {
+      static constexpr bool can_reach(float x, float y) {
         #if IS_KINEMATIC
-          return HYPOT2(point.x, point.y) <= sq(probe_radius(default_probe_xy_offset));
+          return HYPOT2(x, y) <= sq(probe_radius(default_probe_xy_offset));
         #else
-          return WITHIN(point.x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
-              && WITHIN(point.y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
+          return WITHIN(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
+              && WITHIN(y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
         #endif
+      }
+
+      static constexpr bool can_reach(const xy_pos_t &point) {
+        return can_reach(point.x, point.y);
       }
     };
 
