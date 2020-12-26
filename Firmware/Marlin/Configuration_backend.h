@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.13"
+#define UNIFIED_VERSION "TH3D UFW 2.14"
 
 /**
  * Temp Settings
@@ -108,6 +108,10 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(SUNLU_S8_5015_EZABL)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -47, -11, 0 }
 #endif
 #if ENABLED(AC_MEGA_ZERO_OEM)
   #define ABL_ENABLE
@@ -253,7 +257,7 @@
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
   //#define Z_AFTER_PROBING              5 //Disabled for testing.
-  //#define Z_AFTER_HOMING               5 //Disabled. Makes setting offset harder.
+  #define Z_AFTER_HOMING               5
   #define Z_PROBE_LOW_POINT           -10
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
