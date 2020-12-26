@@ -107,16 +107,16 @@
   // SDIO Max Clock (naming from STM Manual, don't change)
   #define SDIOCLK 48000000
 
-  static uint32_t clock2divider(uint32_t clk) {
-    /*
-     * limit the SDIO master clock to 8/3 of PCLK2. See STM32 Manuals
-     * Also limited to no more than 48Mhz (SDIOCLK).
-     */
+  static uint32_t clock_to_divider(uint32_t clk) {
+    // limit the SDIO master clock to 8/3 of PCLK2. See STM32 Manuals
+    // Also limited to no more than 48Mhz (SDIOCLK).
     const uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
-    clk = min(clk, ((uint32_t)pclk2/3)*8);
+    clk = min(clk, (uint32_t)(pclk2 * 8 / 3));
     clk = min(clk, (uint32_t)SDIOCLK);
-    // round up divider, so we don't run the card over the speed supported.
-    return pclk2/clk + (pclk2 % clk != 0) - 2;
+    // Round up divider, so we don't run the card over the speed supported,
+    // and subtract by 2, because STM32 will add 2, as written in the manual:
+    // SDIO_CK frequency = SDIOCLK / [CLKDIV + 2]
+    return pclk2 / clk + (pclk2 % clk != 0) - 2;
   }
 
   void go_to_transfer_speed() {
@@ -128,7 +128,7 @@
     Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
     Init.BusWide             = hsd.Init.BusWide;
     Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
-    Init.ClockDiv            = clock2divider(SDIO_CLOCK);
+    Init.ClockDiv            = clock_to_divider(SDIO_CLOCK);
 
     /* Initialize SDIO peripheral interface with default configuration */
     SDIO_Init(hsd.Instance, Init);
@@ -183,7 +183,7 @@
   }
 
   void HAL_SD_MspInit(SD_HandleTypeDef *hsd) { // application specific init
-    UNUSED(hsd);   /* Prevent unused argument(s) compilation warning */
+    UNUSED(hsd);   // Prevent unused argument(s) compilation warning
     __HAL_RCC_SDIO_CLK_ENABLE();  // turn on SDIO clock
   }
 
