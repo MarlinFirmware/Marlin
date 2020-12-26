@@ -90,9 +90,6 @@ void MarlinUI::clear_lcd() {
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
-  #undef BOOTSCREEN_TIMEOUT
-  #define BOOTSCREEN_TIMEOUT 5000
-
   void MarlinUI::show_bootscreen() {
     tft.queue.reset();
 
