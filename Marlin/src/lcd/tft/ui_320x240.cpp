@@ -91,14 +91,13 @@ void MarlinUI::clear_lcd() {
   void MarlinUI::show_bootscreen() {
     tft.queue.reset();
 
+    tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
     #if ENABLED(TFT_COLOR_UI_LARGE_BOOTSCREEN)
-      tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
       tft.add_image(0, 0, imgBootScreen);  // MarlinLogo320x240x16
       #ifdef WEBSITE_URL
         tft.add_text(4, 188, COLOR_WEBSITE_URL, WEBSITE_URL);
       #endif
     #else
-      tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
       tft.set_background(COLOR_BACKGROUND);
       tft.add_image(62, 90, imgBootScreen);  // MarlinLogo195x59x16
       #ifdef WEBSITE_URL
