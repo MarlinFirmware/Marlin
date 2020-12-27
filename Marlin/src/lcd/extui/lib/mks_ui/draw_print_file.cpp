@@ -358,7 +358,7 @@ void disp_gcode_icon(uint8_t file_num) {
 uint32_t lv_open_gcode_file(char *path) {
   #if ENABLED(SDSUPPORT)
     uint32_t *ps4;
-    uint32_t pre_sread_cnt = (uint32_t)-1;
+    uint32_t pre_sread_cnt = UINT32_MAX;
     char *cur_name;
 
     cur_name = strrchr(path, '/');
