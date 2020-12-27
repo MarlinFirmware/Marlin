@@ -138,7 +138,7 @@ public:
   #endif
 
   static bool deploy() { return set_deployed(true); }
-  static bool stow() { return set_deployed(false); }
+  static bool stow()   { return set_deployed(false); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC
@@ -176,28 +176,15 @@ public:
       );
     }
 
-    static float min_x() {
-      return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
-    }
-    static float max_x() {
-      return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
-    }
-    static float min_y() {
-      return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
-    }
-    static float max_y() {
-      return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
-    }
+    static float min_x() { return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
+    static float max_x() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
+    static float min_y() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
+    static float max_y() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
-      static constexpr xyz_pos_t default_probe_xyz_offset =
-        #if HAS_BED_PROBE
-          NOZZLE_TO_PROBE_OFFSET;
-        #else
-          {0, 0, 0};
-        #endif
-      static constexpr xy_pos_t default_probe_xy_offset = {default_probe_xyz_offset.x, default_probe_xyz_offset.y};
+      static constexpr xyz_pos_t default_probe_xyz_offset = TERN(HAS_BED_PROBE, NOZZLE_TO_PROBE_OFFSET, {0});
+      static constexpr xy_pos_t default_probe_xy_offset = default_probe_xyz_offset;
 
     public:
       static constexpr bool can_reach(float x, float y) {
@@ -209,9 +196,7 @@ public:
         #endif
       }
 
-      static constexpr bool can_reach(const xy_pos_t &point) {
-        return can_reach(point.x, point.y);
-      }
+      static constexpr bool can_reach(const xy_pos_t &point) { return can_reach(point.x, point.y); }
     };
 
     #if NEEDS_THREE_PROBE_POINTS
