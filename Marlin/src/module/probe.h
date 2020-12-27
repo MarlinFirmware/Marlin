@@ -211,6 +211,7 @@ public:
   #endif
 
   #if ENABLED(PROBE_TARE)
+    static void tare_init();
     static bool tare();
   #endif
 
