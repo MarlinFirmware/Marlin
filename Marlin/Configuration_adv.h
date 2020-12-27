@@ -1140,6 +1140,9 @@
 
   #if ENABLED(SHOW_BOOTSCREEN)
     #define BOOTSCREEN_TIMEOUT 4000      // (ms) Total Duration to display the boot screen(s)
+    #if ENABLED(TFT_COLOR_UI)
+      //#define TFT_COLOR_UI_LARGE_BOOTSCREEN // Fullscreen bootscreen for TFT_COLOR_UI
+    #endif
   #endif
 
   // Scroll a longer status message into view
