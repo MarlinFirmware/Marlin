@@ -1,0 +1,17 @@
+diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
+index 6b0d8acaee..aa7e50a41e 100644
+--- a/Marlin/Configuration.h
++++ b/Marlin/Configuration.h
+@@ -126,11 +126,11 @@
+ // Enable the Bluetooth serial interface on AT90USB devices
+ //#define BLUETOOTH
+ 
+ // Choose the name from boards.h that matches your setup
+ #ifndef MOTHERBOARD
+-  #define MOTHERBOARD BOARD_CREALITY_V452 // BOARD_CREALITY_V453
++  #define MOTHERBOARD BOARD_CREALITY_V453 // BOARD_CREALITY_V453
+ #endif
+ 
+ // Name displayed in the LCD "Ready" message and Info menu
+ #define CUSTOM_MACHINE_NAME "CR-6 Community"
+ 
