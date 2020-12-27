@@ -909,34 +909,32 @@ void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_pt
   DEBUG_ECHOLNPGM("poschg done.");
 }
 
-#if ENABLED(BABYSTEPPING)
-  void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
+void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
+  DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 
-    float absoluteAmount = float(swap16(*(uint16_t*)val_ptr))  / 100.0f;
-    float existingAmount = ExtUI::getZOffset_mm();
-    float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
+  float absoluteAmount = float(swap16(*(uint16_t*)val_ptr))  / 100.0f;
+  float existingAmount = ExtUI::getZOffset_mm();
+  float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
 
-    SERIAL_ECHO("- Absolute: ");
-    SERIAL_ECHO_F(absoluteAmount);
-    SERIAL_ECHO("- Existing: ");
-    SERIAL_ECHO_F(existingAmount);
-    SERIAL_ECHO(" - Difference: ");
-    SERIAL_ECHO_F(difference);
+  SERIAL_ECHO("- Absolute: ");
+  SERIAL_ECHO_F(absoluteAmount);
+  SERIAL_ECHO("- Existing: ");
+  SERIAL_ECHO_F(existingAmount);
+  SERIAL_ECHO(" - Difference: ");
+  SERIAL_ECHO_F(difference);
 
-    int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
+  int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
 
-    SERIAL_ECHO(" - Steps: ");
-    SERIAL_ECHO_F(steps);
-    SERIAL_ECHOLN(";");
+  SERIAL_ECHO(" - Steps: ");
+  SERIAL_ECHO_F(steps);
+  SERIAL_ECHOLN(";");
 
-    ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
-    
-    ScreenHandler.ForceCompleteUpdate();
-    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-    return;
-  }
-#endif
+  ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
+  
+  ScreenHandler.ForceCompleteUpdate();
+  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  return;
+}
 
 void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleHeaterControl");

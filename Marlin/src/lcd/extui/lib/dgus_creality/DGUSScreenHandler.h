@@ -103,10 +103,10 @@ public:
 
     static void OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos);
   #endif
-  #if ENABLED(BABYSTEPPING)
-    // Hook for live z adjust action
-    static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
-  #endif
+
+  // Hook for live z adjust action
+  static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
+
   // Hook for heater control
   static void HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr);
   #if ENABLED(DGUS_PREHEAT_UI)
@@ -225,7 +225,10 @@ public:
     if (var.memadr) {
       float f = *(float *)var.memadr;
       f *= cpow(10, decimals);
-      dgusdisplay.WriteVariable(var.VP, (long)f);
+
+      // Round - truncated values look like skipped numbers
+      long roundedValue = static_cast<long>(round(f));
+      dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
   }
 
@@ -246,9 +249,11 @@ public:
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
-      DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
       f *= cpow(10, decimals);
-      dgusdisplay.WriteVariable(var.VP, (int16_t)f);
+
+      // Round - truncated values look like skipped numbers
+      int16_t roundedValue = static_cast<int16_t>(round(f));
+      dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
   }
 
