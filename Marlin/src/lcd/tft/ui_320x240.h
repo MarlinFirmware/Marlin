@@ -44,7 +44,11 @@ void menu_item(const uint8_t row, bool sel = false);
 #define ABSOLUTE_ZERO     -273.15
 
 const tImage Images[imgCount] = {
-  MarlinLogo320x240x16,
+  #if ENABLED(TFT_COLOR_UI_LARGE_BOOTSCREEN)
+    MarlinLogo320x240x16,
+  #else
+    MarlinLogo195x59x16,
+  #endif
   HotEnd_64x64x4,
   Bed_64x64x4,
   Bed_Heated_64x64x4,
