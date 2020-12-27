@@ -585,15 +585,16 @@ char *creat_title_text() {
     index++;
   }
 
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-  ) {
+  if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI) {
     titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)":");
     titleText_cat(public_buf_m, sizeof(public_buf_m), tmpCurFileStr);
   }
 
   if (strlen(public_buf_m) > MAX_TITLE_LEN) {
     ZERO(public_buf_m);
-    tmpText = getDispText(0);
+    tmpText = 0;
+    for (index = 0; index <= disp_state_stack._disp_index && (!tmpText || *tmpText == 0); index++) 
+      tmpText = getDispText(index);
     if (*tmpText != 0) {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
       titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)">...>");

@@ -50,7 +50,12 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  lv_clear_tool();
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    bool clear = (obj->mks_obj_id != ID_T_LEVELING);
+  #else
+    constexpr bool clear = true;
+  #endif
+  if (clear) lv_clear_tool();
   switch (obj->mks_obj_id) {
     case ID_T_PRE_HEAT:
       lv_draw_preHeat();
