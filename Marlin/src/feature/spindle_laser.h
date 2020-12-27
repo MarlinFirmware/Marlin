@@ -117,6 +117,12 @@ public:
 
   #if ENABLED(SPINDLE_LASER_PWM)
 
+    private:
+
+    static void _set_ocr(const uint8_t ocr);
+
+    public:
+
     static void set_ocr(const uint8_t ocr);
     static inline void set_ocr_power(const uint8_t ocr) { power = ocr; set_ocr(ocr); }
     static void ocr_off();
@@ -143,7 +149,7 @@ public:
         #elif CUTTER_UNIT_IS(RPM)
           2
         #else
-          #error "???"
+          #error "CUTTER_UNIT_IS(???)"
         #endif
       ));
     }
