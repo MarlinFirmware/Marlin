@@ -6,8 +6,8 @@ The following examples are available:
 
 - [Creality CR-6 SE with BTT SKR CR6 with BTT TFT](./btt-skr-cr6-with-btt-tft)
 - [Creality CR-6 SE with BTT SKR CR6 with Creality stock TFT](./btt-skr-cr6-with-btt-tft)
-- [Creality CR-6 SE with v4.5.2 motherboard](./creality-v4.5.2-mb)
-- [Creality CR-6 SE with v4.5.3 motherboard](./creality-v4.5.3-mb)
+- [Creality CR-6 SE with v4.5.2 motherboard](./cr6-se-v4.5.2-mb)
+- [Creality CR-6 SE with v4.5.3 motherboard](./cr6-se-v4.5.3-mb)
 - [Creality CR-6 MAX](./cr6-max)
 
 There are some helper scripts. You need Powershell Core (`pwsh`) to run them.
