@@ -112,7 +112,7 @@ public:
   static void move_z_after_homing() {
     #ifdef Z_AFTER_HOMING
       do_z_clearance(Z_AFTER_HOMING, true, true, true);
-    #elif BOTH(Z_AFTER_PROBING,HAS_BED_PROBE)
+    #elif BOTH(Z_AFTER_PROBING, HAS_BED_PROBE)
       move_z_after_probing();
     #endif
   }
@@ -184,7 +184,7 @@ public:
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
       static constexpr xyz_pos_t default_probe_xyz_offset = TERN(HAS_BED_PROBE, NOZZLE_TO_PROBE_OFFSET, {0});
-      static constexpr xy_pos_t default_probe_xy_offset = default_probe_xyz_offset;
+      static constexpr xy_pos_t default_probe_xy_offset = { default_probe_xyz_offset.x,  default_probe_xyz_offset.y };
 
     public:
       static constexpr bool can_reach(float x, float y) {
