@@ -82,7 +82,7 @@
  * providing the source code to your customers.)
  */
 #ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
 #endif
 
 /**
@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "https://marlinfw.org"
+  #define WEBSITE_URL "marlinfw.org"
 #endif
 
 /**
