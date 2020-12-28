@@ -90,18 +90,24 @@ void MarlinUI::clear_lcd() {
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
-  #undef BOOTSCREEN_TIMEOUT
-  #define BOOTSCREEN_TIMEOUT 5000
-
   void MarlinUI::show_bootscreen() {
     tft.queue.reset();
 
     tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
-    tft.set_background(COLOR_BACKGROUND);
-    tft.add_image(142, 130, imgBootScreen);  // MarlinLogo195x59x16
-
+    #if ENABLED(BOOT_MARLIN_LOGO_SMALL)
+      #define BOOT_LOGO_W 195   // MarlinLogo195x59x16
+      #define BOOT_LOGO_H  59
+      #define SITE_URL_Y (TFT_HEIGHT - 70)
+      tft.set_background(COLOR_BACKGROUND);
+    #else
+      #define BOOT_LOGO_W 480   // MarlinLogo480x320x16
+      #define BOOT_LOGO_H 320
+      #define SITE_URL_Y (TFT_HEIGHT - 90)
+    #endif
+    tft.add_image((TFT_WIDTH - BOOT_LOGO_W) / 2, (TFT_HEIGHT - BOOT_LOGO_H) / 2, imgBootScreen);
     #ifdef WEBSITE_URL
-      tft.add_text(8, 250, COLOR_WEBSITE_URL, WEBSITE_URL);
+      tft_string.set(WEBSITE_URL);
+      tft.add_text(tft_string.center(TFT_WIDTH), SITE_URL_Y, COLOR_WEBSITE_URL, tft_string);
     #endif
 
     tft.queue.sync();
