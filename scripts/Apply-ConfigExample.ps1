@@ -37,7 +37,7 @@ foreach ($FilePath in $FilesPathsToDiff) {
     # Apply diff if exists
     if (Test-Path $ExampleDiffFilePath) {
         Write-Host "... applying $ExampleDiffFilePath"
-        git apply --ignore-space-change --ignore-whitespace --3way $ExampleDiffFilePath
+        git apply --verbose --ignore-space-change --ignore-whitespace --3way $ExampleDiffFilePath
 
         if ($LASTEXITCODE -ne 0) {
             Write-FatalError "Failed to apply diff file for $FilePath"
