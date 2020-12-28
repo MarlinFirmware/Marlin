@@ -66,7 +66,7 @@ foreach ($FilePath in $FilesPathsToDiff) {
         Write-Warning "No changes in $FilePath"
     } else {
         Write-Host "... writing diff to $ExampleDiffFilePath"
-        $Diff | Out-File -Encoding utf8NoBOM -FilePath $ExampleDiffFilePath
+        $Diff.Replace("`r`n", "`n") | Out-File -Encoding utf8NoBOM -FilePath $ExampleDiffFilePath
     }
 
     Write-Host "... resetting $FilePath to HEAD"
