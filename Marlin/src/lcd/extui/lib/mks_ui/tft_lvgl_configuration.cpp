@@ -404,7 +404,7 @@ lv_fs_res_t sd_close_cb (lv_fs_drv_t * drv, void * file_p) {
 
 lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br) {
   if (btr == 200) {
-    lv_gcode_file_read((uint8_t *)buf);
+    lv_gcode_file_read((uint8_t *)buf, *(uint32_t*)file_p);
     *br = 200;
   }
   else if (btr == 4) {
@@ -416,7 +416,7 @@ lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t b
 }
 
 lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos) {
-  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * 409;
+  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * 409; // This is wrong, at least for my file since there are 2 M10086 headers per line
   lv_gcode_file_seek(sd_read_addr_offset);
   return LV_FS_RES_OK;
 }

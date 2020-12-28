@@ -52,7 +52,7 @@ extern LIST_FILE list_file;
 extern void disp_gcode_icon(uint8_t file_num);
 extern void lv_draw_print_file(void);
 extern uint32_t lv_open_gcode_file(char *path);
-extern void lv_gcode_file_read(uint8_t *data_buf);
+extern void lv_gcode_file_read(uint8_t *data_buf, uint32_t file_pos);
 extern void lv_close_gcode_file();
 extern void cutFileName(char *path, int len, int bytePerLine, char *outStr);
 extern int ascii2dec_test(char *ascii);
