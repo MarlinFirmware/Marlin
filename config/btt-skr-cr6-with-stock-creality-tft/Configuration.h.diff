@@ -55,8 +55,8 @@ index 6b0d8acaee..1d40c77ea0 100644
  //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
  
 @@ -443,19 +443,19 @@
- #define TEMP_BED_WINDOW          1  // (┬░C) Temperature proximity for the "temperature reached" timer
- #define TEMP_BED_HYSTERESIS      3  // (┬░C) Temperature proximity considered "close enough" to the target
+ #define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
+ #define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
  
  // Below this temperature the heater will be switched off
  // because it probably indicates a broken thermistor wire.
@@ -191,7 +191,7 @@ index 6b0d8acaee..1d40c77ea0 100644
  // Require minimum nozzle and/or bed temperature for probing.
  #define PREHEAT_BEFORE_PROBING
  #if ENABLED(PREHEAT_BEFORE_PROBING)
-   #define PROBING_NOZZLE_TEMP 120   // (┬░C) Only applies to E0 at this time
+   #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
 -  #define PROBING_BED_TEMP     50
 +  //#define PROBING_BED_TEMP     50
  #endif

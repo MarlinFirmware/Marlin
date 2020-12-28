@@ -72,8 +72,8 @@ index 6b0d8acaee..695bb0f003 100644
  //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
  
 @@ -443,19 +443,19 @@
- #define TEMP_BED_WINDOW          1  // (┬░C) Temperature proximity for the "temperature reached" timer
- #define TEMP_BED_HYSTERESIS      3  // (┬░C) Temperature proximity considered "close enough" to the target
+ #define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
+ #define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
  
  // Below this temperature the heater will be switched off
  // because it probably indicates a broken thermistor wire.
@@ -224,7 +224,7 @@ index 6b0d8acaee..695bb0f003 100644
 -  #define JUNCTION_DEVIATION_MM 0.05 // (mm) Distance from real junction edge
 +  #define JUNCTION_DEVIATION_MM 0.013 // (mm) Distance from real junction edge
    #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
-                                       // for small segments (< 1mm) with large junction angles (> 135┬░).
+                                       // for small segments (< 1mm) with large junction angles (> 135°).
  #endif
  
  /**
