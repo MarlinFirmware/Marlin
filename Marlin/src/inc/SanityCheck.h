@@ -190,7 +190,7 @@
   #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
 #elif defined(HOMING_FEEDRATE)
   #error "HOMING_FEEDRATE is now set using the HOMING_FEEDRATE_MM_M array instead."
-#elif defined(HOMING_FEEDRATE_XY) || defined(HOMING_FEEDRATE_Z)
+#elif (defined(HOMING_FEEDRATE_XY) || defined(HOMING_FEEDRATE_Z)) && !defined(HOMING_FEEDRATE_MM_M)
   #error "HOMING_FEEDRATE_XY and HOMING_FEEDRATE_Z are now set using the HOMING_FEEDRATE_MM_M array instead."
 #elif defined(MANUAL_HOME_POSITIONS)
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
