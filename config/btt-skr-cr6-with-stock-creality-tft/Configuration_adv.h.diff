@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration_adv.h b/Marlin/Configuration_adv.h
-index 125586295c..43df660bf4 100644
+index 125586295c..04e8337faa 100644
 --- a/Marlin/Configuration_adv.h
 +++ b/Marlin/Configuration_adv.h
 @@ -212,11 +212,11 @@
@@ -25,9 +25,9 @@ index 125586295c..43df660bf4 100644
 +#define HOTEND_IDLE_TIMEOUT
  #if ENABLED(HOTEND_IDLE_TIMEOUT)
    #define HOTEND_IDLE_TIMEOUT_SEC (5*60)    // (seconds) Time without extruder movement to trigger protection
-   #define HOTEND_IDLE_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
-   #define HOTEND_IDLE_NOZZLE_TARGET   0     // (°C) Safe temperature for the nozzle after timeout
-   #define HOTEND_IDLE_BED_TARGET      0     // (°C) Safe temperature for the bed after timeout
+   #define HOTEND_IDLE_MIN_TRIGGER   180     // (┬░C) Minimum temperature to enable hotend protection
+   #define HOTEND_IDLE_NOZZLE_TARGET   0     // (┬░C) Safe temperature for the nozzle after timeout
+   #define HOTEND_IDLE_BED_TARGET      0     // (┬░C) Safe temperature for the bed after timeout
 @@ -393,29 +393,29 @@
   * To cool down the stepper drivers and MOSFETs.
   *
@@ -168,8 +168,8 @@ index 125586295c..43df660bf4 100644
    //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
    //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
    //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
--  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
-+  #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
+-  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~ÔÇ¡3260 (or ~940) bytes of PROGMEM.
++  #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~ÔÇ¡3260 (or ~940) bytes of PROGMEM.
  
    // Frivolous Game Options
 -  //#define MARLIN_BRICKOUT
@@ -391,6 +391,19 @@ index 125586295c..43df660bf4 100644
      #define CURRENT_STEP_DOWN     50  // [mA]
      #define REPORT_CURRENT_CHANGE
      #define STOP_ON_ERROR
+@@ -2564,11 +2564,11 @@
+    * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
+    * This mode allows for faster movements at the expense of higher noise levels.
+    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
+    * M913 X/Y/Z/E to live tune the setting
+    */
+-  //#define HYBRID_THRESHOLD
++  #define HYBRID_THRESHOLD
+ 
+   #define X_HYBRID_THRESHOLD     100  // [mm/s]
+   #define X2_HYBRID_THRESHOLD    100
+   #define Y_HYBRID_THRESHOLD     100
+   #define Y2_HYBRID_THRESHOLD    100
 @@ -3252,11 +3252,11 @@
  
  #if ENABLED(FASTER_GCODE_PARSER)

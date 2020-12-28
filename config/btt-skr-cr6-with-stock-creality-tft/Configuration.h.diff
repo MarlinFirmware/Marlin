@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
-index 6b0d8acaee..cfe188a17e 100644
+index 6b0d8acaee..1d40c77ea0 100644
 --- a/Marlin/Configuration.h
 +++ b/Marlin/Configuration.h
 @@ -68,11 +68,11 @@
@@ -55,8 +55,8 @@ index 6b0d8acaee..cfe188a17e 100644
  //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
  
 @@ -443,19 +443,19 @@
- #define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
- #define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
+ #define TEMP_BED_WINDOW          1  // (┬░C) Temperature proximity for the "temperature reached" timer
+ #define TEMP_BED_HYSTERESIS      3  // (┬░C) Temperature proximity considered "close enough" to the target
  
  // Below this temperature the heater will be switched off
  // because it probably indicates a broken thermistor wire.
@@ -186,25 +186,12 @@ index 6b0d8acaee..cfe188a17e 100644
    #endif
  #endif
  
-@@ -1024,11 +1024,11 @@
-  */
- #define PROBE_TARE
- #if ENABLED(PROBE_TARE)
-   #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
-   #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
--  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-+  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-   //#define PROBE_TARE_PIN PA5    // Override default pin
-   #if ENABLED(PROBE_ACTIVATION_SWITCH)
-     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
-   #endif
- #endif
 @@ -1096,11 +1096,11 @@
  
  // Require minimum nozzle and/or bed temperature for probing.
  #define PREHEAT_BEFORE_PROBING
  #if ENABLED(PREHEAT_BEFORE_PROBING)
-   #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+   #define PROBING_NOZZLE_TEMP 120   // (┬░C) Only applies to E0 at this time
 -  #define PROBING_BED_TEMP     50
 +  //#define PROBING_BED_TEMP     50
  #endif
@@ -212,19 +199,6 @@ index 6b0d8acaee..cfe188a17e 100644
  // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
  // :{ 0:'Low', 1:'High' }
  #define X_ENABLE_ON 0
-@@ -1145,11 +1145,11 @@
- 
- //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
- //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
- //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
- 
--#define Z_HOMING_HEIGHT  15      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
-+#define Z_HOMING_HEIGHT  15      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
-                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
- 
- #define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
- 
- // Direction of endstops when homing; 1=MAX, -1=MIN
 @@ -1437,11 +1437,11 @@
  //#define LCD_BED_LEVELING
  
