@@ -29,7 +29,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 
-#include "qr_encode.h"
+#include "QR_Encode.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
