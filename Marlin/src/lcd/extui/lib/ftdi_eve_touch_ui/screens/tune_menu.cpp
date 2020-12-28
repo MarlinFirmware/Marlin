@@ -38,7 +38,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 9
     #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
@@ -49,7 +49,8 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define PAUSE_POS       BTN_POS(1,6), BTN_SIZE(2,1)
     #define STOP_POS        BTN_POS(1,7), BTN_SIZE(2,1)
     #define CASE_LIGHT_POS  BTN_POS(1,8), BTN_SIZE(2,1)
-    #define BACK_POS        BTN_POS(1,9), BTN_SIZE(2,1)
+    #define ADVANCED_SETTINGS_POS BTN_POS(1,9), BTN_SIZE(1,1)
+    #define BACK_POS        BTN_POS(2,9), BTN_SIZE(1,1)
   #else
     #define GRID_ROWS 5
     #define GRID_COLS 2
@@ -61,7 +62,8 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define STOP_POS        BTN_POS(2,3), BTN_SIZE(1,1)
     #define FILAMENT_POS    BTN_POS(1,4), BTN_SIZE(1,1)
     #define CASE_LIGHT_POS  BTN_POS(2,4), BTN_SIZE(1,1)
-    #define BACK_POS        BTN_POS(1,5), BTN_SIZE(2,1)
+    #define ADVANCED_SETTINGS_POS BTN_POS(1,5), BTN_SIZE(1,1)
+    #define BACK_POS        BTN_POS(2,5), BTN_SIZE(2,1)
   #endif
 
   if (what & FOREGROUND) {
@@ -71,23 +73,24 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .tag(2).button( TEMPERATURE_POS, GET_TEXT_F(MSG_TEMPERATURE))
+       .tag(2).button(TEMPERATURE_POS, GET_TEXT_F(MSG_TEMPERATURE))
        .enabled(!sdOrHostPrinting || sdOrHostPaused)
-       .tag(3).button( FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
+       .tag(3).button(FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
        .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
-       .tag(9).button( FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
-       .enabled(EITHER(HAS_BED_PROBE, BABYSTEPPING))
-       .tag(4).button( NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
-       .tag(5).button( SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
+       .tag(9).button(FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
+       .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE) || ENABLED(BABYSTEPPING))
+       .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
+       .tag(5).button(SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
        .enabled(sdOrHostPrinting)
        .tag(sdOrHostPaused ? 7 : 6)
-       .button( PAUSE_POS, sdOrHostPaused ? GET_TEXT_F(MSG_RESUME_PRINT) : GET_TEXT_F(MSG_PAUSE_PRINT))
+       .button(PAUSE_POS, sdOrHostPaused ? GET_TEXT_F(MSG_RESUME_PRINT) : GET_TEXT_F(MSG_PAUSE_PRINT))
        .enabled(sdOrHostPrinting)
-       .tag(8).button( STOP_POS, GET_TEXT_F(MSG_STOP_PRINT))
+       .tag(8).button(STOP_POS, GET_TEXT_F(MSG_STOP_PRINT))
        .enabled(ENABLED(CASE_LIGHT_ENABLE))
-       .tag(10).button( CASE_LIGHT_POS, GET_TEXT_F(MSG_CASE_LIGHT))
+       .tag(10).button(CASE_LIGHT_POS, GET_TEXT_F(MSG_CASE_LIGHT))
+       .tag(11).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
        .tag(1).colors(action_btn)
-             .button( BACK_POS, GET_TEXT_F(MSG_BACK));
+             .button(BACK_POS, GET_TEXT_F(MSG_BACK));
   }
   #undef GRID_COLS
   #undef GRID_ROWS
@@ -103,7 +106,7 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
     case  4:
       #if ENABLED(BABYSTEPPING)
         GOTO_SCREEN(NudgeNozzleScreen);
-      #elif HAS_BED_PROBE
+      #elif BOTH(HAS_LEVELING, HAS_BED_PROBE)
         GOTO_SCREEN(ZOffsetScreen);
       #endif
       break;
@@ -121,6 +124,7 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
     #if ENABLED(CASE_LIGHT_ENABLE)
     case 10: GOTO_SCREEN(CaseLightScreen); break;
     #endif
+    case 11: GOTO_SCREEN(AdvancedSettingsMenu); break;
     default:
       return false;
   }

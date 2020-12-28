@@ -28,6 +28,7 @@ TouchCalibration touch_calibration;
 touch_calibration_t TouchCalibration::calibration;
 calibrationState TouchCalibration::calibration_state = CALIBRATION_NONE;
 touch_calibration_point_t TouchCalibration::calibration_points[4];
+uint8_t TouchCalibration::failed_count;
 
 void TouchCalibration::validate_calibration() {
   const bool landscape = validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3);
@@ -44,6 +45,8 @@ void TouchCalibration::validate_calibration() {
   else {
     calibration_state = CALIBRATION_FAIL;
     calibration_reset();
+    // Retry up to 5 times before reporting the failure
+    if (need_calibration() && failed_count++ < 5) calibration_state = CALIBRATION_TOP_LEFT;
   }
 
   if (calibration_state == CALIBRATION_SUCCESS) {
