@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration_adv.h b/Marlin/Configuration_adv.h
-index 9721f4ff0f..9912dc5d6f 100644
+index 74b840a2fb..9912dc5d6f 100644
 --- a/Marlin/Configuration_adv.h
 +++ b/Marlin/Configuration_adv.h
 @@ -393,20 +393,20 @@
@@ -91,6 +91,19 @@ index 9721f4ff0f..9912dc5d6f 100644
    #if HAS_MARLINUI_U8GLIB
      //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
    #endif
+@@ -1461,11 +1461,11 @@
+ 
+ //
+ // Additional options for DGUS / DWIN displays
+ //
+ #if HAS_DGUS_LCD
+-  #define LCD_SERIAL_PORT 3
++  #define LCD_SERIAL_PORT 2
+   #define LCD_BAUDRATE 115200
+ 
+   #define DGUS_RX_BUFFER_SIZE 128
+   #define DGUS_TX_BUFFER_SIZE 48
+   //#define SERIAL_STATS_RX_BUFFER_OVERRUNS  // Fix Rx overrun situation (Currently only for AVR)
 @@ -1969,11 +1969,11 @@
   * Add a low-level parser to intercept certain commands as they
   * enter the serial receive buffer, so they cannot be blocked.
