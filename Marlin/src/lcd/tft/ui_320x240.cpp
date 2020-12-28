@@ -442,6 +442,10 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
     #endif
   }
 
+  tft.draw_edit_screen_buttons();
+}
+
+void TFT::draw_edit_screen_buttons() {
   #if ENABLED(TOUCH_SCREEN)
     add_control(32, 176, DECREASE, imgDecrease);
     add_control(224, 176, INCREASE, imgIncrease);
@@ -656,6 +660,23 @@ void menu_item(const uint8_t row, bool sel ) {
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
     touch.add_control(tct, 0, 2 + 34 * row, TFT_WIDTH, 32, encoderTopLine + row);
   #endif
+}
+
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
+  #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
+  tft.canvas(col * TFT_COL_WIDTH, 4 + 45 * row, TFT_WIDTH - (col * TFT_COL_WIDTH), 43);
+  tft.set_background(COLOR_BACKGROUND);
+}
+
+int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
+  tft_string.set(utf8_str_P);
+  tft_string.trim();
+  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  return tft_string.width();
+}
+
+int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+  return lcd_put_u8str_max_P(utf8_str, max_length);
 }
 
 void MarlinUI::move_axis_screen() {
