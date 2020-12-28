@@ -451,7 +451,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 
   VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], nullptr, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
-  VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendFanSpeedToDisplay),
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, &ScreenHandler.HandlePowerLossRecovery, nullptr),

@@ -196,6 +196,7 @@ public:
   #endif
   #if HAS_FAN
     static void DGUSLCD_SendFanStatusToDisplay(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendFanSpeedToDisplay(DGUS_VP_Variable &var);
   #endif
   static void DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var);
   #if ENABLED(DGUS_UI_WAITING)

@@ -303,6 +303,13 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
       dgusdisplay.WriteVariable(var.VP, data_to_send);
     }
   }
+
+  void DGUSScreenHandler::DGUSLCD_SendFanSpeedToDisplay(DGUS_VP_Variable &var) {
+    if (var.memadr) {
+      uint16_t data_to_send = *(uint8_t *)var.memadr;
+      dgusdisplay.WriteVariable(var.VP, data_to_send);
+    }
+  }
 #endif
 
 // Send heater status value to the display.
