@@ -65,11 +65,11 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 
     [NANOv1.2](./NANO)
 
-    ![Board_Nanov1.2](../../docs/images/Fam_Nano.jpg)
+    ![Board_Nanov1.2](../../docs/images/Fam_Nano.png)
     
     [SKR](./SKR)
     
-    ![Board_SKRs](../../docs/images/Fam_SRK.jpg)
+    ![Board_SKRs](../../docs/images/Fam_SKR.png)
 
 Typically the probe for the QQS-Pro printers.
   
