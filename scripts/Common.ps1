@@ -1,3 +1,4 @@
+#Requires -Version 6.0
 function Write-FatalError() {
     Pop-Location
     Write-Error @args

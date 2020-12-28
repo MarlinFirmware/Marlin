@@ -17,6 +17,7 @@ Param(
 )
 
 # Include common scripts
+#Requires -Version 6.0
 . $PSScriptRoot/Common.ps1
 
 # Ensure platform.io is available
