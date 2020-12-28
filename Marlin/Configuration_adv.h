@@ -3304,7 +3304,38 @@
 #endif
 
 /**
- * User-defined menu items (up to 25 may be used) that execute custom GCode
+ * User-defined button (up to 25 may be used) that execute custom GCode
+ */
+//#define CUSTOM_USER_BUTTONS
+#if ENABLED(CUSTOM_USER_BUTTONS)
+
+  //#define BUTTON_GCODE_PIN_1 -1         // PIN assigned to trigger BUTTON_GCODE_1 execution
+  #ifdef BUTTON_GCODE_PIN_1
+    #define BUTTON_DESC_1 "Home & UBL Info"
+    #define BUTTON_GCODE_1 "G28\nG29 W"
+    #define BUTTON_GCODE_PIN_STATE_1 LOW  // What state should trigger BUTTON_GCODE_1 execution (LOW or HIGH)
+    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_1 false // PIN can trigger BUTTON_GCODE_1 even if print job timer is running
+  #endif
+
+  //#define BUTTON_GCODE_PIN_2 -1         // PIN assigned to trigger BUTTON_DESC_2 execution
+  #ifdef BUTTON_GCODE_PIN_2
+    #define BUTTON_DESC_2 "Preheat for " PREHEAT_1_LABEL
+    #define BUTTON_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+    #define BUTTON_GCODE_PIN_STATE_2 LOW  // What state should trigger BUTTON_DESC_2 execution (LOW or HIGH)
+    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_2 false // PIN can trigger BUTTON_DESC_2 even if print job timer is running
+  #endif
+
+  //#define BUTTON_GCODE_PIN_3 -1         // PIN assigned to trigger BUTTON_DESC_3 execution
+  #ifdef BUTTON_GCODE_PIN_3
+    #define BUTTON_DESC_3 "Preheat for " PREHEAT_2_LABEL
+    #define BUTTON_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+    #define BUTTON_GCODE_PIN_STATE_3 LOW  // What state should trigger BUTTON_DESC_3 execution (LOW or HIGH)
+    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_3 false // PIN can trigger BUTTON_DESC_3 even if print job timer is running
+  #endif
+#endif
+
+/**
+ * User-defined menu items that execute custom GCode
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
@@ -3315,43 +3346,18 @@
 
   #define USER_DESC_1 "Home & UBL Info"
   #define USER_GCODE_1 "G28\nG29 W"
-  //#define USER_GCODE_PIN_1 -1         // PIN assigned to trigger USER_GCODE_1 execution
-  #ifdef USER_GCODE_PIN_1
-    #define USER_GCODE_PIN_STATE_1 LOW  // What state should trigger USER_GCODE_1 execution (LOW or HIGH)
-    #define USER_GCODE_PIN_TRIGGER_ALWAYS_1 false // PIN can trigger USER_GCODE_1 even if print job timer is running
-  #endif
 
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
   #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
-  //#define USER_GCODE_PIN_2 -1         // PIN assigned to trigger USER_GCODE_2 execution
-  #ifdef USER_GCODE_PIN_2
-    #define USER_GCODE_PIN_STATE_2 LOW  // What state should trigger USER_GCODE_2 execution (LOW or HIGH)
-    #define USER_GCODE_PIN_TRIGGER_ALWAYS_2 false // PIN can trigger USER_GCODE_2 even if print job timer is running
-  #endif
 
   #define USER_DESC_3 "Preheat for " PREHEAT_2_LABEL
   #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
-  //#define USER_GCODE_PIN_3 -1         // PIN assigned to trigger USER_GCODE_3 execution
-  #ifdef USER_GCODE_PIN_3
-    #define USER_GCODE_PIN_STATE_3 LOW  // What state should trigger USER_GCODE_3 execution (LOW or HIGH)
-    #define USER_GCODE_PIN_TRIGGER_ALWAYS_3 false // PIN can trigger USER_GCODE_3 even if print job timer is running
-  #endif
 
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
-  //#define USER_GCODE_PIN_4 -1         // PIN assigned to trigger USER_GCODE_4 execution
-  #ifdef USER_GCODE_PIN_4
-    #define USER_GCODE_PIN_STATE_4 LOW  // What state should trigger USER_GCODE_4 execution (LOW or HIGH)
-    #define USER_GCODE_PIN_TRIGGER_ALWAYS_4 false // PIN can trigger USER_GCODE_4 even if print job timer is running
-  #endif
 
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
-  //#define USER_GCODE_PIN_5 -1         // PIN assigned to trigger USER_GCODE_5 execution
-  #ifdef USER_GCODE_PIN_5
-    #define USER_GCODE_PIN_STATE_5 LOW  // What state should trigger USER_GCODE_5 execution (LOW or HIGH)
-    #define USER_GCODE_PIN_TRIGGER_ALWAYS_5 false // PIN can trigger USER_GCODE_5 even if print job timer is running
-  #endif
 #endif
 
 /**

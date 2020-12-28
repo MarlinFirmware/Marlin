@@ -593,19 +593,19 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   #endif
 
   #if HAS_CUSTOM_USER_BUTTONS
-    // Handle a custom user button if defined as part of a user-defined menu item
+    // Handle a custom user button if defined
     const bool printer_not_busy = !printingIsActive();
-    #define HAS_CUSTOM_USER_BUTTON(N) ((defined(USER_GCODE_PIN_##N) && USER_GCODE_PIN_##N >= 0) && defined(USER_GCODE_PIN_STATE_##N) && defined(USER_GCODE_##N) && defined(USER_DESC_##N))
+    #define HAS_CUSTOM_USER_BUTTON(N) ((defined(BUTTON_GCODE_PIN_##N) && BUTTON_GCODE_PIN_##N >= 0) && defined(BUTTON_GCODE_PIN_STATE_##N) && defined(BUTTON_GCODE_##N) && defined(BUTTON_DESC_##N))
     #define CHECK_CUSTOM_USER_BUTTON(N) do{                                 \
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 2000UL;                   \
       static millis_t next_cub_ms_##N;                                      \
-      if ((USER_GCODE_PIN_STATE_##N == READ(USER_GCODE_PIN_##N))            \
-        && (USER_GCODE_PIN_TRIGGER_ALWAYS_##N || printer_not_busy)) {       \
+      if ((BUTTON_GCODE_PIN_STATE_##N == READ(BUTTON_GCODE_PIN_##N))        \
+        && (BUTTON_GCODE_PIN_TRIGGER_ALWAYS_##N || printer_not_busy)) {     \
         const millis_t ms = millis();                                       \
         if (ELAPSED(ms, next_cub_ms_##N)) {                                 \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;                    \
-          LCD_MESSAGEPGM_P(USER_DESC_##N);                                  \
-          queue.inject_P(USER_GCODE_##N);                                   \
+          LCD_MESSAGEPGM_P(BUTTON_DESC_##N);                                \
+          queue.inject_P(BUTTON_GCODE_##N);                                 \
         }                                                                   \
       }                                                                     \
     }while(0)
@@ -1294,7 +1294,7 @@ void setup() {
   #endif
 
   #if HAS_CUSTOM_USER_BUTTONS
-    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{ SET_INPUT(USER_GCODE_PIN_##N); WRITE(USER_GCODE_PIN_##N, !USER_GCODE_PIN_STATE_##N); }while(0)
+    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{ SET_INPUT(BUTTON_GCODE_PIN_##N); WRITE(BUTTON_GCODE_PIN_##N, !BUTTON_GCODE_PIN_STATE_##N); }while(0)
 
     #if HAS_CUSTOM_USER_BUTTON(1)
       INIT_CUSTOM_USER_BUTTON_PIN(1);
