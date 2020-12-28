@@ -219,6 +219,9 @@ foreach ($ConfigName in $Configs) {
     ### Copy build include files
     Get-ChildItem -Path $(Join-Path $PSScriptRoot "build-incl") | Copy-Item -Destination $TmpBuildDirectory -Verbose
 
+    ### Copy description txt file
+    Copy-Item -Path $(Join-Path $ConfigDirName "description.txt") -Destination $TmpBuildDirectory -Verbose
+
     ### Zip it!
     Get-ChildItem -Path $TmpBuildDirectory | Compress-Archive -CompressionLevel Optimal -DestinationPath $DatedBuildZipFilePath -Verbose
 
