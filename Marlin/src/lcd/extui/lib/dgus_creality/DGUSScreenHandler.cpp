@@ -306,7 +306,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::DGUSLCD_SendFanSpeedToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
-      uint16_t data_to_send = *(uint8_t *)var.memadr;
+      int16_t data_to_send = static_cast<int16_t>(round(ExtUI::getTargetFan_percent(ExtUI::fan_t::FAN0)));
       dgusdisplay.WriteVariable(var.VP, data_to_send);
     }
   }
