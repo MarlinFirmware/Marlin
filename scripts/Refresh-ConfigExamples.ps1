@@ -1,0 +1,37 @@
+<#
+
+.SYNOPSIS
+Refreshes the configuration examples based on the current base configuration
+
+#>
+[CmdletBinding()]
+Param(
+    [Switch]
+    $Pause
+)
+
+# Include common scripts
+#Requires -Version 6.0
+. $PSScriptRoot/Common.ps1
+
+## Run each example
+Write-Host "Collecting example configurations..."
+$Configs = Get-ExampleNames
+
+foreach ($ConfigName in $Configs) {
+    .\scripts\Apply-ConfigExample.ps1 -Name $ConfigName
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-FatalError "Unable to apply configuration example for $ConfigName"
+    }
+
+    if ($Pause) {
+        Read-Host -Prompt "Pausing for $ConfigName - press any key to continue"
+    }
+
+    .\scripts\Generate-ConfigExample.ps1 -Name $ConfigName
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-FatalError "Unable to generate configuration example for $ConfigName"
+    }
+}
