@@ -88,17 +88,36 @@
 
     MKS Robin board seems to have stable SDIO with BusWide 1bit and ClockDiv 8 i.e. 4.8MHz SDIO clock frequency
     Additional testing is required as there are clearly some 4bit initialization problems
-
-    Add -DTRANSFER_CLOCK_DIV=8 to build parameters to improve SDIO stability
   */
-
-  #ifndef TRANSFER_CLOCK_DIV
-    #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
-  #endif
 
   #ifndef USBD_OK
     #define USBD_OK 0
   #endif
+
+  // Target Clock, configurable. Default is 18MHz, from STM32F1
+  #ifndef SDIO_CLOCK
+    #define SDIO_CLOCK                         18000000       /* 18 MHz */
+  #endif
+
+  // SDIO retries, configurable. Default is 3, from STM32F1
+  #ifndef SDIO_READ_RETRIES
+    #define SDIO_READ_RETRIES                  3
+  #endif
+
+  // SDIO Max Clock (naming from STM Manual, don't change)
+  #define SDIOCLK 48000000
+
+  static uint32_t clock_to_divider(uint32_t clk) {
+    // limit the SDIO master clock to 8/3 of PCLK2. See STM32 Manuals
+    // Also limited to no more than 48Mhz (SDIOCLK).
+    const uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
+    clk = min(clk, (uint32_t)(pclk2 * 8 / 3));
+    clk = min(clk, (uint32_t)SDIOCLK);
+    // Round up divider, so we don't run the card over the speed supported,
+    // and subtract by 2, because STM32 will add 2, as written in the manual:
+    // SDIO_CK frequency = SDIOCLK / [CLKDIV + 2]
+    return pclk2 / clk + (pclk2 % clk != 0) - 2;
+  }
 
   void go_to_transfer_speed() {
     SD_InitTypeDef Init;
@@ -109,7 +128,7 @@
     Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
     Init.BusWide             = hsd.Init.BusWide;
     Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
-    Init.ClockDiv            = TRANSFER_CLOCK_DIV;
+    Init.ClockDiv            = clock_to_divider(SDIO_CLOCK);
 
     /* Initialize SDIO peripheral interface with default configuration */
     SDIO_Init(hsd.Instance, Init);
@@ -155,38 +174,25 @@
     //Initialize the SDIO (with initial <400Khz Clock)
     tempreg = 0;  //Reset value
     tempreg |= SDIO_CLKCR_CLKEN;  // Clock enabled
-    tempreg |= (uint32_t)0x76;    // Clock Divider. Clock = 48000 / (118 + 2) = 400Khz
+    tempreg |= SDIO_INIT_CLK_DIV; // Clock Divider. Clock = 48000 / (118 + 2) = 400Khz
     // Keep the rest at 0 => HW_Flow Disabled, Rising Clock Edge, Disable CLK ByPass, Bus Width = 0, Power save Disable
     SDIO->CLKCR = tempreg;
 
     // Power up the SDIO
-    SDIO->POWER = 0x03;
+    SDIO_PowerState_ON(SDIO);
   }
 
   void HAL_SD_MspInit(SD_HandleTypeDef *hsd) { // application specific init
-    UNUSED(hsd);   /* Prevent unused argument(s) compilation warning */
+    UNUSED(hsd);   // Prevent unused argument(s) compilation warning
     __HAL_RCC_SDIO_CLK_ENABLE();  // turn on SDIO clock
   }
 
-  constexpr uint8_t SD_RETRY_COUNT = TERN(SD_CHECK_AND_RETRY, 3, 1);
-
   bool SDIO_Init() {
-    //init SDIO and get SD card info
-
-    uint8_t retryCnt = SD_RETRY_COUNT;
+    uint8_t retryCnt = SDIO_READ_RETRIES;
 
     bool status;
     hsd.Instance = SDIO;
-    hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
-
-    /*
-    hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
-    hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
-    hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-    hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
-    hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd.Init.ClockDiv = 8;
-    */
+    hsd.State = HAL_SD_STATE_RESET;
 
     SD_LowLevel_Init();
 
@@ -258,7 +264,7 @@
 
   bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
     hsd.Instance = SDIO;
-    uint8_t retryCnt = SD_RETRY_COUNT;
+    uint8_t retryCnt = SDIO_READ_RETRIES;
 
     bool status;
     for (;;) {
@@ -307,7 +313,7 @@
 
   bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
     hsd.Instance = SDIO;
-    uint8_t retryCnt = SD_RETRY_COUNT;
+    uint8_t retryCnt = SDIO_READ_RETRIES;
     bool status;
     for (;;) {
       status = (bool) HAL_SD_WriteBlocks(&hsd, (uint8_t*)src, block, 1, 500);  // write one 512 byte block with 500mS timeout

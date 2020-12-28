@@ -127,6 +127,7 @@
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PA8
+#define SDIO_CLOCK                      4800000
 
 //
 // LCD / Controller

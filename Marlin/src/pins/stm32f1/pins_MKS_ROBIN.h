@@ -165,6 +165,8 @@
 #define SPI_DEVICE                             2
 
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4500000
+#define SDIO_READ_RETRIES                     16
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
