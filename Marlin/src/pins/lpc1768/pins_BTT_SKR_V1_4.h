@@ -260,7 +260,36 @@
 
 #if HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
-    #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
+    #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The ANET_FULL_GRAPHICS_LCD_ALT_WIRING connector plug:
+     *
+     *                BEFORE                     AFTER
+     *                _____                      _____
+     *           GND | 1 2 | 5V              5V | 1 2 | GND
+     *            CS | 3 4 | BTN_EN2         CS | 3 4 | BTN_EN2
+     *           SID | 5 6   BTN_EN1        SID | 5 6   BTN_EN1
+     *          open | 7 8 | BTN_ENC       open | 7 8 | BTN_ENC
+     *           CLK | 9 10| Beeper         CLK | 9 10| Beeper
+     *                -----                      -----
+     *                 LCD                        LCD
+     */
+
+    #define LCD_PINS_RS             EXPA1_07_PIN
+
+    #define BTN_EN1                 EXPA1_05_PIN
+    #define BTN_EN2                 EXPA1_04_PIN
+    #define BTN_ENC                 EXPA1_10_PIN
+
+    #define LCD_PINS_ENABLE         EXPA1_08_PIN
+    #define LCD_PINS_D4             EXPA1_06_PIN
+    #define BEEPER_PIN              EXPA1_03_PIN
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."

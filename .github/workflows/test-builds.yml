@@ -48,7 +48,7 @@ jobs:
 
         # Extended AVR Environments
 
-        - FYSETC_F6_13
+        - FYSETC_F6
         - mega1280
         - rambo
         - sanguino1284p

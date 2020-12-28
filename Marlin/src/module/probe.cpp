@@ -455,9 +455,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     thermalManager.wait_for_bed_heating();
   #endif
 
-  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-    if (bltouch.deploy()) return true; // DEPLOY in LOW SPEED MODE on every probe action
-  #endif
+  if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -496,9 +494,8 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
-  #if ENABLED(BLTOUCH) && DISABLED(BLTOUCH_HS_MODE)
-    if (probe_triggered && bltouch.stow()) return true; // STOW in LOW SPEED MODE on trigger on every probe action
-  #endif
+  if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
+    return true;
 
   // Clear endstop flags
   endstops.hit_on_purpose();
@@ -513,6 +510,16 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 }
 
 #if ENABLED(PROBE_TARE)
+
+  /**
+   * @brief Init the tare pin
+   *
+   * @details Init tare pin to ON state for a strain gauge, otherwise OFF
+   */
+  void Probe::tare_init() {
+    OUT_WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+  }
+
   /**
    * @brief Tare the Z probe
    *
@@ -522,16 +529,16 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
    */
   bool Probe::tare() {
     #if BOTH(PROBE_ACTIVATION_SWITCH, PROBE_TARE_ONLY_WHILE_INACTIVE)
-      if (READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE) {
+      if (endstops.probe_switch_activated()) {
         SERIAL_ECHOLNPGM("Cannot tare an active probe");
         return true;
       }
     #endif
 
     SERIAL_ECHOLNPGM("Taring probe");
-    OUT_WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
+    WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
-    OUT_WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
     delay(PROBE_TARE_DELAY);
 
     endstops.hit_on_purpose();
@@ -551,10 +558,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
-    // Do a first probe at the fast speed
-
+    // Tare the probe, if supported
     if (TERN0(PROBE_TARE, tare())) return true;
 
+    // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -578,9 +585,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   // Double-probing does a fast probe followed by a slow probe
   #if TOTAL_PROBING == 2
 
-    // Do a first probe at the fast speed
+    // Attempt to tare the probe
     if (TERN0(PROBE_TARE, tare())) return NAN;
 
+    // Do a first probe at the fast speed
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
