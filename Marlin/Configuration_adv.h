@@ -2975,11 +2975,7 @@
   #define SPINDLE_LASER_ACTIVE_STATE    LOW    // Set to "HIGH" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      false  // Set to "true" if the speed/power goes up when you want it to go slower
-  // Define the minimum and maximum test pulse time values for a laser test fire function
-  #ifdef LASER_FEATURE
-    #define LASER_TEST_PULSE_MIN           1     // Used with Laser Control Menu  
-    #define LASER_TEST_PULSE_MAX         999     // Caution Menu display format will show greater than 3 characters   
-  #endif
+
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
   //#define SPINDLE_SERVO         // A servo converting an angle to spindle power
@@ -3035,6 +3031,10 @@
     #define SPEED_POWER_MIN               0    // (%) 0-100
     #define SPEED_POWER_MAX             100    // (%) 0-100
     #define SPEED_POWER_STARTUP          80    // (%) M3/M4 speed/power default (with no arguments)
+
+    // Define the minimum and maximum test pulse time values for a laser test fire function
+    #define LASER_TEST_PULSE_MIN           1   // Used with Laser Control Menu
+    #define LASER_TEST_PULSE_MAX         999   // Caution: Menu may not show more than 3 characters
 
     /**
      * Enable inline laser power to be handled in the planner / stepper routines.
