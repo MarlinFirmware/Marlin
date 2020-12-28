@@ -944,6 +944,8 @@ void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) 
   SERIAL_ECHOLN(";");
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
+
+  settings.save();
   
   ScreenHandler.ForceCompleteUpdate();
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
