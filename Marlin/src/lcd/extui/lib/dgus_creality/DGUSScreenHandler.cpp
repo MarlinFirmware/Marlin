@@ -580,8 +580,6 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
     // Done
     MeshLevelIndex = -1;
 
-    if (!ExtUI::isPrinting()) thermalManager.disable_all_heaters();
-
     settings.save();
 
     PopToOldScreen();
