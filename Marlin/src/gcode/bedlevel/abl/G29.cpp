@@ -41,6 +41,11 @@
   #include "../../../module/temperature.h"
 #endif
 
+#if ENABLED(PROBING_HEATERS_OFF)
+  #include "../../../module/temperature.h"
+  #include "../../../module/printcounter.h"
+#endif
+
 #if HAS_DISPLAY
   #include "../../../lcd/marlinui.h"
 #endif
@@ -894,6 +899,17 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
+
+#if ENABLED(PROBING_HEATERS_OFF)
+  // If we're going to print then we must ensure we are back on temperature before we continue
+  if (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning()) {
+    SERIAL_ECHOLN("Waiting to heat-up again before continueing");
+    ui.set_status("Waiting for heat-up...");
+
+    thermalManager.wait_for_hotend(0);
+    thermalManager.wait_for_bed_heating();
+  }
+#endif
 
   G29_RETURN(isnan(measured_z));
 }
