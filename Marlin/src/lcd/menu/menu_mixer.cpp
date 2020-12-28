@@ -71,11 +71,9 @@
       mixer.refresh_gradient();
       ui.goto_previous_screen();
     }
-    #if HAS_GRAPHICAL_TFT
-      else {
-        tft.draw_edit_screen_buttons();
-      }
-    #endif
+    else {
+      TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
+    }
   }
 
   void lcd_mixer_edit_gradient_menu() {
@@ -164,9 +162,7 @@ void lcd_mixer_mix_edit() {
       ui.goto_previous_screen();
     }
 
-    #if HAS_GRAPHICAL_TFT
-      tft.draw_edit_screen_buttons();
-    #endif
+    TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
 
   #else
 
