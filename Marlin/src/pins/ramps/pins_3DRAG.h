@@ -34,7 +34,7 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL
-  #define DEFAULT_SOURCE_CODE_URL "https://3dprint.elettronicain.it/"
+  #define DEFAULT_SOURCE_CODE_URL "3dprint.elettronicain.it"
 #endif
 
 //

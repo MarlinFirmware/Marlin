@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2020-12-27"
+  #define STRING_DISTRIBUTION_DATE "2020-12-28"
 #endif
 
 /**
@@ -82,7 +82,7 @@
  * providing the source code to your customers.)
  */
 #ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
 #endif
 
 /**
@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "https://marlinfw.org"
+  #define WEBSITE_URL "marlinfw.org"
 #endif
 
 /**

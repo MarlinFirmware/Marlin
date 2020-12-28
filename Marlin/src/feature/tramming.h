@@ -21,6 +21,7 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
+#include "../module/probe.h"
 
 #if !WITHIN(TRAMMING_SCREW_THREAD, 30, 51) || TRAMMING_SCREW_THREAD % 10 > 1
   #error "TRAMMING_SCREW_THREAD must be equal to 30, 31, 40, 41, 50, or 51."
@@ -30,6 +31,10 @@ constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;
 
 #define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
 static_assert(G35_PROBE_COUNT >= 3, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+
+#define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(screws_tilt_adjust_pos[N]), \
+  "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
+VALIDATE_TRAMMING_POINT(0); VALIDATE_TRAMMING_POINT(1); VALIDATE_TRAMMING_POINT(2); VALIDATE_TRAMMING_POINT(3); VALIDATE_TRAMMING_POINT(4);
 
 extern const char point_name_1[], point_name_2[], point_name_3[]
   #ifdef TRAMMING_POINT_NAME_4
