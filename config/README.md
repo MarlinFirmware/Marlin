@@ -41,3 +41,6 @@ To run builds for all examples (repository maintainers):
 
 This script is meant to be executed in the VSCode console and in preperation for firmware release.
 
+### How it works
+
+The base configuration for this repository is based on the most common hardware configuration: The Creality CR-6 SE with v4.5.2 motherboard. All other configurations are derived from that configuration. Using diff files the original configuration can be amended, then built.
