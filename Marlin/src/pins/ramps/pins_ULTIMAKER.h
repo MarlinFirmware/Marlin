@@ -39,7 +39,7 @@
 
 #define BOARD_INFO_NAME         "Ultimaker"
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#define DEFAULT_SOURCE_CODE_URL "github.com/Ultimaker/Marlin"
 
 //
 // Servos

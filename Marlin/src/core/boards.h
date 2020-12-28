@@ -189,7 +189,7 @@
 #define BOARD_GEN3_PLUS               1601  // Gen3+
 #define BOARD_GEN6                    1602  // Gen6
 #define BOARD_GEN6_DELUXE             1603  // Gen6 deluxe
-#define BOARD_GEN7_CUSTOM             1604  // Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
+#define BOARD_GEN7_CUSTOM             1604  // Gen7 custom (Alfons3 Version) https://github.com/Alfons3/Generation_7_Electronics
 #define BOARD_GEN7_12                 1605  // Gen7 v1.1, v1.2
 #define BOARD_GEN7_13                 1606  // Gen7 v1.3
 #define BOARD_GEN7_14                 1607  // Gen7 v1.4

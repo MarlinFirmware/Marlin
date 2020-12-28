@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "FLY-CDY"
-#define BOARD_WEBSITE_URL "https://github.com/FLYmaker/FLY-CDY"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker/FLY-CDY"
 
 //
 // Servos
