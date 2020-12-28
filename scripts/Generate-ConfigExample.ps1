@@ -45,17 +45,18 @@ foreach ($FilePath in $FilesPathsToDiff) {
         Write-FatalError "Unable to find file $FilePath"
     }
 
-    $Diff = git diff --unified=5 $FilePath
+    $FileName = Split-Path -Leaf -Path $FilePath
+
+    $ExampleFilePath = Join-Path $ExampleDir $FileName
+    $ExampleDiffFilePath = $ExampleFilePath + ".diff"
+
+    git diff --unified=5 --output=$ExampleDiffFilePath $FilePath
 
     if ($LASTEXITCODE -ne 0) {
         Write-FatalError "Unable to diff file $FilePath"
     }
 
-    $HasDiff = [String]::IsNullOrWhiteSpace($Diff) -eq $false
-    $FileName = Split-Path -Leaf -Path $FilePath
-
-    $ExampleFilePath = Join-Path $ExampleDir $FileName
-    $ExampleDiffFilePath = $ExampleFilePath + ".diff"
+    $HasDiff = [String]::IsNullOrWhiteSpace($(Get-Content -Path $ExampleDiffFilePath -Raw)) -eq $false
 
     # Copy entire file
     Write-Host "... copy to $ExampleFilePath"
@@ -64,9 +65,9 @@ foreach ($FilePath in $FilesPathsToDiff) {
     # Write diff
     if (!$HasDiff) {
         Write-Warning "No changes in $FilePath"
+        Remove-Item -Path $ExampleDiffFilePath -Force -ErrorAction SilentlyContinue -Verbose
     } else {
-        Write-Host "... writing diff to $ExampleDiffFilePath"
-        $Diff.Replace("`r`n", "`n") | Out-File -Encoding utf8NoBOM -FilePath $ExampleDiffFilePath
+        Write-Host "... diff was written to $ExampleDiffFilePath"
     }
 
     Write-Host "... resetting $FilePath to HEAD"
