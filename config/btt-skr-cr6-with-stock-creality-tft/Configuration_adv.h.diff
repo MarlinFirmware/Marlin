@@ -1,34 +1,8 @@
 diff --git a/Marlin/Configuration_adv.h b/Marlin/Configuration_adv.h
-index 125586295c..04e8337faa 100644
+index 9721f4ff0f..9912dc5d6f 100644
 --- a/Marlin/Configuration_adv.h
 +++ b/Marlin/Configuration_adv.h
-@@ -212,11 +212,11 @@
- 
- /**
-  * Thermal Protection parameters for the bed are just as above for hotends.
-  */
- #if ENABLED(THERMAL_PROTECTION_BED)
--  #define THERMAL_PROTECTION_BED_PERIOD        180 // Seconds
-+  #define THERMAL_PROTECTION_BED_PERIOD        90 // Seconds
-   #define THERMAL_PROTECTION_BED_HYSTERESIS     2 // Degrees Celsius
- 
-   /**
-    * As described above, except for the bed (M140/M190/M303).
-    */
-@@ -369,11 +369,11 @@
- 
- /**
-  * Hotend Idle Timeout
-  * Prevent filament in the nozzle from charring and causing a critical jam.
-  */
--//#define HOTEND_IDLE_TIMEOUT
-+#define HOTEND_IDLE_TIMEOUT
- #if ENABLED(HOTEND_IDLE_TIMEOUT)
-   #define HOTEND_IDLE_TIMEOUT_SEC (5*60)    // (seconds) Time without extruder movement to trigger protection
-   #define HOTEND_IDLE_MIN_TRIGGER   180     // (°C) Minimum temperature to enable hotend protection
-   #define HOTEND_IDLE_NOZZLE_TARGET   0     // (°C) Safe temperature for the nozzle after timeout
-   #define HOTEND_IDLE_BED_TARGET      0     // (°C) Safe temperature for the bed after timeout
-@@ -393,29 +393,29 @@
+@@ -393,20 +393,20 @@
   * To cool down the stepper drivers and MOSFETs.
   *
   * The fan turns on automatically whenever any driver is enabled and turns
@@ -38,8 +12,7 @@ index 125586295c..04e8337faa 100644
 +#define USE_CONTROLLER_FAN
  #if ENABLED(USE_CONTROLLER_FAN)
    //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
--  //#define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
-+  #define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
+   #define CONTROLLER_FAN_USE_Z_ONLY    // With this option only the Z axis is considered
    //#define CONTROLLER_FAN_IGNORE_Z      // Ignore Z stepper. Useful when stepper timeout is disabled.
    #define CONTROLLERFAN_SPEED_MIN      0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
    #define CONTROLLERFAN_SPEED_ACTIVE 255 // (0-255) Active speed, used when any motor is enabled
@@ -52,16 +25,6 @@ index 125586295c..04e8337faa 100644
    #endif
  #endif
  
- // When first starting the main fan, run it at full speed for the
- // given number of milliseconds.  This gets the fan spinning reliably
- // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
--//#define FAN_KICKSTART_TIME 100
-+#define FAN_KICKSTART_TIME 100
- 
- // Some coolers may require a non-zero "off" state.
- //#define FAN_OFF_PWM  1
- 
- /**
 @@ -505,11 +505,11 @@
   */
  #define CASE_LIGHT_ENABLE
@@ -88,24 +51,7 @@ index 125586295c..04e8337faa 100644
  // If the Nozzle or Bed falls when the Z stepper is disabled, set its resting position here.
  //#define Z_AFTER_DEACTIVATE Z_HOME_POS
  
-@@ -1078,35 +1078,35 @@
- 
- #if HAS_LCD_MENU
- 
-   // Add Probe Z Offset calibration to the Z Probe Offsets menu
-   #if HAS_BED_PROBE
--    //#define PROBE_OFFSET_WIZARD
-+    #define PROBE_OFFSET_WIZARD
-     #if ENABLED(PROBE_OFFSET_WIZARD)
-       //
-       // Enable to init the Probe Z-Offset when starting the Wizard.
-       // Use a height slightly above the estimated nozzle-to-probe Z offset.
-       // For example, with an offset of -5, consider a starting height of -4.
-       //
--      //#define PROBE_OFFSET_WIZARD_START_Z -4.0
-+      #define PROBE_OFFSET_WIZARD_START_Z -0.5
- 
-       // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
+@@ -1093,20 +1093,20 @@
        //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
      #endif
    #endif
@@ -145,23 +91,6 @@ index 125586295c..04e8337faa 100644
    #if HAS_MARLINUI_U8GLIB
      //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
    #endif
-@@ -1276,14 +1276,14 @@
-   // Allow international symbols in long filenames. To display correctly, the
-   // LCD's font must contain the characters. Check your selected LCD language.
-   //#define UTF_FILENAME_SUPPORT
- 
-   // This allows hosts to request long names for files and folders with M33
--  //#define LONG_FILENAME_HOST_SUPPORT
-+  #define LONG_FILENAME_HOST_SUPPORT
- 
-   // Enable this option to scroll long filenames in the SD card menu
--  //#define SCROLL_LONG_FILENAMES
-+  #define SCROLL_LONG_FILENAMES
- 
-   // Leave the heaters on after Stop Print (not recommended!)
-   //#define SD_ABORT_NO_COOLDOWN
- 
-   /**
 @@ -1969,11 +1969,11 @@
   * Add a low-level parser to intercept certain commands as they
   * enter the serial receive buffer, so they cannot be blocked.
@@ -175,72 +104,3 @@ index 125586295c..04e8337faa 100644
  // Therefore some clients abort after 30 seconds in a timeout.
  // Some other clients start sending commands while receiving a 'wait'.
  // This "wait" is only sent when the buffer is empty. 1 second is a good value here.
-@@ -2115,22 +2115,22 @@
-  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
-  */
- #define ADVANCED_PAUSE_FEATURE
- #if ENABLED(ADVANCED_PAUSE_FEATURE)
-   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
--  #define PAUSE_PARK_RETRACT_LENGTH            5  // (mm) Initial retract.
-+  #define PAUSE_PARK_RETRACT_LENGTH            4  // (mm) Initial retract.
-                                                   // This short retract is done immediately, before parking the nozzle.
--  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     50  // (mm/s) Unload filament feedrate. This can be pretty fast.
-+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     40  // (mm/s) Unload filament feedrate. This can be pretty fast.
-   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-   #define FILAMENT_CHANGE_UNLOAD_LENGTH      100  // (mm) The length of filament for a complete unload.
-                                                   //   For Bowden, the full length of the tube and nozzle.
-                                                   //   For direct drive, the full length of the nozzle.
-                                                   //   Set to 0 for manual unloading.
-   #define FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE   6  // (mm/s) Slow move when starting load.
-   #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH     0  // (mm) Slow length, to allow time to insert material.
-                                                   // 0 to disable start loading and skip to fast load only
--  #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE   15  // (mm/s) Load filament feedrate. This can be pretty fast.
-+  #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE   8  // (mm/s) Load filament feedrate. This can be pretty fast.
-   #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-   #define FILAMENT_CHANGE_FAST_LOAD_LENGTH     0  // (mm) Load length of filament, from extruder gear to nozzle.
-                                                   //   For Bowden, the full length of the tube and nozzle.
-                                                   //   For direct drive, the full length of the nozzle.
-   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
-@@ -3293,31 +3293,31 @@
- #endif
- 
- /**
-  * User-defined menu items that execute custom GCode
-  */
--//#define CUSTOM_USER_MENUS
-+#define CUSTOM_USER_MENUS
- #if ENABLED(CUSTOM_USER_MENUS)
-   //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
-   #define USER_SCRIPT_DONE "M117 User Script Done"
-   #define USER_SCRIPT_AUDIBLE_FEEDBACK
-   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
- 
--  #define USER_DESC_1 "Home & UBL Info"
--  #define USER_GCODE_1 "G28\nG29 W"
-+  #define USER_DESC_1 "Shutdown / present"
-+  #define USER_GCODE_1 "G0 X125 Y125 Z180"
- 
--  #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
--  #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
-+  //#define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
-+  //#define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
- 
--  #define USER_DESC_3 "Preheat for " PREHEAT_2_LABEL
--  #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
-+  //#define USER_DESC_3 "Preheat for " PREHEAT_2_LABEL
-+  //#define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
- 
--  #define USER_DESC_4 "Heat Bed/Home/Level"
--  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
-+  //#define USER_DESC_4 "Heat Bed/Home/Level"
-+  //#define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
- 
--  #define USER_DESC_5 "Home & Info"
--  #define USER_GCODE_5 "G28\nM503"
-+  //#define USER_DESC_5 "Home & Info"
-+  //#define USER_GCODE_5 "G28\nM503"
- #endif
- 
- /**
-  * Host Action Commands
-  *
