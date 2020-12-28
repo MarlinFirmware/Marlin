@@ -86,6 +86,14 @@ Write-Host "Collecting example configurations..."
 $Configs = Get-ExampleNames
 $Compile = $DryRun -eq $false
 
+class ConfigBuildResult {
+    [string]$ZipFileName;
+    [string]$Description;
+    [string]$SHA256Hash;
+}
+
+[ConfigBuildResult[]] $Builds = [ConfigBuildResult[]]::new(0)
+
 foreach ($ConfigName in $Configs) {
     $Percent = $([double] $Configs.IndexOf($ConfigName) + 1) / $Configs.Length
 
@@ -215,6 +223,13 @@ foreach ($ConfigName in $Configs) {
     Get-ChildItem -Path $TmpBuildDirectory | Compress-Archive -CompressionLevel Optimal -DestinationPath $DatedBuildZipFilePath -Verbose
 
     ## Done
+    $Result = [ConfigBuildResult]::new()
+    $Result.ZipFileName = Split-Path $DatedBuildZipFilePath -Leaf
+    $Result.SHA256Hash = Get-FileHash $DatedBuildZipFilePath -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+    $Result.Description = Get-Content -Path $(Join-Path $ConfigDirName "description.txt") -Raw
+
+    $Builds += @($Result)
+
     Write-Progress -Activity "Building '$ConfigName'" `
                    -ParentId 1337 `
                    -Completed `
@@ -236,9 +251,8 @@ Write-Progress -Activity "Building CR-6 community firmwares" `
 Write-Host "All done!"
 Write-Host ""
 
-Get-ChildItem -Path $OutputDirectory -Filter "*.zip" | `
-    Get-FileHash -Algorithm SHA256 | `
-    Select-Object -Property `
-        @{Expression={Split-Path $_.Path -Leaf};Name="File name"},`
-        @{Expression={$_.Hash};Name="SHA256 hash"}
+$Builds | Select-Object -Property `
+        @{Expression={$_.ZipFileName};Name="File name"},`
+        @{Expression={$_.Description};Name="Description"},`
+        @{Expression={$_.SHA256Hash};Name="SHA256 hash"}
 
