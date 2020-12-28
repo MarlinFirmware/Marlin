@@ -152,26 +152,10 @@ bool hasPrintTimer = false;
   }
   
   void onStoreSettings(char *buff) {
-    // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
-    // permanent data to be stored, it can write up to eeprom_data_size bytes
-    // into buff.
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
-
     ScreenHandler.StoreSettings(buff);
   }
 
   void onLoadSettings(const char *buff) {
-    // Called while loading settings from EEPROM. If the ExtUI
-    // needs to retrieve data, it should copy up to eeprom_data_size bytes
-    // from buff
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
-
     ScreenHandler.LoadSettings(buff);
   }
 
@@ -210,21 +194,21 @@ bool hasPrintTimer = false;
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      // switch (rst) {
-      //   case PID_BAD_EXTRUDER_NUM:
-      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
-      //     break;
-      //   case PID_TEMP_TOO_HIGH:
-      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
-      //     break;
-      //   case PID_TUNING_TIMEOUT:
-      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
-      //     break;
-      //   case PID_DONE:
-      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
-      //     break;
-      // }
-      // ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+      switch (rst) {
+        case PID_BAD_EXTRUDER_NUM:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+          break;
+        case PID_TEMP_TOO_HIGH:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          break;
+        case PID_TUNING_TIMEOUT:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+        break;
+        case PID_DONE:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+        break;
+      }
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   #endif
 
