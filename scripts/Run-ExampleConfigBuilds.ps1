@@ -6,6 +6,12 @@ Runs and zips builds in preparation for release. The builds are made from the ex
 .PARAMETER  TouchscreenRepositoryPath
 Path to the CR-6 touch screen repository
 
+.PARAMETER  ReleaseName
+Release prefix for output artifacts
+
+.PARAMETER  DryRun
+Test applying diffs only - no compilation
+
 #>
 [CmdletBinding()]
 Param(
@@ -13,7 +19,10 @@ Param(
     $TouchscreenRepositoryPath,
 
     [Parameter(Mandatory=$true)]
-    $ReleaseName
+    $ReleaseName,
+
+    [Switch]
+    $DryRun
 )
 
 # Include common scripts
@@ -75,6 +84,7 @@ New-Item $OutputDirectory -ItemType Directory | Out-Null
 ## Build each example
 Write-Host "Collecting example configurations..."
 $Configs = Get-ExampleNames
+$Compile = $DryRun -eq $false
 
 foreach ($ConfigName in $Configs) {
     $Percent = $([double] $Configs.IndexOf($ConfigName) + 1) / $Configs.Length
@@ -128,20 +138,22 @@ foreach ($ConfigName in $Configs) {
     }
 
     ## Clean
-    Write-Progress -Activity "Building '$ConfigName'" `
-                   -ParentId 1337 `
-                   -PercentComplete 0 `
-                   -CurrentOperation "Cleaning platform.io output"`
-                   -Id 33
+    if ($Compile) {
+        Write-Progress -Activity "Building '$ConfigName'" `
+                    -ParentId 1337 `
+                    -PercentComplete 0 `
+                    -CurrentOperation "Cleaning platform.io output"`
+                    -Id 33
 
-    Invoke-PlatformIO -Target "clean"
+        Invoke-PlatformIO -Target "clean"
+    }
 
     ## Apply configs
     Write-Progress -Activity "Building '$ConfigName'" `
-                   -ParentId 1337 `
-                   -PercentComplete 33 `
-                   -CurrentOperation "Applying configurations"`
-                   -Id 33
+            -ParentId 1337 `
+            -PercentComplete 33 `
+            -CurrentOperation "Applying configurations"`
+            -Id 33
 
     .\scripts\Apply-ConfigExample.ps1 -Name $ConfigName
 
@@ -150,35 +162,39 @@ foreach ($ConfigName in $Configs) {
     }
 
     ## Build
-    Write-Progress -Activity "Building '$ConfigName'" `
-                   -ParentId 1337 `
-                   -PercentComplete 66 `
-                   -CurrentOperation "Building platform.io"`
-                   -Id 33
+    if ($Compile) {
+        Write-Progress -Activity "Building '$ConfigName'" `
+                        -ParentId 1337 `
+                        -PercentComplete 66 `
+                        -CurrentOperation "Building platform.io"`
+                        -Id 33
 
-    Invoke-PlatformIO
+        Invoke-PlatformIO
+    }
 
     ## Copy output artifacts
-    Write-Progress -Activity "Building '$ConfigName'" `
+    if ($Compile) {
+        Write-Progress -Activity "Building '$ConfigName'" `
                    -ParentId 1337 `
                    -PercentComplete 99 `
                    -CurrentOperation "Consolidating artifacts..."`
                    -Id 33
 
-    [array] $FirmwareBinFiles = Get-ChildItem -Path $ConfigBuildOutputDirectory -Filter "firmware*.bin"
-    if ($FirmwareBinFiles.Count -eq 0) {
-        Write-FatalError "Unable to find firmware output files in $ConfigBuildOutputDirectory"
-    }
+        [array] $FirmwareBinFiles = Get-ChildItem -Path $ConfigBuildOutputDirectory -Filter "firmware*.bin"
+        if ($FirmwareBinFiles.Count -eq 0) {
+            Write-FatalError "Unable to find firmware output files in $ConfigBuildOutputDirectory"
+        }
 
-    if ($FirmwareBinFiles.Count -ne 1) {
-        Write-FatalError "Found multiple firmware bin files in $($ConfigBuildOutputDirectory): $FirmwareBinFiles"
-    }
+        if ($FirmwareBinFiles.Count -ne 1) {
+            Write-FatalError "Found multiple firmware bin files in $($ConfigBuildOutputDirectory): $FirmwareBinFiles"
+        }
 
-    try {
-        $FirmwareBinFiles | Copy-Item -Destination $TmpBuildDirectory -Verbose
-    } catch {
-        Write-Error $_
-        Write-FatalError "Unable to consolide files of build: $ConfigName"
+        try {
+            $FirmwareBinFiles | Copy-Item -Destination $TmpBuildDirectory -Verbose
+        } catch {
+            Write-Error $_
+            Write-FatalError "Unable to consolide files of build: $ConfigName"
+        }
     }
 
     ### Copy touch screen files
