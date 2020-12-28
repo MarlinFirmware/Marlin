@@ -3311,8 +3311,8 @@
 
   //#define BUTTON_GCODE_PIN_1 -1         // PIN assigned to trigger BUTTON_GCODE_1 execution
   #ifdef BUTTON_GCODE_PIN_1
-    #define BUTTON_DESC_1 "Home & UBL Info"
-    #define BUTTON_GCODE_1 "G28\nG29 W"
+    #define BUTTON_DESC_1 "Homing"
+    #define BUTTON_GCODE_1 "G28"
     #define BUTTON_GCODE_PIN_STATE_1 LOW  // What state should trigger BUTTON_GCODE_1 execution (LOW or HIGH)
     #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_1 false // PIN can trigger BUTTON_GCODE_1 even if print job timer is running
   #endif
