@@ -1,3 +1,4 @@
+__Issues that do not follow this issue template will be closed__
 
 - *Be sure you have fully read the release notes and flashing instructions before posting an issue here*
 - *Check if there is an existing _open_ issue that describes your problem and add your comments there*
@@ -24,12 +25,17 @@
 
 [What actually happens]
 
-#### Additional Information
+**Logging:**
 
-* Include a ZIP file containing your `Configuration.h` and `Configuration_adv.h` files if you don't run a precompiled build
-* Which hardware configuration do you use? CR-6 SE or MAX? Which motherboard? Stock TFT, BTT TFT?
-* Provide pictures or links to videos that clearly demonstrate the issue.
-* Which *exact* firmware version did you flash? Provide a link to the download you have used.
+[Enter `M111 S247` in a serial monitor (Pronterface or Octoprint). Reproduce the issue, then copy the relevant logs here. 
+For Octoprint you can either user serial.log or copy/paste the output from the terminal. More information: https://marlinfw.org/docs/gcode/M111.html ]
 
+### Additional Information
 
-__Issues that do not follow this issue template will be closed__
+[What is your hardware configuration? Which mainboard? Custom mods like different hot-ends and extruders? BTT touch screen?]
+
+[If you compiled the firmware yourself - Include a ZIP file containing your `Configuration.h` and `Configuration_adv.h` files]
+
+[Provide pictures or links to videos that clearly demonstrate the issue.]
+
+[Which *exact* firmware version did you flash? Provide a link to the download you have used.]
