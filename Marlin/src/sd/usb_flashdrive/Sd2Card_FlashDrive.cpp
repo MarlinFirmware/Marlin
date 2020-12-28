@@ -44,9 +44,8 @@
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
 
-#if DISABLED(USE_OTG_USB_HOST)
-  static_assert(USB_CS_PIN   != -1, "USB_CS_PIN must be defined");
-  static_assert(USB_INTR_PIN != -1, "USB_INTR_PIN must be defined");
+#if DISABLED(USE_OTG_USB_HOST) && !PINS_EXIST(USB_CS, USB_INTR)
+  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN to be defined."
 #endif
 
 #if ENABLED(USE_UHS3_USB)

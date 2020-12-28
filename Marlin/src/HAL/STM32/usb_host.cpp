@@ -38,14 +38,14 @@ BulkStorage bulk(&usb);
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
   switch(id) {
     case HOST_USER_SELECT_CONFIGURATION:
-      //SERIAL_ECHOLN("APPLICATION_SELECT_CONFIGURATION");
+      //SERIAL_ECHOLNPGM("APPLICATION_SELECT_CONFIGURATION");
       break;
     case HOST_USER_DISCONNECTION:
-      // SERIAL_ECHOLN("APPLICATION_DISCONNECT");
-      // usb.setUsbTaskState(USB_STATE_RUNNING);
+      //SERIAL_ECHOLNPGM("APPLICATION_DISCONNECT");
+      //usb.setUsbTaskState(USB_STATE_RUNNING);
       break;
     case HOST_USER_CLASS_ACTIVE:
-      // SERIAL_ECHOLN("APPLICATION_READY");
+      //SERIAL_ECHOLNPGM("APPLICATION_READY");
       usb.setUsbTaskState(USB_STATE_RUNNING);
       break;
     case HOST_USER_CONNECTION:
@@ -57,15 +57,15 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
 
 bool USBHost::start() {
   if (USBH_Init(&hUsbHost, USBH_UserProcess, TERN(USE_USB_HS_IN_FS, HOST_HS, HOST_FS)) != USBH_OK) {
-    SERIAL_ECHOLN("Error: USBH_Init");
+    SERIAL_ECHOLNPGM("Error: USBH_Init");
     return false;
   }
   if (USBH_RegisterClass(&hUsbHost, USBH_MSC_CLASS) != USBH_OK) {
-    SERIAL_ECHOLN("Error: USBH_RegisterClass");
+    SERIAL_ECHOLNPGM("Error: USBH_RegisterClass");
     return false;
   }
   if (USBH_Start(&hUsbHost) != USBH_OK) {
-    SERIAL_ECHOLN("Error: USBH_Start");
+    SERIAL_ECHOLNPGM("Error: USBH_Start");
     return false;
   }
   return true;
@@ -113,5 +113,5 @@ uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t b
   return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast <uint8_t*>(buf), blocks) != USBH_OK;
 }
 
-#endif // BOTH(USE_OTG_USB_HOST, USBHOST)
+#endif // USE_OTG_USB_HOST && USBHOST
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
