@@ -679,6 +679,15 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
+void DGUSScreenHandler::HandleFanSpeedChanged(DGUS_VP_Variable &var, void *val_ptr) {
+  uint16_t newValue = swap16(*(uint16_t*)val_ptr);
+    
+    SERIAL_ECHOLNPAIR("Fan speed changed: ", newValue);
+    ExtUI::setTargetFan_percent(newValue, ExtUI::fan_t::FAN0);
+
+    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+}
+
 void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr) {
   #if EXTRUDERS
     uint16_t newValue = swap16(*(uint16_t*)val_ptr);

@@ -231,7 +231,7 @@ constexpr uint16_t VP_T_Bed_Set = 0x103A; // 2 Byte Integer - BED_CURRENT_TEMP_V
 
 constexpr uint16_t VP_Flowrate_E0 = 0x228A; // 2 Byte Integer
 
-// constexpr uint16_t VP_Fan0_Percentage = 0x3100;  // 2 Byte Integer (0..100)
+constexpr uint16_t VP_Fan0_Percentage = 0x228F;  // 2 Byte Integer (0..100)
 // constexpr uint16_t VP_Fan1_Percentage = 0x33A2;  // 2 Byte Integer (0..100)
 // //constexpr uint16_t VP_Fan2_Percentage = 0x33A4;  // 2 Byte Integer (0..100)
 // //constexpr uint16_t VP_Fan3_Percentage = 0x33A6;  // 2 Byte Integer (0..100)

@@ -66,6 +66,7 @@ public:
   static void HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change this temperature"
   static void HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleFanSpeedChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for "Change Flowrate"
   static void HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr);
   // Hook for manual extrude.
