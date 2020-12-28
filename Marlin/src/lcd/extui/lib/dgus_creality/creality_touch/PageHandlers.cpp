@@ -30,6 +30,15 @@ void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_MAINENTERKEY:
             switch (buttonValue) {
                 case 1:
+                    // Try to mount an unmounted card 
+                    if (!card.isMounted()) {
+                        card.mount();
+
+                        if (card.isMounted()) {
+                            ExtUI::onMediaInserted();
+                        }
+                    }
+
                     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
                     break;
 
