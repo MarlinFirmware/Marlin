@@ -134,7 +134,7 @@
  */
 
 // If you are using a single hotend with the 2 into 1 adapter OR mixing nozzle uncomment the below line
-#define DUAL_EXTRUDER_SINGLE_NOZZLE
+//#define DUAL_EXTRUDER_SINGLE_NOZZLE
 
 // If you are using a dual hotend with dual nozzles uncomment the below line
 //#define DUAL_EXTRUDER_DUAL_NOZZLES
