@@ -198,8 +198,12 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
   #endif
+
+  VP_X_POSITION,
+  VP_Y_POSITION,
+  VP_Z_POSITION,
   VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
+  VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
 
   VP_PrintProgress_Percentage,
@@ -224,7 +228,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
 
   VP_Z_OFFSET,
   VP_Flowrate_E0,
-  //VP_Fan0_Percentage,
+  VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
 
   VP_PrintProgress_Percentage,
