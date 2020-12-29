@@ -24,7 +24,6 @@
 #include "stdint.h"
 #include "../../inc/MarlinConfigPre.h"
 
-
 extern const uint8_t marlin_logo_112x38x1[];
 extern const uint8_t marlin_logo_228x255x2[];
 extern const uint8_t marlin_logo_228x255x4[];
