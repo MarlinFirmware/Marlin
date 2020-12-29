@@ -1169,6 +1169,12 @@
   #elif ENABLED(TFT_INTERFACE_FSMC)
     #define TFT_480x320
   #endif
+#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 272
+  #if ENABLED(TFT_INTERFACE_SPI)
+    #define TFT_480x272_SPI
+  #elif ENABLED(TFT_INTERFACE_FSMC)
+    #define TFT_480x272
+  #endif
 #endif
 
 // Fewer lines with touch buttons on-screen
@@ -1177,6 +1183,9 @@
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define HAS_UI_480x320 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x272, TFT_480x272_SPI)
+  #define HAS_UI_480x272 1
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
