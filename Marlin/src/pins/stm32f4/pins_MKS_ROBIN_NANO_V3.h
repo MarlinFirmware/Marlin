@@ -32,12 +32,13 @@
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
@@ -190,10 +191,10 @@
 //#define LED_PIN                           PB2
 
 // Random Info
-#define USB_SERIAL                         -1  //Usb Serial
+#define USB_SERIAL                          -1    //Usb Serial
 #define WIFI_SERIAL                         3  //USART3
 #define MKS_WIFI_MODULE_SERIAL              1  //USART1
-#define MKS_WIFI_MODULE_SPI                 2  //SPI2
+#define MKS_WIFI_MODULE_SPI                    2  //SPI2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
