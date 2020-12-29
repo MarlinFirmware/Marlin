@@ -1,7 +1,7 @@
 <#
 
 .SYNOPSIS
-Generates a configuration example file
+Generates or updates a configuration example file
 
 .PARAMETER  Name
 Name of the configuration example. Must be a valid path name.
@@ -50,28 +50,44 @@ foreach ($FilePath in $FilesPathsToDiff) {
     $ExampleFilePath = Join-Path $ExampleDir $FileName
     $ExampleDiffFilePath = $ExampleFilePath + ".diff"
 
+    # Generate diff of Configuration changes
+    Remove-Item -Path $ExampleDiffFilePath -Verbose -ErrorAction SilentlyContinue
     git diff --unified=5 --output=$ExampleDiffFilePath $FilePath
 
     if ($LASTEXITCODE -ne 0) {
         Write-FatalError "Unable to diff file $FilePath"
     }
 
-    $HasDiff = [String]::IsNullOrWhiteSpace($(Get-Content -Path $ExampleDiffFilePath -Raw)) -eq $false
+    $TheDiff = Get-Content -Path $ExampleDiffFilePath -Raw
+    $HasDiff = [String]::IsNullOrWhiteSpace($TheDiff) -eq $false
 
-    # Copy entire file
-    Write-Host "... copy to $ExampleFilePath"
-    Copy-Item -Path $FilePath -Destination $ExampleFilePath
-
-    # Write diff
-    if (!$HasDiff) {
-        Write-Warning "No changes in $FilePath"
-        Remove-Item -Path $ExampleDiffFilePath -Force -ErrorAction SilentlyContinue -Verbose
+    # If the example exists then we must apply the diff, otherwise we can copy the config
+    if (!(Test-Path $ExampleFilePath)) {
+        Write-Host "... copy to $ExampleFilePath"
+        Copy-Item $FilePath $ExampleFilePath
     } else {
-        Write-Host "... diff was written to $ExampleDiffFilePath"
-    }
+        if ($HasDiff) {
+            Write-Host "... diff was written to $ExampleDiffFilePath"
+            
+            # Tinker with the file paths in the diff
+            $ReplacementPath = $ExampleFilePath.Replace($(Get-Location), "").Replace('\','/').TrimStart("/")
+            Write-Host "   ... replacing $FilePath with $ReplacementPath"
+            $TheDiff = $TheDiff.Replace($FilePath, $ReplacementPath)
+            $TheDiff | Out-File -Path $ExampleDiffFilePath -Encoding UTF8NoBom
 
-    Write-Host "... resetting $FilePath to HEAD"
-    git checkout HEAD -- $FilePath
+            Write-Host "Updating example..."
+            Write-Host "... applying $ExampleDiffFilePath"
+            git apply --verbose --ignore-space-change --ignore-whitespace --3way $ExampleDiffFilePath
+
+            if ($LASTEXITCODE -ne 0) {
+                Write-FatalError "Failed to apply diff file for $FilePath"
+            }
+        } else {
+            Write-Warning "No changes in $FilePath"
+        }
+
+        Remove-Item -Path $ExampleDiffFilePath -Force -ErrorAction SilentlyContinue -Verbose
+    }
 
     Write-Host ""
 }

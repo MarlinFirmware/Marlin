@@ -18,20 +18,15 @@ To generate or update a configuration example, do the modifications and then run
     scripts/Generate-ConfigExample.ps1 -Name MyExampleName
 
 ## Applying configuration examples
-To apply a configuration example, do the modifications, and then run:
-
-    scripts/Apply-ConfigExample.ps1 -Name [folder name here]
-
-
-You can also copy the `Configuration*` files from the example directory.
+To apply a configuration example, just copy the `Configuration*` files from the example directory to the "Marlin" directory.
 
 ## Maintainance
 
 To refresh configuration examples (repository maintainers):
 
-    scripts/Refresh-ConfigExamples.ps1
+    scripts/Update-ConfigExamples.ps1
 
-This script essentially runs a conbination of Generate and Apply.
+This script essentially runs an update on all configuration examples based on the changes of the current configuration (diff).
 
 ## Run builds
 

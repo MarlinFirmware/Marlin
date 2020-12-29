@@ -163,7 +163,10 @@ foreach ($ConfigName in $Configs) {
             -CurrentOperation "Applying configurations"`
             -Id 33
 
-    .\scripts\Apply-ConfigExample.ps1 -Name $ConfigName
+    foreach ($FilePathToCopy in $FilesPathsToDiff) {
+        $CopyFrom = Join-Path -Path $ConfigDirName $(Split-Path $FilePathToCopy -Leaf)
+        Copy-Item $CopyFrom $FilePathToCopy -Force -Verbose
+    }
 
     if ($LASTEXITCODE -ne 0) {
         Write-FatalError "Unable to apply configuration example for $ConfigName"

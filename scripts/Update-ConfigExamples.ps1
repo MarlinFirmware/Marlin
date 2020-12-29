@@ -1,7 +1,7 @@
 <#
 
 .SYNOPSIS
-Refreshes the configuration examples based on the current base configuration
+Refreshes the configuration examples based on the current base configuration changes
 
 #>
 [CmdletBinding()]
@@ -19,12 +19,6 @@ Write-Host "Collecting example configurations..."
 $Configs = Get-ExampleNames
 
 foreach ($ConfigName in $Configs) {
-    .\scripts\Apply-ConfigExample.ps1 -Name $ConfigName
-
-    if ($LASTEXITCODE -ne 0) {
-        Write-FatalError "Unable to apply configuration example for $ConfigName"
-    }
-
     if ($Pause) {
         Read-Host -Prompt "Pausing for $ConfigName - press any key to continue"
     }
