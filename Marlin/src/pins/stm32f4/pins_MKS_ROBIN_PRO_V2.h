@@ -38,9 +38,13 @@
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
 
 //
 // Note: MKS Robin board is using SPI2 interface.
@@ -363,5 +367,3 @@
 
   #endif // !MKS_MINI_12864
 #endif // HAS_SPI_LCD
-
-#define HAS_OTG_USB_HOST_SUPPORT

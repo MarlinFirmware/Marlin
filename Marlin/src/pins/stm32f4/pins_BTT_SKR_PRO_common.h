@@ -44,6 +44,9 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Servos
 //
@@ -469,5 +472,3 @@
 #define ESP_WIFI_MODULE_ENABLE_PIN          PG1
 #define ESP_WIFI_MODULE_GPIO0_PIN           PF14
 #define ESP_WIFI_MODULE_GPIO2_PIN           PF15
-
-#define HAS_OTG_USB_HOST_SUPPORT

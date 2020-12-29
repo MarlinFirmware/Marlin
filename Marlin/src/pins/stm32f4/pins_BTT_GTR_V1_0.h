@@ -35,6 +35,9 @@
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 #define TP                                        // Enable to define servo and probe pins
 
 //
@@ -453,5 +456,3 @@
 #endif // HAS_WIRED_LCD
 
 #undef TP
-
-#define HAS_OTG_USB_HOST_SUPPORT
