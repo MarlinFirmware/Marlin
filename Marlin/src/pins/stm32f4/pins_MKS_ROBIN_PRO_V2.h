@@ -160,7 +160,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -187,19 +187,19 @@
 //
 // Misc. Functions
 //
-// #define POWER_LOSS_PIN                      PA2   // PW_DET
-// #define PS_ON_PIN                           PA3   // PW_OFF
-// #define SUICIDE_PIN                         PB2     // Enable MKSPWC support
-// #define KILL_PIN                            PA2     // Enable MKSPWC support
-// #define KILL_PIN_INVERTING                  true     // Enable MKSPWC support
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
+//#define POWER_LOSS_PIN                    PA2   // PW_DET
+//#define PS_ON_PIN                         PA3   // PW_OFF
+//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support
+//#define KILL_PIN                          PA2   // Enable MKSPWC support
+//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-// #define USE_NEW_SPI_API 1
+//#define USE_NEW_SPI_API 1
 
 //
 // Onboard SD card
@@ -317,7 +317,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  // #define TFT_DRIVER                      ST7796
+  //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
 #elif HAS_SPI_LCD
