@@ -6,7 +6,15 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.14"
+#define UNIFIED_VERSION "TH3D UFW 2.15"
+
+/**
+ * TH3D Sanity Checks
+ */
+
+#if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
+  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+#endif
 
 /**
  * Temp Settings
@@ -277,7 +285,6 @@
   #endif
   #define MULTIPLE_PROBING 2
   #define AUTO_BED_LEVELING_BILINEAR
-  #define EXTRAPOLATE_BEYOND_GRID
   #define GRID_MAX_POINTS_X EZABL_POINTS
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #define Z_SAFE_HOMING
