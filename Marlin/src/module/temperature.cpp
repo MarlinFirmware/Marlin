@@ -2175,13 +2175,22 @@ void Temperature::disable_all_heaters() {
   void Temperature::pause(const bool p) {
     if (p != paused) {
       paused = p;
+
+      // Ensure hot-end idle time does not interfere
+      HOTEND_LOOP() reset_hotend_idle_timer(e);
+      TERN_(HAS_HEATED_BED, reset_bed_idle_timer());
+
       if (p) {
-        HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
+        // Pause heating
+        HOTEND_LOOP() temp_hotend[e].paused_target = temp_hotend[e].target;    // Timeout immediately
+        TERN_(HAS_HEATED_BED, temp_bed.paused_target = temp_bed.target); // Timeout immediately
+        HOTEND_LOOP() setTargetHotend(0, e);
+        IF_DISABLED(PROBING_KEEP_BED_HEATER, setTargetBed(0));
       }
       else {
-        HOTEND_LOOP() reset_hotend_idle_timer(e);
-        TERN_(HAS_HEATED_BED, reset_bed_idle_timer());
+        // Resume heating
+        HOTEND_LOOP() setTargetHotend(temp_hotend[e].paused_target, e);
+        TERN_(HAS_HEATED_BED, setTargetBed(temp_bed.paused_target)); // Timeout immediately
       }
     }
   }
