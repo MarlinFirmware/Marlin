@@ -155,11 +155,6 @@
   #define TOUCH_INT_PIN                     PB1
 #endif
 
-// Touchscreen calibration does not work correctly with ANET_ET5_TFT35 or ANET_ET4_TFT28
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #undef TOUCH_SCREEN_CALIBRATION
-#endif
-
 #if ENABLED(ANET_ET5_TFT35)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X            17125

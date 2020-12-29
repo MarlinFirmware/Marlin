@@ -23,6 +23,11 @@
 
 #include "touch_calibration.h"
 
+#define TOUCH_CALIBRATION_MAX_RETRIES 5
+
+#define DEBUG_OUT ENABLED(DEBUG_TOUCH_CALIBRATION)
+#include "../../core/debug_out.h"
+
 TouchCalibration touch_calibration;
 
 touch_calibration_t TouchCalibration::calibration;
@@ -31,23 +36,40 @@ touch_calibration_point_t TouchCalibration::calibration_points[4];
 uint8_t TouchCalibration::failed_count;
 
 void TouchCalibration::validate_calibration() {
-  const bool landscape = validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3);
-  const bool portrait = validate_precision_y(0, 1) && validate_precision_y(2, 3) && validate_precision_x(0, 2) && validate_precision_x(1, 3);
+  #define VALIDATE_PRECISION(XY, A, B) validate_precision_##XY(CALIBRATION_##A, CALIBRATION_##B)
+  const bool landscape = VALIDATE_PRECISION(x, TOP_LEFT, BOTTOM_LEFT)
+                      && VALIDATE_PRECISION(x, TOP_RIGHT, BOTTOM_RIGHT)
+                      && VALIDATE_PRECISION(y, TOP_LEFT, TOP_RIGHT)
+                      && VALIDATE_PRECISION(y, BOTTOM_LEFT, BOTTOM_RIGHT);
+  const bool portrait = VALIDATE_PRECISION(y, TOP_LEFT, BOTTOM_LEFT)
+                     && VALIDATE_PRECISION(y, TOP_RIGHT, BOTTOM_RIGHT)
+                     && VALIDATE_PRECISION(x, TOP_LEFT, TOP_RIGHT)
+                     && VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
+  #undef VALIDATE_PRECISION
 
-  if (landscape || portrait) {
+  #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
+  if (landscape) {
     calibration_state = CALIBRATION_SUCCESS;
-    calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_x + calibration_points[2].raw_x - calibration_points[1].raw_x - calibration_points[0].raw_x);
-    calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_y - calibration_points[2].raw_y + calibration_points[1].raw_y - calibration_points[0].raw_y);
-    calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_x + calibration_points[1].raw_x) * calibration.x) >> 17);
-    calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_y + calibration_points[2].raw_y) * calibration.y) >> 17);
-    calibration.orientation = landscape ? TOUCH_LANDSCAPE : TOUCH_PORTRAIT;
+    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x + CAL_PTS(TOP_RIGHT).raw_x - CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
+    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y - CAL_PTS(TOP_RIGHT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
+    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x) * calibration.x) >> 17);
+    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(TOP_RIGHT).raw_y) * calibration.y) >> 17);
+    calibration.orientation = TOUCH_LANDSCAPE;
+  }
+  else if (portrait) {
+    calibration_state = CALIBRATION_SUCCESS;
+    calibration.x = ((CAL_PTS(TOP_RIGHT).x - CAL_PTS(TOP_LEFT).x) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_y + CAL_PTS(TOP_RIGHT).raw_y - CAL_PTS(BOTTOM_LEFT).raw_y - CAL_PTS(TOP_LEFT).raw_y);
+    calibration.y = ((CAL_PTS(BOTTOM_LEFT).y - CAL_PTS(TOP_LEFT).y) << 17) / (CAL_PTS(BOTTOM_RIGHT).raw_x - CAL_PTS(TOP_RIGHT).raw_x + CAL_PTS(BOTTOM_LEFT).raw_x - CAL_PTS(TOP_LEFT).raw_x);
+    calibration.offset_x = CAL_PTS(TOP_LEFT).x - int16_t(((CAL_PTS(TOP_LEFT).raw_y + CAL_PTS(BOTTOM_LEFT).raw_y) * calibration.x) >> 17);
+    calibration.offset_y = CAL_PTS(TOP_LEFT).y - int16_t(((CAL_PTS(TOP_LEFT).raw_x + CAL_PTS(TOP_RIGHT).raw_x) * calibration.y) >> 17);
+    calibration.orientation = TOUCH_PORTRAIT;
   }
   else {
     calibration_state = CALIBRATION_FAIL;
     calibration_reset();
-    // Retry up to 5 times before reporting the failure
-    if (need_calibration() && failed_count++ < 5) calibration_state = CALIBRATION_TOP_LEFT;
+    if (need_calibration() && failed_count++ < TOUCH_CALIBRATION_MAX_RETRIES) calibration_state = CALIBRATION_TOP_LEFT;
   }
+  #undef CAL_PTS
 
   if (calibration_state == CALIBRATION_SUCCESS) {
     SERIAL_ECHOLNPGM("Touch screen calibration completed");
@@ -55,7 +77,7 @@ void TouchCalibration::validate_calibration() {
     SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
     SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
     SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
-    SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
+    SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "TOUCH_ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
   }
 }
 
@@ -68,6 +90,7 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;
     calibration_points[calibration_state].raw_y = y;
+    DEBUG_ECHOLNPAIR("TouchCalibration - State: ", calibration_state, ", x: ", calibration_points[calibration_state].x, ", raw_x: ", x, ", y: ", calibration_points[calibration_state].y, ", raw_y: ", y);
   }
 
   switch (calibration_state) {
