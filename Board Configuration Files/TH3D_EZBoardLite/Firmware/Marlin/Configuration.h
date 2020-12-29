@@ -1,7 +1,7 @@
 /**
- * For directions on how to use this firmware visit http://uf2.th3dstudio.com
+ * For directions on how to use this firmware visit http://uf2.th3dstudio.com and click on your printer/board link
+ * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE AND IS PROVIDED AS-IS
  */
-
 #pragma once
 #define CONFIGURATION_H_VERSION 020007
 
