@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "Zonestar ZMIB_V2"
-#define BOARD_WEBSITE_URL "https://www.aliexpress.com/item/32957490744.html"
+#define BOARD_WEBSITE_URL "www.aliexpress.com/item/32957490744.html"
 
 #define IS_ZMIB_V2
 

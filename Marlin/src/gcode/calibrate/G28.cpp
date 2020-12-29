@@ -246,6 +246,7 @@ void GcodeSuite::G28() {
     set_bed_leveling_enabled(false);
   #endif
 
+  // Reset to the XY plane
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   // Count this command as movement / activity

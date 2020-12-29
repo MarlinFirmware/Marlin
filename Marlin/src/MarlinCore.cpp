@@ -193,7 +193,7 @@
   #include "feature/runout.h"
 #endif
 
-#if HAS_Z_SERVO_PROBE
+#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "module/probe.h"
 #endif
 
@@ -1117,6 +1117,10 @@ void setup() {
       SETUP_RUN(ui.show_bootscreen());
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
+
+  #if ENABLED(PROBE_TARE)
+    SETUP_RUN(probe.tare_init());
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
