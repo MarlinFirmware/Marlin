@@ -55,6 +55,7 @@ uint16_t DGUSScreenHandler::ConfirmVP;
   static ExtUI::FileList filelist;
 #endif
 
+// Storage initialization
 creality_dwin_settings_t DGUSScreenHandler::Settings = {.settings_size = sizeof(creality_dwin_settings_t)};
 DGUSLCD_Screens DGUSScreenHandler::current_screen;
 DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS] = {DGUSLCD_SCREEN_MAIN};
@@ -64,6 +65,9 @@ bool DGUSScreenHandler::ScreenComplete;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 bool DGUSScreenHandler::are_steppers_enabled = true;
 float DGUSScreenHandler::feed_amount = 100;
+
+// Hardcoded limits
+constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = GRID_MAX_POINTS > (4*4) ? 30 : 1;
 
 // endianness swap
 uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
@@ -559,7 +563,7 @@ void DGUSScreenHandler::OnMeshLevelingStart() {
 
   MeshLevelIndex = 0;
 
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(1));
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
 }
 
 void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos) {
@@ -573,8 +577,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
   SERIAL_ECHOLNPAIR("Mesh level index: ", MeshLevelIndex);
 
   // Update icon
-  constexpr uint16_t DGUS_GRID_MAX_POINTS = 4 * 4; // For now we hardcode the maximum to 16 points
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, min(static_cast<uint16_t>((MeshLevelIndex + 1)), DGUS_GRID_MAX_POINTS));
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIndex + DGUS_GRID_VISUALIZATION_START_ID));
 
   if (MeshLevelIndex == GRID_MAX_POINTS) {
     // Done
@@ -902,18 +905,18 @@ void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_pt
 
     case VP_X_POSITION:
       if (!ExtUI::canMove(ExtUI::axis_t::X)) return;
-      current_position.x = target_position;
+      current_position.x = min(target_position, static_cast<float>(X_MAX_POS));
       break;
 
     case VP_Y_POSITION:
       if (!ExtUI::canMove(ExtUI::axis_t::Y)) return;
-      current_position.y = target_position;
+      current_position.y = min(target_position, static_cast<float>(Y_MAX_POS));
       break;
 
     case VP_Z_POSITION:
       if (!ExtUI::canMove(ExtUI::axis_t::Z)) return;
       speed = homing_feedrate_mm_m.z;
-      current_position.z = target_position;
+      current_position.z = min(target_position, static_cast<float>(Z_MAX_POS));
       break;
   }
 

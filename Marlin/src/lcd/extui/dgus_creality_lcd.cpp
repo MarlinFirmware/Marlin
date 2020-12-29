@@ -64,7 +64,7 @@ namespace ExtUI {
     }
 
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
-  }
+}
 
   void onMediaInserted() { TERN_(SDSUPPORT, ScreenHandler.SDCardInserted()); }
   void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
