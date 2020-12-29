@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
-index 6b0d8acaee..aa7e50a41e 100644
+index dff7455f57..cc7e5b5d8d 100644
 --- a/Marlin/Configuration.h
 +++ b/Marlin/Configuration.h
 @@ -126,11 +126,11 @@

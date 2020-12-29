@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
-index 6b0d8acaee..66abf6b25e 100644
+index dff7455f57..4089502c5d 100644
 --- a/Marlin/Configuration.h
 +++ b/Marlin/Configuration.h
 @@ -126,11 +126,11 @@
@@ -15,7 +15,7 @@ index 6b0d8acaee..66abf6b25e 100644
  // Name displayed in the LCD "Ready" message and Info menu
  #define CUSTOM_MACHINE_NAME "CR-6 Community"
  
-@@ -1159,20 +1159,20 @@
+@@ -1160,20 +1160,20 @@
  #define Z_HOME_DIR -1
  
  // @section machine
@@ -43,7 +43,7 @@ index 6b0d8acaee..66abf6b25e 100644
   * Software Endstops
   *
   * - Prevent moves outside the set machine bounds.
-@@ -1372,11 +1372,11 @@
+@@ -1373,11 +1373,11 @@
  #endif
  
  #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)

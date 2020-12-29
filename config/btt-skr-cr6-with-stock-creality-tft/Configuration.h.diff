@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
-index 6b0d8acaee..1d40c77ea0 100644
+index dff7455f57..9235f45028 100644
 --- a/Marlin/Configuration.h
 +++ b/Marlin/Configuration.h
 @@ -68,11 +68,11 @@
@@ -186,7 +186,7 @@ index 6b0d8acaee..1d40c77ea0 100644
    #endif
  #endif
  
-@@ -1096,11 +1096,11 @@
+@@ -1097,11 +1097,11 @@
  
  // Require minimum nozzle and/or bed temperature for probing.
  #define PREHEAT_BEFORE_PROBING
@@ -199,7 +199,7 @@ index 6b0d8acaee..1d40c77ea0 100644
  // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
  // :{ 0:'Low', 1:'High' }
  #define X_ENABLE_ON 0
-@@ -1437,11 +1437,11 @@
+@@ -1438,11 +1438,11 @@
  //#define LCD_BED_LEVELING
  
  #if ENABLED(LCD_BED_LEVELING)
@@ -212,7 +212,7 @@ index 6b0d8acaee..1d40c77ea0 100644
  // Add a menu item to move between bed corners for manual bed adjustment
  //#define LEVEL_BED_CORNERS
  
-@@ -1599,17 +1599,17 @@
+@@ -1600,17 +1600,17 @@
  
  // @section temperature
  
@@ -233,7 +233,7 @@ index 6b0d8acaee..1d40c77ea0 100644
  /**
   * Nozzle Park
   *
-@@ -1736,11 +1736,11 @@
+@@ -1737,11 +1737,11 @@
   *  - Total failed print jobs
   *  - Total time printing
   *
@@ -246,7 +246,7 @@ index 6b0d8acaee..1d40c77ea0 100644
   * Password
   *
   * Set a numerical password for the printer which can be requested:
-@@ -1904,11 +1904,11 @@
+@@ -1905,11 +1905,11 @@
  //
  // Individual Axis Homing
  //
@@ -259,7 +259,7 @@ index 6b0d8acaee..1d40c77ea0 100644
  // SPEAKER/BUZZER
  //
  // If you have a speaker that can produce tones, enable it here.
-@@ -1921,12 +1921,12 @@
+@@ -1922,12 +1922,12 @@
  // Set these to 0 to disable audio feedback in the LCD menus.
  //
  // Note: Test audio output with the G-Code:

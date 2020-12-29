@@ -1,5 +1,5 @@
 diff --git a/Marlin/Configuration.h b/Marlin/Configuration.h
-index 6b0d8acaee..695bb0f003 100644
+index dff7455f57..7f92feb9ba 100644
 --- a/Marlin/Configuration.h
 +++ b/Marlin/Configuration.h
 @@ -68,11 +68,11 @@
@@ -241,7 +241,7 @@ index 6b0d8acaee..695bb0f003 100644
      //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
    #endif
  #endif
-@@ -1145,11 +1145,11 @@
+@@ -1146,11 +1146,11 @@
  
  //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
  //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
@@ -254,7 +254,7 @@ index 6b0d8acaee..695bb0f003 100644
  #define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
  
  // Direction of endstops when homing; 1=MAX, -1=MIN
-@@ -1432,16 +1432,16 @@
+@@ -1433,16 +1433,16 @@
  
  /**
   * Add a bed leveling sub-menu for ABL or MBL.
@@ -273,7 +273,7 @@ index 6b0d8acaee..695bb0f003 100644
  // Add a menu item to move between bed corners for manual bed adjustment
  //#define LEVEL_BED_CORNERS
  
-@@ -1599,17 +1599,17 @@
+@@ -1600,17 +1600,17 @@
  
  // @section temperature
  
@@ -294,7 +294,7 @@ index 6b0d8acaee..695bb0f003 100644
  /**
   * Nozzle Park
   *
-@@ -1736,11 +1736,11 @@
+@@ -1737,11 +1737,11 @@
   *  - Total failed print jobs
   *  - Total time printing
   *
@@ -307,7 +307,7 @@ index 6b0d8acaee..695bb0f003 100644
   * Password
   *
   * Set a numerical password for the printer which can be requested:
-@@ -1904,29 +1904,29 @@
+@@ -1905,29 +1905,29 @@
  //
  // Individual Axis Homing
  //
@@ -341,7 +341,7 @@ index 6b0d8acaee..695bb0f003 100644
  //======================== LCD / Controller Selection =========================
  //========================   (Character-based LCDs)   =========================
  //=============================================================================
-@@ -2171,11 +2171,11 @@
+@@ -2172,11 +2172,11 @@
  // https://www.aliexpress.com/item/32833148327.html
  //
  // This is RAMPS-compatible using a single 10-pin connector.
@@ -354,7 +354,7 @@ index 6b0d8acaee..695bb0f003 100644
  // Ender-2 OEM display, a variant of the MKS_MINI_12864
  //
  //#define ENDER2_STOCKDISPLAY
-@@ -2267,16 +2267,10 @@
+@@ -2268,16 +2268,10 @@
  //
  //#define DGUS_LCD_UI_ORIGIN
  //#define DGUS_LCD_UI_FYSETC
