@@ -30,7 +30,7 @@
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
@@ -40,11 +40,17 @@
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
 
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
 //#define SPI_MODULE                           2
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -54,8 +60,6 @@
 #define Z_DIAG_PIN                          PA11
 #define E0_DIAG_PIN                         PC4
 #define E1_DIAG_PIN                         PE7
-
-//
 
 #define X_STOP_PIN                          PA15
 #define Y_STOP_PIN                          PA12
@@ -159,7 +163,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -186,19 +190,18 @@
 //
 // Misc. Functions
 //
-// #define POWER_LOSS_PIN                      PA2   // PW_DET
-// #define PS_ON_PIN                           PA3   // PW_OFF
-// #define SUICIDE_PIN                         PB2     // Enable MKSPWC support
-// #define KILL_PIN                            PA2     // Enable MKSPWC support
-// #define KILL_PIN_INVERTING                  true     // Enable MKSPWC support
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
+//#define POWER_LOSS_PIN                    PA2   // PW_DET
+//#define PS_ON_PIN                         PA3   // PW_OFF
+//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support
+//#define KILL_PIN                          PA2   // Enable MKSPWC support
+//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-// #define USE_NEW_SPI_API 1
+//#define USE_NEW_SPI_API 1
 
 //
 // Onboard SD card
@@ -243,7 +246,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -316,7 +319,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  // #define TFT_DRIVER                      ST7796
+  //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
 #elif HAS_SPI_LCD
