@@ -9,6 +9,14 @@
 #define UNIFIED_VERSION "TH3D UFW 2.15"
 
 /**
+ * TH3D Sanity Checks
+ */
+
+#if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
+  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+#endif
+
+/**
  * Temp Settings
  */
 
