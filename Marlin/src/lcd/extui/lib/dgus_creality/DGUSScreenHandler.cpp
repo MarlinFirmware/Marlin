@@ -63,7 +63,6 @@ uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
-bool DGUSScreenHandler::are_steppers_enabled = true;
 float DGUSScreenHandler::feed_amount = 100;
 
 // Hardcoded limits
@@ -153,6 +152,14 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
   dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness);
+}
+
+void DGUSScreenHandler::KillScreenCalled() {
+  // If killed, always fully wake up
+  dgusdisplay.SetTouchScreenConfiguration(false, true, 100);
+
+  // Hey! Something is going on!
+  Buzzer(1000 /*ignored*/, 880);
 }
 
 void DGUSScreenHandler::OnPowerlossResume() {
@@ -1101,13 +1108,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   }
 #endif
 
-void DGUSScreenHandler::HandleStepperState(bool is_enabled) {
-  bool steppers_were_enabled = are_steppers_enabled;
-  are_steppers_enabled = is_enabled;
-
-  if (steppers_were_enabled != are_steppers_enabled) ForceCompleteUpdate();
-}
-
 void DGUSScreenHandler::HandleLEDToggle() {
   bool newState = !caselight.on;
 
@@ -1262,6 +1262,7 @@ bool DGUSScreenHandler::loop() {
 
   if (!IsScreenComplete() || ELAPSED(ms, next_event_ms)) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
+
     UpdateScreenVPData();
   }
 

@@ -62,7 +62,8 @@ namespace ExtUI {
     } else {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     }
-
+    
+    ScreenHandler.KillScreenCalled();
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
 }
 
@@ -224,11 +225,9 @@ bool hasPrintTimer = false;
   #endif
 
   void onSteppersDisabled() {
-    ScreenHandler.HandleStepperState(false);
   }
 
   void onSteppersEnabled() {
-    ScreenHandler.HandleStepperState(true);
   }
 
 }

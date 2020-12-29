@@ -46,6 +46,8 @@ public:
   static void LoadSettings(const char* buff);
   static void StoreSettings(char* buff);
   static void SetTouchScreenConfiguration();
+  static void KillScreenCalled();
+
   static void OnPowerlossResume();
 
   /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
@@ -151,8 +153,6 @@ public:
   static void HandleLEDToggle();
 
   static void HandleFanToggle();
-
-  static void HandleStepperState(bool is_enabled);
 
   static void FilamentRunout();
 
