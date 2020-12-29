@@ -65,27 +65,26 @@
 // EZABL Advanced Settings
 //===========================================================================
 
-// If you want more or less EZABL probe points change the number below (only used if EZABL enabled)
-// Default is 3 which gives you 3x3 grid for a total of 9 points. STICK WITH ODD NUMBERS
+// Probing Grid Points - If you want more or less EZABL probe points change the number below, use odd numbers. Total points is # times #.
 #define EZABL_POINTS 3
 
-// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below. This also sets the edge inset value for MANUAL_MESH_LEVELING.
-// Most Machines - 35
-// Binder Clips? - 50
+// Probe Edge - How far from the edge of the bed to probe from. Use 50 if using binder clips. This also sets the edge inset value for MANUAL_MESH_LEVELING.
 #define EZABL_PROBE_EDGE 35
 
-// If you have issues with your machine running the faster probe setting disable the #define EZABL_FASTPROBE below.
-// NOTE: Most machines will work with the fast probe enabled. Use M48 to verify accuracy.
+// Fast Probing - Works with most machines and all EZABL sensors (8mm/s)
 #define EZABL_FASTPROBE
 
-// Superfast probing - Only works with the EZABL Pro Sensors
+// Superfast Probing - Only works with the EZABL Pro Sensors (15mm/s)
 //#define EZABL_SUPERFASTPROBE
 
-// Heaters will stay on during probing - only use if directed to by support. Do not use on AC beds.
+// Heaters on During Probing - Heaters will stay on during probing - May reduce accuracy do not use unless told to by support
 //#define HEATERS_ON_DURING_PROBING
 
-// Does your machine make weird noises/vibrations when it is probing the mesh? Enable this to slow down the speed between probe points.
+// Slow Down Moves - Does your machine make weird noises/vibrations when it is probing the mesh? Enable this to slow down the speed between probe points.
 //#define SLOWER_PROBE_MOVES
+
+// Grid Extrapolation - This will use the mesh data to make assumptions of the bed outside the probe area. Disable if you are getting incorrect results on the edges of the bed.
+#define EXTRAPOLATE_BEYOND_GRID
 
 //================================================================================
 // IF YOU HAVE A CUSTOM PROBE MOUNT OR ONE THAT IS NOT PRE-SUPPORTED UNCOMMENT THE
