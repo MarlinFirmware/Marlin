@@ -382,6 +382,10 @@
   #define POLL_JOG
 #endif
 
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
+#endif
+
 /**
  * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
