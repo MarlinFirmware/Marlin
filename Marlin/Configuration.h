@@ -1009,7 +1009,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -41.5, -7, -1.65 } // M.A.R.C. BLTouch offset for support: https://www.thingiverse.com/thing:4605354
+#define NOZZLE_TO_PROBE_OFFSET { -41.5, -7, 0 } // M.A.R.C. BLTouch offset for support: https://www.thingiverse.com/thing:4605354 (z-offset = -1.70 mm)
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1109,7 +1109,7 @@
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
-//#define PROBING_FANS_OFF          // Turn fans off when probing
+#define PROBING_FANS_OFF          // Turn fans off when probing  // M.A.R.C. Turn fans off for avoid vibrations and interference
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 #define DELAY_BEFORE_PROBING 100  // (ms) To prevent vibrations from triggering piezo sensors // M.A.R.C. increase accuracy
@@ -1308,15 +1308,16 @@
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-#define RESTORE_LEVELING_AFTER_G28    // M.A.R.C. restore leveling after homming
+//#define RESTORE_LEVELING_AFTER_G28
 //#define ENABLE_LEVELING_AFTER_G28
 
 /**
  * Auto-leveling needs preheating
  */
-//#define PREHEAT_BEFORE_LEVELING
+#define PREHEAT_BEFORE_LEVELING     // M.A.R.C. heatting to compensate thermal expansions
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP 120
+//  #define LEVELING_NOZZLE_TEMP 120
+  #define LEVELING_NOZZLE_TEMP  0   // M.A.R.C. no necessary for BLTouch
   #define LEVELING_BED_TEMP     50
 #endif
 
@@ -1357,7 +1358,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3	// M.A.R.C. increase grid points to 5
+  #define GRID_MAX_POINTS_X 5	// M.A.R.C. could increase grid points to 5
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
