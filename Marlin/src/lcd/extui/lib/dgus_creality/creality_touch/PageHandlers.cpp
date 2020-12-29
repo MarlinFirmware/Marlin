@@ -17,7 +17,7 @@
 #include "../../../../../module/settings.h"
 
 #include "../../../ui_api.h"
-#include "../../lcd/marlinui.h"
+#include "../../../../marlinui.h"
 
 #include "PageHandlers.h"
 
