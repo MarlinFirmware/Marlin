@@ -50,7 +50,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_COLS 1
       #define GRID_ROWS 10
     #else
@@ -81,7 +81,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
     const uint8_t pressed = EventLoop::get_pressed_tag();
 
     cmd.font(font_large)
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(1,2), BTN_SIZE(1,1), message)
        .font(font_xlarge)
        .text(BTN_POS(1,4), BTN_SIZE(1,1), screen_data.LockScreen.passcode)

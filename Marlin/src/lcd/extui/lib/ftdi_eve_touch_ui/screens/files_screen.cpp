@@ -67,7 +67,7 @@ uint16_t FilesScreen::getFileForTag(uint8_t tag) {
   return screen_data.FilesScreen.cur_page * files_per_page + tag - 2;
 }
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS  6
   #define GRID_ROWS (files_per_page + header_h + footer_h)
 #else
@@ -151,7 +151,7 @@ void FilesScreen::drawHeader() {
 void FilesScreen::drawFooter() {
   #undef MARGIN_T
   #undef MARGIN_B
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define MARGIN_T 15
     #define MARGIN_B 5
   #else

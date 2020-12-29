@@ -21,7 +21,7 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 namespace FTDI {
 
@@ -60,7 +60,7 @@ namespace FTDI {
     }
 
     cmd.apply_text_alignment(x, y, w, h, options);
-    #ifdef TOUCH_UI_USE_UTF8
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       if (has_utf8_chars(str)) {
         draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options);
       } else

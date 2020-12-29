@@ -369,8 +369,9 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
 }
 
 //sd
+extern uint8_t public_buf[512];
 char *cur_namefff;
-uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
+uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   //cur_namefff = strrchr(path, '/');
   char name_buf[100];
@@ -380,7 +381,12 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
-  if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
+  if (sd_read_addr_offset == UINT32_MAX) return LV_FS_RES_NOT_EX;
+  // find small image size
+  card.read(public_buf, 512);
+  public_buf[511] = '\0';
+  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
 
@@ -406,14 +412,14 @@ lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t b
 }
 
 lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos) {
-  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * 409;
+  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * small_image_size;
   lv_gcode_file_seek(sd_read_addr_offset);
   return LV_FS_RES_OK;
 }
 
 lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   if (sd_read_addr_offset) *pos_p = 0;
-  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / 409 * 200 + 4;
+  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / small_image_size * 200 + 4;
   return LV_FS_RES_OK;
 }
 

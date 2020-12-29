@@ -52,7 +52,7 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
     #endif
 
     cmd.cmd(COLOR_RGB(bg_text_enabled));
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 10
       #define GRID_COLS 1
       cmd.font(font_large)         .text  ( BTN_POS(1,1), BTN_SIZE(1,1), F("Developer Menu"))
