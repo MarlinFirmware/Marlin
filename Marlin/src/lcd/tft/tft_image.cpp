@@ -25,12 +25,14 @@
 
 const tImage NoLogo                 = { nullptr, 0, 0, NOCOLORS };
 
-const tImage MarlinLogo112x38x1     = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
-const tImage MarlinLogo228x255x2    = { (void *)marlin_logo_228x255x2, 228, 255, GREYSCALE2 };
-const tImage MarlinLogo228x255x4    = { (void *)marlin_logo_228x255x4, 228, 255, GREYSCALE4 };
-const tImage MarlinLogo195x59x16    = { (void *)marlin_logo_195x59x16,  195,  59, HIGHCOLOR };
-const tImage MarlinLogo320x240x16   = { (void *)marlin_logo_320x240x16, 320, 240, HIGHCOLOR };
-const tImage MarlinLogo480x320x16   = { (void *)marlin_logo_480x320x16, 480, 320, HIGHCOLOR };
+#if ENABLED(SHOW_BOOTSCREEN)
+  const tImage MarlinLogo112x38x1   = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
+  const tImage MarlinLogo228x255x2  = { (void *)marlin_logo_228x255x2, 228, 255, GREYSCALE2 };
+  const tImage MarlinLogo228x255x4  = { (void *)marlin_logo_228x255x4, 228, 255, GREYSCALE4 };
+  const tImage MarlinLogo195x59x16  = { (void *)marlin_logo_195x59x16,  195,  59, HIGHCOLOR };
+  const tImage MarlinLogo320x240x16 = { (void *)marlin_logo_320x240x16, 320, 240, HIGHCOLOR };
+  const tImage MarlinLogo480x320x16 = { (void *)marlin_logo_480x320x16, 480, 320, HIGHCOLOR };
+#endif
 const tImage Background320x30x16    = { (void *)background_320x30x16, 320, 30, HIGHCOLOR };
 
 const tImage HotEnd_64x64x4         = { (void *)hotend_64x64x4, 64, 64, GREYSCALE4 };

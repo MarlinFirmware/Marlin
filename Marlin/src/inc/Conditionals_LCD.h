@@ -1197,7 +1197,3 @@
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
 #endif
-
-#if MB(ANET_ET4, ANET_ET4P)
-  #define IS_ANET_ET 1
-#endif
