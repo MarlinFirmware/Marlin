@@ -653,11 +653,6 @@
   #define SERIAL_CATCHALL 0
 #endif
 
-// Pressure sensor with a BLTouch-like interface
-#if ENABLED(CREALITY_TOUCH)
-  #define BLTOUCH
-#endif
-
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -1201,8 +1196,4 @@
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
-#endif
-
-#if MB(ANET_ET4, ANET_ET4P)
-  #define IS_ANET_ET 1
 #endif
