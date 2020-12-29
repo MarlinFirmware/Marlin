@@ -53,6 +53,13 @@
 #define SPI_DEVICE                             2
 
 //
+// Servos
+//
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#endif
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN                          PA15
@@ -91,6 +98,7 @@
 #ifndef DEFAULT_PWM_MOTOR_CURRENT
   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
 #endif
+
 //
 // Temperature Sensors
 //
@@ -110,10 +118,6 @@
 //
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
-
-#ifndef SERVO0_PIN
-  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
-#endif
 
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_PIN_INVERTING               false
