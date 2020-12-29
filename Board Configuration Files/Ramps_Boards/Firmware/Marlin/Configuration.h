@@ -66,9 +66,9 @@
 // CR-10S Pro LCD Kit: https://www.th3dstudio.com/product/cr-10s-pro-lcd-ezabl-upgrade-kit/
 
 /**
- * THE BELOW PRINTER MODEL SETTINGS ARE ONLY FOR USING THE CR-10S DUAL BOARD WITH THE ENDER3/5
+ * THE BELOW PRINTER MODEL SETTINGS ARE ONLY FOR USING THE TH3D CREALITY DUAL BOARD WITH THE ENDER3/5
  * To use the Ender 3/5 LCD with the CR-10S dual board board connect the LCD cable to EXP1 on the 
- * CR-10S board but rotate it 180 degrees. The LCD end of the cable goes to EXP3 on the Ender 3/5 LCD.
+ * board but rotate it 180 degrees. The LCD end of the cable goes to EXP3 on the Ender 3/5 LCD.
  * You will have to force it into the EXP1 but it will fit and work.
  */
 //#define ENDER3_DUAL_EXTRUDER_BOARD
