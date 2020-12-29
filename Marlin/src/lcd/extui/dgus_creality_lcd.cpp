@@ -71,6 +71,11 @@ namespace ExtUI {
   void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+    if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_FEED) {
+        // We're in the feed (load filament) workflow - no beep - there is no confirmation
+        return;
+    }
+
     ScreenHandler.Buzzer(frequency, duration);
   }
 
@@ -115,6 +120,12 @@ bool hasPrintTimer = false;
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
       DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
+
+      if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_FEED) {
+        // We're in the feed (load filament) workflow - immediately assume confirmed
+        onUserConfirmed();
+        return;
+      }
 
       ScreenHandler.setstatusmessagePGM(msg);
       ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, true, false, true);

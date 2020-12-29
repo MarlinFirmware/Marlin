@@ -387,26 +387,17 @@ void InfoMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         thermalManager.wait_for_hotend(ExtUI::H0, false);
     }
 
-    // Remember if E was relative
-    bool axisWasRelative = GcodeSuite::axis_is_relative(E_AXIS);
-    GcodeSuite::set_e_relative();
-
-    // Inject E axis move command
+    // Inject load filament command
     char cmd[64];
     sprintf_P(cmd, command, ScreenHandler.feed_amount);
     
     SERIAL_ECHOPAIR("Injecting command: ", cmd);
     ExtUI::injectCommands(cmd);
 
-    // Handle commands (possibly 2)
+    // Handle commands
     SERIAL_ECHOPGM_P("- waiting for queue");
     queue.advance();
     planner.synchronize();
-
-    // Restore E axis state
-    if (!axisWasRelative) {
-        GcodeSuite::set_e_absolute();
-    }
 
     SERIAL_ECHOPGM_P("- done");
 }
@@ -424,7 +415,7 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case 1:
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
 
-            change_filament_with_temp(PSTR("G1 E%f F80"), celsius);
+            change_filament_with_temp(PSTR("M701 L%f"), celsius);
 
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
         break;
