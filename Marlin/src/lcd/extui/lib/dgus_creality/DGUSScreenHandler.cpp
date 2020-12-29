@@ -1267,6 +1267,7 @@ bool DGUSScreenHandler::loop() {
 
   if (dgusdisplay.isInitialized()) {
     static bool booted = false;
+
     if (!booted) {
       progmem_str message = GET_TEXT_F(WELCOME_MSG);
       char buff[strlen_P((const char * const)message)+1];
@@ -1286,6 +1287,10 @@ bool DGUSScreenHandler::loop() {
 
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
+
+      // Set initial leveling icon
+      dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
+      
       GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   }
