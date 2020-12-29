@@ -391,7 +391,6 @@ int ascii2dec_test(char *ascii) {
   return result;
 }
 
-#define ISEOL(C) ((C) == '\n' || (C) == '\r')
 void lv_gcode_file_read(uint8_t *data_buf) {
   #if ENABLED(SDSUPPORT)
     uint16_t i = 0, j = 0, k = 0;
@@ -418,9 +417,9 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       }
 
       uint16_t c = card.get();
-      // check if we have more data or finished the line (CR or LF)
+      // check for more data or end of line (CR or LF)
       if (ISEOL(c)) {
-        c = card.get(); //more eol?
+        c = card.get(); // more eol?
         if (!ISEOL(c)) card.setIndex(card.getIndex() - 1);
         break;
       }
