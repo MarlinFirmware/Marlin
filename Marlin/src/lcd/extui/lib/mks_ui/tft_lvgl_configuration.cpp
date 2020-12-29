@@ -383,6 +383,7 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
 }
 
 //sd
+extern uint8_t public_buf[513];
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
