@@ -37,14 +37,14 @@ uint8_t TouchCalibration::failed_count;
 
 void TouchCalibration::validate_calibration() {
   #define VALIDATE_PRECISION(XY, A, B) validate_precision_##XY(CALIBRATION_##A, CALIBRATION_##B)
-  const bool landscape = VALIDATE_PRECISION(x, TOP_LEFT, BOTTOM_LEFT) &&
-                         VALIDATE_PRECISION(x, TOP_RIGHT, BOTTOM_RIGHT) &&
-                         VALIDATE_PRECISION(y, TOP_LEFT, TOP_RIGHT) &&
-                         VALIDATE_PRECISION(y, BOTTOM_LEFT, BOTTOM_RIGHT);
-  const bool portrait = VALIDATE_PRECISION(y, TOP_LEFT, BOTTOM_LEFT) &&
-                        VALIDATE_PRECISION(y, TOP_RIGHT, BOTTOM_RIGHT) &&
-                        VALIDATE_PRECISION(x, TOP_LEFT, TOP_RIGHT) &&
-                        VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
+  const bool landscape = VALIDATE_PRECISION(x, TOP_LEFT, BOTTOM_LEFT)
+                      && VALIDATE_PRECISION(x, TOP_RIGHT, BOTTOM_RIGHT)
+                      && VALIDATE_PRECISION(y, TOP_LEFT, TOP_RIGHT)
+                      && VALIDATE_PRECISION(y, BOTTOM_LEFT, BOTTOM_RIGHT);
+  const bool portrait = VALIDATE_PRECISION(y, TOP_LEFT, BOTTOM_LEFT)
+                     && VALIDATE_PRECISION(y, TOP_RIGHT, BOTTOM_RIGHT)
+                     && VALIDATE_PRECISION(x, TOP_LEFT, TOP_RIGHT)
+                     && VALIDATE_PRECISION(x, BOTTOM_LEFT, BOTTOM_RIGHT);
   #undef VALIDATE_PRECISION
 
   #define CAL_PTS(N) calibration_points[CALIBRATION_##N]
@@ -77,7 +77,7 @@ void TouchCalibration::validate_calibration() {
     SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
     SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
     SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
-    SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
+    SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "TOUCH_ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
   }
 }
 
