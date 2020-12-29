@@ -382,6 +382,10 @@
   #define POLL_JOG
 #endif
 
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
 /**
  * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.

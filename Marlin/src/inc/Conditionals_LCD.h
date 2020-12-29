@@ -833,6 +833,7 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
 #if Z_HOME_DIR > 0
