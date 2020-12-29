@@ -41,6 +41,7 @@
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
