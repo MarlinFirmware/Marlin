@@ -130,6 +130,7 @@
 /**
  * Dual Extruder Board Options - The below options are for use with the TH3D CR-10S Board with dual extruder support.
  * Make sure to uncomment your printer model and other options above first.
+ * Supports the following models: CR-10(all sizes), CR-10S(all sizes), CR-20, Ender 3, Ender 5
  */
 
 // If you are using a single hotend with the 2 into 1 adapter OR mixing nozzle uncomment the below line
