@@ -44,7 +44,7 @@
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// Release PB4 (Z_DIR_PIN) from JTAG NRST role
 //
 //#define DISABLE_DEBUG
 
