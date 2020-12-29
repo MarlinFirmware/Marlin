@@ -158,8 +158,6 @@ bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   return true;
 }
 
-#define ISEOL(C) ((C) == '\n' || (C) == '\r')
-
 /**
  * Enqueue with Serial Echo
  * Return true if the command was consumed
