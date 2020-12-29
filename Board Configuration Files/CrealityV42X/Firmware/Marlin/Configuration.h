@@ -82,7 +82,7 @@
 //================================================================================
 // CUSTOM PROBE SETTINGS - FOR EZABL OR BL TOUCH
 // If you have a probe mount that is not pre-setup in the firmware then uncomment
-// the CUSTOM_PROBE line and enter your probe offsets below
+// the CUSTOM_PROBE line above and enter your probe offsets below
 //================================================================================
 #if ENABLED(CUSTOM_PROBE)
   /**
@@ -216,10 +216,9 @@
 
 // BL TOUCH ----------------------------------------
 // If you want to use the BL-Touch uncomment the 2 lines below and refer to the V42X BLTouch Picture in the Marlin Folder for wiring.
-// You also need to uncomment #define CUSTOM_PROBE below and then enter in your offsets above in the CUSTOM PROBE section.
+// You also need to uncomment #define CUSTOM_PROBE above and then enter in your offsets above in the CUSTOM PROBE section.
 // Video guide from Teaching Tech: https://youtu.be/neS7lB7fCww?t=790
 //#define BLTOUCH
-//#define CUSTOM_PROBE
 // Here is where you set your servo pin. For V4.2.X Boards use PB0
 //#define SERVO0_PIN PB0
 
