@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.14"
+#define UNIFIED_VERSION "TH3D UFW 2.15"
 
 /**
  * Temp Settings
@@ -277,7 +277,6 @@
   #endif
   #define MULTIPLE_PROBING 2
   #define AUTO_BED_LEVELING_BILINEAR
-  #define EXTRAPOLATE_BEYOND_GRID
   #define GRID_MAX_POINTS_X EZABL_POINTS
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #define Z_SAFE_HOMING
