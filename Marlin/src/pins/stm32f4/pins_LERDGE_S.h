@@ -156,6 +156,7 @@
 // SD support
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4800000
 
 #define SCK_PIN                             PC12  //confirmed working
 #define MISO_PIN                            PC8   //confirmed working

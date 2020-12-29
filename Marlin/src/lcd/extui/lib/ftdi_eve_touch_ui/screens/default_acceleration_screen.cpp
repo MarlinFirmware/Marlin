@@ -40,7 +40,7 @@ void DefaultAccelerationScreen::onRedraw(draw_mode_t what) {
   w.adjuster(  4, GET_TEXT_F(MSG_ACCEL_TRAVEL),   getTravelAcceleration_mm_s2() );
   w.adjuster(  6, GET_TEXT_F(MSG_ACCEL_RETRACT),  getRetractAcceleration_mm_s2() );
   w.increments();
-  w.button(    8, GET_TEXT_F(MSG_SET_MAXIMUM));
+  w.button(   8, GET_TEXT_F(MSG_SET_MAXIMUM));
 }
 
 bool DefaultAccelerationScreen::onTouchHeld(uint8_t tag) {

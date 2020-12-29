@@ -48,7 +48,8 @@
    *   addr  - Address in RAMG where the font data is written
    */
 
-  void FTDI::StandardCharSet::load_data(uint32_t) {
+  uint32_t FTDI::StandardCharSet::load_data(uint32_t addr) {
+    return addr;
   }
 
   /**

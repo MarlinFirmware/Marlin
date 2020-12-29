@@ -67,7 +67,7 @@ uint16_t FilesScreen::getFileForTag(uint8_t tag) {
   return screen_data.FilesScreen.cur_page * files_per_page + tag - 2;
 }
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS  6
   #define GRID_ROWS (files_per_page + header_h + footer_h)
 #else
@@ -141,17 +141,17 @@ void FilesScreen::drawHeader() {
   CommandProcessor cmd;
   cmd.colors(normal_btn)
      .font(font_small)
-     .tag(0).button( BTN_POS(2,1), BTN_SIZE(4,header_h), str, OPT_CENTER | OPT_FLAT)
+     .tag(0).button(BTN_POS(2,1), BTN_SIZE(4,header_h), str, OPT_CENTER | OPT_FLAT)
      .font(font_medium)
      .colors(action_btn)
-     .tag(241).enabled(prev_enabled).button( BTN_POS(1,1), BTN_SIZE(1,header_h), F("<"))
-     .tag(242).enabled(next_enabled).button( BTN_POS(6,1), BTN_SIZE(1,header_h), F(">"));
+     .tag(241).enabled(prev_enabled).button(BTN_POS(1,1), BTN_SIZE(1,header_h), F("<"))
+     .tag(242).enabled(next_enabled).button(BTN_POS(6,1), BTN_SIZE(1,header_h), F(">"));
 }
 
 void FilesScreen::drawFooter() {
   #undef MARGIN_T
   #undef MARGIN_B
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define MARGIN_T 15
     #define MARGIN_B 5
   #else
@@ -167,14 +167,14 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(has_selection ? normal_btn : action_btn)
-     .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BACK))
+     .tag(back_tag).button(BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BACK))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
 
   if (screen_data.FilesScreen.flags.is_dir)
-    cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_OPEN));
+    cmd.tag(244).button(BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_OPEN));
   else
-    cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_PRINT));
+    cmd.tag(243).button(BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_PRINT));
 }
 
 void FilesScreen::onRedraw(draw_mode_t what) {

@@ -1,0 +1,56 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32F407xx -DSTM32F4",
+    "f_cpu": "168000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x0483",
+        "0x3748"
+      ]
+    ],
+    "mcu": "stm32f407vgt6",
+    "product_line": "STM32F407xx",
+    "variant": "Generic_F4x7Vx"
+  },
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32F407VG",
+    "openocd_extra_args": [
+      "-c",
+      "reset_config none"
+    ],
+    "openocd_target": "stm32f4x",
+    "svd_path": "STM32F40x.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "cmsis",
+    "stm32cube",
+    "libopencm3"
+  ],
+  "name": "STM32F407VG (128k RAM, 64k CCM RAM, 1024k Flash",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 131072,
+    "maximum_size": 1048576,
+    "protocol": "stlink",
+    "protocols": [
+      "stlink",
+      "dfu",
+      "jlink"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32-high-performance-mcus/stm32f4-series/stm32f407-417/stm32f407vg.html",
+  "vendor": "Generic"
+}
