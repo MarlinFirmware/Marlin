@@ -36,7 +36,7 @@
 // the stock LCD is not supported due to closed source firmware limitations on it.
 // You can get the LCD conversion kit here: https://www.th3dstudio.com/product/evonvo-artillery-sidewinder-x1-lcd-conversion-kit/
 
-// Artillery AL4 Options --------------------------------------------------------
+// Artillery AL4 - TMC2208 Driver Settings
 // If you swapped the X, Y, or Z drivers with the TMC2208s you may need to reverse your axis. Uncomment the line for each axis that needs reversing.
 // Enabling these options will also set the driver delays/modes to the TMC2208_STANDALONE mode for whatever axis you uncomment it for.
 //#define ARTILLERY_AL4_X_AXIS_TMC2208
