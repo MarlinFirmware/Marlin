@@ -600,6 +600,8 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
     settings.save();
 
     PopToOldScreen();
+
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
   } else {
     // We've already updated the icon, so nothing left
   }
