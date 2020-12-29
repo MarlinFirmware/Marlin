@@ -52,6 +52,11 @@
 //#define SPI_MODULE                           2
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
+
+//
 // Limit Switches
 //
 #define X_DIAG_PIN                          PA15
@@ -59,8 +64,6 @@
 #define Z_DIAG_PIN                          PA11
 #define E0_DIAG_PIN                         PC4
 #define E1_DIAG_PIN                         PE7
-
-//
 
 #define X_STOP_PIN                          PA15
 #define Y_STOP_PIN                          PA12
@@ -196,7 +199,6 @@
 //#define SUICIDE_PIN                       PB2   // Enable MKSPWC support
 //#define KILL_PIN                          PA2   // Enable MKSPWC support
 //#define KILL_PIN_INVERTING                true  // Enable MKSPWC support
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
