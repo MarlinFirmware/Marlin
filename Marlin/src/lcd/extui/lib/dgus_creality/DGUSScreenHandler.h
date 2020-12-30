@@ -281,7 +281,6 @@ public:
   static bool HandlePendingUserConfirmation();
 
   static float feed_amount;
-  static bool are_steppers_enabled;
 
 private:
   static DGUSLCD_Screens current_screen;  ///< currently on screen
