@@ -524,11 +524,55 @@
   #endif
 #endif
 
+//Compatibility Layer for use when HAL manipulates PINS for MAX31855 and MAX6675
+#if PIN_EXISTS(MAX31855_CS) && !PIN_EXISTS(MAX6675_SS)
+ #define MAX6675_SS_PIN MAX31855_CS_PIN
+#endif
+#if PIN_EXISTS(MAX31855_CS2) && !PIN_EXISTS(MAX6675_SS2)
+ #define MAX6675_SS2_PIN MAX31855_CS2_PIN
+#endif
+#if PIN_EXISTS(MAX6675_CS) && !PIN_EXISTS(MAX6675_SS)
+ #define MAX6675_SS_PIN MAX6675_CS_PIN
+#endif
+#if PIN_EXISTS(MAX6675_CS2) && !PIN_EXISTS(MAX6675_SS2)
+ #define MAX6675_SS2_PIN MAX6675_CS2_PIN
+#endif
+#if PIN_EXISTS(MAX31855_MISO) && !PIN_EXISTS(MAX6675_DO)
+  #define MAX6675_DO_PIN MAX31855_MISO_PIN
+#endif
+#if PIN_EXISTS(MAX6675_MISO) && !PIN_EXISTS(MAX6675_DO)
+  #define MAX6675_DO_PIN MAX6675_MISO_PIN
+#endif
+#if PIN_EXISTS(MAX31855_SCK) && !PIN_EXISTS(MAX6675_SCK)
+  #define MAX6675_SCK_PIN MAX31855_SCK_PIN
+#endif
+
+
 //
-//Compatability Layer for MB with Large PIN Mappings
+// Possibly trigger user defined libraries
 //
-#if ANY(STM32F407IX)
-  #define LARGE_PINMAP 1
+//LIB_MAX31865 can be added in platformio.ini file on the build_flags line
+//to turn on a USER library for MAX31865
+#if MAX6675_HAS_MAX31865 && DISABLED(LIB_MAX31865)
+  #undef LIB_USR_MAX31865
+  #define LIB_ADAFRUIT_MAX31865 1
+#elif MAX6675_HAS_MAX31865 && ENABLED(LIB_MAX31865)
+  #undef LIB_ADAFRUIT_MAX31865
+  #define LIB_USR_MAX31865 1
+#endif
+//LIB_MAX31855 can be added in platformio.ini file on the build_flags line
+//to turn on a USER library for MAX31855
+#if MAX6675_HAS_MAX31855 && DISABLED(LIB_MAX31855)
+  #undef LIB_USR_MAX31855
+#elif MAX6675_HAS_MAX31855 && ENABLED(LIB_MAX31855)
+  #define LIB_USR_MAX31855 1
+#endif
+//LIB_MAX6675 can be added in platformio.ini file on the build_flags line
+//to turn on a USER library for MAX6675
+#if MAX6675_HAS_MAX6675 && DISABLED(LIB_MAX6675)
+  #undef LIB_USR_MAX6675
+#elif MAX6675_HAS_MAX6675 && ENABLED(LIB_MAX6675)
+  #define LIB_USR_MAX6675 1
 #endif
 
 #if TEMP_SENSOR_2 == -4
