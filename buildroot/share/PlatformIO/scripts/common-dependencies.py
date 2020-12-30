@@ -301,6 +301,22 @@ def MarlinFeatureIsEnabled(env, feature):
 	return some_on
 
 #
+# Check for Configfiles in two common incorect places
+#
+def check_configfile_locations():
+	BAD_CONFIG_PATH_1 = os.path.join(env['PROJECT_DIR'], "Configuration.h")
+	BAD_CONFIG_ADV_PATH_1 = os.path.join(env['PROJECT_DIR'], "Configuration_adv.h")
+	BAD_CONFIG_PATH_2 = os.path.join(env['PROJECT_DIR'], "config/Configuration.h")
+	BAD_CONFIG_ADV_PATH_2 = os.path.join(env['PROJECT_DIR'], "config/Configuration_adv.h")
+
+	if os.path.isfile(BAD_CONFIG_PATH_1) or os.path.isfile(BAD_CONFIG_ADV_PATH_1):
+		print('ERROR: Config files found in directory',env['PROJECT_DIR'], 'Please move them into the Marlin subdirectory.', flush=True)
+		raise SystemExit('Compile terminated.')
+	if os.path.isfile(BAD_CONFIG_PATH_2) or os.path.isfile(BAD_CONFIG_ADV_PATH_2):
+		print('ERROR: Config files found in directory',os.path.join(env['PROJECT_DIR'], 'config'), 'Please move them into the Marlin subdirectory.', flush=True)
+		raise SystemExit('Compile terminated.')
+
+#
 # Add a method for other PIO scripts to query enabled features
 #
 env.AddMethod(MarlinFeatureIsEnabled)
@@ -308,5 +324,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
+check_configfile_locations() 
 apply_features_config()
 force_ignore_unused_libs()
