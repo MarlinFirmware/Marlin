@@ -1291,6 +1291,9 @@ bool DGUSScreenHandler::loop() {
 
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
+      
+      // Ensure to pick up the settings
+      SetTouchScreenConfiguration();
 
       // Set initial leveling icon
       dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
