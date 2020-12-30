@@ -301,7 +301,7 @@ def MarlinFeatureIsEnabled(env, feature):
 	return some_on
 
 #
-# Check for Configfiles in two common incorect places
+# Check for Configfiles in two common incorrect places
 #
 def check_configfile_locations():
 	BAD_CONFIG_PATH_1 = os.path.join(env['PROJECT_DIR'], "Configuration.h")
