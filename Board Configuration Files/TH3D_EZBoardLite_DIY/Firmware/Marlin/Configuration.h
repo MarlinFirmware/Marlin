@@ -28,7 +28,8 @@
  * not and will not be added to the EZFirmware site as it is an advanced, non-supported configuration.
  * 
  * Compatible LCDs - This firmware is setup to use the Single Cable (EXP3) Creality LCD 
- * OR the TH3D 12864 LCD with the Dual Cable LCD adapter board
+ * OR the TH3D 12864 LCD with the Dual Cable LCD adapter board OR the BTT TFT35-E3 with serial+EXP3 plugs
+ * For the BTT TFT35-E3 wiring see our guide here: https://support.th3dstudio.com/hc/en-us/articles/360054405772-EZBoard-Lite-V1-X-BTT-TFT35-E3-Wiring-and-Firmware-Setup
  * 
  * SD Card Slot - Regardless if your LCD has an SD slot or not the onboard SD slot will always be the one used
  * 
@@ -370,6 +371,7 @@
 
 //EZBoard DIY based Machine Settings
 #define SERIAL_PORT -1
+#define SERIAL_PORT_2 0
 
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_TH3D_EZBOARD
