@@ -42,7 +42,7 @@
  * 
  * X_BED_SIZE - The size in MM of your X Axis printable area
  * Y_BED_SIZE - The size in MM of your Y Axis printable area
- * Z_MAX_POS - The tallest your machine can print without hitting the frams
+ * Z_MAX_POS - The tallest your machine can print without hitting the frame
  */
 
 #define X_BED_SIZE 300
