@@ -169,10 +169,24 @@ void SPIFlashStorage::endWrite() {
 
 void SPIFlashStorage::savePage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferWrite(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
+  // Test env
+  // char fname[256];
+  // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
+  // FILE *fp = fopen(fname, "wb");
+  // fwrite(buffer, 1, m_compressedDataUsed, fp);
+  // fclose(fp);
 }
 
 void SPIFlashStorage::loadPage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferRead(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
+  // Test env
+  // char fname[256];
+  // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
+  // FILE *fp = fopen(fname, "rb");
+  // if (fp) {
+  //     fread(buffer, 1, SPI_FLASH_PageSize, fp);
+  //     fclose(fp);
+  // }
 }
 
 void SPIFlashStorage::flushPage() {
