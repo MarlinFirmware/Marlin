@@ -34,7 +34,7 @@
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " M.A.R.C. BLTouch"       // M.A.R.C.
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " M.A.R.C. BLTouch, based upon current bugfix-2.0.x"       // M.A.R.C.
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
