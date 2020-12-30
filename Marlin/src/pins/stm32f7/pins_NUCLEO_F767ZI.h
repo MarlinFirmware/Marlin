@@ -36,7 +36,7 @@
   // Decrease delays and flash wear by spreading writes across the
   // 128 kB sector allocated for EEPROM emulation.
   // Not yet supported on F7 hardware
-  // #define FLASH_EEPROM_LEVELING
+  //#define FLASH_EEPROM_LEVELING
 #endif
 
 /**
@@ -188,9 +188,6 @@
   #define LCD_PINS_RS                       PF12  // LCD_RS
   #define LCD_PINS_ENABLE                   PD15  // LCD_EN
   #define LCD_PINS_D4                       PB13  // LCD_D4
-  // #define LCD_PINS_D5
-  // #define LCD_PINS_D6
-  // #define LCD_PINS_D7
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2
 

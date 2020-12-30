@@ -1030,11 +1030,6 @@
 //#define BLTOUCH
 
 /**
- * Pressure sensor with a BLTouch-like interface
- */
-//#define CREALITY_TOUCH
-
-/**
  * Touch-MI Probe by hotends.fr
  *
  * This probe is deployed and activated by moving the X-axis to a magnet at the edge of the bed.
@@ -2675,10 +2670,12 @@
   #define TOUCH_CALIBRATION_Y -9047
   #define TOUCH_OFFSET_X        -30
   #define TOUCH_OFFSET_Y        254
-  //#define XPT2046_X_CALIBRATION   12033
-  //#define XPT2046_Y_CALIBRATION  -9047
-  //#define XPT2046_X_OFFSET       -301
-  //#define XPT2046_Y_OFFSET        254
+  //#define TOUCH_CALIBRATION_X 12316
+  //#define TOUCH_CALIBRATION_Y -8981
+  //#define TOUCH_OFFSET_X        -43
+  //#define TOUCH_OFFSET_Y        257
+  //#define TOUCH_ORIENTATION   TOUCH_LANDSCAPE
+
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
   #endif

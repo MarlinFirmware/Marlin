@@ -139,21 +139,20 @@
 #define TFT_RS_PIN                          PD13
 #define TFT_INTERFACE_FSMC_8BIT
 
+#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
+#define FSMC_CS_PIN                   TFT_CS_PIN
+#define FSMC_RS_PIN                   TFT_RS_PIN
+
 //
 // Touch Screen
 // https://ldm-systems.ru/f/doc/catalog/HY-TFT-2,8/XPT2046.pdf
 //
-#if ENABLED(TOUCH_SCREEN)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB2
   #define TOUCH_SCK_PIN                     PB0
   #define TOUCH_MOSI_PIN                    PE5
   #define TOUCH_MISO_PIN                    PE4
   #define TOUCH_INT_PIN                     PB1
-#endif
-
-// Touchscreen calibration does not work correctly with ANET_ET5_TFT35 or ANET_ET4_TFT28
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #undef TOUCH_SCREEN_CALIBRATION
 #endif
 
 #if ENABLED(ANET_ET5_TFT35)

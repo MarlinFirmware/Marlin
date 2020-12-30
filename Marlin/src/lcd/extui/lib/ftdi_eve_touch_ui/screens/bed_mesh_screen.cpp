@@ -30,7 +30,7 @@ using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 2
   #define GRID_ROWS 10
 
