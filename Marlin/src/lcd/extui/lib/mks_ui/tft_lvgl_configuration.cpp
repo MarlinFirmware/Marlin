@@ -75,6 +75,9 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
+uint8_t bmp_public_buf[14 * 1024];
+uint8_t public_buf[513];
+
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void SysTick_Callback() {
@@ -383,9 +386,8 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
 }
 
 //sd
-extern uint8_t public_buf[513];
 char *cur_namefff;
-uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
+uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   char name_buf[100];
   *name_buf = '/';
@@ -411,7 +413,8 @@ lv_fs_res_t sd_close_cb (lv_fs_drv_t * drv, void * file_p) {
 
 lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br) {
   if (btr == 200) {
-    lv_gcode_file_read((uint8_t *)buf, *(uint32_t*)file_p);
+    lv_gcode_file_read((uint8_t *)buf);
+    //pic_read_addr_offset += 208;
     *br = 200;
   }
   else if (btr == 4) {
@@ -430,7 +433,7 @@ lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos) {
 
 lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   if (sd_read_addr_offset) *pos_p = 0;
-  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / 409 * 200 + 4;
+  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / small_image_size * 200 + 4;
   return LV_FS_RES_OK;
 }
 
