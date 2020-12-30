@@ -309,12 +309,12 @@ def check_configfile_locations():
 	BAD_CONFIG_PATH_2 = os.path.join(env['PROJECT_DIR'], "config/Configuration.h")
 	BAD_CONFIG_ADV_PATH_2 = os.path.join(env['PROJECT_DIR'], "config/Configuration_adv.h")
 
- if os.path.isfile(BAD_CONFIG_PATH_1) or os.path.isfile(BAD_CONFIG_ADV_PATH_1):
-        err = 'ERROR: Config files found in directory ' + str(env['PROJECT_DIR']) + ' Please move them into the Marlin subdirectory.'
-        raise SystemExit(err)
-    if os.path.isfile(BAD_CONFIG_PATH_2) or os.path.isfile(BAD_CONFIG_ADV_PATH_2):
-        err = 'ERROR: Config files found in directory ' + str(os.path.join(env['PROJECT_DIR'], 'config')) + ' Please move them into the Marlin subdirectory.'
-        raise SystemExit(err)
+	if os.path.isfile(BAD_CONFIG_PATH_1) or os.path.isfile(BAD_CONFIG_ADV_PATH_1):
+		err = 'ERROR: Config files found in directory ' + str(env['PROJECT_DIR']) + ' Please move them into the Marlin subdirectory.'
+		raise SystemExit(err)
+	if os.path.isfile(BAD_CONFIG_PATH_2) or os.path.isfile(BAD_CONFIG_ADV_PATH_2):
+		err = 'ERROR: Config files found in directory ' + str(os.path.join(env['PROJECT_DIR'], 'config')) + ' Please move them into the Marlin subdirectory.'
+		raise SystemExit(err)
 	
 #
 # Add a method for other PIO scripts to query enabled features
