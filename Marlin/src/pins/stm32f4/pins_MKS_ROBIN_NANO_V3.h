@@ -31,17 +31,27 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -98,8 +108,8 @@
 
 //
 // Software SPI pins for TMC2130 stepper drivers
+// This board only supports SW SPI for stepper drivers
 //
-// This board only support SW SPI for stepper drivers
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
@@ -179,6 +189,7 @@
 
 #define POWER_LOSS_PIN                    PW_DET
 #define PS_ON_PIN                         PW_OFF
+
 //
 // Enable MKSPWC support
 //
@@ -186,14 +197,13 @@
 //#define KILL_PIN                          PA2
 //#define KILL_PIN_INVERTING                true
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 //#define LED_PIN                           PB2
 
 // Random Info
-#define USB_SERIAL                         -1  //Usb Serial
-#define WIFI_SERIAL                         3  //USART3
-#define MKS_WIFI_MODULE_SERIAL              1  //USART1
-#define MKS_WIFI_MODULE_SPI                 2  //SPI2
+#define USB_SERIAL              -1  // USB Serial
+#define WIFI_SERIAL              3  // USART3
+#define MKS_WIFI_MODULE_SERIAL   1  // USART1
+#define MKS_WIFI_MODULE_SPI      2  // SPI2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
@@ -331,7 +341,7 @@
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if ENABLED(ULTIPANEL)
@@ -346,5 +356,3 @@
 
   #endif // !MKS_MINI_12864
 #endif // HAS_SPI_LCD
-
-#define HAS_OTG_USB_HOST_SUPPORT
