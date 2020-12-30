@@ -701,7 +701,7 @@
 // #if defined(MISO) && MISO >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, MISO)
 // #endif
-#if PIN_EXISTS(MISO)
+#if PIN_EXISTS(SD_MISO)
   REPORT_NAME_DIGITAL(__LINE__, SD_MISO_PIN)
 #endif
 #if PIN_EXISTS(MOSFET_A)
@@ -719,7 +719,7 @@
 // #if defined(MOSI) && MOSI >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, MOSI)
 // #endif
-#if PIN_EXISTS(MOSI)
+#if PIN_EXISTS(SD_MOSI)
   REPORT_NAME_DIGITAL(__LINE__, SD_MOSI_PIN)
 #endif
 #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
@@ -800,7 +800,7 @@
 // #if defined(SCK) && SCK >= 0
 //   REPORT_NAME_DIGITAL(__LINE__, SCK)
 // #endif
-#if PIN_EXISTS(SCK)
+#if PIN_EXISTS(SD_SCK)
   REPORT_NAME_DIGITAL(__LINE__, SD_SCK_PIN)
 #endif
 // #if defined(SCL) && SCL >= 0
@@ -908,7 +908,7 @@
 #if PIN_EXISTS(SR_STROBE)
   REPORT_NAME_DIGITAL(__LINE__, SR_STROBE_PIN)
 #endif
-#if PIN_EXISTS(SS)
+#if PIN_EXISTS(SD_SS)
   REPORT_NAME_DIGITAL(__LINE__, SD_SS_PIN)
 #endif
 #if PIN_EXISTS(STAT_LED_BLUE)
