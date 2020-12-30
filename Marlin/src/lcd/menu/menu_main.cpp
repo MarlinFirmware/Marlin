@@ -58,6 +58,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../../feature/repeat.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
@@ -118,6 +122,11 @@ void menu_main() {
           GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
+    #endif
+
+    #if ENABLED(GCODE_REPEAT_MARKERS)
+      if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
     #endif
 
     SUBMENU(MSG_TUNE, menu_tune);

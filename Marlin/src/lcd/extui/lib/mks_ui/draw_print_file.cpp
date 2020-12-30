@@ -418,9 +418,9 @@ void lv_gcode_file_read(uint8_t *data_buf) {
 
       uint16_t c = card.get();
       // check for more data or end of line (CR or LF)
-      if ((c) == '\n' || (c) == '\r') {
+      if (ISEOL(c)) {
         c = card.get(); // more eol?
-        if ((c) == '\n' || (c) == '\r') card.setIndex(card.getIndex() - 1);
+        if (!ISEOL(c)) card.setIndex(card.getIndex() - 1);
         break;
       }
       card.setIndex(card.getIndex() - 1);
