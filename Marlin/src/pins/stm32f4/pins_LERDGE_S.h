@@ -158,10 +158,10 @@
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
 
-#define SCK_PIN                             PC12  //confirmed working
-#define MISO_PIN                            PC8   //confirmed working
-#define MOSI_PIN                            PD2   //confirmed working
-#define SS_PIN                              PC11  //confirmed working
+#define SD_SCK_PIN                          PC12  //confirmed working
+#define SD_MISO_PIN                         PC8   //confirmed working
+#define SD_MOSI_PIN                         PD2   //confirmed working
+#define SD_SS_PIN                           PC11  //confirmed working
 
 #define SD_DETECT_PIN                       PG15  //confirmed
 

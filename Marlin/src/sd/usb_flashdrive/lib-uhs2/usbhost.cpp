@@ -115,8 +115,8 @@ bool MAX3421e::start() {
   spiBegin();
 
   spiInit(
-    #ifdef SPI_SPEED
-      SPI_SPEED
+    #ifdef SD_SPI_SPEED
+      SD_SPI_SPEED
     #else
       SPI_FULL_SPEED
     #endif

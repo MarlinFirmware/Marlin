@@ -45,8 +45,8 @@
 //              This will be difficult to solve from the Arduino IDE, without modifying the RUMBA32 variant
 //              included with the STM32 framework.
 
-#define STEP_TIMER 10
-#define TEMP_TIMER 14
+#define STEP_TIMER                            10
+#define TEMP_TIMER                            14
 
 //
 // Limit Switches
@@ -126,9 +126,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions

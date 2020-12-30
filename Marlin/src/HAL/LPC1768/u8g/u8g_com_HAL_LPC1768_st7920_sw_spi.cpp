@@ -63,8 +63,8 @@
 #include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
 
-#undef SPI_SPEED
-#define SPI_SPEED 3  // About 1 MHz
+#undef SD_SPI_SPEED
+#define SD_SPI_SPEED 3  // About 1 MHz
 
 static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
 static uint8_t SPI_speed = 0;
@@ -92,7 +92,7 @@ uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t ar
       u8g_SetPIOutput(u8g, U8G_PI_MOSI);
       u8g_Delay(5);
 
-      SPI_speed = swSpiInit(SPI_SPEED, SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL);
+      SPI_speed = swSpiInit(SD_SPI_SPEED, SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL);
 
       u8g_SetPILevel(u8g, U8G_PI_CS, 0);
       u8g_SetPILevel(u8g, U8G_PI_SCK, 0);

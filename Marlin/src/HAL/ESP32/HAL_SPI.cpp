@@ -54,10 +54,10 @@ static SPISettings spiConfig;
 
 void spiBegin() {
   #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+    #error "SD_SS_PIN not defined!"
   #endif
 
-  OUT_WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SD_SS_PIN, HIGH);
 }
 
 void spiInit(uint8_t spiRate) {

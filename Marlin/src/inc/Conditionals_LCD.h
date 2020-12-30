@@ -1046,8 +1046,8 @@
 #endif
 
 // Fallback SPI Speed
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
+#ifndef SD_SPI_SPEED
+  #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
 /**

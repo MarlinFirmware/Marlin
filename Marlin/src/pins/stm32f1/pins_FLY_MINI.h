@@ -33,9 +33,9 @@
 // Flash EEPROM Emulation
 //
 #define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     0x800 // 2KB
+#define EEPROM_PAGE_SIZE                   0x800  // 2KB
 #define EEPROM_START_ADDRESS (0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE) // 256K firmware space
-#define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE
+#define MARLIN_EEPROM_SIZE      EEPROM_PAGE_SIZE
 
 //
 // Servos
@@ -133,12 +133,12 @@
 // LCD / Controller
 //
 #define SPI_DEVICE                             2
-#define SS_PIN                              PB12
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
+#define SD_SS_PIN                           PB12
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 #define SD_DETECT_PIN                       PB11
 
 #define BEEPER_PIN                          PC14

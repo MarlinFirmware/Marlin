@@ -1182,6 +1182,15 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
+  /**
+   * SD CARD: SPI SPEED
+   *
+   * Enable one of the following items for a slower SPI transfer speed.
+   * This may be required to resolve "volume init" errors.
+   */
+  //#define SD_SPI_SPEED SPI_HALF_SPEED
+  //#define SD_SPI_SPEED SPI_QUARTER_SPEED
+  //#define SD_SPI_SPEED SPI_EIGHTH_SPEED
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
