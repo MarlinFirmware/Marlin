@@ -60,6 +60,6 @@
 #ifndef MOSI_PIN
   #define MOSI_PIN AVR_MOSI_PIN
 #endif
-#ifndef SD_SS_PIN
+#ifndef SS_PIN
   #define SS_PIN AVR_SS_PIN
 #endif

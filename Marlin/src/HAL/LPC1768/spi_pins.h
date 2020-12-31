@@ -45,10 +45,10 @@
 #ifndef MOSI_PIN
   #define MOSI_PIN P0_18
 #endif
-#ifndef SD_SS_PIN
+#ifndef SS_PIN
   #define SS_PIN P1_23
 #endif
 #if !defined(SDSS) || SDSS == P_NC // gets defaulted in pins.h
   #undef SDSS
-  #define SDSS              SD_SS_PIN
+  #define SDSS              SS_PIN
 #endif

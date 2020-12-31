@@ -30,6 +30,6 @@
 #ifndef MOSI_PIN
   #define MOSI_PIN PIN_SPI_MOSI
 #endif
-#ifndef SD_SS_PIN
+#ifndef SS_PIN
   #define SS_PIN PIN_SPI_SS
 #endif

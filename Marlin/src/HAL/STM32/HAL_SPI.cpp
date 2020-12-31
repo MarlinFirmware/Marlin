@@ -45,7 +45,7 @@ static SPISettings spiConfig;
   #include "../shared/Delay.h"
 
   void spiBegin(void) {
-    OUT_WRITE(SD_SS_PIN, HIGH);
+    OUT_WRITE(SS_PIN, HIGH);
     OUT_WRITE(SCK_PIN, HIGH);
     SET_INPUT(MISO_PIN);
     OUT_WRITE(MOSI_PIN, HIGH);
@@ -133,7 +133,7 @@ static SPISettings spiConfig;
    */
   void spiBegin() {
     #if PIN_EXISTS(SD_SS)
-      OUT_WRITE(SD_SS_PIN, HIGH);
+      OUT_WRITE(SS_PIN, HIGH);
     #endif
   }
 

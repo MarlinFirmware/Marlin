@@ -442,13 +442,13 @@
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 
   #if MB(ALLIGATOR)
-    #define _SS_WRITE(S) WRITE(SD_SS_PIN, S)
+    #define _SS_WRITE(S) WRITE(SS_PIN, S)
   #else
     #define _SS_WRITE(S) NOOP
   #endif
 
   void spiBegin() {
-    SET_OUTPUT(SD_SS_PIN);
+    SET_OUTPUT(SS_PIN);
     _SS_WRITE(HIGH);
     SET_OUTPUT(SCK_PIN);
     SET_INPUT(MISO_PIN);
@@ -606,7 +606,7 @@
       WRITE(SPI_EEPROM1_CS, HIGH);
       WRITE(SPI_EEPROM2_CS, HIGH);
       WRITE(SPI_FLASH_CS, HIGH);
-      WRITE(SD_SS_PIN, HIGH);
+      WRITE(SS_PIN, HIGH);
 
       OUT_WRITE(SDSS, LOW);
 

@@ -30,7 +30,7 @@
   *  SPI  | 53    52     50     51  |
   *  SPI1 | 83    81     80     82  |
   *       +-------------------------+
-  * Any pin can be used for Chip Select (SD_SS_PIN)
+  * Any pin can be used for Chip Select (SS_PIN)
   */
   #ifndef SCK_PIN
     #define SCK_PIN 52

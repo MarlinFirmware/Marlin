@@ -46,9 +46,9 @@
 #ifndef MOSI_PIN
   #define MOSI_PIN 52
 #endif
-#ifndef SD_SS_PIN
+#ifndef SS_PIN
   #define SS_PIN 53
 #endif
 #ifndef SDSS
-  #define SDSS              SD_SS_PIN
+  #define SDSS              SS_PIN
 #endif

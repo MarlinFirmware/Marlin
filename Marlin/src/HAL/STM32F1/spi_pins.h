@@ -31,7 +31,7 @@
  *  SPI2 | PB12   PB13    PB14    PB15 |
  *  SPI3 | PA15   PB3     PB4     PB5  |
  *       +-----------------------------+
- * Any pin can be used for Chip Select (SD_SS_PIN)
+ * Any pin can be used for Chip Select (SS_PIN)
  * SPI1 is enabled by default
  */
 #ifndef SCK_PIN
@@ -43,11 +43,11 @@
 #ifndef MOSI_PIN
   #define MOSI_PIN PA7
 #endif
-#ifndef SD_SS_PIN
+#ifndef SS_PIN
   #define SS_PIN PA4
 #endif
 #undef SDSS
-#define SDSS       SD_SS_PIN
+#define SDSS       SS_PIN
 
 #ifndef SPI_DEVICE
   #define SPI_DEVICE 1

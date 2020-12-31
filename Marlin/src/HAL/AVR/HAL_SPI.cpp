@@ -34,17 +34,17 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  OUT_WRITE(SD_SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);
   SET_INPUT(MISO_PIN);
   SET_OUTPUT(MOSI_PIN);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SD_SS_PIN);
+    //SET_OUTPUT(SS_PIN);
     // set SS high - may be chip select for another SPI device
     //#if SET_SPI_SS_HIGH
-      //WRITE(SD_SS_PIN, HIGH);
+      //WRITE(SS_PIN, HIGH);
     //#endif
     // set a default rate
     spiInit(1);

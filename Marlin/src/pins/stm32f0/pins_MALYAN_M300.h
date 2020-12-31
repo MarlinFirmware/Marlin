@@ -41,7 +41,7 @@
 //
 // SD CARD SPI
 //
-#define SDSS                           SD_SS_PIN
+#define SDSS                           SS_PIN
 
 //
 // Timers

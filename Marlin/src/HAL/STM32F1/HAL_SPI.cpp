@@ -62,7 +62,7 @@
  */
 void spiBegin() {
   #if PIN_EXISTS(SD_SS)
-    OUT_WRITE(SD_SS_PIN, HIGH);
+    OUT_WRITE(SS_PIN, HIGH);
   #endif
 }
 
