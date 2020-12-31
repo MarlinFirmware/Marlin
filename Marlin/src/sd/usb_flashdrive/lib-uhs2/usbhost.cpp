@@ -114,9 +114,6 @@ bool MAX3421e::start() {
   ncs();
   spiBegin();
 
-  #ifndef SD_SPI_SPEED
-    #define SD_SPI_SPEED SPI_FULL_SPEED
-  #endif
   spiInit(SD_SPI_SPEED);
 
   // MAX3421e - full-duplex, level interrupt, vbus off.
