@@ -269,13 +269,19 @@
     static millis_t start_time;
     static float menu_scale;
     TERN_(IS_KINEMATIC, static float offset);
-    #if IS_KINEMATIC
-      template <typename T>
-      void set_destination(const T& dest) {
+    template <typename T>
+    void set_destination(const T& dest) {
+      #if IS_KINEMATIC
+        // Moves are segmented, so the entire move is not submitted at once.
+        // Using a separate variable prevents corrupting the in-progress move.
         all_axes_destination = current_position;
         all_axes_destination.set(dest);
-      }
-
+      #else
+        // Moves are submitted as single line to the planner using buffer_line.
+        current_position.set(dest);
+      #endif
+    }
+    #if IS_KINEMATIC
       static bool processing;
     #else
       static bool constexpr processing = false;
