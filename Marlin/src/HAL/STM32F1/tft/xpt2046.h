@@ -37,7 +37,7 @@
   #define TOUCH_SCK_PIN  SD_SCK_PIN
 #endif
 #ifndef TOUCH_CS_PIN
-  #define TOUCH_CS_PIN   CS_PIN
+  #define TOUCH_CS_PIN   SD_SS_PIN
 #endif
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
