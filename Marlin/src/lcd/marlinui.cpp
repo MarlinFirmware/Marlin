@@ -685,6 +685,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   millis_t ManualMove::start_time = 0;
   float ManualMove::menu_scale = 1;
   TERN_(IS_KINEMATIC, float ManualMove::offset = 0);
+  TERN_(IS_KINEMATIC, xyze_pos_t ManualMove::all_axes_destination = {0});
   TERN_(IS_KINEMATIC, bool ManualMove::processing = false);
   TERN_(MULTI_MANUAL, int8_t ManualMove::e_index = 0);
   AxisEnum ManualMove::axis = NO_AXIS;
@@ -725,8 +726,13 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Apply a linear offset to a single axis
-        destination = current_position;
-        if (axis <= XYZE) destination[axis] += offset;
+        if (axis == ALL_AXES) {
+          destination = all_axes_destination;
+        }
+        else if (axis <= XYZE) {
+          destination = current_position;
+          destination[axis] += offset;
+        }
 
         // Reset for the next move
         offset = 0;

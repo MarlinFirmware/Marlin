@@ -422,10 +422,9 @@ void ubl_map_move_to_xy() {
     }
   #endif
 
-  // Set the nozzle position to the mesh point
-  current_position.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
-
-  // Use the built-in manual move handler
+  // Use the built-in manual move handler to move to the mesh point.
+  const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
+  ui.manual_move.set_destination(xy);
   ui.manual_move.soon(ALL_AXES);
 }
 

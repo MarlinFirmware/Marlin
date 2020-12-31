@@ -262,11 +262,18 @@
 
   // Manual Movement class
   class ManualMove {
+    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
   public:
     static millis_t start_time;
     static float menu_scale;
     TERN_(IS_KINEMATIC, static float offset);
     #if IS_KINEMATIC
+      template <typename T>
+      void set_destination(const T& dest) {
+        all_axes_destination = current_position;
+        all_axes_destination.set(dest);
+      }
+
       static bool processing;
     #else
       static bool constexpr processing = false;
