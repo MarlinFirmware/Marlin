@@ -198,9 +198,9 @@
     #define STAT_LED_BLUE_PIN                 29
     #define STAT_LED_RED_PIN                  23
     #define DOGLCD_CS                         17
-    #define DOGLCD_SCK                        76  // SD_SCK_PIN   - Required for DUE Hardware SPI
-    #define DOGLCD_MOSI                       75  // SD_MOSI_PIN
-    #define DOGLCD_MISO                       74  // SD_MISO_PIN
+    #define DOGLCD_SCK                        76  // SCK_PIN   - Required for DUE Hardware SPI
+    #define DOGLCD_MOSI                       75  // MOSI_PIN
+    #define DOGLCD_MISO                       74  // MISO_PIN
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
