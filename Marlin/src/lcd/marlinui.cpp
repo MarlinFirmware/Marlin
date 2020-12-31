@@ -22,6 +22,13 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "../gcode/gcode.h"
+  #include "../module/planner.h"
+  #include "../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+  #include "../../src/libs/nozzle.h"
+#endif
+
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
 #endif
@@ -1562,6 +1569,50 @@ void MarlinUI::update() {
     #endif
     print_job_timer.start(); // Also called by M24
   }
+
+#if ENABLED(DGUS_LCD_UI_MKS)
+
+  uint16_t r_z = 0;
+  uint16_t r_x = 0;
+  uint16_t r_y = 0;
+
+  void MarlinUI::pause_print_move()
+  {
+    char buf[40];
+
+    uint16_t park_point_x = X_MIN_POS + x_park_pos;
+    uint16_t park_point_y = Y_MIN_POS + y_park_pos;
+    uint16_t park_point_z = z_park_pos;
+
+    // queue.length = 0;
+    // set_status_P(print_paused);
+    while(queue.length) queue.advance();
+
+    planner.synchronize();
+    // gcode.process_subcommands_now_P(PSTR("M25"));
+    r_z = current_position.z;
+    r_x = current_position.x;
+    r_y = current_position.y;
+
+    sprintf(buf,"G91\nG1 Z%d\nG90\n",park_point_z);
+    gcode.process_subcommands_now_P(buf);
+
+    sprintf(buf,"G1 X%d\nG1 Y%d\n",park_point_x,park_point_y);
+    gcode.process_subcommands_now_P(buf);
+  }
+
+  void MarlinUI::resume_print_move()
+  {
+    char buf[40];
+    sprintf(buf,"G1 X%d\nG90",r_x);
+    gcode.process_subcommands_now_P(buf);
+    sprintf(buf,"G1 Y%d\nG90",r_y);
+    gcode.process_subcommands_now_P(buf);
+    // sprintf(buf,"G91\nG1 Z-%d\nG90\n",park_point_z);
+    sprintf(buf,"G1 Z%d\nG90",r_z);
+    gcode.process_subcommands_now_P(buf);
+  }
+#endif
 
   #if HAS_PRINT_PROGRESS
 

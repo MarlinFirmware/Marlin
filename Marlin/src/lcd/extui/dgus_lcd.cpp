@@ -127,7 +127,9 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
       // Called on resume from power-loss
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
+      #if !ENABLED(DGUS_LCD_UI_MKS)
+        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
+      #endif
     }
   #endif
 

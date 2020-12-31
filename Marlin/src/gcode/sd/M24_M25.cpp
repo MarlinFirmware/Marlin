@@ -48,6 +48,17 @@
  */
 void GcodeSuite::M24() {
 
+  #if ENABLED(DGUS_LCD_UI_MKS)
+      if(print_job_timer.isPaused() || print_job_timer.isRunning())
+      { 
+        if (parser.seenval('S')) {}
+        else if (parser.seenval('T')) {}
+          else{
+            ui.resume_print_move();
+          }
+      }  
+  #endif 
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (parser.seenval('S')) card.setIndex(parser.value_long());
     if (parser.seenval('T')) print_job_timer.resume(parser.value_long());
@@ -97,6 +108,10 @@ void GcodeSuite::M25() {
     #endif
 
     print_job_timer.pause();
+
+    #if ENABLED(DGUS_LCD_UI_MKS)
+      ui.pause_print_move();
+    #endif
 
     #if DISABLED(DWIN_CREALITY_LCD)
       ui.reset_status();
