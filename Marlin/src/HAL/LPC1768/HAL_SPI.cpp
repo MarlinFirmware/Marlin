@@ -55,27 +55,55 @@
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_clkpwr.h>
 
+#include "../shared/HAL_SPI.h"
+
+#ifndef HAL_MISO_PIN
+  #ifdef SD_MISO_PIN
+    #define HAL_MISO_PIN SD_MISO_PIN
+  #else
+    #error "No HAL_MISO_PIN is available."
+  #endif
+#endif
+#ifndef HAL_MOSI_PIN
+  #ifdef SD_MOSI_PIN
+    #define HAL_MOSI_PIN SD_MOSI_PIN
+  #else
+    #error "No HAL_MOSI_PIN is available."
+  #endif
+#endif
+#ifndef HAL_SCK_PIN
+  #ifdef SD_SCK_PIN
+    #define HAL_SCK_PIN SD_SCK_PIN
+  #else
+    #error "No HAL_SCK_PIN is available."
+  #endif
+#endif
+
 // ------------------------
 // Public functions
 // ------------------------
 #if ENABLED(LPC_SOFTWARE_SPI)
 
-  #include <SoftwareSPI.h>
-
   // Software SPI
 
-  static uint8_t SPI_speed = 0;
+  #include <SoftwareSPI.h>
+
+  #ifndef HAL_SPI_SPEED
+    #define HAL_SPI_SPEED SPI_FULL_SPEED
+  #endif
+
+  static uint8_t SPI_speed = HAL_SPI_SPEED;
 
   static uint8_t spiTransfer(uint8_t b) {
-    return swSpiTransfer(b, SPI_speed, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
+    return swSpiTransfer(b, SPI_speed, HAL_SCK_PIN, HAL_MISO_PIN, HAL_MOSI_PIN);
   }
 
   void spiBegin() {
-    swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
+    swSpiBegin(HAL_SCK_PIN, HAL_MISO_PIN, HAL_MOSI_PIN);
   }
 
   void spiInit(uint8_t spiRate) {
-    SPI_speed = swSpiInit(spiRate, SD_SCK_PIN, SD_MOSI_PIN);
+    SPI_speed = swSpiInit(spiRate, HAL_SCK_PIN, HAL_MOSI_PIN);
   }
 
   uint8_t spiRec() { return spiTransfer(0xFF); }
@@ -100,19 +128,20 @@
 
 #else
 
-  void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
+  #ifndef HAL_SPI_SPEED
     #ifdef SD_SPI_SPEED
       #define HAL_SPI_SPEED SD_SPI_SPEED
     #else
       #define HAL_SPI_SPEED SPI_FULL_SPEED
     #endif
-    spiInit(HAL_SPI_SPEED);
-  }
+  #endif
+
+  void spiBegin() { spiInit(HAL_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
-    #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
+    #if HAL_MISO_PIN == BOARD_SPI1_MISO_PIN
       SPI.setModule(1);
-    #elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
+    #elif HAL_MISO_PIN == BOARD_SPI2_MISO_PIN
       SPI.setModule(2);
     #endif
     SPI.setDataSize(DATA_SIZE_8BIT);
@@ -155,10 +184,9 @@
       (void)spiTransfer(buf[i]);
   }
 
-  /** Begin SPI transaction, set clock, bit order, data mode */
+  // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-    // TODO: to be implemented
-
+    // TODO: Implement this method
   }
 
 #endif // LPC_SOFTWARE_SPI
@@ -397,9 +425,9 @@ void SPIClass::updateSettings() {
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
-#if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
+#if HAL_MISO_PIN == BOARD_SPI1_MISO_PIN
   SPIClass SPI(1);
-#elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
+#elif HAL_MISO_PIN == BOARD_SPI2_MISO_PIN
   SPIClass SPI(2);
 #endif
 
