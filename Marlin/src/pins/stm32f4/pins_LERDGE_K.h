@@ -142,7 +142,7 @@
 // SD support
 //
 #define SDIO_SUPPORT
-#define SDIO_CLOCK                      4800000
+#define SDIO_CLOCK                       4800000
 
 //
 // Misc. Functions
