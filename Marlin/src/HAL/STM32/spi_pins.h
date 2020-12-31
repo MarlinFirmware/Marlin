@@ -22,14 +22,14 @@
  * Define SPI Pins: SCK, MISO, MOSI, SS
  */
 #ifndef SCK_PIN
-  #define SCK_PIN PIN_SPI_SCK
+  #define SCK_PIN   PIN_SPI_SCK
 #endif
 #ifndef MISO_PIN
-  #define MISO_PIN PIN_SPI_MISO
+  #define MISO_PIN  PIN_SPI_MISO
 #endif
 #ifndef MOSI_PIN
-  #define MOSI_PIN PIN_SPI_MOSI
+  #define MOSI_PIN  PIN_SPI_MOSI
 #endif
 #ifndef SS_PIN
-  #define SS_PIN PIN_SPI_SS
+  #define SS_PIN    PIN_SPI_SS
 #endif

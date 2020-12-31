@@ -35,7 +35,7 @@
 #endif
 
 // Avoid conflict with TIMER_TONE defined in variant
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 //
 // EEPROM Emulation

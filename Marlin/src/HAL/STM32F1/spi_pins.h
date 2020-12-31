@@ -35,7 +35,7 @@
  * SPI1 is enabled by default
  */
 #ifndef SCK_PIN
-  #define SCK_PIN PA5
+  #define SCK_PIN  PA5
 #endif
 #ifndef MISO_PIN
   #define MISO_PIN PA6
@@ -44,7 +44,7 @@
   #define MOSI_PIN PA7
 #endif
 #ifndef SS_PIN
-  #define SS_PIN PA4
+  #define SS_PIN   PA4
 #endif
 #undef SDSS
 #define SDSS       SS_PIN

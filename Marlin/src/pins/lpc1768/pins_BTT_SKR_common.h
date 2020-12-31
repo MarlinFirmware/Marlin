@@ -31,11 +31,11 @@
 
 // If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT                      1
+//#define HAS_BTT_EXP_MOT 1
 
 #if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-    #define EXP_MOT_USE_EXP2_ONLY              1
+    #define EXP_MOT_USE_EXP2_ONLY 1
   #else
     #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
   #endif

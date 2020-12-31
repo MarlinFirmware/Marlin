@@ -131,7 +131,7 @@
   #define MISO_PIN                         P0_16  // EXP1-4
   #define MOSI_PIN                         P0_18  // EXP1-3
   #define SS_PIN                           P1_30  // EXP1-2
-  #define SDSS                         SS_PIN
+  #define SDSS                            SS_PIN
 
 #endif // SDSUPPORT
 

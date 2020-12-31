@@ -32,22 +32,22 @@
 #endif
 
 /** onboard SD card */
-//#define SCK_PIN P0_07
-//#define MISO_PIN P0_08
-//#define MOSI_PIN P0_09
-//#define SS_PIN P0_06
+//#define SCK_PIN           P0_07
+//#define MISO_PIN          P0_08
+//#define MOSI_PIN          P0_09
+//#define SS_PIN            P0_06
 /** external */
 #ifndef SCK_PIN
-  #define SCK_PIN 50
+  #define SCK_PIN           50
 #endif
 #ifndef MISO_PIN
-  #define MISO_PIN 51
+  #define MISO_PIN          51
 #endif
 #ifndef MOSI_PIN
-  #define MOSI_PIN 52
+  #define MOSI_PIN          52
 #endif
 #ifndef SS_PIN
-  #define SS_PIN 53
+  #define SS_PIN            53
 #endif
 #ifndef SDSS
   #define SDSS              SS_PIN

@@ -205,7 +205,7 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-//#define USE_NEW_SPI_API                      1
+//#define USE_NEW_SPI_API 1
 
 //
 // Onboard SD card

@@ -41,7 +41,7 @@
 #define BOARD_NO_NATIVE_USB
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER 5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -62,10 +62,10 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define SPI_DEVICE                             2
 #define SCK_PIN                             PB13  // SPI2
 #define MISO_PIN                            PB14  // SPI2
 #define MOSI_PIN                            PB15  // SPI2
+#define SPI_DEVICE 2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1

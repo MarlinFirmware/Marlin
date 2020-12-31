@@ -323,7 +323,7 @@
 //#define FAN7_PIN                          PE14  // Fan7
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
 //

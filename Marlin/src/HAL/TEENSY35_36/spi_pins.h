@@ -25,7 +25,7 @@
  * HAL SPI Pins for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  */
 
-#define SCK_PIN 13
-#define MISO_PIN 12
-#define MOSI_PIN 11
-#define SS_PIN 20 // SDSS // A.28, A.29, B.21, C.26, C.29
+#define SCK_PIN   13
+#define MISO_PIN  12
+#define MOSI_PIN  11
+#define SS_PIN    20 // SDSS // A.28, A.29, B.21, C.26, C.29

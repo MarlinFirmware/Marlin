@@ -52,7 +52,7 @@
 #endif
 
 #ifndef SCK_PIN
-  #define SCK_PIN AVR_SCK_PIN
+  #define SCK_PIN  AVR_SCK_PIN
 #endif
 #ifndef MISO_PIN
   #define MISO_PIN AVR_MISO_PIN
@@ -61,5 +61,5 @@
   #define MOSI_PIN AVR_MOSI_PIN
 #endif
 #ifndef SS_PIN
-  #define SS_PIN AVR_SS_PIN
+  #define SS_PIN   AVR_SS_PIN
 #endif

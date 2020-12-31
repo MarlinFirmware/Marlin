@@ -85,7 +85,7 @@
   #define Z_HARDWARE_SERIAL              Serial1
   #define E0_HARDWARE_SERIAL             Serial1
 
-  #define TMC_BAUD_RATE                      115200
+  #define TMC_BAUD_RATE 115200
 #endif
 
 //
