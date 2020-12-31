@@ -78,9 +78,9 @@
  *     ATX PS_ON    PWM 27 |b7   #####   b6| 26    PWM*       Stepper Enable
  *                  PWM  0 |d0           b5| 25    PWM*
  *                  PWM  1 |d1           b4| 24    PWM
- *         X_MIN         2 |d2           b3| 23               SD_MISO_PIN
- *         Y_MIN         3 |d3           b2| 22               SD_MOSI_PIN
- *         Z_MIN         4 |d4  * *      b1| 21               SD_SCK_PIN
+ *         X_MIN         2 |d2           b3| 23               MISO_PIN
+ *         Y_MIN         3 |d3           b2| 22               MOSI_PIN
+ *         Z_MIN         4 |d4  * *      b1| 21               SCK_PIN
  *                       5 |d5  e e      b0| 20               SDSS
  *                LED    6 |d6  5 4      e7| 19
  *                       7 |d7           e6| 18

@@ -249,8 +249,8 @@
 
 /**
  *                _____                                            _____
- * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)               (MISO) 0.8  | · · | 0.7  (SD_SCK)
- * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)             (BTN_EN1) 3.25 | · · | 0.28 (SD_CS2)
+ * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)            (SD_MISO) 0.8  | · · | 0.7  (SD_SCK)
+ * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)             (BTN_EN1) 3.25 | · · | 0.28 (CS2)
  * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)             (BTN_EN2) 3.26 | · · | 0.9  (SD_MOSI)
  * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
  *           GND | · · | 5V                                   GND | · · | NC
@@ -394,13 +394,13 @@
 
 #if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                    P0_27
-  #define SD_SCK_PIN                       P0_07
-  #define SD_MISO_PIN                      P0_08
-  #define SD_MOSI_PIN                      P0_09
+  #define SCK_PIN                          P0_07
+  #define MISO_PIN                         P0_08
+  #define MOSI_PIN                         P0_09
   #if SD_CONNECTION_IS(ONBOARD)
-    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
+    #define SS_PIN             ONBOARD_SD_CS_PIN
   #else
-    #define SD_SS_PIN                      P0_28
+    #define SS_PIN                         P0_28
   #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

@@ -58,22 +58,22 @@
 #include "../shared/HAL_SPI.h"
 
 #ifndef HAL_MISO_PIN
-  #ifdef SD_MISO_PIN
-    #define HAL_MISO_PIN SD_MISO_PIN
+  #ifdef MISO_PIN
+    #define HAL_MISO_PIN MISO_PIN
   #else
     #error "No HAL_MISO_PIN is available."
   #endif
 #endif
 #ifndef HAL_MOSI_PIN
-  #ifdef SD_MOSI_PIN
-    #define HAL_MOSI_PIN SD_MOSI_PIN
+  #ifdef MOSI_PIN
+    #define HAL_MOSI_PIN MOSI_PIN
   #else
     #error "No HAL_MOSI_PIN is available."
   #endif
 #endif
 #ifndef HAL_SCK_PIN
-  #ifdef SD_SCK_PIN
-    #define HAL_SCK_PIN SD_SCK_PIN
+  #ifdef SCK_PIN
+    #define HAL_SCK_PIN SCK_PIN
   #else
     #error "No HAL_SCK_PIN is available."
   #endif

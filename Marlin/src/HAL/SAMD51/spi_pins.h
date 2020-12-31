@@ -32,14 +32,14 @@
   *       +-------------------------+
   * Any pin can be used for Chip Select (SD_SS_PIN)
   */
-  #ifndef SD_SCK_PIN
-    #define SD_SCK_PIN       52
+  #ifndef SCK_PIN
+    #define SCK_PIN 52
   #endif
-  #ifndef SD_MISO_PIN
-    #define SD_MISO_PIN      50
+  #ifndef MISO_PIN
+    #define MISO_PIN 50
   #endif
-  #ifndef SD_MOSI_PIN
-    #define SD_MOSI_PIN      51
+  #ifndef MOSI_PIN
+    #define MOSI_PIN 51
   #endif
   #ifndef SDSS
     #define SDSS          53
@@ -51,4 +51,4 @@
 
 #endif
 
-#define SD_SS_PIN        SDSS
+#define SS_PIN SDSS

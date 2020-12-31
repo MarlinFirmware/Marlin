@@ -35,12 +35,12 @@ class SPIclass {
 
 // Hardware SPI
 template<>
-class SPIclass<SD_MISO_PIN, SD_MOSI_PIN, SD_SCK_PIN> {
+class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
   public:
     FORCE_INLINE static void init() {
-      OUT_WRITE(SD_SCK_PIN, LOW);
-      OUT_WRITE(SD_MOSI_PIN, HIGH);
-      SET_INPUT_PULLUP(SD_MISO_PIN);
+      OUT_WRITE(SCK_PIN, LOW);
+      OUT_WRITE(MOSI_PIN, HIGH);
+      SET_INPUT_PULLUP(MISO_PIN);
     }
     FORCE_INLINE static uint8_t receive() {
       #if defined(__AVR__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1062__)

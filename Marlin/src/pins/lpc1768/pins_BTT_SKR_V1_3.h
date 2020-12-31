@@ -375,7 +375,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_SS_PIN                 EXPA2_07_PIN
+  #define SS_PIN                    EXPA2_07_PIN
 #endif
 
 /**

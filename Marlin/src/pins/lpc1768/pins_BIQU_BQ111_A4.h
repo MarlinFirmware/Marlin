@@ -127,10 +127,10 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #define SD_SCK_PIN                       P0_15  // EXP1-5
-  #define SD_MISO_PIN                      P0_16  // EXP1-4
-  #define SD_MOSI_PIN                      P0_18  // EXP1-3
-  #define SD_SS_PIN                        P1_30  // EXP1-2
+  #define SCK_PIN                          P0_15  // EXP1-5
+  #define MISO_PIN                         P0_16  // EXP1-4
+  #define MOSI_PIN                         P0_18  // EXP1-3
+  #define SS_PIN                           P1_30  // EXP1-2
   #define SDSS                         SD_SS_PIN
 
 #endif // SDSUPPORT

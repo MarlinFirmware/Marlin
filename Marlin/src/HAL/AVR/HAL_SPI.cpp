@@ -35,9 +35,9 @@
 
 void spiBegin() {
   OUT_WRITE(SD_SS_PIN, HIGH);
-  SET_OUTPUT(SD_SCK_PIN);
-  SET_INPUT(SD_MISO_PIN);
-  SET_OUTPUT(SD_MOSI_PIN);
+  SET_OUTPUT(SCK_PIN);
+  SET_INPUT(MISO_PIN);
+  SET_OUTPUT(MOSI_PIN);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
@@ -195,19 +195,19 @@ void spiBegin() {
     // no interrupts during byte receive - about 8µs
     cli();
     // output pin high - like sending 0xFF
-    WRITE(SD_MOSI_PIN, HIGH);
+    WRITE(MOSI_PIN, HIGH);
 
     LOOP_L_N(i, 8) {
-      WRITE(SD_SCK_PIN, HIGH);
+      WRITE(SCK_PIN, HIGH);
 
       nop; // adjust so SCK is nice
       nop;
 
       data <<= 1;
 
-      if (READ(SD_MISO_PIN)) data |= 1;
+      if (READ(MISO_PIN)) data |= 1;
 
-      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SCK_PIN, LOW);
     }
 
     sei();
@@ -225,10 +225,10 @@ void spiBegin() {
     // no interrupts during byte send - about 8µs
     cli();
     LOOP_L_N(i, 8) {
-      WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, data & 0x80);
+      WRITE(SCK_PIN, LOW);
+      WRITE(MOSI_PIN, data & 0x80);
       data <<= 1;
-      WRITE(SD_SCK_PIN, HIGH);
+      WRITE(SCK_PIN, HIGH);
     }
 
     nop; // hold SCK high for a few ns
@@ -236,7 +236,7 @@ void spiBegin() {
     nop;
     nop;
 
-    WRITE(SD_SCK_PIN, LOW);
+    WRITE(SCK_PIN, LOW);
 
     sei();
   }

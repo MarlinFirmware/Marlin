@@ -336,10 +336,10 @@
 
 #elif HAS_WIRED_LCD
 
-  //#define SD_SCK_PIN                     P0_15  // (52)  system defined J3-9 & AUX-3
-  //#define SD_MISO_PIN                    P0_17  // (50)  system defined J3-10 & AUX-3
-  //#define SD_MOSI_PIN                    P0_18  // (51)  system defined J3-10 & AUX-3
-  //#define SD_SS_PIN                      P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
+  //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
+  //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
+  //#define MOSI_PIN                       P0_18  // (51)  system defined J3-10 & AUX-3
+  //#define SS_PIN                         P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
 
   #if ENABLED(FYSETC_MINI_12864)
     #define BEEPER_PIN                     P1_01
@@ -375,8 +375,8 @@
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK                SD_SCK_PIN
-    #define DOGLCD_MOSI              SD_MOSI_PIN
+    #define DOGLCD_SCK                SCK_PIN
+    #define DOGLCD_MOSI              MOSI_PIN
 
     #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
@@ -464,16 +464,16 @@
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                       P0_15  // (52)  system defined J3-9 & AUX-3
-  #define SD_MISO_PIN                      P0_17  // (50)  system defined J3-10 & AUX-3
-  #define SD_MOSI_PIN                      P0_18  // (51)  system defined J3-10 & AUX-3
-  #define SD_SS_PIN                        P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define SCK_PIN                          P0_15  // (52)  system defined J3-9 & AUX-3
+  #define MISO_PIN                         P0_17  // (50)  system defined J3-10 & AUX-3
+  #define MOSI_PIN                         P0_18  // (51)  system defined J3-10 & AUX-3
+  #define SS_PIN                           P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
-  #define SD_SCK_PIN                       P0_07
-  #define SD_MISO_PIN                      P0_08
-  #define SD_MOSI_PIN                      P0_09
-  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
+  #define SCK_PIN                          P0_07
+  #define MISO_PIN                         P0_08
+  #define MOSI_PIN                         P0_09
+  #define SS_PIN               ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif

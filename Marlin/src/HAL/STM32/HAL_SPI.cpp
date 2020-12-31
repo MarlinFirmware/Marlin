@@ -46,9 +46,9 @@ static SPISettings spiConfig;
 
   void spiBegin(void) {
     OUT_WRITE(SD_SS_PIN, HIGH);
-    OUT_WRITE(SD_SCK_PIN, HIGH);
-    SET_INPUT(SD_MISO_PIN);
-    OUT_WRITE(SD_MOSI_PIN, HIGH);
+    OUT_WRITE(SCK_PIN, HIGH);
+    SET_INPUT(MISO_PIN);
+    OUT_WRITE(MOSI_PIN, HIGH);
   }
 
   static uint16_t delay_STM32_soft_spi;
@@ -72,15 +72,15 @@ static SPISettings spiConfig;
 
   uint8_t HAL_SPI_STM32_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
     for (uint8_t bits = 8; bits--;) {
-      WRITE(SD_SCK_PIN, LOW);
-      WRITE(SD_MOSI_PIN, b & 0x80);
+      WRITE(SCK_PIN, LOW);
+      WRITE(MOSI_PIN, b & 0x80);
 
       DELAY_NS(delay_STM32_soft_spi);
-      WRITE(SD_SCK_PIN, HIGH);
+      WRITE(SCK_PIN, HIGH);
       DELAY_NS(delay_STM32_soft_spi);
 
       b <<= 1;        // little setup time
-      b |= (READ(SD_MISO_PIN) != 0);
+      b |= (READ(MISO_PIN) != 0);
     }
     DELAY_NS(125);
     return b;
@@ -154,9 +154,9 @@ static SPISettings spiConfig;
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
     #if ENABLED(CUSTOM_SPI_PINS)
-      SPI.setMISO(SD_MISO_PIN);
-      SPI.setMOSI(SD_MOSI_PIN);
-      SPI.setSCLK(SD_SCK_PIN);
+      SPI.setMISO(MISO_PIN);
+      SPI.setMOSI(MOSI_PIN);
+      SPI.setSCLK(SCK_PIN);
     #endif
 
     SPI.begin();

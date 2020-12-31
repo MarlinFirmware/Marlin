@@ -212,20 +212,20 @@
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SD_SS_PIN                         PB12  // PC11
-  #define SD_SCK_PIN                        PB13  // PC12 // PC1
-  #define SD_MOSI_PIN                       PB15  // PD2  // PD2
-  #define SD_MISO_PIN                       PB14  // PC8
+  #define SS_PIN                            PB12  // PC11
+  #define SCK_PIN                           PB13  // PC12 // PC1
+  #define MOSI_PIN                          PB15  // PD2  // PD2
+  #define MISO_PIN                          PB14  // PC8
   #define SD_DETECT_PIN                     PC7
 
 #else
   //
   // Use the on-board card socket labeled TF_CARD_SOCKET
   //
-  #define SD_SS_PIN                         PA4
-  #define SD_SCK_PIN                        PA5
-  #define SD_MOSI_PIN                       PA7
-  #define SD_MISO_PIN                       PA6   // PA6
+  #define SS_PIN                            PA4
+  #define SCK_PIN                           PA5
+  #define MOSI_PIN                          PA7
+  #define MISO_PIN                          PA6   // PA6
   #define SD_DETECT_PIN                     -1    // Card detect is not connected
 #endif
 

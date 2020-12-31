@@ -56,9 +56,9 @@ void spiBegin() {
 
   OUT_WRITE(SD_SS_PIN, HIGH);
 
-  //SET_OUTPUT(SD_SCK_PIN);
-  //SET_INPUT(SD_MISO_PIN);
-  //SET_OUTPUT(SD_MOSI_PIN);
+  //SET_OUTPUT(SCK_PIN);
+  //SET_INPUT(MISO_PIN);
+  //SET_OUTPUT(MOSI_PIN);
 
   #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
