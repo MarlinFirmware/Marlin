@@ -276,7 +276,7 @@
     #else
       static int8_t constexpr e_index = 0;
     #endif
-    static uint8_t axis;
+    static AxisEnum axis;
     static void task();
     static void soon(AxisEnum axis
       #if MULTI_MANUAL

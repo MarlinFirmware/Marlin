@@ -687,7 +687,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   TERN_(IS_KINEMATIC, float ManualMove::offset = 0);
   TERN_(IS_KINEMATIC, bool ManualMove::processing = false);
   TERN_(MULTI_MANUAL, int8_t ManualMove::e_index = 0);
-  uint8_t ManualMove::axis = (uint8_t)NO_AXIS;
+  AxisEnum ManualMove::axis = NO_AXIS;
 
   /**
    * If a manual move has been posted and its time has arrived, and if the planner
@@ -713,9 +713,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     if (processing) return;   // Prevent re-entry from idle() calls
 
     // Add a manual move to the queue?
-    if (axis != (uint8_t)NO_AXIS && ELAPSED(millis(), start_time) && !planner.is_full()) {
+    if (axis != NO_AXIS && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = (uint8_t(axis) <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
       #if IS_KINEMATIC
 
@@ -730,7 +730,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         // Reset for the next move
         offset = 0;
-        axis = (uint8_t)NO_AXIS;
+        axis = NO_AXIS;
 
         // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
         // move_to_destination. This will cause idle() to be called, which can then call this function while the
@@ -749,7 +749,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
 
-        axis = (uint8_t)NO_AXIS;
+        axis = NO_AXIS;
 
       #endif
     }
@@ -767,7 +767,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
-    axis = (uint8_t)move_axis;
+    axis = move_axis;
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
   }
 
