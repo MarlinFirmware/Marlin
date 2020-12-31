@@ -513,9 +513,6 @@ void _ubl_map_screen_homing() {
   if (all_axes_homed()) {
     ubl.lcd_map_control = true;     // Return to the map screen after editing Z
     ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
-    ui.manual_move.menu_scale = 0;  // Immediate move
-    ubl_map_move_to_xy();           // Move to current mesh point
-    ui.manual_move.menu_scale = 1;  // Delayed moves
   }
 }
 
