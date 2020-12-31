@@ -174,7 +174,7 @@
 #define FAN1_PIN                           P2_02
 
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN               FAN1_PIN
+  #define CONTROLLER_FAN_PIN            FAN1_PIN
 #endif
 
 /**

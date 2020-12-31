@@ -33,7 +33,6 @@
 //
 #define SERVO0_PIN                         P1_26
 
-
 //
 // Limit Switches
 //
@@ -44,7 +43,6 @@
 #define Y_MAX_PIN                          P1_25  // Y+
 #define Z_MIN_PIN                          P1_22  // Z-
 #define Z_MAX_PIN                          P0_27  // Z+
-
 
 //
 // Steppers
@@ -106,7 +104,6 @@
   #endif
 #endif
 
-
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                  P1_04
   #define X_SERIAL_RX_PIN                  P1_04
@@ -130,8 +127,6 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
-
-
 //
 // Temperature Sensors
 //
@@ -153,7 +148,6 @@
 #define FAN1_PIN                           P1_21
 #define FAN2_PIN                           P1_24
 
-
 //
 // LCD / Controller
 //
@@ -167,7 +161,6 @@
 #define BTN_EN1                            P0_00
 #define BTN_EN2                            P0_01
 #define BTN_ENC                            P0_28
-
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
