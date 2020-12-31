@@ -58,7 +58,7 @@ void ZStepperAlign::reset_to_default() {
       "Z_STEPPER_ALIGN_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
     VALIDATE_ALIGN_POINT(0); VALIDATE_ALIGN_POINT(1); VALIDATE_ALIGN_POINT(2); VALIDATE_ALIGN_POINT(3);
 
-  #else // !defined(Z_STEPPER_ALIGN_XY)
+  #else // !Z_STEPPER_ALIGN_XY
 
     const xy_pos_t xy_init[] = {
       #if NUM_Z_STEPPER_DRIVERS >= 3  // First probe point...
@@ -99,7 +99,7 @@ void ZStepperAlign::reset_to_default() {
       #endif
     };
 
-  #endif // !defined(Z_STEPPER_ALIGN_XY)
+  #endif // !Z_STEPPER_ALIGN_XY
 
   COPY(xy, xy_init);
 
