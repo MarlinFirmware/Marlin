@@ -70,7 +70,7 @@ SCREEN_TABLE {
     #if HAS_BED_PROBE
       DECL_SCREEN(ZOffsetScreen),
     #endif
-    #if HAS_MESH
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
       DECL_SCREEN(BedMeshScreen),
     #endif
   #endif
