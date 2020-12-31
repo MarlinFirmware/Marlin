@@ -67,11 +67,7 @@
 #endif
 
 #ifndef LCD_SPI_SPEED
-  #ifdef SD_SPI_SPEED
-    #define LCD_SPI_SPEED SD_SPI_SPEED    // Assume SPI speed shared with SD
-  #else
-    #define LCD_SPI_SPEED SPI_FULL_SPEED  // Use full speed if SD speed is not supplied
-  #endif
+  #define LCD_SPI_SPEED SPI_FULL_SPEED  // Assume full speed
 #endif
 
 void spiBegin();
