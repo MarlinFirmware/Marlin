@@ -62,12 +62,15 @@
 #include <U8glib.h>
 #include "../../shared/HAL_SPI.h"
 
-#ifndef SPI_FULL_SPEED
-  #error "SPI defines are not here."
-#endif
-
 #ifndef LCD_SPI_SPEED
-  #define LCD_SPI_SPEED SPI_FULL_SPEED  // Assume full speed
+  #ifdef SD_SPI_SPEED
+    #define LCD_SPI_SPEED SD_SPI_SPEED    // Assume SPI speed shared with SD
+  #else
+    #define LCD_SPI_SPEED SPI_FULL_SPEED  // Use full speed if SD speed is not supplied
+    #ifndef SPI_FULL_SPEED
+      #error "SPI defines are not here."
+    #endif
+  #endif
 #endif
 
 void spiBegin();

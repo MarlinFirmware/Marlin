@@ -61,12 +61,12 @@
 
 #include <SoftwareSPI.h>
 
-#ifndef SPI_QUARTER_SPEED
-  #error "SPI defines are not here."
-#endif
-
 #ifndef LCD_SPI_SPEED
-  #define LCD_SPI_SPEED SPI_QUARTER_SPEED  // About 2MHz
+  #ifndef SPI_QUARTER_SPEED
+    #define SPI_QUARTER_SPEED 2
+    #warning "SPI defines are not here."
+  #endif
+  #define LCD_SPI_SPEED SPI_QUARTER_SPEED  // About 2 MHz
 #endif
 
 #include <Arduino.h>

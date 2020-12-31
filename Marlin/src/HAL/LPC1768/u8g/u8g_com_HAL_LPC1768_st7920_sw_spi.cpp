@@ -63,11 +63,11 @@
 #include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
 
-#ifndef SPI_EIGHTH_SPEED
-  #error "SPI defines are not here."
-#endif
-
 #ifndef LCD_SPI_SPEED
+  #ifndef SPI_EIGHTH_SPEED
+    #define SPI_EIGHTH_SPEED 3
+    #warning "SPI defines are not here."
+  #endif
   #define LCD_SPI_SPEED SPI_EIGHTH_SPEED  // About 1 MHz
 #endif
 
