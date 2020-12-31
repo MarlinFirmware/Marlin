@@ -101,7 +101,12 @@
 #else
 
   void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
-    spiInit(SD_SPI_SPEED);
+    #ifdef SD_SPI_SPEED
+      #define HAL_SPI_SPEED SD_SPI_SPEED
+    #else
+      #define HAL_SPI_SPEED SPI_FULL_SPEED
+    #endif
+    spiInit(HAL_SPI_SPEED);
   }
 
   void spiInit(uint8_t spiRate) {
