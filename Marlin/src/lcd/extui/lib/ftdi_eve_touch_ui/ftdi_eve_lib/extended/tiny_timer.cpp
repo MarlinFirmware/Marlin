@@ -16,36 +16,24 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 bool tiny_timer_t::elapsed(tiny_time_t duration) {
   uint8_t now = tiny_time_t::tiny_time(
-    #ifdef __MARLIN_FIRMWARE__
-      ExtUI::safe_millis()
-    #else
-      millis()
-    #endif
+    TERN(__MARLIN_FIRMWARE__, ExtUI::safe_millis(), millis())
   );
   uint8_t elapsed = now - _start;
-  if (elapsed >= duration._duration) {
-    return true;
-  } else {
-    return false;
-  }
+  return elapsed >= duration._duration;
 }
 
 void tiny_timer_t::start() {
   _start = tiny_time_t::tiny_time(
-    #ifdef __MARLIN_FIRMWARE__
-      ExtUI::safe_millis()
-    #else
-      millis()
-    #endif
+    TERN(__MARLIN_FIRMWARE__, ExtUI::safe_millis(), millis())
   );
 }
 #endif // FTDI_EXTENDED

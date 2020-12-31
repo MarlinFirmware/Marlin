@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "STM32F4 supports up to 2 hotends / E-steppers."
@@ -31,7 +31,7 @@
 #define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Servos
@@ -147,7 +147,7 @@
 //#define NEOPIXEL_PIN                      PF13
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 //#define E_MUX0_PIN                        PG3
 //#define E_MUX1_PIN                        PG4
@@ -165,7 +165,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif

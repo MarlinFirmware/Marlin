@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../inc/MarlinConfigPre.h"
@@ -57,9 +57,6 @@ namespace DirectStepping {
   volatile bool SerialPageManager<Cfg>::page_states_dirty;
 
   template<typename Cfg>
-  millis_t SerialPageManager<Cfg>::next_response;
-
-  template<typename Cfg>
   uint8_t SerialPageManager<Cfg>::pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
 
   template<typename Cfg>
@@ -80,7 +77,6 @@ namespace DirectStepping {
       page_states[i] = PageState::FREE;
 
     fatal_error = false;
-    next_response = 0;
     state = State::NEWLINE;
 
     page_states_dirty = false;
@@ -181,15 +177,8 @@ namespace DirectStepping {
       return;
     }
 
-    // Runs on a set interval also, as responses may get lost.
-    if (next_response && next_response < millis()) {
-      page_states_dirty = true;
-    }
-
     if (!page_states_dirty) return;
-
     page_states_dirty = false;
-    next_response = millis() + Cfg::RESPONSE_INTERVAL_MS;
 
     SERIAL_ECHO(Cfg::CONTROL_CHAR);
     constexpr int state_bits = 2;
@@ -238,29 +227,29 @@ const uint8_t segment_table[DirectStepping::Config::NUM_SEGMENTS][DirectStepping
 
   #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-    { 1, 1, 1, 1, 1, 1, 1, 0 }, //  0 = -7
-    { 1, 1, 1, 0, 1, 1, 1, 0 }, //  1 = -6
-    { 0, 1, 1, 0, 1, 0, 1, 1 }, //  2 = -5
-    { 0, 1, 0, 1, 0, 1, 0, 1 }, //  3 = -4
-    { 0, 1, 0, 0, 1, 0, 0, 1 }, //  4 = -3
-    { 0, 0, 1, 0, 0, 0, 1, 0 }, //  5 = -2
-    { 0, 0, 0, 0, 1, 0, 0, 0 }, //  6 = -1
-    { 0, 0, 0, 0, 0, 0, 0, 0 }, //  7 =  0
-    { 0, 0, 0, 0, 1, 0, 0, 0 }, //  8 =  1
-    { 0, 0, 1, 0, 0, 0, 1, 0 }, //  9 =  2
-    { 0, 1, 0, 0, 1, 0, 0, 1 }, // 10 =  3
-    { 0, 1, 0, 1, 0, 1, 0, 1 }, // 11 =  4
-    { 0, 1, 1, 0, 1, 0, 1, 1 }, // 12 =  5
-    { 1, 1, 1, 0, 1, 1, 1, 0 }, // 13 =  6
-    { 1, 1, 1, 1, 1, 1, 1, 0 }, // 14 =  7
+    { 1, 1, 1, 1, 1, 1, 1 }, //  0 = -7
+    { 1, 1, 1, 0, 1, 1, 1 }, //  1 = -6
+    { 1, 1, 1, 0, 1, 0, 1 }, //  2 = -5
+    { 1, 1, 0, 1, 0, 1, 0 }, //  3 = -4
+    { 1, 1, 0, 0, 1, 0, 0 }, //  4 = -3
+    { 0, 0, 1, 0, 0, 0, 1 }, //  5 = -2
+    { 0, 0, 0, 1, 0, 0, 0 }, //  6 = -1
+    { 0, 0, 0, 0, 0, 0, 0 }, //  7 =  0
+    { 0, 0, 0, 1, 0, 0, 0 }, //  8 =  1
+    { 0, 0, 1, 0, 0, 0, 1 }, //  9 =  2
+    { 1, 1, 0, 0, 1, 0, 0 }, // 10 =  3
+    { 1, 1, 0, 1, 0, 1, 0 }, // 11 =  4
+    { 1, 1, 1, 0, 1, 0, 1 }, // 12 =  5
+    { 1, 1, 1, 0, 1, 1, 1 }, // 13 =  6
+    { 1, 1, 1, 1, 1, 1, 1 }, // 14 =  7
     { 0 }
 
   #elif STEPPER_PAGE_FORMAT == SP_4x2_256
 
-    { 0, 0, 0, 0 }, // 0
-    { 0, 1, 0, 0 }, // 1
-    { 1, 0, 1, 0 }, // 2
-    { 1, 1, 1, 0 }, // 3
+    { 0, 0, 0 }, // 0
+    { 0, 1, 0 }, // 1
+    { 1, 0, 1 }, // 2
+    { 1, 1, 1 }, // 3
 
   #elif STEPPER_PAGE_FORMAT == SP_4x1_512
 

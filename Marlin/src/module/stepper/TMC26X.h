@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,11 +31,7 @@
 // TMC26X drivers have STEP/DIR on normal pins, but ENABLE via SPI
 
 #include <SPI.h>
-#if defined(STM32GENERIC) && defined(STM32F7)
-  #include "../../HAL/STM32_F4_F7/STM32F7/TMC2660.h"
-#else
-  #include <TMC26XStepper.h>
-#endif
+#include <TMC26XStepper.h>
 
 void tmc26x_init_to_defaults();
 

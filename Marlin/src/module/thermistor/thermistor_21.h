@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,8 @@
 #undef OV_SCALE
 #define OV_SCALE(N) (float((N) * 5) / 3.3f)
 
-// Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+// Pt100 with INA826 amplifier board with 5v supply based on Thermistor 20, with 3v3 ADC reference on the mainboard.
+// If the ADC reference and INA826 board supply voltage are identical, Thermistor 20 instead.
 const temp_entry_t temptable_21[] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },

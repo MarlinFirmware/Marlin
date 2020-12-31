@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
 
@@ -46,7 +46,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
     ui.wait_for_move = false;
     ui.synchronize();
-    move_menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+    ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
     ui.goto_screen(lcd_move_z);
   }
 }
@@ -118,7 +118,7 @@ void lcd_delta_settings() {
 }
 
 void menu_delta_calibrate() {
-  const bool all_homed = all_axes_homed();
+  TERN_(DELTA_CALIBRATION_MENU, const bool all_homed = all_axes_homed()); // Acquire ahead of loop
 
   START_MENU();
   BACK_ITEM(MSG_MAIN);

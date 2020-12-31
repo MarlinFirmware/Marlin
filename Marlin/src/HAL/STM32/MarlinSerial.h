@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,6 +34,10 @@ public:
         , emergency_state(EmergencyParser::State::EP_RESET)
       #endif
   { }
+
+  #if ENABLED(EMERGENCY_PARSER)
+    static inline bool emergency_parser_enabled() { return true; }
+  #endif
 
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }

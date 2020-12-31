@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -70,7 +70,6 @@ namespace DirectStepping {
 
     static volatile PageState page_states[Cfg::NUM_PAGES];
     static volatile bool page_states_dirty;
-    static millis_t next_response;
 
     static uint8_t pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
     static uint8_t checksum;
@@ -94,13 +93,10 @@ namespace DirectStepping {
     static constexpr int DIRECTIONAL    = dir ? 1 : 0;
     static constexpr int SEGMENTS       = segments;
 
-    static constexpr int RAW            = (BITS_SEGMENT == 1) ? 1 : 0;
     static constexpr int NUM_SEGMENTS   = 1 << BITS_SEGMENT;
-    static constexpr int SEGMENT_STEPS  = 1 << (BITS_SEGMENT - DIRECTIONAL - RAW);
+    static constexpr int SEGMENT_STEPS  = (1 << (BITS_SEGMENT - DIRECTIONAL)) - 1;
     static constexpr int TOTAL_STEPS    = SEGMENT_STEPS * SEGMENTS;
     static constexpr int PAGE_SIZE      = (NUM_AXES * BITS_SEGMENT * SEGMENTS) / 8;
-
-    static constexpr millis_t RESPONSE_INTERVAL_MS = 50;
 
     typedef typename TypeSelector<(PAGE_SIZE>256), uint16_t, uint8_t>::type write_byte_idx_t;
     typedef typename TypeSelector<(NUM_PAGES>256), uint16_t, uint8_t>::type page_idx_t;

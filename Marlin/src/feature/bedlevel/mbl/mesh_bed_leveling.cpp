@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -71,8 +71,8 @@
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        line_to_destination(scaled_fr_mm_s);
         current_position = destination;
+        line_to_current_position(scaled_fr_mm_s);
         return;
       }
 
@@ -104,8 +104,8 @@
       else {
         // Must already have been split on these border(s)
         // This should be a rare case.
-        line_to_destination(scaled_fr_mm_s);
         current_position = destination;
+        line_to_current_position(scaled_fr_mm_s);
         return;
       }
 

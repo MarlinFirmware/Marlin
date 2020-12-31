@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,7 +33,6 @@
 #include "../../../core/debug_out.h"
 
 /**
- *
  * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
  *       PWMs to the steppers
  *
@@ -56,7 +55,6 @@
  *
  * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
  * that affects the effective voltage seen by the stepper.
- *
  */
 
 /**

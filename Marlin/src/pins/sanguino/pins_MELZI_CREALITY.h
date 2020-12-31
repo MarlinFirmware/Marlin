@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,7 +28,7 @@
  * If you don't have a chip programmer you can use a spare Arduino plus a few
  * electronic components to write the bootloader.
  *
- * See http://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ * See https://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  *
  * Schematic: https://bit.ly/2XOnsWb
  */
@@ -36,7 +36,7 @@
 #define BOARD_INFO_NAME "Melzi (Creality)"
 
 // Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #endif
@@ -61,21 +61,27 @@
 #undef LCD_PINS_D5
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
-#undef FIL_RUNOUT_PIN                             // Uses Beeper/LED Pin Pulled to GND
 
-#define LCD_SDSS                             31   // Smart Controller SD card reader (rather than the Melzi)
-#define LCD_PINS_RS                          28   // ST9720 CS
-#define LCD_PINS_ENABLE                      17   // ST9720 DAT
-#define LCD_PINS_D4                          30   // ST9720 CLK
+#define LCD_SDSS                              31  // Smart Controller SD card reader (rather than the Melzi)
+#define LCD_PINS_RS                           28  // ST9720 CS
+#define LCD_PINS_ENABLE                       17  // ST9720 DAT
+#define LCD_PINS_D4                           30  // ST9720 CLK
 
 #if ENABLED(BLTOUCH)
-  #define SERVO0_PIN                         27
+  #define SERVO0_PIN                          27
   #undef BEEPER_PIN
+#elif ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #ifndef FIL_RUNOUT_PIN
+    #define FIL_RUNOUT_PIN                    27
+  #endif
+  #if FIL_RUNOUT_PIN == BEEPER_PIN
+    #undef BEEPER_PIN
+  #endif
 #endif
 
 #if ENABLED(MINIPANEL)
   #undef DOGLCD_CS
-  #define DOGLCD_CS LCD_PINS_RS
+  #define DOGLCD_CS                  LCD_PINS_RS
 #endif
 
 /**

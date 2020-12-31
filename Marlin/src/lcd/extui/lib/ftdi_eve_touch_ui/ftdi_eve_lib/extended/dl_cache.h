@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -29,27 +29,28 @@
  *
  * The DLCache can be used like so:
  *
- *   void some_function() {
- *     DLCache dlcache(UNIQUE_ID);
+ *   DLCache dlcache(UNIQUE_ID);
  *
- *     if (dlcache.hasData()) {
- *       dlcache.append();
- *     } else {
- *       // Add stuff to the DL
- *       dlcache.store();
- *     }
+ *   if (dlcache.hasData())
+ *     dlcache.append();
+ *   else
+ *     dlcache.store(); // Add stuff to the DL
  */
 class DLCache {
   private:
     typedef FTDI::ftdi_registers  REG;
     typedef FTDI::ftdi_memory_map MAP;
 
-    uint8_t  dl_slot;
-    uint32_t dl_addr;
-    uint16_t dl_size;
+    uint8_t  dl_slot_indx;
+    uint32_t dl_slot_addr;
+    uint16_t dl_slot_size;
+    uint16_t dl_slot_used;
 
-    void load_slot();
-    static void save_slot(uint8_t dl_slot, uint32_t dl_addr, uint32_t dl_size);
+    void load_slot() {load_slot(dl_slot_indx, dl_slot_addr, dl_slot_size, dl_slot_used);}
+    void save_slot() {save_slot(dl_slot_indx, dl_slot_addr, dl_slot_size, dl_slot_used);}
+
+    static void load_slot(uint8_t indx, uint32_t &addr, uint16_t &size, uint16_t &used);
+    static void save_slot(uint8_t indx, uint32_t  addr, uint16_t  size, uint16_t  used);
 
     bool wait_until_idle();
 
@@ -57,12 +58,12 @@ class DLCache {
     static void init();
 
     DLCache(uint8_t slot) {
-      dl_slot = slot;
+      dl_slot_indx = slot;
       load_slot();
     }
 
     bool has_data();
-    bool store(uint32_t num_bytes = 0);
+    bool store(uint32_t min_bytes = 0);
     void append();
 };
 

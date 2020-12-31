@@ -16,13 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(DIRECT_PIN_CONTROL)
+
 #include "../gcode.h"
 #include "../../MarlinCore.h" // for pin_is_protected
-#include "../../inc/MarlinConfig.h"
 
 #if HAS_FAN
   #include "../../module/temperature.h"
@@ -96,3 +99,5 @@ void GcodeSuite::M42() {
   extDigitalWrite(pin, pin_status);
   analogWrite(pin, pin_status);
 }
+
+#endif // DIRECT_PIN_CONTROL

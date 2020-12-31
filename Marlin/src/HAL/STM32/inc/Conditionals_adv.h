@@ -16,7 +16,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+#if defined(USBD_USE_CDC_COMPOSITE) && DISABLED(NO_SD_HOST_DRIVE)
+  #define HAS_SD_HOST_DRIVE 1
+#endif
