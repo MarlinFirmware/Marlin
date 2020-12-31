@@ -77,7 +77,7 @@
 #define Z_STEP_PIN                            25
 #define Z_DIR_PIN                             26
 #define Z_ENABLE_PIN                X_ENABLE_PIN
-//#define Z_CS_PIN                             5  // SD_SS
+//#define Z_CS_PIN                             5  // SS_PIN
 
 #define E0_STEP_PIN                           27
 #define E0_DIR_PIN                            14
