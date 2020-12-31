@@ -1290,7 +1290,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 /**
  * Home an individual linear axis
  */
-void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
+void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0, const bool heaters_off=true) {
   DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
 
   const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
@@ -1322,7 +1322,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-      if (axis == Z_AXIS) probe.set_probing_paused(true);
+      if (axis == Z_AXIS && heaters_off) probe.set_probing_paused(true);
     #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1361,7 +1361,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-      if (axis == Z_AXIS) probe.set_probing_paused(false);
+      if (axis == Z_AXIS && heaters_off) probe.set_probing_paused(false);
     #endif
 
     endstops.validate_homing_move();
@@ -1602,17 +1602,18 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, -ABS(backoff[axis]) * axis_home_dir, homing_feedrate(axis));
   #endif
 
-  do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir);
-
-  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
-    if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
-  #endif
-
+  // Determine if a homing bump will be done and the bumps distance
   // When homing Z with probe respect probe clearance
   const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(Z_AXIS));
   const float bump = axis_home_dir * (
     use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(Z_AXIS)) : home_bump_mm(axis)
   );
+
+  do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir, 0.0, !use_probe_bump);
+
+  #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
+    if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+  #endif
 
   // If a second homing move is configured...
   if (bump) {
@@ -1620,7 +1621,7 @@ void homeaxis(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away:");
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
-        , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
+        , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0), false
       #endif
     );
 
@@ -1646,7 +1647,7 @@ void homeaxis(const AxisEnum axis) {
       if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
     #endif
 
-    do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
+    do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis), true);
 
     #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
       if (axis == Z_AXIS) bltouch.stow(); // The final STOW
