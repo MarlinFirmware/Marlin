@@ -720,7 +720,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
-          const int8_t old_extruder = active_extruder;
+          REMEMBER(active_extruder);
           if (axis == E_AXIS) active_extruder = e_index;
         #endif
 
@@ -739,8 +739,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         processing = true;
         prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
         processing = false;
-
-        TERN_(HAS_MULTI_EXTRUDER, active_extruder = old_extruder);
 
       #else
 
