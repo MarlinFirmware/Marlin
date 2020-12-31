@@ -90,7 +90,7 @@ void HAL_init() {
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialize the SD card chip select pins as soon as possible
-  #if PIN_EXISTS(SD_SS)
+  #if PIN_EXISTS(SS)
     OUT_WRITE(SS_PIN, HIGH);
   #endif
 
