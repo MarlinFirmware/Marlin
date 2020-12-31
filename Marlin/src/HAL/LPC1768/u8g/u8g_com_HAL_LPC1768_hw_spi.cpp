@@ -67,16 +67,8 @@
     #define LCD_SPI_SPEED SD_SPI_SPEED    // Assume SPI speed shared with SD
   #else
     #define LCD_SPI_SPEED SPI_FULL_SPEED  // Use full speed if SD speed is not supplied
-    #ifndef SPI_FULL_SPEED
-      #error "SPI defines are not here."
-    #endif
   #endif
 #endif
-
-void spiBegin();
-void spiInit(uint8_t spiRate);
-void spiSend(uint8_t b);
-void spiSend(const uint8_t* buf, size_t n);
 
 uint8_t u8g_com_HAL_LPC1768_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   switch (msg) {

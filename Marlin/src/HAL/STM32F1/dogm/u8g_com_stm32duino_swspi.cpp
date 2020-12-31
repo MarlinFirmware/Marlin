@@ -23,13 +23,10 @@
 #if BOTH(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
 #include <U8glib.h>
-
-#ifndef SPI_FULL_SPEED
-  #error "SPI defines are not here."
-#endif
+#include "../../shared/HAL_SPI.h"
 
 #ifndef LCD_SPI_SPEED
-  #define LCD_SPI_SPEED SPI_FULL_SPEED // Fastest
+  #define LCD_SPI_SPEED SPI_FULL_SPEED    // Fastest
   //#define LCD_SPI_SPEED SPI_QUARTER_SPEED // Slower
 #endif
 

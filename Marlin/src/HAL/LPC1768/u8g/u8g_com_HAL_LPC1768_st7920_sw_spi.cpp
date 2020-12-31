@@ -62,12 +62,9 @@
 #include <U8glib.h>
 #include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
+#include "../../shared/HAL_SPI.h"
 
 #ifndef LCD_SPI_SPEED
-  #ifndef SPI_EIGHTH_SPEED
-    #define SPI_EIGHTH_SPEED 3
-    #warning "SPI defines are not here."
-  #endif
   #define LCD_SPI_SPEED SPI_EIGHTH_SPEED  // About 1 MHz
 #endif
 

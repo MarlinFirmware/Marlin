@@ -60,12 +60,9 @@
 #if HAS_MARLINUI_U8GLIB && DISABLED(U8GLIB_ST7920)
 
 #include <SoftwareSPI.h>
+#include "../../shared/HAL_SPI.h"
 
 #ifndef LCD_SPI_SPEED
-  #ifndef SPI_QUARTER_SPEED
-    #define SPI_QUARTER_SPEED 2
-    #warning "SPI defines are not here."
-  #endif
   #define LCD_SPI_SPEED SPI_QUARTER_SPEED  // About 2 MHz
 #endif
 

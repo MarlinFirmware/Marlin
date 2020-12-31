@@ -64,20 +64,11 @@
 
 #include "../../../MarlinCore.h"
 
-#ifndef SPI_QUARTER_SPEED
-  #error "SPI defines are not here."
-#endif
-
 #ifndef LCD_SPI_SPEED
   #define LCD_SPI_SPEED SPI_QUARTER_SPEED
 #endif
 
-void spiBegin();
-void spiInit(uint8_t spiRate);
-void spiSend(uint8_t b);
-void spiSend(const uint8_t* buf, size_t n);
-
-#include "../../shared/Marduino.h"
+#include "../../shared/HAL_SPI.h"
 #include "../fastio.h"
 
 void u8g_SetPIOutput_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index) {
