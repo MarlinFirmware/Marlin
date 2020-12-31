@@ -64,6 +64,14 @@
 
 #include "../../../MarlinCore.h"
 
+#ifndef SPI_QUARTER_SPEED
+  #error "SPI defines are not here."
+#endif
+
+#ifndef LCD_SPI_SPEED
+  #define LCD_SPI_SPEED SPI_QUARTER_SPEED
+#endif
+
 void spiBegin();
 void spiInit(uint8_t spiRate);
 void spiSend(uint8_t b);
@@ -100,11 +108,7 @@ uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 
       spiBegin();
 
-      #ifndef SD_SPI_SPEED
-        #define SD_SPI_SPEED SPI_FULL_SPEED  // use same SPI speed as SD card
-      #endif
-      spiInit(2);
-
+      spiInit(LCD_SPI_SPEED);
       break;
 
     case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */

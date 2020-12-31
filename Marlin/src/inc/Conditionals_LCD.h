@@ -1045,8 +1045,8 @@
   #define INVERT_E_DIR false
 #endif
 
-// Fallback SPI Speed
-#ifndef SD_SPI_SPEED
+// Fallback SPI Speed for SD
+#if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
   #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
