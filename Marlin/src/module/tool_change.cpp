@@ -277,6 +277,28 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     #endif
   }
 
+  bool extruder_parked = true, do_solenoid_activation = true;
+
+  // Modifies tool_change() behavior based on homing side
+  bool parking_extruder_unpark_after_homing(const uint8_t final_tool, bool homed_towards_final_tool) {
+    do_solenoid_activation = false; // Tell parking_extruder_tool_change to skip solenoid activation
+
+    if (!extruder_parked) return false; // nothing to do
+
+    if (homed_towards_final_tool) {
+      pe_deactivate_solenoid(1 - final_tool);
+      DEBUG_ECHOLNPAIR("Disengage magnet", (int)(1 - final_tool));
+      pe_activate_solenoid(final_tool);
+      DEBUG_ECHOLNPAIR("Engage magnet", (int)final_tool);
+      extruder_parked = false;
+      return false;
+    }
+
+    return true;
+  }
+
+  void parking_extruder_set_parked() { extruder_parked = true; }
+
   inline void parking_extruder_tool_change(const uint8_t new_tool, bool no_move) {
     if (!no_move) {
 
@@ -304,27 +326,30 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
       DEBUG_POS("Start PE Tool-Change", current_position);
 
-      current_position.x = parkingposx[active_extruder] + x_offset;
+      // Don't park the active_extruder unless unparked
+      if (!extruder_parked) {
+        current_position.x = parkingposx[active_extruder] + x_offset;
 
-      DEBUG_ECHOLNPAIR("(1) Park extruder ", int(active_extruder));
-      DEBUG_POS("Moving ParkPos", current_position);
+        DEBUG_ECHOLNPAIR("(1) Park extruder ", int(active_extruder));
+        DEBUG_POS("Moving ParkPos", current_position);
 
-      fast_line_to_current(X_AXIS);
+        fast_line_to_current(X_AXIS);
 
-      // STEP 2
+        // STEP 2
 
-      planner.synchronize();
-      DEBUG_ECHOLNPGM("(2) Disengage magnet");
-      pe_deactivate_solenoid(active_extruder);
+        planner.synchronize();
+        DEBUG_ECHOLNPGM("(2) Disengage magnet");
+        pe_deactivate_solenoid(active_extruder);
 
-      // STEP 3
+        // STEP 3
 
-      current_position.x += active_extruder ? -10 : 10; // move 10mm away from parked extruder
+        current_position.x += active_extruder ? -10 : 10; // move 10mm away from parked extruder
 
-      DEBUG_ECHOLNPGM("(3) Move near new extruder");
-      DEBUG_POS("Move away from parked extruder", current_position);
+        DEBUG_ECHOLNPGM("(3) Move near new extruder");
+        DEBUG_POS("Move away from parked extruder", current_position);
 
-      fast_line_to_current(X_AXIS);
+        fast_line_to_current(X_AXIS);
+      }
 
       // STEP 4
 
@@ -358,13 +383,16 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       planner.synchronize(); // Always sync the final move
 
       DEBUG_POS("PE Tool-Change done.", current_position);
+      extruder_parked = false;
     }
-    else { // nomove == true
+    else if (do_solenoid_activation) { // && nomove == true
+      // Deactivate old extruder solenoid
+      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(active_extruder);
       // Only engage magnetic field for new extruder
-      pe_activate_solenoid(new_tool);
-      // Just save power for inverted magnets
-      TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid(active_extruder));
+      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_deactivate_solenoid, pe_activate_solenoid)(new_tool);
     }
+
+    do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
   }
 
 #endif // PARKING_EXTRUDER
@@ -922,7 +950,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif
 
-    if (new_tool != old_tool) {
+    if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
       #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
