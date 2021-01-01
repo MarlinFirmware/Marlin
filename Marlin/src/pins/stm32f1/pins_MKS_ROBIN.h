@@ -154,11 +154,6 @@
 //
 #define WIFI_IO0_PIN                        PG1
 
-#ifndef SDCARD_CONNECTION
-  // Set ONBOARD connection even if you use MKS SLOT.
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
 //
 // LCD screen
 //
