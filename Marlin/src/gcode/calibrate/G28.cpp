@@ -246,6 +246,7 @@ void GcodeSuite::G28() {
     set_bed_leveling_enabled(false);
   #endif
 
+  // Reset to the XY plane
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   // Count this command as movement / activity
@@ -288,6 +289,10 @@ void GcodeSuite::G28() {
   #if HAS_MULTI_HOTEND
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
+    #endif
+    // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
+    #if ENABLED(PARKING_EXTRUDER)
+      const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
     #endif
     tool_change(0, true);
   #endif
@@ -442,7 +447,7 @@ void GcodeSuite::G28() {
 
   // Restore the active tool after homing
   #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
+    tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
   #endif
 
   #if HAS_HOMING_CURRENT

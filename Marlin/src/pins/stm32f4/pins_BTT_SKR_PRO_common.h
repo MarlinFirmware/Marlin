@@ -44,6 +44,9 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Servos
 //
@@ -300,9 +303,9 @@
   // so force Software SPI to work around this issue.
   #define SOFTWARE_SPI
   #define SDSS                              PA4
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PB5
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PB5
   #define SD_DETECT_PIN                     PB11
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

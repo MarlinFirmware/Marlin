@@ -141,11 +141,11 @@
 
 #define SDCARD_CONNECTION                ONBOARD
 
-#define SCK_PIN                            P0_07
-#define MISO_PIN                           P0_08
-#define MOSI_PIN                           P0_09
+#define SD_SCK_PIN                         P0_07
+#define SD_MISO_PIN                        P0_08
+#define SD_MOSI_PIN                        P0_09
 #define ONBOARD_SD_CS_PIN                  P0_06
-#define SS_PIN                 ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 
 //
 // LCD / Controller
