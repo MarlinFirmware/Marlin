@@ -158,7 +158,6 @@ void GcodeSuite::G35() {
   // the probe deployed if it was successful.
   probe.stow();
 
-  // Move XYZ to wait position
   move_to_tramming_wait_pos();
 
   // After this operation the Z position needs correction
