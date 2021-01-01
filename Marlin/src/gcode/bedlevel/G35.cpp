@@ -40,7 +40,7 @@
 // Define tramming point names.
 //
 
-#include "../../feature/tramming.h" // Validate
+#include "../../feature/tramming.h"
 
 /**
  * G35: Read bed corners to help adjust bed screws
