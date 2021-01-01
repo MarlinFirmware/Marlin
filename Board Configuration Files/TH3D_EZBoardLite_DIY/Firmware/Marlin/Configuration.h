@@ -14,13 +14,13 @@
 //===========================================================================
 
 //===========================================================================
-// *******************    EZBOARD LITE BOARD DIY CONFIG   *******************
+// *******************   EZBOARD LITE BOARD DIY CONFIG   ********************
 //===========================================================================
 
 /**
  * !!!Important Information!!!
  * This firmware is being put out as a courtesy for people who want to use the EZBoard in their custom printer.
- * Setup and usage of this firmware is *not* covered under the  technical support included with the EZBoard.
+ * Setup and usage of this firmware is *not* covered under the technical support included with the EZBoard.
  * Using the EZBoard in a custom printer is an advanced setup for users who know what they are doing.
  * 
  * EZFirmware Site - This firmware can be used with our EZFirmware complie site. Just upload this Configuration.h file
@@ -28,12 +28,14 @@
  * not and will not be added to the EZFirmware site as it is an advanced, non-supported configuration.
  * 
  * Compatible LCDs - This firmware is setup to use the Single Cable (EXP3) Creality LCD 
- * OR the TH3D 12864 LCD with the Dual Cable LCD adapter board OR the BTT TFT35-E3 with serial+EXP3 plugs
- * For the BTT TFT35-E3 wiring see our guide here: https://support.th3dstudio.com/hc/en-us/articles/360054405772-EZBoard-Lite-V1-X-BTT-TFT35-E3-Wiring-and-Firmware-Setup
+ * OR the TH3D 12864 LCD with the Dual Cable LCD adapter board 
+ * OR the BTT TFT35-E3 with serial+EXP3 plugs
+ *
+ * For the BTT TFT35-E3 wiring and warnings see our guide here: https://support.th3dstudio.com/hc/en-us/articles/360054405772-EZBoard-Lite-V1-X-BTT-TFT35-E3-Wiring-and-Firmware-Setup
  * 
  * SD Card Slot - Regardless if your LCD has an SD slot or not the onboard SD slot will always be the one used
  * 
- * Z Homing - This firmware only supports homing Z to the MIN position (not MAX)
+ * Z Homing Direction - This firmware only supports homing Z to the MIN position (not MAX) at this time.
  */
 
 /**
@@ -80,7 +82,7 @@
 #define Z_ENDSTOP_LOGIC false
 
 /**
- * Homing Direction Settings
+ * XY Homing Direction Settings
  * Most printers home to the "MIN" position on the XY. 
  * If your machine homes to "MAX" then change the -1 to a 1 for the axis that needs to home to the "MAX" position
  * 
@@ -190,6 +192,10 @@
 //#define TM3DAERO_EXTENDED        //TM3D Arto Mount for Volcano
 //#define PETSFANG                 //This is the RIGHT mounted version
 //#define CUSTOM_PROBE             //For any other probe mount (also used for BL Touch), Enter offsets below
+
+// CoreXY Printer Setting ---------------------------------------------------
+// If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
+//#define COREXY
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
