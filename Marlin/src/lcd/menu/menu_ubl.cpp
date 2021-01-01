@@ -413,19 +413,22 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
-
-  #if ENABLED(DELTA)
-    if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
-      destination = current_position;
-      destination.z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
-    }
-  #endif
-
-  // Use the built-in manual move handler to move to the mesh point.
   const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
-  ui.manual_move.set_destination(xy);
-  ui.manual_move.soon(ALL_AXES);
+
+  // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
+  if (position_is_reachable(xy)) {
+    #if ENABLED(DELTA)
+      if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+        destination = current_position;
+        destination.z = delta_clip_start_height;
+        prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
+      }
+    #endif
+
+    // Use the built-in manual move handler to move to the mesh point.
+    ui.manual_move.set_destination(xy);
+    ui.manual_move.soon(ALL_AXES);
+  }
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
@@ -512,6 +515,9 @@ void _ubl_map_screen_homing() {
   if (all_axes_homed()) {
     ubl.lcd_map_control = true;     // Return to the map screen after editing Z
     ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
+    ui.manual_move.menu_scale = 0;  // Immediate move
+    ubl_map_move_to_xy();           // Move to current mesh point
+    ui.manual_move.menu_scale = 1;  // Delayed moves
   }
 }
 
