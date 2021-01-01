@@ -210,23 +210,23 @@
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SS_PIN                            PC11
-  #define SCK_PIN                           PC12
-  #define MOSI_PIN                          PD2
-  #define MISO_PIN                          PC8
+  #define SD_SS_PIN                         PC11
+  #define SD_SCK_PIN                        PC12
+  #define SD_MOSI_PIN                       PD2
+  #define SD_MISO_PIN                       PC8
   #define SD_DETECT_PIN                     PC7
 #else
   //
   // Use the on-board card socket labeled TF_CARD_SOCKET
   //
-  #define SS_PIN                            PA4
-  #define SCK_PIN                           PA5
-  #define MOSI_PIN                          PA7
-  #define MISO_PIN                          PA6
+  #define SD_SS_PIN                         PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MOSI_PIN                       PA7
+  #define SD_MISO_PIN                       PA6
   #define SD_DETECT_PIN                     -1    // Card detect is not connected
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 //
 // ESP WiFi can be soldered to J9 connector which is wired to USART2.

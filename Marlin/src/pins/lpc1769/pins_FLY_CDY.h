@@ -167,15 +167,15 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN                         P0_06
-    #define SCK_PIN                        P0_07
-    #define MISO_PIN                       P0_08
-    #define MOSI_PIN                       P0_09
+    #define SD_SS_PIN                      P0_06
+    #define SD_SCK_PIN                     P0_07
+    #define SD_MISO_PIN                    P0_08
+    #define SD_MOSI_PIN                    P0_09
     #define SD_DETECT_PIN                  P0_05
 #elif SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
-  #define SS_PIN                           P0_16
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                        P0_16
   #define SD_DETECT_PIN                    P2_06
 #endif

@@ -80,9 +80,9 @@
 #define SDSS                                  53  // PB0 / SS
 #define LED_PIN                               13  // PB7 / PWM13
 
-#define MISO_PIN                              50  // PB3
-#define MOSI_PIN                              51  // PB2
-#define SCK_PIN                               52  // PB1
+#define SD_MISO_PIN                           50  // PB3
+#define SD_MOSI_PIN                           51  // PB2
+#define SD_SCK_PIN                            52  // PB1
 
 //
 // LCDs and Controllers

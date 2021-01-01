@@ -233,17 +233,16 @@
 
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
-#if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_07  // (52)  system defined J3-9 & AUX-3
-  #define MISO_PIN                         P0_08  // (50)  system defined J3-10 & AUX-3
-  #define MOSI_PIN                         P0_09  // (51)  system defined J3-10 & AUX-3
-  #define SS_PIN                           P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
-#elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+#if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
+  #define SD_SCK_PIN                       P0_07  // (52)  system defined J3-9 & AUX-3
+  #define SD_MISO_PIN                      P0_08  // (50)  system defined J3-10 & AUX-3
+  #define SD_MOSI_PIN                      P0_09  // (51)  system defined J3-10 & AUX-3
+  #if SD_CONNECTION_IS(LCD)
+    #define SD_SS_PIN                      P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #else
+    #undef SD_DETECT_PIN
+    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
+  #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif

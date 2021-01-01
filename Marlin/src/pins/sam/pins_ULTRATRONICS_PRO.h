@@ -147,9 +147,9 @@
 #define SPI_EEPROM2_CS                        -1
 #define SPI_FLASH_CS                          -1
 
-#define SCK_PIN                               76
-#define MISO_PIN                              74
-#define MOSI_PIN                              75
+#define SD_SCK_PIN                            76
+#define SD_MISO_PIN                           74
+#define SD_MOSI_PIN                           75
 
 // SPI for Max6675 or Max31855 Thermocouple
 #define MAX6675_SS_PIN                        65

@@ -170,10 +170,10 @@
 #define SERVO1_PIN                          PB5   // PWM Capable, TIM3_CH2
 
 // SPI for external SD Card (Not entirely sure this will work)
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
-#define SS_PIN                              PA4
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
+#define SD_SS_PIN                           PA4
 #define SDSS                                PA4
 
 #define LED_PIN                         LED_BLUE
