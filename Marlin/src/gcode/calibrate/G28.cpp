@@ -291,7 +291,7 @@ void GcodeSuite::G28() {
     #endif
     // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
     #if ENABLED(PARKING_EXTRUDER)
-      bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
+      const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
     #endif
     tool_change(0, true);
   #endif

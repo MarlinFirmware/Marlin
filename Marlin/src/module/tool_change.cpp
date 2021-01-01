@@ -326,7 +326,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
       DEBUG_POS("Start PE Tool-Change", current_position);
 
-      if (!extruder_parked) { // active_extruder should be parked only if currently attached to carriage
+      // Don't park the active_extruder unless unparked
+      if (!extruder_parked) {
         current_position.x = parkingposx[active_extruder] + x_offset;
 
         DEBUG_ECHOLNPAIR("(1) Park extruder ", int(active_extruder));
@@ -348,7 +349,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
         DEBUG_POS("Move away from parked extruder", current_position);
 
         fast_line_to_current(X_AXIS);
-
       }
 
       // STEP 4
