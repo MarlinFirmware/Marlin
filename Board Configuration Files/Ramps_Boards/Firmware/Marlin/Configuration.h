@@ -356,6 +356,11 @@
 // NOTE: This feature causes excessive wear on your SD card.
 //#define POWER_LOSS_RECOVERY
 
+// ARC Support Override ----------------------------
+// Arc support is enabled by default on all builds but this takes up extra space. If you get compile errors due to the size being too large when enabling other options, then disable ARC_SUPPORT
+// by uncommenting the DISABLE_ARC_SUPPORT line below.
+//#define DISABLE_ARC_SUPPORT
+
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
 //===========================================================================
