@@ -80,6 +80,9 @@
 //if LIB_MAX31865 is not on the build_flags then the Adafruit MAX31865 V1.1.0 library is used
 #if MAX6675_HAS_MAX31865
   #include <Adafruit_MAX31865.h>
+  #ifndef MAX31865_MOSI_PIN
+    #define MAX31865_MOSI_PIN SD_MOSI_PIN
+  #endif
   #if PIN_EXISTS(MAX31865_MISO) && PIN_EXISTS(MAX31865_SCK)
     #define MAX31865_USES_SW_SPI 1
   #endif
