@@ -16,12 +16,26 @@ Marlin 2.0 takes this popular RepRap firmware to the next level by adding suppor
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
+## Steps before flashing new firmware
+1. get info about bed temp PID control
+2. check movement directions
+3. make video of homing
+
+
 ## Building Marlin 2.0
 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
 
   - [Installing Marlin (Arduino)](http://marlinfw.org/docs/basics/install_arduino.html)
   - [Installing Marlin (VSCode)](http://marlinfw.org/docs/basics/install_platformio_vscode.html).
+
+### Steps after flashing the initial firmware
+1. Verify motor directions of x, y, z and extruder axes, directions can be inverted in configuration.h
+2. Check polarity of endpoint sensors for x,y,z axes.
+3. Make sure Z axis homing is possible at safe position
+4. make sure extruder PID values are OK, check if heating is stable
+5. bed heating is set to bang-bang control, verify it!
+6. After these steps, check out if Z_SAFE_HOMING with correct safe position, S_CURVE_ACCELERATION,  is activatable
 
 ### Supported Platforms
 
