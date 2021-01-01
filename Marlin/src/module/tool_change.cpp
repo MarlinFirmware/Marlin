@@ -277,12 +277,11 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     #endif
   }
 
-  bool extruder_unparked = false;
-  bool skip_solenoid_activation = false;
+  bool extruder_unparked = false, do_solenoid_activation = true;
 
   // Modifies tool_change() behavior based on homing side
   bool parking_extruder_unpark_after_homing(const uint8_t final_tool, bool homed_towards_final_tool) {
-    skip_solenoid_activation = true; // Modifies parking_extruder_tool_change execution by skipping solenoid activation
+    do_solenoid_activation = false; // Tell parking_extruder_tool_change to skip solenoid activation
 
     if (extruder_unparked) return false; // nothing to do
 
@@ -388,14 +387,14 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       DEBUG_POS("PE Tool-Change done.", current_position);
       extruder_unparked = true;
     }
-    else if (!skip_solenoid_activation) { // && nomove == true 
+    else if (do_solenoid_activation) { // && nomove == true 
       // Deactivate old extruder solenoid 
       TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(active_extruder);
       // Only engage magnetic field for new extruder
       TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_deactivate_solenoid, pe_activate_solenoid)(new_tool);
     }
 
-    skip_solenoid_activation = false; // flag is needed only for one tool_change()
+    do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
   }
 
 #endif // PARKING_EXTRUDER
