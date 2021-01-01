@@ -73,15 +73,15 @@
   static uint8_t SPI_speed = HAL_SPI_SPEED;
 
   static uint8_t spiTransfer(uint8_t b) {
-    return swSpiTransfer(b, SPI_speed, SCK_PIN, MISO_PIN, MOSI_PIN);
+    return swSpiTransfer(b, SPI_speed, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
   void spiBegin() {
-    swSpiBegin(SCK_PIN, MISO_PIN, MOSI_PIN);
+    swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
   void spiInit(uint8_t spiRate) {
-    SPI_speed = swSpiInit(spiRate, SCK_PIN, MOSI_PIN);
+    SPI_speed = swSpiInit(spiRate, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
   uint8_t spiRec() { return spiTransfer(0xFF); }
@@ -117,9 +117,9 @@
   void spiBegin() { spiInit(HAL_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
-    #if MISO_PIN == BOARD_SPI1_MISO_PIN
+    #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
       SPI.setModule(1);
-    #elif MISO_PIN == BOARD_SPI2_MISO_PIN
+    #elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
       SPI.setModule(2);
     #endif
     SPI.setDataSize(DATA_SIZE_8BIT);
@@ -403,9 +403,9 @@ void SPIClass::updateSettings() {
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
-#if MISO_PIN == BOARD_SPI1_MISO_PIN
+#if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
   SPIClass SPI(1);
-#elif MISO_PIN == BOARD_SPI2_MISO_PIN
+#elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
   SPIClass SPI(2);
 #endif
 

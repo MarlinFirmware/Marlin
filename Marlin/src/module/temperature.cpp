@@ -53,7 +53,7 @@
     #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
   #endif
   #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN MOSI_PIN
+    #define MAX31865_MOSI_PIN SD_MOSI_PIN
   #endif
   #ifndef MAX31865_MISO_PIN
     #define MAX31865_MISO_PIN MAX6675_DO_PIN
@@ -1662,7 +1662,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 
 #if MAX6675_SEPARATE_SPI
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+  SPIclass<MAX6675_DO_PIN, SD_MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM

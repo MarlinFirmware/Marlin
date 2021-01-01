@@ -341,10 +341,10 @@
   // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
   #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
-  #define SS_PIN                            SDSS
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PA7
+  #define SD_SS_PIN                         SDSS
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
   #define SD_DETECT_PIN                     PC4
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
