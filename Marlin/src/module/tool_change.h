@@ -94,7 +94,7 @@
   void pe_solenoid_init();
 
   bool parking_extruder_unpark_after_homing(const uint8_t final_tool, bool homed_towards_final_tool);
-  void parking_extruder_reset_unparked();
+  void parking_extruder_set_parked();
 
 #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
 

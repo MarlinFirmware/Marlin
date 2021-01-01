@@ -30,7 +30,7 @@
 
 // PARKING_EXTRUDER options alter the default behavior of solenoids, this ensures compliance of M380-381
 
-#if ENABLED(PARKING_EXTRUDER) 
+#if ENABLED(PARKING_EXTRUDER)
   #include "../module/tool_change.h"
   #define SOLENOID_MAGNETIZED_STATE (TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT,!)PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE)
 #else
@@ -45,12 +45,12 @@ static void set_solenoid(const uint8_t num, const bool active) {
   switch (num) {
     case 0:
       OUT_WRITE(SOL0_PIN, value);
-      TERN_(PARKING_EXTRUDER, if (!active && active_extruder == 0) parking_extruder_reset_unparked()); // If active extruder's solenoid is disabled, carriage is considered parked
+      TERN_(PARKING_EXTRUDER, if (!active && active_extruder == 0) parking_extruder_set_parked()); // If active extruder's solenoid is disabled, carriage is considered parked
       break;
     #if HAS_SOLENOID(1)
       case 1:
         OUT_WRITE(SOL1_PIN, value);
-        TERN_(PARKING_EXTRUDER, if (!active && active_extruder == 1) parking_extruder_reset_unparked()); // If active extruder's solenoid is disabled, carriage is considered parked
+        TERN_(PARKING_EXTRUDER, if (!active && active_extruder == 1) parking_extruder_set_parked()); // If active extruder's solenoid is disabled, carriage is considered parked
         break;
     #endif
     #if HAS_SOLENOID(2)
