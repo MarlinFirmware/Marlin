@@ -336,11 +336,6 @@
 
 #elif HAS_WIRED_LCD
 
-  //#define SD_SCK_PIN                     P0_15  // (52)  system defined J3-9 & AUX-3
-  //#define SD_MISO_PIN                    P0_17  // (50)  system defined J3-10 & AUX-3
-  //#define SD_MOSI_PIN                    P0_18  // (51)  system defined J3-10 & AUX-3
-  //#define SD_SS_PIN                      P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
-
   #if ENABLED(FYSETC_MINI_12864)
     #define BEEPER_PIN                     P1_01
     #define BTN_ENC                        P1_04
