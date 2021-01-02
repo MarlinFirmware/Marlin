@@ -389,6 +389,17 @@ void GcodeSuite::G28() {
         TERN_(BLTOUCH, bltouch.init());
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
         probe.move_z_after_homing();
+
+        #if ENABLED(PROBING_HEATERS_OFF)
+          // If we're going to print then we must ensure we are back on temperature before we continue
+          if (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning()) {
+            SERIAL_ECHOLN("Waiting to heat-up again before continueing");
+            ui.set_status("Waiting for heat-up...");
+
+            thermalManager.wait_for_hotend(0);
+            thermalManager.wait_for_bed_heating();
+          }
+        #endif
       }
     #endif
 
@@ -472,17 +483,6 @@ void GcodeSuite::G28() {
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   report_current_position();
-
-#if ENABLED(PROBING_HEATERS_OFF)
-  // If we're going to print then we must ensure we are back on temperature before we continue
-  if (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning()) {
-    SERIAL_ECHOLN("Waiting to heat-up again before continueing");
-    ui.set_status("Waiting for heat-up...");
-
-    thermalManager.wait_for_hotend(0);
-    thermalManager.wait_for_bed_heating();
-  }
-#endif
 
   if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
