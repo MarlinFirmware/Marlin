@@ -96,4 +96,4 @@ void goto_tramming_wizard() {
   });
 }
 
-#endif // BOTH(HAS_LCD_MENU, ASSISTED_TRAMMING_WIZARD)
+#endif // HAS_LCD_MENU && ASSISTED_TRAMMING_WIZARD
