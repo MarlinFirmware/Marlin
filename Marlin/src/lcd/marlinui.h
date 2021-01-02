@@ -269,8 +269,8 @@
     #else
       static int8_t constexpr e_index = 0;
     #endif
-  public:
     static millis_t start_time;
+  public:
     static float menu_scale;
     TERN_(IS_KINEMATIC, static float offset);
     #if IS_KINEMATIC
