@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Replicator v0.4a" // 20210102 does not appear to work if defined in Version.h ------------------------------------------------------------------------
+#define CUSTOM_MACHINE_NAME "Replicator v0.4b" // 20210102 does not appear to work if defined in Version.h ------------------------------------------------------------------------
 
 // Printer's unique ID, used by some programs to dffferentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
