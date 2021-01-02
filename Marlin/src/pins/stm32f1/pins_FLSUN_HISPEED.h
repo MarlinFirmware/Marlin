@@ -121,6 +121,7 @@
  * to the most compatible.
  */
 #if HAS_TMC_UART
+  #define TMC_BAUD_RATE                   19200
   #ifdef HARDWARE_SERIAL /*  TMC2209 */
     /**
     * HardwareSerial with one pin for four drivers.
