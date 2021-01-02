@@ -224,7 +224,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   #endif
 
   VP_X_POSITION, VP_Y_POSITION, VP_Z_POSITION,
-  VP_X_POSITION_SP, VP_Y_POSITION_SP, VP_Z_POSITION_SP,
+  SP_X_POSITION, SP_Y_POSITION, SP_Z_POSITION,
 
   VP_Z_OFFSET,
   VP_Flowrate_E0,
@@ -403,8 +403,6 @@ const struct VPMapping VPMap[] PROGMEM = {
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
-  // TODO:
-
   #if HOTENDS >= 1
     VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
@@ -424,6 +422,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
   VPHELPER(VP_PrintTimeProgressBar, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
+
+  // Calibration
+  VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION>, nullptr),
+  VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION>, nullptr),
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL
@@ -446,9 +448,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Y_POSITION, &current_position.y, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
-  VPHELPER(VP_X_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<X_AXIS>),
-  VPHELPER(VP_Y_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
-  VPHELPER(VP_Z_POSITION_SP, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
+  VPHELPER(SP_X_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<X_AXIS>),
+  VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
+  VPHELPER(SP_Z_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
   VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 

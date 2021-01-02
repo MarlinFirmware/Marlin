@@ -219,6 +219,11 @@ public:
     *(T*)var.memadr = x.t;
   }
 
+  template<DGUSLCD_Screens TPage>
+  static void DGUSLCD_NavigateToPage(DGUS_VP_Variable &var, void *val_ptr) {
+    GotoScreen(TPage);
+  }
+
   /// Send a float value to the display.
   /// Display will get a 4-byte integer scaled to the number of digits:
   /// Tell the display the number of digits and it cheats by displaying a dot between...

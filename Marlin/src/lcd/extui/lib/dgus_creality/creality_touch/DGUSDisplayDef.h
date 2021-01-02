@@ -69,6 +69,9 @@ enum DGUSLCD_Screens : uint8_t {
 
   DGUSLCD_SCREEN_POPUP = 63,           // NEW - does not exist in original display
   DGUSLCD_SCREEN_KILL = 64,            // NEW - does not exist in original display
+
+  DGUSLCD_SCREEN_PIDTUNE_CALIBRATION = 68,
+  DGUSLCD_SCREEN_ESTEPS_CALIBRATION = 69
 };
 
 // Display Memory layout used (T5UID)
@@ -353,12 +356,30 @@ constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
 
 // Movement screen
 constexpr uint16_t VP_X_POSITION = 0x1048;
-constexpr uint16_t VP_X_POSITION_SP = 0x4000;
+constexpr uint16_t SP_X_POSITION = 0x4000;
 constexpr uint16_t VP_Y_POSITION = 0x104A;
-constexpr uint16_t VP_Y_POSITION_SP = 0x4030;
+constexpr uint16_t SP_Y_POSITION = 0x4030;
 constexpr uint16_t VP_Z_POSITION = 0x104C;
-constexpr uint16_t VP_Z_POSITION_SP = 0x4060;
+constexpr uint16_t SP_Z_POSITION = 0x4060;
 constexpr uint16_t VP_BUTTON_MOVEKEY = 0x1046;
+
+// Buttons
+constexpr uint16_t VP_ESTEP_NAV_BUTTON = 0x2291;
+constexpr uint16_t VP_PIDTUNE_NAV_BUTTON = 0x2293;
+
+// PID tuning
+constexpr uint16_t VP_PIDTUNE_TARGET_TEMP = 0x2297;
+constexpr uint16_t VP_PIDTUNE_CYCLES = 0x2299;
+constexpr uint16_t VP_PIDTUNE_START_BUTTON = 0x229B;
+
+// E-steps calibration
+constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
+constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;
+constexpr uint16_t VP_ESTEPS_CALIBRATION_LENGTH = 0x22a1;
+constexpr uint16_t VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH = 0x22a3;
+constexpr uint16_t VP_ESTEPS_CALCULATED_ESTEPS = 0x22a5;
+constexpr uint16_t VP_ESTEPS_CALIBRATESTART_BUTTON = 0x22a7;
+constexpr uint16_t VP_ESTEPS_APPLY_BUTTON = 0x22a9;
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;
