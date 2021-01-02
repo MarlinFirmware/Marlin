@@ -31,6 +31,7 @@
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "ui_api.h"
+#include "../marlinui.h"
 #include "lib/dgus_creality/DGUSDisplay.h"
 #include "lib/dgus_creality/DGUSDisplayDef.h"
 #include "lib/dgus_creality/DGUSScreenHandler.h"
@@ -87,7 +88,12 @@ bool hasPrintTimer = false;
 
     if (!ExtUI::isPrintingFromMedia() && !(PrintJobRecovery::valid() && PrintJobRecovery::exists())) {
       ScreenHandler.SetPrintingFromHost();
+
     }
+    
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    ui.progress_reset();
+#endif
 
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
   }
