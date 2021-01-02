@@ -2998,7 +2998,8 @@ void Temperature::tick() {
     #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
-    SERIAL_ECHOPAIR(":" , c);
+    SERIAL_CHAR(':');
+    SERIAL_DECIMAL(c);
     SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
