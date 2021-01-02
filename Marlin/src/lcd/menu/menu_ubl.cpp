@@ -413,6 +413,10 @@ void _lcd_ubl_map_edit_cmd() {
  * UBL LCD Map Movement
  */
 void ubl_map_move_to_xy() {
+  const xy_pos_t xy = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) };
+
+  // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
+  if (!position_is_reachable(xy)) return;
 
   #if ENABLED(DELTA)
     if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
@@ -422,11 +426,10 @@ void ubl_map_move_to_xy() {
     }
   #endif
 
-  // Set the nozzle position to the mesh point
-  current_position.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
-
-  // Use the built-in manual move handler
-  ui.manual_move.soon(ALL_AXES);
+  // Do an internal move to the mesh point
+  destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
+  constexpr feedRate_t fr_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
+  prepare_internal_move_to_destination(fr_mm_s); // Set current_position from destination
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
