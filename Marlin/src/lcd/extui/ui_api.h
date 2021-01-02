@@ -140,7 +140,9 @@ namespace ExtUI {
   uint32_t getProgress_seconds_elapsed();
    #if PREHEAT_COUNT
   uint16_t getMaterial_preset_E(const uint16_t);
+  #if HAS_HEATED_BED
   uint16_t getMaterial_preset_B(const uint16_t);
+  #endif
   #endif
   #if ENABLED(DUAL_X_CARRIAGE)
   uint8_t getIDEX_Mode();
