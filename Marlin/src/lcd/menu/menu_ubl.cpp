@@ -426,9 +426,8 @@ void ubl_map_move_to_xy() {
     }
   #endif
 
-  // Set the nozzle position to the mesh point
+  // Do an internal move to the mesh point
   destination.set(ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot));
-
   constexpr feedRate_t fr_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
   prepare_internal_move_to_destination(fr_mm_s); // Set current_position from destination
 }
