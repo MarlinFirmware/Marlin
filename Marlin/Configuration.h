@@ -2281,20 +2281,20 @@
 #define NEXTION_TFT
 #if ENABLED(NEXTION_TFT)
   #define LCD_SERIAL_PORT 2
-  #define PID_PARAMS_PER_HOTEND
+  //#define PID_PARAMS_PER_HOTEND
   //#define PIDTEMPBED in Configuration.h
-  #define EMERGENCY_PARSER // Not yet implemented for all platforms.
-  #define SDSUPPORT
-  #define EEPROM_SETTINGS
-  #define DISTINCT_E_FACTORS
-  #define PRINTCOUNTER // n/a on SKR PRO
-  #define ADVANCED_PAUSE_FEATURE
-  #define FILAMENT_LOAD_UNLOAD_GCODES
-  #define LCD_SET_PROGRESS_MANUALLY
-  #define SHOW_REMAINING_TIME
-  #define USE_M73_REMAINING_TIME
-  #define SDCARD_CONNECTION ONBOARD
-  #define LIN_ADVANCE
+  //#define EMERGENCY_PARSER // Not yet implemented for all platforms.
+  //#define SDSUPPORT
+  //#define EEPROM_SETTINGS
+  //#define DISTINCT_E_FACTORS
+  //#define PRINTCOUNTER // n/a on SKR PRO
+  //#define ADVANCED_PAUSE_FEATURE
+  //#define FILAMENT_LOAD_UNLOAD_GCODES
+  //#define LCD_SET_PROGRESS_MANUALLY
+  //#define SHOW_REMAINING_TIME
+  //#define USE_M73_REMAINING_TIME
+  //#define SDCARD_CONNECTION ONBOARD
+  //#define LIN_ADVANCE
   // #define NOZZLE_PARK_FEATURE in Configuration.h
   #define PREHEAT_COUNT 3
   #define PREHEAT_3_LABEL       "PETG"
