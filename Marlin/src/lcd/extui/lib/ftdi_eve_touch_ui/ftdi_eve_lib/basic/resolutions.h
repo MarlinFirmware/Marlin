@@ -45,7 +45,7 @@
     static_assert(thfp + thb + Hsize == th, "Mismatch in display th"); \
     static_assert(tvfp + tvb + Vsize == tv, "Mismatch in display tv");
 
-#ifdef TOUCH_UI_320x240
+#if ENABLED(TOUCH_UI_320x240)
   namespace FTDI {
     constexpr uint8_t Pclk                 =    8;
     constexpr uint8_t Pclkpol              =    0;
