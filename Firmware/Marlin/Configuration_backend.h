@@ -452,6 +452,8 @@
 #define DISABLE_E false
 #define DISABLE_INACTIVE_EXTRUDER
 
+#define ENDSTOP_NOISE_THRESHOLD 2
+
 /**
  * LCD General Settings
  */

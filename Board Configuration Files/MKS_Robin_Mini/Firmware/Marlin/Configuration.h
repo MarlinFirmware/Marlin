@@ -301,8 +301,6 @@
     #define DEFAULT_ZJERK  0.3
   #endif
 
-  #define ENDSTOP_NOISE_THRESHOLD 2
-
   #define DEFAULT_EJERK    5.0
 
   #define SHOW_BOOTSCREEN
