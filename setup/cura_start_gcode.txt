@@ -37,13 +37,13 @@ G1 Z10 F500 ; raise extruder 10mm (relative) first !!
 G90 ; reset to absolute position mode
 G92 E0 ; Reset Extruder
 M190 S{material_bed_temperature_layer_0} ; wait for heat bed to reach temperature
-G28 ; pre-home while waiting for bed to heat up
+M104 120 ; pre-warm extruder while waiting for bed heating
 M117 Waiting 5 minutes for bed to heat evenly
 M118 E1 Waiting 5 minutes for bed to heat evenly
-M104 S0 ; turn off extruder
 G4 S240 ; wait for 4 minutes for bed to heat evenly
 M104 S{material_print_temperature_layer_0} ; set extruder temperature without stopping
 G4 S60 ; wait for 1 more minute for bed to heat evenly
+G28 ; pre-home while waiting for bed to heat up
 G29 A ; Activate UBL in case it was disabled
 G29 L1 ; Load the mesh stored in slot 1
 M109 S{material_print_temperature_layer_0} ; wait for extruder to reach temperature
