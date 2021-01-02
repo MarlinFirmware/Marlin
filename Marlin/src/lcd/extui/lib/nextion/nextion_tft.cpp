@@ -376,20 +376,26 @@ namespace Nextion {
         // Preheat PLA
         if (nextion_command[4] == 'P') {
           SEND_VALasTXT("pe", getMaterial_preset_E(0));
+          #if HAS_HEATED_BED
           SEND_VALasTXT("pb", getMaterial_preset_B(0));
+          #endif
         }
 
         // Preheat ABS
         if (nextion_command[4] == 'A') {
           SEND_VALasTXT("ae", getMaterial_preset_E(1));
+          #if HAS_HEATED_BED
           SEND_VALasTXT("ab", getMaterial_preset_B(1));
+          #endif
         }
 
         // Preheat PETG
         if (nextion_command[4] == 'G') {
     #ifdef PREHEAT_3_TEMP_HOTEND
           SEND_VALasTXT("ge", getMaterial_preset_E(2));
+          #if HAS_HEATED_BED
           SEND_VALasTXT("gb", getMaterial_preset_B(2));
+          #endif
     #endif
         }
       }
@@ -602,17 +608,23 @@ namespace Nextion {
 
         // Preheat PLA
         if (nextion_command[4] == 'P') {
+          #if HAS_HEATED_BED
           setTargetTemp_celsius(getMaterial_preset_B(0), BED);
+          #endif
           setTargetTemp_celsius(getMaterial_preset_E(0), getActiveTool());
         }
         // Preheat ABS
         if (nextion_command[4] == 'A') {
+          #if HAS_HEATED_BED
           setTargetTemp_celsius(getMaterial_preset_B(1), BED);
+          #endif
           setTargetTemp_celsius(getMaterial_preset_E(1), getActiveTool());
         }
         // Preheat PETG
         if (nextion_command[4] == 'G') {
+          #if HAS_HEATED_BED
           setTargetTemp_celsius(getMaterial_preset_B(2), BED);
+          #endif
           setTargetTemp_celsius(getMaterial_preset_E(2), getActiveTool());
         }
       }
