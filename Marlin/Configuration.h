@@ -515,7 +515,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED
+//#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -1334,7 +1334,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-#define DEBUG_LEVELING_FEATURE
+//#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -1616,7 +1616,7 @@
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
-#define NOZZLE_PARK_FEATURE
+//#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
@@ -2278,24 +2278,24 @@
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 
-#define NEXTION_TFT
+//#define NEXTION_TFT
 #if ENABLED(NEXTION_TFT)
   #define LCD_SERIAL_PORT 2
-  //#define PID_PARAMS_PER_HOTEND
-  //#define PIDTEMPBED in Configuration.h
-  //#define EMERGENCY_PARSER // Not yet implemented for all platforms.
-  //#define SDSUPPORT
-  //#define EEPROM_SETTINGS
-  //#define DISTINCT_E_FACTORS
-  //#define PRINTCOUNTER // n/a on SKR PRO
-  //#define ADVANCED_PAUSE_FEATURE
-  //#define FILAMENT_LOAD_UNLOAD_GCODES
-  //#define LCD_SET_PROGRESS_MANUALLY
-  //#define SHOW_REMAINING_TIME
-  //#define USE_M73_REMAINING_TIME
-  //#define SDCARD_CONNECTION ONBOARD
-  //#define LIN_ADVANCE
-  // #define NOZZLE_PARK_FEATURE in Configuration.h
+  #define PID_PARAMS_PER_HOTEND
+  //#define PIDTEMPBED  -> Configuration.h -> STRG+F
+  #define EMERGENCY_PARSER // Not yet implemented for all platforms.
+  #define SDSUPPORT
+  #define EEPROM_SETTINGS
+  #define DISTINCT_E_FACTORS
+  #define PRINTCOUNTER // n/a on SKR PRO
+  #define ADVANCED_PAUSE_FEATURE
+  #define FILAMENT_LOAD_UNLOAD_GCODES
+  #define LCD_SET_PROGRESS_MANUALLY
+  #define SHOW_REMAINING_TIME
+  #define USE_M73_REMAINING_TIME
+  #define SDCARD_CONNECTION ONBOARD
+  #define LIN_ADVANCE
+  // #define NOZZLE_PARK_FEATURE  -> Configuration.h -> STRG+F
   #define PREHEAT_COUNT 3
   #define PREHEAT_3_LABEL       "PETG"
   #define PREHEAT_3_TEMP_HOTEND 220
