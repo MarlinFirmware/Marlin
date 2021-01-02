@@ -33,7 +33,7 @@ namespace FTDI {
       SPIClass EVE_SPI(CLCD_SPI_BUS);
     #endif
     #ifndef CLCD_HW_SPI_SPEED
-      #define CLCD_HW_SPI_SPEED 8000000 >> SPI_SPEED
+      #define CLCD_HW_SPI_SPEED 8000000 >> SD_SPI_SPEED
     #endif
     SPISettings SPI::spi_settings(CLCD_HW_SPI_SPEED, MSBFIRST, SPI_MODE0);
   #endif
