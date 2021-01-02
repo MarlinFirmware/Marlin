@@ -659,10 +659,11 @@ namespace ExtUI {
       planner.set_max_jerk(E_AXIS, value);
     }
   #endif
-  #if ENABLED(NEXTION_TFT)
+
   #if ENABLED(DUAL_X_CARRIAGE)
   uint8_t getIDEX_Mode()                              { return dual_x_carriage_mode; }
   #endif
+  #if PREHEAT_COUNT
   uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
   uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
   #endif
