@@ -2280,6 +2280,7 @@
 
 //#define NEXTION_TFT
 #if ENABLED(NEXTION_TFT)
+/*
   #define LCD_SERIAL_PORT 2
   #define PID_PARAMS_PER_HOTEND
   //#define PIDTEMPBED  -> Configuration.h
@@ -2288,19 +2289,20 @@
   #define EEPROM_SETTINGS
   #define DISTINCT_E_FACTORS
   #define PRINTCOUNTER // n/a on SKR PRO
+  #define ADVANCED_PAUSE_FEATURE
+  #define FILAMENT_LOAD_UNLOAD_GCODES
   #define LCD_SET_PROGRESS_MANUALLY
   #define SHOW_REMAINING_TIME
   #define USE_M73_REMAINING_TIME
   #define SDCARD_CONNECTION ONBOARD
   #define LIN_ADVANCE
-  // #define FILAMENT_LOAD_UNLOAD_GCODES  -> Configuration_adv.h
-  // #define ADVANCED_PAUSE_FEATURE  -> Configuration_adv.h
   // #define NOZZLE_PARK_FEATURE  -> Configuration.h
   #define PREHEAT_COUNT 3
   #define PREHEAT_3_LABEL       "PETG"
   #define PREHEAT_3_TEMP_HOTEND 220
   #define PREHEAT_3_TEMP_BED    70
   #define PREHEAT_3_FAN_SPEED   0 // Value from 0 to 255
+  */
 #endif
 
 //
