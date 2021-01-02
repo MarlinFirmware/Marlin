@@ -176,6 +176,7 @@ public:
 
   // Recall the remembered screen.
   static void PopToOldScreen();
+  static void OnBackButton(DGUS_VP_Variable &var, void *val_ptr);
 
   // Make the display show the screen and update all VPs in it.
   static void GotoScreen(DGUSLCD_Screens screen, bool save_current_screen = true);

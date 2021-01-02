@@ -1186,6 +1186,10 @@ void DGUSScreenHandler::PopToOldScreen() {
   }
 }
 
+void DGUSScreenHandler::OnBackButton(DGUS_VP_Variable &var, void *val_ptr) {
+  PopToOldScreen();
+}
+
 void DGUSScreenHandler::UpdateScreenVPData() {
   if (!dgusdisplay.isInitialized()) {
     return;

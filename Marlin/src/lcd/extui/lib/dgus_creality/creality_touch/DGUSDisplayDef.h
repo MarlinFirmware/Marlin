@@ -366,6 +366,7 @@ constexpr uint16_t VP_BUTTON_MOVEKEY = 0x1046;
 // Buttons
 constexpr uint16_t VP_ESTEP_NAV_BUTTON = 0x2291;
 constexpr uint16_t VP_PIDTUNE_NAV_BUTTON = 0x2293;
+constexpr uint16_t VP_GENERIC_BACK_BUTTON = 0x2295; // Generic button for popping back to the old display
 
 // PID tuning
 constexpr uint16_t VP_PIDTUNE_TARGET_TEMP = 0x2297;
