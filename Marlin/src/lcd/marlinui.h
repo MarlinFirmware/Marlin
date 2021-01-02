@@ -264,9 +264,16 @@
 
   // Manual Movement class
   class ManualMove {
+  private:
+    static AxisEnum axis;
+    #if MULTI_MANUAL
+      static int8_t e_index;
+    #else
+      static int8_t constexpr e_index = 0;
+    #endif
+    static millis_t start_time;
     TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
   public:
-    static millis_t start_time;
     static float menu_scale;
     TERN_(IS_KINEMATIC, static float offset);
     template <typename T>
@@ -286,12 +293,6 @@
     #else
       static bool constexpr processing = false;
     #endif
-    #if MULTI_MANUAL
-      static int8_t e_index;
-    #else
-      static int8_t constexpr e_index = 0;
-    #endif
-    static AxisEnum axis;
     static void task();
     static void soon(AxisEnum axis
       #if MULTI_MANUAL
