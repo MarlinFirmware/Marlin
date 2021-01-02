@@ -1657,10 +1657,7 @@ void homeaxis(const AxisEnum axis) {
 
     // Slow move towards endstop until triggered
     const float rebump = bump * 2;
-    if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPAIR_P("Re-bump: ", rebump);
-      DEBUG_ECHOLNPGM("mm");
-    }
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Re-bump: ", rebump, "mm");
     do_homing_move(axis, rebump, get_homing_bump_feedrate(axis));
 
     #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
