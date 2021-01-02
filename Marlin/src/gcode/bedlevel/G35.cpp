@@ -40,27 +40,7 @@
 // Define tramming point names.
 //
 
-#include "../../feature/tramming.h" // Validate
-
-PGMSTR(point_name_1, TRAMMING_POINT_NAME_1);
-PGMSTR(point_name_2, TRAMMING_POINT_NAME_2);
-PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
-#ifdef TRAMMING_POINT_NAME_4
-  PGMSTR(point_name_4, TRAMMING_POINT_NAME_4);
-  #ifdef TRAMMING_POINT_NAME_5
-    PGMSTR(point_name_5, TRAMMING_POINT_NAME_5);
-  #endif
-#endif
-
-PGM_P const tramming_point_name[] PROGMEM = {
-  point_name_1, point_name_2, point_name_3
-  #ifdef TRAMMING_POINT_NAME_4
-    , point_name_4
-    #ifdef TRAMMING_POINT_NAME_5
-      , point_name_5
-    #endif
-  #endif
-};
+#include "../../feature/tramming.h"
 
 /**
  * G35: Read bed corners to help adjust bed screws
@@ -178,11 +158,10 @@ void GcodeSuite::G35() {
   // the probe deployed if it was successful.
   probe.stow();
 
+  move_to_tramming_wait_pos();
+
   // After this operation the Z position needs correction
   set_axis_never_homed(Z_AXIS);
-
-  // Home Z after the alignment procedure
-  process_subcommands_now_P(PSTR("G28Z"));
 }
 
 #endif // ASSISTED_TRAMMING

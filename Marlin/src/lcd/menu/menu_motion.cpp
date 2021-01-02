@@ -365,8 +365,6 @@ void menu_motion() {
   //
   #if ENABLED(ASSISTED_TRAMMING_WIZARD)
     SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
-  #elif ENABLED(ASSISTED_TRAMMING_MENU_ITEM)
-    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
   #endif
 
   //
