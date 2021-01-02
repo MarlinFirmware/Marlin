@@ -2278,11 +2278,6 @@
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 
-//#define NEXTION_TFT
-#if ENABLED(NEXTION_TFT)
-
-#endif
-
 //
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
