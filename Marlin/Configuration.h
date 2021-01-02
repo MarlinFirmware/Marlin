@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Replicator v0.3f" // 20201231 does not appear to work if defined in Version.h------------------------------------------------------------------------
+#define CUSTOM_MACHINE_NAME "Replicator v0.3g" // 20201231 does not appear to work if defined in Version.h------------------------------------------------------------------------
 
 // Printer's unique ID, used by some programs to dffferentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -445,7 +445,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   5
+#define HEATER_0_MINTEMP   15 // 20210102 changed from default 5 -------------------------------------------------------------------------------------------------
 #define HEATER_1_MINTEMP   5
 #define HEATER_2_MINTEMP   5
 #define HEATER_3_MINTEMP   5
@@ -453,12 +453,12 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        5
+#define BED_MINTEMP        15 // 20210102 changed from default 5 -------------------------------------------------------------------------------------------------
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 275 // 20210112 changed from default 275 ------------------------------------------------------------------------------------------------
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
@@ -466,7 +466,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      125
+#define BED_MAXTEMP      100 // 20210102 changed from default 125 ------------------------------------------------------------------------------------------------
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -622,7 +622,7 @@
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG
 #define USE_YMIN_PLUG
-#define USE_ZMIN_PLUG
+#define USE_ZMIN_PLUG // 20210102 should this be disabled for filament runout sensing? ---------------------------------------------------------------------------
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
@@ -850,7 +850,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN // disabled 20201012 ---------------------------------------------------------------------------------------------------------------
+//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN // disabled 20201012 - this appears to use the Z stop port for probing -------------------------------------------------
 
 // Force the use of the probe for Z-axis homing
 #define USE_PROBE_FOR_Z_HOMING // 20200915 --------------------------------------------------------------------------------------------------------------------------------------
@@ -1104,14 +1104,14 @@
  */
 #define PROBING_HEATERS_OFF       // Turn heaters off when probing 20201221 enabled this function -------------------------------------------------------------------------------
 #if ENABLED(PROBING_HEATERS_OFF)
-  #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy) 20201221 enabled ---------------------------------------------------------
+  #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy) // 20201221 enabled ------------------------------------------------------
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
-//#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
+//#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing // 20210102 on next test, enable to test with firmware revision -------------------------
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // Require minimum nozzle and/or bed temperature for probing
-//#define PREHEAT_BEFORE_PROBING // 20201220 enabled - disabled shortly after as it did not seem to turn off heat after probing ------------------------------------------------
+//#define PREHEAT_BEFORE_PROBING // 20201220 enabled - disabled shortly after as it did not seem to turn off heat after probing -------------------------------------------------
 #if ENABLED(PREHEAT_BEFORE_PROBING)
 //  #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time 20201220 disabled since nozzle temp did not seem to matter before ---------------------------------
   #define PROBING_BED_TEMP     60 // 20201220 was 50 ----------------------------------------------------------------------------------------------------------------------------
@@ -1323,7 +1323,7 @@ M500
 /**
  * Auto-leveling needs preheating
  */
-//#define PREHEAT_BEFORE_LEVELING // 20201220 enabled - has to disable to compile -----------------------------------------------------------------------------------------------
+//#define PREHEAT_BEFORE_LEVELING // 20201220 enabled - had to disable to compile successfully ----------------------------------------------------------------------------------
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
   #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
   #define LEVELING_BED_TEMP     60 // 20201220 was 50 ---------------------------------------------------------------------------------------------------------------------------
@@ -1471,14 +1471,14 @@ M500
 // - Prevent Z homing when the Z probe is outside bed area.
 //
 #define Z_SAFE_HOMING // 20200911 enabled for probing, works very nicely and homes in the center of the build plate --------------------------------------------------------------
-
+                      // 20210102 may need to disable this to resolve homing failure issues --------------------------------------------------------------------------------------
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE - 10) / 2) + X_MIN_POS    // X point for Z homing - 20200915 added + X_MIN_POS to better center probe -------------------------------
   #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (4*60) } // 20201220 was (20*60), (20*60), (4*60) -----------------------------------------------------------------------------
+#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (6*60) } // 20210102 was (20*60), (20*60), (4*60) -----------------------------------------------------------------------------
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1724,7 +1724,7 @@ M500
  *
  * View the current statistics with M78.
  */
-//#define PRINTCOUNTER
+#define PRINTCOUNTER // 20210102 enabled to test functionality -----------------------------------------------------------------------------------------------------------
 
 /**
  * Password
