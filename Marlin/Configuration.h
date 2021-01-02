@@ -145,13 +145,13 @@
 
 // Name displayed in the LCD "Ready" message and Info menu
 #ifdef QQS
-  #define CUSTOM_MACHINE_NAME "FLSUN QQS-Pro"
+  #define CUSTOM_MACHINE_NAME "FLSun QQS-Pro"
 #endif
 #ifdef QQS_TMC
-  #define CUSTOM_MACHINE_NAME "FLSUN QQS TMC"
+  #define CUSTOM_MACHINE_NAME "FLSun QQS TMC"
 #endif
 #ifdef QQS_UART
-  #define CUSTOM_MACHINE_NAME "FLSUN QQS UART"
+  #define CUSTOM_MACHINE_NAME "FLSun QQS UART"
 #endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
