@@ -1334,7 +1334,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -2282,7 +2282,7 @@
 #if ENABLED(NEXTION_TFT)
   #define LCD_SERIAL_PORT 2
   #define PID_PARAMS_PER_HOTEND
-  //#define PIDTEMPBED  -> Configuration.h -> STRG+F
+  //#define PIDTEMPBED in Configuration.h
   #define EMERGENCY_PARSER // Not yet implemented for all platforms.
   #define SDSUPPORT
   #define EEPROM_SETTINGS
@@ -2295,7 +2295,7 @@
   #define USE_M73_REMAINING_TIME
   #define SDCARD_CONNECTION ONBOARD
   #define LIN_ADVANCE
-  // #define NOZZLE_PARK_FEATURE  -> Configuration.h -> STRG+F
+  // #define NOZZLE_PARK_FEATURE in Configuration.h
   #define PREHEAT_COUNT 3
   #define PREHEAT_3_LABEL       "PETG"
   #define PREHEAT_3_TEMP_HOTEND 220
