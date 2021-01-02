@@ -271,12 +271,12 @@
     #define FIX_MOUNTED_PROBE
   #endif
   #if ENABLED(SLOWER_PROBE_MOVES)
-    #define XY_PROBE_SPEED 8000
+    #define XY_PROBE_SPEED (133*60)
   #else
     #if ENABLED(EZABL_SUPERFASTPROBE)
-      #define XY_PROBE_SPEED 16000
+      #define XY_PROBE_SPEED (266*60)
     #else
-      #define XY_PROBE_SPEED 12000
+      #define XY_PROBE_SPEED (200*60)
     #endif
   #endif
   #define PROBING_MARGIN EZABL_PROBE_EDGE
