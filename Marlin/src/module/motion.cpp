@@ -1290,7 +1290,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
 /**
  * Home an individual linear axis
  */
-void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0, const bool heaters_off=true) {
+void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0, const bool final_approach=true) {
   DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
 
   const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
@@ -1322,7 +1322,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-      if (axis == Z_AXIS && heaters_off) probe.set_probing_paused(true);
+      if (axis == Z_AXIS && final_approach) probe.set_probing_paused(true);
     #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1361,7 +1361,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   if (is_home_dir) {
 
     #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-      if (axis == Z_AXIS && heaters_off) probe.set_probing_paused(false);
+      if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
     #endif
 
     endstops.validate_homing_move();
