@@ -728,9 +728,8 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Apply a linear offset to a single axis
-        if (axis == ALL_AXES) {
+        if (axis == ALL_AXES)
           destination = all_axes_destination;
-        }
         else if (axis <= XYZE) {
           destination = current_position;
           destination[axis] += offset;
