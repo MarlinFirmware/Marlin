@@ -29,6 +29,7 @@
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
+#include "../creality_touch/EStepsHandler.h"
 
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
@@ -326,6 +327,33 @@ const uint16_t VPList_Info[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_EstepsCalibration[] PROGMEM = {
+  VP_ESTEPS_CURRENT,
+  VP_ESTEPS_CALIBRATION_TEMP,
+  VP_ESTEPS_CALIBRATION_LENGTH,
+  VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH,
+  VP_ESTEPS_CALCULATED_ESTEPS,
+
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+};
+
+const uint16_t VPList_PidTune[] PROGMEM = {
+  VP_PIDTUNE_TARGET_TEMP,
+  VP_PIDTUNE_CYCLES,
+
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+};
+
 // Toggle button handler
 void DGUSCrealityDisplay_HandleToggleButton(DGUS_VP_Variable &var, void *val_ptr) {
   switch (*(uint16_t*)var.memadr) {
@@ -390,6 +418,9 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_CONFIRM, VPList_None },
   { DGUSLCD_SCREEN_POPUP, VPList_None },
 
+  { DGUSLCD_SCREEN_ESTEPS_CALIBRATION, VPList_EstepsCalibration },
+  { DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, VPList_PidTune },
+
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -424,7 +455,19 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_PrintTimeProgressBar, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
 
   // Calibration
-  VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION>, nullptr),
+  // ... e-steps
+  VPHELPER(VP_ESTEPS_CURRENT, &EstepsHandler::set_esteps, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_ESTEPS_CALIBRATION_TEMP, &EstepsHandler::calibration_temperature, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_ESTEPS_CALIBRATION_LENGTH, &EstepsHandler::filament_to_extrude, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH, &EstepsHandler::remaining_filament, EstepsHandler::HandleRemainingFilament, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_ESTEPS_CALCULATED_ESTEPS, &EstepsHandler::calculated_esteps, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  VPHELPER(VP_ESTEPS_CALIBRATESTART_BUTTON, nullptr, EstepsHandler::HandleStartButton, nullptr),
+  VPHELPER(VP_ESTEPS_APPLY_BUTTON, nullptr, EstepsHandler::HandleStartButton, nullptr),
+
+  VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION, EstepsHandler>), nullptr),
+  
+  // PID
   VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION>, nullptr),
 
   VPHELPER(VP_GENERIC_BACK_BUTTON, nullptr, ScreenHandler.OnBackButton, nullptr),

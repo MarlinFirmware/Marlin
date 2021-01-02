@@ -36,6 +36,9 @@ struct creality_dwin_settings_t {
   int16_t standby_screen_brightness;
 };
 
+// endianness swap
+inline uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
+
 class DGUSScreenHandler {
 public:
   DGUSScreenHandler() = default;
@@ -225,6 +228,12 @@ public:
     GotoScreen(TPage);
   }
 
+  template<DGUSLCD_Screens TPage, typename Handler>
+  static void DGUSLCD_NavigateToPage(DGUS_VP_Variable &var, void *val_ptr) {
+    GotoScreen(TPage);
+    Handler::Init();
+  }
+
   /// Send a float value to the display.
   /// Display will get a 4-byte integer scaled to the number of digits:
   /// Tell the display the number of digits and it cheats by displaying a dot between...
@@ -237,6 +246,17 @@ public:
       // Round - truncated values look like skipped numbers
       long roundedValue = static_cast<long>(round(f));
       dgusdisplay.WriteVariable(var.VP, roundedValue);
+    }
+  }
+
+  // Receive a float from the display - Display will send a 2-byte integer scaled to the number of digits
+  template<unsigned int decimals>
+  static void DGUSLCD_SetFloatAsIntFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
+    if (var.memadr) {
+      uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
+      float value = (float)value_raw/10;
+
+      *(uint16_t *)var.memadr = value;
     }
   }
 
