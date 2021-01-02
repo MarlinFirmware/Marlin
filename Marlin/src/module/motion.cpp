@@ -1341,18 +1341,9 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     target[axis] = 0;                         // Set the single homing axis to 0
     planner.set_machine_position_mm(target);  // Update the machine position
 
-    #if HAS_DIST_MM_ARG
-      const xyze_float_t cart_dist_mm{0};
-    #endif
-
     // Set delta/cartesian axes directly
     target[axis] = distance;                  // The move will be towards the endstop
-    planner.buffer_segment(target
-      #if HAS_DIST_MM_ARG
-        , cart_dist_mm
-      #endif
-      , home_fr_mm_s, active_extruder
-    );
+    planner.buffer_segment(target, home_fr_mm_s, active_extruder);
   #endif
 
   planner.synchronize();

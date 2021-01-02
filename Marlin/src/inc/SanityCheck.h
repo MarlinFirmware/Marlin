@@ -1244,7 +1244,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Junction deviation is incompatible with kinematic systems.
  */
-#if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
+#if BOTH(HAS_JUNCTION_DEVIATION, IS_KINEMATIC)
   #error "CLASSIC_JERK is required for DELTA and SCARA."
 #endif
 

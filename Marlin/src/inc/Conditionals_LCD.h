@@ -945,11 +945,9 @@
 #endif
 
 // This flag indicates some kind of jerk storage is needed
-#if EITHER(CLASSIC_JERK, IS_KINEMATIC)
+#if ENABLED(CLASSIC_JERK)
   #define HAS_CLASSIC_JERK 1
-#endif
-
-#if DISABLED(CLASSIC_JERK)
+#else
   #define HAS_JUNCTION_DEVIATION 1
 #endif
 

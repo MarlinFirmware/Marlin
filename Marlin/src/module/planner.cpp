@@ -1684,9 +1684,6 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   #if HAS_POSITION_FLOAT
     , const xyze_pos_t &target_float
   #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
   , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
 ) {
 
@@ -1701,9 +1698,6 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   if (!_populate_block(block, false, target
     #if HAS_POSITION_FLOAT
       , target_float
-    #endif
-    #if HAS_DIST_MM_ARG
-      , cart_dist_mm
     #endif
     , fr_mm_s, extruder, millimeters
   )) {
@@ -1747,9 +1741,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
   #if HAS_POSITION_FLOAT
     , const xyze_pos_t &target_float
-  #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
   #endif
   , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
@@ -2348,13 +2339,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     // Unit vector of previous path line segment
     static xyze_float_t prev_unit_vec;
 
-    xyze_float_t unit_vec =
-      #if HAS_DIST_MM_ARG
-        cart_dist_mm
-      #else
-        { steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z, steps_dist_mm.e }
-      #endif
-    ;
+    xyze_float_t unit_vec = { steps_dist_mm.x, steps_dist_mm.y, steps_dist_mm.z, steps_dist_mm.e };
 
     /**
      * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
@@ -2591,11 +2576,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     previous_safe_speed = safe_speed;
 
-    #if HAS_JUNCTION_DEVIATION
-      NOMORE(vmax_junction_sqr, sq(vmax_junction));   // Throttle down to max speed
-    #else
-      vmax_junction_sqr = sq(vmax_junction);          // Go up or down to the new speed
-    #endif
+    vmax_junction_sqr = sq(vmax_junction); // Go up or down to the new speed
 
   #endif // Classic Jerk Limiting
 
@@ -2679,9 +2660,6 @@ void Planner::buffer_sync_block() {
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
 bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
   , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
 ) {
 
@@ -2751,9 +2729,6 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
       #if HAS_POSITION_FLOAT
         , target_float
       #endif
-      #if HAS_DIST_MM_ARG
-        , cart_dist_mm
-      #endif
       , fr_mm_s, extruder, millimeters)
   ) return false;
 
@@ -2782,14 +2757,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
 
   #if IS_KINEMATIC
 
-    #if HAS_JUNCTION_DEVIATION
-      const xyze_pos_t cart_dist_mm = {
-        rx - position_cart.x, ry - position_cart.y,
-        rz - position_cart.z, e  - position_cart.e
-      };
-    #else
-      const xyz_pos_t cart_dist_mm = { rx - position_cart.x, ry - position_cart.y, rz - position_cart.z };
-    #endif
+    const xyz_pos_t cart_dist_mm = { rx - position_cart.x, ry - position_cart.y, rz - position_cart.z };
 
     float mm = millimeters;
     if (mm == 0.0)
@@ -2807,12 +2775,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
     #else
       const feedRate_t feedrate = fr_mm_s;
     #endif
-    if (buffer_segment(delta.a, delta.b, delta.c, machine.e
-      #if HAS_JUNCTION_DEVIATION
-        , cart_dist_mm
-      #endif
-      , feedrate, extruder, mm
-    )) {
+    if (buffer_segment(delta.a, delta.b, delta.c, machine.e, feedrate, extruder, mm)) {
       position_cart.set(rx, ry, rz, e);
       return true;
     }
