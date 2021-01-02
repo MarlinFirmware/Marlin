@@ -3347,7 +3347,7 @@
   #define USER_GCODE_2 "M109 205\nG1 E100 F300\nM104 S0"
 
   #define USER_DESC_3 "Probe bed (5m heat time)"  // 20200102 last updated
-  #define USER_GCODE_3 "M118 E1 Starting bed probing routine\nM190 S60\nM117 Heating bed\nG28\nM117 Waiting 5 minutes for bed to heat evenly\nM118 E1 Waiting 5 minutes for bed to head\nM104 S0\nG4 S300\nM117 Probing bed\nM118 E1 Probing bed\nG29 P1\nG29 P3\nG29 F10\nG29 S1\nG29 A\nG29 L1\nM500"
+  #define USER_GCODE_3 "M118 E1 Starting bed probing routine\nM190 S60\nM117 Heating bed\nG28\nM117 Waiting 5 minutes for bed to heat evenly\nM118 E1 Waiting 5 minutes for bed to head\nM104 S0\nG4 S300\nM117 Probing bed\nM118 E1 Probing bed\nG29 P1\nM104 S0\nG29 P3\nG29 F10\nG29 S1\nG29 A\nG29 L1\nM500\nM190 S0\n"
 
 /*
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
