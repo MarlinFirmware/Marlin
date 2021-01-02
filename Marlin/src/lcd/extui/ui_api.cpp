@@ -659,11 +659,13 @@ namespace ExtUI {
       planner.set_max_jerk(E_AXIS, value);
     }
   #endif
-#if ENABLED(DUAL_X_CARRIAGE)
+  #if ENABLED(NEXTION_TFT)
+  #if ENABLED(DUAL_X_CARRIAGE)
   uint8_t getIDEX_Mode()                              { return dual_x_carriage_mode; }
   #endif
   uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
   uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
+  #endif
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
   int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
