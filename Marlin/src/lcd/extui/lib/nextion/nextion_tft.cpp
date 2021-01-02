@@ -218,22 +218,9 @@ namespace Nextion {
 
   void NextionTFT::PanelInfo(uint8_t req) {
     switch (req) {
-    case 0: { // Get Printing Time
-      const uint32_t remaining = getProgress_seconds_remaining();
-      char remaining_str[10];
-      _format_time(remaining_str, remaining);
+    case 0: //
 
-      const uint32_t elapsed = getProgress_seconds_elapsed();
-      char elapsed_str[10];
-      _format_time(elapsed_str, elapsed);
-
-      SEND_VALasTXT("tmppage.elapsed", elapsed_str);
-      SEND_VALasTXT("tmppage.remaining", remaining_str);
-
-  #if NEXDEBUG(N_ALL)
-      SERIAL_ECHOLNPAIR("Print time ", ui8tostr2(elapsed / 60), ":", ui8tostr2(elapsed % 60));
-  #endif
-    } break;
+      break;
 
     case 1: // Get SD Card list
       if (!isPrinting()) {
@@ -283,7 +270,11 @@ namespace Nextion {
       break;
 
     case 23: // Linear Advance
+  #if ENABLED(LIN_ADVANCE)
       SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
+  #else
+      SEND_TXT("linadvance", "n/a");
+  #endif
       break;
 
     case 24: // TMC Motor Current
@@ -369,12 +360,19 @@ namespace Nextion {
       break;
 
     case 28: // Filament laod/unload
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
       SEND_VALasTXT("filamentin", fc_settings[getActiveTool()].load_length);
       SEND_VALasTXT("filamentout", fc_settings[getActiveTool()].unload_length);
+  #else
+      SEND_TXT("filamentin", "n/a");
+      SEND_TXT("filamentout", "n/a");
+  #endif
       break;
 
     case 29: // Preheat
+  #if PREHEAT_COUNT
       if (!isPrinting()) {
+
         // Preheat PLA
         if (nextion_command[4] == 'P') {
           SEND_VALasTXT("pe", getMaterial_preset_E(0));
@@ -389,12 +387,13 @@ namespace Nextion {
 
         // Preheat PETG
         if (nextion_command[4] == 'G') {
-  #ifdef PREHEAT_3_TEMP_HOTEND
+    #ifdef PREHEAT_3_TEMP_HOTEND
           SEND_VALasTXT("ge", getMaterial_preset_E(2));
           SEND_VALasTXT("gb", getMaterial_preset_B(2));
-  #endif
+    #endif
         }
       }
+  #endif
       break;
 
     case 30: // velocity
@@ -598,7 +597,9 @@ namespace Nextion {
       break;
 
     case 63: // Preheat // Temps defined in configuration.h
+  #if PREHEAT_COUNT
       if (!isPrinting()) {
+
         // Preheat PLA
         if (nextion_command[4] == 'P') {
           setTargetTemp_celsius(getMaterial_preset_B(0), BED);
@@ -615,6 +616,7 @@ namespace Nextion {
           setTargetTemp_celsius(getMaterial_preset_E(2), getActiveTool());
         }
       }
+  #endif
       break;
     }
   }
@@ -667,18 +669,19 @@ namespace Nextion {
 
     // tmppage Progress + Layer + Time
     if (isPrinting()) {
+
       if (ELAPSED(ms, next_event_ms)) {
         next_event_ms = ms + 1000;
+  #if ENABLED(SHOW_REMAINING_TIME)
         const uint32_t remaining = getProgress_seconds_remaining();
         char remaining_str[10];
         _format_time(remaining_str, remaining);
-
+        SEND_VALasTXT("tmppage.remaining", remaining_str);
+  #endif
         const uint32_t elapsed = getProgress_seconds_elapsed();
         char elapsed_str[10];
         _format_time(elapsed_str, elapsed);
-
         SEND_VALasTXT("tmppage.elapsed", elapsed_str);
-        SEND_VALasTXT("tmppage.remaining", remaining_str);
       }
 
       if (last_progress != getProgress_percent()) {
