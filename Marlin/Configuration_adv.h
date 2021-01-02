@@ -3333,16 +3333,23 @@
 /**
  * User-defined menu items that execute custom GCode
  */
-//#define CUSTOM_USER_MENUS  // 20200911 - look into custom menus if program memory allows --------------------------------------------------------------------------------------
+#define CUSTOM_USER_MENUS  // 20210102 - enabled for testing ------------------------------------------------------------------------------------------------------------
 #if ENABLED(CUSTOM_USER_MENUS)
-  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
+  #define CUSTOM_USER_MENU_TITLE "Custom Commands"
   #define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "Home & UBL Info"
-  #define USER_GCODE_1 "G28\nG29 W"
+  #define USER_DESC_1 "PID Autotune (Bed + Extruder)"
+  #define USER_GCODE_1 "M303 C10 E0 S205 U1\nM303 C10 E-1 S60 U1"
 
+  #define USER_DESC_2 "Extrude 100mm filament"
+  #define USER_GCODE_2 "M109 205\nG1 E100 F300\nM104 S0"
+
+  #define USER_DESC_3 "Save new bed mesh (5m heat time)"
+  #define USER_GCODE_3 "M190 S60\nG28\nM117 Waiting 5 minutes for bed to heat evenly\nM104 S0\nG4 S300\nG29 P1\nG29 P3\nG29 F10\nG29 S1\nG29 A\nG29 L1\nM500"
+
+/*
   #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
   #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
 
@@ -3354,6 +3361,8 @@
 
   #define USER_DESC_5 "Home & Info"
   #define USER_GCODE_5 "G28\nM503"
+  */
+
 #endif
 
 /**
