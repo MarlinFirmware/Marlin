@@ -723,7 +723,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
-          REMEMBER(active_extruder);
+          REMEMBER(ae, active_extruder);
           if (axis == E_AXIS) active_extruder = e_index;
         #endif
 
