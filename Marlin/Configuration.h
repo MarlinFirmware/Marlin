@@ -2288,13 +2288,13 @@
   #define EEPROM_SETTINGS
   #define DISTINCT_E_FACTORS
   #define PRINTCOUNTER // n/a on SKR PRO
-  #define ADVANCED_PAUSE_FEATURE
   #define FILAMENT_LOAD_UNLOAD_GCODES
   #define LCD_SET_PROGRESS_MANUALLY
   #define SHOW_REMAINING_TIME
   #define USE_M73_REMAINING_TIME
   #define SDCARD_CONNECTION ONBOARD
   #define LIN_ADVANCE
+  // #define ADVANCED_PAUSE_FEATURE  -> Configuration_adv.h -> STRG+F
   // #define NOZZLE_PARK_FEATURE  -> Configuration.h -> STRG+F
   #define PREHEAT_COUNT 3
   #define PREHEAT_3_LABEL       "PETG"
