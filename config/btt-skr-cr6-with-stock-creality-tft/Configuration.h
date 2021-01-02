@@ -1098,7 +1098,7 @@
 // Require minimum nozzle and/or bed temperature for probing.
 #define PREHEAT_BEFORE_PROBING
 #if ENABLED(PREHEAT_BEFORE_PROBING)
-  #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+  #define PROBING_NOZZLE_TEMP 145   // (°C) Only applies to E0 at this time
   //#define PROBING_BED_TEMP     50
 #endif
 
