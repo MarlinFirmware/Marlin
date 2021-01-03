@@ -81,6 +81,11 @@
 // When running dual Z motors uncomment the below line. This will increase the Z motor driver current for 2x motors.
 //#define DUAL_Z_MOTORS
 
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // Axis Direction Settings
 // If you need to reverse the direction of a motor uncomment the below option for that axis.
 // E motor settings are below in the Extruder Settings Section
@@ -324,6 +329,10 @@
     #define CR10_STOCKDISPLAY
   #endif
   
+  #if ENABLED(REVERSE_KNOB_DIRECTION) && DISABLED(ENDER5_PLUS)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+  
   #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
     //S models assume that you have 2x motors, filament sensor, and are using the dual adapter.
     //So lets up the VREF on Z and reverse the Z axis when using the dual motor adapter and enable the filament sensor
@@ -465,11 +474,13 @@
     #define Y_BED_SIZE 350
     #define Z_MAX_POS 400
     #define PRINTER_VOLTAGE_24
-	#define REVERSE_ENCODER_DIRECTION
-	#define ENDER5_NEW_LEADSCREW
+    #if DISABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
+    #define ENDER5_NEW_LEADSCREW
     #define EZOUTV2_ENABLE
     #define DUAL_Z_MOTORS
-	#define MOUNTED_FILAMENT_SENSOR
+    #define MOUNTED_FILAMENT_SENSOR
   #endif
 
   #if ENABLED(SOVOL_SV01)

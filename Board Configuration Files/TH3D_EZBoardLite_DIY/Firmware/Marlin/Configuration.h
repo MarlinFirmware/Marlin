@@ -193,6 +193,11 @@
 //#define PETSFANG                 //This is the RIGHT mounted version
 //#define CUSTOM_PROBE             //For any other probe mount (also used for BL Touch), Enter offsets below
 
+// LCD Knob Direction -------------------------------------------------------
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // CoreXY Printer Setting ---------------------------------------------------
 // If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
 //#define COREXY
@@ -490,6 +495,10 @@
 #endif
 
 #define Z_HOME_DIR -1
+
+#if ENABLED(REVERSE_KNOB_DIRECTION)
+  #define REVERSE_ENCODER_DIRECTION
+#endif
 
 #define ENCODER_PULSES_PER_STEP 4
 #define ENCODER_STEPS_PER_MENU_ITEM 1
