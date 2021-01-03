@@ -175,10 +175,10 @@
 // HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
-  #define SCK_PIN                           PA5   // SPI1 SCLK
-  #define SS_PIN                            PA4   // SPI1 SSEL
-  #define MISO_PIN                          PA6   // SPI1 MISO
-  #define MOSI_PIN                          PA7   // SPI1 MOSI
+  #define SD_SCK_PIN                        PA5   // SPI1 SCLK
+  #define SD_SS_PIN                         PA4   // SPI1 SSEL
+  #define SD_MISO_PIN                       PA6   // SPI1 MISO
+  #define SD_MOSI_PIN                       PA7   // SPI1 MOSI
 #endif
 
 //
