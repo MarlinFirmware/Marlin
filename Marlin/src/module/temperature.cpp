@@ -793,9 +793,16 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
   #if USE_BEEPER
+    thermalManager.disable_all_heaters();
     for (uint8_t i = 20; i--;) {
-      WRITE(BEEPER_PIN, HIGH); delay(25);
-      WRITE(BEEPER_PIN, LOW); delay(80);
+      WRITE(BEEPER_PIN, HIGH);
+      delay(25);
+      watchdog_refresh();
+      WRITE(BEEPER_PIN, LOW);
+      delay(40);
+      watchdog_refresh();
+      delay(40);
+      watchdog_refresh();
     }
     WRITE(BEEPER_PIN, HIGH);
   #endif
@@ -820,6 +827,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   }
 
   disable_all_heaters(); // always disable (even for bogus temp)
+  watchdog_refresh();
 
   #if BOGUS_TEMPERATURE_GRACE_PERIOD
     const millis_t ms = millis();
@@ -2423,7 +2431,7 @@ void Temperature::readings_ready() {
 
   #endif // HAS_HOTEND
 
-  #if HAS_HEATED_BED
+  #if BOTH(HAS_HEATED_BED, THERMAL_PROTECTION_BED)
     #if TEMPDIR(BED) < 0
       #define BEDCMP(A,B) ((A)<(B))
     #else
@@ -2434,7 +2442,7 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif
 
-  #if HAS_HEATED_CHAMBER
+  #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
     #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<(B))
     #else
