@@ -330,13 +330,14 @@
 #define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4038  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4039  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V431           4040  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V452           4041  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4042  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4043  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4044  // FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4045  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4046  // STM32F103RET6 Libmaple-based controller
+#define BOARD_CREALITY_V4210          4040  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4041  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V452           4042  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4043  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4044  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4045  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4046  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4047  // STM32F103RET6 Libmaple-based controller
 
 //
 // ARM Cortex-M4F
