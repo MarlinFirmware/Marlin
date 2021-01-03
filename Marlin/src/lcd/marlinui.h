@@ -23,6 +23,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../module/motion.h"
+
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
 #endif
@@ -270,9 +272,22 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
+    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
   public:
     static float menu_scale;
     TERN_(IS_KINEMATIC, static float offset);
+    template <typename T>
+    void set_destination(const T& dest) {
+      #if IS_KINEMATIC
+        // Moves are segmented, so the entire move is not submitted at once.
+        // Using a separate variable prevents corrupting the in-progress move.
+        all_axes_destination = current_position;
+        all_axes_destination.set(dest);
+      #else
+        // Moves are submitted as single line to the planner using buffer_line.
+        current_position.set(dest);
+      #endif
+    }
     #if IS_KINEMATIC
       static bool processing;
     #else
