@@ -1,5 +1,5 @@
 
-![PrusaSlicer logo](../../docs/images/PrusaSlicer.png)
+![PrusaSlicer logo](../../docs/images/PrusaSlicer.png?raw=true)
 
 [PrusaSlicer Releases](https://github.com/prusa3d/PrusaSlicer/releases)
 
@@ -13,7 +13,7 @@ Once done, launch prusa-slicer.exe and the user interface appears, you can launc
 
 **Note:** This pack will be integrated in the next version of PrusaSlicer 2.3 and above.
 
-[PrusaSlicer Wizard](../../docs/images/PS-Wizard2.png?raw=true)
+[PrusaSlicer Wizard](../../docs/images/PS-Wizard2.png)
 
 # 1. Slicers configuration files
 
