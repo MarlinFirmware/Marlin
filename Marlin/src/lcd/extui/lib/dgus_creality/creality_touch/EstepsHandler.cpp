@@ -21,6 +21,7 @@
 float EstepsHandler::set_esteps = 0;
 float EstepsHandler::calculated_esteps = 0;
 float EstepsHandler::remaining_filament = 0;
+float EstepsHandler::mark_filament_mm = 0;
 float EstepsHandler::filament_to_extrude = 0;
 uint16_t EstepsHandler::calibration_temperature = 0;
 
@@ -30,7 +31,8 @@ void EstepsHandler::Init() {
     calculated_esteps = 0;
 
     // Reset
-    filament_to_extrude = 120;
+    filament_to_extrude = 100;
+    mark_filament_mm = 120;
     remaining_filament = 0;
 
     // Use configured PLA temps + 10 degrees
@@ -55,9 +57,17 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
         return;
     }
 
+    if (mark_filament_mm < filament_to_extrude) {
+        SetStatusMessage(PSTR("Invalid mark length set"));
+        return;
+    }
+
     // Prepare
     bool zAxisWasRelative = GcodeSuite::axis_is_relative(Z_AXIS);
     bool eAxisWasRelative = GcodeSuite::axis_is_relative(E_AXIS);
+
+    GcodeSuite::set_e_relative();
+    GcodeSuite::set_relative_mode(true);
 
     ExtUI::injectCommands_P("G0 Z5 F150");
     queue.advance();
@@ -116,9 +126,25 @@ void EstepsHandler::HandleRemainingFilament(DGUS_VP_Variable &var, void *val_ptr
     ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>(var, val_ptr);
 
     // Calculate
-    float actualExtrusion = filament_to_extrude - remaining_filament;
+    constexpr float precision = 0.01;
+    float actualExtrusion = mark_filament_mm - remaining_filament;
+    if (actualExtrusion < (-precision)) {
+        SetStatusMessage(PSTR("Mark filament further"));
+        return;
+    }
+
+    if (actualExtrusion < precision) {
+        SetStatusMessage(PSTR("E-steps are correct"));
+        calculated_esteps = set_esteps;
+        return;
+    }
+
     float current_steps = ExtUI::getAxisSteps_per_mm(ExtUI::E0);
-    float new_steps = actualExtrusion = 0 ? current_steps : (current_steps / actualExtrusion) * 100;
+    SERIAL_ECHOLNPAIR("Current steps: ", current_steps);
+    SERIAL_ECHOLNPAIR("Actual extrusion: ", actualExtrusion);
+
+    float new_steps = (current_steps * filament_to_extrude) / actualExtrusion;
+    SERIAL_ECHOLNPAIR("New steps: ", new_steps);
 
     calculated_esteps = new_steps;
 

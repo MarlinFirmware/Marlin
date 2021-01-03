@@ -209,7 +209,7 @@ constexpr uint16_t VP_PREHEAT_ABS_BED_TEMP = 0x110a;
 
 // // Place for status messages.
 constexpr uint16_t VP_M117 = 0x21B3;
-constexpr uint8_t VP_M117_LEN = 40;
+constexpr uint8_t VP_M117_LEN = 70;
 
 // // Temperatures.
 constexpr uint16_t VP_T_E0_Is = 0x1036;  // 4 Byte Integer - HEAD_CURRENT_TEMP_VP
@@ -377,6 +377,7 @@ constexpr uint16_t VP_PIDTUNE_START_BUTTON = 0x229B;
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_LENGTH = 0x22a1;
+constexpr uint16_t VP_ESTEPS_CALIBRATION_MARK_LENGTH = 0x22ab;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH = 0x22a3;
 constexpr uint16_t VP_ESTEPS_CALCULATED_ESTEPS = 0x22a5;
 constexpr uint16_t VP_ESTEPS_CALIBRATESTART_BUTTON = 0x22a7;

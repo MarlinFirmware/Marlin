@@ -255,8 +255,7 @@ public:
     if (var.memadr) {
       uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
       float value = (float)value_raw/10;
-
-      *(uint16_t *)var.memadr = value;
+      *(float *)var.memadr = value;
     }
   }
 

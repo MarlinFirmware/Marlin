@@ -332,6 +332,7 @@ const uint16_t VPList_EstepsCalibration[] PROGMEM = {
   VP_ESTEPS_CALIBRATION_TEMP,
   VP_ESTEPS_CALIBRATION_LENGTH,
   VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH,
+  VP_ESTEPS_CALIBRATION_MARK_LENGTH,
   VP_ESTEPS_CALCULATED_ESTEPS,
 
   #if HOTENDS >= 1
@@ -457,13 +458,14 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Calibration
   // ... e-steps
   VPHELPER(VP_ESTEPS_CURRENT, &EstepsHandler::set_esteps, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_ESTEPS_CALIBRATION_TEMP, &EstepsHandler::calibration_temperature, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_ESTEPS_CALIBRATION_TEMP, &EstepsHandler::calibration_temperature, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_ESTEPS_CALIBRATION_LENGTH, &EstepsHandler::filament_to_extrude, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_ESTEPS_CALIBRATION_MARK_LENGTH, &EstepsHandler::mark_filament_mm, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH, &EstepsHandler::remaining_filament, EstepsHandler::HandleRemainingFilament, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_ESTEPS_CALCULATED_ESTEPS, &EstepsHandler::calculated_esteps, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
   VPHELPER(VP_ESTEPS_CALIBRATESTART_BUTTON, nullptr, EstepsHandler::HandleStartButton, nullptr),
-  VPHELPER(VP_ESTEPS_APPLY_BUTTON, nullptr, EstepsHandler::HandleStartButton, nullptr),
+  VPHELPER(VP_ESTEPS_APPLY_BUTTON, nullptr, EstepsHandler::HandleApplyButton, nullptr),
 
   VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION, EstepsHandler>), nullptr),
   

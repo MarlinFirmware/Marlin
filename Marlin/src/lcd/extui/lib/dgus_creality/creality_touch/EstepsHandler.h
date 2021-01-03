@@ -14,6 +14,8 @@ class EstepsHandler {
     public:
         static float set_esteps;
         static float calculated_esteps;
+
+        static float mark_filament_mm;
         static float remaining_filament;
 
         static float filament_to_extrude;
