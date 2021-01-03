@@ -1484,11 +1484,11 @@
 
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
 
-  #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+  #if ANY(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS)
     #define DGUS_PRINT_FILENAME           // Display the filename during printing
     #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
 
-    #if ENABLED(DGUS_LCD_UI_FYSETC)
+    #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_MKS)
       //#define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for UI_FYSETC
     #else
       #define DGUS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
@@ -1506,57 +1506,8 @@
       #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
     #endif
   #endif
-
-  #if ENABLED(DGUS_LCD_UI_MKS)
-
-    #define DGUS_PRINT_FILENAME           // Display the filename during printing
-    #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
-
-    #if ENABLED(DGUS_LCD_UI_FYSETC)
-       #define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for UI_FYSETC
-    #elif ENABLED(DGUS_LCD_UI_MKS)
-       // #define DGUS_UI_MOVE_DIS_OPTION
-    #else
-      #define DGUS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
-    #endif
-    #define DGUS_FILAMENT_LOADUNLOAD
-    #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
-      #define DGUS_FILAMENT_PURGE_LENGTH 10
-      #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5 // (mm) Adjust in proportion to DGUS_UPDATE_INTERVAL_MS
-    #endif
-
-    #define DGUS_UI_WAITING               // Show a "waiting" screen between some screens
-    #if ENABLED(DGUS_UI_WAITING)
-      #define DGUS_UI_WAITING_STATUS 10
-      #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
-    #endif
-  #endif
-
 #endif // HAS_DGUS_LCD
- 
-#if ENABLED(DGUS_LCD_UI_MKS)
-#define DGUS_PRINT_FILENAME           // Display the filename during printing
-    #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
 
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      // #define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for UI_MKS
-    #else
-      #define DGUS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
-    #endif
-
-    #define DGUS_FILAMENT_LOADUNLOAD
-    #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
-      #define DGUS_FILAMENT_PURGE_LENGTH 10
-      #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5 // (mm) Adjust in proportion to DGUS_UPDATE_INTERVAL_MS
-    #endif
-
-    #define DGUS_UI_WAITING               // Show a "waiting" screen between some screens
-    #if ENABLED(DGUS_UI_WAITING)
-      #define DGUS_UI_WAITING_STATUS 10
-      #define DGUS_UI_WAITING_STATUS_PERIOD 8 // Increase to slower waiting status looping
-    #endif
-#endif
- 
 //
 // Touch UI for the FTDI Embedded Video Engine (EVE)
 //
