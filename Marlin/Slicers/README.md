@@ -1,5 +1,5 @@
 
-![PrusaSlicer logo](../../docs/images/PrusaSlicer.png?raw=true)
+![PrusaSlicer logo](../../docs/images/PrusaSlicer.png)
 
 [PrusaSlicer Releases](https://github.com/prusa3d/PrusaSlicer/releases)
 
