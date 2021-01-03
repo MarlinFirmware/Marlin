@@ -116,13 +116,16 @@ bool MarlinUI::detected() { return true; }
                             bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
       #endif
 
-      const void * const frame_ptr = pgm_read_ptr(&custom_bootscreen_animation[frame]);
-
-      #if BOTH(CUSTOM_BOOTSCREEN_ANIMATED, CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
-        const boot_frame_t * const frame_info = (boot_frame_t*)frame_ptr;
-        const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&frame_info->bitmap);
+      #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
+        const void * const frame_ptr = pgm_read_ptr(&custom_bootscreen_animation[frame]);
+        #if ENABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+          const boot_frame_t * const frame_info = (boot_frame_t*)frame_ptr;
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&frame_info->bitmap);
+        #else
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)frame_ptr;
+        #endif
       #else
-        const u8g_pgm_uint8_t * const bmp = TERN(CUSTOM_BOOTSCREEN_ANIMATED, (u8g_pgm_uint8_t*)frame_ptr, custom_start_bmp);
+        const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
       #endif
 
       UNUSED(frame);
