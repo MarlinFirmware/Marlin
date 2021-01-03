@@ -30,6 +30,7 @@
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 #include "../creality_touch/EStepsHandler.h"
+#include "../creality_touch/PIDHandler.h"
 
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
@@ -468,9 +469,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ESTEPS_APPLY_BUTTON, nullptr, EstepsHandler::HandleApplyButton, nullptr),
 
   VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION, EstepsHandler>), nullptr),
-  
-  // PID
-  VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION>, nullptr),
+
+  // ... PID
+  VPHELPER(VP_PIDTUNE_TARGET_TEMP, &PIDHandler::calibration_temperature, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_PIDTUNE_CYCLES, &PIDHandler::cycles, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_PIDTUNE_START_BUTTON, nullptr, PIDHandler::HandleStartButton, nullptr),
+
+  VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, PIDHandler>), nullptr),
 
   VPHELPER(VP_GENERIC_BACK_BUTTON, nullptr, ScreenHandler.OnBackButton, nullptr),
 

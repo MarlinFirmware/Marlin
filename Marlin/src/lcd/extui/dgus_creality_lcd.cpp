@@ -35,6 +35,7 @@
 #include "lib/dgus_creality/DGUSDisplay.h"
 #include "lib/dgus_creality/DGUSDisplayDef.h"
 #include "lib/dgus_creality/DGUSScreenHandler.h"
+#include "lib/dgus_creality/creality_touch/PIDHandler.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/powerloss.h"
@@ -214,19 +215,22 @@ bool hasPrintTimer = false;
       // Called for temperature PID tuning result
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+          PIDHandler::result_message = GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM);
+          ScreenHandler.setstatusmessagePGM(PIDHandler::result_message);
           break;
         case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+          PIDHandler::result_message = GET_TEXT(MSG_PID_TEMP_TOO_HIGH);
+          ScreenHandler.setstatusmessagePGM(PIDHandler::result_message);
           break;
         case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+          PIDHandler::result_message = GET_TEXT(MSG_PID_TIMEOUT);
+          ScreenHandler.setstatusmessagePGM(PIDHandler::result_message);
         break;
         case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+          PIDHandler::result_message = GET_TEXT(MSG_PID_AUTOTUNE_DONE);
+          ScreenHandler.setstatusmessagePGM(PIDHandler::result_message);
         break;
       }
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   #endif
 
