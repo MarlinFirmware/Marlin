@@ -5,15 +5,15 @@
 
 # Introduction
 
-You now have the option of integrating profiles for the two main Delta printers: the QQS and the Q5. 
+**You now have the option of integrating profiles for the two main Delta printers: the QQS and the Q5.** 
 
-To do this you need to download the pack "Date-PS_FLSun_profiles.zip" then you just have to unzip it in the "resources/profiles" directory of your PrusaSlicer installation folder. 
+To do this you need to download the pack **"Date-PS_FLSun_profiles.zip"** then you just have to unzip it in the "resources/profiles" directory of your PrusaSlicer installation folder. 
 
 Once done, launch prusa-slicer.exe and the user interface appears, you can launch the wizard to add the profiles of the printer of your choice.
 
-Note: This pack will be integrated in the next version of PrusaSlicer 2.3 and above.
+**Note:** This pack will be integrated in the next version of PrusaSlicer 2.3 and above.
 
-[PrusaSlicer Wizard](../../docs/images/PS-Wizard.png?raw=true)
+[PrusaSlicer Wizard](../../docs/images/PS-Wizard2.png?raw=true)
 
 # 1. Slicers configuration files
 
@@ -50,7 +50,7 @@ Enjoy....🙃
 
  ## Support my work
 
- This FLSun printer profile adjustment project for the PrusaSlicer Slicer was only possible thanks to its supporters, testers (DavidT, Andy, ChrZ, JoeB, ....) So thank you to them.
+ This FLSun printer profile adjustment project for the PrusaSlicer slicer was only possible thanks to its supporters, testers (DavidT, Andy, ChrZ, JoeB, ....). So thank you to them.
  Otherwise a little coffee or a thermos to help me support other developers !! via
  
  <br/><br/>
