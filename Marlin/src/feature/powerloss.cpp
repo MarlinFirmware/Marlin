@@ -241,7 +241,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
     void PrintJobRecovery::retract_and_lift(const float &zraise) {
-      #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
+      #if EITHER(POWER_LOSS_RETRACT_LEN, POWER_LOSS_ZRAISE)
 
         gcode.set_relative_mode(true);  // Use relative coordinates
 
@@ -512,7 +512,7 @@ void PrintJobRecovery::resume() {
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
-  #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
+  #if EITHER(HAS_HOME_OFFSET, HAS_POSITION_SHIFT)
     LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
 

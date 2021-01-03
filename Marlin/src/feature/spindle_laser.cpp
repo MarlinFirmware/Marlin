@@ -72,7 +72,7 @@ void SpindleLaser::init() {
    * Set the cutter PWM directly to the given ocr value
    */
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
-    #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
+    #if BOTH(NEEDS_HARDWARE_PWM, SPINDLE_LASER_FREQUENCY)
       set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
       set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
     #else

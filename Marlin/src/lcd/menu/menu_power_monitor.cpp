@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && HAS_POWER_MONITOR
+#if BOTH(HAS_LCD_MENU, HAS_POWER_MONITOR)
 
 #include "menu_item.h"
 #include "../../feature/power_monitor.h"

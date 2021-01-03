@@ -334,7 +334,7 @@ static void pwm_details(uint8_t pin) {
   SERIAL_ECHOPGM("  ");
 
   // on pins that have two PWMs, print info on second PWM
-  #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
+  #if EITHER(AVR_ATmega2560_FAMILY, AVR_AT90USB1286_FAMILY)
     // looking for port B7 - PWMs 0A and 1C
     if (digitalPinToPort_DEBUG(pin) == 'B' - 64 && 0x80 == digitalPinToBitMask_DEBUG(pin)) {
       #if !AVR_AT90USB1286_FAMILY

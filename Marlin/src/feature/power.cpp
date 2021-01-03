@@ -81,11 +81,11 @@ bool Power::is_power_needed() {
   HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
   if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
-  #if HAS_HOTEND && AUTO_POWER_E_TEMP
+  #if BOTH(HAS_HOTEND, AUTO_POWER_E_TEMP)
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
   #endif
 
-  #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
+  #if BOTH(HAS_HEATED_CHAMBER, AUTO_POWER_CHAMBER_TEMP)
     if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
   #endif
 

@@ -69,7 +69,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if EITHER(HAS_TMCX1X0, HAS_TMC220x)
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -235,7 +235,7 @@
     st.printLabel();
     SERIAL_CHAR(':'); SERIAL_PRINT(pwm_scale, DEC);
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if EITHER(HAS_TMCX1X0, HAS_TMC220x)
         SERIAL_CHAR('/'); SERIAL_PRINT(data.cs_actual, DEC);
       #endif
       #if HAS_STALLGUARD

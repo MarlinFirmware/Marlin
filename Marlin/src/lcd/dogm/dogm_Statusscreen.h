@@ -56,7 +56,7 @@
 //
 // Default Status Screen Heater or Hotends bitmaps
 //
-#if !STATUS_HEATERS_WIDTH && !STATUS_HOTEND1_WIDTH
+#if NONE(STATUS_HEATERS_WIDTH, STATUS_HOTEND1_WIDTH)
   #if ENABLED(STATUS_COMBINE_HEATERS)
     #include "status/combined.h"
   #else
@@ -603,6 +603,6 @@
 #if BOTH(DO_DRAW_CUTTER, STATUS_CUTTER_ANIM)
   #define ANIM_CUTTER 1
 #endif
-#if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER || ANIM_CUTTER
+#if ANY(ANIM_HOTEND, ANIM_BED, ANIM_CHAMBER, ANIM_CUTTER)
   #define ANIM_HBCC 1
 #endif

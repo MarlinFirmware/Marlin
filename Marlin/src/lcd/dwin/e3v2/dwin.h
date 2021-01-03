@@ -291,7 +291,7 @@ void ICON_Pause(bool show);
 void ICON_Continue(bool show);
 void ICON_Stop(bool show);
 
-#if HAS_HOTEND || HAS_HEATED_BED
+#if EITHER(HAS_HOTEND, HAS_HEATED_BED)
   // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
 #endif

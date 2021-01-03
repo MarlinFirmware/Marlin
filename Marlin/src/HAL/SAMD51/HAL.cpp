@@ -64,7 +64,7 @@
 #else
   #define LAST_ADC      0
 #endif
-#if ADC0_IS_REQUIRED || ADC1_IS_REQUIRED
+#if EITHER(ADC0_IS_REQUIRED, ADC1_IS_REQUIRED)
   #define ADC_IS_REQUIRED 1
   #define DMA_IS_REQUIRED 1
 #endif

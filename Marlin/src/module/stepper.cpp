@@ -138,7 +138,7 @@ Stepper stepper; // Singleton
   bool Stepper::separate_multi_axis = false;
 #endif
 
-#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+#if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
   bool Stepper::initialized; // = false
   uint32_t Stepper::motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load()
   #if HAS_MOTOR_CURRENT_SPI
@@ -1502,7 +1502,7 @@ void Stepper::isr() {
   ENABLE_ISRS();
 }
 
-#if MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE
+#if EITHER(MINIMUM_STEPPER_PULSE, MAXIMUM_STEPPER_RATE)
   #define ISR_PULSE_CONTROL 1
 #endif
 #if ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM)
@@ -2026,7 +2026,7 @@ uint32_t Stepper::block_phase_isr() {
         #define D_(N) TEST(current_block->direction_bits, CORE_AXIS_##N)
       #endif
 
-      #if CORE_IS_XY || CORE_IS_XZ
+      #if EITHER(CORE_IS_XY, CORE_IS_XZ)
         /**
          * Head direction in -X axis for CoreXY and CoreXZ bots.
          *
@@ -2046,7 +2046,7 @@ uint32_t Stepper::block_phase_isr() {
         #define X_MOVE_TEST !!current_block->steps.a
       #endif
 
-      #if CORE_IS_XY || CORE_IS_YZ
+      #if EITHER(CORE_IS_XY, CORE_IS_YZ)
         /**
          * Head direction in -Y axis for CoreXY / CoreYZ bots.
          *
@@ -2064,7 +2064,7 @@ uint32_t Stepper::block_phase_isr() {
         #define Y_MOVE_TEST !!current_block->steps.b
       #endif
 
-      #if CORE_IS_XZ || CORE_IS_YZ
+      #if EITHER(CORE_IS_XZ, CORE_IS_YZ)
         /**
          * Head direction in -Z axis for CoreXZ or CoreYZ bots.
          *
@@ -2582,7 +2582,7 @@ void Stepper::init() {
                | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
                | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0));
 
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+  #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
     initialized = true;
     digipot_init();
   #endif
@@ -2960,7 +2960,7 @@ void Stepper::report_positions() {
 
 #if !MB(PRINTRBOARD_G2)
 
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+  #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
 
     void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
       if (WITHIN(driver, 0, MOTOR_CURRENT_COUNT - 1))
@@ -3188,7 +3188,7 @@ void Stepper::report_positions() {
 
   void Stepper::microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3) {
     if (ms1 >= 0) switch (driver) {
-      #if HAS_X_MS_PINS || HAS_X2_MS_PINS
+      #if EITHER(HAS_X_MS_PINS, HAS_X2_MS_PINS)
         case 0:
           #if HAS_X_MS_PINS
             WRITE(X_MS1_PIN, ms1);
@@ -3198,7 +3198,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
+      #if EITHER(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
         case 1:
           #if HAS_Y_MS_PINS
             WRITE(Y_MS1_PIN, ms1);
@@ -3250,7 +3250,7 @@ void Stepper::report_positions() {
       #endif
     }
     if (ms2 >= 0) switch (driver) {
-      #if HAS_X_MS_PINS || HAS_X2_MS_PINS
+      #if EITHER(HAS_X_MS_PINS, HAS_X2_MS_PINS)
         case 0:
           #if HAS_X_MS_PINS
             WRITE(X_MS2_PIN, ms2);
@@ -3260,7 +3260,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
+      #if EITHER(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
         case 1:
           #if HAS_Y_MS_PINS
             WRITE(Y_MS2_PIN, ms2);
@@ -3312,7 +3312,7 @@ void Stepper::report_positions() {
       #endif
     }
     if (ms3 >= 0) switch (driver) {
-      #if HAS_X_MS_PINS || HAS_X2_MS_PINS
+      #if EITHER(HAS_X_MS_PINS, HAS_X2_MS_PINS)
         case 0:
           #if HAS_X_MS_PINS && PIN_EXISTS(X_MS3)
             WRITE(X_MS3_PIN, ms3);
@@ -3322,7 +3322,7 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
+      #if EITHER(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
         case 1:
           #if HAS_Y_MS_PINS && PIN_EXISTS(Y_MS3)
             WRITE(Y_MS3_PIN, ms3);

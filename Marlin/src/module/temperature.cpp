@@ -44,7 +44,7 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
+#if EITHER(MAX6675_0_IS_MAX31865, MAX6675_1_IS_MAX31865)
   #include <Adafruit_MAX31865.h>
   #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
     #define MAX31865_CS_PIN   MAX6675_SS_PIN
@@ -845,14 +845,14 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 }
 
 void Temperature::max_temp_error(const heater_id_t heater_id) {
-  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
+  #if ENABLED(DWIN_CREALITY_LCD) && EITHER(HAS_HOTEND, HAS_HEATED_BED)
     DWIN_Popup_Temperature(1);
   #endif
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
-  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
+  #if ENABLED(DWIN_CREALITY_LCD) && EITHER(HAS_HOTEND, HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
   #endif
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
@@ -2197,7 +2197,7 @@ void Temperature::disable_all_heaters() {
   int Temperature::read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex/*=0*/)) {
     #define MAX6675_HEAT_INTERVAL 250UL
 
-    #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
+    #if EITHER(MAX6675_0_IS_MAX31855, MAX6675_1_IS_MAX31855)
       static uint32_t max6675_temp = 2000;
       #define MAX6675_ERROR_MASK    7
       #define MAX6675_DISCARD_BITS 18
@@ -2318,7 +2318,7 @@ void Temperature::disable_all_heaters() {
       max6675_errors[hindex] = 0;
     }
 
-    #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
+    #if EITHER(MAX6675_0_IS_MAX31855, MAX6675_1_IS_MAX31855)
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
@@ -3097,7 +3097,7 @@ void Temperature::tick() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if HAS_HOTEND && HAS_DISPLAY
+  #if BOTH(HAS_HOTEND, HAS_DISPLAY)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,

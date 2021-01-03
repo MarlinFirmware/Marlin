@@ -140,7 +140,7 @@ public:
   static bool deploy() { return set_deployed(true); }
   static bool stow()   { return set_deployed(false); }
 
-  #if HAS_BED_PROBE || HAS_LEVELING
+  #if EITHER(HAS_BED_PROBE, HAS_LEVELING)
     #if IS_KINEMATIC
       static constexpr float printable_radius = (
         TERN_(DELTA, DELTA_PRINTABLE_RADIUS)

@@ -179,7 +179,7 @@ xyz_pos_t cartes;
   // Set by M206, M428, or menu item. Saved to EEPROM.
   xyz_pos_t home_offset{0};
 #endif
-#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+#if BOTH(HAS_HOME_OFFSET, HAS_POSITION_SHIFT)
   // The above two are combined to save on computes
   xyz_pos_t workspace_offset{0};
 #endif
@@ -1359,7 +1359,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
 
   if (is_home_dir) {
 
-    #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
+    #if BOTH(HOMING_Z_WITH_PROBE, HAS_QUIET_PROBING)
       if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
 

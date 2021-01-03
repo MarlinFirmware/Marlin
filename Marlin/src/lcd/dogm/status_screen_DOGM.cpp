@@ -207,7 +207,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #define HOTEND_DOT    false
     #endif
 
-    #if ANIM_HOTEND && BOTH(STATUS_HOTEND_INVERTED, STATUS_HOTEND_NUMBERLESS)
+    #if ALL(ANIM_HOTEND, STATUS_HOTEND_INVERTED, STATUS_HOTEND_NUMBERLESS)
       #define OFF_BMP(N) status_hotend_b_bmp
       #define ON_BMP(N)  status_hotend_a_bmp
     #elif ANIM_HOTEND && DISABLED(STATUS_HOTEND_INVERTED) && ENABLED(STATUS_HOTEND_NUMBERLESS)
@@ -440,7 +440,7 @@ void MarlinUI::draw_status_screen() {
         HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, HEATBIT_HOTEND + e);
       #endif
       if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
-      #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
+      #if BOTH(DO_DRAW_CHAMBER, HAS_HEATED_CHAMBER)
         if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
       #endif
       if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, HEATBIT_CUTTER);

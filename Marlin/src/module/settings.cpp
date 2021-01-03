@@ -81,7 +81,7 @@
   #include "servo.h"
 #endif
 
-#if HAS_SERVOS && HAS_SERVO_ANGLES
+#if BOTH(HAS_SERVOS, HAS_SERVO_ANGLES)
   #define EEPROM_NUM_SERVOS NUM_SERVOS
 #else
   #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
@@ -1257,7 +1257,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(motor_current_setting);
 
-      #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+      #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
         const uint32_t no_current[MOTOR_CURRENT_COUNT] = { 0 };
@@ -2125,7 +2125,7 @@ void MarlinSettings::postprocess() {
         DEBUG_ECHOLNPGM("DIGIPOTS Loading");
         EEPROM_READ(motor_current_setting);
         DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
-        #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+        #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
         #endif
@@ -3621,7 +3621,7 @@ void MarlinSettings::reset() {
        */
       #if USE_SENSORLESS
         CONFIG_ECHO_HEADING("StallGuard threshold:");
-        #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+        #if ANY(X_SENSORLESS, Y_SENSORLESS, Z_SENSORLESS)
           CONFIG_ECHO_START();
           say_M914();
           #if X_SENSORLESS
@@ -3636,7 +3636,7 @@ void MarlinSettings::reset() {
           SERIAL_EOL();
         #endif
 
-        #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
+        #if ANY(X2_SENSORLESS, Y2_SENSORLESS, Z2_SENSORLESS)
           CONFIG_ECHO_START();
           say_M914();
           SERIAL_ECHOPGM(" I1");

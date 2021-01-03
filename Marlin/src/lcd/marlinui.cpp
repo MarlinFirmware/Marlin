@@ -420,7 +420,7 @@ bool MarlinUI::get_blink() {
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
 
-#if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
+#if BOTH(IS_RRW_KEYPAD, HAS_ENCODER_ACTION)
 
   volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -825,7 +825,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 millis_t next_lcd_update_ms;
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+#if BOTH(HAS_LCD_MENU, LCD_TIMEOUT_TO_STATUS)
   millis_t MarlinUI::return_to_status_ms = 0;
 #endif
 

@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if EITHER(HAS_SPI_TFT, HAS_FSMC_TFT)
 
 #if HAS_SPI_TFT
   #include HAL_PATH(../../HAL, tft/tft_spi.h)

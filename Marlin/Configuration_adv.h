@@ -1787,7 +1787,7 @@
  * Use G76 to calibrate this feature. Use M871 to set values manually.
  * For a more detailed explanation of the process see G76_M871.cpp.
  */
-#if HAS_BED_PROBE && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+#if ALL(HAS_BED_PROBE, TEMP_SENSOR_PROBE, TEMP_SENSOR_BED)
   // Enable thermal first layer compensation using bed and probe temperatures
   #define PROBE_TEMP_COMPENSATION
 

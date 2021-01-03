@@ -162,7 +162,7 @@ namespace ExtUI {
   }
 
   void enableHeater(const extruder_t extruder) {
-    #if HAS_HOTEND && HEATER_IDLE_HANDLER
+    #if BOTH(HAS_HOTEND, HEATER_IDLE_HANDLER)
       thermalManager.reset_hotend_idle_timer(extruder - E0);
     #else
       UNUSED(extruder);
@@ -222,7 +222,7 @@ namespace ExtUI {
   #endif
 
   bool isHeaterIdle(const extruder_t extruder) {
-    #if HAS_HOTEND && HEATER_IDLE_HANDLER
+    #if BOTH(HAS_HOTEND, HEATER_IDLE_HANDLER)
       return thermalManager.heater_idle[extruder - E0].timed_out;
     #else
       UNUSED(extruder);
@@ -500,7 +500,7 @@ namespace ExtUI {
 
     void setTMCBumpSensitivity(const float value, const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+        #if ANY(X_SENSORLESS, Y_SENSORLESS, Z_SENSORLESS)
           #if X_SENSORLESS
             case X:  stepperX.homing_threshold(value);  break;
           #endif
@@ -709,7 +709,7 @@ namespace ExtUI {
           probe.offset.z += mm;
       #endif
 
-      #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
+      #if BOTH(HAS_MULTI_EXTRUDER, HAS_HOTEND_OFFSET)
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are

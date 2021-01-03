@@ -84,7 +84,7 @@ Joystick joystick;
   }
 #endif
 
-#if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
+#if ANY(HAS_JOY_ADC_X, HAS_JOY_ADC_Y, HAS_JOY_ADC_Z)
 
   void Joystick::calculate(xyz_float_t &norm_jog) {
     // Do nothing if enable pin (active-low) is not LOW
@@ -152,7 +152,7 @@ Joystick joystick;
     xyz_float_t norm_jog{0};
 
     // Use ADC values and defined limits. The active zone is normalized: -1..0 (dead) 0..1
-    #if HAS_JOY_ADC_X || HAS_JOY_ADC_Y || HAS_JOY_ADC_Z
+    #if ANY(HAS_JOY_ADC_X, HAS_JOY_ADC_Y, HAS_JOY_ADC_Z)
       joystick.calculate(norm_jog);
     #endif
 

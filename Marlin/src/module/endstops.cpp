@@ -538,7 +538,7 @@ void Endstops::update() {
   #else
     #define Y_AXIS_HEAD Y_AXIS
   #endif
-  #if CORE_IS_XZ || CORE_IS_YZ
+  #if EITHER(CORE_IS_XZ, CORE_IS_YZ)
     #define Z_AXIS_HEAD Z_HEAD
   #else
     #define Z_AXIS_HEAD Z_AXIS

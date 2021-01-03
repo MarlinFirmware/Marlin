@@ -331,10 +331,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    * Do preheating as required before leveling or probing
    */
   void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
-    #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
+    #if EITHER(PROBING_NOZZLE_TEMP, LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
-    #if PROBING_BED_TEMP || LEVELING_BED_TEMP
+    #if EITHER(PROBING_BED_TEMP, LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
     const uint16_t hotendPreheat = TERN0(WAIT_FOR_NOZZLE_HEAT, thermalManager.degHotend(0) < hotend_temp) ? hotend_temp : 0,

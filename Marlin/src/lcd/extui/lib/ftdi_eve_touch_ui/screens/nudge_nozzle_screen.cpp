@@ -56,7 +56,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
     w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
-  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
+  #if EITHER(HAS_MULTI_EXTRUDER, HAS_BED_PROBE)
     w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
@@ -101,7 +101,7 @@ bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
     case 9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
     default: return false;
   }
-  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
+  #if EITHER(HAS_MULTI_EXTRUDER, HAS_BED_PROBE)
     SaveSettingsDialogBox::settingsChanged();
   #endif
   return true;

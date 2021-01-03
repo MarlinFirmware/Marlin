@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 
-#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+#if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
   #include "../../../module/stepper.h"
 #endif
 

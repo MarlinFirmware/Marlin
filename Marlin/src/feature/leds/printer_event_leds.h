@@ -55,7 +55,7 @@ public:
     static void onBedHeating(const float &start, const float &current, const float &target);
   #endif
 
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if EITHER(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     static inline void onHeatingDone() { leds.set_white(); }
     static inline void onPidTuningDone(LEDColor c) { leds.set_color(c); }
   #endif

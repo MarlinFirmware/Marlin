@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && HAS_TEMPERATURE
+#if BOTH(HAS_LCD_MENU, HAS_TEMPERATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -69,7 +69,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
     inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
   #endif
 
-  #if HAS_TEMP_HOTEND && HAS_HEATED_BED
+  #if BOTH(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
@@ -85,7 +85,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
   #endif
 
-  #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+  #if EITHER(HAS_MULTI_HOTEND, HAS_HEATED_BED)
 
     // Set editable.int8 to the Material index before entering this menu
     // because MenuItemBase::itemIndex will be re-used by PREHEAT_ITEMS
@@ -125,7 +125,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
 #endif // PREHEAT_COUNT
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED
+#if EITHER(HAS_TEMP_HOTEND, HAS_HEATED_BED)
 
   void lcd_cooldown() {
     thermalManager.zero_fan_speeds();
@@ -136,7 +136,7 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
 void menu_temperature() {
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if EITHER(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     bool has_heat = false;
     #if HAS_TEMP_HOTEND
       HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
@@ -238,7 +238,7 @@ void menu_temperature() {
     }
   #endif
 
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if EITHER(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     //
     // Cooldown
     //

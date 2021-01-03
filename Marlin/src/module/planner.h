@@ -79,7 +79,7 @@
                             manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
 #endif
 
-#if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
+#if BOTH(IS_KINEMATIC, HAS_JUNCTION_DEVIATION)
   #define HAS_DIST_MM_ARG 1
 #endif
 

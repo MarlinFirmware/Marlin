@@ -907,7 +907,7 @@
 #if EITHER(COREYZ, COREZY)
   #define CORE_IS_YZ 1
 #endif
-#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+#if ANY(CORE_IS_XY, CORE_IS_XZ, CORE_IS_YZ)
   #define IS_CORE 1
 #endif
 #if IS_CORE

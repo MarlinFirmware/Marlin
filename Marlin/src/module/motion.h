@@ -315,14 +315,14 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
 /**
  * Workspace offsets
  */
-#if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
+#if EITHER(HAS_HOME_OFFSET, HAS_POSITION_SHIFT)
   #if HAS_HOME_OFFSET
     extern xyz_pos_t home_offset;
   #endif
   #if HAS_POSITION_SHIFT
     extern xyz_pos_t position_shift;
   #endif
-  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+  #if BOTH(HAS_HOME_OFFSET, HAS_POSITION_SHIFT)
     extern xyz_pos_t workspace_offset;
     #define _WS workspace_offset
   #elif HAS_HOME_OFFSET

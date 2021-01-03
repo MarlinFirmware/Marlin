@@ -932,7 +932,7 @@ inline void Draw_Motion_Menu() {
 //
 // Draw Popup Windows
 //
-#if HAS_HOTEND || HAS_HEATED_BED
+#if EITHER(HAS_HOTEND, HAS_HEATED_BED)
 
   void DWIN_Popup_Temperature(const bool toohigh) {
     Clear_Popup_Area();
@@ -2367,7 +2367,7 @@ void HMI_Prepare() {
       #if HAS_PREHEAT
         case PREPARE_CASE_COOL: // Cool
           TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-          #if HAS_HOTEND || HAS_HEATED_BED
+          #if EITHER(HAS_HOTEND, HAS_HEATED_BED)
             thermalManager.disable_all_heaters();
           #endif
           break;

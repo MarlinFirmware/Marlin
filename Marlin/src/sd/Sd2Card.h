@@ -84,7 +84,7 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
   #define SOFTWARE_SPI
 #endif
 
-#if IS_TEENSY_35_36 || IS_TEENSY_40_41
+#if EITHER(IS_TEENSY_35_36, IS_TEENSY_40_41)
   #include "NXP_SDHC.h"
   #define BUILTIN_SDCARD 254
 #endif

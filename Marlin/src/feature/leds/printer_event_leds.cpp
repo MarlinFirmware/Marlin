@@ -36,7 +36,7 @@ PrinterEventLEDs printerEventLEDs;
   bool PrinterEventLEDs::leds_off_after_print; // = false
 #endif
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED
+#if EITHER(HAS_TEMP_HOTEND, HAS_HEATED_BED)
 
   uint8_t PrinterEventLEDs::old_intensity = 0;
 

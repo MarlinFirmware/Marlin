@@ -591,7 +591,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     _line_to_current(Y_AXIS, 0.2f);
 
-    #if ENABLED(PRIME_BEFORE_REMOVE) && (SWITCHING_TOOLHEAD_PRIME_MM || SWITCHING_TOOLHEAD_RETRACT_MM)
+    #if ENABLED(PRIME_BEFORE_REMOVE) && EITHER(SWITCHING_TOOLHEAD_PRIME_MM, SWITCHING_TOOLHEAD_RETRACT_MM)
       #if SWITCHING_TOOLHEAD_PRIME_MM
         current_position.e += SWITCHING_TOOLHEAD_PRIME_MM;
         planner.buffer_line(current_position, MMM_TO_MMS(SWITCHING_TOOLHEAD_PRIME_FEEDRATE), new_tool);

@@ -22,7 +22,7 @@
 
 #include "tft_io.h"
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if EITHER(HAS_SPI_TFT, HAS_FSMC_TFT)
 
 #include "st7735.h"
 #include "st7789v.h"

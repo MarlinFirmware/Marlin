@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_LVGL_UI && USE_SENSORLESS
+#if BOTH(HAS_TFT_LVGL_UI, USE_SENSORLESS)
 
 #include "draw_ui.h"
 #include <lv_conf.h>
