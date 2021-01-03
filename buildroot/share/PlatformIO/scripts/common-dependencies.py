@@ -318,6 +318,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
-check_configfile_locations() 
+check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()
