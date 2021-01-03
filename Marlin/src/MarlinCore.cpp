@@ -494,16 +494,12 @@ void startOrResumeJob() {
       marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
 
-       #if ENABLED(DGUS_LCD_UI_MKS)
-      if(DGUSAutoTurnOff == 1) {
-        // queue.inject_P("M81");
-        // queue.enqueue_one_P(PSTR("M81"));
-        while(queue.length) {
-          queue.advance();
-        } 
-        gcode.process_subcommands_now_P(PSTR("M81"));
-      }
-      ScreenHandler.GotoScreen(MKSLCD_SCREEN_PrintDone);
+      #if ENABLED(DGUS_LCD_UI_MKS)
+        if (DGUSAutoTurnOff == 1) {
+          while (queue.length) queue.advance();
+          gcode.process_subcommands_now_P(PSTR("M81"));
+        }
+        ScreenHandler.GotoScreen(MKSLCD_SCREEN_PrintDone);
       #endif
     }
   }
