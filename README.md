@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware
+# Marlin 2.0.7 für MKS Robin E3D V1.0 mit TMC2209 Treibern und deutscher Menüführung
 Voreingestellt für das Board MKS Robin E3D mit TMC2209 Treibern mit Menüführung in deutscher Sprache an original stock Ender 3 Display
 Nach dem compilieren die Datei Robin_e3.bin im Buildpath \Marlin-2.0.x\.pio\build\mks_robin_e3 auf SD Karte kopieren und Drucker zum flashen einschalten. 
 Falls ihr Probleme mit der Baudrate 250000 habt dann bitte den Wert auf 115200 setzen und no compilieren und danach neu flashen.
