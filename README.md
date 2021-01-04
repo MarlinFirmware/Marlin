@@ -31,6 +31,47 @@ in Configuration.h :
 
 #define INVERT_Z_DIR true
 
+#define LCD_LANGUAGE de
+
+#define DISPLAY_CHARSET_HD44780 WESTERN
+
+// Preheat Constants
+
+#define PREHEAT_1_LABEL       "PLA"
+
+#define PREHEAT_1_TEMP_HOTEND 90
+
+#define PREHEAT_1_TEMP_BED     60
+
+#define PREHEAT_1_FAN_SPEED   0 // Value from 0 to 255
+
+
+#define PREHEAT_2_LABEL       "TPU"
+
+#define PREHEAT_2_TEMP_HOTEND 220
+
+#define PREHEAT_2_TEMP_BED    40
+
+#define PREHEAT_2_FAN_SPEED   0 // Value from 0 to 255
+
+
+#define PREHEAT_3_LABEL       "PETG"
+
+#define PREHEAT_3_TEMP_HOTEND 220
+
+#define PREHEAT_3_TEMP_BED    70
+
+#define PREHEAT_3_FAN_SPEED   0 // Value from 0 to 255
+
+
+#define PREHEAT_4_LABEL       "ABS"
+
+#define PREHEAT_4_TEMP_HOTEND 240
+
+#define PREHEAT_4_TEMP_BED    110
+
+#define PREHEAT_4_FAN_SPEED   0 // Value from 0 to 255
+
 
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
