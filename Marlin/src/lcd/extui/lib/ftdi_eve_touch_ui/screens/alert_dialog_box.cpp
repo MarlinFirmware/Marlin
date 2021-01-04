@@ -32,7 +32,7 @@ using namespace Theme;
 
 void AlertDialogBox::onEntry() {
   BaseScreen::onEntry();
-  sound.play(screen_data.AlertDialogBox.isError ? sad_trombone : twinkle, PLAY_ASYNCHRONOUS);
+  sound.play(screen_data.AlertDialog.isError ? sad_trombone : twinkle, PLAY_ASYNCHRONOUS);
 }
 
 void AlertDialogBox::onRedraw(draw_mode_t what) {
@@ -45,7 +45,7 @@ template<typename T>
 void AlertDialogBox::show(const T message) {
   drawMessage(message);
   storeBackground();
-  screen_data.AlertDialogBox.isError = false;
+  screen_data.AlertDialog.isError = false;
   GOTO_SCREEN(AlertDialogBox);
 }
 
@@ -53,7 +53,7 @@ template<typename T>
 void AlertDialogBox::showError(const T message) {
   drawMessage(message);
   storeBackground();
-  screen_data.AlertDialogBox.isError = true;
+  screen_data.AlertDialog.isError = true;
   GOTO_SCREEN(AlertDialogBox);
 }
 

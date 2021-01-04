@@ -30,19 +30,19 @@
 struct base_numeric_adjustment_t {uint8_t increment;};
 
 union screen_data_t {
-  struct base_numeric_adjustment_t             BaseNumericAdjustmentScreen;
-  struct {uint8_t volume; uint8_t brightness;} InterfaceSettingsScreen;
-  struct {char passcode[5];}                   LockScreen;
-  struct {bool isError;}                       AlertDialogBox;
-  struct {bool auto_hide;}                     SpinnerDialogBox;
-  struct {uint8_t file_index;}                 ConfirmStartPrintDialogBox;
+  struct base_numeric_adjustment_t             BaseNumericAdjustment;
+  struct {uint8_t volume; uint8_t brightness;} InterfaceSettings;
+  struct {char passcode[5];}                   Lock;
+  struct {bool isError;}                       AlertDialog;
+  struct {bool auto_hide;}                     SpinnerDialog;
+  struct {uint8_t file_index;}                 ConfirmStartPrintDialog;
   struct {
     uint8_t e_tag, t_tag, repeat_tag;
     ExtUI::extruder_t saved_extruder;
     #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
       bool need_purge;
     #endif
-  } ChangeFilamentScreen;
+  } ChangeFilament;
   struct {
     struct {
       uint8_t is_dir  : 1;
@@ -55,11 +55,11 @@ union screen_data_t {
       uint16_t  scroll_pos;
       uint16_t  scroll_max;
     #endif
-  } FilesScreen;
+  } Files;
   struct {
     struct base_numeric_adjustment_t placeholder;
     float e_rel[ExtUI::extruderCount];
-  } MoveAxisScreen;
+  } MoveAxis;
   #if HAS_MESH
     struct {
       enum : uint8_t {
@@ -69,18 +69,18 @@ union screen_data_t {
       } message;
       uint8_t count;
       uint8_t highlightedTag;
-    } BedMeshScreen;
+    } BedMesh;
   #endif
   #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
     struct {
       uint32_t next_watchdog_trigger;
       const char*  message;
-    } StressTestScreen;
+    } StressTest;
   #endif
   #if ENABLED(TOUCH_UI_COCOA_PRESS)
     struct {
       uint32_t start_ms;
-    } PreheatTimerScreen;
+    } PreheatTimer;
   #endif
   #if ENABLED(BABYSTEPPING)
     struct {
@@ -90,7 +90,7 @@ union screen_data_t {
         bool link_nozzles;
       #endif
       bool show_offsets;
-    } NudgeNozzleScreen;
+    } NudgeNozzle;
   #endif
 };
 

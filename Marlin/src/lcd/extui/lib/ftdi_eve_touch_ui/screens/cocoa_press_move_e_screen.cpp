@@ -38,15 +38,15 @@ void MoveEScreen::onRedraw(draw_mode_t what) {
   w.heading(                           GET_TEXT_F(MSG_E_MOVE));
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxis.e_rel[0], canMove(E0));
   #elif HAS_MULTI_EXTRUDER
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxis.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxis.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxis.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxis.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();
