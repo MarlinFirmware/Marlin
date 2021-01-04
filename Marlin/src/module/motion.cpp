@@ -1006,7 +1006,6 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
               line_to_current_position(fr_zfast);
             }
           }
-          planner.synchronize(); // paranoia
           stepper.set_directions();
 
           idex_set_parked(false);

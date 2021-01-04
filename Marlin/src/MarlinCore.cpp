@@ -660,6 +660,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       destination = current_position;
       prepare_line_to_destination();
+      planner.synchronize();
     }
   #endif
 
