@@ -731,7 +731,7 @@
   //#define BLTOUCH_HS_MODE
 
   // Safety: Enable voltage mode settings in the LCD menu.
-  //#define BLTOUCH_LCD_VOLTAGE_MENU
+  #define BLTOUCH_LCD_VOLTAGE_MENU // 20210104 enabled (default is disabled) in the hopes of troubleshooting failure to home issues -------------------------------------------------------
 
 #endif // BLTOUCH
 

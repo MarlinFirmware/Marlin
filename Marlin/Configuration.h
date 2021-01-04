@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Replicator v0.4f" // 20210102 does not appear to work if defined in Version.h ------------------------------------------------------------------------
+#define CUSTOM_MACHINE_NAME "Replicator v0.4g" // 20210102 does not appear to work if defined in Version.h ------------------------------------------------------------------------
 
 // Printer's unique ID, used by some programs to dffferentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -1016,10 +1016,10 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (150*60) // 20201221 default is  133 ----------------------------------------------------------------------------------------------------------------------
+#define XY_PROBE_SPEED (133*60) // 20201221 default is  133 - 20210104 changed back to default in an attempt to fix homing error ----------------------------------------
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST (7*60) // 20201220 was 4*60 ---------------------------------------------------------------------------------------------------------------------------
+#define Z_PROBE_SPEED_FAST (4*60) // 20201220 was 4*60 20210104 changed back to default in an attempt to fix homing error  ---------------------------------------------
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
@@ -1351,7 +1351,7 @@ M500
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  //#define G26_MESH_VALIDATION
+  #define G26_MESH_VALIDATION // 20210104 enabled to test --------------------------------------------------------------------------------------------------------------
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
@@ -1399,7 +1399,7 @@ M500
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 6       // Don't use more than 15 points per axis, implementation limited. // 20210104 reduced from default 10 -----------------------------
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1478,7 +1478,7 @@ M500
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (6*60) } // 20210102 was (20*60), (20*60), (4*60) -----------------------------------------------------------------------------
+#define HOMING_FEEDRATE_MM_M { (20*60), (20*60), (4*60) } // 20210102 was (20*60), (20*60), (4*60) - 20210104 back to default to hopefully fix homing error ----------------------
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
