@@ -66,19 +66,20 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Вимкнути двигуни");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Меню Debug");
-  PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест Progress Bar");
+  PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест індикатору прогресу");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Авто паркування");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Паркування X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Паркування Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Паркування Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Авто Z-вирівнювання");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming"); // needs translation
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Ітерація: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Зменьшення точності!");
   PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Точність досягнута");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Паркування XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Почати");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Наступна точка");
-  PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Завершено!");
+  PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Вирівнювання завершено!");
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Висота спаду");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_SET_HOME_OFFSETS              = _UxGT("Встанов. зміщення дому");
@@ -147,9 +148,9 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Власні команди");
 
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест зонду");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест проби");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 точка");
-  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Зонд за межами");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Проба поза меж");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Відхилення");
 
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Меню IDEX");
@@ -208,7 +209,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Встан.висоту сітки");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Висота");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Підтвердити сітку");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Підтвердити свою");
+  PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Підтвердити свою сітку");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 нагрів сопла");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне грунтування");
@@ -276,7 +277,7 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_LED_PRESETS                   = _UxGT("Передустан. світла");
   #endif
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("Червоний");
-  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("Оранжевий");
+  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("Помаранчевий");
   PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("Жовтий");
   PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("Зелений");
   PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("Синій");
@@ -299,46 +300,48 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("Рівень білого");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Яскравість");
 
-  PROGMEM Language_Str MSG_MOVING                          = _UxGT("Переміщення...");
+  PROGMEM Language_Str MSG_MOVING                          = _UxGT("Рух...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Звільнити XY");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Рух по X");
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Рух по Y");
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Рух по Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
-  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло дуже холодне");
-  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Рух по %sмм");
-  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Рух по 0.1мм");
-  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Рух по 1мм");
-  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Рух по 10мм");
+  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло надто холодне");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Рухатися %sмм");
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Рухатися 0.1мм");
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Рухатися 1мм");
+  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Рухатися 10мм");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Швидкість");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Столу");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Сопло ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Сопло запарковане");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Сопло очикує");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Сопло очікує");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
-  PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Камера,") LCD_STR_DEGREE "C";
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Охолодження");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Охолодження ~");
+  PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Термокамера,") LCD_STR_DEGREE "C";
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збережене охолодж. ~");
-    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED               = _UxGT("Додаткове охолодж.");
-    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N             = _UxGT("Додаткове охолодж. ~");
-    PROGMEM Language_Str MSG_CONTROLLER_FAN                = _UxGT("Контролер охолодження");
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Швидкість вентилятору");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Швидкість вентилятору ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Збережений вентилятор ~");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Дод. швидкість вентилятору");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Дод. швидкість вентилятору ~");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Вентилятор контроллеру");
   #else
-    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збереж.охолодж. ~");
-    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED               = _UxGT("Додат. охолодж.");
-    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N             = _UxGT("Додат.охолодж ~");
-    PROGMEM Language_Str MSG_CONTROLLER_FAN                = _UxGT("Контролер охолодж.");
+  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Швидкість вент.");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Швидкість вент. ~");
+  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Збережений вент. ~");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Дод. швидкість вент.");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Дод.швидкість вент.~");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Вент. контроллеру");
   #endif
   PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Холості оберти");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Робочі оберти");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Авто-режим");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Активні оберти");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Період простою");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Потік");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Потік ~");
-  PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Налаштування");
+  PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Контроль");
   PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER ", " LCD_STR_DEGREE _UxGT("С  мін");
   PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER ", " LCD_STR_DEGREE _UxGT("С макс");
   PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" Фактор");
@@ -351,7 +354,18 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("Підбір PID виконано");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Збій автопідбору. Поганий екструдер.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Збій автопідбору. Температура завищена.");
-  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Збій автопідбору! Завершення часу.");
+  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Збій автопідбору! Час вийшов.");
+
+  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
+  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
+  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
+  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
+  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
+  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
+  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
+  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
+  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
 
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Вибрати");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Вибрати *");
@@ -405,7 +419,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Контраст екрану");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Зберегти в EEPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зчитати з EEPROM");
-  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("На базові параметри");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("На початкові параметри");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_INIT_EEPROM                   = _UxGT("Ініціалізація EEPROM");
   #else
@@ -417,7 +431,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("Параметри збережені");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("Оновити SD-картку");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("Зкинути принтер");
-  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT(" Поновити");
+  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT(" Оновити");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Головний екран");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Підготувати");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Підлаштування");
@@ -442,7 +456,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Призупинення...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Призупинити друк");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Відновити друк");
-  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Старт з хосту");
+  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Почати хост");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Скасувати друк");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Друк об'єкта");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Завершити об'єкт");
@@ -450,7 +464,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Віднов. після збою");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Друкувати з SD");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("SD-картки немає");
-  PROGMEM Language_Str MSG_DWELL                           = _UxGT("Сплячка...");
+  PROGMEM Language_Str MSG_DWELL                           = _UxGT("Сон...");
   PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("Продовжити...");
   PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("Друк призупинено");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("Друк...");
@@ -491,11 +505,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Паркувати голову");
   PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Відновити швидкість");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED        = _UxGT("Оберти охолодження");
-    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME         = _UxGT("Час охолодження");
+    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED        = _UxGT("Оберти вент");
+    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME         = _UxGT("Час вент");
   #else
-    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED        = _UxGT("Оберти охолодж.");
-    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME         = _UxGT("Час охолодж.");
+    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED        = _UxGT("Оберти вент.");
+    PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME         = _UxGT("Час вент.");
   #endif
   PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("Авто Увімк.");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("Авто Вимкн.");
@@ -803,7 +817,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Поновити нагрів");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Нагрівання...");
 
-  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Майстер Z-зонда");
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Wizard Z проби");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING          = _UxGT("Зондув. контрольної точки Z");
     PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зондування");
@@ -821,6 +835,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Калібрування успішне");
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Збій калібрування");
 }
+
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
