@@ -988,7 +988,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             if (delayed_move_time != 0xFFFFFFFFUL) {
               current_position = destination;
               NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_time = millis();
+              delayed_move_time = millis() + 1000UL;
               return true;
             }
           }
@@ -1006,7 +1006,6 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
               line_to_current_position(fr_zfast);
             }
           }
-          planner.synchronize(); // paranoia
           stepper.set_directions();
 
           idex_set_parked(false);
