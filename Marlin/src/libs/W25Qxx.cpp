@@ -28,10 +28,6 @@
 
 W25QXXFlash W25QXX;
 
-#ifndef SPI_DEVICE
-  #error "SPI_DEVICE must be defined for HAS_SPI_FLASH. Missing 'STM32F1/spi_pins.h' include?"
-#endif
-
 #ifndef SPI_FLASH_MISO_PIN
   #define SPI_FLASH_MISO_PIN W25QXX_MISO_PIN
 #endif
@@ -57,19 +53,9 @@ void W25QXXFlash::init(uint8_t spiRate) {
 
   OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
 
-  /**
-   * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
-   * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
-   * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
-   */
-  #if SPI_DEVICE == 1
-    #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
-  #else
-    #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
-  #endif
   uint8_t clock;
   switch (spiRate) {
-    case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX;  break;
+    case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV2;  break;
     case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4; break;
     case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8; break;
     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
