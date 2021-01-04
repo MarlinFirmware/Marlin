@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Replicator v0.4f" // 20210102 does not appear to work if defined in Version.h ------------------------------------------------------------------------
+#define CUSTOM_MACHINE_NAME "Replicator v0.4h" // does not appear to work if defined in Version.h -------------------------------------------------------------------------------
 
 // Printer's unique ID, used by some programs to dffferentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -493,9 +493,9 @@
     #define DEFAULT_Ki_LIST {   1.54,   1.54 }
     #define DEFAULT_Kd_LIST {  76.55,  76.55 }
   #else
-    #define DEFAULT_Kp  22.65 // 20210102 - M303 C10 E0 S205 U1 ------------------------------------------------------------------------------------------------------------------
-    #define DEFAULT_Ki   1.61 // 20210102 ----------------------------------------------------------------------------------------------------------------------------------------
-    #define DEFAULT_Kd  79.90 // 20210102 ----------------------------------------------------------------------------------------------------------------------------------------
+    #define DEFAULT_Kp  24.16 // 20210104 - M303 C10 E0 S205 U1 ------------------------------------------------------------------------------------------------------------------
+    #define DEFAULT_Ki   1.83 // 20210104 ----------------------------------------------------------------------------------------------------------------------------------------
+    #define DEFAULT_Kd  79.90 // 20210104 ----------------------------------------------------------------------------------------------------------------------------------------
   #endif
 #endif // PIDTEMP
 
@@ -534,9 +534,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 157.1 // 20210102 - M303 C10 E-1 S60 U1 ------------------------------------------------------------------------------------------------------------------
-  #define DEFAULT_bedKi 30.61 // 20210102 ----------------------------------------------------------------------------------------------------------------------------------------
-  #define DEFAULT_bedKd 537.2 // 20210102 ----------------------------------------------------------------------------------------------------------------------------------------
+  #define DEFAULT_bedKp 180.25 // 20210104 - M303 C10 E-1 S60 U1 ------------------------------------------------------------------------------------------------------------------
+  #define DEFAULT_bedKi 35.13  // 20210104 ----------------------------------------------------------------------------------------------------------------------------------------
+  #define DEFAULT_bedKd 616.53 // 20210104 ----------------------------------------------------------------------------------------------------------------------------------------
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -1016,10 +1016,10 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (150*60) // 20201221 default is  133 ----------------------------------------------------------------------------------------------------------------------
+#define XY_PROBE_SPEED (133*60) // 20201221 default is  133 - 20210104 changed back to default in an attempt to fix homing error ----------------------------------------
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST (7*60) // 20201220 was 4*60 ---------------------------------------------------------------------------------------------------------------------------
+#define Z_PROBE_SPEED_FAST (4*60) // 20201220 was 4*60 20210104 changed back to default in an attempt to fix homing error  ---------------------------------------------
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
@@ -1351,7 +1351,7 @@ M500
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  //#define G26_MESH_VALIDATION
+  #define G26_MESH_VALIDATION // 20210104 enabled to test --------------------------------------------------------------------------------------------------------------
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
@@ -1399,7 +1399,7 @@ M500
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 6       // Don't use more than 15 points per axis, implementation limited. // 20210104 reduced from default 10 -----------------------------
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1478,7 +1478,7 @@ M500
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (6*60) } // 20210102 was (20*60), (20*60), (4*60) -----------------------------------------------------------------------------
+#define HOMING_FEEDRATE_MM_M { (20*60), (20*60), (4*60) } // 20210102 was (20*60), (20*60), (4*60) - 20210104 back to default to hopefully fix homing error ----------------------
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
