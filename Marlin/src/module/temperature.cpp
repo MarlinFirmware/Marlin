@@ -2431,7 +2431,7 @@ void Temperature::readings_ready() {
 
   #endif // HAS_HOTEND
 
-  #if BOTH(HAS_HEATED_BED, THERMAL_PROTECTION_BED)
+  #if ENABLED(THERMAL_PROTECTION_BED)
     #if TEMPDIR(BED) < 0
       #define BEDCMP(A,B) ((A)<(B))
     #else
@@ -2442,7 +2442,7 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif
 
-  #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
+  #if ENABLED(THERMAL_PROTECTION_CHAMBER)
     #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<(B))
     #else
