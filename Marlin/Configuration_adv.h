@@ -576,6 +576,14 @@
 #define NUM_Z_STEPPER_DRIVERS 1   // (1-4) Z options change based on how many
 
 #if NUM_Z_STEPPER_DRIVERS > 1
+  #define INVERT_Z2_VS_Z_DIR false   // Set 'true' if Z2 motor should rotate in opposite direction from Z
+  #if NUM_Z_STEPPER_DRIVERS > 2
+    #define INVERT_Z3_VS_Z_DIR false   // Set 'true' if Z3 motor should rotate in opposite direction from Z
+    #if NUM_Z_STEPPER_DRIVERS > 3
+      #define INVERT_Z3_VS_Z_DIR false   // Set 'true' if Z4 motor should rotate in opposite direction from Z
+    #endif
+  #endif
+
   //#define Z_MULTI_ENDSTOPS
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #define Z2_USE_ENDSTOP          _XMAX_
