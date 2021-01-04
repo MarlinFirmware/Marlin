@@ -3,9 +3,15 @@ Voreingestellt für das Board MKS Robin E3D mit TMC2209 Treibern mit Mneüführu
 Nach dem compilieren die Datei Robin_e3.bin im Buildpath \Marlin-2.0.x\.pio\build\mks_robin_e3 auf SD Karte kopieren und Drucker zum flashen einschalten. 
 Veränderungen gegenüber original Marlin firmware: 
 
-in platformio.ini default_envs = mks_robin_e3 Boardkennung hinzugefügt
+in platformio.ini :
+default_envs = mks_robin_e3 Boardkennung hinzugefügt
 
-in Configuration.h   #define MOTHERBOARD BOARD_MKS_ROBIN_E3D Board hinzugefügt
+in Configuration.h :   
+#define MOTHERBOARD BOARD_MKS_ROBIN_E3D Board hinzugefügt
+#define X_DRIVER_TYPE  TMC2209
+#define Y_DRIVER_TYPE  TMC2209
+#define Z_DRIVER_TYPE  TMC2209
+#define E0_DRIVER_TYPE TMC2209
 
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
