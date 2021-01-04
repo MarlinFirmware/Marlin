@@ -597,12 +597,13 @@ void restore_feedrate_and_scaling() {
       // retain the same physical limit when other tools are selected.
       if (old_tool_index != new_tool_index) {
         const float offs = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
+        TERN_(PARKING_EXTRUDER, if (axis != Z_AXIS)) // Z_AXIS min endstop should not be changed for parking extruder, otherwise positive offset tools might not be able to reach the bed
         soft_endstop.min[axis] += offs;
         soft_endstop.max[axis] += offs;
       }
       else {
         const float offs = hotend_offset[active_extruder][axis];
-        soft_endstop.min[axis] = base_min_pos(axis) + offs;
+        soft_endstop.min[axis] = base_min_pos(axis) + TERN_(PARKING_EXTRUDER, axis == Z_AXIS ? 0 :) offs; // see previous PARKING_EXTRUDER comment
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
 
