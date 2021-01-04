@@ -603,7 +603,7 @@ void restore_feedrate_and_scaling() {
       }
       else {
         const float offs = hotend_offset[active_extruder][axis];
-        soft_endstop.min[axis] = base_min_pos(axis) + TERN_(PARKING_EXTRUDER, axis == Z_AXIS ? 0 :) offs; // see previous PARKING_EXTRUDER comment
+        soft_endstop.min[axis] = base_min_pos(axis) + (TERN_(PARKING_EXTRUDER, axis == Z_AXIS ? 0 :) offs); // see previous PARKING_EXTRUDER comment
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
 
