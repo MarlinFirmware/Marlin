@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, AUTO_BED_LEVELING_UBL)
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MESH)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -309,17 +309,6 @@ void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
     onRefresh();
 }
 
-bool BedMeshScreen::isMeshComplete(ExtUI::bed_mesh_t data) {
-  for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-      if (isnan(data[x][y])) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
   switch (state) {
     case ExtUI::MESH_START:
@@ -327,7 +316,7 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
       screen_data.BedMesh.message = screen_data.BedMesh.MSG_NONE;
       break;
     case ExtUI::MESH_FINISH:
-      if (screen_data.BedMesh.count == GRID_MAX_POINTS && isMeshComplete(ExtUI::getMeshArray()))
+      if (screen_data.BedMesh.count == GRID_MAX_POINTS && ExtUI::getMeshValid())
         screen_data.BedMesh.message = screen_data.BedMesh.MSG_MESH_COMPLETE;
       else
         screen_data.BedMesh.message = screen_data.BedMesh.MSG_MESH_INCOMPLETE;

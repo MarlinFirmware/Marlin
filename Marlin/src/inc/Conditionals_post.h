@@ -2708,6 +2708,11 @@
   #endif
 #endif
 
+// Fallback SPI Speed for SD
+#if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
+  #define SD_SPI_SPEED SPI_FULL_SPEED
+#endif
+
 // Defined here to catch the above defines
 #if ENABLED(SDCARD_SORT_ALPHA) && (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
   #define HAS_FOLDER_SORTING 1
