@@ -62,6 +62,7 @@ DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS] = {DGUSLCD_SCR
 uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
+bool DGUSScreenHandler::SaveSettingsRequested;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
 
@@ -100,6 +101,10 @@ void DGUSScreenHandler::Init() {
 
   // Show firmware retract button, if available
   dgusdisplay.WriteVariable(VP_FWRETRACT_NAV_BUTTON_ICON, TERN(FWRETRACT, ICON_FWRETRACT_NAV_AVAILABLE, ICON_FWRETRACT_NAV_UNAVAILABLE));
+}
+
+void DGUSScreenHandler::RequestSaveSettings() {
+  SaveSettingsRequested = true;
 }
 
 void DGUSScreenHandler::DefaultSettings() {
@@ -601,7 +606,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
     // Done
     MeshLevelIndex = -1;
 
-    settings.save();
+    RequestSaveSettings();
 
     PopToOldScreen();
 
@@ -968,7 +973,7 @@ void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) 
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
 
-  settings.save();
+  RequestSaveSettings();
   
   ScreenHandler.ForceCompleteUpdate();
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1121,7 +1126,7 @@ void DGUSScreenHandler::HandleLEDToggle() {
   caselight.on = newState;
   caselight.update(newState);
 
-  settings.save();
+  RequestSaveSettings();
   ForceCompleteUpdate();
 }
 
@@ -1129,7 +1134,7 @@ void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void 
   Settings.display_sound = !Settings.display_sound;
   ScreenHandler.SetTouchScreenConfiguration();
 
-  settings.save();
+  RequestSaveSettings();
   ForceCompleteUpdate();
 
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1142,7 +1147,7 @@ void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variab
   Settings.standby_screen_brightness = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
-  settings.save();
+  RequestSaveSettings();
   ForceCompleteUpdate();
 }
 
@@ -1150,7 +1155,7 @@ void DGUSScreenHandler::HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &
   Settings.display_standby = !Settings.display_standby;
   ScreenHandler.SetTouchScreenConfiguration();
 
-  settings.save();
+  RequestSaveSettings();
   ForceCompleteUpdate();
 }
 
@@ -1269,6 +1274,12 @@ bool DGUSScreenHandler::loop() {
     // with ADVANCED_PAUSE_FEATURE, the calls to ExtUI::onUserConfirmRequired are quite fast
     DEBUG_ECHOLN("Nudging the display to update the current screen...");
     GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED, true);
+  }
+
+  if (ELAPSED(ms, next_event_ms) && SaveSettingsRequested) {
+    // Only save settings so many times in a second - otherwise the EEPROM chip gets overloaded and the watchdog reboots the CPU
+    settings.save();
+    SaveSettingsRequested = false;
   }
 
   if (!IsScreenComplete() || ELAPSED(ms, next_event_ms)) {

@@ -54,6 +54,8 @@ public:
 
   static void OnPowerlossResume();
 
+  static void RequestSaveSettings();
+
   /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   /// The bools specifing whether the strings are in RAM or FLASH.
   static void sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
@@ -320,6 +322,7 @@ private:
   static uint16_t ConfirmVP;    ///< context for confirm screen (VP that will be emulated-sent on "OK").
 
   static uint8_t MeshLevelIndex;
+  static bool SaveSettingsRequested;
 
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser

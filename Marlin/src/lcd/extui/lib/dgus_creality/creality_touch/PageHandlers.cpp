@@ -110,14 +110,14 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     // Increase Z-offset
                     ExtUI::smartAdjustAxis_steps(ExtUI::mmToWholeSteps(0.01, ExtUI::axis_t::Z), ExtUI::axis_t::Z, true);;
                     ScreenHandler.ForceCompleteUpdate();
-                    settings.save();
+                    ScreenHandler.RequestSaveSettings();
                     break;
 
                 case 3:
                     // Decrease Z-offset
                     ExtUI::smartAdjustAxis_steps(ExtUI::mmToWholeSteps(-0.01, ExtUI::axis_t::Z), ExtUI::axis_t::Z, true);;
                     ScreenHandler.ForceCompleteUpdate();
-                    settings.save();
+                    ScreenHandler.RequestSaveSettings();
                     break;
             }
 
@@ -366,7 +366,7 @@ void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonVa
     switch (var.VP){
         case VP_BUTTON_PREPAREENTERKEY:
             // Save button, save settings and go back
-            settings.save();
+            ScreenHandler.RequestSaveSettings();
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TEMP);
         break;
 
