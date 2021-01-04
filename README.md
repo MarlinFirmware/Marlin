@@ -9,7 +9,11 @@ default_envs = mks_robin_e3
 
 in Configuration.h :  
 
+// Choose the name from boards.h that matches your setup
+
 #define MOTHERBOARD BOARD_MKS_ROBIN_E3D 
+
+// Stepper Drivers
 
 #define X_DRIVER_TYPE  TMC2209
 
@@ -19,9 +23,15 @@ in Configuration.h :
 
 #define E0_DRIVER_TYPE TMC2209
 
+// This setting determines the communication speed of the printer.
+
 #define BAUDRATE 250000
 
+// Select the serial port on the board to use for communication with the host.
+
 #define SERIAL_PORT -1
+
+// Select a secondary serial port on the board to use for communication with the host.
 
 #define SERIAL_PORT_2 1
 
@@ -31,7 +41,11 @@ in Configuration.h :
 
 #define INVERT_Z_DIR true
 
+// LCD LANGUAGE
+
 #define LCD_LANGUAGE de
+
+// LCD Character Set
 
 #define DISPLAY_CHARSET_HD44780 WESTERN
 
