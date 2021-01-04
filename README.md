@@ -4,14 +4,27 @@ Nach dem compilieren die Datei Robin_e3.bin im Buildpath \Marlin-2.0.x\.pio\buil
 Veränderungen gegenüber original Marlin firmware: 
 
 in platformio.ini :
-default_envs = mks_robin_e3 Boardkennung hinzugefügt
 
-in Configuration.h :   
-#define MOTHERBOARD BOARD_MKS_ROBIN_E3D Board hinzugefügt
+default_envs = mks_robin_e3 
+
+in Configuration.h :  
+
+#define MOTHERBOARD BOARD_MKS_ROBIN_E3D 
+
 #define X_DRIVER_TYPE  TMC2209
+
 #define Y_DRIVER_TYPE  TMC2209
+
 #define Z_DRIVER_TYPE  TMC2209
+
 #define E0_DRIVER_TYPE TMC2209
+
+#define BAUDRATE 250000
+
+#define SERIAL_PORT -1
+
+#define SERIAL_PORT_2 1
+
 
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
