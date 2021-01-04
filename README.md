@@ -3,7 +3,10 @@ Voreingestellt für das Board MKS Robin E3D mit TMC2209 Treibern mit Menüführu
 Nach dem compilieren die Datei Robin_e3.bin im Buildpath \Marlin-2.0.x\.pio\build\mks_robin_e3 auf SD Karte kopieren und Drucker zum flashen einschalten. 
 Falls ihr Probleme mit der Baudrate 250000 habt dann bitte den Wert auf 115200 setzen und no compilieren und danach neu flashen.
 
-In der Datei _Bootscreen.h könnt ihr eure eigene 
+In der Datei _Bootscreen.h könnt ihr eure eigene Bitmap hinterlegen und euer eigenes Bootlogo speichern. Das Logo dafür könnt ihr auf folgender Seite umwandeln lassen:
+
+https://marlinfw.org/tools/u8glib/converter.html
+
 Veränderungen gegenüber original Marlin firmware: 
 
 in platformio.ini :
