@@ -1,5 +1,5 @@
 # Marlin 3D Printer Firmware
-Voreingestellt für das Board MKS Robin E3D mit TMC2209 Treibern
+Voreingestellt für das Board MKS Robin E3D mit TMC2209 Treibern mit Mneüführung in deutscher Sprache an original stock Ender 3 Display
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
