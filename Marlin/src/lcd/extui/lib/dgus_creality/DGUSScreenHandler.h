@@ -45,6 +45,7 @@ public:
 
   static bool loop();
 
+  static void Init();
   static void DefaultSettings();
   static void LoadSettings(const char* buff);
   static void StoreSettings(char* buff);

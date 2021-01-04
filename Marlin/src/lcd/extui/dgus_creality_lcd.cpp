@@ -46,7 +46,7 @@ extern const char NUL_STR[];
 namespace ExtUI {
 
   void onStartup() {
-    dgusdisplay.InitDisplay();
+    ScreenHandler.Init();
     ScreenHandler.UpdateScreenVPData();
   }
 

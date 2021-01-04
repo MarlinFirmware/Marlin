@@ -29,7 +29,7 @@
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
-#include "../creality_touch/EStepsHandler.h"
+#include "../creality_touch/EstepsHandler.h"
 #include "../creality_touch/PIDHandler.h"
 
 #include "../../../../../module/temperature.h"
@@ -37,6 +37,10 @@
 #include "../../../../../module/planner.h"
 
 #include "../../../../../feature/caselight.h"
+
+#if ENABLED(FWRETRACT)
+  #include "../../../../../feature/fwretract.h"
+#endif
 
 #include "../../../ui_api.h"
 #include "../../../../marlinui.h"
@@ -282,7 +286,6 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
     VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
   #endif
   VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
 
   VP_LED_TOGGLE,
@@ -342,6 +345,8 @@ const uint16_t VPList_EstepsCalibration[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
   #endif
+
+  0x0000
 };
 
 const uint16_t VPList_PidTune[] PROGMEM = {
@@ -354,6 +359,27 @@ const uint16_t VPList_PidTune[] PROGMEM = {
   #if HAS_HEATED_BED
     VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
   #endif
+
+  0x0000
+};
+
+const uint16_t VPList_FWRetractTune[] PROGMEM = {
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  VP_Z_OFFSET,
+  VP_Feedrate_Percentage,
+
+  VP_FWRETRACT_RETRACT_LENGTH,
+  VP_FWRETRACT_RETRACT_FEEDRATE,
+  VP_FWRETRACT_RETRACT_ZHOP,
+  VP_FWRETRACT_RESTART_LENGTH,
+  VP_FWRETRACT_RESTART_FEEDRATE,
+
+  0x0000
 };
 
 // Toggle button handler
@@ -423,6 +449,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_ESTEPS_CALIBRATION, VPList_EstepsCalibration },
   { DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, VPList_PidTune },
 
+  { DGUSLCD_SCREEN_TUNEFWRETRACT, VPList_FWRetractTune },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -545,6 +572,18 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER_STR(VP_SD_FileName3,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
   VPHELPER_STR(VP_SD_FileName4,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
   VPHELPER_STR(VP_SD_FileName5,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
+
+  // Firmware retract
+#if ENABLED(FWRETRACT)
+  VPHELPER(VP_FWRETRACT_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_TUNEFWRETRACT>, nullptr),
+
+  VPHELPER(VP_FWRETRACT_RETRACT_LENGTH, &fwretract.settings.retract_length, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_FWRETRACT_RETRACT_FEEDRATE, &fwretract.settings.retract_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_FWRETRACT_RETRACT_ZHOP, &fwretract.settings.retract_zraise, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  VPHELPER(VP_FWRETRACT_RESTART_LENGTH, &fwretract.settings.retract_recover_extra, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_FWRETRACT_RESTART_FEEDRATE, &fwretract.settings.retract_recover_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+#endif
 
   // Additional buttons
   VPHELPER(VP_MUTE_TOGGLE, nullptr, ScreenHandler.HandleToggleTouchScreenMute, nullptr),

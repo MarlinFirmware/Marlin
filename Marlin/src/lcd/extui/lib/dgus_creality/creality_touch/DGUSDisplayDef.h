@@ -71,7 +71,9 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_KILL = 64,            // NEW - does not exist in original display
 
   DGUSLCD_SCREEN_PIDTUNE_CALIBRATION = 68,
-  DGUSLCD_SCREEN_ESTEPS_CALIBRATION = 69
+  DGUSLCD_SCREEN_ESTEPS_CALIBRATION = 69,
+
+  DGUSLCD_SCREEN_TUNEFWRETRACT = 70
 };
 
 // Display Memory layout used (T5UID)
@@ -373,6 +375,17 @@ constexpr uint16_t VP_PIDTUNE_TARGET_TEMP = 0x2297;
 constexpr uint16_t VP_PIDTUNE_CYCLES = 0x2299;
 constexpr uint16_t VP_PIDTUNE_START_BUTTON = 0x229B;
 
+// FWRetract
+constexpr uint16_t VP_FWRETRACT_NAV_BUTTON = 0x22AD;
+constexpr uint16_t VP_FWRETRACT_NAV_BUTTON_ICON = 0x22AF;
+
+constexpr uint16_t VP_FWRETRACT_RETRACT_LENGTH = 0x22B1;
+constexpr uint16_t VP_FWRETRACT_RETRACT_FEEDRATE = 0x22B3;
+constexpr uint16_t VP_FWRETRACT_RETRACT_ZHOP = 0x22B5;
+
+constexpr uint16_t VP_FWRETRACT_RESTART_LENGTH = 0x22B7;
+constexpr uint16_t VP_FWRETRACT_RESTART_FEEDRATE = 0x22B9;
+
 // E-steps calibration
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;
@@ -396,3 +409,6 @@ constexpr uint16_t ICON_SOUND_TOGGLE_ON = 5;
 constexpr uint16_t ICON_SOUND_TOGGLE_OFF = 6;
 constexpr uint16_t ICON_STANDBY_TOGGLE_ON = 7;
 constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
+
+constexpr uint16_t ICON_FWRETRACT_NAV_UNAVAILABLE = 14;
+constexpr uint16_t ICON_FWRETRACT_NAV_AVAILABLE = 15;
