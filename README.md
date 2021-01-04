@@ -7,6 +7,8 @@ In der Datei _Bootscreen.h könnt ihr eure eigene Bitmap hinterlegen und euer ei
 
 https://marlinfw.org/tools/u8glib/converter.html
 
+In der Datei _Statusscreen.h könnt ihr euer eigenes Logo ablegen und bestimmen was in der Info Anzeige während dem Druck angezeigt werden soll. 
+
 Veränderungen gegenüber original Marlin firmware: 
 
 in platformio.ini :
