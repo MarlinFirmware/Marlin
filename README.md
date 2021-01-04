@@ -52,6 +52,16 @@ in Configuration.h :
 
 #define INVERT_Z_DIR true
 
+// TMC2209 Driver currents
+
+#define X_CURRENT       760 
+
+#define Y_CURRENT       760
+
+#define Z_CURRENT       760
+
+#define E0_CURRENT      900
+
 // LCD LANGUAGE
 
 #define LCD_LANGUAGE de
