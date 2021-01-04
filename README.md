@@ -25,6 +25,12 @@ in Configuration.h :
 
 #define SERIAL_PORT_2 1
 
+#define INVERT_X_DIR false
+
+#define INVERT_Y_DIR false
+
+#define INVERT_Z_DIR true
+
 
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
