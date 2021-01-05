@@ -23,6 +23,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../module/motion.h"
+
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
 #endif
@@ -55,6 +57,10 @@
 
 #if E_MANUAL > 1
   #define MULTI_MANUAL 1
+#endif
+
+#if HAS_DISPLAY
+  #include "../module/printcounter.h"
 #endif
 
 #if HAS_WIRED_LCD
@@ -258,21 +264,35 @@
 
   // Manual Movement class
   class ManualMove {
-  public:
-    static millis_t start_time;
-    static float menu_scale;
-    TERN_(IS_KINEMATIC, static float offset);
-    #if IS_KINEMATIC
-      static bool processing;
-    #else
-      static bool constexpr processing = false;
-    #endif
+  private:
+    static AxisEnum axis;
     #if MULTI_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
     #endif
-    static uint8_t axis;
+    static millis_t start_time;
+    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
+  public:
+    static float menu_scale;
+    TERN_(IS_KINEMATIC, static float offset);
+    template <typename T>
+    void set_destination(const T& dest) {
+      #if IS_KINEMATIC
+        // Moves are segmented, so the entire move is not submitted at once.
+        // Using a separate variable prevents corrupting the in-progress move.
+        all_axes_destination = current_position;
+        all_axes_destination.set(dest);
+      #else
+        // Moves are submitted as single line to the planner using buffer_line.
+        current_position.set(dest);
+      #endif
+    }
+    #if IS_KINEMATIC
+      static bool processing;
+    #else
+      static bool constexpr processing = false;
+    #endif
     static void task();
     static void soon(AxisEnum axis
       #if MULTI_MANUAL
@@ -357,11 +377,20 @@ public:
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
-      #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-        static uint32_t remaining_time;
-        FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-        FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
-        FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+      #if ENABLED(SHOW_REMAINING_TIME)
+        static inline uint32_t _calculated_remaining_time() {
+          const duration_t elapsed = print_job_timer.duration();
+          const progress_t progress = _get_progress();
+          return elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+        }
+        #if ENABLED(USE_M73_REMAINING_TIME)
+          static uint32_t remaining_time;
+          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
+          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+        #else
+          FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
+        #endif
       #endif
     #endif
     static progress_t _get_progress();

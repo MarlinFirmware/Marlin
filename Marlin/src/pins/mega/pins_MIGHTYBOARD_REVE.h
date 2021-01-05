@@ -118,6 +118,7 @@
 #ifndef DIGIPOT_I2C_ADDRESS_A
   #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
+#define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
 //
 // Temperature Sensors
