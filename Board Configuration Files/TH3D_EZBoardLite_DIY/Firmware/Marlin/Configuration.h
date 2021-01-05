@@ -23,7 +23,7 @@
  * Setup and usage of this firmware is *not* covered under the technical support included with the EZBoard.
  * Using the EZBoard in a custom printer is an advanced setup for users who know what they are doing.
  * 
- * EZFirmware Site - This firmware can be used with our EZFirmware complie site. Just upload this Configuration.h file
+ * EZFirmware Site - This firmware can be used with our EZFirmware compile site. Just edit and upload this Configuration.h file
  * to the config file upload page here: https://ezfirmware.th3dstudio.com/upload/. Editing this file on the site is
  * not and will not be added to the EZFirmware site as it is an advanced, non-supported configuration.
  * 
