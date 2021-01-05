@@ -580,7 +580,7 @@
   #if NUM_Z_STEPPER_DRIVERS > 2
     #define INVERT_Z3_VS_Z_DIR false   // Set 'true' if Z3 motor should rotate in opposite direction from Z
     #if NUM_Z_STEPPER_DRIVERS > 3
-      #define INVERT_Z3_VS_Z_DIR false   // Set 'true' if Z4 motor should rotate in opposite direction from Z
+      #define INVERT_Z4_VS_Z_DIR false   // Set 'true' if Z4 motor should rotate in opposite direction from Z
     #endif
   #endif
 
