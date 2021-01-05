@@ -597,7 +597,7 @@ void restore_feedrate_and_scaling() {
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = axis == Z_AXIS ? 0 : hotend_offset[active_extruder][axis];
+        const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[active_extruder][axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
