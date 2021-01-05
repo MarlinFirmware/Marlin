@@ -1861,7 +1861,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(autoretract_enabled);
         #endif
 
-        IF_ENABLED(ALL(FWRETRACT, FWRETRACT_AUTORESET), fwretract.reset());
+        IF_ENABLED(FWRETRACT_AUTORESET, fwretract.reset());
       }
 
       //
