@@ -237,7 +237,7 @@
   #include "src/lcd/extui/lib/dgus/DGUSScreenHandler.h"
   #include "src/lcd/extui/lib/dgus/DGUSDisplay.h"
   #include "src/lcd/extui/lib/dgus/mks/DGUSDisplayDef.h"
-#endif 
+#endif
 
 
 PGMSTR(NUL_STR, "");

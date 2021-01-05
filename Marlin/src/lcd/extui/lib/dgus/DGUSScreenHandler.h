@@ -41,11 +41,10 @@ public:
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4);
-  static void sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) ;
-  static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
+    static void sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4);
+    static void sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) ;
+    static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
   #endif
-
 
   /// "M117" Message -- msg is a RAM ptr.
   static void setstatusmessage(const char* msg);
@@ -57,7 +56,7 @@ public:
   static void ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr);
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr);
+    static void ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr);
   #endif
   // Callback for VP "All Heaters Off"
   static void HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr);
@@ -71,28 +70,27 @@ public:
   #endif
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void EEPROM_CTRL(DGUS_VP_Variable &var, void *val_ptr);
-  static void LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr);
-  static void Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void MeshLevel(DGUS_VP_Variable &var, void *val_ptr);
-  static void MeshLevelDistanceConfig(DGUS_VP_Variable &var, void *val_ptr);
-  static void ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr);
-  static void ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr);
-  static void Z_offset_select(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetManualMovestep(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void DGUS_LanguageDisplay(uint8_t var);
-  static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
-  static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
-  static void LanguagePInit(void);
-  static void DGUS_Runout_Idle(void);
-  static void DGUS_RunoutInit(void);
-  static void DGUS_ExturdeLoadInit(void);
-  
+    static void EEPROM_CTRL(DGUS_VP_Variable &var, void *val_ptr);
+    static void LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr);
+    static void Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void MeshLevel(DGUS_VP_Variable &var, void *val_ptr);
+    static void MeshLevelDistanceConfig(DGUS_VP_Variable &var, void *val_ptr);
+    static void ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr);
+    static void ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr);
+    static void Z_offset_select(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetManualMovestep(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void DGUS_LanguageDisplay(uint8_t var);
+    static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
+    static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
+    static void LanguagePInit(void);
+    static void DGUS_Runout_Idle(void);
+    static void DGUS_RunoutInit(void);
+    static void DGUS_ExtrudeLoadInit(void);
   #endif
 
   // Hook for manual move.
@@ -224,7 +222,7 @@ public:
   static void DGUSLCD_SendStringToDisplay_Ch_MKS(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var);
   static void DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var);
-  
+
   #endif
 
   #if ENABLED(PRINTCOUNTER)
@@ -244,7 +242,7 @@ public:
 
   #if ENABLED(DGUS_LCD_UI_MKS)
   static void DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr);
-  #endif 
+  #endif
 
   template<typename T>
   static void DGUSLCD_SetValueDirectly(DGUS_VP_Variable &var, void *val_ptr) {
