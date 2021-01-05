@@ -3004,13 +3004,15 @@ void Temperature::tick() {
     #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
-    #ifndef SERIAL_FLOAT_PRECISION
-      #define SERIAL_FLOAT_PRECISION 2
+    #ifdef SERIAL_FLOAT_PRECISION
+      #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
+    #else
+      #define SFP 2
     #endif
     SERIAL_CHAR(':');
-    SERIAL_PRINT(c, _MIN(SERIAL_FLOAT_PRECISION, 2));
+    SERIAL_PRINT(c, SFP);
     SERIAL_ECHOPGM(" /");
-    SERIAL_PRINT(t, _MIN(SERIAL_FLOAT_PRECISION, 2));
+    SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
