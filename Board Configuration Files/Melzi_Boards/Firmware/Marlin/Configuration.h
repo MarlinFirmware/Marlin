@@ -230,6 +230,7 @@
 
 // LINEAR ADVANCE ----------------------------------
 // See here on how to use Linear Advance: http://marlinfw.org/docs/features/lin_advance.html
+// Due to space constraints on these boards, enabling the LINEAR_ADVANCE will also disable ARC_SUPPORT automatically
 //#define LINEAR_ADVANCE
 // Change the K Value here or use M900 KX.XX in your starting code (recommended).
 #define LINEAR_ADVANCE_K 0
@@ -250,9 +251,15 @@
 // POWER LOSS RECOVERY -----------------------------
 // Continue after Power-Loss feature will store the current state to the SD Card at the start of each layer
 // during SD printing. If this is found at bootup it will ask you if you want to resume the print.
+// Due to space constraints on these boards, enabling the POWER_LOSS_RECOVERY will also disable ARC_SUPPORT automatically
 //
 // NOTE: This feature causes excessive wear on your SD card.
 //#define POWER_LOSS_RECOVERY
+
+// ARC Support Override ----------------------------
+// Arc support is enabled by default on all builds but this takes up extra space. If you get compile errors due to the size being too large when enabling other options, then disable ARC_SUPPORT
+// by uncommenting the DISABLE_ARC_SUPPORT line below.
+//#define DISABLE_ARC_SUPPORT
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
@@ -262,6 +269,18 @@
  * ****************************DO NOT TOUCH ANYTHING BELOW THIS COMMENT**************************
  * Core machine settings are below. Do NOT modify these unless you understand what you are doing.
  */
+
+/**
+ * Automatic Optimizations
+ */
+
+#if ENABLED(LINEAR_ADVANCE)
+  #define DISABLE_ARC_SUPPORT
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #define DISABLE_ARC_SUPPORT
+#endif
 
 /**
  * Machine Configuration Settings

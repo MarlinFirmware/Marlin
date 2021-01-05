@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.15"
+#define UNIFIED_VERSION "TH3D UFW 2.16"
 
 /**
  * TH3D Sanity Checks
@@ -271,12 +271,12 @@
     #define FIX_MOUNTED_PROBE
   #endif
   #if ENABLED(SLOWER_PROBE_MOVES)
-    #define XY_PROBE_SPEED 8000
+    #define XY_PROBE_SPEED (133*60)
   #else
     #if ENABLED(EZABL_SUPERFASTPROBE)
-      #define XY_PROBE_SPEED 16000
+      #define XY_PROBE_SPEED (266*60)
     #else
-      #define XY_PROBE_SPEED 12000
+      #define XY_PROBE_SPEED (200*60)
     #endif
   #endif
   #define PROBING_MARGIN EZABL_PROBE_EDGE
@@ -289,8 +289,8 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #define Z_SAFE_HOMING
   #if ENABLED(Z_SAFE_HOMING)
-    #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing
-    #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing
+    #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
+    #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
   #endif
   
   // ABL Probe Logic Settings
@@ -323,7 +323,9 @@
 #if ENABLED(CUSTOM_PRINTER_NAME)
   #define CUSTOM_MACHINE_NAME USER_PRINTER_NAME
 #else
-  #if ENABLED(BLTOUCH)
+  #if ENABLED(EZBOARD_DIY)
+    #define CUSTOM_MACHINE_NAME "EZBoard DIY"
+  #elif ENABLED(BLTOUCH)
     #define CUSTOM_MACHINE_NAME "TH3D BLTouch"
   #elif ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
     #define CUSTOM_MACHINE_NAME "TH3D EZABL"
@@ -449,6 +451,8 @@
 #define DISABLE_Z false
 #define DISABLE_E false
 #define DISABLE_INACTIVE_EXTRUDER
+
+#define ENDSTOP_NOISE_THRESHOLD 2
 
 /**
  * LCD General Settings

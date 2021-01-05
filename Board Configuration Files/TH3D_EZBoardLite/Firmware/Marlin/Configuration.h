@@ -37,8 +37,6 @@
 
 // Other Machines -----------------------------------------------------------
 //#define CR20
-// The CR-20 Needs special LCD wiring with dupont jumper wires until we can release an adapter PCB.
-// The diagram for wiring is in the firmware source folder called "CR20EZBoardLCDWiring.png". Dupont jumper wires will work to make the connections.
 
 // Sovol Machines -----------------------------------------------------------
 //#define SOVOL_SV01
@@ -82,6 +80,11 @@
 // Dual Z Motor Settings
 // When running dual Z motors uncomment the below line. This will increase the Z motor driver current for 2x motors.
 //#define DUAL_Z_MOTORS
+
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
 
 // Axis Direction Settings
 // If you need to reverse the direction of a motor uncomment the below option for that axis.
@@ -317,12 +320,17 @@
 #if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER2) || ENABLED(ENDER3) || ENABLED(ENDER5) || ENABLED(ENDER5_PLUS) || ENABLED(SOVOL_SV01) || ENABLED(CR20)
 
   #define SERIAL_PORT -1
+  #define SERIAL_PORT_2 0
   #define BAUDRATE 115200
   
   #if ENABLED(CR20) || ENABLED(ENDER2)
     #define MKS_MINI_12864
   #else
     #define CR10_STOCKDISPLAY
+  #endif
+  
+  #if ENABLED(REVERSE_KNOB_DIRECTION) && DISABLED(ENDER5_PLUS)
+    #define REVERSE_ENCODER_DIRECTION
   #endif
   
   #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
@@ -466,11 +474,13 @@
     #define Y_BED_SIZE 350
     #define Z_MAX_POS 400
     #define PRINTER_VOLTAGE_24
-	#define REVERSE_ENCODER_DIRECTION
-	#define ENDER5_NEW_LEADSCREW
+    #if DISABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
+    #define ENDER5_NEW_LEADSCREW
     #define EZOUTV2_ENABLE
     #define DUAL_Z_MOTORS
-	#define MOUNTED_FILAMENT_SENSOR
+    #define MOUNTED_FILAMENT_SENSOR
   #endif
 
   #if ENABLED(SOVOL_SV01)

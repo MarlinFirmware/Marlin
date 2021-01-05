@@ -1869,7 +1869,9 @@
 //
 // G2/G3 Arc Support
 //
-//#define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
+#if DISABLED(DISABLE_ARC_SUPPORT)
+  #define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
+#endif
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT      1 // (mm) Length (or minimum length) of each arc segment
   //#define ARC_SEGMENTS_PER_R    1 // Max segment length, MM_PER = Min
@@ -2353,7 +2355,11 @@
 
   #if ENABLED(EZBOARD) || ENABLED(SKR_E3_MINI_BOARD)
     #if AXIS_IS_TMC(X)
-      #define X_CURRENT       600        // (mA) RMS current. Multiply by 1.414 for peak current.
+      #if X_MOTOR_CURRENT > 0
+        #define X_CURRENT X_MOTOR_CURRENT
+      #else  
+        #define X_CURRENT       600        // (mA) RMS current. Multiply by 1.414 for peak current.
+      #endif
       #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
       #define X_MICROSTEPS     16    // 0..256
       #define X_RSENSE          0.11
@@ -2383,6 +2389,8 @@
         #define Y_CURRENT   800
       #elif ENABLED(CR10_S4) || ENABLED(CR10S_S4)
         #define Y_CURRENT   700
+      #elif Y_MOTOR_CURRENT > 0
+        #define Y_CURRENT Y_MOTOR_CURRENT
       #else
         #define Y_CURRENT   600
       #endif
@@ -2414,6 +2422,8 @@
     #if AXIS_IS_TMC(Z)
       #if ENABLED(DUAL_Z_MOTORS)
         #define Z_CURRENT     1000
+      #elif Z_MOTOR_CURRENT > 0
+        #define Z_CURRENT Z_MOTOR_CURRENT
       #else
         #define Z_CURRENT     700
       #endif
@@ -2466,6 +2476,8 @@
   #if AXIS_IS_TMC(E0) || ENABLED(SKR_E3_MINI_BOARD)
     #if ENABLED(PANCAKE_STEPPER)
       #define E0_CURRENT    600
+    #elif E0_MOTOR_CURRENT > 0
+      #define E0_CURRENT E0_MOTOR_CURRENT
     #else
       #define E0_CURRENT    800
     #endif
