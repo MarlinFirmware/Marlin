@@ -208,10 +208,6 @@
 
 #endif
 
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN              SERVO0_PIN
-#endif
-
 /**
  * ====================================================================
  * =============== Alternative RepRapDiscount Wiring ==================
