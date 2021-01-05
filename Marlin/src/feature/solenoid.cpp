@@ -61,7 +61,7 @@ static void set_solenoid(const uint8_t num, const bool active) {
 
   #if ENABLED(PARKING_EXTRUDER)
     if (!active && active_extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
-      parking_extruder_set_parked();
+      parking_extruder_set_parked(true);
   #endif
 }
 
