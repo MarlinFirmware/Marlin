@@ -2999,7 +2999,7 @@ void Temperature::tick() {
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
     SERIAL_CHAR(':');
-    SERIAL_DECIMAL(c);
+    SERIAL_PRINT(c, _MIN(SERIAL_FLOAT_PRECISION, 2))
     SERIAL_ECHOPAIR(" /" , t);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
