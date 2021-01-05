@@ -262,6 +262,14 @@ public:
     }
   }
 
+  // Toggle a boolean at the specified memory address
+  static void DGUSLCD_ToggleBoolean(DGUS_VP_Variable &var, void *val_ptr) {
+    if (var.memadr) {
+      bool* val = (bool *)var.memadr;
+      *val = !*val;
+    }
+  }
+
   // Send an icon to the display, depending on whether it is true or false
   template<unsigned int value_if_true, unsigned int value_if_false>
   static void DGUSLCD_SendIconValue(DGUS_VP_Variable &var) {

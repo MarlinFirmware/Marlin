@@ -241,6 +241,8 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   VP_PrintTimeProgressBar,
   VP_PrintTime,
 
+  VP_FWRETRACT_INDICATOR_ICON,
+
   0x0000
 };
 
@@ -378,6 +380,8 @@ const uint16_t VPList_FWRetractTune[] PROGMEM = {
   VP_FWRETRACT_RETRACT_ZHOP,
   VP_FWRETRACT_RESTART_LENGTH,
   VP_FWRETRACT_RESTART_FEEDRATE,
+
+  VP_FWRETRACT_TOGGLE_BUTTON_ICON,
 
   0x0000
 };
@@ -583,6 +587,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_FWRETRACT_RESTART_LENGTH, &fwretract.settings.retract_recover_extra, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_FWRETRACT_RESTART_FEEDRATE, &fwretract.settings.retract_recover_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  VPHELPER(VP_FWRETRACT_INDICATOR_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_ENGAGED, ICON_FWRETRACT_AUTO_DISENGAGED>)),
+  VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_TOGGLE_ON, ICON_FWRETRACT_AUTO_TOGGLE_OFF>)),
+  VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON, &fwretract.autoretract_enabled, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
 #endif
 
   // Additional buttons

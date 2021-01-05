@@ -386,6 +386,11 @@ constexpr uint16_t VP_FWRETRACT_RETRACT_ZHOP = 0x22B5;
 constexpr uint16_t VP_FWRETRACT_RESTART_LENGTH = 0x22B7;
 constexpr uint16_t VP_FWRETRACT_RESTART_FEEDRATE = 0x22B9;
 
+constexpr uint16_t VP_FWRETRACT_TOGGLE_BUTTON = 0x22BB;
+constexpr uint16_t VP_FWRETRACT_TOGGLE_BUTTON_ICON = 0x22BD;
+constexpr uint16_t VP_FWRETRACT_INDICATOR_ICON = 0x22BF;
+
+
 // E-steps calibration
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;
@@ -410,5 +415,12 @@ constexpr uint16_t ICON_SOUND_TOGGLE_OFF = 6;
 constexpr uint16_t ICON_STANDBY_TOGGLE_ON = 7;
 constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
 
+constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_ON = 9;
+constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_OFF = 10;
+
+
 constexpr uint16_t ICON_FWRETRACT_NAV_UNAVAILABLE = 14;
 constexpr uint16_t ICON_FWRETRACT_NAV_AVAILABLE = 15;
+
+constexpr uint16_t ICON_FWRETRACT_AUTO_DISENGAGED = 16; // This icon deliberately does not exist
+constexpr uint16_t ICON_FWRETRACT_AUTO_ENGAGED = 17;
