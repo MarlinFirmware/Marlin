@@ -596,7 +596,7 @@ void restore_feedrate_and_scaling() {
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
-      if (TERN1(PARKING_EXTRUDER, axis != Z_AXIS)) // For parking extruder leave Z_AXIS (min) endstop alone so tools will align correctly
+      if (TERN1(PARKING_EXTRUDER, axis != Z_AXIS)) { // For parking extruder leave Z_AXIS (min) endstop alone so tools will align correctly
         if (old_tool_index != new_tool_index) {
           const float offs = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
           soft_endstop.min[axis] += offs;

@@ -260,11 +260,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   void pe_solenoid_init() {
     LOOP_LE_N(n, 1)
-      #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-        pe_activate_solenoid(n);
-      #else
-        pe_deactivate_solenoid(n);
-      #endif
+      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(n);
   }
 
   void pe_set_solenoid(const uint8_t extruder_num, const uint8_t state) {
