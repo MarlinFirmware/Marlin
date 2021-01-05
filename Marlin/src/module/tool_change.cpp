@@ -379,9 +379,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       parking_extruder_set_parked(false);
     }
     else if (do_solenoid_activation) { // && nomove == true
-      // Deactivate old extruder solenoid
+      // Deactivate current extruder solenoid
       pe_solenoid_set_pin_state(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
-      // Only engage magnetic field for new extruder
+      // Engage new extruder magnetic field
       pe_solenoid_set_pin_state(new_tool, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
     }
 
