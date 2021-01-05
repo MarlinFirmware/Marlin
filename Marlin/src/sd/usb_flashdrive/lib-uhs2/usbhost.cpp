@@ -114,13 +114,7 @@ bool MAX3421e::start() {
   ncs();
   spiBegin();
 
-  spiInit(
-    #ifdef SPI_SPEED
-      SPI_SPEED
-    #else
-      SPI_FULL_SPEED
-    #endif
-  );
+  spiInit(SD_SPI_SPEED);
 
   // MAX3421e - full-duplex, level interrupt, vbus off.
   regWr(rPINCTL, (bmFDUPSPI | bmINTLEVEL | GPX_VBDET));

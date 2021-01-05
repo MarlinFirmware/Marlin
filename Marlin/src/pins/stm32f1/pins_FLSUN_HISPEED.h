@@ -62,10 +62,10 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
+#define SD_SCK_PIN                          PB13  // SPI2
+#define SD_MISO_PIN                         PB14  // SPI2
+#define SD_MOSI_PIN                         PB15  // SPI2
 #define SPI_DEVICE 2
-#define SCK_PIN                            PB13  // SPI2
-#define MISO_PIN                           PB14  // SPI2
-#define MOSI_PIN                           PB15  // SPI2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
@@ -129,7 +129,7 @@
   #define Y_SERIAL_RX_PIN                   PA9   // TXD1
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
   #define Z_SERIAL_RX_PIN                   PC7   // IO1
-  #define TMC_BAUD_RATE                   19200
+  #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
@@ -210,7 +210,7 @@
  */
 //#define SW_DIO                            PA13
 //#define SW_CLK                            PA14
-//#define SW_RST                            NRST   // (14)
+//#define SW_RST                            NRST  // (14)
 
 //
 // Power Supply Control
@@ -246,10 +246,10 @@
 
 // Use the on-board card socket labeled SD_Extender
 #if SD_CONNECTION_IS(CUSTOM_CABLE)
-  #define SCK_PIN                           PC12
-  #define MISO_PIN                          PC8
-  #define MOSI_PIN                          PD2
-  #define SS_PIN                            -1
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         -1
   #define SD_DETECT_PIN                     PD12  // SD_CD (if -1 no detection)
 #else
   #define SDIO_SUPPORT
