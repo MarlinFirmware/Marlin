@@ -321,19 +321,19 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BED                             = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Термокамера,") LCD_STR_DEGREE "C";
   #if LCD_WIDTH > 21
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Швидкість вентилятору");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Швидкість вентилятору ~");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Збережений вентилятор ~");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Дод. швидкість вентилятору");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Дод. швидкість вентилятору ~");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Вентилятор контроллеру");
+    PROGMEM Language_Str MSG_FAN_SPEED                     = _UxGT("Швидкість вентилятору");
+    PROGMEM Language_Str MSG_FAN_SPEED_N                   = _UxGT("Швидкість вентилятору ~");
+    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збережений вентилятор ~");
+    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED               = _UxGT("Дод. швидкість вентилятору");
+    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N             = _UxGT("Дод. швидкість вентилятору ~");
+    PROGMEM Language_Str MSG_CONTROLLER_FAN                = _UxGT("Вентилятор контроллеру");
   #else
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Швидкість вент.");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Швидкість вент. ~");
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Збережений вент. ~");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Дод. швидкість вент.");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Дод.швидкість вент.~");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Вент. контроллеру");
+    PROGMEM Language_Str MSG_FAN_SPEED                     = _UxGT("Швидкість вент.");
+    PROGMEM Language_Str MSG_FAN_SPEED_N                   = _UxGT("Швидкість вент. ~");
+    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збережений вент. ~");
+    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED               = _UxGT("Дод. швидкість вент.");
+    PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N             = _UxGT("Дод.швидкість вент.~");
+    PROGMEM Language_Str MSG_CONTROLLER_FAN                = _UxGT("Вент. контроллеру");
   #endif
   PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Холості оберти");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Робочі оберти");
