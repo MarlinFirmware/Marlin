@@ -259,10 +259,10 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    LOOP_LE_N(n, 1) pe_set_solenoid_magnet_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+    LOOP_LE_N(n, 1) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
   }
 
-  void pe_set_solenoid_magnet_state(const uint8_t extruder_num, const uint8_t state) {
+  void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state) {
     switch (extruder_num) {
       case 1: OUT_WRITE(SOL1_PIN, state); break;
       default: OUT_WRITE(SOL0_PIN, state); break;
@@ -380,9 +380,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     }
     else if (do_solenoid_activation) { // && nomove == true
       // Deactivate old extruder solenoid
-      pe_set_solenoid_magnet_state(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+      pe_solenoid_set_pin_state(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
       // Only engage magnetic field for new extruder
-      pe_set_solenoid_magnet_state(new_tool, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+      pe_solenoid_set_pin_state(new_tool, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
     }
 
     do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
