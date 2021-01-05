@@ -2021,7 +2021,7 @@
 #define SERIAL_OVERRUN_PROTECTION
 
 // For serial echo, the number of digits after the decimal point
-//#define SERIAL_FLOAT_PRECISION 4
+//#define SERIAL_FLOAT_PRECISION 4 // 20200105 https://github.com/jbuck2005/Marlin_Custom/pull/6#commitcomment-45650308 -------------------------------------------------------------------
 
 // @section extras
 
