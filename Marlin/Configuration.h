@@ -1454,7 +1454,7 @@
 #define LEVEL_BED_CORNERS // 20210105 enabled for quick bed leveling menu item -------------------------------------------------------------------------------------------------------
 
 #if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET_LFRB { 0, 30, 50, 10 } // (mm) Left, Front, Right, Back insets // (0,40),(170,210) ------------------------------------------------------------------
+  #define LEVEL_CORNERS_INSET_LFRB { 2, 30, 50, 10 } // (mm) Left, Front, Right, Back insets // (2,30),(170,210) - changed to 2 to prevent stop-crashing ---------------------------
   #define LEVEL_CORNERS_HEIGHT      5.0   // (mm) Z height of nozzle at leveling points      // 20210105 changed from default 0.0 to 5 ---------------------------------------------
   #define LEVEL_CORNERS_Z_HOP       12.5  // (mm) Z height of nozzle between leveling points // 20210105 changed from default 4.0 to 12.5 ------------------------------------------
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
