@@ -182,26 +182,25 @@
    * SD_DETECT_PIN entirely and remove that wire from the the custom cable.
    */
   #define SD_DETECT_PIN                    P2_11  // J8-5 (moved from EXP2 P0.27)
-  #define SCK_PIN                          P1_22  // J8-2 (moved from EXP2 P0.7)
-  #define MISO_PIN                         P1_23  // J8-3 (moved from EXP2 P0.8)
-  #define MOSI_PIN                         P2_12  // J8-4 (moved from EXP2 P0.9)
-  #define SS_PIN                           P0_28
+  #define SD_SCK_PIN                       P1_22  // J8-2 (moved from EXP2 P0.7)
+  #define SD_MISO_PIN                      P1_23  // J8-3 (moved from EXP2 P0.8)
+  #define SD_MOSI_PIN                      P2_12  // J8-4 (moved from EXP2 P0.9)
+  #define SD_SS_PIN                        P0_28
   #define LPC_SOFTWARE_SPI                        // With a custom cable we need software SPI because the
                                                   // selected pins are not on a hardware SPI controller
-#elif SD_CONNECTION_IS(LCD)
-  // use standard cable and header, SPI and SD detect sre shared with on-board SD card
-  // hardware SPI is used for both SD cards. The detect pin is shred between the
-  // LCD and onboard SD readers so we disable it.
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN                           P0_28
-#elif SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+#elif SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #if SD_CONNECTION_IS(LCD)
+    // Use standard cable and header, SPI and SD detect are shared with onboard SD card.
+    // Hardware SPI is used for both SD cards. The detect pin is shared between the
+    // LCD and onboard SD readers so we disable it.
+    #define SD_SS_PIN                      P0_28
+  #else
+    #define SD_DETECT_PIN                  P0_27
+    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
+  #endif
 #endif
 
 /**
@@ -238,8 +237,8 @@
   #define LCD_PINS_ENABLE                  P0_18  // EXP1.3
   #define LCD_PINS_D4                      P0_15  // EXP1.5
   #if ANY(VIKI2, miniVIKI)
-    #define DOGLCD_SCK                   SCK_PIN
-    #define DOGLCD_MOSI                 MOSI_PIN
+    #define DOGLCD_SCK                SD_SCK_PIN
+    #define DOGLCD_MOSI              SD_MOSI_PIN
   #endif
 
   #if ENABLED(FYSETC_MINI_12864)

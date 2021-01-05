@@ -30,7 +30,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 13
   #define GRID_ROWS 10
   #define LAYOUT_FONT font_small
@@ -53,7 +53,7 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
 
   cmd.font(font_medium);
   _button(cmd, 1,
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       BTN_POS(1,10), BTN_SIZE(13,1),
     #else
       BTN_POS(15,7), BTN_SIZE(4,1),
@@ -116,8 +116,8 @@ void BaseNumericAdjustmentScreen::widgets_t::_button(CommandProcessor &cmd, uint
 
 BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::precision(uint8_t decimals, precision_default_t initial) {
   _decimals = decimals;
-  if (screen_data.BaseNumericAdjustmentScreen.increment == 0) {
-    screen_data.BaseNumericAdjustmentScreen.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
+  if (screen_data.BaseNumericAdjustment.increment == 0) {
+    screen_data.BaseNumericAdjustment.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
   }
   return *this;
 }
@@ -129,7 +129,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
     cmd.font(font_medium)
        .tag(0)
        .text(
-         #ifdef TOUCH_UI_PORTRAIT
+         #if ENABLED(TOUCH_UI_PORTRAIT)
            BTN_POS(1, _line), BTN_SIZE(12,1),
          #else
            BTN_POS(5, _line), BTN_SIZE(8,1),
@@ -141,7 +141,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
   _line++;
 }
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #ifdef TOUCH_UI_800x480
     #undef EDGE_R
     #define EDGE_R 20
@@ -154,7 +154,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
 void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(CommandProcessor &cmd, uint8_t, const uint8_t tag) {
   const char        *label = PSTR("?");
   uint8_t            pos;
-  uint8_t &          increment = screen_data.BaseNumericAdjustmentScreen.increment;
+  uint8_t &          increment = screen_data.BaseNumericAdjustment.increment;
 
   if (increment == 0) {
     increment = tag; // Set the default value to be the first.
@@ -172,7 +172,7 @@ void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(CommandProcesso
   const bool highlight = (_what & FOREGROUND) && (increment == tag);
 
   switch (pos) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       case 0: _button(cmd, tag, BTN_POS(5,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
       case 1: _button(cmd, tag, BTN_POS(7,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
       case 2: _button(cmd, tag, BTN_POS(9,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
@@ -192,7 +192,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
   if (_what & BACKGROUND) {
     _button_style(cmd, TEXT_LABEL);
     cmd.tag(0).text(
-      #ifdef TOUCH_UI_PORTRAIT
+      #if ENABLED(TOUCH_UI_PORTRAIT)
         BTN_POS(1, _line), BTN_SIZE(4,1),
       #else
         BTN_POS(15,    1), BTN_SIZE(4,1),
@@ -205,7 +205,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
   _draw_increment_btn(cmd, _line+1, 244 - _decimals);
   _draw_increment_btn(cmd, _line+1, 243 - _decimals);
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     _line++;
   #endif
 }
@@ -308,7 +308,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str lab
     _button_style(cmd, TEXT_LABEL);
     cmd.font(font_small)
        .text(
-        #ifdef TOUCH_UI_PORTRAIT
+        #if ENABLED(TOUCH_UI_PORTRAIT)
           BTN_POS(1, _line), BTN_SIZE( 8,1),
         #else
           BTN_POS(1, _line), BTN_SIZE(10,1),
@@ -323,7 +323,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str lab
        .enabled(is_enabled)
        .font(font_small)
        .toggle2(
-        #ifdef TOUCH_UI_PORTRAIT
+        #if ENABLED(TOUCH_UI_PORTRAIT)
           BTN_POS( 9,_line), BTN_SIZE(5,1),
         #else
           BTN_POS(10,_line), BTN_SIZE(4,1),
@@ -358,7 +358,7 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
 }
 
 void BaseNumericAdjustmentScreen::onEntry() {
-  screen_data.BaseNumericAdjustmentScreen.increment = 0; // This will force the increment to be picked while drawing.
+  screen_data.BaseNumericAdjustment.increment = 0; // This will force the increment to be picked while drawing.
   BaseScreen::onEntry();
   CommandProcessor cmd;
   cmd.set_button_style_callback(nullptr);
@@ -367,14 +367,14 @@ void BaseNumericAdjustmentScreen::onEntry() {
 bool BaseNumericAdjustmentScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:           GOTO_PREVIOUS(); return true;
-    case 240 ... 245: screen_data.BaseNumericAdjustmentScreen.increment = tag; break;
+    case 240 ... 245: screen_data.BaseNumericAdjustment.increment = tag; break;
     default:          return current_screen.onTouchHeld(tag);
   }
   return true;
 }
 
 float BaseNumericAdjustmentScreen::getIncrement() {
-  switch (screen_data.BaseNumericAdjustmentScreen.increment) {
+  switch (screen_data.BaseNumericAdjustment.increment) {
     case 240: return   0.001;
     case 241: return   0.01;
     case 242: return   0.1;

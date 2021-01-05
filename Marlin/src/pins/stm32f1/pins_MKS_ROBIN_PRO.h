@@ -48,7 +48,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA8   // BLTOUCH
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -193,10 +193,10 @@
 
 #if SD_CONNECTION_IS(LCD)
   #define SD_DETECT_PIN                     PG3
-  #define SCK_PIN                           PB13
-  #define MISO_PIN                          PB14
-  #define MOSI_PIN                          PB15
-  #define SS_PIN                            PG6
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB15
+  #define SD_SS_PIN                         PG6
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12

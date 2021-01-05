@@ -653,11 +653,6 @@
   #define SERIAL_CATCHALL 0
 #endif
 
-// Pressure sensor with a BLTouch-like interface
-#if ENABLED(CREALITY_TOUCH)
-  #define BLTOUCH
-#endif
-
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -838,6 +833,7 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
 #if Z_HOME_DIR > 0
@@ -1049,11 +1045,6 @@
   #define INVERT_E_DIR false
 #endif
 
-// Fallback SPI Speed
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
-#endif
-
 /**
  * This setting is also used by M109 when trying to calculate
  * a ballpark safe margin to prevent wait-forever situation.
@@ -1173,6 +1164,12 @@
   #elif ENABLED(TFT_INTERFACE_FSMC)
     #define TFT_480x320
   #endif
+#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 272
+  #if ENABLED(TFT_INTERFACE_SPI)
+    #define TFT_480x272_SPI
+  #elif ENABLED(TFT_INTERFACE_FSMC)
+    #define TFT_480x272
+  #endif
 #endif
 
 // Fewer lines with touch buttons on-screen
@@ -1182,12 +1179,15 @@
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define HAS_UI_480x320 1
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x272, TFT_480x272_SPI)
+  #define HAS_UI_480x272 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #if !HAS_TFT_LVGL_UI
+  #if ENABLED(TFT_CLASSIC_UI)
     #define HAS_TOUCH_BUTTONS 1
   #endif
 #endif
@@ -1201,8 +1201,4 @@
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
-#endif
-
-#if MB(ANET_ET4, ANET_ET4P)
-  #define IS_ANET_ET 1
 #endif

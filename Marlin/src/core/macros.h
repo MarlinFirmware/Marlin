@@ -216,6 +216,7 @@
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
+#define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
 #define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
@@ -286,6 +287,7 @@
 #define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
+#define TRUNC(x)    truncf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))

@@ -2590,10 +2590,10 @@
  */
 #if HAS_MARLINUI_U8GLIB
   #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SCK_PIN
+    #define DOGLCD_SCK  SD_SCK_PIN
   #endif
   #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI MOSI_PIN
+    #define DOGLCD_MOSI SD_MOSI_PIN
   #endif
 #endif
 
@@ -2683,7 +2683,7 @@
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SCK_PIN == LCD_PINS_D4)
+#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SD_SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
@@ -2706,6 +2706,11 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+#endif
+
+// Fallback SPI Speed for SD
+#if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
+  #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
 // Defined here to catch the above defines
