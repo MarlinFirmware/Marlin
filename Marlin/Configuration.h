@@ -70,7 +70,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(james, default config)" // Who made the changes. 20201220 ---------------------------------------------------------------------------------------
+#define STRING_CONFIG_H_AUTHOR "(james, dad config)" // Who made the changes. 20210105 updated to show config version --------------------------------------------------
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes) 20201221 enabled hoping that it would read the version.h config file ---------------------------
 
 /**
@@ -121,7 +121,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000 // 20201221 was 115200 -----------------------------------------------------------------------------------------------------------------------------------
+#define BAUDRATE 250000 // 20201221 was 115200 -------------------------------------------------------------------------------------------------------------------------
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -132,7 +132,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Replicator v0.5a" // does not appear to work if defined in Version.h -------------------------------------------------------------------------------
+#define CUSTOM_MACHINE_NAME "Dad's Builder Bot v0.1" // does not appear to work if defined in Version.h ----------------------------------------------------------------
 
 // Printer's unique ID, used by some programs to dffferentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -914,7 +914,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH // 20200915 enabled ----------------------------------------------------------------------------------------------------------------------------------------------
+// #define BLTOUCH // 20210105 disabled for Dad's configuration -------------------------------------------------------------------------------------------------------
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -1297,7 +1297,7 @@
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
-#define AUTO_BED_LEVELING_UBL              // trying again 20201220 -------------------------------------------------------------------------------------------------------------
+// #define AUTO_BED_LEVELING_UBL              // disabled 20210105 for Dad's configuration ----------------------------------------------------------------------------
 //#define MESH_BED_LEVELING
 
 /*  GCode to start prints (taken from https://www.3dmakerengineering.com/blogs/3d-printing/unified-bed-leveling-marlin)  20201220 -----------------------------------------------
@@ -1470,7 +1470,7 @@ M500
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#define Z_SAFE_HOMING // 20200911 enabled for probing, works very nicely and homes in the center of the build plate --------------------------------------------------------------
+// #define Z_SAFE_HOMING // 20200911 enabled for probing, works very nicely and homes in the center of the build plate - disabled 20210105 for Dad's configuration ---------------
                       // 20210102 may need to disable this to resolve homing failure issues --------------------------------------------------------------------------------------
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE - 10) / 2) + X_MIN_POS    // X point for Z homing - 20200915 added + X_MIN_POS to better center probe -------------------------------
