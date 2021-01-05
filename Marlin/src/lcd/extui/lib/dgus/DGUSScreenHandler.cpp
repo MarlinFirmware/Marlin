@@ -3054,7 +3054,7 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var)
     dgusdisplay.WriteVariable(VP_MotorConfig_Dis, MotorConfig_buf_ch, 12, true);
 
     const uint16_t LevelConfig_buf_ch[] = {0xD6CA,0XAFB6,0XF7B5,0XBDC6,0XE8C9,0XC3D6,0x2000};
-    dgusdisplay.WriteVariable(VP_LevelConfig_Dis, LevelConfig_buf_ch, 11, true);
+    dgusdisplay.WriteVariable(VP_LevelConfig_Dis, LevelConfig_buf_ch, 32, true);
 
     const uint16_t TemperatureConfig_buf_ch[] = {0xC2CE,0XC8B6,0x2000};
     dgusdisplay.WriteVariable(VP_TemperatureConfig_Dis, TemperatureConfig_buf_ch, 11, true);
