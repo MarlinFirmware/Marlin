@@ -292,8 +292,6 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     return true;
   }
 
-  void parking_extruder_set_parked() { extruder_parked = true; }
-
   inline void parking_extruder_tool_change(const uint8_t new_tool, bool no_move) {
     if (!no_move) {
 
@@ -378,7 +376,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       planner.synchronize(); // Always sync the final move
 
       DEBUG_POS("PE Tool-Change done.", current_position);
-      extruder_parked = false;
+      parking_extruder_set_parked(false);
     }
     else if (do_solenoid_activation) { // && nomove == true
       // Deactivate current extruder solenoid
