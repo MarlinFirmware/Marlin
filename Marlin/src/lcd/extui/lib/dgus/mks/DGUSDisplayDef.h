@@ -23,6 +23,7 @@
 
 #include "../DGUSDisplayDef.h"
 
+#define LOGO_TIME_DELAY       1500
 
 // #define DGUS_MKS_RUNOUT_SENSOR
 #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
