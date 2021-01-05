@@ -596,7 +596,7 @@ void restore_feedrate_and_scaling() {
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
-      if (axis != Z_AXIS) {
+      if (axis != Z_AXIS) { // The Z axis is "special" and shouldn't be modified
         if (old_tool_index != new_tool_index) {
           const float diff = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
           soft_endstop.min[axis] += diff;
