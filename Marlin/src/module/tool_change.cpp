@@ -1139,7 +1139,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
           }
-        #else
+        #elif DISABLED(PARKING_EXTRUDER)
           apply_motion_limits(destination);
         #endif
 
@@ -1149,10 +1149,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             // Just move back down
             DEBUG_ECHOLNPGM("Move back Z only");
 
-            #if ENABLED(TOOLCHANGE_PARK)
-              if (toolchange_settings.enable_park)
-            #endif
-            do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+            if (TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park))
+              do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
 
           #else
             // Move back to the original (or adjusted) position
