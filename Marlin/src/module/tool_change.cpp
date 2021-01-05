@@ -259,8 +259,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    LOOP_LE_N(n, 1)
-      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(n);
+    LOOP_LE_N(n, 1) pe_set_solenoid(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
   }
 
   void pe_set_solenoid(const uint8_t extruder_num, const uint8_t state) {
@@ -282,9 +281,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     if (!extruder_parked) return false; // nothing to do
 
     if (homed_towards_final_tool) {
-      pe_deactivate_solenoid(1 - final_tool);
+      pe_solenoid_magnet_off(1 - final_tool);
       DEBUG_ECHOLNPAIR("Disengage magnet", (int)(1 - final_tool));
-      pe_activate_solenoid(final_tool);
+      pe_solenoid_magnet_on(final_tool);
       DEBUG_ECHOLNPAIR("Engage magnet", (int)final_tool);
       parking_extruder_set_parked(false);
       return false;
@@ -333,7 +332,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
         planner.synchronize();
         DEBUG_ECHOLNPGM("(2) Disengage magnet");
-        pe_deactivate_solenoid(active_extruder);
+        pe_solenoid_magnet_off(active_extruder);
 
         // STEP 3
 
@@ -351,8 +350,8 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       DEBUG_ECHOLNPGM("(4) Engage magnetic field");
 
       // Just save power for inverted magnets
-      TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid(active_extruder));
-      pe_activate_solenoid(new_tool);
+      TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_solenoid_magnet_on(active_extruder));
+      pe_solenoid_magnet_on(new_tool);
 
       // STEP 5
 
@@ -381,9 +380,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     }
     else if (do_solenoid_activation) { // && nomove == true
       // Deactivate old extruder solenoid
-      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(active_extruder);
+      pe_set_solenoid(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
       // Only engage magnetic field for new extruder
-      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_deactivate_solenoid, pe_activate_solenoid)(new_tool);
+      pe_set_solenoid(new_tool, PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
     }
 
     do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
