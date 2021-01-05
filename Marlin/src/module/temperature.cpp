@@ -3009,7 +3009,6 @@ void Temperature::tick() {
     #else
       #define SFP 2
     #endif
-
     SERIAL_CHAR(':');
     SERIAL_PRINT(c, SFP);
     SERIAL_ECHOPGM(" /");
