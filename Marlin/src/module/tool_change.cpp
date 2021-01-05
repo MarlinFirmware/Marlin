@@ -1137,7 +1137,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
           }
-        #elif DISABLED(PARKING_EXTRUDER)
+        #else
           apply_motion_limits(destination);
         #endif
 
