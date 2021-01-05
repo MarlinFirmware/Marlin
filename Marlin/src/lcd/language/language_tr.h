@@ -257,16 +257,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Kapalı");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Kalibrasyon");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Kalibrasyon *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seç");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seç *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("İvme");
