@@ -24,6 +24,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ALL(FWRETRACT, FWRETRACT_AUTORESET)
+  #include "../feature/fwretract.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -35,6 +39,8 @@ millis_t Stopwatch::stopTimestamp;
 
 bool Stopwatch::stop() {
   Stopwatch::debug(PSTR("stop"));
+  
+  IF_ENABLED(ALL(FWRETRACT, FWRETRACT_AUTORESET), fwretract.reset());
 
   if (isRunning() || isPaused()) {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
@@ -82,6 +88,8 @@ void Stopwatch::resume(const millis_t with_time) {
 
 void Stopwatch::reset() {
   Stopwatch::debug(PSTR("reset"));
+
+  IF_ENABLED(ALL(FWRETRACT, FWRETRACT_AUTORESET), fwretract.reset());
 
   state = STOPPED;
   startTimestamp = 0;
