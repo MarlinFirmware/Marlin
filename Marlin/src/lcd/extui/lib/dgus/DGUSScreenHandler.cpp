@@ -469,9 +469,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
       DEBUG_ECHOPAIR("new topfile adjusted:", top_file);
     }
     else if (!filelist.isAtRootDir()) {
-      #if DISABLED(DGUS_LCD_UI_MKS)
-        filelist.upDir();
-      #endif
+      IF_DISABLED(DGUS_LCD_UI_MKS, filelist.upDir());
       top_file = 0;
       ForceCompleteUpdate();
     }
@@ -537,15 +535,12 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
   void DGUSScreenHandler::DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr) {
 
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      auto cs = getCurrentScreen();
-    #endif
-
     if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
     switch (swap16(*(uint16_t*)val_ptr)) {
-      case 0: // Resume
+      case 0: { // Resume
 
         #if ENABLED(DGUS_LCD_UI_MKS)
+          auto cs = getCurrentScreen();
           if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
             if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
               ScreenHandler.GotoScreen(MKSLCD_SCREEN_PAUSE);
@@ -564,7 +559,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
           #endif
           ExtUI::resumePrint();
         }
-        break;
+      } break;
 
       case 1: // Pause
 
