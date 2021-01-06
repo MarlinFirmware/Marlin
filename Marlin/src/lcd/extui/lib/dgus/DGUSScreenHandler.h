@@ -34,8 +34,8 @@ public:
 
   static bool loop();
 
-  /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
-  /// The bools specifing whether the strings are in RAM or FLASH.
+  // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
+  // The bools specifing whether the strings are in RAM or FLASH.
   static void sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
@@ -46,9 +46,9 @@ public:
     static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
   #endif
 
-  /// "M117" Message -- msg is a RAM ptr.
+  // "M117" Message -- msg is a RAM ptr.
   static void setstatusmessage(const char* msg);
-  /// The same for messages from Flash
+  // The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
   // Callback for VP "Display wants to change screen on idle printer"
   static void ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr);
@@ -109,17 +109,17 @@ public:
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleTravelAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleFeedRateMinChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleMin_T_F_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleTravelAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleFeedRateMinChange_MKS(DGUS_VP_Variable &var, void *val_ptr);
+    static void HandleMin_T_F_MKS(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   #if HAS_PID_HEATING
@@ -165,25 +165,25 @@ public:
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
-    /// Scroll buttons on the file listing screen.
+    // Scroll buttons on the file listing screen.
     static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &var, void *val_ptr);
-    /// File touched.
+    // File touched.
     static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
-    /// start print after confirmation received.
+    // start print after confirmation received.
     static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr);
-    /// User hit the pause, resume or abort button.
+    // User hit the pause, resume or abort button.
     static void DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr);
-    /// User confirmed the abort action
+    // User confirmed the abort action
     static void DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &var, void *val_ptr);
-    /// User hit the tune button
+    // User hit the tune button
     static void DGUSLCD_SD_PrintTune(DGUS_VP_Variable &var, void *val_ptr);
-    /// Send a single filename to the display.
+    // Send a single filename to the display.
     static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &var);
-    /// Marlin informed us that a new SD has been inserted.
+    // Marlin informed us that a new SD has been inserted.
     static void SDCardInserted();
-    /// Marlin informed us that the SD Card has been removed().
+    // Marlin informed us that the SD Card has been removed().
     static void SDCardRemoved();
-    /// Marlin informed us about a bad SD Card.
+    // Marlin informed us about a bad SD Card.
     static void SDCardError();
   #endif
 
@@ -214,15 +214,14 @@ public:
 
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendBabyStepToDisplay_MKS(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendFloatByStringToDisplay(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendStringToDisplay_Ch_MKS(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var);
-  static void DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var);
-
+    static void DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendBabyStepToDisplay_MKS(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendFloatByStringToDisplay(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendStringToDisplay_Ch_MKS(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var);
+    static void DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var);
   #endif
 
   #if ENABLED(PRINTCOUNTER)
@@ -237,11 +236,11 @@ public:
     static void DGUSLCD_SendWaitingStatusToDisplay(DGUS_VP_Variable &var);
   #endif
 
-  /// Send a value from 0..100 to a variable with a range from 0..255
+  // Send a value from 0..100 to a variable with a range from 0..255
   static void DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr);
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-  static void DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr);
+    static void DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   template<typename T>
@@ -253,9 +252,9 @@ public:
     *(T*)var.memadr = x.t;
   }
 
-  /// Send a float value to the display.
-  /// Display will get a 4-byte integer scaled to the number of digits:
-  /// Tell the display the number of digits and it cheats by displaying a dot between...
+  // Send a float value to the display.
+  // Display will get a 4-byte integer scaled to the number of digits:
+  // Tell the display the number of digits and it cheats by displaying a dot between...
   template<unsigned int decimals>
   static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
@@ -265,9 +264,9 @@ public:
     }
   }
 
-  /// Send a float value to the display.
-  /// Display will get a 2-byte integer scaled to the number of digits:
-  /// Tell the display the number of digits and it cheats by displaying a dot between...
+  // Send a float value to the display.
+  // Display will get a 2-byte integer scaled to the number of digits:
+  // Tell the display the number of digits and it cheats by displaying a dot between...
   template<unsigned int decimals>
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
@@ -278,9 +277,9 @@ public:
     }
   }
 
-  /// Force an update of all VP on the current screen.
+  // Force an update of all VP on the current screen.
   static inline void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }
-  /// Has all VPs sent to the screen
+  // Has all VPs sent to the screen
   static inline bool IsScreenComplete() { return ScreenComplete; }
 
   static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
@@ -288,26 +287,25 @@ public:
   static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
 
 private:
-  static DGUSLCD_Screens current_screen;  ///< currently on screen
+  static DGUSLCD_Screens current_screen;  //< currently on screen
   static constexpr uint8_t NUM_PAST_SCREENS = 4;
-  static DGUSLCD_Screens past_screens[NUM_PAST_SCREENS]; ///< LIFO with past screens for the "back" button.
+  static DGUSLCD_Screens past_screens[NUM_PAST_SCREENS]; //< LIFO with past screens for the "back" button.
 
-  static uint8_t update_ptr;    ///< Last sent entry in the VPList for the actual screen.
-  static uint16_t skipVP;       ///< When updating the screen data, skip this one, because the user is interacting with it.
-  static bool ScreenComplete;   ///< All VPs sent to screen?
+  static uint8_t update_ptr;      //< Last sent entry in the VPList for the actual screen.
+  static uint16_t skipVP;         //< When updating the screen data, skip this one, because the user is interacting with it.
+  static bool ScreenComplete;     //< All VPs sent to screen?
 
-  static uint16_t ConfirmVP;    ///< context for confirm screen (VP that will be emulated-sent on "OK").
+  static uint16_t ConfirmVP;      //< context for confirm screen (VP that will be emulated-sent on "OK").
 
   #if ENABLED(SDSUPPORT)
-    static int16_t top_file;    ///< file on top of file chooser
-    static int16_t file_to_print; ///< touched file to be confirmed
+    static int16_t top_file;      //< file on top of file chooser
+    static int16_t file_to_print; //< touched file to be confirmed
   #endif
 
   static void (*confirm_action_cb)();
 };
 
 extern DGUSScreenHandler ScreenHandler;
-
 
 #if ENABLED(DGUS_LCD_UI_MKS)
   #define MKS_Language_Choose   0x00
@@ -318,4 +316,3 @@ extern DGUSScreenHandler ScreenHandler;
   extern uint16_t DGUSLanguageSwitch;
   extern uint16_t DGUSAutoTurnOff;
 #endif
-

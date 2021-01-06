@@ -21,9 +21,7 @@
  */
 
 /**
- * dgus_lcd.cpp
- *
- * DGUS implementation for Marlin by coldtobi, Feb-May 2019
+ * lcd/extui/dgus_lcd.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -127,12 +125,9 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
       // Called on resume from power-loss
-      #if !ENABLED(DGUS_LCD_UI_MKS)
-        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
-      #endif
+      IF_DISABLED(DGUS_LCD_UI_MKS, ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POWER_LOSS));
     }
   #endif
-
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {

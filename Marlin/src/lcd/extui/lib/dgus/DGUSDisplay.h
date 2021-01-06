@@ -21,7 +21,9 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplay.h
+ */
 
 #include "../../../../inc/MarlinConfigPre.h"
 
@@ -33,9 +35,7 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
-#if ENABLED(DGUS_LCD_UI_MKS)
-#define DEBUG_DGUSLCD
-#endif
+//#define DEBUG_DGUSLCD
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../../core/debug_out.h"
 
