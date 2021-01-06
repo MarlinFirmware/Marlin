@@ -1,9 +1,12 @@
 __Issues that do not follow this issue template will be closed__
 
+<!--
 - *Be sure you have fully read the release notes and flashing instructions before posting an issue here*
 - *Check if there is an existing _open_ issue that describes your problem and add your comments there*
 - *Check if your issue has been resolved on the latest source code - or if there is a closed issue pointing to the next release*
 - *Check that you have flashed the correct firmware for your device*
+- Check this milestone for what issues are already found and resolved, and for possible workarounds: https://github.com/CR6Community/Marlin/milestone/3?closed=1
+-->
 
 ### Description
 
