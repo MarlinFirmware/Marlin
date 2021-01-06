@@ -21,7 +21,9 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplay.h
+ */
 
 #include "../../../../inc/MarlinConfigPre.h"
 

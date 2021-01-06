@@ -21,9 +21,7 @@
  */
 
 /**
- * dgus_lcd.cpp
- *
- * DGUS implementation for Marlin by coldtobi, Feb-May 2019
+ * lcd/extui/dgus_lcd.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"

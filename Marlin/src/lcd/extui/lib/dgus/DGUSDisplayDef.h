@@ -21,15 +21,16 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplayDef.h
+ * Defines the interaction between Marlin and the display firmware
+ */
 
 #include "DGUSVPVariable.h"
 
 #include <stdint.h>
 
-// This file defines the interaction between Marlin and the display firmware.
-
-// information on which screen which VP is displayed
+// Information on which screen which VP is displayed.
 // As this is a sparse table, two arrays are needed:
 // one to list the VPs of one screen and one to map screens to the lists.
 // (Strictly this would not be necessary, but allows to only send data the display needs and reducing load on Marlin)
@@ -98,58 +99,50 @@ extern const struct DGUS_VP_Variable ListOfVP[];
     extern uint16_t tmc_e1_current;
   #endif
 
-  typedef enum
-  {
+  typedef enum {
     EX_HEATING,
     EX_HEAT_STARUS,
     EX_CHANGING,
     EX_CHANGE_STATUS,
     EX_NONE,
-  }EX_STATUS_DEF;
+  } EX_STATUS_DEF;
 
-  typedef struct
-    {
-        // uint8_t ex_change_flag:1;
-        // uint8_t ex_heat_flag:1;
-        uint8_t ex_load_unload_flag:1;  //0:unload  1:load
-        EX_STATUS_DEF ex_status;
-        uint32_t ex_tick_start;
-        uint32_t ex_tick_end;
-        uint32_t ex_speed;
-        uint32_t ex_length;
-        uint32_t ex_need_time;
-    }EX_FILAMENT_DEF;
+  typedef struct {
+    //uint8_t ex_change_flag:1;
+    //uint8_t ex_heat_flag:1;
+    uint8_t ex_load_unload_flag:1;  //0:unload  1:load
+    EX_STATUS_DEF ex_status;
+    uint32_t ex_tick_start;
+    uint32_t ex_tick_end;
+    uint32_t ex_speed;
+    uint32_t ex_length;
+    uint32_t ex_need_time;
+  } EX_FILAMENT_DEF;
   extern EX_FILAMENT_DEF ex_filament;
 
-
-  typedef enum
-  {
+  typedef enum {
     UNRUNOUT_STATUS,
     RUNOUT_STATUS,
     RUNOUT_WAITTING_STATUS,
     RUNOUT_BEGIN_STATUS,
-  }RUNOUT_MKS_STATUS_DEF;
+  } RUNOUT_MKS_STATUS_DEF;
 
-  typedef struct
-  {
-
+  typedef struct {
     RUNOUT_MKS_STATUS_DEF runout_status;
     uint8_t pin_status;
     uint8_t de_count;
     uint8_t de_times;
-
-  }RUNOUT_MKS_DEF;
+  } RUNOUT_MKS_DEF;
   extern RUNOUT_MKS_DEF runout_mks;
 
-  typedef struct
-  {
+  typedef struct {
     uint8_t print_pause_start_flag:1;
     uint8_t runout_flag:1;
     bool blstatus;
     uint16_t x_pos;
     uint16_t y_pos;
     uint16_t z_pos;
-  }NOZZLE_PARK_DEF;
+  } NOZZLE_PARK_DEF;
   extern NOZZLE_PARK_DEF nozzle_park_mks;
 
 #endif

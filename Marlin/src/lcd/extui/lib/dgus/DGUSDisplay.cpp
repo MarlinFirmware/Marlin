@@ -20,14 +20,12 @@
  *
  */
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
-
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_DGUS_LCD
 
 #if HOTENDS > 2
-  #error "More than 2 hotends not implemented on the Display UI design."
+  #warning "More than 2 hotends not implemented on DGUS Display UI."
 #endif
 
 #include "../../ui_api.h"
@@ -64,12 +62,10 @@ void DGUSDisplay::InitDisplay() {
     #define LCD_BAUDRATE 115200
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
-  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      delay(LOGO_TIME_DELAY);
-    #endif
-  }
-    RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
+  #if BOTH(DGUS_LCD_UI_MKS, POWER_LOSS_RECOVERY)
+    if (!recovery.valid()) delay(LOGO_TIME_DELAY);
+  #endif
+  RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
@@ -106,23 +102,20 @@ void DGUSDisplay::WriteVariable(uint16_t adr, int8_t value) {
 }
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-void DGUSDisplay::MKS_WriteVariable(uint16_t adr, uint8_t value)
-{
-   WriteVariable(adr, static_cast<const void *>(&value), sizeof(uint8_t));
-}
+  void DGUSDisplay::MKS_WriteVariable(uint16_t adr, uint8_t value) {
+    WriteVariable(adr, static_cast<const void *>(&value), sizeof(uint8_t));
+  }
 #endif
 
-
-
 void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
-    union { long l; char lb[4]; } endian;
-    char tmp[4];
-    endian.l = value;
-    tmp[0] = endian.lb[3];
-    tmp[1] = endian.lb[2];
-    tmp[2] = endian.lb[1];
-    tmp[3] = endian.lb[0];
-    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
+  union { long l; char lb[4]; } endian;
+  char tmp[4];
+  endian.l = value;
+  tmp[0] = endian.lb[3];
+  tmp[1] = endian.lb[2];
+  tmp[2] = endian.lb[1];
+  tmp[3] = endian.lb[0];
+  WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
