@@ -1420,7 +1420,11 @@ void Temperature::manage_heater() {
               adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
-                resistance = t.series_res * (adc_raw + 0.5f) / adc_inverse,
+                resistance = t.series_res > 0 ?
+                  // pullup
+                  t.series_res * (adc_raw + 0.5f) / adc_inverse :
+                  // pulldown
+                  (-t.series_res) * adc_inverse / (adc_raw + 0.5f),
                 log_resistance = logf(resistance);
 
     float value = t.sh_alpha;
