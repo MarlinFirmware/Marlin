@@ -107,14 +107,14 @@ extern const struct DGUS_VP_Variable ListOfVP[];
     EX_NONE,
   }EX_STATUS_DEF;
 
-  typedef struct 
+  typedef struct
     {
         // uint8_t ex_change_flag:1;
         // uint8_t ex_heat_flag:1;
         uint8_t ex_load_unload_flag:1;  //0:unload  1:load
         EX_STATUS_DEF ex_status;
         uint32_t ex_tick_start;
-        uint32_t ex_tick_end;       
+        uint32_t ex_tick_end;
         uint32_t ex_speed;
         uint32_t ex_length;
         uint32_t ex_need_time;
@@ -130,9 +130,9 @@ extern const struct DGUS_VP_Variable ListOfVP[];
     RUNOUT_BEGIN_STATUS,
   }RUNOUT_MKS_STATUS_DEF;
 
-  typedef struct 
+  typedef struct
   {
-    
+
     RUNOUT_MKS_STATUS_DEF runout_status;
     uint8_t pin_status;
     uint8_t de_count;
@@ -152,7 +152,7 @@ extern const struct DGUS_VP_Variable ListOfVP[];
   }NOZZLE_PARK_DEF;
   extern NOZZLE_PARK_DEF nozzle_park_mks;
 
-#endif 
+#endif
 
 #include "../../../../inc/MarlinConfig.h"
 
