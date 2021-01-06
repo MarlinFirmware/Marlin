@@ -341,6 +341,30 @@ void PrintJobRecovery::resume() {
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
+  
+  #if HAS_HEATED_BED
+    const int16_t bt = info.target_temperature_bed;
+    if (bt) {
+      // Restore the bed temperature
+      sprintf_P(cmd, PSTR("M190 S%i"), bt);
+      gcode.process_subcommands_now(cmd);
+    }
+  #endif
+
+  // Restore all hotend temperatures
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      const int16_t et = info.target_temperature[e];
+      if (et) {
+        #if HAS_MULTI_HOTEND
+          sprintf_P(cmd, PSTR("T%i S"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109 S%i"), et);
+        gcode.process_subcommands_now(cmd);
+      }
+    }
+  #endif
 
   // Reset E, raise Z, home XY...
   #if Z_HOME_DIR > 0
@@ -402,30 +426,6 @@ void PrintJobRecovery::resume() {
         gcode.process_subcommands_now(cmd);
       }
     #endif
-  #endif
-
-  #if HAS_HEATED_BED
-    const int16_t bt = info.target_temperature_bed;
-    if (bt) {
-      // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), bt);
-      gcode.process_subcommands_now(cmd);
-    }
-  #endif
-
-  // Restore all hotend temperatures
-  #if HAS_HOTEND
-    HOTEND_LOOP() {
-      const int16_t et = info.target_temperature[e];
-      if (et) {
-        #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%i S"), e);
-          gcode.process_subcommands_now(cmd);
-        #endif
-        sprintf_P(cmd, PSTR("M109 S%i"), et);
-        gcode.process_subcommands_now(cmd);
-      }
-    }
   #endif
 
   // Select the previously active tool (with no_move)
