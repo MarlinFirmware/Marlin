@@ -31,13 +31,15 @@
 
 #include "../../ui_api.h"
 #include "../../../../MarlinCore.h"
+#include "../../../../gcode/queue.h"
+#include "../../../../libs/duration_t.h"
+#include "../../../../module/settings.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
-#include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
-#include "../../../../sd/cardreader.h"
-#include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
+#include "../../../../sd/cardreader.h"
+
 #if ENABLED(DGUS_LCD_UI_MKS)
   #include "src/gcode/gcode.h"
   #include "../../../../pins/pins.h"
@@ -183,8 +185,8 @@ void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
   void DGUSScreenHandler::DGUSLCD_SendFloatByStringToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float tmp = *(float *) var.memadr;
-      char buf[20];
-      sprintf(buf, "%.2f", tmp);
+      char buf[10];
+      sprintf_P(buf, PSTR("%.2f"), tmp);
       dgusdisplay.WriteVariable(var.VP, buf, 8, true);
     }
   }
@@ -692,20 +694,20 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPAIR("\n DEBUG target", target);
 
   //#if ENABLED(DGUS_LCD_UI_MKS)
-    //   when the dgus had reboot, it will enter the DGUSLCD_SCREEN_MAIN page,
-    //   so user can change any page to use this function, an it will check
-    //   if robin nano is printing. when it is, dgus will enter the printing
-    //   page to continue print;
+    // when the dgus had reboot, it will enter the DGUSLCD_SCREEN_MAIN page,
+    // so user can change any page to use this function, an it will check
+    // if robin nano is printing. when it is, dgus will enter the printing
+    // page to continue print;
     //
-    //  if (print_job_timer.isRunning() || print_job_timer.isPaused()) {
-    //    if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
-    //      || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
-    //    ) {
-    //    }
-    //    else
-    //      GotoScreen(MKSLCD_SCREEN_PRINT);
-    //   return;
+    //if (print_job_timer.isRunning() || print_job_timer.isPaused()) {
+    //  if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
+    //    || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
+    //  ) {
     //  }
+    //  else
+    //    GotoScreen(MKSLCD_SCREEN_PRINT);
+    // return;
+    //}
   //#endif
 
   if (target == DGUSLCD_SCREEN_POPUP) {
@@ -744,24 +746,24 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 
   switch (var.VP) {
     default: return;
-      #if HOTENDS >= 1
-        case VP_T_E0_Set:
-          thermalManager.setTargetHotend(newvalue, 0);
-          acceptedvalue = thermalManager.temp_hotend[0].target;
-          break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_T_E1_Set:
-          thermalManager.setTargetHotend(newvalue, 1);
-          acceptedvalue = thermalManager.temp_hotend[1].target;
-          break;
-      #endif
-      #if HAS_HEATED_BED
-        case VP_T_Bed_Set:
-          thermalManager.setTargetBed(newvalue);
-          acceptedvalue = thermalManager.temp_bed.target;
-          break;
-      #endif
+    #if HOTENDS >= 1
+      case VP_T_E0_Set:
+        thermalManager.setTargetHotend(newvalue, 0);
+        acceptedvalue = thermalManager.temp_hotend[0].target;
+        break;
+    #endif
+    #if HOTENDS >= 2
+      case VP_T_E1_Set:
+        thermalManager.setTargetHotend(newvalue, 1);
+        acceptedvalue = thermalManager.temp_hotend[1].target;
+        break;
+    #endif
+    #if HAS_HEATED_BED
+      case VP_T_Bed_Set:
+        thermalManager.setTargetBed(newvalue);
+        acceptedvalue = thermalManager.temp_bed.target;
+        break;
+    #endif
   }
 
   // reply to display the new value to update the view if the new value was rejected by the Thermal Manager.
@@ -775,12 +777,12 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
     uint8_t target_extruder;
     switch (var.VP) {
       default: return;
-        #if HOTENDS >= 1
-          case VP_Flowrate_E0: target_extruder = 0; break;
-        #endif
-        #if HOTENDS >= 2
-          case VP_Flowrate_E1: target_extruder = 1; break;
-        #endif
+      #if HOTENDS >= 1
+        case VP_Flowrate_E0: target_extruder = 0; break;
+      #endif
+      #if HOTENDS >= 2
+        case VP_Flowrate_E1: target_extruder = 1; break;
+      #endif
     }
 
     planner.set_flow(target_extruder, newvalue);
@@ -823,8 +825,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
   void DGUSScreenHandler::ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
 
-    // gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M500"));
+    settings.save();
 
     if (print_job_timer.isRunning())
       ScreenHandler.GotoScreen(MKSLCD_SCREEN_PRINT);
@@ -847,7 +848,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     uint16_t value = swap16(*(uint16_t *)val_ptr);
     thermalManager.extrude_min_temp = value;
     min_ex_temp = value;
-    gcode.process_subcommands_now_P(PSTR("M500"));
+    settings.save();
   }
 
   void DGUSScreenHandler::GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr) {
@@ -871,25 +872,18 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
   void DGUSScreenHandler::EEPROM_CTRL(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t eep_flag = swap16(*(uint16_t *)val_ptr);
-
     switch (eep_flag) {
       case 0:
-
-        gcode.process_subcommands_now_P(PSTR("M500"));
-        gcode.process_subcommands_now_P(PSTR("M501"));
-        // gcode.process_subcommands_now_P(PSTR("M500"));
-        // gcode.process_subcommands_now_P(PSTR("M501"));
+        settings.save();
         ScreenHandler.GotoScreen(MKSLCD_SCREEN_EEP_Config);
         break;
 
       case 1:
-        // gcode.mks_m502();
-        gcode.process_subcommands_now_P(PSTR("M502"));
+        settings.reset();
         ScreenHandler.GotoScreen(MKSLCD_SCREEN_EEP_Config);
         break;
 
-      default:
-        break;
+      default: break;
     }
   }
 
@@ -904,16 +898,11 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
   }
 
   void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
-
-    // uint16_t Offset = swap16(*(uint16_t *)val_ptr);
+    //uint16_t Offset = swap16(*(uint16_t *)val_ptr);
 
     int32_t value = swap32(*(int32_t *)val_ptr);
-    float Offset;
     DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
-
-    Offset = value;
-    Offset = Offset / (float)100;
-
+    float Offset = value / 100.0f;
     DEBUG_ECHOLNPAIR_F(" get float offset >> ", Offset, 6);
 
     switch (var.VP) {
@@ -936,7 +925,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       default:
         break;
     }
-    queue.inject_P(PSTR("M500"));
+    settings.save();
   }
 
   void DGUSScreenHandler::LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr) {
@@ -947,14 +936,14 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
         DGUSLanguageSwitch = MKS_SimpleChinese;
         dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
         dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
-        gcode.process_subcommands_now_P(PSTR("M500"));
+        settings.save();
         break;
       case MKS_English:
         DGUS_LanguageDisplay(MKS_English);
         DGUSLanguageSwitch = MKS_English;
         dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
         dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
-        gcode.process_subcommands_now_P(PSTR("M500"));
+        settings.save();
         break;
       default: break;
     }
@@ -1088,14 +1077,13 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
               const uint16_t level_buf_ch2[] = {0xF7B5, 0xBDC6, 0xEACD, 0xC9B3, 0x2000};
               dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch2, 32, true);
             }
-
-            queue.inject_P(PSTR("M500"));
+            settings.save();
           }
           else if (mesh_point_count == 0) {
 
             mesh_point_count = GRID_MAX_POINTS_X * GRID_MAX_POINTS_Y;
             soft_endstop._enabled = true;
-            queue.inject_P(PSTR("M500"));
+            settings.save();
             ScreenHandler.GotoScreen(MKSLCD_SCREEM_TOOL);
           }
           break;
@@ -1158,7 +1146,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
         sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
         queue.enqueue_one_now(buf_level);
-        // sprintf(buf_level, PSTR("G28 Z"));
+        //sprintf_P(buf_level, PSTR("G28 Z"));
         queue.enqueue_now_P(PSTR("G1 Z-10"));
         break;
       case 0x0004:
@@ -1171,13 +1159,13 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
         sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
         queue.enqueue_one_now(buf_level);
-        // sprintf(buf_level, PSTR("G28 Z"));
+        //sprintf_P(buf_level, PSTR("G28 Z"));
         queue.enqueue_now_P(PSTR("G1 Z-10"));
         break;
       case 0x0005:
         queue.enqueue_now_P(PSTR("G1 Z10"));
-        // level_x_pos = (uint16_t)(X_MAX_POS / 2);
-        // level_y_pos = (uint16_t)(Y_MAX_POS / 2);
+        //level_x_pos = (uint16_t)(X_MAX_POS / 2);
+        //level_y_pos = (uint16_t)(Y_MAX_POS / 2);
         level_x_pos = abs(level_5_x_point);
         level_y_pos = abs(level_5_y_point);
 
@@ -1203,70 +1191,70 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       case VP_TMC_X_STEP:
         #if AXIS_HAS_STEALTHCHOP(X)
           stepperX.homing_threshold(mks_min(tmc_value, 255));
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
           // tmc_x_step = stepperX.homing_threshold();
         #endif
         break;
       case VP_TMC_Y_STEP:
         #if AXIS_HAS_STEALTHCHOP(Y)
           stepperY.homing_threshold(mks_min(tmc_value, 255));
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
           // tmc_y_step = stepperY.homing_threshold();
         #endif
         break;
       case VP_TMC_Z_STEP:
         #if AXIS_HAS_STEALTHCHOP(Z)
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
           // tmc_z_step = stepperZ.homing_threshold();
         #endif
         break;
       case VP_TMC_X_Current:
         #if AXIS_IS_TMC(X)
           stepperX.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_X1_Current:
         #if AXIS_IS_TMC(X2)
           stepperX2.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_Y_Current:
         #if AXIS_IS_TMC(Y)
           stepperY.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_Y1_Current:
         #if AXIS_IS_TMC(X2)
           stepperY2.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_Z_Current:
         #if AXIS_IS_TMC(Z)
           stepperZ.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_Z1_Current:
         #if AXIS_IS_TMC(Z2)
           stepperZ2.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_E0_Current:
         #if AXIS_IS_TMC(E0)
           stepperE0.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
       case VP_TMC_E1_Current:
         #if AXIS_IS_TMC(E1)
           stepperE1.rms_current(tmc_value);
-          gcode.process_subcommands_now_P(PSTR("M500"));
+          settings.save();
         #endif
         break;
 
@@ -1383,7 +1371,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       // buf[4] = axiscode;
 
       char buf[6];
-      sprintf(buf, "G28 %c", axiscode);
+      sprintf_P(buf, PSTR("G28 %c"), axiscode);
       //DEBUG_ECHOPAIR(" ", buf);
       //queue.enqueue_one_now(buf);
       gcode.process_subcommands_now_P(buf);
@@ -1394,7 +1382,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     else if (movevalue == 5) {
       DEBUG_ECHOPAIR("send M84");
       char buf[6];
-      sprintf(buf, "M84 %c", axiscode);
+      sprintf_P(buf, PSTR("M84 %c"), axiscode);
       //queue.enqueue_one_now(buf);
       gcode.process_subcommands_now_P(buf);
       ScreenHandler.ForceCompleteUpdate();
@@ -1586,10 +1574,11 @@ void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
     default: break;
     case 1:
       TERN_(PRINTCOUNTER, print_job_timer.initStats());
-      queue.inject_P(PSTR("M502\nM500"));
+      settings.reset();
+      settings.save();
       break;
-    case 2: queue.inject_P(PSTR("M501")); break;
-    case 3: queue.inject_P(PSTR("M500")); break;
+    case 2: settings.load(); break;
+    case 3: settings.save(); break;
   }
 }
 
@@ -1644,7 +1633,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
 
     *(int16_t*)var.memadr = value_raw;
 
-    gcode.process_subcommands_now_P(PSTR("M500"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1666,8 +1655,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     DEBUG_ECHOLNPAIR_F("value:", value);
     ExtUI::setAxisSteps_per_mm(value, axis);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(axis));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1691,8 +1679,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     DEBUG_ECHOLNPAIR_F("value:", value);
     ExtUI::setAxisSteps_per_mm(value, extruder);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1714,8 +1701,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     // ExtUI::setAxisSteps_per_mm(value,extruder);
     ExtUI::setAxisMaxFeedrate_mm_s(value, axis);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1740,8 +1726,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     // ExtUI::setAxisSteps_per_mm(value,extruder);
     ExtUI::setAxisMaxFeedrate_mm_s(value, extruder);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1762,8 +1747,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     DEBUG_ECHOLNPAIR_F("value:", value);
     ExtUI::setAxisMaxAcceleration_mm_s2(value, axis);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1778,18 +1762,17 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     switch (var.VP) {
       default: return;
         #if HOTENDS >= 1
-          case VP_E0_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E0; gcode.process_subcommands_now_P(PSTR("M501")); break;
+          case VP_E0_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E0; settings.load(); break;
         #endif
         #if HOTENDS >= 2
         #endif
-      case VP_E1_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E1; gcode.process_subcommands_now_P(PSTR("M501")); break;
+      case VP_E1_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E1; settings.load(); break;
     }
     DEBUG_ECHOLNPAIR_F("value:", value);
     // ExtUI::setAxisSteps_per_mm(value,extruder);
     ExtUI::setAxisMaxAcceleration_mm_s2(value, extruder);
     DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
-    gcode.process_subcommands_now_P(PSTR("M500"));
-    gcode.process_subcommands_now_P(PSTR("M501"));
+    settings.save();
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
   }
@@ -1886,9 +1869,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     DEBUG_ECHOLNPAIR_F("V3:", newvalue);
     *(float *)var.memadr = newvalue;
 
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      queue.inject_P(PSTR("M500"));
-    #endif
+    TERN_(DGUS_LCD_UI_MKS, settings.save());
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
 
@@ -1902,18 +1883,18 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
         #if ENABLED(PIDTEMP)
           #if HOTENDS >= 1
             case VP_PID_AUTOTUNE_E0: // Autotune Extruder 0
-              sprintf(buf, "M303 E%d C5 S210 U1", ExtUI::extruder_t::E0);
+              sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
               break;
           #endif
           #if HOTENDS >= 2
             case VP_PID_AUTOTUNE_E1:
-              sprintf(buf, "M303 E%d C5 S210 U1", ExtUI::extruder_t::E1);
+              sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E1);
               break;
           #endif
         #endif
         #if ENABLED(PIDTEMPBED)
           case VP_PID_AUTOTUNE_BED:
-            sprintf(buf, "M303 E-1 C5 S70 U1");
+            sprintf_P(buf, PSTR("M303 E-1 C5 S70 U1"));
             break;
         #endif
     }
@@ -1949,13 +1930,13 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
       switch (flag) {
         case 0:
           DEBUG_ECHOLNPGM("babystep down");
-          sprintf(babystep_buf, "M290 Z%.3f", -ZOffset_distance);
+          sprintf_P(babystep_buf, PSTR("M290 Z%.3f"), -ZOffset_distance);
           z_offset_add = z_offset_add - ZOffset_distance;
           break;
 
         case 1:
           DEBUG_ECHOLNPGM("babystep up");
-          sprintf(babystep_buf, "M290 Z%.3f", ZOffset_distance);
+          sprintf_P(babystep_buf, PSTR("M290 Z%.3f"), ZOffset_distance);
           z_offset_add = z_offset_add + ZOffset_distance;
           break;
 
@@ -2106,16 +2087,14 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       case 0:
         #if HOTENDS >= 1
           if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[0].target == 0) ||
-                (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T0\nG91\nG1 E%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T0\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
@@ -2124,31 +2103,27 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       case 1:
         #if HOTENDS >= 2
           if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[1].target == 0) ||
-                (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T1\nG91\nG1 E%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T1\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
         #if ENABLED(SINGLENOZZLE)
           if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[0].target == 0) ||
-                (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T0\nG91\nG1 E%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T0\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
@@ -2163,21 +2138,18 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
     DEBUG_ECHOLNPGM("UnLoad Filament");
     char buf[40];
     uint16_t val_t = swap16(*(uint16_t*)val_ptr);
-
     switch (val_t) {
       case 0:
         #if HOTENDS >= 1
           if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[0].target == 0) ||
-                (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T0\nG91\nG1 E-%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T0\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
@@ -2185,38 +2157,35 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       case 1:
         #if HOTENDS >= 2
           if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[1].target == 0) ||
-                (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T1\nG91\nG1 E-%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T1\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
 
         #if ENABLED(SINGLENOZZLE)
           if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-            if ((thermalManager.temp_hotend[0].target == 0) ||
-                (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
-                )
+            if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
               thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
-            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait nozzle"), PSTR("heat!"), true, true, true, true);
+            ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
             ScreenHandler.SetupConfirmAction(nullptr);
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf(buf, "T1\nG91\nG1 E-%d F%d\nG90", (int)distanceFilament, FilamentSpeed * 60);
+            sprintf_P(buf, PSTR("T1\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
             gcode.process_subcommands_now_P(buf);
           }
         #endif
         break;
     }
   }
+
 #endif // DGUS_LCD_UI_MKS
 
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
