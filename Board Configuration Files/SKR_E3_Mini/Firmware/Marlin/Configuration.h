@@ -13,7 +13,7 @@
 
 // THE BOARD THIS FIRMWARE IS FOR IS A 3RD PARTY/AFTERMARKET/UPGRADE BOARD NOT STANDARD ON THESE MACHINES.
 // THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS. 
-// CONTACT BIGTREETECH SUPPORT IF YOU REQUIRE SUPPORT ON THEIR PRODUCT OR YOU CAN POST IN OUR FORUM.
+// CONTACT BIGTREETECH SUPPORT IF YOU REQUIRE SUPPORT ON THEIR PRODUCT OR YOU CAN POST IN OUR COMMUNITIES.
 // YOU MUST UNCOMMENT THE PRINTER LINE AND YOUR BOARD VERSION LINE TO COMPILE.
 
 //===========================================================================
@@ -250,6 +250,8 @@
 // ARC Support Override ----------------------------
 // Arc support is enabled by default on all builds but this takes up extra space. If you get compile errors due to the size being too large when enabling other options, then disable ARC_SUPPORT
 // by uncommenting the DISABLE_ARC_SUPPORT line below.
+// Disabling ARC_SUPPORT will restore additional menus to the LCD on this board.
+// Because of the low end, limited memory chip BTT uses you cannot have both enabled at the same time.
 //#define DISABLE_ARC_SUPPORT
 
 //===========================================================================
@@ -264,6 +266,14 @@
 /**
  * Machine Configuration Settings
  */
+
+/**
+ * BTT SKR E3 Mini Sanity Checks
+ */
+
+#if DISABLED(DISABLE_ARC_SUPPORT)
+  #define SPACE_SAVER //with ARC_SUPPORT enabled we need to slim down menus to save space.
+#endif
  
  //Ender 3/5 SKR E3 Mini Board Settings
 #if ENABLED(ENDER3_SKR_E3_MINI) || ENABLED(ENDER5_SKR_E3_MINI)
