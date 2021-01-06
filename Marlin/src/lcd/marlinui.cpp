@@ -1577,46 +1577,21 @@ void MarlinUI::update() {
 
 #if ENABLED(DGUS_LCD_UI_MKS)
 
-  uint16_t r_z = 0;
-  uint16_t r_x = 0;
-  uint16_t r_y = 0;
+  xyz_pos_t position_at_pause;
 
-  void MarlinUI::pause_print_move()
-  {
-    char buf[40];
-
-    uint16_t park_point_x = X_MIN_POS + x_park_pos;
-    uint16_t park_point_y = Y_MIN_POS + y_park_pos;
-    uint16_t park_point_z = z_park_pos;
-
-    // queue.length = 0;
-    // set_status_P(print_paused);
-    while(queue.length) queue.advance();
-
+  void MarlinUI::pause_print_move() {
     planner.synchronize();
-    // gcode.process_subcommands_now_P(PSTR("M25"));
-    r_z = current_position.z;
-    r_x = current_position.x;
-    r_y = current_position.y;
 
-    sprintf(buf,"G91\nG1 Z%d\nG90\n",park_point_z);
-    gcode.process_subcommands_now_P(buf);
+    //gcode.process_subcommands_now_P(PSTR("M25"));
 
-    sprintf(buf,"G1 X%d\nG1 Y%d\n",park_point_x,park_point_y);
-    gcode.process_subcommands_now_P(buf);
+    position_at_pause = current_position;
+
+    xyz_pos_t park_point = { X_MIN_POS + x_park_pos, Y_MIN_POS + y_park_pos, current_position.z + z_park_pos };
+    do_blocking_move_to(current_position.z + z_park_pos, park_point_x, park_point_y);
   }
 
-  void MarlinUI::resume_print_move()
-  {
-    char buf[40];
-    sprintf(buf,"G1 X%d\nG90",r_x);
-    gcode.process_subcommands_now_P(buf);
-    sprintf(buf,"G1 Y%d\nG90",r_y);
-    gcode.process_subcommands_now_P(buf);
-    // sprintf(buf,"G91\nG1 Z-%d\nG90\n",park_point_z);
-    sprintf(buf,"G1 Z%d\nG90",r_z);
-    gcode.process_subcommands_now_P(buf);
-  }
+  void MarlinUI::resume_print_move() { do_blocking_move_to(position_at_pause); }
+
 #endif
 
   #if HAS_PRINT_PROGRESS
