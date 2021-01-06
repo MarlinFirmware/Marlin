@@ -1045,11 +1045,6 @@
   #define INVERT_E_DIR false
 #endif
 
-// Fallback SPI Speed
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
-#endif
-
 /**
  * This setting is also used by M109 when trying to calculate
  * a ballpark safe margin to prevent wait-forever situation.

@@ -19,8 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 #include "../module/probe.h"
 
 #if !WITHIN(TRAMMING_SCREW_THREAD, 30, 51) || TRAMMING_SCREW_THREAD % 10 > 1
@@ -62,3 +63,9 @@ static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_N
 #undef _NR_TRAM_NAMES
 
 extern PGM_P const tramming_point_name[];
+
+#ifdef ASSISTED_TRAMMING_WAIT_POSITION
+  void move_to_tramming_wait_pos();
+#else
+  inline void move_to_tramming_wait_pos() {}
+#endif
