@@ -355,7 +355,7 @@ void StopConfirmScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue)
                 break;
 
                 case 3:
-                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
+                    ScreenHandler.GotoScreen(ExtUI::isPrintingPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
                 break;
             }
         break;
