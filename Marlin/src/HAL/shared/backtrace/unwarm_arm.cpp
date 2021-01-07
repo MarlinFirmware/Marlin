@@ -43,10 +43,9 @@ static bool isDataProc(uint32_t instr) {
 }
 
 UnwResult UnwStartArm(UnwState * const state) {
-  bool found = false;
   uint16_t   t = UNW_MAX_INSTR_COUNT;
 
-  do {
+  for (;;) {
     uint32_t instr;
 
     /* Attempt to read the instruction */
@@ -527,7 +526,7 @@ UnwResult UnwStartArm(UnwState * const state) {
 
     if (--t == 0) return UNWIND_EXHAUSTED;
 
-  } while (!found);
+  }
 
   return UNWIND_UNSUPPORTED;
 }
