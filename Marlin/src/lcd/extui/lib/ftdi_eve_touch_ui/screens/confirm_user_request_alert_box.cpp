@@ -47,7 +47,7 @@ bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
 void ConfirmUserRequestAlertBox::show(const char* msg) {
   drawMessage(msg);
   storeBackground();
-  screen_data.AlertDialogBox.isError = false;
+  screen_data.AlertDialog.isError = false;
   GOTO_SCREEN(ConfirmUserRequestAlertBox);
 }
 
@@ -55,4 +55,5 @@ void ConfirmUserRequestAlertBox::hide() {
   if (AT_SCREEN(ConfirmUserRequestAlertBox))
     GOTO_PREVIOUS();
 }
+
 #endif // TOUCH_UI_FTDI_EVE

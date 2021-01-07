@@ -116,8 +116,8 @@ void BaseNumericAdjustmentScreen::widgets_t::_button(CommandProcessor &cmd, uint
 
 BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::precision(uint8_t decimals, precision_default_t initial) {
   _decimals = decimals;
-  if (screen_data.BaseNumericAdjustmentScreen.increment == 0) {
-    screen_data.BaseNumericAdjustmentScreen.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
+  if (screen_data.BaseNumericAdjustment.increment == 0) {
+    screen_data.BaseNumericAdjustment.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
   }
   return *this;
 }
@@ -154,7 +154,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
 void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(CommandProcessor &cmd, uint8_t, const uint8_t tag) {
   const char        *label = PSTR("?");
   uint8_t            pos;
-  uint8_t &          increment = screen_data.BaseNumericAdjustmentScreen.increment;
+  uint8_t &          increment = screen_data.BaseNumericAdjustment.increment;
 
   if (increment == 0) {
     increment = tag; // Set the default value to be the first.
@@ -358,7 +358,7 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
 }
 
 void BaseNumericAdjustmentScreen::onEntry() {
-  screen_data.BaseNumericAdjustmentScreen.increment = 0; // This will force the increment to be picked while drawing.
+  screen_data.BaseNumericAdjustment.increment = 0; // This will force the increment to be picked while drawing.
   BaseScreen::onEntry();
   CommandProcessor cmd;
   cmd.set_button_style_callback(nullptr);
@@ -367,14 +367,14 @@ void BaseNumericAdjustmentScreen::onEntry() {
 bool BaseNumericAdjustmentScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:           GOTO_PREVIOUS(); return true;
-    case 240 ... 245: screen_data.BaseNumericAdjustmentScreen.increment = tag; break;
+    case 240 ... 245: screen_data.BaseNumericAdjustment.increment = tag; break;
     default:          return current_screen.onTouchHeld(tag);
   }
   return true;
 }
 
 float BaseNumericAdjustmentScreen::getIncrement() {
-  switch (screen_data.BaseNumericAdjustmentScreen.increment) {
+  switch (screen_data.BaseNumericAdjustment.increment) {
     case 240: return   0.001;
     case 241: return   0.01;
     case 242: return   0.1;
