@@ -193,6 +193,19 @@
 //#define PETSFANG                 //This is the RIGHT mounted version
 //#define CUSTOM_PROBE             //For any other probe mount (also used for BL Touch), Enter offsets below
 
+// PID Settings -------------------------------------------------------------
+// If you want to put your PID settings in at the firmware level uncomment the 3 lines for each PID value setting
+
+// Hotend PID
+//#define DEFAULT_Kp 22.2
+//#define DEFAULT_Ki 1.08
+//#define DEFAULT_Kd 114
+
+// Bed PID - To use PID on enable ENABLE_PIDBED below
+//#define DEFAULT_bedKp 10.00
+//#define DEFAULT_bedKi .023
+//#define DEFAULT_bedKd 305.4
+
 // LCD Knob Direction -------------------------------------------------------
 // Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
 // If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
