@@ -341,7 +341,7 @@ void PrintJobRecovery::resume() {
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
-  
+
   #if HAS_HEATED_BED
     const int16_t bt = info.target_temperature_bed;
     if (bt) {
@@ -379,14 +379,8 @@ void PrintJobRecovery::resume() {
 
     // Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
     // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-
     sprintf_P(cmd, PSTR("G92.9 E0 "
-        #if ENABLED(BACKUP_POWER_SUPPLY)
-          "Z%s"                             // Z was already raised at outage
-        #else
-          "Z0\nG1Z%s"                       // Set Z=0 and Raise Z now
-        #endif
-      ),
+      TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), // Set Z if already raised, or do a raise now
       dtostrf(info.zraise, 1, 3, str_1)
     );
     gcode.process_subcommands_now(cmd);
