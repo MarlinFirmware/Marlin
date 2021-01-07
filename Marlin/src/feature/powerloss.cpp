@@ -377,14 +377,11 @@ void PrintJobRecovery::resume() {
 
   #else // "G92.9 E0 ..."
 
-    // Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
-    // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-    sprintf_P(cmd, PSTR("G92.9 E0 "
-      TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), // Set Z if already raised, or do a raise now
-      dtostrf(info.zraise, 1, 3, str_1)
-    );
+    // If a Z raise occurred at outage restore Z, otherwise raise Z now
+    sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
+    // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
       #if IS_CARTESIAN && DISABLED(POWER_LOSS_RECOVER_ZHOME)
