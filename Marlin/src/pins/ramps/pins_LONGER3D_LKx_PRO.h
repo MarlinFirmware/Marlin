@@ -87,9 +87,21 @@
 #define Z_MIN_PROBE_PIN                       -1
 
 //
+// SD Support
+//
+#if SD_CONNECTION_IS(LCD)
+  #error "SD LCD is not compatible with LONGER3D_LKx_PRO"
+#elif SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN                       -1
+#elif SD_CONNECTION_IS(LCD)
+  #error "SD CUSTOM_CABLE is not compatible with LONGER3D_LKx_PRO"
+#else
+  #define SD_DETECT_PIN                       49
+#endif
+
+//
 // Misc. Functions
 //
-#define SD_DETECT_PIN                         49
 #define FIL_RUNOUT_PIN                         2
 
 //
