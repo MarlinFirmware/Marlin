@@ -518,10 +518,10 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
 
-        // Individual axes will be disabled if configured
-        if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
-        if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
-        if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
+        // Individual axes will be disabled and considered to be homed if configured
+        if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X() set_axis_never_homed(X_AXIS);
+        if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y() set_axis_never_homed(X_AXIS);
+        if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z() set_axis_never_homed(X_AXIS);
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
