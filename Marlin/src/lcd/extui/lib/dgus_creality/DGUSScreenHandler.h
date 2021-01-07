@@ -317,6 +317,7 @@ public:
   static bool HandlePendingUserConfirmation();
 
   static float feed_amount;
+  static bool fwretract_available;
 
 private:
   static DGUSLCD_Screens current_screen;  ///< currently on screen

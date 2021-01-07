@@ -293,6 +293,7 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   VP_LED_TOGGLE,
   VP_FAN_TOGGLE,
   VP_Fan0_Percentage,
+  VP_FWRETRACT_NAV_BUTTON_ICON,
 
   0x0000
 };
@@ -592,6 +593,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_TOGGLE_ON, ICON_FWRETRACT_AUTO_TOGGLE_OFF>)),
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON, &fwretract.autoretract_enabled, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
 #endif
+
+  // ... Sending after init does not always work
+  VPHELPER(VP_FWRETRACT_NAV_BUTTON_ICON, &ScreenHandler.fwretract_available, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_NAV_AVAILABLE, ICON_FWRETRACT_NAV_UNAVAILABLE>)),
 
   // Additional buttons
   VPHELPER(VP_MUTE_TOGGLE, nullptr, ScreenHandler.HandleToggleTouchScreenMute, nullptr),

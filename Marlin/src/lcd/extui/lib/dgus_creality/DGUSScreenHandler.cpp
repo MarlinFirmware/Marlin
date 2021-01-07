@@ -65,6 +65,7 @@ bool DGUSScreenHandler::ScreenComplete;
 bool DGUSScreenHandler::SaveSettingsRequested;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
+bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
 
 // Hardcoded limits
 constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = GRID_MAX_POINTS > (4*4) ? 30 : 1;
@@ -96,12 +97,9 @@ void DGUSScreenHandler::sendinfoscreen(const char* line1, const char* line2, con
   //}
 }
 
+
 void DGUSScreenHandler::Init() {
   dgusdisplay.InitDisplay();
-
-  // Show firmware retract button, if available
-  dgusdisplay.WriteVariable(VP_FWRETRACT_NAV_BUTTON_ICON, TERN(FWRETRACT, ICON_FWRETRACT_NAV_AVAILABLE, ICON_FWRETRACT_NAV_UN
-  AVAILABLE));
 }
 
 void DGUSScreenHandler::RequestSaveSettings() {
