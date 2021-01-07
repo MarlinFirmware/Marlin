@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../feature/repeat.h"
+#endif
+
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -50,6 +54,8 @@ typedef struct {
   uint16_t feedrate;
   float zraise;
 
+  // Repeat information
+  TERN_(GCODE_REPEAT_MARKERS, Repeat stored_repeat);
 
   TERN_(HAS_HOME_OFFSET,    xyz_pos_t home_offset);
   TERN_(HAS_POSITION_SHIFT, xyz_pos_t position_shift);
@@ -146,7 +152,7 @@ class PrintJobRecovery {
     static void resume();
     static void purge();
 
-    static inline void cancel() { purge(); card.autostart_index = 0; }
+    static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);

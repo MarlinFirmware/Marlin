@@ -220,7 +220,7 @@ void _lcd_draw_homing();
 #endif
 
 #if ENABLED(PROBE_OFFSET_WIZARD)
-  void home_and_goto_probe_offset_wizard();
+  void goto_probe_offset_wizard();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
@@ -252,3 +252,5 @@ void _lcd_draw_homing();
 
 extern uint8_t screen_history_depth;
 inline void clear_menu_history() { screen_history_depth = 0; }
+
+#define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }

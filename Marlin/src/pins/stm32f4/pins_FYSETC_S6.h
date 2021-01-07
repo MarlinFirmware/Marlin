@@ -42,7 +42,6 @@
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
 
@@ -51,7 +50,7 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x0800  // 2KB
 #endif
 
 //
@@ -181,9 +180,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions
@@ -274,7 +273,7 @@
       #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
     #endif
     #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
     #endif
   #endif
 

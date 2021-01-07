@@ -41,6 +41,10 @@ struct mesh_index_pair;
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
+#if ENABLED(OPTIMIZED_MESH_STORAGE)
+  typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+#endif
+
 class unified_bed_leveling {
   private:
 
@@ -106,6 +110,10 @@ class unified_bed_leveling {
     static int8_t storage_slot;
 
     static bed_mesh_t z_values;
+    #if ENABLED(OPTIMIZED_MESH_STORAGE)
+      static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
+      static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
+    #endif
     static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
                        _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
 
@@ -122,20 +130,29 @@ class unified_bed_leveling {
 
     FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
+    static int8_t cell_index_x_raw(const float &x) {
+      return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST));
+    }
+
+    static int8_t cell_index_y_raw(const float &y) {
+      return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
+    }
+
+    static int8_t cell_index_x_valid(const float &x) {
+      return WITHIN(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X - 2));
+    }
+
+    static int8_t cell_index_y_valid(const float &y) {
+      return WITHIN(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y - 2));
+    }
+
     static int8_t cell_index_x(const float &x) {
-      const int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
-      return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
-    }                                                     // position. But with this defined this way, it is possible
-                                                          // to extrapolate off of this point even further out. Probably
-                                                          // that is OK because something else should be keeping that from
-                                                          // happening and should not be worried about at this level.
+      return constrain(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X) - 2);
+    }
+
     static int8_t cell_index_y(const float &y) {
-      const int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
-      return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
-    }                                                     // position. But with this defined this way, it is possible
-                                                          // to extrapolate off of this point even further out. Probably
-                                                          // that is OK because something else should be keeping that from
-                                                          // happening and should not be worried about at this level.
+      return constrain(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y) - 2);
+    }
 
     static inline xy_int8_t cell_indexes(const float &x, const float &y) {
       return { cell_index_x(x), cell_index_y(y) };
@@ -173,6 +190,12 @@ class unified_bed_leveling {
       return z1 + (z2 - z1) * (a0 - a1) / (a2 - a1);
     }
 
+    #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+      #define _UBL_OUTER_Z_RAISE UBL_Z_RAISE_WHEN_OFF_MESH
+    #else
+      #define _UBL_OUTER_Z_RAISE NAN
+    #endif
+
     /**
      * z_correction_for_x_on_horizontal_mesh_line is an optimization for
      * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
@@ -186,13 +209,7 @@ class unified_bed_leveling {
         }
 
         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
-        return (
-          #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-            UBL_Z_RAISE_WHEN_OFF_MESH
-          #else
-            NAN
-          #endif
-        );
+        return _UBL_OUTER_Z_RAISE;
       }
 
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * RECIPROCAL(MESH_X_DIST),
@@ -215,13 +232,7 @@ class unified_bed_leveling {
         }
 
         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
-        return (
-          #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-            UBL_Z_RAISE_WHEN_OFF_MESH
-          #else
-            NAN
-          #endif
-        );
+        return _UBL_OUTER_Z_RAISE;
       }
 
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * RECIPROCAL(MESH_Y_DIST),

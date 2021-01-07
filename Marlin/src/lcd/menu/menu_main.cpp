@@ -58,6 +58,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../../feature/repeat.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
@@ -120,6 +124,11 @@ void menu_main() {
       });
     #endif
 
+    #if ENABLED(GCODE_REPEAT_MARKERS)
+      if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
+    #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
 
     #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
@@ -136,7 +145,7 @@ void menu_main() {
       // Run Auto Files
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
       #endif
 
       if (card_detected) {
@@ -170,7 +179,7 @@ void menu_main() {
   }
 
   #if HAS_CUTTER
-    SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
+    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
   #endif
 
   #if HAS_TEMPERATURE
@@ -238,7 +247,7 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
       #endif
 
       if (card_detected) {
