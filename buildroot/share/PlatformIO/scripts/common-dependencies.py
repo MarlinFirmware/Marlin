@@ -75,7 +75,7 @@ def add_to_feat_cnf(feature, flines):
 		parts = dep.split('=')
 		name = parts.pop(0)
 		rest = '='.join(parts)
-		if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
+		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
 			feat[name] = rest
 		else:
 			feat['lib_deps'] += [dep]
@@ -132,8 +132,7 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption('lib_ignore') + diff
-	if verbose:
-		print("Ignore libraries:", lib_ignore)
+	blab(f'Ignore libraries: {lib_ignore}')
 	set_env_field('lib_ignore', lib_ignore)
 
 def apply_features_config():
@@ -145,7 +144,7 @@ def apply_features_config():
 		feat = FEATURE_CONFIG[feature]
 
 		if 'lib_deps' in feat and len(feat['lib_deps']):
-			blab("Adding lib_deps for %s... " % feature)
+			blab(f'Adding lib_deps for {feature}...')
 
 			# feat to add
 			deps_to_add = {}
@@ -172,12 +171,18 @@ def apply_features_config():
 				# Only add the missing dependencies
 				set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
+		if 'build_flags' in feat:
+			f = feat['build_flags']
+			blab(f'Adding build_flags for {feature}: {f}')
+			new_flags = env.GetProjectOption('build_flags') + [ f ]
+			env.Replace(BUILD_FLAGS=new_flags)
+
 		if 'extra_scripts' in feat:
-			blab("Running extra_scripts for %s... " % feature)
+			blab(f'Running extra_scripts for {feature}...')
 			env.SConscript(feat['extra_scripts'], exports="env")
 
 		if 'src_filter' in feat:
-			blab("Adding src_filter for %s... " % feature)
+			blab(f'Adding src_filter for {feature}...')
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
@@ -191,7 +196,7 @@ def apply_features_config():
 			env.Replace(SRC_FILTER=src_filter)
 
 		if 'lib_ignore' in feat:
-			blab("Adding lib_ignore for %s... " % feature)
+			blab(f'Adding lib_ignore for {feature}...')
 			lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
 			set_env_field('lib_ignore', lib_ignore)
 
@@ -243,7 +248,7 @@ def search_compiler():
 			return filepath
 
 	filepath = env.get('CXX')
-	blab("Couldn't find a compiler! Fallback to %s" % filepath)
+	blab(f"Couldn't find a compiler! Fallback to {filepath}")
 	return filepath
 
 #

@@ -106,10 +106,10 @@
 #else
 
   #define HEATER_BED_PIN                      14  // (bed)
-  #define X_ENABLE_PIN                        -1
-  #define Y_ENABLE_PIN                        -1
-  #define Z_ENABLE_PIN                        -1
-  #define E0_ENABLE_PIN                       -1
+  #define X_ENABLE_PIN                         4
+  #define Y_ENABLE_PIN                         4
+  #define Z_ENABLE_PIN                         4
+  #define E0_ENABLE_PIN                        4
 
 #endif
 
