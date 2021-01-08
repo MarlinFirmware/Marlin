@@ -125,8 +125,8 @@
   #include "../libs/buzzer.h"
 #endif
 
-#if HAS_TOOL_TYPES
-  #include "../feature/tool_types.h"
+#if HAS_TOOLS
+  #include "../feature/tool.h"
 #endif
 
 #if HAS_SERVOS
@@ -409,12 +409,10 @@ volatile bool Temperature::raw_temps_ready = false;
    * temperature to succeed.
    */
   void Temperature::PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
-    #if HAS_TOOL_TYPES
-      if (tool_type != TOOL_TYPE_EXTRUDER) {
-        SERIAL_ERROR_MSG(MSG_ERR_WRONG_TOOL);
-        return;
-      }
-    #endif
+
+    // The extruder must be the current tool
+    if (!TERN1(HAS_TOOLS, tool.is_selected(TOOL_TYPE_EXTRUDER)))
+      return;
 
     float current_temp = 0.0;
     int cycles = 0;

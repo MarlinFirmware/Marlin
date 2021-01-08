@@ -21,16 +21,22 @@
  */
 
 /**
- * feature/tool_types.h
+ * feature/tool.h
  */
 
 enum ToolType : char {
+  TOOL_TYPE_NONE = 0,
   TOOL_TYPE_EXTRUDER, // M450 S0 or M451
   TOOL_TYPE_LASER,    // M450 S1 or M452
-  TOOL_TYPE_CNC_MILL, // M450 S2 or M453
-  TOOL_TYPE_NONE = -1
+  TOOL_TYPE_SPINDLE   // M450 S2 or M453
 };
 
-extern ToolType tool_type;
+class MarlinTool {
+public:
+  static ToolType type;
+  static void report();
+  static void select(const ToolType intype);
+  static bool is_selected(const ToolType intype, const noerr=false);
+};
 
-void set_tool_type(const ToolType type);
+extern MarlinTool tool;

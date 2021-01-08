@@ -727,10 +727,6 @@ class Temperature {
      */
     static void disable_all_heaters();
 
-    #if HAS_TOOL_TYPES
-      static inline void tool_changed() { disable_all_heaters(); } // Also cuts off laser/spindle power
-    #endif
-
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Methods to check if heaters are enabled, indicating an active job

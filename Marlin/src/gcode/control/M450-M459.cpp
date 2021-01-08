@@ -22,17 +22,17 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_TOOL_TYPES
+#if HAS_TOOLS
 
-#include "../../feature/tool_types.h"
+#include "../../feature/tool.h"
 #include "../gcode.h"
 
 static void set_printer_mode(const ToolType new_tool) {
 
   if (new_tool != TOOL_TYPE_NONE && new_tool < TOOL_TYPE_COUNT)
-    set_tool_type(new_tool);
+    tool.select(new_tool);
 
-  report_tool_type();
+  tool.report();
 }
 
 /**
@@ -45,18 +45,18 @@ inline void GcodeSuite::M450() {
 }
 
 /**
- * M451: Select FFF printer mode
+ * M451: Select the FFF extruder tool
  */
 inline void GcodeSuite::M451() { set_printer_mode(TOOL_TYPE_EXTRUDER); }
 
 /**
- * M452: Select Laser printer mode
+ * M452: Select the Laser tool
  */
 inline void GcodeSuite::M452() { set_printer_mode(TOOL_TYPE_LASER); }
 
 /**
- * M453: Select CNC printer mode
+ * M453: Select the Spindle tool
  */
-inline void GcodeSuite::M453() { set_printer_mode(TOOL_TYPE_CNC_MILL); }
+inline void GcodeSuite::M453() { set_printer_mode(TOOL_TYPE_SPINDLE); }
 
-#endif // HAS_TOOL_TYPES
+#endif // HAS_TOOLS
