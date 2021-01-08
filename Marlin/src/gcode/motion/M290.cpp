@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../feature/babystep.h"
 #include "../../module/probe.h"
-#include "../../module/temperature.h"
 #include "../../module/planner.h"
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

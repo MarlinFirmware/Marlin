@@ -33,7 +33,6 @@
 #include "../../../../gcode/gcode.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
-#include "../../../../module/temperature.h"
 #include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
