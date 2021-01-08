@@ -47,12 +47,11 @@ void noTone(const pin_t _pin) {
 }
 
 HAL_TONE_TIMER_ISR() {
-  static uint8_t pin_state = 0;
   HAL_timer_isr_prologue(TONE_TIMER_NUM);
 
   if (toggles) {
     toggles--;
-    WRITE(tone_pin, (pin_state ^= 1));
+    TOGGLE(tone_pin);
   }
   else noTone(tone_pin);                         // turn off interrupt
 }
