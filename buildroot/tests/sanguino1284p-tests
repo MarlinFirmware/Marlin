@@ -21,7 +21,7 @@ exec_test $1 $2 "Default Configuration | MINIPANAL | CONTROLLER_FAN" "$3"
 # Build with the default configurations
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_BOARD_MELZI
+opt_set MOTHERBOARD BOARD_MELZI
 opt_enable ZONESTAR_LCD
 exec_test $1 $2 "Default Configuration | ZONESTAR_LCD " "$3"
 
