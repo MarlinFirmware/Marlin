@@ -48,7 +48,6 @@ typedef uint64_t hal_timer_t;
   #define TONE_TIMER_NUM        3  // index of timer for beeper tones
 #endif
 
-
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
 
 #if ENABLED(I2S_STEPPER_STREAM)
