@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.16a"
+#define UNIFIED_VERSION "TH3D UFW 2.16b"
 
 /**
  * TH3D Sanity Checks
