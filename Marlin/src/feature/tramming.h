@@ -32,7 +32,7 @@ constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;
 
 #define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
 static_assert(G35_PROBE_COUNT >= 3, "TRAMMING_POINT_XY requires at least 3 XY positions.");
-static_assert(G35_PROBE_COUNT > 6, "TRAMMING_POINT_XY can only handle 6 XY positions max.");
+static_assert(G35_PROBE_COUNT <= 6, "TRAMMING_POINT_XY can only handle 6 XY positions max.");
 
 #define VALIDATE_TRAMMING_POINT(N) static_assert(N >= G35_PROBE_COUNT || Probe::build_time::can_reach(screws_tilt_adjust_pos[N]), \
   "TRAMMING_POINT_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
