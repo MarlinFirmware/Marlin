@@ -45,14 +45,20 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME "Rambo"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Rambo"
+#endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                            22  // Motor header MX1
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                          22  // Motor header MX1
+#endif
 #define SERVO1_PIN                            23  // Motor header MX2
-#define SERVO2_PIN                            24  // Motor header MX3
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN                          24  // Motor header MX3
+#endif
 #define SERVO3_PIN                             5  // PWM header pin 5
 
 //
@@ -220,8 +226,12 @@
       #define BEEPER_PIN                      79  // AUX-4
 
       // AUX-2
-      #define BTN_EN1                         76
-      #define BTN_EN2                         77
+      #ifndef BTN_EN1
+        #define BTN_EN1                       76
+      #endif
+      #ifndef BTN_EN2
+        #define BTN_EN2                       77
+      #endif
       #define BTN_ENC                         78
 
       #define SD_DETECT_PIN                   81
