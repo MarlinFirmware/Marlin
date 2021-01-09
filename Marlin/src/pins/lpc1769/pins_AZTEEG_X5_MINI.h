@@ -162,8 +162,8 @@
 
       #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
       #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
-      #define DOGLCD_SCK                 SCK_PIN
-      #define DOGLCD_MOSI               MOSI_PIN
+      #define DOGLCD_SCK              SD_SCK_PIN
+      #define DOGLCD_MOSI            SD_MOSI_PIN
 
       #define STAT_LED_BLUE_PIN            P0_26  // (63)  may change if cable changes
       #define STAT_LED_RED_PIN             P1_21  // ( 6)  may change if cable changes
@@ -204,16 +204,16 @@
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
-  #define SS_PIN                           P1_23
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                        P1_23
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif

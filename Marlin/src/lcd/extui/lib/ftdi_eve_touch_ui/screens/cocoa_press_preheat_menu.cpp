@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_COCOA_PRESS)
+#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
 
