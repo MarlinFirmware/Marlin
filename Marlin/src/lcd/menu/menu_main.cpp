@@ -97,6 +97,10 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
+#if HAS_MULTI_LANGUAGE
+  void menu_language();
+#endif
+
 extern const char M21_STR[];
 
 void menu_main() {
@@ -323,6 +327,10 @@ void menu_main() {
         #endif
       );
     }
+  #endif
+
+  #if HAS_MULTI_LANGUAGE
+    SUBMENU(LANGUAGE, menu_language);
   #endif
 
   END_MENU();

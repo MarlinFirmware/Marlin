@@ -178,6 +178,17 @@ public:
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
+  #if HAS_MULTI_LANGUAGE
+    static uint8_t language;
+    static inline void set_language(const uint8_t lang) {
+      if (lang < NUM_LANGUAGES) {
+        language = lang;
+        return_to_status();
+        refresh();
+      }
+    }
+  #endif
+
   #if ENABLED(SOUND_MENU_ITEM)
     static bool buzzer_enabled; // Initialized by settings.load()
   #else
