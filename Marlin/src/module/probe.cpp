@@ -240,7 +240,13 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
   void Probe::set_probing_paused(const bool p) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause(p));
+    TERN_(PROBING_HEATERS_OFF, thermalManager.manage_heater());
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(p));
+
+    if (TERN1(PROBE_TARE, false)) {
+      tare();
+    }
+  
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
