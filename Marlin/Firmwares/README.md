@@ -34,6 +34,7 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 
 * [PID_EDIT_MENU]
 * [DELTA_CALIBRATION_MENU]
+* [MULTI_BUILD_MESH]
 * [POWER_LOSS_RECOVERY]
 * [FILAMENT_RUNOUT_SENSOR]
 * [AUTO_BED_LEVELING_UBL]
@@ -41,6 +42,7 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 * [PAUSE_BEFORE_DEPLOY_STOW]
 * [LIN_ADVANCE]
 * [ARC_SUPPORT]
+* [BINARY_FILE_TRANSFER]
 * [UART_MODE_for_TMC/RPI/ESP]
 
 **Hardware for the QQS-Pro printers.**
@@ -117,10 +119,11 @@ Caption:
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
   ### /*------Modules--------*/
+  - (N) NeoPixel
   - (W) Module ESP8266/ESP12
   - (T) Extruder Titan
   - (B) Extruder BMG
-  - (N) NeoPixel
+  - (b) Extruder BMG mini
   ### /*-------Options UI TFT--------*/
   - (F) UI STANDARD 
   - (C) UI MARLIN 
@@ -128,7 +131,10 @@ Caption:
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
   - (R) ARC_SUPPORT
-  - (L) Linear Advance (Possible Bug with BabyStep and TMC)
+  - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
+  ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/
+  - Q5_8+SCWTULR-Robin_nano35   Q5 Stock(3xTMC2208+1xA4988). 
+  - Q5_9CWTULR-Robin_nano35     Q5 with 4xTMC2209.
 
   ## HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer using the menu or M502,
