@@ -53,52 +53,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_M_X_P:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_one_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 X%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_one_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 X%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_X_N:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 X-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 X-%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_Y_P:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Y%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 Y%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_Y_N:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Y-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 Y-%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_Z_P:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Z%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 Z%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_Z_N:
-      if (queue.length <= (BUFSIZE - 3)) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Z-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
-      }
+      sprintf_P(public_buf_l, PSTR("G91\nG1 Z-%3.1f F%d\nG90"), uiCfg.move_dist, uiCfg.moveSpeed);
       break;
     case ID_M_STEP:
       if (abs(10 * (int)uiCfg.move_dist) == 100)
@@ -111,6 +81,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       clear_cur_ui();
       draw_return_ui();
       break;
+  }
+  switch (obj->mks_obj_id) {
+    case ID_M_X_P: case ID_M_X_N:
+    case ID_M_Y_P: case ID_M_Y_N:
+    case ID_M_Z_P: case ID_M_Z_N: queue.inject(public_buf_l); break;
   }
 }
 
