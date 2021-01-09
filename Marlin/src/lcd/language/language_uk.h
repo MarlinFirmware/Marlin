@@ -149,7 +149,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Власні команди");
 
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест ghj,b");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест проби");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 точка");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Проба за межами");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Відхилення");
