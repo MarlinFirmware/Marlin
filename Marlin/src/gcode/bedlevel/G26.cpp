@@ -229,7 +229,9 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
     destination = current_position;
   }
 
-  // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
+  // If X or Y in combination with E is involved do a 'normal' move. 
+  // If X or Y with no E is involved do a 'fast' move
+  // Otherwise retract/recover/hop.
   destination = dest;
   destination.e += e_delta;
   const feedRate_t feed_value = 
