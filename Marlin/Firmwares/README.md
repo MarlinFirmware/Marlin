@@ -15,17 +15,20 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201223
-  - News directory by Boards (HISPEED, NANO, SKR)
+ Update Marlin-BugFix 20210109
   - Last fix by Marlin,
-  - Fix Feedback Users(Fan, CalDelta, Accel,...)
-  - **FIX New_Core** size reduction and build optimization,
-  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-  - No fix for "Mesh Edit".
+  - Fix Feedback Users,
+  - 4 Mesh Locations,
+  - Functions disable but enable by menu (Runout, PowerLoss)
+  - **New_Core** size reduction (Small Boot Logo) and build optimization,
+  - Fix PowerLoss,
+  - Fix SDCard corrupted,
+  - Fix for "Mesh Edit".
+  - New firmwares test for Q5(Stock and 2209)
   
   ## Validate:
 
-  - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire
+  - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire.
 
 With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
 
@@ -213,6 +216,15 @@ Enjoy....🙃
  Massive thank you in advance :heart:
 
 # Version history
+## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20201223
+  - News directory by Boards (HISPEED, NANO, SKR)
+  - Last fix by Marlin,
+  - Fix Feedback Users(Fan, CalDelta, Accel,...)
+  - **FIX New_Core** size reduction and build optimization,
+  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - No fix for "Mesh Edit".
+
 ## Marlin 2.0 Bugfix Branch
  Update Marlin-BugFix 20201213 
   - Last fix by Marlin,
