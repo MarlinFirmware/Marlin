@@ -26,6 +26,7 @@ __Not for production use. Use with caution!__
   - Fix SDCard corrupted,
   - Fix for "Mesh Edit",
   - New test firmwares for Q5 (Stock and TMC2209).
+  - Special firmware for supporters and developments.
   
   ## Validate:
 
