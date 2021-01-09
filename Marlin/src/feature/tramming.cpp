@@ -49,7 +49,7 @@ PGM_P const tramming_point_name[] PROGMEM = {
     #ifdef TRAMMING_POINT_NAME_5
       , point_name_5
       #ifdef TRAMMING_POINT_NAME_6
-      , point_name_6
+        , point_name_6
       #endif
     #endif
   #endif
