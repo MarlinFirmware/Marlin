@@ -66,11 +66,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Вимкнути двигуни");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Меню Debug");
-  #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест індикатору прогресу");
-  #else
-    PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест іконки прогресу");
-  #endif
+  PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест іконки прогр.");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Авто паркування");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Паркування X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Паркування Y");
