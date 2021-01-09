@@ -18,13 +18,14 @@ __Not for production use. Use with caution!__
  Update Marlin-BugFix 20210109
   - Last fix by Marlin,
   - Fix Feedback Users,
+  - Reduction of the hysteresis range from 10 to 6,
   - 4 Mesh Locations,
-  - Functions disable but enable by menu (Runout, PowerLoss)
+  - Functions disable but enable by menu (Runout, PowerLoss),
   - **New_Core** size reduction (Small Boot Logo) and build optimization,
   - Fix PowerLoss,
   - Fix SDCard corrupted,
-  - Fix for "Mesh Edit".
-  - New firmwares test for Q5(Stock and 2209)
+  - Fix for "Mesh Edit",
+  - New test firmwares for Q5 (Stock and TMC2209).
   
   ## Validate:
 
