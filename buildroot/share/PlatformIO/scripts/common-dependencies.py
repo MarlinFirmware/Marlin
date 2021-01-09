@@ -132,7 +132,7 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption('lib_ignore') + diff
-	blab(f'Ignore libraries: {lib_ignore}')
+	blab("Ignore libraries: %s" % lib_ignore)
 	set_env_field('lib_ignore', lib_ignore)
 
 def apply_features_config():
@@ -144,7 +144,7 @@ def apply_features_config():
 		feat = FEATURE_CONFIG[feature]
 
 		if 'lib_deps' in feat and len(feat['lib_deps']):
-			blab(f'Adding lib_deps for {feature}...')
+			blab("Adding lib_deps for %s... " % feature)
 
 			# feat to add
 			deps_to_add = {}
@@ -173,16 +173,16 @@ def apply_features_config():
 
 		if 'build_flags' in feat:
 			f = feat['build_flags']
-			blab(f'Adding build_flags for {feature}: {f}')
+			blab("Adding build_flags for %s: %s" % (feature, f))
 			new_flags = env.GetProjectOption('build_flags') + [ f ]
 			env.Replace(BUILD_FLAGS=new_flags)
 
 		if 'extra_scripts' in feat:
-			blab(f'Running extra_scripts for {feature}...')
+			blab("Running extra_scripts for %s... " % feature)
 			env.SConscript(feat['extra_scripts'], exports="env")
 
 		if 'src_filter' in feat:
-			blab(f'Adding src_filter for {feature}...')
+			blab("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
@@ -196,7 +196,7 @@ def apply_features_config():
 			env.Replace(SRC_FILTER=src_filter)
 
 		if 'lib_ignore' in feat:
-			blab(f'Adding lib_ignore for {feature}...')
+			blab("Adding lib_ignore for %s... " % feature)
 			lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
 			set_env_field('lib_ignore', lib_ignore)
 
@@ -208,13 +208,13 @@ GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
 	try:
 		filepath = env.GetProjectOption('custom_gcc')
-		blab('Getting compiler from env')
+		blab("Getting compiler from env")
 		return filepath
 	except:
 		pass
 
 	if os.path.exists(GCC_PATH_CACHE):
-		blab('Getting g++ path from cache')
+		blab("Getting g++ path from cache")
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
@@ -241,14 +241,14 @@ def search_compiler():
 			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
-				blab('Caching g++ for current env')
+				blab("Caching g++ for current env")
 				with open(GCC_PATH_CACHE, 'w+') as f:
 					f.write(filepath)
 
 			return filepath
 
 	filepath = env.get('CXX')
-	blab(f"Couldn't find a compiler! Fallback to {filepath}")
+	blab("Couldn't find a compiler! Fallback to %s" % filepath)
 	return filepath
 
 #
