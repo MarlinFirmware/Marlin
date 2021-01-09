@@ -33,6 +33,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
+extern const char G28_STR[];
+
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
@@ -49,7 +51,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
 
   switch (obj->mks_obj_id) {
-    case ID_M_POINT1 ... ID_M_POINT5:
+    case ID_M_POINT1 ... ID_M_POINT5: {
       if (uiCfg.leveling_first_time) {
         queue.inject_P(G28_STR);
         uiCfg.leveling_first_time = 0;
@@ -57,7 +59,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       const uint8_t n = obj->mks_obj_id - ID_M_POINT1;
       sprintf_P(public_buf_l, PSTR("G1 Z10\nG1 X%d Y%d\nG1 Z0"), (int)gCfgItems.levelingPos[n][0], (int)gCfgItems.levelingPos[n][1]);
       queue.inject(public_buf_l);
-      break;
+    } break;
+
     case ID_MANUAL_RETURN:
       lv_clear_manualLevel();
       lv_draw_tool();
