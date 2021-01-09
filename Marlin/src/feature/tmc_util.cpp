@@ -291,7 +291,7 @@
     bool should_step_down = false;
 
     if (need_update_error_counters) {
-      if (data.is_ot /* | data.s2ga | data.s2gb*/) st.error_count++;
+      if (data.is_ot | data.is_s2g) st.error_count++;
       else if (st.error_count > 0) st.error_count--;
 
       #if ENABLED(STOP_ON_ERROR)
