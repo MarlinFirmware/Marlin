@@ -120,18 +120,19 @@ Caption:
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
+  ### /*-------Options UI TFT--------*/
+  - (F) UI STANDARD (Emulation LCD screen on TFT)
+  - (C) UI MARLIN (TFT Color screen)
   ### /*------Modules--------*/
   - (N) NeoPixel (management of led strips)
   - (W) Module ESP8266/ESP12 (infos at the middle of the page)
   - (T) Extruder Titan
   - (B) Extruder BMG
   - (b) Extruder BMG mini
-  ### /*-------Options UI TFT--------*/
-  - (F) UI STANDARD (Emulation LCD screen on TFT)
-  - (C) UI MARLIN (TFT Color screen)
   ### /*-------Others options in firmware----*/ 
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
+  - (P) PreHeat bed before leveling
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
   ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/

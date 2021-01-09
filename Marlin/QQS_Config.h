@@ -31,7 +31,6 @@
  */
 //#define DRIVER_EXT A4988
 
-
 /*--- Choice UI TFT ----*/
 #define TFT_COLOR_UI               //(C) UI MARLIN (Default)
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
@@ -65,7 +64,7 @@
  */
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
-//#define PREHEAT_BEFORE_LEVELING     // Run a preHeat bed at 50°C
+//#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C
 
 //Many options for Modules: 
 #define LIN_ADVANCE                //(L) For TMC_UART prefer mode spreadCycle(by TFT menu) (Default)         
