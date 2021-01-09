@@ -133,8 +133,8 @@ Caption:
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
   ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/
-  - Q5_8+SCWTULR-Robin_nano35   Q5 Stock(3xTMC2208+1xA4988). 
-  - Q5_9CWTULR-Robin_nano35     Q5 with 4xTMC2209.
+  - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
+  - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
 
   ## HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer using the menu or M502,
