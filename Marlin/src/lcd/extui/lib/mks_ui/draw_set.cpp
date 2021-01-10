@@ -54,7 +54,7 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  lv_clear_set();
+  if (obj->mks_obj_id != ID_S_MOTOR_OFF) lv_clear_set();
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
       lv_draw_fan();
