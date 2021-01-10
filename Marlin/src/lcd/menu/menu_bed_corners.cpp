@@ -98,7 +98,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
         if (( lco[1] == 1 &&  lco[2] == 2 ) || ( lco[1] == 2  &&  lco[2] == 1 )) { current_position.x = lf.x; current_position.y = Y_CENTER;  }; // Left Edge
         if (( lco[2] == 1 &&  lco[3] == 2 ) || ( lco[2] == 2  &&  lco[3] == 1 )) { current_position.x = X_CENTER; current_position.y = lf.y;  }; // Front Edge
         #if DISABLED(LEVEL_CENTER_TOO) && ENABLED(LEVEL_CORNERS_USE_PROBE) 
-          good_points++; //Not performing center of bed probe -> add 1 to count to make this the last probe point.
+          // must increment the counts to ensure it operates through the loop as expected
+          good_points++; 
+          bed_corner++;  
         #endif
       
       #if ENABLED(LEVEL_CENTER_TOO)
@@ -180,6 +182,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       if (ABS(current_position.z - last_z) > LEVEL_CORNERS_PROBE_TOLERANCE) {
         last_z = current_position.z; // Above tolerance. Set a new Z for subsequent corners.
         good_points = 0;             // ...and start over
+        // REQUEST: Notify user this occurred. Maybe display the Z reading / good_points counter on the screen so user has feedback instead of infinite loop
       }
       return true; // probe triggered
     }
