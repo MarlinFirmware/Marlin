@@ -7,7 +7,9 @@
 
 <img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
-You are here because you are looking for the latest BIQU B1 firmware and you will hopefully find what you are looking for! Read below to find out how.
+You are here because you are looking for the latest BIQU B1 firmware and you will hopefully find what you are looking for! 
+
+Before you continue I encourage you to read this gist (https://gist.github.com/looxonline/808a204f4f881462403f2baeefc1f69b) if you are just getting started with your B1 or if you are experiencing issues with ABL/the nozzle hitting prints. If you are already up and running and are just looking for the latest firmware then continue reading below.
 
 ## Current versions of Marlin and TFT
 
@@ -15,7 +17,7 @@ The files in this repository contain the source, configs and compiled firmware f
 
 The firmware within this repo uses modified versions of the standard Marlin config files created by the talented @thisiskeithb.
 
-You will also find the latest compiled versions of the TFT firmware which has been customized for use with the B1.
+You will also find the latest compiled version of the TFT firmware which has been customized for use with the B1.
 
 ## Using this repo.
 
@@ -31,6 +33,7 @@ B1_STOCK | If you have built your B1 out of the box and done nothing else to it 
 B1_ABL | If you have added an ABL sensor (BL Touch or other) then this is the branch for you. This does a 3x3 probe on the bed which is not the highest resolution but is often enough for beds that are not badly warped.
 B1_ABL_HIGH_RES | If you have added an ABL sensor (BL Touch or other) and you want a higher res on the bed probing because of slightly more warping and are happy to pay a small time penalty at the start of each print then this is for you. This does a 4 x 4 probe.
 B1_ABL_SUPER_RES | If you have added an ABL sensor (BL Touch or other) and you want an incredibly high res probe of the bed and are willing to wait a few minutes extra at the start of each print then this is for you.  This does a 5 x 5 probe.
+B1_UBL_INSANE_RES | READ ME FIRST!!! This branch is strictly in beta. Before you even think about using it you must make sure that you are using this mount for your BL touch and not the stock one: https://www.thingiverse.com/thing:4564987. If you try to use it with the stock mount and the nozzle crashes into the bed then you can't say I didn't warn you. This branch has been designed to help people who have very warped beds (such as the B1 unit I have). Many printers in this range ship like this and many people will just use a glass bed to overcome it. However, I really enjoy the adhesion properties of the SSS bed and therefore wanted to be able to use it, hence this branch was born. The branch uses UBL instead of ABL which basically means that a highly detailed probe of 15 x 15 points is taken on a once off basis and then three points are sampled before each print just to check whether that mesh has changed orientation at all. The results on my bed were remarkable. For detailed usage instructions please follow the gist located here: https://gist.github.com/looxonline/eaa426a1be67148f1cf6242e0e8efbcb
 B1_ABL_SFS | Coming soon...
 
 ![Step1](/step1_branch.png)
