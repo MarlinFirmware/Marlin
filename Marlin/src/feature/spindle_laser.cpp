@@ -36,6 +36,9 @@
 
 SpindleLaser cutter;
 uint8_t SpindleLaser::power;
+#if ENABLED(LASER_FEATURE)
+  cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // Test fire Pulse time ms value.
+#endif
 bool SpindleLaser::isReady;                                           // Ready to apply power setting from the UI to OCR
 cutter_power_t SpindleLaser::menuPower,                               // Power set via LCD menu in PWM, PERCENT, or RPM
                SpindleLaser::unitPower;                               // LCD status power in PWM, PERCENT, or RPM
