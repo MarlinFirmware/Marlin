@@ -59,7 +59,7 @@
 #endif
 
 #ifndef LEVEL_CORNERS_LEVELING_ORDER
-  #define LEVEL_CORNERS_LEVELING_ORDER {1, 3, 4, 2} 
+  #define LEVEL_CORNERS_LEVELING_ORDER {1, 2, 3, 4} 
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
