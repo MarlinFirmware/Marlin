@@ -1451,6 +1451,20 @@
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
     //#define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
+  /** 
+   * Define the order to move to locations during corner leveling. 
+   * FrontLeft, FrontRight, BackRight, BackLeft   = {1,2,3,4}  (This is the default)
+   * For LEVEL_CORNERS_3_POINTS, #1 then #2 will be probed first. Then the opposite edge will be selected as the third point. Values 3 and 4 will be ignored. 
+   * Examples:
+   *       Default            LEVEL_CORNERS_3_POINTS (default)        {1,3,4,2}                LEVEL_CORNERS_3_POINTS {1,3,4,2}
+   *  --------------------    --------------------               --------------------          --------------------
+   *  - 4              3 -    -        3         -               - 2              4 -          - 2                -
+   *  -                  -    -                  -               -                  -          -                3 -
+   *  - 1              2 -    - 1              2 -               - 1              3 -          - 1                -
+   *  --------------------    --------------------               --------------------          --------------------
+   */
+  #define LEVEL_CORNERS_LEVELING_ORDER {1, 3, 4, 2} 
+  #define LEVEL_CORNERS_3_POINTS                  // Level 3 points instead of 4 -> 2 Corners + middle of opposite side
 #endif
 
 /**
