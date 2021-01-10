@@ -1395,6 +1395,9 @@
    */
   //#define SDCARD_CONNECTION LCD
 
+  // Enable this if you are using an extender cable in your sd card slot
+  //#define SDCARD_EXTENDER
+
 #endif // SDSUPPORT
 
 /**
