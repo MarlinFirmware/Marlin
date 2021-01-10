@@ -54,6 +54,11 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  if (obj->mks_obj_id == ID_S_CONTINUE) return;
+  if (obj->mks_obj_id == ID_S_MOTOR_OFF) {
+    TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
+    return;
+  }
   lv_clear_set();
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
@@ -62,10 +67,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_S_ABOUT:
       lv_draw_about();
       break;
-    case ID_S_CONTINUE: return;
-    case ID_S_MOTOR_OFF:
-      TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
-      return;
     case ID_S_LANGUAGE:
       lv_draw_language();
       break;
