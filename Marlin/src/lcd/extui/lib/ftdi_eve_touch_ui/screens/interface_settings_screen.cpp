@@ -47,8 +47,8 @@ void InterfaceSettingsScreen::onStartup() {
 }
 
 void InterfaceSettingsScreen::onEntry() {
-  screen_data.InterfaceSettingsScreen.brightness = CLCD::get_brightness();
-  screen_data.InterfaceSettingsScreen.volume     = SoundPlayer::get_volume();
+  screen_data.InterfaceSettings.brightness = CLCD::get_brightness();
+  screen_data.InterfaceSettings.volume     = SoundPlayer::get_volume();
   BaseScreen::onEntry();
 }
 
@@ -58,7 +58,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
 
     #define GRID_COLS 4
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 7
     #else
       #define GRID_ROWS 6
@@ -86,7 +86,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -96,9 +96,9 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #define EDGE_R 30
        .colors(ui_slider)
     #if DISABLED(LCD_FYSETC_TFT81050)
-       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.brightness, 128)
+       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettings.brightness, 128)
     #endif
-       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume,     0xFF)
+       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettings.volume,     0xFF)
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
     #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
@@ -106,7 +106,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #endif
     #undef EDGE_R
     #define EDGE_R 0
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .colors(normal_btn)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
@@ -161,13 +161,13 @@ void InterfaceSettingsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettingsScreen.brightness = max(11, (value * 128UL) / 0xFFFF);
-        CLCD::set_brightness(screen_data.InterfaceSettingsScreen.brightness);
+        screen_data.InterfaceSettings.brightness = max(11, (value * 128UL) / 0xFFFF);
+        CLCD::set_brightness(screen_data.InterfaceSettings.brightness);
         SaveSettingsDialogBox::settingsChanged();
         break;
       case 3:
-        screen_data.InterfaceSettingsScreen.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
+        screen_data.InterfaceSettings.volume = value >> 8;
+        SoundPlayer::set_volume(screen_data.InterfaceSettings.volume);
         SaveSettingsDialogBox::settingsChanged();
         break;
       default:
