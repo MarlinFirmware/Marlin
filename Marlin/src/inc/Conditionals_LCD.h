@@ -653,11 +653,6 @@
   #define SERIAL_CATCHALL 0
 #endif
 
-// Pressure sensor with a BLTouch-like interface
-#if ENABLED(CREALITY_TOUCH)
-  #define BLTOUCH
-#endif
-
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -838,6 +833,7 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
 #if Z_HOME_DIR > 0
@@ -886,6 +882,7 @@
 #if !HAS_LEVELING
   #undef PROBE_MANUALLY
   #undef RESTORE_LEVELING_AFTER_G28
+  #undef ENABLE_LEVELING_AFTER_G28
 #endif
 
 #ifdef GRID_MAX_POINTS_X
@@ -1048,11 +1045,6 @@
   #define INVERT_E_DIR false
 #endif
 
-// Fallback SPI Speed
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
-#endif
-
 /**
  * This setting is also used by M109 when trying to calculate
  * a ballpark safe margin to prevent wait-forever situation.
@@ -1073,28 +1065,23 @@
  *  - TFT_COLOR
  *  - GRAPHICAL_TFT_UPSCALE
  */
-#if ENABLED(MKS_TS35_V2_0)
-  // Most common: ST7796
+#if ENABLED(MKS_TS35_V2_0)          // Most common: ST7796
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
-#elif ENABLED(MKS_ROBIN_TFT24)
-  // Most common: ST7789
+#elif ENABLED(MKS_ROBIN_TFT24)      // Most common: ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT28)
-  // Most common: ST7789
+#elif ENABLED(MKS_ROBIN_TFT28)      // Most common: ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT32)
-  // Most common: ST7789
+#elif ENABLED(MKS_ROBIN_TFT32)      // Most common: ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT35)
-  // Most common: ILI9488
+#elif ENABLED(MKS_ROBIN_TFT35)      // Most common: ILI9488
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
@@ -1103,12 +1090,11 @@
   #define TFT_DRIVER SSD1963
   #define TFT_RES_480x272
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT_V1_1R)
-  // ILI9328 or R61505
+#elif ENABLED(MKS_ROBIN_TFT_V1_1R)  // ILI9328 or R61505
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif EITHER(TFT_TRONXY_X5SA, ANYCUBIC_TFT35)
+#elif EITHER(TFT_TRONXY_X5SA, ANYCUBIC_TFT35) // ILI9488
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_DRIVER ILI9488
   #define TFT_RES_480x320
@@ -1116,6 +1102,14 @@
 #elif ENABLED(LONGER_LK_TFT28)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(ANET_ET4_TFT28)       // ST7789
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
+  #define TFT_RES_320x240
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(ANET_ET5_TFT35)       // ST7796
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
+  #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
 #elif ENABLED(TFT_GENERIC)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
@@ -1170,6 +1164,12 @@
   #elif ENABLED(TFT_INTERFACE_FSMC)
     #define TFT_480x320
   #endif
+#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 272
+  #if ENABLED(TFT_INTERFACE_SPI)
+    #define TFT_480x272_SPI
+  #elif ENABLED(TFT_INTERFACE_FSMC)
+    #define TFT_480x272
+  #endif
 #endif
 
 // Fewer lines with touch buttons on-screen
@@ -1179,12 +1179,15 @@
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define HAS_UI_480x320 1
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x272, TFT_480x272_SPI)
+  #define HAS_UI_480x272 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #if !HAS_TFT_LVGL_UI
+  #if ENABLED(TFT_CLASSIC_UI)
     #define HAS_TOUCH_BUTTONS 1
   #endif
 #endif
@@ -1197,11 +1200,5 @@
     #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
-  #else
-    #define TOUCH_CALIBRATION_X  0
-    #define TOUCH_CALIBRATION_Y  0
-    #define TOUCH_OFFSET_X       0
-    #define TOUCH_OFFSET_Y       0
-    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
