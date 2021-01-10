@@ -249,6 +249,9 @@ typedef struct {
     float Move_E_scale    = 0;
   #endif
   float offset_value      = 0;
+  #if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
+    unsigned
+  #endif
   char show_mode          = 0;    // -1: Temperature control    0: Printing temperature
 } HMI_value_t;
 

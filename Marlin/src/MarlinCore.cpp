@@ -1011,6 +1011,12 @@ void setup() {
     while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
 
+  #if defined(DWIN_CREALITY_LCD) && defined(LCD_SERIAL_PORT)
+    LCD_SERIAL.begin(115200UL);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!LCD_SERIAL && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples
