@@ -40,6 +40,12 @@
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
+#ifdef LCD_SERIAL_PORT
+  #define DWIN_SERIAL  LCD_SERIAL
+#else
+  #define DWIN_SERIAL  MYSERIAL1
+#endif
+
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
 uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
@@ -82,20 +88,26 @@ inline void DWIN_String(size_t &i, const __FlashStringHelper * string) {
 // Send the data in the buffer and the packet end
 inline void DWIN_Send(size_t &i) {
   ++i;
-  LOOP_L_N(n, i) { MYSERIAL1.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
-  LOOP_L_N(n, 4) { MYSERIAL1.write(DWIN_BufTail[n]); delayMicroseconds(1); }
+  LOOP_L_N(n, i) { DWIN_SERIAL.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
+  LOOP_L_N(n, 4) { DWIN_SERIAL.write(DWIN_BufTail[n]); delayMicroseconds(1); }
 }
 
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void) {
+  #ifdef LCD_SERIAL_PORT
+    LCD_SERIAL.begin(115200UL);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!LCD_SERIAL && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+
   size_t i = 0;
   DWIN_Byte(i, 0x00);
   DWIN_Send(i);
 
-  while (MYSERIAL1.available() > 0 && recnum < (signed)sizeof(databuf)) {
-    databuf[recnum] = MYSERIAL1.read();
+  while (DWIN_SERIAL.available() > 0 && recnum < (signed)sizeof(databuf)) {
+    databuf[recnum] = DWIN_SERIAL.read();
     // ignore the invalid data
     if (databuf[0] != FHONE) { // prevent the program from running.
       if (recnum > 0) {
