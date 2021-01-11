@@ -3440,6 +3440,21 @@ void MarlinSettings::reset() {
         #endif
         , LINEAR_UNIT(probe.offset.z)
       );
+
+
+      #ifdef PROBING_MARGIN
+        config_heading(forReplay, PSTR("Z-Probe Probing Margins"), false);
+        if (!forReplay) say_units(true);
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR_P(
+            PSTR("  L"), LINEAR_UNIT(PROBING_MARGIN_LEFT),
+            PSTR(" R"), LINEAR_UNIT(PROBING_MARGIN_RIGHT),
+            PSTR(" F"), LINEAR_UNIT(PROBING_MARGIN_FRONT),
+            PSTR(" B"), LINEAR_UNIT(PROBING_MARGIN_BACK)
+        );
+      #endif
+
+
     #endif
 
     /**
