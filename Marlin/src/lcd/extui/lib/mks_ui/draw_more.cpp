@@ -50,6 +50,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_GCODE:
       lv_clear_more();
+      public_buf[0] = 0;
       lv_draw_gcode();
     break;
     #if ENABLED(USER_CMD_1_ENABLE)

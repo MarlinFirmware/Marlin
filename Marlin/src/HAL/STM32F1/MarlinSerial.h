@@ -85,8 +85,8 @@ public:
           public_buf_m[current_wpos] = 0;
           line_callback(user_pointer, public_buf_m); 
           current_wpos = 0; 
-        } 
-        public_buf_m[current_wpos++] = c;
+        } else 
+          public_buf_m[current_wpos++] = c;
       }
       return HardwareSerial::write(c); 
     }

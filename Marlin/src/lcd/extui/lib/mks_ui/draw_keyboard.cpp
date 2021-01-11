@@ -165,11 +165,10 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           if (queue.length <= (BUFSIZE - 3)) {
             // Hook anything that goes to the serial port
             MYSERIAL0.set_hook(&lv_show_gcode_output, 0);
-            strcat((char*)ret_ta_txt, "\n"); 
             queue.enqueue_one_now(ret_ta_txt);
           }
           lv_clear_keyboard();
-          draw_return_ui();
+          // draw_return_ui();
           break;
         default: break;
       }
