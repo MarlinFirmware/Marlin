@@ -62,9 +62,9 @@
  * ========= 1 CHOICE)============
  * ===============================
  */
+//#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
-//#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C
 
 //Many options for Modules: 
 #define LIN_ADVANCE                //(L) For TMC_UART prefer mode spreadCycle(by TFT menu) (Default)         
