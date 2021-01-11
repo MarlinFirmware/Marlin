@@ -56,13 +56,7 @@
   float last_z;
   int good_points;
   bool corner_probing_done, wait_for_probe;
-  
-  #if ENABLED(LEVEL_CORNERS_3_POINTS) && DISABLED(LEVEL_CENTER_TOO)
-    const int good_points_required = 3;
-  #else
-    const int good_points_required = 4;
-  #endif
-  
+
   //used for displaying successful probe count to user during probing
   #if HAS_MARLINUI_U8GLIB
     #include "../dogm/marlinui_DOGM.h"
@@ -74,10 +68,6 @@
 
 #endif
 
-#ifndef LEVEL_CORNERS_LEVELING_ORDER
-  #define LEVEL_CORNERS_LEVELING_ORDER {1, 2, 3, 4} 
-#endif
-
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
 extern const char G28_STR[];
@@ -86,66 +76,82 @@ extern const char G28_STR[];
   static bool leveling_was_active = false;
 #endif
 
-static int8_t bed_corner;
+#define LF 1
+#define RF 2
+#define RB 3
+#define LB 4
+#ifndef LEVEL_CORNERS_LEVELING_ORDER
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB }
+#endif
+constexpr int lco[] = LEVEL_CORNERS_LEVELING_ORDER;
+constexpr int lcodiff = (4 + lco[0] - lco[1]) % 4;
 
-constexpr int lco[4] = LEVEL_CORNERS_LEVELING_ORDER;
+static_assert(WITHIN(COUNT(lco), 2, 4), "LEVEL_CORNERS_LEVELING_ORDER must have from 2 to 4 corners.");
+static_assert(COUNT(lco) > 3 || (lcodiff & 2) == 0, "The first two LEVEL_CORNERS_LEVELING_ORDER corners must be on the same edge.");
+
+constexpr bool level_corners_3_points = COUNT(lco) < 4;
+constexpr int good_points_required = 3 + (!level_corners_3_points || ENABLED(LEVEL_CENTER_TOO));
+constexpr int available_points = (level_corners_3_points ? 3 : 4) + ENABLED(LEVEL_CENTER_TOO);
+constexpr int center_index = 4 - level_corners_3_points;
 constexpr float inset_lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
 constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
                    rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
+
+static int8_t bed_corner;
 
 /**
  * Select next corner coordinates
  */
 static inline void _lcd_level_bed_corners_get_next_position() {
 
-  #if ENABLED(LEVEL_CORNERS_3_POINTS)
-    if (bed_corner > 3) { bed_corner = 0; }; //above max position -> move pack to first corner
-    if ( bed_corner <= 1 ) { 
-      //use switch case statement to find first two corners -- bed_corner+1 used to allow configuration.h be more human-friendly
-      switch (bed_corner + 1 ) {
-        case lco[0] : current_position   = lf; break; // left front
-        case lco[1] : current_position.x = rb.x; current_position.y = lf.y; break; // right front
-        case lco[2] : current_position   = rb; break; // right rear
-        case lco[3] : current_position.x = lf.x; current_position.y = rb.y;break; // left rear  
-      }
-    } else { 
-      if (bed_corner == 2) { //Determine which edge to probe for 3rd point
-        if (( lco[0] == 1 &&  lco[1] == 2 ) || ( lco[0] == 2  &&  lco[1] == 1 )) { current_position.x = X_CENTER; current_position.y = rb.y;  }; // Rear Edge
-        if (( lco[0] == 1 &&  lco[3] == 2 ) || ( lco[0] == 2  &&  lco[3] == 1 )) { current_position.x = rb.x; current_position.y = Y_CENTER;  }; // Right Edge
-        if (( lco[1] == 1 &&  lco[2] == 2 ) || ( lco[1] == 2  &&  lco[2] == 1 )) { current_position.x = lf.x; current_position.y = Y_CENTER;  }; // Left Edge
-        if (( lco[2] == 1 &&  lco[3] == 2 ) || ( lco[2] == 2  &&  lco[3] == 1 )) { current_position.x = X_CENTER; current_position.y = lf.y;  }; // Front Edge
-        #if DISABLED(LEVEL_CENTER_TOO) && ENABLED(LEVEL_CORNERS_USE_PROBE) 
-          bed_corner++;  // must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
+  if (level_corners_3_points) {
+    if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
+    switch (bed_corner) {
+      case 0 ... 1:
+        // First two corners set explicitly by the configuration
+        current_position = lf;                       // Left front
+        switch (lco[bed_corner]) {
+          case RF: current_position.x = rb.x; break; // Right Front
+          case RB: current_position   = rb;   break; // Right Back
+          case LB: current_position.y = rb.y; break; // Left Back
+        }
+        break;
+
+      case 2:
+        // Determine which edge to probe for 3rd point
+        current_position.set(X_CENTER, Y_CENTER);
+        if ((lco[0] == LB && lco[1] == RB) || (lco[0] == RB && lco[1] == LB)) current_position.y = rb.y; // Center Back
+        if ((lco[0] == LF && lco[1] == LB) || (lco[0] == LB && lco[1] == LF)) current_position.x = rb.x; // Center Right
+        if ((lco[0] == RF && lco[1] == RB) || (lco[0] == RB && lco[1] == RF)) current_position.x = lf.x; // Left Center
+        if ((lco[0] == LF && lco[1] == RF) || (lco[0] == RF && lco[1] == LF)) current_position.y = lf.y; // Front Center
+        #if DISABLED(LEVEL_CENTER_TOO) && ENABLED(LEVEL_CORNERS_USE_PROBE)
+          bed_corner++;  // Must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
         #endif
-      
+        break;
+
       #if ENABLED(LEVEL_CENTER_TOO)
-      }else if (bed_corner == 3 ) {
+        case 3:
           current_position.set(X_CENTER, Y_CENTER);
-      #endif
-      }       
-
-    } ;
-
-  #else
-    switch (bed_corner + 1 ) {
-      //standard corners
-      case lco[0]: current_position   = lf; break; // left front
-      case lco[1]: current_position.x = rb.x; current_position.y = lf.y; break; // right front
-      case lco[2]: current_position   = rb; break; // right rear
-      case lco[3]: current_position.x = lf.x; current_position.y = rb.y;break; // left rear  
-      #if ENABLED(LEVEL_CENTER_TOO)
-          case 5: 
-            current_position.set(X_CENTER, Y_CENTER);
-            #if ENABLED(LEVEL_CORNERS_USE_PROBE) 
-              good_points--; //Decrement to allow one additional probe point
-            #endif
-            break;
+          break;
       #endif
     }
-  #endif
-  
+  }
+  else {
+    // Four-Corner Bed Tramming with optional center
+    if (TERN0(LEVEL_CENTER_TOO, bed_corner == center_index)) {
+      current_position.set(X_CENTER, Y_CENTER);
+      TERN_(LEVEL_CORNERS_USE_PROBE, good_points--); // Decrement to allow one additional probe point
+    }
+    else {
+      current_position = lf;                       // Left front
+      switch (lco[bed_corner]) {
+        case RF: current_position.x = rb.x; break; // Right front
+        case RB: current_position   = rb;   break; // Right rear
+        case LB: current_position.y = rb.y; break; // Left rear
+      }
+    }
+  }
 }
-
 
 /**
  * Level corners, starting in the front-left corner.
@@ -156,28 +162,28 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     "LEVEL_CORNERS_INSET_LFRB " STR " inset is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
   VALIDATE_POINT(lf.x, Y_CENTER, "left"); VALIDATE_POINT(X_CENTER, lf.y, "front");
   VALIDATE_POINT(rb.x, Y_CENTER, "right"); VALIDATE_POINT(X_CENTER, rb.y, "back");
-  
- 
+
+
   void _lcd_draw_probing() {
     if (ui.should_draw()) {
       MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH)); ;//Probing Message
       //Display # of good points found vs total needed
       static const bool in_view_1 = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
       if (!in_view_1) {
-          TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); //Setup the font for extra info
-          lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
-          lcd_put_u8str_P(LEVEL_CORNERS_GOOD_POINTS_MSG); //lcd_put_u8str_P(GET_TEXT(GOOD_POINTS_MSG)); once in language file
-          lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
-          lcd_put_wchar('/');
-          lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
+        TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); //Setup the font for extra info
+        lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
+        lcd_put_u8str_P(LEVEL_CORNERS_GOOD_POINTS_MSG); //lcd_put_u8str_P(GET_TEXT(GOOD_POINTS_MSG)); once in language file
+        lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
+        lcd_put_wchar('/');
+        lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
       }
 
       //Display Last Z
       static const bool in_view_2 = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 2));
       if (!in_view_2) {
-          lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT - MENU_FONT_HEIGHT, LCD_HEIGHT - 2));
-          lcd_put_u8str_P(LEVEL_CORNERS_LAST_Z_MSG); //lcd_put_u8str_P(GET_TEXT(LEVEL_CORNERS_LAST_Z_MSG)); once in language file
-          lcd_put_u8str(LAST_Z_TO_STR(last_z));
+        lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT - MENU_FONT_HEIGHT, LCD_HEIGHT - 2));
+        lcd_put_u8str_P(LEVEL_CORNERS_LAST_Z_MSG); //lcd_put_u8str_P(GET_TEXT(LEVEL_CORNERS_LAST_Z_MSG)); once in language file
+        lcd_put_u8str(LAST_Z_TO_STR(last_z));
       }
     }
   }
@@ -197,7 +203,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
       []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G28\nG29"), G28_STR));
-          ui.return_to_status();
+        ui.return_to_status();
       }
       , []{ ui.goto_previous_screen_no_defer(); }
       , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
@@ -254,7 +260,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                //update screen with # of good points
       do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearance
-      
+
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position = current_position - probe.offset_xy; // Account for probe offsets
       do_blocking_move_to_xy(current_position);           // Goto corner
@@ -277,7 +283,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       if (bed_corner != 4) good_points++; // ignore center
       if (++bed_corner > 3) bed_corner = 0;
 
-    } while (good_points < good_points_required ); // loop until all corners within tolerance
+    } while (good_points < good_points_required); // loop until all points within tolerance
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling
     ui.set_selection(true);
@@ -288,9 +294,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   static inline void _lcd_goto_next_corner() {
     line_to_z(LEVEL_CORNERS_Z_HOP);
 
-    //Select next corner coordinates
+    // Select next corner coordinates
     _lcd_level_bed_corners_get_next_position();
-    
+
     line_to_current_position(manual_feedrate_mm_s.x);
     line_to_z(LEVEL_CORNERS_HEIGHT);
     if (++bed_corner > 3 + ENABLED(LEVEL_CENTER_TOO)) bed_corner = 0;
