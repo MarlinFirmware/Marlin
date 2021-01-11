@@ -84,10 +84,10 @@ extern const char G28_STR[];
   #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB }
 #endif
 constexpr int lco[] = LEVEL_CORNERS_LEVELING_ORDER;
-constexpr int lcodiff = (4 + lco[0] - lco[1]) % 4;
-
 static_assert(WITHIN(COUNT(lco), 2, 4), "LEVEL_CORNERS_LEVELING_ORDER must have from 2 to 4 corners.");
-static_assert(COUNT(lco) > 3 || (lcodiff & 2) == 0, "The first two LEVEL_CORNERS_LEVELING_ORDER corners must be on the same edge.");
+
+constexpr int lcodiff = abs(lco[0] - lco[1]);
+static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two LEVEL_CORNERS_LEVELING_ORDER corners must be on the same edge.");
 
 constexpr bool level_corners_3_points = COUNT(lco) < 4;
 constexpr int good_points_required = 3 + (!level_corners_3_points || ENABLED(LEVEL_CENTER_TOO));
