@@ -57,14 +57,11 @@
   int good_points;
   bool corner_probing_done, wait_for_probe;
 
-  //used for displaying successful probe count to user during probing
   #if HAS_MARLINUI_U8GLIB
     #include "../dogm/marlinui_DOGM.h"
   #endif
   #define GOOD_POINTS_TO_STR(N) ui8tostr2(N)
   #define LAST_Z_TO_STR(N) ftostr53_63(N) //ftostr42_52(N)
-  PROGMEM Language_Str LEVEL_CORNERS_GOOD_POINTS_MSG              = _UxGT("Good Points: "); //Should be added to language files once translated
-  PROGMEM Language_Str LEVEL_CORNERS_LAST_Z_MSG                   = _UxGT("Last Z: "); //Should be added to language files once translated
 
 #endif
 
@@ -92,7 +89,7 @@ static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two LE
 constexpr bool level_corners_3_points = COUNT(lco) < 4;
 constexpr int good_points_required = 3 + (!level_corners_3_points || ENABLED(LEVEL_CENTER_TOO));
 constexpr int available_points = (level_corners_3_points ? 3 : 4) + ENABLED(LEVEL_CENTER_TOO);
-constexpr int center_index = 4 - level_corners_3_points;
+constexpr int center_index = TERN(LEVEL_CENTER_TOO, available_points - 1, -1);
 constexpr float inset_lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
 constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
                    rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
@@ -163,26 +160,29 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   VALIDATE_POINT(lf.x, Y_CENTER, "left"); VALIDATE_POINT(X_CENTER, lf.y, "front");
   VALIDATE_POINT(rb.x, Y_CENTER, "right"); VALIDATE_POINT(X_CENTER, rb.y, "back");
 
+  #ifndef PAGE_CONTAINS
+    #define PAGE_CONTAINS(...) true
+  #endif
 
   void _lcd_draw_probing() {
     if (ui.should_draw()) {
       MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH)); ;//Probing Message
-      //Display # of good points found vs total needed
-      static const bool in_view_1 = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
+      // Display # of good points found vs total needed
+      static const bool in_view_1 = PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1);
       if (!in_view_1) {
-        TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); //Setup the font for extra info
-        lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
-        lcd_put_u8str_P(LEVEL_CORNERS_GOOD_POINTS_MSG); //lcd_put_u8str_P(GET_TEXT(GOOD_POINTS_MSG)); once in language file
+        TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
+        SETCURSOR(0, LCD_HEIGHT - 1);
+        lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
         lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
         lcd_put_wchar('/');
         lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
       }
 
-      //Display Last Z
-      static const bool in_view_2 = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 2));
+      // Display the Last Z value
+      static const bool in_view_2 = PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 2);
       if (!in_view_2) {
-        lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT - MENU_FONT_HEIGHT, LCD_HEIGHT - 2));
-        lcd_put_u8str_P(LEVEL_CORNERS_LAST_Z_MSG); //lcd_put_u8str_P(GET_TEXT(LEVEL_CORNERS_LAST_Z_MSG)); once in language file
+        SETCURSOR(0, LCD_HEIGHT - 2);
+        lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
         lcd_put_u8str(LAST_Z_TO_STR(last_z));
       }
     }
@@ -203,7 +203,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
       []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G28\nG29"), G28_STR));
-        ui.return_to_status();
+          ui.return_to_status();
       }
       , []{ ui.goto_previous_screen_no_defer(); }
       , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
@@ -251,7 +251,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   }
 
   void _lcd_test_corners() {
-    bed_corner = TERN(LEVEL_CENTER_TOO, 4, 0);
+    bed_corner = TERN(LEVEL_CENTER_TOO, center_index, 0);
     last_z = LEVEL_CORNERS_HEIGHT;
     endstops.enable_z_probe(true);
     good_points = 0;
@@ -280,7 +280,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
           return;
       }
 
-      if (bed_corner != 4) good_points++; // ignore center
+      if (bed_corner != center_index) good_points++; // ignore center
       if (++bed_corner > 3) bed_corner = 0;
 
     } while (good_points < good_points_required); // loop until all points within tolerance
@@ -299,7 +299,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     line_to_current_position(manual_feedrate_mm_s.x);
     line_to_z(LEVEL_CORNERS_HEIGHT);
-    if (++bed_corner > 3 + ENABLED(LEVEL_CENTER_TOO)) bed_corner = 0;
+    if (++bed_corner >= available_points) bed_corner = 0;
   }
 
 #endif // !LEVEL_CORNERS_USE_PROBE
