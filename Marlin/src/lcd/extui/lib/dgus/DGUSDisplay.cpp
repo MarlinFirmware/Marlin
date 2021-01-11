@@ -33,11 +33,9 @@
 #include "../../ui_api.h"
 
 #include "../../../../MarlinCore.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
-#include "../../../../sd/cardreader.h"
 #include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
