@@ -1458,7 +1458,7 @@
    * Set 2, 3, or 4 points. If 2 points are given, the third is the center of the opposite edge.
    *
    *  LF  Left-Front    RF  Right-Front
-   *  RB  Right-Back    LB  Left-Back
+   *  LB  Left-Back     RB  Right-Back
    *
    * Examples:
    *
