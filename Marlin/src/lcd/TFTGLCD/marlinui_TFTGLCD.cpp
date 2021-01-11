@@ -854,14 +854,8 @@ void MarlinUI::draw_status_screen() {
   // This line moves to the last line of the screen for UBL plot screen on the panel side
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     if (!PanelDetected) return;
-    uint8_t y;
     ui.encoder_direction_normal();
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      if (ui.external_control)
-        y = LCD_HEIGHT - 1;
-      else
-    #endif
-        y = MIDDLE_Y;
+    const uint8_t y = TERN0(AUTO_BED_LEVELING_UBL, ui.external_control) ? LCD_HEIGHT - 1 : MIDDLE_Y;
     lcd.setCursor(0, y);
     lcd.write(COLOR_EDIT);
     lcd_put_u8str_P(pstr);
