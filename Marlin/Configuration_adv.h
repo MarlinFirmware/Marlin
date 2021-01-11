@@ -1395,8 +1395,8 @@
    */
   //#define SDCARD_CONNECTION LCD
 
-  // Enable this if you are using an extender cable in your sd card slot
-  //#define SDCARD_EXTENDER
+  // Enable if SD detect is rendered useless (e.g., by using an SD extender)
+  //#define NO_SD_DETECT
 
 #endif // SDSUPPORT
 
