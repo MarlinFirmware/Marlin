@@ -1404,8 +1404,7 @@ void Temperature::manage_heater() {
       SERIAL_ECHOPGM("  M305 ");
     else
       SERIAL_ECHO_START();
-    SERIAL_CHAR('P');
-    SERIAL_CHAR('0' + t_index);
+    SERIAL_CHAR('P', '0' + t_index);
 
     const user_thermistor_t &t = user_thermistor[t_index];
 
@@ -3001,14 +3000,19 @@ void Temperature::tick() {
         default: k = 'B'; break;
       #endif
     }
-    SERIAL_CHAR(' ');
-    SERIAL_CHAR(k);
+    SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
+    #ifdef SERIAL_FLOAT_PRECISION
+      #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
+    #else
+      #define SFP 2
+    #endif
     SERIAL_CHAR(':');
-    SERIAL_ECHO(c);
-    SERIAL_ECHOPAIR(" /" , t);
+    SERIAL_PRINT(c, SFP);
+    SERIAL_ECHOPGM(" /");
+    SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
