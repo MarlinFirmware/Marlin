@@ -1463,8 +1463,8 @@
    *  - 1              2 -    - 1              2 -               - 1              3 -          - 1                -
    *  --------------------    --------------------               --------------------          --------------------
    */
-  #define LEVEL_CORNERS_LEVELING_ORDER {1, 3, 4, 2} 
-  #define LEVEL_CORNERS_3_POINTS                  // Level 3 points instead of 4 -> 2 Corners + middle of opposite side
+  #define LEVEL_CORNERS_LEVELING_ORDER {1, 2, 3, 4} 
+  //#define LEVEL_CORNERS_3_POINTS                  // Level 3 points instead of 4 -> 2 Corners + middle of opposite side
 #endif
 
 /**
