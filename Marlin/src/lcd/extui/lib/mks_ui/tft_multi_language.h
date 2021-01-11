@@ -463,7 +463,8 @@ typedef struct more_menu_disp {
   const char *custom4;
   const char *custom5;
   const char *custom6;
-  const char *custom7;
+  const char *gcode;
+  const char *entergcode;
   const char *back;
 } more_menu_def;
 

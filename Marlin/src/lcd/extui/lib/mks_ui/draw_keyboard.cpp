@@ -27,6 +27,7 @@
 #include <lv_conf.h>
 
 #include "../../../../inc/MarlinConfig.h"
+#include "../../../../gcode/queue.h"
 
 extern lv_group_t *g;
 static lv_obj_t *scr;
@@ -106,11 +107,11 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
       draw_return_ui();
     }
     else {
-      lv_kb_set_ta(kb, nullptr); // De-assign the text area  to hide it cursor if needed
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide its cursor if needed
       lv_obj_del(kb);
       return;
     }
-  return;
+    return;
   }
   else if (strcmp(txt, LV_SYMBOL_OK) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
@@ -153,10 +154,20 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             lv_draw_wifi_tips();
             break;
         #endif // MKS_WIFI_MODULE
-        case gcodeCommand:
+        case autoLevelGcodeCommand:
           uint8_t buf[100];
           strncpy((char *)buf,ret_ta_txt,sizeof(buf));
           update_gcode_command(AUTO_LEVELING_COMMAND_ADDR,buf);
+          lv_clear_keyboard();
+          draw_return_ui();
+          break;
+        case GCodeCommand:
+          if (queue.length <= (BUFSIZE - 3)) {
+            // Hook anything that goes to the serial port
+            MYSERIAL0.set_hook(&lv_show_gcode_output, 0);
+            strcat((char*)ret_ta_txt, "\n"); 
+            queue.enqueue_one_now(ret_ta_txt);
+          }
           lv_clear_keyboard();
           draw_return_ui();
           break;
@@ -238,7 +249,7 @@ void lv_draw_keyboard() {
   // Create a text area. The keyboard will write here
   lv_obj_t *ta = lv_ta_create(scr, nullptr);
   lv_obj_align(ta, nullptr, LV_ALIGN_IN_TOP_MID, 0, 10);
-  if (keyboard_value == gcodeCommand) {
+  if (keyboard_value == autoLevelGcodeCommand) {
     get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
     public_buf_m[sizeof(public_buf_m)-1] = 0;
     lv_ta_set_text(ta, public_buf_m);

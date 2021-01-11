@@ -29,10 +29,12 @@
 #define PRINT_TEXT_SP           "Imprimir"
 #define EXTRUDE_TEXT_SP         "Extrusor"
 #define LEVELING_TEXT_SP        "Leveling"
-#define MLEVELING_TEXT_SP        "Leveling"
+#define MLEVELING_TEXT_SP       "Leveling"
 #define AUTO_LEVELING_TEXT_SP   "Autolevel"
 #define SET_TEXT_SP             "Config"
 #define MORE_TEXT_SP            "Más"
+#define MORE_GCODE_SP           "G-Code"
+#define MORE_ENTER_GCODE_SP     "Introduzca el G-Code"
 
 #define ADD_TEXT_SP             "Más"
 #define DEC_TEXT_SP             "Menos"

@@ -944,7 +944,9 @@ void disp_language_init() {
       filesys_menu.sd_sys  = SD_CARD_TEXT_CN;
       filesys_menu.usb_sys = U_DISK_TEXT_CN;
       //
-      more_menu.title   = TITLE_MORE_CN;
+      more_menu.title       = TITLE_MORE_CN;
+      more_menu.gcode       = MORE_GCODE_CN;
+      more_menu.entergcode  = MORE_ENTER_GCODE_CN; 
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
       #endif
@@ -962,9 +964,6 @@ void disp_language_init() {
       #endif
       #if ENABLED(USER_CMD_6_ENABLE)
         more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
-      #endif
-      #if ENABLED(USER_CMD_7_ENABLE)
-        more_menu.custom7 = MORE_CUSTOM7_TEXT_CN;
       #endif
       // WIFI
       wifi_menu.title = WIFI_TEXT;
@@ -1191,7 +1190,9 @@ void disp_language_init() {
             filesys_menu.sd_sys   = SD_CARD_TEXT_T_CN;
             filesys_menu.usb_sys  = U_DISK_TEXT_T_CN;
             //
-            more_menu.title = TITLE_MORE_T_CN;
+            more_menu.title       = TITLE_MORE_T_CN;
+            more_menu.gcode       = MORE_GCODE_T_CN;
+            more_menu.entergcode  = MORE_ENTER_GCODE_T_CN; 
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_T_CN;
             #endif
@@ -1209,9 +1210,6 @@ void disp_language_init() {
             #endif
             #if ENABLED(USER_CMD_6_ENABLE)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_T_CN;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_T_CN;
             #endif
             // WIFI
             wifi_menu.title = WIFI_TEXT;
@@ -1424,6 +1422,8 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_EN;
             set_menu.eepromSet    = EEPROM_SETTINGS_EN;
             more_menu.title       = TITLE_MORE_EN;
+            more_menu.gcode       = MORE_GCODE_EN;
+            more_menu.entergcode  = MORE_ENTER_GCODE_EN; 
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
             #endif
@@ -1441,9 +1441,6 @@ void disp_language_init() {
             #endif
             #if ENABLED(USER_CMD_6_ENABLE)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_EN;
             #endif
 
             //
@@ -1658,6 +1655,8 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_RU;
             set_menu.eepromSet    = EEPROM_SETTINGS_RU;
             more_menu.title       = TITLE_MORE_RU;
+            more_menu.gcode       = MORE_GCODE_RU;
+            more_menu.entergcode  = MORE_ENTER_GCODE_RU; 
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
             #endif
@@ -1675,9 +1674,6 @@ void disp_language_init() {
             #endif
             #if ENABLED(USER_CMD_6_ENABLE)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_RU;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_RU;
             #endif
             //
             filesys_menu.title   = TITLE_FILESYS_RU;
@@ -1989,6 +1985,8 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_SP;
             set_menu.eepromSet    = EEPROM_SETTINGS_SP;
             more_menu.title       = TITLE_MORE_SP;
+            more_menu.gcode       = MORE_GCODE_SP;
+            more_menu.entergcode  = MORE_ENTER_GCODE_SP; 
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
             #endif
@@ -2006,9 +2004,6 @@ void disp_language_init() {
             #endif
             #if ENABLED(USER_CMD_6_ENABLE)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_SP;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_SP;
             #endif
             //
             filesys_menu.title   = TITLE_FILESYS_SP;
@@ -2224,6 +2219,8 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_FR;
           set_menu.eepromSet    = EEPROM_SETTINGS_FR;
           more_menu.title       = TITLE_MORE_FR;
+          more_menu.gcode       = MORE_GCODE_FR;
+          more_menu.entergcode  = MORE_ENTER_GCODE_FR; 
           #if ENABLED(USER_CMD_1_ENABLE)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
           #endif
@@ -2241,9 +2238,6 @@ void disp_language_init() {
           #endif
           #if ENABLED(USER_CMD_6_ENABLE)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
-          #endif
-          #if ENABLED(USER_CMD_7_ENABLE)
-            more_menu.custom7 = MORE_CUSTOM7_TEXT_FR;
           #endif
           //
           filesys_menu.title          = TITLE_FILESYS_FR;
@@ -2460,6 +2454,8 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_IT;
           set_menu.eepromSet    = EEPROM_SETTINGS_IT;
           more_menu.title       = TITLE_MORE_IT;
+          more_menu.gcode       = MORE_GCODE_IT;
+          more_menu.entergcode  = MORE_ENTER_GCODE_IT; 
           #if ENABLED(USER_CMD_1_ENABLE)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
           #endif
@@ -2477,9 +2473,6 @@ void disp_language_init() {
           #endif
           #if ENABLED(USER_CMD_6_ENABLE)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
-          #endif
-          #if ENABLED(USER_CMD_7_ENABLE)
-            more_menu.custom7 = MORE_CUSTOM7_TEXT_IT;
           #endif
           //
           filesys_menu.title   = TITLE_FILESYS_IT;
@@ -2695,7 +2688,9 @@ void disp_language_init() {
       set_menu.machine_para = MACHINE_PARA_EN;
       set_menu.eepromSet    = EEPROM_SETTINGS_EN;
       //
-      more_menu.title   = TITLE_MORE_EN;
+      more_menu.title       = TITLE_MORE_EN;
+      more_menu.gcode       = MORE_GCODE_EN;
+      more_menu.entergcode  = MORE_ENTER_GCODE_EN; 
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
       #endif
@@ -2713,9 +2708,6 @@ void disp_language_init() {
       #endif
       #if ENABLED(USER_CMD_6_ENABLE)
         more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
-      #endif
-      #if ENABLED(USER_CMD_7_ENABLE)
-        more_menu.custom7 = MORE_CUSTOM7_TEXT_EN;
       #endif
       //
       filesys_menu.title   = TITLE_FILESYS_EN;
