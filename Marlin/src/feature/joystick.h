@@ -27,6 +27,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
+#include "../module/temperature.h"
 
 class Joystick {
   friend class Temperature;
