@@ -262,7 +262,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
-      current_position = current_position - probe.offset_xy; // Account for probe offsets
+      current_position -= probe.offset_xy;                // Account for probe offsets
       do_blocking_move_to_xy(current_position);           // Goto corner
 
       if (!_lcd_level_bed_corners_probe()) {              // Probe down to tolerance
