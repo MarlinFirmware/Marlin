@@ -73,27 +73,28 @@ extern const char G28_STR[];
   static bool leveling_was_active = false;
 #endif
 
+#ifndef LEVEL_CORNERS_LEVELING_ORDER
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB } // Default
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB, RF  }  // 3 hard-coded points
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, RF }       // 3-Point tramming - Rear
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB }       // 3-Point tramming - Right
+  //#define LEVEL_CORNERS_LEVELING_ORDER { RF, RB }       // 3-Point tramming - Left
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LB, RB }       // 3-Point tramming - Front
+#endif
+
 #define LF 1
 #define RF 2
 #define RB 3
 #define LB 4
-#ifndef LEVEL_CORNERS_LEVELING_ORDER
-  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB } //Default
-  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB, RF  } //Test 3 hardcoded points
-  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, RF } //3 Point Leveling - Rear
-  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB } //3 Point Leveling - Right
-  //#define LEVEL_CORNERS_LEVELING_ORDER { RF, RB } //3 Point Leveling - Left
-  //#define LEVEL_CORNERS_LEVELING_ORDER { LB, RB } //3 Point Leveling - Front
-#endif
 constexpr int lco[] = LEVEL_CORNERS_LEVELING_ORDER;
-static_assert(WITHIN(COUNT(lco), 2, 4), "LEVEL_CORNERS_LEVELING_ORDER must have from 2 to 4 corners.");
+constexpr bool level_corners_3_points = COUNT(lco) == 2;
+static_assert(level_corners_3_points || COUNT(lco) == 4, "LEVEL_CORNERS_LEVELING_ORDER must have exactly 2 or 4 corners.");
 
 constexpr int lcodiff = abs(lco[0] - lco[1]);
 static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two LEVEL_CORNERS_LEVELING_ORDER corners must be on the same edge.");
 
-constexpr bool level_corners_3_points = COUNT(lco) < 4;
-constexpr int good_points_required = 3 + (!level_corners_3_points || ENABLED(LEVEL_CENTER_TOO));
-constexpr int available_points = (level_corners_3_points ? 3 : 4) + ENABLED(LEVEL_CENTER_TOO);
+constexpr int nr_edge_points = level_corners_3_points ? 3 : 4;
+constexpr int available_points = nr_edge_points + ENABLED(LEVEL_CENTER_TOO);
 constexpr int center_index = TERN(LEVEL_CENTER_TOO, available_points - 1, -1);
 constexpr float inset_lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
 constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
@@ -121,7 +122,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
       case 2:
         // Determine which edge to probe for 3rd point
-        current_position.set(X_CENTER, Y_CENTER);
+        current_position.set(lf.x + (rb.x - lf.x) / 2, lf.y + (rb.y - lf.y) / 2);
         if ((lco[0] == LB && lco[1] == RB) || (lco[0] == RB && lco[1] == LB)) current_position.y = lf.y; // Front Center
         if ((lco[0] == LF && lco[1] == LB) || (lco[0] == LB && lco[1] == LF)) current_position.x = rb.x; // Center Right
         if ((lco[0] == RF && lco[1] == RB) || (lco[0] == RB && lco[1] == RF)) current_position.x = lf.x; // Left Center
@@ -184,7 +185,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
-      lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
+      lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
     }
 
     --cy;
@@ -293,7 +294,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       if (bed_corner != center_index) good_points++; // ignore center
       if (++bed_corner > 3) bed_corner = 0;
 
-    } while (good_points < good_points_required); // loop until all points within tolerance
+    } while (good_points < nr_edge_points); // loop until all points within tolerance
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling
     ui.set_selection(true);
