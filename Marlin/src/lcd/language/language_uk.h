@@ -214,9 +214,9 @@ namespace Language_uk {
   
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 нагрів сопла");
-  PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне ґрунтування"); // is ґ supported?
-  PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Фікс. довж. ґрунт.");
-  PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Ґрунтув. виконане");
+  PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне грунтування"); // is г supported?
+  PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Фікс. довж. грунт.");
+  PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Грунтув. виконане");
   PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 скасовано");
   PROGMEM Language_Str MSG_G26_LEAVING                     = _UxGT("Вийти з G26");
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Продовжити сітку");
