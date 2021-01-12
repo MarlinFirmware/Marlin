@@ -21,7 +21,7 @@
   #define BTN_ENC           12  //the click switch
 
   #define SDSS              53
-  #define SD_DETECT         -1  // Pin 49 if using display sd interface
+  #define SD_DETECT         49  // Pin 49 if using display sd interface
 
   #if ENABLED(TEMP_STAT_LEDS)
     #define STAT_LED_RED    64

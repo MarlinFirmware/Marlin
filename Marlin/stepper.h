@@ -24,6 +24,8 @@
 #include "planner.h"
 #include "stepper_indirection.h"
 
+extern volatile unsigned int cleaning_buffer_counter;
+
 #if EXTRUDERS > 3
   #define E_STEP_WRITE(v) { if(current_block->active_extruder == 3) { E3_STEP_WRITE(v); } else { if(current_block->active_extruder == 2) { E2_STEP_WRITE(v); } else { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}}}
   #define NORM_E_DIR() { if(current_block->active_extruder == 3) { E3_DIR_WRITE( !INVERT_E3_DIR); } else { if(current_block->active_extruder == 2) { E2_DIR_WRITE(!INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}}}
@@ -104,5 +106,11 @@ void microstep_readings();
 #if ENABLED(BABYSTEPPING)
   void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
 #endif
+
+
+
+float get_absolute_position(AxisEnum axis);
+
+float set_absolute_position(AxisEnum axis,float position);
 
 #endif

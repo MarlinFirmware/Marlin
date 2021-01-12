@@ -95,6 +95,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "configuration_store.h"
+#include "blinkm.h"
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -120,8 +121,6 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
     value++;
   } while (--size);
 }
-#define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
-#define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 
 /**
  * Store Configuration Settings - M500
@@ -135,7 +134,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 
 void Config_StoreSettings()  {
   float dummy = 0.0f;
-  char ver[4] = "000";
+  char ver[4] = "0001";
   int i = EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i, ver); // invalidate data first
   EEPROM_WRITE_VAR(i, axis_steps_per_unit);

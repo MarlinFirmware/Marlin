@@ -721,22 +721,22 @@ void lcd_cooldown() {
  */
 
 static void lcd_prepare_menu() {
-  START_MENU();
+  //START_MENU();
 
   //
   // ^ Main
   //
-  MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+ // MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
 
   //
   // Auto Home
   //
-  MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  //MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
   //
   // Set Home Offsets
   //
-  MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+ // MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
   //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 
   //
@@ -803,7 +803,7 @@ static void lcd_prepare_menu() {
   static void lcd_delta_calibrate_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  //  MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
     MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
     MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));

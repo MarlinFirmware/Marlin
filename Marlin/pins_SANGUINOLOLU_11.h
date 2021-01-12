@@ -6,6 +6,51 @@
   #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
 #endif
 
+
+
+#define KEY1  27
+#define LED1  10
+
+#define KEY2  28
+#define LED2  11
+
+#define KEY3  29
+#define LED3  16
+
+#define KEY4  30
+#define LED4  17
+
+
+
+/*
+#define PRINT_START_PIN    30        //开始打印键
+#define PRINT_LED          17
+
+#define Z_HOME_PIN           29
+#define HOME_LED           16
+
+#define FEED_PIN           28
+#define FEED_LED           11
+
+#define RETRACT_PIN        27
+#define RETRACT_LED        10 */
+
+#define PRINT_START_PIN    27        //开始打印键
+#define PRINT_LED          10
+
+#define Z_HOME_PIN         30
+#define HOME_LED           17
+
+#define FEED_PIN           28
+#define FEED_LED           11
+
+#define RETRACT_PIN        29
+#define RETRACT_LED        16
+
+
+
+
+
 #define X_STEP_PIN         15
 #define X_DIR_PIN          21
 #define X_STOP_PIN         18
@@ -21,8 +66,9 @@
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
 
-#define LED_PIN            -1
-#define FAN_PIN            -1
+#define FAN0_PIN            4
+
+#define FAN_PIN            4
 
 #if MB(AZTEEG_X1) || MB(STB_11) || MB(MELZI)
   #define FAN_PIN           4 // Works for Panelolu2 too
@@ -82,7 +128,7 @@
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   // No buzzer installed
-  #define BEEPER_PIN -1
+  #define BEEPER_PIN 30
 
   // LCD Pins
   #if ENABLED(DOGLCD)
@@ -105,7 +151,7 @@
 
     #else // DOGM SPI LCD Support
 
-      #define DOGLCD_A0         30
+      #define DOGLCD_A0         27
       #define DOGLCD_CS         29
       #define LCD_CONTRAST       1
 
@@ -129,8 +175,8 @@
   #endif // !DOGLCD
 
   //The encoder and click button
-  #define BTN_EN1               11
-  #define BTN_EN2               10
+ // #define BTN_EN1               10
+  #define BTN_EN2               11
   #if ENABLED(LCD_I2C_PANELOLU2)
     #if MB(MELZI)
       #define BTN_ENC           29
@@ -139,8 +185,8 @@
       #define BTN_ENC           30
     #endif
   #else
-    #define BTN_ENC             16
-    #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
+    #define BTN_ENC             28
+    //#define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
   #endif //Panelolu2
 
   #define SD_DETECT_PIN         -1
@@ -162,7 +208,7 @@
   //#define LCD_SCREEN_ROT_270
   //The encoder and click button
   #define BTN_EN1               11
-  #define BTN_EN2               10
+//  #define BTN_EN2               10
   #define BTN_ENC               16
 
   #define SD_DETECT_PIN         -1

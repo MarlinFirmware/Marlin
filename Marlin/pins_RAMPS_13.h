@@ -53,7 +53,7 @@
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define Z_MAX_PIN          -1//19
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
@@ -164,7 +164,7 @@
       #define BTN_EN2 43
       #define BTN_ENC 32
       #define LCD_SDSS 53
-      #define SD_DETECT_PIN -1
+      #define SD_DETECT_PIN 49
       #define KILL_PIN 41
     #elif ENABLED(LCD_I2C_VIKI)
       #define BTN_EN1 22  // reverse if the encoder turns the wrong way.
@@ -186,26 +186,13 @@
       #define DOGLCD_A0 27
       #define LCD_PIN_BL 33
     #elif ENABLED(MINIPANEL)
-      #define BEEPER_PIN 42
-      // Pins for DOGM SPI LCD Support
-      #define DOGLCD_A0  44
-      #define DOGLCD_CS  66
-      #define LCD_PIN_BL 65 // backlight LED on A11/D65
-      #define SDSS   53
-
-      #define KILL_PIN 64
-      // GLCD features
-      //#define LCD_CONTRAST 190
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-      //The encoder and click button
-      #define BTN_EN1 40
-      #define BTN_EN2 63
-      #define BTN_ENC 59  //the click switch
-      //not connected to a pin
-      #define SD_DETECT_PIN 49
+      #define BEEPER_PIN 37
+      #define DOGLCD_A0  27         //RS
+      #define DOGLCD_CS  25         //LCD_CS
+      #define BTN_EN1 31
+      #define BTN_EN2 33
+      #define BTN_ENC 35	//the click switch
+      #define SD_DETECT_PIN 49       // SD_DET
 
     #else
 
@@ -232,7 +219,7 @@
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
       #else
-        #define SD_DETECT_PIN -1  // Ramps doesn't use this
+        #define SD_DETECT_PIN 49  // Ramps doesn't use this
       #endif
 
     #endif

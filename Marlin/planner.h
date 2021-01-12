@@ -26,6 +26,9 @@
 
 #include "Marlin.h"
 
+
+
+
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in
 // the source g-code and may never actually be reached if acceleration management is active.
 typedef struct {
@@ -144,6 +147,10 @@ extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for 
 extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 extern volatile unsigned char block_buffer_tail;
 
+
+
+FORCE_INLINE void plan_position_to_current(void);
+
 // Returns true if the buffer has a queued block, false otherwise
 FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
@@ -166,5 +173,6 @@ FORCE_INLINE block_t* plan_get_current_block() {
 }
 
 void reset_acceleration_rates();
+
 
 #endif // PLANNER_H

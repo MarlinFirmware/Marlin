@@ -594,6 +594,7 @@ void CardReader::printingHasFinished() {
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
       enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+	  MYSERIAL.print("printinghasfinished!!!");
     }
     autotempShutdown();
   }

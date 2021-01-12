@@ -30,6 +30,8 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#include "blinkm.h"
+
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -47,7 +49,7 @@ block_t* current_block;  // A pointer to the block currently being traced
 
 // Variables used by The Stepper Driver Interrupt
 static unsigned char out_bits = 0;        // The next stepping-bits to be output
-static unsigned int cleaning_buffer_counter;
+volatile unsigned int cleaning_buffer_counter;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
   static bool performing_homing = false,
@@ -93,9 +95,18 @@ static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_
 
 static bool check_endstops = true;
 
+volatile long absolute_position[NUM_AXIS] = { 0 };
 volatile long count_position[NUM_AXIS] = { 0 };
 volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
+
+float get_absolute_position(AxisEnum axis) {
+  return float(absolute_position[axis] / axis_steps_per_unit[axis]);
+}
+
+float set_absolute_position(AxisEnum axis, float position) {
+  absolute_position[axis] = position*axis_steps_per_unit[axis];
+}
 
 //===========================================================================
 //================================ functions ================================
@@ -303,7 +314,7 @@ inline void update_endstops() {
   #define _AXIS(AXIS) AXIS ##_AXIS
   #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_ENDSTOP(AXIS, MIN))
   #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
-
+  #define _ENDSTOPVALUE(AXIS, MINMAX) AXIS ##_## MINMAX##_POS
   // SET_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
   #define SET_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(current_endstop_bits, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   // COPY_BIT: copy the value of COPY_BIT to BIT in bits
@@ -317,6 +328,7 @@ inline void update_endstops() {
       endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
       _ENDSTOP_HIT(AXIS); \
       step_events_completed = current_block->step_event_count; \
+      absolute_position[_AXIS(AXIS)] = _ENDSTOPVALUE(AXIS, MINMAX);\
     }
 
   #if ENABLED(COREXY)
@@ -603,11 +615,18 @@ ISR(TIMER1_COMPA_vect) {
   if (cleaning_buffer_counter) {
     current_block = NULL;
     plan_discard_current_block();
-    #ifdef SD_FINISHED_RELEASECOMMAND
-      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    #endif
+    //#ifdef SD_FINISHED_RELEASECOMMAND
+    //  if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    //#endif
     cleaning_buffer_counter--;
-    OCR1A = 200;
+    OCR1A = 400;
+    return;
+  }
+
+  if ((print_pause==1) && (current_block->steps[Z_AXIS]==0)) { //如果打印暂停，不发脉冲
+    //current_block->nominal_rate *= 0.3;
+    acceleration_time  = 0;
+    acc_step_rate = current_block->initial_rate;
     return;
   }
 
@@ -677,6 +696,7 @@ ISR(TIMER1_COMPA_vect) {
         if (_COUNTER(axis) > 0) { \
           _COUNTER(axis) -= current_block->step_event_count; \
           count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+          absolute_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
           _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
         }
 
@@ -1099,9 +1119,12 @@ void finishAndDisableSteppers() {
 }
 
 void quickStop() {
-  cleaning_buffer_counter = 5000;
+  cleaning_buffer_counter = 200;
   DISABLE_STEPPER_DRIVER_INTERRUPT();
-  while (blocks_queued()) plan_discard_current_block();
+  while (blocks_queued()) {
+    delay(10);
+    plan_discard_current_block();
+  }
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }

@@ -51,7 +51,7 @@
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define DOGLCD
+    #define DOGLCD09
     #define U8GLIB_ST7920
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #endif

@@ -29,6 +29,8 @@
 
 #include "Marlin.h"
 
+#include "blinkm.h"
+
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -49,7 +51,6 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
-#include "buzzer.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -241,9 +242,9 @@ bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_INFO | DEBUG_ERRORS;
 
-static float feedrate = 1500.0, saved_feedrate;
+float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
-static float destination[NUM_AXIS] = { 0.0 };
+float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
@@ -251,7 +252,7 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 static char* current_command, *current_command_args;
 static int cmd_queue_index_r = 0;
 static int cmd_queue_index_w = 0;
-static int commands_in_queue = 0;
+volatile int commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 const float homing_feedrate[] = HOMING_FEEDRATE;
@@ -267,8 +268,9 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
 uint8_t active_extruder = 0;
-int fanSpeed = 0;
+int fanSpeed = 255;
 bool cancel_heatup = false;
+uint32_t cancel_gohome_ms = 0;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -337,7 +339,7 @@ bool target_direction;
   float retract_length_swap = RETRACT_LENGTH_SWAP;
   float retract_feedrate = RETRACT_FEEDRATE;
   float retract_zlift = RETRACT_ZLIFT;
-  float retract_recover_length = RETRACT_RECOVER_LENGTH;
+  float retract_recover_length = RETRACT_RECOVER_LENGTH;fdgfdgfdgd
   float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
   float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 
@@ -612,6 +614,19 @@ void servo_init() {
   void enableStepperDrivers() { pinMode(STEPPER_RESET_PIN, INPUT); }  // set to input, which allows it to be pulled high by pullups
 #endif
 
+void cancel_gohome(void) {
+  if (cancel_print == 0) return;
+  if (cancel_gohome_ms > millis()) return;
+
+  cancel_print = 0;
+  if (IsRunning()) {
+    destination[Z_AXIS] += 10;
+    feedrate = 10*60;
+    prepare_move();
+  }
+  return;
+}
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -631,8 +646,23 @@ void servo_init() {
  *    • status LEDs
  */
 void setup() {
-  setup_killpin();
-  setup_filrunoutpin();
+  pinMode(PRINT_LED, OUTPUT);
+  pinMode(PRINT_START_PIN, INPUT_PULLUP);
+
+  pinMode(FEED_PIN, INPUT_PULLUP);
+  pinMode(FEED_LED, OUTPUT);
+  WRITE(FEED_LED, 1);
+
+  pinMode(RETRACT_PIN, INPUT_PULLUP);
+  pinMode(RETRACT_LED, OUTPUT);
+  WRITE(RETRACT_LED, 1);
+
+  pinMode(Z_HOME_PIN, INPUT_PULLUP);
+  pinMode(HOME_LED, OUTPUT);
+  WRITE(HOME_LED, 1);
+
+  BLINK_LED(4000);
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
@@ -640,7 +670,7 @@ void setup() {
   #endif
 
   MYSERIAL.begin(BAUDRATE);
-  SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_PROTOCOLLNPGM("Start");
   SERIAL_ECHO_START;
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
@@ -710,17 +740,10 @@ void setup() {
     digitalWrite(SLED_PIN, LOW); // turn it off
   #endif // Z_PROBE_SLED
 
+
   setup_homepin();
 
-  #ifdef STAT_LED_RED
-    pinMode(STAT_LED_RED, OUTPUT);
-    digitalWrite(STAT_LED_RED, LOW); // turn it off
-  #endif
-
-  #ifdef STAT_LED_BLUE
-    pinMode(STAT_LED_BLUE, OUTPUT);
-    digitalWrite(STAT_LED_BLUE, LOW); // turn it off
-  #endif
+//  MYSERIAL.print(z_height_stop);
 }
 
 /**
@@ -741,6 +764,8 @@ void loop() {
   #endif
 
   if (commands_in_queue) {
+
+    protect_time = millis();
 
     #if ENABLED(SDSUPPORT)
 
@@ -791,6 +816,16 @@ void gcode_line_error(const char* err, bool doFlush = true) {
  *  - The active serial input (usually USB)
  *  - The SD card file being actively printed
  */
+
+void clear_command() {
+  MYSERIAL.flush();
+
+  serial_count = 0;
+  cmd_queue_index_w = 0;
+  cmd_queue_index_r = 0;
+  commands_in_queue = 0;
+}
+
 void get_command() {
 
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
@@ -934,7 +969,7 @@ void get_command() {
           ((serial_char == '#' || serial_char == ':') && !comment_mode) ||
           serial_count >= (MAX_CMD_SIZE - 1) || n == -1
       ) {
-        if (card.eof()) {
+        if (card.eof()) { //这里是打印完成后的操作
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           print_job_stop_ms = millis();
           char time[30];
@@ -946,6 +981,12 @@ void get_command() {
           lcd_setstatus(time, true);
           card.printingHasFinished();
           card.checkautostart(true);
+          BLINK_LED(LED_ON);
+
+          z_height_stop = destination[Z_AXIS]; //保存取消打印时的Z轴高度
+
+          print_key_flag = 0; 
+          key_flag = 0;
         }
         if (serial_char == '#') stop_buffering = true;
 
@@ -1830,10 +1871,10 @@ static void homeaxis(AxisEnum axis) {
       #if ENABLED(DUAL_X_CARRIAGE)
         (axis == X_AXIS) ? x_home_dir(active_extruder) :
       #endif
-      home_dir(axis);
+      home_dir(axis);   //(1)归零的方向设置
 
     // Set the axis position as setup for the move
-    current_position[axis] = 0;
+    current_position[axis] = 0; //(2)当前的位置设置成0位置
     sync_plan_position();
 
     #if ENABLED(Z_PROBE_SLED)
@@ -1864,13 +1905,13 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     // Move towards the endstop until an endstop is triggered
-    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
+    destination[axis] = 1.2 * max_length(axis) * axis_home_dir; //(3)设置归零的长度
     feedrate = homing_feedrate[axis];
-    line_to_destination();
+    line_to_destination(); //(4)运动完成设定的长度
     st_synchronize();
 
     // Set the axis position as setup for the move
-    current_position[axis] = 0;
+    current_position[axis] = 0;  //(5)把当前位置设置成0
     sync_plan_position();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2141,6 +2182,8 @@ inline void gcode_G0_G1() {
 
     prepare_move();
   }
+  //MYSERIAL.print("G0 CUR[Z]=");
+  //MYSERIAL.print(current_position[Z_AXIS]);
 }
 
 /**
@@ -2236,6 +2279,11 @@ inline void gcode_G28() {
     }
   #endif
 
+  bool homeX = code_seen(axis_codes[X_AXIS]),
+       homeY = code_seen(axis_codes[Y_AXIS]),
+       homeZ = code_seen(axis_codes[Z_AXIS]);
+  home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+
   // Wait for planner moves to finish!
   st_synchronize();
 
@@ -2292,11 +2340,6 @@ inline void gcode_G28() {
 
   #else // NOT DELTA
 
-    bool  homeX = code_seen(axis_codes[X_AXIS]),
-          homeY = code_seen(axis_codes[Y_AXIS]),
-          homeZ = code_seen(axis_codes[Z_AXIS]);
-
-    home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
     if (home_all_axis || homeZ) {
 
@@ -2405,7 +2448,7 @@ inline void gcode_G28() {
         delayed_move_time = 0;
         active_extruder_parked = true;
       #else
-        HOMEAXIS(X);
+        HOMEAXIS(X); //X轴归零
       #endif
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (marlin_debug_flags & DEBUG_LEVELING) {
@@ -2417,7 +2460,7 @@ inline void gcode_G28() {
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
       if (home_all_axis || homeY) {
-        HOMEAXIS(Y);
+        HOMEAXIS(Y); //Y轴归零
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
             print_xyz("> homeY", current_position);
@@ -2443,7 +2486,6 @@ inline void gcode_G28() {
 
             current_position[Z_AXIS] = 0;
             sync_plan_position();
-
             //
             // Set the Z probe (or just the nozzle) destination to the safe homing point
             //
@@ -2532,8 +2574,8 @@ inline void gcode_G28() {
           #endif
 
         #else // !Z_SAFE_HOMING
-
-          HOMEAXIS(Z);
+			
+			HOMEAXIS(Z); //Z轴归零		
 
         #endif // !Z_SAFE_HOMING
 
@@ -3889,7 +3931,7 @@ inline void gcode_M105() {
 /**
  * M109: Wait for extruder(s) to reach temperature
  */
-inline void gcode_M109() {
+inline void gcode_M109() { //等待温度到达设定温度,否则gcode不执行gcode后面的数据
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
@@ -3906,10 +3948,10 @@ inline void gcode_M109() {
   }
 
   #if ENABLED(AUTOTEMP)
-    autotemp_enabled = code_seen('F');
+    autotemp_enabled = code_seen('F'); //F后面跟温度率
     if (autotemp_enabled) autotemp_factor = code_value();
-    if (code_seen('S')) autotemp_min = code_value();
-    if (code_seen('B')) autotemp_max = code_value();
+    if (code_seen('S')) autotemp_min = code_value(); //S后面是最大温度
+    if (code_seen('B')) autotemp_max = code_value(); //B后面是最小温度
   #endif
 
   millis_t temp_ms = millis();
@@ -4149,7 +4191,7 @@ inline void gcode_M140() {
     #if ENABLED(ULTIPANEL)
       powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
-      lcd_update();
+      //lcd_update();
     #endif
   }
 
@@ -4176,7 +4218,7 @@ inline void gcode_M81() {
       powersupply = false;
     #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
-    lcd_update();
+    //lcd_update();
   #endif
 }
 
@@ -4270,6 +4312,8 @@ inline void gcode_M114() {
   SERIAL_PROTOCOL(st_get_position_mm(Y_AXIS));
   SERIAL_PROTOCOLPGM(" Z:");
   SERIAL_PROTOCOL(st_get_position_mm(Z_AXIS));
+  SERIAL_PROTOCOLPGM(" E:");
+  SERIAL_PROTOCOL(st_get_position_mm(E_AXIS));
 
   SERIAL_EOL;
 
@@ -5370,7 +5414,7 @@ inline void gcode_M503() {
         }
         manage_heater();
         manage_inactivity(true);
-        lcd_update();
+        //lcd_update();
       #else
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
         destination[E_AXIS] = current_position[E_AXIS];
@@ -6758,8 +6802,8 @@ void plan_arc(
       }
       uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
       // allows digital or PWM fan output to be used (see M42 handling)
-      digitalWrite(CONTROLLERFAN_PIN, speed);
-      analogWrite(CONTROLLERFAN_PIN, speed);
+      digitalWrite(CONTROLLERFAN_PIN, 255); //speed 风扇一直高速转动
+      analogWrite(CONTROLLERFAN_PIN, 255); //speed 风扇一直高速转动
     }
   }
 
@@ -6895,7 +6939,15 @@ void disable_all_steppers() {
 void idle() {
   manage_heater();
   manage_inactivity();
-  lcd_update();
+  //lcd_update();
+  cancel_gohome();
+  PrintOneKey();
+  BlinkLed();
+  BlinkFeedLed();
+  BlinkRetractLed();
+  home_key();
+  LoadFilament();
+  heat_protect();
 }
 
 /**
@@ -7181,9 +7233,9 @@ void Stop() {
  * Returns TRUE if the target is invalid
  */
 bool setTargetedHotend(int code) {
-  target_extruder = active_extruder;
+  target_extruder = active_extruder; //有效的挤出头号
   if (code_seen('T')) {
-    target_extruder = code_value_short();
+    target_extruder = code_value_short(); //T后面跟的是挤出头号
     if (target_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');

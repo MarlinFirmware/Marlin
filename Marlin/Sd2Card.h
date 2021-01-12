@@ -155,6 +155,9 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  */
 class Sd2Card {
  public:
+ 
+  bool writemultipleblock (const uint8_t *buff,uint32_t sector,uint16_t count);
+  bool readmultipleblock (uint8_t *buff,uint32_t sector,uint16_t count); 
   /** Construct an instance of Sd2Card. */
   Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
   uint32_t cardSize();
@@ -203,6 +206,7 @@ class Sd2Card {
   bool readCSD(csd_t* csd) {
     return readRegister(CMD9, csd);
   }
+  
   bool readData(uint8_t* dst);
   bool readStart(uint32_t blockNumber);
   bool readStop();

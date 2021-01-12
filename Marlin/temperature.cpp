@@ -357,7 +357,7 @@ void PID_autotune(float temp, int extruder, int ncycles) {
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
       return;
     }
-    lcd_update();
+    //lcd_update();
   }
 }
 

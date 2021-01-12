@@ -106,6 +106,7 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //===========================================================================
 
 // The current position of the tool in absolute steps
+long absoulte_position[NUM_AXIS];  
 long position[NUM_AXIS];               // Rescaled from extern when axis_steps_per_unit are changed by gcode
 static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
 static float previous_nominal_speed;   // Nominal speed of previous path line segment
@@ -541,6 +542,41 @@ float junction_deviation = 0.1;
 
   // Mark block as not busy (Not executed by the stepper interrupt)
   block->busy = false;
+  
+  uint8_t db = 0;
+  
+  uint8_t dx_t = 0, dy_t = 0, dz_t = 0; 
+  static uint8_t dx_p = 0, dy_p = 0, dz_p = 0; 
+  uint8_t x_offset = 0.02,y_offset = 0.02,z_offset = 0;
+  
+  #if ENABLED(COREXY)
+  if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
+  if (dy < 0) db |= BIT(Y_HEAD); // ...and Y
+  if (dz < 0) db |= BIT(Z_AXIS);
+  if (dx + dy < 0) db |= BIT(A_AXIS); // Motor A direction
+  if (dx - dy < 0) db |= BIT(B_AXIS); // Motor B direction
+  #elif ENABLED(COREXZ)
+  if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
+  if (dy < 0) db |= BIT(Y_AXIS);
+  if (dz < 0) db |= BIT(Z_HEAD); // ...and Z
+  if (dx + dz < 0) db |= BIT(A_AXIS); // Motor A direction
+  if (dx - dz < 0) db |= BIT(C_AXIS); // Motor B direction
+  #else
+  
+  if (dx < 0) {db |= BIT(X_AXIS); dx_t = 1;}
+  if (dy < 0) {db |= BIT(Y_AXIS); dy_t = 1;}
+  if (dz < 0) {db |= BIT(Z_AXIS); dz_t = 1;}
+
+  if(dx_t != dx_p){dx_p = dx_t; x_offset = 0;}
+  if(dy_t != dy_p){dy_p = dy_t; y_offset = 0;} 
+ // if(dz_t != dz_p){dz_p = dz_t; z_offset = 0;} 
+  
+  #endif
+  if (de < 0) db |= BIT(E_AXIS);
+  block->direction_bits = db;
+
+  block->active_extruder = extruder;
+  
 
   // Number of steps for each axis
   #if ENABLED(COREXY)
@@ -556,9 +592,9 @@ float junction_deviation = 0.1;
     block->steps[C_AXIS] = labs(dx - dz);
   #else
     // default non-h-bot planning
-    block->steps[X_AXIS] = labs(dx);
-    block->steps[Y_AXIS] = labs(dy);
-    block->steps[Z_AXIS] = labs(dz);
+    block->steps[X_AXIS] = labs(dx) + lround(x_offset * axis_steps_per_unit[X_AXIS]);
+    block->steps[Y_AXIS] = labs(dy) + lround(y_offset * axis_steps_per_unit[Y_AXIS]);
+    block->steps[Z_AXIS] = labs(dz) + lround(z_offset * axis_steps_per_unit[Z_AXIS]);
   #endif
 
   block->steps[E_AXIS] = labs(de);
@@ -577,28 +613,7 @@ float junction_deviation = 0.1;
   #endif
 
   // Compute direction bits for this block
-  uint8_t db = 0;
-  #if ENABLED(COREXY)
-    if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
-    if (dy < 0) db |= BIT(Y_HEAD); // ...and Y
-    if (dz < 0) db |= BIT(Z_AXIS);
-    if (dx + dy < 0) db |= BIT(A_AXIS); // Motor A direction
-    if (dx - dy < 0) db |= BIT(B_AXIS); // Motor B direction
-  #elif ENABLED(COREXZ)
-    if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
-    if (dy < 0) db |= BIT(Y_AXIS);
-    if (dz < 0) db |= BIT(Z_HEAD); // ...and Z
-    if (dx + dz < 0) db |= BIT(A_AXIS); // Motor A direction
-    if (dx - dz < 0) db |= BIT(C_AXIS); // Motor B direction
-  #else
-    if (dx < 0) db |= BIT(X_AXIS);
-    if (dy < 0) db |= BIT(Y_AXIS);
-    if (dz < 0) db |= BIT(Z_AXIS);
-  #endif
-  if (de < 0) db |= BIT(E_AXIS);
-  block->direction_bits = db;
 
-  block->active_extruder = extruder;
 
   //enable active axes
   #if ENABLED(COREXY)
@@ -1015,7 +1030,10 @@ float junction_deviation = 0.1;
 
     return position;
   }
+ 
 #endif // AUTO_BED_LEVELING_FEATURE && !DELTA
+
+
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
   void plan_set_position(float x, float y, float z, const float& e)
@@ -1039,6 +1057,22 @@ float junction_deviation = 0.1;
     for (int i = 0; i < NUM_AXIS; i++) previous_speed[i] = 0.0;
   }
 
+
+FORCE_INLINE void plan_position_to_current(void)
+{
+	current_position[X_AXIS] = float(position[X_AXIS]/axis_steps_per_unit[X_AXIS]);
+	current_position[Y_AXIS] = float(position[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
+	current_position[Z_AXIS] = float(position[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
+	current_position[E_AXIS] = float(position[E_AXIS]/axis_steps_per_unit[E_AXIS]);
+	
+	destination[X_AXIS] = current_position[X_AXIS];
+	destination[Y_AXIS] = current_position[Y_AXIS];
+	destination[Z_AXIS] = current_position[Z_AXIS];
+	destination[E_AXIS] = current_position[E_AXIS];
+	st_synchronize();
+}
+
+
 void plan_set_e_position(const float& e) {
   position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
   st_set_e_position(position[E_AXIS]);
@@ -1048,4 +1082,10 @@ void plan_set_e_position(const float& e) {
 void reset_acceleration_rates() {
   for (int i = 0; i < NUM_AXIS; i++)
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
+}
+
+//
+void plan_set_pasue(void)
+{
+	
 }
