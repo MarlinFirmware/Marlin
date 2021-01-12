@@ -353,6 +353,11 @@
         #define LCD_PINS_D5         EXPA1_05_PIN
         #define LCD_PINS_D6         EXPA1_04_PIN
         #define LCD_PINS_D7         EXPA1_03_PIN
+
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #endif
+
       #endif
 
     #endif // !FYSETC_MINI_12864
@@ -370,7 +375,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                    EXPA2_07_PIN
+  #define SD_SS_PIN                 EXPA2_07_PIN
 #endif
 
 /**

@@ -86,6 +86,7 @@ inline PGM_P change_filament_header(const PauseMode mode) {
 void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
   _change_filament_extruder = extruder;
+  const int8_t old_index = MenuItemBase::itemIndex;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
@@ -98,6 +99,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     _change_filament_with_custom
   );
   END_MENU();
+  MenuItemBase::itemIndex = old_index;
 }
 
 /**

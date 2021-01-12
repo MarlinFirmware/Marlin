@@ -16,6 +16,30 @@ except ImportError:
 	# PIO >= 4.4
 	from platformio.package.meta import PackageSpec as PackageManager
 
+PIO_VERSION_MIN = (5, 0, 3)
+try:
+	from platformio import VERSION as PIO_VERSION
+	weights = (1000, 100, 1)
+	version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
+	version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
+	if version_cur < version_min:
+		print()
+		print("**************************************************")
+		print("******      An update to PlatformIO is      ******")
+		print("******  required to build Marlin Firmware.  ******")
+		print("******                                      ******")
+		print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
+		print("******      Current Version: ", PIO_VERSION, "    ******")
+		print("******                                      ******")
+		print("******   Update PlatformIO and try again.   ******")
+		print("**************************************************")
+		print()
+		exit(1)
+except SystemExit:
+	exit(1)
+except:
+	print("Can't detect PlatformIO Version")
+
 Import("env")
 
 #print(env.Dump())
@@ -51,7 +75,7 @@ def add_to_feat_cnf(feature, flines):
 		parts = dep.split('=')
 		name = parts.pop(0)
 		rest = '='.join(parts)
-		if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
+		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
 			feat[name] = rest
 		else:
 			feat['lib_deps'] += [dep]
@@ -108,8 +132,7 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption('lib_ignore') + diff
-	if verbose:
-		print("Ignore libraries:", lib_ignore)
+	blab("Ignore libraries: %s" % lib_ignore)
 	set_env_field('lib_ignore', lib_ignore)
 
 def apply_features_config():
@@ -148,6 +171,12 @@ def apply_features_config():
 				# Only add the missing dependencies
 				set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
+		if 'build_flags' in feat:
+			f = feat['build_flags']
+			blab("Adding build_flags for %s: %s" % (feature, f))
+			new_flags = env.GetProjectOption('build_flags') + [ f ]
+			env.Replace(BUILD_FLAGS=new_flags)
+
 		if 'extra_scripts' in feat:
 			blab("Running extra_scripts for %s... " % feature)
 			env.SConscript(feat['extra_scripts'], exports="env")
@@ -179,13 +208,13 @@ GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
 	try:
 		filepath = env.GetProjectOption('custom_gcc')
-		blab('Getting compiler from env')
+		blab("Getting compiler from env")
 		return filepath
 	except:
 		pass
 
 	if os.path.exists(GCC_PATH_CACHE):
-		blab('Getting g++ path from cache')
+		blab("Getting g++ path from cache")
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
@@ -212,7 +241,7 @@ def search_compiler():
 			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
-				blab('Caching g++ for current env')
+				blab("Caching g++ for current env")
 				with open(GCC_PATH_CACHE, 'w+') as f:
 					f.write(filepath)
 
@@ -277,6 +306,16 @@ def MarlinFeatureIsEnabled(env, feature):
 	return some_on
 
 #
+# Check for Configfiles in two common incorrect places
+#
+def check_configfile_locations():
+	for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
+		for f in [ "Configuration.h", "Configuration_adv.h" ]:
+			if os.path.isfile(os.path.join(p, f)):
+				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
+				raise SystemExit(err)
+
+#
 # Add a method for other PIO scripts to query enabled features
 #
 env.AddMethod(MarlinFeatureIsEnabled)
@@ -284,5 +323,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
+check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()

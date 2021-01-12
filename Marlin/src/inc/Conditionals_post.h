@@ -100,6 +100,7 @@
 #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
 #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
+#define XY_CENTER { X_CENTER, Y_CENTER }
 
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - _X_HALF_BED)
@@ -117,43 +118,6 @@
   #ifndef X1_MAX_POS
     #define X1_MAX_POS X_BED_SIZE
   #endif
-#endif
-
-/**
- * CoreXY, CoreXZ, and CoreYZ - and their reverse
- */
-#if EITHER(COREXY, COREYX)
-  #define CORE_IS_XY 1
-#endif
-#if EITHER(COREXZ, COREZX)
-  #define CORE_IS_XZ 1
-#endif
-#if EITHER(COREYZ, COREZY)
-  #define CORE_IS_YZ 1
-#endif
-#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
-  #define IS_CORE 1
-#endif
-#if IS_CORE
-  #if CORE_IS_XY
-    #define CORE_AXIS_1 A_AXIS
-    #define CORE_AXIS_2 B_AXIS
-    #define NORMAL_AXIS Z_AXIS
-  #elif CORE_IS_XZ
-    #define CORE_AXIS_1 A_AXIS
-    #define NORMAL_AXIS Y_AXIS
-    #define CORE_AXIS_2 C_AXIS
-  #elif CORE_IS_YZ
-    #define NORMAL_AXIS X_AXIS
-    #define CORE_AXIS_1 B_AXIS
-    #define CORE_AXIS_2 C_AXIS
-  #endif
-  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
-#elif ENABLED(MARKFORGED_XY)
-  // Markforged kinematics
-  #define CORE_AXIS_1 A_AXIS
-  #define CORE_AXIS_2 B_AXIS
-  #define NORMAL_AXIS Z_AXIS
 #endif
 
 // Calibration codes only for non-core axes
@@ -359,7 +323,12 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
+  #endif
+
+  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -380,7 +349,6 @@
       #define SD_DETECT_STATE LOW
     #endif
   #endif
-
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
@@ -445,9 +413,9 @@
     #define HEATER_0_MAX6675_TMAX 1024
   #endif
   #if TEMP_SENSOR_0 == -5
-    #define MAX6675_IS_MAX31865 1
+    #define MAX6675_0_IS_MAX31865 1
   #elif TEMP_SENSOR_0 == -3
-    #define MAX6675_IS_MAX31855 1
+    #define MAX6675_0_IS_MAX31855 1
   #endif
 #elif TEMP_SENSOR_0 == -4
   #define HEATER_0_USES_AD8495 1
@@ -458,6 +426,8 @@
   #define HEATER_0_USES_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
     #define HEATER_0_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
+    #define HEATER_0_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_0_MINTEMP
@@ -472,6 +442,11 @@
   #else
     #define HEATER_1_MAX6675_TMIN    0
     #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 == -5
+    #define MAX6675_1_IS_MAX31865 1
+  #elif TEMP_SENSOR_1 == -3
+    #define MAX6675_1_IS_MAX31855 1
   #endif
   #if TEMP_SENSOR_1 != TEMP_SENSOR_0
     #if   TEMP_SENSOR_1 == -5
@@ -491,6 +466,8 @@
   #define HEATER_1_USES_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
     #define HEATER_1_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
+    #define HEATER_1_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_1_MINTEMP
@@ -510,6 +487,8 @@
   #define HEATER_2_USES_THERMISTOR 1
   #if TEMP_SENSOR_2 == 1000
     #define HEATER_2_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
+    #define HEATER_2_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_2_MINTEMP
@@ -529,6 +508,8 @@
   #define HEATER_3_USES_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
     #define HEATER_3_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+    #define HEATER_3_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_3_MINTEMP
@@ -548,6 +529,8 @@
   #define HEATER_4_USES_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
     #define HEATER_4_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+    #define HEATER_4_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_4_MINTEMP
@@ -567,6 +550,8 @@
   #define HEATER_5_USES_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
     #define HEATER_5_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+    #define HEATER_5_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_5_MINTEMP
@@ -586,6 +571,8 @@
   #define HEATER_6_USES_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
     #define HEATER_6_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+    #define HEATER_6_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_6_MINTEMP
@@ -605,6 +592,8 @@
   #define HEATER_7_USES_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
     #define HEATER_7_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+    #define HEATER_7_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_7_MINTEMP
@@ -624,6 +613,8 @@
   #define HEATER_BED_USES_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
     #define HEATER_BED_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
+    #define HEATER_BED_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef BED_MINTEMP
@@ -643,6 +634,8 @@
   #define HEATER_CHAMBER_USES_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
     #define HEATER_CHAMBER_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
+    #define HEATER_CHAMBER_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef CHAMBER_MINTEMP
@@ -662,6 +655,8 @@
   #define HEATER_PROBE_USES_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
     #define HEATER_PROBE_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
+    #define HEATER_PROBE_DUMMY_THERMISTOR 1
   #endif
 #endif
 
@@ -1657,6 +1652,54 @@
   #ifndef E7_INTERPOLATE
     #define E7_INTERPOLATE INTERPOLATE
   #endif
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  0
+  #endif
+  #ifndef X2_SLAVE_ADDRESS
+    #define X2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Y2_SLAVE_ADDRESS
+    #define Y2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z2_SLAVE_ADDRESS
+    #define Z2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z3_SLAVE_ADDRESS
+    #define Z3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef Z4_SLAVE_ADDRESS
+    #define Z4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E1_SLAVE_ADDRESS
+    #define E1_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E2_SLAVE_ADDRESS
+    #define E2_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E3_SLAVE_ADDRESS
+    #define E3_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E4_SLAVE_ADDRESS
+    #define E4_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E5_SLAVE_ADDRESS
+    #define E5_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E6_SLAVE_ADDRESS
+    #define E6_SLAVE_ADDRESS 0
+  #endif
+  #ifndef E7_SLAVE_ADDRESS
+    #define E7_SLAVE_ADDRESS 0
+  #endif
 #endif
 
 #if (HAS_E_DRIVER(TMC2660) \
@@ -1749,7 +1792,7 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
-#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && DISABLED(HEATER_##P##_USES_MAX6675))
+#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(HEATER_##P##_USES_MAX6675, HEATER_##P##_DUMMY_THERMISTOR))
 #if HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
@@ -1784,12 +1827,19 @@
   #define HAS_TEMP_ADC_CHAMBER 1
 #endif
 
-#if HAS_HOTEND && EITHER(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675)
+#define HAS_TEMP(N) ANY(HAS_TEMP_ADC_##N, HEATER_##N##_USES_MAX6675, HEATER_##N##_DUMMY_THERMISTOR)
+#if HAS_HOTEND && HAS_TEMP(0)
   #define HAS_TEMP_HOTEND 1
 #endif
-#define HAS_TEMP_BED        HAS_TEMP_ADC_BED
-#define HAS_TEMP_PROBE      HAS_TEMP_ADC_PROBE
-#define HAS_TEMP_CHAMBER    HAS_TEMP_ADC_CHAMBER
+#if HAS_TEMP(BED)
+  #define HAS_TEMP_BED 1
+#endif
+#if HAS_TEMP(PROBE)
+  #define HAS_TEMP_PROBE 1
+#endif
+#if HAS_TEMP(CHAMBER)
+  #define HAS_TEMP_CHAMBER 1
+#endif
 
 #if ENABLED(JOYSTICK)
   #if PIN_EXISTS(JOY_X)
@@ -1999,6 +2049,9 @@
 #endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
+#endif
+#if HAS_SERVOS && defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
+  #define HAS_PAUSE_SERVO_OUTPUT 1
 #endif
 
 // Sensors
@@ -2317,11 +2370,7 @@
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
   #ifndef XY_PROBE_SPEED
-    #ifdef HOMING_FEEDRATE_XY
-      #define XY_PROBE_SPEED HOMING_FEEDRATE_XY
-    #else
-      #define XY_PROBE_SPEED 4000
-    #endif
+    #define XY_PROBE_SPEED ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
@@ -2377,7 +2426,7 @@
 #endif
 
 #if HAS_BED_PROBE && (EITHER(PROBING_HEATERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
-  #define QUIET_PROBING 1
+  #define HAS_QUIET_PROBING 1
 #endif
 #if EITHER(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
@@ -2449,6 +2498,10 @@
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0, 0, 0 }
   #endif
+#endif
+
+#ifndef DEFAULT_LEVELING_FADE_HEIGHT
+  #define DEFAULT_LEVELING_FADE_HEIGHT 0.0
 #endif
 
 #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
@@ -2542,10 +2595,10 @@
  */
 #if HAS_MARLINUI_U8GLIB
   #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SCK_PIN
+    #define DOGLCD_SCK  SD_SCK_PIN
   #endif
   #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI MOSI_PIN
+    #define DOGLCD_MOSI SD_MOSI_PIN
   #endif
 #endif
 
@@ -2575,6 +2628,10 @@
   #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
     #define BLTOUCH_DELAY 500
   #endif
+#endif
+
+#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
@@ -2631,7 +2688,7 @@
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SCK_PIN == LCD_PINS_D4)
+#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SD_SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
@@ -2654,6 +2711,11 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+#endif
+
+// Fallback SPI Speed for SD
+#if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
+  #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
 // Defined here to catch the above defines

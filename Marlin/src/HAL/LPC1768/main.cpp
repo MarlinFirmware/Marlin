@@ -31,17 +31,18 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-extern "C" {
-  #include <debug_frmwrk.h>
-}
-
-#include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
 
+#include "../../sd/cardreader.h"
+
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
-extern "C" int isLPC1769();
-extern "C" void disk_timerproc();
+
+extern "C" {
+  #include <debug_frmwrk.h>
+  extern "C" int isLPC1769();
+  extern "C" void disk_timerproc();
+}
 
 void SysTick_Callback() { disk_timerproc(); }
 
@@ -89,11 +90,11 @@ void HAL_init() {
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialize the SD card chip select pins as soon as possible
-  #if PIN_EXISTS(SS)
-    OUT_WRITE(SS_PIN, HIGH);
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
 
-  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
+  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SD_SS_PIN
     OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
   #endif
 
@@ -122,7 +123,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(NO_SD_HOST_DRIVE)
+  #if HAS_SD_HOST_DRIVE
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 

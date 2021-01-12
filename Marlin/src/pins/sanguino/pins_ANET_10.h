@@ -199,9 +199,7 @@
   #endif
 
 #else
-
   #define SERVO0_PIN                          27
-
 #endif
 
 #ifndef FIL_RUNOUT_PIN

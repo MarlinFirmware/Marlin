@@ -27,7 +27,6 @@
 #include <lv_conf.h>
 
 #include "../../../../gcode/gcode.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/planner.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"
@@ -148,7 +147,7 @@ void printer_state_polling() {
   if (uiCfg.print_state == WORKING)
     filament_check();
 
-  TERN_(USE_WIFI_FUNCTION, wifi_looping());
+  TERN_(MKS_WIFI_MODULE, wifi_looping());
 }
 
 void filament_pin_setup() {

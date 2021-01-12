@@ -8,7 +8,16 @@ set -e
 
 use_example_configs Alfawise/U20
 opt_enable BAUD_RATE_GCODE
-exec_test $1 $2 "Full-featured U20 config"
+exec_test $1 $2 "CLASSIC_UI U20 config" "$3"
+
+use_example_configs Alfawise/U20
+opt_enable BAUD_RATE_GCODE TFT_COLOR_UI
+opt_disable TFT_CLASSIC_UI CUSTOM_STATUS_SCREEN_IMAGE
+exec_test $1 $2 "COLOR_UI U20 config" "$3"
+
+use_example_configs Alfawise/U20-bltouch
+opt_enable BAUD_RATE_GCODE
+exec_test $1 $2 "BLTouch U20 config"
 
 # cleanup
 restore_configs
