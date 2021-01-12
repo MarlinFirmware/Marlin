@@ -614,7 +614,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("Про плату");
   PROGMEM Language_Str MSG_INFO_THERMISTOR_MENU            = _UxGT("Термістори");
   PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Екструдери");
-  PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("бод");
+  PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Бод");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Протокол");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF              = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Вимк");
