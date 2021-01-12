@@ -78,7 +78,12 @@ extern const char G28_STR[];
 #define RB 3
 #define LB 4
 #ifndef LEVEL_CORNERS_LEVELING_ORDER
-  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB }
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB } //Default
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB, RF  } //Test 3 hardcoded points
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, RF } //3 Point Leveling - Rear
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB } //3 Point Leveling - Right
+  //#define LEVEL_CORNERS_LEVELING_ORDER { RF, RB } //3 Point Leveling - Left
+  //#define LEVEL_CORNERS_LEVELING_ORDER { LB, RB } //3 Point Leveling - Front
 #endif
 constexpr int lco[] = LEVEL_CORNERS_LEVELING_ORDER;
 static_assert(WITHIN(COUNT(lco), 2, 4), "LEVEL_CORNERS_LEVELING_ORDER must have from 2 to 4 corners.");
@@ -117,10 +122,10 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       case 2:
         // Determine which edge to probe for 3rd point
         current_position.set(X_CENTER, Y_CENTER);
-        if ((lco[0] == LB && lco[1] == RB) || (lco[0] == RB && lco[1] == LB)) current_position.y = rb.y; // Center Back
+        if ((lco[0] == LB && lco[1] == RB) || (lco[0] == RB && lco[1] == LB)) current_position.y = lf.y; // Front Center
         if ((lco[0] == LF && lco[1] == LB) || (lco[0] == LB && lco[1] == LF)) current_position.x = rb.x; // Center Right
         if ((lco[0] == RF && lco[1] == RB) || (lco[0] == RB && lco[1] == RF)) current_position.x = lf.x; // Left Center
-        if ((lco[0] == LF && lco[1] == RF) || (lco[0] == RF && lco[1] == LF)) current_position.y = lf.y; // Front Center
+        if ((lco[0] == LF && lco[1] == RF) || (lco[0] == RF && lco[1] == LF)) current_position.y = rb.y; // Center Back
         #if DISABLED(LEVEL_CENTER_TOO) && ENABLED(LEVEL_CORNERS_USE_PROBE)
           bed_corner++;  // Must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
         #endif

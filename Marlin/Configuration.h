@@ -1455,7 +1455,7 @@
   /**
    * Corner Leveling Order
    *
-   * Set 2, 3, or 4 points. If 2 points are given, the third is the center of the opposite edge.
+   * Set 2 or 4 points. If less than 4 points are given, the third is the center of the opposite edge.
    *
    *  LF  Left-Front    RF  Right-Front
    *  LB  Left-Back     RB  Right-Back
