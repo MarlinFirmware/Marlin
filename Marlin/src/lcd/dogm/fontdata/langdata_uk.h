@@ -82,5 +82,4 @@ static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // 'ю' -- 'я'
     FONTDATA_ITEM(8, 212, 212, fontpage_8_212_212), // 'є' -- 'є'
     FONTDATA_ITEM(8, 214, 215, fontpage_8_214_215), // 'і' -- 'ї'
-    FONTDATA_ITEM(9, 144, 145, fontpage_9_144_145), // 'Ґ' -- 'ґ'
 };
