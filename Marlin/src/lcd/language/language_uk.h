@@ -809,10 +809,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Майстер Z-зонда");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING          = _UxGT("Зондув. контрольної точки Z");
+    PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зондування");
   #else
     PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING          = _UxGT("Зондув.контр.точки Z");
+    PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зондув.");
   #endif
-  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING           = _UxGT("Рух до точки зонду");
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Звук");
 
