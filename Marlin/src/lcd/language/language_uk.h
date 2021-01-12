@@ -678,26 +678,26 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
   PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Онови прошивку MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU потребує уваги");
-  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Продовжити MMU");
-  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Продовження MMU ...");
-  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Завантажити MMU");
-  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Завантажити все MMU");
+  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("MMU Продовжити");
+  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("MMU Продовження...");
+  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("MMU Завантажити");
+  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("MMU Завантажити все");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE           = _UxGT("Завантажити в сопло MMU");
+    PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE           = _UxGT("MMU Завантажити в сопло");
   #else
-    PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE           = _UxGT("Завантаж. в сопло MMU");
+    PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE           = _UxGT("MMU Завантаж. в сопло");
   #endif
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Звільнити MMU");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Звільнити MMU ~");
-  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Вивантажити MMU");
-  PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Завантаж. MMU %i...");
-  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Звільнення MMU...");
-  PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Вивантаження MMU....");
-  PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("Все");
-  PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("Пруток ~");
-  PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("Перезапуск MMU");
-  PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Перезапуск MMU...");
-  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Видаліть, натисніть");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("MMU Звільнити");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("MMU Звільнити ~");
+  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("MMU Вивантажити");
+  PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("MMU Завантаж. %i...");
+  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("MMU Звільнення...");
+  PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("MMU Вивантаження...");
+  PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("MMU Все");
+  PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("MMU Пруток ~");
+  PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("MMU Перезапуск");
+  PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("MMU Перезапуск...");
+  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("MMU Видаліть, натисніть");
 
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MIX                           = _UxGT("Змішування");
