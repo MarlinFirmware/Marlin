@@ -83,7 +83,7 @@ namespace Language_uk {
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_SET_HOME_OFFSETS              = _UxGT("Встанов. зміщення дому");
   #else
-    PROGMEM Language_Str MSG_SET_HOME_OFFSETS              = _UxGT("Встанов.зміщ.дому");
+    PROGMEM Language_Str MSG_SET_HOME_OFFSETS              = _UxGT("Встанов. зміщ. дому");
   #endif
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Зміщення прийняті");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Встановити нуль");
@@ -133,7 +133,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Вирівнювання столу");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Вирівняти стіл");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Вирівняти кути");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Cтіл вгору до спрацюв. зонду");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Cтіл вгору до спрацювання зонду"); // not sure about this one
+  #else
+    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Cтіл вгору до спрацюв. зонду");
+  #endif
   PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Кути в межах. Вирівнювання столу"); // Too long?
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Наступний кут");
   #if LCD_WIDTH > 21
@@ -567,16 +571,15 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Нагрів столу...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Нагрів камери...");
   PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Нагрів зонду...");
+  PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Калібрування Delta");
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_BED_COOLING                   = _UxGT("Охолодження столу...");
     PROGMEM Language_Str MSG_CHAMBER_COOLING               = _UxGT("Охолодження камери...");
     PROGMEM Language_Str MSG_PROBE_COOLING                 = _UxGT("Охолодження зонду...");
-    PROGMEM Language_Str MSG_DELTA_CALIBRATE               = _UxGT("Калібрування Delta");
   #else
     PROGMEM Language_Str MSG_BED_COOLING                   = _UxGT("Охол. столу...");
     PROGMEM Language_Str MSG_CHAMBER_COOLING               = _UxGT("Охол. камери...");
     PROGMEM Language_Str MSG_PROBE_COOLING                 = _UxGT("Охол. зонду...");
-    PROGMEM Language_Str MSG_DELTA_CALIBRATE               = _UxGT("Калібрув. Delta");
   #endif
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Калібрувати X");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Калібрувати Y");
@@ -585,13 +588,8 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_DELTA_SETTINGS                  = _UxGT("Параметри Delta");
   PROGMEM Language_Str MSG_DELTA_AUTO_CALIBRATE            = _UxGT("Автокалібрування");
   PROGMEM Language_Str MSG_DELTA_HEIGHT_CALIBRATE          = _UxGT("Встан. Висоту Delta");
-  #if LCD_WIDTH >= 20
-    PROGMEM Language_Str MSG_DELTA_Z_OFFSET_CALIBRATE      = _UxGT("Z-зміщення зонду");
-    PROGMEM Language_Str MSG_DELTA_DIAG_ROD                = _UxGT("Діагональ стрижня");
-  #else
-    PROGMEM Language_Str MSG_DELTA_Z_OFFSET_CALIBRATE      = _UxGT("Z-зміщ. зонду");
-    PROGMEM Language_Str MSG_DELTA_DIAG_ROD                = _UxGT("Діаг. стрижня");
-  #endif
+  PROGMEM Language_Str MSG_DELTA_Z_OFFSET_CALIBRATE        = _UxGT("Z-зміщення зонду");
+  PROGMEM Language_Str MSG_DELTA_DIAG_ROD                  = _UxGT("Діагональ стрижня");
   PROGMEM Language_Str MSG_DELTA_HEIGHT                    = _UxGT("Висота");
   PROGMEM Language_Str MSG_DELTA_RADIUS                    = _UxGT("Радіус");
 
@@ -603,9 +601,9 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_LINEAR_LEVELING               = _UxGT("Лінійне вирівнювання");
     PROGMEM Language_Str MSG_BILINEAR_LEVELING             = _UxGT("Білінійне вирівнювання");
   #else
-    PROGMEM Language_Str MSG_3POINT_LEVELING               = _UxGT("3-точк. вирівн.");
+    PROGMEM Language_Str MSG_3POINT_LEVELING               = _UxGT("3-точкове вирівн.");
     PROGMEM Language_Str MSG_LINEAR_LEVELING               = _UxGT("Лінійне вирівн.");
-    PROGMEM Language_Str MSG_BILINEAR_LEVELING             = _UxGT("Білін. вирівн.");
+    PROGMEM Language_Str MSG_BILINEAR_LEVELING             = _UxGT("Білінійне вирівн.");
   #endif
   PROGMEM Language_Str MSG_UBL_LEVELING                    = _UxGT("UBL");
   PROGMEM Language_Str MSG_MESH_LEVELING                   = _UxGT("Вирівнювання сітки");
@@ -722,7 +720,6 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_GRADIENT_ALIAS                = _UxGT("Псевдонім В-інструм.");
     PROGMEM Language_Str MSG_RESET_VTOOLS                  = _UxGT("Зкидання В-інструм.");
   #endif
-  PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("Перемкнути змішування");
   PROGMEM Language_Str MSG_START_VTOOL                     = _UxGT("Початок В-інструменту");
   PROGMEM Language_Str MSG_END_VTOOL                       = _UxGT("Кінець В-інструменту");
   PROGMEM Language_Str MSG_COMMIT_VTOOL                    = _UxGT("Змішати В-інструменти");
