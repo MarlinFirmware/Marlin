@@ -170,26 +170,31 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   #endif
 
   void _lcd_draw_probing() {
-    if (ui.should_draw()) {
-      MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH)); ;//Probing Message
-      // Display # of good points found vs total needed
-      static const bool in_view_1 = PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1);
-      if (!in_view_1) {
-        TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
-        SETCURSOR(0, LCD_HEIGHT - 1);
-        lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
-        lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
-        lcd_put_wchar('/');
-        lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
-      }
+    if (!ui.should_draw()) return;
 
-      // Display the Last Z value
-      static const bool in_view_2 = PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 2);
-      if (!in_view_2) {
-        SETCURSOR(0, LCD_HEIGHT - 2);
-        lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
-        lcd_put_u8str(LAST_Z_TO_STR(last_z));
-      }
+    TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
+
+    MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_MESH), SS_INVERT); // "Probing Mesh" heading
+
+    uint8_t cy = LCD_HEIGHT - 1, y = LCD_ROW_Y(cy);
+
+    // Display # of good points found vs total needed
+    if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
+      SETCURSOR(0, cy);
+      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
+      lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
+      lcd_put_wchar('/');
+      lcd_put_u8str(GOOD_POINTS_TO_STR(good_points_required));
+    }
+
+    --cy;
+    y -= MENU_FONT_HEIGHT;
+
+    // Display the Last Z value
+    if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
+      SETCURSOR(0, cy);
+      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
+      lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }
 
