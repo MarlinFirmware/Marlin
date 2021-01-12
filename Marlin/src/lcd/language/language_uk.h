@@ -520,7 +520,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-Зонд поза столом");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Фактор нахилу");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("само-тест");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Само-тест");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Зкинути");
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Підняти");
   PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Опустити");
