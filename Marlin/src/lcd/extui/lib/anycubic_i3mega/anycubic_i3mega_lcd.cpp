@@ -592,15 +592,12 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           } break;
 
           case 5: { // A5 GET CURRENT COORDINATE
-            float xPostition = ExtUI::getAxisPosition_mm(ExtUI::X);
-            float yPostition = ExtUI::getAxisPosition_mm(ExtUI::Y);
-            float zPostition = ExtUI::getAxisPosition_mm(ExtUI::Z);
-            SEND_PGM("A5V X: ");
-            LCD_SERIAL.print(xPostition);
-            SEND_PGM(" Y: ");
-            LCD_SERIAL.print(yPostition);
-            SEND_PGM(" Z: ");
-            LCD_SERIAL.print(zPostition);
+            const float xPosition = ExtUI::getAxisPosition_mm(ExtUI::X),
+                        yPosition = ExtUI::getAxisPosition_mm(ExtUI::Y),
+                        zPosition = ExtUI::getAxisPosition_mm(ExtUI::Z);
+            SEND_PGM("A5V X: "); LCD_SERIAL.print(xPosition);
+            SEND_PGM(   " Y: "); LCD_SERIAL.print(yPosition);
+            SEND_PGM(   " Z: "); LCD_SERIAL.print(zPosition);
             SENDLINE_PGM("");
           } break;
 
