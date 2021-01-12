@@ -735,7 +735,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Лабіринт");
 
   PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Погана сторінка");
-  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Погана швидк.стор");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Погана швидкість стор.");
+  #else
+    PROGMEM Language_Str MSG_BAD_PAGE_SPEED                = _UxGT("Погана швидк. стор.");
+  #endif
 
   PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Редагувати пароль");
   PROGMEM Language_Str MSG_LOGIN_REQUIRED                  = _UxGT("Потрібен логін");
