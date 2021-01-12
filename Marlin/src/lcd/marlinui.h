@@ -289,6 +289,19 @@
   #endif
 #endif
 
+#ifndef EN_A
+  #define EN_A 0
+#endif
+#ifndef EN_B
+  #define EN_B 0
+#endif
+#ifndef EN_C
+  #define EN_C 0
+#endif
+#ifndef EN_D
+  #define EN_D 0
+#endif
+
 #if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
     FONT_STATUSMENU = 1,

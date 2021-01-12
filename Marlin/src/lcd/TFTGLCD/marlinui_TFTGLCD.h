@@ -64,12 +64,9 @@ extern TFTGLCD lcd;
 #undef  BTN_EN1
 #undef  BTN_EN2
 #undef  BTN_ENC
-#define BTN_EN1     -1
-#define BTN_EN2     -1
-#define BTN_ENC     -1
 
 #ifndef EN_C
-  #define EN_C       4 //for click
+  #define EN_C       4 // for click
 #endif
 
 #endif // IS_TFTGLCD_PANEL

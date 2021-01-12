@@ -100,9 +100,9 @@ ENCODER_Rate EncoderRate;
 
 // Buzzer
 void Encoder_tick() {
-  WRITE(BEEPER_PIN, 1);
+  WRITE(BEEPER_PIN, HIGH);
   delay(10);
-  WRITE(BEEPER_PIN, 0);
+  WRITE(BEEPER_PIN, LOW);
 }
 
 // Encoder initialization
@@ -243,7 +243,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   // LED control
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
-  void LED_Control(uint8_t RGB_Scale, uint8_t luminance) {
+  void LED_Control(const uint8_t RGB_Scale, const uint8_t luminance) {
     for (uint8_t i = 0; i < LED_NUM; i++) {
       LED_DataArray[i] = 0;
       switch (RGB_Scale) {
@@ -259,56 +259,36 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
-  void LED_GraduallyControl(uint8_t RGB_Scale, uint8_t luminance, unsigned int change_Interval) {
-    uint8_t led_r_data[LED_NUM], led_g_data[LED_NUM], led_b_data[LED_NUM];
-    bool led_r_flag = false, led_g_flag = false, led_b_flag = false;
-
+  void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval) {
+    struct { uint8_t g, r, b; } led_data[LED_NUM];
     for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5:
-          led_r_data[i] = luminance * 10 / 10;
-          led_g_data[i] = luminance *  7 / 10;
-          led_b_data[i] = luminance *  5 / 10;
-        break;
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 5/10 };
+          break;
         case RGB_SCALE_R10_G7_B4:
-          led_r_data[i] = luminance * 10 / 10;
-          led_g_data[i] = luminance *  7 / 10;
-          led_b_data[i] = luminance *  4 / 10;
-        break;
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 4/10 };
+          break;
         case RGB_SCALE_R10_G8_B7:
-          led_r_data[i] = luminance * 10 / 10;
-          led_g_data[i] = luminance *  8 / 10;
-          led_b_data[i] = luminance *  7 / 10;
-        break;
+          led_data[i] = { luminance * 8/10, luminance * 10/10, luminance * 7/10 };
+          break;
       }
     }
 
+    struct { bool g, r, b; } led_flag = { false, false, false };
     for (uint8_t i = 0; i < LED_NUM; i++) {
       while (1) {
         const uint8_t g = uint8_t(LED_DataArray[i] >> 16),
                       r = uint8_t(LED_DataArray[i] >> 8),
                       b = uint8_t(LED_DataArray[i]);
-
-        if (r > led_r_data[i])
-          LED_DataArray[i] -= 0x000100;
-        else if (r < led_r_data[i])
-          LED_DataArray[i] += 0x000100;
-        else led_r_flag = true;
-
-        if (g > led_g_data[i])
-          LED_DataArray[i] -= 0x000100;
-        else if (g < led_g_data[i])
-          LED_DataArray[i] += 0x000100;
-        else led_g_flag = true;
-
-        if (b > led_b_data[i])
-          LED_DataArray[i] -= 0x000100;
-        else if (b < led_b_data[i])
-          LED_DataArray[i] += 0x000100;
-        else led_b_flag = true;
-
+        if (g == led_data[i].g) led_flag.g = true;
+        else LED_DataArray[i] += (g > led_data[i].g) ? -0x010000 : 0x010000;
+        if (r == led_data[i].r) led_flag.r = true;
+        else LED_DataArray[i] += (r > led_data[i].r) ? -0x000100 : 0x000100;
+        if (b == led_data[i].b) led_flag.b = true;
+        else LED_DataArray[i] += (b > led_data[i].b) ? -0x000001 : 0x000001;
         LED_WriteData();
-        if (led_r_flag && led_g_flag && led_b_flag) break;
+        if (led_flag.r && led_flag.g && led_flag.b) break;
         delay(change_Interval);
       }
     }

@@ -84,12 +84,12 @@ ENCODER_DiffState Encoder_ReceiveAnalyze();
   // LED control
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
-  void LED_Control(uint8_t RGB_Scale, uint8_t luminance);
+  void LED_Control(const uint8_t RGB_Scale, const uint8_t luminance);
 
   // LED gradient control
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
-  void LED_GraduallyControl(uint8_t RGB_Scale, uint8_t luminance, unsigned int change_Interval);
+  void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval);
 
 #endif // LCD_LED
