@@ -154,7 +154,7 @@
   #define EN_A _BV(BLEN_A)
   #define EN_B _BV(BLEN_B)
 
-  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
+  #define _BUTTON_PRESSED(BN) !READ(BTN_##BN)
 
   #if BUTTON_EXISTS(ENC) || HAS_TOUCH_BUTTONS
     #define BLEN_C 2
@@ -202,6 +202,9 @@
   #undef BUTTON_EXISTS
   #define BUTTON_EXISTS(...) false
 
+  // Dummy button, never pressed
+  #define _BUTTON_PRESSED(BN) false
+
   // Shift register bits correspond to buttons:
   #define BL_LE 7   // Left
   #define BL_UP 6   // Up
@@ -220,6 +223,54 @@
     #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
   #endif
 
+#endif
+
+#define BUTTON_PRESSED(BN)  (_BUTTON_PRESSED_##BN)
+
+#if BUTTON_EXISTS(EN1)
+  #define _BUTTON_PRESSED_EN1 _BUTTON_PRESSED(EN1)
+#else
+  #define _BUTTON_PRESSED_EN1 false
+#endif
+#if BUTTON_EXISTS(EN2)
+  #define _BUTTON_PRESSED_EN2 _BUTTON_PRESSED(EN2)
+#else
+  #define _BUTTON_PRESSED_EN2 false
+#endif
+#if BUTTON_EXISTS(ENC_EN)
+  #define _BUTTON_PRESSED_ENC_EN _BUTTON_PRESSED(ENC_EN)
+#else
+  #define _BUTTON_PRESSED_ENC_EN false
+#endif
+#if BUTTON_EXISTS(ENC)
+  #define _BUTTON_PRESSED_ENC _BUTTON_PRESSED(ENC)
+#else
+  #define _BUTTON_PRESSED_ENC false
+#endif
+#if BUTTON_EXISTS(UP)
+  #define _BUTTON_PRESSED_UP _BUTTON_PRESSED(UP)
+#else
+  #define _BUTTON_PRESSED_UP false
+#endif
+#if BUTTON_EXISTS(DWN)
+  #define _BUTTON_PRESSED_DWN _BUTTON_PRESSED(DWN)
+#else
+  #define _BUTTON_PRESSED_DWN false
+#endif
+#if BUTTON_EXISTS(LFT)
+  #define _BUTTON_PRESSED_LFT _BUTTON_PRESSED(LFT)
+#else
+  #define _BUTTON_PRESSED_LFT false
+#endif
+#if BUTTON_EXISTS(RT)
+  #define _BUTTON_PRESSED_RT _BUTTON_PRESSED(RT)
+#else
+  #define _BUTTON_PRESSED_RT false
+#endif
+#if BUTTON_EXISTS(BACK)
+  #define _BUTTON_PRESSED_BACK _BUTTON_PRESSED(BACK)
+#else
+  #define _BUTTON_PRESSED_BACK false
 #endif
 
 #if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_BUTTONS, IS_TFTGLCD_PANEL)
@@ -556,6 +607,8 @@ public:
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
+    #else
+      static constexpr uint8_t touch_buttons = 0;
     #endif
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)

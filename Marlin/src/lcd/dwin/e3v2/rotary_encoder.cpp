@@ -43,17 +43,70 @@
 
 #include <stdlib.h>
 
+#define ENCODER_PHASE_0 0
+#define ENCODER_PHASE_1 2
+#define ENCODER_PHASE_2 3
+#define ENCODER_PHASE_3 1
+
+#ifndef ENCODER_PULSES_PER_STEP
+  #define ENCODER_PULSES_PER_STEP 4
+#endif
+
+#define _BUTTON_PRESSED(BN) !READ(BTN_##BN)
+#define BUTTON_PRESSED(BN)  (_BUTTON_PRESSED_##BN)
+
+#if BUTTON_EXISTS(EN1)
+  #define _BUTTON_PRESSED_EN1 _BUTTON_PRESSED(EN1)
+#else
+  #define _BUTTON_PRESSED_EN1 false
+#endif
+#if BUTTON_EXISTS(EN2)
+  #define _BUTTON_PRESSED_EN2 _BUTTON_PRESSED(EN2)
+#else
+  #define _BUTTON_PRESSED_EN2 false
+#endif
+#if BUTTON_EXISTS(ENC)
+  #define _BUTTON_PRESSED_ENC _BUTTON_PRESSED(ENC)
+#else
+  #define _BUTTON_PRESSED_ENC false
+#endif
+#if BUTTON_EXISTS(UP)
+  #define _BUTTON_PRESSED_UP _BUTTON_PRESSED(UP)
+#else
+  #define _BUTTON_PRESSED_UP false
+#endif
+#if BUTTON_EXISTS(DWN)
+  #define _BUTTON_PRESSED_DWN _BUTTON_PRESSED(DWN)
+#else
+  #define _BUTTON_PRESSED_DWN false
+#endif
+#if BUTTON_EXISTS(LFT)
+  #define _BUTTON_PRESSED_LFT _BUTTON_PRESSED(LFT)
+#else
+  #define _BUTTON_PRESSED_LFT false
+#endif
+#if BUTTON_EXISTS(RT)
+  #define _BUTTON_PRESSED_RT _BUTTON_PRESSED(RT)
+#else
+  #define _BUTTON_PRESSED_RT false
+#endif
+#if BUTTON_EXISTS(BACK)
+  #define _BUTTON_PRESSED_BACK _BUTTON_PRESSED(BACK)
+#else
+  #define _BUTTON_PRESSED_BACK false
+#endif
+
 ENCODER_Rate EncoderRate;
 
 // Buzzer
-void Encoder_tick(void) {
+void Encoder_tick() {
   WRITE(BEEPER_PIN, 1);
   delay(10);
   WRITE(BEEPER_PIN, 0);
 }
 
 // Encoder initialization
-void Encoder_Configuration(void) {
+void Encoder_Configuration() {
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
   #endif
@@ -69,10 +122,10 @@ void Encoder_Configuration(void) {
 }
 
 // Analyze encoder value and return state
-ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
+ENCODER_DiffState Encoder_ReceiveAnalyze() {
   const millis_t now = millis();
-  static unsigned char lastEncoderBits;
-  unsigned char newbutton = 0;
+  static uint8_t lastEncoderBits;
+  uint8_t newbutton = 0;
   static signed char temp_diff = 0;
 
   ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
@@ -153,23 +206,23 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
 #if PIN_EXISTS(LCD_LED)
 
   // Take the low 24 valid bits  24Bit: G7 G6 G5 G4 G3 G2 G1 G0 R7 R6 R5 R4 R3 R2 R1 R0 B7 B6 B5 B4 B3 B2 B1 B0
-  unsigned int LED_DataArray[LED_NUM];
+  uint16_t LED_DataArray[LED_NUM];
 
   // LED light operation
-  void LED_Action(void) {
+  void LED_Action() {
     LED_Control(RGB_SCALE_WARM_WHITE,0x0F);
     delay(30);
     LED_Control(RGB_SCALE_WARM_WHITE,0x00);
   }
 
   // LED initialization
-  void LED_Configuration(void) {
+  void LED_Configuration() {
     SET_OUTPUT(LCD_LED_PIN);
   }
 
   // LED write data
-  void LED_WriteData(void) {
-    unsigned char tempCounter_LED, tempCounter_Bit;
+  void LED_WriteData() {
+    uint8_t tempCounter_LED, tempCounter_Bit;
     for (tempCounter_LED = 0; tempCounter_LED < LED_NUM; tempCounter_LED++) {
       for (tempCounter_Bit = 0; tempCounter_Bit < 24; tempCounter_Bit++) {
         if (LED_DataArray[tempCounter_LED] & (0x800000 >> tempCounter_Bit)) {
@@ -190,14 +243,13 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   // LED control
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
-  void LED_Control(unsigned char RGB_Scale, unsigned char luminance) {
-    unsigned char temp_Counter;
-    for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
-      LED_DataArray[temp_Counter] = 0;
+  void LED_Control(uint8_t RGB_Scale, uint8_t luminance) {
+    for (uint8_t i = 0; i < LED_NUM; i++) {
+      LED_DataArray[i] = 0;
       switch (RGB_Scale) {
-        case RGB_SCALE_R10_G7_B5: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*7/10) << 16 | luminance*5/10; break;
-        case RGB_SCALE_R10_G7_B4: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*7/10) << 16 | luminance*4/10; break;
-        case RGB_SCALE_R10_G8_B7: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*8/10) << 16 | luminance*7/10; break;
+        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 7 / 10) << 16 | luminance * 5 / 10; break;
+        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 7 / 10) << 16 | luminance * 4 / 10; break;
+        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 8 / 10) << 16 | luminance * 7 / 10; break;
       }
     }
     LED_WriteData();
@@ -207,45 +259,58 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   //  RGB_Scale: RGB color ratio
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
-  void LED_GraduallyControl(unsigned char RGB_Scale, unsigned char luminance, unsigned int change_Interval) {
-    unsigned char temp_Counter;
-    unsigned char LED_R_Data[LED_NUM], LED_G_Data[LED_NUM], LED_B_Data[LED_NUM];
-    bool LED_R_Flag = 0, LED_G_Flag = 0, LED_B_Flag = 0;
+  void LED_GraduallyControl(uint8_t RGB_Scale, uint8_t luminance, unsigned int change_Interval) {
+    uint8_t led_r_data[LED_NUM], led_g_data[LED_NUM], led_b_data[LED_NUM];
+    bool led_r_flag = false, led_g_flag = false, led_b_flag = false;
 
-    for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
+    for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
-        case RGB_SCALE_R10_G7_B5: {
-          LED_R_Data[temp_Counter] = luminance*10/10;
-          LED_G_Data[temp_Counter] = luminance*7/10;
-          LED_B_Data[temp_Counter] = luminance*5/10;
-        }break;
-        case RGB_SCALE_R10_G7_B4: {
-          LED_R_Data[temp_Counter] = luminance*10/10;
-          LED_G_Data[temp_Counter] = luminance*7/10;
-          LED_B_Data[temp_Counter] = luminance*4/10;
-        }break;
-        case RGB_SCALE_R10_G8_B7: {
-          LED_R_Data[temp_Counter] = luminance*10/10;
-          LED_G_Data[temp_Counter] = luminance*8/10;
-          LED_B_Data[temp_Counter] = luminance*7/10;
-        }break;
+        case RGB_SCALE_R10_G7_B5:
+          led_r_data[i] = luminance * 10 / 10;
+          led_g_data[i] = luminance *  7 / 10;
+          led_b_data[i] = luminance *  5 / 10;
+        break;
+        case RGB_SCALE_R10_G7_B4:
+          led_r_data[i] = luminance * 10 / 10;
+          led_g_data[i] = luminance *  7 / 10;
+          led_b_data[i] = luminance *  4 / 10;
+        break;
+        case RGB_SCALE_R10_G8_B7:
+          led_r_data[i] = luminance * 10 / 10;
+          led_g_data[i] = luminance *  8 / 10;
+          led_b_data[i] = luminance *  7 / 10;
+        break;
       }
     }
-      for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
-        if ((unsigned char)(LED_DataArray[temp_Counter] >> 8) > LED_R_Data[temp_Counter]) LED_DataArray[temp_Counter] -= 0x000100;
-        else if ((unsigned char)(LED_DataArray[temp_Counter] >> 8) < LED_R_Data[temp_Counter]) LED_DataArray[temp_Counter] += 0x000100;
-    while (1) {
-        else LED_R_Flag = 1;
-        if ((unsigned char)(LED_DataArray[temp_Counter]>>16) > LED_G_Data[temp_Counter]) LED_DataArray[temp_Counter] -= 0x010000;
-        else if ((unsigned char)(LED_DataArray[temp_Counter]>>16) < LED_G_Data[temp_Counter]) LED_DataArray[temp_Counter] += 0x010000;
-        else LED_G_Flag = 1;
-        if ((unsigned char)LED_DataArray[temp_Counter] > LED_B_Data[temp_Counter]) LED_DataArray[temp_Counter] -= 0x000001;
-        else if ((unsigned char)LED_DataArray[temp_Counter] < LED_B_Data[temp_Counter]) LED_DataArray[temp_Counter] += 0x000001;
-        else LED_B_Flag = 1;
+
+    for (uint8_t i = 0; i < LED_NUM; i++) {
+      while (1) {
+        const uint8_t g = uint8_t(LED_DataArray[i] >> 16),
+                      r = uint8_t(LED_DataArray[i] >> 8),
+                      b = uint8_t(LED_DataArray[i]);
+
+        if (r > led_r_data[i])
+          LED_DataArray[i] -= 0x000100;
+        else if (r < led_r_data[i])
+          LED_DataArray[i] += 0x000100;
+        else led_r_flag = true;
+
+        if (g > led_g_data[i])
+          LED_DataArray[i] -= 0x000100;
+        else if (g < led_g_data[i])
+          LED_DataArray[i] += 0x000100;
+        else led_g_flag = true;
+
+        if (b > led_b_data[i])
+          LED_DataArray[i] -= 0x000100;
+        else if (b < led_b_data[i])
+          LED_DataArray[i] += 0x000100;
+        else led_b_flag = true;
+
+        LED_WriteData();
+        if (led_r_flag && led_g_flag && led_b_flag) break;
+        delay(change_Interval);
       }
-      LED_WriteData();
-      if (LED_R_Flag && LED_G_Flag && LED_B_Flag) break;
-      else delay(change_Interval);
     }
   }
 
