@@ -710,7 +710,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Повний градієнт");
   PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("Змішування переключ.");
   PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("Циклічне змішування");
-  PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Змішування градієнту");
+  PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("Градієнт змішування");
   PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("Змінити градієнт");
   
   #if LCD_WIDTH > 21
