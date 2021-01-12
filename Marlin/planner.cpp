@@ -547,7 +547,9 @@ float junction_deviation = 0.1;
   
   uint8_t dx_t = 0, dy_t = 0, dz_t = 0; 
   static uint8_t dx_p = 0, dy_p = 0, dz_p = 0; 
-  uint8_t x_offset = 0.02,y_offset = 0.02,z_offset = 0;
+  float x_dc = 0, y_dc = 0, z_dc = 0;
+
+  float x_offset = 0.001,y_offset = 0.001,z_offset = 0;
   
   #if ENABLED(COREXY)
   if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
@@ -567,9 +569,9 @@ float junction_deviation = 0.1;
   if (dy < 0) {db |= BIT(Y_AXIS); dy_t = 1;}
   if (dz < 0) {db |= BIT(Z_AXIS); dz_t = 1;}
 
-  if(dx_t != dx_p){dx_p = dx_t; x_offset = 0;}
-  if(dy_t != dy_p){dy_p = dy_t; y_offset = 0;} 
- // if(dz_t != dz_p){dz_p = dz_t; z_offset = 0;} 
+  if(dx_t != dx_p){dx_p = dx_t; x_dc = 1;}
+  if(dy_t != dy_p){dy_p = dy_t; y_dc = 1;} 
+  if (dz_t != dz_p){dz_p = dz_t; z_dc = 1;} 
   
   #endif
   if (de < 0) db |= BIT(E_AXIS);
@@ -592,9 +594,9 @@ float junction_deviation = 0.1;
     block->steps[C_AXIS] = labs(dx - dz);
   #else
     // default non-h-bot planning
-    block->steps[X_AXIS] = labs(dx) + lround(x_offset * axis_steps_per_unit[X_AXIS]);
-    block->steps[Y_AXIS] = labs(dy) + lround(y_offset * axis_steps_per_unit[Y_AXIS]);
-    block->steps[Z_AXIS] = labs(dz) + lround(z_offset * axis_steps_per_unit[Z_AXIS]);
+    block->steps[X_AXIS] = labs(dx) + lround(x_offset * x_dc * axis_steps_per_unit[X_AXIS]);
+    block->steps[Y_AXIS] = labs(dy) + lround(y_offset * y_dc * axis_steps_per_unit[Y_AXIS]);
+    block->steps[Z_AXIS] = labs(dz) + lround(z_offset * z_dc * axis_steps_per_unit[Z_AXIS]);
   #endif
 
   block->steps[E_AXIS] = labs(de);
