@@ -246,7 +246,7 @@
   #define TEMP_CHAMBER_PIN            TEMP_1_PIN
   #define HEATER_CHAMBER_PIN          HEATER_1_PIN
 #endif
-#ifdef CHAMBER_AUTO_FAN_PIN
+#ifdef CHAMBER_FAN
   #define CHAMBER_AUTO_FAN_PIN        FAN2_PIN
 #endif
 
