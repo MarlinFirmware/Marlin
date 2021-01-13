@@ -59,13 +59,9 @@ void MarlinTool::select(const ToolType intype) {
       break;
 
     case TOOL_TYPE_LASER:
-      #if ENABLED(LASER_FEATURE)
-      #endif
       break;
 
     case TOOL_TYPE_SPINDLE:
-      #if ENABLED(SPINDLE_FEATURE)
-      #endif
       break;
 
     default: return;
