@@ -197,10 +197,10 @@
   #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
-    #define SHIFT_CLK                         38
-    #define SHIFT_LD                          42
-    #define SHIFT_OUT                         40
-    #define SHIFT_EN                          17
+    #define SHIFT_CLK_PIN                     38
+    #define SHIFT_LD_PIN                      42
+    #define SHIFT_OUT_PIN                     40
+    #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                    5

@@ -468,26 +468,16 @@ void lv_encoder_pin_init() {
         #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
           uint8_t newbutton = 0;
-
-          #if BUTTON_EXISTS(EN1)
-            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          #endif
-          #if BUTTON_EXISTS(EN2)
-            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          #endif
-          #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          #endif
-          #if BUTTON_EXISTS(BACK)
-            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-          #endif
+          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
 
         #else
 
           constexpr uint8_t newbutton = 0;
 
         #endif
-
 
         static uint8_t buttons = 0;
         buttons = newbutton;

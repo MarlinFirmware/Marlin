@@ -31,7 +31,8 @@ XPT2046 touchIO;
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#include "../marlinui.h" // For EN_C bit mask
+#include "../buttons.h" // For EN_C bit mask
+#include "../marlinui.h" // For ui.refresh
 #include "../tft_io/tft_io.h"
 
 #define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
@@ -65,7 +66,6 @@ uint8_t TouchButtons::read_buttons() {
       x = uint16_t((uint32_t(x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
       y = uint16_t((uint32_t(y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
     #endif
-
 
     // Touch within the button area simulates an encoder button
     if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
