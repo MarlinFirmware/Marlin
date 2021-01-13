@@ -33,7 +33,6 @@ extern void disp_ext_speed();
 extern void disp_hotend_temp();
 extern void disp_extru_amount();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

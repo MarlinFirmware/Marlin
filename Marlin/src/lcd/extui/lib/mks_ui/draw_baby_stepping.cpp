@@ -87,7 +87,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_N:
-      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), -babystep_dist);
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
@@ -136,7 +136,6 @@ void lv_draw_baby_stepping(void) {
 }
 
 void disp_baby_step_dist() {
-  // char buf[30] = {0};
   if ((int)(100 * babystep_dist) == 1)
     lv_imgbtn_set_src_both(buttonV, "F:/bmp_baby_move0_01.bin");
   else if ((int)(100 * babystep_dist) == 5)

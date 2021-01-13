@@ -40,23 +40,20 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_level_settings();
   switch (obj->mks_obj_id) {
     case ID_LEVEL_RETURN:
-      lv_clear_level_settings();
       draw_return_ui();
       break;
     case ID_LEVEL_POSITION:
-      lv_clear_level_settings();
       lv_draw_manual_level_pos_settings();
       break;
     case ID_LEVEL_COMMAND:
       keyboard_value = gcodeCommand;
-      lv_clear_level_settings();
       lv_draw_keyboard();
       break;
     #if HAS_BED_PROBE
       case ID_LEVEL_ZOFFSET:
-        lv_clear_level_settings();
         lv_draw_auto_level_offset_settings();
         break;
     #endif

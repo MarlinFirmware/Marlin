@@ -30,7 +30,6 @@ extern void lv_clear_filament_change();
 extern void disp_filament_type();
 extern void disp_filament_temp();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

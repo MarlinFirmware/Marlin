@@ -153,9 +153,8 @@ void disp_wifi_state() {
 }
 
 void lv_clear_wifi() {
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
-  #endif
+  if (TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable))
+    lv_group_remove_all_objs(g);
   lv_obj_del(scr);
 }
 

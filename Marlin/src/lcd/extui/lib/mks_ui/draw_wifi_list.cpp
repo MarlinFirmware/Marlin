@@ -122,6 +122,9 @@ void lv_draw_wifi_list(void) {
       lv_group_add_obj(g, buttonDown);
       lv_group_add_obj(g, buttonBack);
     }
+  #else
+    UNUSED(buttonDown);
+    UNUSED(buttonBack);
   #endif
 
   disp_wifi_list();

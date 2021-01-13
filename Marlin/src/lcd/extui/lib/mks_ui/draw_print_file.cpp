@@ -49,7 +49,7 @@ int8_t curDirLever = 0;
 LIST_FILE list_file;
 DIR_OFFSET dir_offset[10];
 
-extern uint8_t public_buf[512];
+extern uint8_t public_buf[513];
 extern char public_buf_m[100];
 
 uint8_t sel_id = 0;
