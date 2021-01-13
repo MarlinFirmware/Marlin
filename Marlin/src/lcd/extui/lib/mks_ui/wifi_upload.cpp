@@ -116,9 +116,8 @@ signed char IsReady() {
 }
 
 void uploadPort_write(const uint8_t *buf, size_t len) {
-  for(size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++)
     WIFISERIAL.write(*(buf + i));
-  }
 }
 
 char uploadPort_read() {
@@ -157,7 +156,7 @@ uint32_t getData(unsigned byteCnt, const uint8_t *buf, int ofst) {
     unsigned int shiftCnt = 0;
     if (byteCnt > 4)
       byteCnt = 4;
-    do{
+    do {
       val |= (uint32_t)buf[ofst++] << shiftCnt;
       shiftCnt += 8;
     } while (--byteCnt);
@@ -187,44 +186,32 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
 //   -2 - a SLIP escape byte was found but the following byte wasn't available
 //   -3 - a SLIP escape byte was followed by an invalid byte
 int ReadByte(uint8_t *data, signed char slipDecode) {
-  if (uploadPort_available() == 0) {
-    return(0);
-  }
+  if (uploadPort_available() == 0) return 0;
 
   // at least one byte is available
   *data = uploadPort_read();
-  if (!slipDecode) {
-    return(1);
-  }
+  if (!slipDecode) return 1;
 
-  if (*data == 0xC0) {
-    // this shouldn't happen
-    return(-1);
-  }
+  if (*data == 0xC0) return -1; // this shouldn't happen
 
   // if not the SLIP escape, we're done
-  if (*data != 0xDB) {
-    return(1);
-  }
+  if (*data != 0xDB) return 1;
 
   // SLIP escape, check availability of subsequent byte
-  if (uploadPort_available() == 0) {
-    return(-2);
-  }
+  if (uploadPort_available() == 0) return -2;
 
   // process the escaped byte
   *data = uploadPort_read();
   if (*data == 0xDC) {
     *data = 0xC0;
-    return(2);
+    return 2;
   }
 
   if (*data == 0xDD) {
     *data = 0xDB;
-    return(2);
+    return 2;
   }
-  // invalid
-  return(-3);
+  return -3; // invalid
 }
 // When we write a sync packet, there must be no gaps between most of the characters.
 // So use this function, which does a block write to the UART buffer in the latest CoreNG.
@@ -364,10 +351,10 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
   // Extract elements from the header
   resp = (uint8_t)getData(1, hdr, 0);
   opRet = (uint8_t)getData(1, hdr, 1);
+
   // Sync packets often provoke a response with a zero opcode instead of ESP_SYNC
-  if (resp != 0x01 || opRet != op) {
+  if (resp != 0x01 || opRet != op)
     return respHeader;
-  }
 
   return success;
 }
@@ -662,7 +649,6 @@ void upload_spin() {
 
 // Try to upload the given file at the given address
 void SendUpdateFile(const char *file, uint32_t address) {
-
   const char * const fname = card.diveToFile(true, update_curDir, ESP_FIRMWARE_FILE);
   if (!update_file.open(update_curDir, fname, O_READ)) return;
 

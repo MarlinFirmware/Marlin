@@ -1005,7 +1005,6 @@ void disp_language_init() {
       filament_menu.filament_dialog_unloading           = FILAMENT_DIALOG_UNLOADING_TIPS_CN;
       filament_menu.filament_dialog_unload_completed    = FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_CN;
 
-
       //
       language_menu.title = TITLE_LANGUAGE_CN;
       language_menu.next  = PAGE_DOWN_TEXT_CN;

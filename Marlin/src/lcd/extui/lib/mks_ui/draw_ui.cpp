@@ -72,9 +72,6 @@ extern bool once_flag;
 extern uint8_t sel_id;
 extern lv_group_t *g;
 
-extern uint8_t bmp_public_buf[14 * 1024];
-extern uint8_t public_buf[513];
-
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {

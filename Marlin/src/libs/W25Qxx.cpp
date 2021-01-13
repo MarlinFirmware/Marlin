@@ -330,9 +330,8 @@ void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, ui
         pBuffer += count;
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, temp);
       }
-      else {
+      else
         SPI_FLASH_PageWrite(pBuffer, WriteAddr, NumByteToWrite);
-      }
     }
     else { /* NumByteToWrite > SPI_FLASH_PageSize */
       NumByteToWrite -= count;
@@ -379,7 +378,7 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint
   /* Send ReadAddr low nibble address byte to read from */
   spi_flash_Send(ReadAddr & 0xFF);
 
-  if ((NumByteToRead < 33) || (!flash_dma_mode)) {
+  if (NumByteToRead < 33 || !flash_dma_mode) {
     while (NumByteToRead--) { /* while there is data to be read */
       /* Read a byte from the FLASH */
       *pBuffer = spi_flash_Rec();
@@ -387,9 +386,9 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint
       pBuffer++;
     }
   }
-  else {
+  else
     spi_flash_Read(pBuffer, NumByteToRead);
-  }
+
   W25QXX_CS_H;
 }
 

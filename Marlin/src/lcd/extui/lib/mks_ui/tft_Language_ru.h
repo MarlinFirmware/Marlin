@@ -271,7 +271,6 @@
 #define EEPROM_REVERT_TIPS_RU         "Cбросить настройки к значениям по умолчанию?"
 #define EEPROM_SETTINGS_RU            "EEPROM"
 
-
 #define NEXT_RU                       "след."
 #define PREVIOUS_RU                   "пред."
 #define ENABLE_RU                     "да "
@@ -285,7 +284,6 @@
 #define ADVANCE_CONFIG_RU              "Pасширенные настройки"
 #define MACHINE_FILAMENT_CONFIG_RU     "Hастройки филамента"
 #define ENCODER_SETTINGS_RU            "Hастройки энкодера"
-
 
 #define LEVELING_CONF_TITLE_RU          "Hастройки принтера>Hастройки уровня"
 #define LEVELING_PARA_CONF_RU           "настройки уровня"
