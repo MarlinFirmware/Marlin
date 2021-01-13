@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -38,7 +38,7 @@ using namespace ExtUI;
 
 void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   CommandProcessor cmd;
-  for(uint8_t i = 0; i < 100; i++) {
+  for (uint8_t i = 0; i < 100; i++) {
     cmd.cmd(BEGIN(POINTS))
        .cmd(POINT_SIZE(20*16))
        .cmd(COLOR_RGB(random(0xFFFFFF)))
@@ -47,8 +47,8 @@ void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) 
 }
 
 bool StressTestScreen::watchDogTestNow() {
-  return screen_data.StressTestScreen.next_watchdog_trigger &&
-         ELAPSED(millis(), screen_data.StressTestScreen.next_watchdog_trigger);
+  return screen_data.StressTest.next_watchdog_trigger &&
+         ELAPSED(millis(), screen_data.StressTest.next_watchdog_trigger);
 }
 
 void StressTestScreen::onRedraw(draw_mode_t) {
@@ -58,7 +58,7 @@ void StressTestScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .font(font_medium)
-     .text(BTN_POS(1,1), BTN_SIZE(4,1), progmem_str(screen_data.StressTestScreen.message));
+     .text(BTN_POS(1,1), BTN_SIZE(4,1), progmem_str(screen_data.StressTest.message));
 
   drawDots(BTN_POS(1,3), BTN_SIZE(4,4));
 
@@ -87,14 +87,13 @@ void StressTestScreen::runTestOnBootup(bool enable) {
 }
 
 void StressTestScreen::startupCheck() {
-  if (LockScreen::get_hash() == 0xDEAD) {
+  if (LockScreen::get_hash() == 0xDEAD)
     GOTO_SCREEN(StressTestScreen);
-  }
 }
 
 void StressTestScreen::onEntry() {
-  screen_data.StressTestScreen.next_watchdog_trigger = millis() + 10000 + random(40000);
-  screen_data.StressTestScreen.message = PSTR("Test 1: Stress testing...");
+  screen_data.StressTest.next_watchdog_trigger = millis() + 10000 + random(40000);
+  screen_data.StressTest.message = PSTR("Test 1: Stress testing...");
 
   // Turn off heaters.
   setTargetTemp_celsius(0, E0);
@@ -105,14 +104,14 @@ void StressTestScreen::onEntry() {
 }
 
 void StressTestScreen::recursiveLockup() {
-  screen_data.StressTestScreen.message = PSTR("Test 2: Printer will restart.");
+  screen_data.StressTest.message = PSTR("Test 2: Printer will restart.");
   current_screen.onRefresh();
   recursiveLockup();
 }
 
 void StressTestScreen::iterativeLockup() {
-  screen_data.StressTestScreen.message = PSTR("Test 3: Printer will restart.");
-  for(;;) current_screen.onRefresh();
+  screen_data.StressTest.message = PSTR("Test 3: Printer will restart.");
+  for (;;) current_screen.onRefresh();
 }
 
 void StressTestScreen::onIdle() {
@@ -120,19 +119,18 @@ void StressTestScreen::onIdle() {
   reset_menu_timeout();
 
   if (!commandsInQueue()) {
-      if (!isPositionKnown()) {
-        extern const char G28_STR[];
-        injectCommands_P(G28_STR);
-      } else {
-        injectCommands_P(PSTR(
-          "G0 X100 Y100 Z100 F6000\n"
-          "T0\nG4 S1"
-          #if EXTRUDERS > 1
-            "\nT1\nG4 S1"
-          #endif
-          "\nG0 X150 Y150 Z150"
-        ));
-      }
+    if (!isPositionKnown()) {
+      extern const char G28_STR[];
+      injectCommands_P(G28_STR);
+    }
+    else {
+      injectCommands_P(PSTR(
+        "G0 X100 Y100 Z100 F6000\n"
+        "T0\nG4 S1"
+        TERN_(HAS_MULTI_EXTRUDER, "\nT1\nG4 S1")
+        "\nG0 X150 Y150 Z150"
+      ));
+    }
   }
 
   if (refresh_timer.elapsed(STRESS_TEST_CHANGE_INTERVAL)) {
@@ -140,10 +138,10 @@ void StressTestScreen::onIdle() {
   }
 
   if (watchDogTestNow()) {
-      if (random(2) % 2)
-        iterativeLockup();
-      else
-        recursiveLockup();
+    if (random(2) % 2)
+      iterativeLockup();
+    else
+      recursiveLockup();
   }
 
   BaseScreen::onIdle();

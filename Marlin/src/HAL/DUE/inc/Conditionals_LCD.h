@@ -16,7 +16,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/DUE."
+#endif

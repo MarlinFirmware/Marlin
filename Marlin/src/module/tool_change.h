@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,9 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
 
-#if EXTRUDERS > 1
+//#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
+
+#if HAS_MULTI_EXTRUDER
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -59,7 +61,7 @@
     } migration_settings_t;
     constexpr migration_settings_t migration_defaults = { 0, 0, false, false };
     extern migration_settings_t migration;
-    void extruder_migration();
+    bool extruder_migration();
   #endif
 #endif
 
@@ -84,12 +86,16 @@
     #define PE_MAGNET_ON_STATE PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
   #endif
 
-  void pe_set_solenoid(const uint8_t extruder_num, const uint8_t state);
+  void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state);
 
-  inline void pe_activate_solenoid(const uint8_t extruder_num) { pe_set_solenoid(extruder_num, PE_MAGNET_ON_STATE); }
-  inline void pe_deactivate_solenoid(const uint8_t extruder_num) { pe_set_solenoid(extruder_num, !PE_MAGNET_ON_STATE); }
+  inline void pe_solenoid_magnet_on(const uint8_t extruder_num)  { pe_solenoid_set_pin_state(extruder_num,  PE_MAGNET_ON_STATE); }
+  inline void pe_solenoid_magnet_off(const uint8_t extruder_num) { pe_solenoid_set_pin_state(extruder_num, !PE_MAGNET_ON_STATE); }
 
   void pe_solenoid_init();
+
+  extern bool extruder_parked;
+  inline void parking_extruder_set_parked(const bool parked) { extruder_parked = parked; }
+  bool parking_extruder_unpark_after_homing(const uint8_t final_tool, bool homed_towards_final_tool);
 
 #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
 

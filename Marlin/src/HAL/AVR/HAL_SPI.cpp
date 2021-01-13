@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,17 +34,17 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
+  OUT_WRITE(SD_SS_PIN, HIGH);
+  SET_OUTPUT(SD_SCK_PIN);
+  SET_INPUT(SD_MISO_PIN);
+  SET_OUTPUT(SD_MOSI_PIN);
 
   #if DISABLED(SOFTWARE_SPI)
     // SS must be in output mode even it is not chip select
-    //SET_OUTPUT(SS_PIN);
+    //SET_OUTPUT(SD_SS_PIN);
     // set SS high - may be chip select for another SPI device
     //#if SET_SPI_SS_HIGH
-      //WRITE(SS_PIN, HIGH);
+      //WRITE(SD_SS_PIN, HIGH);
     //#endif
     // set a default rate
     spiInit(1);
@@ -195,19 +195,19 @@ void spiBegin() {
     // no interrupts during byte receive - about 8µs
     cli();
     // output pin high - like sending 0xFF
-    WRITE(MOSI_PIN, HIGH);
+    WRITE(SD_MOSI_PIN, HIGH);
 
     LOOP_L_N(i, 8) {
-      WRITE(SCK_PIN, HIGH);
+      WRITE(SD_SCK_PIN, HIGH);
 
       nop; // adjust so SCK is nice
       nop;
 
       data <<= 1;
 
-      if (READ(MISO_PIN)) data |= 1;
+      if (READ(SD_MISO_PIN)) data |= 1;
 
-      WRITE(SCK_PIN, LOW);
+      WRITE(SD_SCK_PIN, LOW);
     }
 
     sei();
@@ -225,10 +225,10 @@ void spiBegin() {
     // no interrupts during byte send - about 8µs
     cli();
     LOOP_L_N(i, 8) {
-      WRITE(SCK_PIN, LOW);
-      WRITE(MOSI_PIN, data & 0x80);
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, data & 0x80);
       data <<= 1;
-      WRITE(SCK_PIN, HIGH);
+      WRITE(SD_SCK_PIN, HIGH);
     }
 
     nop; // hold SCK high for a few ns
@@ -236,7 +236,7 @@ void spiBegin() {
     nop;
     nop;
 
-    WRITE(SCK_PIN, LOW);
+    WRITE(SD_SCK_PIN, LOW);
 
     sei();
   }

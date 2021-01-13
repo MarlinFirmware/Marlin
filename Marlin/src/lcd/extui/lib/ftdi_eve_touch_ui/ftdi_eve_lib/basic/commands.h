@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
   /****************************************************************************
@@ -115,6 +115,7 @@ class CLCD {
     static void     mem_write_8    (uint32_t reg_address, uint8_t w_data);
     static void     mem_write_16   (uint32_t reg_address, uint16_t w_data);
     static void     mem_write_32   (uint32_t reg_address, uint32_t w_data);
+    static void     mem_write_fill (uint32_t reg_address, uint8_t w_data, uint16_t len);
     static void     mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_pgm  (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_bulk (uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding = 0);
@@ -133,6 +134,7 @@ class CLCD {
     static void set_brightness (uint8_t brightness);
     static uint8_t get_brightness();
     static void host_cmd (unsigned char host_command, unsigned char byte2);
+    static uint32_t dl_size() {return CLCD::mem_read_32(REG::CMD_DL) & 0x1FFF;}
 
     static void get_font_metrics (uint8_t font, struct FontMetrics &fm);
     static uint16_t get_text_width(const uint8_t font, const char *str);

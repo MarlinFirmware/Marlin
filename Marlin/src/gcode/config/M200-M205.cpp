@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,21 +30,42 @@
    * M200: Set filament diameter and set E axis units to cubic units
    *
    *    T<extruder> - Optional extruder number. Current extruder if omitted.
-   *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
+   *    D<linear>   - Set filament diameter and enable. D0 disables volumetric.
+   *    S<bool>     - Turn volumetric ON or OFF.
+   *    L<float>    - Volumetric extruder limit (in mm^3/sec). L0 disables the limit.
    */
   void GcodeSuite::M200() {
 
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
 
-    if (parser.seen('D')) {
-      // setting any extruder filament size disables volumetric on the assumption that
-      // slicers either generate in extruder values as cubic mm or as as filament feeds
-      // for all extruders
+    bool vol_enable = parser.volumetric_enabled,
+         can_enable = true;
+
+    if (parser.seenval('D')) {
       const float dval = parser.value_linear_units();
-      if ( (parser.volumetric_enabled = (dval != 0)) )
+      if (dval) { // Set filament size for volumetric calculation
         planner.set_filament_size(target_extruder, dval);
+        vol_enable = true;    // Dn = enable for compatibility
+      }
+      else
+        can_enable = false;   // D0 = disable for compatibility
     }
+
+    // Enable or disable with S1 / S0
+    parser.volumetric_enabled = can_enable && parser.boolval('S', vol_enable);
+
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      if (parser.seenval('L')) {
+        // Set volumetric limit (in mm^3/sec)
+        const float lval = parser.value_float();
+        if (WITHIN(lval, 0, 20))
+          planner.set_volumetric_extruder_limit(target_extruder, lval);
+        else
+          SERIAL_ECHOLNPGM("?L value out of range (0-20).");
+      }
+    #endif
+
     planner.calculate_volumetric_multipliers();
   }
 

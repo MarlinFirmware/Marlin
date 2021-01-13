@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -67,9 +67,9 @@
  *  http://www.hotmcu.com/43-graphical-lcd-touchscreen-480x272-spi-ft800-p-111.html?cPath=6_16
  *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-480x272-spi-ft800-p-124.html?cPath=6_16
  * Datasheet:
- *  http://www.hantronix.com/files/data/1278363262430-3.pdf
- *  http://www.haoyuelectronics.com/Attachment/HY43-LCD/LCD%20DataSheet.pdf
- *  http://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
+ *  https://www.hantronix.com/files/data/1278363262430-3.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY43-LCD/LCD%20DataSheet.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
  */
 #elif defined(LCD_HAOYU_FT800CB)
   #if !HAS_RESOLUTION
@@ -92,7 +92,7 @@
  * Settings for the Haoyu Electronics, 5" Graphical LCD Touchscreen, 800x480, SPI, FT810
  *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-800x480-spi-ft810-p-286.html
  * Datasheet:
- *  http://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
  */
 #elif defined(LCD_HAOYU_FT810CB)
   #if !HAS_RESOLUTION
@@ -113,9 +113,9 @@
 
 /**
  * Settings for the 4D Systems,        4.3" Embedded SPI Display             480x272, SPI, FT800 (4DLCD-FT843)
- *  http://www.4dsystems.com.au/product/4DLCD_FT843/
+ *  https://4dsystems.com.au/4dlcd-ft843
  * Datasheet:
- *  http://www.4dsystems.com.au/productpages/4DLCD-FT843/downloads/FT843-4.3-Display_datasheet_R_1_2.pdf
+ *  https://4dsystems.com.au/mwdownloads/download/link/id/52/
  */
 #elif defined(LCD_4DSYSTEMS_4DLCD_FT843)
   #if !HAS_RESOLUTION
@@ -136,9 +136,7 @@
 
 /**
  * Settings for the Aleph Objects Color LCD User Interface
- *  https://code.alephobjects.com/source/aotctl/
- * Datasheet:
- *  http://www.hantronix.com/files/data/s1501799605s500-gh7.pdf
+ * Datasheet https://www.hantronix.com/files/data/s1501799605s500-gh7.pdf
  */
 #elif defined(LCD_ALEPHOBJECTS_CLCD_UI)
   #if !HAS_RESOLUTION

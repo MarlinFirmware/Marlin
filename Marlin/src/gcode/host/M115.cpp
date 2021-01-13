@@ -16,12 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
+
+#if ENABLED(M115_GEOMETRY_REPORT)
+  #include "../../module/motion.h"
+#endif
+
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
@@ -38,8 +46,16 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-
-  SERIAL_ECHOLNPGM(STR_M115_REPORT);
+  SERIAL_ECHOLNPGM(
+    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
+    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
+    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
+    "MACHINE_TYPE:" MACHINE_NAME " "
+    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #ifdef MACHINE_UUID
+      "UUID:" MACHINE_UUID
+    #endif
+  );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
@@ -73,6 +89,9 @@ void GcodeSuite::M115() {
     // AUTOLEVEL (G29)
     cap_line(PSTR("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
+    // RUNOUT (M412, M600)
+    cap_line(PSTR("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
+
     // Z_PROBE (G30)
     cap_line(PSTR("Z_PROBE"), ENABLED(HAS_BED_PROBE));
 
@@ -85,10 +104,9 @@ void GcodeSuite::M115() {
     // SOFTWARE_POWER (M80, M81)
     cap_line(PSTR("SOFTWARE_POWER"), ENABLED(PSU_CONTROL));
 
-    // CASE LIGHTS (M355)
-    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(HAS_CASE_LIGHT));
-
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(HAS_CASE_LIGHT, PWM_PIN(CASE_LIGHT_PIN)));
+    // TOGGLE_LIGHTS (M355)
+    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN)))));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
@@ -99,8 +117,14 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
 
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
+
+    // LONG_FILENAME_HOST_SUPPORT (M33)
+    cap_line(PSTR("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
@@ -108,11 +132,37 @@ void GcodeSuite::M115() {
     // MOTION_MODES (M80-M89)
     cap_line(PSTR("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
 
+    // ARC_SUPPORT (G2-G3)
+    cap_line(PSTR("ARCS"), ENABLED(ARC_SUPPORT));
+
     // BABYSTEPPING (M290)
     cap_line(PSTR("BABYSTEPPING"), ENABLED(BABYSTEPPING));
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // Machine Geometry
+    #if ENABLED(M115_GEOMETRY_REPORT)
+      const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+      xyz_pos_t cmin = dmin, cmax = dmax;
+      apply_motion_limits(cmin);
+      apply_motion_limits(cmax);
+      const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
+                      wmin = cmin.asLogical(), wmax = cmax.asLogical();
+      SERIAL_ECHOLNPAIR(
+        "area:{"
+          "full:{"
+            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
+            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
+          "},"
+          "work:{"
+            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
+            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
+          "}"
+        "}"
+      );
+    #endif
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

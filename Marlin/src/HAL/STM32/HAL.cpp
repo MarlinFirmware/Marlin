@@ -17,19 +17,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "HAL.h"
+#include "usb_serial.h"
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
-
-#if HAS_TMC_SW_SERIAL
-  #include "SoftwareSerial.h"
-#endif
 
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
@@ -66,7 +63,7 @@ uint16_t HAL_adc_result;
 void HAL_init() {
   FastIO_init();
 
-  #if ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT) && (defined(SDSS) && SDSS != -1)
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
   #endif
 
@@ -82,11 +79,11 @@ void HAL_init() {
     while (!LL_PWR_IsActiveFlag_BRR());   // Wait until backup regulator is initialized
   #endif
 
-  #if HAS_TMC_SW_SERIAL
-    SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
-  #endif
+  SetTimerInterruptPriorities();
 
-  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
+  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+    USB_Hook_init();
+  #endif
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
@@ -127,9 +124,18 @@ extern "C" {
 
 // TODO: Make sure this doesn't cause any delay
 void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
-
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
+// Reset the system (to initiate a firmware flash)
 void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+
+// Maple Compatibility
+volatile uint32_t systick_uptime_millis = 0;
+systickCallback_t systick_user_callback;
+void systick_attach_callback(systickCallback_t cb) { systick_user_callback = cb; }
+void HAL_SYSTICK_Callback() {
+  systick_uptime_millis++;
+  if (systick_user_callback) systick_user_callback();
+}
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

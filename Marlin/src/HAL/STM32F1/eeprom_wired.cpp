@@ -14,9 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * HAL PersistentStore for STM32F1
+ */
+
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
@@ -26,9 +31,15 @@
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity()    { return E2END + 1; }
+#ifndef MARLIN_EEPROM_SIZE
+  #error "MARLIN_EEPROM_SIZE is required for I2C / SPI EEPROM."
+#endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
+  eeprom_init();
   #if ENABLED(SPI_EEPROM)
     #if SPI_CHAN_EEPROM1 == 1
       SET_OUTPUT(BOARD_SPI1_SCK_PIN);
@@ -40,7 +51,6 @@ bool PersistentStore::access_start() {
   #endif
   return true;
 }
-bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -58,11 +68,11 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     crc16(crc, &v, 1);
     pos++;
     value++;
-  };
+  }
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing && value) *value = c;

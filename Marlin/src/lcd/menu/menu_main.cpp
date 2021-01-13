@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
@@ -46,17 +46,38 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(PRUSA_MMU2)
+#if ENABLED(MMU2_MENUS)
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password/password.h"
+#endif
+
+#if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+  #include "../../feature/host_actions.h"
+#endif
+
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../../feature/repeat.h"
+#endif
+
 void menu_tune();
+void menu_cancelobject();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
 #if ENABLED(CUSTOM_USER_MENUS)
   void menu_user();
+#endif
+
+#if HAS_POWER_MONITOR
+  void menu_power_monitor();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -68,17 +89,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
   void menu_led();
 #endif
 
 #if HAS_CUTTER
-  #include "../../feature/spindle_laser.h"
   void menu_spindle_laser();
-#endif
-
-#if ENABLED(MIXING_EXTRUDER)
-  void menu_mixer();
 #endif
 
 extern const char M21_STR[];
@@ -103,11 +119,21 @@ void menu_main() {
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
           ui.abort_print, ui.goto_previous_screen,
-          GET_TEXT(MSG_STOP_PRINT), (PGM_P)nullptr, PSTR("?")
+          GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
     #endif
+
+    #if ENABLED(GCODE_REPEAT_MARKERS)
+      if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
+    #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
+
+    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    #endif
   }
   else {
 
@@ -116,22 +142,20 @@ void menu_main() {
       // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
 
       //
-      // Autostart
+      // Run Auto Files
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
       #endif
 
       if (card_detected) {
         if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, menu_media);
-          MENU_ITEM(gcode,
-            #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, M21_STR
-            #else
-              MSG_RELEASE_MEDIA, PSTR("M22")
-            #endif
-          );
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
         }
       }
       else {
@@ -147,14 +171,24 @@ void menu_main() {
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
+    #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+    #endif
+
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
   #if HAS_CUTTER
-    SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
+    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
   #endif
 
-  SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
+  #if HAS_POWER_MONITOR
+    SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     SUBMENU(MSG_MIXER, menu_mixer);
@@ -189,8 +223,8 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    SUBMENU(MSG_LED_CONTROL, menu_led);
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    SUBMENU(MSG_LEDS, menu_led);
   #endif
 
   //
@@ -213,19 +247,17 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
       #endif
 
       if (card_detected) {
         if (!card_open) {
-          MENU_ITEM(gcode,
-            #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, M21_STR
-            #else
-              MSG_RELEASE_MEDIA, PSTR("M22")
-            #endif
-          );
-          SUBMENU(MSG_MEDIA_MENU, menu_media);
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
         }
       }
       else {

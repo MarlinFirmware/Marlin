@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327 - version (measured/tested/approved)
-const short temptable_18[][2] PROGMEM = {
+const temp_entry_t temptable_18[] PROGMEM = {
   { OV(   1), 713 },
   { OV(  17), 284 },
   { OV(  20), 275 },

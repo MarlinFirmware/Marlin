@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, CANCEL_OBJECTS)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "menu_addon.h"
 
 #include "../../feature/cancel_object.h"
@@ -43,7 +43,7 @@ static void lcd_cancel_object_confirm() {
   };
   MenuItem_confirm::confirm_screen(
     []{
-      cancelable.cancel_object(MenuItemBase::itemIndex - 1);
+      cancelable.cancel_object(MenuItemBase::itemIndex);
       ui.completion_feedback();
       ui.goto_previous_screen();
     },

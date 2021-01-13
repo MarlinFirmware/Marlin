@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,6 +31,17 @@
  */
 
 #include "../MarlinCore.h"
+
+#if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
+  // Enable this option for perfect accuracy but maximum
+  // computation. Should be fine on ARM processors.
+  //#define JD_USE_MATH_ACOS
+
+  // Disable this option to save 120 bytes of PROGMEM,
+  // but incur increased computation and a reduction
+  // in accuracy.
+  #define JD_USE_LOOKUP_TABLE
+#endif
 
 #include "motion.h"
 #include "../gcode/queue.h"
@@ -53,6 +64,13 @@
 
 #if HAS_CUTTER
   #include "../feature/spindle_laser_types.h"
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  #include "../feature/direct_stepping.h"
+  #define IS_PAGE(B) TEST(B->flag, BLOCK_BIT_IS_PAGE)
+#else
+  #define IS_PAGE(B) false
 #endif
 
 // Feedrate for manual moves
@@ -79,20 +97,35 @@ enum BlockFlagBit : char {
 
   // Sync the stepper counts from the block
   BLOCK_BIT_SYNC_POSITION
+
+  // Direct stepping page
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_BIT_IS_PAGE
+  #endif
 };
 
 enum BlockFlag : char {
-  BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
-  BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
-  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
-  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
+    BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE)
+  , BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH)
+  , BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
+  , BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
+  #if ENABLED(DIRECT_STEPPING)
+    , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
+  #endif
 };
 
 #if ENABLED(LASER_POWER_INLINE)
 
   typedef struct {
-    uint8_t status,           // See planner settings for meaning
-            power;            // Ditto; When in trapezoid mode this is nominal power
+    bool isPlanned:1;
+    bool isEnabled:1;
+    bool dir:1;
+    bool Reserved:6;
+  } power_status_t;
+
+  typedef struct {
+    power_status_t status;    // See planner settings for meaning
+    uint8_t power;            // Ditto; When in trapezoid mode this is nominal power
     #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
       uint8_t   power_entry;  // Entry power for the laser
       #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -131,7 +164,7 @@ typedef struct block_t {
   };
   uint32_t step_event_count;                // The number of step events required to complete this block
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     uint8_t extruder;                       // The extruder to move (if E move)
   #else
     static constexpr uint8_t extruder = 0;
@@ -169,6 +202,10 @@ typedef struct block_t {
            final_rate,                      // The minimal rate at exit
            acceleration_steps_per_s2;       // acceleration steps/sec^2
 
+  #if ENABLED(DIRECT_STEPPING)
+    page_idx_t page_idx;                    // Page index used for direct stepping
+  #endif
+
   #if HAS_CUTTER
     cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
   #endif
@@ -181,7 +218,7 @@ typedef struct block_t {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     uint32_t segment_time_us;
   #endif
 
@@ -204,21 +241,18 @@ typedef struct block_t {
 #if ENABLED(LASER_POWER_INLINE)
   typedef struct {
     /**
-     * Laser status bitmask; most bits are unused;
-     *  0: Planner buffer enable
-     *  1: Laser enable
-     *  2: Reserved for direction
+     * Laser status flags
      */
-    uint8_t status;
+    power_status_t status;
     /**
      * Laser power: 0 or 255 in case of PWM-less laser,
-     * or the OCR value;
+     * or the OCR (oscillator count register) value;
      *
-     * Using OCR instead of raw power,
-     * as it avoids floating points during move loop
+     * Using OCR instead of raw power, because it avoids
+     * floating point operations during the move loop.
      */
     uint8_t power;
-  } settings_laser_t;
+  } laser_state_t;
 #endif
 
 typedef struct {
@@ -231,9 +265,6 @@ typedef struct {
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
-  #if ENABLED(LASER_POWER_INLINE)
-    settings_laser_t laser;
-  #endif
 } planner_settings_t;
 
 #if DISABLED(SKEW_CORRECTION)
@@ -255,6 +286,10 @@ typedef struct {
                 xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
   #endif
 } skew_factor_t;
+
+#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+#endif
 
 class Planner {
   public:
@@ -285,6 +320,11 @@ class Planner {
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
 
+    #if ENABLED(DIRECT_STEPPING)
+      static uint32_t last_page_step_rate;          // Last page step rate given
+      static xyze_bool_t last_page_dir;             // Last page direction given
+    #endif
+
     #if EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
@@ -297,16 +337,24 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      static float volumetric_extruder_limit[EXTRUDERS],          // Maximum mm^3/sec the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // Feedrate limit (mm/s) calculated from volume limit
+    #endif
+
     static planner_settings_t settings;
+
+    #if ENABLED(LASER_POWER_INLINE)
+      static laser_state_t laser_inline;
+    #endif
 
     static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
     static float steps_to_mm[XYZE_N];           // Millimeters per step
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;       // (mm) M205 J
-      #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk                 // Calculated from junction_deviation_mm
-          TERN_(DISTINCT_E_FACTORS, [EXTRUDERS]);
+      #if HAS_LINEAR_E_JERK
+        static float max_e_jerk[DISTINCT_E];    // Calculated from junction_deviation_mm
       #endif
     #endif
 
@@ -391,10 +439,10 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
        // Counters to manage disabling inactive extruders
-      static uint8_t g_uc_extruder_last_move[EXTRUDERS];
+      static last_move_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
@@ -434,9 +482,6 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
-    // Update multipliers based on new diameter measurements
-    static void calculate_volumetric_multipliers();
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
@@ -450,13 +495,30 @@ class Planner {
 
     #if DISABLED(NO_VOLUMETRICS)
 
+      // Update multipliers based on new diameter measurements
+      static void calculate_volumetric_multipliers();
+
+      #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+        // Update pre calculated extruder feedrate limits based on volumetric values
+        static void calculate_volumetric_extruder_limit(const uint8_t e);
+        static void calculate_volumetric_extruder_limits();
+      #endif
+
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
         filament_size[e] = v;
+        if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
         LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
+    #endif
+
+    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float &v) {
+        volumetric_extruder_limit[e] = v;
+        calculate_volumetric_extruder_limit(e);
+      }
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -537,6 +599,9 @@ class Planner {
         unapply_leveling(raw);
         leveling_active = false;
       }
+    #else
+      FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
+      FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -547,23 +612,15 @@ class Planner {
     #endif
 
     #if HAS_POSITION_MODIFIERS
-      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos
-        #if HAS_LEVELING
-          , bool leveling = ENABLED(PLANNER_LEVELING)
-        #endif
-      ) {
+      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(SKEW_CORRECTION, skew(pos));
-        TERN_(HAS_LEVELING, if (leveling) apply_leveling(pos));
+        if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
       }
 
-      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos
-        #if HAS_LEVELING
-          , bool leveling = ENABLED(PLANNER_LEVELING)
-        #endif
-      ) {
+      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(FWRETRACT, unapply_retract(pos));
-        TERN_(HAS_LEVELING, if (leveling) unapply_leveling(pos));
+        if (leveling) unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
@@ -655,7 +712,7 @@ class Planner {
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
   #endif
 
     /**
@@ -720,6 +777,10 @@ class Planner {
         #endif
       );
     }
+
+    #if ENABLED(DIRECT_STEPPING)
+      static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);
+    #endif
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -806,15 +867,15 @@ class Planner {
     static block_t* get_current_block();
 
     /**
-     * "Discard" the block and "release" the memory.
+     * "Release" the current block so its slot can be reused.
      * Called when the current block is no longer needed.
      */
-    FORCE_INLINE static void discard_current_block() {
+    FORCE_INLINE static void release_current_block() {
       if (has_blocks_queued())
         block_buffer_tail = next_block_index(block_buffer_tail);
     }
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       static uint16_t block_buffer_runtime();
       static void clear_block_buffer_runtime();
     #endif
@@ -829,13 +890,9 @@ class Planner {
 
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
-        #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
-        #if ENABLED(DISTINCT_E_FACTORS)
-          LOOP_L_N(i, EXTRUDERS)
-            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]);
-        #else
-          max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
-        #endif
+        const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
+        LOOP_L_N(i, EXTRUDERS)
+          max_e_jerk[E_INDEX_N(i)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(i)]);
       }
     #endif
 
@@ -909,14 +966,18 @@ class Planner {
 
       FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
-        LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
-          NOMORE(limit_value, ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+        LOOP_XYZE(idx) {
+          if (unit_vec[idx]) {
+            if (limit_value * ABS(unit_vec[idx]) > settings.max_acceleration_mm_per_s2[idx])
+              limit_value = ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]);
+          }
+        }
         return limit_value;
       }
 
     #endif // !CLASSIC_JERK
 };
 
-#define PLANNER_XY_FEEDRATE() (_MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
 
 extern Planner planner;

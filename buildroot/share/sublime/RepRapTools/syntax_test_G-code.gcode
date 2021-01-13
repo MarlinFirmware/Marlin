@@ -93,7 +93,7 @@ N234 G1 X-5 Y+2 *64 error
 ;                ^constant.numeric.checksum.gcode
 ;                  ^invalid.error.syntax.gcode
 
-N234 M107 *64     
+N234 M107 *64
 ;              ^-invalid.error.syntax.gcode
 
 M92 E304.5:304.5:420:420:420:420 ; EOL Comment

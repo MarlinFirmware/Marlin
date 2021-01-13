@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -45,7 +45,14 @@
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
+
+  #ifdef WIPE_SEQUENCE_COMMANDS
+    if (!parser.seen_any()) {
+      gcode.process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
+      return;
+    }
+  #endif
 
   const uint8_t pattern = parser.ushortval('P', 0),
                 strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
@@ -63,9 +70,11 @@ void GcodeSuite::G12() {
     TEMPORARY_BED_LEVELING_STATE(!TEST(cleans, Z_AXIS) && planner.leveling_active);
   #endif
 
-  TEMPORARY_SOFT_ENDSTOP_STATE(parser.boolval('E'));
+  SET_SOFT_ENDSTOP_LOOSE(!parser.boolval('E'));
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
+
+  SET_SOFT_ENDSTOP_LOOSE(false);
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
 
 #if ENABLED(TMC_DEBUG)
   #include "../module/planner.h"
-  #include "../libs/hex_print_routines.h"
+  #include "../libs/hex_print.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
     static uint16_t report_tmc_status_interval; // = 0
   #endif
@@ -147,7 +147,7 @@
 
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
-      constexpr uint8_t S2G_bm = 0b11110; // 2..5
+      constexpr uint8_t S2G_bm = 0b111100; // 2..5
       TMC_driver_data data;
       const auto ds = data.drv_status = st.DRV_STATUS();
       data.is_otpw = TEST(ds, OTPW_bp);
@@ -291,7 +291,7 @@
     bool should_step_down = false;
 
     if (need_update_error_counters) {
-      if (data.is_ot /* | data.s2ga | data.s2gb*/) st.error_count++;
+      if (data.is_ot | data.is_s2g) st.error_count++;
       else if (st.error_count > 0) st.error_count--;
 
       #if ENABLED(STOP_ON_ERROR)
@@ -480,6 +480,10 @@
     TMC_GLOBAL_SCALER,
     TMC_CS_ACTUAL,
     TMC_PWM_SCALE,
+    TMC_PWM_SCALE_SUM,
+    TMC_PWM_SCALE_AUTO,
+    TMC_PWM_OFS_AUTO,
+    TMC_PWM_GRAD_AUTO,
     TMC_VSENSE,
     TMC_STEALTHCHOP,
     TMC_MICROSTEPS,
@@ -492,7 +496,9 @@
     TMC_TBL,
     TMC_HEND,
     TMC_HSTRT,
-    TMC_SGT
+    TMC_SGT,
+    TMC_MSCNT,
+    TMC_INTERPOLATE
   };
   enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
@@ -548,6 +554,7 @@
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
@@ -583,6 +590,7 @@
             SERIAL_ECHOPGM("/256");
           }
           break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
@@ -591,10 +599,14 @@
   #if HAS_TMC220x
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
-        case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
+        case TMC_PWM_SCALE_SUM: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
+        case TMC_PWM_SCALE_AUTO: SERIAL_PRINT(st.pwm_scale_auto(), DEC); break;
+        case TMC_PWM_OFS_AUTO: SERIAL_PRINT(st.pwm_ofs_auto(), DEC); break;
+        case TMC_PWM_GRAD_AUTO: SERIAL_PRINT(st.pwm_grad_auto(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
         case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
@@ -636,6 +648,12 @@
 
   #if HAS_DRIVER(TMC2660)
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
+    static void _tmc_status(TMC2660Stepper &st, const TMC_debug_enum i) {
+      switch (i) {
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        default: break;
+      }
+    }
   #endif
 
   template <typename TMC>
@@ -680,6 +698,7 @@
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
       case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
+      case TMC_MSCNT: SERIAL_PRINT(st.get_microstep_counter(), DEC); break;
       default: _tmc_status(st, i); break;
     }
   }
@@ -893,6 +912,7 @@
     #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
+    TMC_REPORT("interp\t",           TMC_INTERPOLATE);
     TMC_REPORT("tstep\t",            TMC_TSTEP);
     TMC_REPORT("PWM thresh.",        TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
@@ -900,11 +920,20 @@
     #if ENABLED(MONITOR_DRIVER_STATUS)
       TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
     #endif
+
+    #if HAS_TMC220x
+      TMC_REPORT("pwm scale sum",     TMC_PWM_SCALE_SUM);
+      TMC_REPORT("pwm scale auto",    TMC_PWM_SCALE_AUTO);
+      TMC_REPORT("pwm offset auto",   TMC_PWM_OFS_AUTO);
+      TMC_REPORT("pwm grad auto",     TMC_PWM_GRAD_AUTO);
+    #endif
+
     TMC_REPORT("off time",           TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
     TMC_REPORT("hysteresis\n -end\t", TMC_HEND);
     TMC_REPORT(" -start\t",          TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
+    TMC_REPORT("uStep count",        TMC_MSCNT);
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
     #if HAS_TMCX1X0 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);

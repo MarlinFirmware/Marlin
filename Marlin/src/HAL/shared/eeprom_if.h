@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,6 @@
 //
 // EEPROM
 //
+void eeprom_init();
 void eeprom_write_byte(uint8_t *pos, unsigned char value);
 uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);

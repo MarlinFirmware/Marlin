@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,6 +28,6 @@
 
 #define BOARD_INFO_NAME         "Velleman K8200"
 #define DEFAULT_MACHINE_NAME    "K8200"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
+#define DEFAULT_SOURCE_CODE_URL "github.com/CONSULitAS/Marlin-K8200"
 
 #include "pins_3DRAG.h"

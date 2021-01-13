@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __PLAT_LINUX__
@@ -28,20 +28,25 @@
 #include "../shared/eeprom_api.h"
 #include <stdio.h>
 
-#define LINUX_EEPROM_SIZE (E2END + 1)
-uint8_t buffer[LINUX_EEPROM_SIZE];
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB of Emulated EEPROM
+#endif
+
+uint8_t buffer[MARLIN_EEPROM_SIZE];
 char filename[] = "eeprom.dat";
+
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
   FILE * eeprom_file = fopen(filename, "rb");
-  if (eeprom_file == nullptr) return false;
+  if (!eeprom_file) return false;
 
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
 
-  if (file_size < LINUX_EEPROM_SIZE) {
-    memset(buffer + file_size, eeprom_erase_value, LINUX_EEPROM_SIZE - file_size);
+  if (file_size < MARLIN_EEPROM_SIZE) {
+    memset(buffer + file_size, eeprom_erase_value, MARLIN_EEPROM_SIZE - file_size);
   }
   else {
     fseek(eeprom_file, 0L, SEEK_SET);
@@ -54,7 +59,7 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   FILE * eeprom_file = fopen(filename, "wb");
-  if (eeprom_file == nullptr) return false;
+  if (!eeprom_file) return false;
   fwrite(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
   fclose(eeprom_file);
   return true;
@@ -73,7 +78,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return (bytes_written != size);  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   std::size_t bytes_read = 0;
   if (writing) {
     for (std::size_t i = 0; i < size; i++) {
@@ -94,8 +99,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos = pos + size;
   return bytes_read != size;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // EEPROM_SETTINGS
 #endif // __PLAT_LINUX__

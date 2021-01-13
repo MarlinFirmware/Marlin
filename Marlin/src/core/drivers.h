@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -131,6 +131,7 @@
 
 #define AXIS_HAS_RXTX AXIS_HAS_UART
 
+#define AXIS_HAS_HW_SERIAL(A) ( AXIS_HAS_UART(A) &&  defined(A##_HARDWARE_SERIAL) )
 #define AXIS_HAS_SW_SERIAL(A) ( AXIS_HAS_UART(A) && !defined(A##_HARDWARE_SERIAL) )
 
 #define AXIS_HAS_STALLGUARD(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
@@ -173,6 +174,13 @@
 #endif
 #if ANY_AXIS_HAS(SPI)
   #define HAS_TMC_SPI 1
+#endif
+
+//
+// TMC26XX Stepper Drivers
+//
+#if HAS_DRIVER(TMC26X)
+  #define HAS_TMC26X 1
 #endif
 
 //

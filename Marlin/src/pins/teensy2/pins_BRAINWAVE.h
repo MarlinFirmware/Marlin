@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -68,7 +68,7 @@
  *    4. The programmer is no longer needed. Remove it.
  */
 
-#ifndef __AVR_AT90USB646__
+#if NOT_TARGET(__AVR_AT90USB646__)
   #error "Oops! Select 'AT90USB646_TEENSYPP' in 'Tools > Board.'"
 #endif
 

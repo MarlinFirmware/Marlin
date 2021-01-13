@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,23 +41,16 @@ bool FilamentMonitorBase::enabled = true,
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   #include "../module/tool_change.h"
+  #define DEBUG_OUT ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../core/debug_out.h"
 #endif
 
-/**
- * Called by FilamentSensorSwitch::run when filament is detected.
- * Called by FilamentSensorEncoder::block_completed when motion is detected.
- */
-void FilamentSensorBase::filament_present(const uint8_t extruder) {
-  runout.filament_present(extruder); // calls response.filament_present(extruder)
-}
-
-#if ENABLED(FILAMENT_MOTION_SENSOR)
-  uint8_t FilamentSensorEncoder::motion_detected;
-#endif
-
-#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+#if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
   volatile float RunoutResponseDelayed::runout_mm_countdown[EXTRUDERS];
+  #if ENABLED(FILAMENT_MOTION_SENSOR)
+    uint8_t FilamentSensorEncoder::motion_detected;
+  #endif
 #else
   int8_t RunoutResponseDebounced::runout_count; // = 0
 #endif
@@ -81,8 +74,14 @@ void event_filament_runout() {
   if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    if (migration.in_progress) return;  // Action already in progress. Purge triggered repeated runout.
-    if (migration.automode) { extruder_migration(); return; }
+    if (migration.in_progress) {
+      DEBUG_ECHOLNPGM("Migration Already In Progress");
+      return;  // Action already in progress. Purge triggered repeated runout.
+    }
+    if (migration.automode) {
+      DEBUG_ECHOLNPGM("Migration Starting");
+      if (extruder_migration()) return;
+    }
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getActiveTool()));
@@ -107,9 +106,7 @@ void event_filament_runout() {
     if (run_runout_script
       && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
         || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          || strstr(FILAMENT_RUNOUT_SCRIPT, "M25")
-        #endif
+        || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
       )
     ) {
       host_action_paused(false);

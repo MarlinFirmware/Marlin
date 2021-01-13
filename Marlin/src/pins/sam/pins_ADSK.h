@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "ADSK"
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #endif
 
@@ -175,12 +175,12 @@ A stepper for E0 extruder
 
   #define ADC_BUTTONS_VALUE_SCALE         (5.0/AREF_VOLTS) // The LCD module pullup voltage is 5.0V but ADC reference voltage is 3.3V
 
-  #define ADC_BUTTONS_R_PULLDOWN          4.7  // Moves voltage down to be bellow 3.3V instead of 5V
+  #define ADC_BUTTONS_R_PULLDOWN          4.7     // Moves voltage down to be bellow 3.3V instead of 5V
   // the resistors values will be scaled because of 4.7K pulldown parallel resistor
   #define _ADC_BUTTONS_R_SCALED(R)        ((R) * (ADC_BUTTONS_R_PULLDOWN) / ((R) + ADC_BUTTONS_R_PULLDOWN))
 
   // buttons pullup resistor
-  #define ADC_BUTTONS_R_PULLUP            4.7 // the resistor on the 2004 LCD panel
+  #define ADC_BUTTONS_R_PULLUP            4.7     // the resistor on the 2004 LCD panel
   // buttons resistors with scaled values because of parallel pulldown resistor
   #define ADC_BUTTONS_LEFT_R_PULLDOWN     _ADC_BUTTONS_R_SCALED(0.47)
   #define ADC_BUTTONS_RIGHT_R_PULLDOWN    _ADC_BUTTONS_R_SCALED(4.7)
@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

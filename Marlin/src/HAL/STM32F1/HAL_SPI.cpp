@@ -17,16 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
  * Copyright (c) 2009 by William Greiman
- */
-
-/**
  * Adapted to the STM32F1 HAL
  */
 
@@ -64,8 +61,8 @@
  * @details Only configures SS pin since libmaple creates and initialize the SPI object
  */
 void spiBegin() {
-  #if PIN_EXISTS(SS)
-    OUT_WRITE(SS_PIN, HIGH);
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
 }
 
@@ -113,7 +110,7 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec() {
-  uint8_t returnByte = SPI.transfer(ff);
+  uint8_t returnByte = SPI.transfer(0xFF);
   return returnByte;
 }
 
@@ -157,7 +154,7 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 #if ENABLED(SPI_EEPROM)
 
 // Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan) { return SPI.transfer(ff); }
+uint8_t spiRec(uint32_t chan) { return SPI.transfer(0xFF); }
 
 // Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b) { SPI.send(b); }

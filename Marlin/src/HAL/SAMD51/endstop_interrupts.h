@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -126,82 +126,83 @@
 void endstop_ISR() { endstops.update(); }
 
 void setup_endstop_interrupts() {
+  #define _ATTACH(P) attachInterrupt(P, endstop_ISR, CHANGE)
   #if HAS_X_MAX
     #if !AVAILABLE_EILINE(X_MAX_PIN)
       #error "X_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(X_MAX_PIN);
   #endif
   #if HAS_X_MIN
     #if !AVAILABLE_EILINE(X_MIN_PIN)
       #error "X_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(X_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(X_MIN_PIN);
   #endif
   #if HAS_Y_MAX
     #if !AVAILABLE_EILINE(Y_MAX_PIN)
       #error "Y_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Y_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Y_MAX_PIN);
   #endif
   #if HAS_Y_MIN
     #if !AVAILABLE_EILINE(Y_MIN_PIN)
       #error "Y_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Y_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Y_MIN_PIN);
   #endif
   #if HAS_Z_MAX
     #if !AVAILABLE_EILINE(Z_MAX_PIN)
       #error "Z_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z_MAX_PIN);
   #endif
   #if HAS_Z_MIN
     #if !AVAILABLE_EILINE(Z_MIN_PIN)
       #error "Z_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z_MIN_PIN);
   #endif
   #if HAS_Z2_MAX
     #if !AVAILABLE_EILINE(Z2_MAX_PIN)
       #error "Z2_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z2_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z2_MAX_PIN);
   #endif
   #if HAS_Z2_MIN
     #if !AVAILABLE_EILINE(Z2_MIN_PIN)
       #error "Z2_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z2_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z2_MIN_PIN);
   #endif
   #if HAS_Z3_MAX
     #if !AVAILABLE_EILINE(Z3_MAX_PIN)
       #error "Z3_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z3_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z3_MAX_PIN);
   #endif
   #if HAS_Z3_MIN
     #if !AVAILABLE_EILINE(Z3_MIN_PIN)
       #error "Z3_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z3_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z3_MIN_PIN);
   #endif
   #if HAS_Z4_MAX
     #if !AVAILABLE_EILINE(Z4_MAX_PIN)
       #error "Z4_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z4_MAX_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z4_MAX_PIN);
   #endif
   #if HAS_Z4_MIN
     #if !AVAILABLE_EILINE(Z4_MIN_PIN)
       #error "Z4_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z4_MIN_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z4_MIN_PIN);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
     #if !AVAILABLE_EILINE(Z_MIN_PROBE_PIN)
       #error "Z_MIN_PROBE_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
+    _ATTACH(Z_MIN_PROBE_PIN);
   #endif
 }

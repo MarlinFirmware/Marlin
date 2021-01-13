@@ -16,14 +16,36 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-extern uint8_t case_light_brightness;
-extern bool case_light_on;
-extern uint8_t case_light_brightness_sav;   // saves brighness info when case_light_on is false
-extern bool case_light_arg_flag;  // flag to notify if S or P argument type
+#include "../inc/MarlinConfigPre.h"
 
-void update_case_light();
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #include "leds/leds.h"
+#endif
+
+#if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #define CASELIGHT_USES_BRIGHTNESS 1
+#endif
+
+class CaseLight {
+public:
+  #if CASELIGHT_USES_BRIGHTNESS
+    static uint8_t brightness;
+  #endif
+  static bool on;
+
+  static void update(const bool sflag);
+  static inline void update_brightness() { update(false); }
+  static inline void update_enabled() { update(true); }
+
+private:
+  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+    static LEDColor color;
+  #endif
+};
+
+extern CaseLight caselight;

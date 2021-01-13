@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,7 +29,7 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
@@ -448,7 +448,7 @@ void GcodeSuite::G33() {
   }
 
   // Report settings
-  PGM_P checkingac = PSTR("Checking... AC");
+  PGM_P const checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
@@ -624,7 +624,7 @@ void GcodeSuite::G33() {
       }
     }
     else { // dry run
-      PGM_P enddryrun = PSTR("End DRY-RUN");
+      PGM_P const enddryrun = PSTR("End DRY-RUN");
       serialprintPGM(enddryrun);
       SERIAL_ECHO_SP(35);
       SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);

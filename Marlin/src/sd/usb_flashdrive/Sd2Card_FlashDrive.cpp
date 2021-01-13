@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -44,12 +44,13 @@
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
 
-static_assert(USB_CS_PIN   != -1, "USB_CS_PIN must be defined");
-static_assert(USB_INTR_PIN != -1, "USB_INTR_PIN must be defined");
+#if DISABLED(USE_OTG_USB_HOST) && !PINS_EXIST(USB_CS, USB_INTR)
+  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN to be defined."
+#endif
 
 #if ENABLED(USE_UHS3_USB)
   #define NO_AUTO_SPEED
-  #define UHS_MAX3421E_SPD 8000000 >> SPI_SPEED
+  #define UHS_MAX3421E_SPD 8000000 >> SD_SPI_SPEED
   #define UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE 1
   #define UHS_HOST_MAX_INTERFACE_DRIVERS 2
   #define MASS_MAX_SUPPORTED_LUN 1
@@ -81,6 +82,17 @@ static_assert(USB_INTR_PIN != -1, "USB_INTR_PIN must be defined");
 
   #define UHS_START  (usb.Init() == 0)
   #define UHS_STATE(state) UHS_USB_HOST_STATE_##state
+#elif ENABLED(USE_OTG_USB_HOST)
+
+  #if HAS_SD_HOST_DRIVE
+    #include HAL_PATH(../../HAL, msc_sd.h)
+  #endif
+
+  #include HAL_PATH(../../HAL, usb_host.h)
+
+  #define UHS_START usb.start()
+  #define rREVISION 0
+  #define UHS_STATE(state) USB_STATE_##state
 #else
   #include "lib-uhs2/Usb.h"
   #include "lib-uhs2/masstorage.h"
@@ -94,9 +106,7 @@ static_assert(USB_INTR_PIN != -1, "USB_INTR_PIN must be defined");
 
 #include "Sd2Card_FlashDrive.h"
 
-#if HAS_DISPLAY
-  #include "../../lcd/ultralcd.h"
-#endif
+#include "../../lcd/marlinui.h"
 
 static enum {
   UNINITIALIZED,
@@ -116,9 +126,7 @@ bool Sd2Card::usbStartup() {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-        LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
-      #endif
+      LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
       return false;
     }
 
@@ -213,9 +221,7 @@ void Sd2Card::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
-          #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-            LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
-          #endif
+          LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
           GOTO_STATE_AFTER_DELAY(state, 2000);
         }
         break;
@@ -229,11 +235,9 @@ void Sd2Card::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
-      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-        if (state != MEDIA_READY)
-          LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
-      #endif
-      GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
+      if (state != MEDIA_READY)
+        LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
+      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
@@ -241,17 +245,13 @@ void Sd2Card::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
       #endif
-      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-        LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
-      #endif
-      GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
+      LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
-        #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
-          LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
-        #endif
-        GOTO_STATE_AFTER_DELAY( MEDIA_ERROR, 0 );
+      LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
+      GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
     }
   }
 }
@@ -262,7 +262,7 @@ bool Sd2Card::isInserted() {
   return state == MEDIA_READY;
 }
 
-bool Sd2Card::ready() {
+bool Sd2Card::isReady() {
   return state > DO_STARTUP;
 }
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * DUE3DOM MINI pin assignments
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -105,7 +105,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
   #define LCD_PINS_ENABLE                     43
@@ -114,7 +114,7 @@
   #define LCD_PINS_D6                         46
   #define LCD_PINS_D7                         47
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if IS_RRD_SC
 
     #define BEEPER_PIN                        41
 
@@ -139,7 +139,7 @@
     #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52
@@ -171,4 +171,9 @@
     #define DOGLCD_CS                         45
 
   #endif // SPARK_FULL_GRAPHICS
-#endif // HAS_SPI_LCD
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD

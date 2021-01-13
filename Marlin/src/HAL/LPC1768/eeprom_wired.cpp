@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -25,18 +25,20 @@
 
 #if USE_WIRED_EEPROM
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-#ifndef EEPROM_SIZE
-  #define EEPROM_SIZE           0x8000 // 32kB‬
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE           0x8000 // 32KB‬
 #endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 
-bool PersistentStore::access_start() {
-  TERN_(SPI_EEPROM, eeprom_init());
-  return true;
-}
-
+bool PersistentStore::access_start()  { eeprom_init(); return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -62,7 +64,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     // Read from external EEPROM
     const uint8_t c = eeprom_read_byte((uint8_t*)pos);
@@ -74,8 +76,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;
 }
-
-size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // USE_WIRED_EEPROM
 #endif // TARGET_LPC1768
