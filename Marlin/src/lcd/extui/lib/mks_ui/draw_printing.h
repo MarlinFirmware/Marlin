@@ -48,7 +48,6 @@ extern void start_print_time();
 extern void stop_print_time();
 extern void setProBarRate();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

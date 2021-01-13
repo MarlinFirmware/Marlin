@@ -31,11 +31,6 @@
 #include "draw_ui.h"
 #include <lv_conf.h>
 
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
-
 #include "../../../../sd/cardreader.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/temperature.h"
@@ -100,7 +95,6 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
-          //saved_feedrate_percentage = feedrate_percentage;
           planner.flow_percentage[0] = 100;
           planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
           #if HAS_MULTI_EXTRUDER
@@ -123,20 +117,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_ready_print();
 
     #if ENABLED(SDSUPPORT)
-      //card.endFilePrint();
-      //wait_for_heatup = false;
       uiCfg.print_state           = IDLE;
       card.flag.abort_sd_printing = true;
-      //queue.clear();
-      //quickstop_stepper();
-      //print_job_timer.stop();
-      //thermalManager.disable_all_heaters();
-
-      //#if ENABLED(POWER_LOSS_RECOVERY)
-      //  recovery.purge();
-      //#endif
-      //queue.enqueue_now_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0"));
-      //queue.inject_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0\nM84\nM107"));
     #endif
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
@@ -244,19 +226,19 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(WIFI_ENABLE_TIPS)) {
     btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
-    lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+    lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
   }
   else if (DIALOG_IS(TRANSFER_NO_DEVICE)) {
     btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
-    lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+    lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 2) {
         btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
         lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
-        lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+        lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
       }
       else if (upload_result == 3) {
         btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);
@@ -268,7 +250,7 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
     btnCancel = lv_button_btn_create(scr, BTN_OK_X+90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
-    lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+    lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
 
     tempText1 = lv_label_create_empty(scr);
     filament_sprayer_temp();
@@ -281,7 +263,7 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
     btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
-    lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+    lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
 
     filament_bar = lv_bar_create(scr, nullptr);
     lv_obj_set_pos(filament_bar, (TFT_WIDTH-400)/2, ((TFT_HEIGHT - titleHeight)-40)/2);
@@ -303,7 +285,7 @@ void lv_draw_dialog(uint8_t type) {
     }
     else {
       lv_label_set_text(labelOk, print_file_dialog_menu.confirm);  // Set the labels text
-      lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
+      lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
     }
   }
   if (DIALOG_IS(TYPE_PRINT_FILE)) {
@@ -314,7 +296,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_align(labelFile, nullptr, LV_ALIGN_CENTER, 0, -60);
   }
   else if (DIALOG_IS(TYPE_STOP)) {
-    lv_label_set_text(labelDialog, print_file_dialog_menu.cancle_print);
+    lv_label_set_text(labelDialog, print_file_dialog_menu.cancel_print);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
