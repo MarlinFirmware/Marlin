@@ -282,27 +282,24 @@ void esp_port_begin(uint8_t interrupt) {
     dma_init();
   }
   #endif
-  if (interrupt) {
-    #if ENABLED(MKS_WIFI_MODULE)
-      WIFISERIAL.end();
-      for (uint16_t i = 0; i < 65535; i++);
-      WIFISERIAL.begin(WIFI_BAUDRATE);
-      uint32_t serial_connect_timeout = millis() + 1000UL;
-        while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for (uint8_t i=0;i<100;i++)WIFISERIAL.write(0x33);
-    #endif
-  }
-  else {
-    #if ENABLED(MKS_WIFI_MODULE)
-      WIFISERIAL.end();
-      for (uint16_t i = 0; i < 65535; i++);
-      WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
-      uint32_t serial_connect_timeout = millis() + 1000UL;
-        while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for (uint16_t i=0;i<65535;i++);//WIFISERIAL.write(0x33);
-    #endif
-    dma_init();
-  }
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    WIFISERIAL.end();
+    for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
+    WIFISERIAL.begin(interrupt ? WIFI_BAUDRATE : WIFI_UPLOAD_BAUDRATE);
+
+    const millis_t serial_connect_timeout = millis() + 1000UL;
+    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+
+    if (interrupt) {
+      //for (uint8_t i=0;i<100;i++) WIFISERIAL.write(0x33);
+    }
+    else {
+      //for (uint16_t i=0;i<65535;i++); //WIFISERIAL.write(0x33);
+    }
+  #endif
+
+  if (!interrupt) dma_init();
 }
 
 #if ENABLED(MKS_WIFI_MODULE)
