@@ -128,7 +128,6 @@ void MMU2::init() {
   set_runout_valid(false);
 
   #if PIN_EXISTS(MMU2_RST)
-    // TODO use macros for this
     WRITE(MMU2_RST_PIN, HIGH);
     SET_OUTPUT(MMU2_RST_PIN);
   #endif
@@ -955,7 +954,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 /**
  * Load filament to nozzle of multimaterial printer
  *
- * This function is used only only after T? (user select filament) and M600 (change filament).
+ * This function is used only after T? (user select filament) and M600 (change filament).
  * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
  * filament to nozzle.
  */
