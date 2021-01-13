@@ -22,14 +22,13 @@
  */
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
+/**
+ * HAL PersistentStore for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
-
-/**
- * PersistentStore for Arduino-style EEPROM interface
- * with implementations supplied by the framework.
- */
 
 #include "../shared/eeprom_api.h"
 #include <avr/eeprom.h>

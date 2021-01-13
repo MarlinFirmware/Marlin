@@ -55,24 +55,24 @@ const uint8_t ESP_MEM_END = 0x06;
 const uint8_t ESP_MEM_DATA = 0x07;
 const uint8_t ESP_SYNC = 0x08;
 const uint8_t ESP_WRITE_REG = 0x09;
-const uint8_t ESP_READ_REG = 0x0a;
+const uint8_t ESP_READ_REG = 0x0A;
 
 // MAC address storage locations
-const uint32_t ESP_OTP_MAC0 = 0x3ff00050;
-const uint32_t ESP_OTP_MAC1 = 0x3ff00054;
-const uint32_t ESP_OTP_MAC2 = 0x3ff00058;
-const uint32_t ESP_OTP_MAC3 = 0x3ff0005c;
+const uint32_t ESP_OTP_MAC0 = 0x3FF00050;
+const uint32_t ESP_OTP_MAC1 = 0x3FF00054;
+const uint32_t ESP_OTP_MAC2 = 0x3FF00058;
+const uint32_t ESP_OTP_MAC3 = 0x3FF0005C;
 
 const size_t EspFlashBlockSize = 0x0400;      // 1K byte blocks
 
-const uint8_t ESP_IMAGE_MAGIC = 0xe9;
-const uint8_t ESP_CHECKSUM_MAGIC = 0xef;
+const uint8_t ESP_IMAGE_MAGIC = 0xE9;
+const uint8_t ESP_CHECKSUM_MAGIC = 0xEF;
 
 const uint32_t ESP_ERASE_CHIP_ADDR = 0x40004984;  // &SPIEraseChip
-const uint32_t ESP_SEND_PACKET_ADDR = 0x40003c80; // &send_packet
-const uint32_t ESP_SPI_READ_ADDR = 0x40004b1c;    // &SPIRead
+const uint32_t ESP_SEND_PACKET_ADDR = 0x40003C80; // &send_packet
+const uint32_t ESP_SPI_READ_ADDR = 0x40004B1C;    // &SPIRead
 const uint32_t ESP_UNKNOWN_ADDR = 0x40001121;   // not used
-const uint32_t ESP_USER_DATA_RAM_ADDR = 0x3ffe8000; // &user data ram
+const uint32_t ESP_USER_DATA_RAM_ADDR = 0x3FFE8000; // &user data ram
 const uint32_t ESP_IRAM_ADDR = 0x40100000;      // instruction RAM
 const uint32_t ESP_FLASH_ADDR = 0x40200000;     // address of start of Flash
 //const uint32_t ESP_FLASH_READ_STUB_BEGIN = IRAM_ADDR + 0x18;
@@ -110,24 +110,17 @@ const char *resultMessages[] = {
 // 230400b always manages to connect.
 static const uint32_t uploadBaudRates[] = { 460800, 230400, 115200, 74880 };
 
-
-
 signed char IsReady() {
   return esp_upload.state == upload_idle;
 }
-
-
-
-
 
 void uploadPort_write(const uint8_t *buf, size_t len) {
   #if 0
   int i;
 
-  for(i = 0; i < len; i++) {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
-
-      USART_SendData(USART1, *(buf + i));
+  for (i = 0; i < len; i++) {
+    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) { /* nada */ }
+    USART_SendData(USART1, *(buf + i));
   }
   #endif
 }
@@ -138,27 +131,21 @@ char uploadPort_read() {
     return retChar;
   else
     return 0;
-
 }
 
 int uploadPort_available() {
   return usartFifoAvailable(&WifiRxFifo);
 }
 
-
 void uploadPort_begin() {
   esp_port_begin(1);
 }
 
 void uploadPort_close() {
-
   //WIFI_COM.end();
   //WIFI_COM.begin(115200, true);
-
   esp_port_begin(0);
-
 }
-
 
 void flushInput() {
   while (uploadPort_available() != 0) {
@@ -190,7 +177,7 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
       byteCnt = 4;
     }
     do {
-      buf[ofst++] = (uint8_t)(val & 0xff);
+      buf[ofst++] = (uint8_t)(val & 0xFF);
       val >>= 8;
     } while (--byteCnt);
   }
@@ -201,7 +188,7 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
 //  2 - an escaped byte was read successfully
 //  1 - a non-escaped byte was read successfully
 //  0 - no data was available
-//   -1 - the value 0xc0 was encountered (shouldn't happen)
+//   -1 - the value 0xC0 was encountered (shouldn't happen)
 //   -2 - a SLIP escape byte was found but the following byte wasn't available
 //   -3 - a SLIP escape byte was followed by an invalid byte
 int ReadByte(uint8_t *data, signed char slipDecode) {
@@ -215,13 +202,13 @@ int ReadByte(uint8_t *data, signed char slipDecode) {
     return(1);
   }
 
-  if (*data == 0xc0) {
+  if (*data == 0xC0) {
     // this shouldn't happen
     return(-1);
   }
 
   // if not the SLIP escape, we're done
-  if (*data != 0xdb) {
+  if (*data != 0xDB) {
     return(1);
   }
 
@@ -232,13 +219,13 @@ int ReadByte(uint8_t *data, signed char slipDecode) {
 
   // process the escaped byte
   *data = uploadPort_read();
-  if (*data == 0xdc) {
-    *data = 0xc0;
+  if (*data == 0xDC) {
+    *data = 0xC0;
     return(2);
   }
 
-  if (*data == 0xdd) {
-    *data = 0xdb;
+  if (*data == 0xDD) {
+    *data = 0xDB;
     return(2);
   }
   // invalid
@@ -304,7 +291,6 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
 
   *bodyLen = 0;
 
-
   while (state != done) {
     uint8_t c;
     EspUploadResult stat;
@@ -322,73 +308,73 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     }
 
     // sufficient bytes have been received for the current state, process them
-    switch(state) {
-    case begin: // expecting frame start
-      c = uploadPort_read();
-      if (c != (uint8_t)0xc0) {
-        break;
-      }
-      state = header;
-      needBytes = 2;
-
-      break;
-    case end:   // expecting frame end
-      c = uploadPort_read();
-      if (c != (uint8_t)0xc0) {
-        return slipFrame;
-      }
-      state = done;
-
-      break;
-
-    case header:  // reading an 8-byte header
-    case body:    // reading the response body
-      {
-        int rslt;
-        // retrieve a byte with SLIP decoding
-        rslt = ReadByte(&c, 1);
-        if (rslt != 1 && rslt != 2) {
-          // some error occurred
-          stat = (rslt == 0 || rslt == -2) ? slipData : slipFrame;
-          return stat;
+    switch (state) {
+      case begin: // expecting frame start
+        c = uploadPort_read();
+        if (c != (uint8_t)0xC0) {
+          break;
         }
-        else if (state == header) {
-          //store the header byte
-          hdr[hdrIdx++] = c;
-          if (hdrIdx >= headerLength) {
-            // get the body length, prepare a buffer for it
-            *bodyLen = (uint16_t)getData(2, hdr, 2);
+        state = header;
+        needBytes = 2;
 
-            // extract the value, if requested
-            if (valp != 0) {
-              *valp = getData(4, hdr, 4);
-            }
+        break;
+      case end:   // expecting frame end
+        c = uploadPort_read();
+        if (c != (uint8_t)0xC0) {
+          return slipFrame;
+        }
+        state = done;
 
-            if (*bodyLen != 0) {
-              state = body;
+        break;
+
+      case header:  // reading an 8-byte header
+      case body:    // reading the response body
+        {
+          int rslt;
+          // retrieve a byte with SLIP decoding
+          rslt = ReadByte(&c, 1);
+          if (rslt != 1 && rslt != 2) {
+            // some error occurred
+            stat = (rslt == 0 || rslt == -2) ? slipData : slipFrame;
+            return stat;
+          }
+          else if (state == header) {
+            //store the header byte
+            hdr[hdrIdx++] = c;
+            if (hdrIdx >= headerLength) {
+              // get the body length, prepare a buffer for it
+              *bodyLen = (uint16_t)getData(2, hdr, 2);
+
+              // extract the value, if requested
+              if (valp != 0) {
+                *valp = getData(4, hdr, 4);
+              }
+
+              if (*bodyLen != 0) {
+                state = body;
+              }
+              else {
+                needBytes = 1;
+                state = end;
+              }
             }
-            else {
+          }
+          else {
+            // Store the response body byte, check for completion
+            if (bodyIdx < ARRAY_SIZE(respBuf)) {
+              respBuf[bodyIdx] = c;
+            }
+            ++bodyIdx;
+            if (bodyIdx >= *bodyLen) {
               needBytes = 1;
               state = end;
             }
           }
         }
-        else {
-          // Store the response body byte, check for completion
-          if (bodyIdx < ARRAY_SIZE(respBuf)) {
-            respBuf[bodyIdx] = c;
-          }
-          ++bodyIdx;
-          if (bodyIdx >= *bodyLen) {
-            needBytes = 1;
-            state = end;
-          }
-        }
-      }
-      break;
+        break;
 
-    default:    // this shouldn't happen
-      return slipState;
+      default:    // this shouldn't happen
+        return slipState;
     }
   }
 
@@ -397,7 +383,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
   opRet = (uint8_t)getData(1, hdr, 1);
   // Sync packets often provoke a response with a zero opcode instead of ESP_SYNC
   if (resp != 0x01 || opRet != op) {
-//debug//printf("resp %02x %02x\n", resp, opRet);
+    //printf("resp %02x %02x\n", resp, opRet); //debug
     return respHeader;
   }
 
@@ -428,24 +414,23 @@ void _writePacket(const uint8_t *data, size_t len) {
 }
 
 // Send a packet to the serial port while performing SLIP framing. The packet data comprises a header and an optional data block.
-// A SLIP packet begins and ends with 0xc0.  The data encapsulated has the bytes
-// 0xc0 and 0xdb replaced by the two-byte sequences {0xdb, 0xdc} and {0xdb, 0xdd} respectively.
+// A SLIP packet begins and ends with 0xC0.  The data encapsulated has the bytes
+// 0xC0 and 0xDB replaced by the two-byte sequences {0xDB, 0xDC} and {0xDB, 0xDD} respectively.
 
 void writePacket(const uint8_t *hdr, size_t hdrLen, const uint8_t *data, size_t dataLen) {
-
-  WriteByteRaw(0xc0);       // send the packet start character
+  WriteByteRaw(0xC0);           // send the packet start character
   _writePacket(hdr, hdrLen);    // send the header
-  _writePacket(data, dataLen);    // send the data block
-  WriteByteRaw(0xc0);       // send the packet end character
+  _writePacket(data, dataLen);  // send the data block
+  WriteByteRaw(0xC0);           // send the packet end character
 }
 
 // Send a packet to the serial port while performing SLIP framing. The packet data comprises a header and an optional data block.
 // This is like writePacket except that it does a fast block write for both the header and the main data with no SLIP encoding. Used to send sync commands.
 void writePacketRaw(const uint8_t *hdr, size_t hdrLen, const uint8_t *data, size_t dataLen) {
-  WriteByteRaw(0xc0);       // send the packet start character
-  _writePacketRaw(hdr, hdrLen); // send the header
+  WriteByteRaw(0xC0);             // send the packet start character
+  _writePacketRaw(hdr, hdrLen);   // send the header
   _writePacketRaw(data, dataLen); // send the data block in raw mode
-  WriteByteRaw(0xc0);       // send the packet end character
+  WriteByteRaw(0xC0);             // send the packet end character
 }
 
 // Send a command to the attached device together with the supplied data, if any.
@@ -460,12 +445,10 @@ void sendCommand(uint8_t op, uint32_t checkVal, const uint8_t *data, size_t data
 
   // send the packet
   //flushInput();
-  if (op == ESP_SYNC) {
+  if (op == ESP_SYNC)
     writePacketRaw(hdr, sizeof(hdr), data, dataLen);
-  }
-  else {
+  else
     writePacket(hdr, sizeof(hdr), data, dataLen);
-  }
 }
 
 // Send a command to the attached device together with the supplied data, if any, and get the response
@@ -476,9 +459,8 @@ EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint3
   sendCommand(op, checkVal, data, dataLen);
 
   stat = readPacket(op, valp, &bodyLen, msTimeout);
-  if (stat == success && bodyLen != 2) {
+  if (stat == success && bodyLen != 2)
     stat = badReply;
-  }
 
   return stat;
 }
@@ -585,7 +567,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   if (cnt != blkSize) {
     if (f_tell(&esp_upload.uploadFile) == esp_upload.fileSize) {
       // partial last block, fill the remainder
-      memset(blkBuf + dataOfst + cnt, 0xff, blkSize - cnt);
+      memset(blkBuf + dataOfst + cnt, 0xFF, blkSize - cnt);
     }
     else {
       return fileRead;
@@ -611,6 +593,8 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   //printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
 
   return stat;
+  #else
+    return success;
   #endif
 }
 
@@ -625,15 +609,14 @@ void upload_spin() {
       esp_upload.uploadResult = connected;
       esp_upload.state = done;
     }
-    else{
+    else {
 
       // Reset the serial port at the new baud rate. Also reset the ESP8266.
-    //  const uint32_t baud = uploadBaudRates[esp_upload.connectAttemptNumber/esp_upload.retriesPerBaudRate];
+      //  const uint32_t baud = uploadBaudRates[esp_upload.connectAttemptNumber/esp_upload.retriesPerBaudRate];
       if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {
       }
-    //  uploadPort.begin(baud);
-    //  uploadPort_close();
-
+      //uploadPort.begin(baud);
+      //uploadPort_close();
 
       uploadPort_begin();
 
@@ -654,7 +637,7 @@ void upload_spin() {
       esp_upload.lastAttemptTime = getWifiTick();
       if (res == success) {
         // Successful connection
-//        //MessageF(" success on attempt %d\n", (connectAttemptNumber % retriesPerBaudRate) + 1);
+        //MessageF(" success on attempt %d\n", (connectAttemptNumber % retriesPerBaudRate) + 1);
         //printf("connect success\n");
         esp_upload.state = erasing;
       }
@@ -675,14 +658,13 @@ void upload_spin() {
       const uint32_t sectorSize = 4096;
       const uint32_t numSectors = (esp_upload.fileSize + sectorSize - 1)/sectorSize;
       const uint32_t startSector = esp_upload.uploadAddress/sectorSize;
-      uint32_t headSectors = sectorsPerBlock - (startSector % sectorsPerBlock);
 
-      if (numSectors < headSectors) {
-        headSectors = numSectors;
-      }
-            eraseSize = (numSectors < 2 * headSectors)
-                      ? (numSectors + 1) / 2 * sectorSize
-                      : (numSectors - headSectors) * sectorSize;
+      uint32_t headSectors = sectorsPerBlock - (startSector % sectorsPerBlock);
+      NOMORE(headSectors, numSectors);
+
+      eraseSize = (numSectors < 2 * headSectors)
+                ? (numSectors + 1) / 2 * sectorSize
+                : (numSectors - headSectors) * sectorSize;
 
       //MessageF("Erasing %u bytes...\n", fileSize);
       esp_upload.uploadResult = flashBegin(esp_upload.uploadAddress, eraseSize);
@@ -755,7 +737,7 @@ void SendUpdateFile(const char *file, uint32_t address) {
 
   if (res !=  FR_OK) return;
 
-    esp_upload.fileSize = f_size(&esp_upload.uploadFile);
+  esp_upload.fileSize = f_size(&esp_upload.uploadFile);
   if (esp_upload.fileSize == 0) {
     f_close(&esp_upload.uploadFile);
     return;

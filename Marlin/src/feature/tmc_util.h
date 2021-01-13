@@ -38,7 +38,7 @@
 #define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
-  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
+  #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
 
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const uint32_t thrs, const uint32_t spmm) {

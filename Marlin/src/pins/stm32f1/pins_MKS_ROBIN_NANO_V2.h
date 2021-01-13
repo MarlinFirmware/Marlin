@@ -269,44 +269,12 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
 
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH                        480
-  #endif
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                       320
-  #endif
-
-  #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
 #endif
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-
-  // LVGL
-
-  #define XPT2046_X_CALIBRATION           -17253
-  #define XPT2046_Y_CALIBRATION            11579
-  #define XPT2046_X_OFFSET                   514
-  #define XPT2046_Y_OFFSET                   -24
-
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-
+#if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -11386
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8684
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 339
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -18
-  #endif
-
   #ifndef GRAPHICAL_TFT_UPSCALE
     #define GRAPHICAL_TFT_UPSCALE              3
   #endif
@@ -321,7 +289,12 @@
   #define LCD_PINS_ENABLE                   PD13
   #define LCD_PINS_RS                       PC6
 
-#elif ENABLED(TFT_480x320_SPI)
+#elif ENABLED(TFT_COLOR_UI)
+  #define TFT_BUFFER_SIZE                  14400
+#endif
+
+// XPT2046 Touch Screen calibration
+#if EITHER(TFT_LVGL_UI, TFT_COLOR_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17253
   #endif
@@ -334,10 +307,19 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 -24
   #endif
-
-  #define TFT_DRIVER                      ST7796
-  #define TFT_BUFFER_SIZE                  14400
-
+#elif ENABLED(TFT_CLASSIC_UI)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -11386
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION           8684
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 339
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -18
+  #endif
 #endif
 
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
@@ -393,8 +375,8 @@
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
-#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14

@@ -305,27 +305,9 @@ namespace ExtUI {
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
-    // Start with no limits to movement
-    float min = current_position[axis] - 1000,
-          max = current_position[axis] + 1000;
-
-    // Limit to software endstops, if enabled
-    #if HAS_SOFTWARE_ENDSTOPS
-      if (soft_endstops_enabled) switch (axis) {
-        case X_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_X, min = soft_endstop.min.x);
-          TERN_(MAX_SOFTWARE_ENDSTOP_X, max = soft_endstop.max.x);
-          break;
-        case Y_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Y, min = soft_endstop.min.y);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Y, max = soft_endstop.max.y);
-          break;
-        case Z_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Z, min = soft_endstop.min.z);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Z, max = soft_endstop.max.z);
-        default: break;
-      }
-    #endif // HAS_SOFTWARE_ENDSTOPS
+    // Get motion limit from software endstops, if any
+    float min, max;
+    soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
@@ -389,8 +371,8 @@ namespace ExtUI {
   }
 
   #if HAS_SOFTWARE_ENDSTOPS
-    bool getSoftEndstopState() { return soft_endstops_enabled; }
-    void setSoftEndstopState(const bool value) { soft_endstops_enabled = value; }
+    bool getSoftEndstopState() { return soft_endstop._enabled; }
+    void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
   #endif
 
   #if HAS_TRINAMIC_CONFIG
@@ -399,11 +381,20 @@ namespace ExtUI {
         #if AXIS_IS_TMC(X)
           case X: return stepperX.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: return stepperX2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Y)
           case Y: return stepperY.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: return stepperY2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Z)
           case Z: return stepperZ.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: return stepperZ2.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -442,13 +433,22 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-          case X: stepperX.rms_current(constrain(mA, 500, 1500)); break;
+          case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Y)
-          case Y: stepperY.rms_current(constrain(mA, 500, 1500)); break;
+          case Y: stepperY.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: stepperY2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Z)
-          case Z: stepperZ.rms_current(constrain(mA, 500, 1500)); break;
+          case Z: stepperZ.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -457,28 +457,28 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-          case E0: stepperE0.rms_current(constrain(mA, 500, 1500)); break;
+          case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E1)
-          case E1: stepperE1.rms_current(constrain(mA, 500, 1500)); break;
+          case E1: stepperE1.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E2)
-          case E2: stepperE2.rms_current(constrain(mA, 500, 1500)); break;
+          case E2: stepperE2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E3)
-          case E3: stepperE3.rms_current(constrain(mA, 500, 1500)); break;
+          case E3: stepperE3.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E4)
-          case E4: stepperE4.rms_current(constrain(mA, 500, 1500)); break;
+          case E4: stepperE4.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E5)
-          case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
+          case E5: stepperE5.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E6)
-          case E6: stepperE6.rms_current(constrain(mA, 500, 1500)); break;
+          case E6: stepperE6.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E7)
-          case E7: stepperE7.rms_current(constrain(mA, 500, 1500)); break;
+          case E7: stepperE7.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };

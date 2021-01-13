@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 
@@ -38,13 +38,17 @@
 #define ILI9488_ORIENTATION_LEFT  ILI9488_MADCTL_MY | ILI9488_MADCTL_MX | ILI9488_MADCTL_MV // 480x320 ; Cable on the left side
 #define ILI9488_ORIENTATION_DOWN  ILI9488_MADCTL_MX                                         // 320x480 ; Cable on the upper side
 
-#ifndef ILI9488_COLOR_RGB
-  #define ILI9488_COLOR_BGR
+#define ILI9488_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9488_MADCTL_MV) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ILI9488_MADCTL_MX) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ILI9488_MADCTL_MY)
+
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_BGR
+  #define ILI9488_COLOR ILI9488_MADCTL_BGR
+#elif TFT_COLOR == TFT_COLOR_RGB
+  #define ILI9488_COLOR ILI9488_MADCTL_RGB
 #endif
-#ifndef ILI9488_ORIENTATION
-  #define ILI9488_ORIENTATION     ILI9488_ORIENTATION_LEFT
-#endif
-#define ILI9488_MADCTL_DATA       (ILI9488_ORIENTATION | TERN(ILI9488_COLOR_BGR, ILI9488_MADCTL_BGR, ILI9488_MADCTL_RGB))
+
+#define ILI9488_MADCTL_DATA       (ILI9488_ORIENTATION) | (ILI9488_COLOR)
 
 #define ILI9488_NOP               0x00 // No Operation
 #define ILI9488_SWRESET           0x01 // Software Reset

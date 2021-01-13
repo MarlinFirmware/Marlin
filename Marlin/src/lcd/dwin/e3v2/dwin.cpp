@@ -181,7 +181,7 @@ uint8_t index_file     = MROWS,
         index_leveling = MROWS,
         index_tune     = MROWS;
 
-bool dwin_abort_flag = false;
+bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
 
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
@@ -1801,8 +1801,8 @@ void HMI_SDCardUpdate() {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
         card.flag.abort_sd_printing = true;
-        wait_for_heatup = false;
-        dwin_abort_flag = true;
+        wait_for_heatup = wait_for_user = false;
+        dwin_abort_flag = true; // Reset feedrate, return to Home
       }
     }
     DWIN_UpdateLCD();
@@ -2097,7 +2097,7 @@ void HMI_Printing() {
   if (HMI_flag.done_confirm_flag) {
     if (encoder_diffState == ENCODER_DIFF_ENTER) {
       HMI_flag.done_confirm_flag = false;
-      dwin_abort_flag = true;
+      dwin_abort_flag = true; // Reset feedrate, return to Home
     }
     return;
   }
@@ -2206,25 +2206,15 @@ void HMI_PauseOrStop() {
     }
     else if (select_print.now == 2) { // stop window
       if (HMI_flag.select_flag) {
-        wait_for_heatup = false; // Stop waiting for heater
-
-        #if 0
-          // TODO: In ExtUI or MarlinUI add a common stop event
-          // card.flag.abort_sd_printing = true;
-        #else
-          checkkey = Back_Main;
-          // Wait for planner moves to finish!
-          if (HMI_flag.home_flag) planner.synchronize();
-          card.endFilePrint();
-          #ifdef ACTION_ON_CANCEL
-            host_action_cancel();
-          #endif
-          #ifdef EVENT_GCODE_SD_ABORT
-            Popup_Window_Home(true);
-            queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
-          #endif
-          dwin_abort_flag = true;
+        checkkey = Back_Main;
+        if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
+        wait_for_heatup = wait_for_user = false;       // Stop waiting for heating/user
+        card.flag.abort_sd_printing = true;            // Let the main loop handle SD abort
+        dwin_abort_flag = true;                        // Reset feedrate, return to Home
+        #ifdef ACTION_ON_CANCEL
+          host_action_cancel();
         #endif
+        Popup_Window_Home(true);
       }
       else
         Goto_PrintProcess(); // cancel stop
@@ -3584,13 +3574,6 @@ void EachMomentUpdate() {
     dwin_abort_flag = false;
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
     dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
-
-    planner.finish_and_disable();
-
-    #if DISABLED(SD_ABORT_NO_COOLDOWN)
-      thermalManager.disable_all_heaters();
-    #endif
-
     select_page.set(0);
     Goto_MainMenu();
   }

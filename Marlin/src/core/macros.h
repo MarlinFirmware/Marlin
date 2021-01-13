@@ -215,6 +215,7 @@
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
+#define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
@@ -450,6 +451,12 @@
 
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
+
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
 
 //
 // REPEAT core macros. Recurse N times with ascending I.

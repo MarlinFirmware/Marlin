@@ -35,7 +35,8 @@
 
   // MYSERIAL0 required before MarlinSerial includes!
 
-  #define _MSERIAL(X) Serial##X
+  #define __MSERIAL(X) Serial##X
+  #define _MSERIAL(X) __MSERIAL(X)
   #define MSERIAL(X) _MSERIAL(INCREMENT(X))
 
   #if SERIAL_PORT == -1
@@ -87,6 +88,8 @@ typedef int8_t pin_t;
 
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
+
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 //
 // ADC

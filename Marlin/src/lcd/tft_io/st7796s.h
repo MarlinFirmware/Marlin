@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 
@@ -33,9 +33,17 @@
 #define ST7796S_MADCTL_RGB 0x00
 #define ST7796S_MADCTL_MH  0x04 // Horizontal Refresh Order
 
-#define ST7796S_COLOR_BGR
-#define ST7796S_ORIENTATION  ST7796S_MADCTL_MV
-#define ST7796S_MADCTL_DATA (ST7796S_ORIENTATION | TERN(ST7796S_COLOR_BGR, ST7796S_MADCTL_BGR, ST7796S_MADCTL_RGB))
+#define ST7796S_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ST7796S_MADCTL_MV) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ST7796S_MADCTL_MX) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ST7796S_MADCTL_MY)
+
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_BGR
+  #define ST7796S_COLOR ST7796S_MADCTL_BGR
+#elif TFT_COLOR == TFT_COLOR_RGB
+  #define ST7796S_COLOR ST7796S_MADCTL_RGB
+#endif
+
+#define ST7796S_MADCTL_DATA       (ST7796S_ORIENTATION) | (ST7796S_COLOR)
 
 #define ST7796S_NOP        0x00 // No Operation
 #define ST7796S_SWRESET    0x01 // Software reset

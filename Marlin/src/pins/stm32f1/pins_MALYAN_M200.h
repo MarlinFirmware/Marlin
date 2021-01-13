@@ -33,6 +33,9 @@
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
 
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
+
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION

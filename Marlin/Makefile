@@ -22,8 +22,10 @@
 #     (e.g. UPLOAD_PORT = /dev/tty.USB0).  If the exact name of this file
 #     changes, you can use * as a wild card (e.g. UPLOAD_PORT = /dev/tty.usb*).
 #
-#  3. Set the line containing "MCU" to match your board's processor.
-#     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
+#  3. Set the line containing "MCU" to match your board's processor. Set
+#     "PROG_MCU" as the AVR part name corresponding to "MCU". You can use the
+#     following command to get a list of correspondences: `avrdude -c alf -p x`
+#     Older boards are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
 #     change F_CPU to 8000000. If you are using Gen7 electronics, you
 #     probably need to use 20000000. Either way, you must regenerate
@@ -34,18 +36,18 @@
 #  5. Type "make upload", reset your Arduino board, and press enter to
 #     upload your program to the Arduino board.
 #
-# Note that all settings at the top of this file can be overriden from
+# Note that all settings at the top of this file can be overridden from
 # the command line with, for example, "make HARDWARE_MOTHERBOARD=71"
 #
 # To compile for RAMPS (atmega2560) with Arduino 1.6.9 at root/arduino you would use...
 #
 #   make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ \
-#   HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino
+#   HARDWARE_MOTHERBOARD=1200 ARDUINO_INSTALL_DIR=/root/arduino
 #
 # To compile and upload simply add "upload" to the end of the line...
 #
 #   make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ \
-#   HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino upload
+#   HARDWARE_MOTHERBOARD=1200 ARDUINO_INSTALL_DIR=/root/arduino upload
 #
 # If uploading doesn't work try adding the parameter "AVRDUDE_PROGRAMMER=wiring" or
 # start upload manually (using stk500) like so:
@@ -57,7 +59,26 @@
 #
 
 # This defines the board to compile for (see boards.h for your board's ID)
-HARDWARE_MOTHERBOARD ?= 11
+HARDWARE_MOTHERBOARD ?= 1020
+
+ifeq ($(OS),Windows_NT)
+  # Windows
+  ARDUINO_INSTALL_DIR ?= ${HOME}/Arduino
+  ARDUINO_USER_DIR ?= ${HOME}/Arduino
+else
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    # Linux
+    ARDUINO_INSTALL_DIR ?= /usr/share/arduino
+    ARDUINO_USER_DIR ?= ${HOME}/Arduino
+  endif
+  ifeq ($(UNAME_S),Darwin)
+    # Darwin (macOS)
+    ARDUINO_INSTALL_DIR ?= /Applications/Arduino.app/Contents/Java
+    ARDUINO_USER_DIR ?= ${HOME}/Documents/Arduino
+    AVR_TOOLS_PATH ?= /Applications/Arduino.app/Contents/Java/hardware/tools/avr/bin/
+  endif
+endif
 
 # Arduino source install directory, and version number
 # On most linuxes this will be /usr/share/arduino
@@ -67,32 +88,38 @@ ARDUINO_VERSION      ?= 106
 # The installed Libraries are in the User folder
 ARDUINO_USER_DIR ?= ${HOME}/Arduino
 
-# You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
+# You can optionally set a path to the avr-gcc tools.
+# Requires a trailing slash. For example, /usr/local/avr-gcc/bin/
 AVR_TOOLS_PATH ?=
 
-#Programmer configuration
+# Programmer configuration
 UPLOAD_RATE        ?= 57600
 AVRDUDE_PROGRAMMER ?= arduino
-# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
+# On most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
-#Directory used to build files in, contains all the build files, from object files to the final hex file
-#on linux it is best to put an absolute path like /home/username/tmp .
+# Directory used to build files in, contains all the build files, from object
+# files to the final hex file on linux it is best to put an absolute path
+# like /home/username/tmp .
 BUILD_DIR          ?= applet
 
 # This defines whether Liquid_TWI2 support will be built
 LIQUID_TWI2        ?= 0
 
-# this defines if Wire is needed
+# This defines if Wire is needed
 WIRE               ?= 0
 
-# this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
-U8GLIB             ?= 1
+# This defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
+# Disabling this (and SPEAKER) saves approximatively 350 bytes of memory.
+TONE               ?= 1
 
-# this defines whether to include the Trinamic TMCStepper library
-TMC                ?= 1
+# This defines if U8GLIB is needed (may require RELOC_WORKAROUND)
+U8GLIB             ?= 0
 
-# this defines whether to include the AdaFruit NeoPixel library
+# This defines whether to include the Trinamic TMCStepper library
+TMC                ?= 0
+
+# This defines whether to include the AdaFruit NeoPixel library
 NEOPIXEL           ?= 0
 
 ############
@@ -208,7 +235,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1119)
 else ifeq ($(HARDWARE_MOTHERBOARD),1120)
 # Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 else ifeq ($(HARDWARE_MOTHERBOARD),1121)
-  MCU ?= atmega1280
+  MCU              ?= atmega1280
+  PROG_MCU         ?= m1280
 
 # Azteeg X3
 else ifeq ($(HARDWARE_MOTHERBOARD),1122)
@@ -350,9 +378,11 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1320)
 # Minitronics v1.0/1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1400)
   MCU              ?= atmega1281
+  PROG_MCU         ?= m1281
 # Silvergate v1.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1401)
   MCU              ?= atmega1281
+  PROG_MCU         ?= m1281
 
 #
 # Sanguinololu and Derivatives - ATmega644P, ATmega1284P
@@ -362,46 +392,57 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1401)
 else ifeq ($(HARDWARE_MOTHERBOARD),1500)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Sanguinololu 1.2 and above
 else ifeq ($(HARDWARE_MOTHERBOARD),1501)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Melzi
 else ifeq ($(HARDWARE_MOTHERBOARD),1502)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Melzi V2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1503)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi with ATmega1284 (MaKr3d version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1504)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi Creality3D board (for CR-10 etc)
 else ifeq ($(HARDWARE_MOTHERBOARD),1505)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi Malyan M150 board
 else ifeq ($(HARDWARE_MOTHERBOARD),1506)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Tronxy X5S
 else ifeq ($(HARDWARE_MOTHERBOARD),1507)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # STB V1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1508)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Azteeg X1
 else ifeq ($(HARDWARE_MOTHERBOARD),1509)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Anet 1.0 (Melzi clone)
 else ifeq ($(HARDWARE_MOTHERBOARD),1510)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 
 #
 # Other ATmega644P, ATmega644, ATmega1284P
@@ -411,50 +452,61 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1510)
 else ifeq ($(HARDWARE_MOTHERBOARD),1600)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen3+
 else ifeq ($(HARDWARE_MOTHERBOARD),1601)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen6
 else ifeq ($(HARDWARE_MOTHERBOARD),1602)
   HARDWARE_VARIANT ?= Gen6
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen6 deluxe
 else ifeq ($(HARDWARE_MOTHERBOARD),1603)
   HARDWARE_VARIANT ?= Gen6
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen7 custom (Alfons3 Version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1604)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644
+  PROG_MCU         ?= m644
   F_CPU            ?= 20000000
 # Gen7 v1.1, v1.2
 else ifeq ($(HARDWARE_MOTHERBOARD),1605)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
   F_CPU            ?= 20000000
 # Gen7 v1.3
 else ifeq ($(HARDWARE_MOTHERBOARD),1606)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
   F_CPU            ?= 20000000
 # Gen7 v1.4
 else ifeq ($(HARDWARE_MOTHERBOARD),1607)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
   F_CPU            ?= 20000000
 # Alpha OMCA board
 else ifeq ($(HARDWARE_MOTHERBOARD),1608)
   HARDWARE_VARIANT ?= SanguinoA
   MCU              ?= atmega644
+  PROG_MCU         ?= m644
 # Final OMCA board
 else ifeq ($(HARDWARE_MOTHERBOARD),1609)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Sethi 3D_1
 else ifeq ($(HARDWARE_MOTHERBOARD),1610)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 
 #
 # Teensyduino - AT90USB1286, AT90USB1286P
@@ -464,51 +516,60 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1610)
 else ifeq ($(HARDWARE_MOTHERBOARD),1700)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Printrboard (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1701)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Printrboard Revision F (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1702)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Brainwave (AT90USB646)
 else ifeq ($(HARDWARE_MOTHERBOARD),1703)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb646
+  PROG_MCU         ?= usb646
 # Brainwave Pro (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1704)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # SAV Mk-I (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1705)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Teensy++2.0 (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1706)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # 5DPrint D8 Driver Board
 else ifeq ($(HARDWARE_MOTHERBOARD),1707)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 
 # UltiMachine Archim1 (with DRV8825 drivers)
 else ifeq ($(HARDWARE_MOTHERBOARD),3023)
   HARDWARE_VARIANT ?= archim
   MCPU              = cortex-m3
-  F_CPU             = 84000000L
+  F_CPU             = 84000000
   IS_MCU            = 0
 # UltiMachine Archim2 (with TMC2130 drivers)
 else ifeq ($(HARDWARE_MOTHERBOARD),3024)
   HARDWARE_VARIANT ?= archim
   MCPU              = cortex-m3
-  F_CPU             = 84000000L
+  F_CPU             = 84000000
   IS_MCU            = 0
 endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
 # if you are setting this to something other than 16MHz
+# Do not put the UL suffix, it's done later on.
 # Set to 16Mhz if not yet set.
 F_CPU ?= 16000000
 
@@ -518,7 +579,8 @@ IS_MCU ?= 1
 ifeq ($(IS_MCU),1)
   # Set to arduino, ATmega2560 if not yet set.
   HARDWARE_VARIANT ?= arduino
-  MCU ?= atmega2560
+  MCU              ?= atmega2560
+  PROG_MCU         ?= m2560
 
   TOOL_PREFIX = avr
   MCU_FLAGS   = -mmcu=$(MCU)
@@ -549,27 +611,36 @@ VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
 
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/LiquidCrystal/src
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/SPI
+  # Old libraries (avr-core 1.6.21 < / Arduino < 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI/src
 endif
 
 ifeq ($(IS_MCU),1)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/cores/arduino
 
+  # Old libraries (avr-core 1.6.21 < / Arduino < 1.6.8)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SoftwareSerial
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI/src
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SoftwareSerial/src
 endif
 
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
+
 ifeq ($(LIQUID_TWI2), 1)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
+  WIRE   = 1
+  VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
 endif
 ifeq ($(WIRE), 1)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+  # Old libraries (avr-core 1.6.21 / Arduino < 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/utility
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/src
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/src/utility
 endif
 ifeq ($(NEOPIXEL), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Adafruit_NeoPixel
@@ -641,13 +712,23 @@ ifeq ($(WIRE), 1)
   LIB_CXXSRC += Wire.cpp
 endif
 
+ifeq ($(TONE), 1)
+  LIB_CXXSRC += Tone.cpp
+endif
+
 ifeq ($(U8GLIB), 1)
   LIB_CXXSRC += U8glib.cpp
-  LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_6x13.c u8g_font_04b_03.c u8g_font_5x8.c
+  LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c \
+    u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c \
+    u8g_font_6x13.c u8g_font_04b_03.c u8g_font_5x8.c
 endif
 
 ifeq ($(TMC), 1)
-  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
+  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp \
+    CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp \
+    DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp \
+    SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp \
+    TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
@@ -689,17 +770,23 @@ REMOVE = rm -f
 MV = mv -f
 
 # Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
+CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
 CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
-  CDEFS  += -DUSB_SERIAL
+  CDEFS      += -DUSB_SERIAL
   LIB_SRC    += usb.c pins_teensy.c
   LIB_CXXSRC += usb_api.cpp
 
 else ifeq ($(HARDWARE_VARIANT), archim)
-  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__ -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
-  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp PluggableUSB.cpp USBCore.cpp
+  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__
+  CDEFS      += -DUSB_VID=0x27B1 -DUSB_PID=0x0001 -DUSBCON
+  CDEFS      += '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
+
+  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp \
+    UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp \
+    PluggableUSB.cpp USBCore.cpp
+
   LIB_SRC    += cortex_handlers.c iar_calls_sam3.c syscalls_sam3.c dtostrf.c itoa.c
 
   ifeq ($(U8GLIB), 1)
@@ -725,16 +812,20 @@ CTUNING = -fsigned-char -funsigned-bitfields -fno-exceptions \
 ifneq ($(HARDWARE_MOTHERBOARD),)
   CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
 endif
+
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 CXXEXTRA = -fno-use-cxa-atexit -fno-threadsafe-statics -fno-rtti
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CEXTRA)   $(CTUNING) $(CSTANDARD)
 CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) $(CXXEXTRA) $(CTUNING) $(CXXSTANDARD)
 ASFLAGS :=          $(CDEFS)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
+
 ifeq ($(HARDWARE_VARIANT), archim)
   LD_PREFIX = -Wl,--gc-sections,-Map,Marlin.ino.map,--cref,--check-sections,--entry=Reset_Handler,--unresolved-symbols=report-all,--warn-common,--warn-section-align
   LD_SUFFIX = $(LDLIBS)
-  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
+
+  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty
+  LDFLAGS  += -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
 else
   LD_PREFIX = -Wl,--gc-sections,--relax
   LDFLAGS   = -lm
@@ -750,7 +841,7 @@ else
   AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
 AVRDUDE_FLAGS = -D -C$(AVRDUDE_CONF) \
-  -p$(MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
+  -p$(PROG_MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
   -b$(UPLOAD_RATE)
 
 # Since Marlin 2.0, the source files may be distributed into several
@@ -851,7 +942,7 @@ extcoff: $(TARGET).elf
 
 .elf.eep:
 	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-    --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
+	  --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
 
 # Create extended listing file from ELF output file.
 .elf.lss:
@@ -865,7 +956,7 @@ extcoff: $(TARGET).elf
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$(Pecho) "  CXX   $@"
-	$P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
+	$P $(CXX) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
 
 # Object files that were found in "src" will be stored in $(BUILD_DIR)
 # in directories that mirror the structure of "src"

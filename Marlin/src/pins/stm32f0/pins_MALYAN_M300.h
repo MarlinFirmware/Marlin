@@ -33,6 +33,9 @@
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
+  #ifndef MARLIN_EEPROM_SIZE
+    #define MARLIN_EEPROM_SIZE 0x800U             // 2KB
+  #endif
 #endif
 
 //

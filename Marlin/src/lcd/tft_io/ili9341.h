@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 
@@ -38,13 +38,17 @@
 #define ILI9341_ORIENTATION_LEFT  ILI9341_MADCTL_MY | ILI9341_MADCTL_MX | ILI9341_MADCTL_MV // 320x240 ; Cable on the left side
 #define ILI9341_ORIENTATION_DOWN  ILI9341_MADCTL_MX                                         // 240x320 ; Cable on the upper side
 
-#ifndef ILI9341_COLOR_RGB
-  #define ILI9341_COLOR_BGR
+#define ILI9341_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9341_MADCTL_MV) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ILI9341_MADCTL_MX) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ILI9341_MADCTL_MY)
+
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_BGR
+  #define ILI9341_COLOR ILI9341_MADCTL_BGR
+#elif TFT_COLOR == TFT_COLOR_RGB
+  #define ILI9341_COLOR ILI9341_MADCTL_RGB
 #endif
-#ifndef ILI9341_ORIENTATION
-  #define ILI9341_ORIENTATION     ILI9341_ORIENTATION_LEFT
-#endif
-#define ILI9341_MADCTL_DATA      (ILI9341_ORIENTATION | TERN(ILI9341_COLOR_BGR, ILI9341_MADCTL_BGR, ILI9341_MADCTL_RGB))
+
+#define ILI9341_MADCTL_DATA       (ILI9341_ORIENTATION) | (ILI9341_COLOR)
 
 #define ILI9341_NOP               0x00 // No Operation
 #define ILI9341_SWRESET           0x01 // Software Reset
