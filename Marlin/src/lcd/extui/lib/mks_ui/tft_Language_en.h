@@ -381,27 +381,11 @@
 #define FILAMENT_EXT1_TEXT_EN         "Extrusion2"
 #define FILAMENT_HEAT_TEXT_EN         "Preheat"
 #define FILAMENT_STOP_TEXT_EN         "Stop"
-//#define FILAMENT_CHANGE_TEXT_EN       "Filament replace"
 #define FILAMENT_TIPS2_TEXT_EN        "T:"
 #define FILAMENT_TIPS3_TEXT_EN        "Loading..."
 #define FILAMENT_TIPS4_TEXT_EN        "Unloading..."
 #define FILAMENT_TIPS5_TEXT_EN        "Temp is too low to go,please heat"
 #define FILAMENT_TIPS6_TEXT_EN        "Completed"
-
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_EN           "Please click <Load> or <unload> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_EN                 "Please click <Load> or <unload>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_EN       "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_EN     "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_EN   "Heat completed,please load filament to extruder,and click <confirm> for start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_EN   "Please load filament to extruder,and click <confirm> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_EN  "Heat completed,please click <confirm> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_EN         "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,click <confirm> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,click <confirm> for return!"
-#endif
-
 
 #define FILAMENT_CHANGE_TEXT_EN                 "Please click <Load> \nor <unload>,After \npinter pause."
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_EN       "Heating up the nozzle,\nplease wait..."
@@ -419,11 +403,7 @@
 #define PRE_HEAT_BED_TEXT_EN            "Bed"
 
 #define FILE_LOADING_EN                 "Loading......"
-#if 0
-  #define NO_FILE_AND_CHECK_EN          "No files found!Please insert SD card or U disk!"
-#else
-  #define NO_FILE_AND_CHECK_EN          "  No files found!\n            Check the file system configuration!"
-#endif
+#define NO_FILE_AND_CHECK_EN          "  No files found!\n            Check the file system configuration!"
 
 #define NO_FILE_EN                          "No files found!"
 
@@ -491,7 +471,6 @@
 #define DIALOG_RETRY_EN                     "Retry"
 #define DIALOG_STOP_EN                      "Stop"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_EN   "Reprint from breakpoint?"
-//#define DIALOG_UNBIND_PRINTER_EN          "Unbind the printer?"
 #define DIALOG_ERROR_TIPS1_EN               "Error:no file,please check it again."
 #define DIALOG_ERROR_TIPS2_EN               "Error:transaction failed.please check display baudrate \nwhether as the same as mainboard!"
 #define DIALOG_ERROR_TIPS3_EN               "Error:file name or path is too long!"
@@ -691,33 +670,15 @@
 
 //manual ip
 #define MANUAL_IP_TITLE_EN          "Manual IP"
-#define MANUAL_IP_CANCEL_EN          "< Cancel"
+#define MANUAL_IP_CANCEL_EN         "< Cancel"
 #define MANUAL_IP_APPLY_EN          "Join >"
 #define MANUAL_IP_ADDRESS_EN        "IP Address"
 #define MANUAL_IP_MASK_EN           "Subnet Mask"
 #define MANUAL_IP_GATEWAY_EN        "Default Gateway"
 #define MANUAL_IP_SERVER_EN         "Name Server"
 #define MANUAL_IP_INIT_DATA_EN      "0.0.0.0"
-#define MANUAL_TEXT_POINT_EN         "."
+#define MANUAL_TEXT_POINT_EN        "."
 #define MANUAL_TEXT_ENTER_EN        "enter"
-
-//Wifi name
-//#define TEXT_WIFI_MENU_TITLE_EN "WI-FI"
-//#define TEXT_WIFI_SAPCE_EN  "space"
-//#define TEXT_WIFI_LETTER_EN  "abc"
-//#define TEXT_WIFI_DIGITAL_EN  "123"
-//#define TEXT_WIFI_SYMBOL_EN  "#+="
-//#define TEXT_WIFI_PASSWORD_EN "Password"
-
-//#define TEXT_WIFI_POINT_BOLD_EN "`"
-
-//#define TEXT_WIFI_JOINING_EN  "Joining\nNetwork..."
-//#define TEXT_WIFI_FAILED_JOIN_EN  "Failed to\nJoin Wi-Fi"
-//#define TEXT_WIFI_WIFI_CONECTED_EN "Wi-Fi\nConnected"
-
-//#define TEXT_BUTTON_DISCONECTED_EN "Disconnect"
-//#define TEXT_WIFI_FORGET_EN "Forget Network"
-//#define TEXT_DISCONECTED_EN "Wi-Fi Connected"
 
 #define TEXT_FORGET_TIPS_TITLE_EN "Forget Network"
 #define TEXT_FORGET_NETWORK_TIPS1_EN "Are you sure you want to\nforget this network?"

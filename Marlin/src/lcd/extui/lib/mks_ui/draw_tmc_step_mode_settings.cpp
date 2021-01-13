@@ -50,9 +50,7 @@ enum {
 
 static lv_obj_t *buttonXState = nullptr, *buttonYState = nullptr, *buttonZState = nullptr, *buttonE0State = nullptr;
 
-//#if AXIS_HAS_STEALTHCHOP(E1)
-  static lv_obj_t *buttonE1State = nullptr;
-//#endif
+static lv_obj_t *buttonE1State = nullptr;
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

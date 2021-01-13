@@ -131,10 +131,6 @@ typedef struct machine_common_disp{
   const char *CalibrationRadius;
 
   const char *LevelingSubXYZConfTitle;
-  //const char *Level_positon1;
-  //const char *Level_positon2;
-  //const char *Level_positon3;
-  //const char *Level_positon4;
 
   const char *TemperatureConfTitle;
   const char *NozzleConf;
@@ -667,9 +663,9 @@ extern dialog_menu_def dialog_menu;
 typedef struct print_file_dialog_disp {
   const char *title;
   const char *confirm;
-  const char *cancle;
+  const char *cancel;
   const char *print_file;
-  const char *cancle_print;
+  const char *cancel_print;
   const char *retry;
   const char *stop;
   const char *no_file_print_tips;
@@ -740,12 +736,8 @@ typedef struct eeprom_disp{
 
 extern eeprom_def eeprom_menu;
 /*****************************************/
-//********************************************//
-//#if defined(TFT70)
 //
-//#elif defined(TFT35)
 #define TEXT_VALUE          "%d/%d"
-//#endif
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"
@@ -796,19 +788,14 @@ extern eeprom_def eeprom_menu;
 #define HOME_Y_TEXT         "Y"
 #define HOME_Z_TEXT         "Z"
 #define HOME_ALL_TEXT       "All"
-//#if defined(MKS_ROBIN_NANO)
+
 #define ABOUT_TYPE_TEXT     "MKS Robin Pro"
-//#elif defined(MKS_ROBIN_MINI)
-//#define ABOUT_TYPE_TEXT       "MKS Robin Mini"
-//#endif
+
 #define ABOUT_VERSION_TEXT  "1.0.0"
-//#define ABOUT_WIFI_TEXT   "WiFi:"
 
 #define FAN_OPEN_TEXT       "100%"
 #define FAN_HALF_TEXT       "50%"
 #define FAN_CLOSE_TEXT      "0%"
-//#define FAN_TIPS1_TEXT      "FAN"
-//#define FAN_TIPS2_TEXT      "FAN\nClose"
 
 #define WIFI_TEXT                       "WIFI"
 #define WIFI_IP_TEXT                    "IP: "
@@ -830,7 +817,7 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
-#define DIALOG_UPDATE_NO_DEVICE_EN      "please check \nwether memory device insert!"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check whether\nmemory device inserted!"
 
 #define ZOFFSET_STEP001                 "0.01mm"
 #define ZOFFSET_STEP01                  "0.1mm"

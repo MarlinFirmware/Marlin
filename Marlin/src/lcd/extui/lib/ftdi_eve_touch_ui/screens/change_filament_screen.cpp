@@ -122,17 +122,17 @@ void ChangeFilamentScreen::drawTempGradient(uint16_t x, uint16_t y, uint16_t w, 
 
 void ChangeFilamentScreen::onEntry() {
   BaseScreen::onEntry();
-  screen_data.ChangeFilamentScreen.e_tag = ExtUI::getActiveTool() + 10;
-  screen_data.ChangeFilamentScreen.t_tag = 0;
-  screen_data.ChangeFilamentScreen.repeat_tag = 0;
-  screen_data.ChangeFilamentScreen.saved_extruder = getActiveTool();
+  screen_data.ChangeFilament.e_tag = ExtUI::getActiveTool() + 10;
+  screen_data.ChangeFilament.t_tag = 0;
+  screen_data.ChangeFilament.repeat_tag = 0;
+  screen_data.ChangeFilament.saved_extruder = getActiveTool();
   #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
-    screen_data.ChangeFilamentScreen.need_purge = true;
+    screen_data.ChangeFilament.need_purge = true;
   #endif
 }
 
 void ChangeFilamentScreen::onExit() {
-  setActiveTool(screen_data.ChangeFilamentScreen.saved_extruder, true);
+  setActiveTool(screen_data.ChangeFilament.saved_extruder, true);
 }
 
 void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
@@ -170,7 +170,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
     const bool t_ok = getActualTemp_celsius(e) > getSoftenTemp() - 10;
 
-    if (screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
+    if (screen_data.ChangeFilament.t_tag && !t_ok) {
       cmd.text(HEATING_LBL_POS, GET_TEXT_F(MSG_HEATING));
     } else if (getActualTemp_celsius(e) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
@@ -181,12 +181,12 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
     #define TOG_STYLE(A) colors(A ? action_btn : normal_btn)
 
-    const bool tog2  = screen_data.ChangeFilamentScreen.t_tag == 2;
-    const bool tog3  = screen_data.ChangeFilamentScreen.t_tag == 3;
-    const bool tog4  = screen_data.ChangeFilamentScreen.t_tag == 4;
-    const bool tog10 = screen_data.ChangeFilamentScreen.e_tag == 10;
+    const bool tog2  = screen_data.ChangeFilament.t_tag == 2;
+    const bool tog3  = screen_data.ChangeFilament.t_tag == 3;
+    const bool tog4  = screen_data.ChangeFilament.t_tag == 4;
+    const bool tog10 = screen_data.ChangeFilament.e_tag == 10;
     #if HAS_MULTI_HOTEND
-      const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
+      const bool tog11 = screen_data.ChangeFilament.e_tag == 11;
     #endif
 
     cmd.TOG_STYLE(tog10)
@@ -200,8 +200,8 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
     if (!t_ok) reset_menu_timeout();
 
-    const bool tog7 = screen_data.ChangeFilamentScreen.repeat_tag == 7;
-    const bool tog8 = screen_data.ChangeFilamentScreen.repeat_tag == 8;
+    const bool tog7 = screen_data.ChangeFilament.repeat_tag == 7;
+    const bool tog8 = screen_data.ChangeFilament.repeat_tag == 8;
 
     {
       char str[30];
@@ -228,7 +228,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 }
 
 uint8_t ChangeFilamentScreen::getSoftenTemp() {
-  switch (screen_data.ChangeFilamentScreen.t_tag) {
+  switch (screen_data.ChangeFilament.t_tag) {
     case 2:  return LOW_TEMP;
     case 3:  return MED_TEMP;
     case 4:  return HIGH_TEMP;
@@ -237,7 +237,7 @@ uint8_t ChangeFilamentScreen::getSoftenTemp() {
 }
 
 ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
-  switch (screen_data.ChangeFilamentScreen.e_tag) {
+  switch (screen_data.ChangeFilament.e_tag) {
     case 13: return ExtUI::E3;
     case 12: return ExtUI::E2;
     case 11: return ExtUI::E1;
@@ -248,8 +248,8 @@ ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
 void ChangeFilamentScreen::doPurge() {
   #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
     constexpr float purge_distance_mm = FILAMENT_UNLOAD_PURGE_LENGTH;
-    if (screen_data.ChangeFilamentScreen.need_purge) {
-      screen_data.ChangeFilamentScreen.need_purge = false;
+    if (screen_data.ChangeFilament.need_purge) {
+      screen_data.ChangeFilament.need_purge = false;
       MoveAxisScreen::setManualFeedrate(getExtruder(), purge_distance_mm);
       ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(getExtruder()) + purge_distance_mm, getExtruder());
     }
@@ -277,23 +277,23 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
     case 3:
     case 4:
       // Change temperature
-      screen_data.ChangeFilamentScreen.t_tag = tag;
+      screen_data.ChangeFilament.t_tag = tag;
       setTargetTemp_celsius(getSoftenTemp(), getExtruder());
       break;
     case 7:
-      screen_data.ChangeFilamentScreen.repeat_tag = (screen_data.ChangeFilamentScreen.repeat_tag == 7) ? 0 : 7;
+      screen_data.ChangeFilament.repeat_tag = (screen_data.ChangeFilament.repeat_tag == 7) ? 0 : 7;
       break;
     case 8:
-      screen_data.ChangeFilamentScreen.repeat_tag = (screen_data.ChangeFilamentScreen.repeat_tag == 8) ? 0 : 8;
+      screen_data.ChangeFilament.repeat_tag = (screen_data.ChangeFilament.repeat_tag == 8) ? 0 : 8;
       break;
     case 10:
     case 11:
       // Change extruder
-      screen_data.ChangeFilamentScreen.e_tag      = tag;
-      screen_data.ChangeFilamentScreen.t_tag      = 0;
-      screen_data.ChangeFilamentScreen.repeat_tag = 0;
+      screen_data.ChangeFilament.e_tag      = tag;
+      screen_data.ChangeFilament.t_tag      = 0;
+      screen_data.ChangeFilament.repeat_tag = 0;
       #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
-        screen_data.ChangeFilamentScreen.need_purge = true;
+        screen_data.ChangeFilament.need_purge = true;
       #endif
       setActiveTool(getExtruder(), true);
       break;
@@ -319,7 +319,7 @@ bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
 
 void ChangeFilamentScreen::onIdle() {
   reset_menu_timeout();
-  if (screen_data.ChangeFilamentScreen.repeat_tag) onTouchHeld(screen_data.ChangeFilamentScreen.repeat_tag);
+  if (screen_data.ChangeFilament.repeat_tag) onTouchHeld(screen_data.ChangeFilament.repeat_tag);
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();

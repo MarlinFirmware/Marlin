@@ -170,10 +170,10 @@ typedef struct {
 #define WIFI_GCODE_BUFFER_LEAST_SIZE    96
 #define WIFI_GCODE_BUFFER_SIZE  (WIFI_GCODE_BUFFER_LEAST_SIZE * 3)
 typedef struct {
-    uint8_t wait_tick;
-    uint8_t Buffer[WIFI_GCODE_BUFFER_SIZE];
-    uint32_t r;
-    uint32_t w;
+  uint8_t wait_tick;
+  uint8_t Buffer[WIFI_GCODE_BUFFER_SIZE];
+  uint32_t r;
+  uint32_t w;
 } WIFI_GCODE_BUFFER;
 
 extern volatile WIFI_STATE wifi_link_state;
@@ -184,14 +184,14 @@ extern CLOUD_PARA cloud_para;
 extern WIFI_GCODE_BUFFER espGcodeFifo;
 
 extern uint32_t  getWifiTick();
-extern uint32_t  getWifiTickDiff(int32_t lastTick, int32_t  curTick);
+extern uint32_t  getWifiTickDiff(int32_t lastTick, int32_t curTick);
 
 extern void mks_esp_wifi_init();
 extern int  cfg_cloud_flag;
-extern int  send_to_wifi(char *buf, int len);
+extern int  send_to_wifi(uint8_t *buf, int len);
 extern void wifi_looping();
-extern int  raw_send_to_wifi(char *buf, int len);
-extern int  package_to_wifi(WIFI_RET_TYPE type,char *buf, int len);
+extern int  raw_send_to_wifi(uint8_t *buf, int len);
+extern int  package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len);
 extern void get_wifi_list_command_send();
 extern void get_wifi_commands();
 extern int  readWifiBuf(int8_t *buf, int32_t len);

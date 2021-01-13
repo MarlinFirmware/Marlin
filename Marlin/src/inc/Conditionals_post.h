@@ -323,6 +323,11 @@
  */
 #if ENABLED(SDSUPPORT)
 
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
+  #endif
+
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -2297,7 +2302,6 @@
 
 #if FAN_COUNT > 0
   #define HAS_FAN 1
-  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 #endif
 
 /**
@@ -2590,10 +2594,10 @@
  */
 #if HAS_MARLINUI_U8GLIB
   #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SCK_PIN
+    #define DOGLCD_SCK  SD_SCK_PIN
   #endif
   #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI MOSI_PIN
+    #define DOGLCD_MOSI SD_MOSI_PIN
   #endif
 #endif
 
@@ -2683,7 +2687,7 @@
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SCK_PIN == LCD_PINS_D4)
+#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SD_SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
@@ -2706,6 +2710,11 @@
   #ifndef SDSORT_CACHE_VFATS
     #define SDSORT_CACHE_VFATS 2
   #endif
+#endif
+
+// Fallback SPI Speed for SD
+#if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
+  #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
 // Defined here to catch the above defines

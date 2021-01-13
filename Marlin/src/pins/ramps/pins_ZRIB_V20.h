@@ -69,9 +69,9 @@
   #undef ADC_KEYPAD_PIN
   #undef BEEPER_PIN
 
-  #undef SHIFT_OUT
-  #undef SHIFT_CLK
-  #undef SHIFT_LD
+  #undef SHIFT_OUT_PIN
+  #undef SHIFT_CLK_PIN
+  #undef SHIFT_LD_PIN
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC

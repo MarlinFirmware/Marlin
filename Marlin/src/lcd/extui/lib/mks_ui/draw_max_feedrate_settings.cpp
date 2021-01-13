@@ -45,48 +45,38 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+
+  lv_clear_max_feedrate_settings();
   switch (obj->mks_obj_id) {
     case ID_FEED_RETURN:
       uiCfg.para_ui_page = 0;
-      lv_clear_max_feedrate_settings();
       draw_return_ui();
-      break;
+      return;
     case ID_FEED_X:
       value = XMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_Y:
       value = YMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_Z:
       value = ZMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_E0:
       value = E0MaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_E1:
       value = E1MaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_UP:
       uiCfg.para_ui_page = 0;
-      lv_clear_max_feedrate_settings();
       lv_draw_max_feedrate_settings();
-      break;
+      return;
     case ID_FEED_DOWN:
       uiCfg.para_ui_page = 1;
-      lv_clear_max_feedrate_settings();
       lv_draw_max_feedrate_settings();
-      break;
+      return;
   }
+  lv_draw_number_key();
 }
 
 void lv_draw_max_feedrate_settings(void) {
