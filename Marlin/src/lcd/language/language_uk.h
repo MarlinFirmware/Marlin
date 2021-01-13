@@ -145,7 +145,7 @@ namespace Language_uk {
   #else
     PROGMEM Language_Str MSG_MESH_EDITOR                   = _UxGT("Зміщення Z");
   #endif
-  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редагувати сітки");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редагувати сітку");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Редагув. зупинено");
   PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Точка сітки");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Індекс X");
@@ -218,7 +218,7 @@ namespace Language_uk {
   
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 нагрів сопла");
-  PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне грунтування"); // is г supported?
+  PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне грунтування");
   PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Фікс. довж. грунт.");
   PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Грунтув. виконане");
   PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 скасовано");
@@ -259,8 +259,8 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("Слот пам'яті");
   PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("Завантажити сітку");
   PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("Зберегти сітку");
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Завантажено %i сітки");
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Збережено %i сітки");
+  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("Сітка %i завантажена");
+  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("Сітка %i збережена");
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Немає носія");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Збій: збереж. UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Збій: відновл. UBL");
@@ -525,9 +525,9 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Фактор нахилу");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Само-тест");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Зкинути");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Підняти");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Опустити");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Зкинути зонд");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Підняти зонд");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Опустити зонд");
   PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Режим SW");
   PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Режим 5V");
   PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Режим OD");
@@ -536,7 +536,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Встановити BLT на OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Звітувати злив");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("НЕБЕЗПЕКА: Неправильні параметри приводять до пошкоджень! Продовжити?");
-  PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
+  PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("Z-Зонд TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Ініц. TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Тест Z-зміщення");
   PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("Зберегти");
@@ -776,11 +776,11 @@ namespace Language_uk {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Зачекайте..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Вставте і натисніть"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Нагріти сопло"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_1_LINE("Нагрів..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_1_LINE("Вивід..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("Ввід..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_1_LINE("Очищення..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Завершити"));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_1_LINE("Нагрів сопла..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_1_LINE("Вивід прутка..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("Ввід прутка..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_1_LINE("Очищення прутка..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Завершити очищення"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Поновлення друку..."));
   #endif
 
