@@ -826,7 +826,7 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
-#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check\nwether memory device insert!"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check whether\nmemory device inserted!"
 
 #define ZOFFSET_STEP001                 "0.01 mm"
 #define ZOFFSET_STEP01                  "0.1 mm"

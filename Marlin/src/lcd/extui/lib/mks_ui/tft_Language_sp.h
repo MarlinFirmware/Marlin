@@ -53,7 +53,7 @@
 #define TOOL_MOVE_SP            "Mover"
 #define TOOL_HOME_SP            "Origen"
 #define TOOL_LEVELING_SP        "Leveling"
-#define TOOL_MLEVELING_SP        "Leveling"
+#define TOOL_MLEVELING_SP       "Leveling"
 #define TOOL_AUTO_LEVELING_SP   "Autolevel"
 #define TOOL_FILAMENT_SP        "Filamento"
 #define TOOL_MORE_SP            "Más"

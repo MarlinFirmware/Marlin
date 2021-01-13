@@ -946,7 +946,7 @@ void disp_language_init() {
       //
       more_menu.title       = TITLE_MORE_CN;
       more_menu.gcode       = MORE_GCODE_CN;
-      more_menu.entergcode  = MORE_ENTER_GCODE_CN; 
+      more_menu.entergcode  = MORE_ENTER_GCODE_CN;
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
       #endif
@@ -1192,7 +1192,7 @@ void disp_language_init() {
             //
             more_menu.title       = TITLE_MORE_T_CN;
             more_menu.gcode       = MORE_GCODE_T_CN;
-            more_menu.entergcode  = MORE_ENTER_GCODE_T_CN; 
+            more_menu.entergcode  = MORE_ENTER_GCODE_T_CN;
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_T_CN;
             #endif
@@ -1423,7 +1423,7 @@ void disp_language_init() {
             set_menu.eepromSet    = EEPROM_SETTINGS_EN;
             more_menu.title       = TITLE_MORE_EN;
             more_menu.gcode       = MORE_GCODE_EN;
-            more_menu.entergcode  = MORE_ENTER_GCODE_EN; 
+            more_menu.entergcode  = MORE_ENTER_GCODE_EN;
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
             #endif
@@ -1656,7 +1656,7 @@ void disp_language_init() {
             set_menu.eepromSet    = EEPROM_SETTINGS_RU;
             more_menu.title       = TITLE_MORE_RU;
             more_menu.gcode       = MORE_GCODE_RU;
-            more_menu.entergcode  = MORE_ENTER_GCODE_RU; 
+            more_menu.entergcode  = MORE_ENTER_GCODE_RU;
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
             #endif
@@ -1778,7 +1778,6 @@ void disp_language_init() {
             machine_menu.EncoderConfTitle    = ENCODER_CONF_TITLE_RU;
             machine_menu.EncoderConfText     = ENCODER_CONF_TEXT_RU;
 
-            
             cloud_menu.title        = TITLE_CLOUD_TEXT_RU;
             cloud_menu.bind         = CLOUD_BINDED_RU;
             cloud_menu.binded       = CLOUD_BINDED_RU;
@@ -1986,7 +1985,7 @@ void disp_language_init() {
             set_menu.eepromSet    = EEPROM_SETTINGS_SP;
             more_menu.title       = TITLE_MORE_SP;
             more_menu.gcode       = MORE_GCODE_SP;
-            more_menu.entergcode  = MORE_ENTER_GCODE_SP; 
+            more_menu.entergcode  = MORE_ENTER_GCODE_SP;
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
             #endif
@@ -2220,7 +2219,7 @@ void disp_language_init() {
           set_menu.eepromSet    = EEPROM_SETTINGS_FR;
           more_menu.title       = TITLE_MORE_FR;
           more_menu.gcode       = MORE_GCODE_FR;
-          more_menu.entergcode  = MORE_ENTER_GCODE_FR; 
+          more_menu.entergcode  = MORE_ENTER_GCODE_FR;
           #if ENABLED(USER_CMD_1_ENABLE)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
           #endif
@@ -2455,7 +2454,7 @@ void disp_language_init() {
           set_menu.eepromSet    = EEPROM_SETTINGS_IT;
           more_menu.title       = TITLE_MORE_IT;
           more_menu.gcode       = MORE_GCODE_IT;
-          more_menu.entergcode  = MORE_ENTER_GCODE_IT; 
+          more_menu.entergcode  = MORE_ENTER_GCODE_IT;
           #if ENABLED(USER_CMD_1_ENABLE)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
           #endif
@@ -2690,7 +2689,7 @@ void disp_language_init() {
       //
       more_menu.title       = TITLE_MORE_EN;
       more_menu.gcode       = MORE_GCODE_EN;
-      more_menu.entergcode  = MORE_ENTER_GCODE_EN; 
+      more_menu.entergcode  = MORE_ENTER_GCODE_EN;
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
       #endif

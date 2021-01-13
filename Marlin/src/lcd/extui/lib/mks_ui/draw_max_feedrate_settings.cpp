@@ -77,7 +77,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       return;
   }
   lv_draw_number_key();
-
 }
 
 void lv_draw_max_feedrate_settings(void) {
