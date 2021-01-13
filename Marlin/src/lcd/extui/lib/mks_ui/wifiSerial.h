@@ -26,7 +26,7 @@
 #if ENABLED(MKS_WIFI_MODULE)
 
 #ifdef SERIAL_PORT_2
-  #error "SERIAL_PORT_2 must be disabled with HAS_TFT_LVGL_UI and MKS_WIFI_MODULE."
+  #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
 #endif
 
 #define WIFI_BAUDRATE          115200

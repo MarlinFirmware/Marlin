@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
@@ -124,7 +120,7 @@ void lv_draw_move_motor(void) {
   lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_M_Z_P);
   lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_Z_N);
 
-  // button with image and label changed dinamycally by disp_move_dist
+  // button with image and label changed dynamically by disp_move_dist
   buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_M_STEP);
   labelV = lv_label_create_empty(buttonV);
   #if HAS_ROTARY_ENCODER
