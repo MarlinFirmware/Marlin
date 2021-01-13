@@ -497,21 +497,13 @@ inline void Draw_Back_First(const bool is_sel=true) {
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
-#define APPLY_ENCODER_F \
-  if (encoder_diffState == ENCODER_DIFF_CW)          \
-    valref += EncoderRate.encoderMoveValue;          \
-  else if (encoder_diffState == ENCODER_DIFF_CCW)    \
-    valref -= EncoderRate.encoderMoveValue;          \
-  else if (encoder_diffState == ENCODER_DIFF_ENTER)  \
-    return true;                                     \
-  return false;
-
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, int16_t &valref) {
-  APPLY_ENCODER_F
-}
-
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, float &valref) {
-  APPLY_ENCODER_F
+inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valref) {
+  if (encoder_diffState == ENCODER_DIFF_CW)
+    valref += EncoderRate.encoderMoveValue;
+  else if (encoder_diffState == ENCODER_DIFF_CCW)
+    valref -= EncoderRate.encoderMoveValue;
+  else if (encoder_diffState == ENCODER_DIFF_ENTER)
+    return true;
 }
 
 //
