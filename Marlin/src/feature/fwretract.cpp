@@ -139,7 +139,7 @@ void FWRetract::retract(const bool retracting
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                 // set current to destination
+    prepare_internal_move_to_destination(                 // set current from destination
       settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
     );
 

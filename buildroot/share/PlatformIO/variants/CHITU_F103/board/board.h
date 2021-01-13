@@ -69,13 +69,10 @@
 #define BOARD_SPI1_MISO_PIN     PA6
 #define BOARD_SPI1_MOSI_PIN     PA7
 
-
-
 #define BOARD_SPI2_NSS_PIN      PB12
 #define BOARD_SPI2_SCK_PIN      PB13
 #define BOARD_SPI2_MISO_PIN     PB14
 #define BOARD_SPI2_MOSI_PIN     PB15
-
 
 #define BOARD_SPI3_NSS_PIN      PA15
 #define BOARD_SPI3_SCK_PIN      PB3

@@ -99,16 +99,16 @@
   #define E1_CS_PIN                         PB0
 #endif
 
-#define SCK_PIN                             PE12  // PA5   // SPI1 for SD card
-#define MISO_PIN                            PE13  // PA6
-#define MOSI_PIN                            PE14  // PA7
+#define SD_SCK_PIN                          PE12  // PA5   // SPI1 for SD card
+#define SD_MISO_PIN                         PE13  // PA6
+#define SD_MOSI_PIN                         PE14  // PA7
 
 // added for SD card : optional or not ???
 //#define SD_CHIP_SELECT_PIN                SDSS  // The default chip select pin for the SD card is SS.
 // The following three pins must not be redefined for hardware SPI.
-//#define SPI_MOSI_PIN                  MOSI_PIN  // SPI Master Out Slave In pin
-//#define SPI_MISO_PIN                  MISO_PIN  // SPI Master In Slave Out pin
-//#define SPI_SCK_PIN                    SCK_PIN  // SPI Clock pin
+//#define SPI_MOSI_PIN               SD_MOSI_PIN  // SPI Master Out Slave In pin
+//#define SPI_MISO_PIN               SD_MISO_PIN  // SPI Master In Slave Out pin
+//#define SPI_SCK_PIN                 SD_SCK_PIN  // SPI Clock pin
 
 //
 // Temperature Sensors (Analog inputs)
@@ -159,7 +159,7 @@
 
 #if ENABLED(SDSUPPORT)
   #define SD_DETECT_PIN                     PB7
-  #define SS_PIN                           PB_15  // USD_CS -> CS for onboard SD
+  #define SD_SS_PIN                        PB_15  // USD_CS -> CS for onboard SD
 #endif
 
 //

@@ -291,51 +291,38 @@ static void wifi_usart_dma_init() {
 }
 
 void esp_port_begin(uint8_t interrupt) {
+  WifiRxFifo.uart_read_point = 0;
+  WifiRxFifo.uart_write_point = 0;
+
   #if 1
 
-    WifiRxFifo.uart_read_point = 0;
-    WifiRxFifo.uart_write_point = 0;
-
-    if (interrupt) {
-      #if ENABLED(MKS_WIFI_MODULE)
-        WIFISERIAL.end();
+    #if ENABLED(MKS_WIFI_MODULE)
+      WIFISERIAL.end();
+      if (interrupt) {
         for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
         WIFISERIAL.begin(WIFI_BAUDRATE);
-        uint32_t serial_connect_timeout = millis() + 1000UL;
+        millis_t serial_connect_timeout = millis() + 1000UL;
         while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      #endif
-    }
-    else {
-      #if ENABLED(MKS_WIFI_MODULE)
-        WIFISERIAL.end();
+      }
+      else {
         WIFISERIAL.usart_device->regs->CR1 &= ~USART_CR1_RXNEIE;
         WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
         wifi_usart_dma_init();
-      #endif
+      }
+    #endif
 
-    }
   #else
-    WifiRxFifo.uart_read_point = 0;
-    WifiRxFifo.uart_write_point = 0;
-    if (interrupt) {
-      #if MKS_WIFI_MODULE
-        WIFISERIAL.end();
-        for (uint16_t i=0;i<65535;i++);
-        WIFISERIAL.begin(WIFI_BAUDRATE);
-        uint32_t serial_connect_timeout = millis() + 1000UL;
-          while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      #endif
-    }
-    else {
-      #if MKS_WIFI_MODULE
-        WIFISERIAL.end();
-        for (uint16_t i=0;i<65535;i++);
-        WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
-        uint32_t serial_connect_timeout = millis() + 1000UL;
-          while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      #endif
-      wifi_usart_dma_init();
-    }
+
+    #if MKS_WIFI_MODULE
+      WIFISERIAL.end();
+      for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
+      WIFISERIAL.begin(interrupt ? WIFI_BAUDRATE : WIFI_UPLOAD_BAUDRATE);
+      millis_t serial_connect_timeout = millis() + 1000UL;
+      while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #endif
+
+    if (!interrupt) wifi_usart_dma_init();
+
   #endif
 }
 
