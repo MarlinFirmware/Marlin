@@ -313,7 +313,7 @@ void MarlinUI::init_lcd() {
   t = 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // SPI speed must be less 10MHz
-    _SET_OUTPUT(TFTGLCD_CS);
+    SET_OUTPUT(TFTGLCD_CS);
     WRITE(TFTGLCD_CS, HIGH);
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
@@ -855,13 +855,14 @@ void MarlinUI::draw_status_screen() {
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     if (!PanelDetected) return;
     ui.encoder_direction_normal();
-    lcd.setCursor(0, MIDDLE_Y);
+    const uint8_t y = TERN0(AUTO_BED_LEVELING_UBL, ui.external_control) ? LCD_HEIGHT - 1 : MIDDLE_Y;
+    lcd.setCursor(0, y);
     lcd.write(COLOR_EDIT);
     lcd_put_u8str_P(pstr);
     if (value) {
       lcd.write(':');
-      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), MIDDLE_Y);  // Right-justified, padded by spaces
-      lcd.write(' ');     // Overwrite char if value gets shorter
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), y); // Right-justified, padded by spaces
+      lcd.write(' ');                                               // Overwrite char if value gets shorter
       lcd.print(value);
       lcd.write(' ');
       lcd.print_line();
