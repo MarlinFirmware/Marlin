@@ -36,7 +36,7 @@ public:
   static ToolType type;
   static void report();
   static void select(const ToolType intype);
-  static bool is_selected(const ToolType intype, const noerr=false);
+  static bool is_selected(const ToolType intype, const bool noerr=false);
 };
 
 extern MarlinTool tool;

@@ -29,6 +29,7 @@
 #if HAS_TOOLS
 
 #include "tool.h"
+#include "../module/motion.h"
 #include "../module/temperature.h"
 
 MarlinTool tool;
@@ -81,7 +82,7 @@ void MarlinTool::report() {
   static PGMSTR(str_tooltype_0, "Extruder");
   static PGMSTR(str_tooltype_1, "Laser");
   static PGMSTR(str_tooltype_2, "Spindle");
-  static PGM_P const debug_strings[] PROGMEM = { str_tooltype_0, str_tooltype_1, str_tooltype_2 };
+  static PGM_P const tool_strings[] PROGMEM = { str_tooltype_0, str_tooltype_1, str_tooltype_2 };
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Tool: ");
   serialprintPGM((char*)pgm_read_ptr(&(tool_strings[type])));
@@ -89,7 +90,7 @@ void MarlinTool::report() {
   SERIAL_ECHOLN((int)(type == TOOL_TYPE_EXTRUDER ? active_extruder : 0));
 }
 
-bool MarlinTool::is_selected(const ToolType intype, const noerr/*=false*/) {
+bool MarlinTool::is_selected(const ToolType intype, const bool noerr/*=false*/) {
   if (type != intype) {
     if (!noerr) SERIAL_ERROR_MSG(MSG_ERR_WRONG_TOOL);
     return true;
