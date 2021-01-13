@@ -135,26 +135,12 @@
 #define FILAMENT_EXT1_TEXT_RU           "экструдер2"
 #define FILAMENT_HEAT_TEXT_RU           "нагрев"
 #define FILAMENT_STOP_TEXT_RU           "стоп"
-//#define FILAMENT_CHANGE_TEXT_RU           "замена"
 #define FILAMENT_TIPS2_TEXT_RU          "T:"
 #define FILAMENT_TIPS3_TEXT_RU          "втянуть..."
 #define FILAMENT_TIPS4_TEXT_RU          "вядавить..."
 #define FILAMENT_TIPS5_TEXT_RU          "Низкая температура, \nнеобходим нагрев"
 #define FILAMENT_TIPS6_TEXT_RU          "завершено"
 
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_RU                 "Please click <втянуть> or <выдавить> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_RU                       "Please click <втянуть> or <выдавить>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_RU             "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_RU           "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_RU         "Heat completed,please load filament to extruder,and click <да> for start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_RU         "Please load filament to extruder,and click <да> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_RU        "Heat completed,please click <да> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_RU               "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_RU             "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_RU         "Load filament completed,click <да> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_RU       "Unload filament completed,click <да> for return!"
-#endif
 #define FILAMENT_CHANGE_TEXT_RU                       "Please click <Load> \nor <unload>,After \npinter pause."
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_RU             "Heating up the nozzle,\nplease wait..."
 #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_RU           "Heating up the nozzle,\nplease wait..."
@@ -166,14 +152,10 @@
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_RU         "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_RU       "Unload filament completed,\nclick <confirm> for return!"
 
-
 #define PRE_HEAT_EXT_TEXT_RU                "E"
 #define PRE_HEAT_BED_TEXT_RU                "стол"
 
 #define FILE_LOADING_RU                     "загрузка......"
-#if 0
-  #define NO_FILE_AND_CHECK_RU                "Файлы не найдены! Вставьте SD-карту или диск U!"
-#endif
 #define NO_FILE_AND_CHECK_RU                "нет файла,попробуйте ещё раз!"
 
 #define NO_FILE_RU                          "нет файла!"
@@ -242,7 +224,6 @@
 #define DIALOG_CANCEL_PRINT_RU              "стоп?"
 #define DIALOG_STOP_RU                      "стоп"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_RU   "продолжить?"
-//#define DIALOG_UNBIND_PRINTER_RU          "разрыв?"
 #define DIALOG_ERROR_TIPS1_RU               "ошибка:нет файла, попробуйте ещё раз."
 #define DIALOG_ERROR_TIPS2_RU               "ошибка:сбой передачи. установите скорость \nпередачи данных как на плате управления!"
 #define DIALOG_ERROR_TIPS3_RU               "ошибка: имя файла слишком длинное!"
@@ -268,9 +249,9 @@
 #define MESSAGE_PURGE_MORE_RU         "чистка"
 #define MESSAGE_CONTINUE_PRINT_RU     "Распечатать"
 #define EEPROM_SETTINGS_TITLE_RU      "Настройки EEPROM"
-#define EEPROM_SETTINGS_STORE_RU      "Сохранение настроек в EEPROM"
+#define EEPROM_SETTINGS_STORE_RU      "Cохранение настроек в EEPROM"
 #define EEPROM_SETTINGS_READ_RU       "Чтение настроек из EEPROM"
-#define EEPROM_SETTINGS_REVERT_RU     "Восстановить заводские настройки по умолчанию"
+#define EEPROM_SETTINGS_REVERT_RU     "Bосстановить заводские настройки по умолчанию"
 
 #define EEPROM_STORE_TIPS_RU          "Сохранить настройки в EEPROM?"
 #define EEPROM_READ_TIPS_RU           "Читать настройки из EEPROM?"

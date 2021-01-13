@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../gcode/queue.h"
 #include "../../../../module/temperature.h"
@@ -54,45 +50,42 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    bool clear = (obj->mks_obj_id != ID_T_LEVELING);
+  #else
+    constexpr bool clear = true;
+  #endif
+  if (clear) lv_clear_tool();
   switch (obj->mks_obj_id) {
     case ID_T_PRE_HEAT:
-      lv_clear_tool();
       lv_draw_preHeat();
       break;
     case ID_T_EXTRUCT:
-      lv_clear_tool();
       lv_draw_extrusion();
       break;
     case ID_T_MOV:
-      lv_clear_tool();
       lv_draw_move_motor();
       break;
     case ID_T_HOME:
-      lv_clear_tool();
       lv_draw_home();
       break;
     case ID_T_LEVELING:
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        //queue.enqueue_one_P(PSTR("G28"));
-        //queue.enqueue_one_P(PSTR("G29"));
         get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
         public_buf_m[sizeof(public_buf_m)-1] = 0;
         queue.inject_P(PSTR(public_buf_m));
       #else
         uiCfg.leveling_first_time = 1;
-        lv_clear_tool();
         lv_draw_manualLevel();
       #endif
       break;
     case ID_T_FILAMENT:
       uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[uiCfg.curSprayerChoose].target;
-      lv_clear_tool();
       lv_draw_filament_change();
       break;
     case ID_T_MORE: break;
     case ID_T_RETURN:
       TERN_(MKS_TEST, curent_disp_ui = 1);
-      lv_clear_tool();
       lv_draw_ready_print();
       break;
   }

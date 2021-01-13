@@ -46,60 +46,49 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_tmc_current_settings();
   switch (obj->mks_obj_id) {
     case ID_TMC_CURRENT_RETURN:
       uiCfg.para_ui_page = 0;
-      lv_clear_tmc_current_settings();
       draw_return_ui();
-      break;
-
+      return;
     #if AXIS_IS_TMC(X)
       case ID_TMC_CURRENT_X:
         value = Xcurrent;
-        lv_clear_tmc_current_settings();
-        lv_draw_number_key();
         break;
     #endif
     #if AXIS_IS_TMC(Y)
       case ID_TMC_CURRENT_Y:
         value = Ycurrent;
-        lv_clear_tmc_current_settings();
-        lv_draw_number_key();
         break;
     #endif
     #if AXIS_IS_TMC(Z)
       case ID_TMC_CURRENT_Z:
         value = Zcurrent;
-        lv_clear_tmc_current_settings();
-        lv_draw_number_key();
         break;
     #endif
     #if AXIS_IS_TMC(E0)
       case ID_TMC_CURRENT_E0:
         value = E0current;
-        lv_clear_tmc_current_settings();
-        lv_draw_number_key();
         break;
     #endif
     #if AXIS_IS_TMC(E1)
       case ID_TMC_CURRENT_E1:
         value = E1current;
-        lv_clear_tmc_current_settings();
-        lv_draw_number_key();
         break;
     #endif
 
     case ID_TMC_CURRENT_UP:
       uiCfg.para_ui_page = 0;
-      lv_clear_tmc_current_settings();
       lv_draw_tmc_current_settings();
-      break;
+      return;
     case ID_TMC_CURRENT_DOWN:
       uiCfg.para_ui_page = 1;
-      lv_clear_tmc_current_settings();
       lv_draw_tmc_current_settings();
-      break;
+      return;
   }
+  lv_draw_number_key();
+
 }
 
 void lv_draw_tmc_current_settings(void) {

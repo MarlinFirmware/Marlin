@@ -336,11 +336,6 @@
 
 #elif HAS_WIRED_LCD
 
-  //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
-  //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
-  //#define MOSI_PIN                       P0_18  // (51)  system defined J3-10 & AUX-3
-  //#define SS_PIN                         P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
-
   #if ENABLED(FYSETC_MINI_12864)
     #define BEEPER_PIN                     P1_01
     #define BTN_ENC                        P1_04
@@ -359,15 +354,15 @@
 
   #if IS_NEWPANEL
     #if IS_RRW_KEYPAD
-      #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
+      #define SHIFT_OUT_PIN                P0_18  // (51) (MOSI) J3-10 & AUX-3
+      #define SHIFT_CLK_PIN                P0_15  // (52) (SCK)  J3-9 & AUX-3
+      #define SHIFT_LD_PIN                 P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
     #endif
   #else
-    //#define SHIFT_CLK                    P3_26  // (31)  J3-2 & AUX-4
-    //#define SHIFT_LD                     P3_25  // (33)  J3-4 & AUX-4
-    //#define SHIFT_OUT                    P2_11  // (35)  J3-3 & AUX-4
-    //#define SHIFT_EN                     P1_22  // (41)  J5-4 & AUX-4
+    //#define SHIFT_CLK_PIN                P3_26  // (31)  J3-2 & AUX-4
+    //#define SHIFT_LD_PIN                 P3_25  // (33)  J3-4 & AUX-4
+    //#define SHIFT_OUT_PIN                P2_11  // (35)  J3-3 & AUX-4
+    //#define SHIFT_EN_PIN                 P1_22  // (41)  J5-4 & AUX-4
   #endif
 
   #if ANY(VIKI2, miniVIKI)
@@ -375,8 +370,8 @@
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK                   SCK_PIN
-    #define DOGLCD_MOSI                 MOSI_PIN
+    #define DOGLCD_SCK                SD_SCK_PIN
+    #define DOGLCD_MOSI              SD_MOSI_PIN
 
     #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
@@ -464,16 +459,16 @@
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15  // (52)  system defined J3-9 & AUX-3
-  #define MISO_PIN                         P0_17  // (50)  system defined J3-10 & AUX-3
-  #define MOSI_PIN                         P0_18  // (51)  system defined J3-10 & AUX-3
-  #define SS_PIN                           P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define SD_SCK_PIN                       P0_15  // (52)  system defined J3-9 & AUX-3
+  #define SD_MISO_PIN                      P0_17  // (50)  system defined J3-10 & AUX-3
+  #define SD_MOSI_PIN                      P0_18  // (51)  system defined J3-10 & AUX-3
+  #define SD_SS_PIN                        P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
