@@ -2393,7 +2393,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Serial MMU2 require a dedicated serial port
+ * MMU2 require a dedicated serial port
  */
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == SERIAL_PORT
