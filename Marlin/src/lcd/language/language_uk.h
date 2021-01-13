@@ -219,7 +219,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрів столу");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 нагрів сопла");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Ручне грунтування");
-  PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Фікс. довж. грунт.");
+  PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("Фікс. довж. грунт."); // ґ is not supported
   PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("Грунтув. виконане");
   PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 скасовано");
   PROGMEM Language_Str MSG_G26_LEAVING                     = _UxGT("Вийти з G26");
@@ -249,7 +249,11 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_FILLIN_MESH                 = _UxGT("Заповнити сітку");
   PROGMEM Language_Str MSG_UBL_INVALIDATE_ALL              = _UxGT("Анулювати все");
   PROGMEM Language_Str MSG_UBL_INVALIDATE_CLOSEST          = _UxGT("Анулювати найближчу");
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_ALL               = _UxGT("Точно налашт. все");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_UBL_FINE_TUNE_ALL             = _UxGT("Точно налаштувати все");
+  #else
+    PROGMEM Language_Str MSG_UBL_FINE_TUNE_ALL             = _UxGT("Точно налашт. все");
+  #endif
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_UBL_FINE_TUNE_CLOSEST         = _UxGT("Точно налашт.найближчу");
   #else
