@@ -25,6 +25,8 @@
  * with simple implementations supplied by Marlin.
  */
 
+#ifdef __STM32F1__
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -79,3 +81,4 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 #endif // IIC_BL24CXX_EEPROM
+#endif // __STM32F1__

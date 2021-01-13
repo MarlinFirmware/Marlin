@@ -758,7 +758,7 @@ void MarlinUI::draw_status_screen() {
 
         // Two-component mix / gradient instead of XY
 
-        char mixer_messages[12];
+        char mixer_messages[15];
         PGM_P mix_label;
         #if ENABLED(GRADIENT_MIX)
           if (mixer.gradient.enabled) {

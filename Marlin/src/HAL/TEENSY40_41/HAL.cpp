@@ -21,7 +21,7 @@
  */
 
 /**
- * Description: HAL for Teensy40 (IMXRT1062)
+ * HAL for Teensy 4.0 / 4.1 (IMXRT1062)
  */
 
 #ifdef __IMXRT1062__

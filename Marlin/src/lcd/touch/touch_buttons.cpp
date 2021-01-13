@@ -82,7 +82,7 @@ uint8_t TouchButtons::read_buttons() {
     x = uint16_t((uint32_t(x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
     y = uint16_t((uint32_t(y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
 
-    #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
+    #if (TFT_ROTATION & TFT_ROTATE_180)
       x = TOUCH_SENSOR_WIDTH - x;
       y = TOUCH_SENSOR_HEIGHT - y;
     #endif

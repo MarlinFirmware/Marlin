@@ -219,6 +219,10 @@ void _lcd_draw_homing();
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
+#if ENABLED(PROBE_OFFSET_WIZARD)
+  void goto_probe_offset_wizard();
+#endif
+
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
   void _lcd_toggle_bed_leveling();
 #endif

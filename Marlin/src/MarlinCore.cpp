@@ -97,7 +97,7 @@
   #include "feature/closedloop.h"
 #endif
 
-#if HAS_I2C_DIGIPOT
+#if HAS_MOTOR_CURRENT_I2C
   #include "feature/digipot/digipot.h"
 #endif
 
@@ -125,7 +125,7 @@
   #include "module/servo.h"
 #endif
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if ENABLED(HAS_MOTOR_CURRENT_DAC)
   #include "feature/dac/stepper_dac.h"
 #endif
 
@@ -1048,6 +1048,11 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
+  // Init buzzer pin(s)
+  #if USE_BEEPER
+    SETUP_RUN(buzzer.init());
+  #endif
+
   // Set up LEDs early
   #if HAS_COLOR_LEDS
     SETUP_RUN(leds.setup());
@@ -1132,12 +1137,12 @@ void setup() {
     SETUP_RUN(enableStepperDrivers());
   #endif
 
-  #if HAS_I2C_DIGIPOT
-    SETUP_RUN(digipot_i2c_init());
+  #if HAS_MOTOR_CURRENT_I2C
+    SETUP_RUN(digipot_i2c.init());
   #endif
 
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    SETUP_RUN(dac_init());
+  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+    SETUP_RUN(stepper_dac.init());
   #endif
 
   #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1

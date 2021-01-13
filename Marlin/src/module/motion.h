@@ -148,26 +148,59 @@ inline float home_bump_mm(const AxisEnum axis) {
   constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
-typedef struct { xyz_pos_t min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
-  extern axis_limits_t soft_endstop;
+
+  typedef struct {
+    bool _enabled, _loose;
+    bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      amin = -100000; amax = 100000; // "No limits"
+      #if HAS_SOFTWARE_ENDSTOPS
+        if (enabled()) switch (axis) {
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
+          case Y_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+            break;
+          case Z_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+          default: break;
+        }
+      #endif
+    }
+  } soft_endstops_t;
+
+  extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
-#else
-  constexpr bool soft_endstops_enabled = false;
-  //constexpr axis_limits_t soft_endstop = {
-  //  { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-  //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
-  #define apply_motion_limits(V)    NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
+
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool enabled() { return false; }
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      // No limits
+      amin = current_position[axis] - 1000;
+      amax = current_position[axis] + 1000;
+    }
+  } soft_endstops_t;
+  extern soft_endstops_t soft_endstop;
+  #define apply_motion_limits(V)        NOOP
   #define update_software_endstops(...) NOOP
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
-#endif
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
 
 void report_real_position();
 void report_current_position();
