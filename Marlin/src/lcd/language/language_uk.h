@@ -747,7 +747,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Введіть цифру");
   PROGMEM Language_Str MSG_CHANGE_PASSWORD                 = _UxGT("Змінити пароль");
   PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Видалити пароль");
-  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Пароль - ");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Пароль: ");
   PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Старт через");
   PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Не забудь зберегти!");
   PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Пароль видалений");
