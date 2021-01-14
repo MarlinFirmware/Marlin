@@ -1726,7 +1726,7 @@ void mks_esp_wifi_init() {
 }
 
 
-void mks_wifi_firmware_upddate() {
+void mks_wifi_firmware_update() {
   card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
   if (card.isFileOpen()) {

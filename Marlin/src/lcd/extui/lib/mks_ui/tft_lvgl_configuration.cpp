@@ -196,7 +196,7 @@ void tft_lvgl_init() {
   lv_encoder_pin_init();
 
   #if ENABLED(MKS_WIFI_MODULE)
-    mks_wifi_firmware_upddate();
+    mks_wifi_firmware_update();
   #endif
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
