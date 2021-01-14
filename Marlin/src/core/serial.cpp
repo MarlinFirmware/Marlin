@@ -29,7 +29,18 @@ static PGMSTR(errormagic, "Error:");
 static PGMSTR(echomagic, "echo:");
 
 #if HAS_MULTI_SERIAL
-  int8_t serial_port_index = 0;
+  #ifdef SERIAL_CATCHALL
+    SerialHookT serialHook(MYSERIAL, SERIAL_CATCHALL, 3); // 3 is the mask for both output  
+  #else
+    #if SERIAL_RUNTIME_HOOK
+      SerialHook0T innerSerial(MYSERIAL0);
+      SerialHookT serialHook(innerSerial, MYSERIAL1, 3); // 3 is the mask for both output
+    #else
+      SerialHookT serialHook(MYSERIAL0, MYSERIAL1, 3); // 3 is the mask for both output
+    #endif
+  #endif
+#else
+  SerialHookT serialHook;
 #endif
 
 void serialprintPGM(PGM_P str) {

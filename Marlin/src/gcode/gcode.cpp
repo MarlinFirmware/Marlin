@@ -963,7 +963,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 void GcodeSuite::process_next_command() {
   char * const current_command = queue.command_buffer[queue.index_r];
 
-  PORT_REDIRECT(queue.port[queue.index_r]);
+  PORT_REDIRECT(SERIAL_PORTMASK(queue.port[queue.index_r]));
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.queue_index_r = queue.index_r;
