@@ -64,7 +64,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_auto_level_offset_settings(void) {
+void lv_draw_auto_level_offset_settings() {
   scr = lv_screen_create(NOZZLE_PROBE_OFFSET_UI, machine_menu.OffsetConfTitle);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.x, 0));

@@ -32,6 +32,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../inc/MarlinConfig.h"
 #include "../../../../MarlinCore.h"
+#include "../../../../gcode/queue.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -55,12 +56,11 @@ void printer_state_polling() {
         //save the positon
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
+        uiCfg.current_z_position_bak = current_position.z;
 
         if (gCfgItems.pausePosZ != (float)-1) {
-          gcode.process_subcommands_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Z%.1f"), gCfgItems.pausePosZ);
+          sprintf_P(public_buf_l, PSTR("G91\nG1 Z%.1f\nG90"), gCfgItems.pausePosZ);
           gcode.process_subcommands_now(public_buf_l);
-          gcode.process_subcommands_now_P(PSTR("G90"));
         }
         if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
           sprintf_P(public_buf_l, PSTR("G1 X%.1f Y%.1f"), gCfgItems.pausePosX, gCfgItems.pausePosY);
@@ -69,9 +69,6 @@ void printer_state_polling() {
         uiCfg.print_state = PAUSED;
         uiCfg.current_e_position_bak = current_position.e;
 
-        // #if ENABLED(POWER_LOSS_RECOVERY)
-        //  if (recovery.enabled) recovery.save(true);
-        // #endif
         gCfgItems.pause_reprint = true;
         update_spi_flash();
       }
@@ -90,10 +87,9 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
       }
       if (gCfgItems.pausePosZ != (float)-1) {
-        gcode.process_subcommands_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
-        gcode.process_subcommands_now(public_buf_l);
-        gcode.process_subcommands_now_P(PSTR("G90"));
+        ZERO(public_buf_m);
+        sprintf_P(public_buf_m, PSTR("G1 Z%.1f"), uiCfg.current_z_position_bak);
+        gcode.process_subcommands_now(public_buf_m);
       }
       gcode.process_subcommands_now_P(M24_STR);
       uiCfg.print_state = WORKING;
@@ -130,10 +126,8 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
 
         if (gCfgItems.pause_reprint && gCfgItems.pausePosZ != -1.0f) {
-          gcode.process_subcommands_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
+          sprintf_P(public_buf_l, PSTR("G91\nG1 Z-%.1f\nG90"), gCfgItems.pausePosZ);
           gcode.process_subcommands_now(public_buf_l);
-          gcode.process_subcommands_now_P(PSTR("G90"));
         }
       #endif
       uiCfg.print_state = WORKING;
