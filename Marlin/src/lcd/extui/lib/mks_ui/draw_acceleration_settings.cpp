@@ -107,7 +107,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_acceleration_settings(void) {
+void lv_draw_acceleration_settings() {
   scr = lv_screen_create(ACCELERATION_UI, machine_menu.AccelerationConfTitle);
 
   if (uiCfg.para_ui_page != 1) {

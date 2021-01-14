@@ -26,7 +26,7 @@
 #endif
 
 
-extern void lv_draw_wifi(void);
+extern void lv_draw_wifi();
 extern void lv_clear_wifi();
 extern void disp_wifi_state();
 

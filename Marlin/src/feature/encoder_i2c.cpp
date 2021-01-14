@@ -34,7 +34,6 @@
 
 #include "encoder_i2c.h"
 
-#include "../module/temperature.h"
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
 
@@ -85,7 +84,7 @@ void I2CPositionEncoder::update() {
      * the encoder would be re-enabled.
      */
 
-    /*
+    #if 0
       // If the magnetic strength has been good for a certain time, start trusting the module again
 
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
@@ -111,7 +110,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPGM(")");
         #endif
       }
-    */
+    #endif
     return;
   }
 
