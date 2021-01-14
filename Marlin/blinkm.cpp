@@ -202,7 +202,7 @@ void PrintOneKey(void)
           }
           card.openFile(card.filename,true);
           card.startFileprint();
-          BLINK_LED(LED_BLINK_2);
+          BLINK_LED(LED_BLINK_0);
           print_key_flag = 1;
           key_flag = 4;
         }
@@ -279,7 +279,7 @@ void feed_filament(void)
   if(IsRunning())
   {
   //    MYSERIAL.print("jin_liao");
-      destination[E_AXIS] += 50;
+      destination[E_AXIS] += 100;
       feedrate = 1.5*60;
       prepare_move();
   }
@@ -290,12 +290,12 @@ void retract_filament(void)
   if(IsRunning())
   {
       //  MYSERIAL.print("tui_liao");
-            destination[E_AXIS] += 14;
-          feedrate = 2*60;
+            destination[E_AXIS] += 2;
+          feedrate = 3*60;
           prepare_move();
 
-    destination[E_AXIS] -= 80;
-    feedrate =5*60;
+    destination[E_AXIS] -= 300;
+    feedrate =15.0*60;
     prepare_move();
   }
 }
