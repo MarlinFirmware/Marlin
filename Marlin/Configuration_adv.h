@@ -148,9 +148,9 @@
 
 #define CHAMBER_FAN               // Enable a fan on the chamber
   #if ENABLED(CHAMBER_FAN)
-    #define CHAMBER_FAN_MODE 2        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve.
+    #define CHAMBER_FAN_MODE 0        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve.
     #if CHAMBER_FAN_MODE == 0
-      #define CHAMBER_FAN_BASE  255   // Chamber fan PWM (0-255)
+      #define CHAMBER_FAN_BASE  128   // Chamber fan PWM (0-255)
     #elif CHAMBER_FAN_MODE == 1
       #define CHAMBER_FAN_BASE  128   // Base chamber fan PWM (0-255); turns on when chamber temperature is above the target
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C above target
@@ -229,13 +229,13 @@
  * Thermal Protection parameters for the heated chamber.
  */
 #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-  #define THERMAL_PROTECTION_CHAMBER_PERIOD    20 // Seconds
+  #define THERMAL_PROTECTION_CHAMBER_PERIOD    40 // Seconds
   #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // Degrees Celsius
 
   /**
    * Heated chamber watch settings (M141/M191).
    */
-  #define WATCH_CHAMBER_TEMP_PERIOD            60 // Seconds
+  #define WATCH_CHAMBER_TEMP_PERIOD           120 // Seconds
   #define WATCH_CHAMBER_TEMP_INCREASE           2 // Degrees Celsius
 #endif
 
