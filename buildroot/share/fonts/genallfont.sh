@@ -57,7 +57,7 @@ OLDWD=`pwd`
 #
 # Compile the 'genpages' command in-place
 #
-(cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
+(cd ${DN_EXEC}; cc -o genpages genpages.c getline.c)
 
 #
 # By default loop through all languages
