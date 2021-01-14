@@ -53,11 +53,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_show_gcode_output(void * that, const char * txt) {
   // Ignore echo of command
-  if (!memcmp(txt, "echo:", 5)) {
+  if (!memcmp_P(txt, PSTR("echo:"), 5)) {
     public_buf[0] = 0; // Clear output buffer
     return;
   }
-  if (!memcmp(txt, "ok", 2)) {
+  if (!memcmp_P(txt, PSTR("ok"), 2)) {
     // A single ok on a line marks the end of the command, let's remove the hook now
     MYSERIAL0.set_hook(0, 0);
     // We are back from the keyboard, so let's redraw ourselves
