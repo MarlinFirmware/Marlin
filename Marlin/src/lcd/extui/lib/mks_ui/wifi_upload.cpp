@@ -115,7 +115,7 @@ signed char IsReady() {
   return esp_upload.state == upload_idle;
 }
 
-void uploadPort_write(const uint8_t *buf, size_t len) {
+void uploadPort_write(const uint8_t *buf, const size_t len) {
   for (size_t i = 0; i < len; i++)
     WIFISERIAL.write(*(buf + i));
 }
@@ -123,8 +123,7 @@ void uploadPort_write(const uint8_t *buf, size_t len) {
 char uploadPort_read() {
   uint8_t retChar;
   retChar = WIFISERIAL.read();
-  if (retChar > 0) return retChar;
-  else return 0;
+  return _MAX(retChar, 0);
 }
 
 int uploadPort_available() {
@@ -151,25 +150,21 @@ void flushInput() {
 // Extract 1-4 bytes of a value in little-endian order from a buffer beginning at a specified offset
 uint32_t getData(unsigned byteCnt, const uint8_t *buf, int ofst) {
   uint32_t val = 0;
-
   if (buf && byteCnt) {
     unsigned int shiftCnt = 0;
-    if (byteCnt > 4)
-      byteCnt = 4;
+    NOMORE(byteCnt, 4);
     do {
       val |= (uint32_t)buf[ofst++] << shiftCnt;
       shiftCnt += 8;
     } while (--byteCnt);
   }
-  return(val);
+  return val;
 }
 
 // Put 1-4 bytes of a value in little-endian order into a buffer beginning at a specified offset.
 void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
   if (buf && byteCnt) {
-    if (byteCnt > 4) {
-      byteCnt = 4;
-    }
+    NOMORE(byteCnt, 4);
     do {
       buf[ofst++] = (uint8_t)(val & 0xFF);
       val >>= 8;
@@ -188,29 +183,22 @@ void putData(uint32_t val, unsigned byteCnt, uint8_t *buf, int ofst) {
 int ReadByte(uint8_t *data, signed char slipDecode) {
   if (uploadPort_available() == 0) return 0;
 
-  // at least one byte is available
+  // At least one byte is available
   *data = uploadPort_read();
+
   if (!slipDecode) return 1;
 
-  if (*data == 0xC0) return -1; // this shouldn't happen
-
-  // if not the SLIP escape, we're done
-  if (*data != 0xDB) return 1;
+  if (*data == 0xC0) return -1; // This shouldn't happen
+  if (*data != 0xDB) return 1;  // If not the SLIP escape, we're done
 
   // SLIP escape, check availability of subsequent byte
   if (uploadPort_available() == 0) return -2;
 
   // process the escaped byte
   *data = uploadPort_read();
-  if (*data == 0xDC) {
-    *data = 0xC0;
-    return 2;
-  }
+  if (*data == 0xDC) { *data = 0xC0; return 2; }
+  if (*data == 0xDD) { *data = 0xDB; return 2; }
 
-  if (*data == 0xDD) {
-    *data = 0xDB;
-    return 2;
-  }
   return -3; // invalid
 }
 // When we write a sync packet, there must be no gaps between most of the characters.
@@ -225,7 +213,7 @@ void WriteByteRaw(uint8_t b) {
 }
 
 // Write a byte to the serial port optionally SLIP encoding. Return the number of bytes actually written.
-void WriteByteSlip(uint8_t b) {
+void WriteByteSlip(const uint8_t b) {
   if (b == 0xC0) {
     WriteByteRaw(0xDB);
     WriteByteRaw(0xDC);
@@ -234,9 +222,8 @@ void WriteByteSlip(uint8_t b) {
     WriteByteRaw(0xDB);
     WriteByteRaw(0xDD);
   }
-  else {
+  else
     uploadPort_write((const uint8_t *)&b, 1);
-  }
 }
 
 // Wait for a data packet to be returned.  If the body of the packet is
@@ -353,8 +340,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
   opRet = (uint8_t)getData(1, hdr, 1);
 
   // Sync packets often provoke a response with a zero opcode instead of ESP_SYNC
-  if (resp != 0x01 || opRet != op)
-    return respHeader;
+  if (resp != 0x01 || opRet != op) return respHeader;
 
   return success;
 }
@@ -524,7 +510,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   putData(0, 4, blkBuf, hdrOfst + 12);
 
   // Get the data for the block
-  cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
+  cnt = update_file.read(blkBuf + dataOfst, blkSize); //->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
   if (cnt != blkSize) {
     if (update_file.curPosition() == esp_upload.fileSize) {
       // partial last block, fill the remainder
@@ -554,36 +540,29 @@ void upload_spin() {
 
   switch (esp_upload.state) {
     case resetting:
-
       if (esp_upload.connectAttemptNumber == 9) {
         esp_upload.uploadResult = connected;
         esp_upload.state = done;
       }
-      else{
+      else {
         uploadPort_begin();
-
         wifi_delay(2000);
-
         flushInput();
-
         esp_upload.lastAttemptTime = esp_upload.lastResetTime = getWifiTick();
         esp_upload.state = connecting;
       }
-
       break;
 
     case connecting:
       if ((getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= connectAttemptInterval) && (getWifiTickDiff(esp_upload.lastResetTime, getWifiTick()) >= 500)) {
         EspUploadResult res = Sync(5000);
         esp_upload.lastAttemptTime = getWifiTick();
-        if (res == success) {
+        if (res == success)
           esp_upload.state = erasing;
-        }
         else {
           esp_upload.connectAttemptNumber++;
-          if (esp_upload.connectAttemptNumber % retriesPerReset == 0) {
+          if (esp_upload.connectAttemptNumber % retriesPerReset == 0)
             esp_upload.state = resetting;
-          }
         }
       }
       break;
@@ -610,9 +589,8 @@ void upload_spin() {
           esp_upload.lastAttemptTime = getWifiTick();
           esp_upload.state = uploading;
         }
-        else {
+        else
           esp_upload.state = done;
-        }
       }
       break;
 
@@ -624,14 +602,12 @@ void upload_spin() {
         if (esp_upload.uploadBlockNumber < blkCnt) {
           esp_upload.uploadResult = flashWriteBlock(0, 0);
           esp_upload.lastAttemptTime = getWifiTick();
-          if (esp_upload.uploadResult != success) {
+          if (esp_upload.uploadResult != success)
             esp_upload.state = done;
-          }
           percentComplete = (100 * esp_upload.uploadBlockNumber)/blkCnt;
           ++esp_upload.uploadBlockNumber;
-          if (percentComplete >= esp_upload.uploadNextPercentToReport) {
+          if (percentComplete >= esp_upload.uploadNextPercentToReport)
             esp_upload.uploadNextPercentToReport += percentToReportIncrement;
-          }
         }
         else
           esp_upload.state = done;
@@ -640,7 +616,7 @@ void upload_spin() {
 
     case done:
       update_file.close();
-      esp_upload.state = upload_idle;//idle;
+      esp_upload.state = upload_idle;
       break;
 
     default: break;

@@ -112,11 +112,9 @@ extern IP_PARA ipPara;
 extern CLOUD_PARA cloud_para;
 
 extern bool once_flag, flash_preview_begin, default_preview_flg, gcode_preview_over;
-extern char flash_dma_mode;
+extern bool flash_dma_mode;
 
-uint32_t getWifiTick() {
-  return millis();
-}
+uint32_t getWifiTick() { return millis(); }
 
 uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
   if (lastTick <= curTick)
@@ -168,12 +166,10 @@ void mount_file_sys(uint8_t disk_type) {
 #include <libmaple/usart.h>
 #include <libmaple/ring_buffer.h>
 
-void exchangeFlashMode(char dmaMode) {
+void changeFlashMode(const bool dmaMode) {
   if (flash_dma_mode != dmaMode) {
     flash_dma_mode = dmaMode;
-    if (flash_dma_mode == 1) {
-    }
-    else {
+    if (!flash_dma_mode) {
       dma_disable(DMA1, DMA_CH5);
       dma_clear_isr_bits(DMA1, DMA_CH4);
     }
@@ -181,33 +177,27 @@ void exchangeFlashMode(char dmaMode) {
 }
 
 static bool longName2DosName(const char *longName, uint8_t *dosName) {
-  uint8_t i = FILENAME_LENGTH;
-  while (i)
-    dosName[--i] = '\0';
+  uint8_t i;
+  for (i = FILENAME_LENGTH; i--;) dosName[i] = '\0';
   while (*longName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
-      if (i == 0) {
-        return false;
-      }
+      if (i == 0) return false;
       else {
         strcat_P((char *)dosName, PSTR(".GCO"));
-        return dosName[0] != '\0';
+        break;
       }
     }
     else {
+      if (c < 0x21 || c == 0x7F) return false;                  // Check size, non-printable characters
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++))
-        if (b == c)
-          return false;
-      if (c < 0x21 || c == 0x7F)
-        return false;                                                // Check size, non-printable characters
-      dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
+      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
+      dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
     }
     if (i >= 5) {
       strcat_P((char *)dosName, PSTR("~1.GCO"));
-      return dosName[0] != '\0';
+      break;
     }
   }
   return dosName[0] != '\0'; // Return true if any name was set
@@ -224,7 +214,6 @@ static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
     wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
     return 1;
   }
-
   return 0;
 }
 
@@ -265,6 +254,7 @@ static void dma_ch5_irq_handle() {
       WIFI_IO1_SET();
     }
 }
+
 static void wifi_usart_dma_init() {
   dma_init(DMA1);
   uint32_t flags = ( DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_HALF_TRNS | DMA_TRNS_ERR);
@@ -320,7 +310,6 @@ void esp_port_begin(uint8_t interrupt) {
       millis_t serial_connect_timeout = millis() + 1000UL;
       while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
-
     if (!interrupt) wifi_usart_dma_init();
 
   #endif
@@ -1335,14 +1324,14 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
   lv_task_handler();
 
   file_writer.tick_begin = getWifiTick();
+
   file_writer.fileTransfer = 1;
 }
 
-#define FRAG_MASK ~(1 << 31)
+#define FRAG_MASK ~_BV32(31)
 
 static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
   uint32_t frag = *((uint32_t *)msg);
-
   if ((frag & FRAG_MASK) != (uint32_t)(lastFragment + 1)) {
     ZERO(public_buf);
     file_writer.write_index = 0;
@@ -1364,7 +1353,6 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       if (res == -1) {
         upload_file.close();
         const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
-
         if (upload_file.open(upload_curDir, fname, O_WRITE)) {
           upload_file.setpos(&pos);
           res = upload_file.write(public_buf, file_writer.write_index);
@@ -1392,7 +1380,6 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 3;
     }
-
   }
 }
 
@@ -1541,29 +1528,23 @@ void stopEspTransfer() {
   dma_disable(DMA1, DMA_CH5);
 
   wifi_delay(200);
-  exchangeFlashMode(1);  //change spi flash to use dma mode
+  changeFlashMode(true); // Set SPI flash to use DMA mode
   esp_port_begin(1);
   wifi_delay(200);
 
   W25QXX.init(SPI_QUARTER_SPEED);
 
-  #if HAS_TFT_LVGL_UI_SPI
-    SPI_TFT.spi_init(SPI_FULL_SPEED);
-  #endif
-
+  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());
-
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
 
-  if (wifiTransError.flag != 0x1)
-    WIFI_IO1_RESET();
+  if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
 }
 
 void wifi_rcv_handle() {
-   int32_t len = 0;
-   uint8_t ucStr[(UART_RX_BUFFER_SIZE) + 1] = {0};
-   int8_t getDataF = 0;
-
+  int32_t len = 0;
+  uint8_t ucStr[(UART_RX_BUFFER_SIZE) + 1] = {0};
+  int8_t getDataF = 0;
   if (wifi_link_state == WIFI_TRANS_FILE) {
     #if 0
       if (WIFISERIAL.available() == UART_RX_BUFFER_SIZE) {
@@ -1588,8 +1569,7 @@ void wifi_rcv_handle() {
       if (storeRcvData(WIFISERIAL.usart_device->rb->buf, UART_RX_BUFFER_SIZE)) {
         esp_state = TRANSFERING;
         esp_dma_pre();
-        if (wifiTransError.flag != 0x1)
-          WIFI_IO1_RESET();
+        if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       }
       else
         WIFI_IO1_SET();
@@ -1599,9 +1579,8 @@ void wifi_rcv_handle() {
     len = readWifiBuf((int8_t *)ucStr, UART_RX_BUFFER_SIZE);
     if (len > 0) {
       esp_data_parser((char *)ucStr, len);
-
       if (wifi_link_state == WIFI_TRANS_FILE) {
-        exchangeFlashMode(0);  //change spi flash not use dma mode
+        changeFlashMode(false); // Set SPI flash to use non-DMA mode
         wifi_delay(10);
         esp_port_begin(0);
         wifi_delay(10);
@@ -1626,7 +1605,7 @@ void wifi_rcv_handle() {
     tick_net_time2 = getWifiTick();
 
     if (wifi_link_state == WIFI_TRANS_FILE) {
-      if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 8000)) {
+      if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 8000) {
         wifi_link_state = WIFI_CONNECTED;
         upload_result = 2;
         clear_cur_ui();
@@ -1634,10 +1613,10 @@ void wifi_rcv_handle() {
         lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
       }
     }
-    if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 10000))
+    if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 10000)
       wifi_link_state = WIFI_NOT_CONFIG;
 
-    if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 120000)) {
+    if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 120000) {
       wifi_link_state = WIFI_NOT_CONFIG;
       wifi_reset();
       tick_net_time1 = getWifiTick();

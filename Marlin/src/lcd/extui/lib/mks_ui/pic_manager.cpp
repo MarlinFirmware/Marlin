@@ -42,7 +42,7 @@ extern uint16_t DeviceCode;
 #endif
 
 static const char assets[][LONG_FILENAME_LENGTH] = {
-  //homing screen
+  // Homing screen
   "bmp_zeroAll.bin",
   "bmp_zero.bin",
   "bmp_zeroX.bin",
@@ -50,7 +50,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_zeroZ.bin",
   "bmp_manual_off.bin",
 
-  //tool screen
+  // Tool screen
   "bmp_preHeat.bin",
   "bmp_extruct.bin",
   "bmp_mov.bin",
@@ -58,7 +58,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_filamentchange.bin",
   "bmp_more.bin",
 
-  //fan screen
+  // Fan screen
   "bmp_Add.bin",
   "bmp_Dec.bin",
   "bmp_speed255.bin",
@@ -71,7 +71,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step5_degree.bin",
   "bmp_step10_degree.bin",
 
-  //extrusion screen
+  // Extrusion screen
   "bmp_in.bin",
   "bmp_out.bin",
   "bmp_extru1.bin",
@@ -85,15 +85,15 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step5_mm.bin",
   "bmp_step10_mm.bin",
 
-  //select file screen
+  // Select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
   "bmp_back.bin", //TODO: why two back buttons? Why not just one? (return / back)
   "bmp_dir.bin",
   "bmp_file.bin",
 
-  //move motor screen
-  //TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
+  // Move motor screen
+  // TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
   "bmp_xAdd.bin",
   "bmp_xDec.bin",
   "bmp_yAdd.bin",
@@ -104,7 +104,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step_move1.bin",
   "bmp_step_move10.bin",
 
-  //operation screen
+  // Operation screen
   "bmp_auto_off.bin",
   "bmp_speed.bin",
   "bmp_fan.bin",
@@ -112,7 +112,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_extrude_opr.bin",
   "bmp_move_opr.bin",
 
-  //change speed screen
+  // Change speed screen
   "bmp_step1_percent.bin",
   "bmp_step5_percent.bin",
   "bmp_step10_percent.bin",
@@ -121,7 +121,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_mov_sel.bin",
   "bmp_speed_extruct.bin",
 
-  //printing screen
+  // Printing screen
   "bmp_pause.bin",
   "bmp_resume.bin",
   "bmp_stop.bin",
@@ -135,7 +135,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_zpos_state.bin",
   "bmp_operate.bin",
 
-  //manual leval screen (only if disabled auto level)
+  // Manual Level screen (only if auto level is disabled)
   #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
     "bmp_leveling1.bin",
     "bmp_leveling2.bin",
@@ -144,7 +144,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_leveling5.bin",
   #endif
 
-  //lang select screen
+  // Language Select screen
   #if HAS_LANG_SELECT_SCREEN
     "bmp_language.bin",
     "bmp_simplified_cn.bin",
@@ -163,7 +163,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_italy_sel.bin",
   #endif // HAS_LANG_SELECT_SCREEN
 
-  // gcode preview
+  // G-code preview
   #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
     "bmp_preview.bin",
   #endif
@@ -172,18 +172,18 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_logo.bin",
   #endif
 
-  // settings screen
+  // Settings screen
   "bmp_about.bin",
   "bmp_eeprom_settings.bin",
   "bmp_machine_para.bin",
   "bmp_function1.bin",
 
-  //start screen
+  // Start screen
   "bmp_printing.bin",
   "bmp_set.bin",
   "bmp_tool.bin",
 
-  // base icons
+  // Base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
@@ -193,17 +193,17 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_return.bin",
 
   #if ENABLED(MKS_WIFI_MODULE)
-    // wifi screen
+    // Wifi screen
     "bmp_wifi.bin",
     "bmp_cloud.bin",
   #endif
 
-  // babystep screen
+  // Babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin",
 
-  // more screen
+  // More screen
   "bmp_custom1.bin",
   "bmp_custom2.bin",
   "bmp_custom3.bin",
@@ -244,14 +244,13 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
     } while (PIC.name[j++] != '\0');
 
     if ((strcasecmp((char*)Pname, (char*)PIC.name)) == 0) {
-      if ((DeviceCode == 0x9488) || (DeviceCode == 0x5761))
+      if (DeviceCode == 0x9488 || DeviceCode == 0x5761)
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
         addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
       return addr;
     }
   }
-
   return addr;
 }
 

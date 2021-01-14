@@ -89,7 +89,6 @@ class WifiSerial {
 
     int wifi_rb_is_full();
 
-
     struct usart_dev *usart_device;
     private:
     uint8 tx_pin;

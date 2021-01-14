@@ -59,7 +59,7 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);// don't change the word length etc, and 'or' in the patten not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
       regs->CR1 |= USART_CR1_UE;
     }
   }
@@ -71,7 +71,7 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);// don't change the word length etc, and 'or' in the patten not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
       regs->CR1 |= USART_CR1_UE;
     }
   }

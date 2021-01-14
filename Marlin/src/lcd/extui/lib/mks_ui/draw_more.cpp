@@ -41,6 +41,7 @@ enum {
   ID_CUSTOM_4,
   ID_CUSTOM_5,
   ID_CUSTOM_6,
+  ID_CUSTOM_7,
   ID_M_RETURN,
 };
 
@@ -58,6 +59,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     case ID_CUSTOM_4: TERN_(USER_CMD_4_ENABLE, queue.inject_P(PSTR(USER_GCODE_4))); break;
     case ID_CUSTOM_5: TERN_(USER_CMD_5_ENABLE, queue.inject_P(PSTR(USER_GCODE_5))); break;
     case ID_CUSTOM_6: TERN_(USER_CMD_6_ENABLE, queue.inject_P(PSTR(USER_GCODE_6))); break;
+    case ID_CUSTOM_7: TERN_(USER_CMD_7_ENABLE, queue.inject_P(PSTR(USER_GCODE_7))); break;
     case ID_M_RETURN:
       lv_clear_more();
       lv_draw_tool();
@@ -123,7 +125,6 @@ void lv_draw_more() {
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelGCode, more_menu.gcode);
     lv_obj_align(labelGCode, buttonGCode, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
     #if ENABLED(USER_CMD_1_ENABLE)
       lv_label_set_text(labelCustom1, more_menu.custom1);
       lv_obj_align(labelCustom1, buttonCustom1, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -147,6 +148,10 @@ void lv_draw_more() {
     #if ENABLED(USER_CMD_6_ENABLE)
       lv_label_set_text(labelCustom6, more_menu.custom6);
       lv_obj_align(labelCustom6, buttonCustom6, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #endif
+    #if ENABLED(USER_CMD_7_ENABLE)
+      lv_label_set_text(labelCustom7, more_menu.custom7);
+      lv_obj_align(labelCustom7, buttonCustom7, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     #endif
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

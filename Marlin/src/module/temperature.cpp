@@ -2536,6 +2536,8 @@ void Temperature::tick() {
     static SoftPWM soft_pwm_chamber;
   #endif
 
+  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
+
   #if DISABLED(SLOW_PWM_HEATERS)
 
     #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_HEATED_CHAMBER, FAN_SOFT_PWM)
