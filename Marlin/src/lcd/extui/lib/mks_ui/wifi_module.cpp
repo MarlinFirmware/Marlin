@@ -177,33 +177,25 @@ void changeFlashMode(const bool dmaMode) {
 }
 
 static bool longName2DosName(const char *longName, uint8_t *dosName) {
-  uint8_t i = FILENAME_LENGTH;
-  while (i)
-    dosName[--i] = '\0';
+  uint8_t i;
+  for (i = FILENAME_LENGTH; i--;) dosName[i] = '\0';
   while (*longName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
-      if (i == 0) {
-        return false;
-      }
-      else {
-        strcat((char *)dosName, ".GCO");
-        return dosName[0] != '\0';
-      }
+      if (i == 0) return false;
+      strcat((char *)dosName, ".GCO");
+      break;
     }
     else {
+      if (c < 0x21 || c == 0x7F) return false;                  // Check size, non-printable characters
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++))
-        if (b == c)
-          return false;
-      if (c < 0x21 || c == 0x7F)
-        return false;                                                // Check size, non-printable characters
-      dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
+      while (const uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
+      dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
     }
     if (i >= 5) {
       strcat((char *)dosName, "~1.GCO");
-      return dosName[0] != '\0';
+      break;
     }
   }
   return dosName[0] != '\0'; // Return true if any name was set
@@ -583,17 +575,8 @@ uint8_t Explore_Disk(char* path , uint8_t recu_level) {
   const uint8_t fileCnt = card.get_num_Files();
 
   for (uint8_t i = 0; i < fileCnt; i++) {
-    const uint16_t nr =
-    #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-        fileCnt - 1 -
-      #endif
-    i;
+    card.getfilename_sorted(SD_ORDER(i, fileCnt));
 
-    #if ENABLED(SDCARD_SORT_ALPHA)
-      card.getfilename_sorted(nr);
-    #else
-      card.getfilename_sorted(nr);
-    #endif
     memset(tmp, 0, sizeof(tmp));
     strcpy(tmp, card.filename);
 
