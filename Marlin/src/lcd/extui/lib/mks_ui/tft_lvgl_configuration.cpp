@@ -244,15 +244,6 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
-void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color) {
-  uint16_t width, height;
-  width = x2 - x1 + 1;
-  height = y2 - y1 + 1;
-  SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
-  SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
-  W25QXX.init(SPI_QUARTER_SPEED);
-}
-
 #define TICK_CYCLE 1
 
 unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {

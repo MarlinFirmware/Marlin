@@ -667,14 +667,12 @@ int32_t wifi_upload(int type) {
 
   ResetWiFiForUpload(0);
 
-  if (type == 0)
-    SendUpdateFile(ESP_FIRMWARE_FILE, FirmwareAddress);
-  else if (type == 1)
-    SendUpdateFile(ESP_WEB_FIRMWARE_FILE, FirmwareAddress);
-  else if (type == 2)
-    SendUpdateFile(ESP_WEB_FILE, WebFilesAddress);
-  else
-    return -1;
+  switch (type) {
+    case 0: SendUpdateFile(ESP_FIRMWARE_FILE, FirmwareAddress); break;
+    case 1: SendUpdateFile(ESP_WEB_FIRMWARE_FILE, FirmwareAddress); break;
+    case 2: SendUpdateFile(ESP_WEB_FILE, WebFilesAddress); break;
+    default: return -1;
+  }
 
   while (esp_upload.state != upload_idle) {
     upload_spin();
