@@ -10,5 +10,13 @@ set -e
 use_example_configs Mks/Robin
 exec_test $1 $2 "MKS Robin config (FSMC Color UI)" "$3"
 
+#
+# MKS Robin LVGL FSMC
+#
+use_example_configs Mks/Robin
+opt_disable TFT_CLASSIC_UI TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
+opt_enable TFT_LVGL_UI TFT_RES_480x320
+exec_test $1 $2 "MKS Robin nano v1.2 LVGL FSMC" "$3"
+
 # cleanup
 restore_configs

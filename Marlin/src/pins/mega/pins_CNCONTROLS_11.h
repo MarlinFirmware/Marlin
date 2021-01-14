@@ -149,9 +149,9 @@
 #define BTN_ENC                               27
 
 // Hardware buttons for manual movement of XYZ
-#define SHIFT_OUT                             19
-#define SHIFT_LD                              18
-#define SHIFT_CLK                             17
+#define SHIFT_OUT_PIN                         19
+#define SHIFT_LD_PIN                          18
+#define SHIFT_CLK_PIN                         17
 
 //#define UI1                                 31
 //#define UI2                                 22

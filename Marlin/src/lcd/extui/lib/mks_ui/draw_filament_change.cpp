@@ -45,8 +45,6 @@ enum {
   ID_FILAMNT_RETURN
 };
 
-extern feedRate_t feedrate_mm_s;
-
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
@@ -87,10 +85,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_FILAMNT_TYPE:
       #if HAS_MULTI_EXTRUDER
-        if (uiCfg.curSprayerChoose == 0)
-          uiCfg.curSprayerChoose = 1;
-        else if (uiCfg.curSprayerChoose == 1)
-          uiCfg.curSprayerChoose = 0;
+        uiCfg.curSprayerChoose = !uiCfg.curSprayerChoose;
       #endif
       disp_filament_type();
       break;
@@ -102,7 +97,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
       if (uiCfg.print_state == PAUSED)
         planner.set_e_position_mm((destination.e = current_position.e = uiCfg.current_e_position_bak));
-        //current_position.e = destination.e = uiCfg.current_e_position_bak;
       thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
 
       clear_cur_ui();
@@ -111,7 +105,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_filament_change(void) {
+void lv_draw_filament_change() {
   scr = lv_screen_create(FILAMENTCHANGE_UI);
   // Create an Image button
   lv_obj_t *buttonIn = lv_big_button_create(scr, "F:/bmp_in.bin", filament_menu.in, INTERVAL_V, titleHeight, event_handler, ID_FILAMNT_IN);

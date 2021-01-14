@@ -401,7 +401,13 @@ G29_TYPE GcodeSuite::G29() {
       ExtUI::onMeshLevelingStart();
     #endif
 
-    if (!faux) remember_feedrate_scaling_off();
+    if (!faux) {
+      remember_feedrate_scaling_off();
+
+      #if ENABLED(PREHEAT_BEFORE_LEVELING)
+        if (!dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+      #endif
+    }
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.

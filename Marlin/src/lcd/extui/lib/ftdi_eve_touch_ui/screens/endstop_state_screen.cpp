@@ -53,7 +53,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_large
     #else
       font_medium
@@ -121,7 +121,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
 
   cmd.font(font_medium)
      .colors(action_btn)
-     .tag(1).button( BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BACK));
+     .tag(1).button(BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BACK));
   #undef GRID_COLS
   #undef GRID_ROWS
 }

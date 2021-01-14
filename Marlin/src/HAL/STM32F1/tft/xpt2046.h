@@ -28,16 +28,16 @@
 #endif
 
 #ifndef TOUCH_MISO_PIN
-  #define TOUCH_MISO_PIN MISO_PIN
+  #define TOUCH_MISO_PIN SD_MISO_PIN
 #endif
 #ifndef TOUCH_MOSI_PIN
-  #define TOUCH_MOSI_PIN MOSI_PIN
+  #define TOUCH_MOSI_PIN SD_MOSI_PIN
 #endif
 #ifndef TOUCH_SCK_PIN
-  #define TOUCH_SCK_PIN  SCK_PIN
+  #define TOUCH_SCK_PIN  SD_SCK_PIN
 #endif
 #ifndef TOUCH_CS_PIN
-  #define TOUCH_CS_PIN   CS_PIN
+  #define TOUCH_CS_PIN   SD_SS_PIN
 #endif
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1

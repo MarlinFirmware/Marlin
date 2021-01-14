@@ -379,9 +379,9 @@ void CardReader::mount() {
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
-  if (!sd2card.init(SPI_SPEED, SDSS)
+  if (!sd2card.init(SD_SPI_SPEED, SDSS)
     #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !sd2card.init(SPI_SPEED, LCD_SDSS)
+      && !sd2card.init(SD_SPI_SPEED, LCD_SDSS)
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(&sd2card))
@@ -755,10 +755,10 @@ void CardReader::write_command(char * const buf) {
    *   - After finishing the previous auto#.g file
    *   - From the LCD command to begin the auto#.g files
    *
-   * Return 'true' if there was nothing to do
+   * Return 'true' if an auto file was started
    */
   bool CardReader::autofile_check() {
-    if (!autofile_index) return true;
+    if (!autofile_index) return false;
 
     if (!isMounted())
       mount();
@@ -773,11 +773,11 @@ void CardReader::write_command(char * const buf) {
         cdroot();
         openAndPrintFile(autoname);
         autofile_index++;
-        return false;
+        return true;
       }
     }
     autofile_cancel();
-    return true;
+    return false;
   }
 #endif
 
