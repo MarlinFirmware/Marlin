@@ -112,11 +112,9 @@ extern IP_PARA ipPara;
 extern CLOUD_PARA cloud_para;
 
 extern bool once_flag, flash_preview_begin, default_preview_flg, gcode_preview_over;
-extern char flash_dma_mode;
+extern bool flash_dma_mode;
 
-uint32_t getWifiTick() {
-  return millis();
-}
+uint32_t getWifiTick() { return millis(); }
 
 uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
   if (lastTick <= curTick)
@@ -168,12 +166,10 @@ void mount_file_sys(uint8_t disk_type) {
 #include <libmaple/usart.h>
 #include <libmaple/ring_buffer.h>
 
-void exchangeFlashMode(char dmaMode) {
+void changeFlashMode(const bool dmaMode) {
   if (flash_dma_mode != dmaMode) {
     flash_dma_mode = dmaMode;
-    if (flash_dma_mode == 1) {
-    }
-    else {
+    if (!flash_dma_mode) {
       dma_disable(DMA1, DMA_CH5);
       dma_clear_isr_bits(DMA1, DMA_CH4);
     }
@@ -1308,33 +1304,34 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
   #if ENABLED(SDSUPPORT)
 
-  uint8_t dosName[FILENAME_LENGTH];
+    uint8_t dosName[FILENAME_LENGTH];
 
-  if (!longName2DosName((const char *)file_writer.saveFileName,dosName)) {
-    clear_cur_ui();
-    upload_result = 2;
-    wifiTransError.flag = 1;
-    wifiTransError.start_tick = getWifiTick();
-    lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
-    return;
-  }
-  sprintf((char *)saveFilePath, "%s", dosName);
+    if (!longName2DosName((const char *)file_writer.saveFileName,dosName)) {
+      clear_cur_ui();
+      upload_result = 2;
+      wifiTransError.flag = 1;
+      wifiTransError.start_tick = getWifiTick();
+      lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
+      return;
+    }
+    sprintf((char *)saveFilePath, "%s", dosName);
 
-  card.cdroot();
-  upload_file.close();
-  const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
+    card.cdroot();
+    upload_file.close();
+    const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
 
-  if (!upload_file.open(upload_curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
-    clear_cur_ui();
-    upload_result = 2;
+    if (!upload_file.open(upload_curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+      clear_cur_ui();
+      upload_result = 2;
 
-    wifiTransError.flag = 1;
-    wifiTransError.start_tick = getWifiTick();
+      wifiTransError.flag = 1;
+      wifiTransError.start_tick = getWifiTick();
 
-    lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
-    return;
-  }
-  #endif
+      lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
+      return;
+    }
+
+  #endif // SDSUPPORT
 
   wifi_link_state = WIFI_TRANS_FILE;
 
@@ -1350,11 +1347,10 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
   file_writer.fileTransfer = 1;
 }
 
-#define FRAG_MASK ~(1 << 31)
+#define FRAG_MASK ~_BV32(31)
 
 static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
   uint32_t frag = *((uint32_t *)msg);
-
   if ((frag & FRAG_MASK) != (uint32_t)(lastFragment + 1)) {
     ZERO(public_buf);
     file_writer.write_index = 0;
@@ -1376,7 +1372,6 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       if (res == -1) {
         upload_file.close();
         const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
-
         if (upload_file.open(upload_curDir, fname, O_WRITE)) {
           upload_file.setpos(&pos);
           res = upload_file.write(public_buf, file_writer.write_index);
@@ -1404,7 +1399,6 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 3;
     }
-
   }
 }
 
@@ -1515,7 +1509,6 @@ void esp_data_parser(char *cmdRxBuf, int len) {
         esp_msg_index = 0;
         return;
       }
-
       if ((charAtArray(esp_msg_buf, esp_msg_index,  ESP_PROTOC_HEAD) != -1) && (charAtArray(esp_msg_buf, esp_msg_index, ESP_PROTOC_TAIL) != -1))
         loop_again = true;
     }
@@ -1547,7 +1540,6 @@ void stopEspTransfer() {
   }
 
   wifi_delay(200);
-
   WIFI_IO1_SET();
 
   // disable dma
@@ -1556,32 +1548,23 @@ void stopEspTransfer() {
   dma_disable(DMA1, DMA_CH5);
 
   wifi_delay(200);
-
-  exchangeFlashMode(1);  //change spi flash to use dma mode
-
+  changeFlashMode(true); // Set SPI flash to use DMA mode
   esp_port_begin(1);
-
   wifi_delay(200);
 
   W25QXX.init(SPI_QUARTER_SPEED);
 
-  #if HAS_TFT_LVGL_UI_SPI
-    SPI_TFT.spi_init(SPI_FULL_SPEED);
-  #endif
-
+  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
   TERN_(HAS_SERVOS, servo_init());
-
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
 
-  if (wifiTransError.flag != 0x1)
-    WIFI_IO1_RESET();
+  if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
 }
 
 void wifi_rcv_handle() {
-   int32_t len = 0;
-   uint8_t ucStr[(UART_RX_BUFFER_SIZE) + 1] = {0};
-   int8_t getDataF = 0;
-
+  int32_t len = 0;
+  uint8_t ucStr[(UART_RX_BUFFER_SIZE) + 1] = {0};
+  int8_t getDataF = 0;
   if (wifi_link_state == WIFI_TRANS_FILE) {
     #if 0
       if (WIFISERIAL.available() == UART_RX_BUFFER_SIZE) {
@@ -1606,9 +1589,7 @@ void wifi_rcv_handle() {
       if (storeRcvData(WIFISERIAL.usart_device->rb->buf, UART_RX_BUFFER_SIZE)) {
         esp_state = TRANSFERING;
         esp_dma_pre();
-        if (wifiTransError.flag != 0x1)
-          WIFI_IO1_RESET();
-
+        if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       }
       else
         WIFI_IO1_SET();
@@ -1618,22 +1599,14 @@ void wifi_rcv_handle() {
     len = readWifiBuf((int8_t *)ucStr, UART_RX_BUFFER_SIZE);
     if (len > 0) {
       esp_data_parser((char *)ucStr, len);
-
       if (wifi_link_state == WIFI_TRANS_FILE) {
-        exchangeFlashMode(0);  //change spi flash not use dma mode
-
+        changeFlashMode(false); // Set SPI flash to use non-DMA mode
         wifi_delay(10);
-
         esp_port_begin(0);
-
         wifi_delay(10);
-
         tick_net_time1 = 0;
-
       }
-      if (wifiTransError.flag != 0x1) {
-        WIFI_IO1_RESET();
-      }
+      if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       getDataF = 1;
     }
     if (need_ok_later &&  (queue.length < BUFSIZE)) {
@@ -1649,26 +1622,20 @@ void wifi_rcv_handle() {
     tick_net_time2 = getWifiTick();
 
     if (wifi_link_state == WIFI_TRANS_FILE) {
-      if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 8000)) {
+      if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 8000) {
         wifi_link_state = WIFI_CONNECTED;
-
         upload_result = 2;
-
         clear_cur_ui();
-
         stopEspTransfer();
-
         lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
       }
     }
-    if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 10000)) {
-      wifi_link_state = WIFI_NOT_CONFIG;
-    }
-    if ((tick_net_time1 != 0) && (getWifiTickDiff(tick_net_time1, tick_net_time2) > 120000)) {
+    if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 10000)
       wifi_link_state = WIFI_NOT_CONFIG;
 
+    if (tick_net_time1 && getWifiTickDiff(tick_net_time1, tick_net_time2) > 120000) {
+      wifi_link_state = WIFI_NOT_CONFIG;
       wifi_reset();
-
       tick_net_time1 = getWifiTick();
     }
   }
