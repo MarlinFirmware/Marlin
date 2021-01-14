@@ -59,7 +59,7 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-	    regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);// don't change the word length etc, and 'or' in the patten not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
       regs->CR1 |= USART_CR1_UE;
     }
   }
@@ -71,7 +71,7 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-	    regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);// don't change the word length etc, and 'or' in the patten not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
       regs->CR1 |= USART_CR1_UE;
     }
   }
@@ -111,11 +111,11 @@ void WifiSerial::begin(uint32 baud, uint8_t config) {
   usart_enable_no_irq(this->usart_device, baud == WIFI_BAUDRATE);
 }
 
-void WifiSerial::end(void) {
+void WifiSerial::end() {
   usart_disable(this->usart_device);
 }
 
-int WifiSerial::available(void) {
+int WifiSerial::available() {
   return usart_data_available(this->usart_device);
 }
 
@@ -123,7 +123,7 @@ int WifiSerial::available(void) {
 // I/O
 //
 
-int WifiSerial::read(void) {
+int WifiSerial::read() {
   if (usart_data_available(usart_device) <= 0) return -1;
   return usart_getc(usart_device);
 }
@@ -133,7 +133,7 @@ int WifiSerial::write(unsigned char ch) {
   return 1;
 }
 
-int WifiSerial::wifi_rb_is_full(void) {
+int WifiSerial::wifi_rb_is_full() {
   return rb_is_full(this->usart_device->rb);
 }
 

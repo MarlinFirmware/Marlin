@@ -60,7 +60,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   }
 }
 
-void lv_draw_cloud_bind(void) {
+void lv_draw_cloud_bind() {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL;
   scr = lv_screen_create(BIND_UI);
 

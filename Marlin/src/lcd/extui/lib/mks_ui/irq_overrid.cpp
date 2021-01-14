@@ -45,7 +45,7 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-void __irq_usart1(void) {
+void __irq_usart1() {
    if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
      WRITE(WIFI_IO1_PIN, HIGH);
 
