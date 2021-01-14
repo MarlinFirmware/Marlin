@@ -115,10 +115,9 @@ signed char IsReady() {
   return esp_upload.state == upload_idle;
 }
 
-void uploadPort_write(const uint8_t *buf, size_t len) {
-  for(size_t i = 0; i < len; i++) {
+void uploadPort_write(const uint8_t *buf, const size_t len) {
+  for (size_t i = 0; i < len; i++)
     WIFISERIAL.write(*(buf + i));
-  }
 }
 
 char uploadPort_read() {
@@ -238,7 +237,7 @@ void WriteByteRaw(uint8_t b) {
 }
 
 // Write a byte to the serial port optionally SLIP encoding. Return the number of bytes actually written.
-void WriteByteSlip(uint8_t b) {
+void WriteByteSlip(const uint8_t b) {
   if (b == 0xC0) {
     WriteByteRaw(0xDB);
     WriteByteRaw(0xDC);
@@ -247,9 +246,8 @@ void WriteByteSlip(uint8_t b) {
     WriteByteRaw(0xDB);
     WriteByteRaw(0xDD);
   }
-  else {
+  else
     uploadPort_write((const uint8_t *)&b, 1);
-  }
 }
 
 // Wait for a data packet to be returned.  If the body of the packet is
