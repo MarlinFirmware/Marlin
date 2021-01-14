@@ -34,11 +34,6 @@
 #define UART_RX_BUFFER_SIZE   1024
 #define UART_FIFO_BUFFER_SIZE 1024
 
-#define ESP_WIFI              0x02
-
-#define AP_MODEL              0x01
-#define STA_MODEL             0x02
-
 #define WIFI_DECODE_TYPE      1
 
 #define IP_DHCP_FLAG          1
@@ -66,7 +61,7 @@ typedef enum{
   udisk_buf_full,
 } UDISK_DATA_BUFFER_STATE;
 
-#define TRANS_RCV_FIFO_BLOCK_NUM    8
+#define TRANS_RCV_FIFO_BLOCK_NUM  14
 
 typedef struct {
   unsigned char *bufferAddr[TRANS_RCV_FIFO_BLOCK_NUM];
@@ -164,7 +159,7 @@ typedef enum {
 typedef struct {
   uint32_t uart_read_point;
   uint32_t uart_write_point;
-  uint8_t uartTxBuffer[UART_FIFO_BUFFER_SIZE];
+  //uint8_t uartTxBuffer[UART_FIFO_BUFFER_SIZE];
 } SZ_USART_FIFO;
 
 #define WIFI_GCODE_BUFFER_LEAST_SIZE    96
@@ -195,7 +190,7 @@ extern int  package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len);
 extern void get_wifi_list_command_send();
 extern void get_wifi_commands();
 extern int  readWifiBuf(int8_t *buf, int32_t len);
-extern int  storeRcvData(int32_t len);
+extern void mks_wifi_firmware_update();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

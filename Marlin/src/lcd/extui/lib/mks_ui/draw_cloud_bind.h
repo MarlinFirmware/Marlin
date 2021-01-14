@@ -19,42 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../inc/MarlinConfigPre.h"
-
-#if HAS_TFT_LVGL_UI
-
-#include "tft_lvgl_configuration.h"
-
-#if ENABLED(MKS_WIFI_MODULE)
-
-#include "draw_ui.h"
-#include "wifiSerial.h"
-
-#include <libmaple/libmaple.h>
-#include <libmaple/gpio.h>
-#include <libmaple/timer.h>
-#include <libmaple/usart.h>
-#include <libmaple/ring_buffer.h>
-
-#include "../../../../inc/MarlinConfig.h"
+#pragma once
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+extern "C" { /* C-declarations for C++ */
 #endif
 
-#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
-#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
-
-void __irq_usart1(void) {
-   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
-     WRITE(WIFI_IO1_PIN, HIGH);
-
-   WIFISERIAL.wifi_usart_irq(USART1_BASE);
-}
+extern void lv_draw_cloud_bind(void);
+extern void lv_clear_cloud_bind();
+extern void disp_bind_state();
+extern void refresh_bind_ui();
+extern void display_qrcode(uint8_t *qrcode_data);
+extern void cloud_unbind();
 
 #ifdef __cplusplus
-  } /* C-declarations for C++ */
+} /* C-declarations for C++ */
 #endif
-
-#endif // MKS_WIFI_MODULE
-#endif // HAS_TFT_LVGL_UI

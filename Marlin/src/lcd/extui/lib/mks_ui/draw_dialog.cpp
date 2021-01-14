@@ -172,6 +172,17 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     clear_cur_ui();
     draw_return_ui();
   }
+  #if ENABLED(MKS_WIFI_MODULE)
+    else if (DIALOG_IS(TYPE_UNBIND)) {
+      cloud_unbind();
+      clear_cur_ui();
+      draw_return_ui();
+    }
+  #endif
+  else {
+    clear_cur_ui();
+    draw_return_ui();
+  }
 }
 
 static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
@@ -245,6 +256,9 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_t *labelOk = lv_label_create_empty(btnOk);
         lv_label_set_text(labelOk, print_file_dialog_menu.confirm);
       }
+    }
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMARE)) {
+      // nothing to do
     }
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
@@ -412,6 +426,10 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
       }
     }
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMARE)) {
+      lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+    }
   #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
@@ -445,6 +463,12 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
   }
+  #if ENABLED(MKS_WIFI_MODULE)
+    else if (DIALOG_IS(TYPE_UNBIND)) {
+      lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+    }
+  #endif
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       if (btnOk) lv_group_add_obj(g, btnOk);

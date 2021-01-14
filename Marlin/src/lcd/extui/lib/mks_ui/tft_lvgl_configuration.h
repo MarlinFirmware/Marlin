@@ -33,7 +33,9 @@
 #include <lvgl.h>
 
 //#define TFT_ROTATION TFT_ROTATE_180
-#define MKS_WIFI_MODULE 0
+
+extern uint8_t bmp_public_buf[14 * 1024];
+extern uint8_t public_buf[513];
 
 extern uint8_t bmp_public_buf[14 * 1024];
 extern uint8_t public_buf[513];
@@ -62,6 +64,8 @@ extern lv_fs_res_t sd_close_cb (lv_fs_drv_t * drv, void * file_p);
 extern lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br);
 extern lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos);
 extern lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p);
+
+extern void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
