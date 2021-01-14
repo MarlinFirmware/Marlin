@@ -183,16 +183,14 @@ static bool longName2DosName(const char *longName, uint8_t *dosName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
-      else {
-        strcat_P((char *)dosName, PSTR(".GCO"));
-        break;
-      }
+      strcat_P((char *)dosName, PSTR(".GCO"));
+      break;
     }
     else {
       if (c < 0x21 || c == 0x7F) return false;                  // Check size, non-printable characters
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
+      while (const uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
       dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
     }
     if (i >= 5) {
@@ -1586,10 +1584,7 @@ void wifi_rcv_handle() {
         wifi_delay(10);
         tick_net_time1 = 0;
       }
-
-      if (wifiTransError.flag != 0x1)
-        WIFI_IO1_RESET();
-
+      if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       getDataF = 1;
     }
     if (need_ok_later &&  (queue.length < BUFSIZE)) {

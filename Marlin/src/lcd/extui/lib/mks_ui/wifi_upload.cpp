@@ -514,7 +514,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   if (cnt != blkSize) {
     if (update_file.curPosition() == esp_upload.fileSize) {
       // partial last block, fill the remainder
-      memset(blkBuf + dataOfst + cnt, 0xff, blkSize - cnt);
+      memset(blkBuf + dataOfst + cnt, 0xFF, blkSize - cnt);
     }
     else
       return fileRead;
