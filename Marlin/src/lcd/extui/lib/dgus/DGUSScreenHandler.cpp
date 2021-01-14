@@ -618,7 +618,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     bool old_relative_mode = relative_mode;
     if (!relative_mode) {
       //DEBUG_ECHOPGM(" G91");
-      queue.enqueue_now_P(PSTR("G91"));
+      gcode.set_relative_mode(false);
       //DEBUG_ECHOPGM(" ✓ ");
     }
     char buf[32];  // G1 X9999.99 F12345
@@ -640,7 +640,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     //DEBUG_ECHOLNPGM(" ✓ ");
     if (!old_relative_mode) {
       //DEBUG_ECHOPGM("G90");
-      queue.enqueue_now_P(PSTR("G90"));
+      gcode.set_relative_mode(true);
       //DEBUG_ECHOPGM(" ✓ ");
     }
   }

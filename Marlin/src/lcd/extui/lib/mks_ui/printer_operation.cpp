@@ -59,10 +59,10 @@ void printer_state_polling() {
         uiCfg.current_z_position_bak = current_position.z;
 
         if (gCfgItems.pausePosZ != (float)-1) {
-          gcode.process_subcommands_now_P(PSTR("G91"));
+          gcode.set_relative_mode(true);
           sprintf_P(public_buf_l, PSTR("G1 Z%.1f"), gCfgItems.pausePosZ);
           gcode.process_subcommands_now(public_buf_l);
-          gcode.process_subcommands_now_P(PSTR("G90"));
+          gcode.set_relative_mode(false);
         }
         if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
           sprintf_P(public_buf_l, PSTR("G1 X%.1f Y%.1f"), gCfgItems.pausePosX, gCfgItems.pausePosY);
@@ -128,10 +128,10 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
 
         if (gCfgItems.pause_reprint && gCfgItems.pausePosZ != -1.0f) {
-          gcode.process_subcommands_now_P(PSTR("G91"));
+          gcode.set_relative_mode(true);
           sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
           gcode.process_subcommands_now(public_buf_l);
-          gcode.process_subcommands_now_P(PSTR("G90"));
+          gcode.set_relative_mode(false);
         }
       #endif
       uiCfg.print_state = WORKING;
