@@ -52,7 +52,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       lv_clear_more();
       public_buf[0] = 0;
       lv_draw_gcode();
-    break;
+      break;
     case ID_CUSTOM_1: TERN_(USER_CMD_1_ENABLE, queue.inject_P(PSTR(USER_GCODE_1))); break;
     case ID_CUSTOM_2: TERN_(USER_CMD_2_ENABLE, queue.inject_P(PSTR(USER_GCODE_2))); break;
     case ID_CUSTOM_3: TERN_(USER_CMD_3_ENABLE, queue.inject_P(PSTR(USER_GCODE_3))); break;
