@@ -205,15 +205,16 @@ uint8_t HAL_get_reset_source(void);
 
 inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
-// Add strcmp_P if missing
+// Add PROGRAM function macro aliases if not defined
+#ifndef memcmp_P
+  #define memcmp_P memcmp
+#endif
 #ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
+  #define strcmp_P strcmp
 #endif
-
 #ifndef strcat_P
-  #define strcat_P(a, b) strcat((a), (b))
+  #define strcat_P strcat
 #endif
-
 #ifndef strcpy_P
-  #define strcpy_P(a, b) strcpy((a), (b))
+  #define strcpy_P strcpy
 #endif

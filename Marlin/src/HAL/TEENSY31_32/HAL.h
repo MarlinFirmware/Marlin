@@ -74,8 +74,12 @@ typedef int8_t pin_t;
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 
+// Add PROGRAM function macro aliases if not defined
+#ifndef memcmp_P
+  #define memcmp_P memcmp
+#endif
 #ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+  #define strncpy_P strncpy
 #endif
 
 // Fix bug in pgm_read_ptr

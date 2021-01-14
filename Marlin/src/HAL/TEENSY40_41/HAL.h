@@ -92,8 +92,12 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
+// Add PROGRAM function macro aliases if not defined
+#ifndef memcmp_P
+  #define memcmp_P memcmp
+#endif
 #ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+  #define strncpy_P strncpy
 #endif
 
 // Don't place string constants in PROGMEM
