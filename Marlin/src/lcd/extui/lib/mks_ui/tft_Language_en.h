@@ -399,7 +399,6 @@
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
 
-
 #define PRE_HEAT_EXT_TEXT_EN            "E"
 #define PRE_HEAT_BED_TEXT_EN            "Bed"
 

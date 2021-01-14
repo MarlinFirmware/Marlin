@@ -33,53 +33,28 @@
 extern lv_group_t * g;
 static lv_obj_t * scr;
 
-#define ID_CUSTOM_1   1
-#define ID_CUSTOM_2   2
-#define ID_CUSTOM_3   3
-#define ID_CUSTOM_4   4
-#define ID_CUSTOM_5   5
-#define ID_CUSTOM_6   6
-#define ID_CUSTOM_7   7
-#define ID_M_RETURN   8
+enum {
+  ID_GCODE = 1,
+  ID_CUSTOM_1,
+  ID_CUSTOM_2,
+  ID_CUSTOM_3,
+  ID_CUSTOM_4,
+  ID_CUSTOM_5,
+  ID_CUSTOM_6,
+  ID_CUSTOM_7,
+  ID_M_RETURN,
+};
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
-    #if ENABLED(USER_CMD_1_ENABLE)
-      case ID_CUSTOM_1:
-        queue.inject_P(PSTR(USER_GCODE_1));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_2_ENABLE)
-      case ID_CUSTOM_2:
-        queue.inject_P(PSTR(USER_GCODE_2));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_3_ENABLE)
-      case ID_CUSTOM_3:
-        queue.inject_P(PSTR(USER_GCODE_3));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_4_ENABLE)
-      case ID_CUSTOM_4:
-        queue.inject_P(PSTR(USER_GCODE_4));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_5_ENABLE)
-      case ID_CUSTOM_5:
-        queue.inject_P(PSTR(USER_GCODE_5));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_6_ENABLE)
-      case ID_CUSTOM_6:
-        queue.inject_P(PSTR(USER_GCODE_6));
-        break;
-    #endif
-    #if ENABLED(USER_CMD_7_ENABLE)
-      case ID_CUSTOM_7:
-        queue.inject_P(PSTR(USER_GCODE_7));
-        break;
-    #endif
+    case ID_CUSTOM_1: TERN_(USER_CMD_1_ENABLE, queue.inject_P(PSTR(USER_GCODE_1))); break;
+    case ID_CUSTOM_2: TERN_(USER_CMD_2_ENABLE, queue.inject_P(PSTR(USER_GCODE_2))); break;
+    case ID_CUSTOM_3: TERN_(USER_CMD_3_ENABLE, queue.inject_P(PSTR(USER_GCODE_3))); break;
+    case ID_CUSTOM_4: TERN_(USER_CMD_4_ENABLE, queue.inject_P(PSTR(USER_GCODE_4))); break;
+    case ID_CUSTOM_5: TERN_(USER_CMD_5_ENABLE, queue.inject_P(PSTR(USER_GCODE_5))); break;
+    case ID_CUSTOM_6: TERN_(USER_CMD_6_ENABLE, queue.inject_P(PSTR(USER_GCODE_6))); break;
+    case ID_CUSTOM_7: TERN_(USER_CMD_7_ENABLE, queue.inject_P(PSTR(USER_GCODE_7))); break;
     case ID_M_RETURN:
       lv_clear_more();
       lv_draw_tool();
@@ -87,7 +62,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   }
 }
 
-void lv_draw_more(void) {
+void lv_draw_more() {
   scr = lv_screen_create(MORE_UI);
 
   const bool enc_ena = TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable);
@@ -173,27 +148,13 @@ void lv_draw_more(void) {
 
   #if BUTTONS_EXIST(EN1, EN2, ENC)
     if (enc_ena) {
-      #if ENABLED(USER_CMD_1_ENABLE)
-        lv_group_add_obj(g, buttonCustom1);
-      #endif
-      #if ENABLED(USER_CMD_2_ENABLE)
-        lv_group_add_obj(g, buttonCustom2);
-      #endif
-      #if ENABLED(USER_CMD_3_ENABLE)
-        lv_group_add_obj(g, buttonCustom3);
-      #endif
-      #if ENABLED(USER_CMD_4_ENABLE)
-        lv_group_add_obj(g, buttonCustom4);
-      #endif
-      #if ENABLED(USER_CMD_5_ENABLE)
-        lv_group_add_obj(g, buttonCustom5);
-      #endif
-      #if ENABLED(USER_CMD_6_ENABLE)
-        lv_group_add_obj(g, buttonCustom6);
-      #endif
-      #if ENABLED(USER_CMD_7_ENABLE)
-        lv_group_add_obj(g, buttonCustom7);
-      #endif
+      TERN_(USER_CMD_1_ENABLE, lv_group_add_obj(g, buttonCustom1));
+      TERN_(USER_CMD_2_ENABLE, lv_group_add_obj(g, buttonCustom2));
+      TERN_(USER_CMD_3_ENABLE, lv_group_add_obj(g, buttonCustom3));
+      TERN_(USER_CMD_4_ENABLE, lv_group_add_obj(g, buttonCustom4));
+      TERN_(USER_CMD_5_ENABLE, lv_group_add_obj(g, buttonCustom5));
+      TERN_(USER_CMD_6_ENABLE, lv_group_add_obj(g, buttonCustom6));
+      TERN_(USER_CMD_7_ENABLE, lv_group_add_obj(g, buttonCustom7));
       lv_group_add_obj(g, buttonBack);
     }
   #endif

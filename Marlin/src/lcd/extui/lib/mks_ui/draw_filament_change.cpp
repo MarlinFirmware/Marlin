@@ -105,7 +105,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_filament_change(void) {
+void lv_draw_filament_change() {
   scr = lv_screen_create(FILAMENTCHANGE_UI);
   // Create an Image button
   lv_obj_t *buttonIn = lv_big_button_create(scr, "F:/bmp_in.bin", filament_menu.in, INTERVAL_V, titleHeight, event_handler, ID_FILAMNT_IN);

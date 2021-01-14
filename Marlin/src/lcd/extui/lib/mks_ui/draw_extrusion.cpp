@@ -117,7 +117,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_extrusion(void) {
+void lv_draw_extrusion() {
   scr = lv_screen_create(EXTRUSION_UI);
   // Create image buttons
   lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);

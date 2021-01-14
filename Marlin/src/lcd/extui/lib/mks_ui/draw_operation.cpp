@@ -114,7 +114,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_operation(void) {
+void lv_draw_operation() {
   lv_obj_t *buttonExtrusion = nullptr, *buttonSpeed = nullptr,
            *buttonBack = nullptr,
            *labelPreHeat = nullptr, *labelExtrusion = nullptr,

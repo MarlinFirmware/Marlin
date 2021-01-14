@@ -88,7 +88,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_filament_settings(void) {
+void lv_draw_filament_settings() {
   scr = lv_screen_create(FILAMENT_SETTINGS_UI, machine_menu.FilamentConfTitle);
 
   if (uiCfg.para_ui_page != 1) {

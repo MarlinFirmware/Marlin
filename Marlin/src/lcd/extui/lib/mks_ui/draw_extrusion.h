@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_extrusion(void);
+extern void lv_draw_extrusion();
 extern void lv_clear_extrusion();
 extern void disp_ext_type();
 extern void disp_ext_step();

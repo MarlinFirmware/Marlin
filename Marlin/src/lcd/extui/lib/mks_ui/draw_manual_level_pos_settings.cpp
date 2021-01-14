@@ -101,7 +101,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   lv_draw_number_key();
 }
 
-void lv_draw_manual_level_pos_settings(void) {
+void lv_draw_manual_level_pos_settings() {
   char buf2[50];
 
   scr = lv_screen_create(MANUAL_LEVELING_POSIGION_UI, machine_menu.LevelingParaConfTitle);

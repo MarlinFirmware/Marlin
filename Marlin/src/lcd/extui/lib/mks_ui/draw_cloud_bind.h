@@ -25,7 +25,7 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_cloud_bind(void);
+extern void lv_draw_cloud_bind();
 extern void lv_clear_cloud_bind();
 extern void disp_bind_state();
 extern void refresh_bind_ui();

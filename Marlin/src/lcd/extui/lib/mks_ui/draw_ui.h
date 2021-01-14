@@ -444,7 +444,7 @@ extern lv_point_t line_points[4][2];
 extern void gCfgItems_init();
 extern void ui_cfg_init();
 extern void tft_style_init();
-extern char *creat_title_text(void);
+extern char *creat_title_text();
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
 extern void update_gcode_command(int addr,uint8_t *s);

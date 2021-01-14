@@ -107,7 +107,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_tmc_step_mode_settings(void) {
+void lv_draw_tmc_step_mode_settings() {
   buttonXState = buttonYState = buttonZState = buttonE0State = buttonE1State = nullptr;
 
   scr = lv_screen_create(TMC_MODE_UI, machine_menu.TmcStepModeConfTitle);

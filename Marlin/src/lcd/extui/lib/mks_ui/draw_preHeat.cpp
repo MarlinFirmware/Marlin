@@ -153,7 +153,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_preHeat(void) {
+void lv_draw_preHeat() {
   scr = lv_screen_create(PRE_HEAT_UI);
 
   // Create image buttons

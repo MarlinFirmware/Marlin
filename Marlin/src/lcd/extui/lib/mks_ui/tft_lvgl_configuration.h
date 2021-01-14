@@ -37,9 +37,6 @@
 extern uint8_t bmp_public_buf[14 * 1024];
 extern uint8_t public_buf[513];
 
-extern uint8_t bmp_public_buf[14 * 1024];
-extern uint8_t public_buf[513];
-
 extern void tft_lvgl_init();
 extern void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p);
 extern bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data);
@@ -48,7 +45,7 @@ extern bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * dat
 extern void LCD_Clear(uint16_t Color);
 extern void tft_set_point(uint16_t x, uint16_t y, uint16_t point);
 extern void LCD_setWindowArea(uint16_t StartX, uint16_t StartY, uint16_t width, uint16_t heigh);
-extern void LCD_WriteRAM_Prepare(void);
+extern void LCD_WriteRAM_Prepare();
 extern void lcd_draw_logo();
 extern void lv_encoder_pin_init();
 extern void lv_update_encoder();

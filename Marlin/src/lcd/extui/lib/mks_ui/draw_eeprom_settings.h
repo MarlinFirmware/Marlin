@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_eeprom_settings(void);
+extern void lv_draw_eeprom_settings();
 extern void lv_clear_eeprom_settings();
 
 #ifdef __cplusplus
