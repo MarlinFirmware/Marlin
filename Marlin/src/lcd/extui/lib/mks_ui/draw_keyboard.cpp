@@ -106,11 +106,11 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
       draw_return_ui();
     }
     else {
-      lv_kb_set_ta(kb, nullptr); // De-assign the text area  to hide it cursor if needed
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide its cursor if needed
       lv_obj_del(kb);
       return;
     }
-  return;
+    return;
   }
   else if (strcmp(txt, LV_SYMBOL_OK) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {

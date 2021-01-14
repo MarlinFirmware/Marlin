@@ -593,7 +593,7 @@ char *creat_title_text() {
   if (strlen(public_buf_m) > MAX_TITLE_LEN) {
     ZERO(public_buf_m);
     tmpText = 0;
-    for (index = 0; index <= disp_state_stack._disp_index && (!tmpText || *tmpText == 0); index++) 
+    for (index = 0; index <= disp_state_stack._disp_index && (!tmpText || *tmpText == 0); index++)
       tmpText = getDispText(index);
     if (*tmpText != 0) {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
@@ -941,8 +941,7 @@ void clear_cur_ui() {
   last_disp_state = disp_state_stack._disp_state[disp_state_stack._disp_index];
 
   switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
-    case PRINT_READY_UI:              
-                                      lv_clear_ready_print(); break;
+    case PRINT_READY_UI:              lv_clear_ready_print(); break;
     case PRINT_FILE_UI:               lv_clear_print_file(); break;
     case PRINTING_UI:                 lv_clear_printing(); break;
     case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;

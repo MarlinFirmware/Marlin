@@ -66,7 +66,7 @@ void GcodeSuite::M118() {
   #endif
 
   if (hasE) SERIAL_ECHO_START();
-  if (hasA) SERIAL_ECHOPGM("// ");
+  if (hasA) SERIAL_ECHOPGM("//");
   SERIAL_ECHOLN(p);
 
   TERN_(HAS_MULTI_SERIAL, serial_port_index = old_serial);

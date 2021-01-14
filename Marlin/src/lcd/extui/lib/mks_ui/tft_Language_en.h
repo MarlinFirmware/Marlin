@@ -671,14 +671,14 @@
 
 //manual ip
 #define MANUAL_IP_TITLE_EN          "Manual IP"
-#define MANUAL_IP_CANCEL_EN          "< Cancel"
+#define MANUAL_IP_CANCEL_EN         "< Cancel"
 #define MANUAL_IP_APPLY_EN          "Join >"
 #define MANUAL_IP_ADDRESS_EN        "IP Address"
 #define MANUAL_IP_MASK_EN           "Subnet Mask"
 #define MANUAL_IP_GATEWAY_EN        "Default Gateway"
 #define MANUAL_IP_SERVER_EN         "Name Server"
 #define MANUAL_IP_INIT_DATA_EN      "0.0.0.0"
-#define MANUAL_TEXT_POINT_EN         "."
+#define MANUAL_TEXT_POINT_EN        "."
 #define MANUAL_TEXT_ENTER_EN        "enter"
 
 #define TEXT_FORGET_TIPS_TITLE_EN "Forget Network"

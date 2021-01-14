@@ -944,7 +944,7 @@ void disp_language_init() {
       filesys_menu.sd_sys  = SD_CARD_TEXT_CN;
       filesys_menu.usb_sys = U_DISK_TEXT_CN;
       //
-      more_menu.title   = TITLE_MORE_CN;
+      more_menu.title = TITLE_MORE_CN;
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
       #endif
@@ -1191,7 +1191,7 @@ void disp_language_init() {
             filesys_menu.sd_sys   = SD_CARD_TEXT_T_CN;
             filesys_menu.usb_sys  = U_DISK_TEXT_T_CN;
             //
-            more_menu.title = TITLE_MORE_T_CN;
+            more_menu.title     = TITLE_MORE_T_CN;
             #if ENABLED(USER_CMD_1_ENABLE)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_T_CN;
             #endif
@@ -1214,7 +1214,7 @@ void disp_language_init() {
               more_menu.custom7 = MORE_CUSTOM7_TEXT_T_CN;
             #endif
             // WIFI
-            wifi_menu.title = WIFI_TEXT;
+            wifi_menu.title     = WIFI_TEXT;
             wifi_menu.cloud     = CLOUD_TEXT_T_CN;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_T_CN;
             // CLOUD
@@ -1381,7 +1381,7 @@ void disp_language_init() {
             preheat_menu.hotbed       = HEATBED_TEXT_EN;
             preheat_menu.off          = CLOSE_TEXT_EN;
             //
-            move_menu.title = TITLE_MOVE_EN;
+            move_menu.title    = TITLE_MOVE_EN;
             //
             home_menu.title    = TITLE_HOME_EN;
             home_menu.stopmove = HOME_STOPMOVE_EN;
@@ -1451,7 +1451,7 @@ void disp_language_init() {
             filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
             filesys_menu.usb_sys = U_DISK_TEXT_EN;
             // WIFI
-            wifi_menu.title = WIFI_TEXT;
+            wifi_menu.title     = WIFI_TEXT;
             wifi_menu.cloud     = CLOUD_TEXT_EN;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_EN;
 
@@ -1615,7 +1615,7 @@ void disp_language_init() {
             preheat_menu.hotbed       = HEATBED_TEXT_RU;
             preheat_menu.off          = CLOSE_TEXT_RU;
             //
-            move_menu.title = MOVE_TEXT_RU;
+            move_menu.title    = MOVE_TEXT_RU;
             //
             home_menu.title    = TITLE_HOME_RU;
             home_menu.stopmove = HOME_STOPMOVE_RU;
@@ -1684,7 +1684,7 @@ void disp_language_init() {
             filesys_menu.sd_sys  = SD_CARD_TEXT_RU;
             filesys_menu.usb_sys = U_DISK_TEXT_RU;
             // WIFI
-            wifi_menu.title = WIFI_TEXT;
+            wifi_menu.title     = WIFI_TEXT;
             wifi_menu.cloud     = CLOUD_TEXT_RU;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_RU;
 
@@ -1782,7 +1782,6 @@ void disp_language_init() {
             machine_menu.EncoderConfTitle    = ENCODER_CONF_TITLE_RU;
             machine_menu.EncoderConfText     = ENCODER_CONF_TEXT_RU;
 
-            
             cloud_menu.title        = TITLE_CLOUD_TEXT_RU;
             cloud_menu.bind         = CLOUD_BINDED_RU;
             cloud_menu.binded       = CLOUD_BINDED_RU;
@@ -2016,7 +2015,7 @@ void disp_language_init() {
             filesys_menu.usb_sys = U_DISK_TEXT_SP;
 
             // WIFI
-            wifi_menu.title = WIFI_TEXT;
+            wifi_menu.title     = WIFI_TEXT;
             wifi_menu.cloud     = CLOUD_TEXT_SP;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_SP;
 
@@ -2253,7 +2252,7 @@ void disp_language_init() {
           file_menu.no_file           = NO_FILE_FR;
           file_menu.no_file_and_check = NO_FILE_FR;
           // WIFI
-          wifi_menu.title = WIFI_NAME_TEXT_FR;
+          wifi_menu.title     = WIFI_NAME_TEXT_FR;
           wifi_menu.cloud     = CLOUD_TEXT_FR;
           wifi_menu.reconnect = WIFI_RECONNECT_TEXT_FR;
 
@@ -2487,7 +2486,7 @@ void disp_language_init() {
           filesys_menu.usb_sys = U_DISK_TEXT_IT;
 
           // WIFI
-          wifi_menu.title = WIFI_NAME_TEXT_IT;
+          wifi_menu.title     = WIFI_NAME_TEXT_IT;
           wifi_menu.cloud     = CLOSE_TEXT_IT;
           wifi_menu.reconnect = WIFI_RECONNECT_TEXT_IT;
 
@@ -2695,7 +2694,7 @@ void disp_language_init() {
       set_menu.machine_para = MACHINE_PARA_EN;
       set_menu.eepromSet    = EEPROM_SETTINGS_EN;
       //
-      more_menu.title   = TITLE_MORE_EN;
+      more_menu.title     = TITLE_MORE_EN;
       #if ENABLED(USER_CMD_1_ENABLE)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
       #endif
@@ -2722,7 +2721,7 @@ void disp_language_init() {
       filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
       filesys_menu.usb_sys = U_DISK_TEXT_EN;
       // WIFI
-      wifi_menu.title = WIFI_TEXT;
+      wifi_menu.title     = WIFI_TEXT;
       wifi_menu.cloud     = CLOUD_TEXT_EN;
       wifi_menu.reconnect = WIFI_RECONNECT_TEXT_EN;
 

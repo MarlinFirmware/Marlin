@@ -59,6 +59,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
     return;
   }
+  lv_clear_set();
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
       lv_draw_fan();
