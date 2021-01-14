@@ -523,7 +523,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
    * @details Init tare pin to ON state for a strain gauge, otherwise OFF
    */
   void Probe::tare_init() {
-    OUT_WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    OUT_WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE == LOW ? HIGH : LOW);
   }
 
   /**
@@ -544,7 +544,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     SERIAL_ECHOLNPGM("Taring probe");
     WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
-    WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE == LOW ? HIGH : LOW);
     delay(PROBE_TARE_DELAY);
 
     endstops.hit_on_purpose();
