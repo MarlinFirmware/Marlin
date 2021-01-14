@@ -267,6 +267,10 @@ void menu_bed_leveling() {
     EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }
 
+  #if ENABLED(PROBE_TARE_MENU)
+    ACTION_ITEM(MSG_TARE_PROBE, _tare_probe);
+  #endif
+
   // Z Fade Height
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     // Shadow for editing the fade height

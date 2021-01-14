@@ -227,6 +227,10 @@ void _lcd_draw_homing();
   void _lcd_toggle_bed_leveling();
 #endif
 
+#if ENABLED(PROBE_TARE_MENU)
+  void _tare_probe();
+#endif
+
 #if ENABLED(BABYSTEPPING)
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     void lcd_babystep_zoffset();

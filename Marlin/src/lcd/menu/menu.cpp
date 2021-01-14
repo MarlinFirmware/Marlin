@@ -34,7 +34,7 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+#if EITHER(BABYSTEP_ZPROBE_OFFSET, PROBE_TARE_MENU)
   #include "../../module/probe.h"
 #endif
 
@@ -351,6 +351,10 @@ void _lcd_draw_homing() {
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
   #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
+#endif
+
+#if ENABLED(PROBE_TARE_MENU)
+  void _tare_probe() { probe.tare(); }
 #endif
 
 //
