@@ -27,6 +27,8 @@
   #include "../feature/ethernet.h"
 #endif
 
+#include "serial_hook.h"
+
 /**
  * Define debug bit-masks
  */
@@ -50,32 +52,39 @@ enum MarlinDebugFlags : uint8_t {
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
-#define SERIAL_BOTH 0x7F
+#define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
-  extern int8_t serial_port_index;
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
+  #define _PORT_REDIRECT(n,p)   REMEMBER(n,serialHook.portMask,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
+  
+  #define SERIAL_ASSERT(P)      if(serialHook.portMask!=(P)){ debugger(); }
 
-  #ifdef SERIAL_CATCHALL
-    #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
+  #ifdef SERIAL_RUNTIME_HOOK
+    // Let the first serial be hooked at runtime if the GUI requires it
+    typedef RuntimeSerialHook<decltype(MYSERIAL0)> SerialHook0T;
+    typedef MultiSerialHook<SerialHook0T, decltype(MYSERIAL1)> SerialHookT;
   #else
-    #define SERIAL_OUT(WHAT, V...) do{ \
-      const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client); \
-      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
-      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
-    }while(0)
+    typedef MultiSerialHook<decltype(MYSERIAL0), decltype(MYSERIAL1)> SerialHookT;
   #endif
-
-  #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_OUT(WHAT, V...) (void)MYSERIAL0.WHAT(V)
   #define SERIAL_ASSERT(P)      NOOP
+
+  #ifdef SERIAL_RUNTIME_HOOK
+    typedef RuntimeSerialHook<decltype(MYSERIAL0)> SerialHookT;
+  #else
+    typedef BaseSerial<decltype(MYSERIAL0)> SerialHookT;
+  #endif
 #endif
+extern SerialHookT            serialHook;
+
+
+#define SERIAL_OUT(WHAT, V...)  (void)serialHook.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()          _PORT_RESTORE(1)
+#define SERIAL_PORTMASK(P)      (1 << P)
 
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
