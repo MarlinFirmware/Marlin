@@ -36,7 +36,7 @@ enum {
   STOP
 };
 
-extern void lv_draw_printing(void);
+extern void lv_draw_printing();
 extern void lv_clear_printing();
 extern void disp_ext_temp();
 extern void disp_bed_temp();

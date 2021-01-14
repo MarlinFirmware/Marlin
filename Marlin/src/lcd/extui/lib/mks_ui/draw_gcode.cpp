@@ -53,8 +53,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_show_gcode_output(void * that, const char * txt) {
   // Ignore echo of command
-  if (!memcmp(txt, "echo:", 5)) { 
-    public_buf[0] = 0; // Clear output buffer 
+  if (!memcmp(txt, "echo:", 5)) {
+    public_buf[0] = 0; // Clear output buffer
     return;
   }
   if (!memcmp(txt, "ok", 2)) {
@@ -75,7 +75,7 @@ void lv_show_gcode_output(void * that, const char * txt) {
   if (outV != 0) lv_label_set_text(outV, (const char*)public_buf);
 }
 
-void lv_draw_gcode(void) {
+void lv_draw_gcode() {
   scr = lv_screen_create(GCODE_UI, more_menu.gcode);
   lv_screen_menu_item(scr, more_menu.entergcode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_GCODE_COMMAND, 1);
   outL = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, "Result:");

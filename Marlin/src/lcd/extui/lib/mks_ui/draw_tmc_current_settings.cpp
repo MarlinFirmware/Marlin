@@ -91,7 +91,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 }
 
-void lv_draw_tmc_current_settings(void) {
+void lv_draw_tmc_current_settings() {
   scr = lv_screen_create(TMC_CURRENT_UI, machine_menu.TmcCurrentConfTitle);
 
   float milliamps;

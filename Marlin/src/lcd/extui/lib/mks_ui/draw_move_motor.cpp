@@ -133,7 +133,7 @@ void refresh_pos(lv_task_t *) {
   disp_cur_pos();
 }
 
-void lv_draw_move_motor(void) {
+void lv_draw_move_motor() {
   scr = lv_screen_create(MOVE_MOTOR_UI);
   lv_obj_t *buttonXI = lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_M_X_P);
   lv_obj_clear_protect(buttonXI, LV_PROTECT_FOLLOW);

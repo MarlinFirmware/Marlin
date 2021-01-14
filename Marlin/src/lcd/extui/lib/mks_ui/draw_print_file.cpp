@@ -204,7 +204,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_print_file(void) {
+void lv_draw_print_file() {
   //uint8_t i;
   uint8_t file_count;
 
