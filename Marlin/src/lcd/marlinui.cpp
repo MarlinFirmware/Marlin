@@ -1575,24 +1575,20 @@ void MarlinUI::update() {
     print_job_timer.start(); // Also called by M24
   }
 
-#if ENABLED(DGUS_LCD_UI_MKS)
+  #if ENABLED(DGUS_LCD_UI_MKS)
 
-  xyz_pos_t position_at_pause;
+    xyz_pos_t position_before_pause;
 
-  void MarlinUI::pause_print_move() {
-    planner.synchronize();
+    void MarlinUI::pause_print_move() {
+      planner.synchronize();
+      //gcode.process_subcommands_now_P(PSTR("M25"));
+      position_before_pause = current_position;
+      do_blocking_move_to(X_MIN_POS + x_park_pos, Y_MIN_POS + y_park_pos, current_position.z + z_park_pos);
+    }
 
-    //gcode.process_subcommands_now_P(PSTR("M25"));
+    void MarlinUI::resume_print_move() { do_blocking_move_to(position_before_pause); }
 
-    position_at_pause = current_position;
-
-    xyz_pos_t park_point = { X_MIN_POS + x_park_pos, Y_MIN_POS + y_park_pos, current_position.z + z_park_pos };
-    do_blocking_move_to(current_position.z + z_park_pos, park_point_x, park_point_y);
-  }
-
-  void MarlinUI::resume_print_move() { do_blocking_move_to(position_at_pause); }
-
-#endif
+  #endif
 
   #if HAS_PRINT_PROGRESS
 
