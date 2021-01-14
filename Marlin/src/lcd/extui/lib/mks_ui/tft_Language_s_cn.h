@@ -99,6 +99,7 @@
 #define PROBE_Z_SPEED_CN              "探针Z方向移动速度"
 #define ENABLE_CN                     "是"
 #define DISABLE_CN                    "否"
+#define LOCKED_CN                     "否"
 #define Z_MIN_CN                      "ZMin"
 #define Z_MAX_CN                      "ZMax"
 
@@ -491,3 +492,11 @@
 #define EEPROM_STORE_TIPS_CN  "是否保存参数到EEPROM?"
 #define EEPROM_READ_TIPS_CN   "是否使用EEPROM参数?"
 #define EEPROM_REVERT_TIPS_CN "是否恢复默认参数?"
+
+#define MORE_CUSTOM1_TEXT_CN  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_CN  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_CN  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_CN  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_CN  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_CN  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_CN  USER_DESC_7

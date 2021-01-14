@@ -401,8 +401,8 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
       while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      if (i > n || c < 0x21 || c == 0x7F) return false;           // Check size, non-printable characters
-      name[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
+      if (i > n || c < 0x21 || c == 0x7F) return false;       // Check size, non-printable characters
+      name[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);  // Uppercase required for 8.3 name
     }
   }
   *ptr = str;                         // Set passed pointer to the end

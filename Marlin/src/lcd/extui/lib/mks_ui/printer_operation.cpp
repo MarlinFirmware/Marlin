@@ -32,6 +32,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../inc/MarlinConfig.h"
 #include "../../../../MarlinCore.h"
+#include "../../../../gcode/queue.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -55,6 +56,7 @@ void printer_state_polling() {
         //save the positon
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
+        uiCfg.current_z_position_bak = current_position.z;
 
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
@@ -87,10 +89,9 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
       }
       if (gCfgItems.pausePosZ != (float)-1) {
-        gcode.process_subcommands_now_P(PSTR("G91"));
-        sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
-        gcode.process_subcommands_now(public_buf_l);
-        gcode.process_subcommands_now_P(PSTR("G90"));
+        ZERO(public_buf_m);
+        sprintf_P(public_buf_m, PSTR("G1 Z%.1f"), uiCfg.current_z_position_bak);
+        gcode.process_subcommands_now(public_buf_m);
       }
       gcode.process_subcommands_now_P(M24_STR);
       uiCfg.print_state = WORKING;

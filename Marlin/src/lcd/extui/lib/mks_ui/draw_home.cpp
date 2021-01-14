@@ -66,8 +66,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       queue.inject_P(PSTR("M84 X Y"));
       break;
     case ID_H_RETURN:
-      lv_clear_home();
-      lv_draw_tool();
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

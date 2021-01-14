@@ -29,6 +29,7 @@
 #define PRINT_TEXT_SP           "Imprimir"
 #define EXTRUDE_TEXT_SP         "Extrusor"
 #define LEVELING_TEXT_SP        "Leveling"
+#define MLEVELING_TEXT_SP       "Leveling"
 #define AUTO_LEVELING_TEXT_SP   "Autolevel"
 #define SET_TEXT_SP             "Config"
 #define MORE_TEXT_SP            "Más"
@@ -50,6 +51,7 @@
 #define TOOL_MOVE_SP            "Mover"
 #define TOOL_HOME_SP            "Origen"
 #define TOOL_LEVELING_SP        "Leveling"
+#define TOOL_MLEVELING_SP       "Leveling"
 #define TOOL_AUTO_LEVELING_SP   "Autolevel"
 #define TOOL_FILAMENT_SP        "Filamento"
 #define TOOL_MORE_SP            "Más"
@@ -261,3 +263,11 @@
 #define EEPROM_STORE_TIPS_SP  "¿Guardar ajustes en EEPROM?"
 #define EEPROM_READ_TIPS_SP   "Leer la configuración de EEPROM?"
 #define EEPROM_REVERT_TIPS_SP "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_SP  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_SP  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_SP  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_SP  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_SP  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_SP  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_SP  USER_DESC_7

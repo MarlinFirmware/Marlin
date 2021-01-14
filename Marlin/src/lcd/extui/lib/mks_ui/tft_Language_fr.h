@@ -257,3 +257,11 @@
 #define EEPROM_STORE_TIPS_FR  "Stocker les paramètres dans l'EEPROM?"
 #define EEPROM_READ_TIPS_FR   "Lire les paramètres de l'EEPROM?"
 #define EEPROM_REVERT_TIPS_FR "Rétablir les paramètres par défaut d'usine?"
+
+#define MORE_CUSTOM1_TEXT_FR  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_FR  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_FR  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_FR  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_FR  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_FR  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_FR  USER_DESC_7
