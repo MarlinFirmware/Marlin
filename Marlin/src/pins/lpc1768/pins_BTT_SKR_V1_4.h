@@ -258,7 +258,20 @@
  *               EXP2                                              EXP1
  */
 
-#if HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#if ENABLED(DWIN_CREALITY_LCD)
+
+  // RET6 DWIN ENCODER LCD
+  #define BTN_ENC                           P1_20
+  #define BTN_EN1                           P1_23
+  #define BTN_EN2                           P1_22
+
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                      P1_21
+    #undef SPEAKER
+  #endif
+
+#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
 

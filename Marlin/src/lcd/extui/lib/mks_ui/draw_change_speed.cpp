@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
@@ -65,9 +61,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
         else
           planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
-        //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
-        //planner.flow_percentage[1] = planner.flow_percentage[0];
-        //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
         planner.refresh_e_factor(0);
         #if HAS_MULTI_EXTRUDER
           planner.flow_percentage[1] = planner.flow_percentage[0];
@@ -88,9 +81,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
         else
           planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
-        //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
-        //planner.flow_percentage[1] = planner.flow_percentage[0];
-        //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
         planner.refresh_e_factor(0);
         #if HAS_MULTI_EXTRUDER
           planner.flow_percentage[1] = planner.flow_percentage[0];
@@ -125,7 +115,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_change_speed(void) {
+void lv_draw_change_speed() {
   scr = lv_screen_create(CHANGE_SPEED_UI);
   // Create an Image button
   lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
@@ -143,9 +133,9 @@ void lv_draw_change_speed(void) {
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
 
   // Create labels on the image buttons
-  labelMov              = lv_label_create_empty(buttonMov);
-  labelExt              = lv_label_create_empty(buttonExt);
-  labelStep             = lv_label_create_empty(buttonStep);
+  labelMov  = lv_label_create_empty(buttonMov);
+  labelExt  = lv_label_create_empty(buttonExt);
+  labelStep = lv_label_create_empty(buttonStep);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {

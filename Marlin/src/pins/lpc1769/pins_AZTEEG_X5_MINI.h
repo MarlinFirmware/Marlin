@@ -147,14 +147,14 @@
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
 
     #if IS_RRW_KEYPAD
-      #define SHIFT_OUT                    P0_18  // (51)  (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK                    P0_15  // (52)  (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD                     P1_31  // (49)  not 5V tolerant   J3-1 & AUX-3
+      #define SHIFT_OUT_PIN                P0_18  // (51)  (MOSI) J3-10 & AUX-3
+      #define SHIFT_CLK_PIN                P0_15  // (52)  (SCK)  J3-9 & AUX-3
+      #define SHIFT_LD_PIN                 P1_31  // (49)  not 5V tolerant   J3-1 & AUX-3
     #elif !IS_NEWPANEL
-      //#define SHIFT_OUT                  P2_11  // (35)  J3-3 & AUX-4
-      //#define SHIFT_CLK                  P3_26  // (31)  J3-2 & AUX-4
-      //#define SHIFT_LD                   P3_25  // (33)  J3-4 & AUX-4
-      //#define SHIFT_EN                   P1_22  // (41)  J5-4 & AUX-4
+      //#define SHIFT_OUT_PIN              P2_11  // (35)  J3-3 & AUX-4
+      //#define SHIFT_CLK_PIN              P3_26  // (31)  J3-2 & AUX-4
+      //#define SHIFT_LD_PIN               P3_25  // (33)  J3-4 & AUX-4
+      //#define SHIFT_EN_PIN               P1_22  // (41)  J5-4 & AUX-4
     #endif
 
     #if ANY(VIKI2, miniVIKI)

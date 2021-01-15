@@ -323,6 +323,11 @@
  */
 #if ENABLED(SDSUPPORT)
 
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
+  #endif
+
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -2297,7 +2302,6 @@
 
 #if FAN_COUNT > 0
   #define HAS_FAN 1
-  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 #endif
 
 /**

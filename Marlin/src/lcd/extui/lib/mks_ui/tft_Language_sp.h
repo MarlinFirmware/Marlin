@@ -23,13 +23,14 @@
 
 //****************西班牙语***************************
 #define TOOL_TEXT_SP            "Ajustes"
-#define PREHEAT_TEXT_SP         "Precalentar"//"precalent\nar"
+#define PREHEAT_TEXT_SP         "Precalentar"
 #define MOVE_TEXT_SP            "Mover"
 #define HOME_TEXT_SP            "Origen"
 #define PRINT_TEXT_SP           "Imprimir"
 #define EXTRUDE_TEXT_SP         "Extrusor"
-#define LEVELING_TEXT_SP        "Leveling"//"nivelac\nión"
-#define AUTO_LEVELING_TEXT_SP   "Autolevel"//"auto\nnivelación"
+#define LEVELING_TEXT_SP        "Leveling"
+#define MLEVELING_TEXT_SP       "Leveling"
+#define AUTO_LEVELING_TEXT_SP   "Autolevel"
 #define SET_TEXT_SP             "Config"
 #define MORE_TEXT_SP            "Más"
 
@@ -50,6 +51,7 @@
 #define TOOL_MOVE_SP            "Mover"
 #define TOOL_HOME_SP            "Origen"
 #define TOOL_LEVELING_SP        "Leveling"
+#define TOOL_MLEVELING_SP       "Leveling"
 #define TOOL_AUTO_LEVELING_SP   "Autolevel"
 #define TOOL_FILAMENT_SP        "Filamento"
 #define TOOL_MORE_SP            "Más"
@@ -135,49 +137,29 @@
 #define FILAMENT_EXT1_TEXT_SP       "Extrusor2"
 #define FILAMENT_HEAT_TEXT_SP       "Precalentar"
 #define FILAMENT_STOP_TEXT_SP       "Parar"
-//#define FILAMENT_CHANGE_TEXT_SP   "Filamento"
 #define FILAMENT_TIPS2_TEXT_SP      "T:"
 #define FILAMENT_TIPS3_TEXT_SP      "Dentro..."
 #define FILAMENT_TIPS4_TEXT_SP      "Fuera..."
 #define FILAMENT_TIPS5_TEXT_SP      "Temperatura demasiado baja, por favor calentar"
 #define FILAMENT_TIPS6_TEXT_SP      "Completado"
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_SP           "Please click <Dentro> or <Fuera> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_SP                 "Please click <Dentro> or <Fuera>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor, por favor espere..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor, por favor espere..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el filamento y luego presione\"Confirmar\"para comenzar la carga."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y luego presione\"Confirmar\"para comenzar la carga."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.Presione\"Confirmar\"para retirar el filamento."
-  #define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,por favor espere."
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,por favor espere."
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,presione\"Confirmar\"."
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,presione\"Confirmar\"."
-#else
-  #define FILAMENT_CHANGE_TEXT_SP                 "Please click <Load> \nor <unload>,After \npinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor,\npor favor espere..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor,\npor favor espere..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el \nfilamento y luego presione\"Confirmar\"\npara comenzar la carga."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y \nluego presione\"Confirmar\"para \ncomenzar la carga."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.\nPresione\"Confirmar\"para retirar \nel filamento."
-  #define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,\npor favor espere."
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,\npor favor espere."
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,\npresione\"Confirmar\"."
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,\npresione\"Confirmar\"."
-#endif
+
+#define FILAMENT_CHANGE_TEXT_SP                 "Please click <Load> \nor <unload>,After \npinter pause."
+#define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor,\npor favor espere..."
+#define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor,\npor favor espere..."
+#define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el \nfilamento y luego presione\"Confirmar\"\npara comenzar la carga."
+#define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y \nluego presione\"Confirmar\"para \ncomenzar la carga."
+#define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.\nPresione\"Confirmar\"para retirar \nel filamento."
+#define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,\npor favor espere."
+#define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,\npor favor espere."
+#define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,\npresione\"Confirmar\"."
+#define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,\npresione\"Confirmar\"."
 
 #define PRE_HEAT_EXT_TEXT_SP        "Extrusor"
 #define PRE_HEAT_BED_TEXT_SP        "cama"
 
 #define FILE_LOADING_SP             "Cargando......"
-#if 0
-  #define NO_FILE_AND_CHECK_SP        "No se encontraron archivos! Por favor, inserte la tarjeta SD o el disco U!"
-#endif
 #define NO_FILE_AND_CHECK_SP        "Archivo no encontrado,\n         por favor insertar SD o disco USB!"
-
 #define NO_FILE_SP                  "Sin archivo!"
-
-
 
 #define EXTRUDER_TEMP_TEXT_SP       "Temper"
 #define EXTRUDER_E_LENGTH1_TEXT_SP  "Extrusor1"
@@ -245,7 +227,6 @@
 #define DIALOG_RETRY_SP             "Reintentar"
 #define DIALOG_STOP_SP              "Stop"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_SP "Reprint from breakpoint?"
-//#define DIALOG_UNBIND_PRINTER_SP    "Unbind the printer?"
 #define DIALOG_ERROR_TIPS1_SP         "Error:archivo no encontrado, \npor favor insertar SD o disco USB."
 #define DIALOG_ERROR_TIPS2_SP         "error:transacción fallida, \nconfigurar  baudrate del \ndisplay para la placa base!"
 #define DIALOG_ERROR_TIPS3_SP         "Error : nombre de archivo o \nruta demasiado largo!"
@@ -282,3 +263,11 @@
 #define EEPROM_STORE_TIPS_SP  "¿Guardar ajustes en EEPROM?"
 #define EEPROM_READ_TIPS_SP   "Leer la configuración de EEPROM?"
 #define EEPROM_REVERT_TIPS_SP "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_SP  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_SP  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_SP  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_SP  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_SP  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_SP  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_SP  USER_DESC_7
