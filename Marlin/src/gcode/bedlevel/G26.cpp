@@ -128,8 +128,8 @@
   #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
 #endif
 
-#ifndef G26_XY_FEEDRATE_MOVE
-  #define G26_XY_FEEDRATE_MOVE (PLANNER_XY_FEEDRATE() / 1.5)
+#ifndef G26_XY_FEEDRATE_TRAVEL
+  #define G26_XY_FEEDRATE_TRAVEL (PLANNER_XY_FEEDRATE() / 1.5)
 #endif
 
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
@@ -236,7 +236,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   destination.e += e_delta;
   const feedRate_t feed_value = 
     has_xy_component 
-    ? (has_e_component ? feedRate_t(G26_XY_FEEDRATE) : feedRate_t(G26_XY_FEEDRATE_MOVE)) 
+    ? (has_e_component ? feedRate_t(G26_XY_FEEDRATE) : feedRate_t(G26_XY_FEEDRATE_TRAVEL)) 
     : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
   prepare_internal_move_to_destination(feed_value);
   destination = current_position;
