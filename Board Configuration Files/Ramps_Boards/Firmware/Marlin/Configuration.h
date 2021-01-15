@@ -178,6 +178,9 @@
 //===========================================================================
 //#define SUNLU_S8
 
+// SH_2560_A4988 Board - If you have the board that says SH_2560_A4988, uncomment the below line
+//#define SUNLU_S8_SH_2560_BOARD
+
 // EZABL Probe Mounts
 //#define SUNLU_S8_OEM
 //#define CUSTOM_PROBE
@@ -1041,8 +1044,14 @@
 
   #define DEFAULT_LCD_CONTRAST 150
 
-  #ifndef MOTHERBOARD
-    #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #if ENABLED(SUNLU_S8_SH_2560_BOARD)
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_MKS_BASE
+    #endif
+  #else
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_RAMPS_14_EFB
+    #endif
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
