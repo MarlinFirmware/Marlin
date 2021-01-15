@@ -502,8 +502,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
     valref -= EncoderRate.encoderMoveValue;
-  else
-    return encoder_diffState == ENCODER_DIFF_ENTER;
+  return encoder_diffState == ENCODER_DIFF_ENTER;
 }
 
 //
