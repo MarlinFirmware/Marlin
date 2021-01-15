@@ -197,6 +197,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
   void setFlow_percent(const int16_t, const extruder_t);
+  bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
