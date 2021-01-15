@@ -116,7 +116,7 @@ public:
   static int read();
   static void flush();
   static ring_buffer_pos_t available();
-  static void write(const uint8_t c);
+  static size_t write(const uint8_t c);
   static void flushTX();
 
   static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }

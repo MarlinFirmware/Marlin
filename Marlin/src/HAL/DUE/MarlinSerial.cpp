@@ -382,7 +382,7 @@ void MarlinSerial<Cfg>::flush() {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::write(const uint8_t c) {
+size_t MarlinSerial<Cfg>::write(const uint8_t c) {
   _written = true;
 
   if (Cfg::TX_SIZE == 0) {
@@ -400,7 +400,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     // XOFF char at the RX isr, but it is properly handled there
     if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
       HWUART->UART_THR = c;
-      return;
+      return 1;
     }
 
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
@@ -428,6 +428,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     // Enable TX isr - Non atomic, but it will eventually enable TX isr
     HWUART->UART_IER = UART_IER_TXRDY;
   }
+  return 1;
 }
 
 template<typename Cfg>

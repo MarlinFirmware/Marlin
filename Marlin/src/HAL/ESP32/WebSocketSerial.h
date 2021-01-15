@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
+#include "../../core/serial_hook.h"
 
 #include <Stream.h>
 
@@ -83,4 +84,5 @@ public:
   #endif
 };
 
-extern WebSocketSerial webSocketSerial;
+typedef Serial0Type<WebSocketSerial> MSerialT;
+extern MSerialT webSocketSerial;

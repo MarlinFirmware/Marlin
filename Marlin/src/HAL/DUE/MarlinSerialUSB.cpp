@@ -107,13 +107,13 @@ bool MarlinSerialUSB::available() {
 void MarlinSerialUSB::flush() { }
 void MarlinSerialUSB::flushTX() { }
 
-void MarlinSerialUSB::write(const uint8_t c) {
+size_t MarlinSerialUSB::write(const uint8_t c) {
 
   /* Do not even bother sending anything if USB CDC is not enumerated
      or not configured on the PC side or there is no program on the PC
      listening to our messages */
   if (!usb_task_cdc_isenabled() || !usb_task_cdc_dtr_active())
-    return;
+    return 0;
 
   /* Wait until the PC has read the pending to be sent data */
   while (usb_task_cdc_isenabled() &&
@@ -125,11 +125,12 @@ void MarlinSerialUSB::write(const uint8_t c) {
      or not configured on the PC side or there is no program on the PC
      listening to our messages at this point */
   if (!usb_task_cdc_isenabled() || !usb_task_cdc_dtr_active())
-    return;
+    return 0;
 
   // Fifo full
   //  udi_cdc_signal_overrun();
   udi_cdc_putc(c);
+  return 1;
 }
 
 // Preinstantiate

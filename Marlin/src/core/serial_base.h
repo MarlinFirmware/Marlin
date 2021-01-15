@@ -22,7 +22,8 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-#include <WString.h>
+//#include <WString.h>
+#include <type_traits>
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
@@ -87,7 +88,7 @@ struct SerialBase
   // Glue code here
   FORCE_INLINE void write(const char* str)                      { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t* buffer, size_t size)   { while (size--) write(*buffer++); }
-  FORCE_INLINE void print(const String& s)                      { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+//  FORCE_INLINE void print(const String& s)                      { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
   FORCE_INLINE void print(const char* str)                      { write(str); }
   void print(char c, int base = 0)                              { print((long)c, base); }
   void print(unsigned char c, int base = 0)                     { print((unsigned long)c, base); }
@@ -97,7 +98,7 @@ struct SerialBase
   void print(unsigned long c, int base = DEC)                   { printNumber(c, base); }
   void print(double c, int digits = 2)                          { printFloat(c, digits); }
 
-  void println(const String& s)                                 { print(s); println(); }
+//  void println(const String& s)                                 { print(s); println(); }
   void println(const char s[])                                  { print(s); println(); }
   void println(char c, int base = 0)                            { print(c, base); println(); }
   void println(unsigned char c, int base = 0)                   { print(c, base); println(); }

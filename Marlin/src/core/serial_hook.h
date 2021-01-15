@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-#include <WString.h>
 #include "serial_base.h"
 
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class 
@@ -42,6 +41,10 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
+
+  using BaseClassT::print;
+  using BaseClassT::println;
+
 
   BaseSerial(const bool e) : BaseClassT(e) {}
 

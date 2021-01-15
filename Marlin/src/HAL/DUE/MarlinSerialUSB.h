@@ -44,7 +44,7 @@ public:
   static void flush();
   static void flushTX();
   static bool available();
-  static void write(const uint8_t c);
+  static size_t write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE static uint32_t dropped() { return 0; }

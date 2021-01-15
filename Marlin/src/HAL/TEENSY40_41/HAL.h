@@ -37,6 +37,10 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
+#if HAS_ETHERNET
+  #include "../../feature/ethernet.h"
+#endif
+
 //#define ST7920_DELAY_1 DELAY_NS(600)
 //#define ST7920_DELAY_2 DELAY_NS(750)
 //#define ST7920_DELAY_3 DELAY_NS(750)
