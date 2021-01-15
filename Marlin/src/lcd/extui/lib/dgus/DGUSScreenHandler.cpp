@@ -875,6 +875,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     switch (eep_flag) {
       case 0:
         settings.save();
+        settings.load(); // load eeprom data to check the data is right
         ScreenHandler.GotoScreen(MKSLCD_SCREEN_EEP_Config);
         break;
 
@@ -898,12 +899,12 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
   }
 
   void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
-    //uint16_t Offset = swap16(*(uint16_t *)val_ptr);
-
-    int32_t value = swap32(*(int32_t *)val_ptr);
-    DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
-    float Offset = value / 100.0f;
-    DEBUG_ECHOLNPAIR_F(" get float offset >> ", Offset, 6);
+    
+    #if BOTH(DGUS_LCD_UI_MKS, HAS_BED_PROBE)
+      int32_t value = swap32(*(int32_t *)val_ptr);
+      float Offset = value / 100.0f;
+      DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
+    #endif
 
     switch (var.VP) {
       case VP_OFFSET_X:
@@ -1017,15 +1018,20 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       // static uint8_t a_first_level = 1;
       char cmd_buf[30];
       float offset = mesh_adj_distance;
-
+      int16_t integer, Deci, Deci2;
       // float f3 = current_position.z;
       // float f4 = current_position.z;
       switch (mesh_value) {
         case 0:
           offset = mesh_adj_distance;
+          integer = offset; // get int
+          Deci = (offset * 100);
+          Deci = Deci % 100;
+          Deci2 = offset * 100;
+          Deci2 = Deci2 % 10;
           soft_endstop._enabled = false;
           queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(cmd_buf, PSTR("G1 Z%.2f"), offset);
+          snprintf_P(cmd_buf, 30, PSTR("G1 Z%d.%d%d"), integer, Deci, Deci2);
           queue.enqueue_one_now(cmd_buf);
           queue.enqueue_now_P(PSTR("G90"));
           //soft_endstop._enabled = true;
@@ -1033,9 +1039,14 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
         case 1:
           offset = mesh_adj_distance;
+          integer = offset;       // get int
+          Deci = (offset * 100);
+          Deci = Deci % 100;
+          Deci2 = offset * 100;
+          Deci2 = Deci2 % 10;
           soft_endstop._enabled = false;
           queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(cmd_buf, PSTR("G1 Z%.2f"), -offset);
+          snprintf_P(cmd_buf, 30, PSTR("G1 Z-%d.%d%d"), integer, Deci, Deci2);
           queue.enqueue_one_now(cmd_buf);
           queue.enqueue_now_P(PSTR("G90"));
           break;
@@ -1189,24 +1200,30 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
     switch (var.VP) {
       case VP_TMC_X_STEP:
-        #if AXIS_HAS_STEALTHCHOP(X)
-          stepperX.homing_threshold(mks_min(tmc_value, 255));
-          settings.save();
-          // tmc_x_step = stepperX.homing_threshold();
+        #if USE_SENSORLESS
+          #if AXIS_HAS_STEALTHCHOP(X)
+            stepperX.homing_threshold(mks_min(tmc_value, 255));
+            settings.save();
+            // tmc_x_step = stepperX.homing_threshold();
+          #endif
         #endif
         break;
       case VP_TMC_Y_STEP:
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          stepperY.homing_threshold(mks_min(tmc_value, 255));
-          settings.save();
-          // tmc_y_step = stepperY.homing_threshold();
+        #if USE_SENSORLESS
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            stepperY.homing_threshold(mks_min(tmc_value, 255));
+            settings.save();
+            // tmc_y_step = stepperY.homing_threshold();
+          #endif
         #endif
         break;
       case VP_TMC_Z_STEP:
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          stepperZ.homing_threshold(mks_min(tmc_value, 255));
-          settings.save();
-          // tmc_z_step = stepperZ.homing_threshold();
+        #if USE_SENSORLESS
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            stepperZ.homing_threshold(mks_min(tmc_value, 255));
+            settings.save();
+            // tmc_z_step = stepperZ.homing_threshold();
+          #endif
         #endif
         break;
       case VP_TMC_X_Current:
@@ -1317,7 +1334,6 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
       case VP_MOTOR_LOCK_UNLOK:
         DEBUG_ECHOLNPGM("Motor Unlock");
-        // gcode.motor_unlock();
         movevalue = 5;
         axiscode  = '\0';
         // return ;
@@ -1327,7 +1343,6 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
         DEBUG_ECHOLNPGM("Home all");
         axiscode  = '\0';
         movevalue = 0; // ignore value sent from display, this VP is _ONLY_ for homing.
-        // gcode.motor_all_back();
         // return ;
         break;
 
@@ -1371,10 +1386,9 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       // buf[4] = axiscode;
 
       char buf[6];
-      sprintf_P(buf, PSTR("G28 %c"), axiscode);
+      sprintf(buf,"G28 %c",axiscode);
       //DEBUG_ECHOPAIR(" ", buf);
-      //queue.enqueue_one_now(buf);
-      gcode.process_subcommands_now_P(buf);
+      queue.enqueue_one_now(buf);
       //DEBUG_ECHOLNPGM(" ✓");
       ScreenHandler.ForceCompleteUpdate();
       return;
@@ -1382,9 +1396,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     else if (movevalue == 5) {
       DEBUG_ECHOPAIR("send M84");
       char buf[6];
-      sprintf_P(buf, PSTR("M84 %c"), axiscode);
-      //queue.enqueue_one_now(buf);
-      gcode.process_subcommands_now_P(buf);
+      snprintf_P(buf,6,PSTR("M84 %c"),axiscode);
+      queue.enqueue_one_now(buf);
       ScreenHandler.ForceCompleteUpdate();
       return;
     }
@@ -1395,8 +1408,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
       if (!relative_mode)
         //DEBUG_ECHOPGM(" G91");
-        // queue.enqueue_now_P(PSTR("G91"));
-        gcode.process_subcommands_now_P(PSTR("G91"));
+        queue.enqueue_now_P(PSTR("G91"));
         //DEBUG_ECHOPGM(" ✓ ");
       char buf[32]; // G1 X9999.99 F12345
       // unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
@@ -1405,9 +1417,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       if (movevalue < 0) { value = -value; sign[0] = '-'; }
       int16_t fraction = ABS(movevalue) % 100;
       snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
-
-      //queue.enqueue_one_now(buf);
-      gcode.process_subcommands_now_P(buf);
+      queue.enqueue_one_now(buf);
 
 
       //if (backup_speed != speed) {
@@ -1421,7 +1431,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       if (!old_relative_mode) {
         //DEBUG_ECHOPGM("G90");
         // queue.enqueue_now_P(PSTR("G90"));
-        gcode.process_subcommands_now_P(PSTR("G90"));
+        queue.enqueue_now_P(PSTR("G90"));
         //DEBUG_ECHOPGM(" ✓ ");
       }
     }
@@ -1926,24 +1936,42 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     #if ENABLED(DGUS_LCD_UI_MKS)
       uint16_t flag = swap16(*(uint16_t*)val_ptr);
       char babystep_buf[30];
+      float step = ZOffset_distance;
 
       switch (flag) {
         case 0:
-          DEBUG_ECHOLNPGM("babystep down");
-          sprintf_P(babystep_buf, PSTR("M290 Z%.3f"), -ZOffset_distance);
+          if (step == 0.01) 
+            queue.inject_P(PSTR("M290 Z-0.01"));
+          else if (step == 0.1) 
+            queue.inject_P(PSTR("M290 Z-0.1"));
+          else if (step == 0.5) 
+            queue.inject_P(PSTR("M290 Z-0.5"));
+          else if (step == 1) 
+            queue.inject_P(PSTR("M290 Z-1"));
+          else 
+            queue.inject_P(PSTR("M290 Z-0.01"));
+
           z_offset_add = z_offset_add - ZOffset_distance;
           break;
 
         case 1:
-          DEBUG_ECHOLNPGM("babystep up");
-          sprintf_P(babystep_buf, PSTR("M290 Z%.3f"), ZOffset_distance);
+          if (step == 0.01) 
+            queue.inject_P(PSTR("M290 Z0.01"));
+          else if (step == 0.1) 
+            queue.inject_P(PSTR("M290 Z0.1"));
+          else if (step == 0.5) 
+            queue.inject_P(PSTR("M290 Z0.5"));
+          else if (step == 1) 
+            queue.inject_P(PSTR("M290 Z1"));
+          else 
+            queue.inject_P(PSTR("M290 Z-0.01"));
+
           z_offset_add = z_offset_add + ZOffset_distance;
           break;
 
         default:
           break;
       }
-      gcode.process_subcommands_now_P(babystep_buf);
 
     #else
       int16_t flag  = swap16(*(uint16_t*)val_ptr);
@@ -2094,8 +2122,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T0\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T0"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
         break;
@@ -2110,8 +2141,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T1\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T1"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
         #if ENABLED(SINGLENOZZLE)
@@ -2123,8 +2157,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T0\nG91\nG1 E%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T1"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
         break;
@@ -2149,8 +2186,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T0\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T0"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E-%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
         break;
@@ -2164,8 +2204,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T1\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T1"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E-%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
 
@@ -2178,8 +2221,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
           }
           else {
-            sprintf_P(buf, PSTR("T1\nG91\nG1 E-%d F%d\nG90"), (int)distanceFilament, FilamentSpeed * 60);
-            gcode.process_subcommands_now_P(buf);
+            queue.enqueue_now_P(PSTR("T1"));
+            queue.enqueue_now_P(PSTR("G91"));
+            snprintf_P(buf,40,PSTR("G1 E-%d F%d"),(int)distanceFilament,FilamentSpeed * 60);
+            queue.enqueue_one_now(buf);
+            queue.enqueue_now_P(PSTR("G90"));
           }
         #endif
         break;
@@ -2417,9 +2463,15 @@ bool DGUSScreenHandler::loop() {
 
       #if ENABLED(DGUS_LCD_UI_MKS)
         #if ANY_AXIS_HAS(STEALTHCHOP)
-          tmc_x_step = stepperX.homing_threshold();
-          tmc_y_step = stepperY.homing_threshold();
-          tmc_z_step = stepperZ.homing_threshold();
+          #if AXIS_HAS_STEALTHCHOP(X)
+            tmc_x_step = stepperX.homing_threshold();
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            tmc_y_step = stepperY.homing_threshold();
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            tmc_z_step = stepperZ.homing_threshold();
+          #endif
         #endif
 
         if (min_ex_temp != 0)
