@@ -22,11 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-
-#if HAS_ETHERNET
-  #include "../feature/ethernet.h"
-#endif
-
 #include "serial_hook.h"
 
 /**
@@ -54,36 +49,25 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,serialHook.portMask,p)
-  #define _PORT_RESTORE(n)      RESTORE(n)
-  
-  #define SERIAL_ASSERT(P)      if(serialHook.portMask!=(P)){ debugger(); }
-
-  #ifdef SERIAL_RUNTIME_HOOK
-    // Let the first serial be hooked at runtime if the GUI requires it
-    typedef RuntimeSerialHook<decltype(MYSERIAL0)> SerialHook0T;
-    typedef MultiSerialHook<SerialHook0T, decltype(MYSERIAL1)> SerialHookT;
+  #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
+  #define SERIAL_ASSERT(P)      if(multiSerial.portMask!=(P)){ debugger(); }
+  #ifdef SERIAL_CATCHALL
+    typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    typedef MultiSerialHook<decltype(MYSERIAL0), decltype(MYSERIAL1)> SerialHookT;
+    typedef MultiSerial<decltype(MYSERIAL0), decltype(MYSERIAL1), 0>      SerialOutputT;
   #endif
+  extern SerialOutputT          multiSerial;   
+  #define SERIAL_IMPL           multiSerial
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
-  #define _PORT_RESTORE(n)      NOOP
   #define SERIAL_ASSERT(P)      NOOP
-
-  #ifdef SERIAL_RUNTIME_HOOK
-    typedef RuntimeSerialHook<decltype(MYSERIAL0)> SerialHookT;
-  #else
-    typedef BaseSerial<decltype(MYSERIAL0)> SerialHookT;
-  #endif
+  #define SERIAL_IMPL           MYSERIAL0
 #endif
-extern SerialHookT            serialHook;
 
 
-#define SERIAL_OUT(WHAT, V...)  (void)serialHook.WHAT(V)
+#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
-#define PORT_RESTORE()          _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P)      (1 << P)
 
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)

@@ -23,6 +23,10 @@
 #include "serial.h"
 #include "../inc/MarlinConfig.h"
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
 static PGMSTR(errormagic, "Error:");
@@ -30,17 +34,17 @@ static PGMSTR(echomagic, "echo:");
 
 #if HAS_MULTI_SERIAL
   #ifdef SERIAL_CATCHALL
-    SerialHookT serialHook(MYSERIAL, SERIAL_CATCHALL, 3); // 3 is the mask for both output  
+    SerialOutputT multiSerial(MYSERIAL, SERIAL_CATCHALL);  
   #else
-    #if SERIAL_RUNTIME_HOOK
-      SerialHook0T innerSerial(MYSERIAL0);
-      SerialHookT serialHook(innerSerial, MYSERIAL1, 3); // 3 is the mask for both output
+    #if HAS_ETHERNET
+      // Runtime checking of the condition variable
+      ConditionalSerial<decltype(MYSERIAL1)> serialOut1(ethernet.have_telnet_client, MYSERIAL1, false); // Takes reference here
     #else
-      SerialHookT serialHook(MYSERIAL0, MYSERIAL1, 3); // 3 is the mask for both output
+      // Don't pay for runtime checking a true variable, instead use the output directly
+      #define serialOut1 MYSERIAL1
     #endif
+    SerialOutputT multiSerial(MYSERIAL0, serialOut1);
   #endif
-#else
-  SerialHookT serialHook;
 #endif
 
 void serialprintPGM(PGM_P str) {

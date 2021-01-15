@@ -551,7 +551,6 @@ void announceOpen(const uint8_t doing, const char * const path) {
     SERIAL_ECHOPGM("Now ");
     serialprintPGM(doing == 1 ? PSTR("doing") : PSTR("fresh"));
     SERIAL_ECHOLNPAIR(" file: ", path);
-    PORT_RESTORE();
   }
 }
 
@@ -613,10 +612,11 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
     filesize = file.fileSize();
     sdpos = 0;
 
-    PORT_REDIRECT(SERIAL_ALL);
-    SERIAL_ECHOLNPAIR(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
-    SERIAL_ECHOLNPGM(STR_SD_FILE_SELECTED);
-    PORT_RESTORE();
+    { // Don't remove this block, as the PORT_REDIRECT is a RAII
+      PORT_REDIRECT(SERIAL_ALL);
+      SERIAL_ECHOLNPAIR(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
+      SERIAL_ECHOLNPGM(STR_SD_FILE_SELECTED);
+    }
 
     selectFileByName(fname);
     ui.set_status(longFilename[0] ? longFilename : fname);

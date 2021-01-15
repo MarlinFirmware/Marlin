@@ -28,6 +28,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
 #endif
+#include "../../core/serial_hook.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
@@ -41,12 +42,7 @@
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:
-  MarlinSerial(LPC_UART_TypeDef *UARTx) :
-    HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx)
-    #if ENABLED(EMERGENCY_PARSER)
-      , emergency_state(EmergencyParser::State::EP_RESET)
-    #endif
-    { }
+  MarlinSerial(LPC_UART_TypeDef *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) { }
 
   void end() {}
 
@@ -55,13 +51,11 @@ public:
       emergency_parser.update(emergency_state, c);
       return true; // do not discard character
     }
-
-    EmergencyParser::State emergency_state;
-    static inline bool emergency_parser_enabled() { return true; }
   #endif
 };
 
-extern MarlinSerial MSerial;
-extern MarlinSerial MSerial1;
-extern MarlinSerial MSerial2;
-extern MarlinSerial MSerial3;
+typedef Serial0Type<MarlinSerial> MSerialT;
+extern MSerialT MSerial;
+extern MSerialT MSerial1;
+extern MSerialT MSerial2;
+extern MSerialT MSerial3;
