@@ -98,7 +98,7 @@
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define CANCEL_OBJECTS
+//#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
 
 /* OPTION no validate */
 //#define USE_CONTROLLER_FAN         //BOARD FAN
@@ -109,7 +109,7 @@
  * ==================================
  */
 // Options for Modules Hardware
-#ifdef ESP_WIFI
+#ifdef ESP_WIF
   #define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 #endif
 #ifdef NEOPIXEL_LED
