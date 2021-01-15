@@ -21,12 +21,11 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
 //#include <WString.h>
 #include <type_traits>
 
 #if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/e_parser.h"
+  #include "../feature/e_parser.h"
 #endif
 
 #ifndef DEC

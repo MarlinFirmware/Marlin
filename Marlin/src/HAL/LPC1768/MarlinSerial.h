@@ -48,7 +48,7 @@ public:
 
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override {
-      emergency_parser.update(emergency_state, c);
+      emergency_parser.update(static_cast<Serial0Type<MarlinSerial> *>(this)->emergency_state, c);
       return true; // do not discard character
     }
   #endif

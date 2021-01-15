@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
 #include "serial_base.h"
 
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class 
@@ -124,7 +123,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 };
 
 // A class that's duplicating its output conditionally to 2 serial interface
-template <class Serial0T, class Serial1T, const int8_t offset = 0>
+template <class Serial0T, class Serial1T, const uint8_t offset = 0>
 struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> >
 {
   typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset> > BaseClassT;
