@@ -22,7 +22,6 @@
 #pragma once
 
 //#include <WString.h>
-#include <type_traits>
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -48,8 +47,12 @@ namespace Private
     enum { value = sizeof(test<T>(0)) == sizeof(Yes) };
   };
 
-  template<typename T> FORCE_INLINE static typename std::enable_if<HasFlushTX<T>::value, void>::type callFlushTX(T * t) { t->flushTX(); }
-                       FORCE_INLINE static                                                      void callFlushTX(...)   {}
+  // Using own implementation since type_traits is not available on all platform
+  template<bool, typename _Tp = void> struct enable_if { };
+  template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+  template<typename T> FORCE_INLINE static typename enable_if<HasFlushTX<T>::value, void>::type callFlushTX(T * t) { t->flushTX(); }
+                       FORCE_INLINE static                                                 void callFlushTX(...)   {}
 }
 
 // Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling. 
