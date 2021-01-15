@@ -33,7 +33,7 @@ enum {
   DIALOG_TYPE_M80_FAIL,
   DIALOG_TYPE_MESSAGE_ERR1,
 
-  DIALOG_TYPE_UPDATE_ESP_FIRMARE,
+  DIALOG_TYPE_UPDATE_ESP_FIRMWARE,
   DIALOG_TYPE_UPDATE_ESP_DATA,
   DIALOG_TYPE_UPLOAD_FILE,
   DIALOG_TYPE_UNBIND,
@@ -85,7 +85,6 @@ extern void filament_sprayer_temp();
 extern void filament_dialog_handle();
 extern void lv_filament_setbar();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

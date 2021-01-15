@@ -25,13 +25,12 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_preHeat(void);
+extern void lv_draw_preHeat();
 extern void lv_clear_preHeat();
 extern void disp_temp_type();
 extern void disp_step_heat();
 extern void disp_desire_temp();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

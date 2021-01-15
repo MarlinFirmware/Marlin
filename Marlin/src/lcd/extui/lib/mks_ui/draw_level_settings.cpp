@@ -40,30 +40,27 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_level_settings();
   switch (obj->mks_obj_id) {
     case ID_LEVEL_RETURN:
-      lv_clear_level_settings();
       draw_return_ui();
       break;
     case ID_LEVEL_POSITION:
-      lv_clear_level_settings();
       lv_draw_manual_level_pos_settings();
       break;
     case ID_LEVEL_COMMAND:
       keyboard_value = gcodeCommand;
-      lv_clear_level_settings();
       lv_draw_keyboard();
       break;
     #if HAS_BED_PROBE
       case ID_LEVEL_ZOFFSET:
-        lv_clear_level_settings();
         lv_draw_auto_level_offset_settings();
         break;
     #endif
   }
 }
 
-void lv_draw_level_settings(void) {
+void lv_draw_level_settings() {
   scr = lv_screen_create(LEVELING_PARA_UI, machine_menu.LevelingParaConfTitle);
   lv_screen_menu_item(scr, machine_menu.LevelingManuPosConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_LEVEL_POSITION, 0);
   lv_screen_menu_item(scr, machine_menu.LevelingAutoCommandConf, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_LEVEL_COMMAND, 1);
