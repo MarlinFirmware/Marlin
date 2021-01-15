@@ -25,7 +25,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../../feature/e_parser.h"
 #endif
-#include "../../core/serial_hook.h"
+#include "../../../core/serial_hook.h"
 
 #include <stdarg.h>
 #include <stdio.h>
