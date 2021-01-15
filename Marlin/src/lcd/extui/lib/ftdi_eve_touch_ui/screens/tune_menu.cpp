@@ -143,7 +143,9 @@ void TuneMenu::pausePrint() {
 
 void TuneMenu::resumePrint() {
   sound.play(twinkle, PLAY_ASYNCHRONOUS);
-  if (ExtUI::isPrintingFromMedia())
+  if (ExtUI::awaitingUserConfirm())
+    ExtUI::setUserConfirmed();
+  else if (ExtUI::isPrintingFromMedia())
     ExtUI::resumePrint();
   #ifdef ACTION_ON_RESUME
     else host_action_resume();
