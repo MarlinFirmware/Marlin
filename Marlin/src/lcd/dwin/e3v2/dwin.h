@@ -249,7 +249,10 @@ typedef struct {
     float Move_E_scale    = 0;
   #endif
   float offset_value      = 0;
-  TERN_(__STM32F1__, signed)
+  #if ANY(__STM32F1__,TARGET_LPC1768)
+    #define USE_SIGNED_CHAR
+  #endif
+  TERN_(USE_SIGNED_CHAR, signed)
   char show_mode          = 0; // -1: Temperature control    0: Printing temperature
 } HMI_value_t;
 
