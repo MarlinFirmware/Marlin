@@ -82,6 +82,16 @@ extern "C" volatile uint32_t _millis;
   #endif
 #endif
 
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL UsbSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL UsbSerial
