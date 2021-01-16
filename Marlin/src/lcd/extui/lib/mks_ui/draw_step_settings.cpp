@@ -45,51 +45,40 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_step_settings();
   switch (obj->mks_obj_id) {
     case ID_STEP_RETURN:
       uiCfg.para_ui_page = 0;
-      lv_clear_step_settings();
       draw_return_ui();
-      break;
+      return;
     case ID_STEP_X:
       value = Xstep;
-      lv_clear_step_settings();
-      lv_draw_number_key();
       break;
     case ID_STEP_Y:
       value = Ystep;
-      lv_clear_step_settings();
-      lv_draw_number_key();
       break;
     case ID_STEP_Z:
       value = Zstep;
-      lv_clear_step_settings();
-      lv_draw_number_key();
       break;
     case ID_STEP_E0:
       value = E0step;
-      lv_clear_step_settings();
-      lv_draw_number_key();
       break;
     case ID_STEP_E1:
       value = E1step;
-      lv_clear_step_settings();
-      lv_draw_number_key();
       break;
     case ID_STEP_UP:
       uiCfg.para_ui_page = 0;
-      lv_clear_step_settings();
       lv_draw_step_settings();
-      break;
+      return;
     case ID_STEP_DOWN:
       uiCfg.para_ui_page = 1;
-      lv_clear_step_settings();
       lv_draw_step_settings();
-      break;
+      return;
   }
+  lv_draw_number_key();
 }
 
-void lv_draw_step_settings(void) {
+void lv_draw_step_settings() {
   scr = lv_screen_create(STEPS_UI, machine_menu.StepsConfTitle);
 
   if (uiCfg.para_ui_page != 1) {
