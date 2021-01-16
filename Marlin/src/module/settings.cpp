@@ -50,10 +50,6 @@
 #include "stepper.h"
 #include "temperature.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
-#endif
-
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -2367,7 +2363,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      #if ENABLED(EEPROM_CHITCHAT)
+      #if BOTH(EEPROM_CHITCHAT, DEBUG_OUT)
         DEBUG_ECHOLNPGM("?Invalid slot.");
         DEBUG_ECHO(s);
         DEBUG_ECHOLNPGM(" mesh slots available.");

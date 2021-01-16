@@ -342,7 +342,6 @@ void MarlinUI::init() {
   init_lcd();
 
   #if HAS_DIGITAL_BUTTONS
-
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
@@ -352,15 +351,12 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(ENC)
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
-
     #if BUTTON_EXISTS(ENC_EN)
       SET_INPUT_PULLUP(BTN_ENC_EN);
     #endif
-
     #if BUTTON_EXISTS(BACK)
       SET_INPUT_PULLUP(BTN_BACK);
     #endif
-
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
@@ -373,8 +369,7 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(RT)
       SET_INPUT(BTN_RT);
     #endif
-
-  #endif // !HAS_DIGITAL_BUTTONS
+  #endif
 
   #if HAS_SHIFT_ENCODER
 
@@ -383,14 +378,14 @@ void MarlinUI::init() {
       SET_OUTPUT(SR_DATA_PIN);
       SET_OUTPUT(SR_CLK_PIN);
 
-    #elif defined(SHIFT_CLK)
+    #elif PIN_EXISTS(SHIFT_CLK)
 
-      SET_OUTPUT(SHIFT_CLK);
-      OUT_WRITE(SHIFT_LD, HIGH);
-      #if defined(SHIFT_EN) && SHIFT_EN >= 0
-        OUT_WRITE(SHIFT_EN, LOW);
+      SET_OUTPUT(SHIFT_CLK_PIN);
+      OUT_WRITE(SHIFT_LD_PIN, HIGH);
+      #if PIN_EXISTS(SHIFT_EN)
+        OUT_WRITE(SHIFT_EN_PIN, LOW);
       #endif
-      SET_INPUT_PULLUP(SHIFT_OUT);
+      SET_INPUT_PULLUP(SHIFT_OUT_PIN);
 
     #endif
 
@@ -1256,13 +1251,13 @@ void MarlinUI::update() {
          * The rotary encoder part is also independent of the LCD chipset.
          */
         uint8_t val = 0;
-        WRITE(SHIFT_LD, LOW);
-        WRITE(SHIFT_LD, HIGH);
+        WRITE(SHIFT_LD_PIN, LOW);
+        WRITE(SHIFT_LD_PIN, HIGH);
         LOOP_L_N(i, 8) {
           val >>= 1;
-          if (READ(SHIFT_OUT)) SBI(val, 7);
-          WRITE(SHIFT_CLK, HIGH);
-          WRITE(SHIFT_CLK, LOW);
+          if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
+          WRITE(SHIFT_CLK_PIN, HIGH);
+          WRITE(SHIFT_CLK_PIN, LOW);
         }
         TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
       #endif
@@ -1277,11 +1272,6 @@ void MarlinUI::update() {
 
     #if HAS_ENCODER_WHEEL
       static uint8_t lastEncoderBits;
-
-      #define ENCODER_PHASE_0 0
-      #define ENCODER_PHASE_1 2
-      #define ENCODER_PHASE_2 3
-      #define ENCODER_PHASE_3 1
 
       // Manage encoder rotation
       #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
@@ -1460,7 +1450,8 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-
+    #else // HAS_SPI_LCD
+      UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));

@@ -33,6 +33,7 @@
 #if ENABLED(DWIN_CREALITY_LCD)
 
 #include "rotary_encoder.h"
+#include "../../buttons.h"
 
 #include "../../../MarlinCore.h"
 #include "../../../HAL/shared/Delay.h"
@@ -43,66 +44,19 @@
 
 #include <stdlib.h>
 
-#define ENCODER_PHASE_0 0
-#define ENCODER_PHASE_1 2
-#define ENCODER_PHASE_2 3
-#define ENCODER_PHASE_3 1
-
 #ifndef ENCODER_PULSES_PER_STEP
   #define ENCODER_PULSES_PER_STEP 4
-#endif
-
-#define _BUTTON_PRESSED(BN) !READ(BTN_##BN)
-#define BUTTON_PRESSED(BN)  (_BUTTON_PRESSED_##BN)
-
-#if BUTTON_EXISTS(EN1)
-  #define _BUTTON_PRESSED_EN1 _BUTTON_PRESSED(EN1)
-#else
-  #define _BUTTON_PRESSED_EN1 false
-#endif
-#if BUTTON_EXISTS(EN2)
-  #define _BUTTON_PRESSED_EN2 _BUTTON_PRESSED(EN2)
-#else
-  #define _BUTTON_PRESSED_EN2 false
-#endif
-#if BUTTON_EXISTS(ENC)
-  #define _BUTTON_PRESSED_ENC _BUTTON_PRESSED(ENC)
-#else
-  #define _BUTTON_PRESSED_ENC false
-#endif
-#if BUTTON_EXISTS(UP)
-  #define _BUTTON_PRESSED_UP _BUTTON_PRESSED(UP)
-#else
-  #define _BUTTON_PRESSED_UP false
-#endif
-#if BUTTON_EXISTS(DWN)
-  #define _BUTTON_PRESSED_DWN _BUTTON_PRESSED(DWN)
-#else
-  #define _BUTTON_PRESSED_DWN false
-#endif
-#if BUTTON_EXISTS(LFT)
-  #define _BUTTON_PRESSED_LFT _BUTTON_PRESSED(LFT)
-#else
-  #define _BUTTON_PRESSED_LFT false
-#endif
-#if BUTTON_EXISTS(RT)
-  #define _BUTTON_PRESSED_RT _BUTTON_PRESSED(RT)
-#else
-  #define _BUTTON_PRESSED_RT false
-#endif
-#if BUTTON_EXISTS(BACK)
-  #define _BUTTON_PRESSED_BACK _BUTTON_PRESSED(BACK)
-#else
-  #define _BUTTON_PRESSED_BACK false
 #endif
 
 ENCODER_Rate EncoderRate;
 
 // Buzzer
 void Encoder_tick() {
-  WRITE(BEEPER_PIN, HIGH);
-  delay(10);
-  WRITE(BEEPER_PIN, LOW);
+  #if PIN_EXISTS(BEEPER)
+    WRITE(BEEPER_PIN, HIGH);
+    delay(10);
+    WRITE(BEEPER_PIN, LOW);
+  #endif
 }
 
 // Encoder initialization
@@ -116,7 +70,7 @@ void Encoder_Configuration() {
   #if BUTTON_EXISTS(ENC)
     SET_INPUT_PULLUP(BTN_ENC);
   #endif
-  #ifdef BEEPER_PIN
+  #if PIN_EXISTS(BEEPER)
     SET_OUTPUT(BEEPER_PIN);
   #endif
 }
@@ -129,8 +83,8 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   static signed char temp_diff = 0;
 
   ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
-  if (BUTTON_PRESSED(EN1)) newbutton |= 0x01;
-  if (BUTTON_PRESSED(EN2)) newbutton |= 0x02;
+  if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+  if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
   if (BUTTON_PRESSED(ENC)) {
     static millis_t next_click_update_ms;
     if (ELAPSED(now, next_click_update_ms)) {
@@ -147,22 +101,22 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   }
   if (newbutton != lastEncoderBits) {
     switch (newbutton) {
-      case ENCODER_PHASE_0: {
-        if (lastEncoderBits == ENCODER_PHASE_3) temp_diff++;
+      case ENCODER_PHASE_0:
+             if (lastEncoderBits == ENCODER_PHASE_3) temp_diff++;
         else if (lastEncoderBits == ENCODER_PHASE_1) temp_diff--;
-      }break;
-      case ENCODER_PHASE_1: {
-        if (lastEncoderBits == ENCODER_PHASE_0) temp_diff++;
+        break;
+      case ENCODER_PHASE_1:
+             if (lastEncoderBits == ENCODER_PHASE_0) temp_diff++;
         else if (lastEncoderBits == ENCODER_PHASE_2) temp_diff--;
-      }break;
-      case ENCODER_PHASE_2: {
-        if (lastEncoderBits == ENCODER_PHASE_1) temp_diff++;
+        break;
+      case ENCODER_PHASE_2:
+             if (lastEncoderBits == ENCODER_PHASE_1) temp_diff++;
         else if (lastEncoderBits == ENCODER_PHASE_3) temp_diff--;
-      }break;
-      case ENCODER_PHASE_3: {
-        if (lastEncoderBits == ENCODER_PHASE_2) temp_diff++;
+        break;
+      case ENCODER_PHASE_3:
+             if (lastEncoderBits == ENCODER_PHASE_2) temp_diff++;
         else if (lastEncoderBits == ENCODER_PHASE_0) temp_diff--;
-      }break;
+        break;
     }
     lastEncoderBits = newbutton;
   }
@@ -190,9 +144,12 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
         }
         EncoderRate.lastEncoderTime = ms;
       }
+
     #else
+
       constexpr int32_t encoderMultiplier = 1;
-    #endif // ENCODER_RATE_MULTIPLIER
+
+    #endif
 
     // EncoderRate.encoderMoveValue += (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
     EncoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
@@ -247,9 +204,9 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
     for (uint8_t i = 0; i < LED_NUM; i++) {
       LED_DataArray[i] = 0;
       switch (RGB_Scale) {
-        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 7 / 10) << 16 | luminance * 5 / 10; break;
-        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 7 / 10) << 16 | luminance * 4 / 10; break;
-        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = (luminance * 10 / 10) << 8 | (luminance * 8 / 10) << 16 | luminance * 7 / 10; break;
+        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 7/10) << 16 | luminance * 5/10; break;
+        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 7/10) << 16 | luminance * 4/10; break;
+        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 8/10) << 16 | luminance * 7/10; break;
       }
     }
     LED_WriteData();

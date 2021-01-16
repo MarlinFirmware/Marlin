@@ -61,9 +61,9 @@ extern TFTGLCD lcd;
 #include "../lcdprint.h"
 
 // Use panel encoder - free old encoder pins
-#undef  BTN_EN1
-#undef  BTN_EN2
-#undef  BTN_ENC
+#undef BTN_EN1
+#undef BTN_EN2
+#undef BTN_ENC
 
 #ifndef EN_C
   #define EN_C       4 // for click
