@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include <WString.h>
+
 #include "../inc/MarlinConfig.h"
 
 // It's pointless to have multiple versions of this code, so make a common interface here
