@@ -70,7 +70,7 @@ class Sd2Card {
     bool readBlock(uint32_t block, uint8_t* dst);
     bool writeBlock(uint32_t blockNumber, const uint8_t* src);
 
-    bool readCSD(csd_t* csd) { return true; };
+    bool readCSD(csd_t*)                                         { return true; }
 
     uint32_t cardSize();
     static bool isInserted();
