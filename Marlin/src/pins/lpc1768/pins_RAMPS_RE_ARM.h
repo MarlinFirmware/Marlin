@@ -325,6 +325,10 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
+#elif HAS_ADC_BUTTONS
+
+    #error "ADC BUTTONS do not work unmodifed on REARM, The ADC ports cannot take more than 3.3v."
+
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
