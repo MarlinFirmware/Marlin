@@ -81,9 +81,9 @@ class WifiSerial {
       /* TXE signifies readiness to send a byte to DR. */
       if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
         if (!rb_is_empty(this->usart_device->wb))
-            regs->DR=rb_remove(this->usart_device->wb);
+          regs->DR=rb_remove(this->usart_device->wb);
         else
-            regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
+          regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
       }
     }
 

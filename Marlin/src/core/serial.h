@@ -56,7 +56,7 @@ extern uint8_t marlin_debug_flags;
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serialHook.portMask,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
-  
+
   #define SERIAL_ASSERT(P)      if(serialHook.portMask!=(P)){ debugger(); }
 
   #ifdef SERIAL_RUNTIME_HOOK
@@ -79,12 +79,11 @@ extern uint8_t marlin_debug_flags;
 #endif
 extern SerialHookT            serialHook;
 
-
 #define SERIAL_OUT(WHAT, V...)  (void)serialHook.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()          _PORT_RESTORE(1)
-#define SERIAL_PORTMASK(P)      (1 << P)
+#define SERIAL_PORTMASK(P)      _BV(P)
 
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
