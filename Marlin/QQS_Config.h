@@ -62,6 +62,7 @@
  * ========= 1 CHOICE)============
  * ===============================
  */
+//#define DELTA_HOME_TO_SAFE_ZONE    // Option to move down after homing to a height where XYZ movement is unconstrained.
 //#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)

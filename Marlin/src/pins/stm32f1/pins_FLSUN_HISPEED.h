@@ -197,6 +197,9 @@
   #define ESP_WIFI_MODULE_ENABLE_PIN        -1
   #define ESP_WIFI_MODULE_TXD_PIN           PA9   // MKS or ESP WIFI RX PIN
   #define ESP_WIFI_MODULE_RXD_PIN           PA10  // MKS or ESP WIFI TX PIN
+  #define WIFI_IO0_PIN                      PA8   // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN       			          PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN				            PA5   // MKS ESP WIFI RESET PIN
 #endif
 
 //
