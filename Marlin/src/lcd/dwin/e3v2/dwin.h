@@ -249,7 +249,7 @@ typedef struct {
     float Move_E_scale    = 0;
   #endif
   float offset_value      = 0;
-  #if ANY(__STM32F1__,TARGET_LPC1768)
+  #if EITHER(__STM32F1__, TARGET_LPC1768)
     #define USE_SIGNED_CHAR
   #endif
   TERN_(USE_SIGNED_CHAR, signed)
