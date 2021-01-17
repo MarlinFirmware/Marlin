@@ -198,110 +198,106 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if ENABLED(FYSETC_242_OLED_12864)
 
-  #if ENABLED(FYSETC_242_OLED_12864)
+  #define BTN_EN1                           PC9
+  #define BTN_EN2                           PD1
+  #define BTN_ENC                           PA8
 
-    #define BTN_EN1                         PC9
-    #define BTN_EN2                         PD1
-    #define BTN_ENC                         PA8
+  #define BEEPER_PIN                        PC6
 
-    #define BEEPER_PIN                      PC6
+  #define LCD_PINS_DC                       PC12
+  #define LCD_PINS_RS                       PC7   // LCD_RST
+  #define DOGLCD_CS                         PD2
+  #define DOGLCD_MOSI                       PC10
+  #define DOGLCD_SCK                        PC11
+  #define DOGLCD_A0                  LCD_PINS_DC
+  #define FORCE_SOFT_SPI
 
-    #define LCD_PINS_DC                     PC12
-    #define LCD_PINS_RS                     PC7   //LCD_RST
-    #define DOGLCD_CS                       PD2
-    #define DOGLCD_MOSI                     PC10
-    #define DOGLCD_SCK                      PC11
-    #define DOGLCD_A0                LCD_PINS_DC
-    #define FORCE_SOFT_SPI
+  #define KILL_PIN                          -1    // NC
+  #define NEOPIXEL_PIN                      PD0
 
-    #define KILL_PIN                        -1    // NC
-    #define NEOPIXEL_PIN                    PD0
+#elif HAS_WIRED_LCD
+
+  #define BEEPER_PIN                        PC9
+  #define BTN_ENC                           PA8
+
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS                     PD0
+
+    #define BTN_EN1                         PC11
+    #define BTN_EN2                         PC10
+
+    #define LCD_PINS_ENABLE                 PD1
+    #define LCD_PINS_D4                     PC12
+
+    // CR10_STOCKDISPLAY default timing is too fast
+    #undef BOARD_ST7920_DELAY_1
+    #undef BOARD_ST7920_DELAY_2
+    #undef BOARD_ST7920_DELAY_3
 
   #else
-  
-    #define BEEPER_PIN                      PC9
-    #define BTN_ENC                         PA8
 
-    #if ENABLED(CR10_STOCKDISPLAY)
-      #define LCD_PINS_RS                   PD0
+    #define LCD_PINS_RS                     PD2
 
-      #define BTN_EN1                       PC11
-      #define BTN_EN2                       PC10
+    #define BTN_EN1                         PC6
+    #define BTN_EN2                         PC7
 
-      #define LCD_PINS_ENABLE               PD1
-      #define LCD_PINS_D4                   PC12
+    #define LCD_SDSS                        PA4
 
-      // CR10_STOCKDISPLAY default timing is too fast
-      #undef BOARD_ST7920_DELAY_1
-      #undef BOARD_ST7920_DELAY_2
-      #undef BOARD_ST7920_DELAY_3
+    #define LCD_PINS_ENABLE                 PC11
+    #define LCD_PINS_D4                     PC10
 
-    #else
-
-      #define LCD_PINS_RS                   PD2
-
-      #define BTN_EN1                       PC6
-      #define BTN_EN2                       PC7
-
-      #define LCD_SDSS                      PA4
-
-      #define LCD_PINS_ENABLE               PC11
-      #define LCD_PINS_D4                   PC10
-
-      #if ENABLED(FYSETC_MINI_12864)
-       // See https://wiki.fysetc.com/Mini12864_Panel
-        #define DOGLCD_CS                   PC11
-        #define DOGLCD_A0                   PD2
-        #if ENABLED(FYSETC_GENERIC_12864_1_1)
-          #define LCD_BACKLIGHT_PIN         PD0
+    #if ENABLED(FYSETC_MINI_12864)
+     // See https://wiki.fysetc.com/Mini12864_Panel
+      #define DOGLCD_CS                     PC11
+      #define DOGLCD_A0                     PD2
+      #if ENABLED(FYSETC_GENERIC_12864_1_1)
+        #define LCD_BACKLIGHT_PIN           PD0
+      #endif
+      #define LCD_RESET_PIN                 PC10  // Must be high or open for LCD to operate normally.
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN             PC12
         #endif
-        #define LCD_RESET_PIN               PC10  // Must be high or open for LCD to operate normally.
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-          #ifndef RGB_LED_R_PIN
-            #define RGB_LED_R_PIN           PC12
-          #endif
-          #ifndef RGB_LED_G_PIN
-            #define RGB_LED_G_PIN           PD0
-          #endif
-          #ifndef RGB_LED_B_PIN
-            #define RGB_LED_B_PIN           PD1
-          #endif
-        #elif ENABLED(FYSETC_MINI_12864_2_1)
-          #define NEOPIXEL_PIN              PC12
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN             PD0
         #endif
-      #endif // !FYSETC_MINI_12864
-
-      #if IS_ULTIPANEL
-        #define LCD_PINS_D5                 PC12
-        #define LCD_PINS_D6                 PD0
-        #define LCD_PINS_D7                 PD1
-
-        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN             PD1
         #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN                PC12
+      #endif
+    #endif // !FYSETC_MINI_12864
 
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5                   PC12
+      #define LCD_PINS_D6                   PD0
+      #define LCD_PINS_D7                   PD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
 
     #endif
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
-    #endif
-  #endif
-
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
+  #endif
+#endif
 
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB6
