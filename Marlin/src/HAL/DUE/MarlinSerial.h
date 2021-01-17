@@ -32,7 +32,6 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "../../core/serial_hook.h"
 
-
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
 // location to which to write the next incoming character and rx_buffer_tail
@@ -140,8 +139,6 @@ struct MarlinSerialCfg {
   static constexpr bool RX_FRAMING_ERRORS = ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS);
   static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
-
-
 
 #if SERIAL_PORT >= 0
   typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
