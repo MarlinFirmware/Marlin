@@ -402,7 +402,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    GCODES_ITEM(MSG_M48_TEST, PSTR("G28 O\nM48 P10"));
+    GCODES_ITEM(MSG_M48_TEST, PSTR("G28O\nM48 P10"));
   #endif
 
   //

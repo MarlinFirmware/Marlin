@@ -103,9 +103,9 @@
         ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          queue.inject_P(PSTR("G29 S2"));
+          queue.inject_P(PSTR("G29S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          queue.inject_P(PSTR("G29 V1"));
+          queue.inject_P(PSTR("G29V1"));
         #endif
       }
       else
@@ -155,9 +155,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      queue.inject_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
+      queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      queue.inject_P(PSTR("G29 V1"));
+      queue.inject_P(PSTR("G29V1"));
     #endif
   }
 
