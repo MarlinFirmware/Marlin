@@ -34,14 +34,11 @@
   #define BIN 2
 #endif
 
-
 // Nothing in the Private namespace generate code.
-namespace Private
-{
+namespace Private {
   // flushTX is not implemented everywhere, so we need to fallback to SFINAE to detect it and implement it if it's the case
-  template <typename T, typename Yes = char, typename No = long>
-  struct HasFlushTX 
-  {
+  template <typename T, typename Yes=char, typename No=long>
+  struct HasFlushTX {
     template <typename C> static Yes& test( decltype(&C::flushTX) ) ;
     template <typename C> static No& test(...);
     enum { value = sizeof(test<T>(0)) == sizeof(Yes) };
@@ -55,12 +52,11 @@ namespace Private
                        FORCE_INLINE static                                                 void callFlushTX(...)   {}
 }
 
-// Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling. 
-// Since the real serial class is known at compile time, this results in compiler writing a completely 
+// Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
+// Since the real serial class is known at compile time, this results in compiler writing a completely
 // efficient code
 template <class Child>
-struct SerialBase
-{
+struct SerialBase {
   #if ENABLED(EMERGENCY_PARSER)
     const bool ep_enabled;
     EmergencyParser::State emergency_state;
@@ -74,7 +70,7 @@ struct SerialBase
   // The most important method here is where it all ends to:
   size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
   // Called when the parser finished processing an instruction, usually build to nothing
-  void msgDone()                    { static_cast<Child*>(this)->msgDone(); } 
+  void msgDone()                    { static_cast<Child*>(this)->msgDone(); }
   /** Check for available data from the port
       @param index  The port index, usually 0 */
   bool available(uint8_t index = 0) { return static_cast<Child*>(this)->available(index); }
@@ -85,49 +81,47 @@ struct SerialBase
   void flush()                      { static_cast<Child*>(this)->flush(); }
   // Not all implementation have a flushTX, so let's call them only if the child has the implementation
   void flushTX()                    { Private::callFlushTX(static_cast<Child*>(this)); }
-  
 
   // Glue code here
-  FORCE_INLINE void write(const char* str)                      { while (*str) write(*str++); }
-  FORCE_INLINE void write(const uint8_t* buffer, size_t size)   { while (size--) write(*buffer++); }
-//  FORCE_INLINE void print(const String& s)                      { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  FORCE_INLINE void print(const char* str)                      { write(str); }
-  void print(char c, int base = 0)                              { print((long)c, base); }
-  void print(unsigned char c, int base = 0)                     { print((unsigned long)c, base); }
-  void print(int c, int base = DEC)                             { print((long)c, base); }
-  void print(unsigned int c, int base = DEC)                    { print((unsigned long)c, base); }
-  void print(long c, int base = DEC)                            { if (!base) write(c); write((const uint8_t*)"-", c < 0); printNumber(c < 0 ? -c : c, base); }
-  void print(unsigned long c, int base = DEC)                   { printNumber(c, base); }
-  void print(double c, int digits = 2)                          { printFloat(c, digits); }
+  FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }
+  FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+  //FORCE_INLINE void print(const String& s)                    { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+  FORCE_INLINE void print(const char* str)      { write(str); }
+  void print(char c, int base = 0)              { print((long)c, base); }
+  void print(unsigned char c, int base = 0)     { print((unsigned long)c, base); }
+  void print(int c, int base = DEC)             { print((long)c, base); }
+  void print(unsigned int c, int base = DEC)    { print((unsigned long)c, base); }
+  void print(long c, int base = DEC)            { if (!base) write(c); write((const uint8_t*)"-", c < 0); printNumber(c < 0 ? -c : c, base); }
+  void print(unsigned long c, int base = DEC)   { printNumber(c, base); }
+  void print(double c, int digits = 2)          { printFloat(c, digits); }
 
-//  void println(const String& s)                                 { print(s); println(); }
-  void println(const char s[])                                  { print(s); println(); }
-  void println(char c, int base = 0)                            { print(c, base); println(); }
-  void println(unsigned char c, int base = 0)                   { print(c, base); println(); }
-  void println(int c, int base = DEC)                           { print(c, base); println(); }
-  void println(unsigned int c, int base = DEC)                  { print(c, base); println(); }
-  void println(long c, int base = DEC)                          { print(c, base); println(); }
-  void println(unsigned long c, int base = DEC)                 { print(c, base); println(); }
-  void println(double c, int digits = 2)                        { print(c, digits); println(); }
-  void println()                                                { write("\r\n"); }
+  //void println(const String& s)                 { print(s); println(); }
+  void println(const char s[])                  { print(s); println(); }
+  void println(char c, int base = 0)            { print(c, base); println(); }
+  void println(unsigned char c, int base = 0)   { print(c, base); println(); }
+  void println(int c, int base = DEC)           { print(c, base); println(); }
+  void println(unsigned int c, int base = DEC)  { print(c, base); println(); }
+  void println(long c, int base = DEC)          { print(c, base); println(); }
+  void println(unsigned long c, int base = DEC) { print(c, base); println(); }
+  void println(double c, int digits = 2)        { print(c, digits); println(); }
+  void println()                                { write("\r\n"); }
 
   // Print a number with the given base
-  void printNumber(unsigned long n, const uint8_t base)
-  {
+  void printNumber(unsigned long n, const uint8_t base) {
     if (n) {
-        unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
-        int8_t i = 0;
-        while (n) {
-            buf[i++] = n % base;
-            n /= base;
-        }
-        while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
+      unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
+      int8_t i = 0;
+      while (n) {
+        buf[i++] = n % base;
+        n /= base;
+      }
+      while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
     }
     else write('0');
   }
+
   // Print a decimal number
-  void printFloat(double number, uint8_t digits)
-  {
+  void printFloat(double number, uint8_t digits) {
     // Handle negative numbers
     if (number < 0.0) {
       write('-');
@@ -149,14 +143,14 @@ struct SerialBase
       write('.');
       // Extract digits from the remainder one at a time
       while (digits--) {
-          remainder *= 10.0;
-          int toPrint = int(remainder);
-          printNumber(toPrint, 10);
-          remainder -= toPrint;
+        remainder *= 10.0;
+        int toPrint = int(remainder);
+        printNumber(toPrint, 10);
+        remainder -= toPrint;
       }
     }
   }
 };
 
-// All serial instances will be built by chaining the features required for the function in a form of a template 
+// All serial instances will be built by chaining the features required for the function in a form of a template
 // type definition

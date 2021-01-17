@@ -23,13 +23,12 @@
 
 #include "serial_base.h"
 
-// The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class 
+// The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class
 template <class SerialT>
-struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT
-{
+struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   typedef SerialBase< BaseSerial<SerialT> > BaseClassT;
-  
-  // It's required to implement a write method here to help compiler disambiguate what method to call 
+
+  // It's required to implement a write method here to help compiler disambiguate what method to call
   using SerialT::write;
   using SerialT::flush;
 
@@ -55,8 +54,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT
 // A serial with a condition checked at runtime for its output
 // A bit less efficient than static dispatching but since it's only used for ethernet's serial output right now, it's ok.
 template <class SerialT>
-struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> >
-{
+struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   typedef SerialBase< ConditionalSerial<SerialT> > BaseClassT;
 
 
@@ -65,29 +63,28 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> >
   size_t write(uint8_t c) { if (condition) return out.write(c); }
   void flush()            { if (condition) out.flush();  }
 
-  void msgDone()                {}
+  void msgDone() {}
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
   using BaseClassT::available;
   using BaseClassT::read;
-  
+
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
 
 // A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
 template <class SerialT>
-struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public SerialT
-{
+struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public SerialT {
   typedef SerialBase< RuntimeSerial<SerialT> > BaseClassT;
   typedef void (*WriteHook)(void * userPointer, uint8_t c);
   typedef void (*EndOfMessageHook)(void * userPointer);
 
-  WriteHook          writeHook;
-  EndOfMessageHook   eofHook;
-  void *             userPointer;
+  WriteHook        writeHook;
+  EndOfMessageHook eofHook;
+  void *           userPointer;
 
-  size_t write(uint8_t c) { 
+  size_t write(uint8_t c) {
     if (writeHook) writeHook(userPointer, c);
     return SerialT::write(c);
   }
@@ -116,7 +113,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   }
 
   RuntimeSerial(const bool e) : BaseClassT(e), writeHook(0), eofHook(0), userPointer(0) {}
-  
+
   // Forward constructor
   template <typename... Args>
   RuntimeSerial(const bool e, Args... args) : BaseClassT(e), SerialT(args...) {}
@@ -124,8 +121,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
 // A class that's duplicating its output conditionally to 2 serial interface
 template <class Serial0T, class Serial1T, const uint8_t offset = 0>
-struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> >
-{
+struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> > {
   typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset> > BaseClassT;
 
   uint8_t    portMask;
@@ -144,18 +140,18 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
     if (portMask & SecondOutputMask)  ret = serial1.write(c) | ret;
     return ret;
   }
-  void msgDone() { 
+  void msgDone() {
     if (portMask & FirstOutputMask)   serial0.msgDone();
     if (portMask & SecondOutputMask)  serial1.msgDone();
   }
-  bool available(uint8_t index) { 
+  bool available(uint8_t index) {
     switch(index) {
       case 0 + offset: return serial0.available();
       case 1 + offset: return serial1.available();
       default: return false;
     }
   }
-  int read(uint8_t index) { 
+  int read(uint8_t index) {
     switch(index) {
       case 0 + offset: return serial0.read();
       case 1 + offset: return serial1.read();
@@ -166,28 +162,22 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
   using BaseClassT::read;
 
   // Redirect flush
-  void flush()      { 
-    if (portMask & FirstOutputMask)   serial0.flush(); 
-    if (portMask & SecondOutputMask)  serial1.flush(); 
+  void flush()      {
+    if (portMask & FirstOutputMask)   serial0.flush();
+    if (portMask & SecondOutputMask)  serial1.flush();
   }
-  void flushTX()    { 
-    if (portMask & FirstOutputMask)   Private::callFlushTX(&serial0); 
-    if (portMask & SecondOutputMask)  Private::callFlushTX(&serial1); 
+  void flushTX()    {
+    if (portMask & FirstOutputMask)   Private::callFlushTX(&serial0);
+    if (portMask & SecondOutputMask)  Private::callFlushTX(&serial1);
   }
 
-  MultiSerial(Serial0T & serial0, Serial1T & serial1, int8_t mask = AllMask, const bool e = false) : 
-    BaseClassT(e), 
+  MultiSerial(Serial0T & serial0, Serial1T & serial1, int8_t mask = AllMask, const bool e = false) :
+    BaseClassT(e),
     portMask(mask), serial0(serial0), serial1(serial1) {}
 };
 
-// Now, it's time to build the actual serial object depending on current configuration
-#ifdef SERIAL_RUNTIME_HOOK
-  #define Serial0Type RuntimeSerial
-#else
-  #define Serial0Type BaseSerial
-#endif
-
+// Build the actual serial object depending on current configuration
+#define Serial0Type TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, BaseSerial)
 #ifdef HAS_MULTI_SERIAL
   #define Serial1Type ConditionalSerial
 #endif
-
