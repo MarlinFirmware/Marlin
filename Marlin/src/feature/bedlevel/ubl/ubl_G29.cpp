@@ -321,7 +321,8 @@
     // Check for commands that require the printer to be homed
     if (may_move) {
       planner.synchronize();
-      if (axes_should_home()) gcode.home_all_axes();
+      // Send 'N' to force homing before G29 (internal only)
+      if (axes_should_home() || parser.seen('N')) gcode.home_all_axes();
       TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
     }
 

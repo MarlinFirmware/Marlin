@@ -369,9 +369,9 @@ public:
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes() {
+  static inline void home_all_axes(const bool keep_leveling=false) {
     extern const char G28_STR[];
-    process_subcommands_now_P(G28_STR);
+    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)

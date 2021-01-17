@@ -75,7 +75,7 @@ extern lv_group_t *g;
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {
-  "G28\nG29\nM500",
+  "G29N\nM500",
   "G28",
   "G28",
   "G28",
