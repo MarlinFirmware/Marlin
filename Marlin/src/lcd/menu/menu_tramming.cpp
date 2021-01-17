@@ -92,9 +92,13 @@ void goto_tramming_wizard() {
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
-
-  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(false));
-  queue.inject_P(TERN(ENABLE_LEVELING_AFTER_G28, PSTR("G28L"), G28_STR));
+  queue.inject_P(
+    #if EITHER(RESTORE_LEVELING_AFTER_G28, ENABLE_LEVELING_AFTER_G28)
+      PSTR("G28L0")
+    #else
+      G28_STR
+    #endif
+  );
 
   ui.goto_screen([]{
     _lcd_draw_homing();
