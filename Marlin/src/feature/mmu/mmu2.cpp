@@ -336,7 +336,6 @@ void MMU2::mmu_loop() {
 
       if (rx_ok()) {
         // Response to C0 mmu command in MMU2S model
-        bool can_reset = true;
         #if HAS_PRUSA_MMU2S
           if (!mmu2s_triggered && last_cmd == MMU_CMD_C0) {
             // MMU ok received but filament sensor not triggered, retrying...
@@ -344,13 +343,14 @@ void MMU2::mmu_loop() {
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
             MMU2_COMMAND("C0");
           }
+          else
         #endif
-        if (can_reset) {
+          {
           DEBUG_ECHOLNPGM("MMU => 'ok'");
           ready = true;
           state = 1;
           last_cmd = MMU_CMD_NONE;
-        }
+          }
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
