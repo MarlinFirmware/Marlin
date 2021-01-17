@@ -70,7 +70,6 @@ static void _menu_single_probe(const uint8_t point) {
 
 static void tramming_wizard_menu() {
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
-
   START_MENU();
   STATIC_ITEM(MSG_SELECT_ORIGIN);
 
