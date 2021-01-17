@@ -231,11 +231,6 @@
     #define LCD_PINS_ENABLE                 PD1
     #define LCD_PINS_D4                     PC12
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #else
 
     #define LCD_PINS_RS                     PD2
@@ -249,7 +244,7 @@
     #define LCD_PINS_D4                     PC10
 
     #if ENABLED(FYSETC_MINI_12864)
-     // See https://wiki.fysetc.com/Mini12864_Panel
+      // See https://wiki.fysetc.com/Mini12864_Panel
       #define DOGLCD_CS                     PC11
       #define DOGLCD_A0                     PD2
       #if ENABLED(FYSETC_GENERIC_12864_1_1)
@@ -269,17 +264,15 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN                PC12
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1
-
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
     #endif
 
   #endif
