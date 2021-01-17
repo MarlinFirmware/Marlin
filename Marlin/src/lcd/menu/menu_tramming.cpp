@@ -42,6 +42,10 @@
 float z_measured[G35_PROBE_COUNT] = { 0 };
 static uint8_t tram_index = 0;
 
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
   // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
@@ -60,7 +64,7 @@ static void _menu_single_probe(const uint8_t point) {
   STATIC_ITEM(MSG_LEVEL_CORNERS, SS_LEFT);
   STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, ftostr42_52(z_measured[0] - z_measured[point])); // Print diff
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
-  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen_no_defer(); }); // Back
+  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); }); // Back
   END_MENU();
 }
 
@@ -88,7 +92,8 @@ void goto_tramming_wizard() {
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
-  queue.inject_P(G28_STR);
+  queue.inject_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
+
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed())
