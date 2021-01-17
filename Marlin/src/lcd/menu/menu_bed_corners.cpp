@@ -213,7 +213,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
-      []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G28\nG29"), G28_STR));
+      []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR));
           ui.return_to_status();
       }
       , []{ ui.goto_previous_screen_no_defer(); }
