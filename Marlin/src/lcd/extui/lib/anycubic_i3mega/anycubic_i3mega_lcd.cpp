@@ -324,7 +324,7 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
               case '2': // "<02ABL>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Bed Leveling");
-                ExtUI::injectCommands_P(PSTR("G28\nG29"));
+                ExtUI::injectCommands_P(PSTR("G29N"));
                 break;
 
               case '3': // "<03HtendPID>"
