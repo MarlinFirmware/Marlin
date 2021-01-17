@@ -56,7 +56,7 @@ extern uint8_t marlin_debug_flags;
   #else
     typedef MultiSerial<decltype(MYSERIAL0), decltype(MYSERIAL1), 0>      SerialOutputT;
   #endif
-  extern SerialOutputT          multiSerial;   
+  extern SerialOutputT          multiSerial;
   #define SERIAL_IMPL           multiSerial
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
@@ -64,11 +64,10 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL           MYSERIAL0
 #endif
 
-
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
-#define SERIAL_PORTMASK(P)      (1 << P)
+#define SERIAL_PORTMASK(P)      _BV(P)
 
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)

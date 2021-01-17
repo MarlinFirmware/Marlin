@@ -55,7 +55,7 @@ void GcodeSuite::M118() {
   #if HAS_MULTI_SERIAL
     const int8_t old_serial = multiSerial.portMask;
     if (WITHIN(port, 0, NUM_SERIAL))
-      multiSerial.portMask = port == 0 ? SERIAL_ALL : 1 << (port - 1);
+      multiSerial.portMask = port ? _BV(port - 1) : SERIAL_ALL;
   #endif
 
   if (hasE) SERIAL_ECHO_START();

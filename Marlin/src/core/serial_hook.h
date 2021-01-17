@@ -43,7 +43,6 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   using BaseClassT::print;
   using BaseClassT::println;
 
-
   BaseSerial(const bool e) : BaseClassT(e) {}
 
   // Forward constructor
@@ -56,7 +55,6 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 template <class SerialT>
 struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   typedef SerialBase< ConditionalSerial<SerialT> > BaseClassT;
-
 
   bool    & condition;
   SerialT & out;
@@ -99,7 +97,6 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   using SerialT::available;
   using SerialT::read;
   using SerialT::flush;
-
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts

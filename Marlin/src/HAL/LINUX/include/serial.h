@@ -80,7 +80,7 @@ struct HalSerial {
   void begin(int32_t) {}
   void end()          {}
 
-  int peek()  {
+  int peek() {
     uint8_t value;
     return receive_buffer.peek(&value) ? value : -1;
   }
