@@ -63,7 +63,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         public_buf_m[sizeof(public_buf_m)-1] = 0;
         queue.inject_P(PSTR(public_buf_m));
       #else
-        uiCfg.leveling_first_time = 1;
+        uiCfg.leveling_first_time = true;
         lv_draw_manualLevel();
       #endif
       break;

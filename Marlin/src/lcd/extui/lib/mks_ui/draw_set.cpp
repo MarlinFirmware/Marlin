@@ -88,7 +88,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             lv_draw_wifi();
           }
           else {
-            if (uiCfg.command_send == 1) {
+            if (uiCfg.command_send) {
               uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
               raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
               last_disp_state = SET_UI;

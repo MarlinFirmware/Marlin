@@ -160,14 +160,14 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     if (!do_draw_cal) draw_return_ui();
   }
   else if (DIALOG_IS(WIFI_CONFIG_TIPS)) {
-    uiCfg.configWifi = 1;
+    uiCfg.configWifi = true;
     clear_cur_ui();
     draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_LOAD_COMPLETED))
-    uiCfg.filament_heat_completed_load = 1;
+    uiCfg.filament_heat_completed_load = true;
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED))
-    uiCfg.filament_heat_completed_unload = 1;
+    uiCfg.filament_heat_completed_unload = true;
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
     clear_cur_ui();
     draw_return_ui();
@@ -198,11 +198,11 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
     queue.enqueue_one_P(PSTR("M410"));
     uiCfg.filament_rate                = 0;
-    uiCfg.filament_loading_completed   = 0;
-    uiCfg.filament_unloading_completed = 0;
-    uiCfg.filament_loading_time_flg    = 0;
+    uiCfg.filament_loading_completed   = false;
+    uiCfg.filament_unloading_completed = false;
+    uiCfg.filament_loading_time_flg    = false;
     uiCfg.filament_loading_time_cnt    = 0;
-    uiCfg.filament_unloading_time_flg  = 0;
+    uiCfg.filament_unloading_time_flg  = false;
     uiCfg.filament_unloading_time_cnt  = 0;
     thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
     clear_cur_ui();
@@ -493,22 +493,22 @@ void filament_dialog_handle() {
     filament_sprayer_temp();
     temps_update_flag = false;
   }
-  if (uiCfg.filament_heat_completed_load == 1) {
-    uiCfg.filament_heat_completed_load = 0;
+  if (uiCfg.filament_heat_completed_load) {
+    uiCfg.filament_heat_completed_load = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOADING);
     planner.synchronize();
-    uiCfg.filament_loading_time_flg = 1;
+    uiCfg.filament_loading_time_flg = true;
     uiCfg.filament_loading_time_cnt = 0;
     sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
     queue.inject(public_buf_m);
   }
-  if (uiCfg.filament_heat_completed_unload == 1) {
-    uiCfg.filament_heat_completed_unload = 0;
+  if (uiCfg.filament_heat_completed_unload) {
+    uiCfg.filament_heat_completed_unload = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOADING);
     planner.synchronize();
-    uiCfg.filament_unloading_time_flg = 1;
+    uiCfg.filament_unloading_time_flg = true;
     uiCfg.filament_unloading_time_cnt = 0;
     sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
     queue.inject(public_buf_m);
@@ -516,31 +516,31 @@ void filament_dialog_handle() {
 
   if (((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius - gCfgItems.filament_limit_temper)) <= 1)
     || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius > gCfgItems.filament_limit_temper))
-    && (uiCfg.filament_load_heat_flg == 1)
+    && (uiCfg.filament_load_heat_flg)
   ) {
-    uiCfg.filament_load_heat_flg = 0;
+    uiCfg.filament_load_heat_flg = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
   }
 
-  if (uiCfg.filament_loading_completed == 1) {
+  if (uiCfg.filament_loading_completed) {
     uiCfg.filament_rate = 0;
-    uiCfg.filament_loading_completed = 0;
+    uiCfg.filament_loading_completed = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_COMPLETED);
   }
   if (((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius - gCfgItems.filament_limit_temper)) <= 1)
      || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius > gCfgItems.filament_limit_temper))
-     && (uiCfg.filament_unload_heat_flg == 1)
+     && uiCfg.filament_unload_heat_flg
   ) {
-    uiCfg.filament_unload_heat_flg = 0;
+    uiCfg.filament_unload_heat_flg = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
   }
 
-  if (uiCfg.filament_unloading_completed == 1) {
+  if (uiCfg.filament_unloading_completed) {
     uiCfg.filament_rate = 0;
-    uiCfg.filament_unloading_completed = 0;
+    uiCfg.filament_unloading_completed = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOAD_COMPLETED);
   }
