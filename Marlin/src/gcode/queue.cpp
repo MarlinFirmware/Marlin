@@ -34,6 +34,9 @@ GCodeQueue queue;
 #include "../module/planner.h"
 #include "../module/temperature.h"
 #include "../MarlinCore.h"
+#if ENABLED(MEATPACK)
+  #include "../feature/meatpack.h"
+#endif
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
@@ -467,100 +470,116 @@ void GCodeQueue::get_serial_commands() {
   while (length < BUFSIZE && serial_data_available()) {
     LOOP_L_N(i, NUM_SERIAL) {
 
-      const int c = read_serial(i);
-      if (c < 0) continue;
+      #if ENABLED(MEATPACK)
+        // MeatPack Changes
+        const int rec = read_serial(i);
+        if (rec < 0) continue;
 
-      const char serial_char = c;
+        mp_handle_rx_char((uint8_t)rec);
+        char c_res[2] = {0, 0};
+        const uint8_t char_count = mp_get_result_char(c_res);
 
-      if (ISEOL(serial_char)) {
+        for (uint8_t char_index = 0; char_index < char_count; ++char_index){
+          const int c = c_res[char_index];
+      #else
+          const int c = read_serial(i);
+      #endif
+          if (c < 0) continue;
 
-        // Reset our state, continue if the line was empty
-        if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]))
-          continue;
+          const char serial_char = c;
 
-        char* command = serial_line_buffer[i];
+          if (ISEOL(serial_char)) {
 
-        while (*command == ' ') command++;                   // Skip leading spaces
-        char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
+            // Reset our state, continue if the line was empty
+            if (process_line_done(serial_input_state[i], serial_line_buffer[i], serial_count[i]))
+              continue;
 
-        if (npos) {
+            char* command = serial_line_buffer[i];
 
-          const bool M110 = !!strstr_P(command, PSTR("M110"));
+            while (*command == ' ') command++;                   // Skip leading spaces
+            char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
 
-          if (M110) {
-            char* n2pos = strchr(command + 4, 'N');
-            if (n2pos) npos = n2pos;
-          }
+            if (npos) {
 
-          const long gcode_N = strtol(npos + 1, nullptr, 10);
+              const bool M110 = !!strstr_P(command, PSTR("M110"));
 
-          if (gcode_N != last_N[i] + 1 && !M110)
-            return gcode_line_error(PSTR(STR_ERR_LINE_NO), i);
+              if (M110) {
+                char* n2pos = strchr(command + 4, 'N');
+                if (n2pos) npos = n2pos;
+              }
 
-          char *apos = strrchr(command, '*');
-          if (apos) {
-            uint8_t checksum = 0, count = uint8_t(apos - command);
-            while (count) checksum ^= command[--count];
-            if (strtol(apos + 1, nullptr, 10) != checksum)
-              return gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), i);
-          }
-          else
-            return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
+              const long gcode_N = strtol(npos + 1, nullptr, 10);
 
-          last_N[i] = gcode_N;
-        }
-        #if ENABLED(SDSUPPORT)
-          // Pronterface "M29" and "M29 " has no line number
-          else if (card.flag.saving && !is_M29(command))
-            return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
-        #endif
+              if (gcode_N != last_N[i] + 1 && !M110)
+                return gcode_line_error(PSTR(STR_ERR_LINE_NO), i);
 
-        //
-        // Movement commands give an alert when the machine is stopped
-        //
+              char *apos = strrchr(command, '*');
+              if (apos) {
+                uint8_t checksum = 0, count = uint8_t(apos - command);
+                while (count) checksum ^= command[--count];
+                if (strtol(apos + 1, nullptr, 10) != checksum)
+                  return gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), i);
+              }
+              else
+                return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
 
-        if (IsStopped()) {
-          char* gpos = strchr(command, 'G');
-          if (gpos) {
-            switch (strtol(gpos + 1, nullptr, 10)) {
-              case 0: case 1:
-              #if ENABLED(ARC_SUPPORT)
-                case 2: case 3:
-              #endif
-              #if ENABLED(BEZIER_CURVE_SUPPORT)
-                case 5:
-              #endif
-                PORT_REDIRECT(i);                      // Reply to the serial port that sent the command
-                SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
-                LCD_MESSAGEPGM(MSG_STOPPED);
-                break;
+              last_N[i] = gcode_N;
             }
-          }
-        }
+            #if ENABLED(SDSUPPORT)
+              // Pronterface "M29" and "M29 " has no line number
+              else if (card.flag.saving && !is_M29(command))
+                return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
+            #endif
 
-        #if DISABLED(EMERGENCY_PARSER)
-          // Process critical commands early
+            //
+            // Movement commands give an alert when the machine is stopped
+            //
+
+            if (IsStopped()) {
+              char* gpos = strchr(command, 'G');
+              if (gpos) {
+                switch (strtol(gpos + 1, nullptr, 10)) {
+                  case 0: case 1:
+                  #if ENABLED(ARC_SUPPORT)
+                    case 2: case 3:
+                  #endif
+                  #if ENABLED(BEZIER_CURVE_SUPPORT)
+                    case 5:
+                  #endif
+                    PORT_REDIRECT(i);                      // Reply to the serial port that sent the command
+                    SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
+                    LCD_MESSAGEPGM(MSG_STOPPED);
+                    break;
+                }
+              }
+            }
+
+            #if DISABLED(EMERGENCY_PARSER)
+              // Process critical commands early
           if (command[0] == 'M') switch (command[3]) {
             case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; TERN_(HAS_LCD_MENU, wait_for_user = false); } break;
             case '2': if (command[2] == '1' && command[1] == '1') kill(M112_KILL_STR, nullptr, true); break;
             case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
           }
-        #endif
+            #endif
 
-        #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
-          last_command_time = ms;
-        #endif
+            #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
+              last_command_time = ms;
+            #endif
 
-        // Add the command to the queue
-        _enqueue(serial_line_buffer[i], true
-          #if HAS_MULTI_SERIAL
-            , i
-          #endif
-        );
-      }
-      else
-        process_stream_char(serial_char, serial_input_state[i], serial_line_buffer[i], serial_count[i]);
+            // Add the command to the queue
+            _enqueue(serial_line_buffer[i], true
+              #if HAS_MULTI_SERIAL
+                , i
+              #endif
+            );
+          }
+          else
+            process_stream_char(serial_char, serial_input_state[i], serial_line_buffer[i], serial_count[i]);
 
+#if ENABLED(MEATPACK)
+        }
+#endif
     } // for NUM_SERIAL
   } // queue has space, serial has data
 }
