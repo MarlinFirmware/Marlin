@@ -45,8 +45,6 @@ static uint8_t tram_index = 0;
 #if HAS_LEVELING
   #include "../../module/planner.h"
   #include "../../feature/bedlevel/bedlevel.h"
-  
-  bool prev_leveling_state = false;
 #endif
 
 static bool probe_single_point() {
@@ -74,10 +72,7 @@ static void _menu_single_probe(const uint8_t point) {
 static void tramming_wizard_menu() {
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
 
-  #if HAS_LEVELING
-    prev_leveling_state = planner.leveling_active;
-    set_bed_leveling_enabled(false); // temporarily disable leveling; tramming requires physical coords
-  #endif 
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
   START_MENU();
   STATIC_ITEM(MSG_SELECT_ORIGIN);
@@ -88,9 +83,6 @@ static void tramming_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     probe.stow(); // Stow before exiting Tramming Wizard
-
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(prev_leveling_state)); // restore bed leveling on exit
-
     ui.goto_previous_screen_no_defer();
   });
   END_MENU();
