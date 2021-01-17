@@ -86,9 +86,9 @@ namespace Anycubic {
 
     safe_delay(200);
 
-    // Enable levelling and Disable end stops during print
+    // Enable leveling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
-    injectCommands_P(AC_cmnd_enable_levelling);
+    injectCommands_P(AC_cmnd_enable_leveling);
 
     // Startup tunes are defined in Tunes.h
     //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
@@ -762,7 +762,7 @@ namespace Anycubic {
               selectedmeshpoint.x = selectedmeshpoint.y = 99;
             }
           break;
-          case 'D':   // Save Z Offset tables and restore levelling state
+          case 'D':   // Save Z Offset tables and restore leveling state
             if (!isPrinting()) {
               setAxisPosition_mm(1.0,Z);
               injectCommands_P(PSTR("M500"));
@@ -784,7 +784,7 @@ namespace Anycubic {
             float Zshift = atof(&panel_command[4]);
             setSoftEndstopState(false);  // disable endstops
             // Allow temporary Z position nudging during print
-            // From the levelling panel use the all points UI to adjust the print pos.
+            // From the leveling panel use the all points UI to adjust the print pos.
             if (isPrinting()) {
               #if ACDEBUG(AC_INFO)
                 SERIAL_ECHOLNPAIR("Change Zoffset from:", live_Zoffset, " to ", live_Zoffset + Zshift);
