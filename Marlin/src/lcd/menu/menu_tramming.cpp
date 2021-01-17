@@ -43,7 +43,6 @@ float z_measured[G35_PROBE_COUNT] = { 0 };
 static uint8_t tram_index = 0;
 
 #if HAS_LEVELING
-  #include "../../module/planner.h"
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
