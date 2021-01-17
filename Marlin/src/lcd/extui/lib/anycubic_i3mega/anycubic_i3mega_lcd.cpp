@@ -28,7 +28,7 @@
 
 #include "../../../../libs/numtostr.h"
 #include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
-#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../MarlinCore.h"     // for quickstop_stepper, disable_steppers, G28_STR
 #include "../../../../inc/MarlinConfig.h"
 
 // command sending macro's with debugging capability
@@ -274,12 +274,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
               case '6': // "<06SMeshLvl>"
                 SERIAL_ECHOLNPGM("Special Menu: Start Mesh Leveling");
-                ExtUI::injectCommands_P(PSTR("G29 S1"));
+                ExtUI::injectCommands_P(PSTR("G29S1"));
                 break;
 
               case '7': // "<07MeshNPnt>"
                 SERIAL_ECHOLNPGM("Special Menu: Next Mesh Point");
-                ExtUI::injectCommands_P(PSTR("G29 S2"));
+                ExtUI::injectCommands_P(PSTR("G29S2"));
                 break;
 
               case '8': // "<08HtEndPID>"
@@ -758,14 +758,14 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
               if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
                 if (CodeSeen('X'))
-                  ExtUI::injectCommands_P(PSTR("G28 X"));
+                  ExtUI::injectCommands_P(PSTR("G28X"));
                 if (CodeSeen('Y'))
-                  ExtUI::injectCommands_P(PSTR("G28 Y"));
+                  ExtUI::injectCommands_P(PSTR("G28Y"));
                 if (CodeSeen('Z'))
-                  ExtUI::injectCommands_P(PSTR("G28 Z"));
+                  ExtUI::injectCommands_P(PSTR("G28Z"));
               }
               else if (CodeSeen('C')) {
-                ExtUI::injectCommands_P(PSTR("G28"));
+                ExtUI::injectCommands_P(G28_STR);
               }
             }
             break;

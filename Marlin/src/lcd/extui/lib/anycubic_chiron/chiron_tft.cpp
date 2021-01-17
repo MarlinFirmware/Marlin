@@ -620,10 +620,10 @@ namespace Anycubic {
       case 21:   // A21 Home Axis  A21 X
         if (!isPrinting()) {
           switch ((char)panel_command[4]) {
-            case 'X': injectCommands_P(PSTR("G28 X")); break;
-            case 'Y': injectCommands_P(PSTR("G28 Y")); break;
-            case 'Z': injectCommands_P(PSTR("G28 Z")); break;
-            case 'C': injectCommands_P(PSTR("G28")); break;
+            case 'X': injectCommands_P(PSTR("G28X")); break;
+            case 'Y': injectCommands_P(PSTR("G28Y")); break;
+            case 'Z': injectCommands_P(PSTR("G28Z")); break;
+            case 'C': injectCommands_P(G28_STR); break;
           }
         }
         break;
@@ -718,7 +718,7 @@ namespace Anycubic {
           // If the same meshpoint is selected twice in a row, move the head to that ready for adjustment
           if ((selectedmeshpoint.x == pos.x) && (selectedmeshpoint.y == pos.y)) {
             if (!isPositionKnown())
-              injectCommands_P(PSTR("G28")); // home
+              injectCommands_P(G28_STR); // home
 
             if (isPositionKnown()) {
               #if ACDEBUG(AC_INFO)
@@ -746,7 +746,7 @@ namespace Anycubic {
           if (isPrinting())
             SendtoTFTLN(AC_msg_probing_not_allowed); // forbid auto leveling
           else {
-            injectCommands_P(isMachineHomed() ? PSTR("G29") : PSTR("G28\nG29"));
+            injectCommands_P(PSTR("G28O\nG29"));
             printer_state = AC_printer_probing;
             SendtoTFTLN(AC_msg_start_probing);
           }
