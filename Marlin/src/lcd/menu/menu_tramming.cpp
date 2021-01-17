@@ -71,8 +71,6 @@ static void _menu_single_probe(const uint8_t point) {
 static void tramming_wizard_menu() {
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
 
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
-
   START_MENU();
   STATIC_ITEM(MSG_SELECT_ORIGIN);
 
@@ -95,6 +93,7 @@ void goto_tramming_wizard() {
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
   queue.inject_P(G28_STR);
   ui.goto_screen([]{
     _lcd_draw_homing();
