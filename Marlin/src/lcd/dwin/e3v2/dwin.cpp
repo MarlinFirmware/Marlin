@@ -2332,7 +2332,7 @@ void HMI_Prepare() {
       case PREPARE_CASE_HOME: // Homing
         checkkey = Last_Prepare;
         index_prepare = MROWS;
-        queue.inject_P(PSTR("G28")); // G28 will set home_flag
+        queue.inject_P(G28_STR); // G28 will set home_flag
         Popup_Window_Home();
         break;
       #if HAS_ZOFFSET_ITEM
