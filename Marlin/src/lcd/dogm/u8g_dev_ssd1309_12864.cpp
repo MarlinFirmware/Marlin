@@ -30,38 +30,37 @@
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
 
-// SSD1309 ini sequence
-static const uint8_t u8g_dev_ssd1309_128x64_init_seq[] PROGMEM={
-    U8G_ESC_CS(0),  // Disable chip
-    U8G_ESC_ADR(0), // Instruction mode
-    U8G_ESC_RST(1), // Do reset low pulse with (1*16)+2 milliseconds
-    U8G_ESC_CS(1),  // Enable chip
+// SSD1309 init sequence
+static const uint8_t u8g_dev_ssd1309_128x64_init_seq[] PROGMEM = {
+  U8G_ESC_CS(0),  // Disable chip
+  U8G_ESC_ADR(0), // Instruction mode
+  U8G_ESC_RST(1), // Do reset low pulse with (1*16)+2 milliseconds
+  U8G_ESC_CS(1),  // Enable chip
 
-    0xFD,0x12,      // Command Lock
-    0xAE,           // Set Display Off
-    0xD5,0xA0,      // Set Display Clock Divide Ratio/Oscillator Frequency
-    0xA8,0x3F,      // Set Multiplex Ratio
-    0x3D,0x00,      // Set Display Offset
-    0x40,           // Set Display Start Line
-    0xA1,           // Set Segment Re-Map
-    0xC8,           // Set COM Output Scan Direction
-    0xDA,0x12,      // Set COM Pins Hardware Configuration
-    0x81,0xDF,      // Set Current Control
-    0xD9,0x82,      // Set Pre-Charge Period
-    0xDB,0x34,      // Set VCOMH Deselect Level
-    0xA4,           // Set Entire Display On/Off
-    0xA6,           // Set Normal/Inverse Display
-    U8G_ESC_VCC(1), // Power up VCC & Stabilized
-    U8G_ESC_DLY(50),
-    0xAF,           // Set Display On
-    U8G_ESC_DLY(50),
-    U8G_ESC_CS(0),  // Disable chip
-    U8G_ESC_END     // End of sequence
+  0xFD,0x12,      // Command Lock
+  0xAE,           // Set Display Off
+  0xD5,0xA0,      // Set Display Clock Divide Ratio/Oscillator Frequency
+  0xA8,0x3F,      // Set Multiplex Ratio
+  0x3D,0x00,      // Set Display Offset
+  0x40,           // Set Display Start Line
+  0xA1,           // Set Segment Re-Map
+  0xC8,           // Set COM Output Scan Direction
+  0xDA,0x12,      // Set COM Pins Hardware Configuration
+  0x81,0xDF,      // Set Current Control
+  0xD9,0x82,      // Set Pre-Charge Period
+  0xDB,0x34,      // Set VCOMH Deselect Level
+  0xA4,           // Set Entire Display On/Off
+  0xA6,           // Set Normal/Inverse Display
+  U8G_ESC_VCC(1), // Power up VCC & Stabilized
+  U8G_ESC_DLY(50),
+  0xAF,           // Set Display On
+  U8G_ESC_DLY(50),
+  U8G_ESC_CS(0),  // Disable chip
+  U8G_ESC_END     // End of sequence
 };
 
-// select one init sequence here
+// Select one init sequence here
 #define u8g_dev_ssd1309_128x64_init_seq u8g_dev_ssd1309_128x64_init_seq
-
 
 static const uint8_t u8g_dev_ssd1309_128x64_data_start[] PROGMEM = {
   U8G_ESC_ADR(0),   // Instruction mode
