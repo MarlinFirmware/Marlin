@@ -220,7 +220,7 @@
 //===========================================================================
 
 //===========================================================================
-// EZABL Advanced Settings
+// EZABL Advanced Settings - EZABL_POINTS & EZABL_PROBE_EDGE are also used for other probes
 //===========================================================================
 
 // Probing Grid Points - If you want more or less EZABL probe points change the number below, use odd numbers. Total points is # times #.
