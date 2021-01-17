@@ -63,7 +63,7 @@
  * ===============================
  */
 //#define DELTA_HOME_TO_SAFE_ZONE    // Option to move down after homing to a height where XYZ movement is unconstrained.
-//#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C
+#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C (Default)
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 
@@ -110,7 +110,7 @@
  * ==================================
  */
 // Options for Modules Hardware
-#ifdef ESP_WIF
+#ifdef ESP_WIFI
   #define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 #endif
 #ifdef NEOPIXEL_LED

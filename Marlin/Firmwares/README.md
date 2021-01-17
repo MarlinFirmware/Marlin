@@ -15,6 +15,13 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20210117
+  - Last fix by Marlin,
+  - Fix PID Range to 30,
+  - add Preheat before leveling.
+  - New core for SKR14 and SKR14T (Ready TFT host)
+
+## Marlin 2.0 Bugfix Branch
  Update Marlin-BugFix 20210109
   - Last fix by Marlin,
   - Fix Feedback Users,
