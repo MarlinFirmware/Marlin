@@ -54,6 +54,8 @@ namespace Anycubic {
   float            ChironTFT::live_Zoffset;
   file_menu_t      ChironTFT::file_menu;
 
+  ChironTFT Chiron;
+
   ChironTFT::ChironTFT(){}
 
   void ChironTFT::Startup() {
