@@ -25,7 +25,9 @@
 
 #define BOARD_INFO_NAME "BTT SKR Mini E3 V1.2"
 
-#define NEOPIXEL_PIN                        PC7   // LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PC7   // LED driving pin
+#endif
 
 /**
  * TMC2208/TMC2209 stepper drivers

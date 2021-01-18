@@ -25,7 +25,7 @@
  * Emulate EEPROM storage using Flash Memory
  *
  * Use a single 32K flash sector to store EEPROM data. To reduce the
- * number of erase operations a simple "levelling" scheme is used that
+ * number of erase operations a simple "leveling" scheme is used that
  * maintains a number of EEPROM "slots" within the larger flash sector.
  * Each slot is used in turn and the entire sector is only erased when all
  * slots have been used.

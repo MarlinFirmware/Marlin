@@ -72,13 +72,10 @@ extern bool once_flag;
 extern uint8_t sel_id;
 extern lv_group_t *g;
 
-extern uint8_t bmp_public_buf[14 * 1024];
-extern uint8_t public_buf[513];
-
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {
-  "G28\nG29\nM500",
+  "G29N\nM500",
   "G28",
   "G28",
   "G28",
@@ -138,12 +135,10 @@ void gCfgItems_init() {
   gCfgItems.levelingPos[3][1] = Y_MAX_POS - 30;
   gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
   gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
-  gCfgItems.cloud_enable  = true;
-  #if ENABLED(MKS_WIFI_MODULE)
-    gCfgItems.wifi_mode_sel = STA_MODEL;
-    gCfgItems.fileSysType   = FILE_SYS_SD;
-    gCfgItems.wifi_type     = ESP_WIFI;
-  #endif
+  gCfgItems.cloud_enable      = false;
+  gCfgItems.wifi_mode_sel = STA_MODEL;
+  gCfgItems.fileSysType   = FILE_SYS_SD;
+  gCfgItems.wifi_type     = ESP_WIFI;
   gCfgItems.filamentchange_load_length   = 200;
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;
@@ -186,22 +181,22 @@ void ui_cfg_init() {
   uiCfg.curTempType         = 0;
   uiCfg.curSprayerChoose    = 0;
   uiCfg.stepHeat            = 10;
-  uiCfg.leveling_first_time = 0;
-  uiCfg.para_ui_page        = 0;
+  uiCfg.leveling_first_time = false;
+  uiCfg.para_ui_page        = false;
   uiCfg.extruStep           = 5;
   uiCfg.extruSpeed          = 10;
   uiCfg.move_dist           = 1;
   uiCfg.moveSpeed           = 3000;
   uiCfg.stepPrintSpeed      = 10;
-  uiCfg.command_send        = 0;
+  uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;
-  uiCfg.filament_heat_completed_load = 0;
+  uiCfg.filament_heat_completed_load = false;
   uiCfg.filament_rate                = 0;
-  uiCfg.filament_loading_completed   = 0;
-  uiCfg.filament_unloading_completed = 0;
-  uiCfg.filament_loading_time_flg    = 0;
+  uiCfg.filament_loading_completed   = false;
+  uiCfg.filament_unloading_completed = false;
+  uiCfg.filament_loading_time_flg    = false;
   uiCfg.filament_loading_time_cnt    = 0;
-  uiCfg.filament_unloading_time_flg  = 0;
+  uiCfg.filament_unloading_time_flg  = false;
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
@@ -449,6 +444,7 @@ void titleText_cat(char *str, int strSize, char *addPart) {
 
 char *getDispText(int index) {
 
+  ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
     case PRINT_READY_UI:
@@ -593,7 +589,9 @@ char *creat_title_text() {
 
   if (strlen(public_buf_m) > MAX_TITLE_LEN) {
     ZERO(public_buf_m);
-    tmpText = getDispText(0);
+    tmpText = 0;
+    for (index = 0; index <= disp_state_stack._disp_index && (!tmpText || *tmpText == 0); index++)
+      tmpText = getDispText(index);
     if (*tmpText != 0) {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
       titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)">...>");
@@ -639,253 +637,97 @@ char *creat_title_text() {
     #endif
   }
 
-  #if 1
+  void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
+    #if ENABLED(SDSUPPORT)
+      volatile uint32_t i, j;
+      volatile uint16_t *p_index;
+      char *cur_name;
 
-    void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
-      #if ENABLED(SDSUPPORT)
-        //uint8_t ress;
-        //uint32_t write;
-        volatile uint32_t i, j;
-        volatile uint16_t *p_index;
-        //int res;
-        char *cur_name;
+      cur_name = strrchr(path, '/');
+      card.openFileRead(cur_name);
 
-        cur_name = strrchr(path, '/');
-        card.openFileRead(cur_name);
-
-        if (gPicturePreviewStart <= 0) {
-          while (1) {
-            uint32_t br  = card.read(public_buf, 400);
-            uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
-            if (p1) {
-              gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
-              break;
-            }
-            else {
-              gPicturePreviewStart += br;
-            }
-            if (br < 400) break;
-          }
-        }
-
-        card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-        SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
-
-        j = i = 0;
-
+      if (gPicturePreviewStart <= 0) {
         while (1) {
-          card.read(public_buf, 400);
-          for (i = 0; i < 400;) {
-            bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-            i                += 2;
-            j++;
-          }
-          if (j >= 400) break;
-        }
-        for (i = 0; i < 400; i += 2) {
-          p_index  = (uint16_t *)(&bmp_public_buf[i]);
-          if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
-        }
-        SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
-        #if HAS_BAK_VIEW_IN_FLASH
-          W25QXX.init(SPI_QUARTER_SPEED);
-          if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
-          W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
-        #endif
-        row++;
-        if (row >= 200) {
-          size = 809;
-          row  = 0;
-
-          gcode_preview_over = false;
-          //flash_preview_begin = true;
-
-          card.closefile();
-
-          /*
-          if (gCurFileState.file_open_flag != 0xAA) {
-            reset_file_info();
-            res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
-            if (res == FR_OK) {
-              f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xAA;
-              //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
-              srcfp = file;
-              mksReprint.mks_printer_state = MKS_WORKING;
-              once_flag = false;
-            }
-          }
-          */
-          char *cur_name;
-
-          cur_name = strrchr(list_file.file_name[sel_id], '/');
-
-          SdFile file;
-          SdFile *curDir;
-          card.endFilePrint();
-          const char * const fname = card.diveToFile(true, curDir, cur_name);
-          if (!fname) return;
-          if (file.open(curDir, fname, O_READ)) {
-            gCfgItems.curFilesize = file.fileSize();
-            file.close();
-            update_spi_flash();
-          }
-
-          card.openFileRead(cur_name);
-          if (card.isFileOpen()) {
-            feedrate_percentage = 100;
-            //saved_feedrate_percentage = feedrate_percentage;
-            planner.flow_percentage[0] = 100;
-            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            #if HAS_MULTI_EXTRUDER
-              planner.flow_percentage[1] = 100;
-              planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            #endif
-            card.startFileprint();
-            TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-            once_flag = false;
-          }
-          return;
-        }
-        card.closefile();
-      #endif // SDSUPPORT
-    }
-
-  #else // if 1
-
-    void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
-      #if ENABLED(SDSUPPORT)
-        //uint8_t ress;
-        //uint32_t write;
-        volatile uint32_t i, j;
-        volatile uint16_t *p_index;
-        //int res;
-        char *cur_name;
-        uint16_t Color;
-
-        cur_name = strrchr(path, '/');
-        card.openFileRead(cur_name);
-
-        card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
-        #if HAS_TFT_LVGL_UI_SPI
-          SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
-        #else
-          LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
-          LCD_WriteRAM_Prepare();
-        #endif
-
-        j = 0;
-        i = 0;
-
-        while (1) {
-          card.read(public_buf, 400);
-          for (i = 0; i < 400;) {
-            bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-            i += 2;
-            j++;
-          }
-
-          //if (i > 800) break;
-          //#ifdef TFT70
-          //  if (j > 400) {
-          //    f_read(file, buff_pic, 1, &read);
-          //    break;
-          //  }
-          //#elif defined(TFT35)
-          if (j >= 400)
-            //f_read(file, buff_pic, 1, &read);
+          uint32_t br  = card.read(public_buf, 400);
+          uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
+          if (p1) {
+            gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
             break;
-          //#endif
-
+          }
+          else {
+            gPicturePreviewStart += br;
+          }
+          if (br < 400) break;
         }
-        #if HAS_TFT_LVGL_UI_SPI
-          for (i = 0; i < 400;) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
+      }
 
-            Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xFF) << 8);
-            i       += 2;
-            if (*p_index == 0x0000) *p_index = 0xC318;
-          }
-          TFT_CS_L;
-          TFT_DC_H;
-          SPI.dmaSend(bmp_public_buf, 400, true);
-          TFT_CS_H;
+      card.setIndex(gPicturePreviewStart + size * row + 8);
+      SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
 
-        #else
-          for (i = 0; i < 400;) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-            if (*p_index == 0x0000) *p_index = 0x18C3;
-            LCD_IO_WriteData(*p_index);
-            i = i + 2;
-          }
-        #endif
+      j = i = 0;
+
+      while (1) {
+        card.read(public_buf, 400);
+        for (i = 0; i < 400;) {
+          bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
+          i                += 2;
+          j++;
+        }
+        if (j >= 400) break;
+      }
+      for (i = 0; i < 400; i += 2) {
+        p_index  = (uint16_t *)(&bmp_public_buf[i]);
+        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
+      }
+      SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
+      #if HAS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_QUARTER_SPEED);
-        if (row < 20)
-          W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
+        if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
-        row++;
-        if (row >= 200) {
-          size = 809;
-          row  = 0;
+      #endif
+      row++;
+      if (row >= 200) {
+        size = 809;
+        row  = 0;
 
-          gcode_preview_over = false;
-          //flash_preview_begin = true;
+        gcode_preview_over = false;
 
-          card.closefile();
-
-          /*
-          if (gCurFileState.file_open_flag != 0xAA) {
-            reset_file_info();
-            res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
-            if (res == FR_OK) {
-              f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xAA;
-              //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
-              srcfp = file;
-              mksReprint.mks_printer_state = MKS_WORKING;
-              once_flag = false;
-            }
-          }
-          */
-          char *cur_name;
-
-          cur_name = strrchr(list_file.file_name[sel_id], '/');
-
-          SdFile file;
-          SdFile *curDir;
-          card.endFilePrint();
-          const char * const fname = card.diveToFile(true, curDir, cur_name);
-          if (!fname) return;
-          if (file.open(curDir, fname, O_READ)) {
-            gCfgItems.curFilesize = file.fileSize();
-            file.close();
-            update_spi_flash();
-          }
-
-          card.openFileRead(cur_name);
-          if (card.isFileOpen()) {
-            feedrate_percentage = 100;
-            //saved_feedrate_percentage = feedrate_percentage;
-            planner.flow_percentage[0] = 100;
-            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            #if HAS_MULTI_EXTRUDER
-              planner.flow_percentage[1] = 100;
-              planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            #endif
-            card.startFileprint();
-            TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-            once_flag = false;
-          }
-          return;
-        }
         card.closefile();
-      #endif // SDSUPPORT
-    }
+        char *cur_name;
 
-  #endif // if 1
+        cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-  void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
+        SdFile file;
+        SdFile *curDir;
+        card.endFilePrint();
+        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        if (!fname) return;
+        if (file.open(curDir, fname, O_READ)) {
+          gCfgItems.curFilesize = file.fileSize();
+          file.close();
+          update_spi_flash();
+        }
+
+        card.openFileRead(cur_name);
+        if (card.isFileOpen()) {
+          feedrate_percentage = 100;
+          planner.flow_percentage[0] = 100;
+          planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
+          #if HAS_MULTI_EXTRUDER
+            planner.flow_percentage[1] = 100;
+            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
+          #endif
+          card.startFileprint();
+          TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+          once_flag = false;
+        }
+        return;
+      }
+      card.closefile();
+    #endif // SDSUPPORT
+  }
+
+  void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
     int index;
     int y_off = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -914,12 +756,12 @@ char *creat_title_text() {
     #if HAS_BAK_VIEW_IN_FLASH
       if (flash_preview_begin) {
         flash_preview_begin = false;
-        Draw_default_preview(xpos_pixel, ypos_pixel, 1);
+        draw_default_preview(xpos_pixel, ypos_pixel, 1);
       }
     #endif
     #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
       if (default_preview_flg) {
-        Draw_default_preview(xpos_pixel, ypos_pixel, 0);
+        draw_default_preview(xpos_pixel, ypos_pixel, 0);
         default_preview_flg = false;
       }
     #endif
@@ -1005,12 +847,11 @@ void GUI_RefreshPage() {
           temps_update_flag = false;
         }
         break;
+
+      case BIND_UI:
+        refresh_bind_ui();
+        break;
     #endif
-
-    case BIND_UI:
-      /*refresh_bind_ui();*/
-      break;
-
     case FILAMENTCHANGE_UI:
       if (temps_update_flag) {
         temps_update_flag = false;
@@ -1097,8 +938,7 @@ void clear_cur_ui() {
   last_disp_state = disp_state_stack._disp_state[disp_state_stack._disp_index];
 
   switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
-    case PRINT_READY_UI:
-                                      lv_clear_ready_print(); break;
+    case PRINT_READY_UI:              lv_clear_ready_print(); break;
     case PRINT_FILE_UI:               lv_clear_print_file(); break;
     case PRINTING_UI:                 lv_clear_printing(); break;
     case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;
@@ -1119,14 +959,16 @@ void clear_cur_ui() {
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:                   lv_clear_wifi(); break;
     #endif
-    case MORE_UI:                     /* Clear_more(); */ break;
+    case MORE_UI:                     lv_clear_more(); break;
     case FILETRANSFER_UI:             break;
     case DIALOG_UI:                   lv_clear_dialog(); break;
     case FILETRANSFERSTATE_UI:        break;
     case PRINT_MORE_UI:               break;
     case FILAMENTCHANGE_UI:           lv_clear_filament_change(); break;
     case LEVELING_UI:                 lv_clear_manualLevel(); break;
-    case BIND_UI:                     /* Clear_Bind(); */ break;
+    #if ENABLED(MKS_WIFI_MODULE)
+      case BIND_UI:                   lv_clear_cloud_bind(); break;
+    #endif
     #if HAS_BED_PROBE
       case NOZZLE_PROBE_OFFSET_UI:    lv_clear_auto_level_offset_settings(); break;
     #endif
@@ -1224,11 +1066,13 @@ void draw_return_ui() {
       #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_UI:                   lv_draw_wifi(); break;
       #endif
-      case PRINT_MORE_UI:               /* draw_printmore(); */ break;
       case MORE_UI:                     break;
+      case PRINT_MORE_UI:               lv_draw_more(); break;
       case FILAMENTCHANGE_UI:           lv_draw_filament_change(); break;
       case LEVELING_UI:                 lv_draw_manualLevel(); break;
-      case BIND_UI:                     /* draw_bind(); */ break;
+      #if ENABLED(MKS_WIFI_MODULE)
+        case BIND_UI:                   lv_draw_cloud_bind(); break;
+      #endif
       #if HAS_BED_PROBE
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif

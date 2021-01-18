@@ -74,7 +74,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   gcode.process_subcommands_now(public_buf_l);
 }
 
-void lv_draw_fan(void) {
+void lv_draw_fan() {
   lv_obj_t *buttonAdd;
 
   #if HAS_FAN

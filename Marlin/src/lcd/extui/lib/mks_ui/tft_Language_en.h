@@ -114,6 +114,7 @@
 #define PROBE_Z_SPEED_EN                "Probe Z-axis speed"
 #define ENABLE_EN                       "YES"
 #define DISABLE_EN                      "NO"
+#define LOCKED_EN                       "N/A"
 #define Z_MIN_EN                        "ZMin"
 #define Z_MAX_EN                        "ZMax"
 
@@ -397,7 +398,6 @@
 #define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading,please wait!"
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
-
 
 #define PRE_HEAT_EXT_TEXT_EN            "E"
 #define PRE_HEAT_BED_TEXT_EN            "Bed"
@@ -725,3 +725,11 @@
 #define EEPROM_STORE_TIPS_EN  "Store settings to EEPROM?"
 #define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
 #define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_EN  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_EN  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_EN  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_EN  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_EN  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_EN  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_EN  USER_DESC_7

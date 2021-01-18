@@ -177,4 +177,7 @@
 // Misc. Functions
 //
 #define LED_CONTROL_PIN                     PA13
-#define NEOPIXEL_PIN                        PA8
+
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA8
+#endif

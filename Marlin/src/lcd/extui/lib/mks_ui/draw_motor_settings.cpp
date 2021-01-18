@@ -68,7 +68,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_motor_settings(void) {
+void lv_draw_motor_settings() {
   int index = 0;
 
   scr = lv_screen_create(MOTOR_SETTINGS_UI, machine_menu.MotorConfTitle);

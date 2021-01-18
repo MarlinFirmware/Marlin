@@ -19,12 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * @file tft_lvgl_configuration.cpp
- * @date    2020-02-21
- */
-
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -54,6 +48,10 @@ XPT2046 touch;
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../../../tft_io/touch_calibration.h"
   #include "draw_touch_calibration.h"
+#endif
+
+#if ENABLED(MKS_WIFI_MODULE)
+  #include "wifi_module.h"
 #endif
 
 #include <SPI.h>
@@ -89,22 +87,22 @@ void SysTick_Callback() {
     if (tips_disp.timer == TIPS_TIMER_START)
       tips_disp.timer_count++;
   #endif
-  if (uiCfg.filament_loading_time_flg == 1) {
+  if (uiCfg.filament_loading_time_flg) {
     uiCfg.filament_loading_time_cnt++;
     uiCfg.filament_rate = (uint32_t)(((uiCfg.filament_loading_time_cnt / (uiCfg.filament_loading_time * 1000.0)) * 100.0) + 0.5);
     if (uiCfg.filament_loading_time_cnt >= (uiCfg.filament_loading_time * 1000)) {
       uiCfg.filament_loading_time_cnt  = 0;
-      uiCfg.filament_loading_time_flg  = 0;
-      uiCfg.filament_loading_completed = 1;
+      uiCfg.filament_loading_time_flg  = false;
+      uiCfg.filament_loading_completed = true;
     }
   }
-  if (uiCfg.filament_unloading_time_flg == 1) {
+  if (uiCfg.filament_unloading_time_flg) {
     uiCfg.filament_unloading_time_cnt++;
     uiCfg.filament_rate = (uint32_t)(((uiCfg.filament_unloading_time_cnt / (uiCfg.filament_unloading_time * 1000.0)) * 100.0) + 0.5);
     if (uiCfg.filament_unloading_time_cnt >= (uiCfg.filament_unloading_time * 1000)) {
       uiCfg.filament_unloading_time_cnt  = 0;
-      uiCfg.filament_unloading_time_flg  = 0;
-      uiCfg.filament_unloading_completed = 1;
+      uiCfg.filament_unloading_time_flg  = false;
+      uiCfg.filament_unloading_completed = true;
       uiCfg.filament_rate = 100;
     }
   }
@@ -119,6 +117,10 @@ void tft_lvgl_init() {
   disp_language_init();
 
   watchdog_refresh();     // LVGL init takes time
+
+  #if MB(MKS_ROBIN_NANO)
+    OUT_WRITE(PB0, LOW);  // HE1
+  #endif
 
   // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
@@ -137,19 +139,19 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); // Initialize the display buffer
 
-  lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
-  lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
-  disp_drv.flush_cb = my_disp_flush; /*Set your driver function*/
-  disp_drv.buffer = &disp_buf;    /*Assign the buffer to the display*/
-  lv_disp_drv_register(&disp_drv);  /*Finally register the driver*/
+  lv_disp_drv_t disp_drv;     // Descriptor of a display driver
+  lv_disp_drv_init(&disp_drv);    // Basic initialization
+  disp_drv.flush_cb = my_disp_flush; // Set your driver function
+  disp_drv.buffer = &disp_buf;    // Assign the buffer to the display
+  lv_disp_drv_register(&disp_drv);  // Finally register the driver
 
   lv_indev_drv_t indev_drv;
-  lv_indev_drv_init(&indev_drv);     /*Descriptor of a input device driver*/
-  indev_drv.type = LV_INDEV_TYPE_POINTER; /*Touch pad is a pointer-like device*/
-  indev_drv.read_cb = my_touchpad_read;  /*Set your driver function*/
-  lv_indev_drv_register(&indev_drv);   /*Finally register the driver*/
+  lv_indev_drv_init(&indev_drv);     // Descriptor of a input device driver
+  indev_drv.type = LV_INDEV_TYPE_POINTER; // Touch pad is a pointer-like device
+  indev_drv.read_cb = my_touchpad_read;  // Set your driver function
+  lv_indev_drv_register(&indev_drv);   // Finally register the driver
 
   #if HAS_ROTARY_ENCODER
     g = lv_group_create();
@@ -193,6 +195,8 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  TERN_(MKS_WIFI_MODULE, mks_wifi_firmware_update());
+
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
@@ -212,12 +216,9 @@ void tft_lvgl_init() {
     }
   #endif
 
-  if (ready) {
-    lv_draw_ready_print();
-  }
+  if (ready) lv_draw_ready_print();
 
-  if (mks_test_flag == 0x1E)
-    mks_gpio_test();
+  if (mks_test_flag == 0x1E) mks_gpio_test();
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
@@ -229,8 +230,17 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   for (uint16_t i = 0; i < height; i++)
     SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
 
-  lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
+  lv_disp_flush_ready(disp); // Indicate you are ready with the flushing
 
+  W25QXX.init(SPI_QUARTER_SPEED);
+}
+
+void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color) {
+  uint16_t width, height;
+  width = x2 - x1 + 1;
+  height = y2 - y1 + 1;
+  SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
+  SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
@@ -298,13 +308,13 @@ int16_t enc_diff = 0;
 lv_indev_state_t state = LV_INDEV_STATE_REL;
 
 bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
-  (void) indev_drv;   /*Unused*/
+  (void) indev_drv;   // Unused
 
   data->state = state;
   data->enc_diff = enc_diff;
   enc_diff = 0;
 
-  return false;       /*No more data to read so return false*/
+  return false;       // No more data to read so return false
 }
 
 extern uint8_t currentFlashPage;
@@ -327,7 +337,7 @@ lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * pa
 
 lv_fs_res_t spi_flash_close_cb (lv_fs_drv_t * drv, void * file_p) {
   lv_fs_res_t res = LV_FS_RES_OK;
-  /* Add your code here*/
+  /* Add your code here */
   pic_read_addr_offset = pic_read_base_addr;
   return res;
 }
@@ -379,7 +389,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
 }
 
 lv_fs_res_t sd_close_cb (lv_fs_drv_t * drv, void * file_p) {
-  /* Add your code here*/
+  /* Add your code here */
   lv_close_gcode_file();
   return LV_FS_RES_OK;
 }
