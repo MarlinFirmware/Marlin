@@ -502,8 +502,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
     valref -= EncoderRate.encoderMoveValue;
-  else if (encoder_diffState == ENCODER_DIFF_ENTER)
-    return true;
+  return encoder_diffState == ENCODER_DIFF_ENTER;
 }
 
 //
@@ -2333,7 +2332,7 @@ void HMI_Prepare() {
       case PREPARE_CASE_HOME: // Homing
         checkkey = Last_Prepare;
         index_prepare = MROWS;
-        queue.inject_P(PSTR("G28")); // G28 will set home_flag
+        queue.inject_P(G28_STR); // G28 will set home_flag
         Popup_Window_Home();
         break;
       #if HAS_ZOFFSET_ITEM

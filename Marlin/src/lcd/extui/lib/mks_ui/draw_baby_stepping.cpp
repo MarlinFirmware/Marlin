@@ -111,7 +111,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_baby_stepping(void) {
+void lv_draw_baby_stepping() {
   scr = lv_screen_create(BABY_STEP_UI);
   lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_BABY_STEP_X_P);
   lv_big_button_create(scr, "F:/bmp_xDec.bin", move_menu.x_dec, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_X_N);
