@@ -668,11 +668,11 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 uint8_t has_path_selected = 0;
 
                 if (gCfgItems.wifi_type == ESP_WIFI) {
-                  if (strncmp_P((char *)&tmpStr[index], PSTR("1:"), 2) == 0) {
+                  if (strncmp((char *)&tmpStr[index], "1:", 2) == 0) {
                     gCfgItems.fileSysType = FILE_SYS_SD;
                     has_path_selected = 1;
                   }
-                  else if (strncmp_P((char *)&tmpStr[index], PSTR("0:"), 2) == 0) {
+                  else if (strncmp((char *)&tmpStr[index], "0:", 2) == 0) {
                     gCfgItems.fileSysType = FILE_SYS_USB;
                     has_path_selected = 1;
                   }
@@ -1663,7 +1663,7 @@ void mks_esp_wifi_init() {
 
         clear_cur_ui();
 
-        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
         if (wifi_upload(1) >= 0) {
 
           f_unlink("1:/MKS_WIFI_CUR");
@@ -1717,7 +1717,7 @@ void mks_wifi_firmware_update() {
 
     clear_cur_ui();
 
-    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
 
     lv_task_handler();
     watchdog_refresh();
