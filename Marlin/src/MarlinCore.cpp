@@ -983,6 +983,10 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
+  SETUP_RUN(setup_killpin()); // Must be set early or the printer will suicide
+
+  SETUP_RUN(setup_powerhold()); // Must be set early or the printer will suicide
+
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
@@ -1038,13 +1042,9 @@ void setup() {
     SETUP_RUN(recovery.setup());
   #endif
 
-  SETUP_RUN(setup_killpin());
-
   #if HAS_TMC220x
     SETUP_RUN(tmc_serial_begin());
   #endif
-
-  SETUP_RUN(setup_powerhold());
 
   #if HAS_STEPPER_RESET
     SETUP_RUN(disableStepperDrivers());
