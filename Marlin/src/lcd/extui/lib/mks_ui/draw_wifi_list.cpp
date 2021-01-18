@@ -157,7 +157,7 @@ void disp_wifi_list() {
 }
 
 void wifi_scan_handle() {
-  if (!DIALOG_IS(WIFI_ENABLE_TIPS) || uiCfg.command_send != 1) return;
+  if (!DIALOG_IS(WIFI_ENABLE_TIPS) || !uiCfg.command_send) return;
   last_disp_state = DIALOG_UI;
   lv_clear_dialog();
   if (wifi_link_state == WIFI_CONNECTED && wifiPara.mode != AP_MODEL)

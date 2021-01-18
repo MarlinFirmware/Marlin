@@ -105,8 +105,8 @@
 
 #define AC_cmnd_manual_load_filament   PSTR("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
 #define AC_cmnd_manual_unload_filament PSTR("M83\nG1 E-50 F1200\nM82")
-#define AC_cmnd_enable_levelling       PSTR("M420 S1 V1")
-#define AC_cmnd_power_loss_recovery    PSTR("G28 X Y R5\nG28 Z")       // Lift, home X and Y then home Z when in 'safe' position
+#define AC_cmnd_enable_leveling        PSTR("M420SV")
+#define AC_cmnd_power_loss_recovery    PSTR("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
 
 namespace Anycubic {
   enum heater_state_t : uint8_t {
