@@ -33,9 +33,6 @@
 
 #include "meatpack.h"
 
-//#include "language.h"
-//#include "Marlin.h"
-
 //#define MP_DEBUG
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
@@ -121,13 +118,13 @@
 // State variables
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 enum MeatPack_ConfigStateFlags {
-  MPConfig_None = 0,
-  MPConfig_Active = (1 << 0),
-  MPConfig_NoSpaces = (1 << 1)
+  MPConfig_None     = 0,
+  MPConfig_Active   = _BV(0),
+  MPConfig_NoSpaces = _BV(1)
 };
 
 uint8_t mp_config = MPConfig_None; // Configuration state
-uint8_t mp_cmd_active = 0;         // Is a command is pending
+uint8_t mp_cmd_active = 0;         // A command is pending
 uint8_t mp_char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
 uint8_t mp_cmd_count = 0;          // Counts how many command bytes are received (need 2)
 uint8_t mp_full_char_queue = 0;    // Counts how many full-width characters are to be received
