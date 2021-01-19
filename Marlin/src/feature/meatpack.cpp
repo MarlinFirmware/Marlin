@@ -41,7 +41,7 @@
 #include "../core/debug_out.h"
 
 // Utility definitions
-#define MeatPack_CommandByte    0b11111111
+#define MeatPack_CommandByte      0b11111111
 #define MeatPack_NextPackedFirst  0b00000001
 #define MeatPack_NextPackedSecond 0b00000010
 
@@ -83,7 +83,7 @@
 #ifdef USE_LOOKUP_TABLE
   // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
   // NOT storing this with PROGMEM, given how frequently this table will be accessed.
-  constexpr uint8_t MeatPackLookupTbl[16] = {
+  uint8_t MeatPackLookupTbl[16] = {
     '0', // 0000
     '1', // 0001
     '2', // 0010
@@ -103,16 +103,17 @@
   };
 
 #else
-  inline uint8_t get_char(register uint8_t in) {
-  switch (in) {
-    case 0b0000 ... 0b1001: return '0' + in;
-    case 0b1010: return '.';
-    case 0b1011: return ' ';
-    case 0b1100: return '\n';
-    case 0b1101: return 'G';
-    case 0b1110: return 'X';
-  }
-  return 0;
+
+  inline uint8_t get_char(register const uint8_t in) {
+    switch (in) {
+      case 0b0000 ... 0b1001: return '0' + in;
+      case 0b1010: return '.';
+      case 0b1011: return ' ';
+      case 0b1100: return '\n';
+      case 0b1101: return 'G';
+      case 0b1110: return 'X';
+    }
+    return 0;
   }
 
 #endif
@@ -168,11 +169,11 @@ uint8_t FORCE_INLINE mp_unpack_chars(const uint8_t pk, uint8_t* __restrict const
 
     // If lower 4 bytes is 0b1111, the higher 4 are unused, and next char is full.
     if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out |= MeatPack_NextPackedFirst;
-    else chars_out[0] = MeatPackLookupTbl[(pk & 0xF)]; // Assign lower char
+    else chars_out[0] = MeatPackLookupTbl[pk & 0xF]; // Assign lower char
 
     // Check if upper 4 bytes is 0b1111... if so, we don't need the second char.
     if ((pk & MeatPack_SecondNotPacked) == MeatPack_SecondNotPacked) out |= MeatPack_NextPackedSecond;
-    else chars_out[1] = MeatPackLookupTbl[((pk >> 4) & 0xF)]; // Assign upper char
+    else chars_out[1] = MeatPackLookupTbl[(pk >> 4) & 0xF]; // Assign upper char
 
   #else
     // If lower 4 bytes is 0b1111, the higher 4 are unused, and next char is full.
@@ -214,10 +215,10 @@ void FORCE_INLINE mp_handle_rx_char_inner(const uint8_t c) {
   if (mp_config & MPConfig_Active) {
     if (mp_full_char_queue > 0) {
       mp_handle_output_char(c);
-        if (mp_char_buf > 0) {
-          mp_handle_output_char(mp_char_buf);
-            mp_char_buf = 0;
-        }
+      if (mp_char_buf > 0) {
+        mp_handle_output_char(mp_char_buf);
+          mp_char_buf = 0;
+      }
       --mp_full_char_queue;
     }
     else {
@@ -304,7 +305,7 @@ void mp_handle_rx_char(const uint8_t c) {
 
   // Check for commit complete
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if (c == (uint8_t)(MeatPack_CommandByte)) {
+  if (c == uint8_t(MeatPack_CommandByte)) {
     if (mp_cmd_count > 0) {
       mp_cmd_active = 1;
       mp_cmd_count = 0;
@@ -321,7 +322,7 @@ void mp_handle_rx_char(const uint8_t c) {
   }
 
   if (mp_cmd_count > 0) {
-    mp_handle_rx_char_inner((uint8_t)(MeatPack_CommandByte));
+    mp_handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
     mp_cmd_count = 0;
   }
 
