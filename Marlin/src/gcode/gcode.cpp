@@ -954,6 +954,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   }
 
   if (!no_ok) queue.ok_to_send();
+
+  SERIAL_OUT(msgDone); // Tell the serial hook that we have done processing a command
+  
 }
 
 /**
