@@ -39,7 +39,6 @@
 #ifndef LEVEL_CORNERS_Z_HOP
   #define LEVEL_CORNERS_Z_HOP 4.0
 #endif
-
 #ifndef LEVEL_CORNERS_HEIGHT
   #define LEVEL_CORNERS_HEIGHT 0.0
 #endif
@@ -330,7 +329,7 @@ static inline void _lcd_level_bed_corners_homing() {
           GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE)
         , _lcd_goto_next_corner
         , []{
-            line_to_z(LEVEL_CORNERS_Z_HOP); // raise Z off the bed when finishing
+            line_to_z(LEVEL_CORNERS_Z_HOP); // Raise Z off the bed when done
             TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
             ui.goto_previous_screen_no_defer();
           }
