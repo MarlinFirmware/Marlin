@@ -75,7 +75,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Sätt Hem Offset");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset Tillämpad");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sätt Origo");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisterad justering");  
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisterad justering");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Justerings Wizard");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Välj Origo");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Senaste värde ");
@@ -96,9 +96,9 @@ namespace Language_sv {
     PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Förvärmning $ Alla");
     PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Förvärmning $ Bädd");
     PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Förvärmning $ Donf");
-
   #endif
-PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Förvärmning Anpassad");
+
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Förvärmning Anpassad");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Nedkylning");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvens");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser kontroll");
@@ -112,7 +112,7 @@ PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Förvärmning 
   PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Spindel Framåt");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindel Bakåt");
   PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Av");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser På");  
+  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser På");
   PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindel Av");
   PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindel På");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Sätt på ström");
@@ -296,16 +296,6 @@ PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Förvärmning 
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autojustera misslyckad. Dålig extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autojustera misslyckad. Temperatur för hög.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Autojustera misslyckad! Tidsgräns.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Välj");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Välj *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
@@ -687,5 +677,5 @@ PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Förvärmning 
   PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Uppe Höger");
   PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Nere Höger");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Kalibrering Färdig");
-  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrering Misslyckad");  
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrering Misslyckad");
 }
