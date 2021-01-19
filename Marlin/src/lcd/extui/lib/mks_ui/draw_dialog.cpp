@@ -257,7 +257,7 @@ void lv_draw_dialog(uint8_t type) {
         lv_label_set_text(labelOk, print_file_dialog_menu.confirm);
       }
     }
-    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMARE)) {
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
       // nothing to do
     }
   #endif
@@ -426,7 +426,7 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
       }
     }
-    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMARE)) {
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
       lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
       lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
     }

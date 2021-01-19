@@ -74,17 +74,6 @@ typedef int8_t pin_t;
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
-
 inline void HAL_init() {}
 
 // Clear the reset reason

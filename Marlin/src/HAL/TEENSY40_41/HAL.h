@@ -92,20 +92,9 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
 // Don't place string constants in PROGMEM
 #undef PSTR
 #define PSTR(str) ({static const char *data = (str); &data[0];})
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
