@@ -92,7 +92,7 @@ public:
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
    * Aborts the current SRAM queue so only use for one or two commands.
    */
-  static inline void inject(const char * gcode) {
+  static inline void inject(char * const gcode) {
     strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
   }
 
