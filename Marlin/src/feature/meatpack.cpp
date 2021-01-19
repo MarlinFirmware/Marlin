@@ -157,7 +157,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
   #ifdef USE_LOOKUP_TABLE
 
     // If lower nybble is 1111, the higher nybble is unused, and next char is full.
-    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out |= MeatPack_NextPackedFirst;
+    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out = MeatPack_NextPackedFirst;
     else chars_out[0] = MeatPackLookupTbl[pk & 0xF]; // Assign lower char
 
     // Check if upper nybble is 1111... if so, we don't need the second char.
@@ -166,7 +166,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
 
   #else
     // If lower nybble is 1111, the higher nybble is unused, and next char is full.
-    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out |= MeatPack_NextPackedFirst;
+    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out = MeatPack_NextPackedFirst;
     else chars_out[0] = get_char(pk & 0xF); // Assign lower char
 
     // Check if upper nybble is 1111... if so, we don't need the second char.
