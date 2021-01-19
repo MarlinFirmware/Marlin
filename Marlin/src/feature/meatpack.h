@@ -76,14 +76,43 @@ enum MeatPack_Command {
   MPCommand_DisableNoSpaces = 246U
 };
 
-// Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
-// and will control state internally.
-extern void mp_handle_rx_char(const uint8_t c);
+enum MeatPack_ConfigStateFlags : uint8_t {
+  MPConfig_None     = 0,
+  MPConfig_Active   = _BV(0),
+  MPConfig_NoSpaces = _BV(1)
+};
 
-/**
- * After passing in rx'd char using above method, call this to get characters out.
- * Can return from 0 to 2 characters at once.
- * @param out [in] Output pointer for unpacked/processed data.
- * @return Number of characters returned. Range from 0 to 2.
- */
-extern uint8_t mp_get_result_char(char* const __restrict out);
+class MeatPack {
+protected:
+  static uint8_t config;          // Configuration state
+  static uint8_t cmd_active;      // A command is pending
+  static uint8_t char_buf;        // Buffers a character if dealing with out-of-sequence pairs
+  static uint8_t cmd_count;       // Counts how many command bytes are received (need 2)
+  static uint8_t full_char_queue; // Counts how many full-width characters are to be received
+  static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
+  static uint8_t char_out_count;  // Stores number of characters to be read out.
+
+public:
+  // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
+  // and will control state internally.
+  static void handle_rx_char(const uint8_t c);
+
+  /**
+   * After passing in rx'd char using above method, call this to get characters out.
+   * Can return from 0 to 2 characters at once.
+   * @param out [in] Output pointer for unpacked/processed data.
+   * @return Number of characters returned. Range from 0 to 2.
+   */
+  static uint8_t get_result_char(char* const __restrict out);
+
+private:
+  static void reset_state();
+  static void echo_config_state();
+  static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
+  static void handle_cmd(const MeatPack_Command c);
+  static void trigger_cmd(const MeatPack_Command cmd);
+  static void handle_output_char(const uint8_t c);
+  static void handle_rx_char_inner(const uint8_t c);
+};
+
+extern MeatPack meatpack;

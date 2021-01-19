@@ -33,6 +33,8 @@
 
 #include "meatpack.h"
 
+MeatPack meatpack;
+
 //#define MP_DEBUG
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
@@ -117,36 +119,32 @@
 
 // State variables
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-enum MeatPack_ConfigStateFlags {
-  MPConfig_None     = 0,
-  MPConfig_Active   = _BV(0),
-  MPConfig_NoSpaces = _BV(1)
-};
 
-uint8_t mp_config = MPConfig_None; // Configuration state
-uint8_t mp_cmd_active = 0;         // A command is pending
-uint8_t mp_char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
-uint8_t mp_cmd_count = 0;          // Counts how many command bytes are received (need 2)
-uint8_t mp_full_char_queue = 0;    // Counts how many full-width characters are to be received
-uint8_t mp_char_out_buf[2];        // Output buffer for caching up to 2 characters
-uint8_t mp_char_out_count = 0;     // Stores number of characters to be read out.
+uint8_t MeatPack::config = MPConfig_None; // Configuration state
+uint8_t MeatPack::cmd_active = 0;         // A command is pending
+uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
+uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
+uint8_t MeatPack::full_char_queue = 0;    // Counts how many full-width characters are to be received
+uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
+uint8_t MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
 
 // DEBUGGING
 #ifdef MP_DEBUG
-  uint32_t mp_chars_decoded = 0;
+  uint32_t MeatPack::chars_decoded = 0;
 #endif
 
-void FORCE_INLINE mp_handle_output_char(const uint8_t c) {
-  mp_char_out_buf[mp_char_out_count++] = c;
+void MeatPack::reset_state() {
+  SERIAL_ECHOLNPGM("MP Reset");
+  char_out_count = 0;
+  cmd_active = MPCommand_None;
+  config = MPConfig_None;
+  char_buf = 0;
+  cmd_count = 0;
+  cmd_active = 0;
+  full_char_queue = 0;
 
   #ifdef MP_DEBUG
-    if (mp_chars_decoded < 64) {
-      ++mp_chars_decoded;
-      DEBUG_ECHOPGM("Rec Byte: ");
-      MYSERIAL.print("0x");
-      MYSERIAL.print((uint8_t)c, HEX);
-      DEBUG_EOL();
-    }
+    chars_decoded = 0;
   #endif
 }
 
@@ -157,9 +155,7 @@ void FORCE_INLINE mp_handle_output_char(const uint8_t c) {
 // low = (packed >> 4) & 0xF;
 // high = (packed & 0xF);
 
-//==========================================================================
-
-uint8_t FORCE_INLINE mp_unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out) {
+uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out) {
   register uint8_t out = 0;
 
   #ifdef USE_LOOKUP_TABLE
@@ -186,69 +182,62 @@ uint8_t FORCE_INLINE mp_unpack_chars(const uint8_t pk, uint8_t* __restrict const
   return out;
 }
 
-//==============================================================================
-
-void FORCE_INLINE mp_reset_state() {
-  SERIAL_ECHOLNPGM("MP Reset");
-  mp_char_out_count = 0;
-  mp_cmd_active = MPCommand_None;
-  mp_config = MPConfig_None;
-  mp_char_buf = 0;
-  mp_cmd_count = 0;
-  mp_cmd_active = 0;
-  mp_full_char_queue = 0;
+void MeatPack::handle_output_char(const uint8_t c) {
+  char_out_buf[char_out_count++] = c;
 
   #ifdef MP_DEBUG
-    mp_chars_decoded = 0;
+    if (chars_decoded < 64) {
+      ++chars_decoded;
+      DEBUG_ECHOPGM("Rec Byte: ");
+      MYSERIAL.print("0x");
+      MYSERIAL.print((uint8_t)c, HEX);
+      DEBUG_EOL();
+    }
   #endif
 }
 
-//==========================================================================
-
-void FORCE_INLINE mp_handle_rx_char_inner(const uint8_t c) {
+void MeatPack::handle_rx_char_inner(const uint8_t c) {
 
   // Packing enabled, handle character and re-arrange them appropriately.
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if (mp_config & MPConfig_Active) {
-    if (mp_full_char_queue > 0) {
-      mp_handle_output_char(c);
-      if (mp_char_buf > 0) {
-        mp_handle_output_char(mp_char_buf);
-          mp_char_buf = 0;
+  if (config & MPConfig_Active) {
+    if (full_char_queue > 0) {
+      handle_output_char(c);
+      if (char_buf > 0) {
+        handle_output_char(char_buf);
+          char_buf = 0;
       }
-      --mp_full_char_queue;
+      --full_char_queue;
     }
     else {
-      uint8_t buf[2] = { 0,0 };
-      register const uint8_t res = mp_unpack_chars(c, buf);
+      uint8_t buf[2] = { 0, 0 };
+      register const uint8_t res = unpack_chars(c, buf);
 
       if (res & MeatPack_NextPackedFirst) {
-        ++mp_full_char_queue;
-        if (res & MeatPack_NextPackedSecond) ++mp_full_char_queue;
-        else mp_char_buf = buf[1];
+        ++full_char_queue;
+        if (res & MeatPack_NextPackedSecond) ++full_char_queue;
+        else char_buf = buf[1];
       }
       else {
-        mp_handle_output_char(buf[0]);
-        if (res & MeatPack_NextPackedSecond) ++mp_full_char_queue;
-        else mp_handle_output_char(buf[1]);
+        handle_output_char(buf[0]);
+        if (res & MeatPack_NextPackedSecond) ++full_char_queue;
+        else handle_output_char(buf[1]);
       }
     }
   }
   else // Packing not enabled, just copy character to output
-    mp_handle_output_char(c);
+    handle_output_char(c);
 }
 
-//==========================================================================
-
-void FORCE_INLINE mp_echo_config_state() {
+void MeatPack::echo_config_state() {
   SERIAL_ECHOPGM("[MP] ");
 
   // Echo current state
-  serialprint_onoff(mp_config & MPConfig_Active);
+  serialprint_onoff(config & MPConfig_Active);
 
   SERIAL_CHAR(' ');
 
-  if (mp_config & MPConfig_NoSpaces)
+  if (config & MPConfig_NoSpaces)
     SERIAL_ECHOPGM("NSP"); // [N]o [SP]aces
   else
     SERIAL_ECHOPGM("ESP"); // [E]nabled [SP]aces
@@ -256,93 +245,61 @@ void FORCE_INLINE mp_echo_config_state() {
   SERIAL_EOL();
 
   // Validate config vars
-  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = ((mp_config & MPConfig_NoSpaces) ? MeatPack_SpaceCharReplace : ' ');
+  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = ((config & MPConfig_NoSpaces) ? MeatPack_SpaceCharReplace : ' ');
 }
 
-//==========================================================================
-
-void FORCE_INLINE mp_handle_cmd(const MeatPack_Command c) {
+void MeatPack::handle_cmd(const MeatPack_Command c) {
   switch (c) {
-    case MPCommand_EnablePacking:
-      mp_config |= MPConfig_Active;
-      DEBUG_ECHOLNPGM("[MPDBG] ENABL REC");
-      break;
-    case MPCommand_DisablePacking:
-      mp_config &= ~(MPConfig_Active);
-      DEBUG_ECHOLNPGM("[MPDBG] DISBL REC");
-      break;
-    case MPCommand_TogglePacking:
-      mp_config ^= MPConfig_Active;
-      DEBUG_ECHOLNPGM("[MPDBG] TGL REC");
-      break;
-    case MPCommand_ResetAll:
-      mp_reset_state();
-      DEBUG_ECHOLNPGM("[MPDBG] RESET REC");
-      break;
-    case MPCommand_EnableNoSpaces:
-      mp_config |= MPConfig_NoSpaces;
-      DEBUG_ECHOLNPGM("[MPDBG] ENABL NSP");
-      break;
-    case MPCommand_DisableNoSpaces:
-      mp_config &= ~(MPConfig_NoSpaces);
-      DEBUG_ECHOLNPGM("[MPDBG] DISBL NSP");
-      break;
-    default:
-      DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
-
+    case MPCommand_EnablePacking:   config |= MPConfig_Active;      DEBUG_ECHOLNPGM("[MPDBG] ENABL REC"); break;
+    case MPCommand_DisablePacking:  config &= ~(MPConfig_Active);   DEBUG_ECHOLNPGM("[MPDBG] DISBL REC"); break;
+    case MPCommand_TogglePacking:   config ^= MPConfig_Active;      DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
+    case MPCommand_ResetAll:        reset_state();                  DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
+    case MPCommand_EnableNoSpaces:  config |= MPConfig_NoSpaces;    DEBUG_ECHOLNPGM("[MPDBG] ENABL NSP"); break;
+    case MPCommand_DisableNoSpaces: config &= ~(MPConfig_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DISBL NSP"); break;
+    default:                                                        DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
     case MPCommand_QueryConfig: break;
   }
-
-  mp_echo_config_state();
+  echo_config_state();
 }
 
-//==========================================================================
-
-void mp_handle_rx_char(const uint8_t c) {
-
+void MeatPack::handle_rx_char(const uint8_t c) {
   // Check for commit complete
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (c == uint8_t(MeatPack_CommandByte)) {
-    if (mp_cmd_count > 0) {
-      mp_cmd_active = 1;
-      mp_cmd_count = 0;
+    if (cmd_count > 0) {
+      cmd_active = 1;
+      cmd_count = 0;
     }
     else
-      ++mp_cmd_count;
+      ++cmd_count;
     return;
   }
 
-  if (mp_cmd_active > 0) {
-    mp_handle_cmd((MeatPack_Command)c);
-    mp_cmd_active = 0;
+  if (cmd_active > 0) {
+    handle_cmd((MeatPack_Command)c);
+    cmd_active = 0;
     return;
   }
 
-  if (mp_cmd_count > 0) {
-    mp_handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
-    mp_cmd_count = 0;
+  if (cmd_count > 0) {
+    handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
+    cmd_count = 0;
   }
 
-  mp_handle_rx_char_inner(c);
+  handle_rx_char_inner(c);
 }
 
-//==========================================================================
-
-uint8_t mp_get_result_char(char* const __restrict out) {
-  if (mp_char_out_count > 0) {
-    const uint8_t res = mp_char_out_count;
-    for (register uint8_t i = 0; i < mp_char_out_count; ++i)
-      out[i] = (char)mp_char_out_buf[i];
-    mp_char_out_count = 0;
-    return res;
+uint8_t MeatPack::get_result_char(char* const __restrict out) {
+  uint8_t res = 0;
+  if (char_out_count) {
+    res = char_out_count;
+    char_out_count = 0;
+    for (register uint8_t i = 0; i < res; ++i)
+      out[i] = (char)char_out_buf[i];
   }
-  return 0;
+  return res;
 }
 
-//==============================================================================
-
-void mp_trigger_cmd(const MeatPack_Command cmd) {
-  mp_handle_cmd(cmd);
-}
+void MeatPack::trigger_cmd(const MeatPack_Command cmd) { handle_cmd(cmd); }
 
 #endif // MEATPACK
