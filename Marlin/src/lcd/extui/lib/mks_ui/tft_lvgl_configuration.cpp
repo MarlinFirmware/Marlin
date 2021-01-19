@@ -45,7 +45,7 @@
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 #include "../../../ultralcd.h"
-XPT2046 touch;
+extern XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -73,8 +73,6 @@ uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
 extern uint8_t gcode_preview_over, flash_preview_begin, default_preview_flg;
-
-uint8_t bmp_public_buf[17 * 1024];
 
 void SysTick_Callback() {
   lv_tick_inc(1);
@@ -105,7 +103,11 @@ void SysTick_Callback() {
   }
 }
 
-extern uint8_t bmp_public_buf[17 * 1024];
+//extern uint8_t bmp_public_buf[10 * 1024];
+//extern uint8_t bmp_public_buf2[10 * 1024];
+
+static lv_color_t bmp_public_buf[TFT_HEIGHT * 15];
+static lv_color_t bmp_public_buf2[TFT_HEIGHT * 15];
 
 void tft_lvgl_init() {
 
@@ -134,7 +136,7 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, NULL, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, bmp_public_buf2, TFT_HEIGHT * 15); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -245,10 +247,10 @@ static bool get_point(int16_t *x, int16_t *y) {
     *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
   }
 
-  #if (TFT_ROTATION & TFT_ROTATE_180)
-    *x = int16_t((TFT_WIDTH) - (int)(*x));
-    *y = int16_t((TFT_HEIGHT) - (int)(*y));
-  #endif
+  //#if (TFT_ROTATION & (TFT_ROTATE_180)
+  //  *x = int16_t((TFT_WIDTH) - (int)(*x));
+  //  *y = int16_t((TFT_HEIGHT) - (int)(*y));
+  //#endif
 
   return is_touched;
 }
