@@ -83,12 +83,12 @@ enum MeatPack_ConfigStateFlags : uint8_t {
 };
 
 class MeatPack {
-protected:
+private:
+  static bool cmd_is_next;        // A command is pending
   static uint8_t config;          // Configuration state
-  static uint8_t cmd_active;      // A command is pending
   static uint8_t char_buf;        // Buffers a character if dealing with out-of-sequence pairs
   static uint8_t cmd_count;       // Counts how many command bytes are received (need 2)
-  static uint8_t full_char_queue; // Counts how many full-width characters are to be received
+  static uint8_t full_char_count; // Counts how many full-width characters are to be received
   static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
   static uint8_t char_out_count;  // Stores number of characters to be read out.
 

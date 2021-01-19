@@ -120,32 +120,28 @@ MeatPack meatpack;
 // State variables
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+bool MeatPack::cmd_is_next = false;       // A command is pending
 uint8_t MeatPack::config = MPConfig_None; // Configuration state
-uint8_t MeatPack::cmd_active = 0;         // A command is pending
 uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
 uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
-uint8_t MeatPack::full_char_queue = 0;    // Counts how many full-width characters are to be received
+uint8_t MeatPack::full_char_count = 0;    // Counts how many full-width characters are to be received
 uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
 uint8_t MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
 
 // DEBUGGING
-#ifdef MP_DEBUG
-  uint32_t MeatPack::chars_decoded = 0;
-#endif
+TERN_(MP_DEBUG, uint32_t chars_decoded = 0);
 
 void MeatPack::reset_state() {
   SERIAL_ECHOLNPGM("MP Reset");
-  char_out_count = 0;
-  cmd_active = MPCommand_None;
+
+  cmd_is_next = false;
   config = MPConfig_None;
   char_buf = 0;
   cmd_count = 0;
-  cmd_active = 0;
-  full_char_queue = 0;
+  full_char_count = 0;
+  char_out_count = 0;
 
-  #ifdef MP_DEBUG
-    chars_decoded = 0;
-  #endif
+  TERN_(MP_DEBUG, chars_decoded = 0);
 }
 
 // Storing
@@ -160,20 +156,20 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
 
   #ifdef USE_LOOKUP_TABLE
 
-    // If lower 4 bytes is 0b1111, the higher 4 are unused, and next char is full.
+    // If lower nybble is 1111, the higher nybble is unused, and next char is full.
     if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out |= MeatPack_NextPackedFirst;
     else chars_out[0] = MeatPackLookupTbl[pk & 0xF]; // Assign lower char
 
-    // Check if upper 4 bytes is 0b1111... if so, we don't need the second char.
+    // Check if upper nybble is 1111... if so, we don't need the second char.
     if ((pk & MeatPack_SecondNotPacked) == MeatPack_SecondNotPacked) out |= MeatPack_NextPackedSecond;
     else chars_out[1] = MeatPackLookupTbl[(pk >> 4) & 0xF]; // Assign upper char
 
   #else
-    // If lower 4 bytes is 0b1111, the higher 4 are unused, and next char is full.
+    // If lower nybble is 1111, the higher nybble is unused, and next char is full.
     if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out |= MeatPack_NextPackedFirst;
     else chars_out[0] = get_char(pk & 0xF); // Assign lower char
 
-    // Check if upper 4 bytes is 0b1111... if so, we don't need the second char.
+    // Check if upper nybble is 1111... if so, we don't need the second char.
     if ((pk & MeatPack_SecondNotPacked) == MeatPack_SecondNotPacked) out |= MeatPack_NextPackedSecond;
     else chars_out[1] = get_char((pk >> 4) & 0xF); // Assign upper char
 
@@ -185,7 +181,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
 void MeatPack::handle_output_char(const uint8_t c) {
   char_out_buf[char_out_count++] = c;
 
-  #ifdef MP_DEBUG
+  #if ENABLED(MP_DEBUG)
     if (chars_decoded < 64) {
       ++chars_decoded;
       DEBUG_ECHOPGM("Rec Byte: ");
@@ -201,26 +197,26 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
   // Packing enabled, handle character and re-arrange them appropriately.
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (config & MPConfig_Active) {
-    if (full_char_queue > 0) {
+    if (full_char_count) {
       handle_output_char(c);
-      if (char_buf > 0) {
+      if (char_buf) {
         handle_output_char(char_buf);
-          char_buf = 0;
+        char_buf = 0;
       }
-      --full_char_queue;
+      --full_char_count;
     }
     else {
       uint8_t buf[2] = { 0, 0 };
       register const uint8_t res = unpack_chars(c, buf);
 
       if (res & MeatPack_NextPackedFirst) {
-        ++full_char_queue;
-        if (res & MeatPack_NextPackedSecond) ++full_char_queue;
+        ++full_char_count;
+        if (res & MeatPack_NextPackedSecond) ++full_char_count;
         else char_buf = buf[1];
       }
       else {
         handle_output_char(buf[0]);
-        if (res & MeatPack_NextPackedSecond) ++full_char_queue;
+        if (res & MeatPack_NextPackedSecond) ++full_char_count;
         else handle_output_char(buf[1]);
       }
     }
@@ -245,7 +241,7 @@ void MeatPack::echo_config_state() {
   SERIAL_EOL();
 
   // Validate config vars
-  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = ((config & MPConfig_NoSpaces) ? MeatPack_SpaceCharReplace : ' ');
+  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = (config & MPConfig_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
 }
 
 void MeatPack::handle_cmd(const MeatPack_Command c) {
@@ -266,24 +262,24 @@ void MeatPack::handle_rx_char(const uint8_t c) {
   // Check for commit complete
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (c == uint8_t(MeatPack_CommandByte)) {
-    if (cmd_count > 0) {
-      cmd_active = 1;
+    if (!cmd_count)
+      ++cmd_count; // cmd_count = 1
+    else {
       cmd_count = 0;
+      cmd_is_next = true;
     }
-    else
-      ++cmd_count;
     return;
   }
 
-  if (cmd_active > 0) {
+  if (cmd_is_next) {
+    cmd_is_next = false;
     handle_cmd((MeatPack_Command)c);
-    cmd_active = 0;
     return;
   }
 
-  if (cmd_count > 0) {
-    handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
+  if (cmd_count) {
     cmd_count = 0;
+    handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
   }
 
   handle_rx_char_inner(c);
