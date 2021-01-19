@@ -1450,7 +1450,8 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-
+    #else // HAS_SPI_LCD
+      UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));

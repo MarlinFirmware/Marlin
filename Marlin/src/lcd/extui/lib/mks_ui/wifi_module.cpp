@@ -953,7 +953,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             wifi_ret_ack();
             send_to_wifi((uint8_t *)"M997 PAUSE\r\n", strlen("M997 PAUSE\r\n"));
           }
-          if (uiCfg.command_send == 0) get_wifi_list_command_send();
+          if (!uiCfg.command_send) get_wifi_list_command_send();
           break;
 
         case 998:
@@ -1095,13 +1095,13 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     memcpy(wifi_firm_ver, (const char *)&msg[16 + wifiNameLen + wifiKeyLen + hostLen + id_len], ver_len);
   }
 
-  if (uiCfg.configWifi == 1) {
+  if (uiCfg.configWifi) {
     if ((wifiPara.mode != gCfgItems.wifi_mode_sel)
       || (strncmp(wifiPara.ap_name, (const char *)uiCfg.wifi_name, 32) != 0)
       || (strncmp(wifiPara.keyCode, (const char *)uiCfg.wifi_key, 64) != 0)) {
       package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
     }
-    else uiCfg.configWifi = 0;
+    else uiCfg.configWifi = false;
   }
   if (cfg_cloud_flag == 1) {
     if (((cloud_para.state >> 4) != (char)gCfgItems.cloud_enable)
@@ -1127,7 +1127,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   wifi_list.getNameNum = msg[0];
 
   if (wifi_list.getNameNum < 20) {
-    uiCfg.command_send = 1;
+    uiCfg.command_send = true;
     ZERO(wifi_list.wifiName);
     wifi_name_num = wifi_list.getNameNum;
     valid_name_num = 0;

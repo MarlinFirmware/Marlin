@@ -35,10 +35,6 @@
   #include "../../module/motion.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
-  #include "../../module/tool_change.h"
-#endif
-
 //
 // "Temperature" submenu items
 //

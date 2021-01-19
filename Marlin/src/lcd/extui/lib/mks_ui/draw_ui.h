@@ -194,37 +194,37 @@ typedef struct {
   uint8_t wifi_mode_sel;
   uint8_t fileSysType;
   uint8_t wifi_type;
-  bool  cloud_enable;
-  bool  encoder_enable;
+  bool  cloud_enable,
+        encoder_enable;
   int   levelingPos[5][2];
-  int   filamentchange_load_length;
-  int   filamentchange_load_speed;
-  int   filamentchange_unload_length;
-  int   filamentchange_unload_speed;
-  int   filament_limit_temper;
-  float pausePosX;
-  float pausePosY;
-  float pausePosZ;
+  int   filamentchange_load_length,
+        filamentchange_load_speed,
+        filamentchange_unload_length,
+        filamentchange_unload_speed,
+        filament_limit_temper;
+  float pausePosX,
+        pausePosY,
+        pausePosZ;
   uint32_t curFilesize;
 } CFG_ITMES;
 
 typedef struct {
   uint8_t curTempType:1,
           curSprayerChoose:3,
-          stepHeat:4;
-  uint8_t leveling_first_time:1,
+          stepHeat:4,
+          curSprayerChoose_bak:4;
+  bool    leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
           command_send:1,
           filament_load_heat_flg:1,
           filament_heat_completed_load:1,
           filament_unload_heat_flg:1,
-          filament_heat_completed_unload:1;
-  uint8_t filament_loading_completed:1,
+          filament_heat_completed_unload:1,
+          filament_loading_completed:1,
           filament_unloading_completed:1,
           filament_loading_time_flg:1,
-          filament_unloading_time_flg:1,
-          curSprayerChoose_bak:4;
+          filament_unloading_time_flg:1;
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
@@ -240,16 +240,16 @@ typedef struct {
   uint16_t cloud_port;
   uint16_t moveSpeed_bak;
   uint32_t totalSend;
-  uint32_t filament_loading_time;
-  uint32_t filament_unloading_time;
-  uint32_t filament_loading_time_cnt;
-  uint32_t filament_unloading_time_cnt;
+  uint32_t filament_loading_time,
+           filament_unloading_time,
+           filament_loading_time_cnt,
+           filament_unloading_time_cnt;
   float move_dist;
   float desireSprayerTempBak;
-  float current_x_position_bak;
-  float current_y_position_bak;
-  float current_z_position_bak;
-  float current_e_position_bak;
+  float current_x_position_bak,
+        current_y_position_bak,
+        current_z_position_bak,
+        current_e_position_bak;
 } UI_CFG;
 
 typedef enum {
