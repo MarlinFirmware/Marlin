@@ -123,9 +123,6 @@
  */
 #define BAUDRATE 250000
 
-// Enable G-code compression (see https://github.com/scottmudge/OctoPrint-MeatPack)
-//#define MEATPACK
-
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 

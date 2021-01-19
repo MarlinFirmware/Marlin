@@ -21,7 +21,7 @@
  */
 
 /**
- * MeatPack G-Code Compression
+ * MeatPack G-code Compression
  *
  * Algorithm & Implementation: Scott Mudge - mail@scottmudge.com
  * Date: Dec. 2020
