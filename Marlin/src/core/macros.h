@@ -317,6 +317,10 @@
 
   #endif
 
+  // C++11 solution that is standard compliant. type_traits is not available on all platform
+  template<bool, typename _Tp = void> struct ENABLE_IF { };
+  template<typename _Tp>              struct ENABLE_IF<true, _Tp> { typedef _Tp type; };
+
 #else
 
   #define MIN_2(a,b)      ((a)<(b)?(a):(b))

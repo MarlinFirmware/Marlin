@@ -566,6 +566,8 @@ ISR(SERIAL_REGNAME(USART, SERIAL_PORT, _UDRE_vect)) {
   MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>::_tx_udr_empty_irq();
 }
 
+// Because of the template definition above, it's required to instantiate the template to have all method generated
+template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
 MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
 #ifdef SERIAL_PORT_2
@@ -579,6 +581,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>::_tx_udr_empty_irq();
   }
 
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> >;
   MSerialT2 customizedSerial2(MSerialT2::HasEmergencyParser);
 #endif
 
@@ -592,6 +595,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
+  template class MarlinSerial< MarlinSerialCfg<MMU2_SERIAL_PORT> >;
   MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
 #endif
 
@@ -605,6 +609,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
+  template class MarlinSerial< MarlinSerialCfg<LCD_SERIAL_PORT> >;
   MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
  
   #if HAS_DGUS_LCD

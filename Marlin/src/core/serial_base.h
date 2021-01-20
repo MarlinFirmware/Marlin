@@ -46,11 +46,7 @@ namespace Private {
     enum { value = sizeof(test<T>(0)) == sizeof(Yes) };
   };
 
-  // Using own implementation since type_traits is not available on all platform
-  template<bool, typename _Tp = void> struct enable_if { };
-  template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
-
-  template<typename T> FORCE_INLINE static typename enable_if<HasFlushTX<T>::value, void>::type callFlushTX(T * t) { t->flushTX(); }
+  template<typename T> FORCE_INLINE static typename ENABLE_IF<HasFlushTX<T>::value, void>::type callFlushTX(T * t) { t->flushTX(); }
                        FORCE_INLINE static                                                 void callFlushTX(...)   {}
 }
 
@@ -89,23 +85,23 @@ struct SerialBase {
   FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
   //FORCE_INLINE void print(const String& s)                    { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
   FORCE_INLINE void print(const char* str)      { write(str); }
-  void print(char c, int base = 0)              { print((long)c, base); }
-  void print(unsigned char c, int base = 0)     { print((unsigned long)c, base); }
-  void print(int c, int base = DEC)             { print((long)c, base); }
-  void print(unsigned int c, int base = DEC)    { print((unsigned long)c, base); }
+  FORCE_INLINE void print(char c, int base = 0)              { print((long)c, base); }
+  FORCE_INLINE void print(unsigned char c, int base = 0)     { print((unsigned long)c, base); }
+  FORCE_INLINE void print(int c, int base = DEC)             { print((long)c, base); }
+  FORCE_INLINE void print(unsigned int c, int base = DEC)    { print((unsigned long)c, base); }
   void print(long c, int base = DEC)            { if (!base) write(c); write((const uint8_t*)"-", c < 0); printNumber(c < 0 ? -c : c, base); }
   void print(unsigned long c, int base = DEC)   { printNumber(c, base); }
   void print(double c, int digits = 2)          { printFloat(c, digits); }
 
   //void println(const String& s)                 { print(s); println(); }
-  void println(const char s[])                  { print(s); println(); }
-  void println(char c, int base = 0)            { print(c, base); println(); }
-  void println(unsigned char c, int base = 0)   { print(c, base); println(); }
-  void println(int c, int base = DEC)           { print(c, base); println(); }
-  void println(unsigned int c, int base = DEC)  { print(c, base); println(); }
-  void println(long c, int base = DEC)          { print(c, base); println(); }
-  void println(unsigned long c, int base = DEC) { print(c, base); println(); }
-  void println(double c, int digits = 2)        { print(c, digits); println(); }
+  FORCE_INLINE void println(const char s[])                  { print(s); println(); }
+  FORCE_INLINE void println(char c, int base = 0)            { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned char c, int base = 0)   { print(c, base); println(); }
+  FORCE_INLINE void println(int c, int base = DEC)           { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned int c, int base = DEC)  { print(c, base); println(); }
+  FORCE_INLINE void println(long c, int base = DEC)          { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned long c, int base = DEC) { print(c, base); println(); }
+  FORCE_INLINE void println(double c, int digits = 2)        { print(c, digits); println(); }
   void println()                                { write("\r\n"); }
 
   // Print a number with the given base
