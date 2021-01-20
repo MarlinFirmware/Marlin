@@ -36,9 +36,12 @@
 
 #include <stdint.h>
 
+#include "../../core/serial_hook.h"
+typedef Serial0Type<UARTClass> DefaultSerial;
+extern DefaultSerial MSerial;
 #define _MSERIAL(X) Serial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define Serial0 Serial
+#define Serial0 MSerial 
 
 // Define MYSERIAL0/1 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)

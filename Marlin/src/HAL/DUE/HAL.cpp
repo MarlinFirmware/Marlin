@@ -102,4 +102,9 @@ uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 
+// Forward the default serial port
+extern RingBuffer rx_buffer1;
+extern RingBuffer tx_buffer1;
+DefaultSerial MSerial(false, UART, UART_IRQn, ID_UART, &rx_buffer1, &tx_buffer1);
+
 #endif // ARDUINO_ARCH_SAM
