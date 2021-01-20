@@ -157,7 +157,7 @@ void mks_gpio_test() {
         && (READ(PE6) == 0)
         && (READ(PE7) == 0)
       #endif
-    ) 
+    )
       disp_det_ok();
     else
       disp_det_error();
