@@ -127,6 +127,9 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   using SerialT::flush;
   using SerialT::begin;
   using SerialT::end;
+
+  using BaseClassT::print;
+  using BaseClassT::println;
   
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
