@@ -53,8 +53,6 @@
 
 #if HAS_WIRED_LCD
 
-  #include "../MarlinCore.h"
-
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #include "../feature/pause.h"
     #include "../module/motion.h" // for active_extruder
