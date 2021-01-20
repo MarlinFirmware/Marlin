@@ -90,7 +90,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
 
   void msgDone() {}
   // Existing instances implement Arduino's operator bool, so use that if it's available
-  bool connected()              { return Private::HasMember_connected<SerialT>::value ? out.connected() : (bool)out; }
+  bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
