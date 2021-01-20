@@ -629,8 +629,8 @@
         case TMC_T150: if (st.t150()) SERIAL_CHAR('*'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('*'); break;
         case TMC_T120: if (st.t120()) SERIAL_CHAR('*'); break;
-        case TMC_S2VSA: if(st.s2vsa()) SERIAL_CHAR('*'); break;
-        case TMC_S2VSB: if(st.s2vsb()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
