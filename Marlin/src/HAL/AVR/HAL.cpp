@@ -24,6 +24,13 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+#ifdef USBCON
+  DefaultSerial MSerial(Serial, false);
+  #ifdef BLUETOOTH
+    BTSerial btSerial(bluetoothSerial, false);
+  #endif
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------

@@ -36,6 +36,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 
   bool available(uint8_t index) { return index == 0 && SerialT::available(); }
   int read(uint8_t index)       { return index == 0 ? SerialT::read() : -1; }
+  bool connected()              { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
