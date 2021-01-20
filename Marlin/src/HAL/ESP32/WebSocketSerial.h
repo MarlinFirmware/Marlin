@@ -73,8 +73,6 @@ public:
   size_t write(const uint8_t c);
   size_t write(const uint8_t* buffer, size_t size);
 
-  operator bool() { return true; }
-
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE uint32_t dropped() { return 0; }
   #endif

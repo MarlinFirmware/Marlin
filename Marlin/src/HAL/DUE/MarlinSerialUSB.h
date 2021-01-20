@@ -33,10 +33,7 @@
 #include "../../core/serial_hook.h"
 
 
-class MarlinSerialUSB {
-
-public:
-  MarlinSerialUSB() {};
+struct MarlinSerialUSB {
   static void begin(const long);
   static void end();
   static int peek();
@@ -53,8 +50,6 @@ public:
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
-
-  operator bool() { return true; }
 };
 typedef Serial0Type<MarlinSerialUSB> MSerialT;
 

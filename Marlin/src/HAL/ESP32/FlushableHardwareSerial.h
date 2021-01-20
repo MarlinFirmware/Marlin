@@ -29,8 +29,6 @@
 class FlushableHardwareSerial : public HardwareSerial {
 public:
   FlushableHardwareSerial(int uart_nr) : HardwareSerial(uart_nr) {}
-
-  inline void flushTX() { /* No need to flush the hardware serial, but defined here for compatibility. */ }
 };
 
 extern Serial0Type<FlushableHardwareSerial> flushableSerial;

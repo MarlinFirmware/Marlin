@@ -93,7 +93,7 @@ struct HalSerial {
     return transmit_buffer.write(c);
   }
 
-  operator bool() { return host_connected; }
+  bool connected() { return host_connected; }
 
   uint16_t available() {
     return (uint16_t)receive_buffer.available();

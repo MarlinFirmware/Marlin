@@ -35,7 +35,8 @@
 #endif
 
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
-CALL_IF_EXISTS_IMPL(void, flushTX);
+CALL_IF_EXISTS_IMPL(void, flushTX );
+CALL_IF_EXISTS_IMPL(bool, connected, true);
 
 // Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in compiler writing a completely
@@ -56,12 +57,18 @@ struct SerialBase {
   size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
   // Called when the parser finished processing an instruction, usually build to nothing
   void msgDone()                    { static_cast<Child*>(this)->msgDone(); }
+  // Called upon initialization
+  void begin(const long baudRate)   { static_cast<Child*>(this)->begin(baudRate); }
+  // Called upon destruction
+  void end()                        { static_cast<Child*>(this)->end(); }
   /** Check for available data from the port
       @param index  The port index, usually 0 */
   bool available(uint8_t index = 0) { return static_cast<Child*>(this)->available(index); }
   /** Read a value from the port
       @param index  The port index, usually 0 */
   int  read(uint8_t index = 0)      { return static_cast<Child*>(this)->read(index); }
+  // Check if the serial port is connected (usually bypassed)
+  bool connected()                  { return static_cast<Child*>(this)->connected(); }
   // Redirect flush
   void flush()                      { static_cast<Child*>(this)->flush(); }
   // Not all implementation have a flushTX, so let's call them only if the child has the implementation

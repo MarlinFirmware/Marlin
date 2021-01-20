@@ -326,21 +326,22 @@
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
-      template <typename Type, typename Yes=char, typename No=long> struct HasMember { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
         template <typename C> static Yes& test( decltype(&C::Member) ) ; \
         template <typename C> static No& test(...); \
         enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
     }
 
   // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
-  #define CALL_IF_EXISTS_IMPL(Return, Method) \
+  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
+  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
     HAS_MEMBER_IMPL(Method) \
     namespace Private { \
-      template <typename T, typename ... Args> FORCE_INLINE static typename enable_if<HasMember<T>::value, Return>::type Call ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
-                            FORCE_INLINE static                                                                  Return  Call ## Method(...) { return static_cast<Return>(0); } \
+      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
     }
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
-    return static_cast<Return>(Private::Call ## Method(That, ##__VA_ARGS__))
+    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
 
 #else
 

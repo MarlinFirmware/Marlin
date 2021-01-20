@@ -204,7 +204,6 @@
     FORCE_INLINE static void _tx_udr_empty_irq();
 
   public:
-    MarlinSerial() {};
     static void begin(const long);
     static void end();
     static int peek();
@@ -224,8 +223,6 @@
     FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
     FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
     FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
-
-    operator bool() { return true; }
   };
 
   template <uint8_t serial>

@@ -39,6 +39,8 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
+  using SerialT::begin;
+  using SerialT::end;
 
   using BaseClassT::print;
   using BaseClassT::println;
@@ -60,8 +62,11 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   SerialT & out;
   size_t write(uint8_t c) { if (condition) return out.write(c); return 0; }
   void flush()            { if (condition) out.flush();  }
+  void begin(long br)     { out.begin(br); }
+  void end()              { out.end(); }
 
   void msgDone() {}
+  bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
@@ -69,6 +74,28 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   using BaseClassT::read;
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
+};
+
+// A simple foward class that taking a reference to an existing serial instance (likely created in their respective framework)
+template <class SerialT>
+struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
+  typedef SerialBase< ForwardSerial<SerialT> > BaseClassT;
+
+  SerialT & out;
+  size_t write(uint8_t c) { return out.write(c); }
+  void flush()            { out.flush();  }
+  void begin(long br)     { out.begin(br); }
+  void end()              { out.end(); }
+
+  void msgDone() {}
+  bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
+
+  bool available(uint8_t index) { return index == 0 && out.available(); }
+  int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
+  bool available()              { return out.available(); }
+  int read()                    { return out.read(); }
+
+  ForwardSerial(SerialT & out, const bool e) : BaseClassT(e), out(out) {}
 };
 
 // A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
@@ -97,6 +124,9 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   using SerialT::available;
   using SerialT::read;
   using SerialT::flush;
+  using SerialT::begin;
+  using SerialT::end;
+  
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts
@@ -155,6 +185,21 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
       default: return -1;
     }
   }
+  void begin(const long br) {
+    if (portMask & FirstOutputMask)   serial0.begin(br);
+    if (portMask & SecondOutputMask)  serial1.begin(br);
+  }
+  void end() {
+    if (portMask & FirstOutputMask)   serial0.end();
+    if (portMask & SecondOutputMask)  serial1.end();
+  }
+  bool connected() {
+    bool ret = true;
+    if (portMask & FirstOutputMask)   ret = CALL_IF_EXISTS(bool, &serial0, connected);
+    if (portMask & SecondOutputMask)  ret = ret && CALL_IF_EXISTS(bool, &serial1, connected);
+    return ret;
+  }
+
   using BaseClassT::available;
   using BaseClassT::read;
 
@@ -175,6 +220,7 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
 
 // Build the actual serial object depending on current configuration
 #define Serial0Type TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, BaseSerial)
+#define ForwardSerial0Type TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, ForwardSerial)
 #ifdef HAS_MULTI_SERIAL
   #define Serial1Type ConditionalSerial
 #endif
