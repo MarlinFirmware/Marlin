@@ -604,8 +604,6 @@
         case TMC_PWM_OFS_AUTO: SERIAL_PRINT(st.pwm_ofs_auto(), DEC); break;
         case TMC_PWM_GRAD_AUTO: SERIAL_PRINT(st.pwm_grad_auto(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
-        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
@@ -631,6 +629,8 @@
         case TMC_T150: if (st.t150()) SERIAL_CHAR('*'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('*'); break;
         case TMC_T120: if (st.t120()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
