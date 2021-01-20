@@ -84,6 +84,7 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
+  DefaultSerial MSerial(SerialUSB, false);
 #endif
 
 uint16_t HAL_adc_result;
