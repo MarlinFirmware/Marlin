@@ -61,7 +61,7 @@
 
 #ifdef MMU2_SERIAL_PORT
   #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
-    #define MMU2_SERIAL MSERIAL(SERIAL_PORT)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
     #error "MMU2_SERIAL_PORT must be from 0 to 3. Please update your configuration."
   #endif
