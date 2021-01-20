@@ -609,7 +609,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  template class MarlinSerial< MarlinSerialCfg<LCD_SERIAL_PORT> >;
+  template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
   MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
  
   #if HAS_DGUS_LCD
