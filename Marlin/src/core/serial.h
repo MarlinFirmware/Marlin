@@ -54,7 +54,7 @@ extern uint8_t marlin_debug_flags;
   #ifdef SERIAL_CATCHALL
     typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    typedef MultiSerial<decltype(MYSERIAL0), decltype(MYSERIAL1), 0>      SerialOutputT;
+    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
   #endif
   extern SerialOutputT          multiSerial;
   #define SERIAL_IMPL           multiSerial
@@ -74,7 +74,6 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
-#define SERIAL_PRINTF(V...)     SERIAL_OUT(printf, V)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
 #ifdef ARDUINO_ARCH_STM32

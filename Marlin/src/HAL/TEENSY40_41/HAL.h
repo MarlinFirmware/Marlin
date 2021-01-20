@@ -55,9 +55,13 @@
   #define IS_TEENSY41 1
 #endif
 
+#include "../../core/serial_hook.h"
+typedef Serial0Type<decltype(Serial)> DefaultSerial;
+extern DefaultSerial MSerial;
+
 #define _MSERIAL(X) Serial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define Serial0 Serial
+#define Serial0 MSerial
 
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB

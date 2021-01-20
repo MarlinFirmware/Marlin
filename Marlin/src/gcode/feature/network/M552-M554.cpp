@@ -47,7 +47,7 @@ void MAC_report() {
     Ethernet.MACAddress(mac);
     SERIAL_ECHOPGM("  MAC: ");
     LOOP_L_N(i, 6) {
-      SERIAL_PRINTF("%02X", mac[i]);
+      SERIAL_PRINT(mac[i], HEX);
       if (i < 5) SERIAL_CHAR(':');
     }
   }

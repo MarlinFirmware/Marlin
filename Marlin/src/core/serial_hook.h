@@ -58,7 +58,7 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
 
   bool    & condition;
   SerialT & out;
-  size_t write(uint8_t c) { if (condition) return out.write(c); }
+  size_t write(uint8_t c) { if (condition) return out.write(c); return 0; }
   void flush()            { if (condition) out.flush();  }
 
   void msgDone() {}
@@ -164,8 +164,8 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
     if (portMask & SecondOutputMask)  serial1.flush();
   }
   void flushTX()    {
-    if (portMask & FirstOutputMask)   Private::callFlushTX(&serial0);
-    if (portMask & SecondOutputMask)  Private::callFlushTX(&serial1);
+    if (portMask & FirstOutputMask)   CALL_IF_EXISTS(void, &serial0, flushTX);
+    if (portMask & SecondOutputMask)  CALL_IF_EXISTS(void, &serial1, flushTX);
   }
 
   MultiSerial(Serial0T & serial0, Serial1T & serial1, int8_t mask = AllMask, const bool e = false) :

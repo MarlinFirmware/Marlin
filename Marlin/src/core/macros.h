@@ -317,9 +317,30 @@
 
   #endif
 
-  // C++11 solution that is standard compliant. type_traits is not available on all platform
-  template<bool, typename _Tp = void> struct ENABLE_IF { };
-  template<typename _Tp>              struct ENABLE_IF<true, _Tp> { typedef _Tp type; };
+  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
+  namespace Private {
+    template<bool, typename _Tp = void> struct enable_if { };
+    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+  }
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time. 
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
+  #define HAS_MEMBER_IMPL(Member) \
+    namespace Private { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember { \
+        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
+        template <typename C> static No& test(...); \
+        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+    }
+
+  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
+  #define CONDITIONAL_CALL(Return, Method) \
+    HAS_MEMBER_IMPL(Method) \
+    namespace Private { \
+      template <typename T, typename ... Args> FORCE_INLINE static typename enable_if<HasMember<T>::value, Return>::type Call ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                            FORCE_INLINE static                                                                  Return  Call ## Method(...) { return static_cast<Return>(0); } \
+    }
+  #define CALL_IF_EXISTS(Return, That, Method, ...) \
+    return static_cast<Return>(Private::Call ## Method(That, ##__VA_ARGS__))
 
 #else
 
