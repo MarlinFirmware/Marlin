@@ -55,7 +55,9 @@ extern portMUX_TYPE spinlock;
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #define MYSERIAL1 Serial2Socket
+    typedef ForwardSerial0Type< decltype(Serial2Socket) > DefaultSerial;
+    extern DefaultSerial MSerial;
+    #define MYSERIAL1 MSerial
   #else
     #define MYSERIAL1 webSocketSerial
   #endif

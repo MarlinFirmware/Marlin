@@ -29,7 +29,7 @@
 #include "../shared/Delay.h"
 
 #ifdef USBCON
-  DefaultSerial MSerial(SerialUSB, false);
+  DefaultSerial MSerial(false, SerialUSB);
 #endif
 
 #if ENABLED(SRAM_EEPROM_EMULATION)

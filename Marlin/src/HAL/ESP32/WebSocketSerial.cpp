@@ -144,9 +144,5 @@ size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
   return written;
 }
 
-void WebSocketSerial::flushTX() {
-  // No need to do anything as there's no benefit to sending partial lines over the websocket connection.
-}
-
 #endif // WIFISUPPORT
 #endif // ARDUINO_ARCH_ESP32

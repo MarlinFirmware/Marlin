@@ -89,14 +89,15 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   void end()              { out.end(); }
 
   void msgDone() {}
-  bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
+  // Existing instances implement Arduino's operator bool, so use that if it's available
+  bool connected()              { return Private::HasMember_connected<SerialT>::value ? out.connected() : (bool)out; }
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
   bool available()              { return out.available(); }
   int read()                    { return out.read(); }
 
-  ForwardSerial(SerialT & out, const bool e) : BaseClassT(e), out(out) {}
+  ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
 
 // A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
@@ -117,7 +118,6 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
   void msgDone() {
     if (eofHook) eofHook(userPointer);
-    SerialT::msgDone();
   }
 
   bool available(uint8_t index) { return index == 0 && SerialT::available(); }

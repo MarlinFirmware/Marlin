@@ -25,8 +25,8 @@
 #include <wiring_private.h>
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
-  DefaultSerial MSerial(Serial, false);
-  DefaultSerial1 MSerial1(Serial1, false);
+  DefaultSerial MSerial(false, Serial);
+  DefaultSerial1 MSerial1(false, Serial1);
 #endif
 
 // ------------------------

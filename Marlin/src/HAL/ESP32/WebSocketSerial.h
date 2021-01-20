@@ -69,7 +69,6 @@ public:
   int peek();
   int read();
   void flush();
-  void flushTX();
   size_t write(const uint8_t c);
   size_t write(const uint8_t* buffer, size_t size);
 
