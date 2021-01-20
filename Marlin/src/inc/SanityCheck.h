@@ -1935,16 +1935,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Basic multi hotend duplication mode
  */
 #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-  #if HOTENDS < 2
-    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
+  #if ENABLED(SINGLENOZZLE)
+    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(DUAL_X_CARRIAGE)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with DUAL_X_CARRIAGE."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with MIXING_EXTRUDER."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with SWITCHING_EXTRUDER."
+  #elif HOTENDS < 2
+    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
   #endif
 #endif
 
