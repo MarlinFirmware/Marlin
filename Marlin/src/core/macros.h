@@ -333,7 +333,7 @@
     }
 
   // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
-  #define CONDITIONAL_CALL(Return, Method) \
+  #define CALL_IF_EXISTS_IMPL(Return, Method) \
     HAS_MEMBER_IMPL(Method) \
     namespace Private { \
       template <typename T, typename ... Args> FORCE_INLINE static typename enable_if<HasMember<T>::value, Return>::type Call ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \

@@ -34,22 +34,8 @@
   #define BIN 2
 #endif
 
-#if 0
-// Nothing in the Private namespace generate code.
-namespace Private {
-  // flushTX is not implemented everywhere, so we need to fallback to SFINAE to detect it and implement it if it's the case
-  template <typename T, typename Yes=char, typename No=long>
-  struct HasFlushTX {
-    template <typename C> static Yes& test( decltype(&C::flushTX) ) ;
-    template <typename C> static No& test(...);
-    enum { value = sizeof(test<T>(0)) == sizeof(Yes) };
-  };
-
-  template<typename T> FORCE_INLINE static typename ENABLE_IF<HasFlushTX<T>::value, void>::type callFlushTX(T * t) { t->flushTX(); }
-                       FORCE_INLINE static                                                 void callFlushTX(...)   {}
-}
-#endif
-CONDITIONAL_CALL(void, flushTX);
+// flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
+CALL_IF_EXISTS_IMPL(void, flushTX);
 
 // Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in compiler writing a completely

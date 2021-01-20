@@ -31,6 +31,8 @@
 
 #include <Wire.h>
 
+DefaultSerial MSerial(false);
+
 uint16_t HAL_adc_result, HAL_adc_select;
 
 static const uint8_t pin2sc1a[] = {
