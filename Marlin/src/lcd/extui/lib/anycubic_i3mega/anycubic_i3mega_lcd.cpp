@@ -27,8 +27,8 @@
 #include "../../ui_api.h"
 
 #include "../../../../libs/numtostr.h"
-#include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
-#include "../../../../MarlinCore.h"     // for quickstop_stepper, disable_steppers, G28_STR
+#include "../../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
+#include "../../../../MarlinCore.h"     // for disable_steppers, G28_STR
 #include "../../../../inc/MarlinConfig.h"
 
 // command sending macro's with debugging capability

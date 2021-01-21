@@ -33,7 +33,6 @@
 
 // External references
 extern bool wait_for_user, wait_for_heatup;
-void quickstop_stepper();
 
 class EmergencyParser {
 

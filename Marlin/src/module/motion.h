@@ -212,6 +212,8 @@ void report_current_position_projected();
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
+void quickstop_stepper();
+
 /**
  * sync_plan_position
  *

@@ -38,7 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers
+#include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"

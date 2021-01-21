@@ -41,6 +41,8 @@
 
 #include <Wire.h>
 
+I2CPositionEncodersMgr I2CPEM;
+
 void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
   encoderAxis = axis;
   i2cAddress = address;

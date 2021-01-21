@@ -107,6 +107,8 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 
+  bool printingIsPaused();
+
   void menu_change_filament() {
     // Say "filament change" when no print is active
     editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
@@ -315,7 +317,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   return nullptr;
 }
 
-void lcd_pause_show_message(
+void MarlinUI::pause_show_message(
   const PauseMessage message,
   const PauseMode mode/*=PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/
