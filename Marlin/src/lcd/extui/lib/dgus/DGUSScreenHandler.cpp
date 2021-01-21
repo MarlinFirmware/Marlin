@@ -231,18 +231,10 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var) {
     duration_t elapsed = print_job_timer.duration();
-
     uint32_t time = elapsed.value;
-    uint16_t time_h;
-    uint16_t time_m;
-    uint16_t time_s;
-    time_h = time / 3600;
-    time_m = time % 3600 / 60;
-    time_s = (time % 3600) % 60;
-
-    dgusdisplay.WriteVariable(VP_PrintTime_H, (uint16_t)time_h);
-    dgusdisplay.WriteVariable(VP_PrintTime_M, (uint16_t)time_m);
-    dgusdisplay.WriteVariable(VP_PrintTime_S, (uint16_t)time_s);
+    dgusdisplay.WriteVariable(VP_PrintTime_H, uint16_t(time / 3600));
+    dgusdisplay.WriteVariable(VP_PrintTime_M, uint16_t(time % 3600 / 60));
+    dgusdisplay.WriteVariable(VP_PrintTime_S, uint16_t((time % 3600) % 60));
   }
 
   void DGUSScreenHandler::DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr) {
