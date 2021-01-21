@@ -27,14 +27,17 @@
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
+#include "../MarlinCore.h"
+#include "../HAL/shared/Delay.h"
+#include "../lcd/marlinui.h"
+
 #include "temperature.h"
 #include "endstops.h"
-
-#include "../MarlinCore.h"
 #include "planner.h"
-#include "../HAL/shared/Delay.h"
 
-#include "../lcd/marlinui.h"
+#if ENABLED(EMERGENCY_PARSER)
+  #include "motion.h"
+#endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/e3v2/dwin.h"

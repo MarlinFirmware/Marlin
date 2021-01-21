@@ -31,6 +31,7 @@ GCodeQueue queue;
 
 #include "../lcd/marlinui.h"
 #include "../sd/cardreader.h"
+#include "../module/motion.h"
 #include "../module/planner.h"
 #include "../module/temperature.h"
 #include "../MarlinCore.h"
