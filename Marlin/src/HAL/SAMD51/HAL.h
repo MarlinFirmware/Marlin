@@ -37,7 +37,6 @@
   typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
   extern DefaultSerial1 MSerial1;
 
-
   // MYSERIAL0 required before MarlinSerial includes!
 
   #define __MSERIAL(X) MSerial##X
