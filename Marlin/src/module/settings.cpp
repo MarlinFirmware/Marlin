@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V82"
+#define EEPROM_VERSION "V83"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -457,6 +457,11 @@ typedef struct SettingsDataStruct {
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
   #endif
+
+  #if HAS_MULTI_LANGUAGE
+    uint8_t ui_language;                                // M414 S
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1383,6 +1388,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Selected LCD language
+    //
+    #if HAS_MULTI_LANGUAGE
+      EEPROM_WRITE(ui.language);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2259,6 +2271,18 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SOUND_MENU_ITEM)
         _FIELD_TEST(buzzer_enabled);
         EEPROM_READ(ui.buzzer_enabled);
+      #endif
+
+      //
+      // Selected LCD language
+      //
+      #if HAS_MULTI_LANGUAGE
+      {
+        uint8_t ui_language;
+        EEPROM_READ(ui_language);
+        if (ui_language >= NUM_LANGUAGES) ui_language = 0;
+        ui.set_language(ui_language);
+      }
       #endif
 
       //
@@ -3845,6 +3869,11 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
+    #endif
+
+    #if HAS_MULTI_LANGUAGE
+      CONFIG_ECHO_HEADING("UI Language:");
+      SERIAL_ECHO_MSG("  M414 S", int(ui.language));
     #endif
   }
 

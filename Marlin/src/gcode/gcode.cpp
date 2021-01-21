@@ -718,6 +718,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
       #endif
 
+      #if HAS_MULTI_LANGUAGE
+        case 414: M414(); break;                                  // M414: Select multi language menu
+      #endif
+
       #if HAS_LEVELING
         case 420: M420(); break;                                  // M420: Enable/Disable Bed Leveling
       #endif

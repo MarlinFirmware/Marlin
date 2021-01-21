@@ -78,6 +78,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
+#if HAS_MULTI_LANGUAGE
+  uint8_t MarlinUI::language; // Initialized by settings.load()
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   bool MarlinUI::buzzer_enabled = true;
 #endif
