@@ -317,7 +317,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   return nullptr;
 }
 
-void lcd_pause_show_message(
+void MarlinUI::pause_show_message(
   const PauseMessage message,
   const PauseMode mode/*=PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/
