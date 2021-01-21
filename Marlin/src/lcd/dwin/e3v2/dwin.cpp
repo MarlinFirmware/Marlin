@@ -2321,9 +2321,9 @@ void HMI_Prepare() {
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), current_position.y * MINUNITMULT);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), current_position.z * MINUNITMULT);
         #if HAS_HOTEND
-          queue.inject_P(PSTR("G92 E0"));
-          current_position.e = HMI_ValueStruct.Move_E_scale = 0;
-          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), 0);
+          current_position.e = HMI_ValueStruct.Move_E_scale = 0.0;
+          sync_plan_position_e();
+          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), 0.0);
         #endif
         break;
       case PREPARE_CASE_DISA: // Disable steppers
@@ -2574,6 +2574,7 @@ void HMI_AxisMove() {
       if (encoder_diffState == ENCODER_DIFF_ENTER) {
         HMI_flag.ETempTooLow_flag = false;
         current_position.e = HMI_ValueStruct.Move_E_scale = 0;
+        sync_plan_position_e();
         Draw_Move_Menu();
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
