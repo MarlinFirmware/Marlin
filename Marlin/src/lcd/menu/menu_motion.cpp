@@ -51,6 +51,8 @@
   float manual_move_e_origin = 0;
 #endif
 
+extern const char G28_STR[];
+
 //
 // "Motion" > "Move Axis" submenu
 //
