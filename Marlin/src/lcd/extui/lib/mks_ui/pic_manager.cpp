@@ -64,7 +64,6 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_speed255.bin",
   "bmp_speed127.bin",
   "bmp_speed0.bin",
-  "bmp_speed0.bin",
 
   "bmp_bed.bin",
   "bmp_step1_degree.bin",
