@@ -47,10 +47,9 @@ extern DefaultSerial1 MSerial1;
 extern DefaultSerial2 MSerial2;
 extern DefaultSerial3 MSerial3;
 
-
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial 
+#define MSerial0 MSerial
 
 // Define MYSERIAL0/1 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
