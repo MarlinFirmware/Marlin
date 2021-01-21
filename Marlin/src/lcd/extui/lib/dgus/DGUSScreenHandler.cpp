@@ -591,17 +591,11 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     char tmpfilename[VP_SD_FileName_LEN + 1] = "";
     var.memadr = (void*)tmpfilename;
 
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      uint16_t dir_icon_val = 25;
-
-      if (filelist.seek(top_file + target_line)) {
-        snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s%c"), filelist.filename(), filelist.isDir() ? '/' : 0); // snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s"), filelist.filename());
-        dir_icon_val = filelist.isDir() ? 0 : 1;
-      }
-    #else
-      if (filelist.seek(top_file + target_line))
-        snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s%c"), filelist.filename(), filelist.isDir() ? '/' : 0);
-    #endif
+    TERN_(DGUS_LCD_UI_MKS, uint16_t dir_icon_val = 25);
+    if (filelist.seek(top_file + target_line)) {
+      snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s%c"), filelist.filename(), filelist.isDir() ? '/' : 0); // snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s"), filelist.filename());
+      TERN_(DGUS_LCD_UI_MKS, dir_icon_val = filelist.isDir() ? 0 : 1);
+    }
     DGUSLCD_SendStringToDisplay(var);
 
     #if ENABLED(DGUS_LCD_UI_MKS)
