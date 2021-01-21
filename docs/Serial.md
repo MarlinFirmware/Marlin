@@ -14,7 +14,7 @@ This interface is declared in `Marlin/src/core/serial_base.h`
 Any implementation will need to follow this interface for being used transparently in Marlin's codebase.
 
 The implementation was written to prioritize performance over abstraction, so the base interface is not using virtual inheritance to avoid the cost of virtual dispatching while calling methods.
-Instead, the Curiously Recurring Template Pattern (**CRTP**) is used so that, upon compilation, the interface abstraction does not incur any performance cost.
+Instead, the Curiously Recurring Template Pattern (**CRTP**) is used so that, upon compilation, the interface abstraction does not incur a performance cost.
 
 Because some platform do not follow the same interface, the missing method in the actual low-level implementation are detected via SFINAE and a wrapper is generated when such method are missing. See `CALL_IF_EXISTS` macro in `Marlin/src/core/macros.h` for the documentation of this technic.  
 
@@ -41,4 +41,4 @@ By default, the serial base interface provide an emergency parser that's only en
 Because of this condition, all underlying type takes a first `bool emergencyParserEnabled` argument to their constructor. You must take into account this parameter when defining the actual type used. 
 
 
-*This document was written by [X-Ryl669](https://blog.cyril.by) and is under [CC-SA license](https://creativecommons.org/licenses/by-sa) *
+*This document was written by [X-Ryl669](https://blog.cyril.by) and is under [CC-SA license](https://creativecommons.org/licenses/by-sa)*
