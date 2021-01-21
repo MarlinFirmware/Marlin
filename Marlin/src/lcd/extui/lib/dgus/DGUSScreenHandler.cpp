@@ -1097,15 +1097,14 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     int16_t level_x_pos, level_y_pos;
     char buf_level[32] = {0};
     unsigned int level_speed = 1500;
-    static uint8_t first_level_flag = 1;
+    static bool first_level_flag = false;
 
-
-    if (first_level_flag == 1)
+    if (!first_level_flag)
       queue.enqueue_now_P(G28_STR);
 
     switch (point_value) {
       case 0x0001:
-        if (first_level_flag != 1)
+        if (first_level_flag)
           queue.enqueue_now_P(G28_STR);
         queue.enqueue_now_P(PSTR("G1 Z10"));
         // level_x_pos = X_MIN_POS + 20;
@@ -1121,8 +1120,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       case 0x0002:
         queue.enqueue_now_P(PSTR("G1 Z10"));
 
-        // level_x_pos = X_MAX_POS - 20;
-        // level_y_pos = Y_MIN_POS + 20;
+        //level_x_pos = X_MAX_POS - 20;
+        //level_y_pos = Y_MIN_POS + 20;
 
         level_x_pos = X_MAX_POS - abs(level_2_x_point);
         level_y_pos = Y_MIN_POS + abs(level_2_y_point);
@@ -1135,8 +1134,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       case 0x0003:
         queue.enqueue_now_P(PSTR("G1 Z10"));
 
-        // level_x_pos = X_MAX_POS - 20;
-        // level_y_pos = Y_MAX_POS - 20;
+        //level_x_pos = X_MAX_POS - 20;
+        //level_y_pos = Y_MAX_POS - 20;
 
         level_x_pos = X_MAX_POS - abs(level_3_x_point);
         level_y_pos = Y_MAX_POS - abs(level_3_y_point);
@@ -1149,8 +1148,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       case 0x0004:
         queue.enqueue_now_P(PSTR("G1 Z10"));
 
-        // level_x_pos = X_MIN_POS + 20;
-        // level_y_pos = Y_MAX_POS - 20;
+        //level_x_pos = X_MIN_POS + 20;
+        //level_y_pos = Y_MAX_POS - 20;
         level_x_pos = X_MIN_POS + abs(level_4_x_point);
         level_y_pos = Y_MAX_POS - abs(level_4_y_point);
 
@@ -1172,9 +1171,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
         break;
     }
 
-    /* Only once */
-    if (first_level_flag == 1)
-      first_level_flag = 0;
+    // Only once
+    first_level_flag = true;
   }
 
   #define mks_min(a, b) ((a) < (b)) ? (a) : (b)
@@ -1190,7 +1188,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
           #if AXIS_HAS_STEALTHCHOP(X)
             stepperX.homing_threshold(mks_min(tmc_value, 255));
             settings.save();
-            // tmc_x_step = stepperX.homing_threshold();
+            //tmc_x_step = stepperX.homing_threshold();
           #endif
         #endif
         break;
@@ -1199,7 +1197,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
           #if AXIS_HAS_STEALTHCHOP(Y)
             stepperY.homing_threshold(mks_min(tmc_value, 255));
             settings.save();
-            // tmc_y_step = stepperY.homing_threshold();
+            //tmc_y_step = stepperY.homing_threshold();
           #endif
         #endif
         break;
@@ -1208,7 +1206,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
           #if AXIS_HAS_STEALTHCHOP(Z)
             stepperZ.homing_threshold(mks_min(tmc_value, 255));
             settings.save();
-            // tmc_z_step = stepperZ.homing_threshold();
+            //tmc_z_step = stepperZ.homing_threshold();
           #endif
         #endif
         break;
@@ -1293,9 +1291,8 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
 
     DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
-    if (!print_job_timer.isPaused()) {
-      if (queue.length >= BUFSIZE) return;
-    }
+    if (!print_job_timer.isPaused() && queue.length >= BUFSIZE)
+      return;
 
     switch (var.VP) { // switch X Y Z or Home
       default: return;
@@ -1329,7 +1326,7 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
         DEBUG_ECHOLNPGM("Home all");
         axiscode  = '\0';
         movevalue = 0; // ignore value sent from display, this VP is _ONLY_ for homing.
-        // return ;
+        //return;
         break;
 
       case VP_X_HOME:
@@ -1352,16 +1349,11 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     }
 
     DEBUG_ECHOPAIR("movevalue = ", movevalue);
-    if ((movevalue != 0) && (movevalue != 5)) { // get move distance
+    if (movevalue != 0 && movevalue != 5) { // get move distance
       switch (movevalue) {
-        case 0x0001: movevalue = 0 + distanceMove;
-          break;
-        case 0x0002: movevalue = 0 - distanceMove;
-          break;
-
-        default:
-          movevalue = 0;
-          break;
+        case 0x0001: movevalue =  distanceMove; break;
+        case 0x0002: movevalue = -distanceMove; break;
+        default:     movevalue = 0; break;
       }
     }
 
@@ -1392,10 +1384,11 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       DEBUG_ECHOPAIR(" move ", axiscode);
       bool old_relative_mode = relative_mode;
 
-      if (!relative_mode)
+      if (!relative_mode) {
         //DEBUG_ECHOPGM(" G91");
         queue.enqueue_now_P(PSTR("G91"));
         //DEBUG_ECHOPGM(" ✓ ");
+      }
       char buf[32]; // G1 X9999.99 F12345
       // unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
       char sign[] = "\0";
@@ -1405,18 +1398,17 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
       queue.enqueue_one_now(buf);
 
-
       //if (backup_speed != speed) {
       //  snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       //  queue.enqueue_one_now(buf);
       //  //DEBUG_ECHOPAIR(" ", buf);
       //}
 
-      // while (!enqueue_and_echo_command(buf)) idle();
+      //while (!enqueue_and_echo_command(buf)) idle();
       //DEBUG_ECHOLNPGM(" ✓ ");
       if (!old_relative_mode) {
         //DEBUG_ECHOPGM("G90");
-        // queue.enqueue_now_P(PSTR("G90"));
+        //queue.enqueue_now_P(PSTR("G90"));
         queue.enqueue_now_P(PSTR("G90"));
         //DEBUG_ECHOPGM(" ✓ ");
       }
@@ -1486,10 +1478,11 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       // movement
       DEBUG_ECHOPAIR(" move ", axiscode);
       bool old_relative_mode = relative_mode;
-      if (!relative_mode)
+      if (!relative_mode) {
         //DEBUG_ECHOPGM(" G91");
         queue.enqueue_now_P(PSTR("G91"));
         //DEBUG_ECHOPGM(" ✓ ");
+      }
       char buf[32]; // G1 X9999.99 F12345
       unsigned int backup_speed = MMS_TO_MMM(feedrate_mm_s);
       char sign[] = "\0";
