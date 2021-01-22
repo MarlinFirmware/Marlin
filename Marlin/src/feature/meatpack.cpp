@@ -121,7 +121,7 @@ MeatPack meatpack;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 bool MeatPack::cmd_is_next = false;       // A command is pending
-uint8_t MeatPack::config = MPConfig_None; // Configuration state
+uint8_t MeatPack::config = 0;             // Configuration state OFF
 uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
 uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
 uint8_t MeatPack::full_char_count = 0;    // Counts how many full-width characters are to be received
@@ -135,7 +135,7 @@ void MeatPack::reset_state() {
   SERIAL_ECHOLNPGM("MP Reset");
 
   cmd_is_next = false;
-  config = MPConfig_None;
+  config = 0;
   char_buf = 0;
   cmd_count = 0;
   full_char_count = 0;
@@ -154,7 +154,7 @@ void MeatPack::reset_state() {
 uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out) {
   register uint8_t out = 0;
 
-  #ifdef USE_LOOKUP_TABLE
+  #if ENABLED(USE_LOOKUP_TABLE)
 
     // If lower nybble is 1111, the higher nybble is unused, and next char is full.
     if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out = MeatPack_NextPackedFirst;
@@ -196,7 +196,7 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
 
   // Packing enabled, handle character and re-arrange them appropriately.
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if (config & MPConfig_Active) {
+  if (TEST(config, MPConfig_Bit_Active)) {
     if (full_char_count) {
       handle_output_char(c);
       if (char_buf) {
@@ -229,11 +229,11 @@ void MeatPack::echo_config_state() {
   SERIAL_ECHOPGM("[MP] ");
 
   // Echo current state
-  serialprint_onoff(config & MPConfig_Active);
+  serialprint_onoff(TEST(config, MPConfig_Bit_Active));
 
   SERIAL_CHAR(' ');
 
-  if (config & MPConfig_NoSpaces)
+  if (TEST(config, MPConfig_Bit_NoSpaces))
     SERIAL_ECHOPGM("NSP"); // [N]o [SP]aces
   else
     SERIAL_ECHOPGM("ESP"); // [E]nabled [SP]aces
@@ -241,18 +241,18 @@ void MeatPack::echo_config_state() {
   SERIAL_EOL();
 
   // Validate config vars
-  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = (config & MPConfig_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
+  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = TEST(config, MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
 }
 
 void MeatPack::handle_cmd(const MeatPack_Command c) {
   switch (c) {
-    case MPCommand_EnablePacking:   config |= MPConfig_Active;      DEBUG_ECHOLNPGM("[MPDBG] ENABL REC"); break;
-    case MPCommand_DisablePacking:  config &= ~(MPConfig_Active);   DEBUG_ECHOLNPGM("[MPDBG] DISBL REC"); break;
-    case MPCommand_TogglePacking:   config ^= MPConfig_Active;      DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
-    case MPCommand_ResetAll:        reset_state();                  DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
-    case MPCommand_EnableNoSpaces:  config |= MPConfig_NoSpaces;    DEBUG_ECHOLNPGM("[MPDBG] ENABL NSP"); break;
-    case MPCommand_DisableNoSpaces: config &= ~(MPConfig_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DISBL NSP"); break;
-    default:                                                        DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
+    case MPCommand_EnablePacking:   SBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
+    case MPCommand_DisablePacking:  CBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
+    case MPCommand_TogglePacking:   TBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
+    case MPCommand_ResetAll:        reset_state();                      DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
+    case MPCommand_EnableNoSpaces:  SBI(config, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");   break;
+    case MPCommand_DisableNoSpaces: CBI(config, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");   break;
+    default:                                                            DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
     case MPCommand_QueryConfig: break;
   }
   echo_config_state();

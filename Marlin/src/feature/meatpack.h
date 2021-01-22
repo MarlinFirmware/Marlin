@@ -76,10 +76,9 @@ enum MeatPack_Command : uint8_t {
   MPCommand_DisableNoSpaces = 0xF6
 };
 
-enum MeatPack_ConfigStateFlags : uint8_t {
-  MPConfig_None     = 0,
-  MPConfig_Active   = _BV(0),
-  MPConfig_NoSpaces = _BV(1)
+enum MeatPack_ConfigStateBits : uint8_t {
+  MPConfig_Bit_Active   = 0,
+  MPConfig_Bit_NoSpaces = 1
 };
 
 class MeatPack {
