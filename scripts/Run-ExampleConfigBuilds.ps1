@@ -108,7 +108,12 @@ foreach ($ConfigName in $Configs) {
     }
 
     $HasTouchscreen = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-touchscreen.txt")) -eq $false
+    $HasNoAutoBuild = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-autobuild.txt")) -eq $false
     $PlatformIOEnvironment = Get-Content -Raw -Path $(Join-Path -Path $ConfigDirName -ChildPath "platformio-environment.txt")
+	
+	if ($HasNoAutoBuild) {
+		continue;
+	}
 
     if ($null -eq $PlatformIOEnvironment) {
         Write-FatalError "Unable to find platform.io environment name for $ConfigName"
