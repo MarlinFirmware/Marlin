@@ -33,8 +33,6 @@
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
 
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
-
 void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)

@@ -161,8 +161,6 @@ void menu_advanced_settings();
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
-  extern const char G28_STR[];
-
   void menu_tool_offsets() {
 
     auto _recalc_offsets = []{

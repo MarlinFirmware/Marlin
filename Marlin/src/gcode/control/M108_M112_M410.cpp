@@ -25,7 +25,7 @@
 #if DISABLED(EMERGENCY_PARSER)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for wait_for_heatup, kill
+#include "../../MarlinCore.h" // for wait_for_heatup, kill, M112_KILL_STR
 #include "../../module/motion.h" // for quickstop_stepper
 
 /**

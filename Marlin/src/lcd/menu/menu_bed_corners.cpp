@@ -66,8 +66,6 @@
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
-extern const char G28_STR[];
-
 #if HAS_LEVELING
   static bool leveling_was_active = false;
 #endif
@@ -205,7 +203,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
-      , (const char*)nullptr, PSTR("")
+      , (const char*)nullptr, NUL_STR
     );
   }
 

@@ -27,9 +27,17 @@
   #include "../feature/ethernet.h"
 #endif
 
-/**
- * Define debug bit-masks
- */
+// Commonly-used strings in serial output
+extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
+                  X_STR[], Y_STR[], Z_STR[], E_STR[],
+                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
+                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
+                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
+
+//
+// Debugging flags for use by M111
+//
 enum MarlinDebugFlags : uint8_t {
   MARLIN_DEBUG_NONE          = 0,
   MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
@@ -50,6 +58,9 @@ enum MarlinDebugFlags : uint8_t {
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
+//
+// Serial redirection
+//
 #define SERIAL_BOTH 0x7F
 #if HAS_MULTI_SERIAL
   extern int8_t serial_port_index;

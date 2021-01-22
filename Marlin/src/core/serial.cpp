@@ -25,8 +25,13 @@
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
-static PGMSTR(errormagic, "Error:");
-static PGMSTR(echomagic, "echo:");
+// Commonly-used strings in serial output
+PGMSTR(NUL_STR,   "");   PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
+PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
+PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
+PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
+PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 #if HAS_MULTI_SERIAL
   int8_t serial_port_index = 0;
@@ -35,8 +40,9 @@ static PGMSTR(echomagic, "echo:");
 void serialprintPGM(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
-void serial_echo_start()  { serialprintPGM(echomagic); }
-void serial_error_start() { serialprintPGM(errormagic); }
+
+void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
+void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
 
 void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
@@ -64,8 +70,6 @@ void print_bin(uint16_t val) {
     if (!(i & 0x3) && i) SERIAL_CHAR(' ');
   }
 }
-
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
 void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   if (prefix) serialprintPGM(prefix);

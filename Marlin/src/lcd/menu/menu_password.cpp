@@ -49,7 +49,7 @@ void Password::menu_password_entry() {
   // "Login" or "New Code"
   STATIC_ITEM_P(authenticating ? GET_TEXT(MSG_LOGIN_REQUIRED) : GET_TEXT(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR(""), SS_CENTER|SS_INVERT, string);
+  STATIC_ITEM_P(NUL_STR, SS_CENTER|SS_INVERT, string);
 
   // Make the digit edit item look like a sub-menu
   PGM_P const label = GET_TEXT(MSG_ENTER_DIGIT);

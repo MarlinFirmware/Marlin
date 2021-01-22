@@ -188,7 +188,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen('N'))
-    gcode.process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
+    process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false);

@@ -88,7 +88,6 @@ void probe_offset_wizard_menu() {
                          !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
     sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
     #if DISABLED(HAS_GRAPHICAL_TFT)
-      extern const char NUL_STR[];
       SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
       MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       lcd_put_u8str(tmp);
