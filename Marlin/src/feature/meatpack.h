@@ -65,15 +65,15 @@
  * full-width), however 2 in a row will never occur, as the next 2 bytes will always
  * some non-0xFF character.
  */
-enum MeatPack_Command {
-  MPCommand_None            = 0U,
-  MPCommand_TogglePacking   = 253U,
-  MPCommand_EnablePacking   = 251U,
-  MPCommand_DisablePacking  = 250U,
-  MPCommand_ResetAll        = 249U,
-  MPCommand_QueryConfig     = 248U,
-  MPCommand_EnableNoSpaces  = 247U,
-  MPCommand_DisableNoSpaces = 246U
+enum MeatPack_Command : uint8_t {
+  MPCommand_None            = 0,
+  MPCommand_TogglePacking   = 0xFD,
+  MPCommand_EnablePacking   = 0xFB,
+  MPCommand_DisablePacking  = 0xFA,
+  MPCommand_ResetAll        = 0xF9,
+  MPCommand_QueryConfig     = 0xF8,
+  MPCommand_EnableNoSpaces  = 0xF7,
+  MPCommand_DisableNoSpaces = 0xF6
 };
 
 enum MeatPack_ConfigStateFlags : uint8_t {
