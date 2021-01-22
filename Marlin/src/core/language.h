@@ -68,6 +68,7 @@
 // ro         Romanian
 // ru         Russian
 // sk         Slovak
+// sv         Swedish
 // tr         Turkish
 // uk         Ukrainian
 // vi         Vietnamese

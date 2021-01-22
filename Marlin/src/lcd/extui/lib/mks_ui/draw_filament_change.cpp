@@ -49,7 +49,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_FILAMNT_IN:
-      uiCfg.filament_load_heat_flg = 1;
+      uiCfg.filament_load_heat_flg = true;
       if ((abs(thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius) <= 1)
           || (gCfgItems.filament_limit_temper <= thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) {
         lv_clear_filament_change();
@@ -65,7 +65,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       }
       break;
     case ID_FILAMNT_OUT:
-      uiCfg.filament_unload_heat_flg=1;
+      uiCfg.filament_unload_heat_flg = true;
       if ((thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > 0)
         && ((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) <= 1)
         || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= gCfgItems.filament_limit_temper))
