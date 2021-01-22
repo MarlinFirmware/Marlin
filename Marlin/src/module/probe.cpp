@@ -240,24 +240,26 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
   void Probe::set_probing_paused(const bool p) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause(p));
-    TERN_(PROBING_HEATERS_OFF, thermalManager.manage_heater());
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(p));
 
-    if (TERN1(PROBE_TARE, false)) {
-      tare();
-    }
-  
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
         DISABLE_AXIS_X(); DISABLE_AXIS_Y();
       #endif
     #endif
+
     if (p) safe_delay(25
       #if DELAY_BEFORE_PROBING > 25
         - 25 + DELAY_BEFORE_PROBING
       #endif
     );
+
+#if ENABLED(PROBE_TARE)
+    if (p) {
+      tare();
+    }
+#endif
   }
 
 #endif // HAS_QUIET_PROBING
@@ -477,6 +479,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
 
   // Move down until the probe is triggered
+  SERIAL_ECHOLN("probe_down_to_z: do_blocking_move_to_z");
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
@@ -550,8 +553,6 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     delay(PROBE_TARE_DELAY);
 
     IF_ENABLED(PROBE_TARE_BUZZ, buzzer.tone(200, 1200));
-
-    endstops.hit_on_purpose();
     return false;
   }
 #endif
@@ -570,6 +571,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Tare the probe, if supported
     if (TERN0(PROBE_TARE, tare())) return true;
+    IF_ENABLED(PROBE_TARE, endstops.hit_on_purpose());
 
     // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
