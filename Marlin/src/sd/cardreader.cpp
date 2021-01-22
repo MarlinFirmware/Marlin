@@ -57,6 +57,11 @@
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
 
+// extern
+
+PGMSTR(M23_STR, "M23 %s");
+PGMSTR(M24_STR, "M24");
+
 // public:
 
 card_flags_t CardReader::flag;
@@ -481,7 +486,6 @@ void CardReader::release() {
  */
 void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
-  extern const char M23_STR[];
   sprintf_P(cmd, M23_STR, name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
   strcat_P(cmd, PSTR("\nM24"));
