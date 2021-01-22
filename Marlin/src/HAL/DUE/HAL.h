@@ -59,6 +59,14 @@
   #endif
 #endif
 
+#ifdef MMU2_SERIAL_PORT
+  #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from 0 to 3. Please update your configuration."
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL lcdSerial
@@ -74,16 +82,6 @@
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
-
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 typedef int8_t pin_t;
 

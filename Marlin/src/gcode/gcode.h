@@ -213,6 +213,7 @@
  * M410 - Quickstop. Abort all planned moves.
  * M412 - Enable / Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
  * M413 - Enable / Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
+ * M414 - Set language by index. (Requires LCD_LANGUAGE_2...)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
@@ -242,6 +243,7 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
@@ -368,9 +370,9 @@ public:
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes() {
+  static inline void home_all_axes(const bool keep_leveling=false) {
     extern const char G28_STR[];
-    process_subcommands_now_P(G28_STR);
+    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -450,6 +452,8 @@ private:
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
+      static void event_probe_failure();
+      static void event_probe_recover();
       static void G29_with_retry();
       #define G29_TYPE bool
     #else
@@ -746,6 +750,8 @@ private:
 
   TERN_(HAS_FILAMENT_SENSOR, static void M412());
 
+  TERN_(HAS_MULTI_LANGUAGE, static void M414());
+
   #if HAS_LEVELING
     static void M420();
     static void M421();
@@ -806,6 +812,8 @@ private:
     static void M701();
     static void M702();
   #endif
+
+  TERN_(GCODE_REPEAT_MARKERS, static void M808());
 
   TERN_(GCODE_MACROS, static void M810_819());
 

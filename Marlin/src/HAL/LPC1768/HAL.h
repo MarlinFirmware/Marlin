@@ -47,9 +47,6 @@ extern "C" volatile uint32_t _millis;
 #include <pinmapping.h>
 #include <CDCSerial.h>
 
-// i2c uses 8-bit shifted address
-#define I2C_ADDRESS(A) uint8_t((A) << 1)
-
 //
 // Default graphical display delays
 //
@@ -82,6 +79,16 @@ extern "C" volatile uint32_t _millis;
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+  #endif
+#endif
+
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL UsbSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 #endif
 
@@ -207,8 +214,3 @@ void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
 inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
-#endif

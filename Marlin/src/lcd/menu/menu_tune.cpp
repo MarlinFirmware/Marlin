@@ -34,12 +34,12 @@
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
 
-#if HAS_LEVELING
-  #include "../../feature/bedlevel/bedlevel.h"
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+  #include "../../module/tool_change.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
-  #include "../../module/tool_change.h"
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(BABYSTEPPING)
@@ -127,7 +127,7 @@ void menu_tune() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
   #endif
 
   //

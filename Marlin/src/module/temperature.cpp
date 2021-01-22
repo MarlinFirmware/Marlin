@@ -27,14 +27,17 @@
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
+#include "../MarlinCore.h"
+#include "../HAL/shared/Delay.h"
+#include "../lcd/marlinui.h"
+
 #include "temperature.h"
 #include "endstops.h"
-
-#include "../MarlinCore.h"
 #include "planner.h"
-#include "../HAL/shared/Delay.h"
 
-#include "../lcd/marlinui.h"
+#if ENABLED(EMERGENCY_PARSER)
+  #include "motion.h"
+#endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/e3v2/dwin.h"
@@ -53,7 +56,7 @@
     #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
   #endif
   #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN MOSI_PIN
+    #define MAX31865_MOSI_PIN SD_MOSI_PIN
   #endif
   #ifndef MAX31865_MISO_PIN
     #define MAX31865_MISO_PIN MAX6675_DO_PIN
@@ -375,6 +378,13 @@ volatile bool Temperature::raw_temps_ready = false;
 #if ENABLED(FAN_SOFT_PWM)
   uint8_t Temperature::soft_pwm_amount_fan[FAN_COUNT],
           Temperature::soft_pwm_count_fan[FAN_COUNT];
+#endif
+
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+  uint16_t Temperature::singlenozzle_temp[EXTRUDERS];
+  #if HAS_FAN
+    uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
+  #endif
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
@@ -793,9 +803,16 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
   #if USE_BEEPER
+    thermalManager.disable_all_heaters();
     for (uint8_t i = 20; i--;) {
-      WRITE(BEEPER_PIN, HIGH); delay(25);
-      WRITE(BEEPER_PIN, LOW); delay(80);
+      WRITE(BEEPER_PIN, HIGH);
+      delay(25);
+      watchdog_refresh();
+      WRITE(BEEPER_PIN, LOW);
+      delay(40);
+      watchdog_refresh();
+      delay(40);
+      watchdog_refresh();
     }
     WRITE(BEEPER_PIN, HIGH);
   #endif
@@ -820,6 +837,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   }
 
   disable_all_heaters(); // always disable (even for bogus temp)
+  watchdog_refresh();
 
   #if BOGUS_TEMPERATURE_GRACE_PERIOD
     const millis_t ms = millis();
@@ -923,8 +941,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
             }
           #endif // PID_EXTRUSION_SCALING
           #if ENABLED(PID_FAN_SCALING)
-            if (thermalManager.fan_speed[active_extruder] > PID_FAN_SCALING_MIN_SPEED) {
-              work_pid[ee].Kf = PID_PARAM(Kf, ee) + (PID_FAN_SCALING_LIN_FACTOR) * thermalManager.fan_speed[active_extruder];
+            if (fan_speed[active_extruder] > PID_FAN_SCALING_MIN_SPEED) {
+              work_pid[ee].Kf = PID_PARAM(Kf, ee) + (PID_FAN_SCALING_LIN_FACTOR) * fan_speed[active_extruder];
               pid_output += work_pid[ee].Kf;
             }
             //pid_output -= work_pid[ee].Ki;
@@ -1234,7 +1252,7 @@ void Temperature::manage_heater() {
 
         #if ENABLED(CHAMBER_FAN)
           #if CHAMBER_FAN_MODE == 0
-            fan_chamber_pwm = CHAMBER_FAN_BASE
+            fan_chamber_pwm = CHAMBER_FAN_BASE;
           #elif CHAMBER_FAN_MODE == 1
             fan_chamber_pwm = (temp_chamber.celsius > temp_chamber.target) ? (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target) : 0;
           #elif CHAMBER_FAN_MODE == 2
@@ -1243,7 +1261,7 @@ void Temperature::manage_heater() {
               fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
           #endif
           NOMORE(fan_chamber_pwm, 225);
-          thermalManager.set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
+          set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
         #endif
 
         #if ENABLED(CHAMBER_VENT)
@@ -1274,7 +1292,7 @@ void Temperature::manage_heater() {
       else if (!flag_chamber_off) {
         #if ENABLED(CHAMBER_FAN)
           flag_chamber_off = true;
-          thermalManager.set_fan_speed(2, 0);
+          set_fan_speed(2, 0);
         #endif
         #if ENABLED(CHAMBER_VENT)
           flag_chamber_excess_heat = false;
@@ -1355,7 +1373,7 @@ void Temperature::manage_heater() {
   user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load()
 
   void Temperature::reset_user_thermistors() {
-    user_thermistor_t user_thermistor[USER_THERMISTORS] = {
+    user_thermistor_t default_user_thermistor[USER_THERMISTORS] = {
       #if HEATER_0_USER_THERMISTOR
         { true, 0, 0, HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS, 0, 0, HOTEND0_BETA, 0 },
       #endif
@@ -1387,7 +1405,7 @@ void Temperature::manage_heater() {
         { true, 0, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 }
       #endif
     };
-    COPY(thermalManager.user_thermistor, user_thermistor);
+    COPY(user_thermistor, default_user_thermistor);
   }
 
   void Temperature::log_user_thermistor(const uint8_t t_index, const bool eprom/*=false*/) {
@@ -1396,8 +1414,7 @@ void Temperature::manage_heater() {
       SERIAL_ECHOPGM("  M305 ");
     else
       SERIAL_ECHO_START();
-    SERIAL_CHAR('P');
-    SERIAL_CHAR('0' + t_index);
+    SERIAL_CHAR('P', '0' + t_index);
 
     const user_thermistor_t &t = user_thermistor[t_index];
 
@@ -1662,7 +1679,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 
 #if MAX6675_SEPARATE_SPI
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+  SPIclass<MAX6675_DO_PIN, SD_MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -2188,6 +2205,24 @@ void Temperature::disable_all_heaters() {
 
 #endif // PROBING_HEATERS_OFF
 
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+
+  void Temperature::singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool) {
+    #if HAS_FAN
+      singlenozzle_fan_speed[old_tool] = fan_speed[0];
+      fan_speed[0] = singlenozzle_fan_speed[new_tool];
+    #endif
+    singlenozzle_temp[old_tool] = temp_hotend[0].target;
+    if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
+      setTargetHotend(singlenozzle_temp[new_tool], 0);
+      TERN_(AUTOTEMP, planner.autotemp_update());
+      TERN_(HAS_DISPLAY, set_heating_message(0));
+      (void)wait_for_hotend(0, false);  // Wait for heating or cooling
+    }
+  }
+
+#endif
+
 #if HAS_MAX6675
 
   #ifndef THERMOCOUPLE_MAX_ERRORS
@@ -2423,7 +2458,7 @@ void Temperature::readings_ready() {
 
   #endif // HAS_HOTEND
 
-  #if HAS_HEATED_BED
+  #if ENABLED(THERMAL_PROTECTION_BED)
     #if TEMPDIR(BED) < 0
       #define BEDCMP(A,B) ((A)<(B))
     #else
@@ -2434,7 +2469,7 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif
 
-  #if HAS_HEATED_CHAMBER
+  #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
     #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<(B))
     #else
@@ -2528,6 +2563,8 @@ void Temperature::tick() {
   #if HAS_HEATED_CHAMBER
     static SoftPWM soft_pwm_chamber;
   #endif
+
+  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 
   #if DISABLED(SLOW_PWM_HEATERS)
 
@@ -2993,14 +3030,19 @@ void Temperature::tick() {
         default: k = 'B'; break;
       #endif
     }
-    SERIAL_CHAR(' ');
-    SERIAL_CHAR(k);
+    SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
+    #ifdef SERIAL_FLOAT_PRECISION
+      #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
+    #else
+      #define SFP 2
+    #endif
     SERIAL_CHAR(':');
-    SERIAL_ECHO(c);
-    SERIAL_ECHOPAIR(" /" , t);
+    SERIAL_PRINT(c, SFP);
+    SERIAL_ECHOPGM(" /");
+    SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');

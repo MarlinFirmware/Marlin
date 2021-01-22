@@ -21,13 +21,13 @@
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
 
 /**
- * Framework doesn't define some serial to save sercom resources
+ * Framework doesn't define some serials to save sercom resources
  * hence if these are used I need to define them
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
+#if USING_SERIAL_1
   Uart Serial2(&sercom4, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX);
   void SERCOM4_0_Handler() { Serial2.IrqHandler(); }
   void SERCOM4_1_Handler() { Serial2.IrqHandler(); }
@@ -35,7 +35,7 @@
   void SERCOM4_3_Handler() { Serial2.IrqHandler(); }
 #endif
 
-#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2
+#if USING_SERIAL_2
   Uart Serial3(&sercom1, PIN_SERIAL3_RX, PIN_SERIAL3_TX, PAD_SERIAL3_RX, PAD_SERIAL3_TX);
   void SERCOM1_0_Handler() { Serial3.IrqHandler(); }
   void SERCOM1_1_Handler() { Serial3.IrqHandler(); }
@@ -43,7 +43,7 @@
   void SERCOM1_3_Handler() { Serial3.IrqHandler(); }
 #endif
 
-#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3
+#if USING_SERIAL_3
   Uart Serial4(&sercom5, PIN_SERIAL4_RX, PIN_SERIAL4_TX, PAD_SERIAL4_RX, PAD_SERIAL4_TX);
   void SERCOM5_0_Handler() { Serial4.IrqHandler(); }
   void SERCOM5_1_Handler() { Serial4.IrqHandler(); }

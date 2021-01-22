@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
@@ -47,6 +46,10 @@
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
   DECLARE_SERIAL_PORT_EXP(SERIAL_PORT_2)
+#endif
+
+#if defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(MMU2_SERIAL_PORT)
 #endif
 
 #if defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT >= 0

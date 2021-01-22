@@ -27,7 +27,6 @@
 
 extern void lv_draw_pause_message(const PauseMessage msg);
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

@@ -51,3 +51,7 @@
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
 #endif
+
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32F4xx, STM32F1xx)
+  #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32F4 and STM32F1 hardware."
+#endif
