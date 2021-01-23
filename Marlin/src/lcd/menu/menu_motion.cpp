@@ -189,7 +189,6 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
 
       #if DISABLED(HAS_GRAPHICAL_TFT)
-        extern const char NUL_STR[];
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
         MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
         lcd_put_u8str(tmp);

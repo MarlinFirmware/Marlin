@@ -44,7 +44,7 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h" // for wait_for_user_response
+  #include "../../MarlinCore.h" // for wait_for_user_response()
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 

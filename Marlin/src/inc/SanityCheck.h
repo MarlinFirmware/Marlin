@@ -357,10 +357,6 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH."
 #elif defined(LEVEL_CORNERS_INSET)
   #error "LEVEL_CORNERS_INSET is now LEVEL_CORNERS_INSET_LFRB."
-#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET_LFRB)
-  #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
-#elif BOTH(LEVEL_CORNERS_USE_PROBE, SENSORLESS_PROBING)
-  #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION."
 #elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
@@ -707,6 +703,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI)
     #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, or EXTENSIBLE_UI."
   #endif
+#endif
+
+#if ENABLED(USE_M73_REMAINING_TIME) && DISABLED(LCD_SET_PROGRESS_MANUALLY)
+  #error "USE_M73_REMAINING_TIME requires LCD_SET_PROGRESS_MANUALLY"
 #endif
 
 #if !HAS_LCD_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -1429,6 +1429,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #endif
 
+#if ENABLED(LEVEL_BED_CORNERS)
+  #ifndef LEVEL_CORNERS_INSET_LFRB
+    #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
+  #elif ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #if !HAS_BED_PROBE
+      #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
+    #elif ENABLED(SENSORLESS_PROBING)
+      #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+    #endif
+  #endif
+#endif
+
 /**
  * Allow only one bed leveling option to be defined
  */
@@ -1931,16 +1943,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Basic multi hotend duplication mode
  */
 #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-  #if HOTENDS < 2
-    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
+  #if ENABLED(SINGLENOZZLE)
+    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(DUAL_X_CARRIAGE)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with DUAL_X_CARRIAGE."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with MIXING_EXTRUDER."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with SWITCHING_EXTRUDER."
+  #elif HOTENDS < 2
+    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
   #endif
 #endif
 
