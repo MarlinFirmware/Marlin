@@ -1124,7 +1124,7 @@
 
 // The size of the print bed
 #define X_BED_SIZE 220 // Due to direct drive and Bullseye cable instalation it can not go further than 220
-#define Y_BED_SIZE 215 // Due to Linear rails on X and Z axis the Y was shifted by 2.2cm
+#define Y_BED_SIZE 205 // Due to Linear rails on X and Z axis the Y was shifted
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1132,7 +1132,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 240 // Due to direct drive installation it can not reach full 250 on the Ender3
+#define Z_MAX_POS 230 // Due to direct drive installation it can not reach full 250 on the Ender3
 
 /**
  * Software Endstops
