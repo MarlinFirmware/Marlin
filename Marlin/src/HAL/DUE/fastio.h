@@ -50,7 +50,7 @@
 #define PWM_PIN(P)              WITHIN(P, 2, 13)
 
 #ifndef MASK
-  #define MASK(PIN) (1 << PIN)
+  #define MASK(PIN) _BV(PIN)
 #endif
 
 /**

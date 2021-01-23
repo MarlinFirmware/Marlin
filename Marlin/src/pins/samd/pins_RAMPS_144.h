@@ -363,10 +363,10 @@
     #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                     38
-      //#define SHIFT_LD                      42
-      //#define SHIFT_OUT                     40
-      //#define SHIFT_EN                      17
+      //#define SHIFT_CLK_PIN                 38
+      //#define SHIFT_LD_PIN                  42
+      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_EN_PIN                  17
     #endif
 
   #endif
@@ -567,9 +567,9 @@
       // Buttons are directly attached to AUX-2
       #if IS_RRW_KEYPAD
         // TO TEST
-        //#define SHIFT_OUT                   40
-        //#define SHIFT_CLK                   44
-        //#define SHIFT_LD                    42
+        //#define SHIFT_OUT_PIN               40
+        //#define SHIFT_CLK_PIN               44
+        //#define SHIFT_LD_PIN                42
         //#define BTN_EN1                     56  // Mega/Due:64 - AGCM4:56
         //#define BTN_EN2                     72  // Mega/Due:59 - AGCM4:72
         //#define BTN_ENC                     55  // Mega/Due:63 - AGCM4:55

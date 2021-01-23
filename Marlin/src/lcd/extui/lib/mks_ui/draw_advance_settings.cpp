@@ -69,7 +69,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_advance_settings(void) {
+void lv_draw_advance_settings() {
   scr = lv_screen_create(ADVANCED_UI, machine_menu.AdvancedConfTitle);
 
   int index = 0;

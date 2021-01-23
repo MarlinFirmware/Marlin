@@ -91,8 +91,6 @@ MMU2 mmu2;
 #define MMU2_NO_TOOL 99
 #define MMU_BAUD    115200
 
-#define mmuSerial   MMU2_SERIAL
-
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
 #if HAS_PRUSA_MMU2S
   bool MMU2::mmu2s_triggered;
@@ -128,12 +126,11 @@ void MMU2::init() {
   set_runout_valid(false);
 
   #if PIN_EXISTS(MMU2_RST)
-    // TODO use macros for this
     WRITE(MMU2_RST_PIN, HIGH);
     SET_OUTPUT(MMU2_RST_PIN);
   #endif
 
-  mmuSerial.begin(MMU_BAUD);
+  MMU2_SERIAL.begin(MMU_BAUD);
   extruder = MMU2_NO_TOOL;
 
   safe_delay(10);
@@ -386,8 +383,8 @@ bool MMU2::rx_start() {
 bool MMU2::rx_str_P(const char* str) {
   uint8_t i = strlen(rx_buffer);
 
-  while (mmuSerial.available()) {
-    rx_buffer[i++] = mmuSerial.read();
+  while (MMU2_SERIAL.available()) {
+    rx_buffer[i++] = MMU2_SERIAL.read();
     rx_buffer[i] = '\0';
 
     if (i == sizeof(rx_buffer) - 1) {
@@ -418,7 +415,7 @@ bool MMU2::rx_str_P(const char* str) {
 void MMU2::tx_str_P(const char* str) {
   clear_rx_buffer();
   uint8_t len = strlen_P(str);
-  LOOP_L_N(i, len) mmuSerial.write(pgm_read_byte(str++));
+  LOOP_L_N(i, len) MMU2_SERIAL.write(pgm_read_byte(str++));
   rx_buffer[0] = '\0';
   prev_request = millis();
 }
@@ -429,7 +426,7 @@ void MMU2::tx_str_P(const char* str) {
 void MMU2::tx_printf_P(const char* format, int argument = -1) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument);
-  LOOP_L_N(i, len) mmuSerial.write(tx_buffer[i]);
+  LOOP_L_N(i, len) MMU2_SERIAL.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
   prev_request = millis();
 }
@@ -440,7 +437,7 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
 void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument1, argument2);
-  LOOP_L_N(i, len) mmuSerial.write(tx_buffer[i]);
+  LOOP_L_N(i, len) MMU2_SERIAL.write(tx_buffer[i]);
   rx_buffer[0] = '\0';
   prev_request = millis();
 }
@@ -449,7 +446,7 @@ void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
  * Empty the rx buffer
  */
 void MMU2::clear_rx_buffer() {
-  while (mmuSerial.available()) mmuSerial.read();
+  while (MMU2_SERIAL.available()) MMU2_SERIAL.read();
   rx_buffer[0] = '\0';
 }
 
@@ -955,7 +952,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 /**
  * Load filament to nozzle of multimaterial printer
  *
- * This function is used only only after T? (user select filament) and M600 (change filament).
+ * This function is used only after T? (user select filament) and M600 (change filament).
  * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
  * filament to nozzle.
  */

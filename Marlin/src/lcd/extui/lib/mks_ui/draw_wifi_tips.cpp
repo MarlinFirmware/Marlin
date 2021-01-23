@@ -36,7 +36,7 @@ TIPS_TYPE wifi_tips_type;
 TIPS_DISP tips_disp;
 tips_menu_def tips_menu;
 
-void lv_draw_wifi_tips(void) {
+void lv_draw_wifi_tips() {
   static lv_obj_t *text_tips,*wifi_name;
 
   scr = lv_screen_create(WIFI_TIPS_UI, "");

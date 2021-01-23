@@ -342,7 +342,6 @@ void MarlinUI::init() {
   init_lcd();
 
   #if HAS_DIGITAL_BUTTONS
-
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
@@ -352,15 +351,12 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(ENC)
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
-
     #if BUTTON_EXISTS(ENC_EN)
       SET_INPUT_PULLUP(BTN_ENC_EN);
     #endif
-
     #if BUTTON_EXISTS(BACK)
       SET_INPUT_PULLUP(BTN_BACK);
     #endif
-
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
@@ -373,8 +369,7 @@ void MarlinUI::init() {
     #if BUTTON_EXISTS(RT)
       SET_INPUT(BTN_RT);
     #endif
-
-  #endif // !HAS_DIGITAL_BUTTONS
+  #endif
 
   #if HAS_SHIFT_ENCODER
 
@@ -383,14 +378,14 @@ void MarlinUI::init() {
       SET_OUTPUT(SR_DATA_PIN);
       SET_OUTPUT(SR_CLK_PIN);
 
-    #elif defined(SHIFT_CLK)
+    #elif PIN_EXISTS(SHIFT_CLK)
 
-      SET_OUTPUT(SHIFT_CLK);
-      OUT_WRITE(SHIFT_LD, HIGH);
-      #if defined(SHIFT_EN) && SHIFT_EN >= 0
-        OUT_WRITE(SHIFT_EN, LOW);
+      SET_OUTPUT(SHIFT_CLK_PIN);
+      OUT_WRITE(SHIFT_LD_PIN, HIGH);
+      #if PIN_EXISTS(SHIFT_EN)
+        OUT_WRITE(SHIFT_EN_PIN, LOW);
       #endif
-      SET_INPUT_PULLUP(SHIFT_OUT);
+      SET_INPUT_PULLUP(SHIFT_OUT_PIN);
 
     #endif
 
@@ -830,11 +825,7 @@ millis_t next_lcd_update_ms;
 #endif
 
 inline bool can_encode() {
-  #if BUTTON_EXISTS(ENC_EN)
-    return !BUTTON_PRESSED(ENC_EN);  // Update position only when ENC_EN is HIGH
-  #else
-    return true;
-  #endif
+  return !BUTTON_PRESSED(ENC_EN); // Update encoder only when ENC_EN is not LOW (pressed)
 }
 
 void MarlinUI::update() {
@@ -890,18 +881,17 @@ void MarlinUI::update() {
         else if (!wait_for_unclick && (buttons & EN_C))   // OK button, if not waiting for a debounce release:
           do_click();
       }
-      else // keep wait_for_unclick value
+      // keep wait_for_unclick value
+    #endif
 
-    #endif // HAS_TOUCH_BUTTONS
-
-      {
-        // Integrated LCD click handling via button_pressed
-        if (!external_control && button_pressed()) {
-          if (!wait_for_unclick) do_click();              // Handle the click
-        }
-        else
-          wait_for_unclick = false;
+    if (!touch_buttons) {
+      // Integrated LCD click handling via button_pressed
+      if (!external_control && button_pressed()) {
+        if (!wait_for_unclick) do_click();              // Handle the click
       }
+      else
+        wait_for_unclick = false;
+    }
 
     if (LCD_BACK_CLICKED()) {
       quick_feedback();
@@ -1198,19 +1188,10 @@ void MarlinUI::update() {
         #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
           uint8_t newbutton = 0;
-
-          #if BUTTON_EXISTS(EN1)
-            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          #endif
-          #if BUTTON_EXISTS(EN2)
-            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          #endif
-          #if BUTTON_EXISTS(ENC)
-            if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          #endif
-          #if BUTTON_EXISTS(BACK)
-            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-          #endif
+          if (BUTTON_PRESSED(EN1))                 newbutton |= EN_A;
+          if (BUTTON_PRESSED(EN2))                 newbutton |= EN_B;
+          if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          if (BUTTON_PRESSED(BACK))                newbutton |= EN_D;
 
         #else
 
@@ -1225,40 +1206,26 @@ void MarlinUI::update() {
 
           const int8_t pulses = epps * encoderDirection;
 
-          if (false) {
-            // for the else-ifs below
+          if (BUTTON_PRESSED(UP)) {
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
           }
-          #if BUTTON_EXISTS(UP)
-            else if (BUTTON_PRESSED(UP)) {
-              encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-          #endif
-          #if BUTTON_EXISTS(DWN)
-            else if (BUTTON_PRESSED(DWN)) {
-              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-          #endif
-          #if BUTTON_EXISTS(LFT)
-            else if (BUTTON_PRESSED(LFT)) {
-              encoderDiff = -pulses;
-              next_button_update_ms = now + 300;
-            }
-          #endif
-          #if BUTTON_EXISTS(RT)
-            else if (BUTTON_PRESSED(RT)) {
-              encoderDiff = pulses;
-              next_button_update_ms = now + 300;
-            }
-          #endif
+          else if (BUTTON_PRESSED(DWN)) {
+            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(LFT)) {
+            encoderDiff = -pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(RT)) {
+            encoderDiff = pulses;
+            next_button_update_ms = now + 300;
+          }
 
         #endif // UP || DWN || LFT || RT
 
-        buttons = (newbutton
-          #if HAS_SLOW_BUTTONS
-            | slow_buttons
-          #endif
+        buttons = (newbutton | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
           #if BOTH(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
             | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
           #endif
@@ -1284,13 +1251,13 @@ void MarlinUI::update() {
          * The rotary encoder part is also independent of the LCD chipset.
          */
         uint8_t val = 0;
-        WRITE(SHIFT_LD, LOW);
-        WRITE(SHIFT_LD, HIGH);
+        WRITE(SHIFT_LD_PIN, LOW);
+        WRITE(SHIFT_LD_PIN, HIGH);
         LOOP_L_N(i, 8) {
           val >>= 1;
-          if (READ(SHIFT_OUT)) SBI(val, 7);
-          WRITE(SHIFT_CLK, HIGH);
-          WRITE(SHIFT_CLK, LOW);
+          if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
+          WRITE(SHIFT_CLK_PIN, HIGH);
+          WRITE(SHIFT_CLK_PIN, LOW);
         }
         TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
       #endif
@@ -1306,11 +1273,6 @@ void MarlinUI::update() {
     #if HAS_ENCODER_WHEEL
       static uint8_t lastEncoderBits;
 
-      #define encrot0 0
-      #define encrot1 2
-      #define encrot2 3
-      #define encrot3 1
-
       // Manage encoder rotation
       #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
 
@@ -1319,10 +1281,10 @@ void MarlinUI::update() {
       if (buttons & EN_B) enc |= B10;
       if (enc != lastEncoderBits) {
         switch (enc) {
-          case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
-          case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
-          case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
-          case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
+          case ENCODER_PHASE_0: ENCODER_SPIN(ENCODER_PHASE_3, ENCODER_PHASE_1); break;
+          case ENCODER_PHASE_1: ENCODER_SPIN(ENCODER_PHASE_0, ENCODER_PHASE_2); break;
+          case ENCODER_PHASE_2: ENCODER_SPIN(ENCODER_PHASE_1, ENCODER_PHASE_3); break;
+          case ENCODER_PHASE_3: ENCODER_SPIN(ENCODER_PHASE_2, ENCODER_PHASE_0); break;
         }
         #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
           external_encoder();
@@ -1488,7 +1450,8 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-
+    #else // HAS_SPI_LCD
+      UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
