@@ -38,9 +38,9 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "pause.h"
-#endif
+//#if ENABLED(ADVANCED_PAUSE_FEATURE)
+//  #include "pause.h"
+//#endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
 #ifndef FILAMENT_RUNOUT_THRESHOLD
