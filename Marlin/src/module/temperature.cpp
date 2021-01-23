@@ -27,14 +27,17 @@
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
+#include "../MarlinCore.h"
+#include "../HAL/shared/Delay.h"
+#include "../lcd/marlinui.h"
+
 #include "temperature.h"
 #include "endstops.h"
-
-#include "../MarlinCore.h"
 #include "planner.h"
-#include "../HAL/shared/Delay.h"
 
-#include "../lcd/marlinui.h"
+#if ENABLED(EMERGENCY_PARSER)
+  #include "motion.h"
+#endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/e3v2/dwin.h"
@@ -375,6 +378,13 @@ volatile bool Temperature::raw_temps_ready = false;
 #if ENABLED(FAN_SOFT_PWM)
   uint8_t Temperature::soft_pwm_amount_fan[FAN_COUNT],
           Temperature::soft_pwm_count_fan[FAN_COUNT];
+#endif
+
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+  uint16_t Temperature::singlenozzle_temp[EXTRUDERS];
+  #if HAS_FAN
+    uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
+  #endif
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
@@ -1404,8 +1414,7 @@ void Temperature::manage_heater() {
       SERIAL_ECHOPGM("  M305 ");
     else
       SERIAL_ECHO_START();
-    SERIAL_CHAR('P');
-    SERIAL_CHAR('0' + t_index);
+    SERIAL_CHAR('P', '0' + t_index);
 
     const user_thermistor_t &t = user_thermistor[t_index];
 
@@ -2196,6 +2205,24 @@ void Temperature::disable_all_heaters() {
 
 #endif // PROBING_HEATERS_OFF
 
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+
+  void Temperature::singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool) {
+    #if HAS_FAN
+      singlenozzle_fan_speed[old_tool] = fan_speed[0];
+      fan_speed[0] = singlenozzle_fan_speed[new_tool];
+    #endif
+    singlenozzle_temp[old_tool] = temp_hotend[0].target;
+    if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
+      setTargetHotend(singlenozzle_temp[new_tool], 0);
+      TERN_(AUTOTEMP, planner.autotemp_update());
+      TERN_(HAS_DISPLAY, set_heating_message(0));
+      (void)wait_for_hotend(0, false);  // Wait for heating or cooling
+    }
+  }
+
+#endif
+
 #if HAS_MAX6675
 
   #ifndef THERMOCOUPLE_MAX_ERRORS
@@ -2536,6 +2563,8 @@ void Temperature::tick() {
   #if HAS_HEATED_CHAMBER
     static SoftPWM soft_pwm_chamber;
   #endif
+
+  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 
   #if DISABLED(SLOW_PWM_HEATERS)
 
@@ -3001,14 +3030,19 @@ void Temperature::tick() {
         default: k = 'B'; break;
       #endif
     }
-    SERIAL_CHAR(' ');
-    SERIAL_CHAR(k);
+    SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
       if (e >= 0) SERIAL_CHAR('0' + e);
     #endif
+    #ifdef SERIAL_FLOAT_PRECISION
+      #define SFP _MIN(SERIAL_FLOAT_PRECISION, 2)
+    #else
+      #define SFP 2
+    #endif
     SERIAL_CHAR(':');
-    SERIAL_ECHO(c);
-    SERIAL_ECHOPAIR(" /" , t);
+    SERIAL_PRINT(c, SFP);
+    SERIAL_ECHOPGM(" /");
+    SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
