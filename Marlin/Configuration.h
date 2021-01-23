@@ -92,7 +92,7 @@
 #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-#ifdef TFT_CLASSIC_UI 
+#ifdef TFT_CLASSIC_UI
   #define SHOW_CUSTOM_BOOTSCREEN  //TIPS
 #endif
 
@@ -453,7 +453,7 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10 
+#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
@@ -675,7 +675,7 @@
   #endif
   #if ENABLED(FLYING)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-    #define DELTA_PRINTABLE_RADIUS 130.0  // (mm)
+    #define DELTA_PRINTABLE_RADIUS 130    // (mm)
     // Center-to-center distance of the holes in the diagonal push rods.
     #define DELTA_DIAGONAL_ROD 280.77
     // Horizontal offset from middle of printer to smooth rod center.
@@ -688,13 +688,13 @@
     #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
   #else
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-    #define DELTA_PRINTABLE_RADIUS 130.0    //130 (mm)
+    #define DELTA_PRINTABLE_RADIUS 130    // (mm)
 
     // Center-to-center distance of the holes in the diagonal push rods.
-    #define DELTA_DIAGONAL_ROD 280.0        //280 (mm)
+    #define DELTA_DIAGONAL_ROD 280.0        // (mm)
 
     // Horizontal distance bridged by diagonal push rods when effector is centered.
-    #define DELTA_RADIUS 140.8               //140.8 (mm) Get this value from G33 auto calibrate
+    #define DELTA_RADIUS 140.8               // (mm) Get this value from G33 auto calibrate
   #endif
 
   // Distance between bed and nozzle Z home position
@@ -708,7 +708,7 @@
   #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
-  #define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
+  //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
   #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OCTO
 
 #endif
@@ -1262,7 +1262,7 @@
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 100  // (ms) To prevent vibrations from triggering piezo sensors
 
-// Require minimum nozzle and/or bed temperature for probing
+// Require minimum nozzle and/or bed temperature for probing.
 //#define PREHEAT_BEFORE_PROBING
 #if ENABLED(PREHEAT_BEFORE_PROBING)
   #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
