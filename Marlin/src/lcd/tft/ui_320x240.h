@@ -33,6 +33,7 @@
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 
+#define MENU_ITEM_HEIGHT    34
 #define MENU_TEXT_X_OFFSET  10
 #define MENU_TEXT_Y_OFFSET   7
 void menu_line(const uint8_t row, uint16_t color = COLOR_BACKGROUND);
