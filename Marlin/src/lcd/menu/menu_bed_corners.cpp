@@ -183,7 +183,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       SETCURSOR(0, cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
-      lcd_put_u8str("/");
+      lcd_put_wchar('/');
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
     }
 
