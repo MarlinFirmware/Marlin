@@ -1124,7 +1124,7 @@
 
 // The size of the print bed
 #define X_BED_SIZE 220 // Due to direct drive and Bullseye cable instalation it can not go further than 220
-#define Y_BED_SIZE 205 // Due to Linear rails on X and Z axis the Y was shifted
+#define Y_BED_SIZE 220 // Due to Linear rails on X and Z axis the Y was shifted
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
