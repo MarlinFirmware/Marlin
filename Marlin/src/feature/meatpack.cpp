@@ -187,11 +187,10 @@ void MeatPack::handle_output_char(const uint8_t c) {
   char_out_buf[char_out_count++] = c;
 
   #if ENABLED(MP_DEBUG)
-    if (chars_decoded < 64) {
+    if (chars_decoded < 1024) {
       ++chars_decoded;
-      DEBUG_ECHOPGM("Rec Byte: ");
-      MYSERIAL.print("0x");
-      MYSERIAL.print((uint8_t)c, HEX);
+      DEBUG_ECHOPGM("RB: ");
+      MYSERIAL.print((char)c);
       DEBUG_EOL();
     }
   #endif
@@ -221,8 +220,10 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
       }
       else {
         handle_output_char(buf[0]);
-        if (res & MeatPack_NextPackedSecond) ++full_char_count;
-        else handle_output_char(buf[1]);
+        if (buf[0] != '\n') {
+          if (res & MeatPack_NextPackedSecond) ++full_char_count;
+          else handle_output_char(buf[1]);
+        }
       }
     }
   }
