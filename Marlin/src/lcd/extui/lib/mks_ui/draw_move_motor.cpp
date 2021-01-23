@@ -54,14 +54,18 @@ enum {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (queue.length <= (BUFSIZE - 3)) {
+    bool do_inject = true;
     float dist = uiCfg.move_dist;
     switch (obj->mks_obj_id) {
       case ID_M_X_N: dist *= -1; case ID_M_X_P: cur_label = 'X'; break;
       case ID_M_Y_N: dist *= -1; case ID_M_Y_P: cur_label = 'Y'; break;
       case ID_M_Z_N: dist *= -1; case ID_M_Z_P: cur_label = 'Z'; break;
+      default: do_inject = false;
     }
-    sprintf_P(public_buf_l, PSTR("G91\nG1 %c%3.1f F%d\nG90"), cur_label, dist, uiCfg.moveSpeed);
-    queue.inject(public_buf_l);
+    if (do_inject) {
+      sprintf_P(public_buf_l, PSTR("G91\nG1 %c%3.1f F%d\nG90"), cur_label, dist, uiCfg.moveSpeed);
+      queue.inject(public_buf_l);
+    }
   }
 
   switch (obj->mks_obj_id) {

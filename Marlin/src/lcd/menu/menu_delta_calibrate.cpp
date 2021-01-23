@@ -53,6 +53,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)
 
+  #include "../../MarlinCore.h" // for wait_for_user_response()
   #include "../../gcode/gcode.h"
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -81,6 +82,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _lcd_delta_calibrate_home() {
+    extern const char G28_STR[];
     queue.inject_P(G28_STR);
     ui.goto_screen(_lcd_calibrate_homing);
   }

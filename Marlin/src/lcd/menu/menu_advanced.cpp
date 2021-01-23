@@ -155,7 +155,7 @@ void menu_backlash();
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
-      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, float(FILAMENT_RUNOUT_DISTANCE_MM) * 1.5f,
+      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999,
         []{ runout.set_runout_distance(editable.decimal); }, true
       );
     #endif

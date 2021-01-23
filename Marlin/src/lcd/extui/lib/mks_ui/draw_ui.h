@@ -77,7 +77,7 @@
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MKS_WIFI_MODULE)
   #include "wifiSerial.h"

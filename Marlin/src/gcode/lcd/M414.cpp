@@ -19,41 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-//
-// Prefix header for all Marlin sources
-//
+#include "../../inc/MarlinConfig.h"
 
-#include "MarlinConfigPre.h"
+#if HAS_MULTI_LANGUAGE
 
-#ifndef __MARLIN_DEPS__
-  #include "../HAL/HAL.h"
-#endif
+#include "../gcode.h"
+#include "../../MarlinCore.h"
+#include "../../lcd/marlinui.h"
 
-#include "../pins/pins.h"
+/**
+ * M414: Set the language for the UI
+ *
+ * Parameters
+ *  S<index> : The language to select
+ */
+void GcodeSuite::M414() {
 
-#ifndef __MARLIN_DEPS__
-  #include HAL_PATH(../HAL, timers.h)
-  #include HAL_PATH(../HAL, spi_pins.h)
-#endif
+  if (parser.seenval('S'))
+    ui.set_language(parser.value_byte());
 
-#include "Conditionals_post.h"
+}
 
-#ifndef __MARLIN_DEPS__
-
-  #include HAL_PATH(../HAL, inc/Conditionals_post.h)
-
-  #include "../core/types.h"  // Ahead of sanity-checks
-
-  #include "SanityCheck.h"
-  #include HAL_PATH(../HAL, inc/SanityCheck.h)
-
-  // Include all core headers
-  #include "../core/language.h"
-  #include "../core/utility.h"
-  #include "../core/serial.h"
-
-#endif
-
-#include "../core/multi_language.h"
+#endif // HAS_MULTI_LANGUAGE

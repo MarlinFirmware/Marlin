@@ -39,6 +39,10 @@
 #include "../../../../module/planner.h"
 #include "../../../../module/servo.h"
 #include "../../../../module/probe.h"
+
+#if DISABLED(EMERGENCY_PARSER)
+  #include "../../../../module/motion.h"
+#endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
@@ -1663,7 +1667,7 @@ void mks_esp_wifi_init() {
 
         clear_cur_ui();
 
-        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
         if (wifi_upload(1) >= 0) {
 
           f_unlink("1:/MKS_WIFI_CUR");
@@ -1717,7 +1721,7 @@ void mks_wifi_firmware_update() {
 
     clear_cur_ui();
 
-    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
 
     lv_task_handler();
     watchdog_refresh();
