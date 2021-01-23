@@ -1432,10 +1432,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(LEVEL_BED_CORNERS)
   #ifndef LEVEL_CORNERS_INSET_LFRB
     #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
-  #elif ENABLED(LEVEL_CORNERS_USE_PROBE) && !HAS_BED_PROBE
-    #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
-  #elif BOTH(LEVEL_CORNERS_USE_PROBE, SENSORLESS_PROBING)
-    #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+  #elif ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #if !HAS_BED_PROBE
+      #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
+    #elif ENABLED(SENSORLESS_PROBING)
+      #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+    #endif
   #endif
 #endif
 
