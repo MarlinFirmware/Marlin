@@ -47,6 +47,8 @@ MeatPack meatpack;
 #define MeatPack_SpaceCharIdx       11U
 #define MeatPack_SpaceCharReplace   'E'
 
+#define MeatPack_ProtocolVersion    "PV01"
+
 /*
   Character Frequencies from ~30 MB of comment-stripped gcode:
    '1' -> 4451136
@@ -79,6 +81,17 @@ MeatPack meatpack;
 // Thus, performance is identical.
 #define USE_LOOKUP_TABLE
 
+// State variables
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+bool MeatPack::cmd_is_next = false;       // A command is pending
+uint8_t MeatPack::config = 0;             // Configuration state OFF
+uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
+uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
+uint8_t MeatPack::full_char_count = 0;    // Counts how many full-width characters are to be received
+uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
+uint8_t MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
+
 #ifdef USE_LOOKUP_TABLE
   // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
   // NOT storing this with PROGMEM, given how frequently this table will be accessed.
@@ -107,7 +120,7 @@ MeatPack meatpack;
     switch (in) {
       case 0b0000 ... 0b1001: return '0' + in;
       case 0b1010: return '.';
-      case 0b1011: return ' ';
+      case 0b1011: return (config & MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
       case 0b1100: return '\n';
       case 0b1101: return 'G';
       case 0b1110: return 'X';
@@ -117,23 +130,10 @@ MeatPack meatpack;
 
 #endif
 
-// State variables
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-bool MeatPack::cmd_is_next = false;       // A command is pending
-uint8_t MeatPack::config = 0;             // Configuration state OFF
-uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
-uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
-uint8_t MeatPack::full_char_count = 0;    // Counts how many full-width characters are to be received
-uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
-uint8_t MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
-
 // DEBUGGING
 TERN_(MP_DEBUG, uint32_t chars_decoded = 0);
 
 void MeatPack::reset_state() {
-  SERIAL_ECHOLNPGM("MP Reset");
-
   cmd_is_next = false;
   config = 0;
   char_buf = 0;
@@ -142,6 +142,11 @@ void MeatPack::reset_state() {
   char_out_count = 0;
 
   TERN_(MP_DEBUG, chars_decoded = 0);
+
+  #ifdef MP_DEBUG
+    chars_decoded = 0;
+    SERIAL_ECHOLNPGM("MP Reset");
+  #endif
 }
 
 // Storing
@@ -226,22 +231,29 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
 }
 
 void MeatPack::echo_config_state() {
-  SERIAL_ECHOPGM("[MP] ");
+  SERIAL_ECHOPGM(" [MP] "); // Add space at idx 0 just in case first character is dropped due to timing/sync issues.
+
+  // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
+  // should not contain the "PV' substring, as this is used to indicate protocol version
+  SERIAL_ECHOPGM(MeatPack_ProtocolVersion);
 
   // Echo current state
-  serialprint_onoff(TEST(config, MPConfig_Bit_Active));
-
-  SERIAL_CHAR(' ');
+  if (TEST(config, MPConfig_Bit_Active))
+    SERIAL_ECHOPGM(" ON");
+  else
+    SERIAL_ECHOPGM(" OFF");
 
   if (TEST(config, MPConfig_Bit_NoSpaces))
-    SERIAL_ECHOPGM("NSP"); // [N]o [SP]aces
+    SERIAL_ECHOPGM(" NSP"); // [N]o [SP]aces
   else
-    SERIAL_ECHOPGM("ESP"); // [E]nabled [SP]aces
+    SERIAL_ECHOPGM(" ESP"); // [E]nabled [SP]aces
 
   SERIAL_EOL();
 
   // Validate config vars
-  MeatPackLookupTbl[MeatPack_SpaceCharIdx] = TEST(config, MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
+  #ifdef USE_LOOKUP_TABLE
+    MeatPackLookupTbl[MeatPack_SpaceCharIdx] = TEST(config, MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
+  #endif
 }
 
 void MeatPack::handle_cmd(const MeatPack_Command c) {
