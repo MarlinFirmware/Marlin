@@ -141,6 +141,9 @@ void GcodeSuite::M115() {
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
 
+    // MEATPACK Compresson
+    cap_line(PSTR("MEATPACK"), ENABLED(MEATPACK));
+
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
       const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
