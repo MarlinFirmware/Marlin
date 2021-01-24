@@ -25,6 +25,21 @@
  *
  * Algorithm & Implementation: Scott Mudge - mail@scottmudge.com
  * Date: Dec. 2020
+ *
+ * Character Frequencies from ~30 MB of comment-stripped gcode:
+ *  '1' -> 4451136    '7' -> 1112908
+ *  '0' -> 4253577   '\n' -> 1087683
+ *  ' ' -> 3053297    'G' -> 1075806
+ *  '.' -> 3035310    'X' ->  975742
+ *  '2' -> 1523296    'E' ->  965275
+ *  '8' -> 1366812    'Y' ->  965274
+ *  '4' -> 1353273    'F' ->   99416
+ *  '9' -> 1352147    '-' ->   90242
+ *  '3' -> 1262929    'Z' ->   34109
+ *  '5' -> 1189871    'M' ->   11879
+ *  '6' -> 1127900    'S' ->    9910
+ *
+ *  When space is omitted the letter 'E' is used in its place
  */
 
 #include "../inc/MarlinConfig.h"
@@ -32,157 +47,129 @@
 #if ENABLED(MEATPACK)
 
 #include "meatpack.h"
-
 MeatPack meatpack;
 
+#define MeatPack_ProtocolVersion "PV01"
+//#define MEATPACK_LOOKUP_TABLE
 //#define MP_DEBUG
+
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
 
-// Utility definitions
-#define MeatPack_CommandByte      0b11111111
-#define MeatPack_NextPackedFirst  0b00000001
-#define MeatPack_NextPackedSecond 0b00000010
-
-#define MeatPack_SpaceCharIdx       11U
-#define MeatPack_SpaceCharReplace   'E'
-
-#define MeatPack_ProtocolVersion    "PV01"
-
-/*
-  Character Frequencies from ~30 MB of comment-stripped gcode:
-   '1' -> 4451136
-   '0' -> 4253577
-   ' ' -> 3053297
-   '.' -> 3035310
-   '2' -> 1523296
-   '8' -> 1366812
-   '4' -> 1353273
-   '9' -> 1352147
-   '3' -> 1262929
-   '5' -> 1189871
-   '6' -> 1127900
-   '7' -> 1112908
-  '\n' -> 1087683
-   'G' -> 1075806
-   'X' ->  975742
-   'E' ->  965275
-   'Y' ->  965274
-   'F' ->   99416
-   '-' ->   90242
-   'Z' ->   34109
-   'M' ->   11879
-   'S' ->    9910
-   If spaces are omitted, we add 'E'
-*/
-
-// Note:
-// I've tried both a switch/case method and a lookup table. The disassembly is exactly the same after compilation, byte-to-byte.
-// Thus, performance is identical.
-#define USE_LOOKUP_TABLE
-
-// State variables
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
 
 bool MeatPack::cmd_is_next = false;       // A command is pending
-uint8_t MeatPack::config = 0;             // Configuration state OFF
-uint8_t MeatPack::char_buf = 0;           // Buffers a character if dealing with out-of-sequence pairs
-uint8_t MeatPack::cmd_count = 0;          // Counts how many command bytes are received (need 2)
-uint8_t MeatPack::full_char_count = 0;    // Counts how many full-width characters are to be received
+uint8_t MeatPack::state = 0;              // Configuration state OFF
+uint8_t MeatPack::second_char = 0;        // The unpacked 2nd character from an out-of-sequence packed pair
+uint8_t MeatPack::cmd_count = 0,          // Counts how many command bytes are received (need 2)
+        MeatPack::full_char_count = 0,    // Counts how many full-width characters are to be received
+        MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
 uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
-uint8_t MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
 
-#ifdef USE_LOOKUP_TABLE
+#if ENABLED(MEATPACK_LOOKUP_TABLE)
   // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
-  // NOT storing this with PROGMEM, given how frequently this table will be accessed.
-  uint8_t MeatPackLookupTbl[16] = {
-    '0', // 0000
-    '1', // 0001
-    '2', // 0010
-    '3', // 0011
-    '4', // 0100
-    '5', // 0101
-    '6', // 0110
-    '7', // 0111
-    '8', // 1000
-    '9', // 1001
-    '.', // 1010
-    ' ', // 1011
-    '\n',// 1100
-    'G', // 1101
-    'X', // 1110
-    '\0' // never used, 0b1111 is used to indicate next 8-bits is a full character
+  // Stored in SRAM for performance.
+  static const uint8_t meatPackLookupTable[16] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    '.', ' ', '\n', 'G', 'X',
+    '\0' // Unused. 0b1111 indicates a literal character
   };
-
-#else
-
-  inline uint8_t get_char(register const uint8_t in) {
-    switch (in) {
-      case 0b0000 ... 0b1001: return '0' + in;
-      case 0b1010: return '.';
-      case 0b1011: return (config & MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
-      case 0b1100: return '\n';
-      case 0b1101: return 'G';
-      case 0b1110: return 'X';
-    }
-    return 0;
-  }
-
 #endif
 
-// DEBUGGING
-TERN_(MP_DEBUG, uint32_t chars_decoded = 0);
+uint8_t MeatPack::unpacked_char(register const uint8_t in) {
+  #if ENABLED(MEATPACK_LOOKUP_TABLE)
 
-void MeatPack::reset_state() {
-  cmd_is_next = false;
-  config = 0;
-  char_buf = 0;
-  cmd_count = 0;
-  full_char_count = 0;
-  char_out_count = 0;
+    return meatPackLookupTable[in];
 
-  TERN_(MP_DEBUG, chars_decoded = 0);
+  #else
 
-  #ifdef MP_DEBUG
-    chars_decoded = 0;
-    SERIAL_ECHOLNPGM("MP Reset");
+      switch (in) {
+        case 0b0000 ... 0b1001: return '0' + in;
+        case 0b1010: return '.';
+        case 0b1011: return (state & MPConfig_Bit_NoSpaces) ? kSpaceCharReplace : ' ';
+        case 0b1100: return '\n';
+        case 0b1101: return 'G';
+        case 0b1110: return 'X';
+      }
+      return 0;
+
   #endif
 }
 
-// Storing
-// packed = ((low & 0xF) << 4) | (high & 0xF);
+void MeatPack::reset_state() {
+  state = 0;
+  cmd_is_next = false;
+  second_char = 0;
+  cmd_count = full_char_count = char_out_count = 0;
+  TERN_(MP_DEBUG, chars_decoded = 0);
+  report_state();
+}
 
-// Unpacking
-// low = (packed >> 4) & 0xF;
-// high = (packed & 0xF);
-
+/**
+ * Unpack one or two characters from a packed byte into a buffer.
+ * Return flags indicating whether any literal bytes follow.
+ */
 uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out) {
-  register uint8_t out = 0;
+  uint8_t out = 0;
 
-  #if ENABLED(USE_LOOKUP_TABLE)
+  // If lower nybble is 1111, the higher nybble is unused, and next char is full.
+  if ((pk & kFirstNotPacked) == kFirstNotPacked)
+    out = kFirstCharIsLiteral;
+  else {
+    const uint8_t chr = pk & 0x0F;
+    chars_out[0] = unpacked_char(chr); // Set the first char
+  }
 
-    // If lower nybble is 1111, the higher nybble is unused, and next char is full.
-    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out = MeatPack_NextPackedFirst;
-    else chars_out[0] = MeatPackLookupTbl[pk & 0xF]; // Assign lower char
-
-    // Check if upper nybble is 1111... if so, we don't need the second char.
-    if ((pk & MeatPack_SecondNotPacked) == MeatPack_SecondNotPacked) out |= MeatPack_NextPackedSecond;
-    else chars_out[1] = MeatPackLookupTbl[(pk >> 4) & 0xF]; // Assign upper char
-
-  #else
-    // If lower nybble is 1111, the higher nybble is unused, and next char is full.
-    if ((pk & MeatPack_FirstNotPacked) == MeatPack_FirstNotPacked) out = MeatPack_NextPackedFirst;
-    else chars_out[0] = get_char(pk & 0xF); // Assign lower char
-
-    // Check if upper nybble is 1111... if so, we don't need the second char.
-    if ((pk & MeatPack_SecondNotPacked) == MeatPack_SecondNotPacked) out |= MeatPack_NextPackedSecond;
-    else chars_out[1] = get_char((pk >> 4) & 0xF); // Assign upper char
-
-  #endif
+  // Check if upper nybble is 1111... if so, we don't need the second char.
+  if ((pk & kSecondNotPacked) == kSecondNotPacked)
+    out |= kSecondCharIsLiteral;
+  else {
+    const uint8_t chr = (pk >> 4) & 0x0F;
+    chars_out[1] = unpacked_char(chr); // Set the second char
+  }
 
   return out;
 }
 
+/**
+ * Interpret a single (non-command) character
+ * according to the current MeatPack state.
+ */
+void MeatPack::handle_rx_char_inner(const uint8_t c) {
+  if (TEST(state, MPConfig_Bit_Active)) {                   // Is MeatPack active?
+    if (!full_char_count) {                                 // No literal characters to fetch?
+      uint8_t buf[2] = { 0, 0 };
+      register const uint8_t res = unpack_chars(c, buf);    // Decode the byte into one or two characters.
+      if (res & kFirstCharIsLiteral) {                      // The 1st character couldn't be packed.
+        ++full_char_count;                                  // So the next stream byte is a full character.
+        if (res & kSecondCharIsLiteral) ++full_char_count;  // The 2nd character couldn't be packed. Another stream byte is a full character.
+        else second_char = buf[1];                          // Retain the unpacked second character.
+      }
+      else {
+        handle_output_char(buf[0]);                           // Send the unpacked first character out.
+        if (buf[0] != '\n') {                                 // After a newline the next char won't be set
+          if (res & kSecondCharIsLiteral) ++full_char_count;  // The 2nd character couldn't be packed. The next stream byte is a full character.
+          else handle_output_char(buf[1]);                    // Send the unpacked second character out.
+        }
+      }
+    }
+    else {
+      handle_output_char(c);                                // Pass through the character that couldn't be packed...
+      if (second_char) {
+        handle_output_char(second_char);                    // ...and send an unpacked 2nd character, if set.
+        second_char = 0;
+      }
+      --full_char_count;                                    // One literal character was consumed
+    }
+  }
+  else // Packing not enabled, just copy character to output
+    handle_output_char(c);
+}
+
+/**
+ * Buffer a single output character which will be picked up in
+ * GCodeQueue::get_serial_commands via calls to get_result_char
+ */
 void MeatPack::handle_output_char(const uint8_t c) {
   char_out_buf[char_out_count++] = c;
 
@@ -196,106 +183,66 @@ void MeatPack::handle_output_char(const uint8_t c) {
   #endif
 }
 
-void MeatPack::handle_rx_char_inner(const uint8_t c) {
-
-  // Packing enabled, handle character and re-arrange them appropriately.
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if (TEST(config, MPConfig_Bit_Active)) {
-    if (full_char_count) {
-      handle_output_char(c);
-      if (char_buf) {
-        handle_output_char(char_buf);
-        char_buf = 0;
-      }
-      --full_char_count;
-    }
-    else {
-      uint8_t buf[2] = { 0, 0 };
-      register const uint8_t res = unpack_chars(c, buf);
-
-      if (res & MeatPack_NextPackedFirst) {
-        ++full_char_count;
-        if (res & MeatPack_NextPackedSecond) ++full_char_count;
-        else char_buf = buf[1];
-      }
-      else {
-        handle_output_char(buf[0]);
-        if (buf[0] != '\n') {
-          if (res & MeatPack_NextPackedSecond) ++full_char_count;
-          else handle_output_char(buf[1]);
-        }
-      }
-    }
-  }
-  else // Packing not enabled, just copy character to output
-    handle_output_char(c);
-}
-
-void MeatPack::echo_config_state() {
-  SERIAL_ECHOPGM(" [MP] "); // Add space at idx 0 just in case first character is dropped due to timing/sync issues.
-
-  // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
-  // should not contain the "PV' substring, as this is used to indicate protocol version
-  SERIAL_ECHOPGM(MeatPack_ProtocolVersion);
-
-  // Echo current state
-  if (TEST(config, MPConfig_Bit_Active))
-    SERIAL_ECHOPGM(" ON");
-  else
-    SERIAL_ECHOPGM(" OFF");
-
-  if (TEST(config, MPConfig_Bit_NoSpaces))
-    SERIAL_ECHOPGM(" NSP"); // [N]o [SP]aces
-  else
-    SERIAL_ECHOPGM(" ESP"); // [E]nabled [SP]aces
-
-  SERIAL_EOL();
-
-  // Validate config vars
-  #ifdef USE_LOOKUP_TABLE
-    MeatPackLookupTbl[MeatPack_SpaceCharIdx] = TEST(config, MPConfig_Bit_NoSpaces) ? MeatPack_SpaceCharReplace : ' ';
-  #endif
-}
-
-void MeatPack::handle_cmd(const MeatPack_Command c) {
+/**
+ * Process a MeatPack command byte to update the state.
+ * Report the new state to serial.
+ */
+void MeatPack::handle_command(const MeatPack_Command c) {
   switch (c) {
-    case MPCommand_EnablePacking:   SBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
-    case MPCommand_DisablePacking:  CBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
-    case MPCommand_TogglePacking:   TBI(config, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
-    case MPCommand_ResetAll:        reset_state();                      DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
-    case MPCommand_EnableNoSpaces:  SBI(config, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");   break;
-    case MPCommand_DisableNoSpaces: CBI(config, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");   break;
-    default:                                                            DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
+    case MPCommand_EnablePacking:   SBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
+    case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
+    case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
+    case MPCommand_ResetAll:        reset_state();                     DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
+    case MPCommand_EnableNoSpaces:  SBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");
+                                    TERN_(USE_LOOKUP_TABLE, MeatPackLookupTbl[kSpaceCharIdx] = kSpaceCharReplace);
+                                    break;
+    case MPCommand_DisableNoSpaces: CBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");
+                                    TERN_(USE_LOOKUP_TABLE, MeatPackLookupTbl[kSpaceCharIdx] = ' ');
+                                    break;
+    default:                                                           DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
     case MPCommand_QueryConfig: break;
   }
-  echo_config_state();
+  report_state();
 }
 
+void MeatPack::report_state() {
+  // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
+  // should not contain the "PV' substring, as this is used to indicate protocol version
+  SERIAL_ECHOPGM("[MP] ");
+  SERIAL_ECHOPGM(MeatPack_ProtocolVersion);
+  serialprint_onoff(TEST(state, MPConfig_Bit_Active));
+  SERIAL_CHAR(' ');
+  serialprintPGM(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR("NSP") : PSTR("ESP"));
+  SERIAL_EOL();
+}
+
+/**
+ * Interpret a single character received from serial
+ * according to the current meatpack state.
+ */
 void MeatPack::handle_rx_char(const uint8_t c) {
-  // Check for commit complete
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if (c == uint8_t(MeatPack_CommandByte)) {
-    if (!cmd_count)
-      ++cmd_count; // cmd_count = 1
-    else {
+  if (c == kCommandByte) {                // A command (0xFF) byte?
+    if (cmd_count) {                      // In fact, two in a row?
+      cmd_is_next = true;                 // Then a MeatPack command follows
       cmd_count = 0;
-      cmd_is_next = true;
     }
+    else
+      ++cmd_count; // cmd_count = 1       // One command byte received so far...
     return;
   }
 
-  if (cmd_is_next) {
+  if (cmd_is_next) {                      // Were two command bytes received?
+    handle_command((MeatPack_Command)c);  // Then the byte is a MeatPack command
     cmd_is_next = false;
-    handle_cmd((MeatPack_Command)c);
     return;
   }
 
-  if (cmd_count) {
+  if (cmd_count) {                        // Only a single 0xFF was received
+    handle_rx_char_inner(kCommandByte);   // A single 0xFF is passed on literally so it can be interpreted as kFirstNotPacked|kSecondNotPacked
     cmd_count = 0;
-    handle_rx_char_inner(uint8_t(MeatPack_CommandByte));
   }
 
-  handle_rx_char_inner(c);
+  handle_rx_char_inner(c);                // Other characters are passed on for MeatPack decoding
 }
 
 uint8_t MeatPack::get_result_char(char* const __restrict out) {
@@ -308,7 +255,5 @@ uint8_t MeatPack::get_result_char(char* const __restrict out) {
   }
   return res;
 }
-
-void MeatPack::trigger_cmd(const MeatPack_Command cmd) { handle_cmd(cmd); }
 
 #endif // MEATPACK

@@ -50,9 +50,6 @@
 
 #include <stdint.h>
 
-#define MeatPack_SecondNotPacked  0b11110000
-#define MeatPack_FirstNotPacked   0b00001111
-
 /**
  * Commands sent to MeatPack to control its behavior.
  * They are sent by first sending 2x MeatPack_CommandByte (0xFF) in sequence,
@@ -83,15 +80,26 @@ enum MeatPack_ConfigStateBits : uint8_t {
 
 class MeatPack {
 private:
-  static bool cmd_is_next;        // A command is pending
-  static uint8_t config;          // Configuration state
-  static uint8_t char_buf;        // Buffers a character if dealing with out-of-sequence pairs
-  static uint8_t cmd_count;       // Counts how many command bytes are received (need 2)
-  static uint8_t full_char_count; // Counts how many full-width characters are to be received
-  static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
-  static uint8_t char_out_count;  // Stores number of characters to be read out.
+  friend class GCodeQueue;
 
-public:
+  // Utility definitions
+  static const uint8_t kCommandByte         = 0b11111111,
+                       kFirstNotPacked      = 0b00001111,
+                       kSecondNotPacked     = 0b11110000,
+                       kFirstCharIsLiteral  = 0b00000001,
+                       kSecondCharIsLiteral = 0b00000010;
+
+  static const uint8_t kSpaceCharIdx = 11;
+  static const char kSpaceCharReplace = 'E';
+
+  static bool cmd_is_next;        // A command is pending
+  static uint8_t state;           // Configuration state
+  static uint8_t second_char;     // Buffers a character if dealing with out-of-sequence pairs
+  static uint8_t cmd_count,       // Counter of command bytes received (need 2)
+                 full_char_count, // Counter for full-width characters to be received
+                 char_out_count;  // Stores number of characters to be read out.
+  static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
+
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
   static void handle_rx_char(const uint8_t c);
@@ -104,12 +112,11 @@ public:
    */
   static uint8_t get_result_char(char* const __restrict out);
 
-private:
   static void reset_state();
-  static void echo_config_state();
+  static void report_state();
+  static uint8_t unpacked_char(register const uint8_t in);
   static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
-  static void handle_cmd(const MeatPack_Command c);
-  static void trigger_cmd(const MeatPack_Command cmd);
+  static void handle_command(const MeatPack_Command c);
   static void handle_output_char(const uint8_t c);
   static void handle_rx_char_inner(const uint8_t c);
 };
