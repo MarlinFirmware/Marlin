@@ -51,8 +51,6 @@ MeatPack meatpack;
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
 
-TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
-
 bool MeatPack::cmd_is_next = false;       // A command is pending
 uint8_t MeatPack::state = 0;              // Configuration state OFF
 uint8_t MeatPack::second_char = 0;        // The unpacked 2nd character from an out-of-sequence packed pair
@@ -90,6 +88,8 @@ uint8_t MeatPack::unpacked_char(register const uint8_t in) {
 
   #endif
 }
+
+TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
 
 void MeatPack::reset_state() {
   state = 0;
