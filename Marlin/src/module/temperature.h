@@ -335,6 +335,14 @@ class Temperature {
     FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+      static uint16_t singlenozzle_temp[EXTRUDERS];
+      #if HAS_FAN
+        static uint8_t singlenozzle_fan_speed[EXTRUDERS];
+      #endif
+      static void singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool);
+    #endif
+
     #if HEATER_IDLE_HANDLER
 
       // Heater idle handling. Marlin creates one per hotend and one for the heated bed.
