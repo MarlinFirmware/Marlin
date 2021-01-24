@@ -20,6 +20,8 @@ Param(
 
     [Parameter(Mandatory=$true)]
     $ReleaseName,
+	
+	$SingleBuild,
 
     [Switch]
     $DryRun
@@ -95,6 +97,10 @@ class ConfigBuildResult {
 [ConfigBuildResult[]] $Builds = [ConfigBuildResult[]]::new(0)
 
 foreach ($ConfigName in $Configs) {
+	if ($SingleBuild -and $SingleBuild -ne $ConfigName) {
+		continue
+	}
+	
     $Percent = $([double] $Configs.IndexOf($ConfigName) + 1) / $Configs.Length
 
     Write-Progress -Activity "Building CR-6 community firmwares" `
