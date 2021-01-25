@@ -26,7 +26,7 @@
 #define MENU_TEXT_X_OFFSET    10
 #define MENU_TEXT_Y_OFFSET     7
 
-#define MENU_ITEM_HEIGHT      34
+#define MENU_ITEM_HEIGHT      32
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
 #define MENU_FONT_NAME        Helvetica14
