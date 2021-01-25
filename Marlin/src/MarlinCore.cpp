@@ -364,6 +364,7 @@ void startOrResumeJob() {
     card.endFilePrint(TERN_(SD_RESORT, true));
     queue.clear();
     quickstop_stepper();
+    print_job_timer.abort();
     #if DISABLED(SD_ABORT_NO_COOLDOWN)
       thermalManager.disable_all_heaters();
     #endif
@@ -377,9 +378,6 @@ void startOrResumeJob() {
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
-
-    planner.synchronize();
-    print_job_timer.abort(); // Wait for planner before calling!
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
