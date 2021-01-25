@@ -89,7 +89,7 @@ void MarlinUI::clear_lcd() {
 
   tft.queue.reset();
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
-  cursor.x = cursor.y = 0;
+  cursor.set(0, 0);
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -652,9 +652,8 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // TOUCH_SCREEN_CALIBRATION
 
 void menu_line(const uint8_t row, uint16_t color) {
-  cursor.x = 0;
-  cursor.y = row;
-  tft.canvas(0, 4 + (MENU_ITEM_HEIGHT + 2) * cursor.y, TFT_WIDTH, MENU_ITEM_HEIGHT);
+  cursor.set(0, row);
+  tft.canvas(0, 4 + cursor.y * (MENU_ITEM_HEIGHT + 2), TFT_WIDTH, MENU_ITEM_HEIGHT);
   tft.set_background(color);
 }
 
@@ -671,22 +670,20 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   #if ENABLED(TOUCH_SCREEN)
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, 4 + (MENU_ITEM_HEIGHT + 2) * row, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
+    touch.add_control(tct, 0, 4 + row * (MENU_ITEM_HEIGHT + 2), TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
   #endif
 }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
   #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
-  cursor.x = col;
-  cursor.y = row;
-  tft.canvas(col * TFT_COL_WIDTH, 4 + (MENU_ITEM_HEIGHT + 2) * row, TFT_WIDTH - (col * TFT_COL_WIDTH), MENU_ITEM_HEIGHT);
+  cursor.set(col, row);
+  tft.canvas(col * TFT_COL_WIDTH, 4 + row * (MENU_ITEM_HEIGHT + 2), TFT_WIDTH - (col * TFT_COL_WIDTH), MENU_ITEM_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
 }
 
 void lcd_gotopixel(uint16_t x, const uint16_t y) {
   if (x > TFT_WIDTH) x = TFT_WIDTH;
-  cursor.x = (x / TFT_COL_WIDTH);
-  cursor.y = (y / (MENU_ITEM_HEIGHT + 2));
+  cursor.set(x / (TFT_COL_WIDTH), y / (MENU_ITEM_HEIGHT + 2));
   tft.canvas(x, 4 + y, TFT_WIDTH - x, MENU_ITEM_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
 }
@@ -696,7 +693,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   tft_string.set();
   tft_string.add(c);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  lcd_gotopixel((cursor.x + 1) * TFT_COL_WIDTH + tft_string.width(), cursor.y * (MENU_ITEM_HEIGHT + 2));
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * (MENU_ITEM_HEIGHT + 2));
   return tft_string.width();
 }
 
@@ -711,7 +708,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   int span = lcd_put_u8str_max_P(utf8_str, max_length);
-  lcd_gotopixel((cursor.x + 1) * TFT_COL_WIDTH + span, cursor.y * (MENU_ITEM_HEIGHT + 2));
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + span, cursor.y * (MENU_ITEM_HEIGHT + 2));
   return span;
 }
 
