@@ -243,9 +243,9 @@ void PrintCounter::tick() {
     update_next = now + updateInterval * 1000;
   }
 
-  #if !ENV_LPC1768
-  //LPC1769 boards seem to lose steps when saving to EEPROM during print (issue #20785)
-  //todo: Which other boards are incompatible?
+  // LPC1768 boards seem to lose steps when saving to EEPROM during print (issue #20785)
+  // TODO: Which other boards are incompatible?
+  #ifndef MCU_LPC1768
     static uint32_t eeprom_next; // = 0
     if (ELAPSED(now, eeprom_next)) {
       eeprom_next = now + saveInterval * 1000;
