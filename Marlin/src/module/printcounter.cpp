@@ -245,6 +245,7 @@ void PrintCounter::tick() {
   }
 
   #if PRINTCOUNTER_SAVE_INTERVAL > 0
+    TERN(SYNC_FOR_PRINTCOUNTER, planner.synchronize());
     static millis_t eeprom_next; // = 0
     if (ELAPSED(now, eeprom_next)) {
       eeprom_next = now + saveInterval;

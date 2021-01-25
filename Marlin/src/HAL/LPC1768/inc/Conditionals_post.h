@@ -30,6 +30,6 @@
 // LPC1768 boards seem to lose steps when saving to EEPROM during print (issue #20785)
 // TODO: Which other boards are incompatible?
 #if defined(MCU_LPC1768) && PRINTCOUNTER_SAVE_INTERVAL > 0
-  #undef PRINTCOUNTER_SAVE_INTERVAL
-  #warning "PRINTCOUNTER_SAVE_INTERVAL causes print artifacts! Disabling auto-save."
+  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
+  #define SYNC_FOR_PRINTCOUNTER 1
 #endif
