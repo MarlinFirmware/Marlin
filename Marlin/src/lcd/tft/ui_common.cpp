@@ -49,6 +49,10 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 }
 
+//
+// lcdprint.h functions
+//
+
 #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
 
 void lcd_gotopixel(const uint16_t x, const uint16_t y) {
@@ -90,5 +94,144 @@ void lcd_put_int(const int i) {
   const char* str = i16tostr3left(int16_t(i));
   lcd_put_u8str_max(str, 3);
 }
+
+//
+// Menu Item methods
+//
+
+// Draw a generic menu item with pre_char (if selected) and post_char
+void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char) {
+  menu_item(row, sel);
+
+  uint8_t *string = (uint8_t *)pstr;
+  MarlinImage image = noImage;
+  switch (*string) {
+    case 0x01: image = imgRefresh; break;  // LCD_STR_REFRESH
+    case 0x02: image = imgDirectory; break;  // LCD_STR_FOLDER
+  }
+
+  uint8_t offset = MENU_TEXT_X_OFFSET;
+  if (image != noImage) {
+    string++;
+    offset = MENU_ITEM_ICON_SPACE;
+    tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+  }
+
+  tft_string.set(string, itemIndex, itemString);
+  tft.add_text(offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+}
+
+// Draw a menu item with a (potentially) editable value
+void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  menu_item(row, sel);
+
+  tft_string.set(pstr, itemIndex, itemString);
+  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  if (data) {
+    tft_string.set(data);
+    tft.add_text(TFT_WIDTH - MENU_TEXT_X_OFFSET - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+  }
+}
+
+// Draw a static item with no left-right margin required. Centered by default.
+void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
+  menu_item(row);
+  tft_string.set(pstr, itemIndex, itemString);
+  if (vstr)
+    tft_string.add(vstr);
+  tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
+}
+
+#if ENABLED(SDSUPPORT)
+
+  void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
+    menu_item(row, sel);
+    if (isDir)
+      tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, theCard.longest_filename());
+  }
+
+#endif
+
+//
+// MarlinUI methods
+//
+
+bool MarlinUI::detected() { return true; }
+
+void MarlinUI::init_lcd() {
+  tft.init();
+  tft.set_font(MENU_FONT_NAME);
+  #ifdef SYMBOLS_FONT_NAME
+    tft.add_glyphs(SYMBOLS_FONT_NAME);
+  #endif
+  TERN_(TOUCH_SCREEN, touch.init());
+  clear_lcd();
+}
+
+void MarlinUI::clear_lcd() {
+  #if ENABLED(TOUCH_SCREEN)
+    touch.reset();
+    draw_menu_navigation = false;
+  #endif
+
+  tft.queue.reset();
+  tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
+  cursor.set(0, 0);
+}
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+
+  void MarlinUI::touch_calibration_screen() {
+    uint16_t x, y;
+
+    calibrationState calibration_stage = touch_calibration.get_calibration_state();
+
+    if (calibration_stage == CALIBRATION_NONE) {
+      defer_status_screen(true);
+      clear_lcd();
+      calibration_stage = touch_calibration.calibration_start();
+    }
+    else {
+      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
+      tft.canvas(x - 15, y - 15, 31, 31);
+      tft.set_background(COLOR_BACKGROUND);
+    }
+
+    touch.clear();
+
+    if (calibration_stage < CALIBRATION_SUCCESS) {
+      switch (calibration_stage) {
+        case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
+        case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
+        case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
+        case CALIBRATION_BOTTOM_RIGHT: tft_string.set(GET_TEXT(MSG_BOTTOM_RIGHT)); break;
+        default: break;
+      }
+
+      x = touch_calibration.calibration_points[calibration_stage].x;
+      y = touch_calibration.calibration_points[calibration_stage].y;
+
+      tft.canvas(x - 15, y - 15, 31, 31);
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_bar(0, 15, 31, 1, COLOR_TOUCH_CALIBRATION);
+      tft.add_bar(15, 0, 1, 31, COLOR_TOUCH_CALIBRATION);
+
+      touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
+    }
+    else {
+      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
+      defer_status_screen(false);
+      touch_calibration.calibration_end();
+      touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+    }
+
+    tft.canvas(0, (TFT_HEIGHT - tft_string.font_height()) >> 1, TFT_WIDTH, tft_string.font_height());
+    tft.set_background(COLOR_BACKGROUND);
+    tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+  }
+
+#endif // TOUCH_SCREEN_CALIBRATION
 
 #endif // TFT_COLOR_UI

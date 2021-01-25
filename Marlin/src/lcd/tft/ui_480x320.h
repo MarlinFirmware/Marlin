@@ -31,6 +31,10 @@
 #define MENU_TEXT_X_OFFSET    16
 #define MENU_TEXT_Y_OFFSET     7
 
+#define MENU_ITEM_ICON_X       5
+#define MENU_ITEM_ICON_Y       5
+#define MENU_ITEM_ICON_SPACE  42
+
 #if HAS_UI_480x320
   #define MENU_FONT_NAME      Helvetica18
   #define SYMBOLS_FONT_NAME   Helvetica18_symbols

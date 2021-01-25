@@ -29,6 +29,10 @@
 #define MENU_TEXT_X_OFFSET    10
 #define MENU_TEXT_Y_OFFSET     7
 
+#define MENU_ITEM_ICON_X       0
+#define MENU_ITEM_ICON_Y       0
+#define MENU_ITEM_ICON_SPACE  32
+
 #define MENU_ITEM_HEIGHT      32
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
