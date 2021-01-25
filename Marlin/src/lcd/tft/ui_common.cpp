@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_COLOR_UI)
+#if HAS_GRAPHICAL_TFT
 
 #include "ui_common.h"
 
@@ -234,4 +234,4 @@ void MarlinUI::clear_lcd() {
 
 #endif // TOUCH_SCREEN_CALIBRATION
 
-#endif // TFT_COLOR_UI
+#endif // HAS_GRAPHICAL_TFT
