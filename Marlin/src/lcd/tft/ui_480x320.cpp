@@ -702,13 +702,12 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   tft_string.trim();
   tft_string.truncate(max_length);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
   return tft_string.width();
 }
 
 int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
-  int span = lcd_put_u8str_max_P(utf8_str, max_length);
-  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + span, cursor.y * MENU_LINE_HEIGHT);
-  return span;
+  return lcd_put_u8str_max_P(utf8_str, max_length);
 }
 
 void lcd_put_int(const int i) {
