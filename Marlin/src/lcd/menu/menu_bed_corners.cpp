@@ -191,7 +191,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
-      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0) cy);
+      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
