@@ -311,8 +311,12 @@ void Draw_Print_Screen() {
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
-  if (card.isPrinting) {
+  if (card.isPrinting()) {
     char * const name = card.longest_filename();
+    const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
+  } else {
+    char * const name = (char*)"Host Print";
     const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
   }
