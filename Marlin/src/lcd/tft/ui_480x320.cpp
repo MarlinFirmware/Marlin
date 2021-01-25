@@ -684,7 +684,7 @@ void lcd_gotopixel(const uint16_t x, const uint16_t y) {
 }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  lcd_gotopixel(col * (TFT_COL_WIDTH), row * MENU_LINE_HEIGHT);
+  lcd_gotopixel(int(col) * (TFT_COL_WIDTH), int(row) * MENU_LINE_HEIGHT);
 }
 
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
