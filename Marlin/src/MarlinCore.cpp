@@ -783,6 +783,7 @@ void minkill(const bool steppers_off/*=false*/) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
   print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
