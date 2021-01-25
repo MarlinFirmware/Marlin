@@ -23,6 +23,9 @@
 
 #define MARLIN_LOGO_FULL_SIZE MarlinLogo320x240x16
 
+#define TFT_STATUS_TOP_Y       0
+#define TFT_TOP_LINE_Y         2
+
 #define MENU_TEXT_X_OFFSET    10
 #define MENU_TEXT_Y_OFFSET     7
 
@@ -31,7 +34,5 @@
 
 #define MENU_FONT_NAME        Helvetica14
 #define SYMBOLS_FONT_NAME     Helvetica14_symbols
-
-#define POS_Y                 0
 
 #include "ui_common.h"

@@ -23,6 +23,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#if !HAS_LCD_MENU
+  #error "Seriously? High resolution TFT screen without menu?"
+#endif
+
 #include "tft.h"
 #include "tft_image.h"
 

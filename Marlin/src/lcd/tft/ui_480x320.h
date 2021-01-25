@@ -25,6 +25,9 @@
 
 #include "ui_common.h"
 
+#define TFT_STATUS_TOP_Y       4
+#define TFT_TOP_LINE_Y         4
+
 #define MENU_TEXT_X_OFFSET    16
 #define MENU_TEXT_Y_OFFSET     7
 
@@ -40,5 +43,3 @@
   #define FONT_LINE_HEIGHT    24
 #endif
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
-
-#define POS_Y                 4

@@ -45,10 +45,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if !HAS_LCD_MENU
-  #error "Seriously? High resolution TFT screen without menu?"
-#endif
-
 #if ENABLED(TOUCH_SCREEN)
   static bool draw_menu_navigation = false;
 #endif
@@ -153,22 +149,22 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
     currentTemperature = thermalManager.degHotend(Heater);
     targetTemperature = thermalManager.degTargetHotend(Heater);
   }
-#if HAS_HEATED_BED
-  else if (Heater == H_BED) {
-    currentTemperature = thermalManager.degBed();
-    targetTemperature = thermalManager.degTargetBed();
-  }
-#endif // HAS_HEATED_BED
-#if HAS_TEMP_CHAMBER
-  else if (Heater == H_CHAMBER) {
-    currentTemperature = thermalManager.degChamber();
-    #if HAS_HEATED_CHAMBER
-      targetTemperature = thermalManager.degTargetChamber();
-    #else
-      targetTemperature = ABSOLUTE_ZERO;
-    #endif
-  }
-#endif // HAS_TEMP_CHAMBER
+  #if HAS_HEATED_BED
+    else if (Heater == H_BED) {
+      currentTemperature = thermalManager.degBed();
+      targetTemperature = thermalManager.degTargetBed();
+    }
+  #endif
+  #if HAS_TEMP_CHAMBER
+    else if (Heater == H_CHAMBER) {
+      currentTemperature = thermalManager.degChamber();
+      #if HAS_HEATED_CHAMBER
+        targetTemperature = thermalManager.degTargetChamber();
+      #else
+        targetTemperature = ABSOLUTE_ZERO;
+      #endif
+    }
+  #endif
   else return;
 
   TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, 80, 120, Heater));
@@ -181,17 +177,17 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
     if (currentTemperature >= 50) Color = COLOR_HOTEND;
   }
   #if HAS_HEATED_BED
-  else if (Heater == H_BED) {
-    if (currentTemperature >= 50) Color = COLOR_HEATED_BED;
-    image = targetTemperature > 0 ? imgBedHeated : imgBed;
-  }
-  #endif // HAS_HEATED_BED
+    else if (Heater == H_BED) {
+      if (currentTemperature >= 50) Color = COLOR_HEATED_BED;
+      image = targetTemperature > 0 ? imgBedHeated : imgBed;
+    }
+  #endif
   #if HAS_TEMP_CHAMBER
-  else if (Heater == H_CHAMBER) {
-    if (currentTemperature >= 50) Color = COLOR_CHAMBER;
-    image = targetTemperature > 0 ? imgChamberHeated : imgChamber;
-  }
-  #endif // HAS_TEMP_CHAMBER
+    else if (Heater == H_CHAMBER) {
+      if (currentTemperature >= 50) Color = COLOR_CHAMBER;
+      image = targetTemperature > 0 ? imgChamberHeated : imgChamber;
+    }
+  #endif
 
   tft.add_image(8, 28, image, Color);
 
@@ -236,7 +232,7 @@ void MarlinUI::draw_status_screen() {
   TERN_(TOUCH_SCREEN, touch.clear());
 
   // heaters and fan
-  uint16_t i, x, y = POS_Y;
+  uint16_t i, x, y = TFT_STATUS_TOP_Y;
 
   for (i = 0 ; i < ITEMS_COUNT; i++) {
     x = (TFT_WIDTH / ITEMS_COUNT - 80) / 2  + (TFT_WIDTH * i / ITEMS_COUNT);
@@ -650,72 +646,6 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
   }
 #endif // TOUCH_SCREEN_CALIBRATION
-
-void menu_line(const uint8_t row, uint16_t color) {
-  cursor.set(0, row);
-  tft.canvas(0, 4 + cursor.y * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT);
-  tft.set_background(color);
-}
-
-void menu_pause_option();
-
-void menu_item(const uint8_t row, bool sel ) {
-  #if ENABLED(TOUCH_SCREEN)
-    if (row == 0) {
-      touch.clear();
-      draw_menu_navigation = TERN(ADVANCED_PAUSE_FEATURE, ui.currentScreen != menu_pause_option, true);
-    }
-  #endif
-
-  menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  #if ENABLED(TOUCH_SCREEN)
-    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, 4 + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
-  #endif
-}
-
-#define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
-
-void lcd_gotopixel(const uint16_t x, const uint16_t y) {
-  if (x >= TFT_WIDTH) return;
-  cursor.set(x / (TFT_COL_WIDTH), y / MENU_LINE_HEIGHT);
-  tft.canvas(x, 4 + y, (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-}
-
-void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  lcd_gotopixel(int(col) * (TFT_COL_WIDTH), int(row) * MENU_LINE_HEIGHT);
-}
-
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
-  if (max_length < 1) return 0;
-  tft_string.set();
-  tft_string.add(c);
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
-  return tft_string.width();
-}
-
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
-  if (max_length < 1) return 0;
-  tft_string.set(utf8_str_P);
-  tft_string.trim();
-  tft_string.truncate(max_length);
-  tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  return tft_string.width();
-}
-
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
-  int span = lcd_put_u8str_max_P(utf8_str, max_length);
-  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + span, cursor.y * MENU_LINE_HEIGHT);
-  return span;
-}
-
-void lcd_put_int(const int i) {
-  // 3 digits max for this one...
-  const char* str = i16tostr3left(int16_t(i));
-  lcd_put_u8str_max(str, 3);
-}
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../feature/babystep.h"
