@@ -69,7 +69,7 @@ class TFT_String {
 
     static uint8_t data[MAX_STRING_LENGTH + 1];
     static uint16_t span;   // in pixels
-    static uint16_t length; // in characters
+    static uint8_t length;  // in characters
 
     static void add_character(uint8_t character);
     static void eol() { data[length] = 0x00; }
@@ -97,7 +97,7 @@ class TFT_String {
     static void rtrim(uint8_t character=0x20);
     static void ltrim(uint8_t character=0x20);
 
-    static void truncate(uint16_t maxlen) { if (length > maxlen) { length = maxlen; eol(); } }
+    static void truncate(uint8_t maxlen) { if (length > maxlen) { length = maxlen; eol(); } }
 
     static uint16_t width() { return span; }
     static uint8_t *string() { return data; }
