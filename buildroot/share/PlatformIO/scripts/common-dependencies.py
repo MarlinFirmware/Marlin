@@ -83,7 +83,7 @@ def add_to_feat_cnf(feature, flines):
 			feat[name] = '='.join(parts)
 		else:
 			for dep in line.split(','):
-				lib_name = re.sub(r'([@~^=]|[<>]=?)[\d.]+', '', dep.strip()).split('=').pop(0)
+				lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
 				lib_re = re.compile('(?!^' + lib_name + '\\b)')
 				feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
 
