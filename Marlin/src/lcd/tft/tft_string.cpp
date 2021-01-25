@@ -36,7 +36,7 @@ font_t *TFT_String::font_header;
 
 uint8_t TFT_String::data[];
 uint16_t TFT_String::span;
-uint16_t TFT_String::length;
+uint8_t TFT_String::length;
 
 void TFT_String::set_font(const uint8_t *font) {
   font_header = (font_t *)font;
@@ -122,13 +122,14 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
   eol();
 }
 
-void TFT_String::add(uint8_t *string) {
+void TFT_String::add(uint8_t *string, uint8_t max_len) {
   wchar_t wchar;
-  while (*string) {
+  while (*string && max_len) {
     string = get_utf8_value_cb(string, read_byte, &wchar);
     if (wchar > 255) wchar |= 0x0080;
     uint8_t ch = uint8_t(wchar & 0x00FF);
     add_character(ch);
+    max_len--;
   }
   eol();
 }

@@ -20,8 +20,11 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
 #include "tft_image.h"
-#include <stddef.h>
 
 const tImage NoLogo                 = { nullptr, 0, 0, NOCOLORS };
 
@@ -70,4 +73,38 @@ const tImage Leveling_32x32x4       = { (void *)leveling_32x32x4, 32, 32, GREYSC
 
 const tImage Slider8x16x4           = { (void *)slider_8x16x4, 8, 16, GREYSCALE4 };
 
-extern const tImage Images[imgCount];
+const tImage Images[imgCount] = {
+  TERN(SHOW_BOOTSCREEN, TERN(BOOT_MARLIN_LOGO_SMALL, MarlinLogo195x59x16, MARLIN_LOGO_FULL_SIZE), NoLogo),
+  HotEnd_64x64x4,
+  Bed_64x64x4,
+  Bed_Heated_64x64x4,
+  Chamber_64x64x4,
+  Chamber_Heated_64x64x4,
+  Fan0_64x64x4,
+  Fan_Slow0_64x64x4,
+  Fan_Slow1_64x64x4,
+  Fan_Fast0_64x64x4,
+  Fan_Fast1_64x64x4,
+  Feedrate_32x32x4,
+  Flowrate_32x32x4,
+  SD_64x64x4,
+  Menu_64x64x4,
+  Settings_64x64x4,
+  Directory_32x32x4,
+  Confirm_64x64x4,
+  Cancel_64x64x4,
+  Increase_64x64x4,
+  Decrease_64x64x4,
+  Back_32x32x4,
+  Up_32x32x4,
+  Down_32x32x4,
+  Left_32x32x4,
+  Right_32x32x4,
+  Refresh_32x32x4,
+  Leveling_32x32x4,
+  Slider8x16x4,
+  Home_64x64x4,
+  BtnRounded_64x52x4,
+};
+
+#endif // HAS_GRAPHICAL_TFT

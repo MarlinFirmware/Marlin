@@ -71,9 +71,16 @@
         const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
           TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU));
-          lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
-          lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
-          lcd_put_wchar(':');
+          #if ENABLED(TFT_COLOR_UI)
+            lcd_moveto(4, 3);
+            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
+            lcd_put_wchar(':');
+            lcd_moveto(10, 3);
+          #else
+            lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
+            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
+            lcd_put_wchar(':');
+          #endif
           lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
       #endif
