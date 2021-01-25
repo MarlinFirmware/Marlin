@@ -84,7 +84,7 @@ class PrintCounter: public Stopwatch {
        * EEPROM save cycle, the development team recommends to set this value
        * no lower than 3600 secs (1 hour).
        */
-      static constexpr millis_t saveInterval = SEC_TO_MS((PRINTCOUNTER_SAVE_INTERVAL) * 60);
+      static constexpr millis_t saveInterval = MIN_TO_MS(PRINTCOUNTER_SAVE_INTERVAL);
     #endif
 
     /**
