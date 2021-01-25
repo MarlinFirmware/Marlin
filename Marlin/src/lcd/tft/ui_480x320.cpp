@@ -715,6 +715,12 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   return span;
 }
 
+void lcd_put_int(const int i) {
+  // 3 digits max for this one...
+  const char* str = i16tostr3left(int16_t(i));
+  lcd_put_u8str_max(str, 3);
+}
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../feature/babystep.h"
 #endif
