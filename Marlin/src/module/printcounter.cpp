@@ -271,24 +271,20 @@ bool PrintCounter::start() {
   return false;
 }
 
-// @Override
-bool PrintCounter::stop() {
+bool PrintCounter::_stop(const bool completed) {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
-  if (super::stop()) {
-    data.finishedPrints++;
+  const bool did_stop = super::stop();
+  if (did_stop) {
     data.printTime += deltaDuration();
-
-    if (duration() > data.longestPrint)
-      data.longestPrint = duration();
-
-    saveStats();
-    return true;
+    if (completed) {
+      data.finishedPrints++;
+      if (duration() > data.longestPrint)
+        data.longestPrint = duration();
+    }
   }
-  else {
-    saveStats();
-    return false;
-  }
+  saveStats();
+  return did_stop;
 }
 
 // @Override

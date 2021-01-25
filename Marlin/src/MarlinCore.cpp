@@ -361,7 +361,6 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    Stopwatch::stop(); //without this, PRINTCOUNTER would count print as successful
     card.endFilePrint(TERN_(SD_RESORT, true));
     queue.clear();
     quickstop_stepper();
@@ -378,10 +377,10 @@ void startOrResumeJob() {
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
-    
-    //Wait for EVENT_GCODE_SD_ABORT to finish, so it doesn't get interrupted by PRINTCOUNTER
-    planner.synchronize();
-    print_job_timer.stop();
+
+    planner.synchronize();        // Wait for EVENT_GCODE_SD_ABORT to finish, so it doesn't get interrupted by PRINTCOUNTER
+
+    print_job_timer.abort();
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }

@@ -176,7 +176,10 @@ class PrintCounter: public Stopwatch {
      * The following functions are being overridden
      */
     static bool start();
-    static bool stop();
+    static bool _stop(const bool completed);
+    static inline bool stop()  { return _stop(true);  }
+    static inline bool abort() { return _stop(false); }
+
     static void reset();
 
     #if HAS_SERVICE_INTERVALS
