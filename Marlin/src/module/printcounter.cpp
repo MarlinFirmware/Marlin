@@ -164,7 +164,7 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
-  TERN(PRINTCOUNTER_SYNC, planner.synchronize());
+  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
 
   // Saves the struct to EEPROM
   persistentStore.access_start();
