@@ -30,15 +30,12 @@
 #include "../module/planner.h"
 #include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
+#include "../feature/pause.h"
 
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "pause.h"
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
