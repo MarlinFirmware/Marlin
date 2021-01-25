@@ -75,7 +75,7 @@ class PrintCounter: public Stopwatch {
      * @note The max value for this option is 60(s), otherwise integer
      * overflow will happen.
      */
-    static constexpr uint16_t updateInterval = 10;
+    static constexpr millis_t updateInterval = SEC_TO_MS(10);
 
     #if PRINTCOUNTER_SAVE_INTERVAL > 0
       /**
@@ -84,7 +84,7 @@ class PrintCounter: public Stopwatch {
        * EEPROM save cycle, the development team recommends to set this value
        * no lower than 3600 secs (1 hour).
        */
-      static constexpr uint16_t saveInterval = PRINTCOUNTER_SAVE_INTERVAL;
+      static constexpr millis_t saveInterval = SEC_TO_MS(PRINTCOUNTER_SAVE_INTERVAL);
     #endif
 
     /**
