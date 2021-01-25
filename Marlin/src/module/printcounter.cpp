@@ -41,10 +41,6 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
   #include "../libs/buzzer.h"
 #endif
 
-#if PRINTCOUNTER_SYNC
-  #include "../module/planner.h"
-#endif
-
 // Service intervals
 #if HAS_SERVICE_INTERVALS
   #if SERVICE_INTERVAL_1 > 0
@@ -164,8 +160,6 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
-  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
-
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
@@ -230,12 +224,9 @@ void PrintCounter::tick() {
 
   millis_t now = millis();
 
-  static millis_t update_next; // = 0
+  static uint32_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
-    update_next = now + updateInterval;
-
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
-
     millis_t delta = deltaDuration();
     data.printTime += delta;
 
@@ -248,12 +239,16 @@ void PrintCounter::tick() {
     #if SERVICE_INTERVAL_3 > 0
       data.nextService3 -= _MIN(delta, data.nextService3);
     #endif
+
+    update_next = now + updateInterval * 1000;
   }
 
-  #if PRINTCOUNTER_SAVE_INTERVAL > 0
-    static millis_t eeprom_next; // = 0
+  // LPC1768 boards seem to lose steps when saving to EEPROM during print (issue #20785)
+  // TODO: Which other boards are incompatible?
+  #ifndef MCU_LPC1768
+    static uint32_t eeprom_next; // = 0
     if (ELAPSED(now, eeprom_next)) {
-      eeprom_next = now + saveInterval;
+      eeprom_next = now + saveInterval * 1000;
       saveStats();
     }
   #endif
