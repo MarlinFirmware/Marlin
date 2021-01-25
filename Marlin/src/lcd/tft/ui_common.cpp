@@ -25,6 +25,9 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "ui_common.h"
+#include "../lcdprint.h"
+#include "../../libs/numtostr.h"
+#include "../menu/menu.h"
 
 static xy_uint_t cursor;
 

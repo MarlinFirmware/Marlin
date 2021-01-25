@@ -74,37 +74,3 @@ void menu_item(const uint8_t row, bool sel = false);
   #define ITEM_FAN        2
   #define ITEMS_COUNT     3
 #endif
-
-const tImage Images[imgCount] = {
-  TERN(SHOW_BOOTSCREEN, TERN(BOOT_MARLIN_LOGO_SMALL, MarlinLogo195x59x16, MARLIN_LOGO_FULL_SIZE), NoLogo),
-  HotEnd_64x64x4,
-  Bed_64x64x4,
-  Bed_Heated_64x64x4,
-  Chamber_64x64x4,
-  Chamber_Heated_64x64x4,
-  Fan0_64x64x4,
-  Fan_Slow0_64x64x4,
-  Fan_Slow1_64x64x4,
-  Fan_Fast0_64x64x4,
-  Fan_Fast1_64x64x4,
-  Feedrate_32x32x4,
-  Flowrate_32x32x4,
-  SD_64x64x4,
-  Menu_64x64x4,
-  Settings_64x64x4,
-  Directory_32x32x4,
-  Confirm_64x64x4,
-  Cancel_64x64x4,
-  Increase_64x64x4,
-  Decrease_64x64x4,
-  Back_32x32x4,
-  Up_32x32x4,
-  Down_32x32x4,
-  Left_32x32x4,
-  Right_32x32x4,
-  Refresh_32x32x4,
-  Leveling_32x32x4,
-  Slider8x16x4,
-  Home_64x64x4,
-  BtnRounded_64x52x4,
-};
