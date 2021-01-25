@@ -3303,6 +3303,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
+
+/**
+ * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
+ */
+#if BOTH(MEATPACK, BINARY_FILE_TRANSFER)
+  #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
+#endif
+
 /**
  * Sanity check for valid stepper driver types
  */
