@@ -84,17 +84,13 @@
 #define _BV(n) (1<<(n))
 #define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-
 #ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
+  #define SBI(A,B) (A |= _BV(B))
 #endif
-
 #ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
+  #define CBI(A,B) (A &= ~_BV(B))
 #endif
-
 #define TBI(N,B) (N ^= _BV(B))
-
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
@@ -166,6 +162,7 @@
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
 #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
 #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+#define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))

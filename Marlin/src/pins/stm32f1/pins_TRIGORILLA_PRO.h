@@ -56,8 +56,8 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN                           PG10
-#define Y_MAX_PIN                           PA12
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
 #define Z_MAX_PIN                           PA14
 #define Z_MIN_PIN                           PA13
 
@@ -166,17 +166,17 @@
 #define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN                           PB13  // SPI2 ok
-  #define MISO_PIN                          PB14  // SPI2 ok
-  #define MOSI_PIN                          PB15  // SPI2 ok
-  #define SS_PIN                            PC11  // PB12 is X- ok
+  #define SD_SCK_PIN                        PB13  // SPI2 ok
+  #define SD_MISO_PIN                       PB14  // SPI2 ok
+  #define SD_MOSI_PIN                       PB15  // SPI2 ok
+  #define SD_SS_PIN                         PC11  // PB12 is X- ok
   #define SD_DETECT_PIN                     -1    // SD_CD ok
 #else
   // SD as custom software SPI (SDIO pins)
-  #define SCK_PIN                           PC12
-  #define MISO_PIN                          PC8
-  #define MOSI_PIN                          PD2
-  #define SS_PIN                            -1
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1

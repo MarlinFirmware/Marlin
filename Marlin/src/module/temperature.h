@@ -69,7 +69,7 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
-#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0))
+#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
 #define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
 #define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
 #define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
@@ -334,6 +334,14 @@ class Temperature {
 
     FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
+
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+      static uint16_t singlenozzle_temp[EXTRUDERS];
+      #if HAS_FAN
+        static uint8_t singlenozzle_fan_speed[EXTRUDERS];
+      #endif
+      static void singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool);
+    #endif
 
     #if HEATER_IDLE_HANDLER
 
@@ -696,7 +704,7 @@ class Temperature {
 
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
-    #endif // HAS_TEMP_CHAMBER
+    #endif
 
     #if WATCH_CHAMBER
       static void start_watching_chamber();
@@ -715,7 +723,7 @@ class Temperature {
         ;
         start_watching_chamber();
       }
-    #endif // HAS_HEATED_CHAMBER
+    #endif
 
     /**
      * The software PWM power for a heater

@@ -65,6 +65,16 @@
   #endif
 #endif
 
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL SerialUSB
+  #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL SerialUSB
@@ -95,14 +105,6 @@
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
-
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
 
 // ------------------------
 // Types

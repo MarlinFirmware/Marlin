@@ -42,7 +42,7 @@
     #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
   #else
     // hardware pin defs
-    #define SD_CHIP_SELECT_PIN  SS_PIN            // The default chip select pin for the SD card is SS.
+    #define SD_CHIP_SELECT_PIN  SD_SS_PIN         // The default chip select pin for the SD card is SS.
   #endif
 #endif
 
@@ -70,7 +70,7 @@ class Sd2Card {
     bool readBlock(uint32_t block, uint8_t* dst);
     bool writeBlock(uint32_t blockNumber, const uint8_t* src);
 
-    bool readCSD(csd_t* csd) { return true; };
+    bool readCSD(csd_t*)                                         { return true; }
 
     uint32_t cardSize();
     static bool isInserted();

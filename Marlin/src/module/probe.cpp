@@ -38,7 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers
+#include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -373,19 +373,19 @@ bool Probe::set_deployed(const bool deploy) {
   // Fix-mounted probe should only raise for deploy
   // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
   #if EITHER(FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
-    const bool deploy_stow_condition = deploy;
+    const bool z_raise_wanted = deploy;
   #else
-    constexpr bool deploy_stow_condition = true;
+    constexpr bool z_raise_wanted = true;
   #endif
 
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)
-    const bool unknown_condition = axis_is_trusted(Z_AXIS);
+    const bool z_is_trusted = axis_is_trusted(Z_AXIS);
   #else
-    constexpr float unknown_condition = true;
+    constexpr float z_is_trusted = true;
   #endif
 
-  if (deploy_stow_condition && unknown_condition)
+  if (z_is_trusted && z_raise_wanted)
     do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)

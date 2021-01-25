@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_level_settings(void);
+extern void lv_draw_level_settings();
 extern void lv_clear_level_settings();
 
 #ifdef __cplusplus

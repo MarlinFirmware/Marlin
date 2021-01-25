@@ -212,6 +212,8 @@ void report_current_position_projected();
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
+void quickstop_stepper();
+
 /**
  * sync_plan_position
  *
@@ -407,9 +409,6 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
  */
 #if HAS_DUPLICATION_MODE
   extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
-  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-    extern uint8_t duplication_e_mask;
-  #endif
 #endif
 
 /**
@@ -446,6 +445,7 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
 #else
 
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    extern uint8_t duplication_e_mask;
     enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
     FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif

@@ -25,15 +25,10 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../../lvgl/src/lv_objx/lv_img.h"
-//#include "../../lvgl/src/lv_core/lv_disp.h"
-//#include "../../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../gcode/gcode.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
-#include "../../../../module/temperature.h"
 #include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -661,7 +656,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_number_key(void) {
+void lv_draw_number_key() {
   scr = lv_screen_create(NUMBER_KEY_UI, "");
 
   buttonValue = lv_btn_create(scr, 92, 40, 296, 40, event_handler, ID_NUM_KEY1, &style_num_text);

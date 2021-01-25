@@ -342,6 +342,30 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
+  #if HAS_HEATED_BED
+    const int16_t bt = info.target_temperature_bed;
+    if (bt) {
+      // Restore the bed temperature
+      sprintf_P(cmd, PSTR("M190 S%i"), bt);
+      gcode.process_subcommands_now(cmd);
+    }
+  #endif
+
+  // Restore all hotend temperatures
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      const int16_t et = info.target_temperature[e];
+      if (et) {
+        #if HAS_MULTI_HOTEND
+          sprintf_P(cmd, PSTR("T%i S"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109 S%i"), et);
+        gcode.process_subcommands_now(cmd);
+      }
+    }
+  #endif
+
   // Reset E, raise Z, home XY...
   #if Z_HOME_DIR > 0
 
@@ -353,20 +377,11 @@ void PrintJobRecovery::resume() {
 
   #else // "G92.9 E0 ..."
 
-    // Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
-    // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-
-    sprintf_P(cmd, PSTR("G92.9 E0 "
-        #if ENABLED(BACKUP_POWER_SUPPLY)
-          "Z%s"                             // Z was already raised at outage
-        #else
-          "Z0\nG1Z%s"                       // Set Z=0 and Raise Z now
-        #endif
-      ),
-      dtostrf(info.zraise, 1, 3, str_1)
-    );
+    // If a Z raise occurred at outage restore Z, otherwise raise Z now
+    sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
+    // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
       #if IS_CARTESIAN && DISABLED(POWER_LOSS_RECOVER_ZHOME)
@@ -402,30 +417,6 @@ void PrintJobRecovery::resume() {
         gcode.process_subcommands_now(cmd);
       }
     #endif
-  #endif
-
-  #if HAS_HEATED_BED
-    const int16_t bt = info.target_temperature_bed;
-    if (bt) {
-      // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), bt);
-      gcode.process_subcommands_now(cmd);
-    }
-  #endif
-
-  // Restore all hotend temperatures
-  #if HAS_HOTEND
-    HOTEND_LOOP() {
-      const int16_t et = info.target_temperature[e];
-      if (et) {
-        #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%i S"), e);
-          gcode.process_subcommands_now(cmd);
-        #endif
-        sprintf_P(cmd, PSTR("M109 S%i"), et);
-        gcode.process_subcommands_now(cmd);
-      }
-    }
   #endif
 
   // Select the previously active tool (with no_move)
@@ -529,7 +520,6 @@ void PrintJobRecovery::resume() {
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  extern const char M23_STR[];
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);

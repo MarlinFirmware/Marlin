@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V82"
+#define EEPROM_VERSION "V83"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -49,10 +49,6 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
-
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
-#endif
 
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
@@ -179,8 +175,6 @@ typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
 static const float     _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
-
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
 
 /**
  * Current EEPROM Layout
@@ -461,6 +455,11 @@ typedef struct SettingsDataStruct {
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
   #endif
+
+  #if HAS_MULTI_LANGUAGE
+    uint8_t ui_language;                                // M414 S
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1387,6 +1386,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Selected LCD language
+    //
+    #if HAS_MULTI_LANGUAGE
+      EEPROM_WRITE(ui.language);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2266,6 +2272,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Selected LCD language
+      //
+      #if HAS_MULTI_LANGUAGE
+      {
+        uint8_t ui_language;
+        EEPROM_READ(ui_language);
+        if (ui_language >= NUM_LANGUAGES) ui_language = 0;
+        ui.set_language(ui_language);
+      }
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2367,7 +2385,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      #if ENABLED(EEPROM_CHITCHAT)
+      #if BOTH(EEPROM_CHITCHAT, DEBUG_OUT)
         DEBUG_ECHOLNPGM("?Invalid slot.");
         DEBUG_ECHO(s);
         DEBUG_ECHOLNPGM(" mesh slots available.");
@@ -3161,7 +3179,7 @@ void MarlinSettings::reset() {
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-        config_heading(forReplay, PSTR(""), false);
+        config_heading(forReplay, NUL_STR, false);
         if (!forReplay) {
           ubl.echo_name();
           SERIAL_CHAR(':');
@@ -3849,6 +3867,11 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
+    #endif
+
+    #if HAS_MULTI_LANGUAGE
+      CONFIG_ECHO_HEADING("UI Language:");
+      SERIAL_ECHO_MSG("  M414 S", int(ui.language));
     #endif
   }
 

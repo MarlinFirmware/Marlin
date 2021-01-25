@@ -211,14 +211,18 @@
 #if DISABLED(Y_DUAL_STEPPER_DRIVERS)
   #undef Y2_DRIVER_TYPE
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 2
-  #undef Z2_DRIVER_TYPE
-#endif
-#if NUM_Z_STEPPER_DRIVERS < 3
-  #undef Z3_DRIVER_TYPE
-#endif
+
 #if NUM_Z_STEPPER_DRIVERS < 4
   #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -508,7 +512,10 @@
 #endif
 
 // Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || \
+                         (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || \
+                         (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
+                         (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
 #if ANY_SERIAL_IS(-1)
   #define USING_SERIAL_DEFAULT
 #endif

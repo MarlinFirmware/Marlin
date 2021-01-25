@@ -153,7 +153,7 @@
 // SPI
 //
 #define SPI_DEVICE                             2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PA15
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PA15

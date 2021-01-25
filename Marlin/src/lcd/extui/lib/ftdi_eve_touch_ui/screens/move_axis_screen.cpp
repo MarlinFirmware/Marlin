@@ -37,7 +37,7 @@ void BaseMoveAxisScreen::onEntry() {
   // screen is entered.
 
   LOOP_L_N(i, ExtUI::extruderCount) {
-    screen_data.MoveAxisScreen.e_rel[i] = 0;
+    screen_data.MoveAxis.e_rel[i] = 0;
   }
   BaseNumericAdjustmentScreen::onEntry();
 }
@@ -54,15 +54,15 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
 
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxis.e_rel[0], canMove(E0));
   #elif HAS_MULTI_EXTRUDER
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxis.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxis.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxisScreen.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxis.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxisScreen.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxis.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();
@@ -80,23 +80,23 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
     case  6: UI_DECREMENT_AXIS(Z); break;
     case  7: UI_INCREMENT_AXIS(Z); break;
     // For extruders, also update relative distances.
-    case  8: UI_DECREMENT_AXIS(E0); screen_data.MoveAxisScreen.e_rel[0] -= increment; break;
-    case  9: UI_INCREMENT_AXIS(E0); screen_data.MoveAxisScreen.e_rel[0] += increment; break;
+    case  8: UI_DECREMENT_AXIS(E0); screen_data.MoveAxis.e_rel[0] -= increment; break;
+    case  9: UI_INCREMENT_AXIS(E0); screen_data.MoveAxis.e_rel[0] += increment; break;
     #if HAS_MULTI_EXTRUDER
-    case 10: UI_DECREMENT_AXIS(E1); screen_data.MoveAxisScreen.e_rel[1] -= increment; break;
-    case 11: UI_INCREMENT_AXIS(E1); screen_data.MoveAxisScreen.e_rel[1] += increment; break;
+    case 10: UI_DECREMENT_AXIS(E1); screen_data.MoveAxis.e_rel[1] -= increment; break;
+    case 11: UI_INCREMENT_AXIS(E1); screen_data.MoveAxis.e_rel[1] += increment; break;
     #endif
     #if EXTRUDERS > 2
-    case 12: UI_DECREMENT_AXIS(E2); screen_data.MoveAxisScreen.e_rel[2] -= increment; break;
-    case 13: UI_INCREMENT_AXIS(E2); screen_data.MoveAxisScreen.e_rel[2] += increment; break;
+    case 12: UI_DECREMENT_AXIS(E2); screen_data.MoveAxis.e_rel[2] -= increment; break;
+    case 13: UI_INCREMENT_AXIS(E2); screen_data.MoveAxis.e_rel[2] += increment; break;
     #endif
     #if EXTRUDERS > 3
-    case 14: UI_DECREMENT_AXIS(E3); screen_data.MoveAxisScreen.e_rel[3] -= increment; break;
-    case 15: UI_INCREMENT_AXIS(E3); screen_data.MoveAxisScreen.e_rel[3] += increment; break;
+    case 14: UI_DECREMENT_AXIS(E3); screen_data.MoveAxis.e_rel[3] -= increment; break;
+    case 15: UI_INCREMENT_AXIS(E3); screen_data.MoveAxis.e_rel[3] += increment; break;
     #endif
-    case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28 X")); break;
-    case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28 Y")); break;
-    case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
+    case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28X")); break;
+    case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28Y")); break;
+    case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
     case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28"));   break;
     default:
       return false;
