@@ -21,14 +21,12 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
 #include "wifi_upload.h"
 #include "SPI_TFT.h"
-
-#if ENABLED(MKS_WIFI_MODULE)
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
@@ -459,7 +457,6 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
   return 1;
 }
 
-
 #define SEND_OK_TO_WIFI send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"))
 int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF, buf, len); }
 
@@ -552,7 +549,6 @@ typedef struct {
   uint8_t *data;
   uint8_t tail;
 } ESP_PROTOC_FRAME;
-
 
 static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   if (msgLen < cutLen) return 0;
@@ -1707,7 +1703,6 @@ void mks_esp_wifi_init() {
   wifi_link_state = WIFI_NOT_CONFIG;
 }
 
-
 void mks_wifi_firmware_update() {
   card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
@@ -1826,5 +1821,4 @@ int readWifiBuf(int8_t *buf, int32_t len) {
   return i;
 }
 
-#endif // MKS_WIFI_MODULE
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
