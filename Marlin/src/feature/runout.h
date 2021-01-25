@@ -30,15 +30,12 @@
 #include "../module/planner.h"
 #include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
+#include "../feature/pause.h"
 
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "pause.h"
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
@@ -118,9 +115,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if ( enabled && !filament_ran_out
-        && (printingIsActive() || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print))
-      ) {
+      if (enabled && !filament_ran_out && (printingIsActive() || did_pause_print)) {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
@@ -343,9 +338,7 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        if (b->steps.x || b->steps.y || b->steps.z
-          || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print) // Allow pause purge move to re-trigger runout state
-        ) {
+        if (b->steps.x || b->steps.y || b->steps.z || did_pause_print) { // Allow pause purge move to re-trigger runout state
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;

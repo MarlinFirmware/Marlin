@@ -39,7 +39,6 @@
 #ifndef LEVEL_CORNERS_Z_HOP
   #define LEVEL_CORNERS_Z_HOP 4.0
 #endif
-
 #ifndef LEVEL_CORNERS_HEIGHT
   #define LEVEL_CORNERS_HEIGHT 0.0
 #endif
@@ -66,8 +65,6 @@
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
-
-extern const char G28_STR[];
 
 #if HAS_LEVELING
   static bool leveling_was_active = false;
@@ -177,12 +174,13 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_MESH), SS_INVERT); // "Probing Mesh" heading
 
-    uint8_t cy = LCD_HEIGHT - 1, y = LCD_ROW_Y(cy);
+    uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
-      SETCURSOR(0, cy);
+      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
@@ -193,8 +191,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
-      SETCURSOR(0, cy);
+      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }
@@ -206,7 +205,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
-      , (const char*)nullptr, PSTR("")
+      , (const char*)nullptr, NUL_STR
     );
   }
 
@@ -248,7 +247,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     wait_for_probe = true;
     ui.goto_screen(_lcd_draw_raise); // show raise screen
     ui.set_selection(true);
-    while (wait_for_probe && !probe_triggered) { //loop while waiting to bed raise and probe trigger
+    while (wait_for_probe && !probe_triggered) { // loop while waiting to bed raise and probe trigger
       probe_triggered = PROBE_TRIGGERED();
       if (probe_triggered) {
         endstops.hit_on_purpose();
@@ -269,7 +268,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     ui.goto_screen(_lcd_draw_probing);
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
-      _lcd_draw_probing();                                //update screen with # of good points
+      _lcd_draw_probing();                                             // update screen with # of good points
       do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
@@ -330,6 +329,7 @@ static inline void _lcd_level_bed_corners_homing() {
           GET_TEXT(MSG_BUTTON_NEXT), GET_TEXT(MSG_BUTTON_DONE)
         , _lcd_goto_next_corner
         , []{
+            line_to_z(LEVEL_CORNERS_Z_HOP); // Raise Z off the bed when done
             TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
             ui.goto_previous_screen_no_defer();
           }
