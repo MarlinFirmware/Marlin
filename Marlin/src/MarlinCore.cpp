@@ -362,6 +362,7 @@ void startOrResumeJob() {
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.endFilePrint(TERN_(SD_RESORT, true));
+
     queue.clear();
     quickstop_stepper();
     print_job_timer.abort();
@@ -374,7 +375,9 @@ void startOrResumeJob() {
       cutter.kill();              // Full cutter shutdown including ISR control
     #endif
     wait_for_heatup = false;
+
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
@@ -784,8 +787,7 @@ void minkill(const bool steppers_off/*=false*/) {
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
 
-  planner.synchronize();
-  print_job_timer.stop(); // Wait for planner before calling
+  print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
     if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were

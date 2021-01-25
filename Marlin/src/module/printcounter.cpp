@@ -41,6 +41,10 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
   #include "../libs/buzzer.h"
 #endif
 
+#if PRINTCOUNTER_SYNC
+  #include "../module/planner.h"
+#endif
+
 // Service intervals
 #if HAS_SERVICE_INTERVALS
   #if SERVICE_INTERVAL_1 > 0
@@ -160,6 +164,8 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
+  TERN(PRINTCOUNTER_SYNC, planner.synchronize());
+
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
@@ -245,7 +251,6 @@ void PrintCounter::tick() {
   }
 
   #if PRINTCOUNTER_SAVE_INTERVAL > 0
-    TERN(SYNC_FOR_PRINTCOUNTER, planner.synchronize());
     static millis_t eeprom_next; // = 0
     if (ELAPSED(now, eeprom_next)) {
       eeprom_next = now + saveInterval;

@@ -31,5 +31,5 @@
 // TODO: Which other boards are incompatible?
 #if defined(MCU_LPC1768) && PRINTCOUNTER_SAVE_INTERVAL > 0
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
-  #define SYNC_FOR_PRINTCOUNTER 1
+  #define PRINTCOUNTER_SYNC 1
 #endif
