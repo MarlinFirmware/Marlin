@@ -62,7 +62,7 @@ enum {
     BED_MESH_SCREEN_CACHE,
   #endif
 #endif
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
   ADJUST_OFFSETS_SCREEN_CACHE,
 #endif
 #if HAS_TRINAMIC_CONFIG
@@ -552,7 +552,7 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
   #endif
 #endif
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
   class NudgeNozzleScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ADJUST_OFFSETS_SCREEN_CACHE> {
     public:
       static void onEntry();

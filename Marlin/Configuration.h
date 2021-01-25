@@ -913,7 +913,7 @@
  * By default, the magnet is assumed to be on the left and activated by a home. If the magnet is
  * on the right, enable and set TOUCH_MI_DEPLOY_XPOS to the deploy position.
  *
- * Also requires: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
+ * Also requires: BABYSTOMPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
  *                and a minimum Z_HOMING_HEIGHT of 10.
  */
 //#define TOUCH_MI_PROBE
@@ -962,7 +962,7 @@
  * - Use a caliper or ruler to measure the distance from the tip of
  *   the Nozzle to the center-point of the Probe in the X and Y axes.
  * - For the Z offset use your best known value and adjust at runtime.
- * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
+ * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystomping, etc.
  *
  * Assuming the typical work area orientation:
  *  - Probe to RIGHT of the Nozzle has a Positive X offset

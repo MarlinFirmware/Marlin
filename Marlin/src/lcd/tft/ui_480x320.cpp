@@ -656,7 +656,7 @@ void menu_item(const uint8_t row, bool sel ) {
 }
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-  #include "../../feature/babystep.h"
+  #include "../../feature/babystomp.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -773,16 +773,16 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
 
   if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
+      const int16_t babystomp_increment = direction * BABYSTEP_SIZE_Z;
       const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
-      const float bsDiff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+      const float bsDiff = planner.steps_to_mm[Z_AXIS] * babystomp_increment,
                   new_probe_offset = probe.offset.z + bsDiff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
                     , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
                     , new_probe_offset
                   );
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        babystep.add_steps(Z_AXIS, babystep_increment);
+        babystomp.add_steps(Z_AXIS, babystomp_increment);
         if (do_probe)
           probe.offset.z = new_offs;
         else

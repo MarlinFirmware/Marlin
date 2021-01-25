@@ -77,8 +77,8 @@
   #include "stepper.h"
 #endif
 
-#if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
-  #include "../feature/babystep.h"
+#if ENABLED(BABYSTOMPING) && DISABLED(INTEGRATED_BABYSTOMPING)
+  #include "../feature/babystomp.h"
 #endif
 
 #include "printcounter.h"
@@ -2449,7 +2449,7 @@ void Temperature::readings_ready() {
  *  - Manage PWM to all the heaters and fan
  *  - Prepare or Measure one of the raw ADC sensor values
  *  - Check new temperature values for MIN/MAX errors (kill on error)
- *  - Step the babysteps value for each axis towards 0
+ *  - Step the babystomps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  *  - Call planner.tick to count down its "ignore" time
@@ -2492,7 +2492,7 @@ public:
  *  - Heater PWM (~1KHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
- *  - Advance Babysteps
+ *  - Advance Babystomps
  *  - Endstop polling
  *  - Planner clean buffer
  */
@@ -2945,8 +2945,8 @@ void Temperature::tick() {
   // Additional ~1KHz Tasks
   //
 
-  #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
-    babystep.task();
+  #if ENABLED(BABYSTOMPING) && DISABLED(INTEGRATED_BABYSTOMPING)
+    babystomp.task();
   #endif
 
   // Poll endstops state, if required

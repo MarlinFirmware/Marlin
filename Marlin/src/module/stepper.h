@@ -336,9 +336,9 @@ class Stepper {
       static bool LA_use_advance_lead;
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
+    #if ENABLED(INTEGRATED_BABYSTOMPING)
       static constexpr uint32_t BABYSTEP_NEVER = 0xFFFFFFFF;
-      static uint32_t nextBabystepISR;
+      static uint32_t nextBabystompISR;
     #endif
 
     #if ENABLED(DIRECT_STEPPING)
@@ -411,12 +411,12 @@ class Stepper {
       FORCE_INLINE static void initiateLA() { nextAdvanceISR = 0; }
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      // The Babystepping ISR phase
-      static uint32_t babystepping_isr();
-      FORCE_INLINE static void initiateBabystepping() {
-        if (nextBabystepISR == BABYSTEP_NEVER) {
-          nextBabystepISR = 0;
+    #if ENABLED(INTEGRATED_BABYSTOMPING)
+      // The Babystomping ISR phase
+      static uint32_t babystomping_isr();
+      FORCE_INLINE static void initiateBabystomping() {
+        if (nextBabystompISR == BABYSTEP_NEVER) {
+          nextBabystompISR = 0;
           wake_up();
         }
       }
@@ -506,8 +506,8 @@ class Stepper {
       }
     #endif
 
-    #if ENABLED(BABYSTEPPING)
-      static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+    #if ENABLED(BABYSTOMPING)
+      static void do_babystomp(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

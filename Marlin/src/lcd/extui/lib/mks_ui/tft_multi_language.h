@@ -604,7 +604,7 @@ typedef struct operation_menu_disp {
   const char *auto_off;
   const char *manual_off;
   const char *back;
-  const char *babystep;
+  const char *babystomp;
 } operation_menu_def;
 
 extern operation_menu_def operation_menu;

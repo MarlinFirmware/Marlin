@@ -737,7 +737,7 @@
 
 #define TEXT_RECEIVING_DATA_EN "Receiving Data"
 
-#define TEXT_BABY_STEP_EN "Babystep"
+#define TEXT_BABY_STEP_EN "Babystomp"
 
 #define PRINTING_OTHER_LANGUGE              "Printing"
 #define PRINTING_OPERATION_OTHER_LANGUGE    "Operation"

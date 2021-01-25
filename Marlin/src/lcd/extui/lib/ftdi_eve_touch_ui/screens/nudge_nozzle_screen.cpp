@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, BABYSTEPPING)
+#if BOTH(TOUCH_UI_FTDI_EVE, BABYSTOMPING)
 
 #include "screens.h"
 #include "screen_data.h"

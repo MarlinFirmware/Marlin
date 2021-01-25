@@ -378,9 +378,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Najpierw Home %s%s%s");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset Z");
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystomp X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystomp Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystomp Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Łącznie");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Błąd krańcówki");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Rozgrz. nieudane");

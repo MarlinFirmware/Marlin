@@ -816,7 +816,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
   }
 #endif
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
   void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 

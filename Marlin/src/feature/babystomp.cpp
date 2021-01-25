@@ -22,9 +22,9 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
 
-#include "babystep.h"
+#include "babystomp.h"
 #include "../MarlinCore.h"
 #include "../module/motion.h"   // for axes_should_home()
 #include "../module/planner.h"  // for axis_steps_per_mm[]
@@ -34,34 +34,34 @@
   #include "../gcode/gcode.h"
 #endif
 
-Babystep babystep;
+Babystomp babystomp;
 
-volatile int16_t Babystep::steps[BS_AXIS_IND(Z_AXIS) + 1];
+volatile int16_t Babystomp::steps[BS_AXIS_IND(Z_AXIS) + 1];
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-  int16_t Babystep::axis_total[BS_TOTAL_IND(Z_AXIS) + 1];
+  int16_t Babystomp::axis_total[BS_TOTAL_IND(Z_AXIS) + 1];
 #endif
-int16_t Babystep::accum;
+int16_t Babystomp::accum;
 
-void Babystep::step_axis(const AxisEnum axis) {
+void Babystomp::step_axis(const AxisEnum axis) {
   const int16_t curTodo = steps[BS_AXIS_IND(axis)]; // get rid of volatile for performance
   if (curTodo) {
-    stepper.do_babystep((AxisEnum)axis, curTodo > 0);
+    stepper.do_babystomp((AxisEnum)axis, curTodo > 0);
     if (curTodo > 0) steps[BS_AXIS_IND(axis)]--; else steps[BS_AXIS_IND(axis)]++;
   }
 }
 
-void Babystep::add_mm(const AxisEnum axis, const float &mm) {
+void Babystomp::add_mm(const AxisEnum axis, const float &mm) {
   add_steps(axis, mm * planner.settings.axis_steps_per_mm[axis]);
 }
 
-void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
+void Babystomp::add_steps(const AxisEnum axis, const int16_t distance) {
   if (DISABLED(BABYSTEP_WITHOUT_HOMING) && axes_should_home(_BV(axis))) return;
 
-  accum += distance; // Count up babysteps for the UI
+  accum += distance; // Count up babystomps for the UI
   steps[BS_AXIS_IND(axis)] += distance;
   TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] += distance);
   TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
-  TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+  TERN_(INTEGRATED_BABYSTOMPING, if (has_steps()) stepper.initiateBabystomping());
 }
 
-#endif // BABYSTEPPING
+#endif // BABYSTOMPING

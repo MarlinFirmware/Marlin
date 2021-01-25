@@ -383,7 +383,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 5:  GOTO_SCREEN(TemperatureScreen); break;
     case 6:
       if (isPrinting()) {
-        #if ENABLED(BABYSTEPPING)
+        #if ENABLED(BABYSTOMPING)
           GOTO_SCREEN(NudgeNozzleScreen);
         #elif HAS_BED_PROBE
           GOTO_SCREEN(ZOffsetScreen);

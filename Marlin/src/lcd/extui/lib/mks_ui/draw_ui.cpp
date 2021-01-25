@@ -526,7 +526,7 @@ char *getDispText(int index) {
       strcpy(public_buf_l, MachinePara_menu.title);
       break;
     case BABY_STEP_UI:
-      strcpy(public_buf_l, operation_menu.babystep);
+      strcpy(public_buf_l, operation_menu.babystomp);
       break;
     case EEPROM_SETTINGS_UI:
       strcpy(public_buf_l, eeprom_menu.title);

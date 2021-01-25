@@ -210,7 +210,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_wifi.bin",
   #endif
 
-  //babystep screen
+  //babystomp screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin"

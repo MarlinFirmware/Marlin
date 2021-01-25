@@ -864,7 +864,7 @@ void disp_language_init() {
   #endif  //USE_WIFI_FUNCTION
   machine_setting_disp();
 
-  operation_menu.babystep = TEXT_BABY_STEP_EN;
+  operation_menu.babystomp = TEXT_BABY_STEP_EN;
 
   switch (gCfgItems.language) {
     case LANG_SIMPLE_CHINESE:

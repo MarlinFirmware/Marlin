@@ -53,7 +53,7 @@ SCREEN_TABLE {
 #if ENABLED(PRINTCOUNTER)
   DECL_SCREEN(StatisticsScreen),
 #endif
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
   DECL_SCREEN(NudgeNozzleScreen),
 #endif
   DECL_SCREEN(MoveAxisScreen),

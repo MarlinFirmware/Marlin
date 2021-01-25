@@ -92,8 +92,8 @@
   #include "../../feature/caselight.h"
 #endif
 
-#if ENABLED(BABYSTEPPING)
-  #include "../../feature/babystep.h"
+#if ENABLED(BABYSTOMPING)
+  #include "../../feature/babystomp.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -675,14 +675,14 @@ namespace ExtUI {
   void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
 
-  #if ENABLED(BABYSTEPPING)
-    bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
+  #if ENABLED(BABYSTOMPING)
+    bool babystompAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: babystep.add_steps(X_AXIS, steps); break;
-          case Y: babystep.add_steps(Y_AXIS, steps); break;
+          case X: babystomp.add_steps(X_AXIS, steps); break;
+          case Y: babystomp.add_steps(Y_AXIS, steps); break;
         #endif
-        case Z: babystep.add_steps(Z_AXIS, steps); break;
+        case Z: babystomp.add_steps(Z_AXIS, steps); break;
         default: return false;
       };
       return true;
@@ -692,7 +692,7 @@ namespace ExtUI {
      * This function adjusts an axis during a print.
      *
      * When linked_nozzles is false, each nozzle in a multi-nozzle
-     * printer can be babystepped independently of the others. This
+     * printer can be babystomped independently of the others. This
      * lets the user to fine tune the Z-offset and Nozzle Offsets
      * while observing the first layer of a print, regardless of
      * what nozzle is printing.
@@ -701,19 +701,19 @@ namespace ExtUI {
       const float mm = steps * planner.steps_to_mm[axis];
       UNUSED(mm);
 
-      if (!babystepAxis_steps(steps, axis)) return;
+      if (!babystompAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        // Make it so babystepping in Z adjusts the Z probe offset.
+        // Make it so babystomping in Z adjusts the Z probe offset.
         if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
           probe.offset.z += mm;
       #endif
 
       #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
         /**
-         * When linked_nozzles is false, as an axis is babystepped
+         * When linked_nozzles is false, as an axis is babystomped
          * adjust the hotend offsets so that the other nozzles are
-         * unaffected by the babystepping of the active nozzle.
+         * unaffected by the babystomping of the active nozzle.
          */
         if (!linked_nozzles) {
           HOTEND_LOOP()
@@ -744,7 +744,7 @@ namespace ExtUI {
       #if HAS_BED_PROBE
         + probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        + planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        + planner.steps_to_mm[Z_AXIS] * babystomp.axis_total[BS_AXIS_IND(Z_AXIS)]
       #endif
     );
   }
@@ -754,7 +754,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, value - getZOffset_mm());
+      babystomp.add_mm(Z_AXIS, value - getZOffset_mm());
     #else
       UNUSED(value);
     #endif

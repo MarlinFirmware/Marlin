@@ -34,11 +34,11 @@
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+#if ANY(BABYSTOMPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
+#if !HAS_BED_PROBE && ENABLED(BABYSTOMPING)
   #define JUST_BABYSTEP 1
 #endif
 
@@ -78,7 +78,7 @@
 #endif
 
 #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-  #include "../../../feature/babystep.h"
+  #include "../../../feature/babystomp.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -681,7 +681,7 @@ inline void Draw_Prepare_Menu() {
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
   #if HAS_ZOFFSET_ITEM
-    if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
+    if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystomp / Set Home Offset
   #endif
   #if HAS_HOTEND
     if (PVISI(PREPARE_CASE_PLA)) Item_Prepare_PLA(PSCROL(PREPARE_CASE_PLA));      // Preheat PLA
@@ -1288,7 +1288,7 @@ void HMI_Move_Z() {
       dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f;
       #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
         if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
-          babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
+          babystomp.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
       #endif
       DWIN_Draw_Signed_Float(font8x16, Select_Color, 2, 2, 202, MBASE(zoff_line), HMI_ValueStruct.offset_value);
       DWIN_UpdateLCD();
@@ -2352,7 +2352,7 @@ void HMI_Prepare() {
         break;
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF: // Z-offset
-          #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+          #if EITHER(HAS_BED_PROBE, BABYSTOMPING)
             checkkey = Homeoffset;
             HMI_ValueStruct.show_mode = -4;
             HMI_ValueStruct.offset_value = BABY_Z_VAR * 100;
@@ -3221,7 +3221,7 @@ void HMI_Tune() {
       #endif
       #if HAS_ZOFFSET_ITEM
         case TUNE_CASE_ZOFF: // Z-offset
-          #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+          #if EITHER(HAS_BED_PROBE, BABYSTOMPING)
             checkkey = Homeoffset;
             HMI_ValueStruct.offset_value = BABY_Z_VAR * 100;
             DWIN_Draw_Signed_Float(font8x16, Select_Color, 2, 2, 202, MBASE(TUNE_CASE_ZOFF + MROWS - index_tune), HMI_ValueStruct.offset_value);
@@ -3661,7 +3661,7 @@ void DWIN_HandleScreen() {
       case Extruder:      HMI_Move_E(); break;
       case ETemp:         HMI_ETemp(); break;
     #endif
-    #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+    #if EITHER(HAS_BED_PROBE, BABYSTOMPING)
       case Homeoffset:    HMI_Zoffset(); break;
     #endif
     #if HAS_HEATED_BED

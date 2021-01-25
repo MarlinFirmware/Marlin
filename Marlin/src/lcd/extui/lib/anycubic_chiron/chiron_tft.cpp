@@ -785,7 +785,7 @@ namespace Anycubic {
           case 'G':   // Get current offset
             SendtoTFT(PSTR("A31V "));
             // When printing use the live z Offset position
-            // we will use babystepping to move the print head
+            // we will use babystomping to move the print head
             if (isPrinting())
               TFTSer.println(live_Zoffset);
             else {
@@ -808,12 +808,12 @@ namespace Anycubic {
                   const float currZpos = getAxisPosition_mm(Z);
                   SERIAL_ECHOLNPAIR("Nudge Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
                 #endif
-                // Use babystepping to adjust the head position
+                // Use babystomping to adjust the head position
                 int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
                 #if ACDEBUG(AC_INFO)
                   SERIAL_ECHOLNPAIR("Steps to move Z: ", steps);
                 #endif
-                babystepAxis_steps(steps, Z);
+                babystompAxis_steps(steps, Z);
                 live_Zoffset += Zshift;
               }
               SendtoTFT(PSTR("A31V "));

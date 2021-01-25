@@ -42,15 +42,15 @@
   #include "../../module/tool_change.h"
 #endif
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
 
-  #include "../../feature/babystep.h"
+  #include "../../feature/babystomp.h"
   #include "../lcdprint.h"
   #if HAS_MARLINUI_U8GLIB
     #include "../dogm/ultralcd_DOGM.h"
   #endif
 
-  void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
+  void _lcd_babystomp(const AxisEnum axis, PGM_P const msg) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
@@ -62,11 +62,11 @@
       );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
-      babystep.add_steps(axis, steps);
+      babystomp.add_steps(axis, steps);
     }
     if (ui.should_draw()) {
       const float spm = planner.steps_to_mm[axis];
-      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
+      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystomp.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
@@ -74,29 +74,29 @@
           lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
-          lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
+          lcd_put_u8str(BABYSTEP_TO_STR(spm * babystomp.axis_total[BS_TOTAL_IND(axis)]));
         }
       #endif
     }
   }
 
-  inline void _lcd_babystep_go(const screenFunc_t screen) {
+  inline void _lcd_babystomp_go(const screenFunc_t screen) {
     ui.goto_screen(screen);
     ui.defer_status_screen();
-    babystep.accum = 0;
+    babystomp.accum = 0;
   }
 
   #if ENABLED(BABYSTEP_XY)
-    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, GET_TEXT(MSG_BABYSTEP_X)); }
-    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, GET_TEXT(MSG_BABYSTEP_Y)); }
+    void _lcd_babystomp_x() { _lcd_babystomp(X_AXIS, GET_TEXT(MSG_BABYSTEP_X)); }
+    void _lcd_babystomp_y() { _lcd_babystomp(Y_AXIS, GET_TEXT(MSG_BABYSTEP_Y)); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, GET_TEXT(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z()  { _lcd_babystep_go(_lcd_babystep_z); }
+    void _lcd_babystomp_z() { _lcd_babystomp(Z_AXIS, GET_TEXT(MSG_BABYSTEP_Z)); }
+    void lcd_babystomp_z()  { _lcd_babystomp_go(_lcd_babystomp_z); }
   #endif
 
-#endif // BABYSTEPPING
+#endif // BABYSTOMPING
 
 void menu_tune() {
   START_MENU();
@@ -210,19 +210,19 @@ void menu_tune() {
   #endif
 
   //
-  // Babystep X:
-  // Babystep Y:
-  // Babystep Z:
+  // Babystomp X:
+  // Babystomp Y:
+  // Babystomp Z:
   //
-  #if ENABLED(BABYSTEPPING)
+  #if ENABLED(BABYSTOMPING)
     #if ENABLED(BABYSTEP_XY)
-      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
-      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
+      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystomp_go(_lcd_babystomp_x); });
+      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystomp_go(_lcd_babystomp_y); });
     #endif
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystomp_zoffset);
     #else
-      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
+      SUBMENU(MSG_BABYSTEP_Z, lcd_babystomp_z);
     #endif
   #endif
 

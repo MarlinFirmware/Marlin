@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
+#if ENABLED(INTEGRATED_BABYSTOMPING)
   #define BABYSTEPS_PER_SEC 1000UL
   #define BABYSTEP_TICKS ((STEPPER_TIMER_RATE) / (BABYSTEPS_PER_SEC))
 #else
@@ -47,13 +47,13 @@
   #endif
 #endif
 
-class Babystep {
+class Babystomp {
 public:
   static volatile int16_t steps[BS_AXIS_IND(Z_AXIS) + 1];
-  static int16_t accum;                                     // Total babysteps in current edit
+  static int16_t accum;                                     // Total babystomps in current edit
 
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-    static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
+    static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babystomps since G28
     static inline void reset_total(const AxisEnum axis) {
       if (TERN1(BABYSTEP_XY, axis == Z_AXIS))
         axis_total[BS_TOTAL_IND(axis)] = 0;
@@ -69,7 +69,7 @@ public:
 
   //
   // Called by the Temperature or Stepper ISR to
-  // apply accumulated babysteps to the axes.
+  // apply accumulated babystomps to the axes.
   //
   static inline void task() {
     LOOP_LE_N(i, BS_AXIS_IND(Z_AXIS)) step_axis(BS_AXIS(i));
@@ -79,4 +79,4 @@ private:
   static void step_axis(const AxisEnum axis);
 };
 
-extern Babystep babystep;
+extern Babystomp babystomp;

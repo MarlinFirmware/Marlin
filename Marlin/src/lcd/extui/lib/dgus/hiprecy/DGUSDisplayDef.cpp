@@ -463,7 +463,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_SD_Print_Setting, nullptr, ScreenHandler.DGUSLCD_SD_PrintTune, nullptr),
     #if HAS_BED_PROBE
       VPHELPER(VP_SD_Print_ProbeOffsetZ, &probe.offset.z, ScreenHandler.HandleProbeOffsetZChanged, &ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
-      #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTOMPING)
         VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, ScreenHandler.HandleLiveAdjustZ, nullptr),
       #endif
     #endif

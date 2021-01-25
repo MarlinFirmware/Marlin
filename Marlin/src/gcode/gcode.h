@@ -190,7 +190,7 @@
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M281 - Set servo min|max position: "M281 P<index> L<min> U<max>". (Requires EDITABLE_SERVO_ANGLES)
- * M290 - Babystepping (Requires BABYSTEPPING)
+ * M290 - Babystomping (Requires BABYSTOMPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -689,7 +689,7 @@ private:
     TERN_(EDITABLE_SERVO_ANGLES, static void M281());
   #endif
 
-  TERN_(BABYSTEPPING, static void M290());
+  TERN_(BABYSTOMPING, static void M290());
 
   TERN_(HAS_BUZZER, static void M300());
 

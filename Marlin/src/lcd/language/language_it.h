@@ -446,9 +446,9 @@ namespace Language_it {
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Offset Y sonda");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Offset Z sonda");
   PROGMEM Language_Str MSG_MOVE_NOZZLE_TO_BED              = _UxGT("Muovi ugel.su letto");
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystomp X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystomp Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystomp Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Totali");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Finecorsa annullati");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Risc.Fallito"); // Max 12 caratteri

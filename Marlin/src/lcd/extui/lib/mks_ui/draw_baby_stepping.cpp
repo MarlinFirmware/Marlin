@@ -48,7 +48,7 @@ static lv_obj_t *labelV, *buttonV, * zOffsetText;
 #define ID_BABY_STEP_DIST   7
 #define ID_BABY_STEP_RETURN 8
 
-static float babystep_dist=0.01;
+static float babystomp_dist=0.01;
 static uint8_t has_adjust_z = 0;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
@@ -60,7 +60,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 X%.3f"),babystep_dist);
+        sprintf_P(baby_buf, PSTR("M290 X%.3f"),babystomp_dist);
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -71,7 +71,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 X%.3f"),((float)0 - babystep_dist));
+        sprintf_P(baby_buf, PSTR("M290 X%.3f"),((float)0 - babystomp_dist));
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -82,7 +82,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystep_dist);
+        sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystomp_dist);
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -93,7 +93,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 Y%.3f"),((float)0 - babystep_dist));
+        sprintf_P(baby_buf, PSTR("M290 Y%.3f"),((float)0 - babystomp_dist));
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -104,7 +104,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
+        sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystomp_dist);
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -115,7 +115,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         ZERO(baby_buf);
-        sprintf_P(baby_buf, PSTR("M290 Z%.3f"),((float)0 - babystep_dist));
+        sprintf_P(baby_buf, PSTR("M290 Z%.3f"),((float)0 - babystomp_dist));
         gcode.process_subcommands_now_P(PSTR(baby_buf));
         has_adjust_z = 1;
       }
@@ -125,12 +125,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (abs((int)(100 * babystep_dist)) == 1)
-          babystep_dist = 0.05;
-        else if (abs((int)(100 * babystep_dist)) == 5)
-          babystep_dist = 0.1;
+        if (abs((int)(100 * babystomp_dist)) == 1)
+          babystomp_dist = 0.05;
+        else if (abs((int)(100 * babystomp_dist)) == 5)
+          babystomp_dist = 0.1;
         else
-          babystep_dist = 0.01;
+          babystomp_dist = 0.01;
         disp_baby_step_dist();
       }
 
@@ -306,28 +306,28 @@ void lv_draw_baby_stepping(void) {
 void disp_baby_step_dist() {
   // char buf[30] = {0};
 
-  if ((int)(100 * babystep_dist) == 1) {
+  if ((int)(100 * babystomp_dist) == 1) {
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_REL, "F:/bmp_baby_move0_01.bin");
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_PR, "F:/bmp_baby_move0_01.bin");
   }
-  else if ((int)(100 * babystep_dist) == 5) {
+  else if ((int)(100 * babystomp_dist) == 5) {
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_REL, "F:/bmp_baby_move0_05.bin");
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_PR, "F:/bmp_baby_move0_05.bin");
   }
-  else if ((int)(100 * babystep_dist) == 10) {
+  else if ((int)(100 * babystomp_dist) == 10) {
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_REL, "F:/bmp_baby_move0_1.bin");
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_PR, "F:/bmp_baby_move0_1.bin");
   }
   if (gCfgItems.multiple_language != 0) {
-    if ((int)(100 * babystep_dist) == 1) {
+    if ((int)(100 * babystomp_dist) == 1) {
       lv_label_set_text(labelV, move_menu.step_001mm);
       lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else if ((int)(100 * babystep_dist) == 5) {
+    else if ((int)(100 * babystomp_dist) == 5) {
       lv_label_set_text(labelV, move_menu.step_005mm);
       lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else if ((int)(100 * babystep_dist) == 10) {
+    else if ((int)(100 * babystomp_dist) == 10) {
       lv_label_set_text(labelV, move_menu.step_01mm);
       lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }

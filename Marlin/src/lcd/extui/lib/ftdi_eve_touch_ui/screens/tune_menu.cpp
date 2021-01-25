@@ -73,8 +73,8 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(3).button( FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
        .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
        .tag(9).button( FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
-       .enabled(EITHER(HAS_BED_PROBE, BABYSTEPPING))
-       .tag(4).button( NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
+       .enabled(EITHER(HAS_BED_PROBE, BABYSTOMPING))
+       .tag(4).button( NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTOMPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
        .tag(5).button( SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
        .tag(isPrintingFromMediaPaused() ? 7 : 6)
        .enabled(TERN0(SDSUPPORT, isPrintingFromMedia()))
@@ -98,7 +98,7 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
     case 2:  GOTO_SCREEN(TemperatureScreen);     break;
     case 3:  GOTO_SCREEN(ChangeFilamentScreen);  break;
     case 4:
-      #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTOMPING)
         GOTO_SCREEN(NudgeNozzleScreen);
       #elif HAS_BED_PROBE
         GOTO_SCREEN(ZOffsetScreen);

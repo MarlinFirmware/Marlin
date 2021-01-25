@@ -434,9 +434,9 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("探针X偏移");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("探针Y偏移");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("探针Z偏移");     //"Z Offset"
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("微量调整X轴");     //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("微量调整Y轴");     //"Babystep Y"
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("微量调整Z轴");     //"Babystep Z"
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("微量调整X轴");     //"Babystomp X" lcd_babystomp_x, Babystomping enables the user to control the axis in tiny amounts
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("微量调整Y轴");     //"Babystomp Y"
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("微量调整Z轴");     //"Babystomp Z"
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("总计");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("挡块终止");     //"Endstop abort"
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("加热失败");     //"Heating failed"

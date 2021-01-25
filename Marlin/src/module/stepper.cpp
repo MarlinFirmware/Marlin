@@ -81,7 +81,7 @@
 
 Stepper stepper; // Singleton
 
-#define BABYSTEPPING_EXTRA_DIR_WAIT
+#define BABYSTOMPING_EXTRA_DIR_WAIT
 
 #ifdef __AVR__
   #include "speed_lookuptable.h"
@@ -98,8 +98,8 @@ Stepper stepper; // Singleton
 #include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
-  #include "../feature/babystep.h"
+#if ENABLED(INTEGRATED_BABYSTOMPING)
+  #include "../feature/babystomp.h"
 #endif
 
 #if MB(ALLIGATOR)
@@ -223,8 +223,8 @@ uint32_t Stepper::advance_divisor = 0,
 
 #endif // LIN_ADVANCE
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
-  uint32_t Stepper::nextBabystepISR = BABYSTEP_NEVER;
+#if ENABLED(INTEGRATED_BABYSTOMPING)
+  uint32_t Stepper::nextBabystompISR = BABYSTEP_NEVER;
 #endif
 
 #if ENABLED(DIRECT_STEPPING)
@@ -1384,21 +1384,21 @@ void Stepper::isr() {
       if (!nextAdvanceISR) nextAdvanceISR = advance_isr();          // 0 = Do Linear Advance E Stepper pulses
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      const bool is_babystep = (nextBabystepISR == 0);              // 0 = Do Babystepping (XY)Z pulses
-      if (is_babystep) nextBabystepISR = babystepping_isr();
+    #if ENABLED(INTEGRATED_BABYSTOMPING)
+      const bool is_babystomp = (nextBabystompISR == 0);              // 0 = Do Babystomping (XY)Z pulses
+      if (is_babystomp) nextBabystompISR = babystomping_isr();
     #endif
 
     // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
     if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
+    #if ENABLED(INTEGRATED_BABYSTOMPING)
+      if (is_babystomp)                                  // Avoid ANY stepping too soon after baby-stepping
         NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
 
-      if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
-        NOLESS(nextBabystepISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
+      if (nextBabystompISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
+        NOLESS(nextBabystompISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
     #endif
 
     // Get the interval to the next ISR call
@@ -1407,8 +1407,8 @@ void Stepper::isr() {
       #if ENABLED(LIN_ADVANCE)
         , nextAdvanceISR                                // Come back early for Linear Advance?
       #endif
-      #if ENABLED(INTEGRATED_BABYSTEPPING)
-        , nextBabystepISR                               // Come back early for Babystepping?
+      #if ENABLED(INTEGRATED_BABYSTOMPING)
+        , nextBabystompISR                               // Come back early for Babystomping?
       #endif
       , uint32_t(HAL_TIMER_TYPE_MAX)                    // Come back in a very long time
     );
@@ -1426,8 +1426,8 @@ void Stepper::isr() {
       if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
     #endif
 
-    #if ENABLED(INTEGRATED_BABYSTEPPING)
-      if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
+    #if ENABLED(INTEGRATED_BABYSTOMPING)
+      if (nextBabystompISR != BABYSTEP_NEVER) nextBabystompISR -= interval;
     #endif
 
     /**
@@ -2344,12 +2344,12 @@ uint32_t Stepper::block_phase_isr() {
 
 #endif // LIN_ADVANCE
 
-#if ENABLED(INTEGRATED_BABYSTEPPING)
+#if ENABLED(INTEGRATED_BABYSTOMPING)
 
   // Timer interrupt for baby-stepping
-  uint32_t Stepper::babystepping_isr() {
-    babystep.task();
-    return babystep.has_steps() ? BABYSTEP_TICKS : BABYSTEP_NEVER;
+  uint32_t Stepper::babystomping_isr() {
+    babystomp.task();
+    return babystomp.has_steps() ? BABYSTEP_TICKS : BABYSTEP_NEVER;
   }
 
 #endif
@@ -2746,7 +2746,7 @@ void Stepper::report_positions() {
   report_a_position(pos);
 }
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
 
   #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
@@ -2782,7 +2782,7 @@ void Stepper::report_positions() {
     #endif
   #endif
 
-  #if ENABLED(BABYSTEPPING_EXTRA_DIR_WAIT)
+  #if ENABLED(BABYSTOMPING_EXTRA_DIR_WAIT)
     #define EXTRA_DIR_WAIT_BEFORE DIR_WAIT_BEFORE
     #define EXTRA_DIR_WAIT_AFTER  DIR_WAIT_AFTER
   #else
@@ -2833,9 +2833,9 @@ void Stepper::report_positions() {
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
-  void Stepper::do_babystep(const AxisEnum axis, const bool direction) {
+  void Stepper::do_babystomp(const AxisEnum axis, const bool direction) {
 
-    #if DISABLED(INTEGRATED_BABYSTEPPING)
+    #if DISABLED(INTEGRATED_BABYSTOMPING)
       cli();
     #endif
 
@@ -2920,12 +2920,12 @@ void Stepper::report_positions() {
       default: break;
     }
 
-    #if DISABLED(INTEGRATED_BABYSTEPPING)
+    #if DISABLED(INTEGRATED_BABYSTOMPING)
       sei();
     #endif
   }
 
-#endif // BABYSTEPPING
+#endif // BABYSTOMPING
 
 /**
  * Software-controlled Stepper Motor Current

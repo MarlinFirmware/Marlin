@@ -173,7 +173,7 @@ void lv_draw_operation(void) {
   lv_obj_t *labelPreHeat = NULL, *labelExtrusion = NULL;
   lv_obj_t *label_Back = NULL, *label_Speed = NULL, *label_Fan = NULL;
   lv_obj_t *buttonMove = NULL, *label_Move = NULL;
-  lv_obj_t *buttonBabyStep = NULL, *label_BabyStep = NULL;
+  lv_obj_t *buttonBabyStomp = NULL, *label_BabyStomp = NULL;
   lv_obj_t *buttonFilament = NULL, *label_Filament = NULL;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != OPERATE_UI) {
@@ -206,7 +206,7 @@ void lv_draw_operation(void) {
   }
   else {
     buttonSpeed    = lv_imgbtn_create(scr, NULL);
-    buttonBabyStep = lv_imgbtn_create(scr, NULL);
+    buttonBabyStomp = lv_imgbtn_create(scr, NULL);
   }
   buttonBack       = lv_imgbtn_create(scr, NULL);
 
@@ -277,16 +277,16 @@ void lv_draw_operation(void) {
       lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_PR, &tft_style_label_pre);
       lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-      lv_obj_set_event_cb_mks(buttonBabyStep, event_handler, ID_O_BABY_STEP, NULL, 0);
-      lv_imgbtn_set_src(buttonBabyStep, LV_BTN_STATE_REL, "F:/bmp_mov.bin");
-      lv_imgbtn_set_src(buttonBabyStep, LV_BTN_STATE_PR, "F:/bmp_mov.bin");
-      lv_imgbtn_set_style(buttonBabyStep, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonBabyStep, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_obj_set_event_cb_mks(buttonBabyStomp, event_handler, ID_O_BABY_STEP, NULL, 0);
+      lv_imgbtn_set_src(buttonBabyStomp, LV_BTN_STATE_REL, "F:/bmp_mov.bin");
+      lv_imgbtn_set_src(buttonBabyStomp, LV_BTN_STATE_PR, "F:/bmp_mov.bin");
+      lv_imgbtn_set_style(buttonBabyStomp, LV_BTN_STATE_PR, &tft_style_label_pre);
+      lv_imgbtn_set_style(buttonBabyStomp, LV_BTN_STATE_REL, &tft_style_label_rel);
 
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) {
           lv_group_add_obj(g, buttonSpeed);
-          lv_group_add_obj(g, buttonBabyStep);
+          lv_group_add_obj(g, buttonBabyStomp);
         }
       #endif
     }
@@ -317,7 +317,7 @@ void lv_draw_operation(void) {
   }
   else {
     lv_obj_set_pos(buttonSpeed, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-    lv_obj_set_pos(buttonBabyStep, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+    lv_obj_set_pos(buttonBabyStomp, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   }
 
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
@@ -338,7 +338,7 @@ void lv_draw_operation(void) {
   }
   else {
     lv_btn_set_layout(buttonSpeed, LV_LAYOUT_OFF);
-    lv_btn_set_layout(buttonBabyStep, LV_LAYOUT_OFF);
+    lv_btn_set_layout(buttonBabyStomp, LV_LAYOUT_OFF);
   }
 
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
@@ -358,7 +358,7 @@ void lv_draw_operation(void) {
   }
   else {
     label_Speed = lv_label_create(buttonSpeed, NULL);
-    label_BabyStep = lv_label_create(buttonBabyStep, NULL);
+    label_BabyStomp = lv_label_create(buttonBabyStomp, NULL);
   }
   label_Back = lv_label_create(buttonBack, NULL);
 
@@ -394,8 +394,8 @@ void lv_draw_operation(void) {
       lv_label_set_text(label_Speed, operation_menu.speed);
       lv_obj_align(label_Speed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
-      lv_label_set_text(label_BabyStep, operation_menu.babystep);
-      lv_obj_align(label_BabyStep, buttonBabyStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      lv_label_set_text(label_BabyStomp, operation_menu.babystomp);
+      lv_obj_align(label_BabyStomp, buttonBabyStomp, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
 
     lv_label_set_text(label_Back, common_menu.text_back);

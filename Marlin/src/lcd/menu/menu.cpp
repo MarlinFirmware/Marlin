@@ -179,10 +179,10 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
 
-    #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
+    #if BOTH(DOUBLECLICK_FOR_Z_BABYSTOMPING, BABYSTOMPING)
       static millis_t doubleclick_expire_ms = 0;
       // Going to menu_main from status screen? Remember first click time.
-      // Going back to status screen within a very short time? Go to Z babystepping.
+      // Going back to status screen within a very short time? Go to Z babystomping.
       if (screen == menu_main) {
         if (on_status_screen())
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
@@ -190,7 +190,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
         if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known())
           && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
-          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystomp_zoffset, lcd_babystomp_z);
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
             ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
@@ -299,17 +299,17 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  #include "../../feature/babystep.h"
+  #include "../../feature/babystomp.h"
 
-  void lcd_babystep_zoffset() {
+  void lcd_babystomp_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
     const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
-      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
+      const int16_t babystomp_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
       ui.encoderPosition = 0;
 
-      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+      const float diff = planner.steps_to_mm[Z_AXIS] * babystomp_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
                     , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
@@ -317,7 +317,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
                   );
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
-        babystep.add_steps(Z_AXIS, babystep_increment);
+        babystomp.add_steps(Z_AXIS, babystomp_increment);
 
         if (do_probe)
           probe.offset.z = new_offs;

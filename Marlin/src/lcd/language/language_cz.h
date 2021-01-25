@@ -397,9 +397,9 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Zasunout Z-sondu");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Domů %s%s%s první");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z ofset");
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystomp X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystomp Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystomp Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Celkem");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop abort");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Chyba zahřívání");

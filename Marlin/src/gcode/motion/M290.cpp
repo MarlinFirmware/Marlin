@@ -22,10 +22,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
 
 #include "../gcode.h"
-#include "../../feature/babystep.h"
+#include "../../feature/babystomp.h"
 #include "../../module/probe.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -58,7 +58,7 @@
 #endif
 
 /**
- * M290: Babystepping
+ * M290: Babystomping
  *
  * Send 'R' or no parameters for a report.
  *
@@ -75,7 +75,7 @@ void GcodeSuite::M290() {
     LOOP_XYZ(a)
       if (parser.seenval(XYZ_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
-        babystep.add_mm((AxisEnum)a, offs);
+        babystomp.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
         #endif
@@ -83,7 +83,7 @@ void GcodeSuite::M290() {
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
-      babystep.add_mm(Z_AXIS, offs);
+      babystomp.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
       #endif
@@ -121,17 +121,17 @@ void GcodeSuite::M290() {
     {
       SERIAL_ECHOLNPAIR_P(
         #if ENABLED(BABYSTEP_XY)
-            PSTR("Babystep X"), babystep.axis_total[X_AXIS]
-          , SP_Y_STR, babystep.axis_total[Y_AXIS]
+            PSTR("Babystomp X"), babystomp.axis_total[X_AXIS]
+          , SP_Y_STR, babystomp.axis_total[Y_AXIS]
           , SP_Z_STR
         #else
-          PSTR("Babystep Z")
+          PSTR("Babystomp Z")
         #endif
-        , babystep.axis_total[BS_TOTAL_IND(Z_AXIS)]
+        , babystomp.axis_total[BS_TOTAL_IND(Z_AXIS)]
       );
     }
     #endif
   }
 }
 
-#endif // BABYSTEPPING
+#endif // BABYSTOMPING

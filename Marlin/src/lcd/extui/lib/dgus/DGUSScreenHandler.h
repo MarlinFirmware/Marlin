@@ -82,7 +82,7 @@ public:
     // Hook for "Change probe offset z"
     static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  #if ENABLED(BABYSTEPPING)
+  #if ENABLED(BABYSTOMPING)
     // Hook for live z adjust action
     static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
   #endif

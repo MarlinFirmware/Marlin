@@ -68,7 +68,7 @@
 #endif
 
 #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-  #include "../feature/babystep.h"
+  #include "../feature/babystomp.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1417,7 +1417,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
 
-  TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
+  TERN_(BABYSTEP_DISPLAY_TOTAL, babystomp.reset_total(axis));
 
   #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;

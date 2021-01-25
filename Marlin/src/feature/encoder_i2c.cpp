@@ -38,7 +38,7 @@
 #include "../module/stepper.h"
 #include "../gcode/parser.h"
 
-#include "../feature/babystep.h"
+#include "../feature/babystomp.h"
 
 #include <Wire.h>
 
@@ -173,7 +173,7 @@ void I2CPositionEncoder::update() {
             const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_ECHO(axis_codes[encoderAxis]);
             SERIAL_ECHOLNPAIR(" : CORRECT ERR ", errorP * planner.steps_to_mm[encoderAxis], "mm");
-            babystep.add_steps(encoderAxis, -LROUND(errorP));
+            babystomp.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
         }
@@ -184,7 +184,7 @@ void I2CPositionEncoder::update() {
       if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
-        babystep.add_steps(encoderAxis, -LROUND(error / 2));
+        babystomp.add_steps(encoderAxis, -LROUND(error / 2));
       }
     #endif
 

@@ -82,7 +82,7 @@ union screen_data_t {
       uint32_t start_ms;
     } PreheatTimerScreen;
   #endif
-  #if ENABLED(BABYSTEPPING)
+  #if ENABLED(BABYSTOMPING)
     struct {
       struct base_numeric_adjustment_t placeholder;
       xyz_int_t rel;

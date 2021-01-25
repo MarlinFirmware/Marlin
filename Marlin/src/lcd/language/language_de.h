@@ -439,9 +439,9 @@ namespace Language_de {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Sondenversatz X");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Sondenversatz Y");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Sondenversatz Z");
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystomp X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystomp Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystomp Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Abbr. mit Endstopp");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("HEIZEN ERFOLGLOS");

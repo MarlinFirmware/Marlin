@@ -436,9 +436,9 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Probe Z Offset");
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystomp X");
+  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystomp Y");
+  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystomp Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop Abort");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Heating Failed");

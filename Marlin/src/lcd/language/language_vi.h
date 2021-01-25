@@ -324,7 +324,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Cất Đầu Dò-Z");                         // Stow Z-Probe
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Về nhà %s%s%s Trước");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Đầu Dò Bù Đắp Z");                      // Probe Z Offset
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Nhít X");                               // Babystep X
+  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Nhít X");                               // Babystomp X
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Nhít Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Nhít Z");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Hủy bỏ công tắc");                      // Endstop abort

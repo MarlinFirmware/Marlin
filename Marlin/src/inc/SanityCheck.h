@@ -761,23 +761,23 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * I2C Position Encoders
  */
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #if !BOTH(BABYSTEPPING, BABYSTEP_XY)
-    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
+  #if !BOTH(BABYSTOMPING, BABYSTEP_XY)
+    #error "I2C_POSITION_ENCODERS requires BABYSTOMPING and BABYSTEP_XY."
   #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
     #error "I2CPE_ENCODER_CNT must be between 1 and 5."
   #endif
 #endif
 
 /**
- * Babystepping
+ * Babystomping
  */
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTOMPING)
   #if ENABLED(SCARA)
-    #error "BABYSTEPPING is not implemented for SCARA yet."
+    #error "BABYSTOMPING is not implemented for SCARA yet."
   #elif BOTH(MARKFORGED_XY, BABYSTEP_XY)
-    #error "BABYSTEPPING only implemented for Z axis on MarkForged."
+    #error "BABYSTOMPING only implemented for Z axis on MarkForged."
   #elif BOTH(DELTA, BABYSTEP_XY)
-    #error "BABYSTEPPING only implemented for Z axis on deltabots."
+    #error "BABYSTOMPING only implemented for Z axis on deltabots."
   #elif BOTH(BABYSTEP_ZPROBE_OFFSET, MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
@@ -791,7 +791,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
   #elif !defined(BABYSTEP_MULTIPLICATOR_Z)
-    #error "BABYSTEPPING requires BABYSTEP_MULTIPLICATOR_Z."
+    #error "BABYSTOMPING requires BABYSTEP_MULTIPLICATOR_Z."
   #elif ENABLED(BABYSTEP_XY) && !defined(BABYSTEP_MULTIPLICATOR_XY)
     #error "BABYSTEP_XY requires BABYSTEP_MULTIPLICATOR_XY."
   #elif ENABLED(BABYSTEP_MILLIMETER_UNITS)
@@ -1291,7 +1291,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #elif Z_MIN_PROBE_ENDSTOP_INVERTING
       #error "TOUCH_MI_PROBE requires Z_MIN_PROBE_ENDSTOP_INVERTING to be set to false."
     #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
-      #error "TOUCH_MI_PROBE requires BABYSTEPPING with BABYSTEP_ZPROBE_OFFSET."
+      #error "TOUCH_MI_PROBE requires BABYSTOMPING with BABYSTEP_ZPROBE_OFFSET."
     #elif !HAS_RESUME_CONTINUE
       #error "TOUCH_MI_PROBE currently requires an LCD controller or EMERGENCY_PARSER."
     #endif
