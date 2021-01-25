@@ -1379,7 +1379,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           case 1: // Probe X Offset
             if (draw) {
               Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe X Offset");
-              Draw_Float(probe.offset.x, row, false, 1);
+              Draw_Float(probe.offset.x, row, false, 10);
             } else {
               Modify_Value(probe.offset.x, -50, 50, 10);
             }
@@ -1387,7 +1387,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           case 2: // Probe Y Offset
             if (draw) {
               Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe Y Offset");
-              Draw_Float(probe.offset.y, row, false, 1);
+              Draw_Float(probe.offset.y, row, false, 10);
             } else {
               Modify_Value(probe.offset.y, -50, 50, 10);
             }
