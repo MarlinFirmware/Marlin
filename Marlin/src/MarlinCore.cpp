@@ -953,7 +953,7 @@ void setup() {
   #endif
 
   #if HAS_SUICIDE
-    SETUP_LOG("SUICIDE_PIN")
+    SETUP_LOG("SUICIDE_PIN");
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
