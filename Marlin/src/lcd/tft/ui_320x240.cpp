@@ -24,7 +24,7 @@
 
 #if HAS_UI_320x240
 
-#include "ui_320x240.h"
+#include "ui_common.h"
 
 #include "../marlinui.h"
 #include "../menu/menu.h"
