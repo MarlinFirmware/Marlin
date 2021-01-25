@@ -365,15 +365,13 @@ void startOrResumeJob() {
 
     queue.clear();
     quickstop_stepper();
+
     print_job_timer.abort();
-    #if DISABLED(SD_ABORT_NO_COOLDOWN)
-      thermalManager.disable_all_heaters();
-    #endif
-    #if !HAS_CUTTER
-      thermalManager.zero_fan_speeds();
-    #else
-      cutter.kill();              // Full cutter shutdown including ISR control
-    #endif
+
+    IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
+
+    TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
+
     wait_for_heatup = false;
 
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
@@ -957,7 +955,7 @@ void setup() {
   #endif
 
   #if HAS_SUICIDE
-    SETUP_LOG("SUICIDE_PIN")
+    SETUP_LOG("SUICIDE_PIN");
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
