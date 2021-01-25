@@ -103,8 +103,8 @@ void MarlinUI::clear_lcd() {
       #define SITE_URL_Y (TFT_HEIGHT - 70)
       tft.set_background(COLOR_BACKGROUND);
     #else
-      #define BOOT_LOGO_W 480   // MarlinLogo480x320x16
-      #define BOOT_LOGO_H 320
+      #define BOOT_LOGO_W TFT_WIDTH   // MarlinLogo480x320x16
+      #define BOOT_LOGO_H TFT_HEIGHT
       #define SITE_URL_Y (TFT_HEIGHT - 90)
     #endif
     tft.add_image((TFT_WIDTH - BOOT_LOGO_W) / 2, (TFT_HEIGHT - BOOT_LOGO_H) / 2, imgBootScreen);
@@ -573,18 +573,18 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.trim();
     tft.add_text(120 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-
-    tft.canvas(GRID_OFFSET_X + (GRID_WIDTH - 48) / 2, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET - 5, 48, MENU_ITEM_HEIGHT);
+    constexpr uint8_t w = (TFT_WIDTH) / 10;
+    tft.canvas(GRID_OFFSET_X + (GRID_WIDTH - w) / 2, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET - 5, w, MENU_ITEM_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(ui8tostr3rj(x_plot));
     tft_string.trim();
-    tft.add_text(tft_string.center(48), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+    tft.add_text(tft_string.center(w), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
-    tft.canvas(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET + 16 - 24, GRID_OFFSET_Y + (GRID_HEIGHT - MENU_ITEM_HEIGHT) / 2, 48, MENU_ITEM_HEIGHT);
+    tft.canvas(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET + 16 - 24, GRID_OFFSET_Y + (GRID_HEIGHT - MENU_ITEM_HEIGHT) / 2, w, MENU_ITEM_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(ui8tostr3rj(y_plot));
     tft_string.trim();
-    tft.add_text(tft_string.center(48), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
+    tft.add_text(tft_string.center(w), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 
     #if ENABLED(TOUCH_SCREEN)
       touch.clear();
@@ -653,7 +653,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 
 void menu_line(const uint8_t row, uint16_t color) {
   cursor.set(0, row);
-  tft.canvas(0, 4 + cursor.y * (MENU_ITEM_HEIGHT + 2), TFT_WIDTH, MENU_ITEM_HEIGHT);
+  tft.canvas(0, 4 + cursor.y * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT);
   tft.set_background(color);
 }
 
@@ -670,7 +670,7 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   #if ENABLED(TOUCH_SCREEN)
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, 4 + row * (MENU_ITEM_HEIGHT + 2), TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
+    touch.add_control(tct, 0, 4 + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
   #endif
 }
 
@@ -678,13 +678,13 @@ void menu_item(const uint8_t row, bool sel ) {
 
 void lcd_gotopixel(const uint16_t x, const uint16_t y) {
   if (x >= TFT_WIDTH) return;
-  cursor.set(x / (TFT_COL_WIDTH), y / (MENU_ITEM_HEIGHT + 2));
+  cursor.set(x / (TFT_COL_WIDTH), y / MENU_LINE_HEIGHT);
   tft.canvas(x, 4 + y, (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
 }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  lcd_gotopixel(col * (TFT_COL_WIDTH), row * (MENU_ITEM_HEIGHT + 2));
+  lcd_gotopixel(col * (TFT_COL_WIDTH), row * MENU_LINE_HEIGHT);
 }
 
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
@@ -692,7 +692,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   tft_string.set();
   tft_string.add(c);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * (MENU_ITEM_HEIGHT + 2));
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * MENU_LINE_HEIGHT);
   return tft_string.width();
 }
 
@@ -707,7 +707,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   int span = lcd_put_u8str_max_P(utf8_str, max_length);
-  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + span, cursor.y * (MENU_ITEM_HEIGHT + 2));
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + span, cursor.y * MENU_LINE_HEIGHT);
   return span;
 }
 
