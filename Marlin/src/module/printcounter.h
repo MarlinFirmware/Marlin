@@ -77,13 +77,15 @@ class PrintCounter: public Stopwatch {
      */
     static constexpr uint16_t updateInterval = 10;
 
-    /**
-     * @brief Interval in seconds between EEPROM saves
-     * @details This const value defines what will be the time between each
-     * EEPROM save cycle, the development team recommends to set this value
-     * no lower than 3600 secs (1 hour).
-     */
-    static constexpr uint16_t saveInterval = 3600;
+    #if PRINTCOUNTER_SAVE_INTERVAL > 0
+      /**
+       * @brief Interval in seconds between EEPROM saves
+       * @details This const value defines what will be the time between each
+       * EEPROM save cycle, the development team recommends to set this value
+       * no lower than 3600 secs (1 hour).
+       */
+      static constexpr uint16_t saveInterval = PRINTCOUNTER_SAVE_INTERVAL;
+    #endif
 
     /**
      * @brief Timestamp of the last call to deltaDuration()

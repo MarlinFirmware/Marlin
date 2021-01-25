@@ -378,9 +378,8 @@ void startOrResumeJob() {
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
 
-    planner.synchronize();        // Wait for EVENT_GCODE_SD_ABORT to finish, so it doesn't get interrupted by PRINTCOUNTER
-
-    print_job_timer.abort();
+    planner.synchronize();
+    print_job_timer.abort(); // Wait for planner before calling!
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
@@ -786,7 +785,9 @@ void minkill(const bool steppers_off/*=false*/) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
-  print_job_timer.stop();
+
+  planner.synchronize();
+  print_job_timer.stop(); // Wait for planner before calling
 
   #if ENABLED(PROBING_FANS_OFF)
     if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
