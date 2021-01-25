@@ -59,7 +59,6 @@ extern DefaultSerial MSerial;
 typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
-
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 #define MSerial0 MSerial
