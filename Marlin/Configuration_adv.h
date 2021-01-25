@@ -1141,6 +1141,8 @@
 
 #endif // HAS_LCD_MENU
 
+#define LCD_SET_PROGRESS_MANUALLY // For Ender 3 V2 Octoprint Support
+
 #if HAS_DISPLAY
   // The timeout (in ms) to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000
