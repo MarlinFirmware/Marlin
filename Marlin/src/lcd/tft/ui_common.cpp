@@ -28,6 +28,10 @@
 
 static xy_uint_t cursor;
 
+#if ENABLED(TOUCH_SCREEN)
+  bool draw_menu_navigation = false;
+#endif
+
 void menu_line(const uint8_t row, uint16_t color) {
   cursor.set(0, row);
   tft.canvas(0, TFT_TOP_LINE_Y + cursor.y * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT);

@@ -32,6 +32,7 @@
 
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
+  extern bool draw_menu_navigation;
 #endif
 
 #if HAS_UI_320x240

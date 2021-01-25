@@ -45,10 +45,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(TOUCH_SCREEN)
-  static bool draw_menu_navigation = false;
-#endif
-
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (draw_menu_navigation) {
