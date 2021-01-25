@@ -73,7 +73,7 @@
           TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU));
           #if ENABLED(TFT_COLOR_UI)
             lcd_moveto(4, 3);
-            lcd_put_u8str(GET_TEXT(MSG_BABYSTEP_TOTAL));
+            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
             lcd_put_wchar(':');
             lcd_moveto(10, 3);
           #else
