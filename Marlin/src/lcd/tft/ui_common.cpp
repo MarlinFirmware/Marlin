@@ -29,6 +29,8 @@
 #include "../../libs/numtostr.h"
 #include "../menu/menu.h"
 
+void menu_pause_option();
+
 static xy_uint_t cursor;
 
 #if ENABLED(TOUCH_SCREEN)
@@ -55,8 +57,6 @@ void menu_item(const uint8_t row, bool sel ) {
     touch.add_control(tct, 0, TFT_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
   #endif
 }
-
-void menu_pause_option();
 
 //
 // lcdprint.h functions
