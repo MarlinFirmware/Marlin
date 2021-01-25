@@ -335,22 +335,25 @@ void MMU2::mmu_loop() {
       #endif
 
       if (rx_ok()) {
-        // Response to C0 mmu command in MMU2S model
         #if HAS_PRUSA_MMU2S
-          if (!mmu2s_triggered && last_cmd == MMU_CMD_C0) {
+          // Respond to C0 MMU command in MMU2S model
+          const bool keep_trying = !mmu2s_triggered && last_cmd == MMU_CMD_C0;
+          if (keep_trying) {
             // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (filament not present in gears)");
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
             MMU2_COMMAND("C0");
           }
-          else
+        #else
+          constexpr bool keep_trying = false;
         #endif
-          {
+
+        if (!keep_trying) {
           DEBUG_ECHOLNPGM("MMU => 'ok'");
           ready = true;
           state = 1;
           last_cmd = MMU_CMD_NONE;
-          }
+        }
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
