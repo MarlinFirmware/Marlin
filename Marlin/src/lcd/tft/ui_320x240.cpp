@@ -49,8 +49,6 @@
   static bool draw_menu_navigation = false;
 #endif
 
-static xy_uint_t cursor;
-
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (draw_menu_navigation) {
