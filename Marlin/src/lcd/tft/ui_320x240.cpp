@@ -668,15 +668,17 @@ void menu_item(const uint8_t row, bool sel ) {
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
   #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
+  const uint16_t x = (TFT_COL_WIDTH) * col;
+  if (x >= TFT_WIDTH) return;
   cursor.set(col, row);
-  tft.canvas(col * (TFT_COL_WIDTH), 2 + row * (MENU_ITEM_HEIGHT), TFT_WIDTH - col * (TFT_COL_WIDTH), 32);
+  tft.canvas(x, 2 + row * (MENU_ITEM_HEIGHT), (TFT_WIDTH) - x, 32);
   tft.set_background(COLOR_BACKGROUND);
 }
 
-void lcd_gotopixel(uint16_t x, const lcd_uint_t y) {
-  if (x > TFT_WIDTH) x = TFT_WIDTH;
+void lcd_gotopixel(const uint16_t x, const lcd_uint_t y) {
+  if (x >= TFT_WIDTH) return;
   cursor.set(x / (TFT_COL_WIDTH), y / (MENU_ITEM_HEIGHT));
-  tft.canvas(x, 2 + y, TFT_WIDTH - x, 32);
+  tft.canvas(x, 2 + y, (TFT_WIDTH) - x, 32);
   tft.set_background(COLOR_BACKGROUND);
 }
 
