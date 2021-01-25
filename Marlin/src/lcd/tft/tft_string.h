@@ -69,7 +69,7 @@ class TFT_String {
 
     static uint8_t data[MAX_STRING_LENGTH + 1];
     static uint16_t span;   // in pixels
-    static uint16_t length; // in characters
+    static uint8_t length;  // in characters
 
     static void add_character(uint8_t character);
     static void eol() { data[length] = 0x00; }
@@ -85,7 +85,7 @@ class TFT_String {
 
     static void set();
     static void add(uint8_t character) { add_character(character); eol(); }
-    static void add(uint8_t *string);
+    static void add(uint8_t *string, uint8_t max_len=MAX_STRING_LENGTH);
     static void add(uint8_t *string, int8_t index, uint8_t *itemString=nullptr);
     static void set(uint8_t *string) { set(); add(string); };
     static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); };
@@ -96,6 +96,9 @@ class TFT_String {
     static void trim(uint8_t character=0x20);
     static void rtrim(uint8_t character=0x20);
     static void ltrim(uint8_t character=0x20);
+
+    static void truncate(uint8_t maxlen) { if (length > maxlen) { length = maxlen; eol(); } }
+
     static uint16_t width() { return span; }
     static uint8_t *string() { return data; }
     static uint16_t center(uint16_t width) { return span > width ? 0 : (width - span) / 2; }

@@ -236,8 +236,17 @@ void report_current_position_projected() {
 }
 
 /**
- * sync_plan_position
- *
+ * Run out the planner buffer and re-sync the current
+ * position from the last-updated stepper positions.
+ */
+void quickstop_stepper() {
+  planner.quick_stop();
+  planner.synchronize();
+  set_current_from_steppers_for_axis(ALL_AXES);
+  sync_plan_position();
+}
+
+/**
  * Set the planner/stepper positions directly from current_position with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */

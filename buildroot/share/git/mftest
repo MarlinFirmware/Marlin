@@ -138,6 +138,15 @@ if ((AUTO_BUILD)); then
   #
   # List environments that apply to the current MOTHERBOARD.
   #
+  case $(uname | tr '[:upper:]' '[:lower:]') in
+    darwin) SYS='mac' ;;
+    *linux) SYS='lin' ;;
+      win*) SYS='win' ;;
+     msys*) SYS='win' ;;
+   cygwin*) SYS='win' ;;
+    mingw*) SYS='win' ;;
+         *) SYS='uni' ;;
+  esac
   echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
   MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
@@ -145,7 +154,7 @@ if ((AUTO_BUILD)); then
   BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
   BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
   [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
-  ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:[^ ]+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' ) )
+  ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | $SED -E "s/(env|$SYS)://" ) )
   [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
   ECOUNT=${#ENVS[*]}
 

@@ -49,14 +49,6 @@
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  uint16_t singlenozzle_temp[EXTRUDERS];
-#endif
-
-#if BOTH(HAS_FAN, SINGLENOZZLE_STANDBY_FAN)
-  uint8_t singlenozzle_fan_speed[EXTRUDERS];
-#endif
-
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
   #include "../gcode/gcode.h"
 #endif
@@ -918,7 +910,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       DEBUG_ECHOLNPGM("No move (not homed)");
     }
 
-    TERN_(HAS_LCD_MENU, if (!no_move) ui.return_to_status());
+    TERN_(HAS_LCD_MENU, if (!no_move) ui.update());
 
     #if ENABLED(DUAL_X_CARRIAGE)
       const bool idex_full_control = dual_x_carriage_mode == DXC_FULL_CONTROL_MODE;
@@ -1081,20 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if BOTH(HAS_FAN, SINGLENOZZLE_STANDBY_FAN)
-          singlenozzle_fan_speed[old_tool] = thermalManager.fan_speed[0];
-          thermalManager.fan_speed[0] = singlenozzle_fan_speed[new_tool];
-        #endif
-
-        #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-          singlenozzle_temp[old_tool] = thermalManager.temp_hotend[0].target;
-          if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
-            thermalManager.setTargetHotend(singlenozzle_temp[new_tool], 0);
-            TERN_(AUTOTEMP, planner.autotemp_update());
-            TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
-            (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
-          }
-        #endif
+        TERN_(SINGLENOZZLE_STANDBY_TEMP, thermalManager.singlenozzle_change(old_tool, new_tool));
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
