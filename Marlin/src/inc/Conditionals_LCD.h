@@ -1175,16 +1175,17 @@
       #define TFT_480x272
     #endif
   #endif
-  #if EITHER(TFT_320x240, TFT_320x240_SPI)
-    #define HAS_UI_320x240 1
-  #elif EITHER(TFT_480x320, TFT_480x320_SPI)
-    #define HAS_UI_480x320 1
-  #elif EITHER(TFT_480x272, TFT_480x272_SPI)
-    #define HAS_UI_480x272 1
-  #endif
-  #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
-    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
-  #endif
+#endif
+
+#if EITHER(TFT_320x240, TFT_320x240_SPI)
+  #define HAS_UI_320x240 1
+#elif EITHER(TFT_480x320, TFT_480x320_SPI)
+  #define HAS_UI_480x320 1
+#elif EITHER(TFT_480x272, TFT_480x272_SPI)
+  #define HAS_UI_480x272 1
+#endif
+#if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
