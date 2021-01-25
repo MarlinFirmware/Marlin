@@ -674,20 +674,17 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 }
 
-void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
-  const uint16_t x = (TFT_COL_WIDTH) * col;
-  if (x >= TFT_WIDTH) return;
-  cursor.set(col, row);
-  tft.canvas(x, 4 + row * (MENU_ITEM_HEIGHT + 2), (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-}
+#define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
 
 void lcd_gotopixel(const uint16_t x, const uint16_t y) {
   if (x >= TFT_WIDTH) return;
   cursor.set(x / (TFT_COL_WIDTH), y / (MENU_ITEM_HEIGHT + 2));
   tft.canvas(x, 4 + y, (TFT_WIDTH) - x, MENU_ITEM_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
+}
+
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
+  lcd_gotopixel(col * (TFT_COL_WIDTH), row * (MENU_ITEM_HEIGHT + 2));
 }
 
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {

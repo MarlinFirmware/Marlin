@@ -666,14 +666,7 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 }
 
-void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  #define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
-  const uint16_t x = (TFT_COL_WIDTH) * col;
-  if (x >= TFT_WIDTH) return;
-  cursor.set(col, row);
-  tft.canvas(x, 2 + row * (MENU_ITEM_HEIGHT), (TFT_WIDTH) - x, 32);
-  tft.set_background(COLOR_BACKGROUND);
-}
+#define TFT_COL_WIDTH ((TFT_WIDTH) / (LCD_WIDTH))
 
 void lcd_gotopixel(const uint16_t x, const lcd_uint_t y) {
   if (x >= TFT_WIDTH) return;
@@ -682,12 +675,16 @@ void lcd_gotopixel(const uint16_t x, const lcd_uint_t y) {
   tft.set_background(COLOR_BACKGROUND);
 }
 
+void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
+  lcd_gotopixel(col * (TFT_COL_WIDTH), row * (MENU_ITEM_HEIGHT));
+}
+
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   if (max_length < 1) return 0;
   tft_string.set();
   tft_string.add(c);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-  lcd_gotopixel((cursor.x + 1) * TFT_COL_WIDTH + tft_string.width(), cursor.y * (MENU_ITEM_HEIGHT));
+  lcd_gotopixel((cursor.x + 1) * (TFT_COL_WIDTH) + tft_string.width(), cursor.y * (MENU_ITEM_HEIGHT));
   return tft_string.width();
 }
 
