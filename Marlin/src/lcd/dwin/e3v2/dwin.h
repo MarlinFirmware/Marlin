@@ -23,82 +23,50 @@
 
 /**
  * DWIN by Creality3D
+ * Rewrite by Jacob Myers
  */
 
 #include "../dwin_lcd.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
-
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
-    #error "Creality DWIN requires two material preheat presets."
-  #endif
-#endif
-
 enum processID : uint8_t {
-  // Process ID
-  MainMenu,
-  SelectFile,
-  Prepare,
-  Control,
-  Leveling,
-  PrintProcess,
-  AxisMove,
-  TemperatureID,
-  Motion,
-  Info,
-  Tune,
-  #if HAS_PREHEAT
-    PLAPreheat,
-    ABSPreheat,
-  #endif
-  MaxSpeed,
-  MaxSpeed_value,
-  MaxAcceleration,
-  MaxAcceleration_value,
-  MaxJerk,
-  MaxJerk_value,
-  Step,
-  Step_value,
-
-  // Last Process ID
-  Last_Prepare,
-
-  // Back Process ID
-  Back_Main,
-  Back_Print,
-
-  // Date variable ID
-  Move_X,
-  Move_Y,
-  Move_Z,
-  #if HAS_HOTEND
-    Extruder,
-    ETemp,
-  #endif
-  Homeoffset,
-  #if HAS_HEATED_BED
-    BedTemp,
-  #endif
-  #if HAS_FAN
-    FanSpeed,
-  #endif
-  PrintSpeed,
-
-  // Window ID
-  Print_window,
-  Popup_Window
+  Main, Print, Menu, Value, File, Popup, Confirm, Wait
 };
 
-// Picture ID
+enum popupID : uint8_t {
+  Pause, Stop, Resume, ETemp, Level, Complete
+};
+
+enum menuID : uint8_t {
+  MainMenu,
+    Prepare,
+      Move,
+      ManualLevel,
+      ZOffset,
+      Preheat,
+    Control,
+      TempMenu,
+        Warmup,
+        SetPLA,
+        SetABS,
+        SetPETG,
+      Motion,
+        MaxSpeed,
+        MaxAcceleration,
+        MaxJerk,
+        Steps,
+      Advanced,
+      Info,
+  Tune
+};
+
+
 #define Start_Process       0
 #define Language_English    1
 #define Language_Chinese    2
 
-// ICON ID
 #define ICON                      0x09
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
@@ -197,11 +165,6 @@ enum processID : uint8_t {
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
-/**
- * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
- * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28
- * 0x05=16*32  0x06=20*40  0x07=24*48  0x08=28*56  0x09=32*64
- */
 #define font6x12  0x00
 #define font8x16  0x01
 #define font10x20 0x02
@@ -213,7 +176,6 @@ enum processID : uint8_t {
 #define font28x56 0x08
 #define font32x64 0x09
 
-// Color
 #define Color_White       0xFFFF
 #define Color_Yellow      0xFF0F
 #define Color_Bg_Window   0x31E8  // Popup background color
@@ -227,149 +189,75 @@ enum processID : uint8_t {
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
 
-extern uint8_t checkkey;
-extern float zprobe_zoffset;
-extern char print_filename[16];
-
 extern millis_t dwin_heat_time;
 
-typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
-  TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
-  int16_t print_speed     = 100;
-  float Max_Feedspeed     = 0;
-  float Max_Acceleration  = 0;
-  float Max_Jerk          = 0;
-  float Max_Step          = 0;
-  float Move_X_scale      = 0;
-  float Move_Y_scale      = 0;
-  float Move_Z_scale      = 0;
-  #if HAS_HOTEND
-    float Move_E_scale    = 0;
-  #endif
-  float offset_value      = 0;
-  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
-} HMI_value_t;
+inline void Clear_Screen(uint8_t e=3);
+inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
+inline void Draw_Title(char* title);
+inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label=(char*)"", bool more=false);
+inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
 
-#define DWIN_CHINESE 123
-#define DWIN_ENGLISH 0
 
-typedef struct {
-  uint8_t language;
-  bool pause_flag:1;
-  bool pause_action:1;
-  bool print_finish:1;
-  bool done_confirm_flag:1;
-  bool select_flag:1;
-  bool home_flag:1;
-  bool heat_flag:1;  // 0: heating done  1: during heating
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    bool ETempTooLow_flag:1;
-  #endif
-  #if HAS_LEVELING
-    bool leveling_offset_flag:1;
-  #endif
-  #if HAS_FAN
-    AxisEnum feedspeed_axis;
-  #endif
-  AxisEnum acc_axis, jerk_axis, step_axis;
-} HMI_Flag_t;
+void Main_Menu_Icons();
+void Draw_Main_Menu(uint8_t select=0);
+void Print_Screen_Icons();
+void Draw_Print_Screen();
+void Draw_Print_ProgressBar();
+void Draw_Print_ProgressRemain();
+void Draw_Print_ProgressElapsed();
+void Draw_Print_confirm();
+void Draw_SD_Item(uint8_t item, uint8_t row);
+void Draw_SD_List(bool removed=false);
+void Draw_Status_Area(const bool with_update);
+void Update_Status_Area();
 
-extern HMI_value_t HMI_ValueStruct;
-extern HMI_Flag_t HMI_flag;
 
-// Show ICO
-void ICON_Print(bool show);
-void ICON_Prepare(bool show);
-void ICON_Control(bool show);
-void ICON_Leveling(bool show);
-void ICON_StartInfo(bool show);
+char* Get_Menu_Title(uint8_t menu);
+int Get_Menu_Size(uint8_t menu);
+void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
-void ICON_Setting(bool show);
-void ICON_Pause(bool show);
-void ICON_Continue(bool show);
-void ICON_Stop(bool show);
 
-#if HAS_HOTEND || HAS_HEATED_BED
-  // Popup message window
-  void DWIN_Popup_Temperature(const bool toohigh);
-#endif
-
-#if HAS_HOTEND
-  void Popup_Window_ETempTooLow();
-#endif
-
+void Popup_Select();
+void DWIN_Popup_Temperature(const bool toohigh);
+void Popup_Window_ETempTooLow();
 void Popup_Window_Resume();
 void Popup_Window_Home(const bool parking=false);
 void Popup_Window_Leveling();
+void Popup_Window_Move();
+void Popup_window_Pause();
+void Popup_window_Stop();
+void Popup_window_SaveLevel();
 
-void Goto_PrintProcess();
-void Goto_MainMenu();
 
-// Variable control
-void HMI_Move_X();
-void HMI_Move_Y();
-void HMI_Move_Z();
-void HMI_Move_E();
+inline void Main_Menu_Control();
+inline void Menu_Control();
+inline void Value_Control();
+inline void File_Control();
+inline void Print_Screen_Control();
+inline void Popup_Control();
+inline void Confirm_Control();
 
-void HMI_Zoffset();
 
-TERN_(HAS_HOTEND,     void HMI_ETemp());
-TERN_(HAS_HEATED_BED, void HMI_BedTemp());
-TERN_(HAS_FAN,        void HMI_FanSpeed());
+void Setup_Value(float value, float min, float max, float unit, uint8_t type);
+void Modify_Value(float &value, float min, float max, float unit);
+void Modify_Value(uint8_t &value, float min, float max, float unit);
+void Modify_Value(uint16_t &value, float min, float max, float unit);
+void Modify_Value(int16_t &value, float min, float max, float unit);
+void Modify_Value(uint32_t &value, float min, float max, float unit);
 
-void HMI_PrintSpeed();
 
-void HMI_MaxFeedspeedXYZE();
-void HMI_MaxAccelerationXYZE();
-void HMI_MaxJerkXYZE();
-void HMI_StepXYZE();
+void Host_Print_Start();
+void Host_Print_Stop();
+void Host_Print_Update(uint8_t percent, uint32_t remaining);
 
-void update_variable();
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
-// SD Card
-void HMI_SDCardInit();
-void HMI_SDCardUpdate();
-
-// Main Process
-void Icon_print(bool value);
-void Icon_control(bool value);
-void Icon_temperature(bool value);
-void Icon_leveling(bool value);
-
-// Other
-void Draw_Status_Area(const bool with_update); // Status Area
-void HMI_StartFrame(const bool with_update);   // Prepare the menu view
-void HMI_MainMenu();    // Main process screen
-void HMI_SelectFile();  // File page
-void HMI_Printing();    // Print page
-void HMI_Prepare();     // Prepare page
-void HMI_Control();     // Control page
-void HMI_Leveling();    // Level the page
-void HMI_AxisMove();    // Axis movement menu
-void HMI_Temperature(); // Temperature menu
-void HMI_Motion();      // Sports menu
-void HMI_Info();        // Information menu
-void HMI_Tune();        // Adjust the menu
-
-#if HAS_PREHEAT
-  void HMI_PLAPreheatSetting(); // PLA warm-up setting
-  void HMI_ABSPreheatSetting(); // ABS warm-up setting
-#endif
-
-void HMI_MaxSpeed();        // Maximum speed submenu
-void HMI_MaxAcceleration(); // Maximum acceleration submenu
-void HMI_MaxJerk();         // Maximum jerk speed submenu
-void HMI_Step();            // Transmission ratio
-
-void HMI_Init();
+void SD_Stop();
 void DWIN_Update();
-void EachMomentUpdate();
-void DWIN_HandleScreen();
-
-inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
-
+void Variable_Update();
+void Screen_Update();
+void HMI_Init();
+void HMI_StartFrame(const bool with_update);
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
+void AudioFeedback(const bool success=true);
+inline void HMI_SDCardInit();

@@ -28,6 +28,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
 Stopwatch::State Stopwatch::state;
 millis_t Stopwatch::accumulator;
 millis_t Stopwatch::startTimestamp;
@@ -38,6 +42,7 @@ bool Stopwatch::stop() {
 
   if (isRunning() || isPaused()) {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
+    TERN_(DWIN_CREALITY_LCD, Host_Print_Stop());
     state = STOPPED;
     stopTimestamp = millis();
     return true;

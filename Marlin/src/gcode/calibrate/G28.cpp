@@ -232,7 +232,6 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(DWIN_CREALITY_LCD, DWIN_StartHoming());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
