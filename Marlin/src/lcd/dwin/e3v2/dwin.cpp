@@ -352,20 +352,27 @@ void Draw_Print_confirm() {
 }
 
 void Draw_SD_Item(uint8_t item, uint8_t row) {
-  card.getfilename_sorted(SD_ORDER(item-1, card.get_num_Files()));
-  char * const filename = card.longest_filename();
-  size_t max = MENU_CHAR_LIMIT;
-  size_t pos = strlen(filename), len = pos;
-  if (!card.flag.filenameIsDir)
-    while (pos && filename[pos] != '.') pos--;
-  len = pos;
-  if (len > max) len = max;
-  char name[len+1];
-  LOOP_L_N(i, len) name[i] = filename[i];
-  if (pos > max)
-    LOOP_S_L_N(i, len-3, len) name[i] = '.';
-  name[len] = '\0';
-  Draw_Menu_Item(row, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
+  if (item == 0) {
+    if (card.flag.workDirIsRoot)
+      Draw_Menu_Item(0, ICON_Back, (char*)"Back");
+    else
+      Draw_Menu_Item(0, ICON_Back, (char*)"..");
+  } else {
+    card.getfilename_sorted(SD_ORDER(item-1, card.get_num_Files()));
+    char * const filename = card.longest_filename();
+    size_t max = MENU_CHAR_LIMIT;
+    size_t pos = strlen(filename), len = pos;
+    if (!card.flag.filenameIsDir)
+      while (pos && filename[pos] != '.') pos--;
+    len = pos;
+    if (len > max) len = max;
+    char name[len+1];
+    LOOP_L_N(i, len) name[i] = filename[i];
+    if (pos > max)
+      LOOP_S_L_N(i, len-3, len) name[i] = '.';
+    name[len] = '\0';
+    Draw_Menu_Item(row, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
+  }
 }
 
 void Draw_SD_List(bool removed/*=false*/) {
@@ -373,13 +380,9 @@ void Draw_SD_List(bool removed/*=false*/) {
   Draw_Title((char*)"Select File");
   selection = 0;
   process = File;
-  if (card.flag.workDirIsRoot)
-    Draw_Menu_Item(0, ICON_Back, (char*)"Back");
-  else
-    Draw_Menu_Item(0, ICON_Back, (char*)"..");
   if (card.isMounted() && !removed) {
-    LOOP_L_N(i, _MIN(card.get_num_Files(), MROWS))
-      Draw_SD_Item(i+1, i+1);
+    LOOP_L_N(i, _MIN(card.get_num_Files()+1, TROWS))
+      Draw_SD_Item(i, i);
   }
   else {
     DWIN_Draw_Rectangle(1, Color_Bg_Red, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
@@ -1734,8 +1737,8 @@ inline void File_Control() {
           LOOP_S_L_N(i, MENU_CHAR_LIMIT+pos, MENU_CHAR_LIMIT) name[i] = filename[i-(MENU_CHAR_LIMIT+pos)];
         }
         name[len] = '\0';
-        DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection) - 14, 271, MBASE(selection) + 28);
-        Draw_Menu_Item(selection, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
+        DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection-scrollpos) - 14, 271, MBASE(selection-scrollpos) + 28);
+        Draw_Menu_Item(selection-scrollpos, card.flag.filenameIsDir ? ICON_More : ICON_File, name);
         if (-pos >= MENU_CHAR_LIMIT)
           filescrl = 0;
         filescrl++;
