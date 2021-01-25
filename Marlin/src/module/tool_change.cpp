@@ -828,7 +828,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       // Cool down with fan
       #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
         thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-        gcode.dwell(toolchange_settings.fan_time * 1000);
+        gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
         thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
       #endif
 
@@ -1102,7 +1102,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             // Cool down with fan
             #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-              gcode.dwell(toolchange_settings.fan_time * 1000);
+              gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
             #endif
           }

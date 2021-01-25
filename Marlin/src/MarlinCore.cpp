@@ -362,24 +362,23 @@ void startOrResumeJob() {
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.endFilePrint(TERN_(SD_RESORT, true));
+
     queue.clear();
     quickstop_stepper();
-    #if DISABLED(SD_ABORT_NO_COOLDOWN)
-      thermalManager.disable_all_heaters();
-    #endif
-    #if !HAS_CUTTER
-      thermalManager.zero_fan_speeds();
-    #else
-      cutter.kill();              // Full cutter shutdown including ISR control
-    #endif
+
+    print_job_timer.abort();
+
+    IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
+
+    TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
+
     wait_for_heatup = false;
+
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
-
-    planner.synchronize();
-    print_job_timer.abort(); // Wait for planner before calling!
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
@@ -786,8 +785,7 @@ void minkill(const bool steppers_off/*=false*/) {
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
 
-  planner.synchronize();
-  print_job_timer.stop(); // Wait for planner before calling!
+  print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
     if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
@@ -957,7 +955,7 @@ void setup() {
   #endif
 
   #if HAS_SUICIDE
-    SETUP_LOG("SUICIDE_PIN")
+    SETUP_LOG("SUICIDE_PIN");
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 

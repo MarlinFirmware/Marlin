@@ -802,8 +802,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
-  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL) && ANY(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)
-    #error "New Color UI (TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI) does not support BABYSTEP_DISPLAY_TOTAL yet."
   #endif
 #endif
 
