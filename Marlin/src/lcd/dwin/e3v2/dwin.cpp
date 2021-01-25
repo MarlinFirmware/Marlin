@@ -565,7 +565,11 @@ int Get_Menu_Size(uint8_t menu) {
     case Steps:
       return 4;
     case Advanced:
-      return (HAS_BED_PROBE)?2:0;
+      #if HAS_BED_PROBE
+        return 2;
+      #else
+        return 0;
+      #endif
     case Info:
       return 0;
     case Tune:
@@ -1999,11 +2003,11 @@ void Variable_Update() {
   static float lastzoffset = zoffsetvalue;
   if (zoffsetvalue != lastzoffset) {
     lastzoffset = zoffsetvalue;
-    if (HAS_BED_PROBE) {
+    #if HAS_BED_PROBE
       probe.offset.z = zoffsetvalue;
-    } else {
+    #else
       home_offset.z = zoffsetvalue;
-    }
+    #endif
   }
 }
 
@@ -2064,8 +2068,12 @@ void HMI_Init() {
   }
 
   DWIN_JPG_CacheTo1(Language_English);
-
-  zoffsetvalue = (HAS_BED_PROBE) ? probe.offset.z : home_offset.z;
+  #if HAS_BED_PROBE
+    zoffsetvalue = probe.offset.z;
+  #else
+    zoffsetvalue = home_offset.z;
+  #endif
+  
 }
 
 void HMI_StartFrame(const bool with_update) {
