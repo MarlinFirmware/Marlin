@@ -206,7 +206,6 @@ class Sd2Card {
   bool readCSD(csd_t* csd) {
     return readRegister(CMD9, csd);
   }
-  
   bool readData(uint8_t* dst);
   bool readStart(uint32_t blockNumber);
   bool readStop();

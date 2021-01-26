@@ -19,13 +19,11 @@
  */
 #include "Marlin.h"
 
-//#include "diskio.h"
-
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
 
 //------------------------------------------------------------------------------
-#if DISABLED(SOFTWARE_SPI)  //硬件SPI
+#if DISABLED(SOFTWARE_SPI)
   // functions for hardware SPI
   //------------------------------------------------------------------------------
   // make sure SPCR rate is in expected bits
@@ -36,14 +34,14 @@
    * Initialize hardware SPI
    * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
    */
-  static void spiInit(uint8_t spiRate) { //SPI配置初始化
+  static void spiInit(uint8_t spiRate) {
     // See avr processor documentation
     SPCR = BIT(SPE) | BIT(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : BIT(SPI2X);
   }
   //------------------------------------------------------------------------------
   /** SPI receive a byte */
-  static uint8_t spiRec() { //SPI读1个byte的数据
+  static uint8_t spiRec() {
     SPDR = 0XFF;
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     return SPDR;
@@ -51,7 +49,7 @@
   //------------------------------------------------------------------------------
   /** SPI read data - only one call so force inline */
   static inline __attribute__((always_inline))
-  void spiRead(uint8_t* buf, uint16_t nbyte) { //SPI读nbyte个byte的数据
+  void spiRead(uint8_t* buf, uint16_t nbyte) {
     if (nbyte-- == 0) return;
     SPDR = 0XFF;
     for (uint16_t i = 0; i < nbyte; i++) {
@@ -64,7 +62,7 @@
   }
   //------------------------------------------------------------------------------
   /** SPI send a byte */
-  static void spiSend(uint8_t b) { //SPI写一个BYTE的数据
+  static void spiSend(uint8_t b) {
     SPDR = b;
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
@@ -73,7 +71,7 @@
   //------------------------------------------------------------------------------
   /** SPI send block - only one call so force inline */
   static inline __attribute__((always_inline))
-  void spiSendBlock(uint8_t token, const uint8_t* buf) { //SPI连续写513个字节的数据，第一个数据是token,bud是后512个数据
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
     SPDR = token;
     for (uint16_t i = 0; i < 512; i += 2) {
       while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
@@ -90,7 +88,7 @@
   #define nop asm volatile ("nop\n\t")
   //------------------------------------------------------------------------------
   /** Soft SPI receive byte */
-  static uint8_t spiRec() { //模拟SPI下读一个字节的数据
+  static uint8_t spiRec() {
     uint8_t data = 0;
     // no interrupts during byte receive - about 8 us
     cli();
@@ -116,13 +114,13 @@
   }
   //------------------------------------------------------------------------------
   /** Soft SPI read data */
-  static void spiRead(uint8_t* buf, uint16_t nbyte) { //模拟SPI下读nbyte个字节的数据
+  static void spiRead(uint8_t* buf, uint16_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       buf[i] = spiRec();
   }
   //------------------------------------------------------------------------------
   /** Soft SPI send byte */
-  static void spiSend(uint8_t data) {  //模拟SPI下写一个字节的数据
+  static void spiSend(uint8_t data) {
     // no interrupts during byte send - about 8 us
     cli();
     for (uint8_t i = 0; i < 8; i++) {
@@ -146,7 +144,7 @@
   }
   //------------------------------------------------------------------------------
   /** Soft SPI send block */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) { //模拟SPI下写513个字节的数据,第一个数据是token，buf是后512个字节的数据
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);
@@ -157,7 +155,7 @@
 
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
-uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) { //SD卡写命令函数
+uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) {
   // select card
   chipSelectLow(); 
 
@@ -168,7 +166,7 @@ uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) { //SD卡写命令函数
   spiSend(cmd | 0x40);  //命令值
 
   // send argument
-  for (int8_t s = 24; s >= 0; s -= 8) spiSend(arg >> s);  //命令参数
+  for (int8_t s = 24; s >= 0; s -= 8) spiSend(arg >> s);
 
   // send CRC
   uint8_t crc = 0XFF;
@@ -177,11 +175,11 @@ uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) { //SD卡写命令函数
   spiSend(crc);  //CRC校验
 
   // skip stuff byte for stop read
-  if (cmd == CMD12) spiRec(); //如果是停止多态读命令,增发送8个周期时钟
+  if (cmd == CMD12) spiRec();
 
   // wait for response
   for (uint8_t i = 0; ((status_ = spiRec()) & 0X80) && i != 0XFF; i++) { /* Intentionally left empty */ }
-  return status_; //status_的值是0b:1xxxx xxxx
+  return status_;
 }
 
 
@@ -192,9 +190,9 @@ uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) { //SD卡写命令函数
  * \return The number of 512 byte data blocks in the card
  *         or zero if an error occurs.
  */
-uint32_t Sd2Card::cardSize() {  //读blcok的数量，一个block是512byte
+uint32_t Sd2Card::cardSize() {
   csd_t csd;
-  if (!readCSD(&csd)) return 0; //
+  if (!readCSD(&csd)) return 0;
   if (csd.v1.csd_ver == 0) {
     uint8_t read_bl_len = csd.v1.read_bl_len;
     uint16_t c_size = (csd.v1.c_size_high << 10)
@@ -238,7 +236,7 @@ void Sd2Card::chipSelectLow() {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) { //块擦除
+bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
   csd_t csd;
   if (!readCSD(&csd)) goto fail;
   // check for single block erase
@@ -277,7 +275,7 @@ fail:
  * \return The value one, true, is returned if single block erase is supported.
  * The value zero, false, is returned if single block erase is not supported.
  */
-bool Sd2Card::eraseSingleBlockEnable() { //查询是否允许块擦除
+bool Sd2Card::eraseSingleBlockEnable() {
   csd_t csd;
   return readCSD(&csd) ? csd.v1.erase_blk_en : false;
 }
@@ -292,7 +290,7 @@ bool Sd2Card::eraseSingleBlockEnable() { //查询是否允许块擦除
  * the value zero, false, is returned for failure.  The reason for failure
  * can be determined by calling errorCode() and errorData().
  */
-bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) { //SD卡初始化程序
+bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
@@ -319,10 +317,10 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) { //SD卡初始化程序
   #endif  // SOFTWARE_SPI
 
   // must supply min of 74 clock cycles with CS high.
-  for (uint8_t i = 0; i < 10; i++) spiSend(0XFF);  //发送大于74个SCLK时钟
+  for (uint8_t i = 0; i < 10; i++) spiSend(0XFF);
 
   // command to go idle in SPI mode
-  while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {	//发送复位命令
+  while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
     if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
       error(SD_CARD_ERROR_CMD0);
       goto fail;
@@ -382,7 +380,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {  //读一个block的数据
+bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
 #if ENABLED(SD_CHECK_AND_RETRY)
   uint8_t retryCnt = 3;
   // use address if not SDHC card
@@ -426,13 +424,13 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readData(uint8_t* dst) { 
+bool Sd2Card::readData(uint8_t* dst) {
   chipSelectLow();
   return readData(dst, 512);
 }
 
 #if ENABLED(SD_CHECK_AND_RETRY)
-static const uint16_t crctab[] PROGMEM = {   //CRC校验表
+static const uint16_t crctab[] PROGMEM = {
   0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
   0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
   0x1231, 0x0210, 0x3273, 0x2252, 0x52B5, 0x4294, 0x72F7, 0x62D6,
@@ -476,7 +474,7 @@ static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
 #endif
 
 //------------------------------------------------------------------------------
-bool Sd2Card::readData(uint8_t* dst, uint16_t count) { //读count个字节的数据，保存在dst中
+bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // wait for start block token
   uint16_t t0 = millis();
   while ((status_ = spiRec()) == 0XFF) {
@@ -515,13 +513,13 @@ fail:
 }
 //------------------------------------------------------------------------------
 /** read CID or CSR register */
-bool Sd2Card::readRegister(uint8_t cmd, void* buf) {  //读寄存器,cmd是命令值,buf是返回参数
+bool Sd2Card::readRegister(uint8_t cmd, void* buf) {
   uint8_t* dst = reinterpret_cast<uint8_t*>(buf);
-  if (cardCommand(cmd, 0)) {  //写命令
+  if (cardCommand(cmd, 0)) {
     error(SD_CARD_ERROR_READ_REG);
     goto fail;
   }
-  return readData(dst, 16); //读16个字节的数据
+  return readData(dst, 16);
 fail:
   chipSelectHigh();
   return false;
@@ -537,10 +535,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-
-
-
-bool Sd2Card::readStart(uint32_t blockNumber) {  //连续读，知道发送cmd12才停止
+bool Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD18, blockNumber)) {
     error(SD_CARD_ERROR_CMD18);
@@ -558,7 +553,7 @@ fail:
 * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readStop() { //读停止,发送的是CMD12命令
+bool Sd2Card::readStop() {
   chipSelectLow();
   if (cardCommand(CMD12, 0)) {
     error(SD_CARD_ERROR_CMD12);
@@ -607,7 +602,7 @@ uint16_t count			/* Sector count (1..128) */
  * \return The value one, true, is returned for success and the value zero,
  * false, is returned for an invalid value of \a sckRateID.
  */
-bool Sd2Card::setSckRate(uint8_t sckRateID) { //设置硬件SPI的速度
+bool Sd2Card::setSckRate(uint8_t sckRateID) {
   if (sckRateID > 6) {
     error(SD_CARD_ERROR_SCK_RATE);
     return false;
@@ -617,7 +612,7 @@ bool Sd2Card::setSckRate(uint8_t sckRateID) { //设置硬件SPI的速度
 }
 //------------------------------------------------------------------------------
 // wait for card to go not busy
-bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {  //不停的读，如果回复数据不是0xff,表示空闲
+bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
   uint16_t t0 = millis();
   while (spiRec() != 0XFF) {
     if (((uint16_t)millis() - t0) >= timeoutMillis) goto fail;
@@ -635,7 +630,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {  //写一个bolcok的数据
+bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   // use address if not SDHC card
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD24, blockNumber)) {
@@ -666,7 +661,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeData(const uint8_t* src) {  
+bool Sd2Card::writeData(const uint8_t* src) {
   chipSelectLow();
   // wait for previous write to finish
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
@@ -708,7 +703,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) { //多块连续写开始
+bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
   // send pre-erase count
   if (cardAcmd(ACMD23, eraseCount)) {
     error(SD_CARD_ERROR_ACMD23);
@@ -732,7 +727,7 @@ fail:
 * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeStop() {  //多块连续写结束
+bool Sd2Card::writeStop() {
   chipSelectLow();
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
   spiSend(STOP_TRAN_TOKEN);
@@ -744,9 +739,6 @@ fail:
   chipSelectHigh();
   return false;
 }
-
-
-
 
 #if _USE_WRITE
 bool Sd2Card::writemultipleblock (
@@ -782,18 +774,5 @@ uint16_t count			/* Sector count (1..128) */
 	return count ? RES_ERROR : RES_OK;
 }
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

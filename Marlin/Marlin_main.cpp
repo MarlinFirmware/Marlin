@@ -339,7 +339,7 @@ bool target_direction;
   float retract_length_swap = RETRACT_LENGTH_SWAP;
   float retract_feedrate = RETRACT_FEEDRATE;
   float retract_zlift = RETRACT_ZLIFT;
-  float retract_recover_length = RETRACT_RECOVER_LENGTH;fdgfdgfdgd
+  float retract_recover_length = RETRACT_RECOVER_LENGTH;
   float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
   float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 
@@ -969,7 +969,7 @@ void get_command() {
           ((serial_char == '#' || serial_char == ':') && !comment_mode) ||
           serial_count >= (MAX_CMD_SIZE - 1) || n == -1
       ) {
-        if (card.eof()) { //这里是打印完成后的操作
+        if (card.eof()) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           print_job_stop_ms = millis();
           char time[30];
@@ -1871,10 +1871,10 @@ static void homeaxis(AxisEnum axis) {
       #if ENABLED(DUAL_X_CARRIAGE)
         (axis == X_AXIS) ? x_home_dir(active_extruder) :
       #endif
-      home_dir(axis);   //(1)归零的方向设置
+      home_dir(axis);
 
     // Set the axis position as setup for the move
-    current_position[axis] = 0; //(2)当前的位置设置成0位置
+    current_position[axis] = 0;
     sync_plan_position();
 
     #if ENABLED(Z_PROBE_SLED)
@@ -1905,13 +1905,13 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     // Move towards the endstop until an endstop is triggered
-    destination[axis] = 1.2 * max_length(axis) * axis_home_dir; //(3)设置归零的长度
+    destination[axis] = 1.2 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
-    line_to_destination(); //(4)运动完成设定的长度
+    line_to_destination();
     st_synchronize();
 
     // Set the axis position as setup for the move
-    current_position[axis] = 0;  //(5)把当前位置设置成0
+    current_position[axis] = 0;
     sync_plan_position();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2448,7 +2448,7 @@ inline void gcode_G28() {
         delayed_move_time = 0;
         active_extruder_parked = true;
       #else
-        HOMEAXIS(X); //X轴归零
+        HOMEAXIS(X);
       #endif
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (marlin_debug_flags & DEBUG_LEVELING) {
@@ -2460,7 +2460,7 @@ inline void gcode_G28() {
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
       if (home_all_axis || homeY) {
-        HOMEAXIS(Y); //Y轴归零
+        HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
             print_xyz("> homeY", current_position);
@@ -2486,6 +2486,7 @@ inline void gcode_G28() {
 
             current_position[Z_AXIS] = 0;
             sync_plan_position();
+
             //
             // Set the Z probe (or just the nozzle) destination to the safe homing point
             //
@@ -2574,8 +2575,8 @@ inline void gcode_G28() {
           #endif
 
         #else // !Z_SAFE_HOMING
-			
-			HOMEAXIS(Z); //Z轴归零		
+
+            HOMEAXIS(Z);
 
         #endif // !Z_SAFE_HOMING
 
@@ -3931,7 +3932,7 @@ inline void gcode_M105() {
 /**
  * M109: Wait for extruder(s) to reach temperature
  */
-inline void gcode_M109() { //等待温度到达设定温度,否则gcode不执行gcode后面的数据
+inline void gcode_M109() {
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
@@ -3948,10 +3949,10 @@ inline void gcode_M109() { //等待温度到达设定温度,否则gcode不执行
   }
 
   #if ENABLED(AUTOTEMP)
-    autotemp_enabled = code_seen('F'); //F后面跟温度率
+    autotemp_enabled = code_seen('F');
     if (autotemp_enabled) autotemp_factor = code_value();
-    if (code_seen('S')) autotemp_min = code_value(); //S后面是最大温度
-    if (code_seen('B')) autotemp_max = code_value(); //B后面是最小温度
+    if (code_seen('S')) autotemp_min = code_value();
+    if (code_seen('B')) autotemp_max = code_value();
   #endif
 
   millis_t temp_ms = millis();
@@ -6802,8 +6803,8 @@ void plan_arc(
       }
       uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
       // allows digital or PWM fan output to be used (see M42 handling)
-      digitalWrite(CONTROLLERFAN_PIN, 255); //speed 风扇一直高速转动
-      analogWrite(CONTROLLERFAN_PIN, 255); //speed 风扇一直高速转动
+      digitalWrite(CONTROLLERFAN_PIN, 255);
+      analogWrite(CONTROLLERFAN_PIN, 255);
     }
   }
 
@@ -7233,9 +7234,9 @@ void Stop() {
  * Returns TRUE if the target is invalid
  */
 bool setTargetedHotend(int code) {
-  target_extruder = active_extruder; //有效的挤出头号
+  target_extruder = active_extruder;
   if (code_seen('T')) {
-    target_extruder = code_value_short(); //T后面跟的是挤出头号
+    target_extruder = code_value_short();
     if (target_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');
