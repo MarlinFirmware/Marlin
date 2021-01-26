@@ -420,9 +420,8 @@ constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_ON = 9;
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_OFF = 10;
 
-
 constexpr uint16_t ICON_FWRETRACT_NAV_UNAVAILABLE = 14;
-constexpr uint16_t ICON_FWRETRACT_NAV_AVAILABLE = 15;
+constexpr uint16_t ICON_FWRETRACT_NAV_AVAILABLE = 10;
 
-constexpr uint16_t ICON_FWRETRACT_AUTO_DISENGAGED = 16; // This icon deliberately does not exist
-constexpr uint16_t ICON_FWRETRACT_AUTO_ENGAGED = 17;
+constexpr uint16_t ICON_FWRETRACT_AUTO_DISENGAGED = 4; // This icon deliberately does not exist
+constexpr uint16_t ICON_FWRETRACT_AUTO_ENGAGED = 3;
