@@ -87,6 +87,7 @@
 //#define CR10S_PRO_OEM
 //#define CR10V2_OEM
 //#define CR20_OEM
+//#define CRX_OEM
 //#define ENDER5_PLUS_OEM
 //#define CR10_VOLCANO
 //#define CR10_V6HEAVYDUTY
