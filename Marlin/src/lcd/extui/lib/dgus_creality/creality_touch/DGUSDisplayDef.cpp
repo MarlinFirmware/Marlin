@@ -293,7 +293,8 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   VP_LED_TOGGLE,
   VP_FAN_TOGGLE,
   VP_Fan0_Percentage,
-  VP_FWRETRACT_NAV_BUTTON_ICON,
+
+  VP_LINEAR_ADVANCE_FACTOR,
 
   0x0000
 };
@@ -581,7 +582,6 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER_STR(VP_SD_FileName5,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
 
   // Firmware retract
-#if ENABLED(FWRETRACT)
   VPHELPER(VP_FWRETRACT_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_TUNEFWRETRACT>, nullptr),
 
   VPHELPER(VP_FWRETRACT_RETRACT_LENGTH, &fwretract.settings.retract_length, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
@@ -594,10 +594,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_FWRETRACT_INDICATOR_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_ENGAGED, ICON_FWRETRACT_AUTO_DISENGAGED>)),
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_TOGGLE_ON, ICON_FWRETRACT_AUTO_TOGGLE_OFF>)),
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON, &fwretract.autoretract_enabled, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
+
+#if ENABLED(LIN_ADVANCE)
+  VPHELPER(VP_LINEAR_ADVANCE_FACTOR, &planner.extruder_advance_K[0], ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<2>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 #endif
 
-  // ... Sending after init does not always work
-  VPHELPER(VP_FWRETRACT_NAV_BUTTON_ICON, &ScreenHandler.fwretract_available, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_NAV_AVAILABLE, ICON_FWRETRACT_NAV_UNAVAILABLE>)),
 
   // Additional buttons
   VPHELPER(VP_MUTE_TOGGLE, nullptr, ScreenHandler.HandleToggleTouchScreenMute, nullptr),
