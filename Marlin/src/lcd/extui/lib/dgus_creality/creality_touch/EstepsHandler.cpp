@@ -102,8 +102,9 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     if (!eAxisWasRelative) GcodeSuite::set_e_absolute();
 
     // Done
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, false);
     ScreenHandler.Buzzer(0, 250);
-    SetStatusMessage(PSTR("Please measure remaining filament"));
+    SetStatusMessage(PSTR("Measure remaining filament"));
 }
 
 void EstepsHandler::HandleApplyButton(DGUS_VP_Variable &var, void *val_ptr) {
@@ -116,9 +117,12 @@ void EstepsHandler::HandleApplyButton(DGUS_VP_Variable &var, void *val_ptr) {
 
     // Save & reset
     settings.save();
-    Init();
 
     ScreenHandler.Buzzer(0, 250);
+    
+    ScreenHandler.PopToOldScreen();
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
+
     SetStatusMessage(PSTR("New e-steps value saved"));
 }
 

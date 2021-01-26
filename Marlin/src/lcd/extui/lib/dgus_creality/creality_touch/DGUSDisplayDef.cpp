@@ -456,6 +456,8 @@ const struct VPMapping VPMap[] PROGMEM = {
 
   { DGUSLCD_SCREEN_TUNEFWRETRACT, VPList_FWRetractTune },
 
+  { DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, VPList_EstepsCalibration },
+
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 
