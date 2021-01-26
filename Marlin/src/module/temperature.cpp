@@ -2186,7 +2186,6 @@ void Temperature::disable_all_heaters() {
 
 #endif
 
-
 #if ENABLED(PROBING_HEATERS_OFF)
 
   void Temperature::pause(const bool p) {

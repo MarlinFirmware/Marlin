@@ -224,9 +224,12 @@ void PrintCounter::tick() {
 
   millis_t now = millis();
 
-  static uint32_t update_next; // = 0
+  static millis_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
+    update_next = now + updateInterval;
+
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
+
     millis_t delta = deltaDuration();
     data.printTime += delta;
 
@@ -239,8 +242,6 @@ void PrintCounter::tick() {
     #if SERVICE_INTERVAL_3 > 0
       data.nextService3 -= _MIN(delta, data.nextService3);
     #endif
-
-    update_next = now + updateInterval * 1000;
   }
 
   static uint32_t eeprom_next; // = 0
