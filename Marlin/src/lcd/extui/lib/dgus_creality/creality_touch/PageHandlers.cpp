@@ -118,8 +118,9 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
         case VP_BUTTON_PREPAREENTERKEY:
             if (buttonValue == 9) {
-                // If we're in the workflow of calibration from the home screen, there is no need to keep the heaters on at this point
-                thermalManager.disable_all_heaters();
+                #if DISABLED(HOTEND_IDLE_TIMEOUT)
+                    thermalManager.disable_all_heaters();
+                #endif
 
                 ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
             }
