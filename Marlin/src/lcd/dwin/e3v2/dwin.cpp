@@ -509,13 +509,13 @@ char* Get_Menu_Title(uint8_t menu) {
       return (char*)"Control";
     case TempMenu:
       return (char*)"Temperature";
-    case Warmup:
+    case Preheat1:
       return (char*)"Warmup Settings";
-    case SetPLA:
+    case Preheat2:
       return (char*)"PrePLA Settings";
-    case SetABS:
+    case Preheat3:
       return (char*)"PreABS Settings";
-    case SetPETG:
+    case Preheat4:
       return (char*)"PrePETG Settings";
     case Motion:
       return (char*)"Motion Settings";
@@ -553,13 +553,13 @@ int Get_Menu_Size(uint8_t menu) {
       return 7;
     case TempMenu:
       return 7;
-    case Warmup:
+    case Preheat1:
       return 4;
-    case SetPLA:
+    case Preheat2:
       return 4;
-    case SetABS:
+    case Preheat3:
       return 4;
-    case SetPETG:
+    case Preheat4:
       return 4;
     case Motion:
       return 4;
@@ -852,9 +852,9 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu(Preheat, 1);
           }
           break;
-        case 2: // Warmup
+        case 2: // Preheat 1
           if (draw) {
-            Draw_Menu_Item(row, ICON_Temperature, (char*)"Warmup");
+            Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_1_LABEL);
           } else {
             if (!bedonly) {
               thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
@@ -863,9 +863,9 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
           }
           break;
-        case 3: // PLA
+        case 3: // Preheat 2
           if (draw) {
-            Draw_Menu_Item(row, ICON_Temperature, (char*)"PLA");
+            Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_2_LABEL);
           } else {
             if (!bedonly) {
               thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
@@ -874,9 +874,9 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
           }
           break;
-        case 4: // ABS
+        case 4: // Preheat 3
           if (draw) {
-            Draw_Menu_Item(row, ICON_Temperature, (char*)"ABS");
+            Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_3_LABEL);
           } else {
             if (!bedonly) {
               thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
@@ -885,9 +885,9 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
           }
           break;
-        case 5: // PETG
+        case 5: // Preheat 4
           if (draw) {
-            Draw_Menu_Item(row, ICON_Temperature, (char*)"PETG");
+            Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_4_LABEL);
           } else {
             if (!bedonly) {
               thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
@@ -992,37 +992,37 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Modify_Value(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
           }
           break;
-        case 4: // Warmup
+        case 4: // Preheat 1
           if (draw) {
-            Draw_Menu_Item(row, ICON_Step, (char*)"Warmup");
+            Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_1_LABEL);
           } else {
-            Draw_Menu(Warmup);
+            Draw_Menu(Preheat1);
           }
           break;
-        case 5: // PLA
+        case 5: // Preheat 2
           if (draw) {
-            Draw_Menu_Item(row, ICON_Step, (char*)"PLA");
+            Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_2_LABEL);
           } else {
-            Draw_Menu(SetPLA);
+            Draw_Menu(Preheat2);
           }
           break;
-        case 6: // ABS
+        case 6: // Preheat 3
           if (draw) {
-            Draw_Menu_Item(row, ICON_Step, (char*)"ABS");
+            Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_3_LABEL);
           } else {
-            Draw_Menu(SetABS);
+            Draw_Menu(Preheat3);
           }
           break;
-        case 7: // PETG
+        case 7: // Preheat 4
           if (draw) {
-            Draw_Menu_Item(row, ICON_Step, (char*)"PETG");
+            Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_4_LABEL);
           } else {
-            Draw_Menu(SetPETG);
+            Draw_Menu(Preheat4);
           }
           break;
       }
       break;
-    case Warmup:
+    case Preheat1:
       switch (item) {
         case 0: // Back
           if (draw) {
@@ -1057,7 +1057,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           break;
       }
       break;
-    case SetPLA:
+    case Preheat2:
       switch (item) {
         case 0: // Back
           if (draw) {
@@ -1092,7 +1092,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           break;
       }
       break;
-    case SetABS:
+    case Preheat3:
       switch (item) {
         case 0: // Back
           if (draw) {
@@ -1127,7 +1127,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           break;
       }
       break;
-    case SetPETG:
+    case Preheat4:
       switch (item) {
         case 0: // Back
           if (draw) {
