@@ -291,7 +291,7 @@ void GCodeQueue::ok_to_send() {
   #if HAS_MULTI_SERIAL
     const int16_t pn = command_port();
     if (pn < 0) return;
-    PORT_REDIRECT(SERIAL_PORTMASK(pn));                    // Reply to the serial port that sent the command
+    PORT_REDIRECT(SERIAL_PORTMASK(pn));   // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(STR_OK);
@@ -317,7 +317,7 @@ void GCodeQueue::flush_and_request_resend() {
   const int16_t pn = command_port();
   #if HAS_MULTI_SERIAL
     if (pn < 0) return;
-    PORT_REDIRECT(SERIAL_PORTMASK(pn));                    // Reply to the serial port that sent the command
+    PORT_REDIRECT(SERIAL_PORTMASK(pn));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
@@ -349,7 +349,7 @@ inline int read_serial(const uint8_t index) {
 }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
-  PORT_REDIRECT(SERIAL_PORTMASK(pn));                      // Reply to the serial port that sent the command
+  PORT_REDIRECT(SERIAL_PORTMASK(pn));     // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ECHOLN(last_N[pn]);
@@ -547,7 +547,7 @@ void GCodeQueue::get_serial_commands() {
                 #if ENABLED(BEZIER_CURVE_SUPPORT)
                   case 5:
                 #endif
-                  PORT_REDIRECT(SERIAL_PORTMASK(i));                      // Reply to the serial port that sent the command
+                  PORT_REDIRECT(SERIAL_PORTMASK(i));     // Reply to the serial port that sent the command
                   SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                   LCD_MESSAGEPGM(MSG_STOPPED);
                   break;
