@@ -365,7 +365,8 @@ void startOrResumeJob() {
 
     queue.clear();
     quickstop_stepper();
-    print_job_timer.stop();
+
+    print_job_timer.abort();
 
     IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
 

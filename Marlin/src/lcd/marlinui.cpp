@@ -1495,8 +1495,8 @@ void MarlinUI::update() {
     #ifdef ACTION_ON_CANCEL
       host_action_cancel();
     #endif
+    IF_DISABLED(SDSUPPORT, print_job_timer.stop());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
-    print_job_timer.stop();
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
   }

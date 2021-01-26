@@ -41,6 +41,10 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
   #include "../libs/buzzer.h"
 #endif
 
+#if PRINTCOUNTER_SYNC
+  #include "../module/planner.h"
+#endif
+
 // Service intervals
 #if HAS_SERVICE_INTERVALS
   #if SERVICE_INTERVAL_1 > 0
@@ -160,6 +164,8 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
+  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
+
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
@@ -244,11 +250,13 @@ void PrintCounter::tick() {
     #endif
   }
 
-  static uint32_t eeprom_next; // = 0
-  if (ELAPSED(now, eeprom_next)) {
-    eeprom_next = now + saveInterval * 1000;
-    saveStats();
-  }
+  #if PRINTCOUNTER_SAVE_INTERVAL > 0
+    static millis_t eeprom_next; // = 0
+    if (ELAPSED(now, eeprom_next)) {
+      eeprom_next = now + saveInterval;
+      saveStats();
+    }
+  #endif
 }
 
 // @Override
@@ -268,21 +276,20 @@ bool PrintCounter::start() {
   return false;
 }
 
-// @Override
-bool PrintCounter::stop() {
+bool PrintCounter::_stop(const bool completed) {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
-  if (super::stop()) {
-    data.finishedPrints++;
+  const bool did_stop = super::stop();
+  if (did_stop) {
     data.printTime += deltaDuration();
-
-    if (duration() > data.longestPrint)
-      data.longestPrint = duration();
-
-    saveStats();
-    return true;
+    if (completed) {
+      data.finishedPrints++;
+      if (duration() > data.longestPrint)
+        data.longestPrint = duration();
+    }
   }
-  else return false;
+  saveStats();
+  return did_stop;
 }
 
 // @Override
