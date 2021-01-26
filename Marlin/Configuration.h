@@ -2293,6 +2293,7 @@
 
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
+// Compatible DWIN part number DMG48270C043_03WTC
 //
 
 #define DGUS_LCD_UI_CREALITY_TOUCH
