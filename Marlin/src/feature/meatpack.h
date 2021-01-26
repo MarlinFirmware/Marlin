@@ -64,7 +64,6 @@
  */
 enum MeatPack_Command : uint8_t {
   MPCommand_None            = 0,
-  MPCommand_TogglePacking   = 0xFD,
   MPCommand_EnablePacking   = 0xFB,
   MPCommand_DisablePacking  = 0xFA,
   MPCommand_ResetAll        = 0xF9,
