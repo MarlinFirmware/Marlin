@@ -379,6 +379,7 @@ void Draw_SD_List(bool removed/*=false*/) {
   Clear_Screen();
   Draw_Title((char*)"Select File");
   selection = 0;
+  scrollpos = 0;
   process = File;
   if (card.isMounted() && !removed) {
     LOOP_L_N(i, _MIN(card.get_num_Files()+1, TROWS))
