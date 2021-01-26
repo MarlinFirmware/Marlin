@@ -1496,6 +1496,7 @@ void MarlinUI::update() {
       host_action_cancel();
     #endif
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
+    queue.clear();
     print_job_timer.stop();
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
