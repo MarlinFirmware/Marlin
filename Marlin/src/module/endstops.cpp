@@ -398,7 +398,7 @@ void Endstops::event_handler() {
         card.endFilePrint();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
-        print_job_timer.stop(); // Wait for planner before calling!
+        print_job_timer.stop();
       }
     #endif
   }
