@@ -411,7 +411,7 @@ G29_TYPE GcodeSuite::G29() {
       remember_feedrate_scaling_off();
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
-        if (!dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+        if (!dryrun) probe.preheat_for_probing(probe.settings.preheat_hotend_temp, probe.settings.preheat_bed_temp);
       #endif
     }
 

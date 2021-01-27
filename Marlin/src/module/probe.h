@@ -31,6 +31,9 @@
 
 typedef struct {
   bool turn_heaters_off;
+  
+  uint16_t preheat_hotend_temp;
+  uint16_t preheat_bed_temp;
 } probe_settings_t;
 
 #if HAS_BED_PROBE

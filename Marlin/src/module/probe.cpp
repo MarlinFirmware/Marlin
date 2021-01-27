@@ -438,7 +438,7 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   // If preheating is required before any probing...
-  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
+  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(settings.preheat_hotend_temp, settings.preheat_bed_temp));
 
   do_blocking_move_to(old_xy);
   endstops.enable_z_probe(deploy);

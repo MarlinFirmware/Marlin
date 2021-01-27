@@ -2961,6 +2961,14 @@ void MarlinSettings::reset() {
 
   #if HAS_PROBE_SETTINGS
     probe.settings.turn_heaters_off = true;
+
+    #if PROBING_NOZZLE_TEMP
+      probe.settings.preheat_hotend_temp = PROBING_NOZZLE_TEMP;
+    #endif
+
+    #if PROBING_BED_TEMP
+      probe.settings.preheat_bed_temp = PROBING_BED_TEMP;
+    #endif
   #endif
 
   postprocess();
@@ -3913,7 +3921,10 @@ void MarlinSettings::reset() {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       CONFIG_ECHO_HEADING("Improve bed leveling accuracy (Probe heaters off):");
-      SERIAL_ECHO_MSG("  C001 S", probe.settings.turn_heaters_off ? 1 : 0);
+      CONFIG_ECHO_START();
+      SERIAL_ECHOPAIR("  C001 S", probe.settings.turn_heaters_off ? 1 : 0);
+      SERIAL_ECHOPAIR(" H", probe.settings.preheat_hotend_temp);
+      SERIAL_ECHOLNPAIR(" B", probe.settings.preheat_bed_temp);
     #endif
   }
 

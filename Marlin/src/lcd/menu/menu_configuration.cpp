@@ -318,6 +318,14 @@ void menu_advanced_settings();
       EDIT_ITEM(bool, MSG_PROBE_HEATERS_OFF, &probe.settings.turn_heaters_off);
     #endif
 
+    #if PROBING_NOZZLE_TEMP
+      EDIT_ITEM(uint16_3, MSG_PROBING_NOZZLE_TEMP, &probe.settings.preheat_hotend_temp, HEATER_0_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+    #endif
+
+    #if PROBING_BED_TEMP
+      EDIT_ITEM(uint16_3, MSG_PROBING_BED_TEMP, &probe.settings.preheat_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+    #endif
+
     END_MENU();
   }
 

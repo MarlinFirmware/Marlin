@@ -397,7 +397,6 @@ constexpr uint16_t VP_LINEAR_ADVANCE_FACTOR = 0x22AF;
 
 // Leveling settings
 constexpr uint16_t VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_BUTTON = 0x22C1;
-
 constexpr uint16_t VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_ICON = 0x22C3;
 
 // E-steps calibration
