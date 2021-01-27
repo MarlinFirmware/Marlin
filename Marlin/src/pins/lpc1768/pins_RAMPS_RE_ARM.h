@@ -327,7 +327,7 @@
 
 #elif ENABLED(ZONESTAR_LCD)
 
-      #error "CAUTION! ZONESTAR_LCD on REARM requires wiring modifications. NB. ADC's are not 5V tolerant. Comment out this line to continue."
+  #error "CAUTION! ZONESTAR_LCD on REARM requires wiring modifications. NB. ADCs are not 5V tolerant. Comment out this line to continue."
 
 #elif IS_TFTGLCD_PANEL
 
