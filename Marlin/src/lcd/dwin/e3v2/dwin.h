@@ -178,6 +178,7 @@ enum menuID : uint8_t {
 
 #define Color_White       0xFFFF
 #define Color_Yellow      0xFF0F
+#define Color_Grey        0x18E3
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
 #define Color_Bg_Black    0x0841  // Black background color
@@ -249,9 +250,11 @@ void Modify_Value(uint32_t &value, float min, float max, float unit);
 void Host_Print_Start();
 void Host_Print_Stop();
 void Host_Print_Update(uint8_t percent, uint32_t remaining);
+void Host_Print_Text(char * const text);
 
 
 void SD_Stop();
+void Start_Print();
 void DWIN_Update();
 void Variable_Update();
 void Screen_Update();

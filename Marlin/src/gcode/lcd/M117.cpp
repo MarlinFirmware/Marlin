@@ -26,11 +26,28 @@
 /**
  * M117: Set LCD Status Message
  */
-void GcodeSuite::M117() {
+#if ENABLED(DWIN_CREALITY_LCD)
 
-  if (parser.string_arg && parser.string_arg[0])
-    ui.set_status(parser.string_arg);
-  else
-    ui.reset_status();
+  #include "../../lcd/dwin/e3v2/dwin.h"
 
-}
+  void GcodeSuite::M117() {
+
+    if (parser.string_arg && parser.string_arg[0])
+      Host_Print_Text(parser.string_arg);
+    else
+      Host_Print_Text((char*)"");
+
+  }
+
+#else
+
+  void GcodeSuite::M117() {
+
+    if (parser.string_arg && parser.string_arg[0])
+      ui.set_status(parser.string_arg);
+    else
+      ui.reset_status();
+
+  }
+
+#endif
