@@ -60,11 +60,14 @@ static PGM_P const tramming_point_name[] PROGMEM = {
 
 #define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
 
+static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+static_assert(G35_PROBE_COUNT==COUNT(tramming_point_name), "TRAMMING_POINT_XY must have the same number of positions as TRAMMING_POINT_NAMES.");
+
 #if !WITHIN(TRAMMING_SCREW_THREAD, 30, 51) || TRAMMING_SCREW_THREAD % 10 > 1
   #error "TRAMMING_SCREW_THREAD must be equal to 30, 31, 40, 41, 50, or 51."
 #endif
 
-static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+
 
 /**
  * G35: Read bed corners to help adjust bed screws

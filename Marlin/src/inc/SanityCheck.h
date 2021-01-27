@@ -2132,6 +2132,33 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "ASSISTED_TRAMMING requires a bed probe."
 #endif
 
+#if ENABLED(ASSISTED_TRAMMING) 
+  constexpr xy_pos_t sanity_tramming_points[] = TRAMMING_POINT_XY;
+  static_assert(COUNT(sanity_tramming_points) > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+
+  constexpr float sanity_tramming_nozzle_to_probe_offset[] = NOZZLE_TO_PROBE_OFFSET;
+  constexpr float sanity_tramming_x_min_pos=X_MIN_POS+sanity_tramming_nozzle_to_probe_offset[0];
+  constexpr float sanity_tramming_x_max_pos=X_MAX_POS+sanity_tramming_nozzle_to_probe_offset[0];
+  constexpr float sanity_tramming_y_min_pos=Y_MIN_POS+sanity_tramming_nozzle_to_probe_offset[1];
+  constexpr float sanity_tramming_y_max_pos=Y_MAX_POS+sanity_tramming_nozzle_to_probe_offset[1];
+
+  static_assert(WITHIN(sanity_tramming_points[0].x, sanity_tramming_x_min_pos, sanity_tramming_x_max_pos), "TRAMMING_POINT_1 is out of bounds (X_MIN_POS, X_MAX_POS).");
+  static_assert(WITHIN(sanity_tramming_points[0].x, sanity_tramming_y_min_pos, sanity_tramming_y_max_pos), "TRAMMING_POINT_1 is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+  static_assert(WITHIN(sanity_tramming_points[1].x, sanity_tramming_x_min_pos, sanity_tramming_x_max_pos), "TRAMMING_POINT_2 is out of bounds (X_MIN_POS, X_MAX_POS).");
+  static_assert(WITHIN(sanity_tramming_points[1].x, sanity_tramming_y_min_pos, sanity_tramming_y_max_pos), "TRAMMING_POINT_2 is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+  static_assert(WITHIN(sanity_tramming_points[2].x, sanity_tramming_x_min_pos, sanity_tramming_x_max_pos), "TRAMMING_POINT_3 is out of bounds (X_MIN_POS, X_MAX_POS).");
+  static_assert(WITHIN(sanity_tramming_points[2].x, sanity_tramming_y_min_pos, sanity_tramming_y_max_pos), "TRAMMING_POINT_3 is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+  #ifdef TRAMMING_POINT_NAME_4
+    static_assert(WITHIN(sanity_tramming_points[3].x, sanity_tramming_x_min_pos, sanity_tramming_x_max_pos), "TRAMMING_POINT_4 is out of bounds (X_MIN_POS, X_MAX_POS).");
+    static_assert(WITHIN(sanity_tramming_points[3].x, sanity_tramming_y_min_pos, sanity_tramming_y_max_pos), "TRAMMING_POINT_4 is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+    #ifdef TRAMMING_POINT_NAME_5
+      static_assert(WITHIN(sanity_tramming_points[4].x, sanity_tramming_x_min_pos, sanity_tramming_x_max_pos), "TRAMMING_POINT_5 is out of bounds (X_MIN_POS, X_MAX_POS).");
+      static_assert(WITHIN(sanity_tramming_points[4].x, sanity_tramming_y_min_pos, sanity_tramming_y_max_pos), "TRAMMING_POINT_5 is out of bounds (Y_MIN_POS, Y_MAX_POS).");
+    #endif
+  #endif
+#endif
+
+
 /**
  * G38 Probe Target
  */
