@@ -89,7 +89,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
     out = kFirstCharIsLiteral;
   else {
     const uint8_t chr = pk & 0x0F;
-    chars_out[0] = meatPackLookupTable[(uint8_t)chr]; // Set the first char
+    chars_out[0] = meatPackLookupTable[chr]; // Set the first char
   }
 
   // Check if upper nybble is 1111... if so, we don't need the second char.
@@ -97,7 +97,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
     out |= kSecondCharIsLiteral;
   else {
     const uint8_t chr = (pk >> 4) & 0x0F;
-    chars_out[1] = meatPackLookupTable[(uint8_t)chr]; // Set the second char
+    chars_out[1] = meatPackLookupTable[chr]; // Set the second char
   }
 
   return out;
