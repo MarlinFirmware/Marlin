@@ -325,6 +325,10 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
+#elif ENABLED(ZONESTAR_LCD)
+
+  #error "CAUTION! ZONESTAR_LCD on REARM requires wiring modifications. NB. ADCs are not 5V tolerant. Comment out this line to continue."
+
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
