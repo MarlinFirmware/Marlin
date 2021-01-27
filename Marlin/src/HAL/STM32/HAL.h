@@ -188,9 +188,6 @@ typedef void (*systickCallback_t)(void);
 void systick_attach_callback(systickCallback_t cb);
 void HAL_SYSTICK_Callback();
 
-#define HAL_SYSTICK_VALUE (SysTick->VAL)
-#define HAL_SYSTICK_OVERFLOW_VALUE (SysTick->LOAD + 1)
-
 extern volatile uint32_t systick_uptime_millis;
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment

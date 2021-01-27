@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfigPre.h"
 /**
  * Busy wait delay cycles routines:
  *
@@ -33,108 +34,9 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-  #if WITHIN(__CORTEX_M, 4, 7)
-
-    // Cortex-M3 through M7 can use the cycle counter of the DWT unit
-    // https://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
-
-    FORCE_INLINE static void enableCycleCounter() {
-      CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-
-      #if __CORTEX_M == 7
-        DWT->LAR = 0xC5ACCE55; // Unlock DWT on the M7
-      #endif
-
-      DWT->CYCCNT = 0;
-      DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    }
-
-    FORCE_INLINE volatile uint32_t getCycleCount() { return DWT->CYCCNT; }
-
-    FORCE_INLINE static void DELAY_CYCLES(const uint32_t x) {
-      const uint32_t endCycles = getCycleCount() + x;
-      while (PENDING(getCycleCount(), endCycles)) {}
-    }
-
-  #else
-
-    #if defined(HAL_SYSTICK_VALUE) && defined(HAL_SYSTICK_RELOAD_VALUE)
-      FORCE_INLINE static void DELAY_CYCLES(const uint32_t nbTicks) {
-        uint32_t currentTicks = HAL_SYSTICK_VALUE;
-        uint32_t elapsedTicks = 0;
-        uint32_t oldTicks = currentTicks;
-        do {
-          currentTicks = HAL_SYSTICK_VALUE;
-          elapsedTicks += (oldTicks < currentTicks ? HAL_SYSTICK_RELOAD_VALUE : 0) + oldTicks - currentTicks;
-          oldTicks = currentTicks;
-        } while (nbTicks > elapsedTicks);
-      }
-    #else
-
-      #ifndef DELAY_CYCLES_ITERATION_COST
-        #define DELAY_CYCLES_ITERATION_COST 4
-      #endif
-
-      // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
-
-      #define nop() __asm__ __volatile__("nop;\n\t":::)
-
-      FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
-        #if ARCH_PIPELINE_RELOAD_CYCLES < 2
-          #define EXTRA_NOP_CYCLES A("nop")
-        #else
-          #define EXTRA_NOP_CYCLES ""
-        #endif
-
-        __asm__ __volatile__(
-          A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
-          L("1")
-          A("subs %[cnt],#1")
-          EXTRA_NOP_CYCLES
-          A("bne 1b")
-          : [cnt]"+r"(cy)   // output: +r means input+output
-          :                 // input:
-          : "cc"            // clobbers:
-        );
-      }
-
-      #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
-        FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
-          DISABLE_ISRS();
-          uint32 end = systick_get_count();
-          __delay_4cycles(100);
-          uint32 start = systick_get_count();
-          ENABLE_ISRS();
-          uint32 cycles = (end - start) / 100.0;
-          if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
-            SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
-          }
-          else {
-            SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
-          }
-        }
-      #endif
-
-          // Delay in cycles
-      FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
-        if (__builtin_constant_p(x)) {
-          if (x <= (DELAY_CYCLES_ITERATION_COST)) {
-            switch (x) { case 6: nop(); case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
-          }
-          else { // because of +1 cycle inside delay_4cycles
-            const uint32_t rem = (x - 1) % (DELAY_CYCLES_ITERATION_COST);
-            switch (rem) { case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
-            if ((x = (x - 1) / (DELAY_CYCLES_ITERATION_COST)))
-              __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-          }
-        }
-        else if ((x /= DELAY_CYCLES_ITERATION_COST))
-          __delay_4cycles(x);
-      }
-    #endif
-    #undef nop
-
-  #endif
+  // We want to have delay_cycle function with the lowest possible overhead, so we adjust at the function at runtime based on the current CPU best feature
+  typedef void (*DelayImpl)(uint32_t);
+  extern DelayImpl DELAY_CYCLES;
 
 #elif defined(__AVR__)
 
