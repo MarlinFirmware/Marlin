@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "QQS-bugfix-2.0.8"
+#define SHORT_BUILD_VERSION "FLSunQ-bugfix-2.0.8"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -46,7 +46,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "QQS-Pro"
+#define MACHINE_NAME "FLSUN_Qx"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -65,7 +65,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "Powered by"
+#define WEBSITE_URL "V2.0 Powered by"
 
 /**
  * Set the vendor info the serial USB interface, if changable
