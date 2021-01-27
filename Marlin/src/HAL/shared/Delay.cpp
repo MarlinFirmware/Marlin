@@ -48,22 +48,18 @@
   }
 
 
-  #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
-    FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
-      DISABLE_ISRS();
-        uint32 end = systick_get_count();
-        __delay_4cycles(100);
-        uint32 start = systick_get_count();
-      ENABLE_ISRS();
-      uint32 cycles = (end - start) / 100.0;
-      if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
-        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
-      }
-      else {
-        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
-      }
-    }
-  #endif
+  void delay_asm(uint32_t cy) { 
+    __asm__ __volatile__(
+      A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
+      L("1")
+      A("subs %[cnt],#1")
+      A("bne 1b")
+      : [cnt]"+r"(cy)   // output: +r means input+output
+      :                 // input:
+      : "cc"            // clobbers:
+    );
+  }
+
     
   // Delay in cycles
   void delay_nop(uint32_t x) {
@@ -119,4 +115,64 @@
   }
   
   DelayImpl DELAY_CYCLES = initial_delay_cycle;
+
+  #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
+    FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
+      DISABLE_ISRS();
+        uint32 end = systick_get_count();
+        __delay_4cycles(100);
+        uint32 start = systick_get_count();
+      ENABLE_ISRS();
+      uint32 cycles = (end - start) / 100.0;
+      if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
+        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
+      }
+      else {
+        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
+      }
+    }
+
+    void compute_delay_constants() {
+      // Start the DWT counter (we don't care about the cycles here)
+      initial_delay_cycle(20); 
+      // Ok, let's measure basic stuff to ensure everything is working as expected
+      // Step 1: Cost of reading the counter
+      uint32_t s = HW_REG(_DWT_CYCCNT);
+      uint32_t c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Reading cycle counter takes: ", (uint32_t)c-s);
+
+      // Step 2: Cost of calling a function via the function pointer
+      s = HW_REG(_DWT_CYCCNT);
+      DELAY_CYCLES(0);
+      c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay : ", (uint32_t)c-s);
+
+      // Step 3: Cost of calling the nop_counter
+      DelayImpl f = delay_nop;
+      s = HW_REG(_DWT_CYCCNT);
+      f(0);
+      c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Overhead of calling the nop based delay : ", (uint32_t)c-s);
+
+      // Step 4: Cost of calling the assembler's version
+      f = delay_asm;
+      s = HW_REG(_DWT_CYCCNT);
+      f(0);
+      c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay : ", (uint32_t)c-s);
+
+
+      // Check consistency
+      s = HW_REG(_DWT_CYCCNT);
+      DELAY_CYCLES(100);
+      c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay for 100 cycles : ", (uint32_t)c-s);      
+      // Check consistency
+      s = HW_REG(_DWT_CYCCNT);
+      f(100);
+      c = HW_REG(_DWT_CYCCNT);
+      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay for 100 cycles : ", (uint32_t)c-s);      
+    }
+  #endif
+
 #endif
