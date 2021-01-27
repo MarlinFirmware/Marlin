@@ -972,6 +972,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
     break;
 
+    #if HAS_PROBE_SETTINGS
+      case 'C': switch (parser.codenum) {
+        case 1: C001(); break;
+      }
+    #endif
+
     case 'T': T(parser.codenum); break;                           // Tn: Tool Change
 
     #if ENABLED(MARLIN_DEV_MODE)

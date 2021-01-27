@@ -272,6 +272,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
+  PROGMEM Language_Str MSG_CONFIGURATION_PROBE             = _UxGT("Probe settings");
+  PROGMEM Language_Str MSG_PROBE_HEATERS_OFF               = _UxGT("Improve accuracy");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Load/unload filament");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");

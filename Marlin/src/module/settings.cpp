@@ -460,6 +460,11 @@ typedef struct SettingsDataStruct {
     uint8_t ui_language;                                // M414 S
   #endif
 
+
+  //
+  // Probe settings
+  //
+  probe_settings_t probe_settings;
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1392,6 +1397,17 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ui.language);
     #endif
 
+    // 
+    // Probe settings
+    //
+    {
+      _FIELD_TEST(probe_settings);
+      #if !HAS_PROBE_SETTINGS
+        const probe_settings_t probe_setting_defaults = { 1 };
+      #endif
+      EEPROM_WRITE(TERN(HAS_PROBE_SETTINGS, probe.settings, probe_setting_defaults));
+    }
+
     //
     // Report final CRC and Data Size
     //
@@ -2285,6 +2301,21 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+    // 
+    // Probe settings
+    //
+    {
+      _FIELD_TEST(probe_settings);
+
+      #if HAS_PROBE_SETTINGS
+        EEPROM_READ(probe.settings);
+      #else 
+        probe_settings_t probe_settings;
+        EEPROM_READ(probe_settings);
+      #endif
+
+    }
+
       //
       // Validate Final Size and CRC
       //
@@ -2926,6 +2957,10 @@ void MarlinSettings::reset() {
     #else
       password.is_set = false;
     #endif
+  #endif
+
+  #if HAS_PROBE_SETTINGS
+    probe.settings.turn_heaters_off = true;
   #endif
 
   postprocess();
@@ -3874,6 +3909,11 @@ void MarlinSettings::reset() {
     #if HAS_MULTI_LANGUAGE
       CONFIG_ECHO_HEADING("UI Language:");
       SERIAL_ECHO_MSG("  M414 S", int(ui.language));
+    #endif
+
+    #if ENABLED(PROBING_HEATERS_OFF)
+      CONFIG_ECHO_HEADING("Improve bed leveling accuracy (Probe heaters off):");
+      SERIAL_ECHO_MSG("  C001 S", probe.settings.turn_heaters_off ? 1 : 0);
     #endif
   }
 

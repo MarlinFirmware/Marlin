@@ -29,6 +29,10 @@
 
 #include "motion.h"
 
+typedef struct {
+       bool turn_heaters_off;
+} probe_settings_t;
+
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
@@ -46,6 +50,9 @@
 
 class Probe {
 public:
+  #if HAS_PROBE_SETTINGS
+    static probe_settings_t settings; 
+  #endif
 
   #if HAS_BED_PROBE
 

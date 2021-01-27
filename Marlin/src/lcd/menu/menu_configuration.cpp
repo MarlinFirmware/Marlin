@@ -38,7 +38,7 @@
   #include "../../feature/powerloss.h"
 #endif
 
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE || HAS_PROBE_SETTINGS
   #include "../../module/probe.h"
   #if ENABLED(BLTOUCH)
     #include "../../feature/bltouch.h"
@@ -309,6 +309,20 @@ void menu_advanced_settings();
 
 #endif
 
+#if HAS_PROBE_SETTINGS
+  void menu_config_probe() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+
+    #if ENABLED(PROBING_HEATERS_OFF)
+      EDIT_ITEM(bool, MSG_PROBE_HEATERS_OFF, &probe.settings.turn_heaters_off);
+    #endif
+
+    END_MENU();
+  }
+
+#endif
+
 #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
   void _menu_configuration_preheat_settings() {
@@ -357,6 +371,10 @@ void menu_configuration() {
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
+
+  #if HAS_PROBE_SETTINGS
+    SUBMENU(MSG_CONFIGURATION_PROBE, menu_config_probe);
   #endif
 
   //

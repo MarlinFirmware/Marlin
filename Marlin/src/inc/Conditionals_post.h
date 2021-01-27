@@ -2749,3 +2749,7 @@
 #elif NUM_SERIAL > 1
   #define HAS_MULTI_SERIAL 1
 #endif
+
+#if ENABLED(PROBE_HEATERS_OFF)
+  #define HAS_PROBE_SETTINGS 1
+#endif
