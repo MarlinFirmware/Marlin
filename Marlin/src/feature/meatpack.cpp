@@ -161,18 +161,18 @@ void MeatPack::handle_output_char(const uint8_t c) {
  */
 void MeatPack::handle_command(const MeatPack_Command c) {
   switch (c) {
+    case MPCommand_QueryConfig:     break;
     case MPCommand_EnablePacking:   SBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
     case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
     case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
     case MPCommand_ResetAll:        reset_state();                     DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
-    case MPCommand_EnableNoSpaces: { SBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");
-      meatPackLookupTable[kSpaceCharIdx] = kSpaceCharReplace;
-    }break;
-    case MPCommand_DisableNoSpaces: { CBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");
-      meatPackLookupTable[kSpaceCharIdx] = ' ';
-    }break;
-    default: DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
-    case MPCommand_QueryConfig: break;
+    case MPCommand_EnableNoSpaces:
+      SBI(state, MPConfig_Bit_NoSpaces);
+      meatPackLookupTable[kSpaceCharIdx] = kSpaceCharReplace;          DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");   break;
+    case MPCommand_DisableNoSpaces:
+      CBI(state, MPConfig_Bit_NoSpaces);
+      meatPackLookupTable[kSpaceCharIdx] = ' ';                        DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");   break;
+    default:                                                           DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
   }
   report_state();
 }
