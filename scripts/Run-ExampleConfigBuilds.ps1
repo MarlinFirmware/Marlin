@@ -114,7 +114,7 @@ foreach ($ConfigName in $Configs) {
     }
 
     $HasTouchscreen = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-touchscreen.txt")) -eq $false
-    $HasNoAutoBuild = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-autobuild.txt")) -eq $false
+    $HasNoAutoBuild = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-autobuild.txt")) -eq $true
     $PlatformIOEnvironment = Get-Content -Raw -Path $(Join-Path -Path $ConfigDirName -ChildPath "platformio-environment.txt")
 	
 	if ($HasNoAutoBuild) {
