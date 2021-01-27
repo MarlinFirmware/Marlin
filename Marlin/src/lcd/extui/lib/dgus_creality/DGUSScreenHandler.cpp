@@ -1139,6 +1139,14 @@ void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void 
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
+#if HAS_PROBE_SETTINGS
+void DGUSScreenHandler::HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr) {
+  probe.settings.turn_heaters_off = !probe.settings.turn_heaters_off;
+  
+  RequestSaveSettings();
+}
+#endif
+
 void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 

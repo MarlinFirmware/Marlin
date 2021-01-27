@@ -30,7 +30,7 @@
 #include "motion.h"
 
 typedef struct {
-       bool turn_heaters_off;
+  bool turn_heaters_off;
 } probe_settings_t;
 
 #if HAS_BED_PROBE

@@ -388,6 +388,22 @@ const uint16_t VPList_FWRetractTune[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_LevelingSettings[] PROGMEM = {
+#if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  VP_Z_OFFSET,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+
+  VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_ICON,
+
+  0x0000
+};
+
 // Toggle button handler
 void DGUSCrealityDisplay_HandleToggleButton(DGUS_VP_Variable &var, void *val_ptr) {
   switch (*(uint16_t*)var.memadr) {
@@ -458,6 +474,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_TUNEFWRETRACT, VPList_FWRetractTune },
 
   { DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, VPList_EstepsCalibration },
+  { DGUSLCD_SCREEN_LEVELING_SETTINGS, VPList_LevelingSettings },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -551,6 +568,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay),
   VPHELPER(VP_SCREENCHANGE, nullptr, ScreenHandler.ScreenChangeHook, nullptr),
   VPHELPER(VP_CONFIRMED, nullptr, ScreenHandler.ScreenConfirmedOK, nullptr),
+
+  #if HAS_PROBE_SETTINGS
+  VPHELPER(VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_BUTTON, nullptr, ScreenHandler.HandleToggleProbeHeaters, nullptr),
+  VPHELPER(VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_ICON, &probe.settings.turn_heaters_off, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
+  #endif
 
   // Feed
   VPHELPER(VP_FEED_AMOUNT, &ScreenHandler.feed_amount, ScreenHandler.HandleFeedAmountChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),

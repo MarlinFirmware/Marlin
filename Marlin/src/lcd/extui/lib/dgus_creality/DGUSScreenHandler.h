@@ -98,6 +98,10 @@ public:
   static void HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr);
 
+  #if HAS_PROBE_SETTINGS
+  static void HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+
   #if HAS_PID_HEATING
     // Hook for "Change this temperature PID para"
     static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);

@@ -76,6 +76,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_TUNEFWRETRACT = 70,
 
   DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS = 71,
+  DGUSLCD_SCREEN_LEVELING_SETTINGS = 72
 };
 
 // Display Memory layout used (T5UID)
@@ -393,6 +394,11 @@ constexpr uint16_t VP_FWRETRACT_INDICATOR_ICON = 0x22BF;
 
 // Other tuning
 constexpr uint16_t VP_LINEAR_ADVANCE_FACTOR = 0x22AF;
+
+// Leveling settings
+constexpr uint16_t VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_BUTTON = 0x22C1;
+
+constexpr uint16_t VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_ICON = 0x22C3;
 
 // E-steps calibration
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
