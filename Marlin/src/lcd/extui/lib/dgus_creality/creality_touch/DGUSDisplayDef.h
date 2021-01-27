@@ -402,6 +402,8 @@ constexpr uint16_t VP_TOGGLE_PROBE_HEATERS_OFF_ONOFF_ICON = 0x22C3;
 constexpr uint16_t VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP = 0x22C5;
 constexpr uint16_t VP_TOGGLE_PROBE_PREHEAT_BED_TEMP = 0x22C7;
 
+constexpr uint16_t VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON = 0x22C9;
+
 // E-steps calibration
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;

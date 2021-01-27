@@ -577,6 +577,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP, &probe.settings.preheat_hotend_temp, ScreenHandler.HandleToggleProbePreheatTemp, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_TOGGLE_PROBE_PREHEAT_BED_TEMP, &probe.settings.preheat_bed_temp, ScreenHandler.HandleToggleProbePreheatTemp, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_LEVELING_SETTINGS>), nullptr),
+
   #endif
 
   // Feed
