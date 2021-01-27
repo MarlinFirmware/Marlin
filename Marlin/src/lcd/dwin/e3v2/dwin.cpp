@@ -2140,9 +2140,10 @@ void Screen_Update() {
     if (card.isPrinting() && process == Print) {
       duration_t elapsed = print_job_timer.duration();
       printpercent = card.percentDone();
-      Draw_Print_ProgressBar();
+      if (printpercent)
+        Draw_Print_ProgressBar();
       Draw_Print_ProgressElapsed();
-      if (dwin_heat_time > 0) {
+      if (dwin_heat_time > 0 && printpercent > 0) {
         remainingtime = (elapsed.value - dwin_heat_time) / (printpercent * 0.01f) - (elapsed.value - dwin_heat_time);
         Draw_Print_ProgressRemain();
       }
