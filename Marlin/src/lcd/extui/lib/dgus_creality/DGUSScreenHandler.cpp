@@ -1142,9 +1142,15 @@ void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void 
 #if HAS_PROBE_SETTINGS
 void DGUSScreenHandler::HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr) {
   probe.settings.turn_heaters_off = !probe.settings.turn_heaters_off;
-  
+
   RequestSaveSettings();
 }
+
+void DGUSScreenHandler::HandleToggleProbePreheatTemp(DGUS_VP_Variable &var, void *val_ptr) {
+  ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>(var, val_ptr);
+
+  RequestSaveSettings();
+} 
 #endif
 
 void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {

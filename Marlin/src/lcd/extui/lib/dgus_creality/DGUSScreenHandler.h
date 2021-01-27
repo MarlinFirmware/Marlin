@@ -100,6 +100,7 @@ public:
 
   #if HAS_PROBE_SETTINGS
   static void HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleToggleProbePreheatTemp(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   #if HAS_PID_HEATING
