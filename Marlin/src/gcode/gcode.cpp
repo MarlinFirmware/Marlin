@@ -40,7 +40,7 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT)
+#if ENABLED(HOST_ACTION_COMMANDS)
   #include "../feature/host_actions.h"
 #endif
 

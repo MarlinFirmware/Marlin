@@ -357,10 +357,6 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH."
 #elif defined(LEVEL_CORNERS_INSET)
   #error "LEVEL_CORNERS_INSET is now LEVEL_CORNERS_INSET_LFRB."
-#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET_LFRB)
-  #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
-#elif BOTH(LEVEL_CORNERS_USE_PROBE, SENSORLESS_PROBING)
-  #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION."
 #elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
@@ -806,8 +802,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
-  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL) && ANY(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)
-    #error "New Color UI (TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI) does not support BABYSTEP_DISPLAY_TOTAL yet."
   #endif
 #endif
 
@@ -1431,6 +1425,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe: FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
   #endif
 
+#endif
+
+#if ENABLED(LEVEL_BED_CORNERS)
+  #ifndef LEVEL_CORNERS_INSET_LFRB
+    #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
+  #elif ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #if !HAS_BED_PROBE
+      #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
+    #elif ENABLED(SENSORLESS_PROBING)
+      #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+    #endif
+  #endif
 #endif
 
 /**
@@ -3293,6 +3299,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif DISABLED(EEPROM_SETTINGS)
     #warning "PASSWORD_FEATURE settings will be lost on power-off without EEPROM_SETTINGS."
   #endif
+#endif
+
+
+/**
+ * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
+ */
+#if BOTH(MEATPACK, BINARY_FILE_TRANSFER)
+  #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
 #endif
 
 /**
