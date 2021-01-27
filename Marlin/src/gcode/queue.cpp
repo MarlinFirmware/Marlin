@@ -56,6 +56,9 @@ GCodeQueue queue;
   #include "../feature/repeat.h"
 #endif
 
+// Frequently used G-code strings
+PGMSTR(G28_STR, "G28");
+
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.

@@ -544,8 +544,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       // Put Relevant Text on Display
 
-      extern const char X_LBL[], Y_LBL[], Z_LBL[];
-
       // Show X and Y positions at top of screen
       u8g.setColorIndex(1);
       if (PAGE_UNDER(7)) {
