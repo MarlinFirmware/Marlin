@@ -99,6 +99,13 @@
 #define MAX_FLOW_RATE   200
 #define MIN_FLOW_RATE   10
 
+#define MAX_Z_OFFSET 9.99
+#if HAS_BED_PROBE
+  #define MIN_Z_OFFSET -9.99
+#else
+  #define MIN_Z_OFFSET -1
+#endif
+
 #define MAX_E_TEMP    (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT))
 #define MIN_E_TEMP    HEATER_0_MINTEMP
 
@@ -161,12 +168,12 @@ inline void Draw_Float(float value, uint8_t row, bool selected/*=false*/, uint8_
   if (selected) bColor = Select_Color;
   else bColor = Color_Bg_Black;
   if (value < 0) {
-    DWIN_Draw_String(false, true, font8x16, Color_White, bColor, 196, MBASE(row), (char*)"-");
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, bColor, 4-log10(minunit), log10(minunit), 202, MBASE(row), -value * minunit);
+    DWIN_Draw_String(false, true, font8x16, Color_White, bColor, 196, MBASE(row), (char*)"-");
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Color_White, bColor, 196, MBASE(row), (char*)" ");
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, bColor, 4-log10(minunit), log10(minunit), 202, MBASE(row), value * minunit);
+    DWIN_Draw_String(false, true, font8x16, Color_White, bColor, 196, MBASE(row), (char*)" ");
   }
 }
 
@@ -424,12 +431,12 @@ void Draw_Status_Area(const bool with_update) {
 
   DWIN_ICON_Show(ICON, ICON_Zoffset, 180, 411);
   if (zoffsetvalue < 0) {
-    DWIN_Draw_String(false, true, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 198, 412, (char*)"-");
     DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 200, 412, -zoffsetvalue * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 198, 414, (char*)"-");
   }
   else {
-    DWIN_Draw_String(false, true, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 198, 412, (char*)" ");
     DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 200, 412, zoffsetvalue * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 198, 414, (char*)" ");
   }
 
   DWIN_Draw_Rectangle(1, Line_Color, 0, 449, DWIN_WIDTH, 451);
@@ -480,12 +487,12 @@ void Update_Status_Area() {
   if (zoffsetvalue != offset) {
     offset = zoffsetvalue;
     if (zoffsetvalue < 0) {
-      DWIN_Draw_String(false, true, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 198, 412, (char*)"-");
       DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 200, 412, -zoffsetvalue * 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 198, 414, (char*)"-");
     }
     else {
-      DWIN_Draw_String(false, true, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 198, 412, (char*)" ");
       DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 200, 412, zoffsetvalue* 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 198, 414, (char*)" ");
     }
   }
   if (current_position.x != x) {
@@ -770,12 +777,12 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu(ManualLevel, 4);
           }
           break;
-        case 5: // Bottom Right
+        case 5: // Center
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Center");
           } else {
             Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X0 Y0\nG1 F300 Z0\nM220 S100"));
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X117.5 Y117.5\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 5);
           }
@@ -824,31 +831,35 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Z Offset");
             Draw_Float(zoffsetvalue, row, false, 100);
           } else {
-            Modify_Value(zoffsetvalue, -10, 10, 100);
+            Modify_Value(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
           }
           break;
         case 4: // Step Up
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Up");
           } else {
-            if(liveadjust) {
-              gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
-              planner.synchronize();
+            if (zoffsetvalue < MAX_Z_OFFSET) {
+              if(liveadjust) {
+                gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
+                planner.synchronize();
+              }
+              zoffsetvalue += 0.01;
+              Draw_Float(zoffsetvalue, row-1, false, 100);
             }
-            zoffsetvalue += 0.01;
-            Draw_Float(zoffsetvalue, row-1, false, 100);
           }
           break;
         case 5: // Step Down
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
           } else {
-            if(liveadjust) {
-              gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
-              planner.synchronize();
+            if (zoffsetvalue > MIN_Z_OFFSET) {
+              if(liveadjust) {
+                gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
+                planner.synchronize();
+              }
+              zoffsetvalue -= 0.01;
+              Draw_Float(zoffsetvalue, row-2, false, 100);
             }
-            zoffsetvalue -= 0.01;
-            Draw_Float(zoffsetvalue, row-2, false, 100);
           }
           break;
         case 6: // Save
@@ -1518,23 +1529,27 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Z-Offset");
             Draw_Float(zoffsetvalue, row, false, 100);
           } else {
-            Modify_Value(zoffsetvalue, -10, 10, 100);
+            Modify_Value(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
           }
           break;
         case 7: // Z Offset Up
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Z-Offset Up");
           } else {
-            gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
-            zoffsetvalue += 0.01;
+            if (zoffsetvalue < MAX_Z_OFFSET) {
+              gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
+              zoffsetvalue += 0.01;
+            }
           }
           break;
         case 8: // Z Offset Down
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Z-Offset Down");
           } else {
-            gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
-            zoffsetvalue -= 0.01;
+            if (zoffsetvalue > MIN_Z_OFFSET) {
+              gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
+              zoffsetvalue -= 0.01;
+            }
           }
           break;
       }
@@ -2090,7 +2105,7 @@ void Variable_Update() {
     #if HAS_BED_PROBE
       probe.offset.z = zoffsetvalue;
     #else
-      set_home_offset(Z_AXIS, zoffsetvalue);
+      set_home_offset(Z_AXIS, -zoffsetvalue);
     #endif
   }
   if (flowrate != lastflow) {
@@ -2103,8 +2118,8 @@ void Variable_Update() {
       zoffsetvalue = lastzoffset = probe.offset.z;
     }
   #else
-    if (home_offset.z != lastzoffset) {
-      zoffsetvalue = lastzoffset = home_offset.z;
+    if (-home_offset.z != lastzoffset) {
+      zoffsetvalue = lastzoffset = -home_offset.z;
     }
   #endif
   if (planner.flow_percentage[0] != lastflow) {
@@ -2169,10 +2184,11 @@ void HMI_Init() {
   }
 
   DWIN_JPG_CacheTo1(Language_English);
+
   #if HAS_BED_PROBE
     zoffsetvalue = probe.offset.z;
   #else
-    zoffsetvalue = home_offset.z;
+    zoffsetvalue = -home_offset.z;
   #endif
   
 }
