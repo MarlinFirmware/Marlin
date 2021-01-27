@@ -58,86 +58,10 @@
   // Pointer to asm function, calling the functions has a ~20 cycles overhead
   DelayImpl DELAY_CYCLES = delay_asm;
 
-  #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
- /*    FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
-      DISABLE_ISRS();
-        uint32 end = systick_get_count();
-        __delay_4cycles(100);
-        uint32 start = systick_get_count();
-      ENABLE_ISRS();
-      uint32 cycles = (end - start) / 100.0;
-      if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
-        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
-      }
-      else {
-        SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
-      }
-    } */
-
-    void compute_delay_constants() {
-      // Start the DWT counter (we don't care about the cycles here)
-      // Ok, let's measure basic stuff to ensure everything is working as expected
-      // Step 1: Cost of reading the counter
-      uint32_t s = HW_REG(_DWT_CYCCNT);
-      uint32_t c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Reading cycle counter takes: ", (uint32_t)c-s);
-      SERIAL_FLUSH();
-
-      // Step 2: Cost of calling a function via the function pointer
-      s = HW_REG(_DWT_CYCCNT);
-      DELAY_CYCLES(0);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay : ", (uint32_t)c-s);
-      SERIAL_FLUSH();
-
-      // Step 3: Cost of calling the nop_counter
-      DelayImpl f = delay_asm;
-      s = HW_REG(_DWT_CYCCNT);
-      f(0);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay : ", (uint32_t)c-s);
-      SERIAL_FLUSH();
-
-
-      // Check consistency
-      s = HW_REG(_DWT_CYCCNT);
-      DELAY_CYCLES(100);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay for 100 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-      s = HW_REG(_DWT_CYCCNT);
-      DELAY_CYCLES(200);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay for 200 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-      s = HW_REG(_DWT_CYCCNT);
-      DELAY_CYCLES(300);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the DWT based delay for 300 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-      // Check consistency
-      s = HW_REG(_DWT_CYCCNT);
-      f(100);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay for 100 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-      s = HW_REG(_DWT_CYCCNT);
-      f(200);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay for 200 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-      s = HW_REG(_DWT_CYCCNT);
-      f(300);
-      c = HW_REG(_DWT_CYCCNT);
-      SERIAL_ECHOLNPAIR("Overhead of calling the asm based delay for 300 cycles : ", (uint32_t)c-s);      
-      SERIAL_FLUSH();
-    }
-  #endif
-
   void calibrate_delay_loop()
   {
     // Check if we have a working DWT implementation in the CPU (see https://developer.arm.com/documentation/ddi0439/b/Data-Watchpoint-and-Trace-Unit/DWT-Programmers-Model)
-    if (true || !HW_REG(_DWT_CTRL)) {
+    if (!HW_REG(_DWT_CTRL)) {
       // No DWT present, so fallback to plain old ASM nop counting
       // Unfortunately, we don't exactly know how many iteration it'll take to decrement a counter in a loop 
       // It depends on the CPU architecture, the code current position (flash vs SRAM) 
@@ -190,6 +114,16 @@
         uint32_t e = micros();
         SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "us took: ", e - s, "us");      
         SERIAL_FLUSH();
+      }
+
+      if (HW_REG(_DWT_CTRL)) {
+        for (auto i : testValues) {
+          uint32_t s = HW_REG(_DWT_CYCCNT);
+          DELAY_CYCLES(i);
+          uint32_t e = HW_REG(_DWT_CYCCNT);
+          SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "cycles took: ", e - s, "cycles");      
+          SERIAL_FLUSH();
+        }
       }
     #endif
   }
