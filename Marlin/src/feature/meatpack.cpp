@@ -181,12 +181,9 @@ void MeatPack::report_state() {
   // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
   // should not contain the "PV' substring, as this is used to indicate protocol version
   SERIAL_ECHOPGM("[MP] ");
-  SERIAL_ECHOPGM(MeatPack_ProtocolVersion);
-  SERIAL_CHAR(' ');
+  SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
-  SERIAL_CHAR(' ');
-  serialprintPGM(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR("NSP") : PSTR("ESP"));
-  SERIAL_EOL();
+  serialprintPGM(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
 }
 
 /**
