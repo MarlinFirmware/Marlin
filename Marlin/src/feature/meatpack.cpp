@@ -45,7 +45,6 @@
 MeatPack meatpack;
 
 #define MeatPack_ProtocolVersion "PV01"
-//#define MEATPACK_LOOKUP_TABLE
 //#define MP_DEBUG
 
 #define DEBUG_OUT ENABLED(MP_DEBUG)
@@ -59,35 +58,13 @@ uint8_t MeatPack::cmd_count = 0,          // Counts how many command bytes are r
         MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
 uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
 
-#if ENABLED(MEATPACK_LOOKUP_TABLE)
-  // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
-  // Stored in SRAM for performance.
-  static const uint8_t meatPackLookupTable[16] = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    '.', ' ', '\n', 'G', 'X',
-    '\0' // Unused. 0b1111 indicates a literal character
-  };
-#endif
-
-uint8_t MeatPack::unpacked_char(register const uint8_t in) {
-  #if ENABLED(MEATPACK_LOOKUP_TABLE)
-
-    return meatPackLookupTable[in];
-
-  #else
-
-      switch (in) {
-        case 0b0000 ... 0b1001: return '0' + in;
-        case 0b1010: return '.';
-        case 0b1011: return (state & MPConfig_Bit_NoSpaces) ? kSpaceCharReplace : ' ';
-        case 0b1100: return '\n';
-        case 0b1101: return 'G';
-        case 0b1110: return 'X';
-      }
-      return 0;
-
-  #endif
-}
+// The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
+// Stored in SRAM for performance.
+uint8_t meatPackLookupTable[16] = {
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  '.', ' ', '\n', 'G', 'X',
+  '\0' // Unused. 0b1111 indicates a literal character
+};
 
 TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
 
@@ -112,7 +89,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
     out = kFirstCharIsLiteral;
   else {
     const uint8_t chr = pk & 0x0F;
-    chars_out[0] = unpacked_char(chr); // Set the first char
+    chars_out[0] = meatPackLookupTable[(uint8_t)chr]; // Set the first char
   }
 
   // Check if upper nybble is 1111... if so, we don't need the second char.
@@ -120,7 +97,7 @@ uint8_t MeatPack::unpack_chars(const uint8_t pk, uint8_t* __restrict const chars
     out |= kSecondCharIsLiteral;
   else {
     const uint8_t chr = (pk >> 4) & 0x0F;
-    chars_out[1] = unpacked_char(chr); // Set the second char
+    chars_out[1] = meatPackLookupTable[(uint8_t)chr]; // Set the second char
   }
 
   return out;
@@ -188,13 +165,13 @@ void MeatPack::handle_command(const MeatPack_Command c) {
     case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
     case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
     case MPCommand_ResetAll:        reset_state();                     DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
-    case MPCommand_EnableNoSpaces:  SBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");
-                                    TERN_(USE_LOOKUP_TABLE, MeatPackLookupTbl[kSpaceCharIdx] = kSpaceCharReplace);
-                                    break;
-    case MPCommand_DisableNoSpaces: CBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");
-                                    TERN_(USE_LOOKUP_TABLE, MeatPackLookupTbl[kSpaceCharIdx] = ' ');
-                                    break;
-    default:                                                           DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
+    case MPCommand_EnableNoSpaces: { SBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");
+      meatPackLookupTable[kSpaceCharIdx] = kSpaceCharReplace;
+    }break;
+    case MPCommand_DisableNoSpaces: { CBI(state, MPConfig_Bit_NoSpaces); DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");
+      meatPackLookupTable[kSpaceCharIdx] = ' ';
+    }break;
+    default: DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
     case MPCommand_QueryConfig: break;
   }
   report_state();
