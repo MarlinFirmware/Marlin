@@ -32,11 +32,14 @@
 
 #include "../../core/macros.h"
 
+void calibrate_delay_loop();
+
 #if defined(__arm__) || defined(__thumb__)
 
   // We want to have delay_cycle function with the lowest possible overhead, so we adjust at the function at runtime based on the current CPU best feature
   typedef void (*DelayImpl)(uint32_t);
   extern DelayImpl DELAY_CYCLES;
+
 
 #elif defined(__AVR__)
 
