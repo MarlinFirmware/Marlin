@@ -479,7 +479,7 @@ void GCodeQueue::get_serial_commands() {
       if (c < 0) continue;
 
       #if ENABLED(MEATPACK)
-        meatpack.handle_rx_char(uint8_t(c));
+        meatpack.handle_rx_char(uint8_t(c),i);
         char c_res[2] = { 0, 0 };
         const uint8_t char_count = meatpack.get_result_char(c_res);
       #else
