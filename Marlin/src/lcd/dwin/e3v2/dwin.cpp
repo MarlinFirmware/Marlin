@@ -1946,6 +1946,7 @@ inline void Popup_Control() {
           card.flag.abort_sd_printing = true; 
           thermalManager.zero_fan_speeds();
           thermalManager.disable_all_heaters();
+          Draw_Main_Menu();
           } else {
             // TODO: Local Stop During Host Print
           }
