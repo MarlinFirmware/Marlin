@@ -27,7 +27,6 @@
 #include "endstops.h"
 #include "stepper.h"
 
-#include "../MarlinCore.h"
 #include "../sd/cardreader.h"
 #include "temperature.h"
 #include "../lcd/marlinui.h"

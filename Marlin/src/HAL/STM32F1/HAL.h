@@ -61,8 +61,11 @@
 #endif
 
 #ifdef SERIAL_USB
+  typedef ForwardSerial0Type< USBSerial > DefaultSerial;
+  extern DefaultSerial MSerial;
+
   #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial Serial
+    #define UsbSerial MSerial
   #else
     #define UsbSerial MarlinCompositeSerial
   #endif
@@ -151,18 +154,6 @@ void HAL_idletask();
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
-
-// Add PROGRAM function macro aliases if not defined
-#ifndef memcmp_P
-  #define memcmp_P memcmp
-#endif
-#ifndef strncpy_P
-  #define strncpy_P strncpy
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
 
 #define RST_POWER_ON   1
 #define RST_EXTERNAL   2

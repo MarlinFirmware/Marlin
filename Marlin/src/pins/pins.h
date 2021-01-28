@@ -573,19 +573,19 @@
 #elif MB(STEVAL_3DP001V1)
   #include "stm32f4/pins_STEVAL_3DP001V1.h"     // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BTT_SKR_PRO_V1_1)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
 #elif MB(BTT_SKR_PRO_V1_2)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
 #elif MB(BTT_GTR_V1_0)
-  #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0
+  #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0 env:BIGTREE_GTR_V1_0_usb_flash_drive
 #elif MB(BTT_BTT002_V1_0)
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
-  #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK
+  #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)
-  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGES
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGES env:LERDGES_usb_flash_drive
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGEX
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGEX env:LERDGEX_usb_flash_drive
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4
 #elif MB(FYSETC_S6)
@@ -599,7 +599,7 @@
 #elif MB(MKS_ROBIN_PRO_V2)
   #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"    // STM32F4                                env:mks_robin_pro2
 #elif MB(MKS_ROBIN_NANO_V3)
-  #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3
+  #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3 env:mks_robin_nano_v3_usb_flash_drive
 #elif MB(ANET_ET4)
   #include "stm32f4/pins_ANET_ET4.h"            // STM32F4                                env:Anet_ET4_OpenBLT
 #elif MB(ANET_ET4P)

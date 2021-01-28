@@ -53,12 +53,18 @@
   #define IS_TEENSY35 1
 #endif
 
-#define _MSERIAL(X) Serial##X
+#include "../../core/serial_hook.h"
+typedef Serial0Type<decltype(Serial)> DefaultSerial;
+extern DefaultSerial MSerial;
+typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define Serial0 Serial
+#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL0 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #endif
@@ -79,21 +85,6 @@ typedef int8_t pin_t;
 
 #undef sq
 #define sq(x) ((x)*(x))
-
-// Add PROGRAM function macro aliases if not defined
-#ifndef memcmp_P
-  #define memcmp_P memcmp
-#endif
-#ifndef strncpy_P
-  #define strncpy_P strncpy
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 inline void HAL_init() {}
 

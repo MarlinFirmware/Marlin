@@ -21,14 +21,12 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
 #include "wifi_upload.h"
 #include "SPI_TFT.h"
-
-#if ENABLED(MKS_WIFI_MODULE)
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
@@ -39,6 +37,10 @@
 #include "../../../../module/planner.h"
 #include "../../../../module/servo.h"
 #include "../../../../module/probe.h"
+
+#if DISABLED(EMERGENCY_PARSER)
+  #include "../../../../module/motion.h"
+#endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
@@ -455,7 +457,6 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
   return 1;
 }
 
-
 #define SEND_OK_TO_WIFI send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"))
 int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF, buf, len); }
 
@@ -548,7 +549,6 @@ typedef struct {
   uint8_t *data;
   uint8_t tail;
 } ESP_PROTOC_FRAME;
-
 
 static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   if (msgLen < cutLen) return 0;
@@ -953,7 +953,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             wifi_ret_ack();
             send_to_wifi((uint8_t *)"M997 PAUSE\r\n", strlen("M997 PAUSE\r\n"));
           }
-          if (uiCfg.command_send == 0) get_wifi_list_command_send();
+          if (!uiCfg.command_send) get_wifi_list_command_send();
           break;
 
         case 998:
@@ -1095,13 +1095,13 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     memcpy(wifi_firm_ver, (const char *)&msg[16 + wifiNameLen + wifiKeyLen + hostLen + id_len], ver_len);
   }
 
-  if (uiCfg.configWifi == 1) {
+  if (uiCfg.configWifi) {
     if ((wifiPara.mode != gCfgItems.wifi_mode_sel)
       || (strncmp(wifiPara.ap_name, (const char *)uiCfg.wifi_name, 32) != 0)
       || (strncmp(wifiPara.keyCode, (const char *)uiCfg.wifi_key, 64) != 0)) {
       package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
     }
-    else uiCfg.configWifi = 0;
+    else uiCfg.configWifi = false;
   }
   if (cfg_cloud_flag == 1) {
     if (((cloud_para.state >> 4) != (char)gCfgItems.cloud_enable)
@@ -1127,7 +1127,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   wifi_list.getNameNum = msg[0];
 
   if (wifi_list.getNameNum < 20) {
-    uiCfg.command_send = 1;
+    uiCfg.command_send = true;
     ZERO(wifi_list.wifiName);
     wifi_name_num = wifi_list.getNameNum;
     valid_name_num = 0;
@@ -1663,7 +1663,7 @@ void mks_esp_wifi_init() {
 
         clear_cur_ui();
 
-        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
         if (wifi_upload(1) >= 0) {
 
           f_unlink("1:/MKS_WIFI_CUR");
@@ -1703,7 +1703,6 @@ void mks_esp_wifi_init() {
   wifi_link_state = WIFI_NOT_CONFIG;
 }
 
-
 void mks_wifi_firmware_update() {
   card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
@@ -1717,7 +1716,7 @@ void mks_wifi_firmware_update() {
 
     clear_cur_ui();
 
-    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMARE);
+    lv_draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
 
     lv_task_handler();
     watchdog_refresh();
@@ -1822,5 +1821,4 @@ int readWifiBuf(int8_t *buf, int32_t len) {
   return i;
 }
 
-#endif // MKS_WIFI_MODULE
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE

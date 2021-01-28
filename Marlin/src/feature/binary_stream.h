@@ -30,11 +30,11 @@
 #endif
 
 inline bool bs_serial_data_available(const uint8_t index) {
-  return serialHook.available(index);
+  return SERIAL_IMPL.available(index);
 }
 
 inline int bs_read_serial(const uint8_t index) {
-  return serialHook.read(index);
+  return SERIAL_IMPL.read(index);
 }
 
 #if ENABLED(BINARY_STREAM_COMPRESSION)

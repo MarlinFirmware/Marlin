@@ -69,16 +69,23 @@ def add_to_feat_cnf(feature, flines):
 	except:
 		FEATURE_CONFIG[feature] = {}
 
+	# Get a reference to the FEATURE_CONFIG under construction
 	feat = FEATURE_CONFIG[feature]
-	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
-	for dep in atoms:
-		parts = dep.split('=')
+
+	# Split up passed lines on commas or newlines and iterate
+	# Add common options to the features config under construction
+	# For lib_deps replace a previous instance of the same library
+	atoms = re.sub(r',\\s*', '\n', flines).strip().split('\n')
+	for line in atoms:
+		parts = line.split('=')
 		name = parts.pop(0)
-		rest = '='.join(parts)
 		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
-			feat[name] = rest
+			feat[name] = '='.join(parts)
 		else:
-			feat['lib_deps'] += [dep]
+			for dep in line.split(','):
+				lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
+				lib_re = re.compile('(?!^' + lib_name + '\\b)')
+				feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
 
 def load_config():
 	config = configparser.ConfigParser()
@@ -185,8 +192,8 @@ def apply_features_config():
 			blab("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
-			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
-			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter)
+			my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
+			cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
 			for d in my_srcs:
 				if d in cur_srcs:
 					src_filter = re.sub(r'[+-]' + d, '', src_filter)

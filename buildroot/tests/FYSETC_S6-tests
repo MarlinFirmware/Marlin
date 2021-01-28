@@ -9,6 +9,7 @@ set -e
 # Build examples
 restore_configs
 use_example_configs FYSETC/S6
+opt_enable MEATPACK
 opt_set Y_DRIVER_TYPE TMC2209
 opt_set Z_DRIVER_TYPE TMC2130
 exec_test $1 $2 "FYSETC S6 Example" "$3"
