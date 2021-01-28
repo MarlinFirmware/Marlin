@@ -153,14 +153,14 @@ void GCodeQueue::_commit_command(bool say_ok
  */
 bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   #if HAS_MULTI_SERIAL
-    , int16_t pn/*=-1*/
+    , serial_index_t serial_ind/*=-1*/
   #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(command_buffer[index_w], cmd);
   _commit_command(say_ok
     #if HAS_MULTI_SERIAL
-      , pn
+      , serial_ind
     #endif
   );
   return true;
@@ -289,9 +289,9 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  */
 void GCodeQueue::ok_to_send() {
   #if HAS_MULTI_SERIAL
-    const int16_t pn = command_port();
-    if (pn < 0) return;
-    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
+    const serial_index_t serial_ind = command_port();
+    if (serial_ind < 0) return;
+    PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(STR_OK);
@@ -314,14 +314,14 @@ void GCodeQueue::ok_to_send() {
  * indicate that a command needs to be re-sent.
  */
 void GCodeQueue::flush_and_request_resend() {
-  const int16_t pn = command_port();
+  const serial_index_t serial_ind = command_port();
   #if HAS_MULTI_SERIAL
-    if (pn < 0) return;
-    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
+    if (serial_ind < 0) return;
+    PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  SERIAL_ECHOLN(last_N[pn] + 1);
+  SERIAL_ECHOLN(last_N[serial_ind] + 1);
   ok_to_send();
 }
 
@@ -348,14 +348,14 @@ inline int read_serial(const uint8_t index) {
   }
 }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
-  PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
+void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
+  PORT_REDIRECT(serial_ind);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
-  SERIAL_ECHOLN(last_N[pn]);
-  while (read_serial(pn) != -1);          // Clear out the RX buffer
+  SERIAL_ECHOLN(last_N[serial_ind]);
+  while (read_serial(serial_ind) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
-  serial_count[pn] = 0;
+  serial_count[serial_ind] = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc

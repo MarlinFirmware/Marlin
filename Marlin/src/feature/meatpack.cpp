@@ -68,13 +68,13 @@ uint8_t meatPackLookupTable[16] = {
 
 TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
 
-void MeatPack::reset_state(const uint8_t serial_num) {
+void MeatPack::reset_state(const serial_index_t serial_ind) {
   state = 0;
   cmd_is_next = false;
   second_char = 0;
   cmd_count = full_char_count = char_out_count = 0;
   TERN_(MP_DEBUG, chars_decoded = 0);
-  report_state(serial_num);
+  report_state(serial_ind);
 }
 
 /**
@@ -159,13 +159,13 @@ void MeatPack::handle_output_char(const uint8_t c) {
  * Process a MeatPack command byte to update the state.
  * Report the new state to serial.
  */
-void MeatPack::handle_command(const MeatPack_Command c, const uint8_t serial_num) {
+void MeatPack::handle_command(const MeatPack_Command c, const serial_index_t serial_ind) {
   switch (c) {
     case MPCommand_QueryConfig:     break;
     case MPCommand_EnablePacking:   SBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
     case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
     case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
-    case MPCommand_ResetAll:        reset_state(serial_num);           DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
+    case MPCommand_ResetAll:        reset_state(serial_ind);           DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
     case MPCommand_EnableNoSpaces:
       SBI(state, MPConfig_Bit_NoSpaces);
       meatPackLookupTable[kSpaceCharIdx] = kSpaceCharReplace;          DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");   break;
@@ -174,13 +174,13 @@ void MeatPack::handle_command(const MeatPack_Command c, const uint8_t serial_num
       meatPackLookupTable[kSpaceCharIdx] = ' ';                        DEBUG_ECHOLNPGM("[MPDBG] DIS NSP");   break;
     default:                                                           DEBUG_ECHOLNPGM("[MPDBG] UNK CMD REC");
   }
-  report_state(serial_num);
+  report_state(serial_ind);
 }
 
-void MeatPack::report_state(const uint8_t serial_num) {
+void MeatPack::report_state(const serial_index_t serial_ind) {
   // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
   // should not contain the "PV' substring, as this is used to indicate protocol version
-  PORT_REDIRECT(serial_num);
+  PORT_REDIRECT(serial_ind);
   SERIAL_ECHOPGM("[MP] ");
   SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
@@ -191,7 +191,7 @@ void MeatPack::report_state(const uint8_t serial_num) {
  * Interpret a single character received from serial
  * according to the current meatpack state.
  */
-void MeatPack::handle_rx_char(const uint8_t c, const uint8_t serial_num) {
+void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) {
   if (c == kCommandByte) {                // A command (0xFF) byte?
     if (cmd_count) {                      // In fact, two in a row?
       cmd_is_next = true;                 // Then a MeatPack command follows
@@ -203,7 +203,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const uint8_t serial_num) {
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
-    handle_command((MeatPack_Command)c, serial_num);  // Then the byte is a MeatPack command
+    handle_command((MeatPack_Command)c, serial_ind);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;
   }

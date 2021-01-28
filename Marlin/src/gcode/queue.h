@@ -165,7 +165,7 @@ private:
 
   static bool _enqueue(const char* cmd, bool say_ok=false
     #if HAS_MULTI_SERIAL
-      , int16_t p=-1
+      , serial_index_t serial_ind=-1
     #endif
   );
 
@@ -181,7 +181,7 @@ private:
    */
   static bool enqueue_one(const char* cmd);
 
-  static void gcode_line_error(PGM_P const err, const int8_t pn);
+  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 
 };
 
