@@ -74,7 +74,6 @@ void MeatPack::reset_state() {
   second_char = 0;
   cmd_count = full_char_count = char_out_count = 0;
   TERN_(MP_DEBUG, chars_decoded = 0);
-  report_state();
 }
 
 /**
@@ -189,7 +188,7 @@ void MeatPack::report_state() {
  * Interpret a single character received from serial
  * according to the current meatpack state.
  */
-void MeatPack::handle_rx_char(const uint8_t c) {
+void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) {
   if (c == kCommandByte) {                // A command (0xFF) byte?
     if (cmd_count) {                      // In fact, two in a row?
       cmd_is_next = true;                 // Then a MeatPack command follows
@@ -201,6 +200,7 @@ void MeatPack::handle_rx_char(const uint8_t c) {
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
+    PORT_REDIRECT(serial_ind);
     handle_command((MeatPack_Command)c);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;

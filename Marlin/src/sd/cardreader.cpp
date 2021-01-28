@@ -1229,7 +1229,7 @@ void CardReader::fileHasFinished() {
   uint8_t CardReader::auto_report_sd_interval = 0;
   millis_t CardReader::next_sd_report_ms;
   #if HAS_MULTI_SERIAL
-    int8_t CardReader::auto_report_port;
+    serial_index_t CardReader::auto_report_port;
   #endif
 
   void CardReader::auto_report_sd_status() {

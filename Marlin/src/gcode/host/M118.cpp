@@ -53,7 +53,7 @@ void GcodeSuite::M118() {
   }
 
   #if HAS_MULTI_SERIAL
-    const int8_t old_serial = serial_port_index;
+    const serial_index_t old_serial = serial_port_index;
     if (WITHIN(port, 0, NUM_SERIAL))
       serial_port_index = (
         port == 0 ? SERIAL_BOTH

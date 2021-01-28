@@ -101,7 +101,7 @@ private:
 
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
-  static void handle_rx_char(const uint8_t c);
+  static void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
 
   /**
    * After passing in rx'd char using above method, call this to get characters out.

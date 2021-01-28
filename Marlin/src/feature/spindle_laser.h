@@ -157,7 +157,7 @@ public:
         #elif CUTTER_UNIT_IS(RPM)
           2
         #else
-          #error "CUTTER_UNIT_IS(???)"
+          #error "CUTTER_UNIT_IS(unknown)"
         #endif
       ));
     }

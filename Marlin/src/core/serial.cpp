@@ -34,7 +34,7 @@ PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMST
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 #if HAS_MULTI_SERIAL
-  int8_t serial_port_index = 0;
+  serial_index_t serial_port_index = 0;
 #endif
 
 void serialprintPGM(PGM_P str) {
