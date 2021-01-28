@@ -184,6 +184,11 @@
 
 // MISC --------------------------------------------
 
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
@@ -288,6 +293,10 @@
   #endif
   
   #define CR10_STOCKDISPLAY
+  
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
   
   #if ENABLED(SKR_E3_MINI_V1)
     #ifndef MOTHERBOARD

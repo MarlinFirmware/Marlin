@@ -180,6 +180,11 @@
 
 // MISC --------------------------------------------
 
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
@@ -257,7 +262,7 @@
  * Machine Configuration Settings
  */
  
- //Ender 3/5 V422 Board Settings
+ //Ender 3/5 V42X Board Settings
 #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
   //V42X with TMC Driver Sanity Checks
   #if (ENABLED(V422_TMC2208_DRIVERS) || ENABLED(V422_TMC2209_DRIVERS) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)) && ENABLED(LINEAR_ADVANCE)
@@ -270,6 +275,10 @@
   
   #define CR10_STOCKDISPLAY
   #define RET6_12864_LCD
+  
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
   
   #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD)
     #ifndef MOTHERBOARD
@@ -507,7 +516,7 @@
   #endif
 
 #endif
-// End Ender 3/5 V422 Board Settings
+// End Ender 3/5 V42X Board Settings
  
 // Ender 3 V2 Settings
 #if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V427_BOARD)

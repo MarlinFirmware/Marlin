@@ -312,6 +312,11 @@
 
 // MISC --------------------------------------------
 
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
@@ -431,11 +436,18 @@
   
   #if ENABLED(SIDEWINDER_X1)
     #define MKS_MINI_12864
+    
+    #if ENABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
   #endif
 
   #if ENABLED(ARTILLERY_AL4)
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-    #define REVERSE_ENCODER_DIRECTION
+    
+    #if DISABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
   #endif
 
   #define DEFAULT_LCD_CONTRAST 150
@@ -690,12 +702,24 @@
   
   #if ENABLED(CR10LCD_CR10S) || ENABLED(ENDER3_DUAL_EXTRUDER_BOARD) || ENABLED(ENDER5_DUAL_EXTRUDER_BOARD)
     #define CR10_STOCKDISPLAY
+    #if ENABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
   #elif ENABLED(CR20)
     #define MINIPANEL
+    #if ENABLED(REVERSE_KNOB_DIRECTION)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
   #else
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
     #if ENABLED(CRX) || ENABLED(CR10S_PRO) || ENABLED(ENDER5_PLUS)
-      #define REVERSE_ENCODER_DIRECTION
+      #if DISABLED(REVERSE_KNOB_DIRECTION)
+        #define REVERSE_ENCODER_DIRECTION
+      #endif
+    #else
+      #if ENABLED(REVERSE_KNOB_DIRECTION)
+        #define REVERSE_ENCODER_DIRECTION
+      #endif
     #endif
   #endif
 
@@ -1036,6 +1060,11 @@
   #define BAUDRATE 115200
   
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+  
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
@@ -1217,6 +1246,11 @@
   #define BAUDRATE 115200
   
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+  
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
@@ -1393,6 +1427,11 @@
   #define BAUDRATE 250000
   
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+  
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
