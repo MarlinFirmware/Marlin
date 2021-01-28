@@ -67,6 +67,10 @@ void calibrate_delay_loop();
       }
     };
 
+    template <> struct Helper<true, 0> {
+      FORCE_INLINE static void build() {}
+    };
+
   }
   // Select a behavior based on the constexpr'ness of the parameter
   // If called with a compile-time parameter, then write as many NOP as required to reach the asked cycle count
