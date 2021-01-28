@@ -267,7 +267,7 @@ private:
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
     #if HAS_MULTI_SERIAL
-      static int8_t auto_report_port;
+      static serial_index_t auto_report_port;
     #endif
   #endif
 
