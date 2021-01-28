@@ -550,12 +550,11 @@ void openFailed(const char * const fname) {
 
 void announceOpen(const uint8_t doing, const char * const path) {
   if (doing) {
-    PORT_REDIRECT(SERIAL_BOTH);
+    PORT_REDIRECT(SERIAL_ALL);
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Now ");
     serialprintPGM(doing == 1 ? PSTR("doing") : PSTR("fresh"));
     SERIAL_ECHOLNPAIR(" file: ", path);
-    PORT_RESTORE();
   }
 }
 
@@ -617,10 +616,11 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
     filesize = file.fileSize();
     sdpos = 0;
 
-    PORT_REDIRECT(SERIAL_BOTH);
-    SERIAL_ECHOLNPAIR(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
-    SERIAL_ECHOLNPGM(STR_SD_FILE_SELECTED);
-    PORT_RESTORE();
+    { // Don't remove this block, as the PORT_REDIRECT is a RAII
+      PORT_REDIRECT(SERIAL_ALL);
+      SERIAL_ECHOLNPAIR(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
+      SERIAL_ECHOLNPGM(STR_SD_FILE_SELECTED);
+    }
 
     selectFileByName(fname);
     ui.set_status(longFilename[0] ? longFilename : fname);
@@ -1229,7 +1229,7 @@ void CardReader::fileHasFinished() {
   uint8_t CardReader::auto_report_sd_interval = 0;
   millis_t CardReader::next_sd_report_ms;
   #if HAS_MULTI_SERIAL
-    int8_t CardReader::auto_report_port;
+    serial_index_t CardReader::auto_report_port;
   #endif
 
   void CardReader::auto_report_sd_status() {

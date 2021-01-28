@@ -468,6 +468,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
+      #error "CAUTION! ZONESTAR_LCD on RAMPS requires wiring modifications. It plugs into AUX2 but GND and 5V need to be swapped. Comment out this line to continue."
       #define LCD_PINS_RS                     64
       #define LCD_PINS_ENABLE                 44
       #define LCD_PINS_D4                     63
