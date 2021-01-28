@@ -1026,7 +1026,7 @@
 #if ENABLED(PROBE_TARE)
   #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
   #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
-  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
+  #define PROBE_TARE_STATE LOW   // State to write pin for tare
   #define PROBE_TARE_BUZZ       // Do a short buzz when the probe is tared - useful for debugging
   #define PROBE_TARE_MENU       // Add tare option to MarlinUI
   //#define PROBE_TARE_PIN PA5    // Override default pin
