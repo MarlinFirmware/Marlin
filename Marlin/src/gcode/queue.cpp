@@ -89,7 +89,7 @@ char GCodeQueue::command_buffer[BUFSIZE][MAX_CMD_SIZE];
  * The port that the command was received on
  */
 #if HAS_MULTI_SERIAL
-  int16_t GCodeQueue::port[BUFSIZE];
+  serial_index_t GCodeQueue::port[BUFSIZE];
 #endif
 
 /**
@@ -136,11 +136,11 @@ void GCodeQueue::clear() {
  */
 void GCodeQueue::_commit_command(bool say_ok
   #if HAS_MULTI_SERIAL
-    , int16_t p/*=-1*/
+    , serial_index_t serial_ind
   #endif
 ) {
   send_ok[index_w] = say_ok;
-  TERN_(HAS_MULTI_SERIAL, port[index_w] = p);
+  TERN_(HAS_MULTI_SERIAL, port[index_w] = serial_ind);
   TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
@@ -153,7 +153,7 @@ void GCodeQueue::_commit_command(bool say_ok
  */
 bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   #if HAS_MULTI_SERIAL
-    , serial_index_t serial_ind/*=-1*/
+    , serial_index_t serial_ind
   #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
