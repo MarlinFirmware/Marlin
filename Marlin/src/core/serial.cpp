@@ -39,7 +39,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 
 #if HAS_MULTI_SERIAL
   #ifdef SERIAL_CATCHALL
-    SerialOutputT multiSerial(MYSERIAL, SERIAL_CATCHALL);  
+    SerialOutputT multiSerial(MYSERIAL, SERIAL_CATCHALL);
   #else
     #if HAS_ETHERNET
       // Runtime checking of the condition variable
