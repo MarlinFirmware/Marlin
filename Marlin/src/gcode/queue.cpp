@@ -576,7 +576,7 @@ void GCodeQueue::get_serial_commands() {
           );
         }
         else
-          process_stream_char(serial_char, serial_input_state[i], serial_line_buffer[i], serial_count[i]);
+          process_stream_char(serial_char, serial_input_state[p], serial_line_buffer[p], serial_count[p]);
 
       } // char_count loop
 
