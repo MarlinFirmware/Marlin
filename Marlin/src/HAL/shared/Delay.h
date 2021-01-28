@@ -38,7 +38,54 @@ void calibrate_delay_loop();
 
   // We want to have delay_cycle function with the lowest possible overhead, so we adjust at the function at runtime based on the current CPU best feature
   typedef void (*DelayImpl)(uint32_t);
-  extern DelayImpl DELAY_CYCLES;
+  extern DelayImpl DelayCycleFnc;
+
+  // I've measured 36 cycles on my system to call the cycle waiting method, but it shouldn't change much to have a bit more margin
+  #define TRIP_POINT_FOR_CALLING_FUNCTION   40
+
+  // A simple recursive template class that output exactly one 'nop' of code per recursion
+  template <int N> struct NopWriter {
+    FORCE_INLINE static void build() {
+      __asm__ __volatile__("nop");
+      NopWriter<N-1>::build();
+    }
+  };
+  // End the loop
+  template <> struct NopWriter<0> { FORCE_INLINE static void build() {} };
+
+  namespace Private {
+    // Split recursing template in 2 different class so we don't reach the maximum template instantiation depth limit
+    template <bool belowTP, int N> struct Helper {
+      FORCE_INLINE static void build() {
+        DelayCycleFnc(N - 5); //  Approximative cost of calling the function
+      }
+    };
+
+    template <int N> struct Helper<true, N> {
+      FORCE_INLINE static void build() {
+        NopWriter<N - 1>::build();
+      }
+    };
+
+  }
+  // Select a behavior based on the constexpr'ness of the parameter
+  // If called with a compile-time parameter, then write as many NOP as required to reach the asked cycle count
+  // (there is some tripping point here to start looping when it's more profitable than gruntly executing NOPs)
+  // If not called from a compile-time parameter, fallback to a runtime loop counting version instead
+  template <bool compileTime, int Cycles>
+  struct SmartDelay {
+    FORCE_INLINE SmartDelay(int) {
+      if (Cycles == 0) return;
+      Private::Helper<Cycles < TRIP_POINT_FOR_CALLING_FUNCTION, Cycles>::build();
+    }
+  };
+  // Runtime version below. There is no way this would run under less than ~TRIP_POINT_FOR_CALLING_FUNCTION cycles
+  template <int T>
+  struct SmartDelay<false, T> {
+    FORCE_INLINE SmartDelay(int v) { DelayCycleFnc(v); }
+  };
+
+  #define DELAY_CYCLES(X) do { SmartDelay<IS_CONSTEXPR(X), IS_CONSTEXPR(X) ? X : 0> _smrtdly_X(X); } while(0)
 
 
 #elif defined(__AVR__)

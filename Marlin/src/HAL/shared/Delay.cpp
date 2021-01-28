@@ -49,70 +49,70 @@
   // Use hardware cycle counter instead, it's much safer
   void delay_dwt(uint32_t count) {
     // Reuse the ASM_CYCLES_PER_ITERATION variable to avoid wasting another useless variable
-    uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;  
+    register uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
     do {
       elapsed = HW_REG(_DWT_CYCCNT) - start;
     } while (elapsed < count);
   }
 
   // Pointer to asm function, calling the functions has a ~20 cycles overhead
-  DelayImpl DELAY_CYCLES = delay_asm;
+  DelayImpl DelayCycleFnc = delay_asm;
 
   void calibrate_delay_loop()
   {
     // Check if we have a working DWT implementation in the CPU (see https://developer.arm.com/documentation/ddi0439/b/Data-Watchpoint-and-Trace-Unit/DWT-Programmers-Model)
     if (!HW_REG(_DWT_CTRL)) {
       // No DWT present, so fallback to plain old ASM nop counting
-      // Unfortunately, we don't exactly know how many iteration it'll take to decrement a counter in a loop 
-      // It depends on the CPU architecture, the code current position (flash vs SRAM) 
-      // So, instead of wild guessing and making mistake, instead 
+      // Unfortunately, we don't exactly know how many iteration it'll take to decrement a counter in a loop
+      // It depends on the CPU architecture, the code current position (flash vs SRAM)
+      // So, instead of wild guessing and making mistake, instead
       // compute it once for all
       ASM_CYCLES_PER_ITERATION = 1;
       // We need to fetch some reference clock before waiting
       cli();
         uint32_t start = micros();
-        delay_asm(1000); // On a typical CPU running in MHz, waiting 1000 "unknown cycles" means it'll take between 1ms to 6ms, that's perfectly acceptable 
+        delay_asm(1000); // On a typical CPU running in MHz, waiting 1000 "unknown cycles" means it'll take between 1ms to 6ms, that's perfectly acceptable
         uint32_t end = micros();
-      sei(); 
+      sei();
       uint32_t expectedCycles = (end - start) * ((F_CPU) / 1000000UL); // Convert microseconds to cycles
       // Finally compute the right scale
-      ASM_CYCLES_PER_ITERATION = (uint32_t)(expectedCycles / 1000); 
+      ASM_CYCLES_PER_ITERATION = (uint32_t)(expectedCycles / 1000);
 
       // No DWT present, likely a Cortex M0 so NOP counting is our best bet here
-      DELAY_CYCLES = delay_asm;
+      DelayCycleFnc = delay_asm;
     }
     else {
       // Enable DWT counter
       // From https://stackoverflow.com/a/41188674/1469714
       HW_REG(_DEM_CR) = HW_REG(_DEM_CR) | 0x01000000;   // Enable trace
       #if __CORTEX_M == 7
-        HW_REG(_LAR) = 0xC5ACCE55;                      // Unlock access to DWT registers, see https://developer.arm.com/documentation/ihi0029/e/ section B2.3.10 
+        HW_REG(_LAR) = 0xC5ACCE55;                      // Unlock access to DWT registers, see https://developer.arm.com/documentation/ihi0029/e/ section B2.3.10
       #endif
       HW_REG(_DWT_CYCCNT) = 0;                          // Clear DWT cycle counter
       HW_REG(_DWT_CTRL) = HW_REG(_DWT_CTRL) | 1;        // Enable DWT cycle counter
 
-      // Then calibrate the constant offset from the counter 
+      // Then calibrate the constant offset from the counter
       ASM_CYCLES_PER_ITERATION = 0;
       uint32_t s = HW_REG(_DWT_CYCCNT);
-      uint32_t e = HW_REG(_DWT_CYCCNT);  // (e - s) contains the number of cycle required to read the cycle counter 
+      uint32_t e = HW_REG(_DWT_CYCCNT);  // (e - s) contains the number of cycle required to read the cycle counter
       delay_dwt(0);
       uint32_t f = HW_REG(_DWT_CYCCNT);  // (f - e) contains the delay to call the delay function + the time to read the cycle counter
       ASM_CYCLES_PER_ITERATION = (f - e) - (e - s);
 
       // Use safer DWT function
-      DELAY_CYCLES = delay_dwt;
+      DelayCycleFnc = delay_dwt;
     }
 
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPAIR("Computed delay calibration value: ", ASM_CYCLES_PER_ITERATION);
       SERIAL_FLUSH();
       // Display the results of the calibration above
-      uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };
+      constexpr uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };
       for (auto i : testValues) {
         uint32_t s = micros();
         DELAY_US(i);
         uint32_t e = micros();
-        SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "us took: ", e - s, "us");      
+        SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "us took: ", e - s, "us");
         SERIAL_FLUSH();
       }
 
@@ -121,9 +121,42 @@
           uint32_t s = HW_REG(_DWT_CYCCNT);
           DELAY_CYCLES(i);
           uint32_t e = HW_REG(_DWT_CYCCNT);
-          SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "cycles took: ", e - s, "cycles");      
+          SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "cycles took: ", e - s, "cycles");
           SERIAL_FLUSH();
         }
+
+        // Measure the delay to call a real function compared to a function pointer
+        uint32_t s = HW_REG(_DWT_CYCCNT);
+        delay_dwt(1);
+        uint32_t e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the delay_dwt function directly for ", 1, "cycles took: ", e - s, "cycles");
+        SERIAL_FLUSH();
+
+        s = HW_REG(_DWT_CYCCNT);
+        DELAY_CYCLES(1);
+        e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 1, "cycles took: ", e - s, "cycles");
+
+        s = HW_REG(_DWT_CYCCNT);
+        DELAY_CYCLES(5);
+        e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 5, "cycles took: ", e - s, "cycles");
+
+        s = HW_REG(_DWT_CYCCNT);
+        DELAY_CYCLES(10);
+        e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 10, "cycles took: ", e - s, "cycles");
+
+        s = HW_REG(_DWT_CYCCNT);
+        DELAY_CYCLES(20);
+        e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 20, "cycles took: ", e - s, "cycles");
+
+        s = HW_REG(_DWT_CYCCNT);
+        DELAY_CYCLES(50);
+        e = HW_REG(_DWT_CYCCNT);
+        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 50, "cycles took: ", e - s, "cycles");
+
       }
     #endif
   }
