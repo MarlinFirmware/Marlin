@@ -146,6 +146,7 @@ millis_t dwin_heat_time = 0;
 char lastmsg[21];
 bool printing = false;
 bool paused = false;
+bool sdprint = false;
 
 int16_t pausetemp;
 int16_t pausebed;
@@ -325,7 +326,7 @@ void Draw_Print_Screen() {
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
-  if (card.isPrinting()) {
+  if (sdprint) {
     char * const name = card.longest_filename();
     const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
     DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
@@ -360,9 +361,9 @@ void Draw_Print_confirm() {
   process = Confirm;
   popup = Complete;
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 252, 263, 351);
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 272);
-  DWIN_Draw_Rectangle(0, Select_Color, 86, 272, 187, 311);
-  DWIN_Draw_Rectangle(0, Select_Color, 85, 271, 188, 312);
+  DWIN_ICON_Show(ICON, ICON_Confirm_E, 87, 283);
+  DWIN_Draw_Rectangle(0, Select_Color, 86, 282, 187, 321);
+  DWIN_Draw_Rectangle(0, Select_Color, 85, 281, 188, 322);
 }
 
 void Draw_SD_Item(uint8_t item, uint8_t row) {
@@ -1594,6 +1595,7 @@ void Popup_Window_ETempTooLow() {
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 212, (char*)"Preheat to 200C?");
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
   DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
+  Popup_Select();
 }
 
 void Popup_Window_Resume() {
@@ -1790,13 +1792,13 @@ inline void File_Control() {
       card.getfilename_sorted(SD_ORDER(selection-1, card.get_num_Files()));
       char * const filename = card.longest_filename();
       size_t len = strlen(filename);
-      if (len > MENU_CHAR_LIMIT) {
+      int8_t pos = len;
+      if (!card.flag.filenameIsDir)
+        while (pos && filename[pos] != '.') pos--;
+      if (pos > MENU_CHAR_LIMIT) {
         static millis_t time = 0;
         if (PENDING(millis(), time)) return;
         time = millis() + 200;
-        int8_t pos = len;
-        if (!card.flag.filenameIsDir)
-          while (pos && filename[pos] != '.') pos--;
         pos -= filescrl;
         len = pos;
         if (len > MENU_CHAR_LIMIT)
@@ -1863,7 +1865,7 @@ inline void File_Control() {
         Draw_SD_List();
       } else {
         card.openAndPrintFile(card.filename);
-        Start_Print();
+        Start_Print(true);
       }
     }
   }
@@ -1920,7 +1922,7 @@ inline void Popup_Control() {
     switch(popup) {
       case Pause:
         if (selection==0) {
-          if (card.isPrinting()) {
+          if (sdprint) {
             paused = true;
             #if ENABLED(POWER_LOSS_RECOVERY)
               if (recovery.enabled) recovery.save(true);
@@ -1940,7 +1942,7 @@ inline void Popup_Control() {
         break;
       case Stop:
         if (selection==0) {
-          if (card.isPrinting()) {
+          if (sdprint) {
           card.flag.abort_sd_printing = true; 
           thermalManager.zero_fan_speeds();
           thermalManager.disable_all_heaters();
@@ -2028,22 +2030,6 @@ void Modify_Value(uint32_t &value, float min, float max, float unit) {
 
 /* Host Control */
 
-void Host_Print_Start() {
-  if (process != Print)
-    Start_Print();
-}
-
-void Host_Print_Stop() {
-  thermalManager.zero_fan_speeds();
-  thermalManager.disable_all_heaters();
-  if (process == Print) {
-    Draw_Print_confirm();
-  } else {
-    Draw_Print_Screen();
-    Draw_Print_confirm();
-  }
-}
-
 void Host_Print_Update(uint8_t percent, uint32_t remaining) {
   printpercent = percent;  
   remainingtime = remaining * 60;
@@ -2066,30 +2052,25 @@ void Host_Print_Text(char * const text) {
 
 /* Main Functions */
 
-void SD_Stop() {
-  switch (process) {
-    case Print:
-      Draw_Print_confirm();
-      break;
-    case Menu:
-      if (active_menu == Tune) {
-        Draw_Print_Screen();
-        Draw_Print_confirm();
-      }
-      break;
-    case File:
-      Draw_SD_List(true);
-      break;
-  }
-}
-
-void Start_Print() {
+void Start_Print(bool sd) {
+  sdprint = sd;
   printpercent = 0;
   remainingtime = 0;
   elapsedtime = 0;
   dwin_heat_time = 0;
   lastmsg[0] = '\0';
   Draw_Print_Screen();
+}
+
+void Stop_Print() {
+  thermalManager.zero_fan_speeds();
+  thermalManager.disable_all_heaters();
+  if (process == Print) {
+    Draw_Print_confirm();
+  } else {
+    Draw_Print_Screen();
+    Draw_Print_confirm();
+  }
 }
 
 void DWIN_Update() {
@@ -2140,16 +2121,30 @@ void Screen_Update() {
     if (card.isPrinting() && process == Print) {
       duration_t elapsed = print_job_timer.duration();
       printpercent = card.percentDone();
-      if (printpercent)
-        Draw_Print_ProgressBar();
+      Draw_Print_ProgressBar();
       Draw_Print_ProgressElapsed();
       if (dwin_heat_time > 0 && printpercent > 0) {
         remainingtime = (elapsed.value - dwin_heat_time) / (printpercent * 0.01f) - (elapsed.value - dwin_heat_time);
         Draw_Print_ProgressRemain();
       }
     }
+    if (process == Print && card.isPaused() && !paused) {
+      paused = true;
+      Print_Screen_Icons();
+    }
+    else if (process == Print && !card.isPaused() && paused) {
+      paused = false;
+      Print_Screen_Icons();
+    }
   }
-  
+
+  static bool mounted = card.isMounted();
+  if (mounted != card.isMounted()) {
+    mounted = card.isMounted();
+    if (process == File)
+      Draw_SD_List();
+  }
+
   switch(process) {
     case Main:
       Main_Menu_Control();

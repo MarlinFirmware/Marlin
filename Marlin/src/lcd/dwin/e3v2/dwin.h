@@ -248,13 +248,13 @@ void Modify_Value(uint32_t &value, float min, float max, float unit);
 
 
 void Host_Print_Start();
-void Host_Print_Stop();
 void Host_Print_Update(uint8_t percent, uint32_t remaining);
 void Host_Print_Text(char * const text);
 
 
 void SD_Stop();
-void Start_Print();
+void Start_Print(bool sd);
+void Stop_Print();
 void DWIN_Update();
 void Variable_Update();
 void Screen_Update();

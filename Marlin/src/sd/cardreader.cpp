@@ -31,10 +31,6 @@
 #include "../MarlinCore.h"
 #include "../lcd/marlinui.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
-#endif
-
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -510,7 +506,6 @@ void CardReader::startFileprint() {
 //
 void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
-  TERN_(DWIN_CREALITY_LCD, SD_Stop());
   flag.sdprinting = flag.abort_sd_printing = false;
   if (isFileOpen()) file.close();
   TERN_(SD_RESORT, if (re_sort) presort());
