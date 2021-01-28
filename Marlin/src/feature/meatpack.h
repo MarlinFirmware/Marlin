@@ -102,7 +102,7 @@ private:
 
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
-  static void handle_rx_char(const uint8_t c, const uint8_t i);
+  static void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
 
   /**
    * After passing in rx'd char using above method, call this to get characters out.
@@ -112,11 +112,11 @@ private:
    */
   static uint8_t get_result_char(char* const __restrict out);
 
-  static void reset_state(const serial_index_t serial_ind);
-  static void report_state(const serial_index_t serial_ind);
+  static void reset_state();
+  static void report_state();
   static uint8_t unpacked_char(register const uint8_t in);
   static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
-  static void handle_command(const MeatPack_Command c, const serial_index_t serial_ind);
+  static void handle_command(const MeatPack_Command c);
   static void handle_output_char(const uint8_t c);
   static void handle_rx_char_inner(const uint8_t c);
 };
