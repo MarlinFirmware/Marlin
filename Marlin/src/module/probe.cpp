@@ -483,8 +483,6 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     endstops.enable(true);
   #endif
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
-
   // Move down until the probe is triggered
   SERIAL_ECHOLN("probe_down_to_z: do_blocking_move_to_z");
   do_blocking_move_to_z(z, fr_mm_s);
@@ -578,7 +576,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Tare the probe, if supported
-    if (TERN0(PROBE_TARE, tare())) return true;
+    if (TERN0(PROBE_TARE, _TERN(HAS_QUIET_PROBING, set_probing_paused(true), tare()))) return true;
+    
     IF_ENABLED(PROBE_TARE, endstops.hit_on_purpose());
 
     // Do a first probe at the fast speed
