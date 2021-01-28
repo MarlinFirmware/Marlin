@@ -136,7 +136,7 @@ void GCodeQueue::clear() {
  */
 void GCodeQueue::_commit_command(bool say_ok
   #if HAS_MULTI_SERIAL
-    , serial_index_t serial_ind
+    , serial_index_t serial_ind/*=-1*/
   #endif
 ) {
   send_ok[index_w] = say_ok;
@@ -153,7 +153,7 @@ void GCodeQueue::_commit_command(bool say_ok
  */
 bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   #if HAS_MULTI_SERIAL
-    , serial_index_t serial_ind
+    , serial_index_t serial_ind/*=-1*/
   #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
