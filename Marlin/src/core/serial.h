@@ -32,8 +32,6 @@ extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
                   SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
 
-#include "serial_hook.h"
-
 //
 // Debugging flags for use by M111
 //
@@ -77,9 +75,6 @@ typedef int8_t serial_index_t;
   #define SERIAL_ASSERT(P)      NOOP
   #define SERIAL_IMPL           MYSERIAL0
 #endif
-extern SerialHookT            serialHook;
-
-#define SERIAL_OUT(WHAT, V...)  (void)serialHook.WHAT(V)
 
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
