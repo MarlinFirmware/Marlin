@@ -61,8 +61,11 @@
 #endif
 
 #ifdef SERIAL_USB
+  typedef ForwardSerial0Type< USBSerial > DefaultSerial;
+  extern DefaultSerial MSerial;
+
   #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial Serial
+    #define UsbSerial MSerial
   #else
     #define UsbSerial MarlinCompositeSerial
   #endif

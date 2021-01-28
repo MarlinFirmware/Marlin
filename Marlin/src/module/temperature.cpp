@@ -253,7 +253,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
      */
     void Temperature::report_fan_speed(const uint8_t target) {
       if (target >= FAN_COUNT) return;
-      PORT_REDIRECT(SERIAL_BOTH);
+      PORT_REDIRECT(SERIAL_ALL);
       SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
     }
   #endif
@@ -3130,7 +3130,7 @@ void Temperature::tick() {
     void Temperature::auto_report_temperatures() {
       if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
         next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-        PORT_REDIRECT(SERIAL_BOTH);
+        PORT_REDIRECT(SERIAL_ALL);
         print_heater_states(active_extruder);
         SERIAL_EOL();
       }
