@@ -18,25 +18,9 @@
 #include <USBComposite.h>
 
 #include "../../inc/MarlinConfigPre.h"
-#if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/e_parser.h"
-#endif
-
-class MarlinUSBCompositeSerial : public USBCompositeSerial {
-public:
-  MarlinUSBCompositeSerial() : USBCompositeSerial()
-    #if ENABLED(EMERGENCY_PARSER)
-      , emergency_state(EmergencyParser::State::EP_RESET)
-    #endif
-    { }
-
-  #if ENABLED(EMERGENCY_PARSER)
-    EmergencyParser::State emergency_state;
-    inline bool emergency_parser_enabled() { return true; }
-  #endif
-};
+#include "../../core/serial_hook.h"
 
 extern USBMassStorage MarlinMSC;
-extern MarlinUSBCompositeSerial MarlinCompositeSerial;
+extern Serial0Type<USBCompositeSerial> MarlinCompositeSerial;
 
 void MSC_SD_init();

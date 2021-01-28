@@ -37,6 +37,10 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
+#if HAS_ETHERNET
+  #include "../../feature/ethernet.h"
+#endif
+
 //#define ST7920_DELAY_1 DELAY_NS(600)
 //#define ST7920_DELAY_2 DELAY_NS(750)
 //#define ST7920_DELAY_3 DELAY_NS(750)
@@ -51,9 +55,15 @@
   #define IS_TEENSY41 1
 #endif
 
-#define _MSERIAL(X) Serial##X
+#include "../../core/serial_hook.h"
+typedef Serial0Type<decltype(Serial)> DefaultSerial;
+extern DefaultSerial MSerial;
+typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define Serial0 Serial
+#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB

@@ -24,6 +24,11 @@
 #include <Adafruit_ZeroDMA.h>
 #include <wiring_private.h>
 
+#ifdef ADAFRUIT_GRAND_CENTRAL_M4
+  DefaultSerial MSerial(false, Serial);
+  DefaultSerial1 MSerial1(false, Serial1);
+#endif
+
 // ------------------------
 // Local defines
 // ------------------------

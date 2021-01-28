@@ -27,20 +27,13 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-
 #if HAS_USB_SERIAL
 
 #include <WString.h>
+#include "../../core/serial_hook.h"
 
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
 
-class MarlinSerialUSB {
-
-public:
-  MarlinSerialUSB() {};
+struct MarlinSerialUSB {
   static void begin(const long);
   static void end();
   static int peek();
@@ -48,7 +41,7 @@ public:
   static void flush();
   static void flushTX();
   static bool available();
-  static void write(const uint8_t c);
+  static size_t write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE static uint32_t dropped() { return 0; }
@@ -57,43 +50,15 @@ public:
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
-
-  FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-  FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  FORCE_INLINE static void print(const char* str) { write(str); }
-
-  static void print(char, int = 0);
-  static void print(unsigned char, int = 0);
-  static void print(int, int = DEC);
-  static void print(unsigned int, int = DEC);
-  static void print(long, int = DEC);
-  static void print(unsigned long, int = DEC);
-  static void print(double, int = 2);
-
-  static void println(const String& s);
-  static void println(const char[]);
-  static void println(char, int = 0);
-  static void println(unsigned char, int = 0);
-  static void println(int, int = DEC);
-  static void println(unsigned int, int = DEC);
-  static void println(long, int = DEC);
-  static void println(unsigned long, int = DEC);
-  static void println(double, int = 2);
-  static void println();
-  operator bool() { return true; }
-
-private:
-  static void printNumber(unsigned long, const uint8_t);
-  static void printFloat(double, uint8_t);
 };
+typedef Serial0Type<MarlinSerialUSB> MSerialT;
 
 #if SERIAL_PORT == -1
-  extern MarlinSerialUSB customizedSerial1;
+  extern MSerialT customizedSerial1;
 #endif
 
 #if SERIAL_PORT_2 == -1
-  extern MarlinSerialUSB customizedSerial2;
+  extern MSerialT customizedSerial2;
 #endif
 
 #endif // HAS_USB_SERIAL

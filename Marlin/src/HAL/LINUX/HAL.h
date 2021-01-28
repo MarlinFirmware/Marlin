@@ -60,7 +60,7 @@ uint8_t _getc();
 
 #define SHARED_SERVOS HAS_SERVOS
 
-extern HalSerial usb_serial;
+extern MSerialT usb_serial;
 #define MYSERIAL0 usb_serial
 
 #define ST7920_DELAY_1 DELAY_NS(600)

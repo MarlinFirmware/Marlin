@@ -28,6 +28,10 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#ifdef USBCON
+  DefaultSerial MSerial(false, SerialUSB);
+#endif
+
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #if STM32F7xx
     #include <stm32f7xx_ll_pwr.h>

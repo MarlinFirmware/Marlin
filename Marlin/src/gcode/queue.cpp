@@ -290,8 +290,8 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
 void GCodeQueue::ok_to_send() {
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command_port();
-    if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
-    PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
+    if (serial_ind < 0) return;
+    PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(STR_OK);
@@ -317,7 +317,7 @@ void GCodeQueue::flush_and_request_resend() {
   const serial_index_t serial_ind = command_port();
   #if HAS_MULTI_SERIAL
     if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
-    PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
+    PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
@@ -349,11 +349,11 @@ inline int read_serial(const uint8_t index) {
 }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
-  PORT_REDIRECT(serial_ind);                      // Reply to the serial port that sent the command
+  PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ECHOLN(last_N[serial_ind]);
-  while (read_serial(serial_ind) != -1);          // Clear out the RX buffer
+  while (read_serial(serial_ind) != -1);      // Clear out the RX buffer
   flush_and_request_resend();
   serial_count[serial_ind] = 0;
 }
@@ -547,7 +547,7 @@ void GCodeQueue::get_serial_commands() {
                 #if ENABLED(BEZIER_CURVE_SUPPORT)
                   case 5:
                 #endif
-                  PORT_REDIRECT(p);                      // Reply to the serial port that sent the command
+                  PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
                   SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                   LCD_MESSAGEPGM(MSG_STOPPED);
                   break;

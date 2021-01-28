@@ -29,6 +29,8 @@
   #include "watchdog.h"
 #endif
 
+DefaultSerial USBSerial(false, UsbSerial);
+
 uint32_t HAL_adc_reading = 0;
 
 // U8glib required functions

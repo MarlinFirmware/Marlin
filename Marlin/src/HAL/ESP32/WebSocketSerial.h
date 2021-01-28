@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
+#include "../../core/serial_hook.h"
 
 #include <Stream.h>
 
@@ -68,11 +69,8 @@ public:
   int peek();
   int read();
   void flush();
-  void flushTX();
   size_t write(const uint8_t c);
   size_t write(const uint8_t* buffer, size_t size);
-
-  operator bool() { return true; }
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE uint32_t dropped() { return 0; }
@@ -83,4 +81,5 @@ public:
   #endif
 };
 
-extern WebSocketSerial webSocketSerial;
+typedef Serial0Type<WebSocketSerial> MSerialT;
+extern MSerialT webSocketSerial;
