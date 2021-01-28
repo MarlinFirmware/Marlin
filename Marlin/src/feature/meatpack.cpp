@@ -165,7 +165,7 @@ void MeatPack::handle_command(const MeatPack_Command c, const uint8_t serial_num
     case MPCommand_EnablePacking:   SBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
     case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
     case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
-    case MPCommand_ResetAll:        reset_state(serial_num);                     DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
+    case MPCommand_ResetAll:        reset_state(serial_num);           DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
     case MPCommand_EnableNoSpaces:
       SBI(state, MPConfig_Bit_NoSpaces);
       meatPackLookupTable[kSpaceCharIdx] = kSpaceCharReplace;          DEBUG_ECHOLNPGM("[MPDBG] ENA NSP");   break;
@@ -203,7 +203,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const uint8_t serial_num) {
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
-    handle_command((MeatPack_Command)c,serial_num);  // Then the byte is a MeatPack command
+    handle_command((MeatPack_Command)c, serial_num);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;
   }
