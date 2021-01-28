@@ -290,7 +290,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
 void GCodeQueue::ok_to_send() {
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command_port();
-    if (serial_ind < 0) return;
+    if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
     PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
@@ -316,7 +316,7 @@ void GCodeQueue::ok_to_send() {
 void GCodeQueue::flush_and_request_resend() {
   const serial_index_t serial_ind = command_port();
   #if HAS_MULTI_SERIAL
-    if (serial_ind < 0) return;
+    if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
     PORT_REDIRECT(serial_ind);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
