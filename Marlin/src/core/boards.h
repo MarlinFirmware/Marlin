@@ -189,7 +189,7 @@
 #define BOARD_GEN3_PLUS               1601  // Gen3+
 #define BOARD_GEN6                    1602  // Gen6
 #define BOARD_GEN6_DELUXE             1603  // Gen6 deluxe
-#define BOARD_GEN7_CUSTOM             1604  // Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
+#define BOARD_GEN7_CUSTOM             1604  // Gen7 custom (Alfons3 Version) https://github.com/Alfons3/Generation_7_Electronics
 #define BOARD_GEN7_12                 1605  // Gen7 v1.1, v1.2
 #define BOARD_GEN7_13                 1606  // Gen7 v1.3
 #define BOARD_GEN7_14                 1607  // Gen7 v1.4
@@ -319,24 +319,25 @@
 #define BOARD_BTT_SKR_MINI_E3_V2_0    4026  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_MZ_V1_0    4027  // BigTreeTech SKR Mini MZ V1.0 (STM32F103RC)
 #define BOARD_BTT_SKR_E3_DIP          4028  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4029  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4030  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4031  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4032  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4033  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_CCROBOT_MEEB_3DP        4034  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4035  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4036  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V431           4039  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V452           4040  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4041  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4042  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4043  // FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4044  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4045  // STM32F103RET6 Libmaple-based controller
-#define BOARD_BTT_SKR_CR6             4046  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
+#define BOARD_BTT_SKR_CR6             4029  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4030  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4031  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4032  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4033  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4034  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_CCROBOT_MEEB_3DP        4035  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4036  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4038  // Creality v4.x (STM32F103RE)
+#define BOARD_CREALITY_V427           4039  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_CREALITY_V4210          4040  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4041  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V452           4042  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4043  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4044  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4045  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4046  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4047  // STM32F103RET6 Libmaple-based controller
 
 //
 // ARM Cortex-M4F

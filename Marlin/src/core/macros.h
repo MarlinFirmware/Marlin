@@ -84,17 +84,13 @@
 #define _BV(n) (1<<(n))
 #define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-
 #ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
+  #define SBI(A,B) (A |= _BV(B))
 #endif
-
 #ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
+  #define CBI(A,B) (A &= ~_BV(B))
 #endif
-
 #define TBI(N,B) (N ^= _BV(B))
-
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
@@ -166,6 +162,7 @@
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
 #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
 #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+#define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
@@ -216,6 +213,7 @@
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
+#define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
 #define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
@@ -286,6 +284,7 @@
 #define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
+#define TRUNC(x)    truncf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
@@ -314,6 +313,32 @@
     }
 
   #endif
+
+  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
+  namespace Private {
+    template<bool, typename _Tp = void> struct enable_if { };
+    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+  }
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time. 
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
+  #define HAS_MEMBER_IMPL(Member) \
+    namespace Private { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
+        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
+        template <typename C> static No& test(...); \
+        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+    }
+
+  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
+  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
+  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
+    HAS_MEMBER_IMPL(Method) \
+    namespace Private { \
+      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
+    }
+  #define CALL_IF_EXISTS(Return, That, Method, ...) \
+    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
 
 #else
 

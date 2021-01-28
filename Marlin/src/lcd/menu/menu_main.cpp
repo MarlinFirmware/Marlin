@@ -58,6 +58,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../../feature/repeat.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
@@ -93,7 +97,9 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
-extern const char M21_STR[];
+#if HAS_MULTI_LANGUAGE
+  void menu_language();
+#endif
 
 void menu_main() {
   const bool busy = printingIsActive()
@@ -120,6 +126,11 @@ void menu_main() {
       });
     #endif
 
+    #if ENABLED(GCODE_REPEAT_MARKERS)
+      if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
+    #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
 
     #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
@@ -143,7 +154,7 @@ void menu_main() {
         if (!card_open) {
           SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
           #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
@@ -153,7 +164,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
         #endif
       }
 
@@ -244,7 +255,7 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
@@ -255,7 +266,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
         #endif
       }
     }
@@ -314,6 +325,10 @@ void menu_main() {
         #endif
       );
     }
+  #endif
+
+  #if HAS_MULTI_LANGUAGE
+    SUBMENU(LANGUAGE, menu_language);
   #endif
 
   END_MENU();

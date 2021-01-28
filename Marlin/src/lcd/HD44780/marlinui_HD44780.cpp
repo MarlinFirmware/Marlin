@@ -471,7 +471,6 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
       // Show the Marlin logo and short build version
       // After a delay show the website URL
       //
-      extern const char NUL_STR[];
       logo_lines(NUL_STR);
       CENTER_OR_SCROLL(SHORT_BUILD_VERSION, 1500);
       CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 1500);

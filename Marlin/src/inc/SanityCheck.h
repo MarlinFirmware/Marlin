@@ -105,9 +105,9 @@
 #elif defined(USE_AUTOMATIC_VERSIONING)
   #error "USE_AUTOMATIC_VERSIONING is now CUSTOM_VERSION_FILE."
 #elif defined(SDSLOW)
-  #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
+  #error "SDSLOW deprecated. Set SD_SPI_SPEED to SPI_HALF_SPEED instead."
 #elif defined(SDEXTRASLOW)
-  #error "SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead."
+  #error "SDEXTRASLOW deprecated. Set SD_SPI_SPEED to SPI_QUARTER_SPEED instead."
 #elif defined(FILAMENT_SENSOR)
   #error "FILAMENT_SENSOR is now FILAMENT_WIDTH_SENSOR."
 #elif defined(ENDSTOPPULLUP_FIL_RUNOUT)
@@ -190,7 +190,7 @@
   #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
 #elif defined(HOMING_FEEDRATE)
   #error "HOMING_FEEDRATE is now set using the HOMING_FEEDRATE_MM_M array instead."
-#elif defined(HOMING_FEEDRATE_XY) || defined(HOMING_FEEDRATE_Z)
+#elif (defined(HOMING_FEEDRATE_XY) || defined(HOMING_FEEDRATE_Z)) && !defined(HOMING_FEEDRATE_MM_M)
   #error "HOMING_FEEDRATE_XY and HOMING_FEEDRATE_Z are now set using the HOMING_FEEDRATE_MM_M array instead."
 #elif defined(MANUAL_HOME_POSITIONS)
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
@@ -357,10 +357,6 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH."
 #elif defined(LEVEL_CORNERS_INSET)
   #error "LEVEL_CORNERS_INSET is now LEVEL_CORNERS_INSET_LFRB."
-#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET_LFRB)
-  #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
-#elif BOTH(LEVEL_CORNERS_USE_PROBE, SENSORLESS_PROBING)
-  #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
 #elif defined(BEZIER_JERK_CONTROL)
   #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION."
 #elif HAS_JUNCTION_DEVIATION && defined(JUNCTION_DEVIATION_FACTOR)
@@ -541,6 +537,8 @@
   #else
     #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW."
   #endif
+#elif defined(ASSISTED_TRAMMING_MENU_ITEM)
+  #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
 #endif
 
 /**
@@ -586,10 +584,6 @@
   #error "SERIAL_PORT must be defined."
 #elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT."
-#elif defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == SERIAL_PORT
-  #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT."
-#elif defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == SERIAL_PORT_2
-  #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
 #endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
@@ -711,6 +705,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
+#if ENABLED(USE_M73_REMAINING_TIME) && DISABLED(LCD_SET_PROGRESS_MANUALLY)
+  #error "USE_M73_REMAINING_TIME requires LCD_SET_PROGRESS_MANUALLY"
+#endif
+
 #if !HAS_LCD_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   #error "SD_REPRINT_LAST_SELECTED_FILE currently requires a Marlin-native LCD menu."
 #endif
@@ -721,7 +719,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE)
   #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
-  #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
+  #error "CUSTOM_STATUS_SCREEN_IMAGE requires a 128x64 DOGM B/W Graphical LCD."
 #endif
 
 /**
@@ -804,8 +802,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
-  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL) && ANY(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)
-    #error "New Color UI (TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI) does not support BABYSTEP_DISPLAY_TOTAL yet."
   #endif
 #endif
 
@@ -1255,8 +1251,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
-  + (ENABLED(BLTOUCH) && DISABLED(CREALITY_TOUCH)) \
-  + COUNT_ENABLED(PROBE_MANUALLY, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, CREALITY_TOUCH, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING)
+  + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING)
   #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 #endif
 
@@ -1432,6 +1427,18 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #endif
 
+#if ENABLED(LEVEL_BED_CORNERS)
+  #ifndef LEVEL_CORNERS_INSET_LFRB
+    #error "LEVEL_BED_CORNERS requires LEVEL_CORNERS_INSET_LFRB values."
+  #elif ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #if !HAS_BED_PROBE
+      #error "LEVEL_CORNERS_USE_PROBE requires a real probe."
+    #elif ENABLED(SENSORLESS_PROBING)
+      #error "LEVEL_CORNERS_USE_PROBE is incompatible with SENSORLESS_PROBING."
+    #endif
+  #endif
+#endif
+
 /**
  * Allow only one bed leveling option to be defined
  */
@@ -1594,7 +1601,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * ULTIPANEL encoder
  */
-#if IS_ULTIPANEL && NONE(IS_NEWPANEL, SR_LCD_2W_NL) && !defined(SHIFT_CLK)
+#if IS_ULTIPANEL && NONE(IS_NEWPANEL, SR_LCD_2W_NL) && !PIN_EXISTS(SHIFT_CLK)
   #error "ULTIPANEL controllers require some kind of encoder."
 #endif
 
@@ -1879,7 +1886,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
   #elif !HAS_TEMP_ADC_PROBE
     #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif !ENABLED(FIX_MOUNTED_PROBE)
+  #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
   #endif
 #endif
@@ -1934,16 +1941,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Basic multi hotend duplication mode
  */
 #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-  #if HOTENDS < 2
-    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
+  #if ENABLED(SINGLENOZZLE)
+    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(DUAL_X_CARRIAGE)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with DUAL_X_CARRIAGE."
-  #elif ENABLED(SINGLENOZZLE)
-    #error "MULTI_NOZZLE_DUPLICATION is incompatible with SINGLENOZZLE."
   #elif ENABLED(MIXING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with MIXING_EXTRUDER."
   #elif ENABLED(SWITCHING_EXTRUDER)
     #error "MULTI_NOZZLE_DUPLICATION is incompatible with SWITCHING_EXTRUDER."
+  #elif HOTENDS < 2
+    #error "MULTI_NOZZLE_DUPLICATION requires 2 or more hotends."
   #endif
 #endif
 
@@ -2388,8 +2395,23 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT to a valid value for your board."
   #elif SERIAL_PORT_2 == -1
     #error "SERIAL_PORT_2 is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT_2 to a valid value for your board."
+  #elif MMU2_SERIAL_PORT == -1
+    #error "MMU2_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set MMU2_SERIAL_PORT to a valid value for your board."
   #elif LCD_SERIAL_PORT == -1
     #error "LCD_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set LCD_SERIAL_PORT to a valid value for your board."
+  #endif
+#endif
+
+/**
+ * MMU2 require a dedicated serial port
+ */
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == SERIAL_PORT
+    #error "MMU2_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && MMU2_SERIAL_PORT == SERIAL_PORT_2
+    #error "MMU2_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(LCD_SERIAL_PORT) && MMU2_SERIAL_PORT == LCD_SERIAL_PORT
+    #error "MMU2_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
   #endif
 #endif
 
@@ -2913,8 +2935,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "PRINTCOUNTER requires EEPROM_SETTINGS."
 #endif
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && !PINS_EXIST(USB_CS, USB_INTR)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && !PINS_EXIST(USB_CS, USB_INTR) && DISABLED(USE_OTG_USB_HOST)
   #error "USB_CS_PIN and USB_INTR_PIN are required for USB_FLASH_DRIVE_SUPPORT."
+#endif
+
+#if ENABLED(USE_OTG_USB_HOST) && !defined(HAS_OTG_USB_HOST_SUPPORT)
+  #error "The current board does not support USE_OTG_USB_HOST."
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE) && !defined(__AVR_ATmega2560__)
@@ -3211,10 +3237,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #undef _PIN_CONFLICT
 #endif
 
-#if !HAS_MARLINUI_U8GLIB
-  #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
-    #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
-  #endif
+#if NONE(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI) && ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
+  #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
 #endif
 
 #if HAS_ADC_BUTTONS && defined(ADC_BUTTON_DEBOUNCE_DELAY) && ADC_BUTTON_DEBOUNCE_DELAY < 16
@@ -3244,7 +3268,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Touch Buttons
  */
-#if ENABLED(TOUCH_SCREEN)
+#if ENABLED(TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)
   #ifndef TOUCH_CALIBRATION_X
     #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
   #endif
@@ -3275,6 +3299,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif DISABLED(EEPROM_SETTINGS)
     #warning "PASSWORD_FEATURE settings will be lost on power-off without EEPROM_SETTINGS."
   #endif
+#endif
+
+
+/**
+ * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
+ */
+#if BOTH(MEATPACK, BINARY_FILE_TRANSFER)
+  #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
 #endif
 
 /**

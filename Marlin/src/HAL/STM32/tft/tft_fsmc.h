@@ -25,10 +25,8 @@
 
 #ifdef STM32F1xx
   #include "stm32f1xx_hal.h"
-  #define __IS_DMA_ENABLED(__HANDLE__)  ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
-  #define __IS_DMA_ENABLED(__HANDLE__)  ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
 #else
   #error "FSMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
 #endif
@@ -77,8 +75,14 @@ class TFT_FSMC {
 
     static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
+    static void WriteMultiple(uint16_t Color, uint32_t Count) {
+      static uint16_t Data; Data = Color;
+      while (Count > 0) {
+        TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
+        Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
+      }
+    }
 };
-
 
 #ifdef STM32F1xx
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)

@@ -34,7 +34,7 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_ROWS 9
   #define GRID_COLS 2
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
@@ -118,4 +118,4 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // BOTH(TOUCH_UI_FTDI_EVE,HAS_LEVELING)
+#endif // TOUCH_UI_FTDI_EVE && HAS_LEVELING

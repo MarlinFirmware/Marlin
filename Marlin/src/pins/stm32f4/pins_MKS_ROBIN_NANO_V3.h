@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,17 +31,27 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 13
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -98,8 +108,8 @@
 
 //
 // Software SPI pins for TMC2130 stepper drivers
+// This board only supports SW SPI for stepper drivers
 //
-// This board only support SW SPI for stepper drivers
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
@@ -179,6 +189,7 @@
 
 #define POWER_LOSS_PIN                    PW_DET
 #define PS_ON_PIN                         PW_OFF
+
 //
 // Enable MKSPWC support
 //
@@ -186,14 +197,13 @@
 //#define KILL_PIN                          PA2
 //#define KILL_PIN_INVERTING                true
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 //#define LED_PIN                           PB2
 
 // Random Info
-#define USB_SERIAL                         -1  //Usb Serial
-#define WIFI_SERIAL                         3  //USART3
-#define MKS_WIFI_MODULE_SERIAL              1  //USART1
-#define MKS_WIFI_MODULE_SPI                 2  //SPI2
+#define USB_SERIAL              -1  // USB Serial
+#define WIFI_SERIAL              3  // USART3
+#define MKS_WIFI_MODULE_SERIAL   1  // USART1
+#define MKS_WIFI_MODULE_SPI      2  // SPI2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
@@ -207,11 +217,11 @@
   #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI3
-    #define SS_PIN                          -1
+    #define SD_SS_PIN                       -1
     #define SDSS                            PC9
-    #define SCK_PIN                         PC10
-    #define MISO_PIN                        PC11
-    #define MOSI_PIN                        PC12
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
     #define SD_DETECT_PIN                   PD12
   #endif
 #endif
@@ -224,9 +234,9 @@
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
     #define SDSS                            PE10
-    #define SCK_PIN                         PA5
-    #define MISO_PIN                        PA6
-    #define MOSI_PIN                        PA7
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif
@@ -255,7 +265,7 @@
  *                EXP1                                               EXP2
  */
 
-#if EITHER(TFT_480x320_SPI, TFT_LVGL_UI_SPI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
   #endif
@@ -331,7 +341,7 @@
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if ENABLED(ULTIPANEL)
@@ -345,26 +355,4 @@
     #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
-
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-  #define SPI_TFT_CS_PIN                    PD11
-  #define SPI_TFT_SCK_PIN                   PA5
-  #define SPI_TFT_MISO_PIN                  PA6
-  #define SPI_TFT_MOSI_PIN                  PA7
-  #define SPI_TFT_DC_PIN                    PD10
-  #define SPI_TFT_RST_PIN                   PC6
-
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
-  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
-  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
-
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PE13
 #endif // HAS_SPI_LCD
-
-#define HAS_OTG_USB_HOST_SUPPORT

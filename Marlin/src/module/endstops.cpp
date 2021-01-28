@@ -27,7 +27,6 @@
 #include "endstops.h"
 #include "stepper.h"
 
-#include "../MarlinCore.h"
 #include "../sd/cardreader.h"
 #include "temperature.h"
 #include "../lcd/marlinui.h"
@@ -465,7 +464,7 @@ void _O2 Endstops::report_states() {
     ES_REPORT(Z4_MAX);
   #endif
   #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
-    print_es_state(READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE, PSTR(STR_PROBE_EN));
+    print_es_state(probe_switch_activated(), PSTR(STR_PROBE_EN));
   #endif
   #if HAS_CUSTOM_PROBE_PIN
     print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
@@ -618,11 +617,8 @@ void Endstops::update() {
 
   #if HAS_BED_PROBE
     // When closing the gap check the enabled probe
-    if (true
-      #if ENABLED(PROBE_ACTIVATION_SWITCH)
-        || READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE
-      #endif
-    ) UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
+    if (probe_switch_activated())
+      UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS

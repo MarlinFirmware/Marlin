@@ -241,11 +241,12 @@ void GcodeSuite::G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-    IF_ENABLED(RESTORE_LEVELING_AFTER_G28, const bool leveling_restore_state = planner.leveling_active);
+    const bool leveling_restore_state = parser.boolval('L', TERN(RESTORE_LEVELING_AFTER_G28, planner.leveling_active, ENABLED(ENABLE_LEVELING_AFTER_G28)));
     IF_ENABLED(PROBE_MANUALLY, g29_in_progress = false); // Cancel the active G29 session
     set_bed_leveling_enabled(false);
   #endif
 
+  // Reset to the XY plane
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   // Count this command as movement / activity
@@ -288,6 +289,10 @@ void GcodeSuite::G28() {
   #if HAS_MULTI_HOTEND
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
+    #endif
+    // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
+    #if ENABLED(PARKING_EXTRUDER)
+      const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
     #endif
     tool_change(0, true);
   #endif
@@ -435,14 +440,13 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  IF_ENABLED(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
-  IF_ENABLED(ENABLE_LEVELING_AFTER_G28, set_bed_leveling_enabled(true));
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_restore_state));
 
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
   #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
+    tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
   #endif
 
   #if HAS_HOMING_CURRENT

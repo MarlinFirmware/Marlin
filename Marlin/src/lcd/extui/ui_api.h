@@ -43,6 +43,7 @@
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
+#include "../marlinui.h"
 
 namespace ExtUI {
 
@@ -129,8 +130,18 @@ namespace ExtUI {
   float getTravelAcceleration_mm_s2();
   float getFeedrate_percent();
   int16_t getFlowPercentage(const extruder_t);
-  uint8_t getProgress_percent();
+
+  inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
+
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    inline uint16_t getProgress_permyriad() { return ui.get_progress_permyriad(); }
+  #endif
+
   uint32_t getProgress_seconds_elapsed();
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive();
@@ -186,6 +197,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
   void setFlow_percent(const int16_t, const extruder_t);
+  bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)

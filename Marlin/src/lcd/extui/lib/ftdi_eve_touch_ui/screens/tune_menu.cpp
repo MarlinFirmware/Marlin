@@ -38,7 +38,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 9
     #define GRID_COLS 2
     #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
@@ -143,7 +143,9 @@ void TuneMenu::pausePrint() {
 
 void TuneMenu::resumePrint() {
   sound.play(twinkle, PLAY_ASYNCHRONOUS);
-  if (ExtUI::isPrintingFromMedia())
+  if (ExtUI::awaitingUserConfirm())
+    ExtUI::setUserConfirmed();
+  else if (ExtUI::isPrintingFromMedia())
     ExtUI::resumePrint();
   #ifdef ACTION_ON_RESUME
     else host_action_resume();

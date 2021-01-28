@@ -321,7 +321,8 @@
     // Check for commands that require the printer to be homed
     if (may_move) {
       planner.synchronize();
-      if (axes_should_home()) gcode.home_all_axes();
+      // Send 'N' to force homing before G29 (internal only)
+      if (axes_should_home() || parser.seen('N')) gcode.home_all_axes();
       TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
     }
 
@@ -543,7 +544,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch ((int)truncf(cvf * 10.0f) - 30) {   // 3.1 -> 1
+            switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 

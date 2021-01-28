@@ -44,7 +44,7 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h" // for wait_for_user_response
+  #include "../../MarlinCore.h" // for wait_for_user_response()
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
@@ -82,7 +82,7 @@ void GcodeSuite::M1001() {
 
   // Announce SD file completion
   {
-    PORT_REDIRECT(SERIAL_BOTH);
+    PORT_REDIRECT(SERIAL_ALL);
     SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
   }
 

@@ -73,7 +73,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     // The LulzBot Bio shows the temperature for
     // the bed.
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       // Draw touch surfaces
       ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.rectangle(x, y, h, v);
@@ -95,7 +95,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
 
-    #ifdef TOUCH_UI_USE_UTF8
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       load_utf8_bitmaps(cmd); // Restore font bitmap handles
     #endif
   }
@@ -105,7 +105,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     cmd.cmd(COLOR_RGB(bg_text_enabled));
     cmd.font(font_medium);
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
         format_temp(str, getTargetTemp_celsius(BED));
       else
@@ -204,7 +204,7 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_medium
     #else
       font_small
@@ -273,7 +273,7 @@ void StatusScreen::loadBitmaps() {
   CLCD::mem_write_pgm(base + Bed_Heat_Icon_Info.RAMG_offset, Bed_Heat_Icon, sizeof(Bed_Heat_Icon));
 
   // Load fonts for internationalization
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     load_utf8_data(base + UTF8_FONT_OFFSET);
   #endif
 }
@@ -319,7 +319,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case  9: GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: GOTO_SCREEN(BioConfirmHomeE); break;
-    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
+    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
     case 16: fine_motion = !fine_motion; break;
     default: return false;

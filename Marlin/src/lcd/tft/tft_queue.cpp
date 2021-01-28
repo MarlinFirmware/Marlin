@@ -142,7 +142,6 @@ void TFT_Queue::canvas(queueTask_t *task) {
   if (Canvas.ToScreen()) task->state = TASK_STATE_COMPLETED;
 }
 
-
 void TFT_Queue::fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) {
   finish_sketch();
 

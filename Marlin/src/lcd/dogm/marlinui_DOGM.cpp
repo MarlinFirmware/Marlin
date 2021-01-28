@@ -54,6 +54,7 @@
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/printcounter.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(SDSUPPORT)
   #include "../../libs/duration_t.h"
@@ -110,19 +111,24 @@ bool MarlinUI::detected() { return true; }
     // Draws a slice of a particular frame of the custom bootscreen, without the u8g loop
     void MarlinUI::draw_custom_bootscreen(const uint8_t frame/*=0*/) {
       constexpr u8g_uint_t left = u8g_uint_t((LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2),
-                            top = u8g_uint_t((LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2);
+                            top = u8g_uint_t(CUSTOM_BOOTSCREEN_Y);
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         constexpr u8g_uint_t right = left + CUSTOM_BOOTSCREEN_BMPWIDTH,
                             bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
       #endif
 
-      const u8g_pgm_uint8_t * const bmp =
-        #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
-          (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame])
+      #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
+        const void * const frame_ptr = pgm_read_ptr(&custom_bootscreen_animation[frame]);
+        #if ENABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+          const boot_frame_t * const frame_info = (boot_frame_t*)frame_ptr;
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&frame_info->bitmap);
         #else
-          custom_start_bmp
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)frame_ptr;
         #endif
-      ;
+      #else
+        const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
+      #endif
+
       UNUSED(frame);
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
@@ -141,22 +147,23 @@ bool MarlinUI::detected() { return true; }
     // Shows the custom bootscreen, with the u8g loop, animations and delays
     void MarlinUI::show_custom_bootscreen() {
       #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED)
-        constexpr millis_t d = 0;
+        constexpr millis_t frame_time = 0;
         constexpr uint8_t f = 0;
       #else
-        #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
-          constexpr millis_t d = CUSTOM_BOOTSCREEN_FRAME_TIME;
+        #if DISABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+          constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
         LOOP_L_N(f, COUNT(custom_bootscreen_animation))
       #endif
         {
-          #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
-            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_frame_time) - 1);
-            const millis_t d = custom_bootscreen_frame_time[fr];
+          #if ENABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
+            const boot_frame_t * const frame_info = (boot_frame_t*)pgm_read_ptr(&custom_bootscreen_animation[fr]);
+            const millis_t frame_time = pgm_read_word(&frame_info->duration);
           #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
-          if (d) safe_delay(d);
+          if (frame_time) safe_delay(frame_time);
         }
 
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
@@ -218,10 +225,10 @@ bool MarlinUI::detected() { return true; }
     #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
       draw_bootscreen_bmp(start_bmp);
     #else
-      constexpr millis_t d = MARLIN_BOOTSCREEN_FRAME_TIME;
+      constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
-        if (d) safe_delay(d);
+        if (frame_time) safe_delay(frame_time);
       }
     #endif
   }
@@ -449,20 +456,22 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, PGM_P const pstr, const bool inv) {
     const u8g_uint_t len = utf8_strlen_P(pstr),
                       by = (y + 1) * (MENU_FONT_HEIGHT);
-    const pixel_len_t bw = len * (MENU_FONT_WIDTH), bx = x * (MENU_FONT_WIDTH);
+    const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
+    const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
       u8g.setColorIndex(1);
-      u8g.drawBox(bx - 1, by - (MENU_FONT_ASCENT) + 1, bw + 2, MENU_FONT_HEIGHT - 1);
+      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
       u8g.setColorIndex(0);
     }
-    lcd_put_u8str_P(bx, by, pstr);
+    lcd_put_u8str_P(bx / prop, by, pstr);
     if (inv) u8g.setColorIndex(1);
   }
 
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
     draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
-    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
+    const u8g_uint_t xpos = (LCD_WIDTH) / (USE_WIDE_GLYPH ? 2 : 1);
+    draw_boxed_string(xpos - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)

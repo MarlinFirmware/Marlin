@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
@@ -49,65 +45,15 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
 
   switch (obj->mks_obj_id) {
-    case ID_M_POINT1:
+    case ID_M_POINT1 ... ID_M_POINT5:
       if (queue.length == 0) {
         if (uiCfg.leveling_first_time) {
-          queue.enqueue_now_P(PSTR("G28"));
-          uiCfg.leveling_first_time = 0;
+          uiCfg.leveling_first_time = false;
+          queue.inject_P(G28_STR);
         }
-        queue.enqueue_now_P(PSTR("G1 Z10"));
-        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[0][0], (int)gCfgItems.levelingPos[0][1]);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G1 Z0"));
-      }
-      break;
-    case ID_M_POINT2:
-      if (queue.length == 0) {
-        if (uiCfg.leveling_first_time) {
-          queue.enqueue_now_P(PSTR("G28"));
-          uiCfg.leveling_first_time = 0;
-        }
-        queue.enqueue_now_P(PSTR("G1 Z10"));
-        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[1][0], (int)gCfgItems.levelingPos[1][1]);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G1 Z0"));
-      }
-      break;
-    case ID_M_POINT3:
-      if (queue.length == 0) {
-        if (uiCfg.leveling_first_time) {
-          queue.enqueue_now_P(PSTR("G28"));
-          uiCfg.leveling_first_time = 0;
-        }
-        queue.enqueue_now_P(PSTR("G1 Z10"));
-        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[2][0], (int)gCfgItems.levelingPos[2][1]);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G1 Z0"));
-      }
-
-      break;
-    case ID_M_POINT4:
-      if (queue.length == 0) {
-        if (uiCfg.leveling_first_time) {
-          queue.enqueue_now_P(PSTR("G28"));
-          uiCfg.leveling_first_time = 0;
-        }
-        queue.enqueue_now_P(PSTR("G1 Z10"));
-        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[3][0], (int)gCfgItems.levelingPos[3][1]);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G1 Z0"));
-      }
-      break;
-    case ID_M_POINT5:
-      if (queue.length == 0) {
-        if (uiCfg.leveling_first_time) {
-          queue.enqueue_now_P(PSTR("G28"));
-          uiCfg.leveling_first_time = 0;
-        }
-        queue.enqueue_now_P(PSTR("G1 Z10"));
-        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[4][0], (int)gCfgItems.levelingPos[4][1]);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G1 Z0"));
+        const int ind = obj->mks_obj_id - ID_M_POINT1;
+        sprintf_P(public_buf_l, PSTR("G1 Z10\nG1 X%d Y%d\nG1 Z0"), (int)gCfgItems.levelingPos[ind][0], (int)gCfgItems.levelingPos[ind][1]);
+        queue.inject(public_buf_l);
       }
       break;
     case ID_MANUAL_RETURN:
@@ -117,7 +63,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_manualLevel(void) {
+void lv_draw_manualLevel() {
   scr = lv_screen_create(LEVELING_UI);
   // Create an Image button
   lv_obj_t *buttonPoint1 = lv_big_button_create(scr, "F:/bmp_leveling1.bin", leveling_menu.position1, INTERVAL_V, titleHeight, event_handler, ID_M_POINT1);

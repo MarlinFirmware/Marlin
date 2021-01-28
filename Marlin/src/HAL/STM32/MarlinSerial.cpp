@@ -35,7 +35,7 @@
 
 #define DECLARE_SERIAL_PORT(ser_num) \
   void _rx_complete_irq_ ## ser_num (serial_t * obj); \
-  MarlinSerial MSerial ## ser_num (USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
+  MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
   void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
 
 #define DECLARE_SERIAL_PORT_EXP(ser_num) DECLARE_SERIAL_PORT(ser_num)
@@ -46,6 +46,10 @@
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
   DECLARE_SERIAL_PORT_EXP(SERIAL_PORT_2)
+#endif
+
+#if defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(MMU2_SERIAL_PORT)
 #endif
 
 #if defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT >= 0

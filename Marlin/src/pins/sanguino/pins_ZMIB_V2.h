@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "Zonestar ZMIB_V2"
-#define BOARD_WEBSITE_URL "https://www.aliexpress.com/item/32957490744.html"
+#define BOARD_WEBSITE_URL "www.aliexpress.com/item/32957490744.html"
 
 #define IS_ZMIB_V2
 
@@ -49,11 +49,11 @@
  * PIN:   4   Port: B4   SDSS
  * PIN:   4   Port: B4   V1: EXP1_6
  * PIN:   5   Port: B5   AVR_MOSI_PIN
- * .                     MOSI_PIN
+ * .                     SD_MOSI_PIN
  * PIN:   6   Port: B6   AVR_MISO_PIN
- * .                     EXP1_9(MISO_PIN)
+ * .                     EXP1_9(SD_MISO_PIN)
  * PIN:   7   Port: B7   AVR_SCK_PIN
- * .                     EXP1_10(SCK_PIN)
+ * .                     EXP1_10(SD_SCK_PIN)
  * PIN:   8   Port: D0   RXD
  * PIN:   9   Port: D1   TXD
  * PIN:  10   Port: D2   EXP1_8
