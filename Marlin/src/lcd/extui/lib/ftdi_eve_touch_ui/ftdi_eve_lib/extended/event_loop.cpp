@@ -22,7 +22,7 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 using namespace FTDI;
 
 enum {

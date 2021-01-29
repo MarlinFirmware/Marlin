@@ -107,7 +107,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                           P1_23
+  #define SD_SS_PIN                        P1_23
 #endif
 
 // Trinamic driver support

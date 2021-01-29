@@ -81,7 +81,7 @@ void BioPrintingDialogBox::draw_interaction_buttons(draw_mode_t what) {
        .enabled(isPrinting() ? TERN0(SDSUPPORT, isPrintingFromMedia()) : 1)
        .tag(3)
        .colors(isPrinting() ? normal_btn : action_btn)
-       .button( BTN_POS(2,9), BTN_SIZE(1,1), isPrinting() ? F("Cancel") : F("Back"));
+       .button(BTN_POS(2,9), BTN_SIZE(1,1), isPrinting() ? F("Cancel") : F("Back"));
   }
 }
 

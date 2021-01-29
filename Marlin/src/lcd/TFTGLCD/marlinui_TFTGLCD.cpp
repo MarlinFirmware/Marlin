@@ -32,7 +32,7 @@
  * and supports color output.
  */
 
-#if NONE(__AVR__, TARGET_LPC1768, __STM32F1__, STM32F4xx)
+#if NONE(__AVR__, TARGET_LPC1768, STM32F1, STM32F4xx)
   #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
@@ -129,7 +129,7 @@ static uint8_t PanelDetected = 0;
 #if ANY(__AVR__, TARGET_LPC1768, __STM32F1__, ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
   #define SPI_SEND_ONE(V) SPI.transfer(V);
   #define SPI_SEND_TWO(V) SPI.transfer16(V);
-#elif defined(STM32F4xx)
+#elif EITHER(STM32F4xx, STM32F1xx)
   #define SPI_SEND_ONE(V) SPI.transfer(V, SPI_CONTINUE);
   #define SPI_SEND_TWO(V) SPI.transfer16(V, SPI_CONTINUE);
 #elif defined(ARDUINO_ARCH_ESP32)
@@ -139,7 +139,7 @@ static uint8_t PanelDetected = 0;
 
 #if ANY(__AVR__, ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
   #define SPI_SEND_SOME(V,L,Z)  SPI.transfer(&V[Z], L);
-#elif defined(STM32F4xx)
+#elif EITHER(STM32F4xx, STM32F1xx)
   #define SPI_SEND_SOME(V,L,Z)  SPI.transfer(&V[Z], L, SPI_CONTINUE);
 #elif ANY(TARGET_LPC1768, __STM32F1__, ARDUINO_ARCH_ESP32)
   #define SPI_SEND_SOME(V,L,Z)  do{ for (uint16_t i = 0; i < L; i++) SPI_SEND_ONE(V[(Z)+i]); }while(0)
@@ -276,7 +276,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
     Wire.endTransmission();
     #ifdef __AVR__
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2, 0, 0, 1);
-    #elif defined(__STM32F1__)
+    #elif defined(STM32F1)
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, (uint8_t)2);
     #elif EITHER(STM32F4xx, TARGET_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 2);
@@ -313,7 +313,7 @@ void MarlinUI::init_lcd() {
   t = 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // SPI speed must be less 10MHz
-    _SET_OUTPUT(TFTGLCD_CS);
+    SET_OUTPUT(TFTGLCD_CS);
     WRITE(TFTGLCD_CS, HIGH);
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
@@ -330,7 +330,7 @@ void MarlinUI::init_lcd() {
     Wire.endTransmission(); // send buffer
     #ifdef __AVR__
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 1, 0, 0, 1);
-    #elif ANY(__STM32F1__, STM32F4xx, TARGET_LPC1768)
+    #elif ANY(STM32F1, STM32F4xx, TARGET_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 1);
     #endif
     t = (uint8_t)Wire.read();
@@ -626,7 +626,7 @@ Equal to 20x10 text LCD
 | ttc  ttc   %       | ttc - current temperature
 | tts  tts  %%%      | tts - setted temperature, %%% - percent for FAN
 | ICO  ICO  ICO  ICO | ICO - icon 48x48, placed in 2 text lines
-| ICO  ICO  ICO  ICO | ICO /
+| ICO  ICO  ICO  ICO | ICO
 
 or
 
@@ -855,13 +855,14 @@ void MarlinUI::draw_status_screen() {
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     if (!PanelDetected) return;
     ui.encoder_direction_normal();
-    lcd.setCursor(0, MIDDLE_Y);
+    const uint8_t y = TERN0(AUTO_BED_LEVELING_UBL, ui.external_control) ? LCD_HEIGHT - 1 : MIDDLE_Y;
+    lcd.setCursor(0, y);
     lcd.write(COLOR_EDIT);
     lcd_put_u8str_P(pstr);
     if (value) {
       lcd.write(':');
-      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), MIDDLE_Y);  // Right-justified, padded by spaces
-      lcd.write(' ');     // Overwrite char if value gets shorter
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), y); // Right-justified, padded by spaces
+      lcd.write(' ');                                               // Overwrite char if value gets shorter
       lcd.print(value);
       lcd.write(' ');
       lcd.print_line();

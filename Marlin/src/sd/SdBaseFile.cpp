@@ -401,8 +401,8 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
       while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      if (i > n || c < 0x21 || c == 0x7F) return false;           // Check size, non-printable characters
-      name[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
+      if (i > n || c < 0x21 || c == 0x7F) return false;       // Check size, non-printable characters
+      name[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);  // Uppercase required for 8.3 name
     }
   }
   *ptr = str;                         // Set passed pointer to the end
@@ -1077,7 +1077,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 
   // If we have a longFilename buffer, mark it as invalid.
   // If a long filename is found it will be filled automatically.
-  if (longFilename) longFilename[0] = '\0';
+  if (longFilename) { longFilename[0] = '\0'; longFilename[1] = '\0'; }
 
   while (1) {
 
@@ -1089,7 +1089,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 
     // skip deleted entry and entry for .  and ..
     if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') {
-      if (longFilename) longFilename[0] = '\0';     // Invalidate erased file long name, if any
+      if (longFilename) { longFilename[0] = '\0'; longFilename[1] = '\0'; } // Invalidate erased file long name, if any
       continue;
     }
 

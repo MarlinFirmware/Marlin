@@ -34,7 +34,7 @@
 #endif
 
 // A white component can be passed
-#if EITHER(RGBW_LED, NEOPIXEL_LED)
+#if ANY(RGBW_LED, NEOPIXEL_LED, PCA9632_RGBW)
   #define HAS_WHITE_LED 1
 #endif
 

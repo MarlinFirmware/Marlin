@@ -26,7 +26,7 @@
 #if ENABLED(MKS_WIFI_MODULE)
 
 #ifdef SERIAL_PORT_2
-  #error "SERIAL_PORT_2 must be disabled with HAS_TFT_LVGL_UI and MKS_WIFI_MODULE."
+  #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
 #endif
 
 #define WIFI_BAUDRATE          115200
@@ -58,8 +58,8 @@ class WifiSerial {
     void begin(uint32 baud);
     void begin(uint32 baud,uint8_t config);
     void end();
-    int available(void);
-    int read(void);
+    int available();
+    int read();
     int write(uint8_t);
     inline void wifi_usart_irq(usart_reg_map *regs) {
       /* Handling RXNEIE and TXEIE interrupts.
@@ -87,10 +87,10 @@ class WifiSerial {
       }
     }
 
-    int wifi_rb_is_full(void);
+    int wifi_rb_is_full();
 
-  private:
     struct usart_dev *usart_device;
+    private:
     uint8 tx_pin;
     uint8 rx_pin;
 };

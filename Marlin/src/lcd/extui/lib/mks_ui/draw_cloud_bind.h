@@ -21,18 +21,17 @@
  */
 #pragma once
 
-// Longer UI assumptions
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Longer UI supports only 1 hotend / E-stepper."
+#ifdef __cplusplus
+extern "C" { /* C-declarations for C++ */
 #endif
 
-#define BOARD_INFO_NAME "LGT Kit 1.0"
+extern void lv_draw_cloud_bind();
+extern void lv_clear_cloud_bind();
+extern void disp_bind_state();
+extern void refresh_bind_ui();
+extern void display_qrcode(uint8_t *qrcode_data);
+extern void cloud_unbind();
 
-#define SD_DETECT_PIN                         49
-#define FIL_RUNOUT_PIN                         2
-#define Z_MIN_PIN                             35
-
-//
-// Import RAMPS 1.4 pins
-//
-#include "pins_RAMPS.h"
+#ifdef __cplusplus
+} /* C-declarations for C++ */
+#endif

@@ -47,19 +47,19 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
    #define GRID_COLS 2
    cmd.tag(0)
       .font(font_xsmall)
-      .fgcolor(transformA)  .button( BTN_POS(1,1), BTN_SIZE(1,1), F("TOUCH_XFORM_A"))
-      .fgcolor(transformB)  .button( BTN_POS(1,2), BTN_SIZE(1,1), F("TOUCH_XFORM_B"))
-      .fgcolor(transformC)  .button( BTN_POS(1,3), BTN_SIZE(1,1), F("TOUCH_XFORM_C"))
-      .fgcolor(transformD)  .button( BTN_POS(1,4), BTN_SIZE(1,1), F("TOUCH_XFORM_D"))
-      .fgcolor(transformE)  .button( BTN_POS(1,5), BTN_SIZE(1,1), F("TOUCH_XFORM_E"))
-      .fgcolor(transformF)  .button( BTN_POS(1,6), BTN_SIZE(1,1), F("TOUCH_XFORM_F"))
+      .fgcolor(transformA)  .button(BTN_POS(1,1), BTN_SIZE(1,1), F("TOUCH_XFORM_A"))
+      .fgcolor(transformB)  .button(BTN_POS(1,2), BTN_SIZE(1,1), F("TOUCH_XFORM_B"))
+      .fgcolor(transformC)  .button(BTN_POS(1,3), BTN_SIZE(1,1), F("TOUCH_XFORM_C"))
+      .fgcolor(transformD)  .button(BTN_POS(1,4), BTN_SIZE(1,1), F("TOUCH_XFORM_D"))
+      .fgcolor(transformE)  .button(BTN_POS(1,5), BTN_SIZE(1,1), F("TOUCH_XFORM_E"))
+      .fgcolor(transformF)  .button(BTN_POS(1,6), BTN_SIZE(1,1), F("TOUCH_XFORM_F"))
 
-      .fgcolor(transformVal).button( BTN_POS(2,1), BTN_SIZE(1,1), F(""), OPT_FLAT)
-      .fgcolor(transformVal).button( BTN_POS(2,2), BTN_SIZE(1,1), F(""), OPT_FLAT)
-      .fgcolor(transformVal).button( BTN_POS(2,3), BTN_SIZE(1,1), F(""), OPT_FLAT)
-      .fgcolor(transformVal).button( BTN_POS(2,4), BTN_SIZE(1,1), F(""), OPT_FLAT)
-      .fgcolor(transformVal).button( BTN_POS(2,5), BTN_SIZE(1,1), F(""), OPT_FLAT)
-      .fgcolor(transformVal).button( BTN_POS(2,6), BTN_SIZE(1,1), F(""), OPT_FLAT);
+      .fgcolor(transformVal).button(BTN_POS(2,1), BTN_SIZE(1,1), F(""), OPT_FLAT)
+      .fgcolor(transformVal).button(BTN_POS(2,2), BTN_SIZE(1,1), F(""), OPT_FLAT)
+      .fgcolor(transformVal).button(BTN_POS(2,3), BTN_SIZE(1,1), F(""), OPT_FLAT)
+      .fgcolor(transformVal).button(BTN_POS(2,4), BTN_SIZE(1,1), F(""), OPT_FLAT)
+      .fgcolor(transformVal).button(BTN_POS(2,5), BTN_SIZE(1,1), F(""), OPT_FLAT)
+      .fgcolor(transformVal).button(BTN_POS(2,6), BTN_SIZE(1,1), F(""), OPT_FLAT);
 
    sprintf_P(b, PSTR("0x%08lX"), T_Transform_A); cmd.text( BTN_POS(2,1), BTN_SIZE(1,1), b);
    sprintf_P(b, PSTR("0x%08lX"), T_Transform_B); cmd.text( BTN_POS(2,2), BTN_SIZE(1,1), b);
@@ -69,7 +69,7 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
    sprintf_P(b, PSTR("0x%08lX"), T_Transform_F); cmd.text( BTN_POS(2,6), BTN_SIZE(1,1), b);
 
    cmd.colors(action_btn).font(font_medium)
-      .tag(1).button( BTN_POS(2,7), BTN_SIZE(1,1), F("Back"));
+      .tag(1).button(BTN_POS(2,7), BTN_SIZE(1,1), F("Back"));
    #undef GRID_COLS
    #undef GRID_ROWS
  }

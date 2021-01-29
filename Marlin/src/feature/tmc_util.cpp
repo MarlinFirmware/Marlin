@@ -147,7 +147,7 @@
 
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
-      constexpr uint8_t S2G_bm = 0b11110; // 2..5
+      constexpr uint8_t S2G_bm = 0b111100; // 2..5
       TMC_driver_data data;
       const auto ds = data.drv_status = st.DRV_STATUS();
       data.is_otpw = TEST(ds, OTPW_bp);
@@ -291,7 +291,7 @@
     bool should_step_down = false;
 
     if (need_update_error_counters) {
-      if (data.is_ot /* | data.s2ga | data.s2gb*/) st.error_count++;
+      if (data.is_ot | data.is_s2g) st.error_count++;
       else if (st.error_count > 0) st.error_count--;
 
       #if ENABLED(STOP_ON_ERROR)
@@ -604,8 +604,6 @@
         case TMC_PWM_OFS_AUTO: SERIAL_PRINT(st.pwm_ofs_auto(), DEC); break;
         case TMC_PWM_GRAD_AUTO: SERIAL_PRINT(st.pwm_grad_auto(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
-        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
@@ -631,6 +629,8 @@
         case TMC_T150: if (st.t150()) SERIAL_CHAR('*'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('*'); break;
         case TMC_T120: if (st.t120()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
+        case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }

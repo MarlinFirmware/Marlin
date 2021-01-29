@@ -23,6 +23,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../module/motion.h"
+
+#include "buttons.h"
+
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
 #endif
@@ -38,33 +42,21 @@
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
-#if ((!HAS_ADC_BUTTONS && IS_NEWPANEL) || BUTTONS_EXIST(EN1, EN2)) && !IS_TFTGLCD_PANEL
-  #define HAS_ENCODER_WHEEL 1
-#endif
-#if HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT)
-  #define HAS_DIGITAL_BUTTONS 1
-#endif
-#if !HAS_ADC_BUTTONS && (IS_RRW_KEYPAD || (HAS_WIRED_LCD && !IS_NEWPANEL))
-  #define HAS_SHIFT_ENCODER 1
-#endif
-
-// I2C buttons must be read in the main thread
-#if ANY(LCD_I2C_VIKI, LCD_I2C_PANELOLU2, IS_TFTGLCD_PANEL)
-  #define HAS_SLOW_BUTTONS 1
-#endif
 
 #if E_MANUAL > 1
   #define MULTI_MANUAL 1
 #endif
 
+#if HAS_DISPLAY
+  #include "../module/printcounter.h"
+#endif
+
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+  #include "../module/motion.h" // for active_extruder
+#endif
+
 #if HAS_WIRED_LCD
-
-  #include "../MarlinCore.h"
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #include "../feature/pause.h"
-    #include "../module/motion.h" // for active_extruder
-  #endif
 
   enum LCDViewAction : uint8_t {
     LCDVIEW_NONE,
@@ -93,12 +85,6 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_pause_show_message(const PauseMessage message,
-                                  const PauseMode mode=PAUSE_MODE_SAME,
-                                  const uint8_t extruder=active_extruder);
-    #endif
-
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       void lcd_mesh_edit_setup(const float &initial);
       float lcd_mesh_edit();
@@ -107,130 +93,6 @@
   #endif // HAS_LCD_MENU
 
 #endif // HAS_WIRED_LCD
-
-#if IS_RRW_KEYPAD
-  #define BTN_OFFSET          0 // Bit offset into buttons for shift register values
-
-  #define BLEN_KEYPAD_F3      0
-  #define BLEN_KEYPAD_F2      1
-  #define BLEN_KEYPAD_F1      2
-  #define BLEN_KEYPAD_DOWN    3
-  #define BLEN_KEYPAD_RIGHT   4
-  #define BLEN_KEYPAD_MIDDLE  5
-  #define BLEN_KEYPAD_UP      6
-  #define BLEN_KEYPAD_LEFT    7
-
-  #define EN_KEYPAD_F1      _BV(BTN_OFFSET + BLEN_KEYPAD_F1)
-  #define EN_KEYPAD_F2      _BV(BTN_OFFSET + BLEN_KEYPAD_F2)
-  #define EN_KEYPAD_F3      _BV(BTN_OFFSET + BLEN_KEYPAD_F3)
-  #define EN_KEYPAD_DOWN    _BV(BTN_OFFSET + BLEN_KEYPAD_DOWN)
-  #define EN_KEYPAD_RIGHT   _BV(BTN_OFFSET + BLEN_KEYPAD_RIGHT)
-  #define EN_KEYPAD_MIDDLE  _BV(BTN_OFFSET + BLEN_KEYPAD_MIDDLE)
-  #define EN_KEYPAD_UP      _BV(BTN_OFFSET + BLEN_KEYPAD_UP)
-  #define EN_KEYPAD_LEFT    _BV(BTN_OFFSET + BLEN_KEYPAD_LEFT)
-
-  #define RRK(B) (keypad_buttons & (B))
-
-  #ifdef EN_C
-    #define BUTTON_CLICK() ((buttons & EN_C) || RRK(EN_KEYPAD_MIDDLE))
-  #else
-    #define BUTTON_CLICK() RRK(EN_KEYPAD_MIDDLE)
-  #endif
-
-#endif // IS_RRW_KEYPAD
-
-#if HAS_DIGITAL_BUTTONS
-
-  // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
-  #define BLEN_A 0
-  #define BLEN_B 1
-
-  #define EN_A _BV(BLEN_A)
-  #define EN_B _BV(BLEN_B)
-
-  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
-
-  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_BUTTONS
-    #define BLEN_C 2
-    #define EN_C _BV(BLEN_C)
-  #endif
-
-  #if ENABLED(LCD_I2C_VIKI)
-
-    #include <LiquidTWI2.h>
-
-    #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-
-    // button and encoder bit positions within 'buttons'
-    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)      // The remaining normalized buttons are all read via I2C
-    #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
-    #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
-    #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
-    #define B_RI (BUTTON_RIGHT  << B_I2C_BTN_OFFSET)
-
-    #if BUTTON_EXISTS(ENC)                                // The pause/stop/restart button is connected to BTN_ENC when used
-      #define B_ST (EN_C)                                 // Map the pause/stop/resume button into its normalized functional name
-      #define BUTTON_CLICK() (buttons & (B_MI|B_RI|B_ST)) // Pause/stop also acts as click until a proper pause/stop is implemented.
-    #else
-      #define BUTTON_CLICK() (buttons & (B_MI|B_RI))
-    #endif
-
-    // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-
-  #elif ENABLED(LCD_I2C_PANELOLU2)
-
-    #if !BUTTON_EXISTS(ENC) // Use I2C if not directly connected to a pin
-
-      #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-
-      #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
-
-      #define BUTTON_CLICK() (buttons & B_MI)
-
-    #endif
-
-  #endif
-
-#else
-
-  #undef BUTTON_EXISTS
-  #define BUTTON_EXISTS(...) false
-
-  // Shift register bits correspond to buttons:
-  #define BL_LE 7   // Left
-  #define BL_UP 6   // Up
-  #define BL_MI 5   // Middle
-  #define BL_DW 4   // Down
-  #define BL_RI 3   // Right
-  #define BL_ST 2   // Red Button
-  #define B_LE _BV(BL_LE)
-  #define B_UP _BV(BL_UP)
-  #define B_MI _BV(BL_MI)
-  #define B_DW _BV(BL_DW)
-  #define B_RI _BV(BL_RI)
-  #define B_ST _BV(BL_ST)
-
-  #ifndef BUTTON_CLICK
-    #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
-  #endif
-
-#endif
-
-#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_BUTTONS, IS_TFTGLCD_PANEL)
-  #define BLEN_D 3
-  #define EN_D _BV(BLEN_D)
-  #define LCD_BACK_CLICKED() (buttons & EN_D)
-#else
-  #define LCD_BACK_CLICKED() false
-#endif
-
-#ifndef BUTTON_CLICK
-  #ifdef EN_C
-    #define BUTTON_CLICK() (buttons & EN_C)
-  #else
-    #define BUTTON_CLICK() false
-  #endif
-#endif
 
 #if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
@@ -258,21 +120,35 @@
 
   // Manual Movement class
   class ManualMove {
-  public:
-    static millis_t start_time;
-    static float menu_scale;
-    TERN_(IS_KINEMATIC, static float offset);
-    #if IS_KINEMATIC
-      static bool processing;
-    #else
-      static bool constexpr processing = false;
-    #endif
+  private:
+    static AxisEnum axis;
     #if MULTI_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
     #endif
-    static uint8_t axis;
+    static millis_t start_time;
+    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
+  public:
+    static float menu_scale;
+    TERN_(IS_KINEMATIC, static float offset);
+    template <typename T>
+    void set_destination(const T& dest) {
+      #if IS_KINEMATIC
+        // Moves are segmented, so the entire move is not submitted at once.
+        // Using a separate variable prevents corrupting the in-progress move.
+        all_axes_destination = current_position;
+        all_axes_destination.set(dest);
+      #else
+        // Moves are submitted as single line to the planner using buffer_line.
+        current_position.set(dest);
+      #endif
+    }
+    #if IS_KINEMATIC
+      static bool processing;
+    #else
+      static bool constexpr processing = false;
+    #endif
     static void task();
     static void soon(AxisEnum axis
       #if MULTI_MANUAL
@@ -293,6 +169,17 @@ public:
   MarlinUI() {
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
+
+  #if HAS_MULTI_LANGUAGE
+    static uint8_t language;
+    static inline void set_language(const uint8_t lang) {
+      if (lang < NUM_LANGUAGES) {
+        language = lang;
+        return_to_status();
+        refresh();
+      }
+    }
+  #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
     static bool buzzer_enabled; // Initialized by settings.load()
@@ -357,11 +244,20 @@ public:
       static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
       static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
       static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
-      #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-        static uint32_t remaining_time;
-        FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-        FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
-        FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+      #if ENABLED(SHOW_REMAINING_TIME)
+        static inline uint32_t _calculated_remaining_time() {
+          const duration_t elapsed = print_job_timer.duration();
+          const progress_t progress = _get_progress();
+          return elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+        }
+        #if ENABLED(USE_M73_REMAINING_TIME)
+          static uint32_t remaining_time;
+          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time ?: _calculated_remaining_time(); }
+          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+        #else
+          FORCE_INLINE static uint32_t get_remaining_time() { return _calculated_remaining_time(); }
+        #endif
       #endif
     #endif
     static progress_t _get_progress();
@@ -527,6 +423,8 @@ public:
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
+    #else
+      static constexpr uint8_t touch_buttons = 0;
     #endif
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -598,6 +496,13 @@ public:
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+  #endif
+
+  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+  #else
+    static inline void _pause_show_message() {}
+    #define pause_show_message(...) _pause_show_message()
   #endif
 
   //
