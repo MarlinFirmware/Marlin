@@ -38,7 +38,7 @@ CaseLight caselight;
 
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
-#if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+#if ENABLED(CASE_LIGHT_HAS_LEDCOLOR)
   LEDColor CaseLight::color =
     #ifdef CASE_LIGHT_NEOPIXEL_COLOR
       CASE_LIGHT_NEOPIXEL_COLOR
@@ -71,14 +71,14 @@ void CaseLight::update(const bool sflag) {
     const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
   #endif
 
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #if ENABLED(CASE_LIGHT_HAS_LEDCOLOR)
 
     leds.set_color(
       MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),
       false
     );
 
-  #else // !CASE_LIGHT_USE_NEOPIXEL
+  #else // !CASE_LIGHT_HAS_LEDCOLOR
 
     #if CASELIGHT_USES_BRIGHTNESS
       if (PWM_PIN(CASE_LIGHT_PIN))
@@ -96,11 +96,11 @@ void CaseLight::update(const bool sflag) {
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
       }
 
-    #if ENABLED(CASE_LIGHT_USE_RGB_LED)
-      if (leds.lights_on) leds.update(); else leds.set_off();
-    #endif
+  #endif // !CASE_LIGHT_HAS_LEDCOLOR
 
-  #endif // !CASE_LIGHT_USE_NEOPIXEL
+  #if ENABLED(CASE_LIGHT_USE_RGB_LED)
+    if (leds.lights_on) leds.update(); else leds.set_off();
+  #endif
 }
 
 #endif // CASE_LIGHT_ENABLE

@@ -21,10 +21,11 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
   #include "leds/leds.h"
+  #define CASE_LIGHT_HAS_LEDCOLOR 1
 #endif
 
 #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
@@ -33,15 +34,17 @@
 
 class CaseLight {
 public:
-  TERN_(CASELIGHT_USES_BRIGHTNESS, static uint8_t brightness);
   static bool on;
+  TERN_(CASELIGHT_USES_BRIGHTNESS, static uint8_t brightness);
+
+  static inline bool pin_is_pwm()        { return PWM_PIN(CASE_LIGHT_PIN); }
 
   static void update(const bool sflag);
   static inline void update_brightness() { update(false); }
-  static inline void update_enabled() { update(true); }
+  static inline void update_enabled()    { update(true);  }
 
 private:
-  TERN_(CASE_LIGHT_USE_NEOPIXEL, static LEDColor color);
+  TERN_(CASE_LIGHT_HAS_LEDCOLOR, static LEDColor color);
 };
 
 extern CaseLight caselight;

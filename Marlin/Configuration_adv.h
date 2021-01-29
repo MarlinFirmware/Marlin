@@ -517,8 +517,9 @@
     #if BOTH(NEOPIXEL_LED, CASE_LIGHT_USE_NEOPIXEL)
       #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
     #endif
-  #elif EITHER(RGB_LED, RGBW_LED)
-    //#define CASE_LIGHT_USE_RGB_LED
+  #endif
+  #if EITHER(RGB_LED, RGBW_LED)
+    //#define CASE_LIGHT_USE_RGB_LED         // Use RGB / RGBW LED as case light
   #endif
 #endif
 
