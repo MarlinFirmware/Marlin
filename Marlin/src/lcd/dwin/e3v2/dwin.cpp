@@ -3553,7 +3553,7 @@ void EachMomentUpdate() {
     static millis_t next_remain_time_update = 0;
     if (Percentrecord > 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) {
       remain_time = (elapsed.value - dwin_heat_time) / (Percentrecord * 0.01f) - (elapsed.value - dwin_heat_time);
-      next_remain_time_update += 20 * 1000UL;
+      next_remain_time_update += SEC_TO_MS(20);
       Draw_Print_ProgressRemain();
     }
   }
