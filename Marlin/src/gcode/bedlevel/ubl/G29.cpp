@@ -31,18 +31,17 @@
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
-#include "../../../MarlinCore.h" // for M_State_grbl
+#if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+  #include "../../../module/motion.h"
+#endif
 
 void GcodeSuite::G29() {
 
-  M_State_grbl = M_PROBE;
-  report_current_grblstate_moving();
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   ubl.G29();
 
-  M_State_grbl = M_IDLE;
-  report_current_grblstate_moving();
-
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // AUTO_BED_LEVELING_UBL

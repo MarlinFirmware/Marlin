@@ -1592,22 +1592,23 @@ void Planner::quick_stop() {
   stepper.quick_stop();
 }
 
-void Planner::quick_pause() {
-  // Suspend until quick_resume is called
-  // Don't empty buffers or queues
-  if (stepper.suspend()) {
-    M_State_grbl = M_HOLD;
-    report_current_grblstate_moving();
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+
+  void Planner::quick_pause() {
+    // Suspend until quick_resume is called
+    // Don't empty buffers or queues
+    const bool did_suspend = stepper.suspend();
+    if (did_suspend)
+      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
   }
-}
 
-void Planner::quick_resume() {
   // Resume if suspended
-  set_M_state_from_marlin_state();
-  report_current_grblstate_moving();
-  stepper.wake_up();
-}
+  void Planner::quick_resume() {
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(grbl_state_for_marlin_state()));
+    stepper.wake_up();
+  }
 
+#endif
 
 void Planner::endstop_triggered(const AxisEnum axis) {
   // Record stepper position and discard the current block

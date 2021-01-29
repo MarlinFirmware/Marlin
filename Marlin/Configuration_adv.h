@@ -2013,6 +2013,12 @@
  */
 //#define EMERGENCY_PARSER
 
+// Support realtime commands: S000 State, P000 Pause, R000 Resume
+//#define REALTIME_REPORTING_COMMANDS
+
+// Send machine status reports while moving and status reports GRBL style
+//#define FULL_REPORT_TO_HOST_FEATURE
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.

@@ -1600,9 +1600,7 @@
 //
 #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
-#define KEEPALIVE_INTERVAL_DIVIDER 3  // Divide the KEEPALIVE_INTERVAL for faster reporting
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
-#define FULL_REPORT_TO_HOST_FEATURE   // Enable this to send Machine status reports while moving and status reports GRBL style
 
 //
 // G20/G21 Inch mode support

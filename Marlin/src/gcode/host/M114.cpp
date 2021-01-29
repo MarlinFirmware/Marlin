@@ -176,7 +176,8 @@
     const xyze_float_t diff = from_steppers - leveled;
     SERIAL_ECHOPGM("Diff:   ");
     report_xyze(diff);
-    report_current_grblstate_moving();
+
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
 
 #endif // M114_DETAIL
@@ -212,5 +213,6 @@ void GcodeSuite::M114() {
 
   TERN_(M114_LEGACY, planner.synchronize());
   report_current_position_projected();
-  report_current_grblstate_moving();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
 }

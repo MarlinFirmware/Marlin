@@ -235,47 +235,49 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
-/**
- * Output the current position (processed) to serial while moving
- */
-void report_current_position_moving() {
+#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
 
-  get_cartesian_from_steppers();
-  const xyz_pos_t lpos = cartes.asLogical();
-  SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+  M_StateEnum M_State_grbl = M_INIT;
 
-  stepper.report_positions();
-  #if IS_SCARA
-    scara_report_positions();
-  #endif
-  report_current_grblstate_moving();
-}
+  /**
+   * Output the current grbl compatible state to serial while moving
+   */
+  void report_current_grblstate_moving() { SERIAL_ECHOLNPAIR("S_XYZ:", int(M_State_grbl)); }
 
-/**
- * Output the current grbl compatible state to serial while moving
- */
-void report_current_grblstate_moving() {
-  #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-    SERIAL_ECHOPAIR("S_XYZ:", M_State_grbl);
-    SERIAL_EOL();
-  #endif
-}
+  /**
+   * Output the current position (processed) to serial while moving
+   */
+  void report_current_position_moving() {
 
-/**
- *  grbl compatible state to marlin_state
- */
-void set_M_state_from_marlin_state() {
-  switch (marlin_state) {
-      case MF_INITIALIZING: M_State_grbl = M_INIT; break;
-      case MF_SD_COMPLETE: M_State_grbl = M_ALARM; break;
-      case MF_WAITING: M_State_grbl = M_IDLE; break;
-      case MF_STOPPED: M_State_grbl = M_END; break;
-      case MF_RUNNING: M_State_grbl = M_RUNNING; break;
-      case MF_PAUSED: M_State_grbl = M_HOLD; break;
-      case MF_KILLED: M_State_grbl = M_ERROR; break;
-      default: M_State_grbl = M_IDLE;
+    get_cartesian_from_steppers();
+    const xyz_pos_t lpos = cartes.asLogical();
+    SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+
+    stepper.report_positions();
+    #if IS_SCARA
+      scara_report_positions();
+    #endif
+
+    report_current_grblstate_moving();
   }
-}
+
+  /**
+   * Set a Grbl-compatible state from the current marlin_state
+   */
+  M_StateEnum grbl_state_for_marlin_state() {
+    switch (marlin_state) {
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
+    }
+  }
+
+#endif
 
 /**
  * Run out the planner buffer and re-sync the current
@@ -288,19 +290,21 @@ void quickstop_stepper() {
   sync_plan_position();
 }
 
-void quickpause_stepper() {
-  planner.quick_pause();
-  //planner.synchronize();
-}
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
 
-void quickresume_stepper() {
-  planner.quick_resume();
-  //planner.synchronize();
-}
+  void quickpause_stepper() {
+    planner.quick_pause();
+    //planner.synchronize();
+  }
+
+  void quickresume_stepper() {
+    planner.quick_resume();
+    //planner.synchronize();
+  }
+
+#endif
 
 /**
- * sync_plan_position
- *
  * Set the planner/stepper positions directly from current_position with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */

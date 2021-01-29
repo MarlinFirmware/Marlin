@@ -163,8 +163,7 @@
  */
 G29_TYPE GcodeSuite::G29() {
 
-  M_State_grbl = M_PROBE;
-  report_current_grblstate_moving();
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   reset_stepper_timeout();
 
@@ -898,8 +897,7 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
-  M_State_grbl = M_IDLE;
-  report_current_grblstate_moving();
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 
   G29_RETURN(isnan(measured_z));
 }

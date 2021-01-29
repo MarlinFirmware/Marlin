@@ -385,8 +385,7 @@ static float auto_tune_a() {
  */
 void GcodeSuite::G33() {
 
-  M_State_grbl = M_PROBE;
-  report_current_grblstate_moving();
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
@@ -647,8 +646,7 @@ void GcodeSuite::G33() {
 
   ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
 
-  M_State_grbl = M_IDLE;
-  report_current_grblstate_moving();
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // DELTA_AUTO_CALIBRATION

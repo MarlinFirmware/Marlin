@@ -27,8 +27,6 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#include "../module/motion.h"
-
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"
 #endif
@@ -36,13 +34,19 @@
 // External references
 extern bool wait_for_user, wait_for_heatup;
 
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+  // motion.h cannot be included here
+  void report_current_position_moving();
+  void quickpause_stepper();
+  void quickresume_stepper();
+#endif
+
 class EmergencyParser {
 
 public:
 
-  // Currently looking for: M108, M112, M410, M876
-  // S000 STATE , P000 for Pause, R000 for resume
-  enum State : char {
+  // Currently looking for: M108, M112, M410, M876 S[0-9], S000, P000, R000
+  enum State : uint8_t {
     EP_RESET,
     EP_N,
     EP_M,
@@ -50,11 +54,13 @@ public:
     EP_M10, EP_M108,
     EP_M11, EP_M112,
     EP_M4, EP_M41, EP_M410,
-    EP_S, EP_S0, EP_S00, EP_grblSTATUS,
-    EP_R, EP_R0, EP_R00, EP_grblRESUME,
-    EP_P, EP_P0, EP_P00, EP_grblPAUSE,
     #if ENABLED(HOST_PROMPT_SUPPORT)
       EP_M8, EP_M87, EP_M876, EP_M876S, EP_M876SN,
+    #endif
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      EP_S, EP_S0, EP_S00, EP_GRBL_STATUS,
+      EP_R, EP_R0, EP_R00, EP_GRBL_RESUME,
+      EP_P, EP_P0, EP_P00, EP_GRBL_PAUSE,
     #endif
     EP_IGNORE // to '\n'
   };
@@ -78,33 +84,42 @@ public:
           case ' ': case '\n': case '\r': break;
           case 'N': state = EP_N; break;
           case 'M': state = EP_M; break;
-          case 'S': state = EP_S; break;
-          case 'P': state = EP_P; break;
-          case 'R': state = EP_R; break;
-           default: state = EP_IGNORE;
+          #if ENABLED(REALTIME_REPORTING_COMMANDS)
+            case 'S': state = EP_S; break;
+            case 'P': state = EP_P; break;
+            case 'R': state = EP_R; break;
+          #endif
+          default: state = EP_IGNORE;
         }
         break;
 
       case EP_N:
         switch (c) {
           case '0' ... '9':
-          case '-': case ' ':   break;
-          case 'M': state = EP_M;      break;
-           default: state = EP_IGNORE;
+          case '-': case ' ':     break;
+          case 'M': state = EP_M; break;
+          #if ENABLED(REALTIME_REPORTING_COMMANDS)
+            case 'S': state = EP_S; break;
+            case 'P': state = EP_P; break;
+            case 'R': state = EP_R; break;
+          #endif
+          default: state = EP_IGNORE;
         }
         break;
 
-      case EP_S:   state = (c == '0' ? EP_S0 : EP_IGNORE);         break;
-      case EP_S0:  state = (c == '0' ? EP_S00 : EP_IGNORE);        break;
-      case EP_S00: state = (c == '0' ? EP_grblSTATUS : EP_IGNORE); break;
+      #if ENABLED(REALTIME_REPORTING_COMMANDS)
+        case EP_S:   state = (c == '0') ? EP_S0          : EP_IGNORE; break;
+        case EP_S0:  state = (c == '0') ? EP_S00         : EP_IGNORE; break;
+        case EP_S00: state = (c == '0') ? EP_GRBL_STATUS : EP_IGNORE; break;
 
-      case EP_R:   state = (c == '0' ? EP_R0 : EP_IGNORE);         break;
-      case EP_R0:  state = (c == '0' ? EP_R00 : EP_IGNORE);        break;
-      case EP_R00: state = (c == '0' ? EP_grblRESUME : EP_IGNORE); break;
+        case EP_R:   state = (c == '0') ? EP_R0          : EP_IGNORE; break;
+        case EP_R0:  state = (c == '0') ? EP_R00         : EP_IGNORE; break;
+        case EP_R00: state = (c == '0') ? EP_GRBL_RESUME : EP_IGNORE; break;
 
-      case EP_P:   state = (c == '0' ? EP_P0 : EP_IGNORE);         break;
-      case EP_P0:  state = (c == '0' ? EP_P00 : EP_IGNORE);        break;
-      case EP_P00: state = (c == '0' ? EP_grblPAUSE : EP_IGNORE);  break;
+        case EP_P:   state = (c == '0') ? EP_P0          : EP_IGNORE; break;
+        case EP_P0:  state = (c == '0') ? EP_P00         : EP_IGNORE; break;
+        case EP_P00: state = (c == '0') ? EP_GRBL_PAUSE  : EP_IGNORE; break;
+      #endif
 
       case EP_M:
         switch (c) {
@@ -128,33 +143,33 @@ public:
 
       case EP_M10: state = (c == '8') ? EP_M108 : EP_IGNORE; break;
       case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
-      case EP_M4:  state = (c == '1') ? EP_M41 : EP_IGNORE;  break;
+      case EP_M4:  state = (c == '1') ? EP_M41  : EP_IGNORE; break;
       case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
 
       #if ENABLED(HOST_PROMPT_SUPPORT)
 
-        case EP_M8:  state = (c == '7') ? EP_M87 : EP_IGNORE;  break;
+        case EP_M8:  state = (c == '7') ? EP_M87  : EP_IGNORE; break;
         case EP_M87: state = (c == '6') ? EP_M876 : EP_IGNORE; break;
 
         case EP_M876:
           switch (c) {
             case ' ': break;
             case 'S': state = EP_M876S; break;
-             default: state = EP_IGNORE; break;
+            default: state = EP_IGNORE; break;
           }
           break;
 
-      case EP_M876S:
-        switch (c) {
-          case ' ': break;
-          case '0' ... '9':
-            state = EP_M876SN;
-            M876_reason = (uint8_t)(c - '0');
-            break;
-        }
-        break;
-      #endif
+        case EP_M876S:
+          switch (c) {
+            case ' ': break;
+            case '0' ... '9':
+              state = EP_M876SN;
+              M876_reason = uint8_t(c - '0');
+              break;
+          }
+          break;
 
+      #endif
 
       case EP_IGNORE:
         if (ISEOL(c)) state = EP_RESET;
@@ -169,9 +184,11 @@ public:
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: host_response_handler(M876_reason); break;
             #endif
-            case EP_grblSTATUS: report_current_position_moving(); break;
-            case EP_grblPAUSE: quickpause_stepper(); break;
-            case EP_grblRESUME: quickresume_stepper(); break;
+            #if ENABLED(REALTIME_REPORTING_COMMANDS)
+              case EP_GRBL_STATUS: report_current_position_moving(); break;
+              case EP_GRBL_PAUSE: quickpause_stepper(); break;
+              case EP_GRBL_RESUME: quickresume_stepper(); break;
+            #endif
             default: break;
           }
           state = EP_RESET;
