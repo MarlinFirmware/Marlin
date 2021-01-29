@@ -21,8 +21,9 @@ __Not for production use. Use with caution!__
   - Support QQSP/Q5 Stock, TMC and UART mode.
   * All QQSP features on Q5.
   - Choice UI Classic (Lcd) and Color (TFT)
-  - 
-
+  - Change BAUDSRATE at 250000
+  -
+  -
 
   ## Validate:
 
