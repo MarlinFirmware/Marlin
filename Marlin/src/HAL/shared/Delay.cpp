@@ -1,7 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,8 +60,7 @@
   // Pointer to asm function, calling the functions has a ~20 cycles overhead
   DelayImpl DelayCycleFnc = delay_asm;
 
-  void calibrate_delay_loop()
-  {
+  void calibrate_delay_loop() {
     // Check if we have a working DWT implementation in the CPU (see https://developer.arm.com/documentation/ddi0439/b/Data-Watchpoint-and-Trace-Unit/DWT-Programmers-Model)
     if (!HW_REG(_DWT_CTRL)) {
       // No DWT present, so fallback to plain old ASM nop counting
@@ -104,63 +105,58 @@
     }
 
     #if ENABLED(MARLIN_DEV_MODE)
+
+      auto report_call_time = [](PGM_P const name, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
+        SERIAL_ECHOPGM("Calling ");
+        serialprintPGM(name);
+        SERIAL_ECHOLNPAIR(" for ", cycles, "cycles took: ", total, "cycles");
+        if (do_flush) SERIAL_FLUSH();
+      };
+
+      uint32_t s, e;
+
       SERIAL_ECHOLNPAIR("Computed delay calibration value: ", ASM_CYCLES_PER_ITERATION);
       SERIAL_FLUSH();
       // Display the results of the calibration above
       constexpr uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };
       for (auto i : testValues) {
-        uint32_t s = micros();
-        DELAY_US(i);
-        uint32_t e = micros();
-        SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "us took: ", e - s, "us");
-        SERIAL_FLUSH();
+        s = micros(); DELAY_US(i); e = micros();
+        report_call_time(PSTR("delay"), i, e - s);
       }
 
       if (HW_REG(_DWT_CTRL)) {
         for (auto i : testValues) {
-          uint32_t s = HW_REG(_DWT_CYCCNT);
-          DELAY_CYCLES(i);
-          uint32_t e = HW_REG(_DWT_CYCCNT);
-          SERIAL_ECHOLNPAIR("Calling the delay function for ", i, "cycles took: ", e - s, "cycles");
-          SERIAL_FLUSH();
+          s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(i); e = HW_REG(_DWT_CYCCNT);
+          report_call_time(PSTR("delay"), i, e - s);
         }
 
         // Measure the delay to call a real function compared to a function pointer
-        uint32_t s = HW_REG(_DWT_CYCCNT);
-        delay_dwt(1);
-        uint32_t e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the delay_dwt function directly for ", 1, "cycles took: ", e - s, "cycles");
-        SERIAL_FLUSH();
+        s = HW_REG(_DWT_CYCCNT); delay_dwt(1); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(PSTR("delay_dwt"), 1, e - s);
 
-        s = HW_REG(_DWT_CYCCNT);
-        DELAY_CYCLES(1);
-        e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 1, "cycles took: ", e - s, "cycles");
+        static PGMSTR(dcd, "DELAY_CYCLES directly ");
 
-        s = HW_REG(_DWT_CYCCNT);
-        DELAY_CYCLES(5);
-        e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 5, "cycles took: ", e - s, "cycles");
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 1); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd,  1, e - s, false);
 
-        s = HW_REG(_DWT_CYCCNT);
-        DELAY_CYCLES(10);
-        e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 10, "cycles took: ", e - s, "cycles");
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 5); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd,  5, e - s, false);
 
-        s = HW_REG(_DWT_CYCCNT);
-        DELAY_CYCLES(20);
-        e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 20, "cycles took: ", e - s, "cycles");
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(10); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd, 10, e - s, false);
 
-        s = HW_REG(_DWT_CYCCNT);
-        DELAY_CYCLES(50);
-        e = HW_REG(_DWT_CYCCNT);
-        SERIAL_ECHOLNPAIR("Calling the DELAY_CYCLES macro directly for ", 50, "cycles took: ", e - s, "cycles");
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(20); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd, 20, e - s, false);
 
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(50); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd, 50, e - s, false);
       }
-    #endif
-  }
-#else
-  void calibrate_delay_loop() {}
-#endif
 
+    #endif // MARLIN_DEV_MODE
+  }
+
+#else
+
+  void calibrate_delay_loop() {}
+
+#endif
