@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -45,84 +45,91 @@ SCREEN_TABLE {
   DECL_SCREEN(SaveSettingsDialogBox),
   DECL_SCREEN(ConfirmStartPrintDialogBox),
   DECL_SCREEN(ConfirmAbortPrintDialogBox),
-#if ENABLED(CALIBRATION_GCODE)
-  DECL_SCREEN(ConfirmAutoCalibrationDialogBox),
-#endif
+  #if ENABLED(CALIBRATION_GCODE)
+    DECL_SCREEN(ConfirmAutoCalibrationDialogBox),
+  #endif
+  #if ENABLED(CUSTOM_USER_MENUS)
+    DECL_SCREEN(CustomUserMenus),
+  #endif
   DECL_SCREEN(SpinnerDialogBox),
   DECL_SCREEN(AboutScreen),
-#if ENABLED(PRINTCOUNTER)
-  DECL_SCREEN(StatisticsScreen),
-#endif
-#if ENABLED(BABYSTEPPING)
-  DECL_SCREEN(NudgeNozzleScreen),
-#endif
+  #if ENABLED(PRINTCOUNTER)
+    DECL_SCREEN(StatisticsScreen),
+  #endif
+  #if ENABLED(BABYSTEPPING)
+    DECL_SCREEN(NudgeNozzleScreen),
+  #endif
   DECL_SCREEN(MoveAxisScreen),
   DECL_SCREEN(StepsScreen),
-#if HAS_TRINAMIC_CONFIG
-  DECL_SCREEN(StepperCurrentScreen),
-  DECL_SCREEN(StepperBumpSensitivityScreen),
-#endif
-#if HAS_LEVELING
-  DECL_SCREEN(LevelingMenu),
-  #if HAS_BED_PROBE
-    DECL_SCREEN(ZOffsetScreen),
+  #if HAS_TRINAMIC_CONFIG
+    DECL_SCREEN(StepperCurrentScreen),
+    DECL_SCREEN(StepperBumpSensitivityScreen),
   #endif
-  #if HAS_MESH
-    DECL_SCREEN(BedMeshScreen),
+  #if HAS_LEVELING
+    DECL_SCREEN(LevelingMenu),
+    #if HAS_BED_PROBE
+      DECL_SCREEN(ZOffsetScreen),
+    #endif
+    #if HAS_MESH
+      DECL_SCREEN(BedMeshScreen),
+    #endif
   #endif
-#endif
-#if HAS_MULTI_HOTEND
-  DECL_SCREEN(NozzleOffsetScreen),
-#endif
-#if ENABLED(BACKLASH_GCODE)
-  DECL_SCREEN(BacklashCompensationScreen),
-#endif
+  #if HAS_MULTI_HOTEND
+    DECL_SCREEN(NozzleOffsetScreen),
+  #endif
+  #if ENABLED(BACKLASH_GCODE)
+    DECL_SCREEN(BacklashCompensationScreen),
+  #endif
   DECL_SCREEN(FeedratePercentScreen),
   DECL_SCREEN(MaxVelocityScreen),
   DECL_SCREEN(MaxAccelerationScreen),
   DECL_SCREEN(DefaultAccelerationScreen),
-#if HAS_JUNCTION_DEVIATION
-  DECL_SCREEN(JunctionDeviationScreen),
-#else
-  DECL_SCREEN(JerkScreen),
-#endif
-#if ENABLED(CASE_LIGHT_ENABLE)
-  DECL_SCREEN(CaseLightScreen),
-#endif
-#if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-  DECL_SCREEN(FilamentMenu),
-#endif
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  DECL_SCREEN(FilamentRunoutScreen),
-#endif
-#if ENABLED(LIN_ADVANCE)
-  DECL_SCREEN(LinearAdvanceScreen),
-#endif
+  #if HAS_JUNCTION_DEVIATION
+    DECL_SCREEN(JunctionDeviationScreen),
+  #else
+    DECL_SCREEN(JerkScreen),
+  #endif
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    DECL_SCREEN(CaseLightScreen),
+  #endif
+  #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+    DECL_SCREEN(FilamentMenu),
+  #endif
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    DECL_SCREEN(FilamentRunoutScreen),
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    DECL_SCREEN(LinearAdvanceScreen),
+  #endif
   DECL_SCREEN(TemperatureScreen),
   DECL_SCREEN(ChangeFilamentScreen),
   DECL_SCREEN(InterfaceSettingsScreen),
   DECL_SCREEN(InterfaceSoundsScreen),
   DECL_SCREEN(LockScreen),
-#if ENABLED(SDSUPPORT)
-  DECL_SCREEN(FilesScreen),
-#endif
+  #if ENABLED(SDSUPPORT)
+    DECL_SCREEN(FilesScreen),
+  #endif
   DECL_SCREEN(EndstopStatesScreen),
-#if ENABLED(TOUCH_UI_LULZBOT_BIO)
-  DECL_SCREEN(BioPrintingDialogBox),
-  DECL_SCREEN(BioConfirmHomeXYZ),
-  DECL_SCREEN(BioConfirmHomeE),
-#endif
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  DECL_SCREEN(PreheatMenu),
-  DECL_SCREEN(PreheatTimerScreen),
-#endif
-#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-  DECL_SCREEN(DeveloperMenu),
-  DECL_SCREEN(ConfirmEraseFlashDialogBox),
-  DECL_SCREEN(WidgetsScreen),
-  DECL_SCREEN(TouchRegistersScreen),
-  DECL_SCREEN(StressTestScreen),
-#endif
+  #if ENABLED(TOUCH_UI_LULZBOT_BIO)
+    DECL_SCREEN(BioPrintingDialogBox),
+    DECL_SCREEN(BioConfirmHomeXYZ),
+    DECL_SCREEN(BioConfirmHomeE),
+  #endif
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    DECL_SCREEN(PreheatMenu),
+    DECL_SCREEN(PreheatTimerScreen),
+    DECL_SCREEN(UnloadCartridgeScreen),
+    DECL_SCREEN(LoadChocolateScreen),
+    DECL_SCREEN(MoveXYZScreen),
+    DECL_SCREEN(MoveEScreen),
+  #endif
+  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+    DECL_SCREEN(DeveloperMenu),
+    DECL_SCREEN(ConfirmEraseFlashDialogBox),
+    DECL_SCREEN(WidgetsScreen),
+    DECL_SCREEN(TouchRegistersScreen),
+    DECL_SCREEN(StressTestScreen),
+  #endif
   DECL_SCREEN(MediaPlayerScreen),
   DECL_SCREEN(DisplayTuningScreen)
 };

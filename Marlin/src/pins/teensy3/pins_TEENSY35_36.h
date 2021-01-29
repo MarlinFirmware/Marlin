@@ -139,14 +139,14 @@
   #define LCD_PINS_D7                         45
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_EN1                             46
   #define BTN_EN2                             47
   #define BTN_ENC                             48
 #endif
 
-#if ENABLED(REPRAPWORLD_KEYPAD)
-  #define SHIFT_OUT                           40
-  #define SHIFT_CLK                           44
-  #define SHIFT_LD                            42
+#if IS_RRW_KEYPAD
+  #define SHIFT_OUT_PIN                       40
+  #define SHIFT_CLK_PIN                       44
+  #define SHIFT_LD_PIN                        42
 #endif

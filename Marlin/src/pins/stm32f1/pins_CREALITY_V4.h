@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,13 @@
  */
 
 /**
- * CREALITY (STM32F103) board pin assignments
+ * Creality 4.2.x (STM32F103RET6) board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -39,40 +37,32 @@
   #define DEFAULT_MACHINE_NAME "Ender 3 V2"
 #endif
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  // FLASH
-  //#define FLASH_EEPROM_EMULATION
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
 
-  // I2C
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
-  #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                  PA11
-    #define IIC_EEPROM_SCL                  PA12
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
-  #endif
-
-  // SPI
-  //#define SPI_EEPROM                            // EEPROM on SPI-0
-  //#define SPI_CHAN_EEPROM1  ?
-  //#define SPI_EEPROM1_CS    ?
-
-  // 2K EEPROM
-  //#define SPI_EEPROM2_CS    ?
-
-  // 32Mb FLASH
-  //#define SPI_FLASH_CS      ?
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb (24C16)
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
 #endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                          PB0   // BLTouch OUT
+#ifndef HAS_PIN_27_BOARD
+  #define SERVO0_PIN                        PB0   // BLTouch OUT
+#else
+  #define SERVO0_PIN                        PC6
+#endif
 
 //
 // Limit Switches
@@ -170,7 +160,9 @@
   #define BTN_EN1                           PB10
   #define BTN_EN2                           PB14
 
-  #define BEEPER_PIN                        PC6
+  #ifndef HAS_PIN_27_BOARD
+    #define BEEPER_PIN                      PC6
+  #endif
 
 #elif ENABLED(VET6_12864_LCD)
 

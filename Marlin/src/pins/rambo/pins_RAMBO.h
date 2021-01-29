@@ -112,7 +112,7 @@
 #define E1_MS2_PIN                            64
 
 #define DIGIPOTSS_PIN                         38
-#define DIGIPOT_CHANNELS  { 4,5,3,0,1 }           // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define DIGIPOT_CHANNELS { 4, 5, 3, 0, 1 }        // X Y Z E0 E1 digipot channels to stepper driver mapping
 #ifndef DIGIPOT_MOTOR_CURRENT
   #define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 #endif
@@ -187,7 +187,7 @@
 
   #define KILL_PIN                            80
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #define LCD_PINS_RS                       70
     #define LCD_PINS_ENABLE                   71
@@ -228,17 +228,21 @@
 
     #endif // !VIKI2 && !miniVIKI
 
-  #else                                           // !NEWPANEL - old style panel with shift register
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
+  #else                                           // !IS_NEWPANEL - old style panel with shift register
 
     // No Beeper added
     #define BEEPER_PIN                        33
 
     // Buttons attached to a shift register
     // Not wired yet
-    //#define SHIFT_CLK                       38
-    //#define SHIFT_LD                        42
-    //#define SHIFT_OUT                       40
-    //#define SHIFT_EN                        17
+    //#define SHIFT_CLK_PIN                   38
+    //#define SHIFT_LD_PIN                    42
+    //#define SHIFT_OUT_PIN                   40
+    //#define SHIFT_EN_PIN                    17
 
     #define LCD_PINS_RS                       75
     #define LCD_PINS_ENABLE                   17
@@ -247,6 +251,6 @@
     #define LCD_PINS_D6                       27
     #define LCD_PINS_D7                       29
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

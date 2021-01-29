@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../compat.h"
@@ -27,7 +27,7 @@
 
   #if ENABLED(SDSUPPORT)
     bool MediaFileReader::open(const char* filename) {
-      card.init(SPI_SPEED, SDSS);
+      card.init(SD_SPI_SPEED, SDSS);
       volume.init(&card);
       root.openRoot(&volume);
       return file.open(&root, filename, O_READ);

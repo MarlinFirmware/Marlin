@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -51,7 +51,7 @@ void WidgetsScreen::onRedraw(draw_mode_t) {
   const uint16_t m   = (slider_val*12*60/0xFFFFU)%60;
   const uint16_t s   = (slider_val*12*60*60/0xFFFFU)%60;
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_COLS 3
     #define GRID_ROWS 8
     cmd.font(font_large)
@@ -113,7 +113,7 @@ bool WidgetsScreen::onTouchStart(uint8_t tag) {
   CommandProcessor cmd;
   switch (tag) {
     case 1: GOTO_PREVIOUS();                                               break;
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     case 2: cmd.track_circular (BTN_POS(1,2), BTN_SIZE(1,2), 2).execute(); break;
     case 4: cmd.track_linear   (BTN_POS(2,3), BTN_SIZE(2,1), 4).execute(); break;
     case 5: cmd.track_linear   (BTN_POS(2,4), BTN_SIZE(2,1), 5).execute(); break;

@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -88,7 +88,7 @@
   }
 
 namespace FTDI {
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     constexpr uint16_t display_width  = Vsize;
     constexpr uint16_t display_height = Hsize;
   #else

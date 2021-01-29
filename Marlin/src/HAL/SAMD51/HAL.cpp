@@ -24,6 +24,11 @@
 #include <Adafruit_ZeroDMA.h>
 #include <wiring_private.h>
 
+#ifdef ADAFRUIT_GRAND_CENTRAL_M4
+  DefaultSerial MSerial(false, Serial);
+  DefaultSerial1 MSerial1(false, Serial1);
+#endif
+
 // ------------------------
 // Local defines
 // ------------------------
@@ -300,7 +305,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc0DMAProgram.startJob();
       }
@@ -337,7 +342,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc1DMAProgram.startJob();
       }

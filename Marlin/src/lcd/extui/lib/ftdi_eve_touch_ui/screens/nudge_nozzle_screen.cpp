@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -32,11 +32,11 @@ using namespace Theme;
 using namespace ExtUI;
 
 void NudgeNozzleScreen::onEntry() {
-  screen_data.NudgeNozzleScreen.show_offsets = false;
+  screen_data.NudgeNozzle.show_offsets = false;
   #if HAS_MULTI_EXTRUDER
-    screen_data.NudgeNozzleScreen.link_nozzles = true;
+    screen_data.NudgeNozzle.link_nozzles = true;
   #endif
-  screen_data.NudgeNozzleScreen.rel.reset();
+  screen_data.NudgeNozzle.rel.reset();
 
   BaseNumericAdjustmentScreen::onEntry();
 }
@@ -47,19 +47,19 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
 
   w.heading(GET_TEXT_F(MSG_NUDGE_NOZZLE));
   #if ENABLED(BABYSTEP_XY)
-  w.color(x_axis).adjuster(2, GET_TEXT_F(MSG_AXIS_X), screen_data.NudgeNozzleScreen.rel.x / getAxisSteps_per_mm(X));
-  w.color(y_axis).adjuster(4, GET_TEXT_F(MSG_AXIS_Y), screen_data.NudgeNozzleScreen.rel.y / getAxisSteps_per_mm(Y));
+  w.color(x_axis).adjuster(2, GET_TEXT_F(MSG_AXIS_X), screen_data.NudgeNozzle.rel.x / getAxisSteps_per_mm(X));
+  w.color(y_axis).adjuster(4, GET_TEXT_F(MSG_AXIS_Y), screen_data.NudgeNozzle.rel.y / getAxisSteps_per_mm(Y));
   #endif
-  w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
+  w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzle.rel.z / getAxisSteps_per_mm(Z));
   w.increments();
   #if HAS_MULTI_EXTRUDER
-    w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
+    w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzle.link_nozzles);
   #endif
 
   #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
-    w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
+    w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzle.show_offsets);
 
-    if (screen_data.NudgeNozzleScreen.show_offsets) {
+    if (screen_data.NudgeNozzle.show_offsets) {
       char str[19];
 
       w.draw_mode(BOTH);
@@ -83,22 +83,22 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
 bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
   const float inc = getIncrement();
   #if HAS_MULTI_EXTRUDER
-    const bool link = screen_data.NudgeNozzleScreen.link_nozzles;
+    const bool link = screen_data.NudgeNozzle.link_nozzles;
   #else
     constexpr bool link = true;
   #endif
   int16_t steps;
   switch (tag) {
-    case 2: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps(-steps, X, link); screen_data.NudgeNozzleScreen.rel.x -= steps; break;
-    case 3: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps( steps, X, link); screen_data.NudgeNozzleScreen.rel.x += steps; break;
-    case 4: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps(-steps, Y, link); screen_data.NudgeNozzleScreen.rel.y -= steps; break;
-    case 5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzleScreen.rel.y += steps; break;
-    case 6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzleScreen.rel.z -= steps; break;
-    case 7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzleScreen.rel.z += steps; break;
+    case 2: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps(-steps, X, link); screen_data.NudgeNozzle.rel.x -= steps; break;
+    case 3: steps = mmToWholeSteps(inc, X); smartAdjustAxis_steps( steps, X, link); screen_data.NudgeNozzle.rel.x += steps; break;
+    case 4: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps(-steps, Y, link); screen_data.NudgeNozzle.rel.y -= steps; break;
+    case 5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzle.rel.y += steps; break;
+    case 6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzle.rel.z -= steps; break;
+    case 7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzle.rel.z += steps; break;
     #if HAS_MULTI_EXTRUDER
-      case 8: screen_data.NudgeNozzleScreen.link_nozzles = !link; break;
+      case 8: screen_data.NudgeNozzle.link_nozzles = !link; break;
     #endif
-    case 9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
+    case 9: screen_data.NudgeNozzle.show_offsets = !screen_data.NudgeNozzle.show_offsets; break;
     default: return false;
   }
   #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE

@@ -16,17 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME   "FLY_MINI"
-#define BOARD_WEBSITE_URL    "github.com/FLYmaker"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker"
 #define DISABLE_JTAG
 
 //
@@ -132,13 +132,13 @@
 //
 // LCD / Controller
 //
-#define ENABLE_SPI2
-#define SS_PIN                              PB12
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
+#define SPI_DEVICE                             2
+#define SD_SS_PIN                           PB12
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 #define SD_DETECT_PIN                       PB11
 
 #define BEEPER_PIN                          PC14
@@ -153,6 +153,10 @@
 #define BTN_EN1                             PD2
 #define BTN_EN2                             PB3
 #define BTN_ENC                             PC13
+
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
+#endif
 
 //
 // Filament runout

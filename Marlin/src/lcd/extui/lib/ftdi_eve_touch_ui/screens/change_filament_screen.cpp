@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -30,6 +30,43 @@
 using namespace ExtUI;
 using namespace FTDI;
 using namespace Theme;
+
+#ifdef TOUCH_UI_PORTRAIT
+  #define GRID_COLS 2
+  #define GRID_ROWS 11
+  #define E_TEMP_POS           BTN_POS(2,7),  BTN_SIZE(1,1)
+  #define E_TEMP_LBL_POS       BTN_POS(1,7),  BTN_SIZE(1,1)
+  #define UNLD_LABL_POS        BTN_POS(1,8),  BTN_SIZE(1,1)
+  #define LOAD_LABL_POS        BTN_POS(2,8),  BTN_SIZE(1,1)
+  #define UNLD_MOMN_POS        BTN_POS(1,9),  BTN_SIZE(1,1)
+  #define LOAD_MOMN_POS        BTN_POS(2,9),  BTN_SIZE(1,1)
+  #define UNLD_CONT_POS        BTN_POS(1,10), BTN_SIZE(1,1)
+  #define LOAD_CONT_POS        BTN_POS(2,10), BTN_SIZE(1,1)
+  #define BACK_POS             BTN_POS(1,11), BTN_SIZE(2,1)
+#else
+  #define GRID_COLS 4
+  #define GRID_ROWS 6
+  #define E_TEMP_POS           BTN_POS(3,2),  BTN_SIZE(2,1)
+  #define E_TEMP_LBL_POS       BTN_POS(3,1),  BTN_SIZE(2,1)
+  #define UNLD_LABL_POS        BTN_POS(3,3),  BTN_SIZE(1,1)
+  #define LOAD_LABL_POS        BTN_POS(4,3),  BTN_SIZE(1,1)
+  #define UNLD_MOMN_POS        BTN_POS(3,4),  BTN_SIZE(1,1)
+  #define LOAD_MOMN_POS        BTN_POS(4,4),  BTN_SIZE(1,1)
+  #define UNLD_CONT_POS        BTN_POS(3,5),  BTN_SIZE(1,1)
+  #define LOAD_CONT_POS        BTN_POS(4,5),  BTN_SIZE(1,1)
+  #define BACK_POS             BTN_POS(3,6),  BTN_SIZE(2,1)
+#endif
+#define REMOVAL_TEMP_LBL_POS   BTN_POS(1,3),  BTN_SIZE(2,1)
+#define GRADIENT_POS           BTN_POS(1,4),  BTN_SIZE(1,3)
+#define LOW_TEMP_POS           BTN_POS(2,6),  BTN_SIZE(1,1)
+#define MED_TEMP_POS           BTN_POS(2,5),  BTN_SIZE(1,1)
+#define HIG_TEMP_POS           BTN_POS(2,4),  BTN_SIZE(1,1)
+#define HEATING_LBL_POS        BTN_POS(1,6),  BTN_SIZE(1,1)
+#define CAUTION_LBL_POS        BTN_POS(1,4),  BTN_SIZE(1,1)
+#define HOT_LBL_POS            BTN_POS(1,6),  BTN_SIZE(1,1)
+#define E_SEL_LBL_POS          BTN_POS(1,1),  BTN_SIZE(2,1)
+#define E1_SEL_POS             BTN_POS(1,2),  BTN_SIZE(1,1)
+#define E2_SEL_POS             BTN_POS(2,2),  BTN_SIZE(1,1)
 
 #define COOL_TEMP  40
 #define LOW_TEMP  180
@@ -84,175 +121,114 @@ void ChangeFilamentScreen::drawTempGradient(uint16_t x, uint16_t y, uint16_t w, 
 }
 
 void ChangeFilamentScreen::onEntry() {
-  screen_data.ChangeFilamentScreen.e_tag = ExtUI::getActiveTool() + 10;
-  screen_data.ChangeFilamentScreen.t_tag = 0;
-  screen_data.ChangeFilamentScreen.repeat_tag = 0;
-  screen_data.ChangeFilamentScreen.saved_extruder = getActiveTool();
+  BaseScreen::onEntry();
+  screen_data.ChangeFilament.e_tag = ExtUI::getActiveTool() + 10;
+  screen_data.ChangeFilament.t_tag = 0;
+  screen_data.ChangeFilament.repeat_tag = 0;
+  screen_data.ChangeFilament.saved_extruder = getActiveTool();
   #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
-    screen_data.ChangeFilamentScreen.need_purge = true;
+    screen_data.ChangeFilament.need_purge = true;
   #endif
 }
 
 void ChangeFilamentScreen::onExit() {
-  setActiveTool(screen_data.ChangeFilamentScreen.saved_extruder, true);
+  setActiveTool(screen_data.ChangeFilament.saved_extruder, true);
 }
 
 void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
   CommandProcessor cmd;
-
-  #ifdef TOUCH_UI_PORTRAIT
-    #define GRID_COLS 2
-    #define GRID_ROWS 11
-  #else
-    #define GRID_COLS 4
-    #define GRID_ROWS 6
-  #endif
 
   if (what & BACKGROUND) {
     cmd.cmd(CLEAR_COLOR_RGB(bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
-    #ifdef TOUCH_UI_PORTRAIT
-       .font(font_large)
-    #else
-       .font(font_medium)
-    #endif
-       .text(BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_EXTRUDER_SELECTION))
-    #ifdef TOUCH_UI_PORTRAIT
-       .text(BTN_POS(1,7), BTN_SIZE(1,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
-    #else
-       .text(BTN_POS(3,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
-       .font(font_small)
-    #endif
-       .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_REMOVAL_TEMPERATURE));
-    drawTempGradient(BTN_POS(1,4), BTN_SIZE(1,3));
+       .font(TERN(TOUCH_UI_PORTRAIT, font_large, font_medium))
+       .text(E_SEL_LBL_POS, GET_TEXT_F(MSG_EXTRUDER_SELECTION))
+       .text(E_TEMP_LBL_POS, GET_TEXT_F(MSG_CURRENT_TEMPERATURE))
+       .text(REMOVAL_TEMP_LBL_POS, GET_TEXT_F(MSG_REMOVAL_TEMPERATURE));
+    drawTempGradient(GRADIENT_POS);
   }
 
   if (what & FOREGROUND) {
+    char str[15];
     const extruder_t e = getExtruder();
 
-    char e_str[15];
     if (isHeaterIdle(e))
-      format_temp_and_idle(e_str, getActualTemp_celsius(e));
+      format_temp_and_idle(str, getActualTemp_celsius(e));
     else
-      format_temp_and_temp(e_str, getActualTemp_celsius(e), getTargetTemp_celsius(e));
+      format_temp_and_temp(str, getActualTemp_celsius(e), getTargetTemp_celsius(e));
 
     const rgb_t tcol = getWarmColor(getActualTemp_celsius(e), COOL_TEMP, LOW_TEMP, MED_TEMP, HIGH_TEMP);
     cmd.cmd(COLOR_RGB(tcol))
        .tag(15)
-    #ifdef TOUCH_UI_PORTRAIT
-       .rectangle(BTN_POS(2,7), BTN_SIZE(1,1))
-    #else
-       .rectangle(BTN_POS(3,2), BTN_SIZE(2,1))
-    #endif
+       .rectangle(E_TEMP_POS)
        .cmd(COLOR_RGB(tcol.luminance() > 128 ? 0x000000 : 0xFFFFFF))
        .font(font_medium)
-    #ifdef TOUCH_UI_PORTRAIT
-       .text(BTN_POS(2,7), BTN_SIZE(1,1), e_str)
-    #else
-       .text(BTN_POS(3,2), BTN_SIZE(2,1), e_str)
-    #endif
+       .text(E_TEMP_POS, str)
        .colors(normal_btn);
 
     const bool t_ok = getActualTemp_celsius(e) > getSoftenTemp() - 10;
 
-    if (screen_data.ChangeFilamentScreen.t_tag && !t_ok) {
-      cmd.text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_HEATING));
+    if (screen_data.ChangeFilament.t_tag && !t_ok) {
+      cmd.text(HEATING_LBL_POS, GET_TEXT_F(MSG_HEATING));
     } else if (getActualTemp_celsius(e) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
-         .text(BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_CAUTION))
+         .text(CAUTION_LBL_POS, GET_TEXT_F(MSG_CAUTION))
          .colors(normal_btn)
-         .text(BTN_POS(1,6), BTN_SIZE(1,1), GET_TEXT_F(MSG_HOT));
+         .text(HOT_LBL_POS, GET_TEXT_F(MSG_HOT));
     }
 
     #define TOG_STYLE(A) colors(A ? action_btn : normal_btn)
 
-    const bool tog2  = screen_data.ChangeFilamentScreen.t_tag == 2;
-    const bool tog3  = screen_data.ChangeFilamentScreen.t_tag == 3;
-    const bool tog4  = screen_data.ChangeFilamentScreen.t_tag == 4;
-    const bool tog10 = screen_data.ChangeFilamentScreen.e_tag == 10;
+    const bool tog2  = screen_data.ChangeFilament.t_tag == 2;
+    const bool tog3  = screen_data.ChangeFilament.t_tag == 3;
+    const bool tog4  = screen_data.ChangeFilament.t_tag == 4;
+    const bool tog10 = screen_data.ChangeFilament.e_tag == 10;
     #if HAS_MULTI_HOTEND
-      const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
+      const bool tog11 = screen_data.ChangeFilament.e_tag == 11;
     #endif
 
-    #ifdef TOUCH_UI_PORTRAIT
-      cmd.font(font_large)
-    #else
-      cmd.font(font_medium)
-    #endif
-       .TOG_STYLE(tog10)
-       .tag(10)          .button (BTN_POS(1,2), BTN_SIZE(1,1), F("1"))
+    cmd.TOG_STYLE(tog10)
+       .tag(10).button (E1_SEL_POS, F("1"))
     #if HOTENDS < 2
        .enabled(false)
     #else
        .TOG_STYLE(tog11)
     #endif
-       .tag(11)          .button (BTN_POS(2,2), BTN_SIZE(1,1), F("2"));
+       .tag(11).button (E2_SEL_POS, F("2"));
 
     if (!t_ok) reset_menu_timeout();
 
-    const bool tog7 = screen_data.ChangeFilamentScreen.repeat_tag == 7;
-    const bool tog8 = screen_data.ChangeFilamentScreen.repeat_tag == 8;
-
-
-    cmd.font(
-      #ifdef TOUCH_UI_PORTRAIT
-        font_large
-      #else
-        font_small
-      #endif
-    );
+    const bool tog7 = screen_data.ChangeFilament.repeat_tag == 7;
+    const bool tog8 = screen_data.ChangeFilament.repeat_tag == 8;
 
     {
       char str[30];
-
       format_temp(str, LOW_TEMP);
-      cmd.tag(2) .TOG_STYLE(tog2) .button (BTN_POS(2,6), BTN_SIZE(1,1), str);
+      cmd.tag(2) .TOG_STYLE(tog2).button (LOW_TEMP_POS, str);
 
       format_temp(str, MED_TEMP);
-      cmd.tag(3) .TOG_STYLE(tog3) .button (BTN_POS(2,5), BTN_SIZE(1,1), str);
+      cmd.tag(3) .TOG_STYLE(tog3).button (MED_TEMP_POS, str);
 
       format_temp(str, HIGH_TEMP);
-      cmd.tag(4) .TOG_STYLE(tog4) .button (BTN_POS(2,4), BTN_SIZE(1,1), str);
+      cmd.tag(4) .TOG_STYLE(tog4).button (HIG_TEMP_POS, str);
     }
-    cmd.colors(normal_btn)
 
-    // Add tags to color gradient
-    .cmd(COLOR_MASK(0,0,0,0))
-    .tag(2) .rectangle(BTN_POS(1,6), BTN_SIZE(1,1))
-    .tag(3) .rectangle(BTN_POS(1,5), BTN_SIZE(1,1))
-    .tag(4) .rectangle(BTN_POS(1,4), BTN_SIZE(1,1))
-    .cmd(COLOR_MASK(1,1,1,1))
-
-    .cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
-    #ifdef TOUCH_UI_PORTRAIT
-       .font(font_large)
-       .tag(0)                              .text   (BTN_POS(1,8),  BTN_SIZE(1,1), GET_TEXT_F(MSG_UNLOAD_FILAMENT))
-                                            .text   (BTN_POS(2,8),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LOAD_FILAMENT))
-       .tag(5)                .enabled(t_ok).button (BTN_POS(1,9),  BTN_SIZE(1,1), GET_TEXT_F(MSG_MOMENTARY))
-       .tag(6)                .enabled(t_ok).button (BTN_POS(2,9),  BTN_SIZE(1,1), GET_TEXT_F(MSG_MOMENTARY))
-       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(1,10), BTN_SIZE(1,1), GET_TEXT_F(MSG_CONTINUOUS))
-       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(2,10), BTN_SIZE(1,1), GET_TEXT_F(MSG_CONTINUOUS))
-       .tag(1).colors(action_btn)           .button (BTN_POS(1,11), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
-    #else
-       .font(font_small)
-       .tag(0)                              .text   (BTN_POS(3,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_UNLOAD_FILAMENT))
-                                            .text   (BTN_POS(4,3),  BTN_SIZE(1,1), GET_TEXT_F(MSG_LOAD_FILAMENT))
-       .tag(5)                .enabled(t_ok).button (BTN_POS(3,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_MOMENTARY))
-       .tag(6)                .enabled(t_ok).button (BTN_POS(4,4),  BTN_SIZE(1,1), GET_TEXT_F(MSG_MOMENTARY))
-       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (BTN_POS(3,5),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CONTINUOUS))
-       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (BTN_POS(4,5),  BTN_SIZE(1,1), GET_TEXT_F(MSG_CONTINUOUS))
-       .font(font_medium)
-       .tag(1).colors(action_btn)           .button (BTN_POS(3,6),  BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
-    #endif
+    cmd.cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
+       .tag(0)                              .text   (UNLD_LABL_POS, GET_TEXT_F(MSG_UNLOAD_FILAMENT))
+                                            .text   (LOAD_LABL_POS, GET_TEXT_F(MSG_LOAD_FILAMENT))
+       .colors(normal_btn)
+       .tag(5)                .enabled(t_ok).button (UNLD_MOMN_POS, GET_TEXT_F(MSG_MOMENTARY))
+       .tag(6)                .enabled(t_ok).button (LOAD_MOMN_POS, GET_TEXT_F(MSG_MOMENTARY))
+       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (UNLD_CONT_POS, GET_TEXT_F(MSG_CONTINUOUS))
+       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (LOAD_CONT_POS, GET_TEXT_F(MSG_CONTINUOUS))
+       .tag(1).colors(action_btn)           .button (BACK_POS, GET_TEXT_F(MSG_BACK));
   }
-  #undef GRID_COLS
-  #undef GRID_ROWS
 }
 
 uint8_t ChangeFilamentScreen::getSoftenTemp() {
-  switch (screen_data.ChangeFilamentScreen.t_tag) {
+  switch (screen_data.ChangeFilament.t_tag) {
     case 2:  return LOW_TEMP;
     case 3:  return MED_TEMP;
     case 4:  return HIGH_TEMP;
@@ -261,7 +237,7 @@ uint8_t ChangeFilamentScreen::getSoftenTemp() {
 }
 
 ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
-  switch (screen_data.ChangeFilamentScreen.e_tag) {
+  switch (screen_data.ChangeFilament.e_tag) {
     case 13: return ExtUI::E3;
     case 12: return ExtUI::E2;
     case 11: return ExtUI::E1;
@@ -272,8 +248,8 @@ ExtUI::extruder_t ChangeFilamentScreen::getExtruder() {
 void ChangeFilamentScreen::doPurge() {
   #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
     constexpr float purge_distance_mm = FILAMENT_UNLOAD_PURGE_LENGTH;
-    if (screen_data.ChangeFilamentScreen.need_purge) {
-      screen_data.ChangeFilamentScreen.need_purge = false;
+    if (screen_data.ChangeFilament.need_purge) {
+      screen_data.ChangeFilament.need_purge = false;
       MoveAxisScreen::setManualFeedrate(getExtruder(), purge_distance_mm);
       ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(getExtruder()) + purge_distance_mm, getExtruder());
     }
@@ -301,23 +277,23 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
     case 3:
     case 4:
       // Change temperature
-      screen_data.ChangeFilamentScreen.t_tag = tag;
+      screen_data.ChangeFilament.t_tag = tag;
       setTargetTemp_celsius(getSoftenTemp(), getExtruder());
       break;
     case 7:
-      screen_data.ChangeFilamentScreen.repeat_tag = (screen_data.ChangeFilamentScreen.repeat_tag == 7) ? 0 : 7;
+      screen_data.ChangeFilament.repeat_tag = (screen_data.ChangeFilament.repeat_tag == 7) ? 0 : 7;
       break;
     case 8:
-      screen_data.ChangeFilamentScreen.repeat_tag = (screen_data.ChangeFilamentScreen.repeat_tag == 8) ? 0 : 8;
+      screen_data.ChangeFilament.repeat_tag = (screen_data.ChangeFilament.repeat_tag == 8) ? 0 : 8;
       break;
     case 10:
     case 11:
       // Change extruder
-      screen_data.ChangeFilamentScreen.e_tag      = tag;
-      screen_data.ChangeFilamentScreen.t_tag      = 0;
-      screen_data.ChangeFilamentScreen.repeat_tag = 0;
+      screen_data.ChangeFilament.e_tag      = tag;
+      screen_data.ChangeFilament.t_tag      = 0;
+      screen_data.ChangeFilament.repeat_tag = 0;
       #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
-        screen_data.ChangeFilamentScreen.need_purge = true;
+        screen_data.ChangeFilament.need_purge = true;
       #endif
       setActiveTool(getExtruder(), true);
       break;
@@ -343,7 +319,7 @@ bool ChangeFilamentScreen::onTouchHeld(uint8_t tag) {
 
 void ChangeFilamentScreen::onIdle() {
   reset_menu_timeout();
-  if (screen_data.ChangeFilamentScreen.repeat_tag) onTouchHeld(screen_data.ChangeFilamentScreen.repeat_tag);
+  if (screen_data.ChangeFilament.repeat_tag) onTouchHeld(screen_data.ChangeFilament.repeat_tag);
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     onRefresh();
     refresh_timer.start();

@@ -33,17 +33,16 @@ typedef struct {
 extern DIR_OFFSET dir_offset[10];
 
 #define FILE_NUM 6
-#define SHORT_NEME_LEN 13
+#define SHORT_NAME_LEN 13
 #define NAME_CUT_LEN 23
 
 #define MAX_DIR_LEVEL  10
 
 typedef struct {
-  //char longName[FILE_NUM][LONG_FILENAME_LENGTH];
-  char file_name[FILE_NUM][SHORT_NEME_LEN * MAX_DIR_LEVEL + 1];
-  char curDirPath[SHORT_NEME_LEN * MAX_DIR_LEVEL + 1];
-  char long_name[FILE_NUM][SHORT_NEME_LEN * 2 + 1];
-  char IsFolder[FILE_NUM];
+  char file_name[FILE_NUM][SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
+  char curDirPath[SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
+  char long_name[FILE_NUM][SHORT_NAME_LEN * 2 + 1];
+  bool IsFolder[FILE_NUM];
   char Sd_file_cnt;
   char sd_file_index;
   char Sd_file_offset;
@@ -51,16 +50,15 @@ typedef struct {
 extern LIST_FILE list_file;
 
 extern void disp_gcode_icon(uint8_t file_num);
-extern void lv_draw_print_file(void);
+extern void lv_draw_print_file();
 extern uint32_t lv_open_gcode_file(char *path);
 extern void lv_gcode_file_read(uint8_t *data_buf);
 extern void lv_close_gcode_file();
-extern void cutFileName(char *path, int len, int bytePerLine,  char *outStr);
+extern void cutFileName(char *path, int len, int bytePerLine, char *outStr);
 extern int ascii2dec_test(char *ascii);
 extern void lv_clear_print_file();
 extern void lv_gcode_file_seek(uint32_t pos);
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

@@ -28,10 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_MULTI_SERIAL
-  #include "queue.h"
-#endif
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
@@ -49,7 +45,7 @@ char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
-int GCodeParser::codenum;
+uint16_t GCodeParser::codenum;
 int GCodeParser::numchars;
 
 #if ENABLED(USE_GCODE_SUBCODES)
@@ -154,7 +150,7 @@ void GCodeParser::parse(char *p) {
 
   // Bail if the letter is not S, P, or R
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-  switch (letter) {    
+  switch (letter) {
       case 'S': case 'P': case 'R':
       // Bail if there's no command code number
       if (!NUMERIC(*p)) break;
@@ -163,7 +159,7 @@ void GCodeParser::parse(char *p) {
       command_letter = letter;
       // Get the code number - integer digits only
       codenum = 0;
-      numchars=0;
+      numchars = 0;
       while (NUMERIC(*p)) {
         codenum += *p++ - '0';
         codenum *= 10;
@@ -184,7 +180,7 @@ void GCodeParser::parse(char *p) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
-      #if ENABLED(PRUSA_MMU2)
+      #if HAS_PRUSA_MMU2
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
           if (*p == '?' || *p == 'x' || *p == 'c') {
@@ -299,7 +295,7 @@ void GCodeParser::parse(char *p) {
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
-    if (param == '!' && letter == 'M' && codenum == 32) {
+    if (param == '!' && is_command('M', 32)) {
       string_arg = p;                           // Name starts after '!'
       char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
       if (lb) *lb = '\0';                       // Safe to mark the end of the filename

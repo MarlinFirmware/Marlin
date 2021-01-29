@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -151,7 +151,7 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
       SERIAL_ECHO_MSG("Done playing video");
 
     exit:
-      spiInit(SPI_SPEED); // Restore default speed
+      spiInit(SD_SPI_SPEED); // Restore default speed
 
       // Since playing media overwrites RAMG, we need to reinitialize
       // everything that is stored in RAMG.

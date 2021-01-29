@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -53,7 +53,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_large
     #else
       font_medium
@@ -92,12 +92,12 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
     PIN_DISABLED(5, 3, PSTR(STR_Z_MIN), Z_MIN)
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT)
-    PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, FIL_RUNOUT_STATE)
+    PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, FIL_RUNOUT1_STATE)
   #else
     PIN_DISABLED(1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT)
   #endif
   #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT2)
-    PIN_ENABLED (3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2, FIL_RUNOUT_STATE)
+    PIN_ENABLED (3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2, FIL_RUNOUT2_STATE)
   #else
     PIN_DISABLED(3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2)
   #endif
@@ -121,7 +121,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
 
   cmd.font(font_medium)
      .colors(action_btn)
-     .tag(1).button( BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BACK));
+     .tag(1).button(BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BACK));
   #undef GRID_COLS
   #undef GRID_ROWS
 }
