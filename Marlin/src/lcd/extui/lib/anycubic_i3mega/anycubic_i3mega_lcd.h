@@ -94,3 +94,4 @@ private:
 };
 
 extern AnycubicTFTClass AnycubicTFT;
+extern const char G28_STR[];
