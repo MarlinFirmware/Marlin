@@ -26,10 +26,6 @@
 
 #include "caselight.h"
 
-#if ENABLED(RGB_LED_IS_CASE_LIGHT)
-  #include "leds/leds.h"
-#endif
-
 CaseLight caselight;
 
 #if CASELIGHT_USES_BRIGHTNESS && !defined(CASE_LIGHT_DEFAULT_BRIGHTNESS)
@@ -100,9 +96,9 @@ void CaseLight::update(const bool sflag) {
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
       }
 
-  #if ENABLED(RGB_LED_IS_CASE_LIGHT)
-    if (leds.lights_on) leds.update(); else leds.set_off();
-  #endif
+    #if ENABLED(CASE_LIGHT_USE_RGB_LED)
+      if (leds.lights_on) leds.update(); else leds.set_off();
+    #endif
 
   #endif // !CASE_LIGHT_USE_NEOPIXEL
 }
