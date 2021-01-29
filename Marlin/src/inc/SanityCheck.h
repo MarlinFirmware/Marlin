@@ -1687,9 +1687,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if ENABLED(CASE_LIGHT_ENABLE) && NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
   #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
     #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
   #endif

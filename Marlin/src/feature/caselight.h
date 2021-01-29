@@ -32,12 +32,24 @@
   #define CASELIGHT_USES_BRIGHTNESS 1
 #endif
 
+#if NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+  #define USE_CASE_LIGHT_PIN 1
+#endif
+
 class CaseLight {
 public:
   static bool on;
   TERN_(CASELIGHT_USES_BRIGHTNESS, static uint8_t brightness);
 
-  static inline bool pin_is_pwm()        { return PWM_PIN(CASE_LIGHT_PIN); }
+  static bool pin_is_pwm() { return TERN0(USE_CASE_LIGHT_PIN, PWM_PIN(CASE_LIGHT_PIN)); }
+  static bool can_set_brightness() { return TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, pin_is_pwm())); }
+
+  static void init() {
+    #if USE_CASE_LIGHT_PIN
+      if (pin_is_pwm()) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
+    #endif
+    update_brightness();
+  }
 
   static void update(const bool sflag);
   static inline void update_brightness() { update(false); }

@@ -61,12 +61,10 @@ void GcodeSuite::M355() {
     SERIAL_ECHOLNPGM(STR_OFF);
   else {
     #if CASELIGHT_USES_BRIGHTNESS
-      if (PWM_PIN(CASE_LIGHT_PIN)) {
-        SERIAL_ECHOLN(int(caselight.brightness));
-        return;
-      }
+      SERIAL_ECHOLN(int(caselight.brightness));
+    #else
+      SERIAL_ECHOLNPGM(STR_ON);
     #endif
-    SERIAL_ECHOLNPGM(STR_ON);
   }
 }
 

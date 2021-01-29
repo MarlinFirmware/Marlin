@@ -514,12 +514,12 @@
   //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
   #if ENABLED(NEOPIXEL_LED)
     //#define CASE_LIGHT_USE_NEOPIXEL         // Use NeoPixel LED as case light
-    #if BOTH(NEOPIXEL_LED, CASE_LIGHT_USE_NEOPIXEL)
+    #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
       #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
     #endif
   #endif
   #if EITHER(RGB_LED, RGBW_LED)
-    //#define CASE_LIGHT_USE_RGB_LED         // Use RGB / RGBW LED as case light
+    //#define CASE_LIGHT_USE_RGB_LED          // Use RGB / RGBW LED as case light
   #endif
 #endif
 

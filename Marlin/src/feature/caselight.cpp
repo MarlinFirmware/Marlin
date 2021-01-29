@@ -81,7 +81,7 @@ void CaseLight::update(const bool sflag) {
   #else // !CASE_LIGHT_HAS_LEDCOLOR
 
     #if CASELIGHT_USES_BRIGHTNESS
-      if (PWM_PIN(CASE_LIGHT_PIN))
+      if (pin_is_pwm())
         analogWrite(pin_t(CASE_LIGHT_PIN), (
           #if CASE_LIGHT_MAX_PWM == 255
             n10ct
