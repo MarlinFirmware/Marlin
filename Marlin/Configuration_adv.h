@@ -1534,6 +1534,10 @@
   //#define LCD_LANGUAGE_3 de
   //#define LCD_LANGUAGE_4 es
   //#define LCD_LANGUAGE_5 it
+
+  #ifdef LCD_LANGUAGE_2
+    //#define DONT_AUTOSAVE_LANGUAGE // Don't save language selection to EEPROM
+  #endif
 #endif
 
 //
