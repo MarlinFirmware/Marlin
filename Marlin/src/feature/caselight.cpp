@@ -28,6 +28,10 @@
 
 CaseLight caselight;
 
+#if CASE_LIGHT_HAS_LEDCOLOR
+  #include "leds/leds.h"
+#endif
+
 #if CASELIGHT_USES_BRIGHTNESS && !defined(CASE_LIGHT_DEFAULT_BRIGHTNESS)
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 0 // For use on PWM pin as non-PWM just sets a default
 #endif
@@ -38,10 +42,10 @@ CaseLight caselight;
 
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
-#if ENABLED(CASE_LIGHT_HAS_LEDCOLOR)
+#if CASE_LIGHT_HAS_LEDCOLOR
   LEDColor CaseLight::color =
-    #ifdef CASE_LIGHT_NEOPIXEL_COLOR
-      CASE_LIGHT_NEOPIXEL_COLOR
+    #ifdef CASE_LIGHT_DEFAULT_COLOR
+      CASE_LIGHT_DEFAULT_COLOR
     #else
       { 255, 255, 255, 255 }
     #endif
@@ -71,7 +75,7 @@ void CaseLight::update(const bool sflag) {
     const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
   #endif
 
-  #if ENABLED(CASE_LIGHT_HAS_LEDCOLOR)
+  #if CASE_LIGHT_HAS_LEDCOLOR
 
     leds.set_color(
       MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),

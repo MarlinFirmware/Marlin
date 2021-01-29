@@ -23,17 +23,8 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
-  #include "leds/leds.h"
-  #define CASE_LIGHT_HAS_LEDCOLOR 1
-#endif
-
 #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
   #define CASELIGHT_USES_BRIGHTNESS 1
-#endif
-
-#if NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
-  #define USE_CASE_LIGHT_PIN 1
 #endif
 
 class CaseLight {
@@ -41,11 +32,11 @@ public:
   static bool on;
   TERN_(CASELIGHT_USES_BRIGHTNESS, static uint8_t brightness);
 
-  static bool pin_is_pwm() { return TERN0(USE_CASE_LIGHT_PIN, PWM_PIN(CASE_LIGHT_PIN)); }
+  static bool pin_is_pwm() { return TERN0(NEED_CASE_LIGHT_PIN, PWM_PIN(CASE_LIGHT_PIN)); }
   static bool can_set_brightness() { return TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, pin_is_pwm())); }
 
   static void init() {
-    #if USE_CASE_LIGHT_PIN
+    #if NEED_CASE_LIGHT_PIN
       if (pin_is_pwm()) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
     update_brightness();

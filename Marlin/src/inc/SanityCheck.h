@@ -539,6 +539,8 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
+#elif defined(CASE_LIGHT_NEOPIXEL_COLOR)
+  #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #endif
 
 /**
@@ -1687,7 +1689,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE) && NONE(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+#if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
     #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
