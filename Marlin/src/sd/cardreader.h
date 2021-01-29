@@ -173,11 +173,11 @@ public:
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status();
-    static inline void set_auto_report_interval(uint8_t v) {
+    static inline void set_auto_report_interval(uint8_t seconds) {
       TERN_(HAS_MULTI_SERIAL, auto_report_port = multiSerial.portMask);
-      NOMORE(v, 60);
-      auto_report_sd_interval = v;
-      next_sd_report_ms = millis() + 1000UL * v;
+      NOMORE(seconds, 60);
+      auto_report_sd_interval = seconds;
+      next_sd_report_ms = millis() + SEC_TO_MS(seconds);
     }
   #endif
 

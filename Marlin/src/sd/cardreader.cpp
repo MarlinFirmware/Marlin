@@ -1235,7 +1235,7 @@ void CardReader::fileHasFinished() {
   void CardReader::auto_report_sd_status() {
     millis_t current_ms = millis();
     if (auto_report_sd_interval && ELAPSED(current_ms, next_sd_report_ms)) {
-      next_sd_report_ms = current_ms + 1000UL * auto_report_sd_interval;
+      next_sd_report_ms = current_ms + SEC_TO_MS(auto_report_sd_interval);
       PORT_REDIRECT(auto_report_port);
       report_status();
     }
