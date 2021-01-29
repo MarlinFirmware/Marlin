@@ -3123,20 +3123,12 @@ void Temperature::tick() {
   }
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
-
-    uint8_t Temperature::auto_report_temp_interval;
-    millis_t Temperature::next_temp_report_ms;
-
-    void Temperature::auto_report_temperatures() {
-      if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
-        next_temp_report_ms = millis() + SEC_TO_MS(auto_report_temp_interval);
-        PORT_REDIRECT(SERIAL_ALL);
-        print_heater_states(active_extruder);
-        SERIAL_EOL();
-      }
+    Temperature::AutoReportTemp Temperature::auto_reporter;
+    void Temperature::AutoReportTemp::auto_report() {
+      print_heater_states(active_extruder);
+      SERIAL_EOL();
     }
-
-  #endif // AUTO_REPORT_TEMPERATURES
+  #endif
 
   #if HAS_HOTEND && HAS_DISPLAY
     void Temperature::set_heating_message(const uint8_t e) {
