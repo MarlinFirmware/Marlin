@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfigPre.h"
+
 /**
  * Busy wait delay cycles routines:
  *
