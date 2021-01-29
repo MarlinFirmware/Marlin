@@ -51,7 +51,6 @@ static SPISettings spiConfig;
     OUT_WRITE(SD_MOSI_PIN, HIGH);
   }
 
-
   // Use function with compile-time value so we can actually reach the desired frequency
   // Need to adjust this a little bit: on a 72MHz clock, we have 14ns/clock
   // and we'll use ~3 cycles to jump to the method and going back, so it'll take ~40ns from the given clock here
@@ -63,8 +62,6 @@ static SPISettings spiConfig;
   void delaySPI_1000() { DELAY_NS(1000 - CALLING_COST_NS); }
   void delaySPI_2000() { DELAY_NS(2000 - CALLING_COST_NS); }
   void delaySPI_4000() { DELAY_NS(4000 - CALLING_COST_NS); }
-
-
 
   void spiInit(uint8_t spiRate) {
     // Use datarates Marlin uses
