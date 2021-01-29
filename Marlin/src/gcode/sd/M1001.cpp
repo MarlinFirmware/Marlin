@@ -44,7 +44,7 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h" // for wait_for_user_response
+  #include "../../MarlinCore.h" // for wait_for_user_response()
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
@@ -82,7 +82,7 @@ void GcodeSuite::M1001() {
 
   // Announce SD file completion
   {
-    PORT_REDIRECT(SERIAL_BOTH);
+    PORT_REDIRECT(SERIAL_ALL);
     SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
   }
 
@@ -92,7 +92,7 @@ void GcodeSuite::M1001() {
       printerEventLEDs.onPrintCompleted();
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE)));
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR));
-      wait_for_user_response(1000UL * TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30));
+      wait_for_user_response(SEC_TO_MS(TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30)));
       printerEventLEDs.onResumeAfterWait();
     }
   #endif

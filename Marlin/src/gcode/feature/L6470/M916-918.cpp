@@ -119,7 +119,7 @@ void GcodeSuite::M916() {
     M91x_counter_max = 256;  // KVAL_HOLD is 8 bits
 
   uint8_t M91x_delay_s = parser.byteval('D');   // get delay in seconds
-  millis_t M91x_delay_ms = M91x_delay_s * 60 * 1000;
+  millis_t M91x_delay_ms = SEC_TO_MS(M91x_delay_s * 60);
   millis_t M91x_delay_end;
 
   DEBUG_ECHOLNPGM(".\n.");

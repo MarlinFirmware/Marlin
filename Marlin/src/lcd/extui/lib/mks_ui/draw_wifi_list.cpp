@@ -88,7 +88,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_wifi_list(void) {
+void lv_draw_wifi_list() {
   scr = lv_screen_create(WIFI_LIST_UI);
 
   lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
@@ -122,12 +122,15 @@ void lv_draw_wifi_list(void) {
       lv_group_add_obj(g, buttonDown);
       lv_group_add_obj(g, buttonBack);
     }
+  #else
+    UNUSED(buttonDown);
+    UNUSED(buttonBack);
   #endif
 
   disp_wifi_list();
 }
 
-void disp_wifi_list(void) {
+void disp_wifi_list() {
   int8_t tmpStr[WIFI_NAME_BUFFER_SIZE] = { 0 };
   uint8_t i, j;
 
@@ -154,7 +157,7 @@ void disp_wifi_list(void) {
 }
 
 void wifi_scan_handle() {
-  if (!DIALOG_IS(WIFI_ENABLE_TIPS) || uiCfg.command_send != 1) return;
+  if (!DIALOG_IS(WIFI_ENABLE_TIPS) || !uiCfg.command_send) return;
   last_disp_state = DIALOG_UI;
   lv_clear_dialog();
   if (wifi_link_state == WIFI_CONNECTED && wifiPara.mode != AP_MODEL)

@@ -37,6 +37,10 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
+#if HAS_ETHERNET
+  #include "../../feature/ethernet.h"
+#endif
+
 //#define ST7920_DELAY_1 DELAY_NS(600)
 //#define ST7920_DELAY_2 DELAY_NS(750)
 //#define ST7920_DELAY_3 DELAY_NS(750)
@@ -51,9 +55,15 @@
   #define IS_TEENSY41 1
 #endif
 
-#define _MSERIAL(X) Serial##X
+#include "../../core/serial_hook.h"
+typedef Serial0Type<decltype(Serial)> DefaultSerial;
+extern DefaultSerial MSerial;
+typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define Serial0 Serial
+#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
@@ -92,20 +102,9 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
 // Don't place string constants in PROGMEM
 #undef PSTR
 #define PSTR(str) ({static const char *data = (str); &data[0];})
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
