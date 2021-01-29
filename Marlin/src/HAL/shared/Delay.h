@@ -57,7 +57,7 @@ void calibrate_delay_loop();
     // Split recursing template in 2 different class so we don't reach the maximum template instantiation depth limit
     template <bool belowTP, int N> struct Helper {
       FORCE_INLINE static void build() {
-        DelayCycleFnc(N);
+        DelayCycleFnc(N - 4); //  Approximative cost of calling the function (might be off by one or 2 cycles)
       }
     };
 
