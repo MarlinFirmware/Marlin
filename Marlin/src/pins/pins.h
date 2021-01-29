@@ -548,6 +548,8 @@
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeed
 #elif MB(BEAST)
   #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103RE
+#elif MB(MINGDA_MPX_ARM_MINI)
+  #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:STM32F103RE
 
 //
 // ARM Cortex-M4F
