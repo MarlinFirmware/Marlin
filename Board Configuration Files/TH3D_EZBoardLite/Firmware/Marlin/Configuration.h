@@ -81,11 +81,6 @@
 // When running dual Z motors uncomment the below line. This will increase the Z motor driver current for 2x motors.
 //#define DUAL_Z_MOTORS
 
-// LCD Knob Direction
-// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
-// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
-//#define REVERSE_KNOB_DIRECTION
-
 // Axis Direction Settings
 // If you need to reverse the direction of a motor uncomment the below option for that axis.
 // E motor settings are below in the Extruder Settings Section
@@ -119,7 +114,7 @@
 //===========================================================================
 
 //===========================================================================
-// EZABL Advanced Settings
+// EZABL Advanced Settings - EZABL_POINTS & EZABL_PROBE_EDGE are also used for other probes
 //===========================================================================
 
 // Probing Grid Points - If you want more or less EZABL probe points change the number below, use odd numbers. Total points is # times #.
@@ -242,6 +237,11 @@
 //#define AC_BED
 
 // MISC --------------------------------------------
+
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
 
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX

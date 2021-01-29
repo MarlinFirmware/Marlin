@@ -206,11 +206,6 @@
 //#define DEFAULT_bedKi .023
 //#define DEFAULT_bedKd 305.4
 
-// LCD Knob Direction -------------------------------------------------------
-// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
-// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
-//#define REVERSE_KNOB_DIRECTION
-
 // CoreXY Printer Setting ---------------------------------------------------
 // If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
 //#define COREXY
@@ -220,7 +215,7 @@
 //===========================================================================
 
 //===========================================================================
-// EZABL Advanced Settings
+// EZABL Advanced Settings - EZABL_POINTS & EZABL_PROBE_EDGE are also used for other probes
 //===========================================================================
 
 // Probing Grid Points - If you want more or less EZABL probe points change the number below, use odd numbers. Total points is # times #.
@@ -295,6 +290,11 @@
 //#define DIRECT_DRIVE_PRINTER
 
 // MISC --------------------------------------------
+
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
 
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX

@@ -27,6 +27,10 @@
 //#define ENDER5_V422_BOARD    //Ender 5 with V4.2.2 Board
 //#define ENDER5_V427_BOARD    //Ender 5 with V4.2.7 Board
 
+// V4.2.2 TMC Driver Settings - Uncomment if you have TMC drivers on a 4.2.2 Board to set driver timings
+//#define V422_TMC2208_DRIVERS //"A" Code on SD Slot
+//#define V422_TMC2209_DRIVERS //"B" Code on SD Slot
+
 // If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
 // and then uncomment the #define EZOUT_ENABLE line below.
 // Do NOT ever connect our filament sensor without the supplied adapter board.
@@ -55,7 +59,7 @@
 //===========================================================================
 
 //===========================================================================
-// EZABL Advanced Settings
+// EZABL Advanced Settings - EZABL_POINTS & EZABL_PROBE_EDGE are also used for other probes
 //===========================================================================
 
 // Probing Grid Points - If you want more or less EZABL probe points change the number below, use odd numbers. Total points is # times #.
@@ -176,6 +180,11 @@
 
 // MISC --------------------------------------------
 
+// LCD Knob Direction
+// Turning your LCD knob clockwise should move DOWN in the menus/make values increase and counter-clockwise should move UP in the menus/make values decrease
+// If yours is behaving opposite then enable the REVERSE_KNOB_DIRECTION option below
+//#define REVERSE_KNOB_DIRECTION
+
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
@@ -253,10 +262,10 @@
  * Machine Configuration Settings
  */
  
- //Ender 3/5 V422 Board Settings
+ //Ender 3/5 V42X Board Settings
 #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
   //V42X with TMC Driver Sanity Checks
-  #if (ENABLED(V422_TMC2208_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)) && ENABLED(LINEAR_ADVANCE)
+  #if (ENABLED(V422_TMC2208_DRIVERS) || ENABLED(V422_TMC2209_DRIVERS) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)) && ENABLED(LINEAR_ADVANCE)
     #error "Linear Advance does NOT work on the V4.2.X boards with the TMC drivers due to how Creality has them setup. Disable Linear Advance to continue."
   #endif
 
@@ -266,6 +275,10 @@
   
   #define CR10_STOCKDISPLAY
   #define RET6_12864_LCD
+  
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
   
   #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD)
     #ifndef MOTHERBOARD
@@ -423,11 +436,16 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
+  #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(V422_TMC2208_DRIVERS)
     #define X_DRIVER_TYPE TMC2208_STANDALONE
     #define Y_DRIVER_TYPE TMC2208_STANDALONE
     #define Z_DRIVER_TYPE TMC2208_STANDALONE
     #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #elif ENABLED(V422_TMC2209_DRIVERS)
+    #define X_DRIVER_TYPE TMC2209_STANDALONE
+    #define Y_DRIVER_TYPE TMC2209_STANDALONE
+    #define Z_DRIVER_TYPE TMC2209_STANDALONE
+    #define E0_DRIVER_TYPE TMC2209_STANDALONE
   #else
     #define X_DRIVER_TYPE A4988
     #define Y_DRIVER_TYPE A4988
@@ -498,7 +516,7 @@
   #endif
 
 #endif
-// End Ender 3/5 V422 Board Settings
+// End Ender 3/5 V42X Board Settings
  
 // Ender 3 V2 Settings
 #if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V427_BOARD)
