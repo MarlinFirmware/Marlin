@@ -23,6 +23,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if CASE_LIGHT_HAS_LEDCOLOR
+  #include "leds/leds.h" // for LEDColor
+#endif
+
 #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
   #define CASELIGHT_USES_BRIGHTNESS 1
 #endif

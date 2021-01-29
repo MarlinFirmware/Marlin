@@ -149,12 +149,13 @@ void menu_led() {
   //
   #if ENABLED(CASE_LIGHT_MENU)
     #if CASELIGHT_USES_BRIGHTNESS
-      if (TERN(CASE_LIGHT_USE_NEOPIXEL, true, caselight.pin_is_pwm()))
+      if (caselight.can_set_brightness())
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif
         CASELIGHT_TOGGLE_ITEM();
   #endif
+
   END_MENU();
 }
 
