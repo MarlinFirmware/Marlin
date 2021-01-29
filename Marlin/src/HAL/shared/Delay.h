@@ -40,7 +40,7 @@ void calibrate_delay_loop();
   typedef void (*DelayImpl)(uint32_t);
   extern DelayImpl DelayCycleFnc;
 
-  // I've measured 36 cycles on my system to call the cycle waiting method, but it shouldn't change much to have a bit more margin
+  // I've measured 36 cycles on my system to call the cycle waiting method, but it shouldn't change much to have a bit more margin, it only consume a bit more flash
   #define TRIP_POINT_FOR_CALLING_FUNCTION   40
 
   // A simple recursive template class that output exactly one 'nop' of code per recursion
@@ -57,7 +57,7 @@ void calibrate_delay_loop();
     // Split recursing template in 2 different class so we don't reach the maximum template instantiation depth limit
     template <bool belowTP, int N> struct Helper {
       FORCE_INLINE static void build() {
-        DelayCycleFnc(N - 5); //  Approximative cost of calling the function
+        DelayCycleFnc(N);
       }
     };
 
@@ -144,5 +144,10 @@ void calibrate_delay_loop();
 // Delay in nanoseconds
 #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
 
-// Delay in microseconds
-#define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
+#ifdef IS_TEENSY_40_41
+  // Workaround GCC too old to understand our code on Teensy4x
+  #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
+#else
+  // Delay in microseconds
+  #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
+#endif
