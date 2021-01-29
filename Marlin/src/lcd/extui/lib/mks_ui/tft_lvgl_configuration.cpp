@@ -89,8 +89,8 @@ void SysTick_Callback() {
   #endif
   if (uiCfg.filament_loading_time_flg) {
     uiCfg.filament_loading_time_cnt++;
-    uiCfg.filament_rate = (uint32_t)(((uiCfg.filament_loading_time_cnt / (uiCfg.filament_loading_time * 1000.0)) * 100.0) + 0.5);
-    if (uiCfg.filament_loading_time_cnt >= (uiCfg.filament_loading_time * 1000)) {
+    uiCfg.filament_rate = uint32_t(100.0f * uiCfg.filament_loading_time_cnt / SEC_TO_MS(uiCfg.filament_loading_time) + 0.5f);
+    if (uiCfg.filament_loading_time_cnt >= SEC_TO_MS(uiCfg.filament_loading_time)) {
       uiCfg.filament_loading_time_cnt  = 0;
       uiCfg.filament_loading_time_flg  = false;
       uiCfg.filament_loading_completed = true;
@@ -98,8 +98,8 @@ void SysTick_Callback() {
   }
   if (uiCfg.filament_unloading_time_flg) {
     uiCfg.filament_unloading_time_cnt++;
-    uiCfg.filament_rate = (uint32_t)(((uiCfg.filament_unloading_time_cnt / (uiCfg.filament_unloading_time * 1000.0)) * 100.0) + 0.5);
-    if (uiCfg.filament_unloading_time_cnt >= (uiCfg.filament_unloading_time * 1000)) {
+    uiCfg.filament_rate = uint32_t(100.0f * uiCfg.filament_unloading_time_cnt / SEC_TO_MS(uiCfg.filament_unloading_time) + 0.5f);
+    if (uiCfg.filament_unloading_time_cnt >= SEC_TO_MS(uiCfg.filament_unloading_time)) {
       uiCfg.filament_unloading_time_cnt  = 0;
       uiCfg.filament_unloading_time_flg  = false;
       uiCfg.filament_unloading_completed = true;

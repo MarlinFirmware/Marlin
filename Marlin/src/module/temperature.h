@@ -33,6 +33,10 @@
   #include "../feature/power.h"
 #endif
 
+#if ENABLED(AUTO_REPORT_TEMPERATURES)
+  #include "../libs/autoreport.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -794,14 +798,8 @@ class Temperature {
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
-        static uint8_t auto_report_temp_interval;
-        static millis_t next_temp_report_ms;
-        static void auto_report_temperatures();
-        static inline void set_auto_report_interval(uint8_t v) {
-          NOMORE(v, 60);
-          auto_report_temp_interval = v;
-          next_temp_report_ms = millis() + 1000UL * v;
-        }
+        class AutoReportTemp : public AutoReporter<SERIAL_ALL> { void auto_report(); };
+        static AutoReportTemp auto_reporter;
       #endif
     #endif
 
