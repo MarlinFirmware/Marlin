@@ -62,7 +62,7 @@
 // from https://github.com/MarlinFirmware/Configurations/branches/all and customize for your machine.
 //
 
-#include "QQS_Config.h"
+#include "FLSUNQ_Config.h"
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -133,25 +133,27 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #ifdef QQSP
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif  
+  #ifdef Q5
+    #define MOTHERBOARD BOARD_MKS_ROBIN_NANO
+  #endif
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#ifdef QQS
+#ifdef QQSP
   #define CUSTOM_MACHINE_NAME "FLSun QQS-Pro"
 #endif
-#ifdef QQS_TMC
-  #define CUSTOM_MACHINE_NAME "FLSun QQS TMC"
-#endif
-#ifdef QQS_UART
-  #define CUSTOM_MACHINE_NAME "FLSun QQS UART"
+#ifdef Q5
+  #define CUSTOM_MACHINE_NAME "FLSun Q5"
 #endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -428,7 +430,9 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#define TEMP_SENSOR_0 1
+#ifndef TEMP_SENSOR_0 
+  #define TEMP_SENSOR_0 1
+#endif
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -500,8 +504,8 @@
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
-  //#define PID_EDIT_MENU         //Define on QQS_Config// Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  //#define PID_AUTOTUNE_MENU     //Define on QQS_Config// Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+  //#define PID_EDIT_MENU         //Define on FLSUNQ_Config// Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
+  //#define PID_AUTOTUNE_MENU     //Define on FLSUNQ_Config// Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
@@ -512,10 +516,16 @@
     #define DEFAULT_Ki_LIST {   3.38,   3.38 }
     #define DEFAULT_Kd_LIST {  58.69,  58.69 }
   #else
+    #ifdef Q5
+      #define DEFAULT_Kp 12.88
+      #define DEFAULT_Ki 0.72
+      #define DEFAULT_Kd 57.54
+    #else
     // FLSUN QQ-S, 200 C with 100% part cooling
-    #define DEFAULT_Kp  28.16
-    #define DEFAULT_Ki   3.38
-    #define DEFAULT_Kd  58.69
+      #define DEFAULT_Kp  28.16
+      #define DEFAULT_Ki   3.38
+      #define DEFAULT_Kd  58.69
+    #endif
     // FLSUN QQS-Pro, PET 235 C with 70% part cooling
     //M301 P21.67 I1.25 D93.81        PLA
     //M301 P21.6708 I1.2515 D93.8127  PET
@@ -560,10 +570,15 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   // FLSUN QQS-Pro 1.6mm aluminium heater with 4mm lattice glass
-  #define DEFAULT_bedKp 82.98
-  #define DEFAULT_bedKi 15.93
-  #define DEFAULT_bedKd 288.25
-
+  #ifdef Q5
+    #define DEFAULT_bedKp 20.20
+    #define DEFAULT_bedKi 3.94
+    #define DEFAULT_bedKd 69.11
+  #else
+    #define DEFAULT_bedKp 82.98
+    #define DEFAULT_bedKi 15.93
+    #define DEFAULT_bedKd 288.25
+  #endif
   // FIND YOUR OWN: "M303 E-1 S60 C8 U" to run autotune on the bed at 60 degrees for 8 cycles.
   //M303 E-1 C8 S60 =>Memo M304 P61.05 I11.27 D218.99
   //#define DEFAULT_bedKp 61.05
@@ -597,7 +612,11 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 900
+#ifdef Q5
+  #define EXTRUDE_MAXLENGTH 600
+#else
+  #define EXTRUDE_MAXLENGTH 900
+#endif
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -657,7 +676,7 @@
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
-  //#define DELTA_CALIBRATION_MENU  //Define on QQS_Config
+  //#define DELTA_CALIBRATION_MENU  //Define on FLSUN_Config
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   #define DELTA_AUTO_CALIBRATION
@@ -673,19 +692,15 @@
     // Set the steprate for papertest probing
     #define PROBE_MANUALLY_STEP 0.05      // (mm)
   #endif
-  #if ENABLED(FLYING)
-    // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-    #define DELTA_PRINTABLE_RADIUS 130    // (mm)
-    // Center-to-center distance of the holes in the diagonal push rods.
-    #define DELTA_DIAGONAL_ROD 280.77
-    // Horizontal offset from middle of printer to smooth rod center.
-    #define DELTA_SMOOTH_ROD_OFFSET 200.0   //180.8 (mm) PRINTER_RADIUS(Repetier).
-    // Horizontal offset of the universal joints on the end effector.
-    #define DELTA_EFFECTOR_OFFSET 40.0      //40 END_EFFECTOR_HORIZONTAL_OFFSET(Repetier).
-    // Horizontal offset of the universal joints on the carriages.
-    #define DELTA_CARRIAGE_OFFSET 17.0    //15.5 (mm) CARRIAGE_HORIZONTAL_OFFSET(Repetier).
-    // Horizontal distance bridged by diagonal push rods when effector is centered.
-    #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
+  #ifdef Q5
+    #define DELTA_PRINTABLE_RADIUS 100
+    #define DELTA_DIAGONAL_ROD 215.0       
+    #define DELTA_HEIGHT 198.0            
+    #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 }      // Trim adjustments for individual towers
+    #define DELTA_RADIUS 107.5
+    #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0 , 0.0 }
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //ABC
+    //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 } 
   #else
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 130    // (mm)
@@ -695,22 +710,21 @@
 
     // Horizontal distance bridged by diagonal push rods when effector is centered.
     #define DELTA_RADIUS 140.8               // (mm) Get this value from G33 auto calibrate
+
+    // Distance between bed and nozzle Z home position
+    #define DELTA_HEIGHT 370.0                 //370 E3D-360 (mm) Get this value from G33 auto calibrate
+
+    #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
+
+    // Trim adjustments for individual towers
+    // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
+    // measured in degrees anticlockwise looking from above the printer
+    #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
+
+    // Delta radius and diagonal rod adjustments (mm)
+    //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OCTO
   #endif
-
-  // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 370.0                 //370 E3D-360 (mm) Get this value from G33 auto calibrate
-
-  #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
-
-  // Trim adjustments for individual towers
-  // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
-  // measured in degrees anticlockwise looking from above the printer
-  #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
-
-  // Delta radius and diagonal rod adjustments (mm)
-  //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OCTO
-
 #endif
 
 //===========================================================================
@@ -852,7 +866,7 @@
 #define XYZ_FULL_STEPS_PER_ROTATION 200
 #define XYZ_MICROSTEPS 16
 #define XYZ_BELT_PITCH 2
-#ifdef XP
+#if ANY(XP, Q5)
   #define XYZ_PULLEY_TEETH 20
 #else
   #define XYZ_PULLEY_TEETH 16
@@ -898,9 +912,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1500    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -912,7 +926,7 @@
  */
 #define CLASSIC_JERK  //DELTA
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 5.0
+  #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK DEFAULT_XJERK
   #define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
 
@@ -1151,28 +1165,28 @@
  *     O-- FRONT --+
  */
 #ifdef XP
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -13.875 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -15.9 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
 #else
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -16.2 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, Z_OFFSET }  //OPT (QQS -16.2) (Q5 -18)
 #endif
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 20
+#ifndef Q5
+  #define PROBING_MARGIN 10
+#else
+  #define PROBING_MARGIN 20
+#endif
 
 // X and Y axis travel speed (mm/min) between probes 
-//#define XY_PROBE_SPEED (16*60)    // 960
-#define XY_PROBE_SPEED  (66*60) //3000
-//#define XY_PROBE_SPEED  (30*60) //4020
+#define XY_PROBE_SPEED  (66*60) //3960
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 //FEEDRATE_Z
-//#define Z_PROBE_SPEED_FAST (50*60)  //3000
-#define Z_PROBE_SPEED_FAST (30*60)  //1800
-//#define Z_PROBE_SPEED_FAST (100*60)  //6000
+#define Z_PROBE_SPEED_FAST (50*60)  //3000
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4) //450
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4) //750
 
 /**
  * Probe Activation Switch
@@ -1293,7 +1307,7 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#ifdef QQS
+#ifdef STOCK
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR false
@@ -1303,10 +1317,20 @@
     #define INVERT_E0_DIR true
   #endif
 #endif
-#if EITHER(QQS_TMC, QQS_UART)
+#if BOTH(QQSP, Q_TMC)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
+  #ifdef INV_EXT
+    #define INVERT_E0_DIR true
+  #else
+    #define INVERT_E0_DIR false
+  #endif
+#endif
+#if BOTH(Q5, Q_TMC)
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR false
   #ifdef INV_EXT
     #define INVERT_E0_DIR true
   #else
@@ -1497,8 +1521,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR  //Define on QQS_Config
-//#define AUTO_BED_LEVELING_UBL       //Define on QQS_Config
+//#define AUTO_BED_LEVELING_BILINEAR  //Define on FLSUNQ_Config
+//#define AUTO_BED_LEVELING_UBL       //Define on FLSUNQ_Config
 //#define MESH_BED_LEVELING
 
 /**
@@ -1512,7 +1536,7 @@
 /**
  * Auto-leveling needs preheating
  */
-//#define PREHEAT_BEFORE_LEVELING       //Define on QQS_Config
+//#define PREHEAT_BEFORE_LEVELING       //Define on FLSUNQ_Config
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
   //#define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
   #define LEVELING_BED_TEMP     50
@@ -1560,7 +1584,7 @@
 
   // Set the number of grid points per dimension.
   // Works best with 5 or more points in each dimension.
-  #define GRID_MAX_POINTS_X 9
+  #define GRID_MAX_POINTS_X 8
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1630,7 +1654,7 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-//#define LEVEL_BED_CORNERS //Define on QQS_Config
+//#define LEVEL_BED_CORNERS //Define on FLSUNQ_Config
 
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
@@ -1699,8 +1723,11 @@
 #endif
 
 // Delta only homes to Z
-//#define HOMING_FEEDRATE_Z  (100*60)   //6000
-#define HOMING_FEEDRATE_MM_M { (100*60), (100*60), (100*60) }  //5400
+#ifdef Q5
+  #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (50*60) }
+#else
+  #define HOMING_FEEDRATE_MM_M { (70*60), (70*60), (70*60) }
+#endif
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -1829,7 +1856,7 @@
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_5_LABEL       "UBL"
-#define PREHEAT_5_TEMP_HOTEND   0
+#define PREHEAT_5_TEMP_HOTEND  30
 #define PREHEAT_5_TEMP_BED     50
 #define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
 
@@ -2051,6 +2078,9 @@
  * you must uncomment the following option or it won't work.
  */
 #define SDSUPPORT
+#ifdef Q5
+  #define SDIO_SUPPORT
+#endif
 
 /**
  * SD CARD: ENABLE CRC
@@ -2559,13 +2589,13 @@
 // 320x240, 2.8", FSMC Display From MKS
 // Normally used in MKS Robin Nano V1.2
 //
-//#define MKS_ROBIN_TFT28 //Define on QQS_Config
+//#define MKS_ROBIN_TFT28 //Define on FLSUNQ_Config
 
 //
 // 320x240, 3.2", FSMC Display From MKS
 // Normally used in MKS Robin Nano V1.2
 //
-//#define MKS_ROBIN_TFT32 //Define on QQS_Config
+//#define MKS_ROBIN_TFT32 //Define on FLSUNQ_Config
 
 //
 // 480x320, 3.5", FSMC Display From MKS
@@ -2637,7 +2667,7 @@
  *   For LVGL_UI also copy the 'assets' folder from the build directory to the
  *   root of your SD card, together with the compiled firmware.
  */
-//Define on QQS_Config
+//Define on FLSUNQ_Config
 //#define TFT_CLASSIC_UI
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
@@ -2654,7 +2684,9 @@
  *   TFT_ROTATE_270, TFT_ROTATE_270_MIRROR_X, TFT_ROTATE_270_MIRROR_Y,
  *   TFT_MIRROR_X, TFT_MIRROR_Y, TFT_NO_ROTATION
  */
-//#define TFT_ROTATION TFT_NO_ROTATION
+#ifdef Q5
+  #define TFT_ROTATION TFT_ROTATE_180
+#endif
 
 //=============================================================================
 //============================  Other Controllers  ============================
@@ -2676,10 +2708,10 @@
   #define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   // QQS-Pro use MKS Robin TFT v2.0
-  #define TOUCH_CALIBRATION_X 12033
-  #define TOUCH_CALIBRATION_Y -9047
-  #define TOUCH_OFFSET_X        -30
-  #define TOUCH_OFFSET_Y        254
+  //#define TOUCH_CALIBRATION_X 12033
+  //#define TOUCH_CALIBRATION_Y -9047
+  //#define TOUCH_OFFSET_X        -30
+  //#define TOUCH_OFFSET_Y        254
   //#define TOUCH_CALIBRATION_X 12316
   //#define TOUCH_CALIBRATION_Y -8981
   //#define TOUCH_OFFSET_X        -43
@@ -2778,7 +2810,7 @@
 #endif
 
 // Support for Adafruit NeoPixel LED driver
-//#define NEOPIXEL_LED  //Define on QQS_Config
+//#define NEOPIXEL_LED  //Define on FLSUNQ_Config
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   //#define NEOPIXEL_PIN    LED_PWM       // LED driving pin

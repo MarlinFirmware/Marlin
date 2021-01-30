@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware for Delta QQS-Pro with HISPEEDv1 Board.
+# Marlin 3D Printer Firmware for Delta QQS-Pro with HISPEEDv1 Board and Q5.
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
@@ -15,15 +15,13 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20210128
+ Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNS_Config (QQSP & Q5)
   - Support QQSP/Q5 Stock, TMC and UART mode.
   * All QQSP features on Q5.
   - Choice UI Classic (Lcd) and Color (TFT)
   - Change BAUDSRATE at 250000
-  -
-  -
 
   ## Validate:
 

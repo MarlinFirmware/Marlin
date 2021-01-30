@@ -665,8 +665,11 @@
 
 #define HOMING_BUMP_MM      { 5, 5, 5 }       // (mm) Backoff from endstops after first bump
                                               // For delta all values must be the same
-#define HOMING_BUMP_DIVISOR { 10, 10, 10 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-
+#ifdef Q5
+  #define HOMING_BUMP_DIVISOR { 4, 4, 4 }
+#else
+  #define HOMING_BUMP_DIVISOR { 10, 10, 10 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#endif
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
 
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
@@ -1062,7 +1065,11 @@
 // @section lcd
 
 #if EITHER(IS_ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE_XYZ 50*60
+  #ifdef Q5
+    #define MANUAL_FEEDRATE_XYZ 35*60
+  #else
+    #define MANUAL_FEEDRATE_XYZ 50*60
+  #endif
   #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
   #if IS_ULTIPANEL
@@ -1089,7 +1096,7 @@
 
   // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if HAS_BED_PROBE
-    //#define PROBE_OFFSET_WIZARD // Define on QQS_Config
+    //#define PROBE_OFFSET_WIZARD // Define on FLSUNQ_Config
     #if ENABLED(PROBE_OFFSET_WIZARD)
       //
       // Enable to init the Probe Z-Offset when starting the Wizard.
@@ -1104,7 +1111,7 @@
   #endif
 
   // Include a page of printer information in the LCD Main Menu
-  //#define LCD_INFO_MENU //Define on QQS_Config
+  //#define LCD_INFO_MENU //Define on FLSUNQ_Config
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
@@ -1119,7 +1126,7 @@
    * LED Control Menu
    * Add LED Control to the LCD menu
    */
-  //#define LED_CONTROL_MENU  // Define on QQS_Config
+  //#define LED_CONTROL_MENU  // Define on FLSUNQ_Config
   #if ENABLED(LED_CONTROL_MENU)
     #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
     //#define NEO2_COLOR_PRESETS              // Enable a second NeoPixel Preset Color menu option
@@ -1150,7 +1157,7 @@
   #if ENABLED(SHOW_BOOTSCREEN)
     #define BOOTSCREEN_TIMEOUT 4000      // (ms) Total Duration to display the boot screen(s)
     #if EITHER(HAS_MARLINUI_U8GLIB, TFT_COLOR_UI)
-      #define BOOT_MARLIN_LOGO_SMALL     // Show a smaller Marlin logo on the Boot Screen (saving lots of flash)
+      //#define BOOT_MARLIN_LOGO_SMALL     // Show a smaller Marlin logo on the Boot Screen (saving lots of flash)
     #endif
   #endif
 
@@ -1387,7 +1394,7 @@
   #endif
 
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
-  //#define BINARY_FILE_TRANSFER  // Define on QQS_Config
+  //#define BINARY_FILE_TRANSFER  // Define on FLSUNQ_Config
 
   /**
    * Set this option to one of the following (or the board's defaults apply):
@@ -1718,7 +1725,7 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-//#define LIN_ADVANCE           // Define on QQS_Config
+//#define LIN_ADVANCE           // Define on FLSUNQ_Config
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
   #define LIN_ADVANCE_K 0 //.22    // Unit: mm compression per 1mm/s extruder speed
@@ -2016,7 +2023,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#define EMERGENCY_PARSER
+//#define EMERGENCY_PARSER
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -2163,27 +2170,39 @@
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            3  // (mm) Initial retract.
-                                                  // This short retract is done immediately, before parking the nozzle.
-  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     50  // (mm/s) Unload filament feedrate. This can be pretty fast.
-  #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH      850  // (mm) The length of filament for a complete unload.
+  #ifdef Q5
+    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     28  // (mm/s) Unload filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      550  //FE250 (mm) The length of filament for a complete unload.
+  #else                                                // This short retract is done immediately, before parking the nozzle.
+    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     50  // (mm/s) Unload filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      850  // (mm) The length of filament for a complete unload.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
                                                   //   Set to 0 for manual unloading.
+  #endif
+
   #define FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE   6  // (mm/s) Slow move when starting load.
   #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH     0  // (mm) Slow length, to allow time to insert material.
                                                   // 0 to disable start loading and skip to fast load only
-  #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  50  // (mm/s) Load filament feedrate. This can be pretty fast.
-  #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   730  // (mm) Load length of filament, from extruder gear to nozzle.
+  #ifdef Q5
+    #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  20  //40  // (mm/s) Load filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
+    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   600  // (mm) Load length of filament, from extruder gear to nozzle.
+  #else                                             // 0 to disable start loading and skip to fast load only
+    #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  50  //40  // (mm/s) Load filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
+    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   730  // (mm) Load length of filament, from extruder gear to nozzle.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
+  #endif
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE         // Purge continuously up to the purge length until interrupted.
   #define ADVANCED_PAUSE_PURGE_FEEDRATE        3  // (mm/s) Extrude feedrate (after loading). Should be slower than load feedrate.
   #define ADVANCED_PAUSE_PURGE_LENGTH         50  // (mm) Length to extrude after loading.
-                                                  //   Set to 0 for manual extrusion.
-                                                  //   Filament can be extruded repeatedly from the Filament Change menu
-                                                  //   until extrusion is consistent, and to purge old filament.
+                                                  // Set to 0 for manual extrusion.
+                                                  // Filament can be extruded repeatedly from the Filament Change menu
+                                                  // until extrusion is consistent, and to purge old filament.
   #define ADVANCED_PAUSE_RESUME_PRIME          0  // (mm) Extra distance to prime nozzle after returning from park.
   //#define ADVANCED_PAUSE_FANS_PAUSE             // Turn off print-cooling fans while the machine is paused.
 
@@ -3386,7 +3405,7 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-//#define HOST_ACTION_COMMANDS     // Define on QQS_Config
+//#define HOST_ACTION_COMMANDS     // Define on FLSUNQ_Config
 #if ENABLED(HOST_ACTION_COMMANDS)
   #define HOST_PROMPT_SUPPORT
   //#define HOST_START_MENU_ITEM  // Add a menu item that tells the host to start
@@ -3397,7 +3416,7 @@
  *
  * Implement M486 to allow Marlin to skip objects
  */
-//#define CANCEL_OBJECTS  //Define on QQS_Config OCTO
+//#define CANCEL_OBJECTS  //Define on FLSUNQ_Config OCTO
 
 /**
  * I2C position encoders for closed loop control.
