@@ -150,10 +150,10 @@
 
 // Name displayed in the LCD "Ready" message and Info menu
 #ifdef QQSP
-  #define CUSTOM_MACHINE_NAME "FLSun QQS-Pro"
+  #define CUSTOM_MACHINE_NAME "DeltaFoxies QQS-Pro"
 #endif
 #ifdef Q5
-  #define CUSTOM_MACHINE_NAME "FLSun Q5"
+  #define CUSTOM_MACHINE_NAME "DeltaFoxies Q5"
 #endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -430,7 +430,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#ifndef TEMP_SENSOR_0 
+#ifndef TEMP_SENSOR_0
   #define TEMP_SENSOR_0 1
 #endif
 #define TEMP_SENSOR_1 0
@@ -694,8 +694,8 @@
   #endif
   #ifdef Q5
     #define DELTA_PRINTABLE_RADIUS 100
-    #define DELTA_DIAGONAL_ROD 215.0       
-    #define DELTA_HEIGHT 198.0            
+    #define DELTA_DIAGONAL_ROD 215.0
+    #define DELTA_HEIGHT 198.0
     #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 }      // Trim adjustments for individual towers
     #define DELTA_RADIUS 107.5
     #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0 , 0.0 }
@@ -862,9 +862,14 @@
  */
 // variables to calculate steps
 //#define EXTRUDER_STEPS 397
-#define E_MICROSTEPS 16
 #define XYZ_FULL_STEPS_PER_ROTATION 200
-#define XYZ_MICROSTEPS 16
+#ifdef XP
+  #define XYZ_MICROSTEPS 32
+  #define E_MICROSTEPS 32
+#else
+  #define XYZ_MICROSTEPS 16
+  #define E_MICROSTEPS 16
+#endif
 #define XYZ_BELT_PITCH 2
 #if ANY(XP, Q5)
   #define XYZ_PULLEY_TEETH 20
@@ -884,7 +889,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 250, 250, 250, 200 }
+#define DEFAULT_MAX_FEEDRATE          { 250, 250, 250, 210 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1175,7 +1180,7 @@
 #ifndef Q5
   #define PROBING_MARGIN 10
 #else
-  #define PROBING_MARGIN 20
+  #define PROBING_MARGIN 10
 #endif
 
 // X and Y axis travel speed (mm/min) between probes 
@@ -1183,7 +1188,7 @@
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 //FEEDRATE_Z
-#define Z_PROBE_SPEED_FAST (50*60)  //3000
+#define Z_PROBE_SPEED_FAST (30*60)  //3000
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4) //750
@@ -2645,7 +2650,7 @@
 //#define TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
   // :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
-  #define TFT_DRIVER AUTO
+  //#define TFT_DRIVER AUTO
 
   // Interface. Enable one of the following options:
   //#define TFT_INTERFACE_FSMC

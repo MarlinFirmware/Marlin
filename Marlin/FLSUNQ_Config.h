@@ -81,9 +81,9 @@
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 
 //Many options for Modules: 
-#define LIN_ADVANCE                //(L) with K=0 For TMC_UART prefer mode spreadCycle(by TFT menu) or commented if problem (Default)         
-//#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
+#define LIN_ADVANCE                //(L) with K=0 For TMC_UART prefer mode spreadCycle(by TFT menu) or commented if problem (Default)
 #define ARC_SUPPORT                //(R) (Default)
+#define POWER_LOSS_RECOVERY        // Continue print after Power-Loss.(Defaul_QQS)
 
 /** =============================
  * =====Type of TFT screen ======
@@ -111,8 +111,9 @@
 // ---Expe tools
 //#define LEVEL_BED_CORNERS
 
-// Option for Octoprint (OCTO)
+// Option for Host (OCTOPRINT,REPETIER,PRONTERFACE,ESP3D, etc)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
+//#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 //#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
 
 // Options for Modules Hardware
