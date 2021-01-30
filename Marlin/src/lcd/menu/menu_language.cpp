@@ -34,7 +34,7 @@
 
 static void set_lcd_language(const uint8_t inlang) {
   ui.set_language(inlang);
-  (void)settings.save();
+  TERN_(LCD_LANGUAGE_AUTO_SAVE, (void)settings.save());
 }
 
 void menu_language() {
