@@ -25,6 +25,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../../feature/e_parser.h"
 #endif
+#include "../../../core/serial_hook.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -73,19 +74,11 @@ private:
   volatile uint32_t index_read;
 };
 
-class HalSerial {
-public:
-
-  #if ENABLED(EMERGENCY_PARSER)
-    EmergencyParser::State emergency_state;
-    static inline bool emergency_parser_enabled() { return true; }
-  #endif
-
+struct HalSerial {
   HalSerial() { host_connected = true; }
 
   void begin(int32_t) {}
-
-  void end() {}
+  void end()          {}
 
   int peek() {
     uint8_t value;
@@ -100,7 +93,7 @@ public:
     return transmit_buffer.write(c);
   }
 
-  operator bool() { return host_connected; }
+  bool connected() { return host_connected; }
 
   uint16_t available() {
     return (uint16_t)receive_buffer.available();
@@ -117,92 +110,9 @@ public:
       while (transmit_buffer.available()) { /* nada */ }
   }
 
-  void printf(const char *format, ...) {
-    static char buffer[256];
-    va_list vArgs;
-    va_start(vArgs, format);
-    int length = vsnprintf((char *) buffer, 256, (char const *) format, vArgs);
-    va_end(vArgs);
-    if (length > 0 && length < 256) {
-      if (host_connected) {
-        for (int i = 0; i < length;) {
-          if (transmit_buffer.write(buffer[i])) {
-            ++i;
-          }
-        }
-      }
-    }
-  }
-
-  #define DEC 10
-  #define HEX 16
-  #define OCT 8
-  #define BIN 2
-
-  void print_bin(uint32_t value, uint8_t num_digits) {
-    uint32_t mask = 1 << (num_digits -1);
-    for (uint8_t i = 0; i < num_digits; i++) {
-      if (!(i %  4) && i) write(' ');
-      if (!(i % 16) && i) write(' ');
-      if (value & mask)   write('1');
-      else                write('0');
-      value <<= 1;
-    }
-  }
-
-  void print(const char value[]) { printf("%s" , value); }
-  void print(char value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 8);
-    else if (nbase == OCT) printf("%3o", value);
-    else if (nbase == HEX) printf("%2X", value);
-    else if (nbase == DEC ) printf("%d", value);
-    else printf("%c" , value);
-  }
-  void print(unsigned char value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 8);
-    else if (nbase == OCT) printf("%3o", value);
-    else if (nbase == HEX) printf("%2X", value);
-    else printf("%u" , value);
-  }
-  void print(int value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 16);
-    else if (nbase == OCT) printf("%6o", value);
-    else if (nbase == HEX) printf("%4X", value);
-    else printf("%d", value);
-  }
-  void print(unsigned int value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 16);
-    else if (nbase == OCT) printf("%6o", value);
-    else if (nbase == HEX) printf("%4X", value);
-    else printf("%u" , value);
-  }
-  void print(long value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 32);
-    else if (nbase == OCT) printf("%11o", value);
-    else if (nbase == HEX) printf("%8X", value);
-    else printf("%ld" , value);
-  }
-  void print(unsigned long value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 32);
-    else if (nbase == OCT) printf("%11o", value);
-    else if (nbase == HEX) printf("%8X", value);
-    else printf("%lu" , value);
-  }
-  void print(float value, int round = 6)  { printf("%f" , value); }
-  void print(double value, int round = 6) { printf("%f" , value); }
-
-  void println(const char value[]) { printf("%s\n" , value); }
-  void println(char value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned char value, int nbase = 0) { print(value, nbase); println(); }
-  void println(int value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned int value, int nbase = 0) { print(value, nbase); println(); }
-  void println(long value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned long value, int nbase = 0) { print(value, nbase); println(); }
-  void println(float value, int round = 6) { printf("%f\n" , value); }
-  void println(double value, int round = 6) { printf("%f\n" , value); }
-  void println() { print('\n'); }
-
   volatile RingBuffer<uint8_t, 128> receive_buffer;
   volatile RingBuffer<uint8_t, 128> transmit_buffer;
   volatile bool host_connected;
 };
+
+typedef Serial0Type<HalSerial> MSerialT;

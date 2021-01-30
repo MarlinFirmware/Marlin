@@ -23,6 +23,10 @@
 #include "serial.h"
 #include "../inc/MarlinConfig.h"
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
 // Commonly-used strings in serial output
@@ -34,7 +38,18 @@ PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMST
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 #if HAS_MULTI_SERIAL
-  int8_t serial_port_index = 0;
+  #ifdef SERIAL_CATCHALL
+    SerialOutputT multiSerial(MYSERIAL, SERIAL_CATCHALL);
+  #else
+    #if HAS_ETHERNET
+      // Runtime checking of the condition variable
+      ConditionalSerial<decltype(MYSERIAL1)> serialOut1(ethernet.have_telnet_client, MYSERIAL1, false); // Takes reference here
+    #else
+      // Don't pay for runtime checking a true variable, instead use the output directly
+      #define serialOut1 MYSERIAL1
+    #endif
+    SerialOutputT multiSerial(MYSERIAL0, serialOut1);
+  #endif
 #endif
 
 void serialprintPGM(PGM_P str) {

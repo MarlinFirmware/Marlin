@@ -59,6 +59,10 @@ typedef struct {
     ;
 } card_flags_t;
 
+#if ENABLED(AUTO_REPORT_SD_STATUS)
+  #include "../libs/autoreport.h"
+#endif
+
 class CardReader {
 public:
   static card_flags_t flag;                         // Flags (above)
@@ -172,13 +176,16 @@ public:
   static Sd2Card& getSd2Card() { return sd2card; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
-    static void auto_report_sd_status();
-    static inline void set_auto_report_interval(uint8_t v) {
-      TERN_(HAS_MULTI_SERIAL, auto_report_port = serial_port_index);
-      NOMORE(v, 60);
-      auto_report_sd_interval = v;
-      next_sd_report_ms = millis() + 1000UL * v;
-    }
+    //
+    // SD Auto Reporting
+    //
+    #if HAS_MULTI_SERIAL
+      static serial_index_t auto_report_port;
+    #else
+      static constexpr serial_index_t auto_report_port = 0;
+    #endif
+    class AutoReportSD : public AutoReporter<auto_report_port> { void auto_report(); };
+    static AutoReportSD auto_reporter;
   #endif
 
 private:
@@ -258,17 +265,6 @@ private:
     static uint8_t file_subcall_ctr;
     static uint32_t filespos[SD_PROCEDURE_DEPTH];
     static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
-  #endif
-
-  //
-  // SD Auto Reporting
-  //
-  #if ENABLED(AUTO_REPORT_SD_STATUS)
-    static uint8_t auto_report_sd_interval;
-    static millis_t next_sd_report_ms;
-    #if HAS_MULTI_SERIAL
-      static int8_t auto_report_port;
-    #endif
   #endif
 
   //
