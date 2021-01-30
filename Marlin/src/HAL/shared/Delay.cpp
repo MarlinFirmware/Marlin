@@ -150,6 +150,12 @@
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(50); e = HW_REG(_DWT_CYCCNT);
         report_call_time(dcd, 50, e - s, false);
+
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(100); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd, 100, e - s, false);
+
+        s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(200); e = HW_REG(_DWT_CYCCNT);
+        report_call_time(dcd, 200, e - s, false);
       }
 
     #endif // MARLIN_DEV_MODE

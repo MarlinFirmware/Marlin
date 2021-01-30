@@ -58,7 +58,7 @@ void calibrate_delay_loop();
     // Split recursing template in 2 different class so we don't reach the maximum template instantiation depth limit
     template <bool belowTP, int N> struct Helper {
       FORCE_INLINE static void build() {
-        DelayCycleFnc(N - 4); //  Approximative cost of calling the function (might be off by one or 2 cycles)
+        DelayCycleFnc(N - 2); //  Approximative cost of calling the function (might be off by one or 2 cycles)
       }
     };
 
@@ -92,6 +92,9 @@ void calibrate_delay_loop();
 
   #define DELAY_CYCLES(X) do { SmartDelay<IS_CONSTEXPR(X), IS_CONSTEXPR(X) ? X : 0> _smrtdly_X(X); } while(0)
 
+  // For delay in microseconds, no smart delay selection is required, directly call the delay function
+  // Teensy compiler is too old and does not accept smart delay compile-time / run-time selection correctly
+  #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
 
 #elif defined(__AVR__)
 
@@ -132,10 +135,15 @@ void calibrate_delay_loop();
   }
   #undef nop
 
+  // Delay in microseconds
+  #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
+
 #elif defined(__PLAT_LINUX__) || defined(ESP32)
 
-  // specified inside platform
+  // DELAY_CYCLES specified inside platform
 
+  // Delay in microseconds
+  #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
 #else
 
   #error "Unsupported MCU architecture"
@@ -145,10 +153,5 @@ void calibrate_delay_loop();
 // Delay in nanoseconds
 #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
 
-#ifdef IS_TEENSY_40_41
-  // Workaround GCC too old to understand our code on Teensy4x
-  #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
-#else
-  // Delay in microseconds
-  #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
-#endif
+
+
