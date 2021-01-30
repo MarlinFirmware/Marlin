@@ -3364,12 +3364,12 @@
   #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
 
   #define USER_CMD_4_ENABLE
-  #define USER_DESC_4 "Heat Bed/\nHome/Level"
-  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
+  #define USER_DESC_4 "Turn on\ncooling"
+  #define USER_GCODE_4 "M108\nM106 255"
 
   #define USER_CMD_5_ENABLE
-  #define USER_DESC_5 "Home & Info"
-  #define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "All home"
+  #define USER_GCODE_5 "G28"
 #endif
 
 /**
