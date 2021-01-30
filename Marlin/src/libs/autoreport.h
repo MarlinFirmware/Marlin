@@ -19,22 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../inc/MarlinConfig.h"
 
-#if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+template<serial_index_t AR_PORT_INDEX>
+class AutoReporter {
+public:
+  millis_t next_report_ms;
+  uint8_t report_interval;
 
-#include "../gcode.h"
-#include "../../module/temperature.h"
+  // Override this method
+  inline void auto_report() { }
 
-/**
- * M155: Set temperature auto-report interval. M155 S<seconds>
- */
-void GcodeSuite::M155() {
+  inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
+    report_interval = _MIN(seconds, limit);
+    next_report_ms = millis() + SEC_TO_MS(seconds);
+  }
 
-  if (parser.seenval('S'))
-    thermalManager.auto_reporter.set_interval(parser.value_byte());
-
-}
-
-#endif // AUTO_REPORT_TEMPERATURES && HAS_TEMP_SENSOR
+  inline void tick() {
+    if (!report_interval) return;
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_report_ms)) {
+      next_report_ms = ms + SEC_TO_MS(report_interval);
+      PORT_REDIRECT(AR_PORT_INDEX);
+      auto_report();
+    }
+  }
+};

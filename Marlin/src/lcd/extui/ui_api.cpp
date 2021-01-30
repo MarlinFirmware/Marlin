@@ -123,7 +123,7 @@ namespace ExtUI {
       // Machine was killed, reinit SysTick so we are able to compute time without ISRs
       if (currTimeHI == 0) {
         // Get the last time the Arduino time computed (from CMSIS) and convert it to SysTick
-        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU / 8000)) >> 24);
+        currTimeHI = uint32_t((GetTickCount() * uint64_t(F_CPU / 8000)) >> 24);
 
         // Reinit the SysTick timer to maximize its period
         SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    // get the full range for the systick timer
@@ -148,9 +148,9 @@ namespace ExtUI {
     }
   #endif // __SAM3X8E__
 
-  void delay_us(unsigned long us) { DELAY_US(us); }
+  void delay_us(uint32_t us) { DELAY_US(us); }
 
-  void delay_ms(unsigned long ms) {
+  void delay_ms(uint32_t ms) {
     if (flags.printer_killed)
       DELAY_US(ms * 1000);
     else
