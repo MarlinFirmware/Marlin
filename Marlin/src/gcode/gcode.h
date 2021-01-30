@@ -310,6 +310,8 @@
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
 
+extern const char G28_STR[];
+
 class GcodeSuite {
 public:
 
@@ -371,7 +373,6 @@ public:
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    extern const char G28_STR[];
     process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
@@ -452,6 +453,8 @@ private:
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
+      static void event_probe_failure();
+      static void event_probe_recover();
       static void G29_with_retry();
       #define G29_TYPE bool
     #else
