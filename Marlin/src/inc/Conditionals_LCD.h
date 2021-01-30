@@ -320,6 +320,7 @@
 // FSMC/SPI TFT Panels (LVGL)
 #if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
+  #define SERIAL_RUNTIME_HOOK 1
 #endif
 
 // FSMC/SPI TFT Panels
@@ -1155,36 +1156,37 @@
   #endif
 #endif
 
-#if ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 240
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_320x240_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_320x240
-  #endif
-#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 320
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_480x320_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_480x320
-  #endif
-#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 272
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_480x272_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_480x272
+#if ENABLED(TFT_COLOR_UI)
+  #if TFT_HEIGHT == 240
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_320x240_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_320x240
+    #endif
+  #elif TFT_HEIGHT == 320
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_480x320_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_480x320
+    #endif
+  #elif TFT_HEIGHT == 272
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_480x272_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_480x272
+    #endif
   #endif
 #endif
 
-// Fewer lines with touch buttons on-screen
 #if EITHER(TFT_320x240, TFT_320x240_SPI)
   #define HAS_UI_320x240 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define HAS_UI_480x320 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x272, TFT_480x272_SPI)
   #define HAS_UI_480x272 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#endif
+#if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

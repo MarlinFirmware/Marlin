@@ -421,7 +421,7 @@
 #define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
-#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_998_VALUE  25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
@@ -1357,11 +1357,11 @@
   //#define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
-    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE_TRAVEL  100   // (mm/s) Feedrate for XY Moves without extrusion for the G26 Mesh Validation Tool
+    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
+    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
+    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
+    #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
     #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
@@ -1754,6 +1754,9 @@
  * View the current statistics with M78.
  */
 //#define PRINTCOUNTER
+#if ENABLED(PRINTCOUNTER)
+  #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print
+#endif
 
 /**
  * Password
