@@ -1935,6 +1935,31 @@ void onConfigurationStoreRead(bool success)
   }
 #endif
 
+void onSteppersEnabled()
+{
+
+}
+
+void onPrintFinished()
+{
+
+}
+
+void onHomingStart()
+{
+
+}
+
+void onHomingComplete()
+{
+
+}
+
+void onSteppersDisabled()
+{
+
+}
+
 } // namespace ExtUI
 
 #endif
