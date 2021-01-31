@@ -101,12 +101,13 @@
     #define Y_MAX_PIN                         15
   #endif
 #endif
+// Using ZSTOP for HW Serial1, so no Z-MIN D18 or Z-MAX D19
 #ifndef Z_STOP_PIN
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         18
+    #define Z_MIN_PIN                         -1
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         19
+    #define Z_MAX_PIN                         -1
   #endif
 #endif
 
@@ -307,14 +308,16 @@
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
+   *
+   * Serial2 -- Pins 18 (TX) and Pin 17 (RX) on AUX-4 Header
    */
-  #define X_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL Serial2
   //#define X2_HARDWARE_SERIAL Serial1
-  #define Y_HARDWARE_SERIAL Serial1
+  #define Y_HARDWARE_SERIAL Serial2
   //#define Y2_HARDWARE_SERIAL Serial1
-  #define Z_HARDWARE_SERIAL Serial1
+  #define Z_HARDWARE_SERIAL Serial2
   //#define Z2_HARDWARE_SERIAL Serial1
-  #define E0_HARDWARE_SERIAL Serial1
+  #define E0_HARDWARE_SERIAL Serial2
   //#define E1_HARDWARE_SERIAL Serial1
   //#define E2_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
@@ -325,10 +328,10 @@
   //
 
   #ifndef X_SERIAL_TX_PIN
-    #define X_SERIAL_TX_PIN                   40
+    #define X_SERIAL_TX_PIN                   -1
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                   63
+    #define X_SERIAL_RX_PIN                   -1
   #endif
   #ifndef X2_SERIAL_TX_PIN
     #define X2_SERIAL_TX_PIN                  -1
@@ -338,10 +341,10 @@
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN                   59
+    #define Y_SERIAL_TX_PIN                   -1
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                   64
+    #define Y_SERIAL_RX_PIN                   -1
   #endif
   #ifndef Y2_SERIAL_TX_PIN
     #define Y2_SERIAL_TX_PIN                  -1
@@ -351,10 +354,10 @@
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
-    #define Z_SERIAL_TX_PIN                   42
+    #define Z_SERIAL_TX_PIN                   -1
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                   65
+    #define Z_SERIAL_RX_PIN                   -1
   #endif
   #ifndef Z2_SERIAL_TX_PIN
     #define Z2_SERIAL_TX_PIN                  -1
@@ -364,10 +367,10 @@
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
-    #define E0_SERIAL_TX_PIN                  44
+    #define E0_SERIAL_TX_PIN                  -1
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN                  66
+    #define E0_SERIAL_RX_PIN                  -1
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                  -1

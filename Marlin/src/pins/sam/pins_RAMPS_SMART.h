@@ -60,8 +60,8 @@
  * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
+#if NOT_TARGET(__SAM3X8E__,__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino Due' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
