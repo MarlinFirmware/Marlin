@@ -130,7 +130,8 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
   using BaseClassT::print;
   using BaseClassT::println;
-  
+
+
   // Underlying implementation might use Arduino's bool operator
   bool connected() { 
     return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool(); 
