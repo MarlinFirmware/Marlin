@@ -89,14 +89,8 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_BEDLEVELKEY:
             switch (buttonValue) {
                 case 1:
-                    ExtUI::injectCommands_P("G28");
-
-                    queue.advance();
-                    planner.synchronize();
-
-                    ExtUI::injectCommands_P("G0 Z0");
-                    
-                    queue.advance();
+                    queue.enqueue_one_P("G28");
+                    queue.enqueue_one_P("G0 Z0");
                 break;
 
                 case 2:
