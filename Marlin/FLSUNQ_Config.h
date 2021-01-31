@@ -105,7 +105,7 @@
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
 
-// For user who change theirr nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
+// For user who change their nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
 //#define TEMP_SENSOR_0 5             //uncomment with a good number/type.
 
 // ---Expe tools
@@ -113,6 +113,7 @@
 
 // Option for Host (OCTOPRINT,REPETIER,PRONTERFACE,ESP3D, etc)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
+//#define MEATPACK                   //Support for MeatPack G-code compression (OCTOPRINT)
 //#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 //#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
 
