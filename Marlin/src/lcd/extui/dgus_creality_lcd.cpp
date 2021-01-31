@@ -194,11 +194,11 @@ bool hasPrintTimer = false;
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos);
+      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, zval);
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
-      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos);
+      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, 0);
     }
   #endif
 

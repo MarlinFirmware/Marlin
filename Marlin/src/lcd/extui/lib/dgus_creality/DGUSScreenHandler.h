@@ -115,7 +115,11 @@ public:
 
     static void OnMeshLevelingStart();
 
-    static void OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos);
+    static void OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z);
+    
+    static void InitMeshValues();
+
+    static void UpdateMeshValue(const int8_t x, const int8_t y, const float z);
   #endif
 
   // Hook for live z adjust action

@@ -67,15 +67,9 @@ uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
 bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
 
-// Hardcoded limits
-constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = GRID_MAX_POINTS > (4*4) ? 30 : 1;
+static_assert(GRID_MAX_POINTS_X == GRID_MAX_POINTS_Y, "Assuming bed leveling points is square");
 
-static_assert(
-  (GRID_MAX_POINTS == 16 && DGUS_GRID_VISUALIZATION_START_ID == 1)||  // CR-6 SE
-  (GRID_MAX_POINTS == 49 && DGUS_GRID_VISUALIZATION_START_ID == 30) || // CR-6 MAX
-  (GRID_MAX_POINTS != 16 && GRID_MAX_POINTS != 49),                    // Custom Leveling
-  "Incorrect offset selected for leveling config"
-);
+constexpr uint16_t SkipMeshPoint = GRID_MAX_POINTS_X > MESH_LEVEL_EDGE_MAX_POINTS ? ((GRID_MAX_POINTS_X - 1) / (GRID_MAX_POINTS_X - MESH_LEVEL_EDGE_MAX_POINTS)) : 1;
 
 void DGUSScreenHandler::sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool l4inflash) {
   DGUS_VP_Variable ramcopy;
@@ -588,15 +582,21 @@ void DGUSScreenHandler::OnMeshLevelingStart() {
   dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
 }
 
-void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos) {
+void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
+  SERIAL_ECHOPAIR("X: ", x);
+  SERIAL_ECHOPAIR("; Y: ", y);
+  SERIAL_ECHOLNPAIR("; Index ", MeshLevelIndex);
+
+  UpdateMeshValue(x, y, z);
+
   if (MeshLevelIndex < 0) {
     // We're not leveling
+
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
     return;
   }
 
   MeshLevelIndex++;
-
-  SERIAL_ECHOLNPAIR("Mesh level index: ", MeshLevelIndex);
 
   // Update icon
   dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIndex + DGUS_GRID_VISUALIZATION_START_ID));
@@ -608,11 +608,63 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypo
     RequestSaveSettings();
 
     PopToOldScreen();
-
-    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
   } else {
     // We've already updated the icon, so nothing left
   }
+}
+
+void DGUSScreenHandler::InitMeshValues() {
+  if (ExtUI::getMeshValid()) {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          float z = ExtUI::getMeshPoint({ x, y });
+          UpdateMeshValue(x, y, z);
+      }
+    }
+
+      dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + MESH_LEVEL_MAX_POINTS));
+  } else {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          UpdateMeshValue(x, y, 0);
+      }
+    }
+
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
+  }
+}
+
+void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
+  SERIAL_ECHOPAIR("X", x);
+  SERIAL_ECHOPAIR(" Y", y);
+  SERIAL_ECHOPAIR_F_P(" Z", z);
+  SERIAL_ECHOLN("");
+
+  // Determine the screen X and Y value
+  if (x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0) {
+    // Skip this point
+    return;
+  }
+
+  const uint8_t scrX = x / SkipMeshPoint;
+  const uint8_t scrY = y / SkipMeshPoint;
+
+  // Each Y is a full edge of X values
+  const uint16_t vpAddr = VP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_VP_SIZE) + (scrX * MESH_LEVEL_VP_EDGE_SIZE);
+
+  DGUS_VP_Variable vp { .VP = vpAddr, .memadr = const_cast<float*>(&z) };
+  DGUSLCD_SendFloatAsIntValueToDisplay<3>(vp);
+
+  // Set color
+  const uint16_t spAddr = SP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_SP_SIZE) + (scrX * MESH_LEVEL_SP_EDGE_SIZE);
+
+  uint16_t color;
+  if (z < 0) color = MESH_COLOR_BELOW_ZERO;
+  if (z > 0) color = MESH_COLOR_ABOVE_ZERO;
+  if (abs(z) < MESH_NEAR_ZERO) color = MESH_COLOR_NEAR_ZERO;
+  if (abs(z) < MESH_UNSET_EPSILON) color = MESH_COLOR_NOT_MEASURED;
+
+  dgusdisplay.SetVariableDisplayColor(spAddr, color);
 }
 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
@@ -1327,8 +1379,8 @@ bool DGUSScreenHandler::loop() {
       // Ensure to pick up the settings
       SetTouchScreenConfiguration();
 
-      // Set initial leveling icon
-      dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
+      // Set initial leveling status
+      InitMeshValues();
       
       GotoScreen(DGUSLCD_SCREEN_MAIN);
     }

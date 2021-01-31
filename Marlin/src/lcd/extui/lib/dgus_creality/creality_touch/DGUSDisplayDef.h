@@ -354,10 +354,40 @@ constexpr uint16_t VP_BUTTON_HEATLOADSTARTKEY = 0x1056;
 // Additional stuff defined by Creality
 constexpr uint16_t VP_FAN_TOGGLE = 0x101E;
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
-constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
-constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
+
+// Feed / retract
 constexpr uint16_t VP_FEED_AMOUNT = 0x1054;
 constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
+
+// Mesh leveling
+constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
+constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
+
+constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = 1;
+
+constexpr uint16_t VP_MESH_LEVEL_X0_Y0 = 0x1350;
+constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0xFEFF;
+
+constexpr uint16_t MESH_LEVEL_EDGE_MAX_POINTS = 4;
+
+constexpr uint16_t MESH_LEVEL_VP_SIZE = 2; // 2-byte integer
+constexpr uint16_t MESH_LEVEL_SP_SIZE = 10; // 10 bytes
+
+constexpr uint16_t MESH_LEVEL_VP_EDGE_SIZE = MESH_LEVEL_VP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
+constexpr uint16_t MESH_LEVEL_SP_EDGE_SIZE = MESH_LEVEL_SP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
+
+constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEVEL_EDGE_MAX_POINTS;
+
+// Color table: https://stackoverflow.com/q/13720937/646215
+// Colors below were picked on bed leveling visualizer defaults
+
+constexpr uint16_t MESH_COLOR_BELOW_ZERO = 0x001F;   // Blue
+constexpr uint16_t MESH_COLOR_NEAR_ZERO = 0x07E0;    // Green
+constexpr uint16_t MESH_COLOR_ABOVE_ZERO = 0xF800;    // Orange
+constexpr uint16_t MESH_COLOR_NOT_MEASURED = 0x0000; // Black (becomes invisible on black background)
+
+constexpr float MESH_NEAR_ZERO = 0.050;
+constexpr float MESH_UNSET_EPSILON = 0.001;
 
 // Movement screen
 constexpr uint16_t VP_X_POSITION = 0x1048;
