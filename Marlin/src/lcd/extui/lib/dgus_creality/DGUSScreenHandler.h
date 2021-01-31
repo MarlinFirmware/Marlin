@@ -119,6 +119,8 @@ public:
     
     static void InitMeshValues();
 
+    static void ResetMeshValues();
+
     static void UpdateMeshValue(const int8_t x, const int8_t y, const float z);
   #endif
 

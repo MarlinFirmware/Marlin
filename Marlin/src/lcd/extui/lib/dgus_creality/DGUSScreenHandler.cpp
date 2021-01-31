@@ -576,6 +576,7 @@ void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
+  ResetMeshValues();
 
   MeshLevelIndex = 0;
 
@@ -624,14 +625,18 @@ void DGUSScreenHandler::InitMeshValues() {
 
       dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + MESH_LEVEL_MAX_POINTS));
   } else {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-          UpdateMeshValue(x, y, 0);
-      }
-    }
-
-    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
+    ResetMeshValues();
   }
+}
+
+void DGUSScreenHandler::ResetMeshValues() {
+  for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+        UpdateMeshValue(x, y, 0);
+    }
+  }
+
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
 }
 
 void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
