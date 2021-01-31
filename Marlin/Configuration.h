@@ -1861,7 +1861,7 @@
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_5_LABEL       "UBL"
-#define PREHEAT_5_TEMP_HOTEND  30
+#define PREHEAT_5_TEMP_HOTEND  39
 #define PREHEAT_5_TEMP_BED     50
 #define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
 
@@ -2716,10 +2716,12 @@
   #define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   // QQS-Pro use MKS Robin TFT v2.0
-  //#define TOUCH_CALIBRATION_X 12033
-  //#define TOUCH_CALIBRATION_Y -9047
-  //#define TOUCH_OFFSET_X        -30
-  //#define TOUCH_OFFSET_Y        254
+  #ifdef QQSP
+    #define TOUCH_CALIBRATION_X 12033
+    #define TOUCH_CALIBRATION_Y -9047
+    #define TOUCH_OFFSET_X        -30
+    #define TOUCH_OFFSET_Y        254
+  #endif
   //#define TOUCH_CALIBRATION_X 12316
   //#define TOUCH_CALIBRATION_Y -8981
   //#define TOUCH_OFFSET_X        -43
@@ -2824,10 +2826,10 @@
   //#define NEOPIXEL_PIN    LED_PWM       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN      5
-  #define NEOPIXEL_PIXELS     12   // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
+  #define NEOPIXEL_PIXELS     18   // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
-  //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+  #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness (0-255)
+  #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
   // Support for second Adafruit NeoPixel LED driver controlled with M150 S1 ...
   //#define NEOPIXEL2_SEPARATE
@@ -2840,7 +2842,7 @@
   #endif
 
   // Use a single NeoPixel LED for static (background) lighting
-  //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
+  //#define NEOPIXEL_BKGD_LED_INDEX  10               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
 #endif
 
