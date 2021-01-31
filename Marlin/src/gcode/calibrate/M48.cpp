@@ -240,8 +240,8 @@ void GcodeSuite::M48() {
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {
-        SERIAL_ECHO(n + 1);
-        SERIAL_ECHOPAIR(" of ", int(n_samples));
+        SERIAL_ECHO((int)(n + 1)); //PLEASE LEAVE THIS COMMENT, THIS CODE IS HARD TO FIND, I'LL REVERT IT LATER ON
+        SERIAL_ECHOPAIR(" of ", (int)n_samples);
         SERIAL_ECHOPAIR_F(": z: ", pz, 3);
         SERIAL_CHAR(' ');
         dev_report(verbose_level > 2, mean, sigma, min, max);
