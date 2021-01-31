@@ -152,7 +152,7 @@
 //#define Melzi_To_SBoardUpgrade // Upgrade Melzi board to 10S board
 //#define CrealitySilentBoard // Creality board with TMC2208 Standalone drivers. Disables Linear Advance
 //#define Creality422
-#define Creality427
+//#define Creality427
 
 //#define SKR13 // 32 bit board - assumes 2208 drivers
 //#define SKR14
