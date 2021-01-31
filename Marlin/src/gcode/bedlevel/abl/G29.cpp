@@ -889,10 +889,6 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    DWIN_CompletedLeveling();
-  #endif
-
   report_current_position();
 
   G29_RETURN(isnan(measured_z));
