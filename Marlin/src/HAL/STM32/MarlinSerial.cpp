@@ -66,6 +66,7 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
 void MarlinSerial::_rx_complete_irq(serial_t *obj) {
   // No Parity error, read byte and store it in the buffer if there is room
   unsigned char c;
+  static EmergencyParser::State emergency_state; // = EP_RESET
 
   if (uart_getc(obj, &c) == 0) {
 
