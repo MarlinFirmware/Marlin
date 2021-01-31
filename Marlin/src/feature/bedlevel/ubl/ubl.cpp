@@ -150,7 +150,7 @@
     SERIAL_ECHO_SP(7);
     LOOP_L_N(i, GRID_MAX_POINTS_X) {
       if (i < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHO(i);
+      SERIAL_ECHO((int)i);
       SERIAL_ECHO_SP(sp);
     }
     serial_delay(10);

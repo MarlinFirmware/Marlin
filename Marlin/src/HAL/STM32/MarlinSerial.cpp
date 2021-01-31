@@ -81,7 +81,7 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj) {
     }
 
     #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(emergency_state, c);
+      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, c);
     #endif
   }
 }

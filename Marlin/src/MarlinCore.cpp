@@ -614,8 +614,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if ENABLED(MARLIN_DEV_MODE)
-    static uint8_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", int(idle_depth));
+    static uint16_t idle_depth = 0;
+    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities

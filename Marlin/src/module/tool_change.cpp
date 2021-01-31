@@ -709,7 +709,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #if EXTRUDERS
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
-    SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
+    SERIAL_CHAR('T'); SERIAL_ECHO((int)e);
     SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
