@@ -33,7 +33,7 @@ struct AutoReporter {
   #endif
 
   // Override this method
-  inline void auto_report() { static_cast<Child*>(this)->report(); }
+  inline void auto_report() { Child::report(); }
 
   inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
     report_interval = _MIN(seconds, limit);

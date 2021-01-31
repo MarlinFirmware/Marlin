@@ -798,8 +798,8 @@ class Temperature {
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
-        struct AutoReportTemp : public AutoReporter<AutoReportTemp> { void report(); };
-        static AutoReportTemp auto_reporter;
+        struct AutoReportTemp { static void report(); };
+        static AutoReporter<AutoReportTemp> auto_reporter;
       #endif
     #endif
 

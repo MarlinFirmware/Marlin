@@ -179,8 +179,8 @@ public:
     //
     // SD Auto Reporting
     //
-    struct AutoReportSD : public AutoReporter<AutoReportSD> { void report(); };
-    static AutoReportSD auto_reporter;
+    struct AutoReportSD { static void report(); };
+    static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 
 private:
