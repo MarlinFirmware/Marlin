@@ -164,11 +164,11 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
         case GCodeCommand:
           if (queue.length <= (BUFSIZE - 3)) {
             // Hook anything that goes to the serial port
-            MYSERIAL0.set_hook(&lv_show_gcode_output, 0);
+            MYSERIAL0.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
             queue.enqueue_one_now(ret_ta_txt);
           }
           lv_clear_keyboard();
-          //draw_return_ui();
+          // draw_return_ui is called in the end of message hook
           break;
         default: break;
       }
@@ -248,12 +248,18 @@ void lv_draw_keyboard() {
   // Create a text area. The keyboard will write here
   lv_obj_t *ta = lv_ta_create(scr, nullptr);
   lv_obj_align(ta, nullptr, LV_ALIGN_IN_TOP_MID, 0, 10);
-  if (keyboard_value == autoLevelGcodeCommand) {
+  switch (keyboard_value) {
+    case autoLevelGcodeCommand:
     get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
     public_buf_m[sizeof(public_buf_m)-1] = 0;
     lv_ta_set_text(ta, public_buf_m);
-  }
-  else {
+      break;
+    case GCodeCommand:
+      // Start with uppercase by default
+      lv_btnm_set_map(kb, kb_map_uc);
+      lv_btnm_set_ctrl_map(kb, kb_ctrl_uc_map);
+      // Fallthrough
+    default:
     lv_ta_set_text(ta, "");
   }
 

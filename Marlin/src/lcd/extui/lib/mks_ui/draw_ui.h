@@ -452,7 +452,8 @@ extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
 extern void update_gcode_command(int addr,uint8_t *s);
 extern void get_gcode_command(int addr,uint8_t *d);
-extern void lv_show_gcode_output(void * that, const char * txt);
+extern void lv_serial_capt_hook(void *, uint8_t);
+extern void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
   extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif

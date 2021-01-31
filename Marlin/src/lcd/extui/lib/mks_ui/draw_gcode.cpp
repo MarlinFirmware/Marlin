@@ -30,7 +30,9 @@
 
 extern lv_group_t *g;
 static lv_obj_t *scr,*outL,*outV = 0;
+static int currentWritePos = 0;
 extern uint8_t public_buf[513];
+extern "C" { extern char public_buf_m[100]; }
 
 enum {
   ID_GCODE_RETURN = 1,
@@ -42,7 +44,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   lv_clear_gcode();
   switch (obj->mks_obj_id) {
     case ID_GCODE_RETURN:
-      draw_return_ui();
+      lv_draw_more();
       return;
     case ID_GCODE_COMMAND:
       keyboard_value = GCodeCommand;
@@ -53,16 +55,10 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_show_gcode_output(void * that, const char * txt) {
   // Ignore echo of command
-  if (!memcmp_P(txt, PSTR("echo:"), 5)) {
-    public_buf[0] = 0; // Clear output buffer
+  if (!memcmp(txt, "echo:", 5)) {
+    public_buf[0] = 0; // Clear output buffer 
     return;
-  }
-  if (!memcmp_P(txt, PSTR("ok"), 2)) {
-    // A single ok on a line marks the end of the command, let's remove the hook now
-    MYSERIAL0.set_hook(0, 0);
-    // We are back from the keyboard, so let's redraw ourselves
-    draw_return_ui();
-  }
+   }
 
   // Avoid overflow if the answer is too large
   size_t len = strlen((const char*)public_buf), tlen = strlen(txt);
@@ -70,12 +66,30 @@ void lv_show_gcode_output(void * that, const char * txt) {
     memcpy(public_buf + len, txt, tlen);
     public_buf[len + tlen] = '\n';
   }
-
-  // If it happens asynchronously, let's show it in the interface
-  if (outV != 0) lv_label_set_text(outV, (const char*)public_buf);
 }
 
-void lv_draw_gcode() {
+void lv_serial_capt_hook(void * userPointer, uint8_t c)
+{
+  if (c == '\n' || currentWritePos == sizeof(public_buf_m) - 1) { // End of line, probably end of command anyway
+    public_buf_m[currentWritePos] = 0;
+    lv_show_gcode_output(userPointer, public_buf_m);
+    currentWritePos = 0;
+  }
+  else public_buf_m[currentWritePos++] = c;
+}
+void lv_eom_hook(void *)
+{
+  // Message is done, let's remove the hook now
+  MYSERIAL0.setHook();
+  // We are back from the keyboard, so let's redraw ourselves
+  draw_return_ui();
+}
+
+void lv_draw_gcode(bool clear) {
+  if (clear) {
+    currentWritePos = 0;
+    public_buf[0] = 0;
+  }
   scr = lv_screen_create(GCODE_UI, more_menu.gcode);
   lv_screen_menu_item(scr, more_menu.entergcode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_GCODE_COMMAND, 1);
   outL = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, "Result:");
