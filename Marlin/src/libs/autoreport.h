@@ -24,14 +24,11 @@
 #include "../inc/MarlinConfig.h"
 
 template <typename Child>
-class AutoReporter {
-public:
+struct AutoReporter {
   millis_t next_report_ms;
   uint8_t report_interval;
   #if HAS_MULTI_SERIAL
     serial_index_t report_port_mask;
-    inline set_port_mask(serial_index_t port) { report_port_mask = port; }
-
     AutoReporter() : report_port_mask(SERIAL_ALL) {}
   #endif
 
