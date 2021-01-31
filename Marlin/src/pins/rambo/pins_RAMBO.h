@@ -68,7 +68,9 @@
 #define X_MAX_PIN                             24
 #define Y_MIN_PIN                             11
 #define Y_MAX_PIN                             23
-#define Z_MIN_PIN                             10
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                           10
+#endif
 #define Z_MAX_PIN                             30
 
 //
@@ -141,8 +143,12 @@
 #ifndef FAN_PIN
   #define FAN_PIN                              8
 #endif
-#define FAN1_PIN                               6
-#define FAN2_PIN                               2
+#ifndef FAN1_PIN
+  #define FAN1_PIN                               6
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                               2
+#endif
 
 //
 // Misc. Functions
