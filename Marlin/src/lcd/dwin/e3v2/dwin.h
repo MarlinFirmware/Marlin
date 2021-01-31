@@ -59,6 +59,7 @@ enum menuID : uint8_t {
         Steps,
       Advanced,
       Info,
+    ManualMesh,
   Tune
 };
 
@@ -247,12 +248,10 @@ void Modify_Value(int16_t &value, float min, float max, float unit);
 void Modify_Value(uint32_t &value, float min, float max, float unit);
 
 
-void Host_Print_Start();
 void Host_Print_Update(uint8_t percent, uint32_t remaining);
 void Host_Print_Text(char * const text);
 
 
-void SD_Stop();
 void Start_Print(bool sd);
 void Stop_Print();
 void DWIN_Update();
@@ -260,7 +259,5 @@ void Variable_Update();
 void Screen_Update();
 void HMI_Init();
 void HMI_StartFrame(const bool with_update);
-void DWIN_CompletedHoming();
-void DWIN_CompletedLeveling();
 void AudioFeedback(const bool success=true);
 inline void HMI_SDCardInit();

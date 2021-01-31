@@ -155,6 +155,7 @@ bool liveadjust = false;
 bool bedonly = false;
 float zoffsetvalue;
 uint16_t flowrate = 100;
+uint8_t gridpoint;
 
 /* General Display Functions */
 
@@ -232,7 +233,7 @@ void Main_Menu_Icons() {
     DWIN_ICON_Show(ICON, ICON_Control_0, 17, 246);
     DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 318);
   }
-  #if HAS_ONESTEP_LEVELING
+  #if ANY(HAS_ONESTEP_LEVELING, PROBE_MANUALLY) 
     if (selection == 3) {
       DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
       DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
@@ -565,6 +566,8 @@ char* Get_Menu_Title(uint8_t menu) {
       return (char*)"Advanced Settings";
     case Info:
       return (char*)"Info";
+    case ManualMesh:
+      return (char*)"Mesh Bed Leveling";
     case Tune:
       return (char*)"Tune";
   }
@@ -613,6 +616,8 @@ int Get_Menu_Size(uint8_t menu) {
       #endif
     case Info:
       return 0;
+    case ManualMesh:
+      return 4;
     case Tune:
       return 8;
   }
@@ -661,7 +666,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           } else {
             process = Wait;
             Popup_Window_Home();
-            gcode.process_subcommands_now_P( PSTR("G28 O"));
+            gcode.process_subcommands_now_P( PSTR("G28"));
             planner.synchronize();
             Draw_Menu(ManualLevel);
           }
@@ -1484,6 +1489,77 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           break;
       }
       break;
+    #if ENABLED(PROBE_MANUALLY)
+      case ManualMesh:
+        switch (item) {
+          case 0: // Back
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Back, (char*)"Cancel");
+            } else {
+              gcode.process_subcommands_now_P(PSTR("G29 A"));
+              planner.synchronize();
+              Draw_Main_Menu(3);
+            }
+            break;
+          case 1: // Next Point
+            if (draw) {
+              if (gridpoint < GRID_MAX_POINTS)
+                Draw_Menu_Item(row, ICON_More, (char*)"Next Point");
+              else
+                Draw_Menu_Item(row, ICON_More, (char*)"Save Mesh");
+            } else {
+              if (gridpoint < GRID_MAX_POINTS) {
+                Popup_Window_Move();
+                gcode.process_subcommands_now_P(PSTR("G29"));
+                planner.synchronize();
+                gridpoint++;
+                Draw_Menu(ManualMesh, 1);
+              } else {
+                gcode.process_subcommands_now_P(PSTR("G29"));
+                planner.synchronize();
+                AudioFeedback(settings.save());
+                Draw_Main_Menu(3);
+              }
+            }
+            break;
+          case 2: // Offset
+            if (draw) {
+              Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Z Position");
+              current_position.z = MANUAL_PROBE_START_Z;
+              Draw_Float(current_position.z, row, false, 100);
+            } else {
+              Modify_Value(current_position.z, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+            }
+            break;
+          case 3: // Step Up
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Up");
+            } else {
+              if (current_position.z < MAX_Z_OFFSET) {
+                gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
+                planner.synchronize();
+                current_position.z += 0.01f;
+                sync_plan_position();
+                Draw_Float(current_position.z, row-1, false, 100);
+              }
+            }
+            break;
+          case 4: // Step Down
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
+            } else {
+              if (current_position.z > MIN_Z_OFFSET) {
+                gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
+                planner.synchronize();
+                current_position.z -= 0.01f;
+                sync_plan_position();
+                Draw_Float(current_position.z, row-2, false, 100);
+              }
+            }
+            break;
+        }
+        break;
+    #endif
     case Tune:
       switch (item) {
         case 0: // Back
@@ -1715,6 +1791,15 @@ inline void Main_Menu_Control() {
           gcode.process_subcommands_now_P(PSTR("G28\nG29"));
           planner.synchronize();
           Popup_window_SaveLevel();
+        #elif ENABLED(PROBE_MANUALLY)
+          gridpoint = 1;
+          Popup_Window_Home();
+          gcode.process_subcommands_now_P(PSTR("G28"));
+          planner.synchronize();
+          Popup_Window_Move();
+          gcode.process_subcommands_now_P(PSTR("G29"));
+          planner.synchronize();
+          Draw_Menu(ManualMesh);
         #else
 
         #endif
@@ -1761,16 +1846,10 @@ inline void Value_Control() {
     tempvalue -= EncoderRate.encoderMoveValue;
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (active_menu == ZOffset && liveadjust) {
-      char cmnd[20];
-      cmnd[sprintf(cmnd, "M290 Z%f", (tempvalue/valueunit - zoffsetvalue))] = '\0';
-      gcode.process_subcommands_now_P(PSTR(cmnd));
+    if ((active_menu == ZOffset && liveadjust) || (active_menu == Tune && selection == 6/*ZOffset*/)) {
+      current_position.z += (tempvalue/valueunit - zoffsetvalue);
       planner.synchronize();
-    }
-    if (active_menu == Tune && selection == 6/*ZOffset*/) {
-      char cmnd[20];
-      cmnd[sprintf(cmnd, "M290 Z%f", (tempvalue/valueunit - zoffsetvalue))] = '\0';
-      gcode.process_subcommands_now_P(PSTR(cmnd));
+      planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
     }
     switch (valuetype) {
       case 0: *(float*)valuepointer = tempvalue/valueunit; break;
@@ -1786,6 +1865,11 @@ inline void Value_Control() {
     if (active_menu == Move) {
       planner.synchronize();
       planner.buffer_line(current_position, homing_feedrate(AxisEnum(selection-1)), active_extruder);
+    }
+    if (active_menu == ManualMesh) {
+      planner.synchronize();
+      planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+      planner.synchronize();
     }
     return;
   }
@@ -2203,13 +2287,6 @@ void HMI_Init() {
 void HMI_StartFrame(const bool with_update) {
   Draw_Main_Menu();
   Draw_Status_Area(with_update);
-}
-
-void DWIN_CompletedHoming() {
-
-}
-
-void DWIN_CompletedLeveling() {
 }
 
 void AudioFeedback(const bool success/*=true*/) {
