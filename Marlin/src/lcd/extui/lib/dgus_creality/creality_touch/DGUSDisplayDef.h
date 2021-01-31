@@ -427,9 +427,10 @@ constexpr uint16_t ICON_SOUND_TOGGLE_ON = 5;
 constexpr uint16_t ICON_SOUND_TOGGLE_OFF = 6;
 constexpr uint16_t ICON_STANDBY_TOGGLE_ON = 7;
 constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
-
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_ON = 9;
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_OFF = 10;
+constexpr uint16_t ICON_ACCURACY_TOGGLE_ON = 11;
+constexpr uint16_t ICON_ACCURACY_TOGGLE_OFF = 12;
 
 constexpr uint16_t ICON_FWRETRACT_AUTO_DISENGAGED = 4; // This icon deliberately does not exist
 constexpr uint16_t ICON_FWRETRACT_AUTO_ENGAGED = 3;
