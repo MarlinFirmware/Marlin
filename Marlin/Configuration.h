@@ -450,7 +450,7 @@
   #define RET6_12864_LCD
 #endif
 
-#if ANY(Creality422, Creality427) && DISABLED(MachineEnder3V2)
+#if EITHER(Creality422, Creality427) && DISABLED(MachineEnder3V2)
   #define RET6_12864_LCD
 #endif
 
@@ -574,10 +574,10 @@
     #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
   #elif ENABLED(SKRMiniE3V2)
     #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
-  #elif ANY(MachineEnder3V2, MachineEnder3Pro422, Creality422) && DISABLED(Creality427)
-    #define MOTHERBOARD BOARD_CREALITY_V4
   #elif ANY(MachineEnder3Pro427, Creality427)
     #define MOTHERBOARD BOARD_CREALITY_V427
+  #elif ANY(MachineEnder3V2, MachineEnder3Pro422, Creality422)
+    #define MOTHERBOARD BOARD_CREALITY_V4
   #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
   #else
