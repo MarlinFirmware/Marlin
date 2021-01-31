@@ -30,15 +30,12 @@
 #include "../module/planner.h"
 #include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
+#include "../feature/pause.h"
 
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "pause.h"
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
@@ -118,9 +115,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static inline void run() {
-      if ( enabled && !filament_ran_out
-        && (printingIsActive() || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print))
-      ) {
+      if (enabled && !filament_ran_out && (printingIsActive() || did_pause_print)) {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
@@ -149,18 +144,34 @@ class FilamentSensorBase {
 
   public:
     static inline void setup() {
-      #if ENABLED(FIL_RUNOUT_PULLUP)
-        #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
-      #elif ENABLED(FIL_RUNOUT_PULLDOWN)
-        #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLDOWN(P)
-      #else
-        #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
+      #define _INIT_RUNOUT_PIN(P,S,U,D) do{ if (ENABLED(U)) SET_INPUT_PULLUP(P); else if (ENABLED(D)) SET_INPUT_PULLDOWN(P); else SET_INPUT(P); }while(0)
+      #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN)
+      #if NUM_RUNOUT_SENSORS >= 1
+        INIT_RUNOUT_PIN(1);
       #endif
-
-      #define _INIT_RUNOUT(N) INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN);
-      REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _INIT_RUNOUT)
-      #undef _INIT_RUNOUT
-      #undef INIT_RUNOUT_PIN
+      #if NUM_RUNOUT_SENSORS >= 2
+        INIT_RUNOUT_PIN(2);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 3
+        INIT_RUNOUT_PIN(3);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 4
+        INIT_RUNOUT_PIN(4);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 5
+        INIT_RUNOUT_PIN(5);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 6
+        INIT_RUNOUT_PIN(6);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 7
+        INIT_RUNOUT_PIN(7);
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 8
+        INIT_RUNOUT_PIN(8);
+      #endif
+      #undef _INIT_RUNOUT_PIN
+      #undef  INIT_RUNOUT_PIN
     }
 
     // Return a bitmask of runout pin states
@@ -172,11 +183,32 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return poll_runout_pins()
-        #if FIL_RUNOUT_STATE == LOW
-          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
+      return poll_runout_pins() ^ uint8_t(0
+        #if NUM_RUNOUT_SENSORS >= 1
+          | (FIL_RUNOUT1_STATE ? 0 : _BV(1 - 1))
         #endif
-      ;
+        #if NUM_RUNOUT_SENSORS >= 2
+          | (FIL_RUNOUT2_STATE ? 0 : _BV(2 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 3
+          | (FIL_RUNOUT3_STATE ? 0 : _BV(3 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 4
+          | (FIL_RUNOUT4_STATE ? 0 : _BV(4 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 5
+          | (FIL_RUNOUT5_STATE ? 0 : _BV(5 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 6
+          | (FIL_RUNOUT6_STATE ? 0 : _BV(6 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 7
+          | (FIL_RUNOUT7_STATE ? 0 : _BV(7 - 1))
+        #endif
+        #if NUM_RUNOUT_SENSORS >= 8
+          | (FIL_RUNOUT8_STATE ? 0 : _BV(8 - 1))
+        #endif
+      );
     }
 };
 
@@ -306,9 +338,7 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        if (b->steps.x || b->steps.y || b->steps.z
-          || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print) // Allow pause purge move to re-trigger runout state
-        ) {
+        if (b->steps.x || b->steps.y || b->steps.z || did_pause_print) { // Allow pause purge move to re-trigger runout state
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;

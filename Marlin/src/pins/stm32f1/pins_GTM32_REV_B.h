@@ -33,6 +33,8 @@
 #define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "M201"
 
+#define BOARD_NO_NATIVE_USB
+
 //#define DISABLE_DEBUG
 
 //
@@ -210,24 +212,24 @@
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SS_PIN                            PB12  // PC11
-  #define SCK_PIN                           PB13  // PC12 // PC1
-  #define MOSI_PIN                          PB15  // PD2  // PD2
-  #define MISO_PIN                          PB14  // PC8
+  #define SD_SS_PIN                         PB12  // PC11
+  #define SD_SCK_PIN                        PB13  // PC12 // PC1
+  #define SD_MOSI_PIN                       PB15  // PD2  // PD2
+  #define SD_MISO_PIN                       PB14  // PC8
   #define SD_DETECT_PIN                     PC7
 
 #else
   //
   // Use the on-board card socket labeled TF_CARD_SOCKET
   //
-  #define SS_PIN                            PA4
-  #define SCK_PIN                           PA5
-  #define MOSI_PIN                          PA7
-  #define MISO_PIN                          PA6   // PA6
+  #define SD_SS_PIN                         PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MOSI_PIN                       PA7
+  #define SD_MISO_PIN                       PA6   // PA6
   #define SD_DETECT_PIN                     -1    // Card detect is not connected
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 //
 // ESP WiFi can be soldered to J9 connector which is wired to USART2.

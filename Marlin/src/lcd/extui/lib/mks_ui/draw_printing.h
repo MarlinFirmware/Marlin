@@ -36,7 +36,7 @@ enum {
   STOP
 };
 
-extern void lv_draw_printing(void);
+extern void lv_draw_printing();
 extern void lv_clear_printing();
 extern void disp_ext_temp();
 extern void disp_bed_temp();
@@ -48,7 +48,6 @@ extern void start_print_time();
 extern void stop_print_time();
 extern void setProBarRate();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 /* What follows is a modified version of the MAX3421e originally defined in
@@ -114,13 +114,7 @@ bool MAX3421e::start() {
   ncs();
   spiBegin();
 
-  spiInit(
-    #ifdef SPI_SPEED
-      SPI_SPEED
-    #else
-      SPI_FULL_SPEED
-    #endif
-  );
+  spiInit(SD_SPI_SPEED);
 
   // MAX3421e - full-duplex, level interrupt, vbus off.
   regWr(rPINCTL, (bmFDUPSPI | bmINTLEVEL | GPX_VBDET));

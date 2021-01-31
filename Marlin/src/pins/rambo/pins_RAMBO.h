@@ -228,6 +228,10 @@
 
     #endif // !VIKI2 && !miniVIKI
 
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
   #else                                           // !IS_NEWPANEL - old style panel with shift register
 
     // No Beeper added
@@ -235,10 +239,10 @@
 
     // Buttons attached to a shift register
     // Not wired yet
-    //#define SHIFT_CLK                       38
-    //#define SHIFT_LD                        42
-    //#define SHIFT_OUT                       40
-    //#define SHIFT_EN                        17
+    //#define SHIFT_CLK_PIN                   38
+    //#define SHIFT_LD_PIN                    42
+    //#define SHIFT_OUT_PIN                   40
+    //#define SHIFT_EN_PIN                    17
 
     #define LCD_PINS_RS                       75
     #define LCD_PINS_ENABLE                   17

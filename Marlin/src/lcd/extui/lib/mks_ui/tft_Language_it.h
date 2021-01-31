@@ -135,26 +135,12 @@
 #define FILAMENT_EXT1_TEXT_IT         "Estrude2"
 #define FILAMENT_HEAT_TEXT_IT         "Preriscaldamento"
 #define FILAMENT_STOP_TEXT_IT         "Stop"
-//#define FILAMENT_CHANGE_TEXT_IT     "Filamento"
 #define FILAMENT_TIPS2_TEXT_IT        "T:"
 #define FILAMENT_TIPS3_TEXT_IT        "Inserimento del filamento..."
 #define FILAMENT_TIPS4_TEXT_IT        "Estrazione del filamento..."
 #define FILAMENT_TIPS5_TEXT_IT        "Temp is too low to go,please heat"
 #define FILAMENT_TIPS6_TEXT_IT        "Completato"
 
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_IT           "Please click <Estru> or <Ritra> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_IT                 "Please click <Estru> or <Ritra>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_IT       "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_IT     "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_IT   "Heat completed,please load filament to extruder,and click <Conferma> for start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_IT   "Please load filament to extruder,and click <Conferma> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_IT  "Heat completed,please click <Conferma> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_IT         "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_IT       "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_IT   "Load filament completed,click <Conferma> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_IT "Unload filament completed,click <Conferma> for return!"
-#endif
 #define FILAMENT_CHANGE_TEXT_IT                 "Please click <Load> \nor <unload>,After \npinter pause."
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_IT       "Heating up the nozzle,please wait..."
 #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_IT     "Heating up the nozzle,please wait..."
@@ -166,16 +152,11 @@
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_IT   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_IT "Unload filament completed,\nclick <confirm> for return!"
 
-
 #define PRE_HEAT_EXT_TEXT_IT              "E"
 #define PRE_HEAT_BED_TEXT_IT              "Piano"
 
 #define FILE_LOADING_IT                   "Caricamento......"
-#if 0
-  #define NO_FILE_AND_CHECK_IT              "Nessun file trovato! Inserisci la scheda SD o il disco U!"
-#endif
 #define NO_FILE_AND_CHECK_IT              "Nessun file,\n          per favore controllare di nuovo!"
-
 #define NO_FILE_IT                        "Nessun file!"
 
 #define EXTRUDER_TEMP_TEXT_IT             "Temper"
@@ -241,7 +222,6 @@
 #define DIALOG_CANCEL_PRINT_IT            "Stop stampa?"
 #define DIALOG_STOP_IT                    "Stop"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_IT "Continua a stampare dal \npunto di interruzione?"
-//#define DIALOG_UNBIND_PRINTER_IT        "Libero?"
 #define DIALOG_ERROR_TIPS1_IT             "Errore: nessun file, \nper favore controllare di nuovo."
 #define DIALOG_ERROR_TIPS2_IT             "Errore: operazione non riuscita, \nsi prega di controllare se il baudrate del \ndisplay è lo stesso scheda madre"
 #define DIALOG_ERROR_TIPS3_IT             "Errore: il nome del file o il \npercorso è troppo lungo!"
@@ -274,3 +254,11 @@
 #define EEPROM_STORE_TIPS_IT              "Memorizzare le impostazioni su EEPROM?"
 #define EEPROM_READ_TIPS_IT               "Leggi le impostazioni dalla EEPROM?"
 #define EEPROM_REVERT_TIPS_IT             "Ripristinare le impostazioni predefinite?"
+
+#define MORE_CUSTOM1_TEXT_IT  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_IT  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_IT  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_IT  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_IT  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_IT  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_IT  USER_DESC_7

@@ -41,13 +41,12 @@
 #endif
 
 /**
- * Plan an arc in 2 dimensions
+ * Plan an arc in 2 dimensions, with optional linear motion in a 3rd dimension
  *
- * The arc is approximated by generating many small linear segments.
- * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
- * Arcs should only be made relatively large (over 5mm), as larger arcs with
- * larger segments will tend to be more efficient. Your slicer should have
- * options for G2/G3 arc generation. In future these options may be GCode tunable.
+ * The arc is traced by generating many small linear segments, as configured by
+ * MM_PER_ARC_SEGMENT (Default 1mm). In the future we hope more slicers will include
+ * an option to generate G2/G3 arcs for curved surfaces, as this will allow faster
+ * boards to produce much smoother curved surfaces.
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
@@ -77,22 +76,36 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
 
-  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
-  float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
-  if (angular_travel < 0) angular_travel += RADIANS(360);
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
-    NOLESS(min_segments, 1U);
+    uint16_t min_segments = MIN_ARC_SEGMENTS;
   #else
     constexpr uint16_t min_segments = 1;
   #endif
-  if (clockwise) angular_travel -= RADIANS(360);
 
-  // Make a circle if the angular rotation is 0 and the target is current position
-  if (NEAR_ZERO(angular_travel) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
-    angular_travel = RADIANS(360);
+  // Angle of rotation between position and target from the circle center.
+  float angular_travel;
+
+  // Do a full circle if starting and ending positions are "identical"
+  if (NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
+    // Preserve direction for circles
+    angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
+  }
+  else {
+    // Calculate the angle
+    angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
+
+    // Angular travel too small to detect? Just return.
+    if (!angular_travel) return;
+
+    // Make sure angular travel over 180 degrees goes the other way around.
+    switch (((angular_travel < 0) << 1) | clockwise) {
+      case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
+      case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
+    }
+
     #ifdef MIN_ARC_SEGMENTS
-      min_segments = MIN_ARC_SEGMENTS;
+      min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
+      NOLESS(min_segments, 1U);
     #endif
   }
 

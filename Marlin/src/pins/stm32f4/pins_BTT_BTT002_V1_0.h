@@ -24,7 +24,7 @@
 #if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
+  #error "BIGTREE BTT002 V1.0 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
@@ -175,10 +175,10 @@
 // HAL SPI1 pins
 #define CUSTOM_SPI_PINS
 #if ENABLED(CUSTOM_SPI_PINS)
-  #define SCK_PIN                           PA5   // SPI1 SCLK
-  #define SS_PIN                            PA4   // SPI1 SSEL
-  #define MISO_PIN                          PA6   // SPI1 MISO
-  #define MOSI_PIN                          PA7   // SPI1 MOSI
+  #define SD_SCK_PIN                        PA5   // SPI1 SCLK
+  #define SD_SS_PIN                         PA4   // SPI1 SSEL
+  #define SD_MISO_PIN                       PA6   // SPI1 MISO
+  #define SD_MOSI_PIN                       PA7   // SPI1 MOSI
 #endif
 
 //
@@ -232,6 +232,11 @@
       #define LCD_PINS_D5                   PE11
       #define LCD_PINS_D6                   PE12
       #define LCD_PINS_D7                   PE13
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif

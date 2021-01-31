@@ -34,15 +34,14 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
-// Change the priority to 3. Priority 2 is for software serial.
-//#define TEMP_TIMER_IRQ_PRIO                  3
+// Avoid conflict with TIMER_TONE defined in variant
+#define STEP_TIMER 10
 
 //
 // EEPROM Emulation
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
 
@@ -51,7 +50,7 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x0800  // 2KB
 #endif
 
 //
@@ -181,9 +180,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions
@@ -199,7 +198,27 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if ENABLED(FYSETC_242_OLED_12864)
+
+  #define BTN_EN1                           PC9
+  #define BTN_EN2                           PD1
+  #define BTN_ENC                           PA8
+
+  #define BEEPER_PIN                        PC6
+
+  #define LCD_PINS_DC                       PC12
+  #define LCD_PINS_RS                       PC7   // LCD_RST
+  #define DOGLCD_CS                         PD2
+  #define DOGLCD_MOSI                       PC10
+  #define DOGLCD_SCK                        PC11
+  #define DOGLCD_A0                  LCD_PINS_DC
+  #define FORCE_SOFT_SPI
+
+  #define KILL_PIN                          -1    // NC
+  #define NEOPIXEL_PIN                      PD0
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC9
   #define BTN_ENC                           PA8
 
@@ -211,11 +230,6 @@
 
     #define LCD_PINS_ENABLE                 PD1
     #define LCD_PINS_D4                     PC12
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
 
   #else
 
@@ -230,7 +244,7 @@
     #define LCD_PINS_D4                     PC10
 
     #if ENABLED(FYSETC_MINI_12864)
-     // See https://wiki.fysetc.com/Mini12864_Panel
+      // See https://wiki.fysetc.com/Mini12864_Panel
       #define DOGLCD_CS                     PC11
       #define DOGLCD_A0                     PD2
       #if ENABLED(FYSETC_GENERIC_12864_1_1)
@@ -250,30 +264,33 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN                PC12
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
     #endif
 
-  #endif
-
-  // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
   #endif
 
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
+  #endif
+#endif
 
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB6

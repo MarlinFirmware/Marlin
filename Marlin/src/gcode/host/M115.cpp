@@ -117,6 +117,9 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
 
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
 
@@ -137,6 +140,9 @@ void GcodeSuite::M115() {
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // MEATPACK Compresson
+    cap_line(PSTR("MEATPACK"), ENABLED(MEATPACK));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

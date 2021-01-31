@@ -24,7 +24,7 @@
 #if PIO_PLATFORM_VERSION < 1001
   #error "nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically."
 #endif
-#if PIO_FRAMEWORK_VERSION < 2005
+#if PIO_FRAMEWORK_VERSION < 2006
   #error "framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries."
 #endif
 
@@ -97,8 +97,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX0(P) (P == P0_03)
   #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
-  #elif ENABLED(MK2_MULTIPLEXER) && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
-    #error "Serial port pins (0) conflict with MK2 multiplexer pins!"
+  #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
+    #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
   #elif (AXIS_HAS_SPI(X) && IS_TX0(X_CS_PIN)) || (AXIS_HAS_SPI(Y) && IS_RX0(Y_CS_PIN))
     #error "Serial port pins (0) conflict with X/Y axis SPI pins!"
   #endif
@@ -116,8 +116,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #elif HAS_WIRED_LCD
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
       #error "Serial port pins (1) conflict with Encoder Buttons!"
-    #elif ANY_TX(1, SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK) \
-       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, MISO_PIN, DOGLCD_A0, SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
+    #elif ANY_TX(1, SD_SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK_PIN) \
+       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, SD_MISO_PIN, DOGLCD_A0, SD_SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
       #error "Serial port pins (1) conflict with LCD pins!"
     #endif
   #endif
@@ -205,8 +205,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "SDA0 overlaps with BEEPER_PIN!"
     #elif IS_SCL0(BTN_ENC)
       #error "SCL0 overlaps with Encoder Button!"
-    #elif IS_SCL0(SS_PIN)
-      #error "SCL0 overlaps with SS_PIN!"
+    #elif IS_SCL0(SD_SS_PIN)
+      #error "SCL0 overlaps with SD_SS_PIN!"
     #elif IS_SCL0(LCD_SDSS)
       #error "SCL0 overlaps with LCD_SDSS!"
     #endif

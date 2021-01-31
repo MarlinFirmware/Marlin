@@ -45,7 +45,7 @@
   #endif
 #endif
 
-#if ENABLED(SINGLENOZZLE)
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   #include "../../module/tool_change.h"
 #endif
 
@@ -88,7 +88,7 @@ void GcodeSuite::M104() {
 
   if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-      singlenozzle_temp[target_extruder] = temp;
+      thermalManager.singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
@@ -105,7 +105,7 @@ void GcodeSuite::M104() {
        * mode, for instance in a dual extruder setup, without affecting the running
        * print timer.
        */
-      thermalManager.check_timer_autostart(false, true);
+      thermalManager.auto_job_check_timer(false, true);
     #endif
   }
 
@@ -166,7 +166,7 @@ void GcodeSuite::M109() {
 
   if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-      singlenozzle_temp[target_extruder] = temp;
+      thermalManager.singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
@@ -182,7 +182,7 @@ void GcodeSuite::M109() {
        * standby mode, (e.g., in a dual extruder setup) without affecting
        * the running print timer.
        */
-      thermalManager.check_timer_autostart(true, true);
+      thermalManager.auto_job_check_timer(true, true);
     #endif
 
     #if HAS_DISPLAY

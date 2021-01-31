@@ -35,10 +35,14 @@
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
 
+#define BOARD_NO_NATIVE_USB
+
+// Avoid conflict with TIMER_SERVO when using the STM32 HAL
+#define TEMP_TIMER 5
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-
 #define DISABLE_DEBUG
 
 //
@@ -56,6 +60,11 @@
 // Note: MKS Robin board is using SPI2 interface.
 //
 #define SPI_DEVICE                             2
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -158,7 +167,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -212,8 +221,6 @@
   #define FIL_RUNOUT_PIN                    PA4
   #define FIL_RUNOUT2_PIN                   PE6
 #endif
-
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //#define LED_PIN                           PB2
 
@@ -283,22 +290,6 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
-// XPT2046 Touch Screen calibration
-#if ANY(TFT_LVGL_UI, TFT_COLOR_UI, TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -17253
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          11579
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 514
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -24
-  #endif
-#endif
-
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
 
   // NON TFT Displays
@@ -335,6 +326,11 @@
       #define LCD_PINS_D5                   PE15
       #define LCD_PINS_D6                   PD11
       #define LCD_PINS_D7                   PD10
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #ifndef BOARD_ST7920_DELAY_1

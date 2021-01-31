@@ -247,7 +247,7 @@ void menu_tmc_current() {
 
 void menu_tmc() {
   START_MENU();
-  BACK_ITEM(MSG_CONTROL);
+  BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_TMC_CURRENT, menu_tmc_current);
   #if ENABLED(HYBRID_THRESHOLD)
     SUBMENU(MSG_TMC_HYBRID_THRS, menu_tmc_hybrid_thrs);

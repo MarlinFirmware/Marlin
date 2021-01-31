@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -84,7 +84,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -93,7 +93,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     cmd.font(font_medium)
        .colors(ui_slider)
     #define EDGE_R 30
-       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume, 0xFF)
+       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettings.volume, 0xFF)
        .colors(ui_toggle)
        .tag(3).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
     #undef EDGE_R
@@ -108,7 +108,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
 }
 
 void InterfaceSoundsScreen::onEntry() {
-  screen_data.InterfaceSettingsScreen.volume = SoundPlayer::get_volume();
+  screen_data.InterfaceSettings.volume = SoundPlayer::get_volume();
   BaseScreen::onEntry();
 }
 
@@ -145,8 +145,8 @@ void InterfaceSoundsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettingsScreen.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
+        screen_data.InterfaceSettings.volume = value >> 8;
+        SoundPlayer::set_volume(screen_data.InterfaceSettings.volume);
         SaveSettingsDialogBox::settingsChanged();
         break;
       default:

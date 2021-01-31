@@ -146,10 +146,10 @@
 
   #else                                           // !IS_NEWPANEL
 
-    #define SHIFT_CLK                         38
-    #define SHIFT_LD                          42
-    #define SHIFT_OUT                         40
-    #define SHIFT_EN                          17
+    #define SHIFT_CLK_PIN                     38
+    #define SHIFT_LD_PIN                      42
+    #define SHIFT_OUT_PIN                     40
+    #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                    5
@@ -157,6 +157,10 @@
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
 
     #define SD_DETECT_PIN                     -1
 

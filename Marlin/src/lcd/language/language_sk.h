@@ -57,7 +57,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hlavná ponuka");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Pokročilé nastav.");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfigurácia");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto-štart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto-štart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Uvolniť motory");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Ponuka ladenia");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test uk. priebehu");
@@ -66,7 +66,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Domov os Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Domov os Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto-zarovn. Z");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Asist. vyrovnanie");
+  PROGMEM Language_Str MSG_ITERATION                       = _UxGT("Iterácia G34: %i");
+  PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Klesajúca presnosť!");
+  PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Dosiahnutá presnosť");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Parkovanie XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Kliknutím začnete");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Ďalší bod");
@@ -75,6 +77,10 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Nastaviť ofsety");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastavené");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastaviť začiatok");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Asist. vyrovnanie");
+  PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Spriev. vyrovn.");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Vyberte začiatok");
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Posl. hodnota ");
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Zahriať ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";
@@ -96,12 +102,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Schladiť");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Nastavenie lasera");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Vypnúť laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Zapnúť laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon lasera");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Nastavenie vretena");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Vypnúť vreteno");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Zapnúť vreteno");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Výkon vretena");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spätný chod");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Zapnúť napájanie");
@@ -131,6 +133,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplikácia");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Zrkadlená kópia");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Plná kontrola");
+  PROGMEM Language_Str MSG_IDEX_DUPE_GAP                   = _UxGT("Duplik. medz.-X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. tryska X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. tryska Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. tryska Z");
@@ -240,7 +243,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudér");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudér *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend je studený");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Posunúť o %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Posunúť o %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunúť o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunúť o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunúť o 10mm");
@@ -248,7 +251,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Výška podl.");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Tryska");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Tryska ~");
-  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Tryska zaparkovná");
+  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Tryska zaparkovaná");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Záložná tryska");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Podložka");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Komora");
@@ -259,7 +262,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Rýchlosť ex. vent. ~");
   PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("Vent. riad. jedn.");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("Voľno. rýchl.");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Auto-režím");
+  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("Auto-režim");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("Aktív. rýchl.");
   PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("Doba nečinnosti");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Prietok");
@@ -313,8 +316,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Teplota");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Pohyb");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E v mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit v mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E v mm") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit v mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Priem. fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Priem. fil. *");
@@ -435,6 +438,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("X ofset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Y ofset");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z ofset");
+  PROGMEM Language_Str MSG_MOVE_NOZZLE_TO_BED              = _UxGT("Pos. trysku k podl.");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
@@ -588,7 +592,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Heslo je ");
   PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Začať odznova");
   PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Nezabudnite uložiť!");
-  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Heslo odstránene");
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Heslo odstránené");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
@@ -643,4 +647,15 @@ namespace Language_sk {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Zohriať");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Zohrievanie...");
+
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Sprievodca sondy Z");
+
+  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Zvuk");
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Ľavý horný");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Ľavý dolný");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Pravý horný");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Pravý dolný");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Kalibrácia dokončená");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrácia zlyhala");
 }

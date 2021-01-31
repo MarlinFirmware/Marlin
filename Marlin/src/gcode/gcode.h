@@ -181,7 +181,7 @@
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
- *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires PRUSA_MMU2)
+ *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires an MMU_MODEL version 2 or 2S)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
@@ -213,6 +213,7 @@
  * M410 - Quickstop. Abort all planned moves.
  * M412 - Enable / Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
  * M413 - Enable / Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
+ * M414 - Set language by index. (Requires LCD_LANGUAGE_2...)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
@@ -242,6 +243,7 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
@@ -308,6 +310,8 @@
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
 
+extern const char G28_STR[];
+
 class GcodeSuite {
 public:
 
@@ -368,9 +372,8 @@ public:
   static void process_subcommands_now_P(PGM_P pgcode);
   static void process_subcommands_now(char * gcode);
 
-  static inline void home_all_axes() {
-    extern const char G28_STR[];
-    process_subcommands_now_P(G28_STR);
+  static inline void home_all_axes(const bool keep_leveling=false) {
+    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -450,6 +453,8 @@ private:
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
+      static void event_probe_failure();
+      static void event_probe_recover();
       static void G29_with_retry();
       #define G29_TYPE bool
     #else
@@ -468,7 +473,7 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+  #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
   #endif
 
@@ -541,7 +546,7 @@ private:
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-    static void M32();
+    TERN_(HAS_MEDIA_SUBCALLS, static void M32());
     TERN_(LONG_FILENAME_HOST_SUPPORT, static void M33());
     #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();
@@ -735,7 +740,7 @@ private:
     static void M402();
   #endif
 
-  TERN_(PRUSA_MMU2, static void M403());
+  TERN_(HAS_PRUSA_MMU2, static void M403());
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static void M404();
@@ -745,6 +750,8 @@ private:
   #endif
 
   TERN_(HAS_FILAMENT_SENSOR, static void M412());
+
+  TERN_(HAS_MULTI_LANGUAGE, static void M414());
 
   #if HAS_LEVELING
     static void M420();
@@ -769,12 +776,8 @@ private:
 
   #if ENABLED(PASSWORD_FEATURE)
     static void M510();
-    #if ENABLED(PASSWORD_UNLOCK_GCODE)
-      static void M511();
-    #endif
-    #if ENABLED(PASSWORD_CHANGE_GCODE)
-      static void M512();
-    #endif
+    TERN_(PASSWORD_UNLOCK_GCODE, static void M511());
+    TERN_(PASSWORD_CHANGE_GCODE, static void M512());
   #endif
 
   TERN_(SDSUPPORT, static void M524());
@@ -810,6 +813,8 @@ private:
     static void M701();
     static void M702();
   #endif
+
+  TERN_(GCODE_REPEAT_MARKERS, static void M808());
 
   TERN_(GCODE_MACROS, static void M810_819());
 

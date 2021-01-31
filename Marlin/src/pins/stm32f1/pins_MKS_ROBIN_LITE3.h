@@ -36,6 +36,8 @@
 #endif
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
+#define BOARD_NO_NATIVE_USB
+
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
 
@@ -127,6 +129,11 @@
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864
@@ -146,7 +153,7 @@
 // SPI
 //
 #define SPI_DEVICE                             2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PA15
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PA15

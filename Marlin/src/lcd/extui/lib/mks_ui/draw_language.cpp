@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../inc/MarlinConfig.h"
 #include <string.h>
@@ -181,13 +177,13 @@ static void disp_language(uint8_t language, uint8_t state) {
 
   strcat_P(public_buf_l, PSTR(".bin"));
 
-  lv_obj_set_event_cb_mks(obj, event_handler, id, nullptr, 0);
+  lv_obj_set_event_cb_mks(obj, event_handler, id, "", 0);
   lv_imgbtn_set_src_both(obj, public_buf_l);
 
   if (state == UNSELECTED) lv_obj_refresh_ext_draw_pad(obj);
 }
 
-void lv_draw_language(void) {
+void lv_draw_language() {
   scr = lv_screen_create(LANGUAGE_UI);
   // Create image buttons
   buttonCN = lv_big_button_create(scr, "F:/bmp_simplified_cn.bin", language_menu.chinese_s, INTERVAL_V, titleHeight, event_handler, ID_CN);

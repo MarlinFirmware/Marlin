@@ -35,7 +35,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   #include "../../module/tool_change.h"
 #endif
 
@@ -108,8 +108,8 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
         HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
-          TERN_(HAS_HEATED_BED, []{ _preheat_bed(editable.int8); });
           HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+          TERN(HAS_HEATED_BED, _preheat_bed(editable.int8), ui.return_to_status());
         });
 
       #endif
@@ -159,7 +159,7 @@ void menu_temperature() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT));
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT));
   #endif
 
   //

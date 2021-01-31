@@ -24,13 +24,15 @@
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin Lite supports only 1 hotend / E-stepper. Comment out this line to continue."
+  #error "MKS Robin Lite only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "MKS Robin Lite"
 #endif
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -140,7 +142,7 @@
 // SPI
 //
 #define SPI_DEVICE                             2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            P1B4
-#define MOSI_PIN                            P1B5
-#define SS_PIN                              PA15
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         P1B4
+#define SD_MOSI_PIN                         P1B5
+#define SD_SS_PIN                           PA15

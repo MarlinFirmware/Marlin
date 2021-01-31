@@ -249,3 +249,8 @@ void _lcd_draw_homing();
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void touch_screen_calibration();
 #endif
+
+extern uint8_t screen_history_depth;
+inline void clear_menu_history() { screen_history_depth = 0; }
+
+#define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }

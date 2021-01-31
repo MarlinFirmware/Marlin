@@ -75,7 +75,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Flyt X");
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Flyt Y");
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Flyt Z");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Flyt %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Flyt %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Flyt 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Flyt 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Flyt 10mm");
@@ -101,7 +101,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Bevægelse");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E i mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrast");

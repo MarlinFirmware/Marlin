@@ -41,30 +41,25 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_pause_position();
   switch (obj->mks_obj_id) {
     case ID_PAUSE_RETURN:
-      lv_clear_pause_position();
       draw_return_ui();
-      break;
+      return;
     case ID_PAUSE_X:
       value = pause_pos_x;
-      lv_clear_pause_position();
-      lv_draw_number_key();
       break;
     case ID_PAUSE_Y:
       value = pause_pos_y;
-      lv_clear_pause_position();
-      lv_draw_number_key();
       break;
     case ID_PAUSE_Z:
       value = pause_pos_z;
-      lv_clear_pause_position();
-      lv_draw_number_key();
       break;
   }
+  lv_draw_number_key();
 }
 
-void lv_draw_pause_position(void) {
+void lv_draw_pause_position() {
   scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);

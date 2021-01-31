@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__, __STM32F4__)
-  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
+#if NOT_TARGET(__STM32F1__)
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 /**
@@ -31,6 +31,8 @@
 
 #define BOARD_INFO_NAME      "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
+
+#define BOARD_NO_NATIVE_USB
 
 // Enable I2C_EEPROM for testing
 //#define I2C_EEPROM
@@ -144,10 +146,10 @@
       #define BEEPER_PIN                    PC1   // 33
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                   PC6   // 38
-      //#define SHIFT_LD                    PC10  // 42
-      //#define SHIFT_OUT                   PC8   // 40
-      //#define SHIFT_EN                    PA1   // 17
+      //#define SHIFT_CLK_PIN               PC6   // 38
+      //#define SHIFT_LD_PIN                PC10  // 42
+      //#define SHIFT_OUT_PIN               PC8   // 40
+      //#define SHIFT_EN_PIN                PA1   // 17
     #endif
   #endif
 
@@ -258,9 +260,9 @@
         #define BTN_EN1                     PE0   // 64
         #define BTN_EN2                     PD11  // 59
         #define BTN_ENC                     PD15  // 63
-        #define SHIFT_OUT                   PC8   // 40
-        #define SHIFT_CLK                   PC12  // 44
-        #define SHIFT_LD                    PC10  // 42
+        #define SHIFT_OUT_PIN               PC8   // 40
+        #define SHIFT_CLK_PIN               PC12  // 44
+        #define SHIFT_LD_PIN                PC10  // 42
       #elif ENABLED(PANEL_ONE)
         #define BTN_EN1                     PD11  // 59   // AUX2 PIN 3
         #define BTN_EN2                     PD15  // 63   // AUX2 PIN 4
@@ -280,5 +282,9 @@
 
     #endif
   #endif // IS_NEWPANEL
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
 #endif // HAS_WIRED_LCD
