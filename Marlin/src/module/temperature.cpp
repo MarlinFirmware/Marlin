@@ -2062,7 +2062,7 @@ void Temperature::init() {
       switch (heater_id) {
         case H_BED:     SERIAL_ECHOPGM("bed"); break;
         case H_CHAMBER: SERIAL_ECHOPGM("chamber"); break;
-        default:        SERIAL_ECHO(heater_id);
+        default:        SERIAL_ECHO((int)heater_id);
       }
       SERIAL_ECHOLNPAIR(
         " ; sizeof(running_temp):", sizeof(running_temp),
