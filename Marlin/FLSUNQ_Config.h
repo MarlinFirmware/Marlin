@@ -43,7 +43,7 @@
  * -- TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209. ---//
  * =============================================================//
  */
-//#define DRIVER_EXT A4988
+//#define DRIVER_EXT LV8729
 
 /*--- Choice UI TFT ----*/
 #define TFT_COLOR_UI               //(C) UI MARLIN (Default)
@@ -100,6 +100,7 @@
  * = like (Prontoface/Octoprint/HostRepertier/Astoprint)=
  * ====== Choice add menu on TFT: (OPT) =================
  */
+//#define LCD_LANGUAGE fr          // Change for your country (es, fr, ru, de, it, etc)
 #define LCD_INFO_MENU              // Informations printer (Default).
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (Default).
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
@@ -222,7 +223,7 @@
 #ifdef QQS_UARTH
     #define Q_TMC
     #define HARDWARE_SERIAL
-    #define STEALTHCHOP_E
+    //#define STEALTHCHOP_E
     #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
       #define DRIVER_EXT TMC2209

@@ -30,7 +30,7 @@ public:
   uint8_t report_interval;
 
   // Override this method
-  inline void auto_report() { }
+  virtual void auto_report() {}
 
   inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
     report_interval = _MIN(seconds, limit);

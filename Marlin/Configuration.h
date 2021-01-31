@@ -1188,7 +1188,7 @@
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 //FEEDRATE_Z
-#define Z_PROBE_SPEED_FAST (30*60)  //3000
+#define Z_PROBE_SPEED_FAST (40*60)  //3000
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4) //750
@@ -1313,13 +1313,13 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #ifdef STOCK
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
-  #define INVERT_Z_DIR false
+  #define INVERT_X_DIR false  //Q5_220X
+  #define INVERT_Y_DIR false  //Q5_220X
+  #define INVERT_Z_DIR false  //Q5_220X
   #ifdef INV_EXT
-    #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR false  //Q5_220X
   #else
-    #define INVERT_E0_DIR true
+    #define INVERT_E0_DIR true  //Q5_A4988
   #endif
 #endif
 #if BOTH(QQSP, Q_TMC)
@@ -2046,7 +2046,9 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
-#define LCD_LANGUAGE en
+#ifndef LCD_LANGUAGE
+  #define LCD_LANGUAGE en
+#endif
 
 /**
  * LCD Character Set
