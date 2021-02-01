@@ -25,7 +25,7 @@
   - [2.2. Set the OffSet (Z).](#22-Z_OffSet)
   - [2.3. Levelling (UBL)](#23-Bed-Levelling)
   - [2.4. Refine your printed object dimensions](#24-DIMENSIONS)
-  - [2.5. Perform a PID](#25-PID-([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)))
+  - [2.5. Perform a PID](#25-PID-(Proportional-Integral-Derivative))
   - [2.6. Adjust your Extruder](#26-EXTRUDER)
 - [3. Special mods for TMC, Raspberry, LedStrip, etc](#3-SPECIAL-MODS)
   - [3.1. UART mode for 220x](#31-TMC-with-UART-mode)
@@ -244,7 +244,7 @@
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-  ## 2.5. PID ([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+  ## 2.5. PID (Proportional Integral Derivative)
   
   [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
   **Perform a nozzle PID:**
