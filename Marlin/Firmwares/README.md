@@ -99,13 +99,13 @@
 
   Typically the probe for the QQS-Pro printers.
   
-  * Z Probe Offset (-16.2mm)
+  * Z Probe Offset (-16.2mm)  * TFT screen color Marlin
 
-    ![Version Probe](../../docs/images/VersionProbe.jpg)
+    ![Version Probe](../../docs/images/VersionProbe.jpg)    ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
   
-  * TFT screen color Marlin
 
-    ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
+
+
 
   Optionals:
 
