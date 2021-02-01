@@ -239,7 +239,7 @@
   ![Spreadsheet](../../docs/images/Spreadsheet_Calc.png)
 
   - If you print the model again you should find a very small difference (0.1/0.09) on XYZ.
-  - I prefer this model because it fits well with the caliper.[QuickCalDelta](https://www.thingiverse.com/thing:2256557)
+  - I prefer this model because it fits well with the caliper:[Objet_QuickCalDelta](https://www.thingiverse.com/thing:2256557)
 
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
@@ -257,11 +257,14 @@
   
   ## 2.6. EXTRUDER
   **Perform correct adjustment of the steps of your extruder.**
-  - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
-  - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
+      ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
+  
+  - Remove your filament, the Capricorn/PTFE tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
   - Measure before extruding 120mm of filament to make a mark.
-  - Heat your nozzle to 190°C and run the previous command. At the end, measure your remainder up to the mark and do rule of three:
-  - LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
+  - Heat your nozzle to 190°C and run the previous command: "M83" then "G1 E100 F200" 
+  - At the end, measure your remainder up to the mark and do rule of three:
+    
+      LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
     
   **Perform correct filament flow.**
   - This chapter is being written ...............
