@@ -131,13 +131,20 @@ No validate:
   - (P) PreHeat bed before leveling
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
+  ### /*-------Others options for advanced users who build their firmware----*/
+  - HOST_ACTION_COMMANDS(Action Command Prompt support Message on OctoPrint) 
+  - MEATPACK (Improve dialogue with hosts OctoPrint)
+  - BINARY_FILE_TRANSFER
+  - TEMP_SENSOR_0 (After changed the thermitor nozzle)
+  - LCD_LANGUAGE (Change the native language)
+  - etc 
   ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
+  - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
 
   ## HELP - PROCEDURE - TIPS 
-  After the flash, you must **RESET** your printer using the menu or M502,501,
-  M500 then start a calibration.
+  After the flash, you must **RESET** your printer using the menu "Configuration/AdvancedSettings/IniatizeEEPROM" or M502,501,M500 then start a calibration.
   
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
@@ -149,7 +156,7 @@ No validate:
         it means that you have a problem with the structure of your printer!
         A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
   
-  After to remove the probe you must do redo the Z offset.
+  After to remove the probe you must do redo/adjust the Z offset(Distance between the nozzle and the bed=Real dimension of your probe).
   
   **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
@@ -189,7 +196,7 @@ No validate:
     to correct these errors.
 
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:** 
-  This chapter is being written ...............
+    This chapter is being written ...............
 
 
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
