@@ -260,16 +260,22 @@
 
   ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
   
-  By terminal:
   - Remove your filament, the Capricorn/PTFE tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
   - Measure before extruding 120mm of filament to make a mark.
+  
+  By terminal:
   - Heat your nozzle to 190°C and run the previous command: "M83" then "G1 E100 F200" 
   - At the end, measure your remainder up to the mark and do rule of three:
-    
-      **LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).**
-  - Put a new value with command M92 Zxxx and memorize M500 or "Store Settings"
 
-  By menu:
+        **LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).**
+  
+  - Put a new value with command M92 Zxxx and memorize M500 or "Store Settings"
+  By menu (No possibility to adjust start and speed !!):
+  - Heat your nozzle to 190°C and go to "Motion/MoveAxis/Extruder/Move 10mm"
+  - .......
+
+
+
 
 
   **Perform correct filament flow.**
