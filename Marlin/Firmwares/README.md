@@ -169,9 +169,9 @@
   - By menu: "Configuration/AdvancedSettings/InitializeEEPROM"
   - By terminal: M502, then M501 and M500.
   
-  **VERY IMPORTANT:**
-  First of all, you need to check that you have flashed the correct firmware.
-  To do this, with a finger on the power switch :-), obtain a "HOME"from the menu (Motion/AutoHome) or a "G28" command from a terminal.
+   # **VERY IMPORTANT:**
+   First of all, you need to check that you have flashed the **correct firmware**.
+   To do this, with a finger on the power switch :-), obtain a "HOME"from the menu (Motion/AutoHome) or a "G28" command from a terminal.
   
   Now YOU are ready to start a calibration of your printer!!
   
