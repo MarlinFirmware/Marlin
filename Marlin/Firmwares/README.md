@@ -22,6 +22,7 @@ __Not for production use. Use with caution!__
   * All QQSP features on Q5.
   - Choice UI Classic (Lcd) and Color (TFT)
   - Change BAUDSRATE at 250000
+  - Update ReadMe.
 
   ## Validate:
 
@@ -103,7 +104,7 @@ No validate:
 8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
   **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin" for QQS or "Robin_nano.bin" for Q5,
-  place it  on your SD card, insert your SD card into the printer and power on your printer.
+  place it on your SD card, insert your SD card into the printer and power on your printer.
 
 **Caption:**
 
@@ -163,7 +164,8 @@ No validate:
   
   After to remove the probe you must do redo/adjust the Z offset(Distance between the nozzle and the bed=Real dimension of your probe).
   
-  ## **Perform a Z offset:**
+  ## Z_OffSet
+  **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
     Then lower the nozzle slowly to adjust to a sheet of paper.
     View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00) and finally store the parameters "Configuration/StoreSettings".
@@ -190,10 +192,11 @@ No validate:
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
 
+  
   **TIPS-LEVELLING**
 
     - You have 4 locations: so you can save (G29 Sx) different meshes at different bed temperature
-     (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back 
+     (ie: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back 
      when you slice from the PLA by command G29 L1 in the startGCode* of your filament.
      (*=PrusaSlicer).
 
@@ -201,16 +204,38 @@ No validate:
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
 
-  **Perform or correct by calculation (worksheet) the adjustment of your dimensions:** 
+  ## DIMENSION
+  **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
+  - To adjust the x, y, z precision, you first need a well-stabilized machine, ie being able to print on a well-leveled plate. Then by printing this model: https://www.thingiverse.com/thing:745523
+you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or odt file) and you insert them all the parameters to be modified with this command M667 Lxx Axx Bxx Cxx. If you print the model again you should find a very small difference (0.1 / 0.09) on XYZ (ie: xyzCalibration_cube.stl).
+https://marlinfw.org/docs/gcode/M665.html
+I prefer this model because it fits well with the caliper.
+https://www.thingiverse.com/thing:2256557 
     This chapter is being written ...............
 
 
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
+  ## PID ([proportional-integral-derivative](https://reprap.org/wiki/PID_Tuning))
   **Perform a nozzle PID:**
-  - by the menu: Configuration/Advanced Settings/Temperature/PID Autotune E1 and choose your current working temperature (Ex: PLA 210, PETG 230, ABS 250) 
-  - by terminal: with the command "M303 E0 **S210** C8 U0" (Ex: S210 for PLA)
-
+  - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
+  - by terminal: with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
+  
+  **Perform a bed PID:**
+  - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
+  - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
+  
+  ## EXTRUDER
+  **Perform correct adjustment of the steps of your extruder.**
+  - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
+  - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
+  - Measure before extruding 120mm of filament to make a mark.
+  - Heat your nozzle to 190°C and run the previous command. At the end, measure your remainder up to the mark and do rule of three:
+  - LengthtoExtrude / LengthExtruded X Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
+    
+  **Perform correct filament flow.**
+  - This chapter is being written ...............
+  
   **TIPS-SLICER** 
   
     In your **Start_GCode** on your Slicer.
