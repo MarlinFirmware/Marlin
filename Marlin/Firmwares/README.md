@@ -16,7 +16,7 @@
   __Not for production use. Use with caution!__
 
 - [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5)
-  - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch)
+  - [1.1. Last News](#11-Last-news-Marlin-2-Bugfix-Branch)
   - [1.2. Capabilities](#12-Validate-and-Actived-parts)
   - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers)
   - [1.4. Example and Caption](#14-CAPTION)
@@ -30,7 +30,7 @@
 - [3. The slicer](#3-SLICER-PART)
 - [4. Version History.](#4-Version-History)
 
-## 1.1. Last news Marlin 2.0 Bugfix Branch
+## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
@@ -115,7 +115,7 @@
   No validate:
   -TMC5121
 
-# 1.4. CAPTION
+## 1.4. CAPTION
 
   **Exemple:** 
   8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
@@ -125,7 +125,7 @@
 
   **Caption:**
 
-  ### /*------Drivers--------*/
+  /*------Drivers--------*/
   - (S) A4988 (green/red)
   - (8) TMC2208 Standalone
   - (9) TMC2209 Standalone
@@ -134,7 +134,7 @@
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
-  ### /*-------Options UI TFT--------*/
+  /*-------Options UI TFT--------*/
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
   ### /*------Modules--------*/
@@ -170,7 +170,7 @@
   
   Now ready to start a calibration.
   
-# 2.1. Delta Calibration
+## 2.1. Delta Calibration
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
   - by terminal: G33 or G33 V3 (5/8 iterations).
@@ -183,7 +183,7 @@
   
   After removing the probe, you need to redo/adjust the Z offset (Space between the nozzle and the bed=Real dimension of your probe).
   
-# 2.2. Z_OffSet
+## 2.2. Z_OffSet
   **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
     Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -193,7 +193,7 @@
     Control your result of opérations by command "M503".
   Through a terminal,
 
-# 2.3. Bed Levelling
+## 2.3. Bed Levelling
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
@@ -223,7 +223,7 @@
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
 
-# 2.4. DIMENSIONS
+## 2.4. DIMENSIONS
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
@@ -237,7 +237,7 @@
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-# 2.5. PID([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+## 2.5. PID([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
   
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
@@ -247,7 +247,7 @@
   - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
   - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
-# 2.6. EXTRUDER
+## 2.6. EXTRUDER
   **Perform correct adjustment of the steps of your extruder.**
   - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
   - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
