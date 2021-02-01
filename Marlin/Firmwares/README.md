@@ -133,10 +133,10 @@ No validate:
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
   ### /*-------Others options for advanced users who build their firmware----*/
   - HOST_ACTION_COMMANDS(Action Command Prompt support Message on OctoPrint) 
-  - MEATPACK (Improve dialogue with hosts OctoPrint)
+  - MEATPACK (Improve dialogue/communication with OctoPrint)
   - BINARY_FILE_TRANSFER
   - TEMP_SENSOR_0 (After changed the thermitor nozzle)
-  - LCD_LANGUAGE (Change the native language)
+  - LCD_LANGUAGE (Change to the native language)
   - etc 
   ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
@@ -144,13 +144,16 @@ No validate:
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
 
   ## HELP - PROCEDURE - TIPS 
-  After the flash, you must **RESET** your printer using the menu "Configuration/AdvancedSettings/IniatizeEEPROM" or M502,501,M500 then start a calibration.
+  After the flash, you must **RESET** your printer!!
+  - By menu: "Configuration/AdvancedSettings/IniatizeEEPROM"
+  - By terminal: M502, then M501 and M500.
+  Now ready to start a calibration.
   
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
   - by terminal: G33 or G33 V3 (5/8 iterations).
     
-  **Tip** (Via a terminal like Pronterface, Octoprint, Repetier, Astroprint,...): 
+  **Tip** (Via a terminal like Pronterface, Octoprint, Repetier, Astroprint, ESP3D, ...): 
         
         After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
         it means that you have a problem with the structure of your printer!
@@ -167,7 +170,7 @@ No validate:
     Control your result of opérations by command "M503".
   Through a terminal,
 
-  **Perform a bed calibration (UBL) with this commands via terminal:**
+  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
   - G29 P1 (automated probing of the bed)
@@ -175,7 +178,7 @@ No validate:
   - G29 P3 T (bis)
   - G29 T (View the Z compensation values)
   - G29 S0 (Save UBL mesh points to EEPROM in the default location 0 )
-  - G29 F 5 (Set Fade Height for correction at 5 mm)
+  - G29 F10 (Set Fade Height for correction at 10 mm)
   - G29 A (Activate the UBL System)
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
