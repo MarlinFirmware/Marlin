@@ -1,33 +1,33 @@
 # 1. Marlin 3D Printer Firmware for Delta QQS-Pro and Q5.
 
-![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
-![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
-[![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
+  ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
+  ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
+  ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
+  [![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
 
-[**Group FaceBook**](https://www.facebook.com/groups/120961628750040)
+  [**Group FaceBook**](https://www.facebook.com/groups/120961628750040)
 
-[**My Posts on Group FB**](https://www.facebook.com/hashtag/deltafoxies/?__gid__=120961628750040)
+  [**My Posts on Group FB**](https://www.facebook.com/hashtag/deltafoxies/?__gid__=120961628750040)
 
 
 
-![QQS](../../docs/images/FLSunMarlin.png)
+  ![QQS](../../docs/images/FLSunMarlin.png)
 
-__Not for production use. Use with caution!__
+  __Not for production use. Use with caution!__
 
-- [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5.)
-  - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch.)
-  - [1.2. Capabilities](#12-Validate-and-Actived-parts.)
-  - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers.)
-  - [1.4. Example and Caption](#14-CAPTION.)
-- [2. Delta preparation](#2-SETTINGS-THE-PRINTER.)
-  - [2.1. Delta Calibration](#21-Delta-Calibration.)
-  - [2.2. Set the OffSet (Z)](#22-Z_OffSet.)
-  - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
-  - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
-  - [2.5. Perform a PID](#25-PID)
-  - [2.6. Adjust your Extruder](#26-EXTRUDER.)
-- [3. The slicer](#3-SLICER-PART.)
+  - [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5.)
+    - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch.)
+    - [1.2. Capabilities](#12-Validate-and-Actived-parts.)
+    - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers.)
+    - [1.4. Example and Caption](#14-CAPTION.)
+  - [2. Delta preparation](#2-SETTINGS-THE-PRINTER.)
+    - [2.1. Delta Calibration](#21-Delta-Calibration.)
+    - [2.2. Set the OffSet (Z)](#22-Z_OffSet.)
+    - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
+    - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
+    - [2.5. Perform a PID](#25-PID)
+    - [2.6. Adjust your Extruder](#26-EXTRUDER.)
+  - [3. The slicer](#3-SLICER-PART.)
 
 # 1.1. Last news Marlin 2.0 Bugfix Branch.
  Update Marlin-BugFix 20210129
@@ -45,18 +45,18 @@ __Not for production use. Use with caution!__
 
  With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
 
-* [PID_EDIT_MENU]
-* [DELTA_CALIBRATION_MENU]
-* [MULTI_BUILD_MESH]
-* [POWER_LOSS_RECOVERY]
-* [FILAMENT_RUNOUT_SENSOR]
-* [AUTO_BED_LEVELING_UBL]
-* [BABYSTEPPING]
-* [PAUSE_BEFORE_DEPLOY_STOW]
-* [LIN_ADVANCE]
-* [ARC_SUPPORT]
-* [BINARY_FILE_TRANSFER]
-* [UART_MODE_for_TMC/RPI/ESP]
+  * [PID_EDIT_MENU]
+  * [DELTA_CALIBRATION_MENU]
+  * [MULTI_BUILD_MESH]
+  * [POWER_LOSS_RECOVERY]
+  * [FILAMENT_RUNOUT_SENSOR]
+  * [AUTO_BED_LEVELING_UBL]
+  * [BABYSTEPPING]
+  * [PAUSE_BEFORE_DEPLOY_STOW]
+  * [LIN_ADVANCE]
+  * [ARC_SUPPORT]
+  * [BINARY_FILE_TRANSFER]
+  * [UART_MODE_for_TMC/RPI/ESP]
 
 # 1.3. **Hardware for the FLSunQ printers.**
   
@@ -90,7 +90,7 @@ __Not for production use. Use with caution!__
     
     ![Board_SKRs](../../docs/images/Fam_SKR.png)
 
-Typically the probe for the QQS-Pro printers.
+  Typically the probe for the QQS-Pro printers.
   
   * Z Probe Offset (-16.2mm)
 
@@ -100,7 +100,7 @@ Typically the probe for the QQS-Pro printers.
 
     ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
 
-Optionals:
+  Optionals:
 
   * Modules Wifi
   
@@ -111,18 +111,18 @@ Optionals:
   
     ![Neopixels](../../docs/images/LedsStip.jpg)
 
-No validate:
--TMC5121
+  No validate:
+  -TMC5121
 
 # 1.4. CAPTION.
 
   **Exemple:** 
-8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
+  8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
   **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin" for QQS or "Robin_nano.bin" for Q5,
   place it on your SD card, insert your SD card into the printer and power on your printer.
 
-**Caption:**
+  **Caption:**
 
   ### /*------Drivers--------*/
   - (S) A4988 (green/red)
@@ -160,7 +160,7 @@ No validate:
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
 
-  # 2. SETTINGS THE PRINTER. 
+# 2. SETTINGS THE PRINTER. 
   
   ## HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer!!
