@@ -25,10 +25,11 @@
   - [2.2. Set the OffSet (Z).](#22-Z_OffSet)
   - [2.3. Levelling (UBL)](#23-Bed-Levelling)
   - [2.4. Refine your printed object dimensions](#24-DIMENSIONS)
-  - [2.5. Perform a PID](#25-PID[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+  - [2.5. Perform a PID](#25-PID-([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)))
   - [2.6. Adjust your Extruder](#26-EXTRUDER)
 - [3. The slicer](#3-SLICER-PART)
-- [4. Version History.](#4-Version-History)
+- [4. Module Wifi](#4-Module-Wifi)
+- [5. Version History.](#5-Version-History)
 
 ## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210129
@@ -125,7 +126,7 @@
 
   **Caption:**
 
-  /*------Drivers--------*/
+  **/*------Drivers--------*/**
   - (S) A4988 (green/red)
   - (8) TMC2208 Standalone
   - (9) TMC2209 Standalone
@@ -134,29 +135,29 @@
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
-  /*-------Options UI TFT--------*/
+  **/*-------Options UI TFT--------*/**
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
-  ### /*------Modules--------*/
+  **/*------Modules--------*/**
   - (N) NeoPixel (management of led strips)
   - (W) Module ESP8266/ESP12 (infos at the middle of the page)
   - (T) Extruder Titan
   - (B) Extruder BMG
   - (b) Extruder BMG mini
-  ### /*-------Others options in firmware----*/ 
+  **/*-------Others options in firmware----*/**
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
   - (P) PreHeat bed before leveling
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
-  ### /*-------Others options for advanced users who build their firmware----*/
+  **/*-------Others options for advanced users who build their firmware----*/**
   - HOST_ACTION_COMMANDS (Action Command Prompt support Message on OctoPrint) 
   - MEATPACK (Improve dialogue/communication with OctoPrint)
   - BINARY_FILE_TRANSFER
   - TEMP_SENSOR_0 (After changed the thermitor nozzle)
   - LCD_LANGUAGE (Change to the native language)
   - etc 
-  ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SKR family or Mks_Nano Family----*/
+  **/*-------Others Firmwares for Q5 nanov1.2 or QQS with SKR family or Mks_Nano Family----*/**
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
@@ -168,7 +169,7 @@
   - By menu: "Configuration/AdvancedSettings/InitializeEEPROM"
   - By terminal: M502, then M501 and M500.
   
-  Now ready to start a calibration.
+  Now YOU are ready to start a calibration.
   
 ## 2.1. Delta Calibration
   **Perform a Delta Calibration:**
@@ -281,7 +282,9 @@
 ![Tests](../../docs/images/Tests.png)
 ![MotorMounts](../../docs/images/BottomPulley.png)
 
-  # For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3DV2):
+# 4. Module Wifi
+
+For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3DV2):
 
 ![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
 
@@ -302,7 +305,7 @@ Enjoy and support my work ....🙃
 
  Massive thank you in advance :heart:
 
-# 4. Version history
+# 5. Version history
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20210117
