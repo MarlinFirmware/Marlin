@@ -298,13 +298,20 @@
   ![Wiring for Raspberry](../../docs/images/WireRPI.png)
   ## 3.4. Various assembly
   Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
-  - ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
+  - 
+  
+  ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
   - Use the socket MT_DET with 3 wires
     - Signal (White), Ground (Black), Power (Red) 
-    ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
   
-  - ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
-  - ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
+  ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
+  
+  - 
+  
+  ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
+  - 
+  
+  ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
 
 # 4. SLICER PART
 
