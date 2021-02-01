@@ -315,7 +315,7 @@ void menu_advanced_settings();
     BACK_ITEM(MSG_CONFIGURATION);
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      EDIT_ITEM(bool, MSG_PROBE_HEATERS_OFF, &probe.settings.turn_heaters_off);
+      EDIT_ITEM(bool, MSG_PROBING_HEATERS_OFF, &probe.settings.turn_heaters_off);
     #endif
 
     #if PROBING_NOZZLE_TEMP
