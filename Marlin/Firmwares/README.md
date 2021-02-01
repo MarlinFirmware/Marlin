@@ -17,7 +17,7 @@ __Not for production use. Use with caution!__
 ## Marlin 2.0 Bugfix Branch
  Update Marlin-BugFix 20210129
   - Last fix by Marlin,
-  - New QQS_Config rename FLSUNS_Config (QQSP & Q5)
+  - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
   - Support QQSP/Q5 Stock, TMC and UART mode.
   * All QQSP features on Q5.
   - Choice UI Classic (Lcd) and Color (TFT)
@@ -56,7 +56,7 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
     
     ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg) ![Seconds Version-A4988](../../docs/images/HiSpeedv1-A4988red.jpg)
     
-    4_TMC2208 MKS =>(8xxx-Robin_mini.bin)
+    4xTMC2208 MKS =>(8xxx-Robin_mini.bin)
     
     ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
   
@@ -100,9 +100,10 @@ No validate:
 
   ## Exemple: 
 
-8CWBL-Robin_mini.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
+8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
-  **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it  on your SD card, insert your SD card into the printer and power on your printer.
+  **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin" for QQS or "Robin_nano.bin" for Q5,
+  place it  on your SD card, insert your SD card into the printer and power on your printer.
 
 Caption:
 
@@ -112,6 +113,7 @@ Caption:
   - (9) TMC2209 Standalone
   - (U8) TMC2208_UART with no module ESP12.
   - (U9) TMC2209_UART with no module ESP12.
+  - (H9) TMC2209_UART with single wire.
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
