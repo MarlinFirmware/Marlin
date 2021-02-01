@@ -283,19 +283,26 @@
   - This chapter is being written ...............
   ## 3.1 TMC with UART mode
   Wiring for UART mode.
+   - Wire between Driver Stepper pins (UART) and pins Wifi socket (M1)
+  
   ![Wiring UART](../../docs/images/WireUART.png)
   ## 3.2 TMC2209 Single wire
   wiring for UART mode.
   Caution!! 
+   - 
+
   ![Wiring 2209](../../docs/images/Wire2209.png)
   ## 3.3 Raspberry
   Improve your Raspberry (Bauds, plugins, Network).
+  
   ![Wiring for Raspberry](../../docs/images/WireRPI.png)
   ## 3.4. Various assembly
   Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
   - ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
   - Use the socket MT_DET with 3 wires
-    - Signal (White), Ground (Black), Power (Red) ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
+    - Signal (White), Ground (Black), Power (Red) 
+    ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
+  
   - ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
   - ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
 
