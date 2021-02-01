@@ -25,12 +25,12 @@
     - [2.2. Set the OffSet (Z)](#22-Z_OffSet.)
     - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
     - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
-    - [2.5. Perform a PID](#25-PID)
+    - [2.5. Perform a PID](#25-PID.[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
     - [2.6. Adjust your Extruder](#26-EXTRUDER.)
   - [3. The slicer](#3-SLICER-PART.)
 
 # 1.1. Last news Marlin 2.0 Bugfix Branch.
- Update Marlin-BugFix 20210129
+  Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
   - Support QQSP/Q5 Stock, TMC and UART mode.
@@ -169,7 +169,7 @@
   
   Now ready to start a calibration.
   
-  # 2.1. Delta Calibration.
+# 2.1. Delta Calibration.
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
   - by terminal: G33 or G33 V3 (5/8 iterations).
@@ -182,7 +182,7 @@
   
   After removing the probe, you need to redo/adjust the Z offset (Space between the nozzle and the bed=Real dimension of your probe).
   
-  # 2.2. Z_OffSet.
+# 2.2. Z_OffSet.
   **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
     Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -192,7 +192,7 @@
     Control your result of opérations by command "M503".
   Through a terminal,
 
-  # 2.3. Bed Levelling.
+# 2.3. Bed Levelling.
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
@@ -222,7 +222,7 @@
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
 
-  # 2.4. DIMENSIONS.
+# 2.4. DIMENSIONS.
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
@@ -236,8 +236,8 @@
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-  # 2.5. PID.
-  [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
+# 2.5. PID.[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
+  
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
   - by terminal: with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
@@ -246,7 +246,7 @@
   - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
   - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
-  # 2.6. EXTRUDER.
+# 2.6. EXTRUDER.
   **Perform correct adjustment of the steps of your extruder.**
   - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
   - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
@@ -257,7 +257,7 @@
   **Perform correct filament flow.**
   - This chapter is being written ...............
   
- # 3. SLICER PART.
+# 3. SLICER PART.
 
   **TIPS-SLICER** 
   
