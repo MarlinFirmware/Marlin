@@ -45,8 +45,8 @@
   #include "../../../../pins/pins.h"
   #include "../../../../../src/libs/nozzle.h"
   #if ENABLED(HAS_STEALTHCHOP)
-    #include "../../../../src/module/stepper/trinamic.h"
-    #include "../../../../src/module/stepper/indirection.h"
+    #include "../../../../../src/module/stepper/trinamic.h"
+    #include "../../../../../src/module/stepper/indirection.h"
   #endif
   #include "../../../../module/probe.h"
 #endif
