@@ -1675,7 +1675,7 @@ void Popup_Window_ETempTooLow() {
   process = Popup;
   popup = ETemp;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_ICON_Show(ICON, ICON_TempTooLow, 102, 105);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 18) / 2, 192, (char*)"Nozzle is too cold");
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 212, (char*)"Preheat to 200C?");
@@ -1689,7 +1689,7 @@ void Popup_Window_Resume() {
   process = Popup;
   popup = Resume;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 14) / 2, 115, (char*)"Continue Print?");
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 192, (char*)"It looks like the last");
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 212, (char*)"file was interrupted.");
@@ -1701,7 +1701,7 @@ void Popup_Window_Resume() {
 void Popup_Window_Home(const bool parking/*=false*/) {
   process = Wait;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (parking ? 7 : 6)) / 2, 230, parking ? (char*)"Parking" : (char*)"Homing");
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
@@ -1710,7 +1710,7 @@ void Popup_Window_Home(const bool parking/*=false*/) {
 void Popup_Window_Leveling() {
   process = Wait;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_ICON_Show(ICON, ICON_AutoLeveling, 101, 105);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 17) / 2, 230, (char*)"Auto Bed Leveling");
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
@@ -1719,7 +1719,7 @@ void Popup_Window_Leveling() {
 void Popup_Window_Move() {
   process = Wait;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
   DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 230, (char*)"Moving to Point");
   DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
@@ -1730,7 +1730,7 @@ void Popup_window_Pause() {
   process = Popup;
   popup = Pause;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
   DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
@@ -1742,7 +1742,7 @@ void Popup_window_Stop() {
   process = Popup;
   popup = Stop;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
   DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
@@ -1754,7 +1754,7 @@ void Popup_window_SaveLevel() {
   process = Popup;
   popup = Level;
   Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
   DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 20) / 2, 150, (char*)"Save Bed Level Mesh?");
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
   DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
@@ -1847,9 +1847,12 @@ inline void Value_Control() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     if ((active_menu == ZOffset && liveadjust) || (active_menu == Tune && selection == 6/*ZOffset*/)) {
+      float pos = current_position.z;
       current_position.z += (tempvalue/valueunit - zoffsetvalue);
       planner.synchronize();
       planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+      current_position.z = pos;
+      sync_plan_position();
     }
     switch (valuetype) {
       case 0: *(float*)valuepointer = tempvalue/valueunit; break;
