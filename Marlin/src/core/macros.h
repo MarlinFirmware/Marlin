@@ -320,8 +320,8 @@
     template<bool, typename _Tp = void> struct enable_if { };
     template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time. 
-  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
       template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
