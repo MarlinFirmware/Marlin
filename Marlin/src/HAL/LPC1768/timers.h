@@ -152,7 +152,7 @@ FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 // This function is missing from CMSIS
 FORCE_INLINE static bool NVIC_GetEnableIRQ(IRQn_Type IRQn) {
-  return (NVIC->ISER[((uint32_t)IRQn) >> 5] & (1 << ((uint32_t)IRQn) & 0x1F)) != 0;
+  return TEST(NVIC->ISER[uint32_t(IRQn) >> 5], uint32_t(IRQn) & 0x1F);
 }
 
 FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {

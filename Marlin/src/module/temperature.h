@@ -33,6 +33,10 @@
   #include "../feature/power.h"
 #endif
 
+#if ENABLED(AUTO_REPORT_TEMPERATURES)
+  #include "../libs/autoreport.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -69,7 +73,7 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
-#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0))
+#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
 #define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
 #define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
 #define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
@@ -334,6 +338,14 @@ class Temperature {
 
     FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
+
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+      static uint16_t singlenozzle_temp[EXTRUDERS];
+      #if HAS_FAN
+        static uint8_t singlenozzle_fan_speed[EXTRUDERS];
+      #endif
+      static void singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool);
+    #endif
 
     #if HEATER_IDLE_HANDLER
 
@@ -786,14 +798,8 @@ class Temperature {
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
-        static uint8_t auto_report_temp_interval;
-        static millis_t next_temp_report_ms;
-        static void auto_report_temperatures();
-        static inline void set_auto_report_interval(uint8_t v) {
-          NOMORE(v, 60);
-          auto_report_temp_interval = v;
-          next_temp_report_ms = millis() + 1000UL * v;
-        }
+        struct AutoReportTemp { static void report(); };
+        static AutoReporter<AutoReportTemp> auto_reporter;
       #endif
     #endif
 

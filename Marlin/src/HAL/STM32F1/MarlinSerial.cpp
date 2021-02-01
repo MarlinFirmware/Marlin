@@ -28,7 +28,7 @@
 
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
-static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MarlinSerial &serial) {
+static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MSerialT &serial) {
  /* Handle RXNEIE and TXEIE interrupts.
   * RXNE signifies availability of a byte in DR.
   *
@@ -90,20 +90,20 @@ constexpr bool serial_handles_emergency(int port) {
   ;
 }
 
-#define DEFINE_HWSERIAL_MARLIN(name, n)   \
-  MarlinSerial name(USART##n,             \
-            BOARD_USART##n##_TX_PIN,      \
-            BOARD_USART##n##_RX_PIN,      \
-            serial_handles_emergency(n)); \
-  extern "C" void __irq_usart##n(void) {  \
+#define DEFINE_HWSERIAL_MARLIN(name, n)     \
+  MSerialT name(serial_handles_emergency(n),\
+            USART##n,                       \
+            BOARD_USART##n##_TX_PIN,        \
+            BOARD_USART##n##_RX_PIN);       \
+  extern "C" void __irq_usart##n(void) {    \
     my_usart_irq(USART##n->rb, USART##n->wb, USART##n##_BASE, MSerial##n); \
   }
 
 #define DEFINE_HWSERIAL_UART_MARLIN(name, n) \
-  MarlinSerial name(UART##n,                 \
+  MSerialT name(serial_handles_emergency(n), \
+          UART##n,                           \
           BOARD_USART##n##_TX_PIN,           \
-          BOARD_USART##n##_RX_PIN,           \
-          serial_handles_emergency(n));      \
+          BOARD_USART##n##_RX_PIN);          \
   extern "C" void __irq_usart##n(void) {     \
     my_usart_irq(UART##n->rb, UART##n->wb, UART##n##_BASE, MSerial##n); \
   }
