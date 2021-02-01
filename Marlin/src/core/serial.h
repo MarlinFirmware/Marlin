@@ -22,10 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-
-#if HAS_ETHERNET
-  #include "../feature/ethernet.h"
-#endif
+#include "serial_hook.h"
 
 // Commonly-used strings in serial output
 extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
@@ -61,39 +58,34 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-#define SERIAL_BOTH 0x7F
+typedef int8_t serial_index_t;
+#define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
-  extern int8_t serial_port_index;
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
-  #define _PORT_RESTORE(n)      RESTORE(n)
-
+  #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
+  #define SERIAL_ASSERT(P)      if(multiSerial.portMask!=(P)){ debugger(); }
   #ifdef SERIAL_CATCHALL
-    #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
+    typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    #define SERIAL_OUT(WHAT, V...) do{ \
-      const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client); \
-      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
-      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
-    }while(0)
+    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
   #endif
-
-  #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
+  extern SerialOutputT          multiSerial;
+  #define SERIAL_IMPL           multiSerial
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
-  #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_OUT(WHAT, V...) (void)MYSERIAL0.WHAT(V)
   #define SERIAL_ASSERT(P)      NOOP
+  #define SERIAL_IMPL           MYSERIAL0
 #endif
 
+#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
+
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
-#define PORT_RESTORE()          _PORT_RESTORE(1)
+#define SERIAL_PORTMASK(P)      _BV(P)
 
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
-#define SERIAL_PRINTF(V...)     SERIAL_OUT(printf, V)
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
 #ifdef ARDUINO_ARCH_STM32
