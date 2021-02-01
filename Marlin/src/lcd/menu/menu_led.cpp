@@ -123,11 +123,15 @@ void menu_led() {
   #if ENABLED(LED_CONTROL_MENU)
     editable.state = leds.lights_on;
     EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
-    ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
+    #if ENABLED(LED_COLOR_PRESETS)
+      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
+    #endif
     #if ENABLED(NEOPIXEL2_SEPARATE)
       editable.state = leds2.lights_on;
       EDIT_ITEM(bool, MSG_LEDS2, &editable.state, leds2.toggle);
-      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
+      #if ENABLED(NEO2_COLOR_PRESETS)
+        ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
+      #endif
     #endif
     #if ENABLED(LED_COLOR_PRESETS)
       SUBMENU(MSG_LED_PRESETS, menu_led_presets);
