@@ -3123,8 +3123,8 @@ void Temperature::tick() {
   }
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
-    Temperature::AutoReportTemp Temperature::auto_reporter;
-    void Temperature::AutoReportTemp::auto_report() {
+    AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
+    void Temperature::AutoReportTemp::report() {
       print_heater_states(active_extruder);
       SERIAL_EOL();
     }
