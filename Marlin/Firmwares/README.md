@@ -271,12 +271,20 @@
 # 3. SPECIAL MODS
   - This chapter is being written ...............
   ## 3.1 TMC with UART mode
-  
+  Wiring for UART mode.
+  ![Wiring UART](../../docs/images/WireUART.png)
   ## 3.2 TMC2209 Single wire
-
-  ## 3.3 Raspberry 
-
-  ## 3.4. Various assembly 
+  wiring for UART mode.
+  Caution!! 
+  ![Wiring 2209](../../docs/images/Wire2209.png)
+  ## 3.3 Raspberry
+  Improve your Raspberry.
+  ![Wiring for Raspberry](../../docs/images/Fam_Nano.png)
+  ## 3.4. Various assembly
+  Wiring for mounting temperature probes, relay control, filament detector, etc.
+  ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
+  ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
+  ![Wiring for modules Temp](../../docs/images/ModuleTemp.png)
 
 # 4. SLICER PART
 
