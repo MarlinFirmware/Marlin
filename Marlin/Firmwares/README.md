@@ -236,7 +236,7 @@
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-# 2.5. PID.[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
+# 2.5. PID.([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
   
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
