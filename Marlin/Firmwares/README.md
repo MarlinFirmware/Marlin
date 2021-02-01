@@ -257,8 +257,8 @@
   
   ## 2.6. EXTRUDER
   **Perform correct adjustment of the steps of your extruder.**
-  
-      ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
+
+  ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
   
   - Remove your filament, the Capricorn/PTFE tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
   - Measure before extruding 120mm of filament to make a mark.
