@@ -133,9 +133,9 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
 
   // Underlying implementation might use Arduino's bool operator
-  bool connected() { 
-    return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool(); 
-  }  
+  bool connected() {
+    return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool();
+  }
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts

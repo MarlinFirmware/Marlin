@@ -56,7 +56,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_show_gcode_output(void * that, const char * txt) {
   // Ignore echo of command
   if (!memcmp(txt, "echo:", 5)) {
-    public_buf[0] = 0; // Clear output buffer 
+    public_buf[0] = 0; // Clear output buffer
     return;
    }
 
