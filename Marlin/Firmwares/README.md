@@ -278,10 +278,11 @@
   Caution!! 
   ![Wiring 2209](../../docs/images/Wire2209.png)
   ## 3.3 Raspberry
-  Improve your Raspberry.
-  ![Wiring for Raspberry](../../docs/images/Fam_Nano.png)
+  Improve your Raspberry (Bauds, plugins, Network).
+  ![Wiring for Raspberry](../../docs/images/WireRPI.png)
   ## 3.4. Various assembly
-  Wiring for mounting temperature probes, relay control, filament detector, etc.
+  Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
+  ![Wiring for modules Runout](../../docs/images/ModuleESP.png)
   ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
   ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
   ![Wiring for modules Temp](../../docs/images/ModuleTemp.png)
