@@ -751,7 +751,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 //#define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 25 }
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 20, 25 }     // M.A.R.C. increase speed
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 20, 25 }     // M.A.R.C. increase Z speed
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -889,6 +889,12 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
+ * Use the nozzle as the probe, with the hotend
+ * assembly attached to a sensitive strain gauge.
+ */
+//#define STRAIN_GAUGE_PROBE
+
+/**
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
@@ -999,7 +1005,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10
+#define PROBING_MARGIN 25     // M.A.R.C. center probe area
 
 // X and Y axis travel speed (mm/min) between probes
 //#define XY_PROBE_SPEED (50*60)
@@ -1394,7 +1400,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    #define EXTRAPOLATE_BEYOND_GRID
+    // #define EXTRAPOLATE_BEYOND_GRID      // M.A.R.C. No extrapolate beyond of mesh points
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -2270,6 +2276,10 @@
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
 
+//
+// CR-6 OEM touch screen. A DWIN display with touch.
+//
+//#define DWIN_CREALITY_TOUCHLCD
 //
 // Touch-screen LCD for Malyan M200/M300 printers
 //

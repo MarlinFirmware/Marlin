@@ -42,7 +42,8 @@
  * version was tagged.
  */
 //#define STRING_DISTRIBUTION_DATE "2020-12-26"
-#define STRING_DISTRIBUTION_DATE __DATE__
+#define STRING_DISTRIBUTION_DATE __DATE__       // M.A.R.C. Set Automatic Distribution Date
+#define STRING_DISTRIBUTION_TIME __TIME__       // M.A.R.C. Set Automatic Distribution Time
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
