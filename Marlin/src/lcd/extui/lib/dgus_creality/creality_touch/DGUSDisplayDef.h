@@ -360,6 +360,10 @@ constexpr uint16_t VP_FEED_AMOUNT = 0x1054;
 constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
 
 // Mesh leveling
+constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
+constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 10;
+constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_VIEWING = 11;
+
 constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
 constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
 
@@ -377,6 +381,8 @@ constexpr uint16_t MESH_LEVEL_VP_EDGE_SIZE = MESH_LEVEL_VP_SIZE * MESH_LEVEL_EDG
 constexpr uint16_t MESH_LEVEL_SP_EDGE_SIZE = MESH_LEVEL_SP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
 
 constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEVEL_EDGE_MAX_POINTS;
+
+
 
 // Color table: https://stackoverflow.com/q/13720937/646215
 // Colors below were picked on bed leveling visualizer defaults

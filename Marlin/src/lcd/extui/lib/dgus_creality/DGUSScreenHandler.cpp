@@ -576,11 +576,11 @@ void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
+
   ResetMeshValues();
 
   MeshLevelIndex = 0;
-
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
 }
 
 void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
@@ -592,8 +592,6 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
 
   if (MeshLevelIndex < 0) {
     // We're not leveling
-
-    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
     return;
   }
 
