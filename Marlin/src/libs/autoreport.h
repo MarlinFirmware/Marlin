@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-template <typename Child>
+template <typename Helper>
 struct AutoReporter {
   millis_t next_report_ms;
   uint8_t report_interval;
@@ -31,9 +31,6 @@ struct AutoReporter {
     serial_index_t report_port_mask;
     AutoReporter() : report_port_mask(SERIAL_ALL) {}
   #endif
-
-  // Override this method
-  inline void auto_report() { Child::report(); }
 
   inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
     report_interval = _MIN(seconds, limit);
@@ -46,7 +43,7 @@ struct AutoReporter {
     if (ELAPSED(ms, next_report_ms)) {
       next_report_ms = ms + SEC_TO_MS(report_interval);
       TERN_(HAS_MULTI_SERIAL, PORT_REDIRECT(report_port_mask));
-      auto_report();
+      Helper::report();
     }
   }
 };

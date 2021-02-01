@@ -1227,7 +1227,6 @@ void CardReader::fileHasFinished() {
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
   AutoReporter<CardReader::AutoReportSD> CardReader::auto_reporter;
-  void CardReader::AutoReportSD::report() { report_status(); }
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
