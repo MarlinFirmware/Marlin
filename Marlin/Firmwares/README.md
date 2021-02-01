@@ -266,11 +266,12 @@
   - Heat your nozzle to 190°C and run the previous command: "M83" then "G1 E100 F200" 
   - At the end, measure your remainder up to the mark and do rule of three:
     
-      LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
-  - Put a new value with command M92 Zxxx and memorize M500 or StoreSttings
+      **LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).**
+  - Put a new value with command M92 Zxxx and memorize M500 or "Store Settings"
+
   By menu:
-  
-    
+
+
   **Perform correct filament flow.**
   - This chapter is being written ...............
   
