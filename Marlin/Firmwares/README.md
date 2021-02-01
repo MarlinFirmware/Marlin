@@ -19,7 +19,7 @@
   - [1.1. Last News](#11-Last-news-Marlin-2-Bugfix-Branch)
   - [1.2. Capabilities](#12-Validate-and-Actived-parts)
   - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers)
-  - [1.4. Example and Caption](#14-CAPTION)
+  - [1.4. Description of firmware headers.](#14-CAPTION-Firmwares)
 - [2. Delta preparation](#2-SETTINGS-THE-PRINTER)
   - [2.1. Delta Calibration](#21-Delta-Calibration)
   - [2.2. Set the OffSet (Z).](#22-Z_OffSet)
@@ -116,7 +116,7 @@
   No validate:
   -TMC5121
 
-## 1.4. CAPTION
+## 1.4. CAPTION Firmwares
 
   **Exemple:** 
   8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
@@ -169,7 +169,11 @@
   - By menu: "Configuration/AdvancedSettings/InitializeEEPROM"
   - By terminal: M502, then M501 and M500.
   
-  Now YOU are ready to start a calibration.
+  **VERY IMPORTANT:**
+  First of all, you need to check that you have flashed the correct firmware.
+  To do this, with a finger on the power switch :-), obtain a "HOME"from the menu (Motion/AutoHome) or a "G28" command from a terminal.
+  
+  Now YOU are ready to start a calibration of your printer!!
   
 ## 2.1. Delta Calibration
   **Perform a Delta Calibration:**
