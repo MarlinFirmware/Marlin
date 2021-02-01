@@ -361,8 +361,8 @@ constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
-constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 10;
-constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_VIEWING = 11;
+constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 5;
+constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_VIEWING = 6;
 
 constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
 constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
