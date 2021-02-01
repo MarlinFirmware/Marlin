@@ -162,7 +162,7 @@ No validate:
         it means that you have a problem with the structure of your printer!
         A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
   
-  After to remove the probe you must do redo/adjust the Z offset(Distance between the nozzle and the bed=Real dimension of your probe).
+  After removing the probe, you need to redo/adjust the Z offset (Space between the nozzle and the bed=Real dimension of your probe).
   
   ## Z_OffSet
   **Perform a Z offset:**
@@ -207,15 +207,18 @@ No validate:
   ## DIMENSION
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
-  - ie being able to print on a well-leveled plate. Then by printing this model:[Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
-  - you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or odt file) and you insert them all the parameters to be modified with this command [M665](https://marlinfw.org/docs/gcode/M665.html) Lxx Axx Bxx Cxx. 
-  - If you print the model again you should find a very small difference (0.1 / 0.09) on XYZ (ie: xyzCalibration_cube.stl).
+  - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
+  - you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or odt file) and you insert them all the parameters to be modified with this command [M665](https://marlinfw.org/docs/gcode/M665.html) Lxx Axx Bxx Cxx.
+
+  ![Spreadsheet](../../docs/images/Spreadsheet_Calc.png)
+
+  - If you print the model again you should find a very small difference (0.1 / 0.09) on XYZ.
   - I prefer this model because it fits well with the caliper.[QuickCalDelta](https://www.thingiverse.com/thing:2256557)
 
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-  ## PID ([proportional-integral-derivative](https://reprap.org/wiki/PID_Tuning))
+  ## PID ([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
   - by terminal: with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
