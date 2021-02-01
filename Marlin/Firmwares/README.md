@@ -132,13 +132,13 @@ No validate:
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
   ### /*-------Others options for advanced users who build their firmware----*/
-  - HOST_ACTION_COMMANDS(Action Command Prompt support Message on OctoPrint) 
+  - HOST_ACTION_COMMANDS (Action Command Prompt support Message on OctoPrint) 
   - MEATPACK (Improve dialogue/communication with OctoPrint)
   - BINARY_FILE_TRANSFER
   - TEMP_SENSOR_0 (After changed the thermitor nozzle)
   - LCD_LANGUAGE (Change to the native language)
   - etc 
-  ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SRK family or Nano Family----*/
+  ### /*-------Others Firmwares for Q5 nanov1.2 or QQS with SKR family or Mks_Nano Family----*/
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
@@ -147,8 +147,10 @@ No validate:
   After the flash, you must **RESET** your printer!!
   - By menu: "Configuration/AdvancedSettings/IniatizeEEPROM"
   - By terminal: M502, then M501 and M500.
+  
   Now ready to start a calibration.
   
+  ## Delta Calibration
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
   - by terminal: G33 or G33 V3 (5/8 iterations).
@@ -161,7 +163,7 @@ No validate:
   
   After to remove the probe you must do redo/adjust the Z offset(Distance between the nozzle and the bed=Real dimension of your probe).
   
-  **Perform a Z offset:**
+  ## **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
     Then lower the nozzle slowly to adjust to a sheet of paper.
     View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00) and finally store the parameters "Configuration/StoreSettings".
@@ -170,6 +172,7 @@ No validate:
     Control your result of opérations by command "M503".
   Through a terminal,
 
+  ## Bed Calibration
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
@@ -183,7 +186,7 @@ No validate:
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
   
-  **Bed calibration (UBL) via Menu**
+  **Bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) via Menu**
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
 
