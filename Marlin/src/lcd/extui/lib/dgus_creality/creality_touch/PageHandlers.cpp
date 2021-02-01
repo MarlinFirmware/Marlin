@@ -388,8 +388,8 @@ void InfoMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 }
 
  void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
-     // Heat if necessary
-    if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > 2) {
+    // Heat if necessary
+    if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > THERMAL_PROTECTION_HYSTERESIS) {
         ScreenHandler.setstatusmessagePGM(PSTR("Heating up..."));
 
         thermalManager.setTargetHotend(celsius, ExtUI::H0);
@@ -419,7 +419,7 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     if (var.VP != VP_BUTTON_HEATLOADSTARTKEY) return;
 
     // Common for load/unload -> determine minimum temperature
-    uint16_t celsius = ExtUI::getActualTemp_celsius(ExtUI::H0);
+    uint16_t celsius = static_cast<uint16_t>(ExtUI::getTargetTemp_celsius(ExtUI::H0));
     if (celsius < PREHEAT_1_TEMP_HOTEND) {
         celsius = PREHEAT_1_TEMP_HOTEND;
     }
