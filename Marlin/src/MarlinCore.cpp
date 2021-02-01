@@ -236,7 +236,6 @@
   #include "src/lcd/extui/lib/dgus/mks/DGUSDisplayDef.h"
 #endif
 
-PGMSTR(NUL_STR, "");
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;

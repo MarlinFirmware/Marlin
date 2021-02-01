@@ -182,15 +182,6 @@ void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
 
 #if ENABLED(DGUS_LCD_UI_MKS)
 
-  void DGUSScreenHandler::DGUSLCD_SendFloatByStringToDisplay(DGUS_VP_Variable &var) {
-    if (var.memadr) {
-      float tmp = *(float *) var.memadr;
-      char buf[10];
-      sprintf_P(buf, PSTR("%.2f"), tmp);
-      dgusdisplay.WriteVariable(var.VP, buf, 8, true);
-    }
-  }
-
   void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
@@ -273,11 +264,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var) {
 }
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-
-  void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Ch_MKS(DGUS_VP_Variable &var) {
-    uint16_t *tmp = (uint16_t *)var.memadr;
-    dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
-  }
 
   void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var) {
     if (DGUSLanguageSwitch == MKS_English) {
@@ -1262,15 +1248,17 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
       default:
         break;
     }
-    #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_x_step = stepperX.homing_threshold();
-    #endif
-    #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_y_step = stepperY.homing_threshold();
-    #endif
-    #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_z_step = stepperZ.homing_threshold();
-    #endif
+    #if USE_SENSORLESS
+      #if AXIS_HAS_STEALTHCHOP(X)
+        tmc_x_step = stepperX.homing_threshold();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Y)
+        tmc_y_step = stepperY.homing_threshold();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z)
+        tmc_z_step = stepperZ.homing_threshold();
+      #endif
+    #endif 
   }
 
   void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
