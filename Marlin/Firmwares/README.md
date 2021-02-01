@@ -27,9 +27,14 @@
   - [2.4. Refine your printed object dimensions](#24-DIMENSIONS)
   - [2.5. Perform a PID](#25-PID-([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)))
   - [2.6. Adjust your Extruder](#26-EXTRUDER)
-- [3. The slicer](#3-SLICER-PART)
-- [4. Module Wifi](#4-Module-Wifi)
-- [5. Version History.](#5-Version-History)
+- [3. Special mods for TMC, Raspberry, LedStrip, etc](#3-SPECIAL-MODS)
+  - [3.1. UART mode for 220x](#31-TMC-with-UART-mode)
+  - [3.2. Special mode 2209](#32-TMC2209-Single-Wire)
+  - [3.3. TIPS for Raspberry ](#33-Raspberry)
+  - [3.4. Led_Strip, Fans, Convertors, thermal probe,...](#34-Various-assembly)
+- [4. The slicer](#4-SLICER-PART)
+- [5. Module Wifi](#5-Module-Wifi)
+- [6. Version History.](#6-Version-History)
 
 ## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210129
@@ -171,7 +176,7 @@
   
    # **VERY IMPORTANT:**
    First of all, you need to check that you have flashed the **correct firmware**.
-   To do this, with a finger on the power switch :-), obtain a "HOME"from the menu (Motion/AutoHome) or a "G28" command from a terminal.
+   To do this, with a finger on the power switch :-), obtain a "HOME" from the menu (Motion/AutoHome) or a "G28" command from a terminal.
   
   Now YOU are ready to start a calibration of your printer!!
   
@@ -228,7 +233,7 @@
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
 
-## 2.4. DIMENSIONS
+  ## 2.4. DIMENSIONS
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
@@ -242,7 +247,7 @@
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-## 2.5. PID([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+  ## 2.5. PID([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
   
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
@@ -252,7 +257,7 @@
   - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
   - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
-## 2.6. EXTRUDER
+  ## 2.6. EXTRUDER
   **Perform correct adjustment of the steps of your extruder.**
   - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
   - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
@@ -263,7 +268,17 @@
   **Perform correct filament flow.**
   - This chapter is being written ...............
   
-# 3. SLICER PART
+# 3. SPECIAL MODS
+  - This chapter is being written ...............
+  ## 3.1 TMC with UART mode
+  
+  ## 3.2 TMC2209 Single wire
+
+  ## 3.3 Raspberry 
+
+  ## 3.4. Various assembly 
+
+# 4. SLICER PART
 
   **TIPS-SLICER** 
   
@@ -286,7 +301,7 @@
 ![Tests](../../docs/images/Tests.png)
 ![MotorMounts](../../docs/images/BottomPulley.png)
 
-# 4. Module Wifi
+# 5. Module Wifi
 
 For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3DV2):
 
@@ -309,63 +324,63 @@ Enjoy and support my work ....🙃
 
  Massive thank you in advance :heart:
 
-# 5. Version history
+# 6. Version history
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20210117
-    - Last fix by Marlin,
-    - Fix PID Range to 30,
-    - add Preheat before leveling.
-    - New core for SKR14 and SKR14T (Ready TFT host)
+  - Last fix by Marlin,
+  - Fix PID Range to 30,
+  - add Preheat before leveling.
+  - New core for SKR14 and SKR14T (Ready TFT host)
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20210109
-    - Last fix by Marlin,
-    - Fix Feedback Users,
-    - Reduction of the hysteresis range from 10 to 6,
-    - 4 Mesh Locations,
-    - Functions disable but enable by menu (Runout, PowerLoss),
-    - **New_Core** size reduction (Small Boot Logo) and build optimization,
-    - Fix PowerLoss,
-    - Fix SDCard corrupted,
-    - Fix for "Mesh Edit",
-    - New test firmwares for Q5 (Stock and TMC2209).
-    - Special firmware for supporters and developments.
+  - Last fix by Marlin,
+  - Fix Feedback Users,
+  - Reduction of the hysteresis range from 10 to 6,
+  - 4 Mesh Locations,
+  - Functions disable but enable by menu (Runout, PowerLoss),
+  - **New_Core** size reduction (Small Boot Logo) and build optimization,
+  - Fix PowerLoss,
+  - Fix SDCard corrupted,
+  - Fix for "Mesh Edit",
+  - New test firmwares for Q5 (Stock and TMC2209).
+  - Special firmware for supporters and developments (Christmas Gift).
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20201223
-    - News directory by Boards (HISPEED, NANO, SKR)
-    - Last fix by Marlin,
-    - Fix Feedback Users(Fan, CalDelta, Accel,...)
-    - **FIX New_Core** size reduction and build optimization,
-    - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-    - No fix for "Mesh Edit".
+  - News directory by Boards (HISPEED, NANO, SKR)
+  - Last fix by Marlin,
+  - Fix Feedback Users(Fan, CalDelta, Accel,...)
+  - **FIX New_Core** size reduction and build optimization,
+  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - No fix for "Mesh Edit".
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20201213 
-    - Last fix by Marlin,
-    - **New_Core** size reduction and build optimization,
-    - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-    - No fix for "Mesh Edit".
-    - Validate Connecttion Rpi/OctoPi direct (No_USB).
+  - Last fix by Marlin,
+  - **New_Core** size reduction and build optimization,
+  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - No fix for "Mesh Edit".
+  - Validate Connecttion Rpi/OctoPi direct (No_USB).
 
   Update Marlin-BugFix 20201120
-    - Last fix by feedback users.
-    - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-    - Validate TMC2209 modes.
-    - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+  - Last fix by feedback users.
+  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - Validate TMC2209 modes.
+  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
   Update Marlin-BugFix 20201030
-    - Last correction for Black screen in UI Color
-    - Correction thermal protection hysterisis.
-    - Enable mode TMC220x UART SoftSerial
-    - Add comments into definition_pins file.
+  - Last correction for Black screen in UI Color
+  - Correction thermal protection hysterisis.
+  - Enable mode TMC220x UART SoftSerial
+  - Add comments into definition_pins file.
 
   Update Marlin-BugFix 20201022
-    - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
-    - Fixed Deploy/Stow ZProbe
-    - Fixed for users using E3Dv6 hotend
-    - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
+  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+  - Fixed Deploy/Stow ZProbe
+  - Fixed for users using E3Dv6 hotend
+  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
 
   ## Marlin 2.0.7 
   Update 2020-10-01
