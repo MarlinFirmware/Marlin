@@ -554,7 +554,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     SERIAL_ECHOLNPGM("Taring probe");
     WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
-    
+
     endstops.resync();
 
     IF_ENABLED(PROBE_TARE_BUZZ, buzzer.tone(200, 1200));

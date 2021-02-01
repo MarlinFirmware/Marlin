@@ -1330,7 +1330,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
         thermalManager.wait_for_bed_heating();
       #endif
 
-      TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
+      TERN_(HAS_QUIET_PROBING, if (_TERN(PROBE_TARE_SKIP_SECOND, !final_approach, final_approach)) probe.set_probing_paused(true));
     }
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -1663,13 +1663,6 @@ void homeaxis(const AxisEnum axis) {
     // Slow move towards endstop until triggered
     const float rebump = bump * 2;
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Re-bump: ", rebump, "mm");
-
-    #if ENABLED(PROBE_TARE)
-    //  if (axis == Z_AXIS) {
-    //    probe.set_probing_paused(true);
-    //    probe.tare();
-     // }
-    #endif
 
     do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
 

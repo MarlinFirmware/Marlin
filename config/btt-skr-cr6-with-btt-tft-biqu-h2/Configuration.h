@@ -1029,6 +1029,7 @@
   #define PROBE_TARE_STATE LOW   // State to write pin for tare
   #define PROBE_TARE_BUZZ       // Do a short buzz when the probe is tared - useful for debugging
   #define PROBE_TARE_MENU       // Add tare option to MarlinUI
+  #define PROBE_TARE_SKIP_SECOND // Skip second taring during homing
   //#define PROBE_TARE_PIN PA5    // Override default pin
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
