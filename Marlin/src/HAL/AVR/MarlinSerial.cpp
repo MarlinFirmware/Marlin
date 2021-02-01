@@ -611,7 +611,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
   MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
- 
+
   #if HAS_DGUS_LCD
     template<typename Cfg>
     typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {

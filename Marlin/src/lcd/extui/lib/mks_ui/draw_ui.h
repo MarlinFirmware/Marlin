@@ -46,6 +46,7 @@
 #include "draw_preHeat.h"
 #include "draw_extrusion.h"
 #include "draw_home.h"
+#include "draw_gcode.h"
 #include "draw_more.h"
 #include "draw_move_motor.h"
 #include "draw_fan.h"
@@ -326,7 +327,8 @@ typedef enum {
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
   ENCODER_SETTINGS_UI,
-  TOUCH_CALIBRATION_UI
+  TOUCH_CALIBRATION_UI,
+  GCODE_UI,
 } DISP_STATE;
 
 typedef struct {
@@ -413,7 +415,8 @@ typedef enum {
   wifiName,
   wifiPassWord,
   wifiConfig,
-  gcodeCommand
+  autoLevelGcodeCommand,
+  GCodeCommand,
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
 
@@ -449,6 +452,8 @@ extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
 extern void update_gcode_command(int addr,uint8_t *s);
 extern void get_gcode_command(int addr,uint8_t *d);
+extern void lv_serial_capt_hook(void *, uint8_t);
+extern void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
   extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif

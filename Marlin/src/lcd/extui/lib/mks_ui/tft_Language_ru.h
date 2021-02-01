@@ -32,6 +32,8 @@
 #define AUTO_LEVELING_TEXT_RU           "aвтоуровень"
 #define SET_TEXT_RU                     "настройки"
 #define MORE_TEXT_RU                    "больше"
+#define MORE_GCODE_RU                   "G-код"
+#define MORE_ENTER_GCODE_RU             "Введите G-код"
 
 #define ADD_TEXT_RU                     "добавить"
 #define DEC_TEXT_RU                     "уменьшить"
