@@ -72,10 +72,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_filament_change();
       break;
       case ID_T_MORE:
-      #if ENABLED(CUSTOM_USER_MENUS)
-          lv_draw_more();
-      #endif
-      break;
+        TERN_(CUSTOM_USER_MENUS, lv_draw_more());
+        break;
     case ID_T_RETURN:
       TERN_(MKS_TEST, curent_disp_ui = 1);
       lv_draw_ready_print();
@@ -92,7 +90,7 @@ void lv_draw_tool() {
   lv_big_button_create(scr, "F:/bmp_leveling.bin", tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling), INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_LEVELING);
   lv_big_button_create(scr, "F:/bmp_filamentchange.bin", tool_menu.filament, BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight, event_handler,ID_T_FILAMENT);
   #if ENABLED(CUSTOM_USER_MENUS)
-    lv_big_button_create(scr, "F:/bmp_more.bin", tool_menu.more, BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight, event_handler, ID_T_MORE);
+    lv_big_button_create(scr, "F:/bmp_more.bin", tool_menu.more, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_MORE);
   #endif
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_RETURN);
 }
