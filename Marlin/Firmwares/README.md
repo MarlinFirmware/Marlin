@@ -15,21 +15,21 @@
 
   __Not for production use. Use with caution!__
 
-  - [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5.)
-    - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch.)
-    - [1.2. Capabilities](#12-Validate-and-Actived-parts.)
-    - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers.)
-    - [1.4. Example and Caption](#14-CAPTION.)
-  - [2. Delta preparation](#2-SETTINGS-THE-PRINTER.)
-    - [2.1. Delta Calibration](#21-Delta-Calibration.)
-    - [2.2. Set the OffSet (Z)](#22-Z_OffSet.)
-    - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
-    - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
-    - [2.5. Perform a PID](#25-PID.[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
-    - [2.6. Adjust your Extruder](#26-EXTRUDER.)
+- [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5.)
+  - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch.)
+  - [1.2. Capabilities](#12-Validate-and-Actived-parts.)
+  - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers.)
+  - [1.4. Example and Caption](#14-CAPTION.)
+- [2. Delta preparation](#2-SETTINGS-THE-PRINTER.)
+  - [2.1. Delta Calibration](#21-Delta-Calibration.)
+  - [2.2. Set the OffSet (Z).](#22-Z_OffSet.)
+  - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
+  - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
+  - [2.5. Perform a PID.](#25-PID.[Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+  - [2.6. Adjust your Extruder.](#26-EXTRUDER.)
   - [3. The slicer](#3-SLICER-PART.)
 
-# 1.1. Last news Marlin 2.0 Bugfix Branch.
+## 1.1. Last news Marlin 2.0 Bugfix Branch.
   Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
@@ -39,7 +39,7 @@
   - Change BAUDSRATE at 250000
   - Update ReadMe.
 
-# 1.2. Validate and Actived parts.
+## 1.2. Validate and Actived parts.
  Validate:
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire.
 
@@ -58,7 +58,7 @@
   * [BINARY_FILE_TRANSFER]
   * [UART_MODE_for_TMC/RPI/ESP]
 
-# 1.3. **Hardware for the FLSunQ printers.**
+## 1.3. **Hardware for the FLSunQ printers.**
   
   * MotherBoards QQS: 
     [HiSpeedv1_&_RobinMini](./HISPEED)
@@ -301,68 +301,68 @@ Enjoy and support my work ....🙃
 
  Massive thank you in advance :heart:
 
-# Version history
+# 4. Version history
 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20210117
-  - Last fix by Marlin,
-  - Fix PID Range to 30,
-  - add Preheat before leveling.
-  - New core for SKR14 and SKR14T (Ready TFT host)
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20210117
+    - Last fix by Marlin,
+    - Fix PID Range to 30,
+    - add Preheat before leveling.
+    - New core for SKR14 and SKR14T (Ready TFT host)
 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20210109
-  - Last fix by Marlin,
-  - Fix Feedback Users,
-  - Reduction of the hysteresis range from 10 to 6,
-  - 4 Mesh Locations,
-  - Functions disable but enable by menu (Runout, PowerLoss),
-  - **New_Core** size reduction (Small Boot Logo) and build optimization,
-  - Fix PowerLoss,
-  - Fix SDCard corrupted,
-  - Fix for "Mesh Edit",
-  - New test firmwares for Q5 (Stock and TMC2209).
-  - Special firmware for supporters and developments.
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20210109
+    - Last fix by Marlin,
+    - Fix Feedback Users,
+    - Reduction of the hysteresis range from 10 to 6,
+    - 4 Mesh Locations,
+    - Functions disable but enable by menu (Runout, PowerLoss),
+    - **New_Core** size reduction (Small Boot Logo) and build optimization,
+    - Fix PowerLoss,
+    - Fix SDCard corrupted,
+    - Fix for "Mesh Edit",
+    - New test firmwares for Q5 (Stock and TMC2209).
+    - Special firmware for supporters and developments.
 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201223
-  - News directory by Boards (HISPEED, NANO, SKR)
-  - Last fix by Marlin,
-  - Fix Feedback Users(Fan, CalDelta, Accel,...)
-  - **FIX New_Core** size reduction and build optimization,
-  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-  - No fix for "Mesh Edit".
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20201223
+    - News directory by Boards (HISPEED, NANO, SKR)
+    - Last fix by Marlin,
+    - Fix Feedback Users(Fan, CalDelta, Accel,...)
+    - **FIX New_Core** size reduction and build optimization,
+    - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+    - No fix for "Mesh Edit".
 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201213 
-  - Last fix by Marlin,
-  - **New_Core** size reduction and build optimization,
-  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-  - No fix for "Mesh Edit".
-  - Validate Connecttion Rpi/OctoPi direct (No_USB).
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20201213 
+    - Last fix by Marlin,
+    - **New_Core** size reduction and build optimization,
+    - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+    - No fix for "Mesh Edit".
+    - Validate Connecttion Rpi/OctoPi direct (No_USB).
 
- Update Marlin-BugFix 20201120
-  - Last fix by feedback users.
-  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-  - Validate TMC2209 modes.
-  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+  Update Marlin-BugFix 20201120
+    - Last fix by feedback users.
+    - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+    - Validate TMC2209 modes.
+    - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
- Update Marlin-BugFix 20201030
-  - Last correction for Black screen in UI Color
-  - Correction thermal protection hysterisis.
-  - Enable mode TMC220x UART SoftSerial
-  - Add comments into definition_pins file.
+  Update Marlin-BugFix 20201030
+    - Last correction for Black screen in UI Color
+    - Correction thermal protection hysterisis.
+    - Enable mode TMC220x UART SoftSerial
+    - Add comments into definition_pins file.
 
- Update Marlin-BugFix 20201022
-  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
-  - Fixed Deploy/Stow ZProbe
-  - Fixed for users using E3Dv6 hotend
-  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
+  Update Marlin-BugFix 20201022
+    - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+    - Fixed Deploy/Stow ZProbe
+    - Fixed for users using E3Dv6 hotend
+    - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
 
-## Marlin 2.0.7 
- Update 2020-10-01
- 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20200905
+  ## Marlin 2.0.7 
+  Update 2020-10-01
+  
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20200905
 
 
