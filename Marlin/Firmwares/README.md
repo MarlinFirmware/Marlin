@@ -105,7 +105,7 @@ No validate:
   **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin" for QQS or "Robin_nano.bin" for Q5,
   place it  on your SD card, insert your SD card into the printer and power on your printer.
 
-Caption:
+**Caption:**
 
   ### /*------Drivers--------*/
   - (S) A4988 (green/red)
@@ -113,10 +113,9 @@ Caption:
   - (9) TMC2209 Standalone
   - (U8) TMC2208_UART with no module ESP12.
   - (U9) TMC2209_UART with no module ESP12.
-  - (H9) TMC2209_UART with single wire.
-  - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
+  - **(UH) TMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
   ### /*-------Options UI TFT--------*/
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
@@ -137,8 +136,12 @@ Caption:
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
 
   ## HELP - PROCEDURE - TIPS 
-  After the flash, you must **RESET** your printer using the menu or M502,
-  M500 then start a calibration or G33 V3 (5/8 iterations).
+  After the flash, you must **RESET** your printer using the menu or M502,501,
+  M500 then start a calibration.
+  
+  **Perform a Delta Calibration:**
+  - By menu: "Configuration/Delta_Calibration/AutoCalibration"
+  - by terminal: G33 or G33 V3 (5/8 iterations).
     
   **Tip** (Via a terminal like Pronterface, Octoprint, Repetier, Astroprint,...): 
         
@@ -146,12 +149,18 @@ Caption:
         it means that you have a problem with the structure of your printer!
         A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
   
-  Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
-  Then lower the nozzle slowly to adjust to a sheet of paper.
-  View the value on the display and enter the value in the Probe_Z_Offset menu Configuration or M851 Z-xx.xx and finally store the parameters (M500).
+  After to remove the probe you must do redo the Z offset.
+  
+  **Perform a Z offset:**
+  - By menu: "Motion/MoveAxis" deactived the endstops.
+    Then lower the nozzle slowly to adjust to a sheet of paper.
+    View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00) and finally store the parameters "Configuration/StoreSettings".
+  - By terminal: deactivating the endstops with command M211 S0 =>read result in console.
+    View the value on the display and enter the value in the Probe_Z_Offset with command "M851 Z-xx.xx" and finally store the parameters with command "M500".
+    Control your result of opérations by command "M503".
   Through a terminal,
 
-  Perform a bed calibration (UBL) with this commands:
+  **Perform a bed calibration (UBL) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
   - G29 P1 (automated probing of the bed)
@@ -163,21 +172,31 @@ Caption:
   - G29 A (Activate the UBL System)
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
-
-  Remember to adjust your temperatures by doing your **bed PID** and adjust your **eSteps** for stable filament flow.
   
+  **Bed calibration (UBL) via Menu**
+  - Put your bed at working temperature.
+  - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
+
   **TIPS-LEVELLING**
 
-    - You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature
+    - You have 4 locations: so you can save (G29 Sx) different meshes at different bed temperature
      (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back 
-     when you slice from the PLA by command G29 L1 in the startGCode * of your filament.
-     (* PrusaSlicer).
+     when you slice from the PLA by command G29 L1 in the startGCode* of your filament.
+     (*=PrusaSlicer).
 
     - If you later notice that the dimensions of your printed objects are inaccurate then 
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
-    This chapter is being written ...............
 
+  **Perform or correct by calculation (worksheet) the adjustment of your dimensions:** 
+  This chapter is being written ...............
+
+
+  Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
+  
+  **Perform a nozzle PID:**
+  - by the menu: Configuration/Advanced Settings/Temperature/PID Autotune E1 and choose your current working temperature (Ex: PLA 210, PETG 230, ABS 250) 
+  - by terminal: with the command "M303 E0 **S210** C8 U0" (Ex: S210 for PLA)
 
   **TIPS-SLICER** 
   
@@ -192,7 +211,7 @@ Caption:
 
   This works fine in [PrusaSlicer](https://help.prusa3d.com/en/article/macros_1775) and goes 100cm above the finished object. It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
+  ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).** 
 
 ![Final_Print](../../docs/images/Final.png)
 ![Presentation](../../docs/images/Final2.jpg)
@@ -204,7 +223,7 @@ Caption:
 
 ![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
 
-Enjoy....🙃
+Enjoy and support my work ....🙃
 
  ## Support my work
 
