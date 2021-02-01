@@ -1,4 +1,4 @@
-# Marlin 3D Printer Firmware for Delta QQS-Pro with HISPEEDv1 Board and Q5.
+# 1. Marlin 3D Printer Firmware for Delta QQS-Pro and Q5.
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
@@ -10,11 +10,26 @@
 [**My Posts on Group FB**](https://www.facebook.com/hashtag/deltafoxies/?__gid__=120961628750040)
 
 
+
 ![QQS](../../docs/images/FLSunMarlin.png)
 
 __Not for production use. Use with caution!__
 
-## Marlin 2.0 Bugfix Branch
+- [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5.)
+  - [1.1. Last News](#11-Last-news-Marlin-2.0-Bugfix-Branch.)
+  - [1.2. Capabilities](#12-Validate-and-Actived-parts.)
+  - [1.3. Hardware](#13-Hardware-for-the-FLSunQ-printers.)
+  - [1.4. Example and Caption](#14-CAPTION.)
+- [2. Delta preparation](#2-SETTINGS-THE-PRINTER.)
+  - [2.1. Delta Calibration](#21-Delta-Calibration.)
+  - [2.2. Set the OffSet (Z)](#22-Z_OffSet.)
+  - [2.3. Levelling (UBL)](#23-Bed-Levelling.)
+  - [2.4. Refine your printed object dimensions.](#24-DIMENSIONS.)
+  - [2.5. Perform a PID](#25-PID)
+  - [2.6. Adjust your Extruder](#26-EXTRUDER.)
+- [3. The slicer](#3-SLICER-PART.)
+
+# 1.1. Last news Marlin 2.0 Bugfix Branch.
  Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
@@ -24,11 +39,11 @@ __Not for production use. Use with caution!__
   - Change BAUDSRATE at 250000
   - Update ReadMe.
 
-  ## Validate:
-
+# 1.2. Validate and Actived parts.
+ Validate:
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire.
 
-With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
+ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
 
 * [PID_EDIT_MENU]
 * [DELTA_CALIBRATION_MENU]
@@ -43,9 +58,9 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 * [BINARY_FILE_TRANSFER]
 * [UART_MODE_for_TMC/RPI/ESP]
 
-**Hardware for the QQS-Pro printers.**
+# 1.3. **Hardware for the FLSunQ printers.**
   
-  * MotherBoards: 
+  * MotherBoards QQS: 
     [HiSpeedv1_&_RobinMini](./HISPEED)
     
     With integrated stepper drivers(A4988)=>(Sxxx-Robin_mini.bin)
@@ -65,7 +80,7 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
   
     ![Drivers](../../docs/images/MicroSteppinpDrivers.jpg)
 
-  * Other MotherBoards:
+  * Other MotherBoards for Q5 and QQS:
 
     [NANOv1.2](./NANO)
 
@@ -99,8 +114,9 @@ Optionals:
 No validate:
 -TMC5121
 
-  ## Exemple: 
+# 1.4. CAPTION.
 
+  **Exemple:** 
 8CWBL-Name_Of_Firmware.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
   **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin" for QQS or "Robin_nano.bin" for Q5,
@@ -144,14 +160,16 @@ No validate:
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
 
+  # 2. SETTINGS THE PRINTER. 
+  
   ## HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer!!
-  - By menu: "Configuration/AdvancedSettings/IniatizeEEPROM"
+  - By menu: "Configuration/AdvancedSettings/InitializeEEPROM"
   - By terminal: M502, then M501 and M500.
   
   Now ready to start a calibration.
   
-  ## Delta Calibration
+  # 2.1. Delta Calibration.
   **Perform a Delta Calibration:**
   - By menu: "Configuration/Delta_Calibration/AutoCalibration"
   - by terminal: G33 or G33 V3 (5/8 iterations).
@@ -164,7 +182,7 @@ No validate:
   
   After removing the probe, you need to redo/adjust the Z offset (Space between the nozzle and the bed=Real dimension of your probe).
   
-  ## Z_OffSet
+  # 2.2. Z_OffSet.
   **Perform a Z offset:**
   - By menu: "Motion/MoveAxis" deactived the endstops.
     Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -174,7 +192,7 @@ No validate:
     Control your result of opérations by command "M503".
   Through a terminal,
 
-  ## Bed Calibration
+  # 2.3. Bed Levelling.
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
@@ -204,7 +222,7 @@ No validate:
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
 
-  ## DIMENSION
+  # 2.4. DIMENSIONS.
   **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
@@ -212,13 +230,14 @@ No validate:
 
   ![Spreadsheet](../../docs/images/Spreadsheet_Calc.png)
 
-  - If you print the model again you should find a very small difference (0.1 / 0.09) on XYZ.
+  - If you print the model again you should find a very small difference (0.1/0.09) on XYZ.
   - I prefer this model because it fits well with the caliper.[QuickCalDelta](https://www.thingiverse.com/thing:2256557)
 
   
   Remember to adjust your temperatures by doing your **Nozzle PID** and adjust your **eSteps** for stable filament flow.
   
-  ## PID ([Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning))
+  # 2.5. PID.
+  [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
   **Perform a nozzle PID:**
   - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
   - by terminal: with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
@@ -227,17 +246,19 @@ No validate:
   - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
   - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
-  ## EXTRUDER
+  # 2.6. EXTRUDER.
   **Perform correct adjustment of the steps of your extruder.**
   - ie: For the BMG, I set it to 415 but it is better to confirm it by ordering M83 then G1 E100 F100 which extrudes 100mm of filament.
   - You remove your filament, the Capricorn tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
   - Measure before extruding 120mm of filament to make a mark.
   - Heat your nozzle to 190°C and run the previous command. At the end, measure your remainder up to the mark and do rule of three:
-  - LengthtoExtrude / LengthExtruded X Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
+  - LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).
     
   **Perform correct filament flow.**
   - This chapter is being written ...............
   
+ # 3. SLICER PART.
+
   **TIPS-SLICER** 
   
     In your **Start_GCode** on your Slicer.
