@@ -297,19 +297,24 @@
   
   ![Wiring for Raspberry](../../docs/images/WireRPI.png)
   ## 3.4. Various assembly
-  Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
-  - 
+    Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
+  
+  - Module Wifi (ESP or MKS_Wifi):
+    - Use a cable.....
   
   ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
-  - Use the socket MT_DET with 3 wires
-    - Signal (White), Ground (Black), Power (Red) 
+  - Module filament Sensor:
+    - Use the socket MT_DET on your board with a cable (3 wires)
+    - Wires are: Signal (White), Ground (Black), Power (Red) 
   
   ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
   
-  - 
+  - Module Relay(s)
+    - Put a platine.....
   
   ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
-  - 
+  - Module convertor, probe, ......
+    - You can insert.....
   
   ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
 
