@@ -141,7 +141,8 @@
   **/*-------Options UI TFT--------*/**
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
-  
+  - (r) UI STANDARD (Marlin Mode on TFT)
+
   **/*------Modules--------*/**
   - (N) NeoPixel (management of led strips)
   - (W) Module ESP8266/ESP12 (infos at the middle of the page)
@@ -240,7 +241,7 @@
 
   **Perform a bed calibration ([**ABL**](https://marlinfw.org/docs/features/auto_bed_leveling.html))**
   
-  By terminal(command):
+  By terminal:
   - with the command "G29"
 
   By menu:
