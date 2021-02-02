@@ -212,7 +212,7 @@
     static ring_buffer_pos_t available();
     static size_t write(const uint8_t c);
     static void flushTX();
-    #if HAS_DGUS_LCD
+    #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
       static ring_buffer_pos_t get_tx_buffer_free();
     #endif
 
@@ -276,7 +276,7 @@
     static constexpr bool DROPPED_RX          = false;
     static constexpr bool RX_FRAMING_ERRORS   = false;
     static constexpr bool MAX_RX_QUEUED       = false;
-    #if HAS_DGUS_LCD
+    #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
       static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
       static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
       static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);

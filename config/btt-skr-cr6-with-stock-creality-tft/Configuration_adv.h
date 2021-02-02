@@ -1462,7 +1462,7 @@
 //
 // Additional options for DGUS / DWIN displays
 //
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
 

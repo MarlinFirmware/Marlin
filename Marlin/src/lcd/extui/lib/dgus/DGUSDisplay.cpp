@@ -24,7 +24,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+#if HAS_DGUS_LCD
 
 #if HOTENDS > 2
   #error "More than 2 hotends not implemented on the Display UI design."

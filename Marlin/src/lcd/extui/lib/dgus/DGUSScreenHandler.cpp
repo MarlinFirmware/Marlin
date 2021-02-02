@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+#if HAS_DGUS_LCD
 
 #include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"

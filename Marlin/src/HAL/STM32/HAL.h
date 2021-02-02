@@ -86,7 +86,7 @@
   #else
     #error "LCD_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
   #endif
-  #if HAS_DGUS_LCD
+  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif

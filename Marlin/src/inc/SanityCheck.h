@@ -2425,7 +2425,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #endif
 #else
-  #if HAS_DGUS_LCD
+  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
   #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
     #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined."
