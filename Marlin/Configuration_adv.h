@@ -3342,8 +3342,8 @@
 #endif
 
 /**
- * User-defined menu items that execute custom GCode.
- * You can add up to 25 items
+ * User-defined menu items to run custom G-code.
+ * Up to 25 can be defined without code changes.
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
