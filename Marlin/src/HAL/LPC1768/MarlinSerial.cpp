@@ -24,19 +24,19 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "MarlinSerial.h"
 
-#if USING_SERIAL_0
+#if ANY_SERIAL_IS(0)
   MSerialT MSerial(true, LPC_UART0);
   extern "C" void UART0_IRQHandler() { MSerial.IRQHandler(); }
 #endif
-#if USING_SERIAL_1
+#if ANY_SERIAL_IS(1)
   MSerialT MSerial1(true, (LPC_UART_TypeDef *) LPC_UART1);
   extern "C" void UART1_IRQHandler() { MSerial1.IRQHandler(); }
 #endif
-#if USING_SERIAL_2
+#if ANY_SERIAL_IS(2)
   MSerialT MSerial2(true, LPC_UART2);
   extern "C" void UART2_IRQHandler() { MSerial2.IRQHandler(); }
 #endif
-#if USING_SERIAL_3
+#if ANY_SERIAL_IS(3)
   MSerialT MSerial3(true, LPC_UART3);
   extern "C" void UART3_IRQHandler() { MSerial3.IRQHandler(); }
 #endif
