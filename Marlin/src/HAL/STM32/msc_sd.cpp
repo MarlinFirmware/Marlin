@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
  *
  * This program is free software: you can redistribute it and/or modify
@@ -84,8 +84,7 @@ public:
 Sd2CardUSBMscHandler usbMscHandler;
 
 /* USB Mass storage Standard Inquiry Data */
-uint8_t  Marlin_STORAGE_Inquirydata[] =  /* 36 */
-{
+uint8_t  Marlin_STORAGE_Inquirydata[] = { /* 36 */
   /* LUN 0 */
   0x00,
   0x80,
