@@ -145,12 +145,12 @@ void lv_draw_more() {
   #if BUTTONS_EXIST(EN1, EN2, ENC)
     if (enc_ena) {
       lv_group_add_obj(g, buttonGCode);
-      TERN_(USER_CMD_1_ENABLE, lv_group_add_obj(g, buttonCustom1));
-      TERN_(USER_CMD_2_ENABLE, lv_group_add_obj(g, buttonCustom2));
-      TERN_(USER_CMD_3_ENABLE, lv_group_add_obj(g, buttonCustom3));
-      TERN_(USER_CMD_4_ENABLE, lv_group_add_obj(g, buttonCustom4));
-      TERN_(USER_CMD_5_ENABLE, lv_group_add_obj(g, buttonCustom5));
-      TERN_(USER_CMD_6_ENABLE, lv_group_add_obj(g, buttonCustom6));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_1, lv_group_add_obj(g, buttonCustom1));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_2, lv_group_add_obj(g, buttonCustom2));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_3, lv_group_add_obj(g, buttonCustom3));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_4, lv_group_add_obj(g, buttonCustom4));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_5, lv_group_add_obj(g, buttonCustom5));
+      TERN_(HAS_CUSTOM_USER_MENU_ITEM_6, lv_group_add_obj(g, buttonCustom6));
       lv_group_add_obj(g, buttonBack);
     }
   #endif
