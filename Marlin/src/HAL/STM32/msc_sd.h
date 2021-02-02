@@ -1,7 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
  *
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,5 @@
  *
  */
 #pragma once
-
-#include "../../inc/MarlinConfigPre.h"
 
 void MSC_SD_init();
