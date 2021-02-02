@@ -19,22 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
-#if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+extern void lv_draw_gcode(bool clear = false);
+extern void lv_clear_gcode();
 
-#include "../gcode.h"
-#include "../../module/temperature.h"
-
-/**
- * M155: Set temperature auto-report interval. M155 S<seconds>
- */
-void GcodeSuite::M155() {
-
-  if (parser.seenval('S'))
-    thermalManager.auto_reporter.set_interval(parser.value_byte());
-
-}
-
-#endif // AUTO_REPORT_TEMPERATURES && HAS_TEMP_SENSOR
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif

@@ -614,8 +614,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if ENABLED(MARLIN_DEV_MODE)
-    static uint8_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", int(idle_depth));
+    static uint16_t idle_depth = 0;
+    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
@@ -687,8 +687,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
-      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_report_temperatures());
-      TERN_(AUTO_REPORT_SD_STATUS, card.auto_report_sd_status());
+      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
     }
   #endif
 
@@ -886,6 +886,17 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
+  MYSERIAL0.begin(BAUDRATE);
+  millis_t serial_connect_timeout = millis() + 1000UL;
+  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+
+  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
+    MYSERIAL1.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+  SERIAL_ECHOLNPGM("start");
+
   // Set up these pins early to prevent suicide
   #if HAS_KILL
     SETUP_LOG("KILL_PIN");
@@ -917,17 +928,6 @@ void setup() {
       #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
     #endif
   #endif
-
-  MYSERIAL0.begin(BAUDRATE);
-  millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-
-  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-  SERIAL_ECHOLNPGM("start");
 
   #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
     mks_esp_wifi_init();

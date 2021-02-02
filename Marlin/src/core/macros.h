@@ -53,6 +53,7 @@
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
+#define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
 #define _Os          __attribute__((optimize("Os")))
@@ -321,8 +322,8 @@
     template<bool, typename _Tp = void> struct enable_if { };
     template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time. 
-  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
       template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
