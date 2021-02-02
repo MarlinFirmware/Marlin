@@ -1934,6 +1934,9 @@ void onConfigurationStoreRead(bool success)
         #endif
   }
 #endif
+void onMeshLevelingStart() {
+
+}
 
 void onSteppersEnabled()
 {
