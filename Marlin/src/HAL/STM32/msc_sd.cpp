@@ -38,13 +38,17 @@ public:
 
   bool Write(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
     auto sd2card = card.getSd2Card();
+    // single block
     if (blkLen == 1) {
+      watchdog_refresh();
       sd2card.writeBlock(blkAddr, pBuf);
       return true;
     }
 
+    // multi block optmization
     sd2card.writeStart(blkAddr, blkLen);
     while (blkLen--) {
+      watchdog_refresh();
       sd2card.writeData(pBuf);
       pBuf += BLOCK_SIZE;
     }
@@ -54,13 +58,17 @@ public:
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
     auto sd2card = card.getSd2Card();
+    // single block
     if (blkLen == 1) {
+      watchdog_refresh();
       sd2card.readBlock(blkAddr, pBuf);
       return true;
     }
 
+    // multi block optmization
     sd2card.readStart(blkAddr);
     while (blkLen--) {
+      watchdog_refresh();
       sd2card.readData(pBuf);
       pBuf += BLOCK_SIZE;
     }
