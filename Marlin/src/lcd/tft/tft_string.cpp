@@ -26,6 +26,7 @@
 
 #include "tft_string.h"
 #include "../fontutils.h"
+#include "../marlinui.h"
 
 //#define DEBUG_TFT_FONT
 #define DEBUG_OUT ENABLED(DEBUG_TFT_FONT)
