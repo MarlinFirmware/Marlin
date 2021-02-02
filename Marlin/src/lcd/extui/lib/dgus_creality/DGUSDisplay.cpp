@@ -141,6 +141,19 @@ void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
     WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
+void DGUSDisplay::WriteVariable(uint16_t adr, float value) {
+    static_assert(sizeof(float) == 4);
+
+    union { float l; char lb[4]; } endian;
+    char tmp[4];
+    endian.l = value;
+    tmp[0] = endian.lb[3];
+    tmp[1] = endian.lb[2];
+    tmp[2] = endian.lb[1];
+    tmp[3] = endian.lb[0];
+    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(float));
+}
+
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;

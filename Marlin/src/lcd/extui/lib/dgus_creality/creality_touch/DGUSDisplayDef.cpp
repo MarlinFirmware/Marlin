@@ -502,7 +502,6 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   VPHELPER(VP_MESH_LEVEL_TEMP, &thermalManager.temp_hotend[0].target, nullptr, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_MESH_LEVEL_STATUS, nullptr, nullptr, nullptr),
 
   // Feedrate
   VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),

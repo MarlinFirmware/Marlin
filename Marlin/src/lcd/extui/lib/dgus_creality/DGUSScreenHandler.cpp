@@ -576,7 +576,7 @@ void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
+  dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
 
   ResetMeshValues();
 
@@ -619,9 +619,11 @@ void DGUSScreenHandler::InitMeshValues() {
           float z = ExtUI::getMeshPoint({ x, y });
           UpdateMeshValue(x, y, z);
       }
+
+      safe_delay(100);
     }
 
-      dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + MESH_LEVEL_MAX_POINTS));
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + MESH_LEVEL_MAX_POINTS));
   } else {
     ResetMeshValues();
   }
@@ -632,6 +634,8 @@ void DGUSScreenHandler::ResetMeshValues() {
     for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
         UpdateMeshValue(x, y, 0);
     }
+
+    safe_delay(100);
   }
 
   dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
@@ -654,14 +658,12 @@ void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const fl
 
   // Each Y is a full edge of X values
   const uint16_t vpAddr = VP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_VP_SIZE) + (scrX * MESH_LEVEL_VP_EDGE_SIZE);
-
-  DGUS_VP_Variable vp { .VP = vpAddr, .memadr = const_cast<float*>(&z) };
-  DGUSLCD_SendFloatAsIntValueToDisplay<3>(vp);
+  dgusdisplay.WriteVariable(vpAddr, z);
 
   // Set color
   const uint16_t spAddr = SP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_SP_SIZE) + (scrX * MESH_LEVEL_SP_EDGE_SIZE);
 
-  uint16_t color;
+  uint16_t color = MESH_COLOR_NOT_MEASURED;
   if (z < 0) color = MESH_COLOR_BELOW_ZERO;
   if (z > 0) color = MESH_COLOR_ABOVE_ZERO;
   if (abs(z) < MESH_NEAR_ZERO) color = MESH_COLOR_NEAR_ZERO;

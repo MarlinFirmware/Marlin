@@ -67,6 +67,7 @@ public:
   static void WriteVariable(uint16_t adr, uint8_t value);
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
+  static void WriteVariable(uint16_t adr, float value);
 
   static void SetVariableDisplayColor(uint16_t sp, uint16_t color);
   static void SetVariableAppendText(uint16_t sp, PGM_P appendText);
@@ -122,7 +123,8 @@ private:
 extern DGUSDisplay dgusdisplay;
 
 // compile-time x^y
-constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
+template<typename T>
+constexpr T cpow(const T x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
 extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);

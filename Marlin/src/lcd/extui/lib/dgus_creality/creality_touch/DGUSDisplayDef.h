@@ -374,7 +374,7 @@ constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0x5000;
 
 constexpr uint16_t MESH_LEVEL_EDGE_MAX_POINTS = 4;
 
-constexpr uint16_t MESH_LEVEL_VP_SIZE = 2; // 2-byte integer
+constexpr uint16_t MESH_LEVEL_VP_SIZE = 4; // 4-byte native float
 constexpr uint16_t MESH_LEVEL_SP_SIZE = 10; // 10 bytes
 
 constexpr uint16_t MESH_LEVEL_VP_EDGE_SIZE = MESH_LEVEL_VP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
