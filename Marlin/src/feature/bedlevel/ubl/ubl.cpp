@@ -214,7 +214,7 @@
         else if (isnan(f))
           serialprintPGM(human ? PSTR("  .   ") : PSTR("NAN"));
         else if (human || csv) {
-          if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Space for positive ('-' for negative)
+          if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
           SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
         }
         if (csv && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR('\t');
