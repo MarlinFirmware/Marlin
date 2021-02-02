@@ -891,7 +891,7 @@ void setup() {
   while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(BAUDRATE);
+    MYSERIAL1.begin(BAUDRATE1);   //make independent baudrate (For example DWIN display on Ender 3 v2)
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
