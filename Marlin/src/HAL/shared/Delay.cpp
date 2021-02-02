@@ -103,9 +103,11 @@
       // Use safer DWT function
       DelayCycleFnc = delay_dwt;
     }
+  }
 
-    #if ENABLED(MARLIN_DEV_MODE)
-
+  #if ENABLED(MARLIN_DEV_MODE)
+    void dump_delay_accuracy_check()
+    {
       auto report_call_time = [](PGM_P const name, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
         serialprintPGM(name);
@@ -157,12 +159,18 @@
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(200); e = HW_REG(_DWT_CYCCNT);
         report_call_time(dcd, 200, e - s, false);
       }
+    }
+  #endif // MARLIN_DEV_MODE
 
-    #endif // MARLIN_DEV_MODE
-  }
 
 #else
 
   void calibrate_delay_loop() {}
+  #if ENABLED(MARLIN_DEV_MODE)
+    void dump_delay_accuracy_check() {
+      static PGMSTR(none, "N/A on this platform");
+      serialprintPGM(none);
+    }
+  #endif
 
 #endif
