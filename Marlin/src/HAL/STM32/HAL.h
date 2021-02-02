@@ -135,6 +135,8 @@ extern uint16_t HAL_adc_result;
 
 // Enable hooks into  setup for HAL
 void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 // Clear reset reason
 void HAL_clear_reset_source();
