@@ -41,7 +41,7 @@
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
   - Support QQSP/Q5 Stock, TMC and UART mode.
-  * All QQSP features on Q5.
+  - **All QQSP features on Q5.**
   - Choice UI Classic (Lcd) and Color (TFT)
   - Change BAUDSRATE at 250000
   - Update ReadMe.
@@ -137,21 +137,25 @@
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
+
   **/*-------Options UI TFT--------*/**
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
+  
   **/*------Modules--------*/**
   - (N) NeoPixel (management of led strips)
   - (W) Module ESP8266/ESP12 (infos at the middle of the page)
   - (T) Extruder Titan
   - (B) Extruder BMG
   - (b) Extruder BMG mini
+  
   **/*-------Others options in firmware----*/**
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
   - (P) PreHeat bed before leveling
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC2208)
+  
   **/*-------Others options for advanced users who build their firmware----*/**
   - HOST_ACTION_COMMANDS (Action Command Prompt support Message on OctoPrint) 
   - MEATPACK (Improve dialogue/communication with OctoPrint)
@@ -159,6 +163,7 @@
   - TEMP_SENSOR_0 (After changed the thermitor nozzle)
   - LCD_LANGUAGE (Change to the native language)
   - etc 
+  
   **/*-------Others Firmwares for Q5 nanov1.2 or QQS with SKR family or Mks_Nano Family----*/**
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
