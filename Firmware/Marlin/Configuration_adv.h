@@ -1199,7 +1199,9 @@
   #endif
 
   #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
-    //#define LCD_PROGRESS_BAR            // Show a progress bar on HD44780 LCDs for SD printing
+    #if ENABLED(LCD2004)
+      #define LCD_PROGRESS_BAR            // Show a progress bar on HD44780 LCDs for SD printing
+    #endif
     #if ENABLED(LCD_PROGRESS_BAR)
       #define PROGRESS_BAR_BAR_TIME 2000  // (ms) Amount of time to show the bar
       #define PROGRESS_BAR_MSG_TIME 3000  // (ms) Amount of time to show the status message
@@ -1702,7 +1704,9 @@
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       #if DISABLED(SPACE_SAVER) && DISABLED(DWIN_CREALITY_LCD)
         //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-        #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
+        #if DISABLED(LCD2004)
+          #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
+        #endif
       #endif
     #endif
   #endif

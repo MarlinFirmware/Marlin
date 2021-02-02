@@ -152,7 +152,12 @@
 #if HAS_WIRED_LCD
   #define LCD_SDSS                            28
   #if ENABLED(ADC_KEYPAD)
-    #define SERVO0_PIN                        27  // free for BLTouch/3D-Touch
+    #if ENABLED(EZOUT_ENABLE)
+      #define SERVO0_PIN     -1   // free for BLTouch/3D-Touch
+      #define FIL_RUNOUT_PIN 27
+    #else
+      #define SERVO0_PIN     27   // free for BLTouch/3D-Touch
+    #endif
     #define LCD_PINS_RS                       28
     #define LCD_PINS_ENABLE                   29
     #define LCD_PINS_D4                       10
@@ -164,7 +169,12 @@
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
-    #define SERVO0_PIN                        29  // free for BLTouch/3D-Touch
+    #if ENABLED(EZOUT_ENABLE)
+      #define SERVO0_PIN     -1   // free for BLTouch/3D-Touch
+      #define FIL_RUNOUT_PIN 29
+    #else
+      #define SERVO0_PIN     29   // free for BLTouch/3D-Touch
+    #endif
     #define BEEPER_PIN                        17
     #define LCD_PINS_RS                       27
     #define LCD_PINS_ENABLE                   28
