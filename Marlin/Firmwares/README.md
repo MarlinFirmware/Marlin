@@ -173,8 +173,12 @@
   
   ## HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer!!
-  - By menu: "Configuration/AdvancedSettings/InitializeEEPROM"
-  - By terminal: M502, then M501 and M500.
+  
+  By menu:
+  - "Configuration/AdvancedSettings/InitializeEEPROM"
+  
+  By terminal:
+  - put command "M502" (Factory Reset), then "M501" (restore default) and "M500" (Save settings in EEPROM).
   
    # **VERY IMPORTANT:**
    First of all, you need to check that you have flashed the **correct firmware**.
@@ -184,10 +188,14 @@
   
 ## 2.1. Delta Calibration
   **Perform a Delta Calibration:**
-  - By menu: "Configuration/Delta_Calibration/AutoCalibration"
-  - by terminal: G33 or G33 V3 (5/8 iterations).
+  
+  By menu: 
+  - "Configuration/Delta_Calibration/AutoCalibration"(5/8 iterations).
+  
+  By terminal:
+  - Put the command "G33" or G33 V3 (5/8 iterations).
     
-  **Tip** (Via a terminal like Pronterface, Octoprint, Repetier, Astroprint, ESP3D, ...): 
+  **Tip** Via a terminal like Pronterface, Octoprint, Repetier, Astroprint, ESP3D, ...: 
         
         After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
         it means that you have a problem with the structure of your printer!
@@ -197,6 +205,7 @@
   
 ## 2.2. Z_OffSet
   **Perform a Z offset:**
+  
   By menu: 
   - "Motion/MoveAxis" deactived the endstops.
   - "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
@@ -205,10 +214,10 @@
   
   By terminal: 
   - deactivating the endstops with command M211 S0 =>read result in console.
-    View the value on the display and enter the value in the Probe_Z_Offset with command "M851 Z-xx.xx" and finally store the parameters with command "M500".
-    Control your result of opérations by command "M503".
-  Through a terminal,
-
+  - View the value on the display and enter the value in the Probe_Z_Offset with command "M851 Z-xx.xx"
+  - finally store the parameters with command "M500".
+  - Control your result of operations by command "M503".
+  
 ## 2.3. Bed Levelling
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
 
@@ -225,13 +234,10 @@
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
   
-  **Bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
-  
   By menu:
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
 
-  
   **TIPS-LEVELLING**
 
     - You have 4 locations: so you can save (G29 Sx) different meshes at different bed temperature
