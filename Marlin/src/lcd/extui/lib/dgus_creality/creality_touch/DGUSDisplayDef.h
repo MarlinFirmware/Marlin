@@ -374,8 +374,8 @@ constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0x5000;
 
 constexpr uint16_t MESH_LEVEL_EDGE_MAX_POINTS = 4;
 
-constexpr uint16_t MESH_LEVEL_VP_SIZE = 4; // 4-byte native float
-constexpr uint16_t MESH_LEVEL_SP_SIZE = 10; // 10 bytes
+constexpr uint16_t MESH_LEVEL_VP_SIZE = 0x4; // 4-byte native float
+constexpr uint16_t MESH_LEVEL_SP_SIZE = 0x10; // 0x10 distance
 
 constexpr uint16_t MESH_LEVEL_VP_EDGE_SIZE = MESH_LEVEL_VP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
 constexpr uint16_t MESH_LEVEL_SP_EDGE_SIZE = MESH_LEVEL_SP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
@@ -385,14 +385,15 @@ constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEV
 
 
 // Color table: https://stackoverflow.com/q/13720937/646215
+// Color picker: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 // Colors below were picked on bed leveling visualizer defaults
 
-constexpr uint16_t MESH_COLOR_BELOW_ZERO = 0x001F;   // Blue
-constexpr uint16_t MESH_COLOR_NEAR_ZERO = 0x07E0;    // Green
-constexpr uint16_t MESH_COLOR_ABOVE_ZERO = 0xF800;    // Red
+constexpr uint16_t MESH_COLOR_BELOW_ZERO = 0x899B;   // Blue
+constexpr uint16_t MESH_COLOR_NEAR_ZERO = 0x1C80;    // Green
+constexpr uint16_t MESH_COLOR_ABOVE_ZERO = 0xB800;    // Purple
 constexpr uint16_t MESH_COLOR_NOT_MEASURED = 0x0000; // Black (becomes invisible on black background)
 
-constexpr float MESH_NEAR_ZERO = 0.050;
+constexpr float MESH_NEAR_ZERO = 0.020;
 constexpr float MESH_UNSET_EPSILON = 0.001;
 
 // Movement screen
