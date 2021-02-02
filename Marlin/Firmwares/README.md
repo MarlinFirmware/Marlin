@@ -33,7 +33,7 @@
   - [3.3. TIPS for Raspberry,](#33-Raspberry)
   - [3.4. Led_Strip, Fans, Convertors, thermal probe,...](#34-Various-assembly)
 - [4. The slicer](#4-SLICER-PART)
-- [5. Module Wifi](#5-Module-Wifi)
+- [5. Wifi Part](#5-Firmware-Wifi)
 - [6. Version History.](#6-Version-History)
 
 ## 1.1. Last news Marlin 2 Bugfix Branch
@@ -304,7 +304,7 @@
   
   ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
   - Module filament Sensor:
-    - Use the socket MT_DET on your board with a cable (3 wires)
+    - Use the socket MT_DET on your board with a cable (3 wires).
     - Wires are: Signal (White), Ground (Black), Power (Red) 
   
   ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
@@ -322,10 +322,9 @@
 
   **TIPS-SLICER** 
   
-    In your **Start_GCode** on your Slicer.
-    - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
-    - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line
-     "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
+  In your **Start_GCode** on your Slicer.
+  - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
+  - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
@@ -341,7 +340,7 @@
 ![Tests](../../docs/images/Tests.png)
 ![MotorMounts](../../docs/images/BottomPulley.png)
 
-# 5. Module Wifi
+# 5. Firmware Wifi
 
 For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3DV2):
 
