@@ -370,7 +370,7 @@ constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
 constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = 1;
 
 constexpr uint16_t VP_MESH_LEVEL_X0_Y0 = 0x1350;
-constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0xFEFF;
+constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0x5000;
 
 constexpr uint16_t MESH_LEVEL_EDGE_MAX_POINTS = 4;
 
