@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.18"
+#define UNIFIED_VERSION "TH3D UFW 2.19"
 
 /**
  * TH3D Sanity Checks
@@ -116,6 +116,34 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(ANET_A2_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -33, -22, 0 }
+#endif
+#if ENABLED(ANET_A6_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -1, -54, 0 }
+#endif
+#if ENABLED(ANET_A8_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -26, -40, 0 }
+#endif
+#if ENABLED(ANET_A8_PLUS_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -24, -45, 0 }
+#endif
+#if ENABLED(ANET_E10_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -38, -12, 0 }
+#endif
+#if ENABLED(ANET_E12_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -38, -12, 0 }
+#endif
+#if ENABLED(ANET_E16_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -38, -12, 0 }
 #endif
 #if ENABLED(SUNLU_S8_5015_EZABL)
   #define ABL_ENABLE
@@ -470,7 +498,7 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
-#if DISABLED(DWIN_CREALITY_LCD)
+#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(LCD2004)
   #define SHOW_BOOTSCREEN
   #define SHOW_CUSTOM_BOOTSCREEN
 #endif

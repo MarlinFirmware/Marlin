@@ -33,6 +33,7 @@ This does not include machine configs or PlatformIO files.
 				- `pins_RAMPS.h`
 				- `pins_RAMPS_CREALITY.h`
 			- **sanguino**
+				- `pins_ANET_10.h`
 				- `pins_MELZI_CREALITY.h`
 			- **stm32f1**
 				- `pins_BTT_SKR_MINI_E3_common.h`
