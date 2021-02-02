@@ -123,7 +123,6 @@ void menu_user() {
   #if HAS_USER_ITEM(25)
     USER_ITEM(25);
   #endif
-  #undef USER_ITEM
   END_MENU();
 }
 
