@@ -13,7 +13,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(__STM32F1__) && defined(USE_USB_COMPOSITE)
+#include "../../inc/MarlinConfigPre.h"
+
+#if defined(__STM32F1__) && HAS_SD_HOST_DRIVE
 
 #include "msc_sd.h"
 #include "SPI.h"
@@ -21,7 +23,7 @@
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
-MarlinUSBCompositeSerial MarlinCompositeSerial;
+Serial0Type<USBCompositeSerial> MarlinCompositeSerial(true);
 
 #include "../../inc/MarlinConfig.h"
 
@@ -77,4 +79,4 @@ void MSC_SD_init() {
   #endif
 }
 
-#endif // __STM32F1__ && USE_USB_COMPOSITE
+#endif // __STM32F1__ && HAS_SD_HOST_DRIVE

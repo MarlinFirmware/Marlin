@@ -57,7 +57,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hlavní nabídka");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Další nastavení");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfigurace");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Uvolnit motory");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Nabídka ladění");
   #if LCD_WIDTH >= 20
@@ -98,12 +98,8 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Zahřát vlastní");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Zchladit");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Ovládání laseru");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Vypnout laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Zapnout laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon laseru");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Vřeteno ovládání");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Vřeteno vyp");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Vřeteno zap");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Vřeteno výkon");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Vřeteno opačně");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Zapnout napájení");
@@ -241,7 +237,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudér");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudér *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend je studený");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Posunout o %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Posunout o %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunout o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunout o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunout o 10mm");
@@ -301,7 +297,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Teplota");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Pohyb");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Prum.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Prum. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Vysunout mm");

@@ -287,6 +287,10 @@ typedef struct {
   #endif
 } skew_factor_t;
 
+#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+#endif
+
 class Planner {
   public:
 
@@ -435,7 +439,7 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
        // Counters to manage disabling inactive extruders
-      static uint8_t g_uc_extruder_last_move[EXTRUDERS];
+      static last_move_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
     #if HAS_WIRED_LCD
@@ -708,7 +712,7 @@ class Planner {
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t);
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
   #endif
 
     /**
@@ -974,6 +978,6 @@ class Planner {
     #endif // !CLASSIC_JERK
 };
 
-#define PLANNER_XY_FEEDRATE() (_MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
 
 extern Planner planner;

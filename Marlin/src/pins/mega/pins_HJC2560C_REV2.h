@@ -127,7 +127,7 @@
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20  // LCD_CS
     #define LCD_PINS_ENABLE                   15  // LCD_SDA
@@ -156,10 +156,10 @@
   #else
 
     // Buttons attached to a shift register
-    #define SHIFT_CLK                         38
-    #define SHIFT_LD                          42
-    #define SHIFT_OUT                         40
-    #define SHIFT_EN                          17
+    #define SHIFT_CLK_PIN                     38
+    #define SHIFT_LD_PIN                      42
+    #define SHIFT_OUT_PIN                     40
+    #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                    5
@@ -168,6 +168,6 @@
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

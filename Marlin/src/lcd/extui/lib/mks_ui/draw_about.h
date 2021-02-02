@@ -25,10 +25,9 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_about(void);
+extern void lv_draw_about();
 extern void lv_clear_about();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

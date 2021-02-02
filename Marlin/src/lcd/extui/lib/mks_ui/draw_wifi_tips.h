@@ -26,7 +26,7 @@
 #endif
 
 
-extern void lv_draw_wifi_tips(void);
+extern void lv_draw_wifi_tips();
 extern void lv_clear_wifi_tips();
 
 typedef enum {

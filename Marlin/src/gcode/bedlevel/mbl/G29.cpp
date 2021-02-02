@@ -34,7 +34,7 @@
 #include "../../queue.h"
 
 #include "../../../libs/buzzer.h"
-#include "../../../lcd/ultralcd.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 
@@ -85,7 +85,7 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(parser.seen('N') ? PSTR("G28" TERN(G28_L0_ENSURES_LEVELING_OFF, "L0", "") "\nG29S2") : PSTR("G29S2"));
         return;
       }
       state = MeshNext;

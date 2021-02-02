@@ -37,8 +37,10 @@
 #endif
 
 #if HAS_GRAPHICAL_TFT
-  #include "../tft/touch.h"
   #include "../tft/tft.h"
+  #if ENABLED(TOUCH_SCREEN)
+    #include "../tft/touch.h"
+  #endif
 #endif
 
 #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -101,9 +103,9 @@
         ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          queue.inject_P(PSTR("G29 S2"));
+          queue.inject_P(PSTR("G29S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          queue.inject_P(PSTR("G29 V1"));
+          queue.inject_P(PSTR("G29V1"));
         #endif
       }
       else
@@ -153,9 +155,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      queue.inject_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
+      queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      queue.inject_P(PSTR("G29 V1"));
+      queue.inject_P(PSTR("G29V1"));
     #endif
   }
 
@@ -167,7 +169,9 @@
     if (ui.should_draw()) {
       MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
       // Color UI needs a control to detect a touch
-      TERN_(HAS_GRAPHICAL_TFT, touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT));
+      #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+        touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+      #endif
     }
     if (ui.use_click()) {
       manual_probe_index = 0;
@@ -233,7 +237,7 @@
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */
 void menu_bed_leveling() {
-  const bool is_homed = all_axes_known(),
+  const bool is_homed = all_axes_trusted(),
              is_valid = leveling_is_valid();
 
   START_MENU();
@@ -250,7 +254,7 @@ void menu_bed_leveling() {
     SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else
     // Automatic leveling can just run the G-code
-    GCODES_ITEM(MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
+    GCODES_ITEM(MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G29N"));
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)

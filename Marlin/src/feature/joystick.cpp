@@ -32,7 +32,6 @@
 
 #include "../inc/MarlinConfig.h"  // for pins
 #include "../module/planner.h"
-#include "../module/temperature.h"
 
 Joystick joystick;
 
@@ -126,6 +125,11 @@ Joystick joystick;
     // Recursion barrier
     static bool injecting_now; // = false;
     if (injecting_now) return;
+
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+        return;
+    #endif
 
     static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag

@@ -33,7 +33,7 @@
 // Determine NUM_SERVOS if none was supplied
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
-  #if ANY(CHAMBER_VENT, HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+  #if ANY(HAS_Z_SERVO_PROBE, CHAMBER_VENT, SWITCHING_TOOLHEAD, SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SPINDLE_SERVO)
     #if NUM_SERVOS <= Z_PROBE_SERVO_NR
       #undef NUM_SERVOS
       #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
@@ -61,6 +61,10 @@
     #if NUM_SERVOS <= SWITCHING_EXTRUDER_E23_SERVO_NR
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SPINDLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
     #endif
   #endif
 #endif
@@ -138,8 +142,16 @@
   #undef SD_FINISHED_RELEASECOMMAND
 #endif
 
+#if ENABLED(NO_SD_AUTOSTART)
+  #undef MENU_ADDAUTOSTART
+#endif
+
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+  #define HAS_MEDIA_SUBCALLS 1
 #endif
 
 #if HAS_PRINT_PROGRESS && EITHER(PRINT_PROGRESS_SHOW_DECIMALS, SHOW_REMAINING_TIME)
@@ -148,7 +160,7 @@
 
 #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
   #define HAS_GAMES 1
-  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+  #if MANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
     #define HAS_GAME_MENU 1
   #endif
 #endif
@@ -163,7 +175,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
+#if ANY(EXTENSIBLE_UI, IS_NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -178,16 +190,39 @@
   #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
+#endif
+
 // Multiple Z steppers
 #ifndef NUM_Z_STEPPER_DRIVERS
   #define NUM_Z_STEPPER_DRIVERS 1
 #endif
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  #undef Z_STEPPER_ALIGN_AMP
+// Fallback Stepper Driver types that depend on Configuration_adv.h
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #undef X2_DRIVER_TYPE
 #endif
-#ifndef Z_STEPPER_ALIGN_AMP
-  #define Z_STEPPER_ALIGN_AMP 1.0
+#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
+  #undef Y2_DRIVER_TYPE
+#endif
+
+#if NUM_Z_STEPPER_DRIVERS < 4
+  #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -208,10 +243,7 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if defined(__AVR__) && defined(USBCON)
-  #define IS_AT90USB 1
-  #undef SERIAL_XON_XOFF // Not supported on USB-native devices
-#else
+#if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
   // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -223,6 +255,9 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
+#else
+  // SERIAL_XON_XOFF not supported on USB-native devices
+  #undef SERIAL_XON_XOFF
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -337,7 +372,7 @@
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_BUTTONS)
   #define NEED_TOUCH_PINS 1
 #endif
 
@@ -349,6 +384,14 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
 #endif
 
 /**
@@ -469,7 +512,10 @@
 #endif
 
 // Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || \
+                         (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || \
+                         (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
+                         (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
 #if ANY_SERIAL_IS(-1)
   #define USING_SERIAL_DEFAULT
 #endif

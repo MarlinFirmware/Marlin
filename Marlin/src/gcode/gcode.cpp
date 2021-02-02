@@ -40,7 +40,7 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT)
+#if ENABLED(HOST_ACTION_COMMANDS)
   #include "../feature/host_actions.h"
 #endif
 
@@ -61,7 +61,7 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
-#include "../MarlinCore.h" // for idle()
+#include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
@@ -209,6 +209,31 @@ void GcodeSuite::dwell(millis_t time) {
  */
 #if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
 
+  void GcodeSuite::event_probe_recover() {
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    #ifdef ACTION_ON_G29_RECOVER
+      host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+    #endif
+  }
+
+  void GcodeSuite::event_probe_failure() {
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE));
+    #endif
+    #ifdef G29_FAILURE_COMMANDS
+      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+    #endif
+    #if ENABLED(G29_HALT_ON_FAILURE)
+      #ifdef ACTION_ON_CANCEL
+        host_action_cancel();
+      #endif
+      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+    #endif
+  }
+
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
   #endif
@@ -216,7 +241,10 @@ void GcodeSuite::dwell(millis_t time) {
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
     while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries--) event_probe_recover();
+      if (retries) {
+        event_probe_recover();
+        --retries;
+      }
       else {
         event_probe_failure();
         return;
@@ -250,7 +278,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
   */
   #if ENABLED(PASSWORD_FEATURE)
-    if (password.is_locked && !(parser.command_letter == 'M' && parser.codenum == 511)) {
+    if (password.is_locked && !parser.is_command('M', 511)) {
       SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
       if (!no_ok) queue.ok_to_send();
       return;
@@ -328,7 +356,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
-      #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+      #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
@@ -432,7 +460,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 28: M28(); break;                                    // M28: Start SD write
         case 29: M29(); break;                                    // M29: Stop SD write
         case 30: M30(); break;                                    // M30 <filename> Delete File
-        case 32: M32(); break;                                    // M32: Select file and start SD print
+
+        #if HAS_MEDIA_SUBCALLS
+          case 32: M32(); break;                                  // M32: Select file and start SD print
+        #endif
 
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           case 33: M33(); break;                                  // M33: Get the long full path to a file or folder
@@ -700,7 +731,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if ENABLED(PRUSA_MMU2)
+      #if HAS_PRUSA_MMU2
         case 403: M403(); break;
       #endif
 
@@ -713,6 +744,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_FILAMENT_SENSOR
         case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
+      #endif
+
+      #if HAS_MULTI_LANGUAGE
+        case 414: M414(); break;                                  // M414: Select multi language menu
       #endif
 
       #if HAS_LEVELING
@@ -755,8 +790,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 511: M511(); break;                                // M511: Unlock Printer
         #endif
         #if ENABLED(PASSWORD_CHANGE_GCODE)
-          case 512: M512(); break;
-        #endif                                                    // M512: Set/Change/Remove Password
+          case 512: M512(); break;                                // M512: Set/Change/Remove Password
+        #endif
       #endif
 
       #if ENABLED(SDSUPPORT)
@@ -765,6 +800,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
+      #endif
+
+      #if HAS_ETHERNET
+        case 552: M552(); break;                                  // M552: Set IP address
+        case 553: M553(); break;                                  // M553: Set gateway
+        case 554: M554(); break;                                  // M554: Set netmask
       #endif
 
       #if ENABLED(BAUD_RATE_GCODE)
@@ -874,6 +915,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
       #endif
 
+      #if ENABLED(GCODE_REPEAT_MARKERS)
+        case 808: M808(); break;                                  // M808: Set / Goto repeat markers
+      #endif
+
       #if ENABLED(I2C_POSITION_ENCODERS)
         case 860: M860(); break;                                  // M860: Report encoder module position
         case 861: M861(); break;                                  // M861: Report encoder module status
@@ -941,6 +986,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   }
 
   if (!no_ok) queue.ok_to_send();
+
+  SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
 }
 
 /**
@@ -950,7 +997,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 void GcodeSuite::process_next_command() {
   char * const current_command = queue.command_buffer[queue.index_r];
 
-  PORT_REDIRECT(queue.port[queue.index_r]);
+  PORT_REDIRECT(SERIAL_PORTMASK(queue.port[queue.index_r]));
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.queue_index_r = queue.index_r;

@@ -141,7 +141,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
 
   #define BEEPER_PIN                          -1
 
@@ -154,7 +154,7 @@
 
   #define SD_DETECT_PIN                       -1
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control

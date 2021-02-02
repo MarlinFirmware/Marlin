@@ -23,10 +23,10 @@
 
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#if SERIAL_PORT_2 != -1
-  #error "SERIAL_PORT_2 must be set to -1 with HAS_TFT_LVGL_UI and USE_WIFI_FUNCTION."
+#ifdef SERIAL_PORT_2
+  #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
 #endif
 
 #define WIFI_BAUDRATE          115200
@@ -58,8 +58,8 @@ class WifiSerial {
     void begin(uint32 baud);
     void begin(uint32 baud,uint8_t config);
     void end();
-    int available(void);
-    int read(void);
+    int available();
+    int read();
     int write(uint8_t);
     inline void wifi_usart_irq(usart_reg_map *regs) {
       /* Handling RXNEIE and TXEIE interrupts.
@@ -80,17 +80,17 @@ class WifiSerial {
       }
       /* TXE signifies readiness to send a byte to DR. */
       if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
-          if (!rb_is_empty(this->usart_device->wb))
-              regs->DR=rb_remove(this->usart_device->wb);
-          else
-              regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
+        if (!rb_is_empty(this->usart_device->wb))
+          regs->DR=rb_remove(this->usart_device->wb);
+        else
+          regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
       }
     }
 
-    int wifi_rb_is_full(void);
+    int wifi_rb_is_full();
 
-  private:
     struct usart_dev *usart_device;
+    private:
     uint8 tx_pin;
     uint8 rx_pin;
 };
@@ -99,4 +99,4 @@ extern WifiSerial WifiSerial1;
 
 #define WIFISERIAL  WifiSerial1
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE

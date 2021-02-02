@@ -90,7 +90,7 @@ class PolyReader {
         if (start_x != eol)
           close_loop();
         else
-          p = NULL;
+          p = nullptr;
       }
       else {
         x = pgm_read_word_far(p++);
@@ -106,7 +106,7 @@ class PolyReader {
       }
     }
 
-    bool has_more()       { return p != NULL; }
+    bool has_more()       { return p != nullptr; }
     bool end_of_loop()    { return start_x == eol; }
 };
 

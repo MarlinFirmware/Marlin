@@ -54,7 +54,7 @@
 #define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
 
 #define AC_HEATER_FAULT_VALIDATION_TIME 5    // number of 1/2 second loops before signalling a heater fault
-#define AC_LOWEST_MESHPOINT_VAL        -7.00 // The lowest value you can set for a single mesh point offset
+#define AC_LOWEST_MESHPOINT_VAL        Z_PROBE_LOW_POINT // The lowest value you can set for a single mesh point offset
 
  // TFT panel commands
 #define  AC_msg_sd_card_inserted       PSTR("J00")
@@ -88,7 +88,7 @@
 
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")
 #define MARLIN_msg_probing_failed      PSTR("Probing Failed")
-#define MARLIN_msg_ready               PSTR("3D Printer Ready.")
+#define MARLIN_msg_ready               PSTR(" Ready.")
 #define MARLIN_msg_print_paused        PSTR("Print Paused")
 #define MARLIN_msg_print_aborted       PSTR("Print Aborted")
 #define MARLIN_msg_extruder_heating    PSTR("E Heating...")
@@ -105,8 +105,8 @@
 
 #define AC_cmnd_manual_load_filament   PSTR("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
 #define AC_cmnd_manual_unload_filament PSTR("M83\nG1 E-50 F1200\nM82")
-#define AC_cmnd_enable_levelling       PSTR("M420 S1 V1")
-#define AC_cmnd_power_loss_recovery    PSTR("G28 X Y R5\nG28 Z")       // Lift, home X and Y then home Z when in 'safe' position
+#define AC_cmnd_enable_leveling        PSTR("M420SV")
+#define AC_cmnd_power_loss_recovery    PSTR("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
 
 namespace Anycubic {
   enum heater_state_t : uint8_t {

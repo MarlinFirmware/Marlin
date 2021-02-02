@@ -27,8 +27,8 @@
 #include "../../ui_api.h"
 
 #include "../../../../libs/numtostr.h"
-#include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
-#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
+#include "../../../../MarlinCore.h"     // for disable_steppers
 #include "../../../../inc/MarlinConfig.h"
 
 // command sending macro's with debugging capability
@@ -87,7 +87,7 @@ void AnycubicTFTClass::OnSetup() {
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+    SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
@@ -218,12 +218,12 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
 }
 
 float AnycubicTFTClass::CodeValue() {
-  return (strtod(&TFTcmdbuffer[TFTbufindr][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindr] + 1], NULL));
+  return (strtod(&TFTcmdbuffer[TFTbufindr][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindr] + 1], nullptr));
 }
 
 bool AnycubicTFTClass::CodeSeen(char code) {
   TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindr], code);
-  return (TFTstrchr_pointer != NULL); // Return True if a character was found
+  return !!TFTstrchr_pointer; // Return True if a character was found
 }
 
 bool AnycubicTFTClass::IsNozzleHomed() {
@@ -274,12 +274,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
               case '6': // "<06SMeshLvl>"
                 SERIAL_ECHOLNPGM("Special Menu: Start Mesh Leveling");
-                ExtUI::injectCommands_P(PSTR("G29 S1"));
+                ExtUI::injectCommands_P(PSTR("G29S1"));
                 break;
 
               case '7': // "<07MeshNPnt>"
                 SERIAL_ECHOLNPGM("Special Menu: Next Mesh Point");
-                ExtUI::injectCommands_P(PSTR("G29 S2"));
+                ExtUI::injectCommands_P(PSTR("G29S2"));
                 break;
 
               case '8': // "<08HtEndPID>"
@@ -324,7 +324,7 @@ void AnycubicTFTClass::HandleSpecialMenu() {
 
               case '2': // "<02ABL>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Bed Leveling");
-                ExtUI::injectCommands_P(PSTR("G28\nG29"));
+                ExtUI::injectCommands_P(PSTR("G29N"));
                 break;
 
               case '3': // "<03HtendPID>"
@@ -536,7 +536,7 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
 }
 
 void AnycubicTFTClass::GetCommandFromTFT() {
-  char *starpos = NULL;
+  char *starpos = nullptr;
   while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
     serial3_char = LCD_SERIAL.read();
     if (serial3_char == '\n' ||
@@ -549,10 +549,10 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
       TFTcmdbuffer[TFTbufindw][serial3_count] = 0; // terminate string
 
-      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != NULL)) {
+      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != nullptr)) {
         int16_t a_command;
         TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindw], 'A');
-        a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], NULL))));
+        a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], nullptr))));
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           if ((a_command > 7) && (a_command != 20)) { // No debugging of status polls, please!
@@ -592,15 +592,12 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           } break;
 
           case 5: { // A5 GET CURRENT COORDINATE
-            float xPostition = ExtUI::getAxisPosition_mm(ExtUI::X);
-            float yPostition = ExtUI::getAxisPosition_mm(ExtUI::Y);
-            float zPostition = ExtUI::getAxisPosition_mm(ExtUI::Z);
-            SEND_PGM("A5V X: ");
-            LCD_SERIAL.print(xPostition);
-            SEND_PGM(" Y: ");
-            LCD_SERIAL.print(yPostition);
-            SEND_PGM(" Z: ");
-            LCD_SERIAL.print(zPostition);
+            const float xPosition = ExtUI::getAxisPosition_mm(ExtUI::X),
+                        yPosition = ExtUI::getAxisPosition_mm(ExtUI::Y),
+                        zPosition = ExtUI::getAxisPosition_mm(ExtUI::Z);
+            SEND_PGM("A5V X: "); LCD_SERIAL.print(xPosition);
+            SEND_PGM(   " Y: "); LCD_SERIAL.print(yPosition);
+            SEND_PGM(   " Z: "); LCD_SERIAL.print(zPosition);
             SENDLINE_PGM("");
           } break;
 
@@ -682,8 +679,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                 else {
                   SelectedDirectory[0] = 0;
 
-                  if (starpos != NULL)
-                    *(starpos - 1) = '\0';
+                  if (starpos) *(starpos - 1) = '\0';
 
                   strcpy(SelectedFile, TFTstrchr_pointer + 4);
                   SENDLINE_DBG_PGM_VAL("J20", "TFT Serial Debug: File Selected... J20 ", SelectedFile); // J20 File Selected
@@ -762,14 +758,14 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
               if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
                 if (CodeSeen('X'))
-                  ExtUI::injectCommands_P(PSTR("G28 X"));
+                  ExtUI::injectCommands_P(PSTR("G28X"));
                 if (CodeSeen('Y'))
-                  ExtUI::injectCommands_P(PSTR("G28 Y"));
+                  ExtUI::injectCommands_P(PSTR("G28Y"));
                 if (CodeSeen('Z'))
-                  ExtUI::injectCommands_P(PSTR("G28 Z"));
+                  ExtUI::injectCommands_P(PSTR("G28Z"));
               }
               else if (CodeSeen('C')) {
-                ExtUI::injectCommands_P(PSTR("G28"));
+                ExtUI::injectCommands_P(G28_STR);
               }
             }
             break;
@@ -936,7 +932,7 @@ void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     // NOTE: ExtUI::getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
-    if (READ(FIL_RUNOUT_PIN)) {
+    if (READ(FIL_RUNOUT1_PIN)) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
         ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
@@ -984,7 +980,7 @@ void AnycubicTFTClass::PausePrint() {
 void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if (READ(FIL_RUNOUT_PIN)) {
+      if (READ(FIL_RUNOUT1_PIN)) {
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
         #endif

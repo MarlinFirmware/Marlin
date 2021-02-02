@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -30,7 +30,7 @@ using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 2
   #define GRID_ROWS 10
 
@@ -78,9 +78,9 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
       }
     }
   }
-  if (val_cnt) {
+  if (val_cnt)
     val_mean /= val_cnt;
-  } else {
+  else {
     val_mean = 0;
     val_min  = 0;
     val_max  = 0;
@@ -196,7 +196,7 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
   }
 
   if (opts & USE_HIGHLIGHT) {
-    const uint8_t tag = screen_data.BedMeshScreen.highlightedTag;
+    const uint8_t tag = screen_data.BedMesh.highlightedTag;
     uint8_t x, y;
     if (tagToPoint(tag, x, y)) {
       cmd.cmd(COLOR_A(128))
@@ -221,16 +221,16 @@ bool BedMeshScreen::tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y) {
 }
 
 void BedMeshScreen::onEntry() {
-  screen_data.BedMeshScreen.highlightedTag = 0;
-  screen_data.BedMeshScreen.count = GRID_MAX_POINTS;
-  screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_NONE;
+  screen_data.BedMesh.highlightedTag = 0;
+  screen_data.BedMesh.count = GRID_MAX_POINTS;
+  screen_data.BedMesh.message = screen_data.BedMesh.MSG_NONE;
   BaseScreen::onEntry();
 }
 
 float BedMeshScreen::getHightlightedValue() {
-  if (screen_data.BedMeshScreen.highlightedTag) {
+  if (screen_data.BedMesh.highlightedTag) {
     xy_uint8_t pt;
-    tagToPoint(screen_data.BedMeshScreen.highlightedTag, pt.x, pt.y);
+    tagToPoint(screen_data.BedMesh.highlightedTag, pt.x, pt.y);
     return ExtUI::getMeshPoint(pt);
   }
   return NAN;
@@ -250,12 +250,12 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .text(Z_VALUE_POS, str)
      .colors(action_btn)
-     .tag(1).button( OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
+     .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
-  switch (screen_data.BedMeshScreen.message) {
-    case screen_data.BedMeshScreen.MSG_MESH_COMPLETE:   cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE)); break;
-    case screen_data.BedMeshScreen.MSG_MESH_INCOMPLETE: cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE)); break;
+  switch (screen_data.BedMesh.message) {
+    case screen_data.BedMesh.MSG_MESH_COMPLETE:   cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE)); break;
+    case screen_data.BedMesh.MSG_MESH_INCOMPLETE: cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE)); break;
     default: break;
   }
 }
@@ -277,11 +277,11 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
 
   if (what & FOREGROUND) {
     constexpr float autoscale_max_amplitude = 0.03;
-    const bool gotAllPoints = screen_data.BedMeshScreen.count >= GRID_MAX_POINTS;
+    const bool gotAllPoints = screen_data.BedMesh.count >= GRID_MAX_POINTS;
     if (gotAllPoints) {
       drawHighlightedPointValue();
     }
-    const float levelingProgress = sq(float(screen_data.BedMeshScreen.count) / GRID_MAX_POINTS);
+    const float levelingProgress = sq(float(screen_data.BedMesh.count) / GRID_MAX_POINTS);
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
       USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (gotAllPoints ? USE_COLORS : 0),
       autoscale_max_amplitude * levelingProgress
@@ -290,7 +290,7 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
 }
 
 bool BedMeshScreen::onTouchStart(uint8_t tag) {
-  screen_data.BedMeshScreen.highlightedTag = tag;
+  screen_data.BedMesh.highlightedTag = tag;
   return true;
 }
 
@@ -309,36 +309,24 @@ void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
     onRefresh();
 }
 
-bool BedMeshScreen::isMeshComplete(ExtUI::bed_mesh_t data) {
-  for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-      if (isnan(data[x][y])) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
   switch (state) {
     case ExtUI::MESH_START:
-      screen_data.BedMeshScreen.count = 0;
-      screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_NONE;
+      screen_data.BedMesh.count = 0;
+      screen_data.BedMesh.message = screen_data.BedMesh.MSG_NONE;
       break;
     case ExtUI::MESH_FINISH:
-      if (screen_data.BedMeshScreen.count == GRID_MAX_POINTS && isMeshComplete(ExtUI::getMeshArray())) {
-        screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_COMPLETE;
-      } else {
-        screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_INCOMPLETE;
-      }
-      screen_data.BedMeshScreen.count = GRID_MAX_POINTS;
+      if (screen_data.BedMesh.count == GRID_MAX_POINTS && ExtUI::getMeshValid())
+        screen_data.BedMesh.message = screen_data.BedMesh.MSG_MESH_COMPLETE;
+      else
+        screen_data.BedMesh.message = screen_data.BedMesh.MSG_MESH_INCOMPLETE;
+      screen_data.BedMesh.count = GRID_MAX_POINTS;
       break;
     case ExtUI::PROBE_START:
-      screen_data.BedMeshScreen.highlightedTag = pointToTag(x, y);
+      screen_data.BedMesh.highlightedTag = pointToTag(x, y);
       break;
     case ExtUI::PROBE_FINISH:
-      screen_data.BedMeshScreen.count++;
+      screen_data.BedMesh.count++;
       break;
   }
   BedMeshScreen::onMeshUpdate(x, y, 0);
@@ -346,7 +334,7 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
 
 void BedMeshScreen::startMeshProbe() {
   GOTO_SCREEN(BedMeshScreen);
-  screen_data.BedMeshScreen.count = 0;
+  screen_data.BedMesh.count = 0;
   injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
 }
 
