@@ -178,7 +178,7 @@
   - "Configuration/AdvancedSettings/InitializeEEPROM"
   
   By terminal:
-  - put command "M502" (Factory Reset), then "M501" (restore default) and "M500" (Save settings in EEPROM).
+  - with the command "M502" (Factory Reset), then "M501" (restore default) and "M500" (Save settings in EEPROM).
   
    # **VERY IMPORTANT:**
    First of all, you need to check that you have flashed the **correct firmware**.
@@ -193,7 +193,7 @@
   - "Configuration/Delta_Calibration/AutoCalibration"(5/8 iterations).
   
   By terminal:
-  - Put the command "G33" or G33 V3 (5/8 iterations).
+  - with the command "G33" or G33 V3 (5/8 iterations).
     
   **Tip** Via a terminal like Pronterface, Octoprint, Repetier, Astroprint, ESP3D, ...: 
         
@@ -221,7 +221,7 @@
 ## 2.3. Bed Levelling
   **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
 
-  By terminal:
+  By terminal with the commands:
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
   - G29 P1 (automated probing of the bed)
@@ -237,6 +237,15 @@
   By menu:
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
+
+  **Perform a bed calibration ([**ABL**](https://marlinfw.org/docs/features/auto_bed_leveling.html))**
+  
+  By terminal(command):
+  - with the command "G29"
+
+  By menu:
+  - Put your bed at working temperature.
+  - "Configuration/Levelling"
 
   **TIPS-LEVELLING**
 
@@ -267,6 +276,7 @@
   [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
 
   **Perform a nozzle PID:**
+  
   By the menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
   
@@ -274,6 +284,7 @@
   - with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
   
   **Perform a bed PID:**
+  
   By menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
   
@@ -285,6 +296,7 @@
 
   ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
   
+  Preparation:
   - Remove your filament, the Capricorn/PTFE tube coming out of the extruder, introduce the filament into the extruder so that it comes out on the other side. 
   - Measure before extruding 120mm of filament to make a mark.
   
@@ -306,41 +318,41 @@
 # 3. SPECIAL MODS
   - This chapter is being written ...............
   ## 3.1 TMC with UART mode
-  Wiring for UART mode.
-   - Wire between Driver Stepper pins (UART) and pins Wifi socket (M1)
+  - Wiring for UART mode.
+    - Wire between Driver Stepper pins (UART) and pins Wifi socket (M1)
   
-  ![Wiring UART](../../docs/images/WireUART.png)
+    ![Wiring UART](../../docs/images/WireUART.png)
   ## 3.2 TMC2209 Single wire
-  wiring for UART mode.
-  Caution!! 
-   - 
+  - Wiring for UART mode.
+    Caution!! 
+    - Power off 
 
-  ![Wiring 2209](../../docs/images/Wire2209.png)
+    ![Wiring 2209](../../docs/images/Wire2209.png)
   ## 3.3 Raspberry
-  Improve your Raspberry (Bauds, plugins, Network).
+  - Improve your Raspberry (Bauds, plugins, Network).
   
-  ![Wiring for Raspberry](../../docs/images/WireRPI.png)
+    ![Wiring for Raspberry](../../docs/images/WireRPI.png)
   ## 3.4. Various assembly
-    Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
+  - Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
   
-  - Module Wifi (ESP or MKS_Wifi):
-    - Use a cable.....
+    - Module Wifi (ESP or MKS_Wifi):
+      - Use a cable.....
   
-  ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
-  - Module filament Sensor:
-    - Use the socket MT_DET on your board with a cable (3 wires).
-    - Wires are: Signal (White), Ground (Black), Power (Red) 
+      ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
+    - Module filament Sensor:
+      - Use the socket MT_DET on your board with a cable (3 wires).
+      - Wires are: Signal (White), Ground (Black), Power (Red) 
   
-  ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
+      ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
   
-  - Module Relay(s)
-    - Put a platine.....
+    - Module Relay(s)
+      - Put a platine.....
   
-  ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
-  - Module convertor, probe, ......
-    - You can insert.....
+      ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
+    - Module convertor, probe, ......
+      - You can insert.....
   
-  ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
+      ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
 
 # 4. SLICER PART
 
