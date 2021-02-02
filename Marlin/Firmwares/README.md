@@ -197,16 +197,22 @@
   
 ## 2.2. Z_OffSet
   **Perform a Z offset:**
-  - By menu: "Motion/MoveAxis" deactived the endstops.
-    Then lower the nozzle slowly to adjust to a sheet of paper.
-    View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00) and finally store the parameters "Configuration/StoreSettings".
-  - By terminal: deactivating the endstops with command M211 S0 =>read result in console.
+  By menu: 
+  - "Motion/MoveAxis" deactived the endstops.
+  - "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
+  - View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00)
+  - finally store the parameters "Configuration/StoreSettings".
+  
+  By terminal: 
+  - deactivating the endstops with command M211 S0 =>read result in console.
     View the value on the display and enter the value in the Probe_Z_Offset with command "M851 Z-xx.xx" and finally store the parameters with command "M500".
     Control your result of opérations by command "M503".
   Through a terminal,
 
 ## 2.3. Bed Levelling
-  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) with this commands via terminal:**
+  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
+
+  By terminal:
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
   - G29 P1 (automated probing of the bed)
@@ -219,7 +225,9 @@
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
   
-  **Bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html)) via Menu**
+  **Bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
+  
+  By menu:
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
 
@@ -253,12 +261,18 @@
   [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
 
   **Perform a nozzle PID:**
-  - by the menu: "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
-  - by terminal: with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
+  By the menu: 
+  - "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
+  
+  By terminal: 
+  - with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
   
   **Perform a bed PID:**
-  - by menu: "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
-  - by terminal: with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
+  By menu: 
+  - "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
+  
+  By terminal: 
+  - with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
   ## 2.6. EXTRUDER
   **Perform correct adjustment of the steps of your extruder.**
@@ -279,7 +293,6 @@
   By menu (No possibility to adjust start and speed !!):
   - Heat your nozzle to 190°C and go to "Motion/MoveAxis/Extruder/Move 10mm"
   - .......
-
 
   **Perform correct filament flow.**
   - This chapter is being written ...............
