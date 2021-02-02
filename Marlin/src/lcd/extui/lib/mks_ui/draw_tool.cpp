@@ -71,7 +71,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[uiCfg.curSprayerChoose].target;
       lv_draw_filament_change();
       break;
-    case ID_T_MORE: lv_draw_more(); break;
+    case ID_T_MORE:
+      lv_draw_more();
+      break;
     case ID_T_RETURN:
       TERN_(MKS_TEST, curent_disp_ui = 1);
       lv_draw_ready_print();
