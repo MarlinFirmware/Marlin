@@ -1614,9 +1614,8 @@
 
 // @section temperature
 
-// Preheat Constants
 //
-// You can set PREHEAT_1 through PREHEAT_5
+// Preheat Constants - Up to 5 are supported without changes
 //
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
