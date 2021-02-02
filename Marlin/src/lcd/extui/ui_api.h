@@ -155,7 +155,7 @@ namespace ExtUI {
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
-      typedef enum : unsigned char {
+      typedef enum : uint8_t {
         MESH_START,    // Prior to start of probe
         MESH_FINISH,   // Following probe of all points
         PROBE_START,   // Beginning probe of grid location
@@ -197,6 +197,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
   void setFlow_percent(const int16_t, const extruder_t);
+  bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
@@ -301,8 +302,8 @@ namespace ExtUI {
     FORCE_INLINE uint32_t safe_millis() { return millis(); } // TODO: Implement for AVR
   #endif
 
-  void delay_us(unsigned long us);
-  void delay_ms(unsigned long ms);
+  void delay_us(uint32_t us);
+  void delay_ms(uint32_t ms);
   void yield();
 
   /**

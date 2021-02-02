@@ -162,10 +162,10 @@
   #define LCD_PINS_D6                         39
   #define LCD_PINS_D7                         15
 
-  #define SHIFT_CLK                           43
-  #define SHIFT_LD                            35
-  #define SHIFT_OUT                           34
-  #define SHIFT_EN                            44
+  #define SHIFT_CLK_PIN                       43
+  #define SHIFT_LD_PIN                        35
+  #define SHIFT_OUT_PIN                       34
+  #define SHIFT_EN_PIN                        44
 
   #if MB(MEGATRONICS_31, MEGATRONICS_32)
     #define SD_DETECT_PIN                     56

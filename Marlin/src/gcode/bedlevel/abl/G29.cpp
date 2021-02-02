@@ -181,13 +181,17 @@ G29_TYPE GcodeSuite::G29() {
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
 
-  // Don't allow auto-leveling without homing first
-  if (homing_needed_error()) G29_RETURN(false);
-
   if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip");
     G29_RETURN(false);
   }
+
+  // Send 'N' to force homing before G29 (internal only)
+  if (parser.seen('N'))
+    process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
+
+  // Don't allow auto-leveling without homing first
+  if (homing_needed_error()) G29_RETURN(false);
 
   // Define local vars 'static' for manual probing, 'auto' otherwise
   #define ABL_VAR TERN_(PROBE_MANUALLY, static)
@@ -249,7 +253,6 @@ G29_TYPE GcodeSuite::G29() {
 
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     struct linear_fit_data lsf_results;
-    incremental_LSF_reset(&lsf_results);
   #endif
 
   /**
@@ -323,6 +326,8 @@ G29_TYPE GcodeSuite::G29() {
     dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+
+      incremental_LSF_reset(&lsf_results);
 
       do_topography_map = verbose_level > 2 || parser.boolval('T');
 

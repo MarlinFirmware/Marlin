@@ -146,10 +146,10 @@
       #define BEEPER_PIN                    PC1   // 33
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                   PC6   // 38
-      //#define SHIFT_LD                    PC10  // 42
-      //#define SHIFT_OUT                   PC8   // 40
-      //#define SHIFT_EN                    PA1   // 17
+      //#define SHIFT_CLK_PIN               PC6   // 38
+      //#define SHIFT_LD_PIN                PC10  // 42
+      //#define SHIFT_OUT_PIN               PC8   // 40
+      //#define SHIFT_EN_PIN                PA1   // 17
     #endif
   #endif
 
@@ -260,9 +260,9 @@
         #define BTN_EN1                     PE0   // 64
         #define BTN_EN2                     PD11  // 59
         #define BTN_ENC                     PD15  // 63
-        #define SHIFT_OUT                   PC8   // 40
-        #define SHIFT_CLK                   PC12  // 44
-        #define SHIFT_LD                    PC10  // 42
+        #define SHIFT_OUT_PIN               PC8   // 40
+        #define SHIFT_CLK_PIN               PC12  // 44
+        #define SHIFT_LD_PIN                PC10  // 42
       #elif ENABLED(PANEL_ONE)
         #define BTN_EN1                     PD11  // 59   // AUX2 PIN 3
         #define BTN_EN2                     PD15  // 63   // AUX2 PIN 4

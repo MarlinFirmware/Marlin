@@ -122,7 +122,7 @@ void Power::power_off() {
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
-  	PSU_PIN_OFF();
+    PSU_PIN_OFF();
   }
 }
 

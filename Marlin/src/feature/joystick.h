@@ -27,7 +27,6 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
-#include "../core/macros.h"
 #include "../module/temperature.h"
 
 class Joystick {
