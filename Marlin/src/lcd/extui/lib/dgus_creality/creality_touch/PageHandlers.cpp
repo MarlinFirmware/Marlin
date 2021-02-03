@@ -412,6 +412,7 @@ void InfoMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
     SERIAL_ECHOPGM_P("- done");
 
+    if (ScreenHandler.Settings.display_sound) ScreenHandler.Buzzer(500, 100);
     ScreenHandler.setstatusmessagePGM(PSTR("Filament load/unload complete"));
 }
 
