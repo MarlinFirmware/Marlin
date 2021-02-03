@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_PRINTING_DIALOG_BOX
 
 #include "../ftdi_eve_lib/extras/circular_progress.h"
 
@@ -147,4 +146,4 @@ void BioPrintingDialogBox::show() {
   GOTO_SCREEN(BioPrintingDialogBox);
 }
 
-#endif // TOUCH_UI_FTDI_EVE && TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_BIO_PRINTING_DIALOG_BOX

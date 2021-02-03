@@ -21,10 +21,9 @@
  */
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, CUSTOM_USER_MENUS) && NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_CUSTOM_USER_MENUS
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -212,4 +211,4 @@ bool CustomUserMenus::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && CUSTOM_USER_MENUS && !TOUCH_UI_LULZBOT_BIO && !TOUCH_UI_COCOA_PRESS
+#endif // FTDI_CUSTOM_USER_MENUS

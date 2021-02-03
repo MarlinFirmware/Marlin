@@ -22,11 +22,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_COCOA_MOVE_E_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -59,4 +58,4 @@ void MoveEScreen::onIdle() {
   }
   BaseScreen::onIdle();
 }
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_COCOA_MOVE_E_SCREEN

@@ -27,71 +27,40 @@
 // To save RAM, store state information related to a particular screen
 // in a union. The values should be initialized in the onEntry method.
 
-struct base_numeric_adjustment_t {uint8_t increment;};
+/**
+ * The DECL_DATA_IF_INCLUDED macro:
+ *
+ * union screen_data_t {
+ *   DECL_DATA_IF_INCLUDED(FTDI_EXAMPLE_SCREEN)
+ * }
+ *
+ * Is a shorthand for:
+ *
+ * union screen_data_t {
+ *   #ifdef FTDI_EXAMPLE_SCREEN
+ *     struct ExampleScreenData ExampleScreen;
+ *   #endif
+ * }
+ *
+ */
+#define __DECL_DATA_IF_INCLUDED(CLASS) struct CLASS ## Data CLASS ;
+#define _DECL_DATA_IF_INCLUDED(CLASS) __DECL_DATA_IF_INCLUDED(CLASS)
+#define DECL_DATA_IF_INCLUDED(HEADER) TERN(HEADER, _DECL_DATA_IF_INCLUDED(HEADER ## _CLASS), )
 
 union screen_data_t {
-  struct base_numeric_adjustment_t             BaseNumericAdjustment;
-  struct {uint8_t volume; uint8_t brightness;} InterfaceSettings;
-  struct {char passcode[5];}                   Lock;
-  struct {bool isError;}                       AlertDialog;
-  struct {bool auto_hide;}                     SpinnerDialog;
-  struct {uint8_t file_index;}                 ConfirmStartPrintDialog;
-  struct {
-    uint8_t e_tag, t_tag, repeat_tag;
-    ExtUI::extruder_t saved_extruder;
-    #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
-      bool need_purge;
-    #endif
-  } ChangeFilament;
-  struct {
-    struct {
-      uint8_t is_dir  : 1;
-      uint8_t is_root : 1;
-    } flags;
-    uint8_t   selected_tag;
-    uint8_t   num_page;
-    uint8_t   cur_page;
-    #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
-      uint16_t  scroll_pos;
-      uint16_t  scroll_max;
-    #endif
-  } Files;
-  struct {
-    struct base_numeric_adjustment_t placeholder;
-    float e_rel[ExtUI::extruderCount];
-  } MoveAxis;
-  #if HAS_MESH
-    struct {
-      enum : uint8_t {
-        MSG_NONE,
-        MSG_MESH_COMPLETE,
-        MSG_MESH_INCOMPLETE
-      } message;
-      uint8_t count;
-      uint8_t highlightedTag;
-    } BedMesh;
-  #endif
-  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-    struct {
-      uint32_t next_watchdog_trigger;
-      const char*  message;
-    } StressTest;
-  #endif
-  #if ENABLED(TOUCH_UI_COCOA_PRESS)
-    struct {
-      uint32_t start_ms;
-    } PreheatTimer;
-  #endif
-  #if ENABLED(BABYSTEPPING)
-    struct {
-      struct base_numeric_adjustment_t placeholder;
-      xyz_int_t rel;
-      #if HAS_MULTI_EXTRUDER
-        bool link_nozzles;
-      #endif
-      bool show_offsets;
-    } NudgeNozzle;
-  #endif
+  DECL_DATA_IF_INCLUDED(FTDI_INTERFACE_SETTINGS_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_LOCK_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_SPINNER_DIALOG_BOX)
+  DECL_DATA_IF_INCLUDED(FTDI_CONFIRM_START_PRINT_DIALOG_BOX)
+  DECL_DATA_IF_INCLUDED(FTDI_CHANGE_FILAMENT_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_FILES_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_MOVE_AXIS_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_BED_MESH_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_STRESS_TEST_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_COCOA_PREHEAT_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_NUDGE_NOZZLE_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_BASE_NUMERIC_ADJ_SCREEN)
+  DECL_DATA_IF_INCLUDED(FTDI_ALERT_DIALOG_BOX)
 };
 
 extern screen_data_t screen_data;

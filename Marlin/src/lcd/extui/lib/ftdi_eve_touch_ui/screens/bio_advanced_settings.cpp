@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_ADVANCED_SETTINGS_MENU
 
 using namespace FTDI;
 using namespace Theme;
@@ -134,4 +133,4 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_BIO_ADVANCED_SETTINGS_MENU

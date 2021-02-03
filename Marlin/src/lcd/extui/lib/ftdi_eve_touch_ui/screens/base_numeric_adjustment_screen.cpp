@@ -21,14 +21,15 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
 
+#ifdef FTDI_BASE_NUMERIC_ADJ_SCREEN
+
 using namespace FTDI;
 using namespace Theme;
+
+constexpr static BaseNumericAdjustmentScreenData &mydata = screen_data.BaseNumericAdjustmentScreen;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 13
@@ -116,8 +117,8 @@ void BaseNumericAdjustmentScreen::widgets_t::_button(CommandProcessor &cmd, uint
 
 BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::precision(uint8_t decimals, precision_default_t initial) {
   _decimals = decimals;
-  if (screen_data.BaseNumericAdjustment.increment == 0) {
-    screen_data.BaseNumericAdjustment.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
+  if (mydata.increment == 0) {
+    mydata.increment = 243 + (initial - DEFAULT_LOWEST) - _decimals;
   }
   return *this;
 }
@@ -154,7 +155,7 @@ void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
 void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(CommandProcessor &cmd, uint8_t, const uint8_t tag) {
   const char        *label = PSTR("?");
   uint8_t            pos;
-  uint8_t &          increment = screen_data.BaseNumericAdjustment.increment;
+  uint8_t &          increment = mydata.increment;
 
   if (increment == 0) {
     increment = tag; // Set the default value to be the first.
@@ -358,7 +359,7 @@ void BaseNumericAdjustmentScreen::widgets_t::home_buttons(uint8_t tag) {
 }
 
 void BaseNumericAdjustmentScreen::onEntry() {
-  screen_data.BaseNumericAdjustment.increment = 0; // This will force the increment to be picked while drawing.
+  mydata.increment = 0; // This will force the increment to be picked while drawing.
   BaseScreen::onEntry();
   CommandProcessor cmd;
   cmd.set_button_style_callback(nullptr);
@@ -367,14 +368,14 @@ void BaseNumericAdjustmentScreen::onEntry() {
 bool BaseNumericAdjustmentScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:           GOTO_PREVIOUS(); return true;
-    case 240 ... 245: screen_data.BaseNumericAdjustment.increment = tag; break;
+    case 240 ... 245: mydata.increment = tag; break;
     default:          return current_screen.onTouchHeld(tag);
   }
   return true;
 }
 
 float BaseNumericAdjustmentScreen::getIncrement() {
-  switch (screen_data.BaseNumericAdjustment.increment) {
+  switch (mydata.increment) {
     case 240: return   0.001;
     case 241: return   0.01;
     case 242: return   0.1;
@@ -385,4 +386,4 @@ float BaseNumericAdjustmentScreen::getIncrement() {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BASE_NUMERIC_ADJ_SCREEN
