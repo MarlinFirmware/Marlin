@@ -28,6 +28,7 @@ This does not include machine configs or PlatformIO files.
 				- `language_en.h`
 		- **pins**
 			- **lpc1769**
+				- `pins_MKS_SGEN_L_V2.h`
 				- `pins_TH3D_EZBOARD.h`
 			- **ramps**
 				- `pins_RAMPS.h`
