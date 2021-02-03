@@ -1497,19 +1497,6 @@
 #endif // HAS_DGUS_LCD
 
 //
-// Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
-//
-#if EITHER(DOGLCD, TOUCH_UI_FTDI_EVE)
-  //#define LCD_LANGUAGE_2 fr
-  //#define LCD_LANGUAGE_3 de
-  //#define LCD_LANGUAGE_4 es
-  //#define LCD_LANGUAGE_5 it
-  #ifdef LCD_LANGUAGE_2
-    //#define LCD_LANGUAGE_AUTO_SAVE // Automatically save language to EEPROM on change
-  #endif
-#endif
-
-//
 // Touch UI for the FTDI Embedded Video Engine (EVE)
 //
 #if ENABLED(TOUCH_UI_FTDI_EVE)
@@ -1580,6 +1567,13 @@
 
   // Use a smaller font when labels don't fit buttons
   #define TOUCH_UI_FIT_TEXT
+
+  // Allow language selection from menu at run-time (otherwise use LCD_LANGUAGE)
+  //#define LCD_LANGUAGE_1 en
+  //#define LCD_LANGUAGE_2 fr
+  //#define LCD_LANGUAGE_3 de
+  //#define LCD_LANGUAGE_4 es
+  //#define LCD_LANGUAGE_5 it
 
   // Use a numeric passcode for "Screen lock" keypad.
   // (recommended for smaller displays)
@@ -3569,7 +3563,10 @@
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
 #elif HAS_PRUSA_MMU2
   // Serial port used for communication with MMU2.
+  // For AVR enable the UART port used for the MMU. (e.g., mmuSerial)
+  // For 32-bit boards check your HAL for available serial ports. (e.g., Serial2)
   #define MMU2_SERIAL_PORT 2
+  #define MMU2_SERIAL mmuSerial
 
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23

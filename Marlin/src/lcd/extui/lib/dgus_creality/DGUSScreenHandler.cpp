@@ -63,6 +63,7 @@ uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 bool DGUSScreenHandler::SaveSettingsRequested;
+bool DGUSScreenHandler::HasScreenVersionMismatch;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
 bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
@@ -839,17 +840,57 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
 
 #endif
 
-void DGUSScreenHandler::HandleSettings(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleSettings");
-  uint16_t value = swap16(*(uint16_t*)val_ptr);
-  switch (value) {
-    default: break;
-    case 1:
-      TERN_(PRINTCOUNTER, print_job_timer.initStats());
-      queue.inject_P(PSTR("M502\nM500"));
-      break;
-    case 2: queue.inject_P(PSTR("M501")); break;
-    case 3: queue.inject_P(PSTR("M500")); break;
+
+
+void DGUSScreenHandler::HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr) {
+  DEBUG_ECHOLNPGM("HandleScreenVersion");
+  
+  uint16_t actualScreenVersion = swap16(*(uint16_t*)val_ptr);
+
+  SERIAL_ECHOLNPAIR("DWIN version received: ", actualScreenVersion);
+  SERIAL_ECHOLNPAIR("We expected DWIN version: ", EXPECTED_UI_VERSION_MAJOR);
+
+  if (actualScreenVersion == EXPECTED_UI_VERSION_MAJOR) {
+    SERIAL_ECHOLN("Screen version check passed.");
+    return;
+  }
+
+  // Dump error to serial
+  SERIAL_ECHOLN("WARNING: Your screen is not flashed correctly.");
+
+  SERIAL_ECHOPAIR("We received version ", actualScreenVersion);
+  SERIAL_ECHOLN("from the display");
+
+  SERIAL_ECHOLNPAIR("This firmware needs screen version ", actualScreenVersion);
+  SERIAL_ECHOLN("Please follow the release notes for flashing instructions.");
+
+  // Will cause flashing in the loop()
+  HasScreenVersionMismatch = true;
+
+  // Show on display if user has M117 message
+  char buffer[VP_M117_LEN] = {0};
+  sprintf_P(buffer, "TFT version mismatch: v%d", actualScreenVersion);
+  setstatusmessage(buffer);
+
+  // Audio buzzer
+  Buzzer(500, 500);
+  for (int times=0;times<VERSION_MISMATCH_BUZZ_AMOUNT;times++) {
+    safe_delay(750);
+    Buzzer(500, 500);
+  }
+}
+
+void DGUSScreenHandler::HandleScreenVersionMismatchLEDFlash() {
+  if (!HasScreenVersionMismatch) return;
+
+  const millis_t ms = millis();
+  static millis_t next_event_ms = 0;
+
+  if (ELAPSED(ms, next_event_ms)) {
+    next_event_ms = ms + VERSION_MISMATCH_LED_FLASH_DELAY;
+
+    caselight.on = !caselight.on;
+    caselight.update(caselight.on);
   }
 }
 
@@ -1336,6 +1377,8 @@ void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool save_current_scr
 bool DGUSScreenHandler::loop() {
   dgusdisplay.loop();
 
+  HandleScreenVersionMismatchLEDFlash();
+
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
 
@@ -1344,6 +1387,10 @@ bool DGUSScreenHandler::loop() {
     // with ADVANCED_PAUSE_FEATURE, the calls to ExtUI::onUserConfirmRequired are quite fast
     DEBUG_ECHOLN("Nudging the display to update the current screen...");
     GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED, true);
+  }
+
+  // Flash LED on screen version mismatch
+  if (ELAPSED(ms, next_event_ms) && HasScreenVersionMismatch) {
   }
 
   if (ELAPSED(ms, next_event_ms) && SaveSettingsRequested) {
@@ -1386,7 +1433,11 @@ bool DGUSScreenHandler::loop() {
 
       // Set initial leveling status
       InitMeshValues();
-      
+
+      // Ask for the screen version - HandleScreenVersion will act
+      dgusdisplay.ReadVariable(VP_UI_VERSION_MAJOR);
+
+      // Main menu
       GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   }

@@ -66,6 +66,7 @@ public:
   static void setstatusmessage(const char* msg);
   /// The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
+
   // Callback for VP "Display wants to change screen on idle printer"
   static void ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr);
   // Callback for VP "Screen has been changed"
@@ -85,8 +86,11 @@ public:
     // Hook for power loss recovery.
     static void HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr);
   #endif
+
+  // Version sanity check
+  static void HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr);
+
   // Hook for settings
-  static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
@@ -331,6 +335,8 @@ public:
   static bool fwretract_available;
 
 private:
+  static void HandleScreenVersionMismatchLEDFlash();
+
   static DGUSLCD_Screens current_screen;  ///< currently on screen
   static constexpr uint8_t NUM_PAST_SCREENS = 4;
   static DGUSLCD_Screens past_screens[NUM_PAST_SCREENS]; ///< LIFO with past screens for the "back" button.
@@ -343,6 +349,7 @@ private:
 
   static uint8_t MeshLevelIndex;
   static bool SaveSettingsRequested;
+  static bool HasScreenVersionMismatch;
 
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser

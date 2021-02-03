@@ -46,7 +46,8 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME SHORT_BUILD_VERSION
+#define CUSTOM_MACHINE_NAME SHORT_BUILD_VERSION
+#define MACHINE_NAME CUSTOM_MACHINE_NAME
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source

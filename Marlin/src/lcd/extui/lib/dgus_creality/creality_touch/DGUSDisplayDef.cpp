@@ -490,6 +490,9 @@ const struct VPMapping VPMap[] PROGMEM = {
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
+  // Screen version
+  VPHELPER(VP_UI_VERSION_MAJOR, nullptr, ScreenHandler.HandleScreenVersion, nullptr),
+
   #if HOTENDS >= 1
     VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),

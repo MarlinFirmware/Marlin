@@ -79,23 +79,10 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_LEVELING_SETTINGS = 72
 };
 
-// Display Memory layout used (T5UID)
-// Except system variables this is arbitrary, just to organize stuff....
-
-// 0x0000 .. 0x0FFF  -- System variables and reserved by the display
-// 0x1000 .. 0x1FFF  -- Variables to never change location, regardless of UI Version
-// 0x2000 .. 0x2FFF  -- Controls (VPs that will trigger some action)
-// 0x3000 .. 0x4FFF  -- Marlin Data to be displayed
-// 0x5000 ..         -- SPs (if we want to modify display elements, e.g change color or like) -- currently unused
-
-// As there is plenty of space (at least most displays have >8k RAM), we do not pack them too tight,
-// so that we can keep variables nicely together in the address space.
-
-// UI Version always on 0x1000...0x1002 so that the firmware can check this and bail out.
-// constexpr uint16_t VP_UI_VERSION_MAJOR = 0x1000;  // Major -- incremented when incompatible
-// constexpr uint16_t VP_UI_VERSION_MINOR = 0x1001;  // Minor -- incremented on new features, but compatible
-// constexpr uint16_t VP_UI_VERSION_PATCH = 0x1002;  // Patch -- fixed which do not change functionality.
-// constexpr uint16_t VP_UI_FLAVOUR       = 0x1010;  // lets reserve 16 bytes here to determine if UI is suitable for this Marlin. tbd.
+constexpr uint16_t VP_UI_VERSION_MAJOR = 0xFFFA;
+constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 6;
+constexpr uint16_t VERSION_MISMATCH_BUZZ_AMOUNT = 5;
+constexpr uint16_t VERSION_MISMATCH_LED_FLASH_DELAY = 1000;
 
 #define VP_STARTPROGRESSBAR           0x1000
 
@@ -381,7 +368,6 @@ constexpr uint16_t MESH_LEVEL_VP_EDGE_SIZE = MESH_LEVEL_VP_SIZE * MESH_LEVEL_EDG
 constexpr uint16_t MESH_LEVEL_SP_EDGE_SIZE = MESH_LEVEL_SP_SIZE * MESH_LEVEL_EDGE_MAX_POINTS;
 
 constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEVEL_EDGE_MAX_POINTS;
-
 
 
 // Color table: https://stackoverflow.com/q/13720937/646215

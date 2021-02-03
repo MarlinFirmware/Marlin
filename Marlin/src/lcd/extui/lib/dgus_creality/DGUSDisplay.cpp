@@ -256,28 +256,18 @@ void DGUSDisplay::ProcessRx() {
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
 
-          if (vp == 0x14 /*PIC_Now*/) {
-            const uint16_t screen_id = tmp[3] << 8 | tmp[4];
-
-            // A display was requested. If the screen didn't yet switch to that display, we won't give that value back, otherwise the code gets confused.
-            // The DWIN display mostly honours the PIC_SET requests from the firmware, so after a while we may want to nudge it to the correct screen
-            DEBUG_ECHOPAIR(" Got a response on the current screen: ", screen_id);
-            DEBUG_ECHOLNPAIR(" - however, we've requested screen ", displayRequest);
-            UNUSED(screen_id);
-          } else {
-            //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-            //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
-            DGUS_VP_Variable ramcopy;
-            DEBUG_ECHOLNPAIR("VP received: ", vp , " - val ", tmp[3]);
-            if (populate_VPVar(vp, &ramcopy)) {
-              if (ramcopy.set_by_display_handler)
-                ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
-              else
-                DEBUG_ECHOLNPGM(" VPVar found, no handler.");
-            }
+          //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
+          //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
+          DGUS_VP_Variable ramcopy;
+          DEBUG_ECHOLNPAIR("VP received: ", vp , " - val ", tmp[3]);
+          if (populate_VPVar(vp, &ramcopy)) {
+            if (ramcopy.set_by_display_handler)
+              ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
             else
-              DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
+              DEBUG_ECHOLNPGM(" VPVar found, no handler.");
           }
+          else
+            DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
 
           rx_datagram_state = DGUS_IDLE;
           break;
