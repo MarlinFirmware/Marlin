@@ -40,5 +40,23 @@ typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Se
 By default, the serial base interface provide an emergency parser that's only enable for serial classes that support it.
 Because of this condition, all underlying type takes a first `bool emergencyParserEnabled` argument to their constructor. You must take into account this parameter when defining the actual type used.
 
+## SERIAL macros
+Developers wanting to output data on the serial ports, will use the numerous serial macros defined in `serial.h`
+
+A succint description of each macro follows:
+| MACRO          | Accepted parameter | Usage    | Example   |  Expected output |
+|----------------|--------------------|----------|-----------|------------------|
+| SERIAL_ECHO    | Any basic type is supported (`char`, `uint8_t`, `int16_t`, `int32_t`, `float`, `long`, `const char*`, ...). | When given an number, it prints the number as decimal on the serial port. When given a string, it outputs the string on the serial port. | `uint8_t a = 123; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(' '); ` | `123 32` | 
+| SERIAL_ECHO_F  | `float` or `double` | Prints the floating point value with optional number of digits (default 2) | `float a = 3.1415; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(a, 4);` | `3.14 3.1415`|
+| SERIAL_ECHOLN | Same as SERIAL_ECHO | Same as serial echo but appends a line return after the print | `int a = 456; SERIAL_ECHOLN(a);` | `456\n` |
+| SERIAL_OUT    | `char`, `int8_t`, `uint8_t` | Output the given char on the serial line | `SERIAL_OUT('a');` | `a` |
+| SERIAL_ECHO_PAIR | Key: `const char*`, Value: any supported by SERIAL_ECHO | Prints a key value pair, starting by the key | `SERIAL_ECHO_PAIR("Bob", 34);` | `Bob34` |
+| SERIAL_ECHO_PAIR_P | Same as SERIAL_ECHO_PAIR. Key must be a PGM string | Works the same as SERIAL_ECHO_PAIR | `SERIAL_ECHO_PAIR_P("Bob", 34);` | `Bob34` |
+| SERIAL_ECHO_LIST | Same as SERIAL_ECHO_PAIR | Prints a list of value, prependded by a key | `SERIAL_ECHO_LIST("Key ", 1, 2, 3);` | `Key 1, 2, 3` |
+| SERIAL_ECHO_SP | Number of space char | Print as many space character as requested | `SERIAL_ECHO_SP(3)` | `   ` |
+| SERIAL_ECHO_START | None | Start an echo line | `SERIAL_ECHO_START();` | `echo:` |
+| SERIAL_ERROR_START| None | Start an echo line | `SERIAL_ERROR_START();` | `Error:` |
+| SERIAL_ECHO_EOL   | None | Emit an end of line | `SERIAL_ECHO_EOL();` | `\n` |
+
 
 *This document was written by [X-Ryl669](https://blog.cyril.by) and is under [CC-SA license](https://creativecommons.org/licenses/by-sa)*

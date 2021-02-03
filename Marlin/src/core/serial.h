@@ -81,11 +81,17 @@ typedef int8_t serial_index_t;
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define SERIAL_PORTMASK(P)      _BV(P)
 
+// SERIAL_ECHO is used to print the given parameter as a decimal number
+// It must not be used for outputting a char on the serial port (instead, use SERIAL_CHAR)
+// It also support printing a string (const char*) directly
 #define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
+// SERIAL_ECHO_F prints a floating point value with optional precision
 #define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
 #define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
+// SERIAL_PRINT works like SERIAL_ECHO but allow to specify the encoding base of the number printed
 #define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
 #define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
+// Flush the serial port
 #define SERIAL_FLUSH()          SERIAL_OUT(flush)
 
 #ifdef ARDUINO_ARCH_STM32
@@ -110,6 +116,7 @@ typedef int8_t serial_index_t;
 #define _CHAR_9(a,V...)   do{ _CHAR_1(a); _CHAR_8(V); }while(0)
 #define _CHAR_10(a,V...)  do{ _CHAR_1(a); _CHAR_9(V); }while(0)
 
+// SERIAL_CHAR is used to output the given chars to the serial port directly
 #define SERIAL_CHAR(V...) _CHAR_N(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
@@ -140,6 +147,7 @@ typedef int8_t serial_index_t;
 #define _SEP_23(a,b,V...) do{ _SEP_2(a,b); _SEP_21(V); }while(0)
 #define _SEP_24(a,b,V...) do{ _SEP_2(a,b); _SEP_22(V); }while(0)
 
+// SERIAL_ECHOPAIR is used to output a key value pair. The key must be a string and the value can be anything
 #define SERIAL_ECHOPAIR(V...) _SEP_N(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values. Odd elements must be PSTR pointers.
@@ -170,6 +178,7 @@ typedef int8_t serial_index_t;
 #define _SEP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_21_P(V); }while(0)
 #define _SEP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_22_P(V); }while(0)
 
+// SERIAL_ECHOPAIR_P is used to output a key value pair. Unlike SERIAL_ECHOPAIR, the key must be a PGM string already and the value can be anything
 #define SERIAL_ECHOPAIR_P(V...) _SEP_N_P(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values followed by newline

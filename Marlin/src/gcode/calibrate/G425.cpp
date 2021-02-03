@@ -375,7 +375,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   inline void report_measured_positional_error(const measurements_t &m) {
     SERIAL_CHAR('T');
-    SERIAL_ECHO(int(active_extruder));
+    SERIAL_ECHO(active_extruder);
     SERIAL_ECHOLNPGM(" Positional Error:");
     #if HAS_X_CENTER
       SERIAL_ECHOLNPAIR_P(SP_X_STR, m.pos_error.x);

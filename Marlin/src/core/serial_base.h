@@ -78,8 +78,8 @@ struct SerialBase {
   FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
   FORCE_INLINE void print(const char* str)                    { write(str); }
-  NO_INLINE void print(char c, int base = 0)              { print((long)c, base); }
-  NO_INLINE void print(unsigned char c, int base = 0)     { print((unsigned long)c, base); }
+  NO_INLINE void print(char c, int base = DEC)            { print((long)c, base); }
+  NO_INLINE void print(unsigned char c, int base = DEC)   { print((unsigned long)c, base); }
   NO_INLINE void print(int c, int base = DEC)             { print((long)c, base); }
   NO_INLINE void print(unsigned int c, int base = DEC)    { print((unsigned long)c, base); }
   void print(unsigned long c, int base = DEC)             { printNumber(c, base); }
