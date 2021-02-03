@@ -891,7 +891,7 @@ void setup() {
   while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(LCDBAUDRATE);   // M.A.R.C. make independent baudrate for LCD
+    MYSERIAL1.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
