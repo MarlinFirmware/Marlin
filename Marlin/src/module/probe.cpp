@@ -580,10 +580,12 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Tare the probe, if supported
-    if (TERN0(PROBE_TARE, _TERN(HAS_QUIET_PROBING, set_probing_paused(true), tare()))) return true;
-    
-    IF_ENABLED(PROBE_TARE, endstops.hit_on_purpose());
+    #if ENABLED(PROBE_TARE)
+    TERN(HAS_QUIET_PROBING, set_probing_paused(true), tare());
 
+    endstops.hit_on_purpose();
+    #endif
+    
     // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
