@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include "macros.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -43,11 +44,14 @@ enum class PrintBase {
 };
 
 // A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than 
-// double or float. In the latter case, a conversion exist so the call will be transparent
+// double or float. For double or float, a conversion exists so the call will be transparent
 struct EnsureDouble
 {
   double a;
   FORCE_INLINE operator double() { return a; }
+  // If the compiler breaks on ambiguity here, it's likely because you're calling print(X, base) with X not a double or a float, and a
+  // base that's not one of PrintBase's value. This exact code is made to detect such error, you NEED to set a base explicitely like this:
+  // SERIAL_PRINT(v, PrintBase::Hex) 
   FORCE_INLINE EnsureDouble(double a) : a(a) {}
   FORCE_INLINE EnsureDouble(float a) : a(a) {}
 };
@@ -109,7 +113,6 @@ struct SerialBase {
   FORCE_INLINE void print(unsigned long c)       { print(c, PrintBase::Dec); }
   FORCE_INLINE void print(long c)                { print(c, PrintBase::Dec); }
   FORCE_INLINE void print(double c)              { print(c, 2); }
-
 
   FORCE_INLINE void println(const char s[])                  { print(s); println(); }
   FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }
