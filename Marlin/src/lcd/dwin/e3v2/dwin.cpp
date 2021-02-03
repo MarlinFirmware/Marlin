@@ -757,7 +757,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Left");
           } else {
             Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X20 Y20\nG1 F300 Z0\nM220 S100"));
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X30 Y30\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 1);
           }
@@ -767,7 +767,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Left");
           } else {
             Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X20 Y215\nG1 F300 Z0\nM220 S100"));
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X30 Y205\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 2);
           }
@@ -777,7 +777,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Right");
           } else {
             Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X215 Y215\nG1 F300 Z0\nM220 S100"));
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X205 Y205\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 3);
           }
@@ -787,7 +787,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Right");
           } else {
             Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X215 Y20\nG1 F300 Z0\nM220 S100"));
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X205 Y30\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 4);
           }
