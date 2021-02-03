@@ -27,16 +27,30 @@
   #include "../feature/e_parser.h"
 #endif
 
-#ifndef DEC
-  #define DEC 10
-  #define HEX 16
-  #define OCT 8
-  #define BIN 2
-#endif
 
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
 CALL_IF_EXISTS_IMPL(void, flushTX );
 CALL_IF_EXISTS_IMPL(bool, connected, true);
+
+// In order to catch usage errors in code, we make the base to encode number explicit
+// If given a number (and not this enum), the compiler will reject the overload, falling back to the (double, digit) version
+// We don't want hidden conversion of the first parameter to double, so it has to be as hard to do for the compiler as creating this enum
+enum class PrintBase {
+  Dec = 10,
+  Hex = 16,
+  Oct = 8,
+  Bin = 2,
+};
+
+// A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than 
+// double or float. In the latter case, a conversion exist so the call will be transparent
+struct EnsureDouble
+{
+  double a;
+  FORCE_INLINE operator double() { return a; }
+  FORCE_INLINE EnsureDouble(double a) : a(a) {}
+  FORCE_INLINE EnsureDouble(float a) : a(a) {}
+};
 
 // Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in compiler writing a completely
@@ -78,39 +92,49 @@ struct SerialBase {
   FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
   FORCE_INLINE void print(const char* str)                    { write(str); }
-  NO_INLINE void print(char c, int base = DEC)            { print((long)c, base); }
-  NO_INLINE void print(unsigned char c, int base = DEC)   { print((unsigned long)c, base); }
-  NO_INLINE void print(int c, int base = DEC)             { print((long)c, base); }
-  NO_INLINE void print(unsigned int c, int base = DEC)    { print((unsigned long)c, base); }
-  void print(unsigned long c, int base = DEC)             { printNumber(c, base); }
-  void print(double c, int digits = 2)                    { printFloat(c, digits); }
-  void print(long c, int base = DEC)                      {
-    if (!base) {
-      write(c);
-      return;
-    }
-    if (base == DEC && c < 0) {
-      write((uint8_t)'-'); c = -c;
-    }
-    printNumber(c, base);
-  }
+  // No default argument to avoid ambiguity
+  NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
+  NO_INLINE void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }
+  NO_INLINE void print(int c, PrintBase base)                 { printNumber((signed long)c, (uint8_t)base); }
+  NO_INLINE void print(unsigned int c, PrintBase base)        { printNumber((unsigned long)c, (uint8_t)base); }
+  void print(unsigned long c, PrintBase base)                 { printNumber((unsigned long)c, (uint8_t)base); }
+  void print(long c, PrintBase base)                          { printNumber((signed long)c, (uint8_t)base); }
+  void print(EnsureDouble c, int digits)                      { printFloat(c, digits); }
 
-  NO_INLINE void println(const char s[])                  { print(s); println(); }
-  NO_INLINE void println(char c, int base = 0)            { print(c, base); println(); }
-  NO_INLINE void println(unsigned char c, int base = 0)   { print(c, base); println(); }
-  NO_INLINE void println(int c, int base = DEC)           { print(c, base); println(); }
-  NO_INLINE void println(unsigned int c, int base = DEC)  { print(c, base); println(); }
-  NO_INLINE void println(long c, int base = DEC)          { print(c, base); println(); }
-  NO_INLINE void println(unsigned long c, int base = DEC) { print(c, base); println(); }
-  NO_INLINE void println(double c, int digits = 2)        { print(c, digits); println(); }
-  NO_INLINE void println()                                { write('\r'); write('\n'); }
+  // Forward the call to the former's method
+  FORCE_INLINE void print(char c)                { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned char c)       { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(int c)                 { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned int c)        { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned long c)       { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(long c)                { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(double c)              { print(c, 2); }
+
+
+  FORCE_INLINE void println(const char s[])                  { print(s); println(); }
+  FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned char c, PrintBase base) { print(c, base); println(); }
+  FORCE_INLINE void println(int c, PrintBase base)           { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned int c, PrintBase base)  { print(c, base); println(); }
+  FORCE_INLINE void println(long c, PrintBase base)          { print(c, base); println(); }
+  FORCE_INLINE void println(unsigned long c, PrintBase base) { print(c, base); println(); }
+  FORCE_INLINE void println(double c, int digits)            { print(c, digits); println(); }
+  FORCE_INLINE void println()                                { write('\r'); write('\n'); }
+
+  // Forward the call to the former's method
+  FORCE_INLINE void println(char c)                { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(unsigned char c)       { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(int c)                 { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(unsigned int c)        { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(unsigned long c)       { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(long c)                { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(double c)              { println(c, 2); }
+
 
   // Print a number with the given base
   void printNumber(unsigned long n, const uint8_t base) {
-    if (!base) {
-      write((uint8_t)n);
-      return;
-    }
+    if (!base) return; // Hopefully, this should raise visible bug immediately
+
     if (n) {
       unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
       int8_t i = 0;
@@ -121,6 +145,16 @@ struct SerialBase {
       while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
     }
     else write('0');
+  }
+  void printNumber(signed long n, const uint8_t base) {
+    if (base == 10 && n < 0) { 
+      n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
+              // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
+              // -n = 0x7FFFFFFF + 1 => 0x80000000 = 2147483648 (if interpreted as unsigned) or -2147483648 if interpreted as signed.
+              // On non 2-complement CPU, there would be no possible representation for 2147483648.
+      write('-'); 
+    } 
+    printNumber((unsigned long)n , base);
   }
 
   // Print a decimal number
@@ -147,7 +181,7 @@ struct SerialBase {
       // Extract digits from the remainder one at a time
       while (digits--) {
         remainder *= 10.0;
-        int toPrint = int(remainder);
+        unsigned long toPrint = (unsigned long)remainder;
         printNumber(toPrint, 10);
         remainder -= toPrint;
       }
