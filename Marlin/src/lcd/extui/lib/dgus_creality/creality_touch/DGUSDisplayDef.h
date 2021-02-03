@@ -79,6 +79,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_LEVELING_SETTINGS = 72
 };
 
+// Version checks
 constexpr uint16_t VP_UI_VERSION_MAJOR = 0xFFFA;
 constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 6;
 constexpr uint16_t VERSION_MISMATCH_BUZZ_AMOUNT = 5;
