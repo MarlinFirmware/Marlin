@@ -90,3 +90,15 @@ ping localhost -n 1 >NUL
 "C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_TH3D_EZBoardLite_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\README.md"
 ping localhost -n 1 >NUL
 "C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_TH3D_EZBoardLite_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\Board Configuration Files\TH3D_EZBoardLite_DIY\Firmware"
+
+"C:\Program Files\7-Zip\7z.exe" d -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip"
+ping localhost -n 1 >NUL
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\Firmware"
+ping localhost -n 1 >NUL
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\STL Files"
+ping localhost -n 1 >NUL
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\TH3D Installation Guides"
+ping localhost -n 1 >NUL
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\README.md"
+ping localhost -n 1 >NUL
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_MKS_SGen_L_V2_DIY.zip" "D:\Work\GitHub\UnifiedFirmware\Board Configuration Files\MKS_SGen_L_V2_DIY\Firmware"

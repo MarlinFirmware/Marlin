@@ -69,7 +69,12 @@
   #endif
 #else
   #define X_MIN_PIN                        P1_29  // X-
-  #define X_MAX_PIN                        P1_28  // X+
+  #if ENABLED(EZOUTV2_ENABLE)
+    #define FIL_RUNOUT_PIN                   P1_28
+    #define X_MAX_PIN                        -1  // X+
+  #else
+    #define X_MAX_PIN                        P1_28  // X+
+  #endif
 #endif
 
 #if Y_STALL_SENSITIVITY
@@ -213,14 +218,14 @@
   #endif
 #else
   #ifndef FAN2_PIN
-    #define FAN2_PIN                       P2_06  // HE1 for FAN3
+    #define FAN2_PIN                       -1 //P2_06  // HE1 for FAN3
   #endif
 #endif
 #ifndef FAN_PIN
   #define FAN_PIN                          P2_04  // FAN1
 #endif
 #ifndef FAN1_PIN
-  #define FAN1_PIN                         P1_04  // FAN2
+  #define FAN1_PIN                         -1 //P1_04  // FAN2
 #endif
 
 //
