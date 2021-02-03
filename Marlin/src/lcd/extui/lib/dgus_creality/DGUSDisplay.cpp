@@ -45,7 +45,7 @@
 #endif
 
 #include "DGUSDisplay.h"
-#include "../dgus/DGUSVPVariable.h"
+#include "DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable

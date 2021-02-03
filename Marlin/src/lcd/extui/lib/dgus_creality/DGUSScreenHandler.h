@@ -22,7 +22,7 @@
 #pragma once
 
 #include "DGUSDisplay.h"
-#include "../dgus/DGUSVPVariable.h"
+#include "DGUSVPVariable.h"
 
 #include "../../../../inc/MarlinConfig.h"
 
