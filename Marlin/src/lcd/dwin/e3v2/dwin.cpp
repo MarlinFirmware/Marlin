@@ -207,6 +207,9 @@ uint16_t remain_time = 0;
   float dwin_zoffset = 0, last_zoffset = 0;
 #endif
 
+float zoffsetvalue;
+uint16_t flowrate = 100;
+
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
 
@@ -1532,10 +1535,10 @@ void HMI_StepXYZE() {
 
 void update_variable() {
   #if HAS_HOTEND
-    static float last_temp_hotend_target = 0, last_temp_hotend_current = 0;
+    static float last_temp_hotend_target = 0;
   #endif
   #if HAS_HEATED_BED
-    static float last_temp_bed_target = 0, last_temp_bed_current = 0;
+    static float last_temp_bed_target = 0;
   #endif
   #if HAS_FAN
     static uint8_t last_fan_speed = 0;
@@ -1577,38 +1580,70 @@ void update_variable() {
     #endif
   }
 
-  /* Bottom temperature update */
-  #if HAS_HOTEND
-    if (last_temp_hotend_current != thermalManager.temp_hotend[0].celsius) {
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
-      last_temp_hotend_current = thermalManager.temp_hotend[0].celsius;
-    }
-    if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
-      last_temp_hotend_target = thermalManager.temp_hotend[0].target;
-    }
-  #endif
-  #if HAS_HEATED_BED
-    if (last_temp_bed_current != thermalManager.temp_bed.celsius) {
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178, 382, thermalManager.temp_bed.celsius);
-      last_temp_bed_current = thermalManager.temp_bed.celsius;
-    }
-    if (last_temp_bed_target != thermalManager.temp_bed.target) {
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
-      last_temp_bed_target = thermalManager.temp_bed.target;
-    }
-  #endif
-  static uint16_t last_speed = 0;
-  if (last_speed != feedrate_percentage) {
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
-    last_speed = feedrate_percentage;
+  zoffsetvalue = BABY_Z_VAR; // Temporary Statement for Compatability
+
+  static float hotend = 0;
+  static float bed = 0;
+  static int16_t hotendtarget = 0;
+  static int16_t bedtarget = 0;
+  static int16_t feedrate = 100;
+  static int16_t flow = flowrate;
+  static uint8_t fan = 0;
+  static float offset = zoffsetvalue;
+  static float x = current_position.x;
+  static float y = current_position.y;
+  static float z = current_position.z;
+  if (thermalManager.temp_hotend[0].celsius != hotend) {
+    hotend = thermalManager.temp_hotend[0].celsius;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
   }
-  #if HAS_ZOFFSET_ITEM
-    if (last_zoffset != BABY_Z_VAR) {
-      DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178 + STAT_CHR_W, 429, BABY_Z_VAR * 100);
-      last_zoffset = BABY_Z_VAR;
+  if (thermalManager.temp_bed.celsius != bed) {
+    bed = thermalManager.temp_bed.celsius;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
+  }
+  if (thermalManager.temp_hotend[0].target != hotendtarget) {
+    hotendtarget = thermalManager.temp_hotend[0].target;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
+  }
+  if (thermalManager.temp_bed.target != bedtarget) {
+    bedtarget = thermalManager.temp_bed.target;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
+  }
+  if (feedrate_percentage != feedrate) {
+    feedrate = feedrate_percentage;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
+  }
+  if (flowrate != flow) {
+    flow = flowrate;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, flowrate);
+  }
+  if (thermalManager.fan_speed[0] != fan) {
+    fan = thermalManager.fan_speed[0];
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+  }
+  if (zoffsetvalue != offset) {
+    offset = zoffsetvalue;
+    if (zoffsetvalue < 0) {
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -zoffsetvalue * 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)"-");
     }
-  #endif
+    else {
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, zoffsetvalue* 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)" ");
+    }
+  }
+  if (current_position.x != x) {
+    x = current_position.x;
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+  }
+  if (current_position.y != y) {
+    y = current_position.y;
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+  }
+  if (current_position.z != z) {
+    z = current_position.z;
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
+  }
 }
 
 /**
@@ -1800,38 +1835,50 @@ void HMI_SDCardUpdate() {
 //
 void Draw_Status_Area(const bool with_update) {
 
-  // Clear the bottom area of the screen
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
-  //
-  // Status Area
-  //
-  #if HAS_HOTEND
-    DWIN_ICON_Show(ICON, ICON_HotendTemp, 13, 381);
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
-    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 33 + 3 * STAT_CHR_W + 5, 383, F("/"));
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
-  #endif
-  #if HOTENDS > 1
-    // DWIN_ICON_Show(ICON,ICON_HotendTemp, 13, 381);
-  #endif
+  DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, (char*)"/");
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
 
-  #if HAS_HEATED_BED
-    DWIN_ICON_Show(ICON, ICON_BedTemp, 158, 381);
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178, 382, thermalManager.temp_bed.celsius);
-    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 178 + 3 * STAT_CHR_W + 5, 383, F("/"));
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
-  #endif
+  DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, (char*)"/");
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
 
-  DWIN_ICON_Show(ICON, ICON_Speed, 13, 429);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
-  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 33 + 5 * STAT_CHR_W + 2, 429, F("%"));
+  DWIN_ICON_Show(ICON, ICON_Speed, 113, 383);
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 384, (char*)"%");
 
-  #if HAS_ZOFFSET_ITEM
-    DWIN_ICON_Show(ICON, ICON_Zoffset, 158, 428);
-    dwin_zoffset = BABY_Z_VAR;
-    DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178, 429, dwin_zoffset * 100);
-  #endif
+  DWIN_ICON_Show(ICON, ICON_StepE, 112, 417);
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, flowrate);
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, (char*)"%");
+
+  DWIN_ICON_Show(ICON, ICON_FanSpeed, 187, 383);
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+
+  DWIN_ICON_Show(ICON, ICON_Zoffset, 187, 416);
+
+  zoffsetvalue = BABY_Z_VAR; // Temporary Statement for Compatability
+
+  if (zoffsetvalue < 0) {
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -zoffsetvalue * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)"-");
+  }
+  else {
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, zoffsetvalue * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)" ");
+  }
+
+  DWIN_Draw_Rectangle(1, Line_Color, 0, 449, DWIN_WIDTH, 451);
+
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedX,   10, 456);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
 
   if (with_update) {
     DWIN_UpdateLCD();
