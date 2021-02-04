@@ -49,6 +49,7 @@
 #define TFT_COLOR_UI               //(C) UI MARLIN (Default)
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD (type LCD)
 //#define BOOT_MARLIN_LOGO_SMALL     // Small Logo Marlin to reduce de binary. Comment to have normal LOGO. (Default)
+#define MARLIN_LOGO_FULL_SIZE MarlinLogo320x240x16
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
