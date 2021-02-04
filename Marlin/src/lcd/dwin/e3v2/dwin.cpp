@@ -1857,9 +1857,9 @@ void Popup_window_SaveLevel() {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void Popup_Window_ChangeFilament() {
-    process = Popup;
+    process = Wait;
     Clear_Screen();
-    DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+    DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
     DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 230, (char*)"Filament Change");
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 26) / 2, 260, (char*)"Please wait while heating.");
@@ -1867,9 +1867,9 @@ void Popup_window_SaveLevel() {
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     void Popup_Window_LoadFilament(const bool unloading/*=false*/) {
-      process = Popup;
+      process = Wait;
       Clear_Screen();
-      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
       DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
       DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (unloading ? 18 : 16)) / 2, 230, unloading ? (char*)"Unloading Filament" : (char*)"Loading Filament");
       DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
@@ -2192,9 +2192,6 @@ inline void Popup_Control() {
           Draw_Main_Menu();
         }
         break;
-      case M600:
-        Draw_Menu(Prepare, 8);
-        break;
     }
   DWIN_UpdateLCD();
 }
@@ -2206,6 +2203,9 @@ inline void Confirm_Control() {
     switch(popup) {
       case Complete:
         Draw_Main_Menu();
+        break;
+      case M600:
+        Draw_Menu(Prepare, 8);
         break;
     }
   }
@@ -2437,11 +2437,11 @@ void MarlinUI::refresh() {}
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode, const uint8_t extruder) {
     // TODO implement remainder of PauseMessage states
     if (message == PAUSE_MESSAGE_INSERT || message == PAUSE_MESSAGE_WAITING) {
-      process = Popup;
+      process = Confirm;
       popup = M600;
       Clear_Screen();
 
-      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
       DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
       DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 6)) / 2, 230, message == PAUSE_MESSAGE_INSERT ? (char*)"Filament Change" : (char*)"Paused");
       DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 21 )) / 2, 260, message == PAUSE_MESSAGE_INSERT ? (char*)"Insert Filament" : (char*)"Press to resume print");
