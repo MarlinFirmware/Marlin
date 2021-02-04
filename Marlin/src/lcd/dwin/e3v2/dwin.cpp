@@ -42,6 +42,7 @@
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
 #include "../../../gcode/queue.h"
+#include "../../../gcode/gcode.h"
 
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -52,6 +53,10 @@
 #include "../../../libs/buzzer.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../../../feature/pause.h"
+#endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../../feature/host_actions.h"
@@ -542,6 +547,8 @@ char* Get_Menu_Title(uint8_t menu) {
       return (char*)"Z Offset";
     case Preheat:
       return (char*)"Preheat";
+    case ChangeFilament:
+      return (char*)"Change Filament";
     case Control:
       return (char*)"Control";
     case TempMenu:
@@ -579,7 +586,11 @@ char* Get_Menu_Title(uint8_t menu) {
 int Get_Menu_Size(uint8_t menu) {
   switch(menu) {
     case Prepare:
-      return 7;
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        return 8;
+      #else
+        return 7;
+      #endif
     case Move:
       return 4;
     case ManualLevel:
@@ -588,6 +599,8 @@ int Get_Menu_Size(uint8_t menu) {
       return 6;
     case Preheat:
       return 5;
+    case ChangeFilament:
+      return 3;
     case Control:
       return 7;
     case TempMenu:
@@ -621,7 +634,11 @@ int Get_Menu_Size(uint8_t menu) {
     case ManualMesh:
       return 4;
     case Tune:
-      return 8;
+      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        return 9;
+      #else
+        return 8;
+      #endif
   }
   return 0;
 }
@@ -694,6 +711,26 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             thermalManager.disable_all_heaters();
           }
           break;
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          case 8: // Change Filament
+            if (draw) {
+              #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+                Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament", true);
+              #else
+                Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
+              #endif
+            } else {
+              #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+                Draw_Menu(ChangeFilament);
+              #else
+                Popup_Window_ChangeFilament();
+                gcode.process_subcommands_now_P(PSTR("M600 B1"));
+                planner.synchronize();
+                Draw_Menu(Prepare, 8);
+              #endif
+            }
+            break;
+        #endif
       }
       break;
     case Move:
@@ -952,6 +989,49 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           break;
       }
       break;
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      case ChangeFilament:
+        switch (item) {
+          case 0: // Back
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+            } else {
+              Draw_Menu(Prepare, 8);
+            }
+            break;
+          case 1: // Load Filament
+            if (draw) {
+              Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Load Filament");
+            } else {
+              Popup_Window_LoadFilament();
+              gcode.process_subcommands_now_P(PSTR("M701"));
+              planner.synchronize();
+              Draw_Menu(Prepare, 8);
+            }
+            break;
+          case 2: // Unload Filament
+            if (draw) {
+              Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Filament");
+            } else {
+              Popup_Window_LoadFilament(true);
+              gcode.process_subcommands_now_P(PSTR("M702"));
+              planner.synchronize();
+              Draw_Menu(Prepare, 8);
+            }
+            break;
+          case 3: // Change Filament
+            if (draw) {
+              Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
+            } else {
+              Popup_Window_ChangeFilament();
+              gcode.process_subcommands_now_P(PSTR("M600 B1"));
+              planner.synchronize();
+              Draw_Menu(Prepare, 8);
+            }
+            break;
+        }
+        break;
+    #endif
     case Control:
       switch (item) {
         case 0: // Back
@@ -1001,7 +1081,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Menu_Item(row, ICON_Temperature, (char*)"Reset Defaults");
           } else {
             settings.reset();
-            AudioFeedback();      
+            AudioFeedback();
           }
           break;
         case 7: // Info
@@ -1613,6 +1693,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
         case 6: // Z Offset
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Z-Offset");
+            // TODO this does not update when using Up/Down below
             Draw_Float(zoffsetvalue, row, false, 100);
           } else {
             Modify_Value(zoffsetvalue, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
@@ -1640,6 +1721,18 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
           }
           break;
+        #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+          case 9: // Change Filament
+            if (draw) {
+              Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
+            } else {
+              Popup_Window_ChangeFilament();
+              gcode.process_subcommands_now_P(PSTR("M600 B1"));
+              planner.synchronize();
+              Draw_Print_Screen();
+            }
+            break;
+          #endif
       }
       break;
   }
@@ -1762,12 +1855,34 @@ void Popup_window_SaveLevel() {
   Popup_Select();
 }
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Popup_Window_ChangeFilament() {
+    process = Popup;
+    Clear_Screen();
+    DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+    DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 230, (char*)"Filament Change");
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 26) / 2, 260, (char*)"Please wait while heating.");
+  }
+
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+    void Popup_Window_LoadFilament(const bool unloading/*=false*/) {
+      process = Popup;
+      Clear_Screen();
+      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+      DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (unloading ? 18 : 16)) / 2, 230, unloading ? (char*)"Unloading Filament" : (char*)"Loading Filament");
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
+    }
+  #endif
+#endif
+
 /* Navigation and Control */
 
 inline void Main_Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 3) { 
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < 3) {
     selection++; // Select Down
     Main_Menu_Icons();
   }
@@ -1812,7 +1927,7 @@ inline void Main_Menu_Control() {
 inline void Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < Get_Menu_Size(active_menu)) { 
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < Get_Menu_Size(active_menu)) {
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection-scrollpos) - 18, 14, MBASE(selection-scrollpos) + 33);
     selection++; // Select Down
     if (selection > scrollpos+MROWS) {
@@ -1919,7 +2034,7 @@ inline void File_Control() {
     }
     return;
   }
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < card.get_num_Files()) { 
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < card.get_num_Files()) {
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(selection-scrollpos) - 18, 14, MBASE(selection-scrollpos) + 33);
     if (selection > 0) {
       DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(selection-scrollpos) - 14, 271, MBASE(selection-scrollpos) + 28);
@@ -1973,7 +2088,7 @@ inline void File_Control() {
 inline void Print_Screen_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 2) { 
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < 2) {
     selection++; // Select Down
     Print_Screen_Icons();
   }
@@ -2009,7 +2124,7 @@ inline void Print_Screen_Control() {
 inline void Popup_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 1) { 
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < 1) {
     selection++;
     Popup_Select();
   }
@@ -2077,6 +2192,9 @@ inline void Popup_Control() {
           Draw_Main_Menu();
         }
         break;
+      case M600:
+        Draw_Menu(Prepare, 8);
+        break;
     }
   DWIN_UpdateLCD();
 }
@@ -2131,7 +2249,7 @@ void Modify_Value(uint32_t &value, float min, float max, float unit) {
 /* Host Control */
 
 void Host_Print_Update(uint8_t percent, uint32_t remaining) {
-  printpercent = percent;  
+  printpercent = percent;
   remainingtime = remaining * 60;
   if (process == Print || process == Confirm) {
     Draw_Print_ProgressBar();
@@ -2293,7 +2411,7 @@ void HMI_Init() {
   #else
     zoffsetvalue = -home_offset.z;
   #endif
-  
+
 }
 
 void HMI_StartFrame(const bool with_update) {
@@ -2314,5 +2432,22 @@ void AudioFeedback(const bool success/*=true*/) {
 inline void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() {}
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode, const uint8_t extruder) {
+    // TODO implement remainder of PauseMessage states
+    if (message == PAUSE_MESSAGE_INSERT || message == PAUSE_MESSAGE_WAITING) {
+      process = Popup;
+      popup = M600;
+      Clear_Screen();
+
+      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 360);
+      DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 6)) / 2, 230, message == PAUSE_MESSAGE_INSERT ? (char*)"Filament Change" : (char*)"Paused");
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 21 )) / 2, 260, message == PAUSE_MESSAGE_INSERT ? (char*)"Insert Filament" : (char*)"Press to resume print");
+      DWIN_ICON_Show(ICON, ICON_Continue_E, 87, 283);
+    }
+  }
+#endif
 
 #endif

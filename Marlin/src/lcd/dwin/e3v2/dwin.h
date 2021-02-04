@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, ETemp, Level, Complete
+  Pause, Stop, Resume, ETemp, Level, Complete, M600
 };
 
 enum menuID : uint8_t {
@@ -46,6 +46,7 @@ enum menuID : uint8_t {
       ManualLevel,
       ZOffset,
       Preheat,
+      ChangeFilament,
     Control,
       TempMenu,
         Preheat1,
@@ -229,6 +230,14 @@ void Popup_Window_Move();
 void Popup_window_Pause();
 void Popup_window_Stop();
 void Popup_window_SaveLevel();
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Popup_Window_ChangeFilament();
+
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+    void Popup_Window_LoadFilament(const bool unloading=false);
+  #endif
+#endif
 
 
 inline void Main_Menu_Control();
