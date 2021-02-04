@@ -182,7 +182,7 @@ void host_action(PGM_P const pstr, const bool eol) {
         break;
       case PROMPT_PAUSE_RESUME:
         msg = PSTR("LCD_PAUSE_RESUME");
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if BOTH(ADVANCED_PAUSE_FEATURE, SDSUPPORT)
           extern const char M24_STR[];
           queue.inject_P(M24_STR);
         #endif

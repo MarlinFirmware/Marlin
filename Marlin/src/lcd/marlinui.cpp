@@ -1652,7 +1652,13 @@ void MarlinUI::update() {
 #endif // SDSUPPORT
 
 #if HAS_LCD_MENU
-  void MarlinUI::reset_settings() { settings.reset(); completion_feedback(); }
+  void MarlinUI::reset_settings() {
+    settings.reset();
+    completion_feedback();
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
+    #endif
+  }
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
