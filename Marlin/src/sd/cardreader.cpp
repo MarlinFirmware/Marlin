@@ -1226,9 +1226,7 @@ void CardReader::fileHasFinished() {
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
-  TERN_(HAS_MULTI_SERIAL, serial_index_t CardReader::auto_report_port);
-  CardReader::AutoReportSD CardReader::auto_reporter;
-  void CardReader::AutoReportSD::auto_report() { report_status(); }
+  AutoReporter<CardReader::AutoReportSD> CardReader::auto_reporter;
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)

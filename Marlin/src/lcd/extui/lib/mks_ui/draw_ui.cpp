@@ -1077,6 +1077,7 @@ void draw_return_ui() {
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif
       case TOOL_UI:                     lv_draw_tool(); break;
+      case GCODE_UI:                    lv_draw_gcode(); break;
       case MESHLEVELING_UI:             break;
       case HARDWARE_TEST_UI:            break;
       #if ENABLED(MKS_WIFI_MODULE)
