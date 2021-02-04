@@ -41,22 +41,24 @@ By default, the serial base interface provide an emergency parser that's only en
 Because of this condition, all underlying type takes a first `bool emergencyParserEnabled` argument to their constructor. You must take into account this parameter when defining the actual type used.
 
 ## SERIAL macros
-Developers wanting to output data on the serial ports, will use the numerous serial macros defined in `serial.h`
+The following macros are defined (in `serial.h`) to output data to the serial ports:
 
-A succint description of each macro follows:
-| MACRO          | Accepted parameter | Usage    | Example   |  Expected output |
-|----------------|--------------------|----------|-----------|------------------|
-| SERIAL_ECHO    | Any basic type is supported (`char`, `uint8_t`, `int16_t`, `int32_t`, `float`, `long`, `const char*`, ...). | When given an number, it prints the number as decimal on the serial port. When given a string, it outputs the string on the serial port. | `uint8_t a = 123; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(' '); ` | `123 32` | 
-| SERIAL_ECHO_F  | `float` or `double` | Prints the floating point value with optional number of digits (default 2) | `float a = 3.1415; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(a, 4);` | `3.14 3.1415`|
-| SERIAL_ECHOLN | Same as SERIAL_ECHO | Same as serial echo but appends a line return after the print | `int a = 456; SERIAL_ECHOLN(a);` | `456\n` |
-| SERIAL_OUT    | `char`, `int8_t`, `uint8_t` | Output the given char on the serial line | `SERIAL_OUT('a');` | `a` |
-| SERIAL_ECHO_PAIR | Key: `const char*`, Value: any supported by SERIAL_ECHO | Prints a key value pair, starting by the key | `SERIAL_ECHO_PAIR("Bob", 34);` | `Bob34` |
-| SERIAL_ECHO_PAIR_P | Same as SERIAL_ECHO_PAIR. Key must be a PGM string | Works the same as SERIAL_ECHO_PAIR | `SERIAL_ECHO_PAIR_P("Bob", 34);` | `Bob34` |
-| SERIAL_ECHO_LIST | Same as SERIAL_ECHO_PAIR | Prints a list of value, prependded by a key | `SERIAL_ECHO_LIST("Key ", 1, 2, 3);` | `Key 1, 2, 3` |
-| SERIAL_ECHO_SP | Number of space char | Print as many space character as requested | `SERIAL_ECHO_SP(3)` | `   ` |
-| SERIAL_ECHO_START | None | Start an echo line | `SERIAL_ECHO_START();` | `echo:` |
-| SERIAL_ERROR_START| None | Start an echo line | `SERIAL_ERROR_START();` | `Error:` |
-| SERIAL_ECHO_EOL   | None | Emit an end of line | `SERIAL_ECHO_EOL();` | `\n` |
-
+| MACRO | Parameters | Usage | Example | Expected output |
+|-------|------------|-------|---------|-----------------|
+| `SERIAL_ECHO` | Any basic type is supported (`char`, `uint8_t`, `int16_t`, `int32_t`, `float`, `long`, `const char*`, ...). | For a numeric type it prints the number in decimal. A string is output as a string. | `uint8_t a = 123; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(' '); ` | `123 32` |
+| `SERIAL_ECHOLN` | Same as `SERIAL_ECHO` | Do `SERIAL_ECHO`, adding a newline | `int a = 456; SERIAL_ECHOLN(a);` | `456\n` |
+| `SERIAL_ECHO_F` | `float` or `double` | Print a decimal value with a given precision (default 2) | `float a = 3.1415; SERIAL_ECHO_F(a); SERIAL_CHAR(' '); SERIAL_ECHO_F(a, 4);` | `3.14 3.1415`|
+| `SERIAL_ECHOPAIR` | String / Value pairs | Print a series of string literals and values alternately | `SERIAL_ECHOPAIR("Bob", 34);` | `Bob34` |
+| `SERIAL_ECHOLNPAIR` | Same as `SERIAL_ECHOPAIR` | Do `SERIAL_ECHOPAIR`, adding a newline | `SERIAL_ECHOPAIR("Alice", 56);` | `alice56` |
+| `SERIAL_ECHOPAIR_P` | Like `SERIAL_ECHOPAIR` but takes PGM strings | Print a series of PGM strings and values alternately | `SERIAL_ECHOPAIR_P(GET_TEXT(MSG_HELLO), 123);` | `Hello123` |
+| `SERIAL_ECHOLNPAIR_P` | Same as `SERIAL_ECHOPAIR_P` | Do `SERIAL_ECHOPAIR_P`, adding a newline | `SERIAL_ECHOLNPAIR_P(PSTR("Alice"), 78);` | `alice78\n` |
+| `SERIAL_ECHOLIST` | String literal, values | Print a string literal and a list of values | `SERIAL_ECHOLIST("Key ", 1, 2, 3);` | `Key 1, 2, 3` |
+| `SERIAL_ECHO_START` | None | Prefix an echo line | `SERIAL_ECHO_START();` | `echo:` |
+| `SERIAL_ECHO_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full echo line | `SERIAL_ECHO_MSG("Count is ", count);` | `echo:Count is 3` |
+| `SERIAL_ERROR_START`| None | Prefix an error line | `SERIAL_ERROR_START();` | `Error:` |
+| `SERIAL_ERROR_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full error line | `SERIAL_ERROR_MSG("Not found");` | `Error:Not found` |
+| `SERIAL_ECHO_SP` | Number of spaces | Print one or more spaces | `SERIAL_ECHO_SP(3)` | `   ` |
+| `SERIAL_EOL` | None | Print an end of line | `SERIAL_EOL();` | `\n` |
+| `SERIAL_OUT` | `SERIAL_OUT(myMethod)` | Call a custom serial method | `SERIAL_OUT(msgDone);` | ... |
 
 *This document was written by [X-Ryl669](https://blog.cyril.by) and is under [CC-SA license](https://creativecommons.org/licenses/by-sa)*
