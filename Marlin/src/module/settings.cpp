@@ -2969,6 +2969,8 @@ void MarlinSettings::reset() {
     #if PROBING_BED_TEMP
       probe.settings.preheat_bed_temp = PROBING_BED_TEMP;
     #endif
+
+    probe.settings.stabilize_temperatures_after_probing = true;
   #endif
 
   postprocess();
@@ -3924,7 +3926,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOPAIR("  C001 S", probe.settings.turn_heaters_off ? 1 : 0);
       SERIAL_ECHOPAIR(" H", probe.settings.preheat_hotend_temp);
-      SERIAL_ECHOLNPAIR(" B", probe.settings.preheat_bed_temp);
+      SERIAL_ECHOPAIR(" B", probe.settings.preheat_bed_temp);
+      SERIAL_ECHOLNPAIR(" W", probe.settings.stabilize_temperatures_after_probing);
     #endif
   }
 

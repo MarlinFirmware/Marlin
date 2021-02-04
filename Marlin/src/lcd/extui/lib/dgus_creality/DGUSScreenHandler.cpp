@@ -1320,6 +1320,12 @@ void DGUSScreenHandler::HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *va
   RequestSaveSettings();
 }
 
+void DGUSScreenHandler::HandleToggleProbeTemperatureStabilization(DGUS_VP_Variable &var, void *val_ptr) {
+  probe.settings.stabilize_temperatures_after_probing = !probe.settings.stabilize_temperatures_after_probing;
+
+  RequestSaveSettings();
+}
+
 void DGUSScreenHandler::HandleToggleProbePreheatTemp(DGUS_VP_Variable &var, void *val_ptr) {
   ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>(var, val_ptr);
 

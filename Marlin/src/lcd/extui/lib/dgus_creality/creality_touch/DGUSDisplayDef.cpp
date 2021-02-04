@@ -402,6 +402,7 @@ const uint16_t VPList_LevelingSettings[] PROGMEM = {
   VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON,
   VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP,
   VP_TOGGLE_PROBE_PREHEAT_BED_TEMP,
+  VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_ICON,
 
   0x0000
 };
@@ -576,6 +577,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_PROBE_SETTINGS
   VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON, nullptr, ScreenHandler.HandleToggleProbeHeaters, nullptr),
   VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON, &probe.settings.turn_heaters_off, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_ACCURACY_TOGGLE_ON, ICON_ACCURACY_TOGGLE_OFF>)),
+
+  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_BUTTON, nullptr, ScreenHandler.HandleToggleProbeTemperatureStabilization, nullptr),
+  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_ICON, &probe.settings.stabilize_temperatures_after_probing, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_ON, ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_OFF>)),
 
   VPHELPER(VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP, &probe.settings.preheat_hotend_temp, ScreenHandler.HandleToggleProbePreheatTemp, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_TOGGLE_PROBE_PREHEAT_BED_TEMP, &probe.settings.preheat_bed_temp, ScreenHandler.HandleToggleProbePreheatTemp, ScreenHandler.DGUSLCD_SendWordValueToDisplay),

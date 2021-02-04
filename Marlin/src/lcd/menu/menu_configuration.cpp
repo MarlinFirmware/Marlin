@@ -326,6 +326,10 @@ void menu_advanced_settings();
       EDIT_ITEM(uint16_3, MSG_PROBING_BED_TEMP, &probe.settings.preheat_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
     #endif
 
+     #if ENABLED(PROBING_HEATERS_OFF)
+      EDIT_ITEM(bool, MSG_PROBING_TEMP_STABILIZATION, &probe.settings.stabilize_temperatures_after_probing);
+    #endif
+
     END_MENU();
   }
 

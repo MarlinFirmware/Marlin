@@ -907,7 +907,7 @@ G29_TYPE GcodeSuite::G29() {
 
 #if ENABLED(PROBING_HEATERS_OFF)
   // If we're going to print then we must ensure we are back on temperature before we continue
-  if (TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
+  if (TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
     SERIAL_ECHOLN("Waiting to heat-up again before continueing");
     ui.set_status("Waiting for heat-up...");
 

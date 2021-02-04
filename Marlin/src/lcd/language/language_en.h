@@ -276,6 +276,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBING_HEATERS_OFF               = _UxGT("Improve accuracy");
   PROGMEM Language_Str MSG_PROBING_NOZZLE_TEMP             = _UxGT("Preheat nozzle");
   PROGMEM Language_Str MSG_PROBING_BED_TEMP                = _UxGT("Preheat bed");
+  PROGMEM Language_Str MSG_PROBING_TEMP_STABILIZATION      = _UxGT("Stabilize temp. after probing");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Load/unload filament");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
