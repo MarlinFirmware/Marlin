@@ -15,8 +15,8 @@
 //#define XP
 //============= Hardware =============//
 /*---Motherboard/Printer-(1 CHOICE)--*/
-//#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
-#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
+#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
+//#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
                                      // click on the "Default" icon on the bottom edge of the window and 
                                      // choose "mks_robin_nano35").
 
@@ -48,7 +48,7 @@
 /*--- Choice UI TFT ----*/
 #define TFT_COLOR_UI               //(C) UI MARLIN (Default)
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD (type LCD)
-#define BOOT_MARLIN_LOGO_SMALL     // Small Logo Marlin to reduce de binary. Comment to have normal LOGO. (Default)
+//#define BOOT_MARLIN_LOGO_SMALL     // Small Logo Marlin to reduce de binary. Comment to have normal LOGO. (Default)
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
