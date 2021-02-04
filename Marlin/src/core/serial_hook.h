@@ -73,7 +73,6 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
   using BaseClassT::available;
@@ -97,7 +96,6 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   // Existing instances implement Arduino's operator bool, so use that if it's available
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
-
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
@@ -138,13 +136,11 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   using BaseClassT::print;
   using BaseClassT::println;
 
-
   // Underlying implementation might use Arduino's bool operator
   bool connected() {
     return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool();
   }
   void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
-
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts

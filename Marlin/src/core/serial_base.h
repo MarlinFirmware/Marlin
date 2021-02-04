@@ -28,7 +28,6 @@
   #include "../feature/e_parser.h"
 #endif
 
-
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
 CALL_IF_EXISTS_IMPL(void, flushTX );
 CALL_IF_EXISTS_IMPL(bool, connected, true);
@@ -40,13 +39,12 @@ enum class PrintBase {
   Dec = 10,
   Hex = 16,
   Oct = 8,
-  Bin = 2,
+  Bin = 2
 };
 
 // A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than 
 // double or float. For double or float, a conversion exists so the call will be transparent
-struct EnsureDouble
-{
+struct EnsureDouble {
   double a;
   FORCE_INLINE operator double() { return a; }
   // If the compiler breaks on ambiguity here, it's likely because you're calling print(X, base) with X not a double or a float, and a
@@ -57,8 +55,8 @@ struct EnsureDouble
 };
 
 // Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
-// Since the real serial class is known at compile time, this results in compiler writing a completely
-// efficient code
+// Since the real serial class is known at compile time, this results in the compiler writing
+// a completely efficient code.
 template <class Child>
 struct SerialBase {
   #if ENABLED(EMERGENCY_PARSER)
@@ -133,7 +131,6 @@ struct SerialBase {
   FORCE_INLINE void println(long c)                { println(c, PrintBase::Dec); }
   FORCE_INLINE void println(double c)              { println(c, 2); }
 
-
   // Print a number with the given base
   void printNumber(unsigned long n, const uint8_t base) {
     if (!base) return; // Hopefully, this should raise visible bug immediately
@@ -192,5 +189,5 @@ struct SerialBase {
   }
 };
 
-// All serial instances will be built by chaining the features required for the function in a form of a template
-// type definition
+// All serial instances will be built by chaining the features required
+// for the function in the form of a template type definition.
