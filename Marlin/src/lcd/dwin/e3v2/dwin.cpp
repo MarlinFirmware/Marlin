@@ -1593,6 +1593,9 @@ void update_variable() {
   static float x = current_position.x;
   static float y = current_position.y;
   static float z = current_position.z;
+  static float xhome = axis_was_homed(X_AXIS);
+  static float yhome = axis_was_homed(Y_AXIS);
+  static float zhome = axis_was_homed(Z_AXIS);
   if (thermalManager.temp_hotend[0].celsius != hotend) {
     hotend = thermalManager.temp_hotend[0].celsius;
     DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
@@ -1632,17 +1635,26 @@ void update_variable() {
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)" ");
     }
   }
-  if (current_position.x != x) {
+  if (current_position.x != x || xhome != axis_was_homed(X_AXIS)) {
     x = current_position.x;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+    if (axis_was_homed(X_AXIS))
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+    else
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 35, 459, (char*)"?");
   }
-  if (current_position.y != y) {
+  if (current_position.y != y || yhome != axis_was_homed(Y_AXIS)) {
     y = current_position.y;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+    if (axis_was_homed(Y_AXIS))
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+    else
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 120, 459, (char*)"?");
   }
-  if (current_position.z != z) {
+  if (current_position.z != z || zhome != axis_was_homed(Z_AXIS)) {
     z = current_position.z;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
+    if (axis_was_homed(Z_AXIS))
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
+    else
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 459, (char*)"?");
   }
 }
 
@@ -1874,11 +1886,20 @@ void Draw_Status_Area(const bool with_update) {
   DWIN_Draw_Rectangle(1, Line_Color, 0, 449, DWIN_WIDTH, 451);
 
   DWIN_ICON_Show(ICON, ICON_MaxSpeedX,   10, 456);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+  if (axis_was_homed(X_AXIS))
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+  else
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 35, 459, (char*)"?");
   DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+  if (axis_was_homed(Y_AXIS))
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+  else
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 120, 459, (char*)"?");
   DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
+  if (axis_was_homed(Z_AXIS))
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
+  else
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 459, (char*)"?");
 
   if (with_update) {
     DWIN_UpdateLCD();
