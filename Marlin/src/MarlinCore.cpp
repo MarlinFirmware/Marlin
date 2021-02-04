@@ -897,8 +897,6 @@ void setup() {
   #endif
   SERIAL_ECHOLNPGM("start");
 
-  //SERIAL_PRINT((uint8_t)3, 0);
-
   // Set up these pins early to prevent suicide
   #if HAS_KILL
     SETUP_LOG("KILL_PIN");
