@@ -39,7 +39,6 @@ struct MarlinSerialUSB {
   static int peek();
   static int read();
   static void flush();
-  static void flushTX();
   static bool available();
   static size_t write(const uint8_t c);
 
