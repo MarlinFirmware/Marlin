@@ -280,7 +280,7 @@ void serialprintPGM(PGM_P str);
 
   template <typename ... Args>
   void SERIAL_ECHOLIST(PGM_P const str, Args && ... args) {
-    SERIAL_IMPL.print(str);
+    serialprintPGM(str);
     typename Private::first_type_of<Args...>::type values[] = { args... };
     constexpr size_t argsSize = sizeof...(args);
     for (size_t i = 0; i < argsSize; i++) {
