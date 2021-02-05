@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V82"
+#define EEPROM_VERSION "V83"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -49,10 +49,6 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
-
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
-#endif
 
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
@@ -179,8 +175,6 @@ typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
 static const float     _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
-
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
 
 /**
  * Current EEPROM Layout
@@ -461,6 +455,11 @@ typedef struct SettingsDataStruct {
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
   #endif
+
+  #if HAS_MULTI_LANGUAGE
+    uint8_t ui_language;                                // M414 S
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1387,6 +1386,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Selected LCD language
+    //
+    #if HAS_MULTI_LANGUAGE
+      EEPROM_WRITE(ui.language);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2266,6 +2272,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Selected LCD language
+      //
+      #if HAS_MULTI_LANGUAGE
+      {
+        uint8_t ui_language;
+        EEPROM_READ(ui_language);
+        if (ui_language >= NUM_LANGUAGES) ui_language = 0;
+        ui.set_language(ui_language);
+      }
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2367,7 +2385,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      #if ENABLED(EEPROM_CHITCHAT)
+      #if BOTH(EEPROM_CHITCHAT, DEBUG_OUT)
         DEBUG_ECHOLNPGM("?Invalid slot.");
         DEBUG_ECHO(s);
         DEBUG_ECHOLNPGM(" mesh slots available.");
@@ -2928,7 +2946,7 @@ void MarlinSettings::reset() {
   }
 
   #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
-  #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
+  #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  config_heading(forReplay, PSTR(STR))
 
   #if HAS_TRINAMIC_CONFIG
@@ -3021,26 +3039,24 @@ void MarlinSettings::reset() {
       }
 
       #if EXTRUDERS == 1
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
-                              , " D", LINEAR_UNIT(planner.filament_size[0])
-                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
-                              #endif
-                         );
+        CONFIG_ECHO_MSG("  M200 S", int(parser.volumetric_enabled)
+                            , " D", LINEAR_UNIT(planner.filament_size[0])
+                            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                              , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                            #endif
+                       );
       #else
         LOOP_L_N(i, EXTRUDERS) {
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M200 T", int(i)
-                                , " D", LINEAR_UNIT(planner.filament_size[i])
-                                #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-                                  , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
-                                #endif
-                           );
+          CONFIG_ECHO_MSG("  M200 T", int(i)
+                              , " D", LINEAR_UNIT(planner.filament_size[i])
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                              #endif
+                         );
         }
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled));
+        CONFIG_ECHO_MSG("  M200 S", int(parser.volumetric_enabled));
       #endif
+
     #endif // EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
@@ -3161,7 +3177,7 @@ void MarlinSettings::reset() {
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-        config_heading(forReplay, PSTR(""), false);
+        config_heading(forReplay, NUL_STR, false);
         if (!forReplay) {
           ubl.echo_name();
           SERIAL_CHAR(':');
@@ -3176,7 +3192,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-        PSTR("  M420 S"), planner.leveling_active ? 1 : 0
+        PSTR("  M420 S"), int(planner.leveling_active)
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
         #endif
@@ -3242,8 +3258,7 @@ void MarlinSettings::reset() {
           #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
             case Z_PROBE_SERVO_NR:
           #endif
-            CONFIG_ECHO_START();
-            SERIAL_ECHOLNPAIR("  M281 P", int(i), " L", servo_angles[i][0], " U", servo_angles[i][1]);
+            CONFIG_ECHO_MSG("  M281 P", int(i), " L", servo_angles[i][0], " U", servo_angles[i][1]);
           default: break;
         }
       }
@@ -3364,8 +3379,7 @@ void MarlinSettings::reset() {
       #endif // PIDTEMP
 
       #if ENABLED(PIDTEMPBED)
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR(
+        CONFIG_ECHO_MSG(
             "  M304 P", thermalManager.temp_bed.pid.Kp
           , " I", unscalePID_i(thermalManager.temp_bed.pid.Ki)
           , " D", unscalePID_d(thermalManager.temp_bed.pid.Kd)
@@ -3382,16 +3396,14 @@ void MarlinSettings::reset() {
 
     #if HAS_LCD_CONTRAST
       CONFIG_ECHO_HEADING("LCD Contrast:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+      CONFIG_ECHO_MSG("  M250 C", ui.contrast);
     #endif
 
     TERN_(CONTROLLER_FAN_EDITABLE, M710_report(forReplay));
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       CONFIG_ECHO_HEADING("Power-Loss Recovery:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M413 S", int(recovery.enabled));
+      CONFIG_ECHO_MSG("  M413 S", int(recovery.enabled));
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -3406,8 +3418,7 @@ void MarlinSettings::reset() {
       );
 
       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
+      CONFIG_ECHO_MSG(
           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
         , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
@@ -3416,8 +3427,7 @@ void MarlinSettings::reset() {
       #if ENABLED(FWRETRACT_AUTORETRACT)
 
         CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M209 S", fwretract.autoretract_enabled ? 1 : 0);
+        CONFIG_ECHO_MSG("  M209 S", int(fwretract.autoretract_enabled));
 
       #endif // FWRETRACT_AUTORETRACT
 
@@ -3762,13 +3772,10 @@ void MarlinSettings::reset() {
     #if ENABLED(LIN_ADVANCE)
       CONFIG_ECHO_HEADING("Linear Advance:");
       #if EXTRUDERS < 2
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M900 K", planner.extruder_advance_K[0]);
+        CONFIG_ECHO_MSG("  M900 K", planner.extruder_advance_K[0]);
       #else
-        LOOP_L_N(i, EXTRUDERS) {
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M900 T", int(i), " K", planner.extruder_advance_K[i]);
-        }
+        LOOP_L_N(i, EXTRUDERS)
+          CONFIG_ECHO_MSG("  M900 T", int(i), " K", planner.extruder_advance_K[i]);
       #endif
     #endif
 
@@ -3833,8 +3840,7 @@ void MarlinSettings::reset() {
 
     #if HAS_FILAMENT_SENSOR
       CONFIG_ECHO_HEADING("Filament runout sensor:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
+      CONFIG_ECHO_MSG(
         "  M412 S", int(runout.enabled)
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
@@ -3849,6 +3855,11 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
+    #endif
+
+    #if HAS_MULTI_LANGUAGE
+      CONFIG_ECHO_HEADING("UI Language:");
+      SERIAL_ECHO_MSG("  M414 S", int(ui.language));
     #endif
   }
 

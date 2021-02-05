@@ -70,7 +70,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_jerk_settings(void) {
+void lv_draw_jerk_settings() {
   scr = lv_screen_create(JERK_UI, machine_menu.JerkConfTitle);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[X_AXIS]);

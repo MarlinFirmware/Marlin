@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#if defined(USBD_USE_CDC_COMPOSITE) && DISABLED(NO_SD_HOST_DRIVE)
+#if defined(USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
   #define HAS_SD_HOST_DRIVE 1
 #endif

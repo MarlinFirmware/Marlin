@@ -55,7 +55,9 @@ extern portMUX_TYPE spinlock;
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #define MYSERIAL1 Serial2Socket
+    typedef ForwardSerial0Type< decltype(Serial2Socket) > DefaultSerial;
+    extern DefaultSerial MSerial;
+    #define MYSERIAL1 MSerial
   #else
     #define MYSERIAL1 webSocketSerial
   #endif
@@ -66,10 +68,6 @@ extern portMUX_TYPE spinlock;
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
 
 // ------------------------
 // Types
@@ -89,6 +87,13 @@ extern uint16_t HAL_adc_result;
 // ------------------------
 // Public functions
 // ------------------------
+
+//
+// Tone
+//
+void toneInit();
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
+void noTone(const pin_t _pin);
 
 // clear reset reason
 void HAL_clear_reset_source();

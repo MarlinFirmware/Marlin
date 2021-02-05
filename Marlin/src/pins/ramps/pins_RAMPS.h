@@ -468,6 +468,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
+      #error "CAUTION! ZONESTAR_LCD on RAMPS requires wiring modifications. It plugs into AUX2 but GND and 5V need to be swapped. Comment out this line to continue."
       #define LCD_PINS_RS                     64
       #define LCD_PINS_ENABLE                 44
       #define LCD_PINS_D4                     63
@@ -504,10 +505,10 @@
     #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                     38
-      //#define SHIFT_LD                      42
-      //#define SHIFT_OUT                     40
-      //#define SHIFT_EN                      17
+      //#define SHIFT_CLK_PIN                 38
+      //#define SHIFT_LD_PIN                  42
+      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_EN_PIN                  17
     #endif
 
   #endif
@@ -722,9 +723,9 @@
 #endif // HAS_WIRED_LCD
 
 #if IS_RRW_KEYPAD && !HAS_ADC_BUTTONS
-  #define SHIFT_OUT                           40
-  #define SHIFT_CLK                           44
-  #define SHIFT_LD                            42
+  #define SHIFT_OUT_PIN                       40
+  #define SHIFT_CLK_PIN                       44
+  #define SHIFT_LD_PIN                        42
   #ifndef BTN_EN1
     #define BTN_EN1                           64
   #endif

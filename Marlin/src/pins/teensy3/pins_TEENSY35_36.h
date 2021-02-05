@@ -146,7 +146,7 @@
 #endif
 
 #if IS_RRW_KEYPAD
-  #define SHIFT_OUT                           40
-  #define SHIFT_CLK                           44
-  #define SHIFT_LD                            42
+  #define SHIFT_OUT_PIN                       40
+  #define SHIFT_CLK_PIN                       44
+  #define SHIFT_LD_PIN                        42
 #endif
