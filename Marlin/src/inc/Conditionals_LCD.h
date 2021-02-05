@@ -935,6 +935,9 @@
 #if ENABLED(MORGAN_SCARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
+#elif ENABLED(AXEL_TPARA)
+  #define IS_SCARA 1
+  #define IS_KINEMATIC 1    
 #elif ENABLED(DELTA)
   #define IS_KINEMATIC 1
 #else
