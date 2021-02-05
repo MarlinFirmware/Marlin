@@ -1,6 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,19 +60,11 @@ enum XPTCoordinate : uint8_t {
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 
-#ifdef STM32F1xx
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
-#elif defined(STM32F4xx)
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
-#endif
-
-
 class XPT2046 {
 private:
   static SPI_HandleTypeDef SPIx;
-  static DMA_HandleTypeDef DMAtx;
 
-  static bool isBusy() { return SPIx.Instance ? __IS_DMA_ENABLED(&DMAtx) : false; }
+  static bool isBusy() { return false; }
 
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();

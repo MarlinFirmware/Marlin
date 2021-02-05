@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/LPC1768."
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not current available for HAL/LPC1768."
 #endif

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -85,6 +85,9 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
 void TouchCalibrationScreen::onIdle() {
   if (!CLCD::is_touching() && !CommandProcessor::is_processing()) {
     GOTO_PREVIOUS();
+    #if ENABLED(TOUCH_UI_DEBUG)
+      SERIAL_ECHO_MSG("Calibration routine finished");
+    #endif
   }
 }
 

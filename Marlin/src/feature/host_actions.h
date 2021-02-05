@@ -44,6 +44,9 @@ void host_action(PGM_P const pstr, const bool eol=true);
 #ifdef ACTION_ON_CANCEL
   void host_action_cancel();
 #endif
+#ifdef ACTION_ON_START
+  void host_action_start();
+#endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
@@ -68,6 +71,7 @@ void host_action(PGM_P const pstr, const bool eol=true);
   void host_action_prompt_end();
   void host_action_prompt_show();
   void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
+  void host_prompt_do(const PromptReason reason, PGM_P const pstr, const char extra_char, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
   inline void host_prompt_open(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr) {
     if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, btn1, btn2);
   }

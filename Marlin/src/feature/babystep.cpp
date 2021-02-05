@@ -26,7 +26,8 @@
 
 #include "babystep.h"
 #include "../MarlinCore.h"
-#include "../module/planner.h"
+#include "../module/motion.h"   // for axes_should_home()
+#include "../module/planner.h"  // for axis_steps_per_mm[]
 #include "../module/stepper.h"
 
 #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)

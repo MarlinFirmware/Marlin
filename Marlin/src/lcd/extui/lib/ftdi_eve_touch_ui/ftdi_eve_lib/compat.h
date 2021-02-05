@@ -12,7 +12,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -206,6 +206,10 @@
 
   // Define macros for compatibility
 
+  // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
+  #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+  #define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
   #define _CAT(a,V...) a##V
   #define CAT(a,V...) _CAT(a,V)
 
@@ -252,6 +256,9 @@
   #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
   #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
   #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+  #define IF_ENABLED          TERN_
+  #define IF_DISABLED(O,A)    _TERN(_ENA_1(O),,A)
 
   #define ANY(V...)          !DISABLED(V)
   #define NONE(V...)          DISABLED(V)

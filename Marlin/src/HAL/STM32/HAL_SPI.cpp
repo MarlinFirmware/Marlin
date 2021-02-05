@@ -45,10 +45,10 @@ static SPISettings spiConfig;
   #include "../shared/Delay.h"
 
   void spiBegin(void) {
-    OUT_WRITE(SS_PIN, HIGH);
-    OUT_WRITE(SCK_PIN, HIGH);
-    SET_INPUT(MISO_PIN);
-    OUT_WRITE(MOSI_PIN, HIGH);
+    OUT_WRITE(SD_SS_PIN, HIGH);
+    OUT_WRITE(SD_SCK_PIN, HIGH);
+    SET_INPUT(SD_MISO_PIN);
+    OUT_WRITE(SD_MOSI_PIN, HIGH);
   }
 
   static uint16_t delay_STM32_soft_spi;
@@ -72,15 +72,15 @@ static SPISettings spiConfig;
 
   uint8_t HAL_SPI_STM32_SpiTransfer_Mode_3(uint8_t b) { // using Mode 3
     for (uint8_t bits = 8; bits--;) {
-      WRITE(SCK_PIN, LOW);
-      WRITE(MOSI_PIN, b & 0x80);
+      WRITE(SD_SCK_PIN, LOW);
+      WRITE(SD_MOSI_PIN, b & 0x80);
 
       DELAY_NS(delay_STM32_soft_spi);
-      WRITE(SCK_PIN, HIGH);
+      WRITE(SD_SCK_PIN, HIGH);
       DELAY_NS(delay_STM32_soft_spi);
 
       b <<= 1;        // little setup time
-      b |= (READ(MISO_PIN) != 0);
+      b |= (READ(SD_MISO_PIN) != 0);
     }
     DELAY_NS(125);
     return b;
@@ -132,11 +132,9 @@ static SPISettings spiConfig;
    * @details Only configures SS pin since stm32duino creates and initialize the SPI object
    */
   void spiBegin() {
-    #if !PIN_EXISTS(SS)
-      #error "SS_PIN not defined!"
+    #if PIN_EXISTS(SD_SS)
+      OUT_WRITE(SD_SS_PIN, HIGH);
     #endif
-
-    OUT_WRITE(SS_PIN, HIGH);
   }
 
   // Configure SPI for specified SPI speed
@@ -156,10 +154,9 @@ static SPISettings spiConfig;
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
     #if ENABLED(CUSTOM_SPI_PINS)
-      SPI.setMISO(MISO_PIN);
-      SPI.setMOSI(MOSI_PIN);
-      SPI.setSCLK(SCK_PIN);
-      SPI.setSSEL(SS_PIN);
+      SPI.setMISO(SD_MISO_PIN);
+      SPI.setMOSI(SD_MOSI_PIN);
+      SPI.setSCLK(SD_SCK_PIN);
     #endif
 
     SPI.begin();
@@ -173,9 +170,7 @@ static SPISettings spiConfig;
    * @details
    */
   uint8_t spiRec() {
-    SPI.beginTransaction(spiConfig);
     uint8_t returnByte = SPI.transfer(0xFF);
-    SPI.endTransaction();
     return returnByte;
   }
 
@@ -191,9 +186,7 @@ static SPISettings spiConfig;
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(buf, nbyte);
-    SPI.endTransaction();
   }
 
   /**
@@ -204,9 +197,7 @@ static SPISettings spiConfig;
    * @details
    */
   void spiSend(uint8_t b) {
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(b);
-    SPI.endTransaction();
   }
 
   /**
@@ -219,10 +210,8 @@ static SPISettings spiConfig;
    */
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
     uint8_t rxBuf[512];
-    SPI.beginTransaction(spiConfig);
     SPI.transfer(token);
     SPI.transfer((uint8_t*)buf, &rxBuf, 512);
-    SPI.endTransaction();
   }
 
 #endif // SOFTWARE_SPI

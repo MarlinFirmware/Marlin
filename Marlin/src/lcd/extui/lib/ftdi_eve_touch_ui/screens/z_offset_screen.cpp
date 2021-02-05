@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_BED_PROBE)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && BOTH(HAS_LEVELING, HAS_BED_PROBE)
 
 #include "screens.h"
 

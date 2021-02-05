@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -58,7 +58,7 @@ void GcodeSuite::M510() {
     if (password.is_set && parser.ulongval('P') != password.value) {
       SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
       return;
-     }
+    }
 
     if (parser.seenval('S')) {
       password.value_entry = parser.ulongval('S');

@@ -27,7 +27,7 @@
  * 2208 version exists and may or may not work
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -82,7 +82,7 @@
 
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE  2000
+  #define MOTOR_CURRENT_PWM_RANGE            2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
 
@@ -122,7 +122,7 @@
 
 #define BEEPER_PIN                            18
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         20
   #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         14
@@ -137,7 +137,6 @@
 ///////////////////// SPARE HEADERS //////////////
 
 /**
- *
  * J25
  * 1 D54
  * 2 D55
