@@ -43,7 +43,7 @@
 void GcodeSuite::M900() {
 
   auto echo_value_oor = [](const char ltr, const bool ten=true) {
-    SERIAL_CHAR('?'); SERIAL_CHAR(ltr);
+    SERIAL_CHAR('?', ltr);
     SERIAL_ECHOPGM(" value out of range");
     if (ten) SERIAL_ECHOPGM(" (0-10)");
     SERIAL_ECHOLNPGM(".");
