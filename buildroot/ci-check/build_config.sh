@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 if [ "$1" != "internal" ]; then
-  echo "Don't call this script directly, use build_all_configs.sh instead"
+  echo "Don't call this script directly, use build_all_configs.sh instead."
   exit 1
 fi
 
