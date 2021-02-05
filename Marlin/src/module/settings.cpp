@@ -3076,7 +3076,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, E_STEPPERS) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-            PSTR("  M203 T"), (int)i
+            PSTR("  M203 T"), i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
         );
       }
@@ -3096,7 +3096,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, E_STEPPERS) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-            PSTR("  M201 T"), (int)i
+            PSTR("  M201 T"), i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
         );
       }
@@ -3158,7 +3158,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       LOOP_S_L_N(e, 1, HOTENDS) {
         SERIAL_ECHOPAIR_P(
-          PSTR("  M218 T"), (int)e,
+          PSTR("  M218 T"), e,
           SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
           SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y)
         );
@@ -3204,7 +3204,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), (int)px, PSTR(" J"), (int)py);
+              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), px, PSTR(" J"), py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
@@ -3233,7 +3233,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR("  G29 W I", (int)px, " J", (int)py);
+              SERIAL_ECHOPAIR("  G29 W I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
             }
           }
@@ -3334,7 +3334,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, PREHEAT_COUNT) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-          PSTR("  M145 S"), (int)i
+          PSTR("  M145 S"), i
           #if HAS_HOTEND
             , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
           #endif
@@ -3841,7 +3841,7 @@ void MarlinSettings::reset() {
     #if HAS_FILAMENT_SENSOR
       CONFIG_ECHO_HEADING("Filament runout sensor:");
       CONFIG_ECHO_MSG(
-        "  M412 S", int(runout.enabled)
+        "  M412 S", runout.enabled
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif

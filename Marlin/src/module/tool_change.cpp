@@ -274,9 +274,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     if (homed_towards_final_tool) {
       pe_solenoid_magnet_off(1 - final_tool);
-      DEBUG_ECHOLNPAIR("Disengage magnet", (int)(1 - final_tool));
+      DEBUG_ECHOLNPAIR("Disengage magnet", 1 - final_tool);
       pe_solenoid_magnet_on(final_tool);
-      DEBUG_ECHOLNPAIR("Engage magnet", (int)final_tool);
+      DEBUG_ECHOLNPAIR("Engage magnet", final_tool);
       parking_extruder_set_parked(false);
       return false;
     }

@@ -584,7 +584,7 @@ void PrintJobRecovery::resume() {
         #if HAS_FAN
           DEBUG_ECHOPGM("fan_speed: ");
           FANS_LOOP(i) {
-            DEBUG_ECHO(int(info.fan_speed[i]));
+            DEBUG_ECHO(info.fan_speed[i]);
             if (i < FAN_COUNT - 1) DEBUG_CHAR(',');
           }
           DEBUG_EOL();

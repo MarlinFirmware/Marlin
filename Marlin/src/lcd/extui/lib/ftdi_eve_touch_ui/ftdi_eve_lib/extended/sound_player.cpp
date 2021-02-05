@@ -37,7 +37,7 @@ namespace FTDI {
   void SoundPlayer::play(effect_t effect, note_t note) {
 
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_MSG("Playing note ", int(note), ", instrument ", int(effect));
+      SERIAL_ECHO_MSG("Playing note ", note, ", instrument ", effect);
     #endif
 
     // Play the note

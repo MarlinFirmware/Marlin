@@ -391,8 +391,8 @@ void GCodeParser::unknown_command_warning() {
             "\n   sec-ms: ", value_millis_from_seconds(),
             "\n      int: ", value_int(),
             "\n   ushort: ", value_ushort(),
-            "\n     byte: ", (int)value_byte(),
-            "\n     bool: ", (int)value_bool(),
+            "\n     byte: ", value_byte(),
+            "\n     bool: ", value_bool(),
             "\n   linear: ", value_linear_units(),
             "\n  celsius: ", value_celsius()
           );

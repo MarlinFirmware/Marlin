@@ -131,7 +131,7 @@ inline void servo_probe_test() {
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
     SERIAL_ECHOLNPAIR("Servo probe test\n"
-                      ". using index:  ", int(probe_index),
+                      ". using index:  ", probe_index,
                       ", deploy angle: ", servo_angles[probe_index][0],
                       ", stow angle:   ", servo_angles[probe_index][1]
     );
