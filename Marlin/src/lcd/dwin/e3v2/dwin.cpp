@@ -403,7 +403,6 @@ void Draw_SD_List(bool removed/*=false*/) {
   selection = 0;
   scrollpos = 0;
   process = File;
-  card.mount();
   if (card.isMounted() && !removed) {
     LOOP_L_N(i, _MIN(card.get_num_Files()+1, TROWS))
       Draw_SD_Item(i, i);
@@ -1893,6 +1892,7 @@ inline void Main_Menu_Control() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
     switch(selection) {
       case 0:
+        card.mount();
         Draw_SD_List();
         break;
       case 1:
