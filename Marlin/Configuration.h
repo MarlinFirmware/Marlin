@@ -485,7 +485,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 999
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -499,7 +499,7 @@
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
-#define DUMMY_THERMISTOR_999_VALUE 100
+#define DUMMY_THERMISTOR_999_VALUE 200
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
 //#define MAX31865_SENSOR_OHMS_0      100   // (Ω) Typically 100 or 1000 (PT100 or PT1000)
@@ -817,7 +817,7 @@
 // TPARA uses only angles units are (steps/angle)
 // 200 steps per 360 deg rev * 32 microsteps * 32:9 gear ratio
 // 200/360*32*32/9 = 63.21
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 63.21,63.21,63.21, 1000 }  // default steps per unit for SCARA
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 63.21,63.21,63.21, 50 }  // default steps per unit for SCARA
 
 /**
  * Default Max Feed Rate (mm/s)
