@@ -370,13 +370,24 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
     #elif IS_SCARA
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      return (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-        #endif
-      );
+      #if ENABLED(AXEL_TPARA)
+        const float R2 = HYPOT2(rx - ROBOT_OFFSET_X, ry - ROBOT_OFFSET_Y);
+        return (
+          R2 <= sq(L1 + L2) - inset
+          #if MIDDLE_DEAD_ZONE_R > 0
+            && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          #endif
+        );        
+      #else // SCARA 
+        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+        return (
+          R2 <= sq(L1 + L2) - inset
+          #if MIDDLE_DEAD_ZONE_R > 0
+            && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          #endif
+        );
+      #endif
+
     #endif
   }
 
