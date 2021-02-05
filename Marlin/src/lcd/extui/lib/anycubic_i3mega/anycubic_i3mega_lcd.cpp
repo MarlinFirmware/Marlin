@@ -552,10 +552,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
         a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], nullptr))));
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
-          if ((a_command > 7) && (a_command != 20)) { // No debugging of status polls, please!
-            SERIAL_ECHOPGM("TFT Serial Command: ");
-            SERIAL_ECHOLN(TFTcmdbuffer[TFTbufindw]);
-          }
+          if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
+            SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
         #endif
 
         switch (a_command) {
