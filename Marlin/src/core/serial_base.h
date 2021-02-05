@@ -132,7 +132,7 @@ struct SerialBase {
   FORCE_INLINE void println(double c)              { println(c, 2); }
 
   // Print a number with the given base
-  void printNumber(unsigned long n, const uint8_t base) {
+  NO_INLINE void printNumber(unsigned long n, const uint8_t base) {
     if (!base) return; // Hopefully, this should raise visible bug immediately
 
     if (n) {
@@ -158,7 +158,7 @@ struct SerialBase {
   }
 
   // Print a decimal number
-  void printFloat(double number, uint8_t digits) {
+  NO_INLINE void printFloat(double number, uint8_t digits) {
     // Handle negative numbers
     if (number < 0.0) {
       write('-');
