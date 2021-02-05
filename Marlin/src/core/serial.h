@@ -81,6 +81,13 @@ typedef int8_t serial_index_t;
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define SERIAL_PORTMASK(P)      _BV(P)
 
+//
+// SERIAL_CHAR - Print one or more individual chars
+//
+inline void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
+template <typename ... Args>
+void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
+
 /**
  * SERIAL_ECHO - Print a single string or value.
  *   Any numeric parameter (including char) is printed as a base-10 number.
@@ -90,6 +97,12 @@ typedef int8_t serial_index_t;
  */
 template <typename T>
 void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
+
+// Wrapper for ECHO commands to interpret a char
+typedef struct { char c; } serial_char_t;
+inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+#define AS_CHAR(C) serial_char_t({ C })
+
 // SERIAL_ECHO_F prints a floating point value with optional precision
 inline void SERIAL_ECHO_F(EnsureDouble x, int digit = 2) { SERIAL_IMPL.print(x, digit); }
 
@@ -107,13 +120,7 @@ void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
 inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
 
-//
-// SERIAL_CHAR - Print one or more individual chars
-//
-inline void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
-template <typename ... Args>
-void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
-
+// Print a single PROGMEM string to serial
 void serialprintPGM(PGM_P str);
 
 // SERIAL_ECHOPAIR / SERIAL_ECHOPAIR_P is used to output a key value pair. The key must be a string and the value can be anything
@@ -318,6 +325,7 @@ void serialprintPGM(PGM_P str);
 //
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
+void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
 void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, long v);
