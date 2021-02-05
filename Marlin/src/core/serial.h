@@ -246,14 +246,15 @@ void serialprintPGM(PGM_P str);
 #define SERIAL_ECHOLNPAIR_P(V...) _SELP_N_P(NUM_ARGS(V),V)
 
 #ifdef AllowDifferentTypeInList
-  inline void SERIAL_ECHOLIST_IMPL() {} 
+
+  inline void SERIAL_ECHOLIST_IMPL() {}
   template <typename T>
   void SERIAL_ECHOLIST_IMPL(T && t) { SERIAL_IMPL.print(t); }
 
   template <typename T, typename ... Args>
   void SERIAL_ECHOLIST_IMPL(T && t, Args && ... args) {
     SERIAL_IMPL.print(t);
-    serialprintPGM(", ");
+    serialprintPGM(PSTR(", "));
     SERIAL_ECHOLIST_IMPL(args...);
   }
 
@@ -262,17 +263,20 @@ void serialprintPGM(PGM_P str);
     SERIAL_IMPL.print(str);
     SERIAL_ECHOLIST_IMPL(args...);
   }
+
 #else // Optimization if the listed type are all the same (seems to be the case in the codebase so use that instead)
+
   template <typename ... Args>
   void SERIAL_ECHOLIST(const char * str, Args && ... args) {
     SERIAL_IMPL.print(str);
     typename Private::first_type_of<Args...>::type values[] = { args... };
     constexpr size_t argsSize = sizeof...(args);
     for (size_t i = 0; i < argsSize; i++) {
-      if (i) serialprintPGM(", ");
+      if (i) serialprintPGM(PSTR(", "));
       SERIAL_IMPL.print(values[i]);
     }
   }
+
 #endif
 
 #define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
