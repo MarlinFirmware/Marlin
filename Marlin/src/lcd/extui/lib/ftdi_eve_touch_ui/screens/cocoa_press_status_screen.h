@@ -55,5 +55,3 @@
   };
 
 #endif // FTDI_COCOA_STATUS_SCREEN
-
-

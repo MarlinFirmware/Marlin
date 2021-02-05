@@ -32,7 +32,7 @@
     public:
       static void onRedraw(draw_mode_t);
       static void onIdle();
-  
+
       static void show(const progmem_str);
       static void hide();
       static void enqueueAndWait_P(const progmem_str commands);

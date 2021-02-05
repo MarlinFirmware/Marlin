@@ -31,5 +31,3 @@
   };
 
 #endif // FTDI_STEPPER_BUMP_SENSITIVITY_SCREEN
-
-

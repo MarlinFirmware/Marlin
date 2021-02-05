@@ -31,9 +31,9 @@
   class LockScreen : public BaseScreen, public CachedScreen<LOCK_SCREEN_CACHE> {
     private:
       friend InterfaceSettingsScreen;
-  
+
       static uint16_t passcode;
-  
+
       static char & message_style();
       static uint16_t compute_checksum();
       static void onPasscodeEntered();
@@ -42,10 +42,10 @@
       static void check_passcode();
       static void enable();
       static void disable();
-  
+
       static void set_hash(uint16_t pass) {passcode = pass;};
       static uint16_t get_hash() {return passcode;};
-  
+
       static void onEntry();
       static void onRedraw(draw_mode_t);
       static bool onTouchEnd(uint8_t tag);

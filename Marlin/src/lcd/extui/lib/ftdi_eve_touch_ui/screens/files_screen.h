@@ -74,4 +74,3 @@
   };
 
 #endif // FTDI_FILES_SCREEN
-
