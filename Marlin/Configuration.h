@@ -67,6 +67,13 @@
 // from https://github.com/MarlinFirmware/Configurations/branches/all and customize for your machine.
 //
 
+//===========================================================================
+//============================= TPARA Printer ===============================
+//===========================================================================
+// For a TPARA printer, start with one of the configuration files in the config/examples/TPARA directory
+// from https://github.com/MarlinFirmware/Configurations/branches/all and customize for your machine.
+//
+
 // @section info
 
 // Author info of this build printed to the host during boot and M115
