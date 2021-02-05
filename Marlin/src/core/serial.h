@@ -325,6 +325,7 @@ void serialprintPGM(PGM_P str);
 //
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
 void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
 void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
