@@ -38,7 +38,7 @@ void GcodeSuite::M113() {
     NOMORE(host_keepalive_interval, 60);
   }
   else
-    SERIAL_ECHO_MSG("M113 S", (unsigned long)host_keepalive_interval);
+    SERIAL_ECHO_MSG("M113 S", host_keepalive_interval);
 
 }
 
