@@ -193,7 +193,7 @@ void I2CPositionEncoder::update() {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
         SERIAL_CHAR(axis_codes[encoderAxis]);
-        SERIAL_ECHOLNPAIR(" : LARGE ERR ", int(error), "; diffSum=", diffSum);
+        SERIAL_ECHOLNPAIR(" : LARGE ERR ", error, "; diffSum=", diffSum);
         errorCount++;
         nextErrorCountTime = ms + I2CPE_ERR_CNT_DEBOUNCE_MS;
       }

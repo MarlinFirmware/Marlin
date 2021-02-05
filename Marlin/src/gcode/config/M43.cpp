@@ -143,7 +143,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
     #else
@@ -151,7 +151,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
     #endif

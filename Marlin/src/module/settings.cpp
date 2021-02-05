@@ -2289,7 +2289,7 @@ void MarlinSettings::postprocess() {
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
-        DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        DEBUG_ECHOLNPAIR("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
@@ -3039,7 +3039,7 @@ void MarlinSettings::reset() {
       }
 
       #if EXTRUDERS == 1
-        CONFIG_ECHO_MSG("  M200 S", int(parser.volumetric_enabled)
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled
                             , " D", LINEAR_UNIT(planner.filament_size[0])
                             #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
                               , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
@@ -3047,14 +3047,14 @@ void MarlinSettings::reset() {
                        );
       #else
         LOOP_L_N(i, EXTRUDERS) {
-          CONFIG_ECHO_MSG("  M200 T", int(i)
+          CONFIG_ECHO_MSG("  M200 T", i
                               , " D", LINEAR_UNIT(planner.filament_size[i])
                               #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
                                 , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
                               #endif
                          );
         }
-        CONFIG_ECHO_MSG("  M200 S", int(parser.volumetric_enabled));
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled);
       #endif
 
     #endif // EXTRUDERS && !NO_VOLUMETRICS
@@ -3192,7 +3192,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-        PSTR("  M420 S"), planner.leveling_active ? 1 : 0
+        PSTR("  M420 S"), planner.leveling_active
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
         #endif
@@ -3403,7 +3403,7 @@ void MarlinSettings::reset() {
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       CONFIG_ECHO_HEADING("Power-Loss Recovery:");
-      CONFIG_ECHO_MSG("  M413 S", int(recovery.enabled));
+      CONFIG_ECHO_MSG("  M413 S", recovery.enabled);
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -3427,7 +3427,7 @@ void MarlinSettings::reset() {
       #if ENABLED(FWRETRACT_AUTORETRACT)
 
         CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        CONFIG_ECHO_MSG("  M209 S", int(fwretract.autoretract_enabled));
+        CONFIG_ECHO_MSG("  M209 S", fwretract.autoretract_enabled);
 
       #endif // FWRETRACT_AUTORETRACT
 
@@ -3775,7 +3775,7 @@ void MarlinSettings::reset() {
         CONFIG_ECHO_MSG("  M900 K", planner.extruder_advance_K[0]);
       #else
         LOOP_L_N(i, EXTRUDERS)
-          CONFIG_ECHO_MSG("  M900 T", int(i), " K", planner.extruder_advance_K[i]);
+          CONFIG_ECHO_MSG("  M900 T", i, " K", planner.extruder_advance_K[i]);
       #endif
     #endif
 
@@ -3859,7 +3859,7 @@ void MarlinSettings::reset() {
 
     #if HAS_MULTI_LANGUAGE
       CONFIG_ECHO_HEADING("UI Language:");
-      SERIAL_ECHO_MSG("  M414 S", int(ui.language));
+      SERIAL_ECHO_MSG("  M414 S", ui.language);
     #endif
   }
 
