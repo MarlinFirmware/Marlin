@@ -337,7 +337,7 @@
         #define DOGLCD_CS                  P0_18
         #define DOGLCD_A0                  P0_16
         #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P1_20
+        #define DOGLCD_MOSI                P0_09
 
         #define LCD_BACKLIGHT_PIN          -1
 

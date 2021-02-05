@@ -191,11 +191,11 @@ void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
   W25QXX_CS_L;
   // Send Sector Erase instruction
   spi_flash_Send(W25X_SectorErase);
-  // Send SectorAddr high nibble address byte
+  // Send SectorAddr high nybble address byte
   spi_flash_Send((SectorAddr & 0xFF0000) >> 16);
-  // Send SectorAddr medium nibble address byte
+  // Send SectorAddr medium nybble address byte
   spi_flash_Send((SectorAddr & 0xFF00) >> 8);
-  // Send SectorAddr low nibble address byte
+  // Send SectorAddr low nybble address byte
   spi_flash_Send(SectorAddr & 0xFF);
   // Deselect the FLASH: Chip Select high
 
@@ -209,11 +209,11 @@ void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
   W25QXX_CS_L;
   // Send Sector Erase instruction
   spi_flash_Send(W25X_BlockErase);
-  // Send SectorAddr high nibble address byte
+  // Send SectorAddr high nybble address byte
   spi_flash_Send((BlockAddr & 0xFF0000) >> 16);
-  // Send SectorAddr medium nibble address byte
+  // Send SectorAddr medium nybble address byte
   spi_flash_Send((BlockAddr & 0xFF00) >> 8);
-  // Send SectorAddr low nibble address byte
+  // Send SectorAddr low nybble address byte
   spi_flash_Send(BlockAddr & 0xFF);
 
   W25QXX_CS_H;
@@ -265,11 +265,11 @@ void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint
   W25QXX_CS_L;
   // Send "Write to Memory " instruction
   spi_flash_Send(W25X_PageProgram);
-  // Send WriteAddr high nibble address byte to write to
+  // Send WriteAddr high nybble address byte to write to
   spi_flash_Send((WriteAddr & 0xFF0000) >> 16);
-  // Send WriteAddr medium nibble address byte to write to
+  // Send WriteAddr medium nybble address byte to write to
   spi_flash_Send((WriteAddr & 0xFF00) >> 8);
-  // Send WriteAddr low nibble address byte to write to
+  // Send WriteAddr low nybble address byte to write to
   spi_flash_Send(WriteAddr & 0xFF);
 
   NOMORE(NumByteToWrite, SPI_FLASH_PerWritePageSize);
@@ -371,11 +371,11 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint
   // Send "Read from Memory " instruction
   spi_flash_Send(W25X_ReadData);
 
-  // Send ReadAddr high nibble address byte to read from
+  // Send ReadAddr high nybble address byte to read from
   spi_flash_Send((ReadAddr & 0xFF0000) >> 16);
-  // Send ReadAddr medium nibble address byte to read from
+  // Send ReadAddr medium nybble address byte to read from
   spi_flash_Send((ReadAddr & 0xFF00) >> 8);
-  // Send ReadAddr low nibble address byte to read from
+  // Send ReadAddr low nybble address byte to read from
   spi_flash_Send(ReadAddr & 0xFF);
 
   if (NumByteToRead <= 32 || !flash_dma_mode) {
