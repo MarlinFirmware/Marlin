@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __SAMD51__
@@ -23,6 +23,11 @@
 #include "../../inc/MarlinConfig.h"
 #include <Adafruit_ZeroDMA.h>
 #include <wiring_private.h>
+
+#ifdef ADAFRUIT_GRAND_CENTRAL_M4
+  DefaultSerial MSerial(false, Serial);
+  DefaultSerial1 MSerial1(false, Serial1);
+#endif
 
 // ------------------------
 // Local defines
@@ -300,7 +305,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc0DMAProgram.startJob();
       }
@@ -337,7 +342,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc1DMAProgram.startJob();
       }

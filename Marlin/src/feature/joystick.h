@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,10 +27,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
-#include "../core/macros.h"
 #include "../module/temperature.h"
-
-//#define JOYSTICK_DEBUG
 
 class Joystick {
   friend class Temperature;

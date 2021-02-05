@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,6 +29,12 @@
 
 /**
  * M412: Enable / Disable filament runout detection
+ *
+ * Parameters
+ *  R         : Reset the runout sensor
+ *  S<bool>   : Reset and enable/disable the runout sensor
+ *  H<bool>   : Enable/disable host handling of filament runout
+ *  D<linear> : Extra distance to continue after runout is triggered
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"

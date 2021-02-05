@@ -16,21 +16,23 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 namespace FTDI {
 
-  void write_rle_data(uint16_t addr, const uint8_t *data, size_t n) {
+  uint32_t write_rle_data(uint32_t addr, const uint8_t *data, size_t n) {
     for (; n >= 2; n -= 2) {
       uint8_t count = pgm_read_byte(data++);
       uint8_t value = pgm_read_byte(data++);
-      while (count--) CLCD::mem_write_8(addr++, value);
+      CLCD::mem_write_fill(addr, value, count);
+      addr += count;
     }
+    return addr;
   }
 
   void set_font_bitmap(CommandProcessor& cmd, CLCD::FontMetrics &fm, uint8_t handle) {

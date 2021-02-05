@@ -16,13 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __AVR__
 
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
+#ifdef USBCON
+  DefaultSerial MSerial(false, Serial);
+  #ifdef BLUETOOTH
+    BTSerial btSerial(false, bluetoothSerial);
+  #endif
+#endif
 
 // ------------------------
 // Public Variables

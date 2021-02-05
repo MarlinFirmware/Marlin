@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,6 +24,8 @@
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
 #include "DGUSVPVariable.h"
+
+#include <stdint.h>
 
 // This file defines the interaction between Marlin and the display firmware.
 
@@ -40,6 +42,8 @@ extern const struct VPMapping VPMap[];
 
 // List of VPs handled by Marlin / The Display.
 extern const struct DGUS_VP_Variable ListOfVP[];
+
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSDisplayDef.h"

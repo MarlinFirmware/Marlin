@@ -16,12 +16,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
-
-#define WDT_TIMEOUT   4000000 // 4 second timeout
 
 void watchdog_init();
 void HAL_watchdog_refresh();

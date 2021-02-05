@@ -16,17 +16,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * power_loss_recovery.h - Resume an SD print after power-loss
+ * feature/powerloss.h - Resume an SD print after power-loss
  */
 
 #include "../sd/cardreader.h"
+#include "../gcode/gcode.h"
+
 #include "../inc/MarlinConfig.h"
+
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../feature/repeat.h"
+#endif
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
@@ -45,41 +51,26 @@ typedef struct {
 
   // Machine state
   xyze_pos_t current_position;
-
-  #if HAS_HOME_OFFSET
-    xyz_pos_t home_offset;
-  #endif
-  #if HAS_POSITION_SHIFT
-    xyz_pos_t position_shift;
-  #endif
-
   uint16_t feedrate;
+  float zraise;
 
-  #if EXTRUDERS > 1
-    uint8_t active_extruder;
-  #endif
+  // Repeat information
+  TERN_(GCODE_REPEAT_MARKERS, Repeat stored_repeat);
+
+  TERN_(HAS_HOME_OFFSET,    xyz_pos_t home_offset);
+  TERN_(HAS_POSITION_SHIFT, xyz_pos_t position_shift);
+  TERN_(HAS_MULTI_EXTRUDER, uint8_t active_extruder);
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_enabled;
     float filament_size[EXTRUDERS];
   #endif
 
-  #if HAS_HOTEND
-    int16_t target_temperature[HOTENDS];
-  #endif
+  TERN_(HAS_HOTEND,     int16_t target_temperature[HOTENDS]);
+  TERN_(HAS_HEATED_BED, int16_t target_temperature_bed);
+  TERN_(HAS_FAN,        uint8_t fan_speed[FAN_COUNT]);
 
-  #if HAS_HEATED_BED
-    int16_t target_temperature_bed;
-  #endif
-
-  #if HAS_FAN
-    uint8_t fan_speed[FAN_COUNT];
-  #endif
-
-  #if HAS_LEVELING
-    bool leveling;
-    float fade;
-  #endif
+  TERN_(HAS_LEVELING, float fade);
 
   #if ENABLED(FWRETRACT)
     float retract[EXTRUDERS], retract_hop;
@@ -89,13 +80,8 @@ typedef struct {
   #if ENABLED(MIXING_EXTRUDER)
     //uint_fast8_t selected_vtool;
     //mixer_comp_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
-    #if ENABLED(GRADIENT_MIX)
-      gradient_t gradient;
-    #endif
+    TERN_(GRADIENT_MIX, gradient_t gradient);
   #endif
-
-  // Relative axis modes
-  uint8_t axis_relative;
 
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];
@@ -103,6 +89,16 @@ typedef struct {
 
   // Job elapsed time
   millis_t print_job_elapsed;
+
+  // Relative axis modes
+  uint8_t axis_relative;
+
+  // Misc. Marlin flags
+  struct {
+    bool dryrun:1;                // M111 S8
+    bool allow_cold_extrusion:1;  // M302 P1
+    TERN_(HAS_LEVELING, bool leveling:1);
+  } flag;
 
   uint8_t valid_foot;
 
@@ -130,12 +126,10 @@ class PrintJobRecovery {
 
     static inline void setup() {
       #if PIN_EXISTS(POWER_LOSS)
-        #if ENABLED(POWER_LOSS_PULL)
-          #if POWER_LOSS_STATE == LOW
-            SET_INPUT_PULLUP(POWER_LOSS_PIN);
-          #else
-            SET_INPUT_PULLDOWN(POWER_LOSS_PIN);
-          #endif
+        #if ENABLED(POWER_LOSS_PULLUP)
+          SET_INPUT_PULLUP(POWER_LOSS_PIN);
+        #elif ENABLED(POWER_LOSS_PULLDOWN)
+          SET_INPUT_PULLDOWN(POWER_LOSS_PIN);
         #else
           SET_INPUT(POWER_LOSS_PIN);
         #endif
@@ -158,36 +152,40 @@ class PrintJobRecovery {
     static void resume();
     static void purge();
 
-    static inline void cancel() { purge(); card.autostart_index = 0; }
+    static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE));
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);
 
-  #if PIN_EXISTS(POWER_LOSS)
-    static inline void outage() {
-      if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-        _outage();
-    }
-  #endif
+    #if PIN_EXISTS(POWER_LOSS)
+      static inline void outage() {
+        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
+          _outage();
+      }
+    #endif
 
-  static inline bool valid() { return info.valid(); }
+    // The referenced file exists
+    static inline bool interrupted_file_exists() { return card.fileExists(info.sd_filename); }
 
-  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    static void debug(PGM_P const prefix);
-  #else
-    static inline void debug(PGM_P const) {}
-  #endif
+    static inline bool valid() { return info.valid() && interrupted_file_exists(); }
+
+    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+      static void debug(PGM_P const prefix);
+    #else
+      static inline void debug(PGM_P const) {}
+    #endif
 
   private:
     static void write();
 
-  #if ENABLED(BACKUP_POWER_SUPPLY)
-    static void raise_z();
-  #endif
+    #if ENABLED(BACKUP_POWER_SUPPLY)
+      static void retract_and_lift(const float &zraise);
+    #endif
 
-  #if PIN_EXISTS(POWER_LOSS)
-    static void _outage();
-  #endif
+    #if PIN_EXISTS(POWER_LOSS)
+      friend class GcodeSuite;
+      static void _outage();
+    #endif
 };
 
 extern PrintJobRecovery recovery;

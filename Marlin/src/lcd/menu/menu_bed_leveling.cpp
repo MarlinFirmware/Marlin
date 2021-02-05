@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,12 +28,19 @@
 
 #if ENABLED(LCD_BED_LEVELING)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/probe.h"
+#endif
+
+#if HAS_GRAPHICAL_TFT
+  #include "../tft/tft.h"
+  #if ENABLED(TOUCH_SCREEN)
+    #include "../tft/touch.h"
+  #endif
 #endif
 
 #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -96,9 +103,9 @@
         ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          queue.inject_P(PSTR("G29 S2"));
+          queue.inject_P(PSTR("G29S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          queue.inject_P(PSTR("G29 V1"));
+          queue.inject_P(PSTR("G29V1"));
         #endif
       }
       else
@@ -148,9 +155,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      queue.inject_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
+      queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      queue.inject_P(PSTR("G29 V1"));
+      queue.inject_P(PSTR("G29V1"));
     #endif
   }
 
@@ -159,7 +166,13 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+    if (ui.should_draw()) {
+      MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+      // Color UI needs a control to detect a touch
+      #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+        touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+      #endif
+    }
     if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();
@@ -224,7 +237,7 @@
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */
 void menu_bed_leveling() {
-  const bool is_homed = all_axes_known(),
+  const bool is_homed = all_axes_trusted(),
              is_valid = leveling_is_valid();
 
   START_MENU();
@@ -241,7 +254,7 @@ void menu_bed_leveling() {
     SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else
     // Automatic leveling can just run the G-code
-    GCODES_ITEM(MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
+    GCODES_ITEM(MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G29N"));
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)

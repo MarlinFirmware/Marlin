@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 /****************************************************************************
@@ -61,7 +61,7 @@ namespace FTDI {
     static constexpr uint32_t RAM_REG        = 0x302000;   // Registers
     static constexpr uint32_t RAM_CMD        = 0x308000;   // Command Buffer
 
-    static constexpr uint32_t RAM_G_SIZE     = 1024*1024l; // 1024k
+    static constexpr uint32_t RAM_G_SIZE     = 1024*1024L; // 1024k
   };
 
   struct ft810_registers {

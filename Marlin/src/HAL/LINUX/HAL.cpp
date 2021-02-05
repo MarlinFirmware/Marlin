@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __PLAT_LINUX__
@@ -24,21 +24,16 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
-HalSerial usb_serial;
+MSerialT usb_serial(TERN0(EMERGENCY_PARSER, true));
 
 // U8glib required functions
-extern "C" void u8g_xMicroDelay(uint16_t val) {
-  DELAY_US(val);
+extern "C" {
+  void u8g_xMicroDelay(uint16_t val) { DELAY_US(val); }
+  void u8g_MicroDelay()              { u8g_xMicroDelay(1); }
+  void u8g_10MicroDelay()            { u8g_xMicroDelay(10); }
+  void u8g_Delay(uint16_t val)       { delay(val); }
 }
-extern "C" void u8g_MicroDelay() {
-  u8g_xMicroDelay(1);
-}
-extern "C" void u8g_10MicroDelay() {
-  u8g_xMicroDelay(10);
-}
-extern "C" void u8g_Delay(uint16_t val) {
-  delay(val);
-}
+
 //************************//
 
 // return free heap space

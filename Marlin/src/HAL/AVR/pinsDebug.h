@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,9 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H)
+#if MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
+  #define AVR_ATmega2560_FAMILY_PLUS_70 1
+#endif
 
 #if AVR_AT90USB1286_FAMILY
 

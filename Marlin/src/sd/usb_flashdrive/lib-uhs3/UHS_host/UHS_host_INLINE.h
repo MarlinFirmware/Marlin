@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
+Web      :  https://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -101,7 +101,6 @@ uint8_t UHS_USB_HOST_BASE::setEpInfoEntry(uint8_t addr, uint8_t iface, uint8_t e
  *
  * @param maxep How many endpoints to initialize
  * @param device pointer to the device driver instance (this)
- *
  */
 
 void UHS_USB_HOST_BASE::DeviceDefaults(uint8_t maxep, UHS_USBInterface *interface) {
@@ -206,8 +205,7 @@ uint8_t UHS_USB_HOST_BASE::doSoftReset(uint8_t parent, uint8_t port, uint8_t add
  *                      will not enumerate without it. For devices that do not
  *                      need it, the additional reset is harmless. Here is an
  *                      example of one of these documents, see page Five:
- *                      http://www.ftdichip.com/Support/Documents/TechnicalNotes/TN_113_Simplified%20Description%20of%20USB%20Device%20Enumeration.pdf
- *
+ *                      https://www.ftdichip.com/Support/Documents/TechnicalNotes/TN_113_Simplified%20Description%20of%20USB%20Device%20Enumeration.pdf
  *
  */
 
@@ -1007,7 +1005,7 @@ uint8_t UHS_USB_HOST_BASE::ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbyt
                                 rcode = ctrlReqRead(pep, &left, &read, nbytes, dataptr);
 
 #if UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE
-                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request>>32)&0xfffffffflu), (uint32_t)(Request&0xfffffffflu));
+                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request>>32)&0xFFFFFFFFLU), (uint32_t)(Request&0xFFFFFFFFLU));
                                 // Should only be used for GET_DESCRIPTOR USB_DESCRIPTOR_DEVICE
                                 constexpr uint32_t req_match = ((uint32_t)USB_DESCRIPTOR_DEVICE      << 24) |
                                                                ((uint32_t)USB_REQUEST_GET_DESCRIPTOR <<  8);

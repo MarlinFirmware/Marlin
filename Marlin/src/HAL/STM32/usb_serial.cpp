@@ -13,15 +13,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
 
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"
@@ -51,5 +50,5 @@ void USB_Hook_init() {
   USBD_CDC_fops.Receive = USBD_CDC_Receive_hook;
 }
 
-#endif // EMERGENCY_PARSER
+#endif // EMERGENCY_PARSER && USBD_USE_CDC
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

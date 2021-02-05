@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -75,8 +75,6 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
             matrix.vectors[0][1] * _x + matrix.vectors[1][1] * _y + matrix.vectors[2][1] * _z,
             matrix.vectors[0][2] * _x + matrix.vectors[1][2] * _y + matrix.vectors[2][2] * _z };
 }
-
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
 void vector_3::debug(PGM_P const title) {
   serialprintPGM(title);
@@ -141,7 +139,7 @@ matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
 }
 
 void matrix_3x3::debug(PGM_P const title) {
-  if (title != nullptr) {
+  if (title) {
     serialprintPGM(title);
     SERIAL_EOL();
   }

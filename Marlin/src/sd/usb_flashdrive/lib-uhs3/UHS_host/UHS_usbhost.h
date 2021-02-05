@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
+Web      :  https://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -350,7 +350,6 @@ public:
 
         /**
          * Executed before anything else in Release().
-         *
          */
         virtual void OnRelease() {
                 return;
@@ -403,7 +402,6 @@ public:
 
 #if 0
         /**
-         *
          * @return true if this interface is Vendor Specific.
          */
         virtual bool IsVSI() {
@@ -414,7 +412,6 @@ public:
 
 #if 0
 /**
- *
  * Vendor Specific interface class.
  * This is used by a partner interface.
  * It can also be used to force-enumerate an interface that

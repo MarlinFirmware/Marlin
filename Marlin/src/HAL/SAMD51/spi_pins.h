@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,16 +30,16 @@
   *  SPI  | 53    52     50     51  |
   *  SPI1 | 83    81     80     82  |
   *       +-------------------------+
-  * Any pin can be used for Chip Select (SS_PIN)
+  * Any pin can be used for Chip Select (SD_SS_PIN)
   */
-  #ifndef SCK_PIN
-    #define SCK_PIN       52
+  #ifndef SD_SCK_PIN
+    #define SD_SCK_PIN    52
   #endif
-  #ifndef MISO_PIN
-    #define MISO_PIN      50
+  #ifndef SD_MISO_PIN
+    #define SD_MISO_PIN   50
   #endif
-  #ifndef MOSI_PIN
-    #define MOSI_PIN      51
+  #ifndef SD_MOSI_PIN
+    #define SD_MOSI_PIN   51
   #endif
   #ifndef SDSS
     #define SDSS          53
@@ -51,4 +51,4 @@
 
 #endif
 
-#define SS_PIN        SDSS
+#define SD_SS_PIN     SDSS

@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef STM32F7xx
+#if NOT_TARGET(STM32F7xx)
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
@@ -33,7 +33,7 @@
 #endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "RemRam supports only one hotend / E-stepper."
+  #error "RemRam only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 //

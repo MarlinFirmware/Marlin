@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -53,21 +53,14 @@ void GcodeSuite::M118() {
   }
 
   #if HAS_MULTI_SERIAL
-    const int8_t old_serial = serial_port_index;
+    const int8_t old_serial = multiSerial.portMask;
     if (WITHIN(port, 0, NUM_SERIAL))
-      serial_port_index = (
-        port == 0 ? SERIAL_BOTH
-        : port == 1 ? SERIAL_PORT
-        #ifdef SERIAL_PORT_2
-          : port == 2 ? SERIAL_PORT_2
-        #endif
-        : SERIAL_PORT
-      );
+      multiSerial.portMask = port ? _BV(port - 1) : SERIAL_ALL;
   #endif
 
   if (hasE) SERIAL_ECHO_START();
-  if (hasA) SERIAL_ECHOPGM("// ");
+  if (hasA) SERIAL_ECHOPGM("//");
   SERIAL_ECHOLN(p);
 
-  TERN_(HAS_MULTI_SERIAL, serial_port_index = old_serial);
+  TERN_(HAS_MULTI_SERIAL, multiSerial.portMask = old_serial);
 }

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
  *          www.reprapobchod.cz
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -119,6 +119,10 @@
 #define LCD_PINS_D6                           41
 #define LCD_PINS_D7                           40
 
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
+#endif
+
 //
 // Beeper, SD Card, Encoder
 //
@@ -129,7 +133,7 @@
   #define SD_DETECT_PIN                       49
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_EN1                             11
   #define BTN_EN2                             12
   #define BTN_ENC                             43

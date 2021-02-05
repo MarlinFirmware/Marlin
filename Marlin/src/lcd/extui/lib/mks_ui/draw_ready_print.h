@@ -16,24 +16,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_ready_print(void);
-extern void disp_test();
+extern void lv_draw_ready_print();
+extern void mks_disp_test();
 extern void disp_Limit_ok();
 extern void disp_Limit_error();
 extern void disp_det_error();
 extern void disp_det_ok();
 extern void lv_clear_ready_print();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

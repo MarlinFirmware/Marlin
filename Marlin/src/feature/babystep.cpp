@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,7 +26,8 @@
 
 #include "babystep.h"
 #include "../MarlinCore.h"
-#include "../module/planner.h"
+#include "../module/motion.h"   // for axes_should_home()
+#include "../module/planner.h"  // for axis_steps_per_mm[]
 #include "../module/stepper.h"
 
 #if ENABLED(BABYSTEP_ALWAYS_AVAILABLE)
@@ -54,7 +55,7 @@ void Babystep::add_mm(const AxisEnum axis, const float &mm) {
 }
 
 void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
-  if (DISABLED(BABYSTEP_WITHOUT_HOMING) && !TEST(axis_known_position, axis)) return;
+  if (DISABLED(BABYSTEP_WITHOUT_HOMING) && axes_should_home(_BV(axis))) return;
 
   accum += distance; // Count up babysteps for the UI
   steps[BS_AXIS_IND(axis)] += distance;

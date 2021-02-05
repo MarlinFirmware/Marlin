@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,28 +31,24 @@
  *  SPI2 | PB12   PB13    PB14    PB15 |
  *  SPI3 | PA15   PB3     PB4     PB5  |
  *       +-----------------------------+
- * Any pin can be used for Chip Select (SS_PIN)
+ * Any pin can be used for Chip Select (SD_SS_PIN)
  * SPI1 is enabled by default
  */
-#ifndef SCK_PIN
-  #define SCK_PIN  PA5
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN  PA5
 #endif
-#ifndef MISO_PIN
-  #define MISO_PIN PA6
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN PA6
 #endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN PA7
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN PA7
 #endif
-#ifndef SS_PIN
-  #define SS_PIN   PA4
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN   PA4
 #endif
 #undef SDSS
-#define SDSS       SS_PIN
+#define SDSS    SD_SS_PIN
 
-#if ENABLED(ENABLE_SPI3)
-  #define SPI_DEVICE 3
-#elif ENABLED(ENABLE_SPI2)
-  #define SPI_DEVICE 2
-#else
+#ifndef SPI_DEVICE
   #define SPI_DEVICE 1
 #endif

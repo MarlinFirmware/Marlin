@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
@@ -38,6 +38,10 @@
     #include "spiffs.h"
     #include "web.h"
   #endif
+#endif
+
+#if ENABLED(ESP3D_WIFISUPPORT)
+  DefaultSerial MSerial(false, Serial2Socket);
 #endif
 
 // ------------------------
@@ -86,7 +90,7 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-void HAL_init() { i2s_init(); }
+void HAL_init() { TERN_(I2S_STEPPER_STREAM, i2s_init()); }
 
 void HAL_init_board() {
 

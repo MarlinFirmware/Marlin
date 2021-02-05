@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # To view a copy of the GNU General Public License, go to the following
-# location: <http://www.gnu.org/licenses/>.
+# location: <https://www.gnu.org/licenses/>.
 
 from __future__ import print_function
 from PIL import Image
@@ -49,19 +49,19 @@ class WriteSource:
 
   def convert_to_4bpp(self, data, chunk_size = 0):
     # Invert the image
-    data = map(lambda i: 255 - i, data)
+    data = list(map(lambda i: 255 - i, data))
     # Quanitize 8-bit values into 4-bits
-    data = map(lambda i: i >> 4, data)
+    data = list(map(lambda i: i >> 4, data))
     # Make sure there is an even number of elements
     if (len(data) & 1) == 1:
-      result.append(0)
+      data.append(0)
     # Combine each two adjacent values into one
     i = iter(data)
-    data = map(lambda a, b: a << 4 | b, i ,i)
+    data = list(map(lambda a, b: a << 4 | b, i ,i))
     # Pack the data
     data = pack_rle(data)
     # Convert values into hex strings
-    return map(lambda a: "0x" + format(a, '02x'), data)
+    return list(map(lambda a: "0x" + format(a, '02x'), data))
 
   def end_row(self, y):
     # Pad each row into even number of values

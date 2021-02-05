@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -26,6 +26,10 @@
 #include "../language/language.h"
 #include "../theme/theme.h"
 #include "string_format.h"
+
+#ifndef BED_LEVELING_COMMANDS
+  #define BED_LEVELING_COMMANDS "G29"
+#endif
 
 extern tiny_timer_t refresh_timer;
 
@@ -39,64 +43,86 @@ enum {
   STATUS_SCREEN_CACHE,
   MENU_SCREEN_CACHE,
   TUNE_SCREEN_CACHE,
-  ADJUST_OFFSETS_SCREEN_CACHE,
   ALERT_BOX_CACHE,
   SPINNER_CACHE,
   ADVANCED_SETTINGS_SCREEN_CACHE,
   MOVE_AXIS_SCREEN_CACHE,
   TEMPERATURE_SCREEN_CACHE,
   STEPS_SCREEN_CACHE,
-  STEPPER_CURRENT_SCREEN_CACHE,
-  STEPPER_BUMP_SENSITIVITY_SCREEN_CACHE,
-  ZOFFSET_SCREEN_CACHE,
-  NOZZLE_OFFSET_SCREEN_CACHE,
-  BACKLASH_COMPENSATION_SCREEN_CACHE,
   MAX_FEEDRATE_SCREEN_CACHE,
   MAX_VELOCITY_SCREEN_CACHE,
   MAX_ACCELERATION_SCREEN_CACHE,
   DEFAULT_ACCELERATION_SCREEN_CACHE,
-#if HAS_MESH
-  BED_MESH_SCREEN_CACHE,
-#endif
-#if HAS_JUNCTION_DEVIATION
-  JUNC_DEV_SCREEN_CACHE,
-#else
-  JERK_SCREEN_CACHE,
-#endif
-#if HAS_CASE_LIGHT
-  CASE_LIGHT_SCREEN_CACHE,
-#endif
-#if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-  FILAMENT_MENU_CACHE,
-#endif
-#if ENABLED(LIN_ADVANCE)
-  LINEAR_ADVANCE_SCREEN_CACHE,
-#endif
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  FILAMENT_RUNOUT_SCREEN_CACHE,
-#endif
-#if ENABLED(TOUCH_UI_LULZBOT_BIO)
-  PRINTING_SCREEN_CACHE,
-#endif
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  PREHEAT_MENU_CACHE,
-  PREHEAT_TIMER_SCREEN_CACHE,
-#endif
+  #if HAS_LEVELING
+    LEVELING_SCREEN_CACHE,
+    #if HAS_BED_PROBE
+      ZOFFSET_SCREEN_CACHE,
+    #endif
+    #if HAS_MESH
+      BED_MESH_SCREEN_CACHE,
+    #endif
+  #endif
+  #if ENABLED(BABYSTEPPING)
+    ADJUST_OFFSETS_SCREEN_CACHE,
+  #endif
+  #if HAS_TRINAMIC_CONFIG
+    STEPPER_CURRENT_SCREEN_CACHE,
+    STEPPER_BUMP_SENSITIVITY_SCREEN_CACHE,
+  #endif
+  #if HAS_MULTI_HOTEND
+    NOZZLE_OFFSET_SCREEN_CACHE,
+  #endif
+  #if ENABLED(BACKLASH_GCODE)
+    BACKLASH_COMPENSATION_SCREEN_CACHE,
+  #endif
+  #if HAS_JUNCTION_DEVIATION
+    JUNC_DEV_SCREEN_CACHE,
+  #else
+    JERK_SCREEN_CACHE,
+  #endif
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    CASE_LIGHT_SCREEN_CACHE,
+  #endif
+  #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+    FILAMENT_MENU_CACHE,
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    LINEAR_ADVANCE_SCREEN_CACHE,
+  #endif
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    FILAMENT_RUNOUT_SCREEN_CACHE,
+  #endif
+  #if ENABLED(TOUCH_UI_LULZBOT_BIO)
+    PRINTING_SCREEN_CACHE,
+  #endif
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    PREHEAT_MENU_CACHE,
+    PREHEAT_TIMER_SCREEN_CACHE,
+    UNLOAD_CARTRIDGE_SCREEN_CACHE,
+    LOAD_CHOCOLATE_SCREEN_CACHE,
+    MOVE_XYZ_SCREEN_CACHE,
+    MOVE_E_SCREEN_CACHE,
+  #endif
+  #if ENABLED(SDSUPPORT)
+    FILES_SCREEN_CACHE,
+  #endif
+  #if ENABLED(CUSTOM_USER_MENUS)
+    CUSTOM_USER_MENUS_SCREEN_CACHE,
+  #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
   INTERFACE_SETTINGS_SCREEN_CACHE,
   INTERFACE_SOUNDS_SCREEN_CACHE,
   LOCK_SCREEN_CACHE,
-  FILES_SCREEN_CACHE,
   DISPLAY_TIMINGS_SCREEN_CACHE
 };
 
 // To save MCU RAM, the status message is "baked" in to the status screen
 // cache, so we reserve a large chunk of memory for the DL cache
 
-#define STATUS_SCREEN_DL_SIZE        2048
+#define STATUS_SCREEN_DL_SIZE        4096
 #define ALERT_BOX_DL_SIZE            3072
 #define SPINNER_DL_SIZE              3072
-#define FILE_SCREEN_DL_SIZE          3072
+#define FILE_SCREEN_DL_SIZE          4160
 #define PRINTING_SCREEN_DL_SIZE      2048
 
 /************************* MENU SCREEN DECLARATIONS *************************/
@@ -132,33 +158,6 @@ class AboutScreen : public BaseScreen, public UncachedScreen {
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
 };
-
-#if HAS_MESH
-class BedMeshScreen : public BaseScreen, public CachedScreen<BED_MESH_SCREEN_CACHE> {
-  private:
-    enum MeshOpts {
-      USE_POINTS    = 0x01,
-      USE_COLORS    = 0x02,
-      USE_TAGS      = 0x04,
-      USE_HIGHLIGHT = 0x08,
-      USE_AUTOSCALE = 0x10
-    };
-
-    static uint8_t pointToTag(uint8_t x, uint8_t y);
-    static bool tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y);
-    static float getHightlightedValue();
-    static void drawHighlightedPointValue();
-    static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max = 0.1);
-
-  public:
-    static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
-    static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
-    static void onEntry();
-    static void onRedraw(draw_mode_t);
-    static bool onTouchStart(uint8_t tag);
-    static bool onTouchEnd(uint8_t tag);
-};
-#endif
 
 #if ENABLED(PRINTCOUNTER)
   class StatisticsScreen : public BaseScreen, public UncachedScreen {
@@ -251,6 +250,14 @@ class ConfirmUserRequestAlertBox : public AlertDialogBox {
     static void show(const char*);
 };
 
+#if ENABLED(CUSTOM_USER_MENUS)
+  class CustomUserMenus : public BaseScreen, public CachedScreen<CUSTOM_USER_MENUS_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+#endif
+
 class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_CACHE,SPINNER_DL_SIZE> {
   public:
     static void onRedraw(draw_mode_t);
@@ -270,7 +277,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
     static void draw_progress(draw_mode_t);
     static void draw_interaction_buttons(draw_mode_t);
     static void draw_status_message(draw_mode_t, const char * const);
-
+    static void _format_time(char *outstr, uint32_t time);
   public:
     static void loadBitmaps();
     static void setStatusMessage(const char *);
@@ -288,6 +295,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static bool  jog_xy;
       static bool  fine_motion;
 
+      static void draw_progress(draw_mode_t what);
       static void draw_temperature(draw_mode_t what);
       static void draw_syringe(draw_mode_t what);
       static void draw_arrows(draw_mode_t what);
@@ -343,29 +351,6 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
   };
 #endif
 
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
-    public:
-      static void onRedraw(draw_mode_t);
-      static bool onTouchEnd(uint8_t tag);
-  };
-
-  class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
-    private:
-      static uint16_t secondsRemaining();
-
-      static void draw_message(draw_mode_t);
-      static void draw_time_remaining(draw_mode_t);
-      static void draw_interaction_buttons(draw_mode_t);
-    public:
-      static void onRedraw(draw_mode_t);
-
-      static void onEntry();
-      static void onIdle();
-      static bool onTouchEnd(uint8_t tag);
-  };
-#endif
-
 class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
   public:
     static void onRedraw(draw_mode_t);
@@ -373,6 +358,9 @@ class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
 };
 
 class TuneMenu : public BaseScreen, public CachedScreen<TUNE_SCREEN_CACHE> {
+  private:
+    static void pausePrint();
+    static void resumePrint();
   public:
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
@@ -472,7 +460,7 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
     static bool onTouchEnd(uint8_t tag);
 };
 
-class MoveAxisScreen : public BaseNumericAdjustmentScreen, public CachedScreen<MOVE_AXIS_SCREEN_CACHE> {
+class BaseMoveAxisScreen : public BaseNumericAdjustmentScreen {
   private:
     static float getManualFeedrate(uint8_t axis, float increment_mm);
   public:
@@ -480,8 +468,12 @@ class MoveAxisScreen : public BaseNumericAdjustmentScreen, public CachedScreen<M
     static void setManualFeedrate(ExtUI::extruder_t, float increment_mm);
 
     static void onEntry();
-    static void onRedraw(draw_mode_t);
     static bool onTouchHeld(uint8_t tag);
+};
+
+class MoveAxisScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_AXIS_SCREEN_CACHE> {
+  public:
+    static void onRedraw(draw_mode_t);
     static void onIdle();
 };
 
@@ -505,14 +497,6 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
   };
 #endif
 
-#if HAS_BED_PROBE
-  class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
-    public:
-      static void onRedraw(draw_mode_t);
-      static bool onTouchHeld(uint8_t tag);
-  };
-#endif
-
 #if HAS_MULTI_HOTEND
   class NozzleOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<NOZZLE_OFFSET_SCREEN_CACHE> {
     public:
@@ -521,6 +505,55 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
       static bool onTouchHeld(uint8_t tag);
   };
 #endif
+
+#if HAS_LEVELING
+
+  class LevelingMenu : public BaseScreen, public CachedScreen<LEVELING_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
+  #if HAS_BED_PROBE
+    class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
+      public:
+        static void onRedraw(draw_mode_t);
+        static bool onTouchHeld(uint8_t tag);
+    };
+  #endif
+
+  #if HAS_MESH
+
+    class BedMeshScreen : public BaseScreen, public CachedScreen<BED_MESH_SCREEN_CACHE> {
+      private:
+        enum MeshOpts {
+          USE_POINTS    = 0x01,
+          USE_COLORS    = 0x02,
+          USE_TAGS      = 0x04,
+          USE_HIGHLIGHT = 0x08,
+          USE_AUTOSCALE = 0x10
+        };
+
+        static uint8_t pointToTag(uint8_t x, uint8_t y);
+        static bool tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y);
+        static float getHightlightedValue();
+        static void drawHighlightedPointValue();
+        static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max = 0.1);
+
+      public:
+        static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
+        static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
+        static void onEntry();
+        static void onRedraw(draw_mode_t);
+        static bool onTouchStart(uint8_t tag);
+        static bool onTouchEnd(uint8_t tag);
+
+        static void startMeshProbe();
+    };
+
+  #endif // HAS_MESH
+
+#endif // HAS_LEVELING
 
 #if ENABLED(BABYSTEPPING)
   class NudgeNozzleScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ADJUST_OFFSETS_SCREEN_CACHE> {
@@ -579,7 +612,7 @@ class DefaultAccelerationScreen : public BaseNumericAdjustmentScreen, public Cac
   };
 #endif
 
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   class CaseLightScreen : public BaseNumericAdjustmentScreen, public CachedScreen<CASE_LIGHT_SCREEN_CACHE> {
     public:
       static void onRedraw(draw_mode_t);
@@ -707,40 +740,44 @@ class LockScreen : public BaseScreen, public CachedScreen<LOCK_SCREEN_CACHE> {
     static bool onTouchEnd(uint8_t tag);
 };
 
-class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, FILE_SCREEN_DL_SIZE> {
-  private:
-    #ifdef TOUCH_UI_PORTRAIT
-      static constexpr uint8_t header_h       = 2;
-      static constexpr uint8_t footer_h       = 2;
-      static constexpr uint8_t files_per_page = 11;
-    #else
-      static constexpr uint8_t header_h       = 1;
-      static constexpr uint8_t footer_h       = 1;
-      static constexpr uint8_t files_per_page = 6;
-    #endif
+#if ENABLED(SDSUPPORT)
 
-    static uint8_t  getTagForLine(uint8_t line) {return line + 2;}
-    static uint8_t  getLineForTag(uint8_t tag)  {return  tag - 2;}
-    static uint16_t getFileForTag(uint8_t tag);
-    static uint16_t getSelectedFileIndex();
+  class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, FILE_SCREEN_DL_SIZE> {
+    private:
+      #if ENABLED(TOUCH_UI_PORTRAIT)
+        static constexpr uint8_t header_h       = 2;
+        static constexpr uint8_t footer_h       = 2;
+        static constexpr uint8_t files_per_page = 11;
+      #else
+        static constexpr uint8_t header_h       = 1;
+        static constexpr uint8_t footer_h       = 1;
+        static constexpr uint8_t files_per_page = 6;
+      #endif
 
-    inline static const char *getSelectedShortFilename() {return getSelectedFilename(false);}
-    inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
-    static const char *getSelectedFilename(bool longName);
+      static uint8_t  getTagForLine(uint8_t line) {return line + 2;}
+      static uint8_t  getLineForTag(uint8_t tag)  {return  tag - 2;}
+      static uint16_t getFileForTag(uint8_t tag);
+      static uint16_t getSelectedFileIndex();
 
-    static void drawFileButton(const char* filename, uint8_t tag, bool is_dir, bool is_highlighted);
-    static void drawFileList();
-    static void drawHeader();
-    static void drawFooter();
-    static void drawSelectedFile();
+      inline static const char *getSelectedShortFilename() {return getSelectedFilename(false);}
+      inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
+      static const char *getSelectedFilename(bool longName);
 
-    static void gotoPage(uint8_t);
-  public:
-    static void onEntry();
-    static void onRedraw(draw_mode_t);
-    static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
-};
+      static void drawFileButton(const char* filename, uint8_t tag, bool is_dir, bool is_highlighted);
+      static void drawFileList();
+      static void drawHeader();
+      static void drawFooter();
+      static void drawSelectedFile();
+
+      static void gotoPage(uint8_t);
+    public:
+      static void onEntry();
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+      static void onIdle();
+  };
+
+#endif // SDSUPPORT
 
 class EndstopStatesScreen : public BaseScreen, public UncachedScreen {
   public:
@@ -758,6 +795,7 @@ class DisplayTuningScreen : public BaseNumericAdjustmentScreen, public CachedScr
 };
 
 #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+
   class DeveloperMenu : public BaseScreen, public UncachedScreen {
     public:
       static void onRedraw(draw_mode_t);
@@ -794,7 +832,8 @@ class DisplayTuningScreen : public BaseNumericAdjustmentScreen, public CachedScr
       static bool onTouchEnd(uint8_t tag);
       static void onIdle();
   };
-#endif
+
+#endif // TOUCH_UI_DEVELOPER_MENU
 
 class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
   private:
@@ -817,3 +856,56 @@ class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
       static bool onTouchEnd(uint8_t tag);
   };
 #endif
+
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+
+  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
+  class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
+    private:
+      static uint16_t secondsRemaining();
+
+      static void draw_message(draw_mode_t);
+      static void draw_time_remaining(draw_mode_t);
+      static void draw_interaction_buttons(draw_mode_t);
+      static void draw_adjuster(draw_mode_t, uint8_t tag, progmem_str label, float value, int16_t x, int16_t y, int16_t w, int16_t h);
+    public:
+      static void onRedraw(draw_mode_t);
+
+      static void onEntry();
+      static void onIdle();
+      static bool onTouchHeld(uint8_t tag);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
+  class UnloadCartridgeScreen : public BaseScreen, public CachedScreen<UNLOAD_CARTRIDGE_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+      static bool onTouchHeld(uint8_t tag);
+  };
+
+  class LoadChocolateScreen : public BaseScreen, public CachedScreen<LOAD_CHOCOLATE_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+      static bool onTouchHeld(uint8_t tag);
+  };
+
+  class MoveXYZScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_XYZ_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static void onIdle();
+  };
+
+  class MoveEScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_E_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static void onIdle();
+  };
+
+#endif // TOUCH_UI_COCOA_PRESS

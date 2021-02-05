@@ -13,7 +13,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
+Web      :  https://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -96,7 +96,7 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* dat
 /* GPIO write                                           */
 /*GPIO byte is split between 2 registers, so two writes are needed to write one byte */
 
-/* GPOUT bits are in the low nibble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
+/* GPOUT bits are in the low nybble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
 void UHS_NI MAX3421E_HOST::gpioWr(uint8_t data) {
         regWr(rIOPINS1, data);
         data >>= 4;
@@ -132,11 +132,11 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* dat
 
 /* GPIO read. See gpioWr for explanation */
 
-/* GPIN pins are in high nibbles of IOPINS1, IOPINS2    */
+/* GPIN pins are in high nybbles of IOPINS1, IOPINS2    */
 uint8_t UHS_NI MAX3421E_HOST::gpioRd() {
         uint8_t gpin = 0;
         gpin = regRd(rIOPINS2); //pins 4-7
-        gpin &= 0xf0; //clean lower nibble
+        gpin &= 0xF0; //clean lower nybble
         gpin |= (regRd(rIOPINS1) >> 4); //shift low bits and OR with upper from previous operation.
         return ( gpin);
 }
@@ -504,7 +504,7 @@ uint8_t UHS_NI MAX3421E_HOST::InTransfer(UHS_EpInfo *pep, uint16_t nak_limit, ui
                 /* the only case when absence of RCVDAVIRQ makes sense is when toggle error occurred. Need to add handling for that */
                 if((regRd(rHIRQ) & bmRCVDAVIRQ) == 0) {
                         //MAX_HOST_DEBUG(PSTR(">>>>>>>> Problem! NO RCVDAVIRQ!\r\n"));
-                        rcode = 0xf0; //receive error
+                        rcode = 0xF0; //receive error
                         break;
                 }
                 pktsize = regRd(rRCVBC); //number of received bytes
@@ -576,7 +576,7 @@ uint8_t UHS_NI MAX3421E_HOST::OutTransfer(UHS_EpInfo *pep, uint16_t nak_limit, u
                 regWr(rHXFR, (MAX3421E_tokOUT | pep->epAddr)); //dispatch packet
                 while(!(regRd(rHIRQ) & bmHXFRDNIRQ)); //wait for the completion IRQ
                 regWr(rHIRQ, bmHXFRDNIRQ); //clear IRQ
-                rcode = (regRd(rHRSL) & 0x0f);
+                rcode = (regRd(rHRSL) & 0x0F);
 
                 while(rcode && ((long)(millis() - timeout) < 0L)) {
                         switch(rcode) {
@@ -606,7 +606,7 @@ uint8_t UHS_NI MAX3421E_HOST::OutTransfer(UHS_EpInfo *pep, uint16_t nak_limit, u
                         regWr(rHXFR, (MAX3421E_tokOUT | pep->epAddr)); //dispatch packet
                         while(!(regRd(rHIRQ) & bmHXFRDNIRQ)); //wait for the completion IRQ
                         regWr(rHIRQ, bmHXFRDNIRQ); //clear IRQ
-                        rcode = (regRd(rHRSL) & 0x0f);
+                        rcode = (regRd(rHRSL) & 0x0F);
                         SYSTEM_OR_SPECIAL_YIELD();
                 }//while( rcode && ....
                 bytes_left -= bytes_tosend;
@@ -631,7 +631,7 @@ breakout:
 /* If nak_limit == 0, do not count NAKs, exit after timeout                                         */
 /* If bus timeout, re-sends up to USB_RETRY_LIMIT times                                             */
 
-/* return codes 0x00-0x0f are HRSLT( 0x00 being success ), 0xff means timeout                       */
+/* return codes 0x00-0x0F are HRSLT( 0x00 being success ), 0xFF means timeout                       */
 uint8_t UHS_NI MAX3421E_HOST::dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit) {
         unsigned long timeout = millis() + UHS_HOST_TRANSFER_MAX_MS;
         uint8_t tmpdata;
@@ -654,7 +654,7 @@ uint8_t UHS_NI MAX3421E_HOST::dispatchPkt(uint8_t token, uint8_t ep, uint16_t na
 
                 }//while ( millis() < timeout
 
-                rcode = (regRd(rHRSL) & 0x0f); //analyze transfer result
+                rcode = (regRd(rHRSL) & 0x0F); //analyze transfer result
 
                 switch(rcode) {
                         case UHS_HOST_ERROR_NAK:

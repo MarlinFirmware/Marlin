@@ -16,25 +16,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-#define IDLE        0
-#define WORKING     1
-#define PAUSING     2
-#define PAUSED      3
-#define REPRINTING  4
-#define REPRINTED   5
-#define RESUMING    6
-#define STOP        7
+enum {
+  IDLE,
+  WORKING,
+  PAUSING,
+  PAUSED,
+  REPRINTING,
+  REPRINTED,
+  RESUMING,
+  STOP
+};
 
-extern void lv_draw_printing(void);
+extern void lv_draw_printing();
 extern void lv_clear_printing();
 extern void disp_ext_temp();
 extern void disp_bed_temp();
@@ -46,7 +48,6 @@ extern void start_print_time();
 extern void stop_print_time();
 extern void setProBarRate();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

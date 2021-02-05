@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -43,10 +43,11 @@
   #define min(a,b) ((a)<(b)?(a):(b))
 #else
   namespace UI {
-    static inline uint32_t safe_millis() {return millis();};
-    static inline void     yield()       {};
+    static inline uint32_t safe_millis() { return millis(); }
+    static inline void     yield()       {}
   };
 #endif
 
 class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
+extern const char G28_STR[];

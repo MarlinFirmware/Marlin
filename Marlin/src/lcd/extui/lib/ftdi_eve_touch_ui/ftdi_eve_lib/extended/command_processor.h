@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -312,12 +312,12 @@ class CommandProcessor : public CLCD::CommandFifo {
     int8_t apply_fit_text(int16_t w, int16_t h, T text) {
       using namespace FTDI;
       int8_t font = _font;
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         const bool is_utf8 = has_utf8_chars(text);
       #endif
       for (;font > 26;) {
         int16_t width, height;
-        #ifdef TOUCH_UI_USE_UTF8
+        #if ENABLED(TOUCH_UI_USE_UTF8)
           if (is_utf8) {
             width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
             height = font_size_t::from_romfont(font).get_height();
@@ -345,7 +345,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     template<typename T>
     uint16_t text_width(T text) {
       using namespace FTDI;
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         if (has_utf8_chars(text))
           return get_utf8_text_width(text, font_size_t::from_romfont(_font));
       #endif
@@ -362,7 +362,7 @@ class CommandProcessor : public CLCD::CommandFifo {
       #else
         const int8_t font = _font;
       #endif
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         if (has_utf8_chars(text))
           draw_utf8_text(*this, x, y, text, font_size_t::from_romfont(font), options);
         else
@@ -401,7 +401,7 @@ class CommandProcessor : public CLCD::CommandFifo {
         const int8_t font = _font;
       #endif
       CLCD::CommandFifo::button(x, y, w, h, font, options);
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         if (has_utf8_chars(text)) {
           CLCD::CommandFifo::str(F(""));
           apply_text_alignment(x, y, w, h, OPT_CENTER);

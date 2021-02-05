@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
@@ -53,11 +53,11 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+  #if !PIN_EXISTS(SD_SS)
+    #error "SD_SS_PIN not defined!"
   #endif
 
-  OUT_WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SD_SS_PIN, HIGH);
 }
 
 void spiInit(uint8_t spiRate) {

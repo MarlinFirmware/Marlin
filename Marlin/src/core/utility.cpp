@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -57,10 +57,11 @@ void safe_delay(millis_t ms) {
 
   void log_machine_info() {
     SERIAL_ECHOLNPGM("Machine Type: "
-      TERN_(DELTA, "Delta")
-      TERN_(IS_SCARA, "SCARA")
-      TERN_(IS_CORE, "Core")
-      TERN_(IS_CARTESIAN, "Cartesian")
+      TERN_(DELTA,         "Delta")
+      TERN_(IS_SCARA,      "SCARA")
+      TERN_(IS_CORE,       "Core")
+      TERN_(MARKFORGED_XY, "MarkForged")
+      TERN_(IS_CARTESIAN,  "Cartesian")
     );
 
     SERIAL_ECHOLNPGM("Probe: "

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -86,7 +86,14 @@ void GcodeSuite::M166() {
     echo_zt(mixer.gradient.end_vtool, mixer.gradient.end_z);
 
     mixer.update_mix_from_gradient();
-    SERIAL_ECHOPAIR(" ; Current Z", planner.get_axis_position_mm(Z_AXIS));
+
+    SERIAL_ECHOPGM(" ; Current Z");
+    #if ENABLED(DELTA)
+      get_cartesian_from_steppers();
+      SERIAL_ECHO(cartes.z);
+    #else
+      SERIAL_ECHO(planner.get_axis_position_mm(Z_AXIS));
+    #endif
     echo_mix();
   }
 
