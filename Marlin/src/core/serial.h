@@ -81,9 +81,13 @@ typedef int8_t serial_index_t;
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define SERIAL_PORTMASK(P)      _BV(P)
 
-// SERIAL_ECHO is used to print the given parameter as a decimal number
-// It must not be used for outputting a char on the serial port (instead, use SERIAL_CHAR)
-// It also support printing a string (const char*) directly
+/**
+ * SERIAL_ECHO - Print a single string or value.
+ *   Any numeric parameter (including char) is printed as a base-10 number.
+ *   A string pointer or literal will be output as a string.
+ *
+ * NOTE: Use SERIAL_CHAR to print char as a single character.
+ */
 template <typename T>
 void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
 // SERIAL_ECHO_F prints a floating point value with optional precision
@@ -103,8 +107,9 @@ void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
 inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
 
-
-// Print up to 10 chars from a list
+//
+// SERIAL_CHAR - Print one or more individual chars
+//
 inline void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
 template <typename ... Args>
 void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
