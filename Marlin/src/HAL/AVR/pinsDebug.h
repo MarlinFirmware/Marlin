@@ -245,7 +245,8 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
-  SERIAL_ECHOPAIR("    TIMER", AS_CHAR(T + '0', L));
+  SERIAL_ECHOPAIR("    TIMER", AS_CHAR(T + '0'));
+  SERIAL_CHAR(L);
   SERIAL_ECHO_SP(3);
 
   if (N == 3) {
