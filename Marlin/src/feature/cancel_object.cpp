@@ -67,8 +67,7 @@ void CancelObject::uncancel_object(const int8_t obj) {
 
 void CancelObject::report() {
   if (active_object >= 0) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("Active Object: ", int(active_object));
+    SERIAL_ECHO_MSG("Active Object: ", int(active_object));
   }
 
   if (canceled) {

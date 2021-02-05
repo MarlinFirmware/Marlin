@@ -127,8 +127,7 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
   storeBackground();
 
   #if ENABLED(TOUCH_UI_DEBUG)
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("New status message: ", message);
+    SERIAL_ECHO_MSG("New status message: ", message);
   #endif
 
   if (AT_SCREEN(BioPrintingDialogBox))

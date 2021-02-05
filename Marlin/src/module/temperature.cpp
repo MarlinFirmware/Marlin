@@ -1037,8 +1037,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #if ENABLED(PID_BED_DEBUG)
     {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHO_MSG(
         " PID_BED_DEBUG : Input ", temp_bed.celsius, " Output ", pid_output,
         #if DISABLED(PID_OPENLOOP)
           STR_PID_DEBUG_PTERM, work_pid.Kp,

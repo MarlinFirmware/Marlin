@@ -1196,8 +1196,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // HAS_MULTI_EXTRUDER
 }
