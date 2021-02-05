@@ -1,9 +1,10 @@
-#!/bin/bash
-echo "This script will attempt to build Marlin for all known configurations script"
-echo "In case of failure, the current configuration remains on your repository"
-echo "To revert to your current version, run 'git checkout -f' "
-self=`basename "$0"`
+#!/usr/bin/env bash
 
+echo "This script will attempt to build Marlin for all known configurations."
+echo "In case of failure, the current configuration remains in your repository."
+echo "To revert to your current version, run 'git checkout -f'."
+
+self=`basename "$0"`
 
 # Check dependencies
 which curl 1>/dev/null 2>&1 || { echo "curl not found, please install it"; exit 1; }
