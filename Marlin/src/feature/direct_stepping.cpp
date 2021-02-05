@@ -192,7 +192,7 @@ namespace DirectStepping {
     uint8_t crc = 0;
     for (uint8_t i = 0 ; i < n_bytes ; i++) {
       crc ^= bits_b[i];
-      SERIAL_CHAR(bits_b[i]); // I think a binary output is required here, feel free to change to SERIAL_ECHO if a textual format is required instead
+      SERIAL_CHAR(bits_b[i]);
     }
 
     SERIAL_CHAR(crc);
