@@ -32,6 +32,9 @@
 
 //#define I2C_EEPROM
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Servos
 //

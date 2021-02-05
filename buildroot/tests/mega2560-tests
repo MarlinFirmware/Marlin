@@ -27,7 +27,7 @@ opt_set TEMP_SENSOR_4 1000
 opt_set TEMP_SENSOR_BED 1
 opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 DEBUG_LEVELING_FEATURE G26_MESH_VALIDATION ENABLE_LEVELING_FADE_HEIGHT SKEW_CORRECTION \
            REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER LIGHTWEIGHT_UI STATUS_MESSAGE_SCROLLING BOOT_MARLIN_LOGO_SMALL \
-           SDSUPPORT SDCARD_SORT_ALPHA USB_FLASH_DRIVE_SUPPORT SCROLL_LONG_FILENAMES CANCEL_OBJECTS SOUND_MENU_ITEM \
+           SDSUPPORT SDCARD_SORT_ALPHA USB_FLASH_DRIVE_SUPPORT AUTO_REPORT_SD_STATUS SCROLL_LONG_FILENAMES CANCEL_OBJECTS SOUND_MENU_ITEM \
            EEPROM_SETTINGS EEPROM_CHITCHAT GCODE_MACROS CUSTOM_USER_MENUS \
            MULTI_NOZZLE_DUPLICATION CLASSIC_JERK LIN_ADVANCE EXTRA_LIN_ADVANCE_K QUICK_HOME \
            LCD_SET_PROGRESS_MANUALLY PRINT_PROGRESS_SHOW_DECIMALS SHOW_REMAINING_TIME \
@@ -72,8 +72,9 @@ opt_set TEMP_SENSOR_1 1
 opt_set TEMP_SENSOR_2 1
 opt_set TEMP_SENSOR_3 1
 opt_set TEMP_SENSOR_4 1
-opt_enable ZONESTAR_LCD Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE BOOT_MARLIN_LOGO_ANIMATED \
-           AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT M114_DETAIL \
+opt_enable VIKI2 BOOT_MARLIN_LOGO_ANIMATED SDSUPPORT AUTO_REPORT_SD_STATUS \
+           Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE \
+           EEPROM_SETTINGS EEPROM_CHITCHAT M114_DETAIL \
            NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET JOYSTICK \
            DIRECT_STEPPING DETECT_BROKEN_ENDSTOP \
            FILAMENT_RUNOUT_SENSOR NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE Z_SAFE_HOMING FIL_RUNOUT3_PULLUP
@@ -200,11 +201,11 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Greek" "$3"
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 
 ######## Example Configurations ##############
 #

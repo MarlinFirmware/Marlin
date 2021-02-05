@@ -60,6 +60,13 @@
   #else
     #define X_MIN_PIN                      P1_26  // E0DET
   #endif
+#elif ENABLED(X_DUAL_ENDSTOPS)
+  #ifndef X_MIN_PIN
+    #define X_MIN_PIN                      P1_29  // X-STOP
+  #endif
+  #ifndef X_MAX_PIN
+    #define X_MAX_PIN                      P1_26  // E0DET
+  #endif
 #else
   #define X_STOP_PIN                       P1_29  // X-STOP
 #endif
@@ -71,6 +78,13 @@
   #else
     #define Y_MIN_PIN                      P1_25  // E1DET
   #endif
+#elif ENABLED(Y_DUAL_ENDSTOPS)
+  #ifndef Y_MIN_PIN
+    #define Y_MIN_PIN                      P1_28  // Y-STOP
+  #endif
+  #ifndef Y_MAX_PIN
+    #define Y_MAX_PIN                      P1_25  // E1DET
+  #endif
 #else
   #define Y_STOP_PIN                       P1_28  // Y-STOP
 #endif
@@ -81,6 +95,13 @@
     #define Z_MAX_PIN                      P1_00  // PWRDET
   #else
     #define Z_MIN_PIN                      P1_00  // PWRDET
+  #endif
+#elif ENABLED(Z_MULTI_ENDSTOPS)
+  #ifndef Z_MIN_PIN
+    #define Z_MIN_PIN                      P1_27  // Z-STOP
+  #endif
+  #ifndef Z_MAX_PIN
+    #define Z_MAX_PIN                      P1_00  // PWRDET
   #endif
 #else
   #ifndef Z_STOP_PIN
@@ -258,7 +279,20 @@
  *               EXP2                                              EXP1
  */
 
-#if HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#if ENABLED(DWIN_CREALITY_LCD)
+
+  // RET6 DWIN ENCODER LCD
+  #define BTN_ENC                           P1_20
+  #define BTN_EN1                           P1_23
+  #define BTN_EN2                           P1_22
+
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                      P1_21
+    #undef SPEAKER
+  #endif
+
+#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
 
@@ -323,6 +357,8 @@
 
     #define LCD_PINS_ENABLE         EXPA1_05_PIN
     #define LCD_PINS_D4             EXPA1_07_PIN
+
+    #define BEEPER_PIN              EXPA1_10_PIN
 
   #elif ENABLED(CR10_STOCKDISPLAY)
     #define BTN_ENC                 EXPA1_09_PIN  // (58) open-drain
