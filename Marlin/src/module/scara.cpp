@@ -81,7 +81,7 @@
 
 #if ENABLED(AXEL_TPARA)
   void forward_kinematics_SCARA(const float &a, const float &b) {
-    // Needs rework 
+    // Needs rework for the third angle 
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
                 b_sin = sin(RADIANS(b)) * L2,
@@ -181,33 +181,39 @@
       //*/
 
     #elif ENABLED(AXEL_TPARA)
-        float CG, GAMMA, THETA, PHI, PSI;
+        float CG, SG, K1, K2, GAMMA, THETA, PHI, PSI;
         
         const xyz_pos_t spos = raw - robot_offset;
         
+        const float RXY = SQRT(HYPOT2(spos.x, spos.y)); ;
         const float RHO2 = NORMSQ(spos.x, spos.y, spos.z);
         const float RHO = SQRT(RHO2);
-        
+
         const float LSS = L1_2 + L2_2 ;
         const float LM = 2.0f * L1 * L2 ;
 
-        CG = (LSS - RHO2)/LM ;
-
+        CG = (LSS - RHO2)/LM ;                
+        SG = SQRT(1-POW(CG,2)) ; // Method 2
+        K1 = L1-L2*CG;
+        K2 = L2*SG;
+        
         // Angle of Body Joint
         THETA = ATAN2(spos.y, spos.x);
 
         // Angle of Elbow Joint
-        GAMMA = ACOS(CG);
+        //GAMMA = ACOS(CG);
+        GAMMA = ATAN2(SG,CG); // Method 2
 
-        // Angle of Shoulder Joint
-        PHI = asin (spos.z/RHO) +  asin (L2*sin(GAMMA)/ RHO )  ;   
+        // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
+        //PHI = asin (spos.z/RHO) +  asin (L2*sin(GAMMA)/ RHO )  ;   
+        PHI = ATAN2 (spos.z, RXY) +  ATAN2 (K2, K1 )  ;   // Method 2
 
+        //Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
         PSI = PHI + GAMMA; 
 
         delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
-
           
-        //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+        SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
 
     #endif // AXEL_TPARA
   }
