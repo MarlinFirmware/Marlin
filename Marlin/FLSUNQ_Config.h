@@ -13,14 +13,16 @@
 *  Default is for QQS and it's uncommented ;-)
 */
 //#define XP
-//============= Hardware =============//
-/*---Motherboard/Printer-(1 CHOICE)--*/
+/*_______________________1___________________________*/
+//==================== Hardware =====================//
+/*-------------Motherboard/Printer-(1 CHOICE)-------*/
 #define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
 //#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
                                      // click on the "Default" icon on the bottom edge of the window and 
                                      // choose "mks_robin_nano35").
 
-/*------Type Drivers-(1 CHOICE)-----*/
+/*________________________2___________________________*/
+          /*-----Type Drivers-(1 CHOICE)-----*/
 /* MODE STOCK for QQS & Q5 */
 #define STOCK                      // (S) For 4xA4988(green or red color) (Default_QQS)
                                      // (S) For 3xTMC2208+1xA4988 (Default_Q5)
@@ -36,7 +38,7 @@
 /* SPECIAL MODE UART XYZ+E for QQS-Pro */
 //#define QQS_UARTH                  //(UH) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
-/**===============================================================
+/**========================2bis=================================//
  * -- If you have an other stepper driver for EXTRUDER----------//
  * -- Uncomment and choose Options: ----------------------------//
  * -- A4988/DRV8825/LV8729/...      ----------------------------//
@@ -45,13 +47,29 @@
  */
 //#define DRIVER_EXT LV8729
 
-/*--- Choice UI TFT ----*/
+/*__________________________3________________________________*/
+        /** =============================
+        * =====Type of TFT screen ======
+        * = Driver TFT Color (1 CHOICE)=
+        * ==============================
+        */
+#define MKS_ROBIN_TFT32            // Mks_Robin_TFT_V2.0 (Default)
+//#define TFT_GENERIC                // For the user who haven't the same screen.
+
+                /*--- Choice UI TFT ----*/
 #define TFT_COLOR_UI               //(C) UI MARLIN (Default)
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD (type LCD)
-//#define BOOT_MARLIN_LOGO_SMALL     // Small Logo Marlin to reduce de binary. Comment to have normal LOGO. (Default)
-#define MARLIN_LOGO_FULL_SIZE MarlinLogo320x240x16
 
-/*----  Modules -----*/
+/* ======================================//
+* === Note:Languages already integrated==// 
+* ==in the menu UI_COLOR(fr, de, es, it)=//
+* =======================================//
+*/
+//#define LCD_LANGUAGE en            // Change for your country ('bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'el':'Greek', 'fi':'Finnish', 'hr':'Croatian', 'hu':'Hungarian', 'jp_kana':'Japanese', 'nl':'Dutch', 'pl':'Polish', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', etc)
+//#define BOOT_MARLIN_LOGO_SMALL     // Small Logo Marlin to reduce de binary. Comment to have normal LOGO. (Default)
+
+/*__________________________4______________________________*/
+                  /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
 //#define USES_MKS_WIFI_FUNCTION
 /*For LedStrip which need an external power source on Vcc pin.*/
@@ -59,7 +77,7 @@
 
 /**=========================================================
  * =========================================================
- * = QQS/Q5 Stock have a clone TITAN EXtruder(Default),=====
+ * = QQS/Q5 Stock have a clone (T)ITAN EXtruder(Default),===
  * = If you have another choose by uncomment your extruder.=
  * = Also you can change the direction.=====================
  * ====== Default eStep (T=397/422)/(B=417)   ==============
@@ -70,54 +88,56 @@
 // BMG Extruder (B) Extruder step(417).
 //#define BMG                       //(B) Uncommment for BMG Left/Right.
 
-/** ==============================
- * ======= MODE LEVELING==========
- * == type Calibration UBL or ABL=
- * ========= 1 CHOICE)============
- * ===============================
- */
+/*__________________________5______________________________*/
+      /** =============================
+      * ======= MODE LEVELING==========
+      * == type Calibration UBL or ABL=
+      * ========= 1 CHOICE)============
+      * ===============================
+      */
+
 //#define DELTA_HOME_TO_SAFE_ZONE    // Option to move down after homing to a height where XYZ movement is unconstrained.
 #define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C (Default)
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 
-//Many options for Modules: 
+/*__________________________6__________________________*/
+    //======Many options for Modules: ===========//
 #define LIN_ADVANCE                //(L) with K=0 For TMC_UART prefer mode spreadCycle(by TFT menu) or commented if problem (Default)
 #define ARC_SUPPORT                //(R) (Default)
 #define POWER_LOSS_RECOVERY        // Continue print after Power-Loss.(Defaul_QQS)
 
-/** =============================
- * =====Type of TFT screen ======
- * = Driver TFT Color (1 CHOICE)=
- * ==============================
- */
-#define MKS_ROBIN_TFT32            // Mks_Robin_TFT_V2.0 (Default)
-//#define TFT_GENERIC                // For the user who haven't the same screen.
+//=================================================================================//
+//======================== End_Hardware ===========================================//
+//=================================================================================//
 
-//============= End_Hardware ===============//
-
+/*__________________________7__________________________*/
 /** =====================================================
  *  ==== For users who dont have a terminal ============= 
  * = like (Prontoface/Octoprint/HostRepertier/Astoprint)=
  * ====== Choice add menu on TFT: (OPT) =================
  */
-//#define LCD_LANGUAGE fr          // Change for your country (es, fr, ru, de, it, etc)
-#define LCD_INFO_MENU              // Informations printer (Default).
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (Default).
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
+#define LCD_INFO_MENU              // Informations printer (Default).
 
 // For user who change their nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
-//#define TEMP_SENSOR_0 5             //uncomment with a good number/type.
+//#define TEMP_SENSOR_0 5             // uncomment with a good number/type.
 
-// ---Expe tools
+// ---Expe tools Levelling-------
 //#define LEVEL_BED_CORNERS
 
-// Option for Host (OCTOPRINT,REPETIER,PRONTERFACE,ESP3D, etc)
+/*__________________________8__________________________*/
+/** ===================================================
+* == Option for Host (OCTOPRINT,REPETIER,PRONTERFACE,ESP3D, etc)
+* ======================================================
+*/
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define MEATPACK                   //Support for MeatPack G-code compression (OCTOPRINT)
+//#define MEATPACK                   // Support for MeatPack G-code compression (OCTOPRINT)
 //#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 //#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
+
 
 // Options for Modules Hardware
 #ifdef NEOPIXEL_LED
@@ -127,7 +147,7 @@
 //TFT Type For TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
   #define TFT_DRIVER AUTO
-  #define TFT_INTERFACE_FSMC
+  #define TFT_INTERFACE_FSMC  //Default socket on MKS_nano, mini, hispeed.
   #define TFT_RES_320x240
 #endif
 
@@ -224,7 +244,7 @@
 #ifdef QQS_UARTH
     #define Q_TMC
     #define HARDWARE_SERIAL
-    //#define STEALTHCHOP_E
+    #define STEALTHCHOP_E
     #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
       #define DRIVER_EXT TMC2209
