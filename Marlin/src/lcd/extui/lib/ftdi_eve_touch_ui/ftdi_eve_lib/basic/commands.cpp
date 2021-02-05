@@ -1074,7 +1074,7 @@ void CLCD::init() {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7C) {
      #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_MSG("FTDI chip initialized ");
+       SERIAL_ECHO_MSG("FTDI chip initialized");
      #endif
      break;
    }

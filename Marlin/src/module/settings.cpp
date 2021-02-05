@@ -3425,11 +3425,9 @@ void MarlinSettings::reset() {
       );
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
-
         CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
         CONFIG_ECHO_MSG("  M209 S", fwretract.autoretract_enabled);
-
-      #endif // FWRETRACT_AUTORETRACT
+      #endif
 
     #endif // FWRETRACT
 

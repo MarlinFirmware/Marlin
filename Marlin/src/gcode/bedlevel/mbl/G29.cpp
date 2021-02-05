@@ -142,8 +142,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('I')) {
         ix = parser.value_int();
         if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_ECHOPAIR("I out of range (0-", GRID_MAX_POINTS_X - 1);
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLNPAIR("I out of range (0-", GRID_MAX_POINTS_X - 1, ")");
           return;
         }
       }
@@ -153,8 +152,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('J')) {
         iy = parser.value_int();
         if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_ECHOPAIR("J out of range (0-", GRID_MAX_POINTS_Y - 1);
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLNPAIR("J out of range (0-", GRID_MAX_POINTS_Y - 1, ")");
           return;
         }
       }
