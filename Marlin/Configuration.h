@@ -60,8 +60,6 @@
 #define AXEL_TPARA // added AXEL_TPARA: Three PArallelogram Robot Arm
 
 #if ENABLED(AXEL_TPARA)
-  #define IS_ROBOT
-  #define IS_TPARA
   #define ROBOT_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
@@ -73,6 +71,15 @@
   #define ROBOT_OFFSET_X    0       // (mm)
   #define ROBOT_OFFSET_Y    0       // (mm)
   #define ROBOT_OFFSET_Z    0       // (mm)  
+
+  #define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
+
+  // Radius around the center where the arm cannot reach
+  #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+
+  #define THETA_HOMING_OFFSET  0  // Calculated from Calibration Guide and M360 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+  #define PSI_HOMING_OFFSET    0  // Calculated from Calibration Guide and M364 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
+
 
 #endif
 //===========================================================================
@@ -89,7 +96,7 @@
  * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  */
-#define MORGAN_SCARA
+//#define MORGAN_SCARA
 
 /**
  * Mostly Printed SCARA is an open source design by Tyler Williams. See:
@@ -98,7 +105,7 @@
  */
 //#define MP_SCARA
 
-#if EITHER(MORGAN_SCARA, MP_SCARA)  // added TPARA
+#if EITHER(MORGAN_SCARA, MP_SCARA) 
   // If movement is choppy try lowering this value
   #define SCARA_SEGMENTS_PER_SECOND 200
 
