@@ -34,7 +34,7 @@ extern float delta_segments_per_second;
     float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
                     L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
                     L2_2 = sq(float(L2));
-#else // AXEL_TPARA
+#elif ENABLED(AXEL_TPARA) // AXEL_TPARA
     // Float constants for Robot arm calculations
     float constexpr L1 = ROBOT_LINKAGE_1, L2 = ROBOT_LINKAGE_2,
                     L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
@@ -46,7 +46,7 @@ void inverse_kinematics(const xyz_pos_t &raw);
 #if EITHER(MORGAN_SCARA, MP_SCARA)
     void forward_kinematics_SCARA(const float &a, const float &b);
 #else // AXEL_TPARA
-    void forward_kinematics_SCARA(const float &a, const float &b);  //rename to _TPARA, and should have 3 args, const float &c
+    void forward_kinematics_SCARA(const float &a, const float &b);  //ToDo rename to _TPARA, and should have 3 args, const float &c
 #endif
 void scara_report_positions();
  
