@@ -298,8 +298,7 @@ void GCodeQueue::ok_to_send() {
   #if ENABLED(ADVANCED_OK)
     char* p = command_buffer[index_r];
     if (*p == 'N') {
-      SERIAL_CHAR(' ');
-      SERIAL_CHAR(*p++);
+      SERIAL_CHAR(' ', *p++);
       while (NUMERIC_SIGNED(*p))
         SERIAL_CHAR(*p++);
     }

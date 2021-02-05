@@ -259,7 +259,7 @@ void serialprintPGM(PGM_P str);
   }
 
   template <typename ... Args>
-  void SERIAL_ECHOLIST(const char * str, Args && ... args) {
+  void SERIAL_ECHOLIST(PGM_P const str, Args && ... args) {
     SERIAL_IMPL.print(str);
     SERIAL_ECHOLIST_IMPL(args...);
   }
@@ -267,7 +267,7 @@ void serialprintPGM(PGM_P str);
 #else // Optimization if the listed type are all the same (seems to be the case in the codebase so use that instead)
 
   template <typename ... Args>
-  void SERIAL_ECHOLIST(const char * str, Args && ... args) {
+  void SERIAL_ECHOLIST(PGM_P const str, Args && ... args) {
     SERIAL_IMPL.print(str);
     typename Private::first_type_of<Args...>::type values[] = { args... };
     constexpr size_t argsSize = sizeof...(args);
