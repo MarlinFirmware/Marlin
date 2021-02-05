@@ -127,7 +127,7 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
 
         if (gCfgItems.pause_reprint && gCfgItems.pausePosZ != -1.0f) {
-          sprintf_P(public_buf_l, PSTR("G91\nG1 Z-%.1f\nG90"), gCfgItems.pausePosZ);
+          sprintf_P(public_buf_l, PSTR("G91\nG1 Z-%s\nG90"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_2));
           gcode.process_subcommands_now(public_buf_l);
         }
       #endif
