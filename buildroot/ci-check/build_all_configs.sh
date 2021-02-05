@@ -28,7 +28,11 @@ if [ ! -e "Marlin/src" ]; then
 fi
 
 # Check if the current repository has unmerged changes
-git diff --quiet || { echo "Your current repository is not clean. Either commit your change or stash them, and re-run this script"; exit 5; }
+if [ -z "$2" ]; then
+  git diff --quiet || { echo "Your current repository is not clean. Either commit your change or stash them, and re-run this script"; exit 5; }
+else 
+  echo "Resuming from $2"
+fi
 
 # Ok, let's do our stuff now
 # First extract the current temporary folder
