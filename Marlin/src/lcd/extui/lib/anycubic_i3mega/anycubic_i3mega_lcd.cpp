@@ -141,9 +141,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnSDCardStateChange event triggered...");
-    SERIAL_ECHO(ui8tostr2(isInserted));
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", (int)isInserted);
   #endif
   DoSDCardStateCheck();
 }
@@ -164,8 +162,7 @@ void AnycubicTFTClass::OnFilamentRunout() {
 
 void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ");
-    SERIAL_ECHOLN(msg);
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
   #endif
 
   #if ENABLED(SDSUPPORT)
