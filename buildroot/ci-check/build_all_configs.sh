@@ -10,7 +10,13 @@ self=`basename "$0"`
 which curl 1>/dev/null 2>&1 || { echo "curl not found, please install it"; exit 1; }
 which git 1>/dev/null 2>&1 || { echo "git not found, please install it"; exit 2; }
 if [ -z "$1" ]; then
-  echo "Expected calling parameter: $self base_branch"
+  echo ""
+  echo "ERROR: "
+  echo "  Expected parameter: $self base_branch [resume_point]"
+  echo "  with:"
+  echo "         base_branch              The branch in the Configuration repository to use"
+  echo "         resume_point             If not empty, resume building from this board"
+
   exit 3
 fi
 
@@ -38,6 +44,10 @@ shopt -s nullglob
 for config in tmp/config/examples/*/; do
   [ -d "${config}" ] || continue
   base=`basename "$config"`
+  if [ ! -z "$2" ] && [ "$2" != "$base" ]; then
+    echo "Skipping $base..."
+    continue
+  fi
   echo "Testing $base: "
     ./buildroot/ci-check/build_config.sh "internal" "$base" "$config" || { echo "Failed to build $base"; exit 7; }
   echo "Passed"
