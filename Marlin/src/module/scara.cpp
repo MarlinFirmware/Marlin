@@ -184,10 +184,10 @@
         float CG, GAMMA, THETA, PHI, PSI;
         
         const xyz_pos_t spos = raw - robot_offset;
-
-        const float RHO = SQRT(sq(spos.x) + sq(spos.y) + sq(spos.z) );
-        const float RHO2 = sq(spos.x) + sq(spos.y) + sq(spos.z) ;
-
+        
+        const float RHO2 = NORMSQ(spos.x, spos.y, spos.z);
+        const float RHO = SQRT(RHO2);
+        
         const float LSS = L1_2 + L2_2 ;
         const float LM = 2.0f * L1 * L2 ;
 
