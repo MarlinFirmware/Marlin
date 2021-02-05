@@ -103,4 +103,3 @@ void ScreenStack::goBack() {
 ScreenStack current_screen;
 
 #endif // FTDI_EXTENDED
-

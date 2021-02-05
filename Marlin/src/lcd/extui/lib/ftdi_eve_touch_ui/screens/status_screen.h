@@ -44,4 +44,3 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
 };
 
 #endif // FTDI_STATUS_SCREEN
-

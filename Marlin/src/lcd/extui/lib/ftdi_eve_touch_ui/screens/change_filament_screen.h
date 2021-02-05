@@ -31,7 +31,7 @@ struct ChangeFilamentScreenData {
     bool need_purge;
   #endif
 };
-  
+
 class ChangeFilamentScreen : public BaseScreen, public CachedScreen<CHANGE_FILAMENT_SCREEN_CACHE> {
   private:
     static uint8_t getSoftenTemp();

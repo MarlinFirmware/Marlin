@@ -53,5 +53,5 @@
       static void onIdle();
 
   };
-  
+
 #endif // FTDI_BIO_STATUS_SCREEN

@@ -30,24 +30,24 @@
         PRINTING_STARTED  = 0,
         PRINTING_FINISHED = 1,
         PRINTING_FAILED   = 2,
-  
+
         NUM_EVENTS
       };
-  
+
     private:
       friend class InterfaceSettingsScreen;
-  
+
       static uint8_t event_sounds[NUM_EVENTS];
-  
+
       static const char* getSoundSelection(event_t);
       static void toggleSoundSelection(event_t);
       static void setSoundSelection(event_t, const FTDI::SoundPlayer::sound_t*);
-  
+
     public:
       static void playEventSound(event_t, FTDI::play_mode_t = FTDI::PLAY_ASYNCHRONOUS);
-  
+
       static void defaultSettings();
-  
+
       static void onEntry();
       static void onRedraw(draw_mode_t);
       static bool onTouchStart(uint8_t tag);

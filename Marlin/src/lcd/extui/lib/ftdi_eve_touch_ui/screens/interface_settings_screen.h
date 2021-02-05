@@ -46,17 +46,17 @@
         uint8_t  bit_flags;
         uint8_t  event_sounds[InterfaceSoundsScreen::NUM_EVENTS];
       };
-  
+
     public:
       #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
         static bool backupEEPROM();
       #endif
-  
+
       static void saveSettings(char *);
       static void loadSettings(const char *);
       static void defaultSettings();
       static void failSafeSettings();
-  
+
       static void onStartup();
       static void onEntry();
       static void onRedraw(draw_mode_t);

@@ -27,15 +27,13 @@
   class SaveSettingsDialogBox : public DialogBoxBaseClass, public UncachedScreen {
     private:
       static bool needs_save;
-  
+
     public:
       static void onRedraw(draw_mode_t);
       static bool onTouchEnd(uint8_t tag);
-  
+
       static void promptToSaveSettings();
       static void settingsChanged() {needs_save = true;}
   };
 
 #endif // FTDI_SAVE_SETTINGS_DIALOG_BOX
-
-

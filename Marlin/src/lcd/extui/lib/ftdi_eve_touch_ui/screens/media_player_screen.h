@@ -27,14 +27,14 @@
   class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
     private:
       typedef int16_t media_streamer_func_t(void *obj, void *buff, size_t bytes);
-  
+
     public:
       static bool playCardMedia();
       static bool playBootMedia();
-  
+
       static void onEntry();
       static void onRedraw(draw_mode_t);
-  
+
       static void playStream(void *obj, media_streamer_func_t*);
   };
 
