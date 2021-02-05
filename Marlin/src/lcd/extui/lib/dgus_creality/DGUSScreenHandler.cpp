@@ -608,6 +608,13 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     RequestSaveSettings();
 
     PopToOldScreen();
+
+    // If the user is in the leveling workflow (not printing), get that hotend out of the way
+    if (current_screen == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
+      char gcodeBuffer[50] = {0};
+      sprintf_P(gcodeBuffer, PSTR("G0 F2500 X%d Y%d Z%d"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
+      queue.inject(gcodeBuffer);      
+    }
   } else {
     // We've already updated the icon, so nothing left
   }
