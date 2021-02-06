@@ -322,6 +322,108 @@ def check_configfile_locations():
 				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
 				raise SystemExit(err)
 
+# Get the board being built from the Configuration.h file
+#   return: board name
+def get_board_name():
+  board_name = ''
+  # get board name
+
+  with open('Marlin/Configuration.h', 'r') as myfile:
+    Configuration_h = myfile.read()
+
+  Configuration_h = Configuration_h.split('\n')
+  Marlin_ver = 0  # set version to invalid number
+  for lines in Configuration_h:
+    board = lines.find(' BOARD_') + 1
+    motherboard = lines.find(' MOTHERBOARD ') + 1
+    define = lines.find('#define ')
+    comment = lines.find('//')
+    if (comment == -1 or comment > board) and \
+      board > motherboard and \
+      motherboard > define and \
+      define >= 0 :
+      spaces = lines.find(' ', board)  # find the end of the board substring
+      if spaces == -1:
+        board_name = lines[board:]
+      else:
+        board_name = lines[board:spaces]
+      break
+
+  return board_name
+
+# extract first environment name found after the start position
+#   return: environment name and position to start the next search from
+def get_env_from_line(line, start_position):
+  env = ''
+  next_position = -1
+  env_position = line.find('env:', start_position)
+  if 0 < env_position:
+    next_position = line.find(' ', env_position + 4)
+    if 0 < next_position:
+      env = line[env_position + 4:next_position]
+    else:
+      env = line[env_position + 4:]  # at the end of the line
+  return env, next_position
+
+# scan pins.h for board name and return the environment(s) found
+def get_starting_env(board_name_full):
+  # get environment starting point
+
+  path = 'Marlin/src/pins/pins.h'
+  with open(path, 'r') as myfile:
+    pins_h = myfile.read()
+
+  env_A = ''
+  env_B = ''
+  env_C = ''
+
+  board_name = board_name_full[6:]  # only use the part after "BOARD_" since we're searching the pins.h file
+  pins_h = pins_h.split('\n')
+  environment = ''
+  board_line = ''
+  cpu_A = ''
+  cpu_B = ''
+  i = 0
+  list_start_found = False
+  for lines in pins_h:
+    i = i + 1  # i is always one ahead of the index into pins_h
+    if 0 < lines.find("Unknown MOTHERBOARD value set in Configuration.h"):
+      break  #  no more
+    if 0 < lines.find('1280'):
+      list_start_found = True
+    if list_start_found == False:  # skip lines until find start of CPU list
+      continue
+    board = lines.find(board_name)
+    comment_start = lines.find('// ')
+    cpu_A_loc = comment_start
+    cpu_B_loc = 0
+    if board > 0:  # need to look at the next line for environment info
+      cpu_line = pins_h[i]
+      comment_start = cpu_line.find('// ')
+      env_A, next_position = get_env_from_line(cpu_line, comment_start)  # get name of environment & start of search for next
+      env_B, next_position = get_env_from_line(cpu_line, next_position)  # get next environment, if it exists
+      env_C, next_position = get_env_from_line(cpu_line, next_position)  # get next environment, if it exists
+      break
+  return env_A, env_B, env_C
+
+def check_suitable_env():
+  board_name = ''
+  env_A = ''
+  env_B = ''
+  env_C = ''
+  board_name = get_board_name()
+  env_A, env_B, env_C = get_starting_env(board_name)
+
+  if env['PIOENV'] in [env_A, env_B, env_C]:
+    return
+  else:
+    err = 'You have MOTHERBOARD set to ' + str(board_name) + ', please use default_envs = ' + str(env_A)
+    if not env_B == '':
+      err +=  ', or default_envs = ' + str(env_B)
+    if not env_C == '':
+      err += ', or default_envs = ' + str(env_C)
+    raise SystemExit(err)
+
 #
 # Add a method for other PIO scripts to query enabled features
 #
@@ -331,5 +433,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 # Add dependencies for enabled Marlin features
 #
 check_configfile_locations()
+check_suitable_env()
 apply_features_config()
 force_ignore_unused_libs()
