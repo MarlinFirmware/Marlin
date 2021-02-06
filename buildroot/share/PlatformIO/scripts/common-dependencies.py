@@ -377,7 +377,7 @@ def get_starting_env(board_name_full):
   env_B = ''
   env_C = ''
 
-  board_name = board_name_full[6:]  # only use the part after "BOARD_" since we're searching the pins.h file
+  board_name = '('+board_name_full[6:]+')'  # only use the part after "BOARD_" since we're searching the pins.h file
   pins_h = pins_h.split('\n')
   environment = ''
   board_line = ''
