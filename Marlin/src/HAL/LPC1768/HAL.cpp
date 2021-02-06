@@ -63,7 +63,11 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
   return ind > -1 ? ind : dval;
 }
 
-void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+void flashFirmware(const int16_t) {
+  USB_Connect(false);  // USB clear connection
+  delay(2000);         // Give OS time to notice
+  NVIC_SystemReset();
+}
 
 void HAL_clear_reset_source(void) {
   TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
