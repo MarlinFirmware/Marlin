@@ -377,7 +377,7 @@ def get_starting_env(board_name_full):
   env_B = ''
   env_C = ''
 
-  board_name = '('+board_name_full[6:]+')'  # only use the part after "BOARD_" since we're searching the pins.h file
+  board_name = "[( ]"+board_name_full[6:]+"[,)]" # only use the part after "BOARD_" since we're searching the pins.h file
   pins_h = pins_h.split('\n')
   environment = ''
   board_line = ''
@@ -393,11 +393,10 @@ def get_starting_env(board_name_full):
       list_start_found = True
     if list_start_found == False:  # skip lines until find start of CPU list
       continue
-    board = lines.find(board_name)
     comment_start = lines.find('// ')
     cpu_A_loc = comment_start
     cpu_B_loc = 0
-    if board > 0:  # need to look at the next line for environment info
+    if re.search(board_name,lines):
       cpu_line = pins_h[i]
       comment_start = cpu_line.find('// ')
       env_A, next_position = get_env_from_line(cpu_line, comment_start)  # get name of environment & start of search for next
