@@ -135,6 +135,8 @@ extern uint16_t HAL_adc_result;
 
 // Enable hooks into  setup for HAL
 void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 // Clear reset reason
 void HAL_clear_reset_source();
@@ -192,6 +194,7 @@ void flashFirmware(const int16_t);
 typedef void (*systickCallback_t)(void);
 void systick_attach_callback(systickCallback_t cb);
 void HAL_SYSTICK_Callback();
+
 extern volatile uint32_t systick_uptime_millis;
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment

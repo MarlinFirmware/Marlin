@@ -43,8 +43,7 @@ void ScreenRef::setScreen(onRedraw_func_t onRedraw_ptr) {
   if (type != 0xFF) {
     setType(type);
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("New screen: ", type);
+      SERIAL_ECHO_MSG("New screen: ", int(type));
     #endif
   }
 }

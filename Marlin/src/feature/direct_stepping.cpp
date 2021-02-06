@@ -180,7 +180,7 @@ namespace DirectStepping {
     if (!page_states_dirty) return;
     page_states_dirty = false;
 
-    SERIAL_ECHO(Cfg::CONTROL_CHAR);
+    SERIAL_CHAR(Cfg::CONTROL_CHAR);
     constexpr int state_bits = 2;
     constexpr int n_bytes = Cfg::NUM_PAGES >> state_bits;
     volatile uint8_t bits_b[n_bytes] = { 0 };
@@ -192,10 +192,10 @@ namespace DirectStepping {
     uint8_t crc = 0;
     for (uint8_t i = 0 ; i < n_bytes ; i++) {
       crc ^= bits_b[i];
-      SERIAL_ECHO(bits_b[i]);
+      SERIAL_CHAR(bits_b[i]);
     }
 
-    SERIAL_ECHO(crc);
+    SERIAL_CHAR(crc);
     SERIAL_EOL();
   }
 
