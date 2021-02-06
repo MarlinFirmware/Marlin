@@ -322,35 +322,7 @@ def check_configfile_locations():
 				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
 				raise SystemExit(err)
 
-# Get the board being built from the Configuration.h file
-#   return: board name
-def get_board_name():
-  board_name = ''
-  # get board name
-
-  with open('Marlin/Configuration.h', 'r') as myfile:
-    Configuration_h = myfile.read()
-
-  Configuration_h = Configuration_h.split('\n')
-  Marlin_ver = 0  # set version to invalid number
-  for lines in Configuration_h:
-    board = lines.find(' BOARD_') + 1
-    motherboard = lines.find(' MOTHERBOARD ') + 1
-    define = lines.find('#define ')
-    comment = lines.find('//')
-    if (comment == -1 or comment > board) and \
-      board > motherboard and \
-      motherboard > define and \
-      define >= 0 :
-      spaces = lines.find(' ', board)  # find the end of the board substring
-      if spaces == -1:
-        board_name = lines[board:]
-      else:
-        board_name = lines[board:spaces]
-      break
-
-  return board_name
-
+#
 # extract first environment name found after the start position
 #   return: environment name and position to start the next search from
 def get_env_from_line(line, start_position):
@@ -365,7 +337,9 @@ def get_env_from_line(line, start_position):
       env = line[env_position + 4:]  # at the end of the line
   return env, next_position
 
+#
 # scan pins.h for board name and return the environment(s) found
+#
 def get_starting_env(board_name_full):
   # get environment starting point
 
@@ -405,33 +379,12 @@ def get_starting_env(board_name_full):
       break
   return env_A, env_B, env_C
 
-def check_multiple_motherboards():
-  motherboard_count = 0
-  with open('Marlin/Configuration.h', 'r') as myfile:
-    Configuration_h = myfile.read()
-
-  Configuration_h = Configuration_h.split('\n')
-  for lines in Configuration_h:
-    board = lines.find(' BOARD_') + 1
-    motherboard = lines.find(' MOTHERBOARD ') + 1
-    define = lines.find('#define ')
-    comment = lines.find('//')
-    if (comment == -1 or comment > board) and \
-      board > motherboard and \
-      motherboard > define and \
-      define >= 0 :
-      motherboard_count += 1
-  if motherboard_count == 1: return False
-  else: return True
-
 def check_suitable_env():
-  board_name = ''
   env_A = ''
   env_B = ''
   env_C = ''
-  if check_multiple_motherboards():
-    return # abort when mutiple #define MOTHERBOARD is detected, to complicated
-  board_name = get_board_name()
+  load_marlin_features()
+  board_name = env['MARLIN_FEATURES']['MOTHERBOARD']
   env_A, env_B, env_C = get_starting_env(board_name)
 
   if env['PIOENV'] in [env_A, env_B, env_C]:
