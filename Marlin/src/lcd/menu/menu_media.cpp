@@ -99,7 +99,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
-      TERN_(HAS_GRAPHICAL_LCD, ui.drawing_screen = false);
+      TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
       ui.refresh();
     }
 };
@@ -107,7 +107,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
 void menu_media() {
   ui.encoder_direction_menus();
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     static uint16_t fileCnt;
     if (ui.first_page) fileCnt = card.get_num_Files();
   #else
@@ -115,7 +115,7 @@ void menu_media() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });

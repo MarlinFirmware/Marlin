@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_LULZBOT_BIO)
+#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
@@ -48,14 +48,14 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_SPEED))
-                              .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_BED_TEMPERATURE))
+       .enabled( isPrinting()).tag(2).button(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_SPEED))
+                              .tag(3).button(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_BED_TEMPERATURE))
        .enabled(TERN_(BABYSTEPPING, true))
-                              .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
-       .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_MOVE_TO_HOME))
-       .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_RAISE_PLUNGER))
-       .enabled(!isPrinting()).tag(7).button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_RELEASE_XY_AXIS))
-       .colors(action_btn)    .tag(1).button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+                              .tag(4).button(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
+       .enabled(!isPrinting()).tag(5).button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_MOVE_TO_HOME))
+       .enabled(!isPrinting()).tag(6).button(BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_RAISE_PLUNGER))
+       .enabled(!isPrinting()).tag(7).button(BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_RELEASE_XY_AXIS))
+       .colors(action_btn)    .tag(1).button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
   }
   #undef GRID_COLS
   #undef GRID_ROWS
@@ -76,4 +76,4 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // TOUCH_UI_FTDI_EVE && TOUCH_UI_LULZBOT_BIO

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -53,12 +53,12 @@ bool ConfirmStartPrintDialogBox::onTouchEnd(uint8_t tag) {
 
 const char *ConfirmStartPrintDialogBox::getFilename(bool longName) {
   FileList files;
-  files.seek(screen_data.ConfirmStartPrintDialogBox.file_index, true);
+  files.seek(screen_data.ConfirmStartPrintDialog.file_index, true);
   return longName ? files.longFilename() : files.shortFilename();
 }
 
 void ConfirmStartPrintDialogBox::show(uint8_t file_index) {
-  screen_data.ConfirmStartPrintDialogBox.file_index = file_index;
+  screen_data.ConfirmStartPrintDialog.file_index = file_index;
    GOTO_SCREEN(ConfirmStartPrintDialogBox);
 }
 

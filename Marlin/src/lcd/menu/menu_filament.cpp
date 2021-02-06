@@ -86,6 +86,7 @@ inline PGM_P change_filament_header(const PauseMode mode) {
 void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
   _change_filament_extruder = extruder;
+  const int8_t old_index = MenuItemBase::itemIndex;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
@@ -98,14 +99,15 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     _change_filament_with_custom
   );
   END_MENU();
+  MenuItemBase::itemIndex = old_index;
 }
 
 /**
- *
  * "Change Filament" submenu
- *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+
+  bool printingIsPaused();
 
   void menu_change_filament() {
     // Say "filament change" when no print is active
@@ -138,8 +140,9 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[13];
-            sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
+            PGM_P const cmdpstr = PSTR("M600 B0 T%i");
+            char cmd[strlen_P(cmdpstr) + 3 + 1];
+            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
             queue.inject(cmd);
           });
         }
@@ -220,7 +223,7 @@ static PGM_P pause_header() {
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
     if (ui.should_draw()) { \
-      TERN(HAS_GRAPHICAL_TFT,, MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
+      IF_DISABLED(HAS_GRAPHICAL_TFT, MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -314,7 +317,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   return nullptr;
 }
 
-void lcd_pause_show_message(
+void MarlinUI::pause_show_message(
   const PauseMessage message,
   const PauseMode mode/*=PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/

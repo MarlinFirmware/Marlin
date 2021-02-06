@@ -22,7 +22,7 @@
 #pragma once
 
 #include "menu.h"
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h" // for inject_P
 
 #include "../../inc/MarlinConfigPre.h"
@@ -122,6 +122,7 @@ class TMenuEditItem : MenuEditItemBase {
 
 //                         NAME         TYPE      STRFUNC          SCALE         +ROUND
 DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, 0.5f);  // 100%   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1     );   // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1     );   // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1     );   // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1     );   // 123, -12   right-justified
@@ -132,6 +133,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float3      ,float    ,ftostr3         ,   1     );   // 123        right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float42_52  ,float    ,ftostr42_52     , 100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
 DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000     );   // -1.234, _1.234, +1.234
+DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1     );   // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10     );   // 1234.5     right-justified
@@ -342,8 +344,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define PSTRING_ITEM(LABEL, V...)                     PSTRING_ITEM_P(GET_TEXT(LABEL), ##V)
 
-#define STATIC_ITEM(LABEL,      V...)                  STATIC_ITEM_P(GET_TEXT(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), ##V)
+#define STATIC_ITEM(LABEL, V...)                       STATIC_ITEM_P(GET_TEXT(LABEL), ##V)
+#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), N, ##V)
 
 #define MENU_ITEM_N_S_P(TYPE, N, S, PLABEL, V...)   _MENU_ITEM_N_S_P(TYPE, N, S, false, PLABEL, ##V)
 #define MENU_ITEM_N_S(TYPE, N, S, LABEL, V...)       MENU_ITEM_N_S_P(TYPE, N, S, GET_TEXT(LABEL), ##V)
@@ -354,6 +356,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define MENU_ITEM_P(TYPE, PLABEL, V...)                 _MENU_ITEM_P(TYPE, false, PLABEL, ##V)
 #define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
 
+#define BACK_ITEM_P(PLABEL)                              MENU_ITEM_P(back, PLABEL)
 #define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
 
 #define ACTION_ITEM_N_S_P(N, S, PLABEL, ACTION)      MENU_ITEM_N_S_P(function, N, S, PLABEL, ACTION)
@@ -452,3 +455,41 @@ class MenuItem_bool : public MenuEditItemBase {
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
 #endif
+
+#if HAS_FAN
+
+  #include "../../module/temperature.h"
+
+  inline void on_fan_update() {
+    thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+  }
+
+  #if ENABLED(EXTRA_FAN_SPEED)
+    #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
+  #else
+    #define EDIT_EXTRA_FAN_SPEED(...)
+  #endif
+
+  #define _FAN_EDIT_ITEMS(F,L) do{ \
+    editable.uint8 = thermalManager.fan_speed[F]; \
+    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
+    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.new_fan_speed[F], 3, 255); \
+  }while(0)
+
+  #if FAN_COUNT > 1
+    #define FAN_EDIT_ITEMS(F) _FAN_EDIT_ITEMS(F,FAN_SPEED_N)
+  #endif
+
+  #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
+
+  #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
+    #define DEFINE_SINGLENOZZLE_ITEM() \
+      auto singlenozzle_item = [&](const uint8_t f) { \
+        editable.uint8 = thermalManager.singlenozzle_fan_speed[f]; \
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update); \
+      }
+  #else
+    #define DEFINE_SINGLENOZZLE_ITEM() NOOP
+  #endif
+
+#endif // HAS_FAN

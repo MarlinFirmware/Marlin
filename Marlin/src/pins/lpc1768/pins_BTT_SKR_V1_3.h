@@ -151,7 +151,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -214,10 +214,11 @@
 #define EXPA2_09_PIN                       P0_15
 #define EXPA2_10_PIN                       P0_17
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
+  #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+    #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
-
+  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
    /**
@@ -264,6 +265,14 @@
   #elif HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
+
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS            EXPA2_08_PIN
+    #endif
+
+    #define SD_DETECT_PIN           EXPA2_04_PIN
 
   #else                                           // !CR10_STOCKDISPLAY
 
@@ -340,17 +349,22 @@
         #define LCD_BACKLIGHT_PIN          -1
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if IS_ULTIPANEL
         #define LCD_PINS_D5         EXPA1_05_PIN
         #define LCD_PINS_D6         EXPA1_04_PIN
         #define LCD_PINS_D7         EXPA1_03_PIN
+
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #endif
+
       #endif
 
     #endif // !FYSETC_MINI_12864
 
   #endif // !CR10_STOCKDISPLAY
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support
@@ -361,7 +375,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                    EXPA2_07_PIN
+  #define SD_SS_PIN                 EXPA2_07_PIN
 #endif
 
 /**

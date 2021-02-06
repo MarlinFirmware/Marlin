@@ -50,10 +50,6 @@ extern "C" {
 // Pending character
 static int pending_char = -1;
 
-#if ENABLED(EMERGENCY_PARSER)
-  static EmergencyParser::State emergency_state; // = EP_RESET
-#endif
-
 // Public Methods
 void MarlinSerialUSB::begin(const long) {}
 
@@ -111,13 +107,13 @@ bool MarlinSerialUSB::available() {
 void MarlinSerialUSB::flush() { }
 void MarlinSerialUSB::flushTX() { }
 
-void MarlinSerialUSB::write(const uint8_t c) {
+size_t MarlinSerialUSB::write(const uint8_t c) {
 
   /* Do not even bother sending anything if USB CDC is not enumerated
      or not configured on the PC side or there is no program on the PC
      listening to our messages */
   if (!usb_task_cdc_isenabled() || !usb_task_cdc_dtr_active())
-    return;
+    return 0;
 
   /* Wait until the PC has read the pending to be sent data */
   while (usb_task_cdc_isenabled() &&
@@ -129,161 +125,20 @@ void MarlinSerialUSB::write(const uint8_t c) {
      or not configured on the PC side or there is no program on the PC
      listening to our messages at this point */
   if (!usb_task_cdc_isenabled() || !usb_task_cdc_dtr_active())
-    return;
+    return 0;
 
   // Fifo full
   //  udi_cdc_signal_overrun();
   udi_cdc_putc(c);
-}
-
-/**
- * Imports from print.h
- */
-
-void MarlinSerialUSB::print(char c, int base) {
-  print((long)c, base);
-}
-
-void MarlinSerialUSB::print(unsigned char b, int base) {
-  print((unsigned long)b, base);
-}
-
-void MarlinSerialUSB::print(int n, int base) {
-  print((long)n, base);
-}
-
-void MarlinSerialUSB::print(unsigned int n, int base) {
-  print((unsigned long)n, base);
-}
-
-void MarlinSerialUSB::print(long n, int base) {
-  if (base == 0)
-    write(n);
-  else if (base == 10) {
-    if (n < 0) {
-      print('-');
-      n = -n;
-    }
-    printNumber(n, 10);
-  }
-  else
-    printNumber(n, base);
-}
-
-void MarlinSerialUSB::print(unsigned long n, int base) {
-  if (base == 0) write(n);
-  else printNumber(n, base);
-}
-
-void MarlinSerialUSB::print(double n, int digits) {
-  printFloat(n, digits);
-}
-
-void MarlinSerialUSB::println() {
-  print('\r');
-  print('\n');
-}
-
-void MarlinSerialUSB::println(const String& s) {
-  print(s);
-  println();
-}
-
-void MarlinSerialUSB::println(const char c[]) {
-  print(c);
-  println();
-}
-
-void MarlinSerialUSB::println(char c, int base) {
-  print(c, base);
-  println();
-}
-
-void MarlinSerialUSB::println(unsigned char b, int base) {
-  print(b, base);
-  println();
-}
-
-void MarlinSerialUSB::println(int n, int base) {
-  print(n, base);
-  println();
-}
-
-void MarlinSerialUSB::println(unsigned int n, int base) {
-  print(n, base);
-  println();
-}
-
-void MarlinSerialUSB::println(long n, int base) {
-  print(n, base);
-  println();
-}
-
-void MarlinSerialUSB::println(unsigned long n, int base) {
-  print(n, base);
-  println();
-}
-
-void MarlinSerialUSB::println(double n, int digits) {
-  print(n, digits);
-  println();
-}
-
-// Private Methods
-
-void MarlinSerialUSB::printNumber(unsigned long n, uint8_t base) {
-  if (n) {
-    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
-    int8_t i = 0;
-    while (n) {
-      buf[i++] = n % base;
-      n /= base;
-    }
-    while (i--)
-      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
-  }
-  else
-    print('0');
-}
-
-void MarlinSerialUSB::printFloat(double number, uint8_t digits) {
-  // Handle negative numbers
-  if (number < 0.0) {
-    print('-');
-    number = -number;
-  }
-
-  // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
-  LOOP_L_N(i, digits)
-    rounding *= 0.1;
-
-  number += rounding;
-
-  // Extract the integer part of the number and print it
-  unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
-  print(int_part);
-
-  // Print the decimal point, but only if there are digits beyond
-  if (digits) {
-    print('.');
-    // Extract digits from the remainder one at a time
-    while (digits--) {
-      remainder *= 10.0;
-      int toPrint = int(remainder);
-      print(toPrint);
-      remainder -= toPrint;
-    }
-  }
+  return 1;
 }
 
 // Preinstantiate
 #if SERIAL_PORT == -1
-  MarlinSerialUSB customizedSerial1;
+  MSerialT customizedSerial1(TERN0(EMERGENCY_PARSER, true));
 #endif
 #if SERIAL_PORT_2 == -1
-  MarlinSerialUSB customizedSerial2;
+  MSerialT customizedSerial2(TERN0(EMERGENCY_PARSER, true));
 #endif
 
 #endif // HAS_USB_SERIAL

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -30,19 +30,19 @@
 struct base_numeric_adjustment_t {uint8_t increment;};
 
 union screen_data_t {
-  struct base_numeric_adjustment_t             BaseNumericAdjustmentScreen;
-  struct {uint8_t volume; uint8_t brightness;} InterfaceSettingsScreen;
-  struct {char passcode[5];}                   LockScreen;
-  struct {bool isError;}                       AlertDialogBox;
-  struct {bool auto_hide;}                     SpinnerDialogBox;
-  struct {uint8_t file_index;}                 ConfirmStartPrintDialogBox;
+  struct base_numeric_adjustment_t             BaseNumericAdjustment;
+  struct {uint8_t volume; uint8_t brightness;} InterfaceSettings;
+  struct {char passcode[5];}                   Lock;
+  struct {bool isError;}                       AlertDialog;
+  struct {bool auto_hide;}                     SpinnerDialog;
+  struct {uint8_t file_index;}                 ConfirmStartPrintDialog;
   struct {
     uint8_t e_tag, t_tag, repeat_tag;
     ExtUI::extruder_t saved_extruder;
     #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
       bool need_purge;
     #endif
-  } ChangeFilamentScreen;
+  } ChangeFilament;
   struct {
     struct {
       uint8_t is_dir  : 1;
@@ -52,41 +52,46 @@ union screen_data_t {
     uint8_t   num_page;
     uint8_t   cur_page;
     #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
-    uint16_t  scroll_pos;
-    uint16_t  scroll_max;
+      uint16_t  scroll_pos;
+      uint16_t  scroll_max;
     #endif
-  } FilesScreen;
+  } Files;
   struct {
     struct base_numeric_adjustment_t placeholder;
     float e_rel[ExtUI::extruderCount];
-  } MoveAxisScreen;
-#if HAS_MESH
-  struct {
-    uint8_t count;
-    uint8_t highlightedTag;
-  } BedMeshScreen;
-#endif
-#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-  struct {
-    uint32_t next_watchdog_trigger;
-    const char*  message;
-  } StressTestScreen;
-#endif
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  struct {
-    uint32_t start_ms;
-  } PreheatTimerScreen;
-#endif
-#if ENABLED(BABYSTEPPING)
-  struct {
-    struct base_numeric_adjustment_t placeholder;
-    xyz_int_t rel;
-    #if EXTRUDERS > 1
-      bool link_nozzles;
-    #endif
-    bool show_offsets;
-  } NudgeNozzleScreen;
-#endif
+  } MoveAxis;
+  #if HAS_MESH
+    struct {
+      enum : uint8_t {
+        MSG_NONE,
+        MSG_MESH_COMPLETE,
+        MSG_MESH_INCOMPLETE
+      } message;
+      uint8_t count;
+      uint8_t highlightedTag;
+    } BedMesh;
+  #endif
+  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+    struct {
+      uint32_t next_watchdog_trigger;
+      const char*  message;
+    } StressTest;
+  #endif
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    struct {
+      uint32_t start_ms;
+    } PreheatTimer;
+  #endif
+  #if ENABLED(BABYSTEPPING)
+    struct {
+      struct base_numeric_adjustment_t placeholder;
+      xyz_int_t rel;
+      #if HAS_MULTI_EXTRUDER
+        bool link_nozzles;
+      #endif
+      bool show_offsets;
+    } NudgeNozzle;
+  #endif
 };
 
 extern screen_data_t screen_data;

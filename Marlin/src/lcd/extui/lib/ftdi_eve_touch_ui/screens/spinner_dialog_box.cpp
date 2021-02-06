@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -37,7 +37,7 @@ void SpinnerDialogBox::show(const progmem_str message) {
   drawMessage(message);
   drawSpinner();
   storeBackground();
-  screen_data.SpinnerDialogBox.auto_hide = false;
+  screen_data.SpinnerDialog.auto_hide = false;
 }
 
 void SpinnerDialogBox::hide() {
@@ -53,13 +53,13 @@ void SpinnerDialogBox::enqueueAndWait_P(const progmem_str message, const progmem
   show(message);
   GOTO_SCREEN(SpinnerDialogBox);
   ExtUI::injectCommands_P((const char*)commands);
-  screen_data.SpinnerDialogBox.auto_hide = true;
+  screen_data.SpinnerDialog.auto_hide = true;
 }
 
 void SpinnerDialogBox::onIdle() {
   reset_menu_timeout();
-  if (screen_data.SpinnerDialogBox.auto_hide && !commandsInQueue()) {
-    screen_data.SpinnerDialogBox.auto_hide = false;
+  if (screen_data.SpinnerDialog.auto_hide && !commandsInQueue()) {
+    screen_data.SpinnerDialog.auto_hide = false;
     hide();
     GOTO_PREVIOUS();
   }

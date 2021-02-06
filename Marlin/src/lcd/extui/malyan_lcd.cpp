@@ -45,11 +45,11 @@
 
 #if ENABLED(MALYAN_LCD)
 
-#define DEBUG_MALYAN_LCD
+//#define DEBUG_MALYAN_LCD
 
 #include "ui_api.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/stepper.h"
@@ -60,10 +60,6 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
 #include "../../core/debug_out.h"
-
-// On the Malyan M200, this will be Serial1. On a RAMPS board,
-// it might not be.
-#define LCD_SERIAL Serial1
 
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
@@ -418,8 +414,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
-    last_usb_connected_status = MYSERIAL0;
+  if (last_usb_connected_status != MYSERIAL0.connected() || forceUpdate) {
+    last_usb_connected_status = MYSERIAL0.connected();
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -432,7 +428,11 @@ namespace ExtUI {
      * it and translate into ExtUI operations where possible.
      */
     inbound_count = 0;
-    LCD_SERIAL.begin(500000);
+
+    #ifndef LCD_BAUDRATE
+      #define LCD_BAUDRATE 500000
+    #endif
+    LCD_SERIAL.begin(LCD_BAUDRATE);
 
     // Signal init
     write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
@@ -511,12 +511,15 @@ namespace ExtUI {
 
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
+  void onMediaInserted() {}
+  void onMediaError() {}
+  void onMediaRemoved() {}
   void onPlayTone(const uint16_t, const uint16_t) {}
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
   void onFactoryReset() {}
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
@@ -524,6 +527,7 @@ namespace ExtUI {
   void onConfigurationStoreRead(bool) {}
 
   #if HAS_MESH
+    void onMeshLevelingStart() {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif
@@ -531,6 +535,9 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
   #endif
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // MALYAN_LCD

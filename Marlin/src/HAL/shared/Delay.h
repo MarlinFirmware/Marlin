@@ -155,7 +155,7 @@
 #endif
 
 // Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) / 1000UL )
+#define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
 
 // Delay in microseconds
-#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) )
+#define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))

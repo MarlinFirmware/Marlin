@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -66,7 +66,7 @@ namespace FTDI {
         cmd.cmd(STENCIL_FUNC(STENCIL_FUNC_ALWAYS, 255, 255));
         // Drawing the edge strip along scan lines
         // seems to yield the best performance
-        #ifdef TOUCH_UI_PORTRAIT
+        #if ENABLED(TOUCH_UI_PORTRAIT)
           path_initiator = EDGE_STRIP_B;
         #else
           path_initiator = EDGE_STRIP_R;

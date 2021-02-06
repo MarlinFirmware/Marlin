@@ -180,7 +180,12 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   }
 
   void Mixer::update_gradient_for_planner_z() {
-    update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
+    #if ENABLED(DELTA)
+      get_cartesian_from_steppers();
+      update_gradient_for_z(cartes.z);
+    #else
+      update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
+    #endif
   }
 
 #endif // GRADIENT_MIX
