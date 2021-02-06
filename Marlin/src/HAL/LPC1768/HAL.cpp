@@ -64,7 +64,7 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
 }
 
 void flashFirmware(const int16_t) {
-  USB_Connect(FALSE);  // USB clear connection
+  USB_Connect(false);  // USB clear connection
   delay(2000);         // Give OS time to notice
   NVIC_SystemReset();
 }
