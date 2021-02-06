@@ -22,9 +22,7 @@
 #pragma once
 
 #define TMC2209_Enabled // Enable for TMC2209 drivers.
-//#define MOTHERBOARD BOARD_RAMPS_SMART_EFB
-#define MOTHERBOARD BOARD_RAMPS_SMART_EFF
-//#define MOTHERBOARD BOARD_RAMPS_14_EFF
+#define MOTHERBOARD BOARD_RAMPS_SMART_EFB
 /**
  * Configuration.h
  *
@@ -424,7 +422,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 1
+#define TEMP_SENSOR_BED 60
 #define TEMP_SENSOR_PROBE 0
 #if ENABLED(chamber)
   #define TEMP_SENSOR_CHAMBER 2
@@ -505,13 +503,13 @@
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
-    #define DEFAULT_Kp_LIST {  28.81,  28.81 }
-    #define DEFAULT_Ki_LIST {   2.25,   2.25 }
-    #define DEFAULT_Kd_LIST {  92.34,  92.34 }
+    #define DEFAULT_Kp_LIST {  22.52,  22.52 }
+    #define DEFAULT_Ki_LIST {   1.91,   1.91 }
+    #define DEFAULT_Kd_LIST {  66.42,  66.42 }
   #else
-    #define DEFAULT_Kp  28.81
-    #define DEFAULT_Ki   2.25
-    #define DEFAULT_Kd  92.34
+    #define DEFAULT_Kp  22.52
+    #define DEFAULT_Ki   1.91
+    #define DEFAULT_Kd  66.42
   #endif
 #endif // PIDTEMP
 
@@ -550,9 +548,9 @@
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 10.00
-  #define DEFAULT_bedKi .023
-  #define DEFAULT_bedKd 305.4
+  #define DEFAULT_bedKp 52.54
+  #define DEFAULT_bedKi 9.72
+  #define DEFAULT_bedKd 189.38
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -602,7 +600,7 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-//#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 //#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 
 //===========================================================================
@@ -762,7 +760,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  * unit (mm) = 200 (steps/rev on 1.8deg stepper) * 16 (microsteps) / 8 (mm travel per revolution)
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 93 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 398 }
 
 /**
  * Default Max Feed Rate (mm/s)
