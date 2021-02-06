@@ -1005,6 +1005,9 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
+  // Some HAL need precise delay adjustment
+  calibrate_delay_loop();
+
   // Init buzzer pin(s)
   #if USE_BEEPER
     SETUP_RUN(buzzer.init());
