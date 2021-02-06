@@ -97,6 +97,10 @@ class ConfigBuildResult {
 [ConfigBuildResult[]] $Builds = [ConfigBuildResult[]]::new(0)
 
 foreach ($ConfigName in $Configs) {
+    if ($null -ne $SingleBuild -and $ConfigName -ilike "*.user") {
+        continue
+    }
+
 	if ($SingleBuild -and $SingleBuild -ne $ConfigName) {
 		continue
 	}
