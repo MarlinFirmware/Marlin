@@ -1337,7 +1337,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
   }
 
-  #if IS_SCARA
+  #if IS_SCARA && DISABLED(AXEL_TPARA)
     // Tell the planner the axis is at 0
     current_position[axis] = 0;
     sync_plan_position();
@@ -1561,7 +1561,7 @@ void set_axis_never_homed(const AxisEnum axis) {
 
 void homeaxis(const AxisEnum axis) {
 
-  #if IS_SCARA
+  #if IS_SCARA && DISABLED(AXEL_TPARA)
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
@@ -1810,7 +1810,7 @@ void homeaxis(const AxisEnum axis) {
     backout_to_tmc_homing_phase(axis);
   #endif
 
-  #if IS_SCARA
+  #if IS_SCARA && DISABLED(AXEL_TPARA)
 
     set_axis_is_at_home(axis);
     sync_plan_position();
