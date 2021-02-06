@@ -26,6 +26,7 @@
 
 #include "tft_string.h"
 #include "../fontutils.h"
+#include "../marlinui.h"
 
 //#define DEBUG_TFT_FONT
 #define DEBUG_OUT ENABLED(DEBUG_TFT_FONT)
@@ -36,29 +37,29 @@ font_t *TFT_String::font_header;
 
 uint8_t TFT_String::data[];
 uint16_t TFT_String::span;
-uint16_t TFT_String::length;
+uint8_t TFT_String::length;
 
 void TFT_String::set_font(const uint8_t *font) {
   font_header = (font_t *)font;
   uint32_t glyph;
 
-  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = NULL;
+  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
 
-  DEBUG_ECHOLNPAIR("Format: ", font_header->Format);
-  DEBUG_ECHOLNPAIR("BBXWidth: ", font_header->BBXWidth);
-  DEBUG_ECHOLNPAIR("BBXHeight: ", font_header->BBXHeight);
-  DEBUG_ECHOLNPAIR("BBXOffsetX: ", font_header->BBXOffsetX);
-  DEBUG_ECHOLNPAIR("BBXOffsetY: ", font_header->BBXOffsetY);
-  DEBUG_ECHOLNPAIR("CapitalAHeight: ", font_header->CapitalAHeight);
-  DEBUG_ECHOLNPAIR("Encoding65Pos: ", font_header->Encoding65Pos);
-  DEBUG_ECHOLNPAIR("Encoding97Pos: ", font_header->Encoding97Pos);
+  DEBUG_ECHOLNPAIR("Format: ",            font_header->Format);
+  DEBUG_ECHOLNPAIR("BBXWidth: ",          font_header->BBXWidth);
+  DEBUG_ECHOLNPAIR("BBXHeight: ",         font_header->BBXHeight);
+  DEBUG_ECHOLNPAIR("BBXOffsetX: ",        font_header->BBXOffsetX);
+  DEBUG_ECHOLNPAIR("BBXOffsetY: ",        font_header->BBXOffsetY);
+  DEBUG_ECHOLNPAIR("CapitalAHeight: ",    font_header->CapitalAHeight);
+  DEBUG_ECHOLNPAIR("Encoding65Pos: ",     font_header->Encoding65Pos);
+  DEBUG_ECHOLNPAIR("Encoding97Pos: ",     font_header->Encoding97Pos);
   DEBUG_ECHOLNPAIR("FontStartEncoding: ", font_header->FontStartEncoding);
-  DEBUG_ECHOLNPAIR("FontEndEncoding: ", font_header->FontEndEncoding);
-  DEBUG_ECHOLNPAIR("LowerGDescent: ", font_header->LowerGDescent);
-  DEBUG_ECHOLNPAIR("FontAscent: ", font_header->FontAscent);
-  DEBUG_ECHOLNPAIR("FontDescent: ", font_header->FontDescent);
-  DEBUG_ECHOLNPAIR("FontXAscent: ", font_header->FontXAscent);
-  DEBUG_ECHOLNPAIR("FontXDescent: ", font_header->FontXDescent);
+  DEBUG_ECHOLNPAIR("FontEndEncoding: ",   font_header->FontEndEncoding);
+  DEBUG_ECHOLNPAIR("LowerGDescent: ",     font_header->LowerGDescent);
+  DEBUG_ECHOLNPAIR("FontAscent: ",        font_header->FontAscent);
+  DEBUG_ECHOLNPAIR("FontDescent: ",       font_header->FontDescent);
+  DEBUG_ECHOLNPAIR("FontXAscent: ",       font_header->FontXAscent);
+  DEBUG_ECHOLNPAIR("FontXDescent: ",      font_header->FontXDescent);
 
   add_glyphs(font);
 }
@@ -72,9 +73,8 @@ void TFT_String::add_glyphs(const uint8_t *font) {
       glyphs[glyph] = (glyph_t *)pointer;
       pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->DataSize;
     }
-    else {
+    else
       pointer++;
-    }
   }
 }
 
@@ -86,6 +86,13 @@ void TFT_String::set() {
 
 uint8_t read_byte(uint8_t *byte) { return *byte; }
 
+/**
+ * Add a string, applying substitutions for the following characters:
+ *
+ *   = displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ */
 void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
   wchar_t wchar;
 
@@ -112,6 +119,18 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
     }
 
     add_character(ch);
+  }
+  eol();
+}
+
+void TFT_String::add(uint8_t *string, uint8_t max_len) {
+  wchar_t wchar;
+  while (*string && max_len) {
+    string = get_utf8_value_cb(string, read_byte, &wchar);
+    if (wchar > 255) wchar |= 0x0080;
+    uint8_t ch = uint8_t(wchar & 0x00FF);
+    add_character(ch);
+    max_len--;
   }
   eol();
 }

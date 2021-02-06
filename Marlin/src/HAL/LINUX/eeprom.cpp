@@ -40,7 +40,7 @@ size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
   FILE * eeprom_file = fopen(filename, "rb");
-  if (eeprom_file == nullptr) return false;
+  if (!eeprom_file) return false;
 
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
@@ -59,7 +59,7 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   FILE * eeprom_file = fopen(filename, "wb");
-  if (eeprom_file == nullptr) return false;
+  if (!eeprom_file) return false;
   fwrite(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
   fclose(eeprom_file);
   return true;
@@ -78,7 +78,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return (bytes_written != size);  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   std::size_t bytes_read = 0;
   if (writing) {
     for (std::size_t i = 0; i < size; i++) {

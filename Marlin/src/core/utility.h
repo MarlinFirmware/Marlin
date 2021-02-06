@@ -71,7 +71,7 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(N,X,V...) restorer<typeof(X)> restorer_##N(X, ##V)
+#define REMEMBER(N,X,V...) restorer<__typeof__(X)> restorer_##N(X, ##V)
 #define RESTORE(N) restorer_##N.restore()
 
 // Converts from an uint8_t in the range of 0-255 to an uint8_t

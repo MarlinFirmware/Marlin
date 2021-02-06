@@ -22,7 +22,7 @@
 
 #pragma once
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select a 'Malyan M300' board in 'Tools > Board.'"
 #endif
 
@@ -33,12 +33,15 @@
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
+  #ifndef MARLIN_EEPROM_SIZE
+    #define MARLIN_EEPROM_SIZE 0x800U             // 2KB
+  #endif
 #endif
 
 //
 // SD CARD SPI
 //
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 //
 // Timers

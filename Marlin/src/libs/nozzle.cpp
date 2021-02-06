@@ -31,6 +31,10 @@ Nozzle nozzle;
 #include "../MarlinCore.h"
 #include "../module/motion.h"
 
+#if NOZZLE_CLEAN_MIN_TEMP > 20
+  #include "../module/temperature.h"
+#endif
+
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
   /**
@@ -153,6 +157,19 @@ Nozzle nozzle;
 
     const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
+    #if NOZZLE_CLEAN_MIN_TEMP > 20
+      if (thermalManager.degTargetHotend(arrPos) < NOZZLE_CLEAN_MIN_TEMP) {
+        #if ENABLED(NOZZLE_CLEAN_HEATUP)
+          SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
+          thermalManager.setTargetHotend(NOZZLE_CLEAN_MIN_TEMP, arrPos);
+          thermalManager.wait_for_hotend(arrPos);
+        #else
+          SERIAL_ECHOLNPGM("Nozzle too cold - Skipping wipe");
+          return;
+        #endif
+      }
+    #endif
+
     #if HAS_SOFTWARE_ENDSTOPS
 
       #define LIMIT_AXIS(A) do{ \
@@ -161,7 +178,7 @@ Nozzle nozzle;
         LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
       }while(0)
 
-      if (soft_endstops_enabled) {
+      if (soft_endstop.enabled()) {
 
         LIMIT_AXIS(x);
         LIMIT_AXIS(y);

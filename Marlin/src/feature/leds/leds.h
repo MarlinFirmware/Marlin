@@ -34,7 +34,7 @@
 #endif
 
 // A white component can be passed
-#if EITHER(RGBW_LED, NEOPIXEL_LED)
+#if ANY(RGBW_LED, NEOPIXEL_LED, PCA9632_RGBW)
   #define HAS_WHITE_LED 1
 #endif
 
@@ -240,7 +240,7 @@ extern LEDLights leds;
       static inline void set_violet()   { set_color(LEDColorViolet()); }
     #endif
 
-    #if ENABLED(LED_CONTROL_MENU)
+    #if ENABLED(NEOPIXEL2_SEPARATE)
       static LEDColor color; // last non-off color
       static bool lights_on; // the last set color was "on"
       static void toggle();  // swap "off" with color

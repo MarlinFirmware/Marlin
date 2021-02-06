@@ -45,6 +45,10 @@
   #endif
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../../libs/buzzer.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -60,7 +64,9 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      ui.set_custom_characters(CHARSET_MENU);
+      #if HAS_MARLINUI_HD44780
+        ui.set_custom_characters(CHARSET_MENU);
+      #endif
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -73,7 +79,9 @@ void menu_advanced_settings();
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    ui.set_custom_characters(CHARSET_INFO);
+    #if HAS_MARLINUI_HD44780
+      ui.set_custom_characters(CHARSET_INFO);
+    #endif
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -94,7 +102,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
   #include "../../module/tool_change.h"
 
@@ -156,7 +164,7 @@ void menu_advanced_settings();
   void menu_tool_offsets() {
 
     auto _recalc_offsets = []{
-      if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+      if (active_extruder && all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
         queue.inject_P(G28_STR); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
         active_extruder = 0;
       }
@@ -186,16 +194,19 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
 
-    GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+    GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605S1\nG28X\nG1X0"));
     GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
-      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
+      ? PSTR("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0")         // If Y or Z is not homed, do a full G28 first
+      : PSTR("M605S1\nT0\nM605S2\nG28X\nG1X0")
     );
     GCODES_ITEM(MSG_IDEX_MODE_MIRRORED_COPY, need_g28
-      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+      ? PSTR("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0\nM605S3") // If Y or Z is not homed, do a full G28 first
+      : PSTR("M605S1\nT0\nM605S2\nG28 X\nG1X0\nM605S3")
     );
-    GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+    GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, PSTR("M605S0\nG28X"));
+
+    EDIT_ITEM(float42_52, MSG_IDEX_DUPE_GAP, &duplicate_extruder_x_offset, (X2_MIN_POS) - (X1_MIN_POS), (X_BED_SIZE) - 20);
+
     END_MENU();
   }
 
@@ -280,17 +291,17 @@ void menu_advanced_settings();
       EDIT_ITEM(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
     #endif
     EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT, &fwretract.settings.retract_length, 0, 100);
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.settings.swap_retract_length, 0, 100);
     #endif
     EDIT_ITEM(float3, MSG_CONTROL_RETRACTF, &fwretract.settings.retract_feedrate_mm_s, 1, 999);
     EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_ZHOP, &fwretract.settings.retract_zraise, 0, 999);
     EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_extra, -100, 100);
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       EDIT_ITEM(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_extra, -100, 100);
     #endif
     EDIT_ITEM(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.settings.retract_recover_feedrate_mm_s, 1, 999);
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       EDIT_ITEM(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.settings.swap_retract_recover_feedrate_mm_s, 1, 999);
     #endif
     END_MENU();
@@ -380,7 +391,7 @@ void menu_configuration() {
   //
   // Set single nozzle filament retract and prime length
   //
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
@@ -406,6 +417,10 @@ void menu_configuration() {
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     LOOP_L_N(m, PREHEAT_COUNT)
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
+  #endif
+
+  #if ENABLED(SOUND_MENU_ITEM)
+    EDIT_ITEM(bool, MSG_SOUND, &ui.buzzer_enabled, []{ ui.chirp(); });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
