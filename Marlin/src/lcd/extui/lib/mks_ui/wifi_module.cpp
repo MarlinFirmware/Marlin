@@ -874,12 +874,13 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             }
           }
           break;
+
         case 105:
         case 991:
           ZERO(tempBuf);
           if (cmd_value == 105) {
+
             SEND_OK_TO_WIFI;
-            sprintf_P(outBuf, PSTR("T:%s /%s B:%s /%s T0:%s /%s T1:%s /%s @:0 B@:0\r\n"),
 
             char *outBuf = (char *)tempBuf;
             char str_1[16], tbuf[34];
@@ -896,9 +897,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcpy_P(outBuf, PSTR(" B:"));
             outBuf += 3;
             #if HAS_HEATED_BED
-              strcpy(outBuf, dtostrf(thermalManager.temp_bed[0].celsius, 1, 1, str_1));
+              strcpy(outBuf, dtostrf(thermalManager.temp_bed.celsius, 1, 1, str_1));
               strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.temp_bed[0].target, 1, 1, str_1));
+              strcat(outBuf, dtostrf(thermalManager.temp_bed.target, 1, 1, str_1));
             #else
               strcpy_P(outBuf, PSTR("0 /0"));
             #endif
