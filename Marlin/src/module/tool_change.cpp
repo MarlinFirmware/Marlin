@@ -709,7 +709,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #if EXTRUDERS
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
-    SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
+    SERIAL_CHAR('T'); SERIAL_ECHO((int)e);
     SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER);
   }
 #endif
@@ -828,7 +828,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       // Cool down with fan
       #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
         thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-        gcode.dwell(toolchange_settings.fan_time * 1000);
+        gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
         thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
       #endif
 
@@ -1102,7 +1102,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             // Cool down with fan
             #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-              gcode.dwell(toolchange_settings.fan_time * 1000);
+              gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
               thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
             #endif
           }
@@ -1196,8 +1196,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
     #endif
 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
+    SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // HAS_MULTI_EXTRUDER
 }
