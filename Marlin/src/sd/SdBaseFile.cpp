@@ -1059,6 +1059,44 @@ int16_t SdBaseFile::read(void* buf, uint16_t nbyte) {
   return nbyte;
 }
 
+#if ENABLED(NONASCII_FILENAMES)
+void utf16to8(uint16_t *buf16, char *buf8) {
+  uint8_t pos = 0;
+  char *bufend = buf8 + LONG_FILENAME_LENGTH - 1;
+  while (1) {
+    if (buf8 >= bufend) break;
+    uint16_t c16 = buf16[pos++];
+    if (!c16) break;
+
+    if (c16 <= 0x7F) {
+      *buf8 = (char) c16;
+    } else if (c16 <= 0x7FF) {
+      if (buf8 < (bufend - 1)) {
+        *buf8 = 0xC0 | (c16 >> 6);
+        ++buf8;
+        *buf8 = 0x80 | ((c16 >> 0) & 0x3F);
+      } else {
+        *buf8 = '?';
+      }
+    } else if (c16 <= 0x7FFF) {
+      if (buf8 < (bufend - 2)) {
+        *buf8 = 0xE0 | (c16 >> 12);
+        ++buf8;
+        *buf8 = 0x80 | ((c16 >> 6) & 0x3F);
+        ++buf8;
+        *buf8 = 0x80 | ((c16 >> 0) & 0x3F);
+      } else {
+        *buf8 = '?';
+      }
+    } else {
+      *buf8 = '?';
+    }
+    ++buf8;
+  }
+  *buf8 = '\0';
+}
+#endif
+
 /**
  * Read the next entry in a directory.
  *
@@ -1078,6 +1116,11 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
   // If we have a longFilename buffer, mark it as invalid.
   // If a long filename is found it will be filled automatically.
   if (longFilename) longFilename[0] = '\0';
+#if ENABLED(NONASCII_FILENAMES)
+  uint16_t longFilename16[LONG_FILENAME_LENGTH];
+#else
+  #define longFilename16 longFilename
+#endif
 
   while (1) {
 
@@ -1103,15 +1146,21 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
         if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
           // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
           n = (seq - 1) * (FILENAME_LENGTH);
-          LOOP_L_N(i, FILENAME_LENGTH)
-            longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+          LOOP_L_N(i, FILENAME_LENGTH) {
+            longFilename16[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+          }
           // If this VFAT entry is the last one, add a NUL terminator at the end of the string
-          if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';
+          if (VFAT->sequenceNumber & 0x40) longFilename16[n + FILENAME_LENGTH] = 0;
         }
       }
     }
     // Return if normal file or subdirectory
-    if (DIR_IS_FILE_OR_SUBDIR(dir)) return n;
+    if (DIR_IS_FILE_OR_SUBDIR(dir)) {
+#if ENABLED(NONASCII_FILENAMES)
+      if (longFilename) utf16to8(longFilename16, longFilename);
+#endif
+      return n;
+    }
   }
 }
 

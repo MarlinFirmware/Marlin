@@ -1737,6 +1737,17 @@
 //#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
+ * Support Non-ASCII characters in filenames on SD card
+ *
+ * If filenames on your SD card may contain characters outside the
+ * ASCII range, this option will allow avoid the worst display
+ * troubles at the cost of some RAM.
+ */
+#if ENABLED(SDSUPPORT)
+  #define NONASCII_FILENAMES
+#endif
+
+/**
  * SD CARD: ENABLE CRC
  *
  * Use CRC checks and retries on the SD communication.
