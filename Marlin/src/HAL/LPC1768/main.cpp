@@ -119,9 +119,9 @@ void HAL_init() {
   #endif
 
   USB_Init();                               // USB Initialization
-  USB_Connect(FALSE);                       // USB clear connection
+  USB_Connect(false);                       // USB clear connection
   delay(1000);                              // Give OS time to notice
-  USB_Connect(TRUE);
+  USB_Connect(true);
 
   #if HAS_SD_HOST_DRIVE
     MSC_SD_Init(0);                         // Enable USB SD card access
