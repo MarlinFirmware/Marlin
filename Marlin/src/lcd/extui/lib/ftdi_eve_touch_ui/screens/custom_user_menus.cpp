@@ -35,9 +35,6 @@ using namespace Theme;
 #define _USER_ITEM(N) .tag(_ITEM_TAG(N)).button(USER_ITEM_POS(N), _USER_DESC(N))
 #define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
 
-#define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-#define HAS_USER_ITEM(V...) DO(HAS,||,V)
-
 void CustomUserMenus::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
