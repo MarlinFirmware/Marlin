@@ -16,19 +16,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
 
+#if DISABLED(BLTOUCH_HS_MODE)
+  #define BLTOUCH_SLOW_MODE 1
+#endif
+
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 
+#define STOW_ALARM            true
 #define BLTOUCH_DEPLOY          10
-#define BLTOUCH_SW_MODE         60
 #define BLTOUCH_STOW            90
+#define BLTOUCH_SW_MODE         60
 #define BLTOUCH_SELFTEST       120
 #define BLTOUCH_MODE_STORE     130
 #define BLTOUCH_5V_MODE        140
@@ -95,7 +100,7 @@ public:
 
 private:
   FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
+  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);

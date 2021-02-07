@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(__arm__) || defined(__thumb__)
 
 #include "backtrace.h"
@@ -35,9 +34,9 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 
   (*p)++;
 
-  SERIAL_CHAR('#'); SERIAL_PRINT(*p, DEC); SERIAL_ECHOPGM(" : ");
+  SERIAL_CHAR('#'); SERIAL_ECHO(*p); SERIAL_ECHOPGM(" : ");
   SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, HEX);
-  SERIAL_CHAR('+'); SERIAL_PRINT(bte->address - bte->function,DEC);
+  SERIAL_CHAR('+'); SERIAL_ECHO(bte->address - bte->function);
   SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address,HEX); SERIAL_CHAR('\n');
   return true;
 }

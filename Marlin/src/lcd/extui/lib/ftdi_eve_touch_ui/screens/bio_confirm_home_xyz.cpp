@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_CONFIRM_HOME_XYZ
 
 using namespace FTDI;
 
@@ -36,10 +35,12 @@ void BioConfirmHomeXYZ::onRedraw(draw_mode_t) {
 bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      SpinnerDialogBox::enqueueAndWait_P(F(
-       "G28\n"
-       PARK_AND_RELEASE_COMMANDS
-      ));
+      #ifdef PARK_AND_RELEASE_COMMANDS
+        SpinnerDialogBox::enqueueAndWait_P(F(
+         "G28\n"
+         PARK_AND_RELEASE_COMMANDS
+        ));
+      #endif
       current_screen.forget();
       break;
     case 2:
@@ -50,4 +51,5 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   }
   return true;
 }
-#endif // TOUCH_UI_FTDI_EVE
+
+#endif // FTDI_BIO_CONFIRM_HOME_XYZ

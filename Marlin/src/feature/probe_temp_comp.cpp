@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,11 +29,11 @@
 
 ProbeTempComp temp_comp;
 
-int16_t ProbeTempComp::z_offsets_probe[ProbeTempComp::cali_info_init[TSI_PROBE].measurements],  // = {0}
-        ProbeTempComp::z_offsets_bed[ProbeTempComp::cali_info_init[TSI_BED].measurements];      // = {0}
+int16_t ProbeTempComp::z_offsets_probe[cali_info_init[TSI_PROBE].measurements],  // = {0}
+        ProbeTempComp::z_offsets_bed[cali_info_init[TSI_BED].measurements];      // = {0}
 
 #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  int16_t ProbeTempComp::z_offsets_ext[ProbeTempComp::cali_info_init[TSI_EXT].measurements];    // = {0}
+  int16_t ProbeTempComp::z_offsets_ext[cali_info_init[TSI_EXT].measurements];    // = {0}
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
@@ -44,11 +44,15 @@ int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
 };
 
 const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
-  ProbeTempComp::cali_info_init[TSI_PROBE], ProbeTempComp::cali_info_init[TSI_BED]
+  cali_info_init[TSI_PROBE], cali_info_init[TSI_BED]
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    , ProbeTempComp::cali_info_init[TSI_EXT]
+    , cali_info_init[TSI_EXT]
   #endif
 };
+
+constexpr xyz_pos_t ProbeTempComp::park_point;
+constexpr xy_pos_t ProbeTempComp::measure_point;
+constexpr int ProbeTempComp::probe_calib_bed_temp;
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
@@ -161,28 +165,41 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const float &
 }
 
 float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const float &temp) {
-
   const uint8_t measurements = cali_info[tsi].measurements;
   const float start_temp = cali_info[tsi].start_temp,
-                end_temp = cali_info[tsi].end_temp,
                 res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
-  if (temp <= start_temp) return 0.0f;
-  if (temp >= end_temp) return static_cast<float>(data[measurements - 1]) / 1000.0f;
+  auto point = [&](uint8_t i) {
+    return xy_float_t({start_temp + i*res_temp, static_cast<float>(data[i])});
+  };
+
+  auto linear_interp = [](float x, xy_float_t p1, xy_float_t p2) {
+    return (p2.y - p1.y) / (p2.x - p2.y) * (x - p1.x) + p1.y;
+  };
 
   // Linear interpolation
-  int16_t val1 = 0, val2 = data[0];
-  uint8_t idx = 0;
-  float meas_temp = start_temp + res_temp;
-  while (meas_temp < temp) {
-    if (++idx >= measurements) return static_cast<float>(val2) / 1000.0f;
-    meas_temp += res_temp;
-    val1 = val2;
-    val2 = data[idx];
-  }
-  const float factor = (meas_temp - temp) / static_cast<float>(res_temp);
-  return (static_cast<float>(val2) - static_cast<float>(val2 - val1) * factor) / 1000.0f;
+  uint8_t idx = static_cast<uint8_t>((temp - start_temp) / res_temp);
+
+  // offset in um
+  float offset = 0.0f;
+
+  #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
+    if (idx < 0)
+      offset = 0.0f;
+    else if (idx > measurements - 2)
+      offset = static_cast<float>(data[measurements - 1]);
+  #else
+    if (idx < 0)
+      offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
+    else if (idx > measurements - 2)
+      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION - 1), point(measurements - 1));
+  #endif
+    else
+      offset = linear_interp(temp, point(idx), point(idx + 1));
+
+  // return offset in mm
+  return offset / 1000.0f;
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {

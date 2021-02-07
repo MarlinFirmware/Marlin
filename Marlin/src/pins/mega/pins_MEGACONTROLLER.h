@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Mega controller pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Mega Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -128,7 +128,10 @@
 //
 #define SDSS                                  53
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                         2
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       2
+#endif
 
 //
 // LCD / Controller

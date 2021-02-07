@@ -16,13 +16,15 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 namespace FTDI {
   class WesternCharSet {
+    private:
+      static uint32_t bitmap_addr;
     public:
-      static void load_data(uint32_t addr);
+      static uint32_t load_data(uint32_t addr);
       static void load_bitmaps(CommandProcessor&);
       static bool render_glyph(CommandProcessor*, int &x, int &y, font_size_t, utf8_char_t);
   };

@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, PRINTCOUNTER)
-
 #include "screens.h"
+
+#ifdef FTDI_STATISTICS_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -75,4 +74,4 @@ bool StatisticsScreen::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE && PRINTCOUNTER
+#endif // FTDI_STATISTICS_SCREEN

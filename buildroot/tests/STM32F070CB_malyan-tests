@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F070CB Malyan M200 v2
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_MALYAN_M200_V2
+opt_set SERIAL_PORT -1
+exec_test $1 $2 "Malyan M200 v2 Default Config" "$3"
+
+# cleanup
+restore_configs

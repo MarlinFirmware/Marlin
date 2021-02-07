@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -56,7 +56,7 @@
  *
  * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
  *
- * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ * Why double up on these macros? see https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Stringification.html
  */
 
 /// Read a pin
@@ -104,7 +104,7 @@
 /// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)        do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
 // set pin as PWM
-#define SET_PWM(IO)           SET_OUTPUT(IO)
+#define SET_PWM               SET_OUTPUT
 
 /// check if pin is an input wrapper
 #define IS_INPUT(IO)          _IS_INPUT(IO)

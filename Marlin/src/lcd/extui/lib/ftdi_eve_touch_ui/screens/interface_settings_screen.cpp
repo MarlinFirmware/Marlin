@@ -17,19 +17,18 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
 
+#ifdef FTDI_INTERFACE_SETTINGS_SCREEN
+
 #include "../archim2-flash/flash_storage.h"
 
-#include "../../../../../module/configuration_store.h"
+#include "../../../../../module/settings.h"
 
 #if ENABLED(LULZBOT_PRINTCOUNTER)
   #include "../../../../../module/printcounter.h"
@@ -42,13 +41,14 @@ using namespace ExtUI;
 using namespace Theme;
 
 constexpr bool PERSISTENT_STORE_SUCCESS = false; // persistentStore uses true for error
+constexpr static InterfaceSettingsScreenData &mydata = screen_data.InterfaceSettingsScreen;
 
 void InterfaceSettingsScreen::onStartup() {
 }
 
 void InterfaceSettingsScreen::onEntry() {
-  screen_data.InterfaceSettingsScreen.brightness = CLCD::get_brightness();
-  screen_data.InterfaceSettingsScreen.volume     = SoundPlayer::get_volume();
+  mydata.brightness = CLCD::get_brightness();
+  mydata.volume     = SoundPlayer::get_volume();
   BaseScreen::onEntry();
 }
 
@@ -58,7 +58,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
 
     #define GRID_COLS 4
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 7
     #else
       #define GRID_ROWS 6
@@ -69,20 +69,24 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0)
        .font(font_medium)
-       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SETTINGS))
+       .text(BTN_POS(1,1), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE))
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)
        .tag(0)
+    #if DISABLED(LCD_FYSETC_TFT81050)
        .text(BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_LCD_BRIGHTNESS), OPT_RIGHTX | OPT_CENTERY)
+    #endif
        .text(BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
        .text(BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_SCREEN_LOCK),    OPT_RIGHTX | OPT_CENTERY);
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
     cmd.text(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BOOT_SCREEN),    OPT_RIGHTX | OPT_CENTERY);
+    #endif
     #undef EDGE_R
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -91,20 +95,24 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     cmd.font(font_medium)
     #define EDGE_R 30
        .colors(ui_slider)
-       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.brightness, 128)
-       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume,     0xFF)
+    #if DISABLED(LCD_FYSETC_TFT81050)
+       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), mydata.brightness, 128)
+    #endif
+       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), mydata.volume,     0xFF)
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
+    #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
        .tag(5).toggle2(BTN_POS(3,5), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::animations_enabled())
+    #endif
     #undef EDGE_R
     #define EDGE_R 0
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .colors(normal_btn)
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
        .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
     #else
-       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE_SOUNDS))
+       .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
        .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
     #endif
@@ -153,13 +161,13 @@ void InterfaceSettingsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettingsScreen.brightness = float(value) * 128 / 0xFFFF;
-        CLCD::set_brightness(screen_data.InterfaceSettingsScreen.brightness);
+        mydata.brightness = max(11, (value * 128UL) / 0xFFFF);
+        CLCD::set_brightness(mydata.brightness);
         SaveSettingsDialogBox::settingsChanged();
         break;
       case 3:
-        screen_data.InterfaceSettingsScreen.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
+        mydata.volume = value >> 8;
+        SoundPlayer::set_volume(mydata.volume);
         SaveSettingsDialogBox::settingsChanged();
         break;
       default:
@@ -214,7 +222,7 @@ void InterfaceSettingsScreen::saveSettings(char *buff) {
   eeprom.touch_transform_f    = CLCD::mem_read_32(CLCD::REG::TOUCH_TRANSFORM_F);
   eeprom.display_h_offset_adj = CLCD::mem_read_16(CLCD::REG::HOFFSET) - FTDI::Hoffset;
   eeprom.display_v_offset_adj = CLCD::mem_read_16(CLCD::REG::VOFFSET) - FTDI::Voffset;
-  for(uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
+  for (uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
     eeprom.event_sounds[i] = InterfaceSoundsScreen::event_sounds[i];
 
   memcpy(buff, &eeprom, sizeof(eeprom));
@@ -243,12 +251,10 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   CLCD::mem_write_32(CLCD::REG::TOUCH_TRANSFORM_F, eeprom.touch_transform_f);
   CLCD::mem_write_16(CLCD::REG::HOFFSET,           eeprom.display_h_offset_adj + FTDI::Hoffset);
   CLCD::mem_write_16(CLCD::REG::VOFFSET,           eeprom.display_v_offset_adj + FTDI::Voffset);
-  for(uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
+  for (uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
     InterfaceSoundsScreen::event_sounds[i] = eeprom.event_sounds[i];
 
-  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-    StressTestScreen::startupCheck();
-  #endif
+  TERN_(TOUCH_UI_DEVELOPER_MENU, StressTestScreen::startupCheck());
 }
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
@@ -282,4 +288,4 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   }
 #endif
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_INTERFACE_SETTINGS_SCREEN

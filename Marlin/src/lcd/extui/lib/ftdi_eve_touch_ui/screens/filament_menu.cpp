@@ -17,18 +17,33 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-
 #include "screens.h"
+
+#ifdef FTDI_FILAMENT_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
+
+#if ENABLED(TOUCH_UI_PORTRAIT)
+  #define GRID_ROWS 9
+  #define GRID_COLS 2
+  #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
+  #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
+  #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
+  #define BACK_POS           BTN_POS(1,9), BTN_SIZE(2,1)
+#else
+  #define GRID_ROWS 6
+  #define GRID_COLS 2
+  #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
+  #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
+  #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
+  #define BACK_POS           BTN_POS(1,6), BTN_SIZE(2,1)
+#endif
 
 void FilamentMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
@@ -41,47 +56,14 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.font(font_large)
-    #ifdef TOUCH_UI_PORTRAIT
-      #define GRID_ROWS 9
-      #define GRID_COLS 2
-         .text  ( BTN_POS(1,1),      BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENT))
-         .font(font_medium).colors(normal_btn)
-         .enabled(
-           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-             1
-           #endif
-         )
-      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(2,1), GET_TEXT_F(MSG_RUNOUT_SENSOR))
-      .enabled(
-        #if ENABLED(LIN_ADVANCE)
-          1
-        #endif
-      )
-      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
-      .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
-      #undef GRID_COLS
-      #undef GRID_ROWS
-    #else
-      #define GRID_ROWS 6
-      #define GRID_COLS 3
-         .text  ( BTN_POS(1,1),      BTN_SIZE(3,1), GET_TEXT_F(MSG_FILAMENT))
-         .font(font_medium).colors(normal_btn)
-         .enabled(
-           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-             1
-           #endif
-         )
-      .tag(2).button( BTN_POS(1,2),  BTN_SIZE(3,1), GET_TEXT_F(MSG_RUNOUT_SENSOR))
-      .enabled(
-        #if ENABLED(LIN_ADVANCE)
-          1
-        #endif
-      )
-      .tag(3).button( BTN_POS(1,3),  BTN_SIZE(3,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
-      .colors(action_btn)
-      .tag(1) .button( BTN_POS(1,6), BTN_SIZE(3,1), GET_TEXT_F(MSG_BACK));
-    #endif
+       .text(TITLE_POS, GET_TEXT_F(MSG_FILAMENT))
+       .font(font_medium).colors(normal_btn)
+       .enabled(ENABLED(FILAMENT_RUNOUT_SENSOR))
+       .tag(2).button(RUNOUT_SENSOR_POS, GET_TEXT_F(MSG_RUNOUT_SENSOR))
+       .enabled(ENABLED(LIN_ADVANCE))
+       .tag(3).button(LIN_ADVANCE_POS, GET_TEXT_F(MSG_LINEAR_ADVANCE))
+       .colors(action_btn)
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
   }
 }
 
@@ -99,4 +81,4 @@ bool FilamentMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_FILAMENT_MENU

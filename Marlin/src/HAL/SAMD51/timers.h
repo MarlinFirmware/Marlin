@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,9 +32,15 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE      F_CPU   // frequency of timers peripherals
 
-#define STEP_TIMER_NUM      0  // index of timer to use for stepper (also +1 for 32bits counter)
-#define PULSE_TIMER_NUM     STEP_TIMER_NUM
-#define TEMP_TIMER_NUM      RTC_TIMER_NUM  // index of timer to use for temperature
+#ifndef STEP_TIMER_NUM
+  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        RTC_TIMER_NUM // Timer Index for Temperature
+#endif
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
@@ -53,20 +59,23 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define TC_PRIORITY(t)        (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2   \
-                               : (t == TEMP_TIMER_NUM) ? 6                        \
+#define TC_PRIORITY(t)        t == SERVO_TC ? 1                                     \
+                               : (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2  \
+                               : (t == TEMP_TIMER_NUM) ? 6                          \
                                : 7
 
-#define _TC_HANDLER(t)            void TC##t##_Handler()
-#define TC_HANDLER(t)             _TC_HANDLER(t)
-#define HAL_STEP_TIMER_ISR()      TC_HANDLER(STEP_TIMER_NUM)
+#define _TC_HANDLER(t)          void TC##t##_Handler()
+#define TC_HANDLER(t)           _TC_HANDLER(t)
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR()  TC_HANDLER(STEP_TIMER_NUM)
+#endif
 #if STEP_TIMER_NUM != PULSE_TIMER_NUM
-  #define HAL_PULSE_TIMER_ISR()   TC_HANDLER(PULSE_TIMER_NUM)
+  #define HAL_PULSE_TIMER_ISR() TC_HANDLER(PULSE_TIMER_NUM)
 #endif
 #if TEMP_TIMER_NUM == RTC_TIMER_NUM
-  #define HAL_TEMP_TIMER_ISR()    void RTC_Handler()
+  #define HAL_TEMP_TIMER_ISR()  void RTC_Handler()
 #else
-  #define HAL_TEMP_TIMER_ISR()    TC_HANDLER(TEMP_TIMER_NUM)
+  #define HAL_TEMP_TIMER_ISR()  TC_HANDLER(TEMP_TIMER_NUM)
 #endif
 
 // --------------------------------------------------------------------------
@@ -97,13 +106,13 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   // Should never be called with timer RTC_TIMER_NUM
   Tc * const tc = TimerConfig[timer_num].pTc;
-  tc->COUNT32.CC[0].reg = HAL_TIMER_TYPE_MAX - compare;
+  tc->COUNT32.CC[0].reg = compare;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   // Should never be called with timer RTC_TIMER_NUM
   Tc * const tc = TimerConfig[timer_num].pTc;
-  return (hal_timer_t)(HAL_TIMER_TYPE_MAX - tc->COUNT32.CC[0].reg);
+  return (hal_timer_t)tc->COUNT32.CC[0].reg;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
@@ -111,7 +120,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   Tc * const tc = TimerConfig[timer_num].pTc;
   tc->COUNT32.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
   SYNC(tc->COUNT32.SYNCBUSY.bit.CTRLB || tc->COUNT32.SYNCBUSY.bit.COUNT);
-  return HAL_TIMER_TYPE_MAX - tc->COUNT32.COUNT.reg;
+  return tc->COUNT32.COUNT.reg;
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,6 @@
 
 #if SAVED_POSITIONS
 
-#include "../../../core/language.h"
 #include "../../../module/planner.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
@@ -50,10 +49,6 @@ void GcodeSuite::G61(void) {
   // No saved position? No axes being restored?
   if (!TEST(saved_slots[slot >> 3], slot & 0x07) || !parser.seen("XYZ")) return;
 
-  // Apply any given feedrate over 0.0
-  const float fr = parser.linearval('F');
-  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
-
   SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
   LOOP_XYZ(i) {
     destination[i] = parser.seen(XYZ_CHAR(i))
@@ -64,8 +59,15 @@ void GcodeSuite::G61(void) {
   }
   SERIAL_EOL();
 
+  // Apply any given feedrate over 0.0
+  feedRate_t saved_feedrate = feedrate_mm_s;
+  const float fr = parser.linearval('F');
+  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
+
   // Move to the saved position
   prepare_line_to_destination();
+
+  feedrate_mm_s = saved_feedrate;
 }
 
 #endif // SAVED_POSITIONS

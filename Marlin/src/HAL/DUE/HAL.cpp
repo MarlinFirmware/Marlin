@@ -14,13 +14,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL for Arduino Due and compatible (SAM3X8E)
  */
 
 #ifdef ARDUINO_ARCH_SAM
@@ -102,5 +101,12 @@ uint16_t HAL_adc_get_result() {
   // nop
   return HAL_adc_result;
 }
+
+// Forward the default serial port
+DefaultSerial MSerial(false, Serial);
+
+DefaultSerial1 MSerial1(false, Serial1);
+DefaultSerial2 MSerial2(false, Serial2);
+DefaultSerial3 MSerial3(false, Serial3);
 
 #endif // ARDUINO_ARCH_SAM

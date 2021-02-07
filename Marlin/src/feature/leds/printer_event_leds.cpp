@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * printer_event_leds.cpp - LED color changing based on printer status
+ * feature/leds/printer_event_leds.cpp - LED color changing based on printer status
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -41,16 +41,17 @@ PrinterEventLEDs printerEventLEDs;
   uint8_t PrinterEventLEDs::old_intensity = 0;
 
   inline uint8_t pel_intensity(const float &start, const float &current, const float &target) {
+    if (uint16_t(start) == uint16_t(target)) return 255;
     return (uint8_t)map(constrain(current, start, target), start, target, 0.f, 255.f);
   }
 
   inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
     leds.set_color(
       MakeLEDColor(r, g, b, 0, neo.brightness())
-        #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-          , true
-        #endif
-      );
+      #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+        , true
+      #endif
+    );
   }
 
 #endif

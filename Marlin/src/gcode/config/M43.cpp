@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,6 +46,10 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if HAS_RESUME_CONTINUE
+  #include "../../lcd/marlinui.h"
+#endif
+
 #ifndef GET_PIN_MAP_PIN_M43
   #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
 #endif
@@ -67,7 +71,11 @@ inline void toggle_pins() {
     else {
       watchdog_refresh();
       report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
-      const bool prior_mode = GET_PINMODE(pin);
+      #ifdef __STM32F1__
+        const auto prior_mode = _GET_MODE(i);
+      #else
+        const bool prior_mode = GET_PINMODE(pin);
+      #endif
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);
@@ -96,7 +104,11 @@ inline void toggle_pins() {
           watchdog_refresh();
         }
       }
-      pinMode(pin, prior_mode);
+      #ifdef __STM32F1__
+        _SET_MODE(i, prior_mode);
+      #else
+        pinMode(pin, prior_mode);
+      #endif
     }
     SERIAL_EOL();
   }
@@ -332,12 +344,8 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called"));
-      #endif
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called")));
     #endif
 
     for (;;) {
@@ -359,6 +367,7 @@ void GcodeSuite::M43() {
       }
 
       #if HAS_RESUME_CONTINUE
+        ui.update();
         if (!wait_for_user) break;
       #endif
 

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F401VE_STEVAL
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_STEVAL_3DP001V1
+opt_set SERIAL_PORT -1
+exec_test $1 $2 "STM32F401VE_STEVAL Default Config" "$3"
+
+# cleanup
+restore_configs

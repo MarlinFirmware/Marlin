@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -86,10 +86,10 @@ public:
     GpioEvent::Type evt_type = value > 1 ? GpioEvent::SET_VALUE : value > pin_map[pin].value ? GpioEvent::RISE : value < pin_map[pin].value ? GpioEvent::FALL : GpioEvent::NOP;
     pin_map[pin].value = value;
     GpioEvent evt(Clock::nanos(), pin, evt_type);
-    if (pin_map[pin].cb != nullptr) {
+    if (pin_map[pin].cb) {
       pin_map[pin].cb->interrupt(evt);
     }
-    if (Gpio::logger != nullptr) Gpio::logger->log(evt);
+    if (Gpio::logger) Gpio::logger->log(evt);
   }
 
   static uint16_t get(pin_type pin) {
@@ -105,8 +105,8 @@ public:
     if (!valid_pin(pin)) return;
     pin_map[pin].mode = value;
     GpioEvent evt(Clock::nanos(), pin, GpioEvent::Type::SETM);
-    if (pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(evt);
-    if (Gpio::logger != nullptr) Gpio::logger->log(evt);
+    if (pin_map[pin].cb) pin_map[pin].cb->interrupt(evt);
+    if (Gpio::logger) Gpio::logger->log(evt);
   }
 
   static uint8_t getMode(pin_type pin) {
@@ -118,8 +118,8 @@ public:
     if (!valid_pin(pin)) return;
     pin_map[pin].dir = value;
     GpioEvent evt(Clock::nanos(), pin, GpioEvent::Type::SETD);
-    if (pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(evt);
-    if (Gpio::logger != nullptr) Gpio::logger->log(evt);
+    if (pin_map[pin].cb) pin_map[pin].cb->interrupt(evt);
+    if (Gpio::logger) Gpio::logger->log(evt);
   }
 
   static uint8_t getDir(pin_type pin) {

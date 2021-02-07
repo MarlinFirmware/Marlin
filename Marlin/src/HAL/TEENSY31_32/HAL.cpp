@@ -16,13 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-
 /**
- * Description: HAL for Teensy32 (MK20DX256)
+ * HAL for Teensy 3.2 (MK20DX256)
  */
 
 #ifdef __MK20DX256__
@@ -31,6 +30,9 @@
 #include "../shared/Delay.h"
 
 #include <Wire.h>
+
+DefaultSerial MSerial(false);
+USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result;
 

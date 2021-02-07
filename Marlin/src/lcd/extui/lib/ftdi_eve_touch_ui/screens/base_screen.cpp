@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_BASE_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -46,7 +45,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
     return false;
   }
 
-  #ifdef LCD_TIMEOUT_TO_STATUS
+  #if LCD_TIMEOUT_TO_STATUS > 0
     if (EventLoop::get_pressed_tag() != 0) {
       reset_menu_timeout();
     }
@@ -66,7 +65,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #ifdef LCD_TIMEOUT_TO_STATUS
+  #if LCD_TIMEOUT_TO_STATUS > 0
     if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
       reset_menu_timeout();
       #if ENABLED(TOUCH_UI_DEBUG)
@@ -78,13 +77,13 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #ifdef LCD_TIMEOUT_TO_STATUS
+  #if LCD_TIMEOUT_TO_STATUS > 0
     last_interaction = millis();
   #endif
 }
 
-#ifdef LCD_TIMEOUT_TO_STATUS
+#if LCD_TIMEOUT_TO_STATUS > 0
   uint32_t BaseScreen::last_interaction;
 #endif
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BASE_SCREEN

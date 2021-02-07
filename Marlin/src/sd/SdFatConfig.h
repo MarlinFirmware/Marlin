@@ -16,13 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * SdFatConfig.h
+ * sd/SdFatConfig.h
+ *
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
  *
@@ -102,5 +103,10 @@
 
 #define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
 
+// UTF-8 may use up to 3 bytes to represent single UTF-16 code point.
+// We discard 3-byte characters allowing only 2-bytes
+// or 1-byte if UTF_FILENAME_SUPPORT disabled.
+#define LONG_FILENAME_CHARSIZE TERN(UTF_FILENAME_SUPPORT, 2, 1)
+
 // Total bytes needed to store a single long filename
-#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * MAX_VFAT_ENTRIES + 1)
+#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * LONG_FILENAME_CHARSIZE * MAX_VFAT_ENTRIES + 1)

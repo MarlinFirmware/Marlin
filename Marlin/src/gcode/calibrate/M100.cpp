@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 #include "../queue.h"
-#include "../../libs/hex_print_routines.h"
+#include "../../libs/hex_print.h"
 
 #include "../../MarlinCore.h" // for idle()
 
@@ -60,7 +60,7 @@
 
 #define TEST_BYTE ((char) 0xE5)
 
-#if defined(__AVR__) || IS_32BIT_TEENSY
+#if EITHER(__AVR__, IS_32BIT_TEENSY)
 
   extern char __bss_end;
   char *end_bss = &__bss_end,
@@ -116,12 +116,17 @@
 // Utility functions
 //
 
-// Location of a variable on its stack frame. Returns a value above
-// the stack (once the function returns to the caller).
-char* top_of_stack() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
+
+// Location of a variable in its stack frame.
+// The returned address will be above the stack (after it returns).
+char *top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
+
+#pragma GCC diagnostic pop
 
 // Count the number of test bytes at the specified location.
 inline int32_t count_test_bytes(const char * const start_free_memory) {
@@ -151,8 +156,8 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
     //
-    start_free_memory = (char*)(ptr_int_t(uint32_t(start_free_memory) & ~0xFUL)); // Align to 16-byte boundary
-    end_free_memory   = (char*)(ptr_int_t(uint32_t(end_free_memory)   |  0xFUL)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
+    start_free_memory = (char*)(uintptr_t(uint32_t(start_free_memory) & ~0xFUL)); // Align to 16-byte boundary
+    end_free_memory   = (char*)(uintptr_t(uint32_t(end_free_memory)   |  0xFUL)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
 
     // Dump command main loop
     while (start_free_memory < end_free_memory) {
@@ -184,8 +189,8 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     // Round the start and end locations to produce full lines of output
     //
     dump_free_memory(
-      (char*)(ptr_int_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
-      (char*)(ptr_int_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
+      (char*)(uintptr_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
+      (char*)(uintptr_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
     );
   }
 

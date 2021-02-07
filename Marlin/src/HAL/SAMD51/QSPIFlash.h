@@ -24,12 +24,11 @@
  * THE SOFTWARE.
  *
  * Derived from Adafruit_SPIFlash class with no SdFat references
- *
  */
 
 #pragma once
 
-#include "Adafruit_SPIFlashBase.h"
+#include <Adafruit_SPIFlashBase.h>
 
 // This class extends Adafruit_SPIFlashBase by adding caching support.
 //

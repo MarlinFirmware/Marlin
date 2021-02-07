@@ -41,7 +41,7 @@
  *
  */
 /*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
  */
 
 #ifndef _CONF_USB_H_
@@ -77,10 +77,6 @@
 
 //! To define a Full speed device
 //#define USB_DEVICE_FULL_SPEED
-
-#if MB(ARCHIM1)
-  #define USB_DEVICE_FULL_SPEED
-#endif
 
 //! To authorize the High speed
 #ifndef USB_DEVICE_FULL_SPEED

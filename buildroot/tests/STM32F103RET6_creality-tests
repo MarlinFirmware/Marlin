@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F103RET6_creality
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with configs included in the PR
+#
+use_example_configs "Creality/Ender-3 V2"
+opt_enable MARLIN_DEV_MODE
+exec_test $1 $2 "Ender 3 v2" "$3"
+
+use_example_configs "Creality/Ender-3 V2"
+opt_disable CLASSIC_JERK
+opt_add SDCARD_EEPROM_EMULATION
+exec_test $1 $2 "Ender 3 v2, SD EEPROM, w/o CLASSIC_JERK" "$3"
+
+restore_configs
+opt_set SERIAL_PORT 1
+opt_set MOTHERBOARD BOARD_CREALITY_V452
+opt_disable NOZZLE_TO_PROBE_OFFSET
+opt_enable NOZZLE_AS_PROBE Z_SAFE_HOMING Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+opt_enable PROBE_ACTIVATION_SWITCH PROBE_TARE PROBE_TARE_ONLY_WHILE_INACTIVE
+exec_test $1 $2 "Creality V4.5.2 PROBE_ACTIVATION_SWITCH, Probe Tare" "$3"
+
+# clean up
+restore_configs

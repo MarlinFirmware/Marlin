@@ -17,10 +17,11 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
+#include "screens.h"
 
 /**
  * The MediaPlayerScreen allows an AVI to be played.
@@ -39,9 +40,7 @@
  *   ffmpeg -i video.avi -i silence.wav -c copy -map 0:v:0 -map 1:a:0 startup.avi
  */
 
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
-#include "screens.h"
+#ifdef FTDI_MEDIA_PLAYER_SCREEN
 
 #include "../archim2-flash/flash_storage.h"
 #include "../archim2-flash/media_file_reader.h"
@@ -151,7 +150,7 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
       SERIAL_ECHO_MSG("Done playing video");
 
     exit:
-      spiInit(SPI_SPEED); // Restore default speed
+      spiInit(SD_SPI_SPEED); // Restore default speed
 
       // Since playing media overwrites RAMG, we need to reinitialize
       // everything that is stored in RAMG.
@@ -165,4 +164,4 @@ void MediaPlayerScreen::playStream(void *obj, media_streamer_func_t *data_stream
   #endif // FTDI_API_LEVEL >= 810
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_MEDIA_PLAYER_SCREEN
