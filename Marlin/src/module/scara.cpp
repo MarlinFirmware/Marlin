@@ -54,7 +54,7 @@
         // MORGAN_SCARA uses arm angles for AB home position
         // SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
         inverse_kinematics(homeposition);
-        forward_kinematics_SCARA(delta.a, delta.b);
+        forward_kinematics_robot(delta.a, delta.b);
         current_position[axis] = cartes[axis];
       #elif ENABLED(MP_SCARA)
         // MP_SCARA uses a Cartesian XY home position
@@ -62,8 +62,10 @@
         // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
         current_position[axis] = homeposition[axis];
       #else  // AXEL_TPARA, TODO, check this 
+        SERIAL_ECHOPGM("homeposition");
+        SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);      
         inverse_kinematics(homeposition);
-        forward_kinematics_SCARA(delta.a, delta.b);
+        forward_kinematics_robot(delta.a, delta.b, delta.c);
         current_position[axis] = cartes[axis];      
       #endif
 
@@ -80,16 +82,17 @@
   #endif
 
 #if ENABLED(AXEL_TPARA)
-  void forward_kinematics_SCARA(const float &a, const float &b) {
-    // Needs rework for the third angle 
-    const float a_sin = sin(RADIANS(a)) * L1,
-                a_cos = cos(RADIANS(a)) * L1,
-                b_sin = sin(RADIANS(b)) * L2,
-                b_cos = cos(RADIANS(b)) * L2;
+  void forward_kinematics_robot(const float &a, const float &b, const float &c) {
+    // args in degrees
+    const float w = c - b,
+                r = L1 * cos(RADIANS(b)) + L2 * sin(RADIANS(w - (90 - b))),
+                rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w)),
+                x = r * cos(RADIANS(a)), 
+                y = r * sin(RADIANS(a)) ;
 
-    cartes.set(a_cos + b_cos + robot_offset.x,  
-              a_sin + b_sin + robot_offset.y, 
-              robot_offset.z); 
+    cartes.set( x  + robot_offset.x,  
+                y + robot_offset.y, 
+                SQRT(rho2 - x*x - y*y) + robot_offset.z); 
   }
 #else  
   /**
@@ -97,7 +100,7 @@
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
-  void forward_kinematics_SCARA(const float &a, const float &b) {
+  void forward_kinematics_robot(const float &a, const float &b) {
   
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
