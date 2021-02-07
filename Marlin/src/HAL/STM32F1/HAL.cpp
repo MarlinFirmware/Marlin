@@ -279,10 +279,8 @@ void HAL_init() {
   #endif
   #if HAS_SD_HOST_DRIVE
     MSC_SD_init();
-  #else 
-    #if ALL(SERIAL_USB, EMERGENCY_PARSER)
-        usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
-    #endif
+  #elif BOTH(SERIAL_USB, EMERGENCY_PARSER)
+    usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
