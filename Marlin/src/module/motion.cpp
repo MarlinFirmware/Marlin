@@ -270,11 +270,17 @@ void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(planner.get_axis_positions_mm());
   #else
-    #if IS_SCARA
-      forward_kinematics_SCARA(
+    #if IS_SCARA && DISABLED(AXEL_TPARA)
+      forward_kinematics_robot(
         planner.get_axis_position_degrees(A_AXIS),
         planner.get_axis_position_degrees(B_AXIS)
       );
+    #elif ENABLED(AXEL_TPARA)
+      forward_kinematics_robot(
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS),
+        planner.get_axis_position_degrees(C_AXIS)
+      );    
     #else
       cartes.set(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_mm(Y_AXIS));
     #endif
