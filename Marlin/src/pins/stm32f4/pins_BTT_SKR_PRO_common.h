@@ -135,7 +135,7 @@
 #define Y_STEP_PIN                          PE11
 #define Y_DIR_PIN                           PE8
 #define Y_ENABLE_PIN                        PD7
- #ifndef Y_CS_PIN
+#ifndef Y_CS_PIN
   #define Y_CS_PIN                          PB8
 #endif
 
