@@ -44,9 +44,9 @@ void scara_set_axis_is_at_home(const AxisEnum axis);
 
 void inverse_kinematics(const xyz_pos_t &raw);
 #if EITHER(MORGAN_SCARA, MP_SCARA)
-    void forward_kinematics_SCARA(const float &a, const float &b);
+    void forward_kinematics_robot(const float &a, const float &b);
 #else // AXEL_TPARA
-    void forward_kinematics_SCARA(const float &a, const float &b);  //ToDo rename to _TPARA, and should have 3 args, const float &c
+    void forward_kinematics_robot(const float &a, const float &b, const float &c); 
 #endif
 void scara_report_positions();
  
