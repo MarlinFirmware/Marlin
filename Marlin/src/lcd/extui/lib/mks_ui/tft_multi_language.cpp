@@ -945,22 +945,22 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_CN;
       more_menu.gcode       = MORE_GCODE_CN;
       more_menu.entergcode  = MORE_ENTER_GCODE_CN;
-      #ifdef USER_DESC_1
+      #if HAS_USER_ITEM(1)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
       #endif
-      #ifdef USER_DESC_2
+      #if HAS_USER_ITEM(2)
         more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
       #endif
-      #ifdef USER_DESC_3
+      #if HAS_USER_ITEM(3)
         more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
       #endif
-      #ifdef USER_DESC_4
+      #if HAS_USER_ITEM(4)
         more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
       #endif
-      #ifdef USER_DESC_5
+      #if HAS_USER_ITEM(5)
         more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
       #endif
-      #ifdef USER_DESC_6
+      #if HAS_USER_ITEM(6)
         more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
       #endif
       // WIFI
@@ -1190,22 +1190,22 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_T_CN;
             more_menu.gcode       = MORE_GCODE_T_CN;
             more_menu.entergcode  = MORE_ENTER_GCODE_T_CN;
-            #ifdef USER_DESC_1
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
             #endif
-            #ifdef USER_DESC_2
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
             #endif
-            #ifdef USER_DESC_3
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
             #endif
-            #ifdef USER_DESC_4
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
             #endif
-            #ifdef USER_DESC_5
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
             #endif
-            #ifdef USER_DESC_6
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
             #endif
             // WIFI
@@ -1422,22 +1422,22 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_EN;
             more_menu.gcode       = MORE_GCODE_EN;
             more_menu.entergcode  = MORE_ENTER_GCODE_EN;
-            #ifdef USER_DESC_1
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
             #endif
-            #ifdef USER_DESC_2
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
             #endif
-            #ifdef USER_DESC_3
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
             #endif
-            #ifdef USER_DESC_4
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
             #endif
-            #ifdef USER_DESC_5
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
             #endif
-            #ifdef USER_DESC_6
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
             #endif
 
@@ -1655,22 +1655,22 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_RU;
             more_menu.gcode       = MORE_GCODE_RU;
             more_menu.entergcode  = MORE_ENTER_GCODE_RU;
-            #ifdef USER_DESC_1
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
             #endif
-            #ifdef USER_DESC_2
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_RU;
             #endif
-            #ifdef USER_DESC_3
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_RU;
             #endif
-            #ifdef USER_DESC_4
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_RU;
             #endif
-            #ifdef USER_DESC_5
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_RU;
             #endif
-            #ifdef USER_DESC_6
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_RU;
             #endif
             //
@@ -1984,22 +1984,22 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_SP;
             more_menu.gcode       = MORE_GCODE_SP;
             more_menu.entergcode  = MORE_ENTER_GCODE_SP;
-            #ifdef USER_DESC_1
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
             #endif
-            #ifdef USER_DESC_2
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_SP;
             #endif
-            #ifdef USER_DESC_3
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_SP;
             #endif
-            #ifdef USER_DESC_4
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_SP;
             #endif
-            #ifdef USER_DESC_5
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_SP;
             #endif
-            #ifdef USER_DESC_6
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_SP;
             #endif
             //
@@ -2218,22 +2218,22 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_FR;
           more_menu.gcode       = MORE_GCODE_FR;
           more_menu.entergcode  = MORE_ENTER_GCODE_FR;
-          #ifdef USER_DESC_1
+          #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
           #endif
-          #ifdef USER_DESC_2
+          #if HAS_USER_ITEM(2)
             more_menu.custom2 = MORE_CUSTOM2_TEXT_FR;
           #endif
-          #ifdef USER_DESC_3
+          #if HAS_USER_ITEM(3)
             more_menu.custom3 = MORE_CUSTOM3_TEXT_FR;
           #endif
-          #ifdef USER_DESC_4
+          #if HAS_USER_ITEM(4)
             more_menu.custom4 = MORE_CUSTOM4_TEXT_FR;
           #endif
-          #ifdef USER_DESC_5
+          #if HAS_USER_ITEM(5)
             more_menu.custom5 = MORE_CUSTOM5_TEXT_FR;
           #endif
-          #ifdef USER_DESC_6
+          #if HAS_USER_ITEM(6)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
           #endif
           //
@@ -2453,22 +2453,22 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_IT;
           more_menu.gcode       = MORE_GCODE_IT;
           more_menu.entergcode  = MORE_ENTER_GCODE_IT;
-          #ifdef USER_DESC_1
+          #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
           #endif
-          #ifdef USER_DESC_2
+          #if HAS_USER_ITEM(2)
             more_menu.custom2 = MORE_CUSTOM2_TEXT_IT;
           #endif
-          #ifdef USER_DESC_3
+          #if HAS_USER_ITEM(3)
             more_menu.custom3 = MORE_CUSTOM3_TEXT_IT;
           #endif
-          #ifdef USER_DESC_4
+          #if HAS_USER_ITEM(4)
             more_menu.custom4 = MORE_CUSTOM4_TEXT_IT;
           #endif
-          #ifdef USER_DESC_5
+          #if HAS_USER_ITEM(5)
             more_menu.custom5 = MORE_CUSTOM5_TEXT_IT;
           #endif
-          #ifdef USER_DESC_6
+          #if HAS_USER_ITEM(6)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
           #endif
           //
@@ -2688,22 +2688,22 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_EN;
       more_menu.gcode       = MORE_GCODE_EN;
       more_menu.entergcode  = MORE_ENTER_GCODE_EN;
-      #ifdef USER_DESC_1
+      #if HAS_USER_ITEM(1)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
       #endif
-      #ifdef USER_DESC_2
+      #if HAS_USER_ITEM(2)
         more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
       #endif
-      #ifdef USER_DESC_3
+      #if HAS_USER_ITEM(3)
         more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
       #endif
-      #ifdef USER_DESC_4
+      #if HAS_USER_ITEM(4)
         more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
       #endif
-      #ifdef USER_DESC_5
+      #if HAS_USER_ITEM(5)
         more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
       #endif
-      #ifdef USER_DESC_6
+      #if HAS_USER_ITEM(6)
         more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
       #endif
       //
