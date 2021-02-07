@@ -100,14 +100,14 @@
       uint16 len = usb_get_ep_rx_count(USB_CDCACM_RX_ENDP);
       uint32 total = usb_cdcacm_data_available();
 
-      if (len == 0 || total == 0 || total < len || total > sizeof(buf)/sizeof(buf[0]))
+      if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
         return;
 
       // cannot get character by character due to bug in composite_cdcacm_peek_ex
       len = usb_cdcacm_peek(buf, total);
 
       for (uint32 i = 0; i < len; i++)
-        emergency_parser.update(MSerial.emergency_state, buf[i+total-len]);
+        emergency_parser.update(MSerial.emergency_state, buf[i + total - len]);
     }
   #endif
 #endif
