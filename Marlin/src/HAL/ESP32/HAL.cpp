@@ -90,8 +90,6 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-void HAL_init() { TERN_(I2S_STEPPER_STREAM, i2s_init()); }
-
 void HAL_init_board() {
 
   #if ENABLED(ESP3D_WIFISUPPORT)
@@ -126,6 +124,10 @@ void HAL_init_board() {
     #endif
   #endif
 
+  // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
+  // The following initialization is performed after Serial1 and Serial2 are defined as
+  // their native pins might conflict with the i2s stream even when they are remapped.
+  TERN_(I2S_STEPPER_STREAM, i2s_init());
 }
 
 void HAL_idletask() {
