@@ -1,6 +1,8 @@
 /**
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com and click on your printer/board link
  * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE AND IS PROVIDED AS-IS
+ *
+ * MAKE SURE ALL SLICERS AND OTHER PROGRAMS THAT CONNECT TO YOUR PRINTER COM PORT ARE CLOSED BEFORE FLASHING.
  */
 #pragma once
 #define CONFIGURATION_H_VERSION 020007
@@ -96,10 +98,11 @@
 //#define PETSFANG  //This is the RIGHT mounted version - if using the left mount please use the CUSTOM_PROBE option.
 //#define CUSTOM_PROBE
 
-// Filament Sensor - EZOut Kit
+// Filament Sensor - EZOut Kits
 // If you are using our EZOut filament sensor kit on your machine uncomment the below line.
-// For dual extrusion machines the firmware assumes you have a sensor for each extruder (connect 2nd EZout kit to Y+)
 //#define EZOUT_ENABLE
+// DUAL EXTRUSION: The firmware assumes you have an EZOut sensor for each extruder (connect E1 sensor to X+ and E2 sensor to Y+). Mixing sensor brands is not supported.
+// If you need the EZOut Filament sensor kit for dual extrusion you can get it here as a package: https://www.th3dstudio.com/product/ezout-std-x2/
 
 // Filament Sensor - Disable
 // If you are having issues with the stock Creality filament sensor (or do not have one) you can disable it with the below feature
@@ -139,7 +142,8 @@
 /**
  * Dual Extruder Board Options - The below options are for use with the TH3D CR-10S Board with dual extruder support.
  * Make sure to uncomment your printer model and other options above first.
- * Supports the following models: CR-10(all sizes), CR-10S(all sizes), CR-20, Ender 3, Ender 5
+ * Supports the following models: CR-10(all sizes), CR-10S(all sizes), CR-20, Ender 3, Ender 5, Ender 5 Plus
+ * Ender 5 Plus also needs to have the LCD conversion kit from TH3D installed: https://www.th3dstudio.com/product/ender-5-plus-12864-lcd-upgrade-kit/
  */
 
 // If you are using a single hotend with the 2 into 1 adapter OR mixing nozzle uncomment the below line
@@ -342,7 +346,7 @@
 
 // PID BED TEMPERATURE CONTROL ---------------------
 // If you want PID Bed Temperature control enable the below line. You will need to tune it for your machine.
-// See the PID Bed setup guide here: https://support.th3dstudio.com/hc/en-us/articles/360054750691
+// See the PID Bed setup guide here: https://support.th3dstudio.com/hc/guides/diy-guides/p-i-d-bed-calibration-guide/
 //#define ENABLE_PIDBED
 
 // FINE BABYSTEPPING -------------------------------

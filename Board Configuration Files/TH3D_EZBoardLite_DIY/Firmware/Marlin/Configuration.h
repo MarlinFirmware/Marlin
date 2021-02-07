@@ -2,7 +2,7 @@
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com and click on your printer/board link
  * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE AND IS PROVIDED AS-IS
  * 
- * THIS SPECIFIC EZBOARD FIRMWARE VERSION IS FOR DIY USE ONLY BY ADVANCED USERS AND IS NOT COVERED UNDER INCLUDED TECHNICAL SUPPORT
+ * THIS FIRMWARE VERSION IS FOR DIY USE ONLY BY ADVANCED USERS AND IS NOT COVERED UNDER INCLUDED TECHNICAL SUPPORT
  */
 #pragma once
 #define CONFIGURATION_H_VERSION 020007
@@ -31,7 +31,7 @@
  * OR the TH3D 12864 LCD with the Dual Cable LCD adapter board 
  * OR the BTT TFT35-E3 with serial+EXP3 plugs
  *
- * For the BTT TFT35-E3 wiring and warnings see our guide here: https://support.th3dstudio.com/hc/en-us/articles/360054405772-EZBoard-Lite-V1-X-BTT-TFT35-E3-Wiring-and-Firmware-Setup
+ * For the BTT TFT35-E3 wiring and warnings see our guide here: https://support.th3dstudio.com/hc/product-information/ezboard/ezboard-lite-v1-x-btt-tft35-e3-wiring-and-firmware-setup/
  * 
  * SD Card Slot - Regardless if your LCD has an SD slot or not the onboard SD slot will always be the one used
  * 
@@ -321,7 +321,7 @@
 
 // PID BED TEMPERATURE CONTROL ---------------------
 // If you want PID Bed Temperature control enable the below line. You will need to tune it for your machine.
-// See the PID Bed setup guide here: https://support.th3dstudio.com/hc/en-us/articles/360054750691
+// See the PID Bed setup guide here: https://support.th3dstudio.com/hc/guides/diy-guides/p-i-d-bed-calibration-guide/
 //#define ENABLE_PIDBED
 
 // FINE BABYSTEPPING -------------------------------
