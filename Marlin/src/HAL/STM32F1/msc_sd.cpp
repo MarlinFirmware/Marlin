@@ -54,7 +54,7 @@ void my_rx_callback(unsigned int, void*) {
   uint16 len = usb_get_ep_rx_count(usbSerialPart.endpoints[2].address);
   uint32 total = composite_cdcacm_data_available();
 
-  if (len == 0 || total == 0 || total < len || total > sizeof(buf)/sizeof(buf[0]))
+  if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
     return;
 
   // cannot get character by character due to bug in composite_cdcacm_peek_ex
