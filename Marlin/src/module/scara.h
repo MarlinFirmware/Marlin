@@ -39,6 +39,7 @@ extern float delta_segments_per_second;
     float constexpr L1 = ROBOT_LINKAGE_1, L2 = ROBOT_LINKAGE_2,
                     L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
                     L2_2 = sq(float(L2));
+    void home_robot() ;
 #endif
 void scara_set_axis_is_at_home(const AxisEnum axis);
 
