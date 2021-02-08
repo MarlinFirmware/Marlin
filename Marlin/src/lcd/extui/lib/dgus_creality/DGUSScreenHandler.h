@@ -273,7 +273,7 @@ public:
   static void DGUSLCD_SetFloatAsIntFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
       uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
-      float value = (float)value_raw/10;
+      float value = (float)value_raw/cpow(10, decimals);
       *(float *)var.memadr = value;
     }
   }
