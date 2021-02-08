@@ -2394,7 +2394,7 @@ void Temperature::disable_all_heaters() {
     // Read a big-endian temperature value
     #if NO_THERMO_TEMPS
       for (uint8_t i = sizeof(max_tc_temp); i--;) {
-        max_tc_temp |= TERN(THERMO_SEPARATE_SPI, max6675_spi.receive(), spiRec());
+        max_tc_temp |= TERN(THERMO_SEPARATE_SPI, max_tc_spi.receive(), spiRec());
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
         MAX6675_WRITE(HIGH); // disable TT_MAX6675
