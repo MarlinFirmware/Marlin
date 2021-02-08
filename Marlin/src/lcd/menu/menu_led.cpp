@@ -124,7 +124,7 @@ void menu_led() {
     #if ENABLED(PSU_CONTROL)
       extern bool powersupply_on;
     #else
-      static constexpr bool powersupply_on = true;
+      constexpr bool powersupply_on = true;
     #endif
     if (powersupply_on) {
       editable.state = leds.lights_on;
