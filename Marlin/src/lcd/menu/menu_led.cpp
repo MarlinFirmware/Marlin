@@ -122,6 +122,10 @@ void menu_led() {
 
   #if ENABLED(LED_CONTROL_MENU)
     editable.state = leds.lights_on;
+    #if ENABLED(PSU_CONTROL)
+      extern bool powersupply_on;
+      if (powersupply_on)
+    #endif
     EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
     #if ENABLED(LED_COLOR_PRESETS)
       ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);

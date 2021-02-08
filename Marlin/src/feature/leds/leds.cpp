@@ -148,10 +148,12 @@ void LEDLights::set_color(const LEDColor &incol
 
   void LEDLights::update_timeout(const bool power_on) {
     const millis_t ms = millis();
-    if (power_on)
-      reset_timeout(ms);
-    else if (ELAPSED(ms, led_off_time))
-      set_off();
+    if (lights_on) {
+      if (power_on)
+        reset_timeout(ms);
+      else if (ELAPSED(ms, led_off_time))
+        set_off();
+    }
   }
 
 #endif
