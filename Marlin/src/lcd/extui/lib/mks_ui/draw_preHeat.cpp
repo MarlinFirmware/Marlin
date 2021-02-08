@@ -56,7 +56,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
           }
         }
-        #if DISABLED(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+        #if HAS_MULTI_HOTEND
           else if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
             thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
           }

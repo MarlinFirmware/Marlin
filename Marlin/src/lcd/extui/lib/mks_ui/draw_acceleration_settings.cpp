@@ -109,15 +109,15 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_acceleration_settings() {
   scr = lv_screen_create(ACCELERATION_UI, machine_menu.AccelerationConfTitle);
-
+  char str_1[16];
   if (!uiCfg.para_ui_page) {
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.acceleration);
+    sprintf_P(public_buf_l, PSTR("%s"), dtostrf(planner.settings.acceleration, 1, 1, str_1));
     lv_screen_menu_item_1_edit(scr, machine_menu.PrintAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ACCE_PRINT, 0, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.retract_acceleration);
+    sprintf_P(public_buf_l, PSTR("%s"), dtostrf(planner.settings.retract_acceleration, 1, 1, str_1));
     lv_screen_menu_item_1_edit(scr, machine_menu.RetractAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_ACCE_RETRA, 1, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.travel_acceleration);
+    sprintf_P(public_buf_l, PSTR("%s"), dtostrf(planner.settings.travel_acceleration, 1, 1, str_1));
     lv_screen_menu_item_1_edit(scr, machine_menu.TravelAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_ACCE_TRAVEL, 2, public_buf_l);
 
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);

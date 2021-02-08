@@ -65,15 +65,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_auto_level_offset_settings() {
+  char str_1[16];
   scr = lv_screen_create(NOZZLE_PROBE_OFFSET_UI, machine_menu.OffsetConfTitle);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.x, 0));
+  sprintf_P(public_buf_l, PSTR("%s"), TERN(HAS_PROBE_XY_OFFSET, dtostrf(probe.offset.x, 1, 1, str_1) , 0));
   lv_screen_menu_item_1_edit(scr, machine_menu.Xoffset, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_OFFSET_X, 0, public_buf_l);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.y, 0));
+  sprintf_P(public_buf_l, PSTR("%s"), TERN(HAS_PROBE_XY_OFFSET, dtostrf(probe.offset.y, 1, 1, str_1) , 0));
   lv_screen_menu_item_1_edit(scr, machine_menu.Yoffset, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_OFFSET_Y, 1, public_buf_l);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), probe.offset.z);
+  sprintf_P(public_buf_l, PSTR("%s"), TERN(HAS_PROBE_XY_OFFSET, dtostrf(probe.offset.z, 1, 1, str_1) , 0));
   lv_screen_menu_item_1_edit(scr, machine_menu.Zoffset, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_OFFSET_Z, 2, public_buf_l);
 
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_OFFSET_RETURN, true);

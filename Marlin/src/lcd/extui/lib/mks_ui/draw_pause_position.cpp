@@ -60,15 +60,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_pause_position() {
+  char str_1[16];
   scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);
+  sprintf_P(public_buf_l, PSTR("%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1));
   lv_screen_menu_item_1_edit(scr, machine_menu.xPos, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_X, 0, public_buf_l);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosY);
+  sprintf_P(public_buf_l, PSTR("%s"), dtostrf(gCfgItems.pausePosY, 1, 1, str_1));
   lv_screen_menu_item_1_edit(scr, machine_menu.yPos, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PAUSE_Y, 1, public_buf_l);
 
-  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosZ);
+  sprintf_P(public_buf_l, PSTR("%s"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_1));
   lv_screen_menu_item_1_edit(scr, machine_menu.zPos, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PAUSE_Z, 2, public_buf_l);
 
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_PAUSE_RETURN, true);
