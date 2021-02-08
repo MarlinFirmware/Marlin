@@ -595,7 +595,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  template class MarlinSerial< MarlinSerialCfg<MMU2_SERIAL_PORT> >;
+  template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
   MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
 #endif
 

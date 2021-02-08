@@ -203,7 +203,7 @@ public:
     public:
       static inline void reset_timeout(const millis_t &ms) {
         led_off_time = ms + LED_BACKLIGHT_TIMEOUT;
-        if (!lights_on) set_default();
+        if (!lights_on) update();
       }
       static void update_timeout(const bool power_on);
   #endif
