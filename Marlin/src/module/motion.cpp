@@ -270,11 +270,17 @@ void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(planner.get_axis_positions_mm());
   #else
-    #if IS_SCARA
-      forward_kinematics_SCARA(
+    #if IS_SCARA && DISABLED(AXEL_TPARA)
+      forward_kinematics_robot(
         planner.get_axis_position_degrees(A_AXIS),
         planner.get_axis_position_degrees(B_AXIS)
       );
+    #elif ENABLED(AXEL_TPARA)
+      forward_kinematics_robot(
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS),
+        planner.get_axis_position_degrees(C_AXIS)
+      );    
     #else
       cartes.set(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_mm(Y_AXIS));
     #endif
@@ -1803,14 +1809,14 @@ void homeaxis(const AxisEnum axis) {
       TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
         stepper.set_separate_multi_axis(false);
     }
-  #endif
+  #endif // HAS_EXTRA_ENDSTOPS
 
   #ifdef TMC_HOME_PHASE
     // move back to homing phase if configured and capable
     backout_to_tmc_homing_phase(axis);
   #endif
 
-  #if IS_SCARA && DISABLED(AXEL_TPARA)
+  #if IS_SCARA
 
     set_axis_is_at_home(axis);
     sync_plan_position();
