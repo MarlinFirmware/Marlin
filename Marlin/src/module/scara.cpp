@@ -105,7 +105,6 @@
 
   void home_robot() {
     // should Home YZ together, then X (or all at once), Based on quick_home_xy & home_delta
-
     
     // Init the current position of all carriages to 0,0,0
     current_position.reset();
