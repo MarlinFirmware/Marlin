@@ -3172,14 +3172,7 @@ void Temperature::tick() {
     SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
-      #if NO_THERMO_TEMPS
-        SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
-      #else
-        if (k == 'T')
-          SERIAL_ECHOPAIR(" (", r);
-        else
-          SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
-      #endif
+      SERIAL_ECHOPAIR(" (", TERN(NO_THERMO_TEMPS, false, k == 'T') ? r : r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
     #endif
     delay(2);
