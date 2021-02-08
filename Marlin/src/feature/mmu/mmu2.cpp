@@ -514,7 +514,7 @@ static void mmu2_not_responding() {
         extruder = index; // filament change is finished
         active_extruder = 0;
         ENABLE_AXIS_E0();
-        SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, int(extruder));
+        SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
       }
       ui.reset_status();
     }
@@ -601,7 +601,7 @@ static void mmu2_not_responding() {
       active_extruder = 0;
 
       ENABLE_AXIS_E0();
-      SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, int(extruder));
+      SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
 
       ui.reset_status();
     }
@@ -696,7 +696,7 @@ static void mmu2_not_responding() {
       extruder = index; //filament change is finished
       active_extruder = 0;
       ENABLE_AXIS_E0();
-      SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, int(extruder));
+      SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
       ui.reset_status();
     }
 

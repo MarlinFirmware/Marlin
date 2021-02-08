@@ -828,7 +828,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     serialprintPGM(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
     if (heater_id >= 0)
-      SERIAL_ECHO((int)heater_id);
+      SERIAL_ECHO(heater_id);
     else if (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER))
       SERIAL_ECHOPGM(STR_HEATER_CHAMBER);
     else
@@ -1494,7 +1494,7 @@ void Temperature::manage_heater() {
   float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
       if (e > HOTENDS - DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)) {
         SERIAL_ERROR_START();
-        SERIAL_ECHO((int)e);
+        SERIAL_ECHO(e);
         SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
         kill();
         return 0;
@@ -2065,7 +2065,7 @@ void Temperature::init() {
       switch (heater_id) {
         case H_BED:     SERIAL_ECHOPGM("bed"); break;
         case H_CHAMBER: SERIAL_ECHOPGM("chamber"); break;
-        default:        SERIAL_ECHO((int)heater_id);
+        default:        SERIAL_ECHO(heater_id);
       }
       SERIAL_ECHOLNPAIR(
         " ; sizeof(running_temp):", sizeof(running_temp),

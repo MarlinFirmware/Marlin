@@ -141,7 +141,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", (int)isInserted);
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
   #endif
   DoSDCardStateCheck();
 }
