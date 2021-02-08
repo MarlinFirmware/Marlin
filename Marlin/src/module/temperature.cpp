@@ -3231,7 +3231,7 @@ void Temperature::tick() {
         #endif
         , H_CHAMBER
       );
-    #endif // HAS_TEMP_CHAMBER
+    #endif
     #if HAS_TEMP_PROBE
       print_heater_state(degProbe(), 0
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -3239,7 +3239,7 @@ void Temperature::tick() {
         #endif
         , H_PROBE
       );
-    #endif // HAS_TEMP_PROBE
+    #endif
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
