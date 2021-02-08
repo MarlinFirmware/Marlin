@@ -84,9 +84,6 @@
   #ifndef MAX31865_MOSI_PIN
     #define MAX31865_MOSI_PIN SD_MOSI_PIN
   #endif
-  #ifndef MAX31865_MISO_PIN
-    #define MAX31865_MISO_PIN MAX6675_DO_PIN
-  #endif
   #if PIN_EXISTS(MAX31865_MISO) && PIN_EXISTS(MAX31865_SCK)
     #define MAX31865_USES_SW_SPI 1
   #endif
