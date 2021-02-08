@@ -414,8 +414,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS 0
       #define Y_MIN_POS 0
@@ -440,8 +440,8 @@
     #endif
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS 0
       #define Y_MIN_POS 0
@@ -460,8 +460,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS -33
       #define Y_MIN_POS -10
@@ -480,8 +480,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS -21
       #define Y_MIN_POS -7
@@ -500,8 +500,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS -2
       #define Y_MIN_POS -8
@@ -520,8 +520,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS -2
       #define Y_MIN_POS -8
@@ -540,8 +540,8 @@
     #endif 
     #define DIRECT_DRIVE_PRINTER
     #if ENABLED(HOME_ADJUST)
-      #define X_MIN_POS X_HOME_ADJUST_LOCATION
-      #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+      #define X_MIN_POS X_HOME_LOCATION
+      #define Y_MIN_POS Y_HOME_LOCATION
     #else
       #define X_MIN_POS -7
       #define Y_MIN_POS -23
