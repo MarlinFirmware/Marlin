@@ -994,7 +994,7 @@ void MarlinUI::update() {
         refresh(LCDVIEW_REDRAW_NOW);
 
         #ifdef LED_BACKLIGHT_TIMEOUT
-          leds.reset_timeout(ms);
+          if (!powersupply_on) leds.reset_timeout(ms);
         #endif
       }
 
