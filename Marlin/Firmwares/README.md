@@ -379,7 +379,7 @@
 
 # 5. Firmware Wifi
 
-For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3DV2):
+For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3D):
 
 ![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
 
