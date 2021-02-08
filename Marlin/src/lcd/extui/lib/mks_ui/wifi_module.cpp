@@ -911,7 +911,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
-            #if DISABLED(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+            #if HAS_MULTI_HOTEND
               strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].celsius, 1, 1, str_1));
               strcat_P(outBuf, PSTR(" /"));
               strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].target, 1, 1, str_1));
@@ -931,7 +931,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 0, 0,
               #endif
               (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
-              #if DISABLED(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+              #if HAS_MULTI_HOTEND
                 (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target
               #else
                 0, 0
