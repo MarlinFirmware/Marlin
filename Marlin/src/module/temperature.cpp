@@ -2421,23 +2421,21 @@ void Temperature::disable_all_heaters() {
       const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
     #endif
 
-    #if ENABLED(LIB_ADAFRUIT_MAX31865)
-      if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && fault_31865) {
-    #else
-      if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max_tc_temp & MAX_TC_ERROR_MASK)) {
-    #endif
+    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
+      && TERN(LIB_ADAFRUIT_MAX31865, fault_31865, (max_tc_temp & MAX_TC_ERROR_MASK))
+    ) {
       max_tc_errors[hindex]++;
       if (max_tc_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
         #if MAX_TC_ERROR_MASK == 7
-            SERIAL_ECHOPGM("MAX31855 ");
-            if (max_tc_temp & 1)
-              SERIAL_ECHOLNPAIR("Fault :(", max_tc_temp & 1 ,")  >> Open Circuit");
-            else if (max_tc_temp & 2)
-              SERIAL_ECHOLNPAIR("Fault : (", max_tc_temp & 2 ,")  >> Short to GND");
-            else if (max_tc_temp & 4)
-              SERIAL_ECHOLNPAIR("Fault : (", max_tc_temp & 4 ,")  >> Short to VCC");
+          SERIAL_ECHOPGM("MAX31855 Fault : (", max_tc_temp & 0x7, ") >> ");
+          if (max_tc_temp & 0x1)
+            SERIAL_ECHOLNPGM("Open Circuit");
+          else if (max_tc_temp & 0x2)
+            SERIAL_ECHOLNPGM("Short to GND");
+          else if (max_tc_temp & 0x4)
+            SERIAL_ECHOLNPGM("Short to VCC");
         #elif HAS_MAX31865
           #if ENABLED(LIB_USR_MAX31865)
             // At the present time we do not have the ability to set the MAX31865 HIGH threshold
@@ -2462,8 +2460,7 @@ void Temperature::disable_all_heaters() {
               SERIAL_ECHOLNPGM("Under/Over voltage");
           }
         #else
-            SERIAL_ECHOPGM("MAX6675 ");
-            SERIAL_ECHOLNPGM("Open Circuit");
+          SERIAL_ECHOLNPGM("MAX6675 Open Circuit");
         #endif
 
         // Thermocouple open
