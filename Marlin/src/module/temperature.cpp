@@ -2444,8 +2444,8 @@ void Temperature::disable_all_heaters() {
           #endif
           max865ref.clearFault();
           if (fault_31865) {
-            SERIAL_ECHOLN();
-            SERIAL_ECHOLNPAIR("MAX31865 Fault :(", fault_31865, ")  >>");
+            SERIAL_EOL();
+            SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
             if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
             if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
