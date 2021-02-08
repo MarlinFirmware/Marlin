@@ -26,12 +26,20 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if IS_SCARA  //suggestion: Rename to IS_ROBOT
+#if IS_SCARA  //suggestion: Rename to IS_ROBOT or kinematics
 
   #include "scara.h"
   #include "motion.h"
   #include "planner.h"
 
+  #if ENABLED(AXEL_TPARA)
+    // For homing, as in delta
+    #include "planner.h"
+    #include "endstops.h"
+    #include "../lcd/marlinui.h"
+    #include "../MarlinCore.h"
+  #endif
+  
   #if EITHER(MORGAN_SCARA, MP_SCARA)
     float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;  // suggestion rename to ROBOT_SEGMENTS_PER_SECOND
   #else // AXEL_TPARA
@@ -94,6 +102,61 @@
                 y + robot_offset.y, 
                 SQRT(rho2 - x*x - y*y) + robot_offset.z); 
   }
+
+  void home_robot() {
+    // should Home YZ together, then X (or all at once), Based on quick_home_xy & home_delta
+
+    
+    // Init the current position of all carriages to 0,0,0
+    current_position.reset();
+    destination.reset();
+    sync_plan_position();
+
+    // Disable stealthChop if used. Enable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+    TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
+    TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
+    TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+    #endif
+
+    // const int x_axis_home_dir = x_home_dir(active_extruder);
+
+    // const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };       
+    // const float mlz = max_length(X_AXIS),
+    
+    // Move all carriages together linearly until an endstop is hit.
+    //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));    
+    
+    current_position.x = 0 ;
+    current_position.y = 0 ;
+    current_position.z = max_length(Z_AXIS) ;
+    line_to_current_position(homing_feedrate(Z_AXIS));
+    planner.synchronize();
+
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+    TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
+    TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
+    TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+    #endif
+
+    endstops.validate_homing_move();
+
+    // At least one motor has reached its endstop.
+    // Now re-home each motor separately.
+    homeaxis(A_AXIS);    
+    homeaxis(B_AXIS);
+    homeaxis(C_AXIS);
+
+    // Set all carriages to their home positions
+    // Do this here all at once for Delta, because
+    // XYZ isn't ABC. Applying this per-tower would
+    // give the impression that they are the same.
+    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
+
+    sync_plan_position();
+  }
+
 #else  
   /**
    * Morgan SCARA Forward Kinematics. Results in 'cartes'.
@@ -229,5 +292,7 @@
     #endif
     SERIAL_EOL();
   }
+
+
 
 #endif // IS_SCARA

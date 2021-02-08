@@ -116,6 +116,7 @@
 
 #endif // QUICK_HOME
 
+
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
@@ -311,6 +312,11 @@ void GcodeSuite::G28() {
 
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
+  #elif ENABLED(AXEL_TPARA)
+
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA 
+    home_robot();
+    
   #else // NOT DELTA
 
     const bool homeZ = parser.seen('Z'),
