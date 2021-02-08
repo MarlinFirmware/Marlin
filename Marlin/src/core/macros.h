@@ -321,6 +321,12 @@
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
     template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
   }
   // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists

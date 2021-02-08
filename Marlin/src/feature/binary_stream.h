@@ -404,7 +404,7 @@ public:
           if (packet_retries < MAX_RETRIES || MAX_RETRIES == 0) {
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
-            SERIAL_ECHO_MSG("Resend request ", int(packet_retries));
+            SERIAL_ECHO_MSG("Resend request ", packet_retries);
             SERIAL_ECHOLNPAIR("rs", sync);
           }
           else
