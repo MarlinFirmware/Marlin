@@ -130,20 +130,20 @@
 
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
