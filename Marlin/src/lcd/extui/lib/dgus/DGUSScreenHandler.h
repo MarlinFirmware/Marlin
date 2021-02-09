@@ -91,6 +91,7 @@ public:
     static void DGUS_Runout_Idle(void);
     static void DGUS_RunoutInit(void);
     static void DGUS_ExtrudeLoadInit(void);
+    static void LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   // Hook for manual move.

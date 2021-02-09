@@ -79,6 +79,8 @@ extern const struct DGUS_VP_Variable ListOfVP[];
   extern uint16_t tmc_y_step;
   extern uint16_t tmc_z_step;
 
+  extern uint16_t lcd_defult_light;
+
   #if AXIS_HAS_STEALTHCHOP(X)
     extern uint16_t tmc_x_current;
   #endif

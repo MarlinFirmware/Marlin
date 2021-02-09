@@ -23,7 +23,13 @@
 
 #include "../DGUSDisplayDef.h"
 
-#define LOGO_TIME_DELAY       1500
+// #define USE_MKS_GREEN_UI      
+
+#if ENABLED(USE_MKS_GREEN_UI)
+  #define LOGO_TIME_DELAY       5000
+#else
+  #define LOGO_TIME_DELAY       1500
+#endif
 
 // #define DGUS_MKS_RUNOUT_SENSOR
 #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
@@ -34,6 +40,8 @@
 
 #define MKS_FINSH
 
+
+#if DISABLED(USE_MKS_GREEN_UI)
 enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_BOOT                 =   120,
   DGUSLCD_SCREEN_MAIN                 =   1,
@@ -96,7 +104,63 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_POPUP                = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
   DGUSLDC_SCREEN_UNUSED               = 255,
 };
+#else 
+enum DGUSLCD_Screens : uint8_t {
+  DGUSLCD_SCREEN_BOOT                 = 33,
+  DGUSLCD_SCREEN_MAIN                 = 60,
+  DGUSLCD_SCREEN_STATUS               = 60,
+  DGUSLCD_SCREEN_STATUS2              = 60,
+  DGUSLCD_SCREEN_PREHEAT              = 18,
+  DGUSLCD_SCREEN_POWER_LOSS           = 100,
+  DGUSLCD_SCREEN_MANUALMOVE           = 192,
+  DGUSLCD_SCREEN_UTILITY              = 120,
+  DGUSLCD_SCREEN_FILAMENT_UNLOADING   = 158,
+  DGUSLCD_SCREEN_SDFILELIST           = 15,
+  DGUSLCD_SCREEN_SDPRINTMANIPULATION  = 15,
+  DGUSLCD_SCREEN_SDPRINTTUNE          = 17,
 
+  MKSLCD_SCREEN_BOOT                  = 33,
+  MKSLCD_SCREEN_HOME                  = 60,   // MKS main page
+  MKSLCD_SCREEN_SETTING               = 62,   // MKS Setting page / no wifi whit
+  MKSLCD_SCREEM_TOOL                  = 64,   // MKS Tool page
+  MKSLCD_SCREEN_EXTRUDE_P1            = 75,
+  MKSLCD_SCREEN_EXTRUDE_P2            = 77,
+  MKSLCD_SCREEN_LEVEL                 = 73,
+  MKSLCD_AUTO_LEVEL                   = 81,
+  MKSLCD_SCREEN_MOVE                  = 66,
+  MKSLCD_SCREEN_PRINT                 = 68,
+  MKSLCD_SCREEN_PAUSE                 = 70,
+  MKSLCD_SCREEN_CHOOSE_FILE           = 87,
+  MKSLCD_SCREEN_NO_CHOOSE_FILE        = 88,
+  MKSLCD_SCREEN_Config                = 101,
+  MKSLCD_SCREEN_Config_MOTOR          = 103,
+  MKSLCD_SCREEN_MOTOR_PLUSE           = 104,
+  MKSLCD_SCREEN_MOTOR_SPEED           = 102,
+  MKSLCD_SCREEN_MOTOR_ACC_MAX         = 105,
+  MKSLCD_SCREEN_PRINT_CONFIG          = 72,
+  MKSLCD_SCREEN_LEVEL_DATA            = 106,
+  MKSLCD_PrintPause_SET               = 107,
+  // MKSLCD_FILAMENT_DATA                = 50,
+  MKSLCD_ABOUT                        = 83,
+  MKSLCD_PID                          = 108,
+  MKSLCD_PAUSE_SETTING_MOVE           = 98,
+  MKSLCD_PAUSE_SETTING_EX             = 96,
+  MKSLCD_PAUSE_SETTING_EX2            = 97,
+  MKSLCD_SCREEN_PRINT_CONFIRM         = 94,
+  MKSLCD_SCREEN_EX_CONFIG             = 112,
+  MKSLCD_SCREEN_EEP_Config            = 89,
+  MKSLCD_SCREEN_PrintDone             = 92,
+  MKSLCD_SCREEN_TMC_Config            = 111,
+  MKSLCD_Screen_Offset_Config         = 109,
+  MKSLCD_Screen_PMove                 = 98,
+  MKSLCD_Screen_Baby                  = 79,
+
+  DGUSLCD_SCREEN_CONFIRM              = 240,
+  DGUSLCD_SCREEN_KILL                 = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUSLCD_SCREEN_WAITING              = 251,
+  DGUSLCD_SCREEN_POPUP                = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUSLDC_SCREEN_UNUSED               = 255,
+#endif
 // Display Memory layout used (T5UID)
 // Except system variables this is arbitrary, just to organize stuff....
 
@@ -584,6 +648,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_Z_CALIBRATE = 0x3810;
 
   constexpr uint16_t VP_AutoTurnOffSw = 0x3812;
+  constexpr uint16_t VP_LCD_BLK = 0x3814;
 
   constexpr uint16_t VP_X_PARK_POS = 0x3900;
   constexpr uint16_t VP_Y_PARK_POS = 0x3902;
@@ -713,7 +778,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_EX_TEMP_INFO1_Dis             = 0x5610;
   constexpr uint16_t VP_EX_TEMP_INFO2_Dis             = 0x5620;
   constexpr uint16_t VP_EX_TEMP_INFO3_Dis             = 0x5630;
-
+  constexpr uint16_t VP_LCD_BLK_Dis                   = 0X56A0;
   constexpr uint16_t VP_Info_PrinfFinsh_1_Dis         = 0x5C00;
   constexpr uint16_t VP_Info_PrinfFinsh_2_Dis         = 0x5C10;
 

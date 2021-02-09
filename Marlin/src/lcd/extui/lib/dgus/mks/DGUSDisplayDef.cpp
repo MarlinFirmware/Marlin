@@ -87,6 +87,8 @@
     uint16_t tmc_z_step = 0;
   #endif
 
+  uint16_t lcd_defult_light = 50;
+
   EX_FILAMENT_DEF ex_filament;
   RUNOUT_MKS_DEF runout_mks;
   NOZZLE_PARK_DEF nozzle_park_mks;
@@ -156,6 +158,8 @@ const uint16_t MKSList_Tool[] PROGMEM = {
   VP_Fan0_Percentage,
   // Language
   VP_Tool_Dis,
+  // LCD BLK
+  VP_LCD_BLK,
   0x0000
 };
 
@@ -239,7 +243,8 @@ const uint16_t MKSList_TempOnly[] PROGMEM = {
   VP_T_Bed_Is, VP_T_Bed_Set,
   // FAN
   VP_Fan0_Percentage,
-
+  // LCD BLK
+  VP_LCD_BLK,
   0x0000
 };
 
@@ -658,6 +663,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
+
+  //LCD Control
+  VPHELPER(VP_LCD_BLK, &lcd_defult_light, &ScreenHandler.LCD_BLK_Adjust, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   #if DISABLED(DGUS_LCD_UI_MKS)
     // Print Time

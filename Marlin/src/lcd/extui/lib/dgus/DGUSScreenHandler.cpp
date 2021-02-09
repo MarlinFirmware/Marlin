@@ -1077,6 +1077,19 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
     #endif // MESH_BED_LEVELING
   }
 
+  void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
+
+    uint16_t lcd_value = swap16(*(uint16_t *)val_ptr);
+
+    if(lcd_value > 100) lcd_value = 100;
+    else if(lcd_value < 10) lcd_value = 10;
+
+    lcd_defult_light = lcd_value;
+
+    const uint16_t lcd_data[2] = {lcd_defult_light, lcd_defult_light};
+    dgusdisplay.WriteVariable(0x0082, &lcd_data, 5, true);
+  }
+
   void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr) {
     int16_t point_value = swap16(*(uint16_t *)val_ptr);
 
@@ -2425,9 +2438,14 @@ bool DGUSScreenHandler::loop() {
         booted = true;
     #endif
 
-    if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
-      booted = true;
 
+  #if DISABLED(USE_MKS_GREEN_UI)
+    if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
+      
+  #else
+    if (!booted && ELAPSED(ms, 1000)) {
+  #endif
+      booted = true;
       #if ENABLED(DGUS_LCD_UI_MKS)
         #if ANY_AXIS_HAS(STEALTHCHOP)
           #if AXIS_HAS_STEALTHCHOP(X)
@@ -2794,6 +2812,9 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
 
       const char Printting_buf_en[] = "Printing";
       dgusdisplay.WriteVariable(VP_Printting_Dis, Printting_buf_en, 32, true);
+    
+      const char LCD_BLK_buf_en[] = "Backlight";
+      dgusdisplay.WriteVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_en, 32, true);
     }
     else if (var == MKS_SimpleChinese) {
       uint16_t home_buf_ch[] = {0xF7D6, 0xB3D2};
@@ -3046,6 +3067,9 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
 
       const uint16_t Printting_buf_ch[] = { 0xF2B4, 0xA1D3, 0xD0D6, 0x2000 };
       dgusdisplay.WriteVariable(VP_Printting_Dis, Printting_buf_ch, 32, true);
+    
+      const uint16_t LCD_BLK_buf_ch[] = {0xB3B1, 0XE2B9 ,0XE8C9 ,0XC3D6 ,0X2000};
+      dgusdisplay.WriteVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_ch, 32, true);
     }
   }
 
