@@ -2127,11 +2127,11 @@ void HMI_Printing() {
           char cmd[40];
           cmd[0] = '\0';
 
-          #if BOTH(HAS_HOTEND, PAUSE_HEAT)
-            if (resume_hotend_temp) sprintf_P(&cmd[strlen(cmd)], PSTR("M109 S%i\n"), resume_hotend_temp);
-          #endif
           #if BOTH(HAS_HEATED_BED, PAUSE_HEAT)
             if (resume_bed_temp) sprintf_P(cmd, PSTR("M190 S%i\n"), resume_bed_temp);
+          #endif
+          #if BOTH(HAS_HOTEND, PAUSE_HEAT)
+            if (resume_hotend_temp) sprintf_P(&cmd[strlen(cmd)], PSTR("M109 S%i\n"), resume_hotend_temp);
           #endif
 
           strcat_P(cmd, M24_STR);
