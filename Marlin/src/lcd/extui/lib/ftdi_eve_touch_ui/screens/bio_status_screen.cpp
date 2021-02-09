@@ -22,10 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_STATUS_SCREEN
 
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 
@@ -376,4 +375,4 @@ void StatusScreen::onIdle() {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BIO_STATUS_SCREEN
