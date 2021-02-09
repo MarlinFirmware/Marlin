@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_TUNE_MENU
 
 #include "../../../../../feature/host_actions.h"
 
@@ -153,4 +152,4 @@ void TuneMenu::resumePrint() {
   GOTO_SCREEN(StatusScreen);
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_TUNE_MENU

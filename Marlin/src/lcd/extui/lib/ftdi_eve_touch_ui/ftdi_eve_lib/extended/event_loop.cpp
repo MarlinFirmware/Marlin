@@ -124,7 +124,7 @@ namespace FTDI {
       case UNPRESSED:
         if (tag != 0) {
           #if ENABLED(TOUCH_UI_DEBUG)
-            SERIAL_ECHO_MSG("Touch start: ", int(tag));
+            SERIAL_ECHO_MSG("Touch start: ", tag);
           #endif
 
           pressed_tag = tag;
@@ -185,7 +185,7 @@ namespace FTDI {
             if (UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
 
             #if ENABLED(TOUCH_UI_DEBUG)
-              SERIAL_ECHO_MSG("Touch end: ", int(pressed_tag));
+              SERIAL_ECHO_MSG("Touch end: ", pressed_tag);
             #endif
 
             const uint8_t saved_pressed_tag = pressed_tag;
