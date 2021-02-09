@@ -937,11 +937,11 @@ void setup() {
 
   SETUP_RUN(HAL_init());
 
-  // Init and disable SPI thermocouples
-  #if TEMP_SENSOR_0_IS_MAX6675
+  // Init and disable SPI thermocouples; this is still needed
+  #if TEMP_SENSOR_0_IS_MAX_TC
     OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
   #endif
-  #if TEMP_SENSOR_1_IS_MAX6675
+  #if TEMP_SENSOR_1_IS_MAX_TC
     OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
   #endif
 
