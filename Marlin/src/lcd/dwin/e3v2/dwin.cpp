@@ -2055,13 +2055,20 @@ inline void Print_Screen_Control() {
         break;
       case 1:
         if (paused) {
-          char cmnd[200];
-          cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
-          gcode.process_subcommands_now_P(PSTR(cmnd));
-          cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
-          gcode.process_subcommands_now_P(PSTR(cmnd));
-          planner.synchronize();
-          gcode.process_subcommands_now_P(PSTR("M24"));
+          if (sdprint) {
+            char cmnd[200];
+            cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
+            gcode.process_subcommands_now_P(PSTR(cmnd));
+            cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
+            gcode.process_subcommands_now_P(PSTR(cmnd));
+            planner.synchronize();
+            gcode.process_subcommands_now_P(PSTR("M24"));
+          } else {
+            #if ENABLED(HOST_ACTION_COMMANDS)
+              host_action_resume();
+            #endif
+          }
+          Draw_Print_Screen();
         }
         else
           Popup_Handler(Pause);
@@ -2094,13 +2101,14 @@ inline void Popup_Control() {
             planner.synchronize();
             queue.inject_P(PSTR("M25"));
             planner.synchronize();
-            Draw_Print_Screen();
           } else {
-            // TODO: Local Pause During Host Print
+            #if ENABLED(HOST_ACTION_COMMANDS)
+              paused = true;
+              host_action_pause();
+            #endif
           }
-        } else {
-          Draw_Print_Screen();
         }
+        Draw_Print_Screen();
         break;
       case Stop:
         if (selection==0) {
@@ -2108,10 +2116,12 @@ inline void Popup_Control() {
             card.flag.abort_sd_printing = true; 
             thermalManager.zero_fan_speeds();
             thermalManager.disable_all_heaters();
-            Draw_Main_Menu();
           } else {
-            // TODO: Local Stop During Host Print
+            #if ENABLED(HOST_ACTION_COMMANDS)
+              host_action_cancel();
+            #endif
           }
+          Draw_Main_Menu();
         } else {
           Draw_Print_Screen();
         }
