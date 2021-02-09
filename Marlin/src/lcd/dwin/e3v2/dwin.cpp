@@ -203,9 +203,6 @@ static uint16_t _remain_time = 0;
   float dwin_zoffset = 0, last_zoffset = 0;
 #endif
 
-float zoffsetvalue;
-uint16_t flowrate = 100;
-
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
 
@@ -1521,6 +1518,29 @@ void HMI_StepXYZE() {
   }
 }
 
+// Draw X, Y, Z and blink if in an un-homed or un-trusted state
+void _draw_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y, const bool blink) {
+  static bool _blink = false;
+  const bool draw_qmark = axis_should_home(axis),
+             draw_empty = NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !draw_qmark && !axis_is_trusted(axis);
+
+  // Check for a position change
+  static xyz_pos_t oldpos = { -1, -1, -1 };
+  const float p = current_position[axis];
+  bool changed = oldpos[axis] != p;
+  if (changed) oldpos[axis] = p;
+
+  if (changed || (blink != _blink && (draw_qmark || draw_empty))) {
+    _blink = blink;
+    if (blink && draw_qmark)
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("???.?"));
+    else if (blink && draw_empty)
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
+    else
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, x, y, p * 10);
+  }
+}
+
 void update_variable() {
   TERN_(HAS_HOTEND, static float last_temp_hotend_target = 0);
   TERN_(HAS_HEATED_BED, static float last_temp_bed_target = 0);
@@ -1570,82 +1590,68 @@ void update_variable() {
     #endif
   }
 
-  zoffsetvalue = BABY_Z_VAR; // Temporary Statement for Compatability
+  #if HAS_HOTEND
+    static float _hotendtemp = 0;
+    if (_hotendtemp != thermalManager.temp_hotend[0].celsius) {
+      _hotendtemp = thermalManager.temp_hotend[0].celsius;
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, _hotendtemp);
+    }
+    static int16_t _hotendtarget = 0;
+    if (_hotendtarget != thermalManager.temp_hotend[0].target) {
+      _hotendtarget = thermalManager.temp_hotend[0].target;
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, _hotendtarget);
+    }
+    static int16_t _flow = planner.flow_percentage[0];
+    if (_flow != planner.flow_percentage[0]) {
+      _flow = planner.flow_percentage[0];
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, _flow);
+    }
+  #endif
 
-  static float hotend = 0;
-  static float bed = 0;
-  static int16_t hotendtarget = 0;
-  static int16_t bedtarget = 0;
-  static int16_t feedrate = 100;
-  static int16_t flow = flowrate;
-  static uint8_t fan = 0;
-  static float offset = zoffsetvalue;
-  static float x = current_position.x;
-  static float y = current_position.y;
-  static float z = current_position.z;
-  static float xhome = axis_was_homed(X_AXIS);
-  static float yhome = axis_was_homed(Y_AXIS);
-  static float zhome = axis_was_homed(Z_AXIS);
-  if (thermalManager.temp_hotend[0].celsius != hotend) {
-    hotend = thermalManager.temp_hotend[0].celsius;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
+  #if HAS_HEATED_BED
+    static float _bedtemp = 0;
+    if (_bedtemp != thermalManager.temp_bed.celsius) {
+      _bedtemp = thermalManager.temp_bed.celsius;
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, _bedtemp);
+    }
+    static int16_t _bedtarget = 0;
+    if (_bedtarget != thermalManager.temp_bed.target) {
+      _bedtarget = thermalManager.temp_bed.target;
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, _bedtarget);
+    }
+  #endif
+
+  static int16_t _feedrate = 100;
+  if (_feedrate != feedrate_percentage) {
+    _feedrate = feedrate_percentage;
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, _feedrate);
   }
-  if (thermalManager.temp_bed.celsius != bed) {
-    bed = thermalManager.temp_bed.celsius;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
-  }
-  if (thermalManager.temp_hotend[0].target != hotendtarget) {
-    hotendtarget = thermalManager.temp_hotend[0].target;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
-  }
-  if (thermalManager.temp_bed.target != bedtarget) {
-    bedtarget = thermalManager.temp_bed.target;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
-  }
-  if (feedrate_percentage != feedrate) {
-    feedrate = feedrate_percentage;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
-  }
-  if (flowrate != flow) {
-    flow = flowrate;
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, flowrate);
-  }
-  if (thermalManager.fan_speed[0] != fan) {
-    fan = thermalManager.fan_speed[0];
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
-  }
-  if (zoffsetvalue != offset) {
-    offset = zoffsetvalue;
-    if (zoffsetvalue < 0) {
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -zoffsetvalue * 100);
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)"-");
+
+  #if HAS_FAN
+    static uint8_t _fanspeed = 0;
+    if (_fanspeed != thermalManager.fan_speed[0]) {
+      _fanspeed = thermalManager.fan_speed[0];
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, _fanspeed);
+    }
+  #endif
+
+  static float _offset = 0;
+  if (BABY_Z_VAR != _offset) {
+    _offset = BABY_Z_VAR;
+    if (BABY_Z_VAR < 0) {
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -_offset * 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F("-"));
     }
     else {
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, zoffsetvalue* 100);
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)" ");
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, _offset * 100);
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F(" "));
     }
   }
-  if (current_position.x != x || xhome != axis_was_homed(X_AXIS)) {
-    x = current_position.x;
-    if (axis_was_homed(X_AXIS))
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
-    else
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 35, 459, (char*)"?");
-  }
-  if (current_position.y != y || yhome != axis_was_homed(Y_AXIS)) {
-    y = current_position.y;
-    if (axis_was_homed(Y_AXIS))
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
-    else
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 120, 459, (char*)"?");
-  }
-  if (current_position.z != z || zhome != axis_was_homed(Z_AXIS)) {
-    z = current_position.z;
-    if (axis_was_homed(Z_AXIS))
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
-    else
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 459, (char*)"?");
-  }
+
+  const bool blink = (millis() / 1000) & 1; // Is this an odd second?
+  _draw_axis_value(X_AXIS,  35, 459, blink);
+  _draw_axis_value(Y_AXIS, 120, 459, blink);
+  _draw_axis_value(Z_AXIS, 205, 459, blink);
 }
 
 /**
@@ -1839,57 +1845,52 @@ void Draw_Status_Area(const bool with_update) {
 
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
-  DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
-  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, (char*)"/");
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
+  #if HAS_HOTEND
+    DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.temp_hotend[0].celsius);
+    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.temp_hotend[0].target);
 
-  DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
-  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, (char*)"/");
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
+    DWIN_ICON_Show(ICON, ICON_StepE, 112, 417);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
+    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
+  #endif
+
+  #if HAS_HEATED_BED
+    DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
+    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.temp_bed.target);
+  #endif
 
   DWIN_ICON_Show(ICON, ICON_Speed, 113, 383);
   DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
-  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 384, (char*)"%");
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
 
-  DWIN_ICON_Show(ICON, ICON_StepE, 112, 417);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 116 + 2 * STAT_CHR_W, 417, flowrate);
-  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, (char*)"%");
+  #if HAS_FAN
+    DWIN_ICON_Show(ICON, ICON_FanSpeed, 187, 383);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+  #endif
 
-  DWIN_ICON_Show(ICON, ICON_FanSpeed, 187, 383);
-  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+  #if HAS_ZOFFSET_ITEM
+    DWIN_ICON_Show(ICON, ICON_Zoffset, 187, 416);
+  #endif
 
-  DWIN_ICON_Show(ICON, ICON_Zoffset, 187, 416);
-
-  zoffsetvalue = BABY_Z_VAR; // Temporary Statement for Compatability
-
-  if (zoffsetvalue < 0) {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -zoffsetvalue * 100);
-    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)"-");
+  if (BABY_Z_VAR < 0) {
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -BABY_Z_VAR * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F("-"));
   }
   else {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, zoffsetvalue * 100);
-    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, (char*)" ");
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, BABY_Z_VAR * 100);
+    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F(" "));
   }
 
   DWIN_Draw_Rectangle(1, Line_Color, 0, 449, DWIN_WIDTH, 451);
 
-  DWIN_ICON_Show(ICON, ICON_MaxSpeedX,   10, 456);
-  if (axis_was_homed(X_AXIS))
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
-  else
-    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 35, 459, (char*)"?");
-  DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
-  if (axis_was_homed(Y_AXIS))
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
-  else
-    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 120, 459, (char*)"?");
-  DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
-  if (axis_was_homed(Z_AXIS))
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 205, 459, current_position.z * 10);
-  else
-    DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 459, (char*)"?");
+  const bool blink = (millis() / 1000) & 1; // Is this an odd second?
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedX,  10, 456); _draw_axis_value(X_AXIS,  35, 459, blink);
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedY,  95, 456); _draw_axis_value(Y_AXIS, 120, 459, blink);
+  DWIN_ICON_Show(ICON, ICON_MaxSpeedZ, 180, 456); _draw_axis_value(Z_AXIS, 205, 459, blink);
 
   if (with_update) {
     DWIN_UpdateLCD();
