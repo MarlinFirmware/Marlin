@@ -2289,7 +2289,7 @@ void MarlinSettings::postprocess() {
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
-        DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
+        DEBUG_ECHOLNPAIR("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
@@ -2946,7 +2946,7 @@ void MarlinSettings::reset() {
   }
 
   #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
-  #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(STR); }while(0)
+  #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  config_heading(forReplay, PSTR(STR))
 
   #if HAS_TRINAMIC_CONFIG
@@ -3039,26 +3039,24 @@ void MarlinSettings::reset() {
       }
 
       #if EXTRUDERS == 1
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled)
-                              , " D", LINEAR_UNIT(planner.filament_size[0])
-                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
-                              #endif
-                         );
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled
+                            , " D", LINEAR_UNIT(planner.filament_size[0])
+                            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                              , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                            #endif
+                       );
       #else
         LOOP_L_N(i, EXTRUDERS) {
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M200 T", int(i)
-                                , " D", LINEAR_UNIT(planner.filament_size[i])
-                                #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-                                  , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
-                                #endif
-                           );
+          CONFIG_ECHO_MSG("  M200 T", i
+                              , " D", LINEAR_UNIT(planner.filament_size[i])
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                              #endif
+                         );
         }
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M200 S", int(parser.volumetric_enabled));
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled);
       #endif
+
     #endif // EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
@@ -3078,7 +3076,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, E_STEPPERS) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-            PSTR("  M203 T"), (int)i
+            PSTR("  M203 T"), i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
         );
       }
@@ -3098,7 +3096,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, E_STEPPERS) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-            PSTR("  M201 T"), (int)i
+            PSTR("  M201 T"), i
           , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
         );
       }
@@ -3160,7 +3158,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       LOOP_S_L_N(e, 1, HOTENDS) {
         SERIAL_ECHOPAIR_P(
-          PSTR("  M218 T"), (int)e,
+          PSTR("  M218 T"), e,
           SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
           SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y)
         );
@@ -3194,7 +3192,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-        PSTR("  M420 S"), planner.leveling_active ? 1 : 0
+        PSTR("  M420 S"), planner.leveling_active
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
         #endif
@@ -3206,7 +3204,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), (int)px, PSTR(" J"), (int)py);
+              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), px, PSTR(" J"), py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
@@ -3235,7 +3233,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR("  G29 W I", (int)px, " J", (int)py);
+              SERIAL_ECHOPAIR("  G29 W I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
             }
           }
@@ -3260,8 +3258,7 @@ void MarlinSettings::reset() {
           #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
             case Z_PROBE_SERVO_NR:
           #endif
-            CONFIG_ECHO_START();
-            SERIAL_ECHOLNPAIR("  M281 P", int(i), " L", servo_angles[i][0], " U", servo_angles[i][1]);
+            CONFIG_ECHO_MSG("  M281 P", i, " L", servo_angles[i][0], " U", servo_angles[i][1]);
           default: break;
         }
       }
@@ -3337,7 +3334,7 @@ void MarlinSettings::reset() {
       LOOP_L_N(i, PREHEAT_COUNT) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
-          PSTR("  M145 S"), (int)i
+          PSTR("  M145 S"), i
           #if HAS_HOTEND
             , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
           #endif
@@ -3382,8 +3379,7 @@ void MarlinSettings::reset() {
       #endif // PIDTEMP
 
       #if ENABLED(PIDTEMPBED)
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR(
+        CONFIG_ECHO_MSG(
             "  M304 P", thermalManager.temp_bed.pid.Kp
           , " I", unscalePID_i(thermalManager.temp_bed.pid.Ki)
           , " D", unscalePID_d(thermalManager.temp_bed.pid.Kd)
@@ -3400,16 +3396,14 @@ void MarlinSettings::reset() {
 
     #if HAS_LCD_CONTRAST
       CONFIG_ECHO_HEADING("LCD Contrast:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+      CONFIG_ECHO_MSG("  M250 C", ui.contrast);
     #endif
 
     TERN_(CONTROLLER_FAN_EDITABLE, M710_report(forReplay));
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       CONFIG_ECHO_HEADING("Power-Loss Recovery:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR("  M413 S", int(recovery.enabled));
+      CONFIG_ECHO_MSG("  M413 S", recovery.enabled);
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -3424,20 +3418,16 @@ void MarlinSettings::reset() {
       );
 
       CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
+      CONFIG_ECHO_MSG(
           "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
         , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
         , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
       );
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
-
         CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M209 S", fwretract.autoretract_enabled ? 1 : 0);
-
-      #endif // FWRETRACT_AUTORETRACT
+        CONFIG_ECHO_MSG("  M209 S", fwretract.autoretract_enabled);
+      #endif
 
     #endif // FWRETRACT
 
@@ -3780,13 +3770,10 @@ void MarlinSettings::reset() {
     #if ENABLED(LIN_ADVANCE)
       CONFIG_ECHO_HEADING("Linear Advance:");
       #if EXTRUDERS < 2
-        CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR("  M900 K", planner.extruder_advance_K[0]);
+        CONFIG_ECHO_MSG("  M900 K", planner.extruder_advance_K[0]);
       #else
-        LOOP_L_N(i, EXTRUDERS) {
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR("  M900 T", int(i), " K", planner.extruder_advance_K[i]);
-        }
+        LOOP_L_N(i, EXTRUDERS)
+          CONFIG_ECHO_MSG("  M900 T", i, " K", planner.extruder_advance_K[i]);
       #endif
     #endif
 
@@ -3851,9 +3838,8 @@ void MarlinSettings::reset() {
 
     #if HAS_FILAMENT_SENSOR
       CONFIG_ECHO_HEADING("Filament runout sensor:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-        "  M412 S", int(runout.enabled)
+      CONFIG_ECHO_MSG(
+        "  M412 S", runout.enabled
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
@@ -3871,7 +3857,7 @@ void MarlinSettings::reset() {
 
     #if HAS_MULTI_LANGUAGE
       CONFIG_ECHO_HEADING("UI Language:");
-      SERIAL_ECHO_MSG("  M414 S", int(ui.language));
+      SERIAL_ECHO_MSG("  M414 S", ui.language);
     #endif
   }
 

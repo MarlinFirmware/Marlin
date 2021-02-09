@@ -50,7 +50,7 @@
     GRID_LOOP(x, y)
       if (!isnan(z_values[x][y])) {
         SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
+        SERIAL_ECHOPAIR("  M421 I", x, " J", y);
         SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
         serial_delay(75); // Prevent Printrun from exploding
       }
@@ -150,7 +150,7 @@
     SERIAL_ECHO_SP(7);
     LOOP_L_N(i, GRID_MAX_POINTS_X) {
       if (i < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHO((int)i);
+      SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);
     }
     serial_delay(10);

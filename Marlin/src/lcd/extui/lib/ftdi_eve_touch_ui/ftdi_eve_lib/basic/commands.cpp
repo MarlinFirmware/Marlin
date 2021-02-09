@@ -1074,7 +1074,7 @@ void CLCD::init() {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7C) {
      #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_MSG("FTDI chip initialized ");
+       SERIAL_ECHO_MSG("FTDI chip initialized");
      #endif
      break;
    }
@@ -1082,11 +1082,10 @@ void CLCD::init() {
      delay(1);
 
    if (counter == 249) {
-     #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
-     #endif
-   }
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("Timeout waiting for device ID, should be 124, got ", device_id);
+      #endif
+    }
   }
 
   /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
@@ -1101,10 +1100,8 @@ void CLCD::init() {
     else
       delay(1);
 
-    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
-    }
+    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99)
+      SERIAL_ECHO_MSG("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default

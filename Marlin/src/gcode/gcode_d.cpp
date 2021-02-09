@@ -30,6 +30,8 @@
   #include "../HAL/shared/eeprom_if.h"
   #include "../HAL/shared/Delay.h"
 
+  extern void dump_delay_accuracy_check();
+
   /**
    * Dn: G-code for development and testing
    *
@@ -141,7 +143,7 @@
         }
       } break;
 
-      case 5: { // D4 Read / Write onboard Flash
+      case 5: { // D5 Read / Write onboard Flash
         #define FLASH_SIZE 1024
         uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
@@ -161,6 +163,10 @@
           SERIAL_EOL();
         }
       } break;
+
+      case 6: // D6 Check delay loop accuracy
+        dump_delay_accuracy_check();
+      break;
 
       case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
         SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
