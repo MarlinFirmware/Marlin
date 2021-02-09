@@ -96,7 +96,7 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* dat
 /* GPIO write                                           */
 /*GPIO byte is split between 2 registers, so two writes are needed to write one byte */
 
-/* GPOUT bits are in the low nibble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
+/* GPOUT bits are in the low nybble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
 void UHS_NI MAX3421E_HOST::gpioWr(uint8_t data) {
         regWr(rIOPINS1, data);
         data >>= 4;
@@ -132,11 +132,11 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* dat
 
 /* GPIO read. See gpioWr for explanation */
 
-/* GPIN pins are in high nibbles of IOPINS1, IOPINS2    */
+/* GPIN pins are in high nybbles of IOPINS1, IOPINS2    */
 uint8_t UHS_NI MAX3421E_HOST::gpioRd() {
         uint8_t gpin = 0;
         gpin = regRd(rIOPINS2); //pins 4-7
-        gpin &= 0xF0; //clean lower nibble
+        gpin &= 0xF0; //clean lower nybble
         gpin |= (regRd(rIOPINS1) >> 4); //shift low bits and OR with upper from previous operation.
         return ( gpin);
 }

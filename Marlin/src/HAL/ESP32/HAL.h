@@ -139,7 +139,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 #define HAL_IDLETASK 1
 #define BOARD_INIT() HAL_init_board();
 void HAL_idletask();
-void HAL_init();
+inline void HAL_init() {}
 void HAL_init_board();
 
 //

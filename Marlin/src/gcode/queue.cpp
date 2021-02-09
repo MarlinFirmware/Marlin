@@ -298,13 +298,12 @@ void GCodeQueue::ok_to_send() {
   #if ENABLED(ADVANCED_OK)
     char* p = command_buffer[index_r];
     if (*p == 'N') {
-      SERIAL_ECHO(' ');
-      SERIAL_ECHO(*p++);
+      SERIAL_CHAR(' ', *p++);
       while (NUMERIC_SIGNED(*p))
-        SERIAL_ECHO(*p++);
+        SERIAL_CHAR(*p++);
     }
-    SERIAL_ECHOPAIR_P(SP_P_STR, int(planner.moves_free()),
-                      SP_B_STR, int(BUFSIZE - length));
+    SERIAL_ECHOPAIR_P(SP_P_STR, planner.moves_free(),
+                      SP_B_STR, BUFSIZE - length);
   #endif
   SERIAL_EOL();
 }
