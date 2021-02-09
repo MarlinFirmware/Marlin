@@ -49,7 +49,7 @@ void GcodeSuite::G61(void) {
   // No saved position? No axes being restored?
   if (!TEST(saved_slots[slot >> 3], slot & 0x07) || !parser.seen("XYZ")) return;
 
-  SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
+  SERIAL_ECHOPAIR(STR_RESTORING_POS " S", slot);
   LOOP_XYZ(i) {
     destination[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)

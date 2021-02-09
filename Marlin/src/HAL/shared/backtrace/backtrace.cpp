@@ -34,10 +34,10 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 
   (*p)++;
 
-  SERIAL_CHAR('#'); SERIAL_PRINT(*p, DEC); SERIAL_ECHOPGM(" : ");
-  SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, HEX);
-  SERIAL_CHAR('+'); SERIAL_PRINT(bte->address - bte->function,DEC);
-  SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address,HEX); SERIAL_CHAR('\n');
+  SERIAL_CHAR('#'); SERIAL_ECHO(*p); SERIAL_ECHOPGM(" : ");
+  SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, PrintBase::Hex);
+  SERIAL_CHAR('+'); SERIAL_ECHO(bte->address - bte->function);
+  SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address, PrintBase::Hex); SERIAL_CHAR('\n');
   return true;
 }
 

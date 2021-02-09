@@ -141,9 +141,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnSDCardStateChange event triggered...");
-    SERIAL_ECHO(ui8tostr2(isInserted));
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
   #endif
   DoSDCardStateCheck();
 }
@@ -164,8 +162,7 @@ void AnycubicTFTClass::OnFilamentRunout() {
 
 void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ");
-    SERIAL_ECHOLN(msg);
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -555,10 +552,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
         a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], nullptr))));
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
-          if ((a_command > 7) && (a_command != 20)) { // No debugging of status polls, please!
-            SERIAL_ECHOPGM("TFT Serial Command: ");
-            SERIAL_ECHOLN(TFTcmdbuffer[TFTbufindw]);
-          }
+          if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
+            SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
         #endif
 
         switch (a_command) {
