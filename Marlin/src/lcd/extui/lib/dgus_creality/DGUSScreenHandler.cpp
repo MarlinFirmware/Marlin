@@ -1138,18 +1138,7 @@ void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) 
   float existingAmount = ExtUI::getZOffset_mm();
   float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
 
-  SERIAL_ECHO("- Absolute: ");
-  SERIAL_ECHO_F(absoluteAmount);
-  SERIAL_ECHO("- Existing: ");
-  SERIAL_ECHO_F(existingAmount);
-  SERIAL_ECHO(" - Difference: ");
-  SERIAL_ECHO_F(difference);
-
   int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
-
-  SERIAL_ECHO(" - Steps: ");
-  SERIAL_ECHO_F(steps);
-  SERIAL_ECHOLN(";");
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
 
