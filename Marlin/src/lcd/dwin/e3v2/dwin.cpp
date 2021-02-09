@@ -153,8 +153,8 @@ bool printing = false;
 bool paused = false;
 bool sdprint = false;
 
-int16_t pausetemp;
-int16_t pausebed;
+int16_t pausetemp, pausebed;
+float xpause, ypause;
 
 bool liveadjust = false;
 bool bedonly = false;
@@ -184,11 +184,11 @@ inline void Draw_Float(float value, uint8_t row, bool selected/*=false*/, uint8_
   }
 }
 
-inline void Draw_Title(char* title) {
+inline void Draw_Title(char *title) {
   DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
 }
 
-inline void Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, char * const label, bool more/*=false*/) {
+inline void Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, char *label, bool more/*=false*/) {
   if (label) DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(row) - 1, (char*)label); // Draw Label
   if (icon) DWIN_ICON_Show(ICON, icon, 26, MBASE(row) - 3); //Draw Menu Icon
   if (more) DWIN_ICON_Show(ICON, ICON_More, 226, MBASE(row) - 3); // Draw More Arrow
@@ -530,6 +530,31 @@ void Update_Status_Area() {
   DWIN_UpdateLCD();
 }
 
+void Draw_Popup(char *line1, char *line2, char *line3, uint8_t mode, uint8_t icon/*=0*/) {
+  selection = 0;
+  process = mode;
+  Clear_Screen();
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
+  uint8_t ypos;
+  if (mode == Popup || mode == Confirm)
+    ypos = 150;
+  else
+    ypos = 230;
+  if (icon > 0) 
+    DWIN_ICON_Show(ICON, icon, 101, 105);
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line1)) / 2, ypos, (char*)line1);
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line2)) / 2, ypos+30, (char*)line2);
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line3)) / 2, ypos+60, (char*)line3);
+  if (mode == Popup) {
+    DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
+    DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
+    Popup_Select();
+  }
+  else if (mode == Confirm) {
+    DWIN_ICON_Show(ICON, ICON_Continue_E, 87, 283);
+  }
+}
+
 /* Menu Item Config */
 
 char* Get_Menu_Title(uint8_t menu) {
@@ -672,7 +697,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_SetHome, (char*)"Auto Home");
           } else {
-            Popup_Window_Home();
+            Popup_Handler(Home);
             gcode.process_subcommands_now_P( PSTR("G28"));
             planner.synchronize();
             Draw_Menu(Prepare);
@@ -682,7 +707,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_PrintSize, (char*)"Manual Leveling", true);
           } else {
-            Popup_Window_Home();
+            Popup_Handler(Home);
             gcode.process_subcommands_now_P( PSTR("G28"));
             planner.synchronize();
             Draw_Menu(ManualLevel);
@@ -722,7 +747,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
               #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                 Draw_Menu(ChangeFilament);
               #else
-                Popup_Window_ChangeFilament();
+                Popup_Handler(FilChange);
                 gcode.process_subcommands_now_P(PSTR("M600 B1"));
                 planner.synchronize();
                 Draw_Menu(Prepare, 8);
@@ -771,7 +796,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             Draw_Float(current_position.e, item);
           } else {
             if (thermalManager.temp_hotend[0].celsius < EXTRUDE_MINTEMP) {
-              Popup_Window_ETempTooLow();
+              Popup_Handler(ETemp);
             } else {
               Modify_Value(current_position.e, -500, 500, 10);
             }
@@ -792,8 +817,8 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Left");
           } else {
-            Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X30 Y30\nG1 F300 Z0\nM220 S100"));
+            Popup_Handler(MoveWait);
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X35 Y35\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 1);
           }
@@ -802,8 +827,8 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Left");
           } else {
-            Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X30 Y205\nG1 F300 Z0\nM220 S100"));
+            Popup_Handler(MoveWait);
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X35 Y200\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 2);
           }
@@ -812,8 +837,8 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Right");
           } else {
-            Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X205 Y205\nG1 F300 Z0\nM220 S100"));
+            Popup_Handler(MoveWait);
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X200 Y200\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 3);
           }
@@ -822,8 +847,8 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Right");
           } else {
-            Popup_Window_Move();
-            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X205 Y30\nG1 F300 Z0\nM220 S100"));
+            Popup_Handler(MoveWait);
+            gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X200 Y35\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 4);
           }
@@ -832,7 +857,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Center");
           } else {
-            Popup_Window_Move();
+            Popup_Handler(MoveWait);
             gcode.process_subcommands_now_P(PSTR("G1 F4000\nG1 Z10\nG1 X117.5 Y117.5\nG1 F300 Z0\nM220 S100"));
             planner.synchronize();
             Draw_Menu(ManualLevel, 5);
@@ -854,7 +879,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           if (draw) {
             Draw_Menu_Item(row, ICON_Homing, (char*)"Home Z Axis");
           } else {
-            Popup_Window_Home();
+            Popup_Handler(Home);
             gcode.process_subcommands_now_P( PSTR("G28 Z\nG1 Z0"));
             planner.synchronize();
             Draw_Menu(ZOffset);
@@ -868,7 +893,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
               Draw_Menu_Item(row, ICON_Zoffset, (char*)"Live Adjust: Disabled");
           } else {
             if (!liveadjust) {
-              Popup_Window_Home();
+              Popup_Handler(Home);
               gcode.process_subcommands_now_P( PSTR("G28 Z O\nG1 Z0"));
               planner.synchronize();
               Draw_Menu(ZOffset, 2);
@@ -1002,7 +1027,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             if (draw) {
               Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Load Filament");
             } else {
-              Popup_Window_LoadFilament();
+              Popup_Handler(FilLoad);
               gcode.process_subcommands_now_P(PSTR("M701"));
               planner.synchronize();
               Draw_Menu(Prepare, 8);
@@ -1012,7 +1037,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             if (draw) {
               Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Filament");
             } else {
-              Popup_Window_LoadFilament(true);
+              Popup_Handler(FilLoad, true);;
               gcode.process_subcommands_now_P(PSTR("M702"));
               planner.synchronize();
               Draw_Menu(Prepare, 8);
@@ -1022,7 +1047,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             if (draw) {
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
             } else {
-              Popup_Window_ChangeFilament();
+              Popup_Handler(FilChange);
               gcode.process_subcommands_now_P(PSTR("M600 B1"));
               planner.synchronize();
               Draw_Menu(Prepare, 8);
@@ -1589,7 +1614,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
                 Draw_Menu_Item(row, ICON_More, (char*)"Save Mesh");
             } else {
               if (gridpoint < GRID_MAX_POINTS) {
-                Popup_Window_Move();
+                Popup_Handler(MoveWait);
                 gcode.process_subcommands_now_P(PSTR("G29"));
                 planner.synchronize();
                 gridpoint++;
@@ -1725,7 +1750,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             if (draw) {
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
             } else {
-              Popup_Window_ChangeFilament();
+              Popup_Handler(FilChange);
               gcode.process_subcommands_now_P(PSTR("M600 B1"));
               planner.synchronize();
               Draw_Print_Screen();
@@ -1748,9 +1773,48 @@ void Popup_Select() {
   DWIN_Draw_Rectangle(0, c2, 144, 278, 247, 319);
 }
 
+void Popup_Handler(uint8_t popupid, bool option/*=false*/) {
+  popup = popupid;
+  switch (popupid) {
+    case Pause:
+      Draw_Popup((char*)"Pause Print", (char*)"", (char*)"", Popup);
+      break;
+    case Stop:
+      Draw_Popup((char*)"Stop Print", (char*)"", (char*)"", Popup);
+      break;
+    case Resume:
+      Draw_Popup((char*)"Resume Print?", (char*)"Looks Like the last", (char*)"print was interupted.", Popup);
+      break;
+    case SaveLevel:
+      Draw_Popup((char*)"Leveling Complete", (char*)"Save to EEPROM?", (char*)"", Popup);
+      break;
+    case ETemp:
+      Draw_Popup((char*)"Nozzle is too cold", (char*)"Preheat to 200C?", (char*)"", Popup, ICON_TempTooLow);
+      break;
+    case Level:
+      Draw_Popup((char*)"Auto Bed Leveling", (char*)"Please wait until done.", (char*)"", Wait, ICON_AutoLeveling);
+      break;
+    case Home:
+      Draw_Popup(option ? (char*)"Parking" : (char*)"Homing", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
+      break;
+    case MoveWait:
+      Draw_Popup((char*)"Moving to Point", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
+      break;
+    case M600:
+      Draw_Popup(option ? (char*)"Filament Change" : (char*)"Print Paused", option ? (char*)"Insert New Filament" : (char*)"Press to resume print", (char*)"", Confirm);
+      break;
+    case FilLoad:
+      Draw_Popup(option ? (char*)"Unloading Filament" : (char*)"Loading Filament", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
+      break;
+    case FilChange:
+      Draw_Popup((char*)"Filament Change", (char*)"Please wait while heating.", (char*)"", Wait, ICON_BLTouch);
+      break;
+  }
+}
+
 void DWIN_Popup_Temperature(const bool toohigh) {
   Clear_Screen(4);
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 374);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 350);
   if (toohigh) {
     DWIN_ICON_Show(ICON, ICON_TempTooHigh, 102, 165);
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 36, 300, (char*)"Nozzle or Bed temperature");
@@ -1762,119 +1826,6 @@ void DWIN_Popup_Temperature(const bool toohigh) {
     DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 92, 300, (char*)"is too low");
   }
 }
-
-void Popup_Window_ETempTooLow() {
-  selection = 0;
-  process = Popup;
-  popup = ETemp;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_ICON_Show(ICON, ICON_TempTooLow, 102, 105);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 18) / 2, 192, (char*)"Nozzle is too cold");
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 212, (char*)"Preheat to 200C?");
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
-  DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
-  Popup_Select();
-}
-
-void Popup_Window_Resume() {
-  selection = 0;
-  process = Popup;
-  popup = Resume;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 14) / 2, 115, (char*)"Continue Print?");
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 192, (char*)"It looks like the last");
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 212, (char*)"file was interrupted.");
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
-  DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
-  Popup_Select();
-}
-
-void Popup_Window_Home(const bool parking/*=false*/) {
-  process = Wait;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (parking ? 7 : 6)) / 2, 230, parking ? (char*)"Parking" : (char*)"Homing");
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
-}
-
-void Popup_Window_Leveling() {
-  process = Wait;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_ICON_Show(ICON, ICON_AutoLeveling, 101, 105);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 17) / 2, 230, (char*)"Auto Bed Leveling");
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
-}
-
-void Popup_Window_Move() {
-  process = Wait;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-  DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 230, (char*)"Moving to Point");
-  DWIN_Draw_String(false,true,font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
-}
-
-void Popup_window_Pause() {
-  selection = 0;
-  process = Popup;
-  popup = Pause;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
-  DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
-  Popup_Select();
-}
-
-void Popup_window_Stop() {
-  selection = 0;
-  process = Popup;
-  popup = Stop;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
-  DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
-  Popup_Select();
-}
-
-void Popup_window_SaveLevel() {
-  selection = 0;
-  process = Popup;
-  popup = Level;
-  Clear_Screen();
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 20) / 2, 150, (char*)"Save Bed Level Mesh?");
-  DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
-  DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
-  Popup_Select();
-}
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void Popup_Window_ChangeFilament() {
-    process = Wait;
-    Clear_Screen();
-    DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-    DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 15) / 2, 230, (char*)"Filament Change");
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 26) / 2, 260, (char*)"Please wait while heating.");
-  }
-
-  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    void Popup_Window_LoadFilament(const bool unloading/*=false*/) {
-      process = Wait;
-      Clear_Screen();
-      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-      DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (unloading ? 18 : 16)) / 2, 230, unloading ? (char*)"Unloading Filament" : (char*)"Loading Filament");
-      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, (char*)"Please wait until done.");
-    }
-  #endif
-#endif
 
 /* Navigation and Control */
 
@@ -1903,16 +1854,16 @@ inline void Main_Menu_Control() {
         break;
       case 3:
         #if HAS_ONESTEP_LEVELING
-          Popup_Window_Leveling();
+          Popup_Handler(Level);
           gcode.process_subcommands_now_P(PSTR("G28\nG29"));
           planner.synchronize();
-          Popup_window_SaveLevel();
+          Popup_Handler(SaveLevel);
         #elif ENABLED(PROBE_MANUALLY)
           gridpoint = 1;
-          Popup_Window_Home();
+          Popup_Handler(Home);
           gcode.process_subcommands_now_P(PSTR("G28"));
           planner.synchronize();
-          Popup_Window_Move();
+          Popup_Handler(MoveWait);
           gcode.process_subcommands_now_P(PSTR("G29"));
           planner.synchronize();
           Draw_Menu(ManualMesh);
@@ -2104,18 +2055,19 @@ inline void Print_Screen_Control() {
         break;
       case 1:
         if (paused) {
-          char cmnd[20];
+          char cmnd[200];
           cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
           gcode.process_subcommands_now_P(PSTR(cmnd));
           cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
           gcode.process_subcommands_now_P(PSTR(cmnd));
+          planner.synchronize();
           gcode.process_subcommands_now_P(PSTR("M24"));
         }
         else
-          Popup_window_Pause();
+          Popup_Handler(Pause);
         break;
       case 2:
-        Popup_window_Stop();
+        Popup_Handler(Stop);
         break;
     }
   DWIN_UpdateLCD();
@@ -2138,14 +2090,10 @@ inline void Popup_Control() {
         if (selection==0) {
           if (sdprint) {
             paused = true;
-            #if ENABLED(POWER_LOSS_RECOVERY)
-              if (recovery.enabled) recovery.save(true);
-            #endif
-            gcode.process_subcommands_now_P(PSTR("M25"));
-            pausetemp = thermalManager.temp_hotend[0].target;
-            pausebed = thermalManager.temp_bed.target;
-            thermalManager.zero_fan_speeds();
-            thermalManager.disable_all_heaters();
+            Popup_Handler(Home, true);
+            planner.synchronize();
+            queue.inject_P(PSTR("M25"));
+            planner.synchronize();
             Draw_Print_Screen();
           } else {
             // TODO: Local Pause During Host Print
@@ -2157,10 +2105,10 @@ inline void Popup_Control() {
       case Stop:
         if (selection==0) {
           if (sdprint) {
-          card.flag.abort_sd_printing = true; 
-          thermalManager.zero_fan_speeds();
-          thermalManager.disable_all_heaters();
-          Draw_Main_Menu();
+            card.flag.abort_sd_printing = true; 
+            thermalManager.zero_fan_speeds();
+            thermalManager.disable_all_heaters();
+            Draw_Main_Menu();
           } else {
             // TODO: Local Stop During Host Print
           }
@@ -2171,9 +2119,8 @@ inline void Popup_Control() {
       case Resume:
         if (selection==0) {
           queue.inject_P(PSTR("M1000"));
-          Draw_Print_Screen();
         } else {
-          Draw_Print_Screen();
+          Draw_Main_Menu();
         }
         break;
       case ETemp:
@@ -2205,7 +2152,10 @@ inline void Confirm_Control() {
         Draw_Main_Menu();
         break;
       case M600:
-        Draw_Menu(Prepare, 8);
+        if (printing)
+          Draw_Print_Screen();
+        else
+          Draw_Menu(Prepare, 8);
         break;
     }
   }
@@ -2279,6 +2229,7 @@ void Start_Print(bool sd) {
     sdprint = true;
   else
     sdprint = sd;
+  printing = true;
   printpercent = 0;
   remainingtime = 0;
   elapsedtime = 0;
@@ -2288,6 +2239,7 @@ void Start_Print(bool sd) {
 }
 
 void Stop_Print() {
+  printing = false;
   thermalManager.zero_fan_speeds();
   thermalManager.disable_all_heaters();
   if (process == Print) {
@@ -2436,16 +2388,8 @@ void MarlinUI::refresh() {}
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode, const uint8_t extruder) {
     // TODO implement remainder of PauseMessage states
-    if (message == PAUSE_MESSAGE_INSERT || message == PAUSE_MESSAGE_WAITING) {
-      process = Confirm;
-      popup = M600;
-      Clear_Screen();
-
-      DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
-      DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 6)) / 2, 230, message == PAUSE_MESSAGE_INSERT ? (char*)"Filament Change" : (char*)"Paused");
-      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (message == PAUSE_MESSAGE_INSERT ? 15 : 21 )) / 2, 260, message == PAUSE_MESSAGE_INSERT ? (char*)"Insert Filament" : (char*)"Press to resume print");
-      DWIN_ICON_Show(ICON, ICON_Continue_E, 87, 283);
+    if ((message == PAUSE_MESSAGE_INSERT || message == PAUSE_MESSAGE_WAITING) && !paused) {
+      Popup_Handler(M600, (message == PAUSE_MESSAGE_INSERT));
     }
   }
 #endif

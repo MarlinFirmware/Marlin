@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, ETemp, Level, Complete, M600
+  Pause, Stop, Resume, SaveLevel, ETemp, Level, Home, MoveWait, Complete, M600, FilLoad, FilChange
 };
 
 enum menuID : uint8_t {
@@ -213,6 +213,7 @@ void Draw_SD_Item(uint8_t item, uint8_t row);
 void Draw_SD_List(bool removed=false);
 void Draw_Status_Area(const bool with_update);
 void Update_Status_Area();
+void Draw_Popup(char *line1, char *line2, char *line3, uint8_t mode, uint8_t icon=0);
 
 
 char* Get_Menu_Title(uint8_t menu);
@@ -221,23 +222,8 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
 
 void Popup_Select();
+void Popup_Handler(uint8_t popupid, bool option = false);
 void DWIN_Popup_Temperature(const bool toohigh);
-void Popup_Window_ETempTooLow();
-void Popup_Window_Resume();
-void Popup_Window_Home(const bool parking=false);
-void Popup_Window_Leveling();
-void Popup_Window_Move();
-void Popup_window_Pause();
-void Popup_window_Stop();
-void Popup_window_SaveLevel();
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void Popup_Window_ChangeFilament();
-
-  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    void Popup_Window_LoadFilament(const bool unloading=false);
-  #endif
-#endif
 
 
 inline void Main_Menu_Control();
