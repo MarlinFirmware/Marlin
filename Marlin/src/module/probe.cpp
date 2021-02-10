@@ -347,8 +347,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ") ");
     DEBUG_EOL();
 
-    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.setTargetBed(bedPreheat));
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat > thermalManager.degTargetHotend(0)) thermalManager.setTargetHotend(hotendPreheat, 0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat > thermalManager.degTargetBed())        thermalManager.setTargetBed(bedPreheat));
     TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.wait_for_hotend(0));
     TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.wait_for_bed_heating());
   }
