@@ -46,9 +46,6 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
   if (axis == Z_AXIS)
     current_position.z = Z_HOME_POS;
   else {
-    /**
-     * SCARA homes XY at the same time
-     */
     xyz_pos_t homeposition;
     LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
     #if ENABLED(MORGAN_SCARA)
@@ -76,29 +73,22 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
 }
 
 #if ENABLED(AXEL_TPARA)
+
   static constexpr xyz_pos_t robot_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
-#else
-  static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
-#endif
 
-#if ENABLED(AXEL_TPARA)
-
+  // Convert ABC inputs in degrees to XYZ outputs in mm
   void forward_kinematics(const float &a, const float &b, const float &c) {
-    // args in degrees
     const float w = c - b,
                 r = L1 * cos(RADIANS(b)) + L2 * sin(RADIANS(w - (90 - b))),
-                rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w)),
-                x = r * cos(RADIANS(a)),
-                y = r * sin(RADIANS(a)) ;
+                x = r  * cos(RADIANS(a)),
+                y = r  * sin(RADIANS(a)),
+                rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
 
-    cartes.set( x  + robot_offset.x,
-                y + robot_offset.y,
-                SQRT(rho2 - x*x - y*y) + robot_offset.z);
+    cartes = robot_offset + xyz_pos_t({ x, y, SQRT(rho2 - x * x - y * y) });
   }
 
+  // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
   void home_tpara() {
-    // should Home YZ together, then X (or all at once), Based on quick_home_xy & home_delta
-
     // Init the current position of all carriages to 0,0,0
     current_position.reset();
     destination.reset();
@@ -150,7 +140,42 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
     sync_plan_position();
   }
 
-#else
+  void inverse_kinematics(const xyz_pos_t &raw) {
+    const xyz_pos_t spos = raw - robot_offset;
+
+    const float RXY = SQRT(HYPOT2(spos.x, spos.y)),
+                RHO2 = NORMSQ(spos.x, spos.y, spos.z),
+                //RHO = SQRT(RHO2),
+                LSS = L1_2 + L2_2,
+                LM = 2.0f * L1 * L2,
+
+                CG = (LSS - RHO2) / LM,
+                SG = SQRT(1 - POW(CG, 2)), // Method 2
+                K1 = L1 - L2 * CG,
+                K2 = L2 * SG,
+
+                // Angle of Body Joint
+                THETA = ATAN2(spos.y, spos.x),
+
+                // Angle of Elbow Joint
+                //GAMMA = ACOS(CG),
+                GAMMA = ATAN2(SG, CG), // Method 2
+
+                // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
+                //PHI = asin(spos.z/RHO) + asin(L2 * sin(GAMMA) / RHO),
+                PHI = ATAN2(spos.z, RXY) + ATAN2(K2, K1),   // Method 2
+
+                // Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
+                PSI = PHI + GAMMA;
+
+    delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
+
+    //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+  }
+
+#else // Morgan, MP_SCARA
+
+  static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
 
   /**
    * Morgan SCARA Forward Kinematics. Results in 'cartes'.
@@ -158,14 +183,13 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
   void forward_kinematics(const float &a, const float &b) {
-
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
                 b_sin = sin(RADIANS(b)) * L2,
                 b_cos = cos(RADIANS(b)) * L2;
 
-    cartes.set(a_cos + b_cos + scara_offset.x,  // theta
-              a_sin + b_sin + scara_offset.y); // theta+phi
+    cartes.x = a_cos + b_cos + scara_offset.x;  // theta
+    cartes.y = a_sin + b_sin + scara_offset.y;  // theta+phi
 
     /*
       SERIAL_ECHOLNPAIR(
@@ -182,10 +206,9 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
 
 #endif
 
-void inverse_kinematics(const xyz_pos_t &raw) {
+#if ENABLED(MORGAN_SCARA)
 
-  #if ENABLED(MORGAN_SCARA)
-
+  void inverse_kinematics(const xyz_pos_t &raw) {
     /**
      * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
      *
@@ -226,9 +249,11 @@ void inverse_kinematics(const xyz_pos_t &raw) {
       DEBUG_POS("SCARA IK", delta);
       SERIAL_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Phi=", PHI);
     //*/
+  }
 
-  #elif ENABLED(MP_SCARA) // MP_SCARA
+#elif ENABLED(MP_SCARA)
 
+  void inverse_kinematics(const xyz_pos_t &raw) {
     const float x = raw.x, y = raw.y, c = HYPOT(x, y),
                 THETA3 = ATAN2(y, x),
                 THETA1 = THETA3 + ACOS((sq(c) + sq(L1) - sq(L2)) / (2.0f * c * L1)),
@@ -241,45 +266,9 @@ void inverse_kinematics(const xyz_pos_t &raw) {
       DEBUG_POS("SCARA IK", delta);
       SERIAL_ECHOLNPAIR("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
     //*/
+  }
 
-  #elif ENABLED(AXEL_TPARA)
-
-    float CG, SG, K1, K2, GAMMA, THETA, PHI, PSI;
-
-    const xyz_pos_t spos = raw - robot_offset;
-
-    const float RXY = SQRT(HYPOT2(spos.x, spos.y)); ;
-    const float RHO2 = NORMSQ(spos.x, spos.y, spos.z);
-    //const float RHO = SQRT(RHO2);
-
-    const float LSS = L1_2 + L2_2 ;
-    const float LM = 2.0f * L1 * L2 ;
-
-    CG = (LSS - RHO2)/LM ;
-    SG = SQRT(1-POW(CG,2)) ; // Method 2
-    K1 = L1-L2*CG;
-    K2 = L2*SG;
-
-    // Angle of Body Joint
-    THETA = ATAN2(spos.y, spos.x);
-
-    // Angle of Elbow Joint
-    //GAMMA = ACOS(CG);
-    GAMMA = ATAN2(SG,CG); // Method 2
-
-    // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
-    //PHI = asin (spos.z/RHO) +  asin(L2 * sin(GAMMA) / RHO);
-    PHI = ATAN2 (spos.z, RXY) +  ATAN2(K2, K1);   // Method 2
-
-    // Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
-    PSI = PHI + GAMMA;
-
-    delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
-
-    //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
-
-  #endif
-}
+#endif
 
 void scara_report_positions() {
   SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
