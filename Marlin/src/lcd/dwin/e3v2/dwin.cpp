@@ -173,7 +173,7 @@ int16_t pausetemp, pausebed;
 
 bool liveadjust = false;
 bool bedonly = false;
-float zoffsetvalue = 0;
+float zoffsetvalue;
 uint8_t gridpoint;
 
 /* General Display Functions */
@@ -416,7 +416,7 @@ void Draw_SD_Item(uint8_t item, uint8_t row) {
 
 void Draw_SD_List(bool removed/*=false*/) {
   Clear_Screen();
-  Draw_Title((char*)"Select File");
+  Draw_Title("Select File");
   selection = 0;
   scrollpos = 0;
   process = File;
@@ -603,7 +603,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Prepare:
       switch (item) {
         #define PREPARE_BACK 0
-        case PREPARE_BACK:
+        case PREPARE_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -612,7 +612,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_MOVE (PREPARE_BACK + 1)
-        case PREPARE_MOVE:
+        case PREPARE_MOVE: // Move
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Move", true);
           }
@@ -621,7 +621,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_DISABLE (PREPARE_MOVE + 1)
-        case PREPARE_DISABLE:
+        case PREPARE_DISABLE: // Disable Stepper
           if (draw) {
             Draw_Menu_Item(row, ICON_CloseMotor, (char*)"Disable Stepper");
           }
@@ -630,7 +630,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_HOME (PREPARE_DISABLE + 1)
-        case PREPARE_HOME:
+        case PREPARE_HOME: // Home
           if (draw) {
             Draw_Menu_Item(row, ICON_SetHome, (char*)"Auto Home");
           }
@@ -642,7 +642,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_MANUALLEVEL (PREPARE_HOME + 1)
-        case PREPARE_MANUALLEVEL:
+        case PREPARE_MANUALLEVEL: // Manual Leveling
           if (draw) {
             Draw_Menu_Item(row, ICON_PrintSize, (char*)"Manual Leveling", true);
           }
@@ -654,7 +654,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_ZOFFSET (PREPARE_MANUALLEVEL + HAS_ZOFFSET_ITEM)
-        case PREPARE_ZOFFSET:
+        case PREPARE_ZOFFSET: // Z Offset
           if (draw) {
             Draw_Menu_Item(row, ICON_Zoffset, (char*)"Z-Offset", true);
           }
@@ -663,7 +663,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_PREHEAT (PREPARE_ZOFFSET + HAS_PREHEAT)
-        case PREPARE_PREHEAT:
+        case PREPARE_PREHEAT: // Preheat
           if (draw) {
             Draw_Menu_Item(row, ICON_Temperature, (char*)"Preheat", true);
           }
@@ -672,7 +672,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_COOLDOWN (PREPARE_PREHEAT + HAS_PREHEAT)
-        case PREPARE_COOLDOWN:
+        case PREPARE_COOLDOWN: // Cooldown
           if (draw) {
             Draw_Menu_Item(row, ICON_Cool, (char*)"Cooldown", true);
           } 
@@ -682,7 +682,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
-        case PREPARE_CHANGEFIL:
+        case PREPARE_CHANGEFIL: // Change Filament
           if (draw) {
             #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament", true);
@@ -707,7 +707,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Move:
       switch (item) {
         #define MOVE_BACK 0
-        case MOVE_BACK:
+        case MOVE_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -716,7 +716,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOVE_X (MOVE_BACK + 1)
-        case MOVE_X:
+        case MOVE_X: // X
           if (draw) {
             Draw_Menu_Item(row, ICON_MoveX, (char*)"Move X");
             Draw_Float(current_position.x, row, false);
@@ -726,7 +726,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOVE_Y (MOVE_X + 1)
-        case MOVE_Y:
+        case MOVE_Y: // Y
           if (draw) {
             Draw_Menu_Item(row, ICON_MoveY, (char*)"Move Y");
             Draw_Float(current_position.y, row);
@@ -736,7 +736,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOVE_Z (MOVE_Y + 1)
-        case MOVE_Z:
+        case MOVE_Z: // Z
           if (draw) {
             Draw_Menu_Item(row, ICON_MoveZ, (char*)"Move Z");
             Draw_Float(current_position.z, row);
@@ -746,7 +746,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOVE_E (MOVE_Z + HAS_HOTEND)
-        case MOVE_E:
+        case MOVE_E: // E
           if (draw) {
             Draw_Menu_Item(row, ICON_Extruder, (char*)"Extruder");
             Draw_Float(current_position.e, item);
@@ -766,7 +766,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case ManualLevel:
       switch (item) {
         #define MLEVEL_BACK 0
-        case MLEVEL_BACK:
+        case MLEVEL_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -775,7 +775,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MLEVEL_BL (MLEVEL_BACK + 1)
-        case MLEVEL_BL:
+        case MLEVEL_BL: // Bottom Left
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Left");
           }
@@ -787,7 +787,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MLEVEL_TL (MLEVEL_BL + 1)
-        case MLEVEL_TL:
+        case MLEVEL_TL: // Top Left
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Left");
           }
@@ -799,7 +799,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MLEVEL_TR (MLEVEL_TL + 1)
-        case MLEVEL_TR:
+        case MLEVEL_TR: // Top Right
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Top Right");
           }
@@ -811,7 +811,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MLEVEL_BR (MLEVEL_TR + 1)
-        case MLEVEL_BR:
+        case MLEVEL_BR: // Bottom Right
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Right");
           }
@@ -823,7 +823,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MLEVEL_C (MLEVEL_BR + 1)
-        case 5:
+        case 5: // Center
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Center");
           }
@@ -841,7 +841,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
       case ZOffset:
         switch (item) {
           #define ZOFFSET_BACK 0
-          case ZOFFSET_BACK:
+          case ZOFFSET_BACK: // Back
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Back");
             }
@@ -851,7 +851,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_HOME (ZOFFSET_BACK + 1)
-          case ZOFFSET_HOME:
+          case ZOFFSET_HOME: // Home Z
             if (draw) {
               Draw_Menu_Item(row, ICON_Homing, (char*)"Home Z Axis");
             }
@@ -863,7 +863,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_MODE (ZOFFSET_HOME + 1)
-          case ZOFFSET_MODE:
+          case ZOFFSET_MODE: // Live Adjust
             if (draw) {
               if (liveadjust)
                 Draw_Menu_Item(row, ICON_Zoffset, (char*)"Live Adjust: Enabled");
@@ -882,7 +882,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_OFFSET (ZOFFSET_MODE + 1)
-          case ZOFFSET_OFFSET:
+          case ZOFFSET_OFFSET: // Offset
             if (draw) {
               Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Z Offset");
               Draw_Float(zoffsetvalue, row, false, 100);
@@ -892,7 +892,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_UP (ZOFFSET_OFFSET + 1)
-          case ZOFFSET_UP:
+          case ZOFFSET_UP: // Step Up
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Up");
             }
@@ -908,7 +908,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_DOWN (ZOFFSET_UP + 1)
-          case ZOFFSET_DOWN:
+          case ZOFFSET_DOWN: // Step Down
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
             }
@@ -924,7 +924,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define ZOFFSET_SAVE (ZOFFSET_DOWN + 1)
-          case ZOFFSET_SAVE:
+          case ZOFFSET_SAVE: // Save
             if (draw) {
               Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Save");
             }
@@ -940,7 +940,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
       case Preheat:
         switch (item) {
           #define PREHEAT_BACK 0
-          case PREHEAT_BACK:
+          case PREHEAT_BACK: // Back
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Back");
             }
@@ -949,7 +949,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define PREHEAT_MODE (PREHEAT_BACK + 1)
-          case PREHEAT_MODE:
+          case PREHEAT_MODE: // Mode
             if (draw) {
               if (bedonly)
                 Draw_Menu_Item(row, ICON_Homing, (char*)"Preheat Mode: Bed");
@@ -962,7 +962,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define PREHEAT_1 (PREHEAT_MODE + (PREHEAT_COUNT >= 1))
-          case PREHEAT_1:
+          case PREHEAT_1: // Preheat 1
             if (draw) {
               Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_1_LABEL);
             }
@@ -975,7 +975,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define PREHEAT_2 (PREHEAT_1 + (PREHEAT_COUNT >= 2))
-          case PREHEAT_2:
+          case PREHEAT_2: // Preheat 2
             if (draw) {
               Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_2_LABEL);
             }
@@ -988,7 +988,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define PREHEAT_3 (PREHEAT_2 + (PREHEAT_COUNT >= 3))
-          case PREHEAT_3:
+          case PREHEAT_3: // Preheat 3
             if (draw) {
               Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_3_LABEL);
             }
@@ -1001,7 +1001,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define PREHEAT_4 (PREHEAT_3 + (PREHEAT_COUNT >= 4))
-          case PREHEAT_4:
+          case PREHEAT_4: // Preheat 4
             if (draw) {
               Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_4_LABEL);
             }
@@ -1021,7 +1021,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
       case ChangeFilament:
         switch (item) {
           #define CHANGEFIL_BACK 0
-          case CHANGEFIL_BACK:
+          case CHANGEFIL_BACK: // Back
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Back");
             }
@@ -1030,7 +1030,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define CHANGEFIL_LOAD (CHANGEFIL_BACK + 1)
-          case CHANGEFIL_LOAD:
+          case CHANGEFIL_LOAD: // Load Filament
             if (draw) {
               Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Load Filament");
             }
@@ -1042,7 +1042,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define CHANGEFIL_UNLOAD (CHANGEFIL_LOAD + 1)
-          case CHANGEFIL_UNLOAD:
+          case CHANGEFIL_UNLOAD: // Unload Filament
             if (draw) {
               Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Filament");
             }
@@ -1054,7 +1054,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define CHANGEFIL_CHANGE (CHANGEFIL_UNLOAD + 1)
-          case CHANGEFIL_CHANGE:
+          case CHANGEFIL_CHANGE: // Change Filament
             if (draw) {
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
             }
@@ -1072,7 +1072,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Control:
       switch (item) {
         #define CONTROL_BACK 0
-        case CONTROL_BACK:
+        case CONTROL_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1081,7 +1081,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_TEMP (CONTROL_BACK + 1)
-        case CONTROL_TEMP:
+        case CONTROL_TEMP: // Temperature
           if (draw) {
             Draw_Menu_Item(row, ICON_Temperature, (char*)"Temperature");
           }
@@ -1090,7 +1090,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_MOTION (CONTROL_TEMP + 1)
-        case CONTROL_MOTION:
+        case CONTROL_MOTION: // Motion
           if (draw) {
             Draw_Menu_Item(row, ICON_Motion, (char*)"Motion");
           }
@@ -1108,7 +1108,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_SAVE (CONTROL_ADVANCED + ENABLED(EEPROM_SETTINGS))
-        case CONTROL_SAVE:
+        case CONTROL_SAVE: // Store Settings
           if (draw) {
             Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Store Settings");
           }
@@ -1117,7 +1117,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_RESTORE (CONTROL_SAVE + ENABLED(EEPROM_SETTINGS))
-        case CONTROL_RESTORE:
+        case CONTROL_RESTORE: // Restore Settings
           if (draw) {
             Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Restore Setting");
           }
@@ -1126,7 +1126,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_RESET (CONTROL_RESTORE + ENABLED(EEPROM_SETTINGS))
-        case CONTROL_RESET:
+        case CONTROL_RESET: // Reset Settings
           if (draw) {
             Draw_Menu_Item(row, ICON_Temperature, (char*)"Reset Defaults");
           }
@@ -1136,7 +1136,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define CONTROL_INFO (CONTROL_RESET + 1)
-        case CONTROL_INFO:
+        case CONTROL_INFO: // Info
           if (draw) {
             Draw_Menu_Item(row, ICON_Info, (char*)"Info");
           }
@@ -1150,7 +1150,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case TempMenu:
       switch (item) {
         #define TEMP_BACK 0
-        case TEMP_BACK:
+        case TEMP_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1159,7 +1159,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_HOTEND (TEMP_BACK + HAS_HOTEND)
-        case TEMP_HOTEND:
+        case TEMP_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
@@ -1169,7 +1169,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_BED (TEMP_HOTEND + HAS_HEATED_BED)
-        case TEMP_BED:
+        case TEMP_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(thermalManager.temp_bed.target, row, false, 1);
@@ -1179,7 +1179,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_FAN (TEMP_BED + HAS_FAN)
-        case TEMP_FAN:
+        case TEMP_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(thermalManager.fan_speed[0], row, false, 1);
@@ -1189,7 +1189,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_PREHEAT1 (TEMP_FAN + (PREHEAT_COUNT >= 1))
-        case TEMP_PREHEAT1:
+        case TEMP_PREHEAT1: // Preheat 1
           if (draw) {
             Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_1_LABEL);
           }
@@ -1198,7 +1198,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_PREHEAT2 (TEMP_PREHEAT1 + (PREHEAT_COUNT >= 2))
-        case TEMP_PREHEAT2:
+        case TEMP_PREHEAT2: // Preheat 2
           if (draw) {
             Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_2_LABEL);
           }
@@ -1207,7 +1207,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_PREHEAT3 (TEMP_PREHEAT2 + (PREHEAT_COUNT >= 3))
-        case TEMP_PREHEAT3:
+        case TEMP_PREHEAT3: // Preheat 3
           if (draw) {
             Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_3_LABEL);
           }
@@ -1216,7 +1216,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TEMP_PREHEAT4 (TEMP_PREHEAT3 + (PREHEAT_COUNT >= 4))
-        case TEMP_PREHEAT4:
+        case TEMP_PREHEAT4: // Preheat 4
           if (draw) {
             Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_4_LABEL);
           }
@@ -1230,7 +1230,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Preheat1:
       switch (item) {
         #define PREHEAT1_BACK 0
-        case PREHEAT1_BACK:
+        case PREHEAT1_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1239,7 +1239,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT1_HOTEND (PREHEAT1_BACK + HAS_HOTEND)
-        case PREHEAT1_HOTEND:
+        case PREHEAT1_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(ui.material_preset[0].hotend_temp, row, false, 1);
@@ -1249,7 +1249,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT1_BED (PREHEAT1_HOTEND + HAS_HEATED_BED)
-        case PREHEAT1_BED:
+        case PREHEAT1_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(ui.material_preset[0].bed_temp, row, false, 1);
@@ -1259,7 +1259,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT1_FAN (PREHEAT1_BED + HAS_FAN)
-        case PREHEAT1_FAN:
+        case PREHEAT1_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(ui.material_preset[0].fan_speed, row, false, 1);
@@ -1274,7 +1274,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Preheat2:
       switch (item) {
         #define PREHEAT2_BACK 0
-        case PREHEAT2_BACK:
+        case PREHEAT2_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1283,7 +1283,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT2_HOTEND (PREHEAT2_BACK + HAS_HOTEND)
-        case PREHEAT2_HOTEND:
+        case PREHEAT2_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(ui.material_preset[1].hotend_temp, row, false, 1);
@@ -1293,7 +1293,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT2_BED (PREHEAT2_HOTEND + HAS_HEATED_BED)
-        case PREHEAT2_BED:
+        case PREHEAT2_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(ui.material_preset[1].bed_temp, row, false, 1);
@@ -1303,7 +1303,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT2_FAN (PREHEAT2_BED + HAS_FAN)
-        case PREHEAT2_FAN:
+        case PREHEAT2_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(ui.material_preset[1].fan_speed, row, false, 1);
@@ -1318,7 +1318,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Preheat3:
       switch (item) {
         #define PREHEAT3_BACK 0
-        case PREHEAT3_BACK:
+        case PREHEAT3_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1327,7 +1327,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT3_HOTEND (PREHEAT3_BACK + HAS_HOTEND)
-        case PREHEAT3_HOTEND:
+        case PREHEAT3_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(ui.material_preset[2].hotend_temp, row, false, 1);
@@ -1337,7 +1337,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT3_BED (PREHEAT3_HOTEND + HAS_HEATED_BED)
-        case PREHEAT3_BED:
+        case PREHEAT3_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(ui.material_preset[2].bed_temp, row, false, 1);
@@ -1347,7 +1347,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT3_FAN (PREHEAT3_BED + HAS_FAN)
-        case PREHEAT3_FAN:
+        case PREHEAT3_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(ui.material_preset[2].fan_speed, row, false, 1);
@@ -1362,7 +1362,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Preheat4:
       switch (item) {
         #define PREHEAT4_BACK 0
-        case PREHEAT4_BACK:
+        case PREHEAT4_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1371,7 +1371,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT4_HOTEND (PREHEAT4_BACK + HAS_HOTEND)
-        case PREHEAT4_HOTEND:
+        case PREHEAT4_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(ui.material_preset[3].hotend_temp, row, false, 1);
@@ -1381,7 +1381,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT4_BED (PREHEAT4_HOTEND + HAS_HEATED_BED)
-        case PREHEAT4_BED:
+        case PREHEAT4_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(ui.material_preset[3].bed_temp, row, false, 1);
@@ -1391,7 +1391,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define PREHEAT4_FAN (PREHEAT4_BED + HAS_FAN)
-        case PREHEAT4_FAN:
+        case PREHEAT4_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(ui.material_preset[3].fan_speed, row, false, 1);
@@ -1406,7 +1406,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Motion:
       switch (item) {
         #define MOTION_BACK 0
-        case MOTION_BACK:
+        case MOTION_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1415,7 +1415,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOTION_SPEED (MOTION_BACK + 1)
-        case MOTION_SPEED:
+        case MOTION_SPEED: // Speed
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Max Speed");
           }
@@ -1424,7 +1424,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOTION_ACCEL (MOTION_SPEED + 1)
-        case MOTION_ACCEL:
+        case MOTION_ACCEL: // Acceleration
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccelerated, (char*)"Max Acceleration");
           }
@@ -1433,7 +1433,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOTION_JERK (MOTION_ACCEL + HAS_CLASSIC_JERK)
-        case MOTION_JERK:
+        case MOTION_JERK: // Jerk
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxJerk, (char*)"Max Jerk");
           }
@@ -1442,7 +1442,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOTION_STEPS (MOTION_JERK + 1)
-        case MOTION_STEPS:
+        case MOTION_STEPS: // Steps
           if (draw) {
             Draw_Menu_Item(row, ICON_Step, (char*)"Steps/mm");
           }
@@ -1451,7 +1451,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define MOTION_FLOW (MOTION_STEPS + HAS_HOTEND)
-        case MOTION_FLOW:
+        case MOTION_FLOW: // Flow
           if (draw) {
             Draw_Menu_Item(row, ICON_Speed, (char*)"Flow Rate");
             Draw_Float(planner.flow_percentage[0], row, false, 1);
@@ -1466,7 +1466,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case MaxSpeed:
       switch (item) {
         #define SPEED_BACK 0
-        case SPEED_BACK:
+        case SPEED_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1475,7 +1475,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define SPEED_X (SPEED_BACK + 1)
-        case SPEED_X:
+        case SPEED_X: // X
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeedX, (char*)"X Axis");
             Draw_Float(planner.settings.max_feedrate_mm_s[X_AXIS], row, false, 1);
@@ -1485,7 +1485,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define SPEED_Y (SPEED_X + 1)
-        case SPEED_Y:
+        case SPEED_Y: // Y
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeedY, (char*)"Y Axis");
             Draw_Float(planner.settings.max_feedrate_mm_s[Y_AXIS], row, false, 1);
@@ -1495,7 +1495,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define SPEED_Z (SPEED_Y + 1)
-        case SPEED_Z:
+        case SPEED_Z: // Z
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeedZ, (char*)"Z Axis");
             Draw_Float(planner.settings.max_feedrate_mm_s[Z_AXIS], row, false, 1);
@@ -1505,7 +1505,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define SPEED_E (SPEED_Z + HAS_HOTEND)
-        case SPEED_E:
+        case SPEED_E: // E
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeedE, (char*)"Extruder");
             Draw_Float(planner.settings.max_feedrate_mm_s[E_AXIS], row, false, 1);
@@ -1520,7 +1520,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case MaxAcceleration:
       switch (item) {
         #define ACCEL_BACK 0
-        case ACCEL_BACK:
+        case ACCEL_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1529,7 +1529,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ACCEL_X (ACCEL_BACK + 1)
-        case ACCEL_X:
+        case ACCEL_X: // X
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccX, (char*)"X Axis");
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, 1);
@@ -1539,7 +1539,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ACCEL_Y (ACCEL_X + 1)
-        case ACCEL_Y:
+        case ACCEL_Y: // Y
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccY, (char*)"Y Axis");
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, 1);
@@ -1549,7 +1549,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ACCEL_Z (ACCEL_Y + 1)
-        case ACCEL_Z:
+        case ACCEL_Z: // Z
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccZ, (char*)"Z Axis");
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, 1);
@@ -1559,7 +1559,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ACCEL_E (ACCEL_Z + HAS_HOTEND)
-        case ACCEL_E:
+        case ACCEL_E: // E
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccE, (char*)"Extruder");
             Draw_Float(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, 1);
@@ -1575,7 +1575,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
       case MaxJerk:
         switch (item) {
           #define JERK_BACK 0
-          case JERK_BACK:
+          case JERK_BACK: // Back
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Back");
             }
@@ -1584,7 +1584,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define JERK_X (JERK_BACK + 1)
-          case JERK_X:
+          case JERK_X: // X
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkX, (char*)"X Axis");
               Draw_Float(planner.max_jerk[X_AXIS], row, false, 1);
@@ -1594,7 +1594,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define JERK_Y (JERK_X + 1)
-          case JERK_Y:
+          case JERK_Y: // Y
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkY, (char*)"Y Axis");
               Draw_Float(planner.max_jerk[Y_AXIS], row, false, 1);
@@ -1604,7 +1604,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define JERK_Z (JERK_Y + 1)
-          case JERK_Z:
+          case JERK_Z: // Z
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkZ, (char*)"Z Axis");
               Draw_Float(planner.max_jerk[Z_AXIS], row, false, 1);
@@ -1614,7 +1614,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define JERK_E (JERK_Z + HAS_HOTEND)
-          case JERK_E:
+          case JERK_E: // E
             if (draw) {
               Draw_Menu_Item(row, ICON_MaxSpeedJerkE, (char*)"Extruder");
               Draw_Float(planner.max_jerk[E_AXIS], row, false, 1);
@@ -1630,7 +1630,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Steps:
       switch (item) {
         #define STEPS_BACK 0
-        case STEPS_BACK:
+        case STEPS_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1639,7 +1639,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define STEPS_X (STEPS_BACK + 1)
-        case STEPS_X:
+        case STEPS_X: // X
           if (draw) {
             Draw_Menu_Item(row, ICON_StepX, (char*)"X Axis");
             Draw_Float(planner.settings.axis_steps_per_mm[X_AXIS], row, false, 10);
@@ -1649,7 +1649,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define STEPS_Y (STEPS_X + 1)
-        case STEPS_Y:
+        case STEPS_Y: // Y
           if (draw) {
             Draw_Menu_Item(row, ICON_StepY, (char*)"Y Axis");
             Draw_Float(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, 10);
@@ -1659,7 +1659,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define STEPS_Z (STEPS_Y + 1)
-        case STEPS_Z:
+        case STEPS_Z: // Z
           if (draw) {
             Draw_Menu_Item(row, ICON_StepZ, (char*)"Z Axis");
             Draw_Float(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, 10);
@@ -1669,7 +1669,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define STEPS_E (STEPS_Z + HAS_HOTEND)
-        case STEPS_E:
+        case STEPS_E: // E
           if (draw) {
             Draw_Menu_Item(row, ICON_StepE, (char*)"Extruder");
             Draw_Float(planner.settings.axis_steps_per_mm[E_AXIS], row, false, 10);
@@ -1684,7 +1684,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Advanced:
       switch (item) {
         #define ADVANCED_BACK 0
-        case ADVANCED_BACK:
+        case ADVANCED_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1693,7 +1693,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ADVANCED_XOFFSET (ADVANCED_BACK + HAS_BED_PROBE)
-        case ADVANCED_XOFFSET:
+        case ADVANCED_XOFFSET: // Probe X Offset
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe X Offset");
             Draw_Float(probe.offset.x, row, false, 10);
@@ -1703,7 +1703,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + HAS_BED_PROBE)
-        case ADVANCED_YOFFSET:
+        case ADVANCED_YOFFSET: // Probe Y Offset
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe Y Offset");
             Draw_Float(probe.offset.y, row, false, 10);
@@ -1715,42 +1715,43 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
         #define ADVANCED_TOTAL ADVANCED_YOFFSET
       }
       break;
-    case InfoMain:
     case Info:
       switch (item) {
         #define INFO_BACK 0
-        case INFO_BACK:
+        case INFO_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
-            DWIN_Draw_Line(Line_Color, 16, MBASE(1) + 33, 256, MBASE(1) + 34);
-
-            DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, MBASE(2) - 1, (char*)MACHINE_SIZE);
-            DWIN_ICON_Show(ICON, ICON_PrintSize, 26, MBASE(2) - 3);
-            DWIN_Draw_Line(Line_Color, 16, MBASE(2) + 33, 256, MBASE(2) + 34);
-
-            DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, MBASE(3) - 1, (char*)SHORT_BUILD_VERSION);
-            DWIN_ICON_Show(ICON, ICON_Version, 26, MBASE(3) - 3);
-            DWIN_Draw_Line(Line_Color, 16, MBASE(3) + 33, 256, MBASE(3) + 34);
-
-            DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_E) * MENU_CHR_W) / 2, MBASE(4) - 1, (char*)CORP_WEBSITE_E);
-            DWIN_ICON_Show(ICON, ICON_Version, 26, MBASE(4) - 3);
-            DWIN_Draw_Line(Line_Color, 16, MBASE(4) + 33, 256, MBASE(4) + 34);
           }
           else {
-            if (menu == Info)
-              Draw_Menu(Control, 7);
-            else 
-              Draw_Main_Menu(3);
+            Draw_Menu(Control, 7);
           }
           break;
-        #define INFO_TOTAL INFO_BACK
+        #define INFO_SIZE (INFO_BACK + 1)
+        case INFO_SIZE:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_PrintSize, (char*)MACHINE_SIZE);
+          }
+          break;
+        #define INFO_VERSION (INFO_SIZE + 1)
+        case INFO_VERSION:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_StepY, (char*)SHORT_BUILD_VERSION);
+          }
+          break;
+        #define INFO_SITE (INFO_VERSION + 1)
+        case INFO_SITE:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_StepZ, (char*)CORP_WEBSITE_E);
+          }
+          break;
+        #define INFO_TOTAL INFO_SIZE
       }
       break;
     #if ENABLED(PROBE_MANUALLY)
       case ManualMesh:
         switch (item) {
           #define MMESH_BACK 0
-          case MMESH_BACK:
+          case MMESH_BACK: // Back
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Cancel");
             }
@@ -1761,7 +1762,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define MMESH_NEXT (MMESH_BACK + 1)
-          case MMESH_NEXT:
+          case MMESH_NEXT: // Next Point
             if (draw) {
               if (gridpoint < GRID_MAX_POINTS)
                 Draw_Menu_Item(row, ICON_More, (char*)"Next Point");
@@ -1785,7 +1786,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define MMESH_OFFSET (MMESH_NEXT + 1)
-          case MMESH_OFFSET:
+          case MMESH_OFFSET: // Offset
             if (draw) {
               Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Z Position");
               current_position.z = MANUAL_PROBE_START_Z;
@@ -1796,7 +1797,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define MMESH_UP (MMESH_OFFSET + 1)
-          case MMESH_UP:
+          case MMESH_UP: // Step Up
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Up");
             }
@@ -1811,7 +1812,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
             }
             break;
           #define MMESH_DOWN (MMESH_UP + 1)
-          case MMESH_DOWN:
+          case MMESH_DOWN: // Step Down
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
             }
@@ -1832,7 +1833,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
     case Tune:
       switch (item) {
         #define TUNE_BACK 0
-        case TUNE_BACK:
+        case TUNE_BACK: // Back
           if (draw) {
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
@@ -1841,7 +1842,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_SPEED (TUNE_BACK + 1)
-        case TUNE_SPEED:
+        case TUNE_SPEED: // Speed
           if (draw) {
             Draw_Menu_Item(row, ICON_Speed, (char*)"Print Speed");
             Draw_Float(feedrate_percentage, row, false, 1);
@@ -1851,7 +1852,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_FLOW (TUNE_SPEED + HAS_HOTEND)
-        case TUNE_FLOW:
+        case TUNE_FLOW: // Flow
           if (draw) {
             Draw_Menu_Item(row, ICON_Speed, (char*)"Flow Rate");
             Draw_Float(planner.flow_percentage[0], row, false, 1);
@@ -1861,7 +1862,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_HOTEND (TUNE_FLOW + HAS_HOTEND) 
-        case TUNE_HOTEND:
+        case TUNE_HOTEND: // Hotend
           if (draw) {
             Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
             Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
@@ -1871,7 +1872,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_BED (TUNE_HOTEND + HAS_HEATED_BED) 
-        case TUNE_BED:
+        case TUNE_BED: // Bed
           if (draw) {
             Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
             Draw_Float(thermalManager.temp_bed.target, row, false, 1);
@@ -1881,7 +1882,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_FAN (TUNE_BED + HAS_FAN) 
-        case TUNE_FAN:
+        case TUNE_FAN: // Fan
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Fan");
             Draw_Float(thermalManager.fan_speed[0], row, false, 1);
@@ -1891,7 +1892,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_ZOFFSET (TUNE_FAN + HAS_ZOFFSET_ITEM)
-        case TUNE_ZOFFSET:
+        case TUNE_ZOFFSET: // Z Offset
           if (draw) {
             Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Z-Offset");
             // TODO this does not update when using Up/Down below
@@ -1902,7 +1903,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_ZUP (TUNE_ZOFFSET + HAS_ZOFFSET_ITEM)
-        case TUNE_ZUP:
+        case TUNE_ZUP: // Z Offset Up
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Z-Offset Up");
           }
@@ -1915,7 +1916,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
         #define TUNE_ZDOWN (TUNE_ZUP + HAS_ZOFFSET_ITEM)
-        case TUNE_ZDOWN:
+        case TUNE_ZDOWN: // Z Offset Down
           if (draw) {
             Draw_Menu_Item(row, ICON_Axis, (char*)"Z-Offset Down");
           }
@@ -1928,7 +1929,7 @@ void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
           }
           break;
           #define TUNE_CHANGEFIL (TUNE_ZDOWN + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
-        case TUNE_CHANGEFIL:
+        case TUNE_CHANGEFIL: // Change Filament
           if (draw) {
             Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
           }
@@ -2052,7 +2053,7 @@ int Get_Menu_Size(uint8_t menu) {
     case Advanced:
       return ADVANCED_TOTAL;
     case Info:
-      return INFO_TOTAL;
+      return 0;
     #if ENABLED(PROBE_MANUALLY)
     case ManualMesh:
       return MMESH_TOTAL;
@@ -2361,12 +2362,11 @@ inline void Print_Screen_Control() {
       case 1:
         if (paused) {
           if (sdprint) {
-            //char cmnd[200];
-            //cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
-            //gcode.process_subcommands_now_P(PSTR(cmnd));
-            //cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
-            //gcode.process_subcommands_now_P(PSTR(cmnd));
-            paused = false;
+            char cmnd[200];
+            cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
+            gcode.process_subcommands_now_P(PSTR(cmnd));
+            cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
+            gcode.process_subcommands_now_P(PSTR(cmnd));
             planner.synchronize();
             gcode.process_subcommands_now_P(PSTR("M24"));
           }
@@ -2405,16 +2405,8 @@ inline void Popup_Control() {
           if (sdprint) {
             paused = true;
             Popup_Handler(Home, true);
-            #if ENABLED(SDSUPPORT)
-              if (IS_SD_PRINTING()) card.pauseSDPrint();
-            #endif
-
-            #if ENABLED(POWER_LOSS_RECOVERY)
-              if (recovery.enabled) recovery.save(true);
-            #endif
-            print_job_timer.pause();
             planner.synchronize();
-            queue.inject_P(PSTR("M125 P0"));
+            queue.inject_P(PSTR("M25"));
             planner.synchronize();
           }
           else {
@@ -2483,7 +2475,6 @@ inline void Confirm_Control() {
         Draw_Main_Menu();
         break;
       case M600:
-        wait_for_user = false;
         if (printing)
           Draw_Print_Screen();
         else
@@ -2590,26 +2581,24 @@ void DWIN_Update() {
 }
 
 void Variable_Update() {
-  #if HAS_ZOFFSET_ITEM
-    static float lastzoffset = zoffsetvalue;
-    if (zoffsetvalue != lastzoffset) {
-      lastzoffset = zoffsetvalue;
-      #if HAS_BED_PROBE
-        probe.offset.z = zoffsetvalue;
-      #else
-        set_home_offset(Z_AXIS, -zoffsetvalue);
-      #endif
-    }
-    
+  static float lastzoffset = zoffsetvalue;
+  if (zoffsetvalue != lastzoffset) {
+    lastzoffset = zoffsetvalue;
     #if HAS_BED_PROBE
-      if (probe.offset.z != lastzoffset) {
-        zoffsetvalue = lastzoffset = probe.offset.z;
-      }
+      probe.offset.z = zoffsetvalue;
     #else
-      if (-home_offset.z != lastzoffset) {
-        zoffsetvalue = lastzoffset = -home_offset.z;
-      }
+      set_home_offset(Z_AXIS, -zoffsetvalue);
     #endif
+  }
+
+  #if HAS_BED_PROBE
+    if (probe.offset.z != lastzoffset) {
+      zoffsetvalue = lastzoffset = probe.offset.z;
+    }
+  #else
+    if (-home_offset.z != lastzoffset) {
+      zoffsetvalue = lastzoffset = -home_offset.z;
+    }
   #endif
 }
 
@@ -2685,6 +2674,12 @@ void HMI_Init() {
   }
 
   DWIN_JPG_CacheTo1(Language_English);
+
+  #if HAS_BED_PROBE
+    zoffsetvalue = probe.offset.z;
+  #else
+    zoffsetvalue = -home_offset.z;
+  #endif
 
 }
 

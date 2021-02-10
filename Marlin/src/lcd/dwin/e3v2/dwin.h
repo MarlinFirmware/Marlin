@@ -61,7 +61,6 @@ enum menuID : uint8_t {
       Advanced,
       Info,
     ManualMesh,
-    InfoMain,
   Tune
 };
 
