@@ -330,27 +330,40 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   /**
    * Do preheating as required before leveling or probing
    */
-  void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
+  void Probe::preheat_for_probing(const uint16_t in_target_e, const uint16_t in_target_bed) {
     #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
     #if PROBING_BED_TEMP || LEVELING_BED_TEMP
       #define WAIT_FOR_BED_HEAT
     #endif
-    const uint16_t hotendPreheat = TERN0(WAIT_FOR_NOZZLE_HEAT, thermalManager.degHotend(0) < hotend_temp) ? hotend_temp : 0,
-                      bedPreheat = TERN0(WAIT_FOR_BED_HEAT,    thermalManager.degBed()     < bed_temp)    ? bed_temp    : 0;
+
+    #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
+      const bool input_over_e_temp = in_target_e > thermalManager.degHotend(0);
+      const uint16_t hotendPreheat = input_over_e_temp && in_target_e > thermalManager.degTargetHotend(0) ? in_target_e : 0;
+    #else
+      constexpr uint16_t hotendPreheat = 0;
+    #endif
+
+    #if ENABLED(WAIT_FOR_BED_HEAT)
+      const bool input_over_bed_temp = in_target_bed > thermalManager.degBed();
+      const uint16_t bedPreheat = input_over_bed_temp && in_target_bed > thermalManager.degTargetBed() ? in_target_bed : 0;
+    #else
+      constexpr uint16_t bedPreheat = 0;
+    #endif
+
     DEBUG_ECHOPGM("Preheating ");
     if (hotendPreheat) {
-      DEBUG_ECHOPAIR("hotend (", hotendPreheat, ") ");
-      if (bedPreheat) DEBUG_ECHOPGM("and ");
+      DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
+      if (bedPreheat) DEBUG_ECHOPGM(" and ");
     }
-    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ") ");
+    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
     DEBUG_EOL();
 
-    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat > thermalManager.degTargetHotend(0)) thermalManager.setTargetHotend(hotendPreheat, 0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat > thermalManager.degTargetBed())        thermalManager.setTargetBed(bedPreheat));
-    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.wait_for_hotend(0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.wait_for_bed_heating());
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat)       thermalManager.setTargetHotend(hotendPreheat, 0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)          thermalManager.setTargetBed(bedPreheat));
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (input_over_e_temp)   thermalManager.wait_for_hotend(0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (input_over_bed_temp) thermalManager.wait_for_bed_heating());
   }
 
 #endif
