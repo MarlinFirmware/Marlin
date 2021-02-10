@@ -1155,10 +1155,10 @@ void HMI_Move_X(void) {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
-      HMI_ValueStruct.Move_X_scale += EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_X_scaled += EncoderRate.encoderMoveValue;
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
-      HMI_ValueStruct.Move_X_scale -= EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_X_scaled -= EncoderRate.encoderMoveValue;
     }
 
     LIMIT(HMI_ValueStruct.Move_X_scaled, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
@@ -1166,7 +1166,7 @@ void HMI_Move_X(void) {
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
     DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
@@ -1189,10 +1189,10 @@ void HMI_Move_Y(void) {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
-      HMI_ValueStruct.Move_Y_scale += EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_Y_scaled += EncoderRate.encoderMoveValue;
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
-      HMI_ValueStruct.Move_Y_scale -= EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_Y_scaled -= EncoderRate.encoderMoveValue;
     }
 
     LIMIT(HMI_ValueStruct.Move_Y_scaled, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
@@ -1200,7 +1200,7 @@ void HMI_Move_Y(void) {
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
     DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
@@ -1223,10 +1223,10 @@ void HMI_Move_Z(void) {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
-      HMI_ValueStruct.Move_Z_scale += EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_Z_scaled += EncoderRate.encoderMoveValue;
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
-      HMI_ValueStruct.Move_Z_scale -= EncoderRate.encoderMoveValue;
+      HMI_ValueStruct.Move_Z_scaled -= EncoderRate.encoderMoveValue;
     }
 
     LIMIT(HMI_ValueStruct.Move_Z_scaled, Z_MIN_POS * MINUNITMULT, Z_MAX_POS * MINUNITMULT);
@@ -1234,7 +1234,7 @@ void HMI_Move_Z(void) {
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
     DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
@@ -1259,21 +1259,21 @@ void HMI_Move_Z(void) {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
       if (encoder_diffState == ENCODER_DIFF_CW) {
-        HMI_ValueStruct.Move_E_scale += EncoderRate.encoderMoveValue;
+        HMI_ValueStruct.Move_E_scaled += EncoderRate.encoderMoveValue;
       }
       else if (encoder_diffState == ENCODER_DIFF_CCW) {
-        HMI_ValueStruct.Move_E_scale -= EncoderRate.encoderMoveValue;
+        HMI_ValueStruct.Move_E_scaled -= EncoderRate.encoderMoveValue;
       }
 
-      last_E_scale = HMI_ValueStruct.Move_E_scale;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
+      last_E_scale = HMI_ValueStruct.Move_E_scaled;
+      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
 
-      if ((HMI_ValueStruct.Move_E_scale - last_E_scale) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
-        HMI_ValueStruct.Move_E_scale = last_E_scale + (EXTRUDE_MAXLENGTH) * MINUNITMULT;
-      else if ((last_E_scale - HMI_ValueStruct.Move_E_scale) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
-        HMI_ValueStruct.Move_E_scale = last_E_scale - (EXTRUDE_MAXLENGTH) * MINUNITMULT;
-      current_position.e = HMI_ValueStruct.Move_E_scale / 10;
-      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
+      if ((HMI_ValueStruct.Move_E_scaled - last_E_scale) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
+        HMI_ValueStruct.Move_E_scaled = last_E_scale + (EXTRUDE_MAXLENGTH) * MINUNITMULT;
+      else if ((last_E_scale - HMI_ValueStruct.Move_E_scaled) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
+        HMI_ValueStruct.Move_E_scaled = last_E_scale - (EXTRUDE_MAXLENGTH) * MINUNITMULT;
+      current_position.e = HMI_ValueStruct.Move_E_scaled / 10;
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
       DWIN_UpdateLCD();
 
       if (!planner.is_full()) {
