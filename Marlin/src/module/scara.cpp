@@ -51,26 +51,26 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
      */
     xyz_pos_t homeposition;
     LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
-    #if ENABLED(AXEL_TPARA)
-      SERIAL_ECHOPGM("homeposition");
-      SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
-      inverse_kinematics(homeposition);
-      forward_kinematics(delta.a, delta.b, delta.c);
-      current_position[axis] = cartes[axis];
-    #elif ENABLED(MP_SCARA)
-      // MP_SCARA uses a Cartesian XY home position
-      // SERIAL_ECHOPGM("homeposition");
-      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
-      current_position[axis] = homeposition[axis];
-    #else
+    #if ENABLED(MORGAN_SCARA)
       // MORGAN_SCARA uses arm angles for AB home position
-      // SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
+      //SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
       inverse_kinematics(homeposition);
       forward_kinematics(delta.a, delta.b);
       current_position[axis] = cartes[axis];
+    #elif ENABLED(MP_SCARA)
+      // MP_SCARA uses a Cartesian XY home position
+      //SERIAL_ECHOPGM("homeposition");
+      //SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
+      current_position[axis] = homeposition[axis];
+    #elif ENABLED(AXEL_TPARA)
+      //SERIAL_ECHOPGM("homeposition");
+      //SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
+      inverse_kinematics(homeposition);
+      forward_kinematics(delta.a, delta.b, delta.c);
+      current_position[axis] = cartes[axis];
     #endif
-    // SERIAL_ECHOPGM("Cartesian");
-    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
+    //SERIAL_ECHOPGM("Cartesian");
+    //SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
     update_software_endstops(axis);
   }
 }
@@ -106,9 +106,9 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-    TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-    TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-    TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+      TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
+      TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
+      TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
     #endif
 
     // const int x_axis_home_dir = x_home_dir(active_extruder);
@@ -127,9 +127,9 @@ void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-    TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-    TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-    TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+      TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
+      TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
+      TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
     #endif
 
     endstops.validate_homing_move();
