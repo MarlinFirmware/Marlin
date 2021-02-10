@@ -240,13 +240,13 @@ typedef struct {
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
   float Max_Acceleration  = 0;
-  float Max_Jerk          = 0;
-  float Max_Step          = 0;
-  float Move_X_scale      = 0;
-  float Move_Y_scale      = 0;
-  float Move_Z_scale      = 0;
+  float Max_Jerk_scaled   = 0;
+  float Max_Step_scaled   = 0;
+  float Move_X_scaled     = 0;
+  float Move_Y_scaled     = 0;
+  float Move_Z_scaled     = 0;
   #if HAS_HOTEND
-    float Move_E_scale    = 0;
+    float Move_E_scaled   = 0;
   #endif
   float offset_value      = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature

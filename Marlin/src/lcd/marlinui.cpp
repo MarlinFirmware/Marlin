@@ -751,7 +751,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // For Cartesian / Core motion simply move to the current_position
         planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
 
-        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
+        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", axis, " at FR ", fr_mm_s);
 
         axis = NO_AXIS;
 
@@ -772,7 +772,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
-    //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
+    //SERIAL_ECHOLNPAIR("Post Move with Axis ", axis, " soon.");
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -994,7 +994,7 @@ void MarlinUI::update() {
         refresh(LCDVIEW_REDRAW_NOW);
 
         #ifdef LED_BACKLIGHT_TIMEOUT
-          leds.reset_timeout(ms);
+          if (!powersupply_on) leds.reset_timeout(ms);
         #endif
       }
 
@@ -1652,7 +1652,13 @@ void MarlinUI::update() {
 #endif // SDSUPPORT
 
 #if HAS_LCD_MENU
-  void MarlinUI::reset_settings() { settings.reset(); completion_feedback(); }
+  void MarlinUI::reset_settings() {
+    settings.reset();
+    completion_feedback();
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
+    #endif
+  }
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)

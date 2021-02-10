@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include "macros.h"
 #include "serial_base.h"
 
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class
@@ -37,6 +38,8 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   bool available(uint8_t index) { return index == 0 && SerialT::available(); }
   int read(uint8_t index)       { return index == 0 ? SerialT::read() : -1; }
   bool connected()              { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
+  void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
+
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
@@ -68,6 +71,7 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
 
   void msgDone() {}
   bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
+  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
@@ -91,6 +95,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   void msgDone() {}
   // Existing instances implement Arduino's operator bool, so use that if it's available
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
+  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
   bool available(uint8_t index) { return index == 0 && out.available(); }
   int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
@@ -132,9 +137,10 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   using BaseClassT::println;
 
   // Underlying implementation might use Arduino's bool operator
-  bool connected() { 
-    return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool(); 
-  }  
+  bool connected() {
+    return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool();
+  }
+  void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts
