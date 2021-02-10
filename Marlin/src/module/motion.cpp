@@ -1342,6 +1342,12 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   }
 
   #if EITHER(MORGAN_SCARA, MP_SCARA)
+    // Tell the planner the axis is at 0
+    current_position[axis] = 0;
+    sync_plan_position();
+    current_position[axis] = distance;
+    line_to_current_position(home_fr_mm_s);
+  #else
     // Get the ABC or XYZ positions in mm
     abce_pos_t target = planner.get_axis_positions_mm();
 
@@ -1360,12 +1366,6 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
       #endif
       , home_fr_mm_s, active_extruder
     );
-  #else
-    // Tell the planner the axis is at 0
-    current_position[axis] = 0;
-    sync_plan_position();
-    current_position[axis] = distance;
-    line_to_current_position(home_fr_mm_s);
   #endif
 
   planner.synchronize();
