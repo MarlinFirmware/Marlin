@@ -268,21 +268,19 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
  */
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
-    forward_kinematics_DELTA(planner.get_axis_positions_mm());
+    forward_kinematics(planner.get_axis_positions_mm());
   #else
-    #if IS_SCARA && DISABLED(AXEL_TPARA)
-      forward_kinematics_robot(
-        planner.get_axis_position_degrees(A_AXIS),
-        planner.get_axis_position_degrees(B_AXIS)
+    #if IS_SCARA
+      forward_kinematics(
+          planner.get_axis_position_degrees(A_AXIS)
+        , planner.get_axis_position_degrees(B_AXIS)
+        #if ENABLED(AXEL_TPARA)
+          , planner.get_axis_position_degrees(C_AXIS)
+        #endif
       );
-    #elif ENABLED(AXEL_TPARA)
-      forward_kinematics_robot(
-        planner.get_axis_position_degrees(A_AXIS),
-        planner.get_axis_position_degrees(B_AXIS),
-        planner.get_axis_position_degrees(C_AXIS)
-      );    
     #else
-      cartes.set(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_mm(Y_AXIS));
+      cartes.x = planner.get_axis_position_mm(X_AXIS);
+      cartes.y = planner.get_axis_position_mm(Y_AXIS);
     #endif
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #endif
@@ -1343,13 +1341,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
   }
 
-  #if IS_SCARA && DISABLED(AXEL_TPARA)
-    // Tell the planner the axis is at 0
-    current_position[axis] = 0;
-    sync_plan_position();
-    current_position[axis] = distance;
-    line_to_current_position(home_fr_mm_s);
-  #else
+  #if EITHER(MORGAN_SCARA, MP_SCARA)
     // Get the ABC or XYZ positions in mm
     abce_pos_t target = planner.get_axis_positions_mm();
 
@@ -1368,6 +1360,12 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
       #endif
       , home_fr_mm_s, active_extruder
     );
+  #else
+    // Tell the planner the axis is at 0
+    current_position[axis] = 0;
+    sync_plan_position();
+    current_position[axis] = distance;
+    line_to_current_position(home_fr_mm_s);
   #endif
 
   planner.synchronize();
@@ -1567,7 +1565,7 @@ void set_axis_never_homed(const AxisEnum axis) {
 
 void homeaxis(const AxisEnum axis) {
 
-  #if IS_SCARA && DISABLED(AXEL_TPARA)
+  #if EITHER(MORGAN_SCARA, MP_SCARA)
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
@@ -1678,6 +1676,7 @@ void homeaxis(const AxisEnum axis) {
   }
 
   #if HAS_EXTRA_ENDSTOPS
+
     const bool pos_dir = axis_home_dir > 0;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {
@@ -1809,6 +1808,7 @@ void homeaxis(const AxisEnum axis) {
       TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
         stepper.set_separate_multi_axis(false);
     }
+
   #endif // HAS_EXTRA_ENDSTOPS
 
   #ifdef TMC_HOME_PHASE

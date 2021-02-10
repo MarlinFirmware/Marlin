@@ -29,25 +29,25 @@
 
 extern float delta_segments_per_second;
 
-#if EITHER(MORGAN_SCARA, MP_SCARA)
-    // Float constants for SCARA calculations
-    float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
-                    L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
-                    L2_2 = sq(float(L2));
-#elif ENABLED(AXEL_TPARA) // AXEL_TPARA
-    // Float constants for Robot arm calculations
-    float constexpr L1 = ROBOT_LINKAGE_1, L2 = ROBOT_LINKAGE_2,
-                    L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
-                    L2_2 = sq(float(L2));
-    void home_robot() ;
+#if ENABLED(AXEL_TPARA)
+
+  float constexpr L1 = TPARA_LINKAGE_1, L2 = TPARA_LINKAGE_2,   // Float constants for Robot arm calculations
+                  L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+                  L2_2 = sq(float(L2));
+
+  void forward_kinematics(const float &a, const float &b, const float &c);
+  void home_tpara();
+
+#else
+
+  float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,   // Float constants for SCARA calculations
+                  L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+                  L2_2 = sq(float(L2));
+
+  void forward_kinematics(const float &a, const float &b);
+
 #endif
-void scara_set_axis_is_at_home(const AxisEnum axis);
 
 void inverse_kinematics(const xyz_pos_t &raw);
-#if EITHER(MORGAN_SCARA, MP_SCARA)
-    void forward_kinematics_robot(const float &a, const float &b);
-#else // AXEL_TPARA
-    void forward_kinematics_robot(const float &a, const float &b, const float &c); 
-#endif
+void scara_set_axis_is_at_home(const AxisEnum axis);
 void scara_report_positions();
- 

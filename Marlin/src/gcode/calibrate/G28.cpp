@@ -116,7 +116,6 @@
 
 #endif // QUICK_HOME
 
-
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
@@ -314,10 +313,11 @@ void GcodeSuite::G28() {
 
   #elif ENABLED(AXEL_TPARA)
 
-    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA 
-    home_robot();
-    
-  #else // NOT DELTA
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
+
+    home_tpara();
+
+  #else
 
     const bool homeZ = parser.seen('Z'),
                needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
@@ -400,7 +400,7 @@ void GcodeSuite::G28() {
 
     sync_plan_position();
 
-  #endif // !DELTA (G28)
+  #endif
 
   /**
    * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.

@@ -370,25 +370,28 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
+
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
+
+    #elif ENABLED(AXEL_TPARA)
+
+      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
+      return (
+        R2 <= sq(L1 + L2) - inset
+        #if MIDDLE_DEAD_ZONE_R > 0
+          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+        #endif
+      );
+
     #elif IS_SCARA
-      #if ENABLED(AXEL_TPARA)
-        const float R2 = HYPOT2(rx - ROBOT_OFFSET_X, ry - ROBOT_OFFSET_Y);
-        return (
-          R2 <= sq(L1 + L2) - inset
-          #if MIDDLE_DEAD_ZONE_R > 0
-            && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-          #endif
-        );        
-      #else // SCARA 
-        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-        return (
-          R2 <= sq(L1 + L2) - inset
-          #if MIDDLE_DEAD_ZONE_R > 0
-            && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
-          #endif
-        );
-      #endif
+
+      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+      return (
+        R2 <= sq(L1 + L2) - inset
+        #if MIDDLE_DEAD_ZONE_R > 0
+          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+        #endif
+      );
 
     #endif
   }

@@ -26,86 +26,79 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if IS_SCARA  //suggestion: Rename to IS_ROBOT or kinematics
+#if IS_SCARA
 
-  #include "scara.h"
-  #include "motion.h"
-  #include "planner.h"
-
-  #if ENABLED(AXEL_TPARA)
-    // For homing, as in delta
-    #include "planner.h"
-    #include "endstops.h"
-    #include "../lcd/marlinui.h"
-    #include "../MarlinCore.h"
-  #endif
-  
-  #if EITHER(MORGAN_SCARA, MP_SCARA)
-    float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;  // suggestion rename to ROBOT_SEGMENTS_PER_SECOND
-  #else // AXEL_TPARA
-    float delta_segments_per_second = ROBOT_SEGMENTS_PER_SECOND;  // suggestion rename to ROBOT_SEGMENTS_PER_SECOND
-  #endif
-  
-
-  void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
-    if (axis == Z_AXIS)
-      current_position.z = Z_HOME_POS;
-    else {
-
-      /**
-       * SCARA homes XY at the same time
-       */
-      xyz_pos_t homeposition;
-      LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
-
-      #if ENABLED(MORGAN_SCARA)
-        // MORGAN_SCARA uses arm angles for AB home position
-        // SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
-        inverse_kinematics(homeposition);
-        forward_kinematics_robot(delta.a, delta.b);
-        current_position[axis] = cartes[axis];
-      #elif ENABLED(MP_SCARA)
-        // MP_SCARA uses a Cartesian XY home position
-        // SERIAL_ECHOPGM("homeposition");
-        // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
-        current_position[axis] = homeposition[axis];
-      #else  // AXEL_TPARA, TODO, check this 
-        SERIAL_ECHOPGM("homeposition");
-        SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);      
-        inverse_kinematics(homeposition);
-        forward_kinematics_robot(delta.a, delta.b, delta.c);
-        current_position[axis] = cartes[axis];      
-      #endif
-
-      // SERIAL_ECHOPGM("Cartesian");
-      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
-      update_software_endstops(axis);
-    }
-  }
-
-  #if ENABLED(AXEL_TPARA)
-    static constexpr xyz_pos_t robot_offset = { ROBOT_OFFSET_X, ROBOT_OFFSET_Y, ROBOT_OFFSET_Z };  
-  #else
-    static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
-  #endif
+#include "scara.h"
+#include "motion.h"
+#include "planner.h"
 
 #if ENABLED(AXEL_TPARA)
-  void forward_kinematics_robot(const float &a, const float &b, const float &c) {
+  // For homing, as in delta
+  #include "planner.h"
+  #include "endstops.h"
+  #include "../lcd/marlinui.h"
+  #include "../MarlinCore.h"
+#endif
+
+float delta_segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SEGMENTS_PER_SECOND);
+
+void scara_set_axis_is_at_home(const AxisEnum axis) { // suggestion rename
+  if (axis == Z_AXIS)
+    current_position.z = Z_HOME_POS;
+  else {
+    /**
+     * SCARA homes XY at the same time
+     */
+    xyz_pos_t homeposition;
+    LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
+    #if ENABLED(AXEL_TPARA)
+      SERIAL_ECHOPGM("homeposition");
+      SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
+      inverse_kinematics(homeposition);
+      forward_kinematics(delta.a, delta.b, delta.c);
+      current_position[axis] = cartes[axis];
+    #elif ENABLED(MP_SCARA)
+      // MP_SCARA uses a Cartesian XY home position
+      // SERIAL_ECHOPGM("homeposition");
+      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
+      current_position[axis] = homeposition[axis];
+    #else
+      // MORGAN_SCARA uses arm angles for AB home position
+      // SERIAL_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
+      inverse_kinematics(homeposition);
+      forward_kinematics(delta.a, delta.b);
+      current_position[axis] = cartes[axis];
+    #endif
+    // SERIAL_ECHOPGM("Cartesian");
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
+    update_software_endstops(axis);
+  }
+}
+
+#if ENABLED(AXEL_TPARA)
+  static constexpr xyz_pos_t robot_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
+#else
+  static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
+#endif
+
+#if ENABLED(AXEL_TPARA)
+
+  void forward_kinematics(const float &a, const float &b, const float &c) {
     // args in degrees
     const float w = c - b,
                 r = L1 * cos(RADIANS(b)) + L2 * sin(RADIANS(w - (90 - b))),
                 rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w)),
-                x = r * cos(RADIANS(a)), 
+                x = r * cos(RADIANS(a)),
                 y = r * sin(RADIANS(a)) ;
 
-    cartes.set( x  + robot_offset.x,  
-                y + robot_offset.y, 
-                SQRT(rho2 - x*x - y*y) + robot_offset.z); 
+    cartes.set( x  + robot_offset.x,
+                y + robot_offset.y,
+                SQRT(rho2 - x*x - y*y) + robot_offset.z);
   }
 
-  void home_robot() {
+  void home_tpara() {
     // should Home YZ together, then X (or all at once), Based on quick_home_xy & home_delta
-    
+
     // Init the current position of all carriages to 0,0,0
     current_position.reset();
     destination.reset();
@@ -120,12 +113,12 @@
 
     // const int x_axis_home_dir = x_home_dir(active_extruder);
 
-    // const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };       
+    // const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
     // const float mlz = max_length(X_AXIS),
-    
+
     // Move all carriages together linearly until an endstop is hit.
-    //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));    
-    
+    //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
+
     current_position.x = 0 ;
     current_position.y = 0 ;
     current_position.z = max_length(Z_AXIS) ;
@@ -143,10 +136,10 @@
 
     // At least one motor has reached its endstop.
     // Now re-home each motor separately.
-    homeaxis(A_AXIS);   
-    homeaxis(C_AXIS); 
+    homeaxis(A_AXIS);
+    homeaxis(C_AXIS);
     homeaxis(B_AXIS);
-    
+
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
@@ -157,14 +150,15 @@
     sync_plan_position();
   }
 
-#else  
+#else
+
   /**
    * Morgan SCARA Forward Kinematics. Results in 'cartes'.
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
-  void forward_kinematics_robot(const float &a, const float &b) {
-  
+  void forward_kinematics(const float &a, const float &b) {
+
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
                 b_sin = sin(RADIANS(b)) * L2,
@@ -185,114 +179,118 @@
       SERIAL_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
     //*/
   }
- #endif
 
-  void inverse_kinematics(const xyz_pos_t &raw) {
+#endif
 
-    #if ENABLED(MORGAN_SCARA)
-      /**
-       * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
-       *
-       * See https://reprap.org/forum/read.php?185,283327
-       *
-       * Maths and first version by QHARLEY.
-       * Integrated into Marlin and slightly restructured by Joachim Cerny.
-       */
-      float C2, S2, SK1, SK2, THETA, PSI;
+void inverse_kinematics(const xyz_pos_t &raw) {
 
-      // Translate SCARA to standard XY with scaling factor
-      const xy_pos_t spos = raw - scara_offset;
+  #if ENABLED(MORGAN_SCARA)
 
-      const float H2 = HYPOT2(spos.x, spos.y);
-      if (L1 == L2)
-        C2 = H2 / L1_2_2 - 1;
-      else
-        C2 = (H2 - (L1_2 + L2_2)) / (2.0f * L1 * L2);
+    /**
+     * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
+     *
+     * See https://reprap.org/forum/read.php?185,283327
+     *
+     * Maths and first version by QHARLEY.
+     * Integrated into Marlin and slightly restructured by Joachim Cerny.
+     */
+    float C2, S2, SK1, SK2, THETA, PSI;
 
-      S2 = SQRT(1.0f - sq(C2));
+    // Translate SCARA to standard XY with scaling factor
+    const xy_pos_t spos = raw - scara_offset;
 
-      // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
-      SK1 = L1 + L2 * C2;
+    const float H2 = HYPOT2(spos.x, spos.y);
+    if (L1 == L2)
+      C2 = H2 / L1_2_2 - 1;
+    else
+      C2 = (H2 - (L1_2 + L2_2)) / (2.0f * L1 * L2);
 
-      // Rotated Arm2 gives the distance from Arm1 to Arm2
-      SK2 = L2 * S2;
+    S2 = SQRT(1.0f - sq(C2));
 
-      // Angle of Arm1 is the difference between Center-to-End angle and the Center-to-Elbow
-      THETA = ATAN2(SK1, SK2) - ATAN2(spos.x, spos.y);
+    // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
+    SK1 = L1 + L2 * C2;
 
-      // Angle of Arm2
-      PSI = ATAN2(S2, C2);
+    // Rotated Arm2 gives the distance from Arm1 to Arm2
+    SK2 = L2 * S2;
 
-      delta.set(DEGREES(THETA), DEGREES(THETA + PSI), raw.z);
+    // Angle of Arm1 is the difference between Center-to-End angle and the Center-to-Elbow
+    THETA = ATAN2(SK1, SK2) - ATAN2(spos.x, spos.y);
 
-      /*
-        DEBUG_POS("SCARA IK", raw);
-        DEBUG_POS("SCARA IK", delta);
-        SERIAL_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Phi=", PHI);
-      //*/
+    // Angle of Arm2
+    PSI = ATAN2(S2, C2);
 
-    #elif ENABLED(MP_SCARA)// MP_SCARA
+    delta.set(DEGREES(THETA), DEGREES(THETA + PSI), raw.z);
 
-      const float x = raw.x, y = raw.y, c = HYPOT(x, y),
-                  THETA3 = ATAN2(y, x),
-                  THETA1 = THETA3 + ACOS((sq(c) + sq(L1) - sq(L2)) / (2.0f * c * L1)),
-                  THETA2 = THETA3 - ACOS((sq(c) + sq(L2) - sq(L1)) / (2.0f * c * L2));
+    /*
+      DEBUG_POS("SCARA IK", raw);
+      DEBUG_POS("SCARA IK", delta);
+      SERIAL_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Phi=", PHI);
+    //*/
 
-      delta.set(DEGREES(THETA1), DEGREES(THETA2), raw.z);
+  #elif ENABLED(MP_SCARA) // MP_SCARA
 
-      /*
-        DEBUG_POS("SCARA IK", raw);
-        DEBUG_POS("SCARA IK", delta);
-        SERIAL_ECHOLNPAIR("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
-      //*/
+    const float x = raw.x, y = raw.y, c = HYPOT(x, y),
+                THETA3 = ATAN2(y, x),
+                THETA1 = THETA3 + ACOS((sq(c) + sq(L1) - sq(L2)) / (2.0f * c * L1)),
+                THETA2 = THETA3 - ACOS((sq(c) + sq(L2) - sq(L1)) / (2.0f * c * L2));
 
-    #elif ENABLED(AXEL_TPARA)
-        float CG, SG, K1, K2, GAMMA, THETA, PHI, PSI;
-        
-        const xyz_pos_t spos = raw - robot_offset;
-        
-        const float RXY = SQRT(HYPOT2(spos.x, spos.y)); ;
-        const float RHO2 = NORMSQ(spos.x, spos.y, spos.z);
-        //const float RHO = SQRT(RHO2);
+    delta.set(DEGREES(THETA1), DEGREES(THETA2), raw.z);
 
-        const float LSS = L1_2 + L2_2 ;
-        const float LM = 2.0f * L1 * L2 ;
+    /*
+      DEBUG_POS("SCARA IK", raw);
+      DEBUG_POS("SCARA IK", delta);
+      SERIAL_ECHOLNPAIR("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
+    //*/
 
-        CG = (LSS - RHO2)/LM ;                
-        SG = SQRT(1-POW(CG,2)) ; // Method 2
-        K1 = L1-L2*CG;
-        K2 = L2*SG;
-        
-        // Angle of Body Joint
-        THETA = ATAN2(spos.y, spos.x);
+  #elif ENABLED(AXEL_TPARA)
 
-        // Angle of Elbow Joint
-        //GAMMA = ACOS(CG);
-        GAMMA = ATAN2(SG,CG); // Method 2
+    float CG, SG, K1, K2, GAMMA, THETA, PHI, PSI;
 
-        // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
-        //PHI = asin (spos.z/RHO) +  asin (L2*sin(GAMMA)/ RHO )  ;   
-        PHI = ATAN2 (spos.z, RXY) +  ATAN2 (K2, K1 )  ;   // Method 2
+    const xyz_pos_t spos = raw - robot_offset;
 
-        //Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
-        PSI = PHI + GAMMA; 
+    const float RXY = SQRT(HYPOT2(spos.x, spos.y)); ;
+    const float RHO2 = NORMSQ(spos.x, spos.y, spos.z);
+    //const float RHO = SQRT(RHO2);
 
-        delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
-          
-        //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+    const float LSS = L1_2 + L2_2 ;
+    const float LM = 2.0f * L1 * L2 ;
 
-    #endif // AXEL_TPARA
-  }
+    CG = (LSS - RHO2)/LM ;
+    SG = SQRT(1-POW(CG,2)) ; // Method 2
+    K1 = L1-L2*CG;
+    K2 = L2*SG;
 
-  void scara_report_positions() {
-    #if EITHER(MORGAN_SCARA, MP_SCARA)
-      SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS), "  Psi+Theta:", planner.get_axis_position_degrees(B_AXIS));
-    #elif ENABLED(AXEL_TPARA)
-      SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS), "  Phi:", planner.get_axis_position_degrees(B_AXIS), "  Psi:", planner.get_axis_position_degrees(C_AXIS));
+    // Angle of Body Joint
+    THETA = ATAN2(spos.y, spos.x);
+
+    // Angle of Elbow Joint
+    //GAMMA = ACOS(CG);
+    GAMMA = ATAN2(SG,CG); // Method 2
+
+    // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
+    //PHI = asin (spos.z/RHO) +  asin(L2 * sin(GAMMA) / RHO);
+    PHI = ATAN2 (spos.z, RXY) +  ATAN2(K2, K1);   // Method 2
+
+    // Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
+    PSI = PHI + GAMMA;
+
+    delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
+
+    //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+
+  #endif
+}
+
+void scara_report_positions() {
+  SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
+    #if ENABLED(AXEL_TPARA)
+      , "  Phi:", planner.get_axis_position_degrees(B_AXIS)
+      , "  Psi:", planner.get_axis_position_degrees(C_AXIS)
+    #else
+      , "  Psi+Theta:", planner.get_axis_position_degrees(B_AXIS)
     #endif
-    SERIAL_EOL();
-  }
-
-
+  );
+  SERIAL_EOL();
+}
 
 #endif // IS_SCARA
