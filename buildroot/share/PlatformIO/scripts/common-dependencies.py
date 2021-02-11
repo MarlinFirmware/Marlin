@@ -323,6 +323,14 @@ def check_configfile_locations():
 				raise SystemExit(err)
 
 #
+# Add CPU frequency as a compile time constant instead of a runtime variable
+#
+def add_cpu_freq():
+	if 'BOARD_F_CPU' in env:
+		env['BUILD_FLAGS'].append('-DBOARD_F_CPU=' + env['BOARD_F_CPU'])
+
+
+#
 # Add a method for other PIO scripts to query enabled features
 #
 env.AddMethod(MarlinFeatureIsEnabled)
@@ -333,3 +341,4 @@ env.AddMethod(MarlinFeatureIsEnabled)
 check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()
+add_cpu_freq()
