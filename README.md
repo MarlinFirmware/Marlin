@@ -5,12 +5,18 @@ This branch adds support for the Creality touchscreen machines and was split off
 - [CR10S Pro](http://bit.ly/2rxZ6lP)
 - [CR10 Max](http://bit.ly/2L6wZRy)
 - [CR-X](http://bit.ly/2L6xsmM)
-- [Ender 5 Plus](https://amzn.to/37TE8yH)
 - [CR10 V2 ](http://bit.ly/37PaXfV)
 - [CR20 and Pro](http://bit.ly/2Oxxruk)
 - [CR10S](http://bit.ly/33AAaHv)
 - [CR10S4 400mm](http://bit.ly/2XXCBmq)
 - [CR10S5 500mm](http://bit.ly/35K4ZuR)
+- [Ender 2]
+- [Ender 3]
+- [Ender 3 Pro 4.2.2 and 4.2.7]
+- [Ender 3 V2]
+- [Ender 4]
+- [Ender 5 Plus](https://amzn.to/37TE8yH)
+
 
 The CRX Has screen files with or without ABL. All other machines should use the same generic set. V2 is the current screen file version.
 
