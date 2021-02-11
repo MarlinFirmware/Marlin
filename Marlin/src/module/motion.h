@@ -34,6 +34,10 @@
   #include "scara.h"
 #endif
 
+#ifndef SHORT_MANUAL_Z_MOVE
+  #define SHORT_MANUAL_Z_MOVE 0.025
+#endif
+
 // Axis homed and known-position states
 extern uint8_t axis_homed, axis_known_position;
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);

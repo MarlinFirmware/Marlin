@@ -137,10 +137,6 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 // "Motion" > "Move Xmm" > "Move XYZ" submenu
 //
 
-#ifndef SHORT_MANUAL_Z_MOVE
-  #define SHORT_MANUAL_Z_MOVE 0.025
-#endif
-
 screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
