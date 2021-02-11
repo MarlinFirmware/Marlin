@@ -499,9 +499,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  13.28
-    #define DEFAULT_Ki   0.69
-    #define DEFAULT_Kd  64.39
+    #define DEFAULT_Kp  15.30
+    #define DEFAULT_Ki   0.78
+    #define DEFAULT_Kd  75.10
   #endif
 #endif // PIDTEMP
 
@@ -741,7 +741,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 100, 400, 837 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 100, 400, 854.08 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1032,7 +1032,7 @@
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -4.1 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
