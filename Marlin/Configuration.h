@@ -785,9 +785,9 @@
 #if ENABLED(PSU_CONTROL)
   #if ENABLED(PowerShutoffKit)
     #define PS_ON_PIN 12
-    #define PSU_ACTIVE_HIGH HIGH
+    #define PSU_ACTIVE_STATE HIGH
   #else
-    #define PSU_ACTIVE_HIGH FALSE      // Set 'LOW' for ATX, 'HIGH' for X-Box
+    #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
   #endif
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
