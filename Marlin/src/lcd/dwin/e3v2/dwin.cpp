@@ -2499,8 +2499,12 @@ inline void Print_Screen_Control() {
             //cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
             //gcode.process_subcommands_now_P(PSTR(cmnd));
             paused = false;
-            planner.synchronize();
-            gcode.process_subcommands_now_P(PSTR("M24"));
+            wait_for_user = false;
+            if (card.isFileOpen()) {
+              card.startFileprint();
+              startOrResumeJob();
+              TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+            }
           }
           else {
             #if ENABLED(HOST_ACTION_COMMANDS)
@@ -2540,13 +2544,12 @@ inline void Popup_Control() {
             #if ENABLED(SDSUPPORT)
               if (IS_SD_PRINTING()) card.pauseSDPrint();
             #endif
-
             #if ENABLED(POWER_LOSS_RECOVERY)
               if (recovery.enabled) recovery.save(true);
             #endif
             print_job_timer.pause();
             planner.synchronize();
-            queue.inject_P(PSTR("M125 P0"));
+            queue.inject_P(PSTR("M125"));
             planner.synchronize();
           }
           else {
