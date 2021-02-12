@@ -327,27 +327,46 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
 #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
 
+  #if ENABLED(PREHEAT_BEFORE_PROBING)
+    #ifndef PROBING_NOZZLE_TEMP
+      #define PROBING_NOZZLE_TEMP 0
+    #endif
+    #ifndef PROBING_BED_TEMP
+      #define PROBING_BED_TEMP 0
+    #endif
+  #endif
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    #ifndef LEVELING_NOZZLE_TEMP
+      #define LEVELING_NOZZLE_TEMP 0
+    #endif
+    #ifndef LEVELING_BED_TEMP
+      #define LEVELING_BED_TEMP 0
+    #endif
+  #endif
+
   /**
-   * Do preheating as required before leveling or probing
+   * Do preheating as required before leveling or probing.
+   *  - If a preheat input is higher than the current target, raise the target temperature.
+   *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
   void Probe::preheat_for_probing(const uint16_t in_target_e, const uint16_t in_target_bed) {
-    #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
+    #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
-    #if PROBING_BED_TEMP || LEVELING_BED_TEMP
+    #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
       const bool input_over_e_temp = in_target_e > thermalManager.degHotend(0);
-      const uint16_t hotendPreheat = input_over_e_temp && in_target_e > thermalManager.degTargetHotend(0) ? in_target_e : 0;
+      const uint16_t hotendPreheat = in_target_e > thermalManager.degTargetHotend(0) ? in_target_e : 0;
     #else
       constexpr uint16_t hotendPreheat = 0;
     #endif
 
     #if ENABLED(WAIT_FOR_BED_HEAT)
       const bool input_over_bed_temp = in_target_bed > thermalManager.degBed();
-      const uint16_t bedPreheat = input_over_bed_temp && in_target_bed > thermalManager.degTargetBed() ? in_target_bed : 0;
+      const uint16_t bedPreheat = in_target_bed > thermalManager.degTargetBed() ? in_target_bed : 0;
     #else
       constexpr uint16_t bedPreheat = 0;
     #endif
