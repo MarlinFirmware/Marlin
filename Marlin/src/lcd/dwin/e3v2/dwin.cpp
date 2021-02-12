@@ -1465,7 +1465,7 @@ void HMI_Move_Z() {
         else
           checkkey = Tune;
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
-        TERN_(HAS_FAN, thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed));
+        thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
         return;
       }
       // Fan_speed limit
