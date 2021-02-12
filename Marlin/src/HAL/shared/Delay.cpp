@@ -106,8 +106,7 @@
   }
 
   #if ENABLED(MARLIN_DEV_MODE)
-    void dump_delay_accuracy_check()
-    {
+    void dump_delay_accuracy_check() {
       auto report_call_time = [](PGM_P const name, PGM_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
         serialprintPGM(name);
