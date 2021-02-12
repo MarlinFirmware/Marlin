@@ -365,7 +365,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
         DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
         thermalManager.setTargetHotend(hotendPreheat, 0);
       }
-    #else
+    #elif ENABLED(WAIT_FOR_BED_HEAT)
       constexpr uint16_t hotendPreheat = 0;
     #endif
 
