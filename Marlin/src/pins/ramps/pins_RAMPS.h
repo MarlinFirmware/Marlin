@@ -464,7 +464,6 @@
 #define EXPA2_09_PIN                          52
 #define EXPA2_10_PIN                          50
 
-
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
@@ -736,8 +735,8 @@
 
       // Buttons are directly attached to AUX-2
       #if ENABLED(PANEL_ONE)
-        #define BTN_EN1                       59 // AUX2 PIN 3
-        #define BTN_EN2                       63 // AUX2 PIN 4
+        #define BTN_EN1                       59  // AUX2 PIN 3
+        #define BTN_EN2                       63  // AUX2 PIN 4
         #define BTN_ENC             EXPA2_04_PIN
       #else
         #define BTN_EN1             EXPA1_10_PIN
