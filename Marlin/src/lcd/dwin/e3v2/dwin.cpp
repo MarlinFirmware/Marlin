@@ -1626,20 +1626,20 @@ void update_variable() {
   if (checkkey == Tune) {
     #if HAS_HOTEND
       if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), thermalManager.temp_hotend[0].target);
         last_temp_hotend_target = thermalManager.temp_hotend[0].target;
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), last_temp_hotend_target);
       }
     #endif
     #if HAS_HEATED_BED
       if (last_temp_bed_target != thermalManager.temp_bed.target) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), thermalManager.temp_bed.target);
         last_temp_bed_target = thermalManager.temp_bed.target;
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), last_temp_bed_target);
       }
     #endif
     #if HAS_FAN
       if (last_fan_speed != thermalManager.fan_speed[0]) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), thermalManager.fan_speed[0]);
         last_fan_speed = thermalManager.fan_speed[0];
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), last_fan_speed);
       }
     #endif
   }
@@ -1648,20 +1648,20 @@ void update_variable() {
   if (checkkey == TemperatureID) {
     #if HAS_HOTEND
       if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), thermalManager.temp_hotend[0].target);
         last_temp_hotend_target = thermalManager.temp_hotend[0].target;
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), last_temp_hotend_target);
       }
     #endif
     #if HAS_HEATED_BED
       if (last_temp_bed_target != thermalManager.temp_bed.target) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), thermalManager.temp_bed.target);
         last_temp_bed_target = thermalManager.temp_bed.target;
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), last_temp_bed_target);
       }
     #endif
     #if HAS_FAN
       if (last_fan_speed != thermalManager.fan_speed[0]) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_FAN), thermalManager.fan_speed[0]);
         last_fan_speed = thermalManager.fan_speed[0];
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_FAN), last_fan_speed);
       }
     #endif
   }
