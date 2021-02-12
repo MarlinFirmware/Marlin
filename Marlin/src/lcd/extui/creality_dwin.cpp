@@ -17,9 +17,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#define CREALITY_DWIN_LCD
-#define EXTENSIBLE_UI
-
 #if BOTH(CREALITY_DWIN_LCD, EXTENSIBLE_UI)
 
 #include "lib/creality_dwin/creality_dwin.h"
@@ -34,10 +31,10 @@ namespace ExtUI {
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() { CrealityDWIN.Start_Print(isPrintingFromMedia()); }
   void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
+  void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) {}
-  void onStatusChanged(const char * const msg) {}
+  void onStatusChanged(const char * const msg) { CrealityDWIN.Host_Print_Text(msg); }
 
   void onHomingStart() {}
   void onHomingComplete() {}
@@ -66,15 +63,11 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
+    void onPowerLossResume() { CrealityDWIN.Popup_Handler(Resume); }
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
-      // Called for temperature PID tuning result
-    }
+    void onPidTuning(const result_t rst) {}
   #endif
 
   void onSteppersDisabled() {}

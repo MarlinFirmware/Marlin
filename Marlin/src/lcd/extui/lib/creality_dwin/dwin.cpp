@@ -30,7 +30,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(CREALITY_DWIN_LCD)
 
 #include "../../inc/MarlinConfig.h"
 

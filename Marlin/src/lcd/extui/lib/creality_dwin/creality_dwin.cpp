@@ -52,7 +52,7 @@
 
 #include "../../libs/buzzer.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(CREALITY_DWIN_LCD)
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"
@@ -178,7 +178,7 @@ uint8_t gridpoint;
 
 /* General Display Functions */
 
-inline void CrealityDWINClass::CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
+inline void CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
   if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
   if (e==2||e==3) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
   if (e==4) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
@@ -2675,7 +2675,7 @@ void CrealityDWINClass::Host_Print_Update(uint8_t percent, uint32_t remaining) {
   }
 }
 
-void CrealityDWINClass::Host_Print_Text(char * const text) {
+void CrealityDWINClass::Host_Print_Text(const char * const text) {
   LOOP_L_N(i, _MIN((size_t)30, strlen(text))) lastmsg[i] = text[i];
   lastmsg[_MIN((size_t)30, strlen(text))] = '\0';
   if (process == Print) {

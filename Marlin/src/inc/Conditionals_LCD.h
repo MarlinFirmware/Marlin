@@ -649,7 +649,7 @@
   #define UNUSED_E(E) UNUSED(E)
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ANY(DWIN_CREALITY_LCD, CREALITY_DWIN_LCD)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
     #define LCD_SERIAL_PORT 3 // Creality 4.x board

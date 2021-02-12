@@ -249,7 +249,7 @@ public:
 
 
   void Host_Print_Update(uint8_t percent, uint32_t remaining);
-  void Host_Print_Text(char * const text);
+  void Host_Print_Text(const char * const text);
 
 
   void Start_Print(bool sd);
