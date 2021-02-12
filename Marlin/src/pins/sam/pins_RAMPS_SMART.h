@@ -72,17 +72,17 @@
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000
 
-#define SDA_PIN 			20
-#define SCL_PIN 			21
+#define SDA_PIN                               20
+#define SCL_PIN                               21
 
 // See EEPROM device datasheet for the following values. These are for 24xx256
-#define EEPROM_SERIAL_ADDR      0x50   // 7 bit i2c address (without R/W bit)
-#define EEPROM_PAGE_SIZE        64     // page write buffer size
-#define EEPROM_PAGE_WRITE_TIME  7      // page write time in milliseconds (docs say 5ms but that is too short)
+#define EEPROM_SERIAL_ADDR                  0x50  // 7 bit i2c address (without R/W bit)
+#define EEPROM_PAGE_SIZE                      64  // page write buffer size
+#define EEPROM_PAGE_WRITE_TIME                 7  // page write time in milliseconds (docs say 5ms but that is too short)
 // TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
-#define TWI_CLOCK_FREQ          400000
-#define EEPROM_ADDRSZ_BYTES     TWI_MMR_IADRSZ_2_BYTE
-#define EEPROM_AVAILABLE EEPROM_I2C
+#define TWI_CLOCK_FREQ                       400000
+#define EEPROM_ADDRSZ_BYTESTWI_MMR_IADRSZ_2_BYTE
+#define EEPROM_AVAILABLE              EEPROM_I2C
 
 #define RESET_PIN                             42  // Resets the board if the jumper is attached
 
@@ -109,6 +109,7 @@
 //
 // LCD / Controller
 //
+
 // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN                          66  // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 65
