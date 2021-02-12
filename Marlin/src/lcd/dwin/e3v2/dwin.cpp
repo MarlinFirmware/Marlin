@@ -88,11 +88,11 @@
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
-#ifndef CORP_WEBSITE_C
-  #define CORP_WEBSITE_C WEBSITE_URL
+#ifndef CORP_WEBSITE_CN
+  #define CORP_WEBSITE_CN WEBSITE_URL
 #endif
-#ifndef CORP_WEBSITE_E
-  #define CORP_WEBSITE_E WEBSITE_URL
+#ifndef CORP_WEBSITE_EN
+  #define CORP_WEBSITE_EN WEBSITE_URL
 #endif
 
 #define PAUSE_HEAT
@@ -2019,7 +2019,7 @@ void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);
     DWIN_Frame_AreaCopy(1, 1, 164, 56, 176, 108, 175);
     DWIN_Frame_AreaCopy(1, 58, 164, 113, 176, 105, 248);
-    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_C) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE_C));
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_CN) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE_CN));
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -2031,7 +2031,7 @@ void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
     DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
     DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
-    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_E) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE_E));
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_EN) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE_EN));
   }
 
   Draw_Back_First();
