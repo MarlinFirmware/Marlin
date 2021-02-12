@@ -357,26 +357,27 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #define WAIT_FOR_BED_HEAT
     #endif
 
+    DEBUG_ECHOPGM("Preheating ");
+
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
       const uint16_t hotendPreheat = in_target_e > thermalManager.degTargetHotend(0) ? in_target_e : 0;
-      if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0);
+      if (hotendPreheat) {
+        DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
+        thermalManager.setTargetHotend(hotendPreheat, 0);
+      }
     #else
       constexpr uint16_t hotendPreheat = 0;
     #endif
 
     #if ENABLED(WAIT_FOR_BED_HEAT)
       const uint16_t bedPreheat = in_target_bed > thermalManager.degTargetBed() ? in_target_bed : 0;
-      if (bedPreheat) thermalManager.setTargetBed(bedPreheat);
-    #else
-      constexpr uint16_t bedPreheat = 0;
+      if (bedPreheat) {
+        if (hotendPreheat) DEBUG_ECHOPGM(" and ");
+        DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
+        thermalManager.setTargetBed(bedPreheat);
+      }
     #endif
 
-    DEBUG_ECHOPGM("Preheating ");
-    if (hotendPreheat) {
-      DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
-      if (bedPreheat) DEBUG_ECHOPGM(" and ");
-    }
-    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
     DEBUG_EOL();
 
     TERN_(WAIT_FOR_NOZZLE_HEAT, if (in_target_e > thermalManager.degHotend(0)) thermalManager.wait_for_hotend(0));
