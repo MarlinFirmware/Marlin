@@ -60,8 +60,8 @@
  * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
-#if NOT_TARGET(__SAM3X8E__,__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Due'  or 'Mega 2560' in 'Tools > Board.'"
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino Due' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
@@ -74,7 +74,8 @@
 
 #define SDA_PIN 			20
 #define SCL_PIN 			21
-// see eeprom device data sheet for the following values, these are for 24xx256
+
+// See EEPROM device datasheet for the following values. These are for 24xx256
 #define EEPROM_SERIAL_ADDR      0x50   // 7 bit i2c address (without R/W bit)
 #define EEPROM_PAGE_SIZE        64     // page write buffer size
 #define EEPROM_PAGE_WRITE_TIME  7      // page write time in milliseconds (docs say 5ms but that is too short)
