@@ -79,9 +79,9 @@
 #define EEPROM_SERIAL_ADDR                  0x50  // 7 bit i2c address (without R/W bit)
 #define EEPROM_PAGE_SIZE                      64  // page write buffer size
 #define EEPROM_PAGE_WRITE_TIME                 7  // page write time in milliseconds (docs say 5ms but that is too short)
-// TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
+
 #define TWI_CLOCK_FREQ                       400000
-#define EEPROM_ADDRSZ_BYTESTWI_MMR_IADRSZ_2_BYTE
+#define EEPROM_ADDRSZ_BYTES TWI_MMR_IADRSZ_2_BYTE // TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
 #define EEPROM_AVAILABLE              EEPROM_I2C
 
 #define RESET_PIN                             42  // Resets the board if the jumper is attached
