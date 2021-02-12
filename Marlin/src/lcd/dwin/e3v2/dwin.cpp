@@ -1220,24 +1220,22 @@ void HMI_Move_X() {
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
       HMI_ValueStruct.Move_X_scaled += EncoderRate.encoderMoveValue;
+      NOMORE(HMI_ValueStruct.Move_X_scaled, (X_MAX_POS) * MINUNITMULT);
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
       HMI_ValueStruct.Move_X_scaled -= EncoderRate.encoderMoveValue;
+      NOLESS(HMI_ValueStruct.Move_X_scaled, (X_MIN_POS) * MINUNITMULT);
     }
-
-    LIMIT(HMI_ValueStruct.Move_X_scaled, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
     current_position.x = HMI_ValueStruct.Move_X_scaled / MINUNITMULT;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
-    DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
+    DWIN_UpdateLCD();
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
       planner.buffer_line(current_position, homing_feedrate(X_AXIS), active_extruder);
+      DWIN_UpdateLCD();
     }
-    DWIN_UpdateLCD();
-
   }
 
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
@@ -1245,7 +1243,6 @@ void HMI_Move_X() {
     planner.synchronize();
     checkkey = AxisMove;
     DWIN_UpdateLCD();
-    return;
   }
 }
 
@@ -1254,24 +1251,22 @@ void HMI_Move_Y() {
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
       HMI_ValueStruct.Move_Y_scaled += EncoderRate.encoderMoveValue;
+      NOMORE(HMI_ValueStruct.Move_Y_scaled, (Y_MAX_POS) * MINUNITMULT);
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
       HMI_ValueStruct.Move_Y_scaled -= EncoderRate.encoderMoveValue;
+      NOLESS(HMI_ValueStruct.Move_Y_scaled, (Y_MIN_POS) * MINUNITMULT);
     }
-
-    LIMIT(HMI_ValueStruct.Move_Y_scaled, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
     current_position.y = HMI_ValueStruct.Move_Y_scaled / MINUNITMULT;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
-    DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
+    DWIN_UpdateLCD();
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
       planner.buffer_line(current_position, homing_feedrate(Y_AXIS), active_extruder);
+      DWIN_UpdateLCD();
     }
-    DWIN_UpdateLCD();
-
   }
 
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
@@ -1279,7 +1274,6 @@ void HMI_Move_Y() {
     planner.synchronize();
     checkkey = AxisMove;
     DWIN_UpdateLCD();
-    return;
   }
 }
 
@@ -1288,31 +1282,29 @@ void HMI_Move_Z() {
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
       HMI_ValueStruct.Move_Z_scaled += EncoderRate.encoderMoveValue;
+      NOMORE(HMI_ValueStruct.Move_Z_scaled, Z_MAX_POS * MINUNITMULT);
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
       HMI_ValueStruct.Move_Z_scaled -= EncoderRate.encoderMoveValue;
+      NOLESS(HMI_ValueStruct.Move_Z_scaled, Z_MIN_POS * MINUNITMULT);
     }
-
-    LIMIT(HMI_ValueStruct.Move_Z_scaled, Z_MIN_POS * MINUNITMULT, Z_MAX_POS * MINUNITMULT);
     current_position.z = HMI_ValueStruct.Move_Z_scaled / MINUNITMULT;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
-    DWIN_UpdateLCD();
 
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
+    DWIN_UpdateLCD();
     if (!planner.is_full()) {
       // Wait for planner moves to finish!
       planner.synchronize();
       planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+      DWIN_UpdateLCD();
     }
-    DWIN_UpdateLCD();
-
   }
+
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     planner.synchronize();
     checkkey = AxisMove;
     EncoderRate.enabled = false;
     DWIN_UpdateLCD();
-    return;
   }
 }
 
@@ -1322,12 +1314,10 @@ void HMI_Move_Z() {
     static float last_E_scaled = 0;
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
-      if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (encoder_diffState == ENCODER_DIFF_CW)
         HMI_ValueStruct.Move_E_scaled += EncoderRate.encoderMoveValue;
-      }
-      else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      else if (encoder_diffState == ENCODER_DIFF_CCW)
         HMI_ValueStruct.Move_E_scaled -= EncoderRate.encoderMoveValue;
-      }
 
       last_E_scaled = HMI_ValueStruct.Move_E_scaled;
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
@@ -1337,22 +1327,21 @@ void HMI_Move_Z() {
       else if ((last_E_scaled - HMI_ValueStruct.Move_E_scaled) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
         HMI_ValueStruct.Move_E_scaled = last_E_scaled - (EXTRUDE_MAXLENGTH) * MINUNITMULT;
       current_position.e = HMI_ValueStruct.Move_E_scaled / MINUNITMULT;
+
       DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
       DWIN_UpdateLCD();
-
       if (!planner.is_full()) {
         planner.synchronize(); // Wait for planner moves to finish!
         planner.buffer_line(current_position, MMM_TO_MMS(FEEDRATE_E), active_extruder);
+        DWIN_UpdateLCD();
       }
-      DWIN_UpdateLCD();
-
     }
-    if (encoder_diffState == ENCODER_DIFF_ENTER ) {
+
+    if (encoder_diffState == ENCODER_DIFF_ENTER) {
       EncoderRate.enabled = false;
       planner.synchronize(); // Wait for planner moves to finish!
       checkkey = AxisMove;
       DWIN_UpdateLCD();
-      return;
     }
   }
 
