@@ -257,31 +257,31 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 #if HAS_USER_THERMISTORS
 
   enum CustomThermistorIndex : uint8_t {
-    #if HEATER_0_USER_THERMISTOR
+    #if TEMP_SENSOR_0_IS_CUSTOM
       CTI_HOTEND_0,
     #endif
-    #if HEATER_1_USER_THERMISTOR
+    #if TEMP_SENSOR_1_IS_CUSTOM
       CTI_HOTEND_1,
     #endif
-    #if HEATER_2_USER_THERMISTOR
+    #if TEMP_SENSOR_2_IS_CUSTOM
       CTI_HOTEND_2,
     #endif
-    #if HEATER_3_USER_THERMISTOR
+    #if TEMP_SENSOR_3_IS_CUSTOM
       CTI_HOTEND_3,
     #endif
-    #if HEATER_4_USER_THERMISTOR
+    #if TEMP_SENSOR_4_IS_CUSTOM
       CTI_HOTEND_4,
     #endif
-    #if HEATER_5_USER_THERMISTOR
+    #if TEMP_SENSOR_5_IS_CUSTOM
       CTI_HOTEND_5,
     #endif
-    #if HEATER_BED_USER_THERMISTOR
+    #if TEMP_SENSOR_BED_IS_CUSTOM
       CTI_BED,
     #endif
-    #if HEATER_PROBE_USER_THERMISTOR
+    #if TEMP_SENSOR_PROBE_IS_CUSTOM
       CTI_PROBE,
     #endif
-    #if HEATER_CHAMBER_USER_THERMISTOR
+    #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
     USER_THERMISTORS
@@ -798,8 +798,8 @@ class Temperature {
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
-        class AutoReportTemp : public AutoReporter<SERIAL_ALL> { void auto_report(); };
-        static AutoReportTemp auto_reporter;
+        struct AutoReportTemp { static void report(); };
+        static AutoReporter<AutoReportTemp> auto_reporter;
       #endif
     #endif
 
@@ -813,16 +813,15 @@ class Temperature {
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
-    #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-    #if HAS_MAX6675
-      #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-      #if COUNT_6675 > 1
-        #define HAS_MULTI_6675 1
-        #define READ_MAX6675(N) read_max6675(N)
+    #if HAS_MAX_TC
+      #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
+      #if MAX_TC_COUNT > 1
+        #define HAS_MULTI_MAX_TC 1
+        #define READ_MAX_TC(N) read_max_tc(N)
       #else
-        #define READ_MAX6675(N) read_max6675()
+        #define READ_MAX_TC(N) read_max_tc()
       #endif
-      static int read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex=0));
+      static int read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
     static void checkExtruderAutoFans();

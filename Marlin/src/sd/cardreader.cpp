@@ -270,10 +270,9 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       // Get a new directory object using the full path
       // and dive recursively into it.
       SdFile child;
-      if (!child.open(&parent, dosFilename, O_READ)) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
-      }
+      if (!child.open(&parent, dosFilename, O_READ))
+        SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
+
       printListing(child, path);
       // close() is done automatically by destructor of SdFile
     }
@@ -369,7 +368,7 @@ void CardReader::printFilename() {
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       selectFileByName(dosFilename);
       if (longFilename[0]) {
-        SERIAL_ECHO(' ');
+        SERIAL_CHAR(' ');
         SERIAL_ECHO(longFilename);
       }
     #endif
@@ -584,7 +583,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
 
         // Too deep? The firmware has to bail.
         if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
-          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", int(SD_PROCEDURE_DEPTH));
+          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", SD_PROCEDURE_DEPTH);
           kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
           return;
         }
@@ -594,8 +593,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
         filespos[file_subcall_ctr] = sdpos;
 
         // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
+        SERIAL_ECHO_MSG("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
         file_subcall_ctr++;
         break;
 
@@ -941,10 +939,8 @@ void CardReader::cd(const char * relpath) {
       workDirParents[workDirDepth++] = workDir;
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
-  else {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(STR_SD_CANT_ENTER_SUBDIR, relpath);
-  }
+  else
+    SERIAL_ECHO_MSG(STR_SD_CANT_ENTER_SUBDIR, relpath);
 }
 
 int8_t CardReader::cdup() {
@@ -1226,9 +1222,7 @@ void CardReader::fileHasFinished() {
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
-  TERN_(HAS_MULTI_SERIAL, serial_index_t CardReader::auto_report_port);
-  CardReader::AutoReportSD CardReader::auto_reporter;
-  void CardReader::AutoReportSD::auto_report() { report_status(); }
+  AutoReporter<CardReader::AutoReportSD> CardReader::auto_reporter;
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)

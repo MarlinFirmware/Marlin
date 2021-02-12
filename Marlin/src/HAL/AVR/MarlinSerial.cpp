@@ -595,7 +595,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  template class MarlinSerial< MarlinSerialCfg<MMU2_SERIAL_PORT> >;
+  template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
   MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
 #endif
 
@@ -611,7 +611,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
   MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
- 
+
   #if HAS_DGUS_LCD
     template<typename Cfg>
     typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
