@@ -311,15 +311,17 @@
    * Serial2 -- AUX-4 Pin 18 (D16 TX2) and AUX-4 Pin 17 (D17 RX2)
    * Serial1 -- Pins D18 and D19 are used for Z-MIN and Z-MAX
    */
-  #define X_HARDWARE_SERIAL Serial2
-  #define Y_HARDWARE_SERIAL Serial2
-  #define Z_HARDWARE_SERIAL Serial2
-  #define E0_HARDWARE_SERIAL Serial2
+  //#define X_HARDWARE_SERIAL Serial1
+  //#define X2_HARDWARE_SERIAL Serial1
+  //#define Y_HARDWARE_SERIAL Serial1
+  //#define Y2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
+  //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
   //#define E2_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
-
 
   //
   // Software serial
