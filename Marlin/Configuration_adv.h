@@ -155,7 +155,7 @@
       #define CHAMBER_FAN_BASE  128   // Base chamber fan PWM (0-255); turns on when chamber temperature is above the target
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C above target
     #elif CHAMBER_FAN_MODE == 2
-      #define CHAMBER_FAN_BASE  255   // Minimum chamber fan PWM (0-255)
+      #define CHAMBER_FAN_BASE  205   // Minimum chamber fan PWM (0-255)
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C difference from target
     #endif
   #endif
@@ -229,13 +229,13 @@
  * Thermal Protection parameters for the heated chamber.
  */
 #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-  #define THERMAL_PROTECTION_CHAMBER_PERIOD    40 // Seconds
+  #define THERMAL_PROTECTION_CHAMBER_PERIOD    60 // Seconds
   #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // Degrees Celsius
 
   /**
    * Heated chamber watch settings (M141/M191).
    */
-  #define WATCH_CHAMBER_TEMP_PERIOD           120 // Seconds
+  #define WATCH_CHAMBER_TEMP_PERIOD            60 // Seconds
   #define WATCH_CHAMBER_TEMP_INCREASE           2 // Degrees Celsius
 #endif
 
@@ -2553,7 +2553,7 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  45
+    #define X_STALL_SENSITIVITY  58
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  50
     #define Y2_STALL_SENSITIVITY Y_STALL_SENSITIVITY
