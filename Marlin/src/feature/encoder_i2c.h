@@ -236,7 +236,6 @@ class I2CPositionEncodersMgr {
 
     static void report_status(const int8_t idx) {
       CHECK_IDX();
-      PORT_REDIRECT(SERIAL_ALL);
       SERIAL_ECHOLNPAIR("Encoder ", idx, ": ");
       encoders[idx].get_raw_count();
       encoders[idx].passes_test(true);
