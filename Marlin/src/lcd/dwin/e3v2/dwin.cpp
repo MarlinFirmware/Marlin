@@ -1369,7 +1369,7 @@ void HMI_Move_Z() {
 
 #endif // HAS_HEATED_BED
 
-#if HAS_PREHEAT
+#if HAS_PREHEAT && HAS_FAN
 
   void HMI_FanSpeed() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -1401,7 +1401,7 @@ void HMI_Move_Z() {
         else
           checkkey = Tune;
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
-        thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
+        TERN_(HAS_FAN, thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed));
         return;
       }
       // Fan_speed limit
@@ -1411,7 +1411,7 @@ void HMI_Move_Z() {
     }
   }
 
-#endif // HAS_PREHEAT
+#endif // HAS_PREHEAT && HAS_FAN
 
 void HMI_PrintSpeed() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -1534,7 +1534,7 @@ void _draw_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y, c
   if (changed || (blink != _blink && (draw_qmark || draw_empty))) {
     _blink = blink;
     if (blink && draw_qmark)
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("???.?"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F(" ??? "));
     else if (blink && draw_empty)
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
     else
@@ -1654,9 +1654,7 @@ void update_variable() {
   _draw_axis_value(Y_AXIS, 120, 459, blink);
   _draw_axis_value(Z_AXIS, 205, 459, blink);
 }
-
 //-----------------------------------------------
-
 
 /**
  * Read and cache the working directory.
@@ -2415,19 +2413,17 @@ void HMI_Prepare() {
           #endif
           break;
       #endif
-      #if HAS_HOTEND
+      #if HAS_PREHEAT
         case PREPARE_CASE_PLA: // PLA preheat
-          thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
-          thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
-          thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
+          TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0));
+          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[0].bed_temp));
+          TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed));
           break;
         case PREPARE_CASE_ABS: // ABS preheat
-          thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
-          thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
-          thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
+          TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0));
+          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[1].bed_temp));
+          TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed));
           break;
-      #endif
-      #if HAS_PREHEAT
         case PREPARE_CASE_COOL: // Cool
           TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
           #if HAS_HOTEND || HAS_HEATED_BED
@@ -3717,7 +3713,7 @@ void DWIN_HandleScreen() {
     #if HAS_HEATED_BED
       case BedTemp:       HMI_BedTemp(); break;
     #endif
-    #if HAS_PREHEAT
+    #if HAS_PREHEAT && HAS_FAN
       case FanSpeed:      HMI_FanSpeed(); break;
     #endif
     case PrintSpeed:      HMI_PrintSpeed(); break;
