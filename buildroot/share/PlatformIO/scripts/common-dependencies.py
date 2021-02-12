@@ -329,7 +329,6 @@ def add_cpu_freq():
 	if 'BOARD_F_CPU' in env:
 		env['BUILD_FLAGS'].append('-DBOARD_F_CPU=' + env['BOARD_F_CPU'])
 
-
 #
 # Add a method for other PIO scripts to query enabled features
 #
