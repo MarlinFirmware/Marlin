@@ -610,7 +610,7 @@ void GCodeQueue::get_serial_commands() {
         if (!is_eol && sd_count) ++sd_count;          // End of file with no newline
         if (!process_line_done(sd_input_state, command_buffer[index_w], sd_count)) {
 
-          // M808 S saves the sdpos of the next line. M808 loops to a new sdpos.
+          // M808 L saves the sdpos of the next line. M808 loops to a new sdpos.
           TERN_(GCODE_REPEAT_MARKERS, repeat.early_parse_M808(command_buffer[index_w]));
 
           // Put the new command into the buffer (no "ok" sent)
