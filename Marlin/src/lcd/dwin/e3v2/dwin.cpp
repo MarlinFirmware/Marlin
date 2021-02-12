@@ -98,7 +98,7 @@
 #define PAUSE_HEAT
 
 #define USE_STRING_HEADINGS
-#define USE_STRING_TITLES
+//#define USE_STRING_TITLES
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
@@ -1465,7 +1465,7 @@ void HMI_Move_Z() {
         else
           checkkey = Tune;
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
-        TERN_(HAS_FAN, thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed));
+        thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
         return;
       }
       // Fan_speed limit
@@ -1618,65 +1618,67 @@ void _draw_xyz_position(const bool force) {
 }
 
 void update_variable() {
-  TERN_(HAS_HOTEND, static float last_temp_hotend_target = 0);
-  TERN_(HAS_HEATED_BED, static float last_temp_bed_target = 0);
-  TERN_(HAS_FAN, static uint8_t last_fan_speed = 0);
-
-  /* Tune page temperature update */
-  if (checkkey == Tune) {
-    #if HAS_HOTEND
-      if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-        last_temp_hotend_target = thermalManager.temp_hotend[0].target;
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), last_temp_hotend_target);
-      }
-    #endif
-    #if HAS_HEATED_BED
-      if (last_temp_bed_target != thermalManager.temp_bed.target) {
-        last_temp_bed_target = thermalManager.temp_bed.target;
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), last_temp_bed_target);
-      }
-    #endif
-    #if HAS_FAN
-      if (last_fan_speed != thermalManager.fan_speed[0]) {
-        last_fan_speed = thermalManager.fan_speed[0];
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), last_fan_speed);
-      }
-    #endif
-  }
-
-  /* Temperature page temperature update */
-  if (checkkey == TemperatureID) {
-    #if HAS_HOTEND
-      if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-        last_temp_hotend_target = thermalManager.temp_hotend[0].target;
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), last_temp_hotend_target);
-      }
-    #endif
-    #if HAS_HEATED_BED
-      if (last_temp_bed_target != thermalManager.temp_bed.target) {
-        last_temp_bed_target = thermalManager.temp_bed.target;
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), last_temp_bed_target);
-      }
-    #endif
-    #if HAS_FAN
-      if (last_fan_speed != thermalManager.fan_speed[0]) {
-        last_fan_speed = thermalManager.fan_speed[0];
-        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_FAN), last_fan_speed);
-      }
-    #endif
-  }
-
   #if HAS_HOTEND
     static float _hotendtemp = 0;
-    if (_hotendtemp != thermalManager.temp_hotend[0].celsius) {
-      _hotendtemp = thermalManager.temp_hotend[0].celsius;
-      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, _hotendtemp);
-    }
+    const bool _new_hotend_temp = _hotendtemp != thermalManager.temp_hotend[0].celsius;
+    if (_new_hotend_temp) _hotendtemp = thermalManager.temp_hotend[0].celsius;
     static int16_t _hotendtarget = 0;
-    if (_hotendtarget != thermalManager.temp_hotend[0].target) {
-      _hotendtarget = thermalManager.temp_hotend[0].target;
+    const bool _new_hotend_target = _hotendtarget != thermalManager.temp_hotend[0].target;
+    if (_new_hotend_target) _hotendtarget = thermalManager.temp_hotend[0].target;
+  #endif
+  #if HAS_HEATED_BED
+    static float _bedtemp = 0;
+    const bool _new_bed_temp = _bedtemp != thermalManager.temp_bed.celsius;
+    if (_new_bed_temp) _bedtemp = thermalManager.temp_bed.celsius;
+    static int16_t _bedtarget = 0;
+    const bool _new_bed_target = _bedtarget != thermalManager.temp_bed.target;
+    if (_new_bed_target) _bedtarget = thermalManager.temp_bed.target;
+  #endif
+  #if HAS_FAN
+    static uint8_t _fanspeed = 0;
+    const bool _new_fanspeed = _fanspeed != thermalManager.fan_speed[0];
+    if (_new_fanspeed) _fanspeed = thermalManager.fan_speed[0];
+  #endif
+
+  if (checkkey == Tune) {
+    // Tune page temperature update
+    #if HAS_HOTEND
+      if (_new_hotend_target)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), _hotendtarget);
+    #endif
+    #if HAS_HEATED_BED
+      if (_new_bed_target)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), _bedtarget);
+    #endif
+    #if HAS_FAN
+      if (_new_fanspeed)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), _fanspeed);
+    #endif
+  }
+  else if (checkkey == TemperatureID) {
+    // Temperature page temperature update
+    #if HAS_HOTEND
+      if (_new_hotend_target)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), _hotendtarget);
+    #endif
+    #if HAS_HEATED_BED
+      if (_new_bed_target)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), _bedtarget);
+    #endif
+    #if HAS_FAN
+      if (_new_fanspeed)
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_FAN), _fanspeed);
+    #endif
+  }
+
+  // Bottom temperature update
+
+  #if HAS_HOTEND
+    if (_new_hotend_temp)
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, _hotendtemp);
+    if (_new_hotend_target)
       DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, _hotendtarget);
-    }
+
     static int16_t _flow = planner.flow_percentage[0];
     if (_flow != planner.flow_percentage[0]) {
       _flow = planner.flow_percentage[0];
@@ -1685,16 +1687,10 @@ void update_variable() {
   #endif
 
   #if HAS_HEATED_BED
-    static float _bedtemp = 0;
-    if (_bedtemp != thermalManager.temp_bed.celsius) {
-      _bedtemp = thermalManager.temp_bed.celsius;
+    if (_new_bed_temp)
       DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, _bedtemp);
-    }
-    static int16_t _bedtarget = 0;
-    if (_bedtarget != thermalManager.temp_bed.target) {
-      _bedtarget = thermalManager.temp_bed.target;
+    if (_new_bed_target)
       DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, _bedtarget);
-    }
   #endif
 
   static int16_t _feedrate = 100;
