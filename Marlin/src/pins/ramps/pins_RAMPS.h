@@ -307,6 +307,9 @@
    *
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
+   *
+   * Serial2 -- AUX-4 Pin 18 (D16 TX2) and AUX-4 Pin 17 (D17 RX2)
+   * Serial1 -- Pins D18 and D19 are used for Z-MIN and Z-MAX
    */
   //#define X_HARDWARE_SERIAL Serial1
   //#define X2_HARDWARE_SERIAL Serial1
@@ -690,7 +693,9 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
-      #error "No pins defined for RAMPS with AZSMZ_12864."
+      #if DISABLED(IS_RAMPS_SMART)
+        #error "No pins defined for RAMPS with AZSMZ_12864."
+      #endif
 
     #elif IS_TFTGLCD_PANEL
 
