@@ -85,7 +85,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_BEDLEVELKEY:
             switch (buttonValue) {
                 case 1:
-                    queue.enqueue_one_P("G28");
+                    queue.enqueue_one_P("G28 U0");
                     queue.enqueue_one_P("G0 Z0");
                 break;
 
@@ -126,7 +126,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
         case VP_BUTTON_MAINENTERKEY:
             // Go to leveling screen
-            ExtUI::injectCommands_P("G28\nG29 U0");
+            ExtUI::injectCommands_P("G28 U0\nG29 U0");
 
             ScreenHandler.ResetMeshValues();
             
