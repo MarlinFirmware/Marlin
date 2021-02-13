@@ -361,7 +361,8 @@
   
   In your **Start_GCode** on your Slicer.
   - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
-  - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the **Filament** starting GCode instead of the G29 Lx in the printer start GCode.
+  - M420 Lx or G29 Lx (Load mesh_x correction). 
+    If you are using PrusaSlicer you can add a line "*G29 Lx; load mesh PLA*" in the **Filament** starting GCode instead of the G29 Lx in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
