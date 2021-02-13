@@ -172,6 +172,8 @@ G29_TYPE GcodeSuite::G29() {
 
   const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
 
+  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
+
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     const uint8_t old_debug_flags = marlin_debug_flags;
@@ -907,7 +909,7 @@ G29_TYPE GcodeSuite::G29() {
 
 #if ENABLED(PROBING_HEATERS_OFF)
   // If we're going to print then we must ensure we are back on temperature before we continue
-  if (TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
+  if (respect_leveling_heatup_settings && TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
     SERIAL_ECHOLN("Waiting to heat-up again before continueing");
     ui.set_status("Waiting for heat-up...");
 

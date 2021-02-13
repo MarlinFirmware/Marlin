@@ -126,7 +126,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
         case VP_BUTTON_MAINENTERKEY:
             // Go to leveling screen
-            ExtUI::injectCommands_P("G28\nG29");
+            ExtUI::injectCommands_P("G28\nG29 U0");
 
             ScreenHandler.ResetMeshValues();
             
