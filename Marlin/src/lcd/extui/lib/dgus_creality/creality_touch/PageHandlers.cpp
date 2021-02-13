@@ -65,7 +65,7 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
                     ExtUI::injectCommands_P(PSTR("M300"));
 
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
                     break;
             }
             break;
@@ -112,7 +112,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     thermalManager.disable_all_heaters();
                 #endif
 
-                ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+                ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
             }
 
             if (buttonValue == 1) {
@@ -169,10 +169,6 @@ void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 case 4:
                     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TEMP_ABS);
                     break;
-
-                case 7:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONTROL);
-                    break;
             }
             break;
     }
@@ -189,10 +185,6 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 case 6:
                     // Disable steppers
                     ScreenHandler.HandleMotorLockUnlock(var, &buttonValue);
-                    break;
-
-                case 9:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
                     break;
             }
         break;
@@ -229,7 +221,7 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
                 case 2:
-                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
+                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING, false);
                     break;
 
                 case 3:

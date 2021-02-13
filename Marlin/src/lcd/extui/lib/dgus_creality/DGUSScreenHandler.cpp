@@ -507,7 +507,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     if (current_screen == DGUSLCD_SCREEN_SDFILELIST
         || (current_screen == DGUSLCD_SCREEN_CONFIRM && (ConfirmVP == VP_SD_AbortPrintConfirmed || ConfirmVP == VP_SD_FileSelectConfirm))
         || current_screen == DGUSLCD_SCREEN_SDPRINTMANIPULATION
-    ) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+    ) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
   }
 
   void DGUSScreenHandler::SDCardError() {
@@ -546,7 +546,7 @@ bool DGUSScreenHandler::HandlePendingUserConfirmation() {
   }
 
   // Switch to the resume screen
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING, false);
 
   // We might be re-entrant here
   ExtUI::setUserConfirmed();
@@ -575,7 +575,7 @@ void DGUSScreenHandler::OnHomingComplete() {
 }
 
 void DGUSScreenHandler::OnPrintFinished() {
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_FINISH);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_FINISH, false);
 }
 
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {
@@ -928,11 +928,11 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {
       queue.inject_P(PSTR("M1000"));
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION, false);
     }
     else {
       recovery.cancel();
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
     }
   }
 
