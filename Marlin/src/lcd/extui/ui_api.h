@@ -145,6 +145,7 @@ namespace ExtUI {
 
   #if HAS_LEVELING
     bool getLevelingActive();
+    bool getLevelingIsInProgress();
     void setLevelingActive(const bool);
     bool getMeshValid();
     #if HAS_MESH

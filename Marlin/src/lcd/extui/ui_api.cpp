@@ -82,6 +82,7 @@
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
+  #include "../../gcode/gcode.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -814,6 +815,7 @@ namespace ExtUI {
 
   #if HAS_LEVELING
     bool getLevelingActive() { return planner.leveling_active; }
+    bool getLevelingIsInProgress() { return GcodeSuite::busy_state == GcodeSuite::MarlinBusyState::IN_PROCESS || GcodeSuite::busy_state == GcodeSuite::MarlinBusyState::IN_HANDLER; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     bool getMeshValid() { return leveling_is_valid(); }
     #if HAS_MESH
