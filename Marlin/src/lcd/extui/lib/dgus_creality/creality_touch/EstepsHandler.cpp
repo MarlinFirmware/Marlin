@@ -108,6 +108,7 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     // Done
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, false);
     ScreenHandler.Buzzer(0, 250);
+    syncOperation.done();
     SetStatusMessage(PSTR("Measure remaining filament"));
 }
 

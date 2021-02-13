@@ -384,6 +384,11 @@ struct DGUSSynchronousOperation {
       ScreenHandler.SetSynchronousOperationStart();
     }
 
+    void done() {
+      is_running = false; 
+      ScreenHandler.SetSynchronousOperationFinish();
+    }
+
     ~DGUSSynchronousOperation() { 
       if (is_running) { 
         ScreenHandler.SetSynchronousOperationFinish();

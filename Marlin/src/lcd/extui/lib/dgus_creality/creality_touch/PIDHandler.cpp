@@ -65,6 +65,7 @@ void PIDHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     // Done
     ScreenHandler.Buzzer(0, 250);
     settings.save();
+    syncOperation.done();
 
     SetStatusMessage(result_message);
 }

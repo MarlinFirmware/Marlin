@@ -557,6 +557,7 @@ bool DGUSScreenHandler::HandlePendingUserConfirmation() {
 
 void DGUSScreenHandler::SetSynchronousOperationStart() {
   HasSynchronousOperation = true;
+  ForceCompleteUpdate();
 }
 
 void DGUSScreenHandler::SetSynchronousOperationFinish() {
