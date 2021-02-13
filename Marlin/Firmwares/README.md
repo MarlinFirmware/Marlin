@@ -320,7 +320,7 @@
   - This chapter is being written ...............
   ## 3.1 TMC with UART mode
   - Wiring for UART mode.
-    - Wire between Driver Stepper pins (UART) and pins Wifi socket (M1)
+    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1)
   
     ![Wiring UART](../../docs/images/WireUART.png)
   ## 3.2 TMC2209 Single wire
@@ -361,7 +361,7 @@
   
   In your **Start_GCode** on your Slicer.
   - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
-  - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
+  - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the **Filament** starting GCode instead of the G29 Lx in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
