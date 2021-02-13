@@ -201,8 +201,11 @@ constexpr uint16_t VP_PREHEAT_ABS_HOTEND_TEMP = 0x1108;
 constexpr uint16_t VP_PREHEAT_ABS_BED_TEMP = 0x110a;
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = 0x21B3;
+constexpr uint16_t VP_M117 = 0x3000 + (3 * 1);  // Text Variable Pointer. First three VP must be reserved [a VP is two bytes red.]. Text is saved after the 3rd VP and ended with 0x00 or 0x0F. 
+constexpr uint8_t VP_M117_DISPLAY_LEN = 25;
 constexpr uint8_t VP_M117_LEN = 70;
+
+constexpr uint16_t SP_M117 = 0xFFA0;
 
 // // Temperatures.
 constexpr uint16_t VP_T_E0_Is = 0x1036;  // 4 Byte Integer - HEAD_CURRENT_TEMP_VP

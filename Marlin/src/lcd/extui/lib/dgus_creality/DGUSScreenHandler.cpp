@@ -192,6 +192,10 @@ void DGUSScreenHandler::setstatusmessage(const char *msg) {
     ramcopy.memadr = (void*) msg;
     DGUSLCD_SendStringToDisplay(ramcopy);
   }
+
+  // "Operation control. 0x00: normal rolling; 0x01: pause; 0x02: close; 0x03: initialization (static text)"
+  uint8_t scrollMode = strlen(msg) > VP_M117_DISPLAY_LEN ? 0x0 : 0x1;
+  dgusdisplay.WriteVariable(SP_M117 + 0x02, scrollMode);
 }
 
 void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
@@ -200,6 +204,10 @@ void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
     ramcopy.memadr = (void*) msg;
     DGUSLCD_SendStringToDisplayPGM(ramcopy);
   }
+
+  // "Operation control. 0x00: normal rolling; 0x01: pause; 0x02: close; 0x03: initialization (static text)"
+  uint8_t scrollMode = strlen_P(msg) > VP_M117_DISPLAY_LEN ? 0x0 : 0x1;
+  dgusdisplay.WriteVariable(SP_M117 + 0x02, scrollMode);
 }
 
 // Send an 8 bit or 16 bit value to the display.
