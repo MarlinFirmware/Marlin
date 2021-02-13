@@ -2274,7 +2274,11 @@
 // CR-6 OEM touch screen. A DWIN display with touch.
 //
 //#define DWIN_CREALITY_TOUCHLCD
-#define CREALITY_DWIN_LCD
+
+//
+// Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
+//
+#define CREALITY_DWIN_EXTUI
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers
@@ -2434,7 +2438,7 @@
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
-#define DWIN_CREALITY_LCD
+//#define DWIN_CREALITY_LCD
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
