@@ -353,6 +353,7 @@ private:
   static uint16_t ConfirmVP;    ///< context for confirm screen (VP that will be emulated-sent on "OK").
 
   static uint8_t MeshLevelIndex;
+  static uint8_t MeshLevelIconIndex;
   static bool SaveSettingsRequested;
   static bool HasScreenVersionMismatch;
   static bool HasSynchronousOperation;

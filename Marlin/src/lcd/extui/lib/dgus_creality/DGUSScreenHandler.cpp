@@ -66,6 +66,7 @@ bool DGUSScreenHandler::SaveSettingsRequested;
 bool DGUSScreenHandler::HasSynchronousOperation;
 bool DGUSScreenHandler::HasScreenVersionMismatch;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
+uint8_t DGUSScreenHandler::MeshLevelIconIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
 bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
 
@@ -596,12 +597,14 @@ void DGUSScreenHandler::OnMeshLevelingStart() {
   SetSynchronousOperationStart();
 
   MeshLevelIndex = 0;
+  MeshLevelIconIndex = 0;
 }
 
 void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
   SERIAL_ECHOPAIR("X: ", x);
   SERIAL_ECHOPAIR("; Y: ", y);
-  SERIAL_ECHOLNPAIR("; Index ", MeshLevelIndex);
+  SERIAL_ECHOPAIR("; Index ", MeshLevelIndex);
+  SERIAL_ECHOLNPAIR("; Icon ", MeshLevelIconIndex);
 
   UpdateMeshValue(x, y, z);
 
@@ -611,9 +614,10 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
   }
 
   MeshLevelIndex++;
+  if (!(x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0)) MeshLevelIconIndex++;
 
   // Update icon
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIndex + DGUS_GRID_VISUALIZATION_START_ID));
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIconIndex + DGUS_GRID_VISUALIZATION_START_ID));
 
   if (MeshLevelIndex == GRID_MAX_POINTS) {
     // Done
@@ -628,7 +632,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     if (current_screen == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
       char gcodeBuffer[50] = {0};
       sprintf_P(gcodeBuffer, PSTR("G0 F2500 X%d Y%d Z%d"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
-      queue.inject(gcodeBuffer);      
+      queue.inject(gcodeBuffer);
     }
   } else {
     // We've already updated the icon, so nothing left
