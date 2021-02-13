@@ -339,14 +339,13 @@ void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonVa
         case VP_BUTTON_PREPAREENTERKEY:
             // Save button, save settings and go back
             ScreenHandler.RequestSaveSettings();
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TEMP);
+            ScreenHandler.PopToOldScreen();
         break;
 
         case VP_BUTTON_COOLDOWN: // You can't make this up
             // Back button, discard settings
             settings.load();
-
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TEMP);
+            ScreenHandler.PopToOldScreen();
             break;
     }
 }
