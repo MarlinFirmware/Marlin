@@ -67,10 +67,6 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
                     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
                     break;
-
-                case 9: // Back button
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
-                    break;
             }
             break;
 
@@ -379,15 +375,7 @@ void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonVa
     }
 }
 
-void InfoMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    switch (var.VP){
-        case VP_BUTTON_TEMPCONTROL:
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONTROL);
-        break;
-    }
-}
-
- void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
+void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
     // Heat if necessary
     if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > THERMAL_PROTECTION_HYSTERESIS) {
         ScreenHandler.setstatusmessagePGM(PSTR("Heating up..."));
@@ -441,30 +429,22 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
         break;
-
-        case 3:
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PREPARE);
-            break;
     }
 
     ScreenHandler.ForceCompleteUpdate();
 }
 
 void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    if (var.VP == VP_BUTTON_HEATLOADSTARTKEY) {
-        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PREPARE);
-    }
-
     if (var.VP == VP_BUTTON_MOVEKEY) {
         switch (buttonValue) {
         case 1:
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE10MM);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE10MM, false);
             break;
         case 2:
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE1MM);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE1MM, false);
             break;
         case 3:
-            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE01MM);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE01MM, false);
             break;
         case 4:
             ExtUI::injectCommands_P("G28");
@@ -482,8 +462,6 @@ const struct PageHandler PageHandlers[] PROGMEM = {
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_ZOFFSET_LEVEL, LevelingModeHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_LEVELING, LevelingHandler)
-
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_INFO, InfoMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP_PLA, PreheatSettingsScreenHandler)
