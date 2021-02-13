@@ -235,7 +235,17 @@
       #define DRIVER_EXT TMC2209
     #endif
 #endif
-
+//Add definition for UART9 for Q5
+#if BOTH(Q5, Q_UART9)
+    #define X_SERIAL_TX_PIN                   PA10  // RXD1
+    #define X_SERIAL_RX_PIN                   PA10  // RXD1
+    #define Y_SERIAL_TX_PIN                   PA9   // TXD1
+    #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+    #define Z_SERIAL_TX_PIN                   PC7   // IO1
+    #define Z_SERIAL_RX_PIN                   PC7   // IO1
+    #define E0_SERIAL_TX_PIN                  PC13  // IO0
+    #define E0_SERIAL_RX_PIN                  PC13  // IO0
+#endif
 // Note:
 // HardwareSerial with one pins for four drivers
 // Compatible with TMC2209. Provides best performance.
