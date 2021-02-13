@@ -140,7 +140,7 @@ void LevelingHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_BEDLEVELKEY:
             if (!ExtUI::getLevelingIsInProgress()) {
-                ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL);
+                ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL, false);
             } else {
                 ScreenHandler.setstatusmessagePGM("Wait for leveling completion...");
             }
