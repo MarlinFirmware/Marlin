@@ -637,7 +637,7 @@ G29_TYPE GcodeSuite::G29() {
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(probePos))) continue;
 
-          if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", abl_points, ".");
+          if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl_points, ".");
           TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl_points)));
 
           measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(probePos, raise_after, verbose_level);
@@ -682,7 +682,7 @@ G29_TYPE GcodeSuite::G29() {
       // Probe at 3 arbitrary points
 
       LOOP_L_N(i, 3) {
-        if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", int(i + 1), "/3.");
+        if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", i + 1, "/3.");
         TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
 
         // Retain the last probe position

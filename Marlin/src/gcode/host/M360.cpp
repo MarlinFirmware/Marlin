@@ -35,7 +35,7 @@
 static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8_t ind=-1) {
   SERIAL_ECHOPGM("Config:");
   if (pref) serialprintPGM(pref);
-  if (ind >= 0) { SERIAL_ECHO(int(ind)); SERIAL_CHAR(':'); }
+  if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
   serialprintPGM(name);
   SERIAL_CHAR(':');
 }
