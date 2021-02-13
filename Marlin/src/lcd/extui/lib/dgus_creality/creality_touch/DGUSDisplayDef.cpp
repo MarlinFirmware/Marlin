@@ -55,9 +55,24 @@ using namespace ExtUI;
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 
-// ----- Which variables to auto-update on which screens
-#define VPList_Common VP_BACK_BUTTON_STATE
+// ----- Common var lists
+#if HOTENDS >= 1
+#define VPList_HeatHotend VP_T_E0_Is, VP_T_E0_Set,
+#else
+#define VPList_HeatHotend
+#endif
 
+#if HAS_HEATED_BED
+#define VPList_HeatBed  VP_T_Bed_Is, VP_T_Bed_Set,
+#else
+#define VPList_HeatBed
+#endif
+
+#define VPList_Common VP_BACK_BUTTON_STATE
+#define VPList_CommonWithStatus VPList_HeatHotend VPList_HeatBed VP_Z_OFFSET, VP_Feedrate_Percentage, VP_BACK_BUTTON_STATE
+#define VPList_CommonWithHeatOnly VPList_HeatHotend VPList_HeatBed VP_BACK_BUTTON_STATE
+
+// ----- Which variables to auto-update on which screens
 const uint16_t VPList_None[] PROGMEM = {
   VPList_Common,
 
@@ -71,38 +86,13 @@ const uint16_t VPList_DialogStop[] PROGMEM = {
 };
 
 const uint16_t VPList_Main[] PROGMEM = {
-  VPList_Common,
-  
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
+  VPList_CommonWithStatus,
+
   0x0000
 };
 
 const uint16_t VPList_SDFileList[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
+  VPList_CommonWithStatus,
 
   VP_SD_FileName0,
   VP_SD_FileName1,
@@ -115,20 +105,7 @@ const uint16_t VPList_SDFileList[] PROGMEM = {
 };
 
 const uint16_t VPList_Control[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
+  VPList_CommonWithStatus,
 
   VP_LED_TOGGLE,
   VP_MUTE_ICON,
@@ -139,17 +116,7 @@ const uint16_t VPList_Control[] PROGMEM = {
 };
 
 const uint16_t VPList_Feed[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_FEED_AMOUNT,
 
@@ -157,20 +124,7 @@ const uint16_t VPList_Feed[] PROGMEM = {
 };
 
 const uint16_t VPList_Temp[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
+  VPList_CommonWithStatus,
 
   VP_FAN_TOGGLE,
 
@@ -179,17 +133,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
 
 
 const uint16_t VPList_PreheatPLASettings[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_PREHEAT_PLA_HOTEND_TEMP,
   VP_PREHEAT_PLA_BED_TEMP,
@@ -198,17 +142,7 @@ const uint16_t VPList_PreheatPLASettings[] PROGMEM = {
 };
 
 const uint16_t VPList_PreheatABSSettings[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_PREHEAT_ABS_HOTEND_TEMP,
   VP_PREHEAT_ABS_BED_TEMP,
@@ -218,14 +152,7 @@ const uint16_t VPList_PreheatABSSettings[] PROGMEM = {
 
 
 const uint16_t VPList_PrintPausingError[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
+  VPList_CommonWithStatus,
 
   VP_X_POSITION,
   VP_Y_POSITION,
@@ -242,24 +169,13 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 };
 
 const uint16_t VPList_PrintScreen[] PROGMEM = {
-  VPList_Common,
-
-  VP_PrintTime,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
+  VPList_CommonWithStatus,
 
   VP_X_POSITION, VP_Y_POSITION, VP_Z_POSITION,
   SP_X_POSITION, SP_Y_POSITION, SP_Z_POSITION,
 
-  VP_Z_OFFSET,
   VP_Flowrate_E0,
   VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
 
   VP_PrintProgress_Percentage,
   VP_PrintTimeProgressBar,
@@ -271,17 +187,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
 };
 
 const uint16_t VPList_Leveling[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_MESH_LEVEL_TEMP,
 
@@ -289,36 +195,17 @@ const uint16_t VPList_Leveling[] PROGMEM = {
 };
 
 const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   0x0000
 };
 
 const uint16_t VPList_TuneScreen[] PROGMEM = {
-  VPList_Common,
+  VPList_CommonWithStatus,
 
   VP_PrintTime,
 
   VP_Flowrate_E0,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  VP_Feedrate_Percentage,
 
   VP_LED_TOGGLE,
   VP_FAN_TOGGLE,
@@ -330,37 +217,17 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
 };
 
 const uint16_t VPList_Prepare[] PROGMEM = {
-  VPList_Common,
+  VPList_CommonWithStatus,
 
   VP_PrintTime,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
 
   0x0000
 };
 
 const uint16_t VPList_Info[] PROGMEM = {
-  VPList_Common,
+  VPList_CommonWithStatus,
 
   VP_PrintTime,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
 
   VP_PRINTER_BEDSIZE,
   VP_MARLIN_WEBSITE,
@@ -370,7 +237,7 @@ const uint16_t VPList_Info[] PROGMEM = {
 };
 
 const uint16_t VPList_EstepsCalibration[] PROGMEM = {
-  VPList_Common,
+  VPList_CommonWithHeatOnly,
 
   VP_ESTEPS_CURRENT,
   VP_ESTEPS_CALIBRATION_TEMP,
@@ -379,43 +246,20 @@ const uint16_t VPList_EstepsCalibration[] PROGMEM = {
   VP_ESTEPS_CALIBRATION_MARK_LENGTH,
   VP_ESTEPS_CALCULATED_ESTEPS,
 
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-
   0x0000
 };
 
 const uint16_t VPList_PidTune[] PROGMEM = {
-  VPList_Common,
+  VPList_CommonWithHeatOnly,
 
   VP_PIDTUNE_TARGET_TEMP,
   VP_PIDTUNE_CYCLES,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
 
   0x0000
 };
 
 const uint16_t VPList_FWRetractTune[] PROGMEM = {
-  VPList_Common,
-
-  #if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_FWRETRACT_RETRACT_LENGTH,
   VP_FWRETRACT_RETRACT_FEEDRATE,
@@ -429,17 +273,7 @@ const uint16_t VPList_FWRetractTune[] PROGMEM = {
 };
 
 const uint16_t VPList_LevelingSettings[] PROGMEM = {
-  VPList_Common,
-
-#if HOTENDS >= 1
-    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
-  #endif
-  #if HAS_HEATED_BED
-    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
-  #endif
-  VP_Z_OFFSET,
-  //VP_Fan0_Percentage,
-  VP_Feedrate_Percentage,
+  VPList_CommonWithStatus,
 
   VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON,
   VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP,
