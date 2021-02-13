@@ -42,8 +42,9 @@ struct AutoReporter {
     const millis_t ms = millis();
     if (ELAPSED(ms, next_report_ms)) {
       next_report_ms = ms + SEC_TO_MS(report_interval);
-      TERN_(HAS_MULTI_SERIAL, PORT_REDIRECT(report_port_mask));
+      PORT_REDIRECT(report_port_mask);
       Helper::report();
+      //PORT_RESTORE();
     }
   }
 };

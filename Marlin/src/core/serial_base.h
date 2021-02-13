@@ -29,7 +29,7 @@
 #endif
 
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
-CALL_IF_EXISTS_IMPL(void, flushTX );
+CALL_IF_EXISTS_IMPL(void, flushTX);
 CALL_IF_EXISTS_IMPL(bool, connected, true);
 
 // In order to catch usage errors in code, we make the base to encode number explicit
@@ -42,14 +42,14 @@ enum class PrintBase {
   Bin = 2
 };
 
-// A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than 
+// A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than
 // double or float. For double or float, a conversion exists so the call will be transparent
 struct EnsureDouble {
   double a;
   FORCE_INLINE operator double() { return a; }
   // If the compiler breaks on ambiguity here, it's likely because you're calling print(X, base) with X not a double or a float, and a
   // base that's not one of PrintBase's value. This exact code is made to detect such error, you NEED to set a base explicitely like this:
-  // SERIAL_PRINT(v, PrintBase::Hex) 
+  // SERIAL_PRINT(v, PrintBase::Hex)
   FORCE_INLINE EnsureDouble(double a) : a(a) {}
   FORCE_INLINE EnsureDouble(float a) : a(a) {}
 };
@@ -147,13 +147,13 @@ struct SerialBase {
     else write('0');
   }
   void printNumber(signed long n, const uint8_t base) {
-    if (base == 10 && n < 0) { 
+    if (base == 10 && n < 0) {
       n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
               // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
               // -n = 0x7FFFFFFF + 1 => 0x80000000 = 2147483648 (if interpreted as unsigned) or -2147483648 if interpreted as signed.
               // On non 2-complement CPU, there would be no possible representation for 2147483648.
-      write('-'); 
-    } 
+      write('-');
+    }
     printNumber((unsigned long)n , base);
   }
 
