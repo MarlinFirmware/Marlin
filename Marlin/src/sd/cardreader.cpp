@@ -583,7 +583,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
 
         // Too deep? The firmware has to bail.
         if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
-          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", int(SD_PROCEDURE_DEPTH));
+          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", SD_PROCEDURE_DEPTH);
           kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
           return;
         }
