@@ -1475,17 +1475,6 @@ bool DGUSScreenHandler::loop() {
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
 
-  if (ExtUI::isWaitingOnUser() && current_screen != DGUSLCD_SCREEN_POPUP) {
-    // In some occassions the display needs more time to handle a screen change, for instance,
-    // with ADVANCED_PAUSE_FEATURE, the calls to ExtUI::onUserConfirmRequired are quite fast
-    DEBUG_ECHOLN("Nudging the display to update the current screen...");
-    GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED, true);
-  }
-
-  // Flash LED on screen version mismatch
-  if (ELAPSED(ms, next_event_ms) && HasScreenVersionMismatch) {
-  }
-
   if (ELAPSED(ms, next_event_ms) && SaveSettingsRequested) {
     // Only save settings so many times in a second - otherwise the EEPROM chip gets overloaded and the watchdog reboots the CPU
     settings.save();

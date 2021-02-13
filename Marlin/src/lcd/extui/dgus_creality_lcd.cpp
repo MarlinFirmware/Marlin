@@ -139,7 +139,7 @@ bool hasPrintTimer = false;
       ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, true, false, true);
 
       if (ExtUI::isPrinting()) {
-        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
+        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
       } else {
         ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
       }
