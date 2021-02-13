@@ -1,10 +1,9 @@
 # Serial port architecture in Marlin
 
-Marlin is targeting a pletora of different CPU architecture and platforms. Each of these platforms has its own serial interface.
+Marlin is targeting a plethora of different CPU architecture and platforms. Each of these platforms has its own serial interface.
 While many provide a Arduino-like Serial class, it's not all of them, and the differences in the existing API create a very complex brain teaser for writing code that works more or less on each platform.
 
 Moreover, many platform have intrinsic needs about serial port (like forwarding the output on multiple serial port, providing a *serial-like* telnet server, mixing USB-based serial port with SD card emulation) that are difficult to handle cleanly in the other platform serial logic.
-
 
 Starting with version `2.0.9`, Marlin provides a common interface for its serial needs.
 
@@ -16,7 +15,7 @@ Any implementation will need to follow this interface for being used transparent
 The implementation was written to prioritize performance over abstraction, so the base interface is not using virtual inheritance to avoid the cost of virtual dispatching while calling methods.
 Instead, the Curiously Recurring Template Pattern (**CRTP**) is used so that, upon compilation, the interface abstraction does not incur a performance cost.
 
-Because some platform do not follow the same interface, the missing method in the actual low-level implementation are detected via SFINAE and a wrapper is generated when such method are missing. See `CALL_IF_EXISTS` macro in `Marlin/src/core/macros.h` for the documentation of this technic.
+Because some platform do not follow the same interface, the missing method in the actual low-level implementation are detected via SFINAE and a wrapper is generated when such method are missing. See the `CALL_IF_EXISTS` macro in `Marlin/src/core/macros.h` for documentation of this technique.
 
 ## Composing the desired feature
 The different specificities for each architecture are provided by composing the serial type based on desired functionality.
@@ -32,7 +31,7 @@ Since all the types above are using CRTP, it's possible to combine them to get t
 This is easily done via type definition of the feature.
 
 For example, to present a serial interface that's outputting to 2 serial port, the first one being hooked at runtime and the second one connected to a runtime switchable telnet client, you'll declare the type to use as:
-```
+```cpp
 typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial0Type;
 ```
 
