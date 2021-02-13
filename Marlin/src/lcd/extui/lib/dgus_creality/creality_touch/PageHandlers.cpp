@@ -238,27 +238,15 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_ADJUSTENTERKEY:
-            switch (buttonValue) {
-                case 1:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TUNING);
-                    break;
-            }
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TUNING);
         break;
 
         case VP_BUTTON_PAUSEPRINTKEY:
-            switch (buttonValue) {
-                case 1:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
-                    break;
-            }
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
         break;
 
         case VP_BUTTON_STOPPRINTKEY:
-            switch (buttonValue) {
-                case 1:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_STOP);
-                    break;
-            }
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_STOP);
         break;
     }
 }
@@ -277,19 +265,11 @@ void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             break;
 
         case VP_BUTTON_ADJUSTENTERKEY:
-            switch (buttonValue) {
-                case 1:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TUNING);
-                    break;
-            }
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TUNING);
         break;
 
         case VP_BUTTON_STOPPRINTKEY:
-            switch (buttonValue) {
-                case 1:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_STOP);
-                    break;
-            }
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_STOP);
         break;
     }
 }
