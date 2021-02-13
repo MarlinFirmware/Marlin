@@ -139,7 +139,7 @@
 //
 #if TEMP_SENSOR_CHAMBER
   #define CHAMBER_MINTEMP             5
-  #define CHAMBER_MAXTEMP            60
+  #define CHAMBER_MAXTEMP            70
   #define TEMP_CHAMBER_HYSTERESIS     2   // (°C) Temperature proximity considered "close enough" to the target
   #define CHAMBER_LIMIT_SWITCHING
   //#define HEATER_CHAMBER_PIN         HEATER_1_PIN   // Chamber heater on/off pin
@@ -155,7 +155,7 @@
       #define CHAMBER_FAN_BASE  128   // Base chamber fan PWM (0-255); turns on when chamber temperature is above the target
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C above target
     #elif CHAMBER_FAN_MODE == 2
-      #define CHAMBER_FAN_BASE  205   // Minimum chamber fan PWM (0-255)
+      #define CHAMBER_FAN_BASE  255   // Minimum chamber fan PWM (0-255)
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C difference from target
     #endif
   #endif
