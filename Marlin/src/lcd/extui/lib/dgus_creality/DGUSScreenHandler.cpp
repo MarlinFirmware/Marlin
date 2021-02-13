@@ -570,10 +570,12 @@ void DGUSScreenHandler::SendBusyState(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandler::OnHomingStart() {
+  ScreenHandler.SetSynchronousOperationStart();
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME);
 }
 
 void DGUSScreenHandler::OnHomingComplete() {
+  ScreenHandler.SetSynchronousOperationFinish();
   ScreenHandler.PopToOldScreen();
 }
 
