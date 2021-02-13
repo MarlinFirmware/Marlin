@@ -1637,6 +1637,7 @@
  */
 #define USE_WATCHDOG
 #if ENABLED(USE_WATCHDOG)
+  #define WATCHDOG_DURATION_8S
   //#define WATCHDOG_RESET_MANUAL
 #endif
 
