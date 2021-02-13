@@ -257,7 +257,6 @@ public:
   void Update();
   void Variable_Update();
   void Screen_Update();
-  void Init();
   void Startup();
   void AudioFeedback(const bool success=true);
   inline void SDCardInit();
