@@ -407,23 +407,6 @@ const uint16_t VPList_LevelingSettings[] PROGMEM = {
   0x0000
 };
 
-// Toggle button handler
-void DGUSCrealityDisplay_HandleToggleButton(DGUS_VP_Variable &var, void *val_ptr) {
-  switch (*(uint16_t*)var.memadr) {
-    case ICON_TOGGLE_ON:
-      *((bool*)var.memadr) = true;
-      break;
-
-    case ICON_TOGGLE_OFF:
-      *((bool*)var.memadr) = true;
-      break;
-  }
-}
-
-void DGUSCrealityDisplay_SendToggleButton(DGUS_VP_Variable &var) {
-  dgusdisplay.WriteVariable(var.VP, *(bool*)var.memadr ? ICON_TOGGLE_ON : ICON_TOGGLE_OFF);
-}
-
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
