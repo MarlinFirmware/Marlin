@@ -17,14 +17,15 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(CREALITY_DWIN_LCD, EXTENSIBLE_UI)
+#if BOTH(CREALITY_DWIN_EXTUI, EXTENSIBLE_UI)
 
 #include "lib/creality_dwin/creality_dwin.h"
 #include "ui_api.h"
 
 namespace ExtUI {
   void onStartup() { CrealityDWIN.Startup(); }
-  void onIdle() {}
+  void onIdle() { CrealityDWIN.Update(); }
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
@@ -33,7 +34,7 @@ namespace ExtUI {
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
   void onFilamentRunout(const extruder_t extruder) {}
-  void onUserConfirmRequired(const char * const msg) {}
+  void onUserConfirmRequired(const char * const msg) { CrealityDWIN.Confirm_Handler(msg); }
   void onStatusChanged(const char * const msg) { CrealityDWIN.Host_Print_Text(msg); }
 
   void onHomingStart() {}
@@ -74,4 +75,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // CREALITY_DWIN_LCD && EXTENSIBLE_UI
+#endif // CREALITY_DWIN_EXTUI && EXTENSIBLE_UI

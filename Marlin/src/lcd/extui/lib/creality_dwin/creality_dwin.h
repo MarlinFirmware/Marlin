@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, Level, Home, MoveWait, Complete, M600, FilLoad, FilChange
+  Pause, Stop, Resume, SaveLevel, ETemp, Level, Home, MoveWait, Complete, FilLoad, FilChange, UI
 };
 
 enum menuID : uint8_t {
@@ -218,7 +218,7 @@ public:
   void Draw_SD_List(bool removed=false);
   void Draw_Status_Area(const bool with_update);
   void Update_Status_Area();
-  void Draw_Popup(char *line1, char *line2, char *line3, uint8_t mode, uint8_t icon=0);
+  void Draw_Popup(const char *line1, const char *line2, const char *line3, uint8_t mode, uint8_t icon=0);
 
 
   char* Get_Menu_Title(uint8_t menu);
@@ -228,7 +228,7 @@ public:
 
   void Popup_Select();
   void Popup_Handler(uint8_t popupid, bool option = false);
-  void DWIN_Popup_Temperature(const bool toohigh);
+  void Confirm_Handler(const char * const msg);
 
 
   inline void Main_Menu_Control();
@@ -254,7 +254,7 @@ public:
 
   void Start_Print(bool sd);
   void Stop_Print();
-  void DWIN_Update();
+  void Update();
   void Variable_Update();
   void Screen_Update();
   void Init();

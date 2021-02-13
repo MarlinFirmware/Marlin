@@ -279,7 +279,7 @@
  *               EXP2                                              EXP1
  */
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ANY(DWIN_CREALITY_LCD, CREALITY_DWIN_EXTUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           P1_20

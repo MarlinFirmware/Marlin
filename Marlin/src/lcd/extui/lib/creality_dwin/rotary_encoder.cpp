@@ -30,7 +30,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(CREALITY_DWIN_LCD)
+#if ENABLED(CREALITY_DWIN_EXTUI)
 
 #include "rotary_encoder.h"
 #include "../../../buttons.h"

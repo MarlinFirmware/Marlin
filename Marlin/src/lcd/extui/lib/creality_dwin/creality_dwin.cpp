@@ -52,7 +52,7 @@
 
 #include "../../libs/buzzer.h"
 
-#if ENABLED(CREALITY_DWIN_LCD)
+#if ENABLED(CREALITY_DWIN_EXTUI)
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"
@@ -147,6 +147,7 @@ constexpr float default_steps[]               = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
 
 uint8_t active_menu = MainMenu;
+uint8_t last_menu = MainMenu;
 uint8_t selection = 0;
 uint8_t scrollpos = 0;
 uint8_t filescrl = 0;
@@ -175,6 +176,8 @@ bool liveadjust = false;
 bool bedonly = false;
 float zoffsetvalue = 0;
 uint8_t gridpoint;
+
+CrealityDWINClass CrealityDWIN;
 
 /* General Display Functions */
 
@@ -570,7 +573,7 @@ void CrealityDWINClass::Update_Status_Area() {
   DWIN_UpdateLCD();
 }
 
-void CrealityDWINClass::Draw_Popup(char *line1, char *line2, char *line3, uint8_t mode, uint8_t icon/*=0*/) {
+void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const char *line3, uint8_t mode, uint8_t icon/*=0*/) {
   selection = 0;
   process = mode;
   Clear_Screen();
@@ -582,9 +585,9 @@ void CrealityDWINClass::Draw_Popup(char *line1, char *line2, char *line3, uint8_
     ypos = 230;
   if (icon > 0) 
     DWIN_ICON_Show(ICON, icon, 101, 105);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line1)) / 2, ypos, line1);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line2)) / 2, ypos+30, line2);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line3)) / 2, ypos+60, line3);
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line1)) / 2, ypos, F(line1));
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line2)) / 2, ypos+30, F(line2));
+  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * strlen(line3)) / 2, ypos+60, F(line3));
   if (mode == Popup) {
     DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
     DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
@@ -644,7 +647,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(Home);
-            gcode.process_subcommands_now_P( PSTR("G28"));
+            gcode.process_subcommands_now_P(PSTR("G28"));
             planner.synchronize();
             Draw_Menu(Prepare);
           }
@@ -2233,9 +2236,6 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
     case MoveWait:
       Draw_Popup((char*)"Moving to Point", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
       break;
-    case M600:
-      Draw_Popup(option ? (char*)"Filament Change" : (char*)"Print Paused", option ? (char*)"Insert New Filament" : (char*)"Press to resume print", (char*)"", Confirm);
-      break;
     case FilLoad:
       Draw_Popup(option ? (char*)"Unloading Filament" : (char*)"Loading Filament", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
       break;
@@ -2245,18 +2245,23 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
   }
 }
 
-void CrealityDWINClass::DWIN_Popup_Temperature(const bool toohigh) {
-  Clear_Screen(4);
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 350);
-  if (toohigh) {
-    DWIN_ICON_Show(ICON, ICON_TempTooHigh, 102, 165);
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 36, 300, (char*)"Nozzle or Bed temperature");
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 92, 300, (char*)"is too high");
+void CrealityDWINClass::Confirm_Handler(const char * const msg) {
+  last_menu = active_menu;
+  popup = UI;
+  if (msg == GET_TEXT(MSG_NOZZLE_PARKED)) {
+    Draw_Popup((char*)"Insert Filament", (char*)"Press to Continue", (char*)"", Confirm);
+  }
+  else if (msg == GET_TEXT(MSG_HEATER_TIMEOUT)) {
+    Draw_Popup((char*)"Heater Timed Out", (char*)"Press to Reheat", (char*)"", Confirm);
+  }
+  else if (msg == (char*)"Reheat finished.") {
+    Draw_Popup((char*)"Reheat Finished", (char*)"Press to Continue", (char*)"", Confirm);
+  }
+  else if (msg == (char*)"Load Filament") {
+    Draw_Popup((char*)"Loading Filament", (char*)"Press to Continue", (char*)"", Confirm);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_TempTooLow, 102, 165);
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 36, 300, (char*)"Nozzle or Bed temperature");
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 92, 300, (char*)"is too low");
+    Draw_Popup(msg, (char*)"Press to Continue", (char*)"", Confirm);
   }
 }
 
@@ -2617,13 +2622,9 @@ inline void CrealityDWINClass::Confirm_Control() {
       case Complete:
         Draw_Main_Menu();
         break;
-      case M600:
+      case UI:
         wait_for_user = false;
-        if (printing)
-          Draw_Print_Screen();
-        else
-          Draw_Menu(Prepare, 8);
-        break;
+        Draw_Menu(last_menu);
     }
   }
   DWIN_UpdateLCD();
@@ -2719,7 +2720,7 @@ void CrealityDWINClass::Stop_Print() {
   }
 }
 
-void CrealityDWINClass::DWIN_Update() {
+void CrealityDWINClass::Update() {
   Screen_Update();
   Variable_Update();
 }
@@ -2810,20 +2811,20 @@ void CrealityDWINClass::Screen_Update() {
   }
 }
 
-void CrealityDWINClass::Init() {
-
+void CrealityDWINClass::Startup() {
+  delay(800);
+  SERIAL_ECHOPGM("\nDWIN handshake ");
+  if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+  DWIN_Frame_SetDir(1); // Orientation 90°
+  DWIN_UpdateLCD();     // Show bootscreen (first image)
+  Encoder_Configuration();
   for (uint16_t t = 0; t <= 100; t += 2) {
     DWIN_ICON_Show(ICON, ICON_Bar, 15, 260);
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();
     delay(20);
   }
-
   DWIN_JPG_CacheTo1(Language_English);
-
-}
-
-void CrealityDWINClass::Startup() {
   Draw_Main_Menu();
   Draw_Status_Area(true);
 }
@@ -2839,16 +2840,5 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 }
 
 inline void CrealityDWINClass::SDCardInit() { card.cdroot(); }
-
-void MarlinUI::refresh() {}
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode, const uint8_t extruder) {
-    // TODO implement remainder of PauseMessage states
-    if (message == PAUSE_MESSAGE_INSERT) {
-      CrealityDWIN.Popup_Handler(M600, (message == PAUSE_MESSAGE_INSERT));
-    }
-  }
-#endif
 
 #endif

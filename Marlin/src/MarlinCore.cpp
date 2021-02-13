@@ -79,6 +79,11 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  #include "lcd/extui/lib/creality_dwin/dwin.h"
+  #include "lcd/extui/lib/creality_dwin/rotary_encoder.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "lcd/extui/ui_api.h"
 #endif
@@ -1024,7 +1029,7 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  #if ENABLED(DWIN_CREALITY_LCD)
+  #if ANY(DWIN_CREALITY_LCD)
     delay(800);   // Required delay (since boot?)
     SERIAL_ECHOPGM("\nDWIN handshake ");
     if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
