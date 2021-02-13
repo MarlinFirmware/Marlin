@@ -48,6 +48,10 @@ void PIDHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
         return;
     }
 
+    // Synchronous operation - disable back button
+    DGUSSynchronousOperation syncOperation;
+    syncOperation.start();
+
     // Set-up command
     SetStatusMessage(PSTR("PID tuning. Please wait..."));
 

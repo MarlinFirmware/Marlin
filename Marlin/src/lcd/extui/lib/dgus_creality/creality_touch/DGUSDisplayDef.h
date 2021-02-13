@@ -431,7 +431,6 @@ constexpr uint16_t VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON = 0x22C9;
 constexpr uint16_t VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_ICON = 0x22CD;
 constexpr uint16_t VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_BUTTON = 0x22CF;
 
-
 // E-steps calibration
 constexpr uint16_t VP_ESTEPS_CURRENT = 0x229d;
 constexpr uint16_t VP_ESTEPS_CALIBRATION_TEMP = 0x229f;
@@ -445,6 +444,12 @@ constexpr uint16_t VP_ESTEPS_APPLY_BUTTON = 0x22a9;
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;
 constexpr uint16_t ICON_TOGGLE_OFF = 2;
+
+constexpr uint16_t ICON_BACK_BUTTON_ENABLED = 7;
+constexpr uint16_t ICON_BACK_BUTTON_DISABLED = 8;
+
+// Allow to visually disable/enable the back button
+constexpr uint16_t VP_BACK_BUTTON_STATE = 0x22D1;
 
 // Toggles
 constexpr uint16_t ICON_FAN_TOGGLE_ON = 1;

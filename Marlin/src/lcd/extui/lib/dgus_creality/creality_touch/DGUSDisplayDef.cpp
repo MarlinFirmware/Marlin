@@ -56,15 +56,23 @@ using namespace ExtUI;
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 
 // ----- Which variables to auto-update on which screens
+#define VPList_Common VP_BACK_BUTTON_STATE
+
 const uint16_t VPList_None[] PROGMEM = {
+  VPList_Common,
+
   0x0000
 };
 
 const uint16_t VPList_DialogStop[] PROGMEM = {
+  VPList_Common,
+
   0x0000
 };
 
 const uint16_t VPList_Main[] PROGMEM = {
+  VPList_Common,
+  
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -81,6 +89,8 @@ const uint16_t VPList_Main[] PROGMEM = {
 };
 
 const uint16_t VPList_SDFileList[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -105,6 +115,8 @@ const uint16_t VPList_SDFileList[] PROGMEM = {
 };
 
 const uint16_t VPList_Control[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -127,6 +139,8 @@ const uint16_t VPList_Control[] PROGMEM = {
 };
 
 const uint16_t VPList_Feed[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -143,6 +157,8 @@ const uint16_t VPList_Feed[] PROGMEM = {
 };
 
 const uint16_t VPList_Temp[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -163,6 +179,8 @@ const uint16_t VPList_Temp[] PROGMEM = {
 
 
 const uint16_t VPList_PreheatPLASettings[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -180,6 +198,8 @@ const uint16_t VPList_PreheatPLASettings[] PROGMEM = {
 };
 
 const uint16_t VPList_PreheatABSSettings[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -198,6 +218,8 @@ const uint16_t VPList_PreheatABSSettings[] PROGMEM = {
 
 
 const uint16_t VPList_PrintPausingError[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -220,6 +242,8 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 };
 
 const uint16_t VPList_PrintScreen[] PROGMEM = {
+  VPList_Common,
+
   VP_PrintTime,
 
   #if HOTENDS >= 1
@@ -247,6 +271,8 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
 };
 
 const uint16_t VPList_Leveling[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -263,6 +289,8 @@ const uint16_t VPList_Leveling[] PROGMEM = {
 };
 
 const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -277,6 +305,8 @@ const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
 };
 
 const uint16_t VPList_TuneScreen[] PROGMEM = {
+  VPList_Common,
+
   VP_PrintTime,
 
   VP_Flowrate_E0,
@@ -300,6 +330,8 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
 };
 
 const uint16_t VPList_Prepare[] PROGMEM = {
+  VPList_Common,
+
   VP_PrintTime,
 
   #if HOTENDS >= 1
@@ -316,6 +348,8 @@ const uint16_t VPList_Prepare[] PROGMEM = {
 };
 
 const uint16_t VPList_Info[] PROGMEM = {
+  VPList_Common,
+
   VP_PrintTime,
 
   #if HOTENDS >= 1
@@ -336,6 +370,8 @@ const uint16_t VPList_Info[] PROGMEM = {
 };
 
 const uint16_t VPList_EstepsCalibration[] PROGMEM = {
+  VPList_Common,
+
   VP_ESTEPS_CURRENT,
   VP_ESTEPS_CALIBRATION_TEMP,
   VP_ESTEPS_CALIBRATION_LENGTH,
@@ -354,6 +390,8 @@ const uint16_t VPList_EstepsCalibration[] PROGMEM = {
 };
 
 const uint16_t VPList_PidTune[] PROGMEM = {
+  VPList_Common,
+
   VP_PIDTUNE_TARGET_TEMP,
   VP_PIDTUNE_CYCLES,
 
@@ -368,6 +406,8 @@ const uint16_t VPList_PidTune[] PROGMEM = {
 };
 
 const uint16_t VPList_FWRetractTune[] PROGMEM = {
+  VPList_Common,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -389,6 +429,8 @@ const uint16_t VPList_FWRetractTune[] PROGMEM = {
 };
 
 const uint16_t VPList_LevelingSettings[] PROGMEM = {
+  VPList_Common,
+
 #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -474,6 +516,9 @@ const struct VPMapping VPMap[] PROGMEM = {
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
+  // Back button state
+  VPHELPER(VP_BACK_BUTTON_STATE, nullptr, nullptr, ScreenHandler.SendBusyState),
+
   // Screen version
   VPHELPER(VP_UI_VERSION_MAJOR, nullptr, ScreenHandler.HandleScreenVersion, nullptr),
 

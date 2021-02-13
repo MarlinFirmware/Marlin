@@ -62,6 +62,10 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
         return;
     }
 
+    // Synchronous operation - disable back button
+    DGUSSynchronousOperation syncOperation;
+    syncOperation.start();
+
     // Prepare
     bool zAxisWasRelative = GcodeSuite::axis_is_relative(Z_AXIS);
     bool eAxisWasRelative = GcodeSuite::axis_is_relative(E_AXIS);

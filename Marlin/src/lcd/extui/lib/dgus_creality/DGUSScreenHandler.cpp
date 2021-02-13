@@ -63,6 +63,7 @@ uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 bool DGUSScreenHandler::SaveSettingsRequested;
+bool DGUSScreenHandler::HasSynchronousOperation;
 bool DGUSScreenHandler::HasScreenVersionMismatch;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
@@ -553,6 +554,18 @@ bool DGUSScreenHandler::HandlePendingUserConfirmation() {
   return true;
 }
 
+void DGUSScreenHandler::SetSynchronousOperationStart() {
+  HasSynchronousOperation = true;
+}
+
+void DGUSScreenHandler::SetSynchronousOperationFinish() {
+  HasSynchronousOperation = false;
+}
+
+void DGUSScreenHandler::SendBusyState(DGUS_VP_Variable &var) {
+  dgusdisplay.WriteVariable(VP_BACK_BUTTON_STATE, HasSynchronousOperation ? ICON_BACK_BUTTON_DISABLED : ICON_BACK_BUTTON_ENABLED);
+}
+
 void DGUSScreenHandler::OnHomingStart() {
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME);
 }
@@ -580,6 +593,7 @@ void DGUSScreenHandler::OnMeshLevelingStart() {
   dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
 
   ResetMeshValues();
+  SetSynchronousOperationStart();
 
   MeshLevelIndex = 0;
 }
@@ -608,6 +622,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     RequestSaveSettings();
 
     PopToOldScreen();
+    SetSynchronousOperationFinish();
 
     // If the user is in the leveling workflow (not printing), get that hotend out of the way
     if (current_screen == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
@@ -1511,6 +1526,9 @@ bool DGUSScreenHandler::loop() {
 
       // Set initial leveling status
       InitMeshValues();
+
+      // No disabled back button
+      ScreenHandler.SetSynchronousOperationFinish();
 
       // Ask for the screen version - HandleScreenVersion will act
       dgusdisplay.ReadVariable(VP_UI_VERSION_MAJOR);

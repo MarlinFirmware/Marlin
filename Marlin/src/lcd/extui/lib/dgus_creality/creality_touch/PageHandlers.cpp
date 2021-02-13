@@ -417,8 +417,10 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         celsius = PREHEAT_1_TEMP_HOTEND;
     }
 
+    DGUSSynchronousOperation syncOperation;
     switch (buttonValue) {
         case 1:
+            syncOperation.start();
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
 
             change_filament_with_temp(PSTR("M701 L%f P0"), celsius);
@@ -427,6 +429,7 @@ void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         break;
 
         case 2:
+            syncOperation.start();
             dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
 
             change_filament_with_temp(PSTR("M702 U%f"), celsius);

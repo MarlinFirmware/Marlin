@@ -332,6 +332,10 @@ public:
 
   static bool HandlePendingUserConfirmation();
 
+  static void SetSynchronousOperationStart();
+  static void SetSynchronousOperationFinish();
+  static void SendBusyState(DGUS_VP_Variable &var);
+
   static float feed_amount;
   static bool fwretract_available;
 
@@ -351,6 +355,7 @@ private:
   static uint8_t MeshLevelIndex;
   static bool SaveSettingsRequested;
   static bool HasScreenVersionMismatch;
+  static bool HasSynchronousOperation;
 
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser
@@ -362,3 +367,25 @@ public: // Needed for VP auto-upload
 };
 
 extern DGUSScreenHandler ScreenHandler;
+
+struct DGUSSynchronousOperation {
+  private:
+    bool is_running;
+
+  public:
+    DGUSSynchronousOperation() : is_running(false) {}
+
+    // Don't allow this to be created on the stack
+    void* operator new (std::size_t size) = delete;
+
+    void start() { 
+      is_running = true; 
+      ScreenHandler.SetSynchronousOperationStart();
+    }
+
+    ~DGUSSynchronousOperation() { 
+      if (is_running) { 
+        ScreenHandler.SetSynchronousOperationFinish();
+      }
+    }
+};
