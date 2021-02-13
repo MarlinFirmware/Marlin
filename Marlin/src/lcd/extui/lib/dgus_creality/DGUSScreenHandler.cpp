@@ -566,6 +566,7 @@ void DGUSScreenHandler::SetSynchronousOperationFinish() {
 
 void DGUSScreenHandler::SendBusyState(DGUS_VP_Variable &var) {
   dgusdisplay.WriteVariable(VP_BACK_BUTTON_STATE, HasSynchronousOperation ? ICON_BACK_BUTTON_DISABLED : ICON_BACK_BUTTON_ENABLED);
+  dgusdisplay.WriteVariable(VP_BUSY_ANIM_STATE, HasSynchronousOperation ? ICON_THROBBER_ANIM_ON : ICON_THROBBER_ANIM_OFF);
 }
 
 void DGUSScreenHandler::OnHomingStart() {

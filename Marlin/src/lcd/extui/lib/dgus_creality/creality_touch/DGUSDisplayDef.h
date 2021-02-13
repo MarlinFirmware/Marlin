@@ -448,8 +448,14 @@ constexpr uint16_t ICON_TOGGLE_OFF = 2;
 constexpr uint16_t ICON_BACK_BUTTON_ENABLED = 7;
 constexpr uint16_t ICON_BACK_BUTTON_DISABLED = 8;
 
+constexpr uint16_t ICON_THROBBER_ANIM_OFF = 0;
+constexpr uint16_t ICON_THROBBER_ANIM_ON = 1;
+
 // Allow to visually disable/enable the back button
 constexpr uint16_t VP_BACK_BUTTON_STATE = 0x22D1;
+
+// Throbber animation
+constexpr uint16_t VP_BUSY_ANIM_STATE = 0x22D3;
 
 // Toggles
 constexpr uint16_t ICON_FAN_TOGGLE_ON = 1;
