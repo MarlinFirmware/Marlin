@@ -378,7 +378,7 @@ constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEV
 constexpr uint16_t MESH_COLOR_BELOW_ZERO = 0x899B;   // Blue
 constexpr uint16_t MESH_COLOR_NEAR_ZERO = 0x1C80;    // Green
 constexpr uint16_t MESH_COLOR_ABOVE_ZERO = 0xB800;    // Purple
-constexpr uint16_t MESH_COLOR_NOT_MEASURED = 0x0000; // Black (becomes invisible on black background)
+constexpr uint16_t MESH_COLOR_NOT_MEASURED = 0xFFFF; // White (becomes invisible on white background)
 
 constexpr float MESH_NEAR_ZERO = 0.020;
 constexpr float MESH_UNSET_EPSILON = 0.001;
