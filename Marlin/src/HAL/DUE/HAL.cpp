@@ -102,8 +102,10 @@ uint16_t HAL_adc_get_result() {
   return HAL_adc_result;
 }
 
-// Forward the default serial port
-DefaultSerial MSerial(false, Serial);
+// Forward the default serial ports
+#if ANY_SERIAL_IS(0)
+  DefaultSerial MSerial(false, Serial);
+#endif
 #if ANY_SERIAL_IS(1)
   DefaultSerial1 MSerial1(false, Serial1);
 #endif
