@@ -1,30 +1,41 @@
-# Marlin for Ender 3 v2 3D Printer Firmware
+# Marlin Firmware for the Creality Ender 3 v2 3D Printer 
 
 ![GitHub](https://img.shields.io/github/license/mriscoc/Marlin_Ender3v2.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/mriscoc/Marlin_Ender3v2.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/mriscoc/Marlin_Ender3v2.svg)
 [![Build Status](https://github.com/mriscoc/Marlin_Ender3v2/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/mriscoc/Marlin_Ender3v2/actions)
 
-<img align="right" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
+<img align="right" width=200 src="buildroot/share/pixmaps/Ender-3V2.jpg" />
 
 Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
-## Marlin 2.0 Bugfix Branch
-
 __Not for production use. Use with caution!__
 
-This branch is for patches to the latest 2.0.x release version. Periodically this branch will form the basis for the next minor 2.0.x release.
-This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
-
-## Download compilated version of this firmware
-
-Download released versions of this firmware can be found on the [Releases page](https://github.com/mriscoc/Marlin_Ender3v2/releases).
+This fork is based on the bugfix-2.0.x branch of Marlin firmware.
 
 ## Building Marlin 2.0
 
-To build Marlin 2.0 you'll need [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) for the STM32F103RET6 Creality 32-bit boards).
+To build Marlin 2.0 you'll need [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) for the STM32F103RET6 Creality 32-bit boards.
 
+## Download a compilated version of this firmware
+
+Released versions of this firmware can be found on the [Releases page](https://github.com/mriscoc/Marlin_Ender3v2/releases).
+
+## How to install the firmware
+
+1. Insert a blank and FAT32 formatted µSD in your PC/Mac
+2. Copy the .bin file to the root of the card
+3. Ensure that the name of the file was not previously used to update the printer.
+   If necessary, rename the file.
+4. Turn off the printer, disconnect any USB cable and insert the µSD card.
+5. Turn on the printer, the upgrade firmware process will start automatically.
+6. The display will be blank until the upgrade is finished (about of 15 seconds).
+7. If you are upgrading from the original firmware or other fork, please restore defaults.
+8. Make the PID adjust and put the other calibration parameters
+   
+If your display remains blank try with other µSD card, format it to FAT32 and put in a renamed .bin file.
+   
 ## Credits
 
 This fork of Marlin firmware is manteined by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru
