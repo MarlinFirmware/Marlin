@@ -298,7 +298,16 @@ constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_VIEWING = 6;
 constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
 constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
 
-constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = 1;
+constexpr uint8_t DGUS_GRID_VISUALIZATION_START_ID = GRID_MAX_POINTS > (4*4) ? 30 : 1;
+
+static_assert(
+  (GRID_MAX_POINTS == 16 && DGUS_GRID_VISUALIZATION_START_ID == 1)||  // CR-6 SE
+  (GRID_MAX_POINTS == 49 && DGUS_GRID_VISUALIZATION_START_ID == 30) || // CR-6 MAX
+  (GRID_MAX_POINTS != 16 && GRID_MAX_POINTS != 49),                    // Custom Leveling
+  "Incorrect offset selected for leveling config"
+);
+static_assert(GRID_MAX_POINTS_X == GRID_MAX_POINTS_Y, "Assuming bed leveling points is square");
+
 
 constexpr uint16_t VP_MESH_LEVEL_X0_Y0 = 0x1350;
 constexpr uint16_t SP_MESH_LEVEL_X0_Y0 = 0x5000;

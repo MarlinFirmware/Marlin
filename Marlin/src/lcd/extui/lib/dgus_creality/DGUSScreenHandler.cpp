@@ -665,7 +665,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
   }
 
   MeshLevelIndex++;
-  if (!(x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0)) MeshLevelIconIndex++;
+  MeshLevelIconIndex++;
 
   // Update icon
   dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIconIndex + DGUS_GRID_VISUALIZATION_START_ID));
