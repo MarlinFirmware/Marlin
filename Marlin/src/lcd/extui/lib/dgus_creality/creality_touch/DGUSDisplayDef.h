@@ -192,7 +192,6 @@ constexpr uint16_t VP_MUTE_TOGGLE = 0x2286;
 
 constexpr uint16_t VP_SCREEN_BACKLIGHT_STANDBY = 0x228D;
 
-
 // Material preheat settings
 constexpr uint16_t VP_PREHEAT_PLA_HOTEND_TEMP = 0x1102;
 constexpr uint16_t VP_PREHEAT_PLA_BED_TEMP = 0x1104;
@@ -419,3 +418,8 @@ constexpr uint16_t ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_OFF = 14;
 
 constexpr uint16_t ICON_FWRETRACT_AUTO_DISENGAGED = 4; // This icon deliberately does not exist
 constexpr uint16_t ICON_FWRETRACT_AUTO_ENGAGED = 3;
+
+// Development helper
+constexpr uint16_t VP_DEVELOPMENT_HELPER_BUTTON = 0x22D5;
+constexpr uint16_t VP_DEVELOPMENT_HELPER_BUTTON_ACTION_TO_MAIN_MENU = 4;
+constexpr uint16_t VP_DEVELOPMENT_HELPER_BUTTON_ACTION_RESET_DISPLAY = 8;

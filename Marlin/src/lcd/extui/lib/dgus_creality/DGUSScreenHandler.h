@@ -62,6 +62,8 @@ public:
 
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
+  static void HandleDevelopmentTestButton(DGUS_VP_Variable &var, void *val_ptr);
+
   /// "M117" Message -- msg is a RAM ptr.
   static void setstatusmessage(const char* msg);
   /// The same for messages from Flash

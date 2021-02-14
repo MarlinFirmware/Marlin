@@ -186,6 +186,33 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM);
 }
 
+void DGUSScreenHandler::HandleDevelopmentTestButton(DGUS_VP_Variable &var, void *val_ptr) {
+  // Handle the button press only after 3 taps, so that a regular user won't tap it by accident
+  static uint8_t tap_count = 0;
+
+  if (++tap_count <= 3) return;
+
+  // Get button value
+  uint16_t button_value = swap16(*static_cast<uint16_t*>(val_ptr));
+
+  // Act on it
+  switch (button_value) {
+    case VP_DEVELOPMENT_HELPER_BUTTON_ACTION_TO_MAIN_MENU:
+      setstatusmessagePGM(PSTR("Dev action: main menu"));
+      GotoScreen(DGUSLCD_SCREEN_MAIN, false);
+    break;
+
+    case VP_DEVELOPMENT_HELPER_BUTTON_ACTION_RESET_DISPLAY:
+      setstatusmessagePGM(PSTR("Dev action: reset DGUS"));
+      dgusdisplay.ResetDisplay();
+    break;
+
+    default:
+      setstatusmessagePGM(PSTR("Dev action: unknown"));
+    break;
+  }
+}
+
 void DGUSScreenHandler::setstatusmessage(const char *msg) {
   const bool needs_scrolling = strlen_P(msg) > M117_STATIC_DISPLAY_LEN;
 

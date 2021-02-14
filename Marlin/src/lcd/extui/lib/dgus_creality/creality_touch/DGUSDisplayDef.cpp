@@ -509,6 +509,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_STANDBY_BACKLIGHT_ICON, &ScreenHandler.Settings.display_standby, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_STANDBY_TOGGLE_ON, ICON_STANDBY_TOGGLE_OFF>)),
   VPHELPER(VP_MUTE_ICON, &ScreenHandler.Settings.display_sound, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_SOUND_TOGGLE_ON, ICON_SOUND_TOGGLE_OFF>)),
 
+  // Development test button
+  VPHELPER(VP_DEVELOPMENT_HELPER_BUTTON, nullptr, ScreenHandler.HandleDevelopmentTestButton, nullptr),
+
   // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr
   { .VP = VP_M117, .memadr = nullptr, .size = VP_M117_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
   { .VP = VP_M117_STATIC, .memadr = nullptr, .size = VP_M117_STATIC_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
