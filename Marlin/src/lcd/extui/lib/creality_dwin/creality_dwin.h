@@ -220,6 +220,7 @@ public:
   void Draw_Status_Area(const bool with_update);
   void Update_Status_Area();
   void Draw_Popup(const char *line1, const char *line2, const char *line3, uint8_t mode, uint8_t icon=0);
+  void Popup_Select();
 
 
   char* Get_Menu_Title(uint8_t menu);
@@ -227,7 +228,6 @@ public:
   void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
 
-  void Popup_Select();
   void Popup_Handler(uint8_t popupid, bool option = false);
   void Confirm_Handler(const char * const msg);
 
@@ -249,10 +249,7 @@ public:
   void Modify_Value(uint32_t &value, float min, float max, float unit);
 
 
-  void Host_Print_Update(uint8_t percent, uint32_t remaining);
-  void Host_Print_Text(const char * const text);
-
-
+  void Update_Status(const char * const text);
   void Start_Print(bool sd);
   void Stop_Print();
   void Update();
@@ -260,7 +257,8 @@ public:
   void Screen_Update();
   void Startup();
   void AudioFeedback(const bool success=true);
-  inline void SDCardInit();
+  void SDCardInsert();
+
 };
 
 extern CrealityDWINClass CrealityDWIN;

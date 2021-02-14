@@ -32,7 +32,7 @@ namespace ExtUI {
   void onStartup() { CrealityDWIN.Startup(); }
   void onIdle() { CrealityDWIN.Update(); }
   void onPrinterKilled(PGM_P const error, PGM_P const component) {}
-  void onMediaInserted() {}
+  void onMediaInserted() { CrealityDWIN.SDCardInsert(); }
   void onMediaError() {}
   void onMediaRemoved() {}
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
@@ -41,7 +41,7 @@ namespace ExtUI {
   void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) { CrealityDWIN.Confirm_Handler(msg); }
-  void onStatusChanged(const char * const msg) { CrealityDWIN.Host_Print_Text(msg); }
+  void onStatusChanged(const char * const msg) { CrealityDWIN.Update_Status(msg); }
 
   void onHomingStart() {}
   void onHomingComplete() {}
