@@ -3239,6 +3239,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #undef _PIN_CONFLICT
 #endif
 
+#if ENABLED(COOLANT_MIST) && !PIN_EXISTS(COOLANT_MIST)
+  #error "COOLANT_MIST requires COOLANT_MIST_PIN to be defined."
+#elif ENABLED(COOLANT_FLOOD) && !PIN_EXISTS(COOLANT_FLOOD)
+  #error "COOLANT_FLOOD requires COOLANT_FLOOD_PIN to be defined."
+#endif
+
 #if NONE(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI) && ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
   #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
 #endif
