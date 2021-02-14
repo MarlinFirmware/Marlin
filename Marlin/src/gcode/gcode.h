@@ -294,6 +294,7 @@
  * 
  * "C" codes (Creality CR-6)
  * C001 - Configure probe heater settings
+ * C100 - Reset DGUS display or navigate to screen (R or P)
  *
  * "T" Codes
  *
@@ -904,6 +905,7 @@ private:
 
   #if HAS_PROBE_SETTINGS
     static void C001();
+    static void C100();
   #endif
 
   static void T(const int8_t tool_index);
