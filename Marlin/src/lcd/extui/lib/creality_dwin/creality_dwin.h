@@ -23,7 +23,7 @@
 
 /**
  * DWIN by Creality3D
- * Rewrite by Jacob Myers
+ * Rewrite and Extui Port by Jacob Myers
  */
 
 #include "dwin.h"
@@ -53,6 +53,7 @@ enum menuID : uint8_t {
         Preheat2,
         Preheat3,
         Preheat4,
+        Preheat5,
       Motion,
         MaxSpeed,
         MaxAcceleration,

@@ -1621,6 +1621,10 @@
 #define PREHEAT_4_TEMP_BED     70
 #define PREHEAT_4_FAN_SPEED   255 // Value from 0 to 255
 
+#define PREHEAT_5_LABEL       "Extra"
+#define PREHEAT_5_TEMP_HOTEND 240
+#define PREHEAT_5_TEMP_BED     70
+#define PREHEAT_5_FAN_SPEED   255 // Value from 0 to 255
 /**
  * Nozzle Park
  *

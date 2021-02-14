@@ -15,6 +15,12 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
+/**
+ * creality_dwin.cpp
+ *
+ * DWIN implementation for Marlin by Jacob Myers, 2021
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if BOTH(CREALITY_DWIN_EXTUI, EXTENSIBLE_UI)
