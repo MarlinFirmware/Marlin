@@ -383,6 +383,7 @@ constexpr uint16_t VP_ESTEPS_CALIBRATION_LEFTOVER_LENGTH = 0x22a3;
 constexpr uint16_t VP_ESTEPS_CALCULATED_ESTEPS = 0x22a5;
 constexpr uint16_t VP_ESTEPS_CALIBRATESTART_BUTTON = 0x22a7;
 constexpr uint16_t VP_ESTEPS_APPLY_BUTTON = 0x22a9;
+constexpr uint16_t VP_ESTEPS_BACK_BUTTON = 0x22D7;
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;

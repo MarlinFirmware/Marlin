@@ -120,13 +120,24 @@ void EstepsHandler::HandleApplyButton(DGUS_VP_Variable &var, void *val_ptr) {
         ExtUI::setAxisSteps_per_mm(calculated_esteps, ExtUI::E0);
     }
 
+    SaveSettingsAndReturn(true);
+}
+
+void EstepsHandler::HandleBackButton(DGUS_VP_Variable &var, void *val_ptr) {
+    // User intented to set e-steps directly
+    ExtUI::setAxisSteps_per_mm(set_esteps, ExtUI::E0);
+
+    SaveSettingsAndReturn(false);
+}
+
+void EstepsHandler::SaveSettingsAndReturn(bool fullConfirm) {
     // Save & reset
     settings.save();
 
-    ScreenHandler.Buzzer(0, 250);
+    if (fullConfirm) ScreenHandler.Buzzer(0, 250);
     
     ScreenHandler.PopToOldScreen();
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
+    if (fullConfirm) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
 
     SetStatusMessage(PSTR("New e-steps value saved"));
 }

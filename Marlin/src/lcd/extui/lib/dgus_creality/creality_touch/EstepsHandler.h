@@ -8,6 +8,7 @@ class EstepsHandler {
 
         static void HandleStartButton(DGUS_VP_Variable &var, void *val_ptr);
         static void HandleApplyButton(DGUS_VP_Variable &var, void *val_ptr);
+        static void HandleBackButton(DGUS_VP_Variable &var, void *val_ptr);
 
         static void HandleRemainingFilament(DGUS_VP_Variable &var, void *val_ptr);
 
@@ -22,7 +23,7 @@ class EstepsHandler {
         static uint16_t calibration_temperature;
 
     private:
-
+        static void SaveSettingsAndReturn(bool fullConfirm);
         static void SetStatusMessage(PGM_P statusMessage);
 };
 

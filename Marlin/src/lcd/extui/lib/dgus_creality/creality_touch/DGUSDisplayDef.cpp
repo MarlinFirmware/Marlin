@@ -386,6 +386,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_ESTEPS_CALIBRATESTART_BUTTON, nullptr, EstepsHandler::HandleStartButton, nullptr),
   VPHELPER(VP_ESTEPS_APPLY_BUTTON, nullptr, EstepsHandler::HandleApplyButton, nullptr),
+  VPHELPER(VP_ESTEPS_BACK_BUTTON, nullptr, EstepsHandler::HandleBackButton, nullptr),
 
   VPHELPER(VP_ESTEP_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ESTEPS_CALIBRATION, EstepsHandler>), nullptr),
 
