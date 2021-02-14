@@ -138,6 +138,7 @@ uint8_t selection = 0;
 uint8_t scrollpos = 0;
 uint8_t filescrl = 0;
 uint8_t process = Main;
+uint8_t last_process = Main;
 uint8_t popup;
 
 void *valuepointer;
@@ -584,6 +585,16 @@ void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const ch
   }
 }
 
+void CrealityDWINClass::Popup_Select() {
+  const uint16_t c1 = (selection==0) ? Select_Color : Color_Bg_Window,
+                 c2 = (selection==0) ? Color_Bg_Window : Select_Color;
+  DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
+  DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
+  DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
+  DWIN_Draw_Rectangle(0, c2, 144, 278, 247, 319);
+}
+
+
 /* Menu Item Config */
 
 void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
@@ -635,7 +646,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(Home);
             gcode.process_subcommands_now_P(PSTR("G28"));
             planner.synchronize();
-            Draw_Menu(Prepare);
+            Draw_Menu(Prepare, PREPARE_HOME);
           }
           break;
         case PREPARE_MANUALLEVEL:
@@ -694,7 +705,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Popup_Handler(FilChange);
               gcode.process_subcommands_now_P(PSTR("M600 B1"));
               planner.synchronize();
-              Draw_Menu(Prepare, 8);
+              Draw_Menu(Prepare, PREPARE_CHANGEFIL);
             #endif
           }
           break;
@@ -1075,7 +1086,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(FilLoad);
             gcode.process_subcommands_now_P(PSTR("M701"));
             planner.synchronize();
-            Draw_Menu(Prepare, 8);
+            Draw_Menu(ChangeFilament, CHANGEFIL_LOAD);
           }
           break;
         case CHANGEFIL_UNLOAD:
@@ -1086,7 +1097,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(FilLoad, true);;
             gcode.process_subcommands_now_P(PSTR("M702"));
             planner.synchronize();
-            Draw_Menu(Prepare, 8);
+            Draw_Menu(ChangeFilament, CHANGEFIL_UNLOAD);
           }
           break;
         case CHANGEFIL_CHANGE:
@@ -1097,7 +1108,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(FilChange);
             gcode.process_subcommands_now_P(PSTR("M600 B1"));
             planner.synchronize();
-            Draw_Menu(Prepare, 8);
+            Draw_Menu(ChangeFilament, CHANGEFIL_CHANGE);
           }
           break;
       }
@@ -1277,6 +1288,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Preheat4);
+          }
+          break;
+        #endif
+        #if (PREHEAT_COUNT >= 5)
+        case TEMP_PREHEAT5:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_5_LABEL);
+          }
+          else {
+            Draw_Menu(Preheat5);
           }
           break;
         #endif
@@ -1670,7 +1691,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Float(planner.settings.max_feedrate_mm_s[E_AXIS], row, false, 1);
           }
           else {
-            Modify_Value(planner.settings.max_feedrate_mm_s[Z_AXIS], 0, default_max_feedrate[E_AXIS]*2, 1);
+            Modify_Value(planner.settings.max_feedrate_mm_s[E_AXIS], 0, default_max_feedrate[E_AXIS]*2, 1);
           }
           break;
         #endif
@@ -2127,7 +2148,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(FilChange);
             gcode.process_subcommands_now_P(PSTR("M600 B1"));
             planner.synchronize();
-            Draw_Print_Screen();
+            Draw_Menu(Tune, TUNE_CHANGEFIL);
           }
           break;
         #endif
@@ -2164,23 +2185,23 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return (char*)"Temperature";
     #if (PREHEAT_COUNT >= 1)
     case Preheat1:
-      return strcat(PREHEAT_1_LABEL, (char*)" Settings");
+      return (char*)PREHEAT_1_LABEL;
     #endif
     #if (PREHEAT_COUNT >= 2)
     case Preheat2:
-      return strcat(PREHEAT_2_LABEL, (char*)" Settings");
+      return (char*)PREHEAT_2_LABEL;
     #endif
-    #if (PREHEAT_COUNT >= 3)
+    #if (PREHEAT_COUNT >= 3) 
     case Preheat3:
-      return strcat(PREHEAT_3_LABEL, (char*)" Settings");
+      return (char*)PREHEAT_3_LABEL;
     #endif
     #if (PREHEAT_COUNT >= 4)
     case Preheat4:
-      return strcat(PREHEAT_4_LABEL, (char*)" Settings");
+      return (char*)PREHEAT_4_LABEL;
     #endif
     #if (PREHEAT_COUNT >= 5)
     case Preheat5:
-      return strcat(PREHEAT_5_LABEL, (char*)" Settings");
+      return (char*)PREHEAT_5_LABEL;
     #endif
     case Motion:
       return (char*)"Motion Settings";
@@ -2278,16 +2299,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
   return 0;
 }
 
-/* Popup Functions */
-
-void CrealityDWINClass::Popup_Select() {
-  const uint16_t c1 = (selection==0) ? Select_Color : Color_Bg_Window,
-                 c2 = (selection==0) ? Color_Bg_Window : Select_Color;
-  DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
-  DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
-  DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
-  DWIN_Draw_Rectangle(0, c2, 144, 278, 247, 319);
-}
+/* Popup Config */
 
 void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
   popup = popupid;
@@ -2320,15 +2332,16 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       Draw_Popup(option ? (char*)"Unloading Filament" : (char*)"Loading Filament", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
       break;
     case FilChange:
-      Draw_Popup((char*)"Filament Change", (char*)"Please wait while heating.", (char*)"", Wait, ICON_BLTouch);
+      Draw_Popup((char*)"Filament Change", (char*)"Please wait for prompt.", (char*)"", Wait, ICON_BLTouch);
       break;
   }
 }
 
 void CrealityDWINClass::Confirm_Handler(const char * const msg) {
   last_menu = active_menu;
+  last_process = process;
   popup = UI;
-  if (strcmp_P(msg, GET_TEXT(MSG_NOZZLE_PARKED)) == 0) {
+  if (strcmp_P(msg, GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)) == 0) {
     Draw_Popup((char*)"Insert Filament", (char*)"Press to Continue", (char*)"", Confirm);
   }
   else if (strcmp_P(msg, GET_TEXT(MSG_HEATER_TIMEOUT)) == 0) {
@@ -2337,11 +2350,10 @@ void CrealityDWINClass::Confirm_Handler(const char * const msg) {
   else if (strcmp_P(msg, (char*)"Reheat finished.") == 0) {
     Draw_Popup((char*)"Reheat Finished", (char*)"Press to Continue", (char*)"", Confirm);
   }
-  else if (strcmp_P(msg, (char*)"Load Filament") == 0) {
-    Draw_Popup((char*)"Loading Filament", (char*)"Press to Continue", (char*)"", Confirm);
-  }
   else if (strcmp_P(msg, GET_TEXT(MSG_USERWAIT)) == 0) {
     Draw_Popup((char*)"Waiting for Input", (char*)"Press to Continue", (char*)"", Confirm);
+  }
+  else if (strcmp_P(msg, GET_TEXT(MSG_NOZZLE_PARKED)) == 0) {
   }
   else {
     Draw_Popup(msg, (char*)"Press to Continue", (char*)"", Confirm);
@@ -2706,8 +2718,24 @@ inline void CrealityDWINClass::Confirm_Control() {
         Draw_Main_Menu();
         break;
       case UI:
+        switch(last_process) {
+          case Menu:
+            Draw_Menu(last_menu);
+            break;
+          case Main:
+            Draw_Main_Menu();
+            break;
+          case Print:
+            Draw_Print_Screen();
+            break;
+          case File:
+            Draw_SD_List();
+            break;
+          case Wait:
+            Popup_Handler(FilLoad);
+            break;
+        }
         wait_for_user = false;
-        Draw_Menu(last_menu);
     }
   }
   DWIN_UpdateLCD();

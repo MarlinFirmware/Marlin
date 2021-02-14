@@ -200,7 +200,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)));
 
     while (wait_for_user) {
       impatient_beep(max_beep_count);
@@ -487,7 +487,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   // Wait for filament insert by user and press button
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_NOZZLE_PARKED), CONTINUE_STR));
-  TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_NOZZLE_PARKED)));
+  TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(is_reload ? GET_TEXT(MSG_FILAMENT_CHANGE_INSERT) : GET_TEXT(MSG_NOZZLE_PARKED)));
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     impatient_beep(max_beep_count);
