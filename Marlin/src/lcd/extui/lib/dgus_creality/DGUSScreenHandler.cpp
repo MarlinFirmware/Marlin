@@ -187,27 +187,39 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
 }
 
 void DGUSScreenHandler::setstatusmessage(const char *msg) {
+  const bool needs_scrolling = strlen_P(msg) > M117_STATIC_DISPLAY_LEN;
+
   DGUS_VP_Variable ramcopy;
-  if (populate_VPVar(VP_M117, &ramcopy)) {
-    ramcopy.memadr = (void*) msg;
+
+  // Update static message to either NULL or the value
+  if (populate_VPVar(VP_M117_STATIC, &ramcopy)) {
+    ramcopy.memadr = (void*) (needs_scrolling ? NUL_STR : msg);
     DGUSLCD_SendStringToDisplay(ramcopy);
   }
 
-  // "Operation control. 0x00: normal rolling; 0x01: pause; 0x02: close; 0x03: initialization (static text)"
-  uint8_t scrollMode = strlen(msg) > VP_M117_DISPLAY_LEN ? 0x0 : 0x1;
-  dgusdisplay.WriteVariable(SP_M117 + 0x02, scrollMode);
+  // Update scrolling message to either NULL or the value
+  if (populate_VPVar(VP_M117, &ramcopy)) {
+    ramcopy.memadr = (void*) (needs_scrolling ? msg : NUL_STR);
+    DGUSLCD_SendStringToDisplay(ramcopy);
+  }
 }
 
 void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
+  const bool needs_scrolling = strlen_P(msg) > M117_STATIC_DISPLAY_LEN;
+
   DGUS_VP_Variable ramcopy;
-  if (populate_VPVar(VP_M117, &ramcopy)) {
-    ramcopy.memadr = (void*) msg;
+
+   // Update static message to either NULL or the value
+  if (populate_VPVar(VP_M117_STATIC, &ramcopy)) {
+    ramcopy.memadr = (void*) (needs_scrolling ? nullptr : msg);
     DGUSLCD_SendStringToDisplayPGM(ramcopy);
   }
-
-  // "Operation control. 0x00: normal rolling; 0x01: pause; 0x02: close; 0x03: initialization (static text)"
-  uint8_t scrollMode = strlen_P(msg) > VP_M117_DISPLAY_LEN ? 0x0 : 0x1;
-  dgusdisplay.WriteVariable(SP_M117 + 0x02, scrollMode);
+  
+  // Update scrolling message to either NULL or the value
+  if (populate_VPVar(VP_M117, &ramcopy)) {
+    ramcopy.memadr = (void*) (needs_scrolling ? msg : nullptr);
+    DGUSLCD_SendStringToDisplayPGM(ramcopy);
+  }
 }
 
 // Send an 8 bit or 16 bit value to the display.
