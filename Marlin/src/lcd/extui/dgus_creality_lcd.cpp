@@ -87,9 +87,8 @@ bool hasPrintTimer = false;
   void onPrintTimerStarted() {
     hasPrintTimer = true;
 
-    if (!ExtUI::isPrintingFromMedia() && !(PrintJobRecovery::valid() && PrintJobRecovery::exists())) {
+    if (!IS_SD_FILE_OPEN() && !(PrintJobRecovery::valid() && PrintJobRecovery::exists())) {
       ScreenHandler.SetPrintingFromHost();
-
     }
     
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
