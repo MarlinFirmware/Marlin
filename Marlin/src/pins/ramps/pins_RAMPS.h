@@ -427,15 +427,16 @@
 #endif
 
 //
-// Aux 3 GND,D52,D50,5V
-//       NC,D53,D51,D49
+// Aux 3 GND D52 D50 5V
+//       NC  D53 D51 D49
 
 //
-// Aux 4 D16,D17,D23,D25,D27,D29,D31,D33,D35,D37,D39,D41,D43,D45,D47,D32,GND,5V
+// Aux 4 D16 D17 D23 D25 D27 D29 D31 D33 D35 D37 D39 D41 D43 D45 D47 D32 GND 5V
 //
 
 /**
- *  LCD adapter. Please note: These comes in two variants. The socket keys can be on the left or the right.
+ * LCD adapter. Please note: These comes in two variants. The socket keys can be
+ * on either side, and may be backwards on some boards / displays.
  *         _____                           _____
  *    D37 |10 9 | D35          (MISO) D50 |10 9 | D52 (SCK)
  *    D17 | 8 7 | D16                 D31 | 8 7 | D53
@@ -446,23 +447,25 @@
  *         EXP1                            EXP2
  */
 
-#define EXP1_03_PIN                           29
-#define EXP1_04_PIN                           27
-#define EXP1_05_PIN                           25
-#define EXP1_06_PIN                           23
-#define EXP1_07_PIN                           16
-#define EXP1_08_PIN                           17
-#define EXP1_09_PIN                           35
-#define EXP1_10_PIN                           37
+#ifndef EXP1_03_PIN
+  #define EXP1_03_PIN                         29
+  #define EXP1_04_PIN                         27
+  #define EXP1_05_PIN                         25
+  #define EXP1_06_PIN                         23
+  #define EXP1_07_PIN                         16
+  #define EXP1_08_PIN                         17
+  #define EXP1_09_PIN                         35
+  #define EXP1_10_PIN                         37
 
-#define EXP2_03_PIN                           41
-#define EXP2_04_PIN                           49
-#define EXP2_05_PIN                           51
-#define EXP2_06_PIN                           33
-#define EXP2_07_PIN                           53
-#define EXP2_08_PIN                           31
-#define EXP2_09_PIN                           52
-#define EXP2_10_PIN                           50
+  #define EXP2_03_PIN                         41
+  #define EXP2_04_PIN                         49
+  #define EXP2_05_PIN                         51
+  #define EXP2_06_PIN                         33
+  #define EXP2_07_PIN                         53
+  #define EXP2_08_PIN                         31
+  #define EXP2_09_PIN                         52
+  #define EXP2_10_PIN                         50
+#endif
 
 //////////////////////////
 // LCDs and Controllers //
