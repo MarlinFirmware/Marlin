@@ -42,7 +42,7 @@ TMPDIR=`mktemp -d`
 echo "Fetching configuration repository"
 if [ ! -e "$TMPDIR/README.md" ]; then
   git clone --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
-  rm -rf $TMPDIR/.git
+  rm -r $TMPDIR/.git
 fi
 
 echo
@@ -59,4 +59,4 @@ for config in $TMPDIR/config/examples/*/; do
   "$HERE/build_example" "internal" "$TMPDIR" "$base" || { echo "Failed to build $base"; exit ; }
 done
 
-#rm -r "$TMPDIR"
+rm -r "$TMPDIR"
