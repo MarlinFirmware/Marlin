@@ -5,10 +5,11 @@ echo "In case of failure, the current configuration remains in your repository."
 echo "To revert to your current version, run 'git checkout -f'."
 
 self=`basename "$0"`
+HERE=`dirname "$0"`
 
 # Check dependencies
-which curl 1>/dev/null 2>&1 || { echo "curl not found, please install it"; exit 1; }
-which git 1>/dev/null 2>&1 || { echo "git not found, please install it"; exit 2; }
+which curl 1>/dev/null 2>&1 || { echo "curl not found, please install it"; exit ; }
+which git 1>/dev/null 2>&1 || { echo "git not found, please install it"; exit ; }
 if [ -z "$1" ]; then
   echo ""
   echo "ERROR: "
@@ -17,42 +18,45 @@ if [ -z "$1" ]; then
   echo "         base_branch              The branch in the Configuration repository to use"
   echo "         resume_point             If not empty, resume building from this board"
 
-  exit 3
+  exit
 fi
 
 # Check if called in the right folder
 if [ ! -e "Marlin/src" ]; then
   echo "This script must be called from the root folder of a Marlin repository, please navigate to this folder and call:"
   echo "buildroot/ci-check/$self $1"
-  exit 4
+  exit
 fi
 
 # Check if the current repository has unmerged changes
 if [ -z "$2" ]; then
-  git diff --quiet || { echo "Your current repository is not clean. Either commit your change or stash them, and re-run this script"; exit 5; }
-else 
+  git diff --quiet || { echo "Your current repository is not clean. Either commit your change or stash them, and re-run this script"; exit ; }
+else
   echo "Resuming from $2"
 fi
+
+TMPDIR=`mktemp -d`
 
 # Ok, let's do our stuff now
 # First extract the current temporary folder
 echo "Fetching configuration repository"
-if [ ! -e "./tmp/README.md" ]; then
-  git clone --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git ./tmp || { echo "Failed to clone the configuration repository"; exit 6; }
+if [ ! -e "$TMPDIR/README.md" ]; then
+  git clone --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
+  rm -rf $TMPDIR/.git
 fi
 
-echo 
+echo
 echo "Start building now..."
 echo "====================="
 shopt -s nullglob
-for config in tmp/config/examples/*/; do
+for config in $TMPDIR/config/examples/*/; do
   [ -d "${config}" ] || continue
   base=`basename "$config"`
   if [ ! -z "$2" ] && [ "$2" != "$base" ]; then
     echo "Skipping $base..."
     continue
   fi
-  echo "Testing $base: "
-    ./buildroot/ci-check/build_config.sh "internal" "$base" "$config" || { echo "Failed to build $base"; exit 7; }
-  echo "Passed"
+  "$HERE/build_example" "internal" "$TMPDIR" "$base" || { echo "Failed to build $base"; exit ; }
 done
+
+#rm -r "$TMPDIR"
