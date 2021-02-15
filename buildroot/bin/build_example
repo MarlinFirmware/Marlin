@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
+#
+# build_example
+#
+# Usage: build_example internal config-home config-folder
+#
 
-if [ "$1" != "internal" ]; then
-  echo "Don't call this script directly, use build_all_examples instead."
-  exit 1
-fi
-
-SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
-HERE=`dirname "$0"`
-
-if [ -z $SED ]; then
-  echo "No sed found, please install sed"
-  exit 1
-fi
+# Require 'internal' as the first argument
+[[ "$1" == "internal" ]] || { echo "Don't call this script directly, use build_all_examples instead." ; exit 1 ; }
 
 echo "Testing $3:"
 

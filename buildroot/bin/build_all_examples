@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+# build_all_examples
+#
+
+# Require gsed or sed
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
+[[ -z $SED ]] && { echo "No sed found, please install sed" ; exit 1 ; }
 
 echo "This script will attempt to build Marlin for all known configurations."
 echo "In case of failure, the current configuration remains in your repository."
@@ -62,6 +69,6 @@ for config in $MFTEMP/config/examples/*/; do
   "$HERE/build_example" "internal" "$MFTEMP" "$base" || { echo "Failed to build $base"; exit ; }
 done
 
-# Remove write protection used by git
-chmod 0755 -R "$MFTEMP"
-rm -r "$MFTEMP"
+# Delete the temp folder
+rm -rf "$MFTEMP"
+unset MFTEMP
