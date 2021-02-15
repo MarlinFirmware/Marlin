@@ -6,7 +6,6 @@
 #  mftest [name] [index] [-y]         Set config options and optionally build a test
 #
 
-MFINFO=$(mfinfo) || exit 1
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
 
 perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
