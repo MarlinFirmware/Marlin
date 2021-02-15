@@ -287,9 +287,7 @@ void MMU2::mmu_loop() {
         else if (WITHIN(cmd, MMU_CMD_F0, MMU_CMD_F4)) {
           // filament type
           int filament = cmd - MMU_CMD_F0;
-          DEBUG_ECHOPAIR("MMU <= F", filament, " ");
-          DEBUG_ECHO_F(cmd_arg, DEC);
-          DEBUG_EOL();
+          DEBUG_ECHOLNPAIR("MMU <= F", filament, " ", cmd_arg);
           tx_printf_P(PSTR("F%d %d\n"), filament, cmd_arg);
           state = 3; // wait for response
         }
