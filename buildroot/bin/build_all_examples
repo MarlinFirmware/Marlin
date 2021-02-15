@@ -4,6 +4,8 @@ echo "This script will attempt to build Marlin for all known configurations."
 echo "In case of failure, the current configuration remains in your repository."
 echo "To revert to your current version, run 'git checkout -f'."
 
+GITREPO=https://github.com/MarlinFirmware/Configurations.git
+
 self=`basename "$0"`
 HERE=`dirname "$0"`
 
@@ -42,7 +44,7 @@ TMPDIR="$PWD/tmp"
 # First extract the current temporary folder
 echo "Fetching configuration repository"
 if [ ! -e "$TMPDIR/README.md" ]; then
-  git clone --depth 1 --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
+  git clone --depth 1 --single-branch --branch "$1" $GITREPO "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
 fi
 
 echo "Temporary path used: $TMPDIR"
