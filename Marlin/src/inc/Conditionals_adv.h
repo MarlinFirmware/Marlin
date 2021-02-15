@@ -516,3 +516,10 @@
                          (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || \
                          (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
                          (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+
+#if ENABLED(CUSTOM_USER_MENUS)
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define HAS_USER_ITEM(V...) DO(HAS,||,V)
+#else
+  #define HAS_USER_ITEM(N) 0
+#endif

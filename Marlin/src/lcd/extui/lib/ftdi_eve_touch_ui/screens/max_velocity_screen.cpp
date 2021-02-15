@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_MAX_VELOCITY_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -87,4 +86,4 @@ bool MaxVelocityScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_MAX_VELOCITY_SCREEN

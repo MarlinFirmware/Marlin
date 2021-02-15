@@ -1305,7 +1305,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   const feedRate_t home_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
   if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOPAIR("...(", axis_codes[axis], ", ", distance, ", ");
+    DEBUG_ECHOPAIR("...(", AS_CHAR(axis_codes[axis]), ", ", distance, ", ");
     if (fr_mm_s)
       DEBUG_ECHO(fr_mm_s);
     else
@@ -1398,7 +1398,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
  * Callers must sync the planner position after calling this!
  */
 void set_axis_is_at_home(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", AS_CHAR(axis_codes[axis]), ")");
 
   set_axis_trusted(axis);
   set_axis_homed(axis);
@@ -1448,7 +1448,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
-      DEBUG_ECHOLNPAIR("> home_offset[", axis_codes[axis], "] = ", home_offset[axis]);
+      DEBUG_ECHOLNPAIR("> home_offset[", AS_CHAR(axis_codes[axis]), "] = ", home_offset[axis]);
     #endif
     DEBUG_POS("", current_position);
     DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");

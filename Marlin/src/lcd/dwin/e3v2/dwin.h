@@ -236,17 +236,17 @@ extern millis_t dwin_heat_time;
 typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
   TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
-  TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
+  TERN_(HAS_FAN,        int16_t Fan_speed = 0);
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
   float Max_Acceleration  = 0;
-  float Max_Jerk          = 0;
-  float Max_Step          = 0;
-  float Move_X_scale      = 0;
-  float Move_Y_scale      = 0;
-  float Move_Z_scale      = 0;
+  float Max_Jerk_scaled   = 0;
+  float Max_Step_scaled   = 0;
+  float Move_X_scaled     = 0;
+  float Move_Y_scaled     = 0;
+  float Move_Z_scaled     = 0;
   #if HAS_HOTEND
-    float Move_E_scale    = 0;
+    float Move_E_scaled   = 0;
   #endif
   float offset_value      = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
@@ -270,10 +270,7 @@ typedef struct {
   #if HAS_LEVELING
     bool leveling_offset_flag:1;
   #endif
-  #if HAS_FAN
-    AxisEnum feedspeed_axis;
-  #endif
-  AxisEnum acc_axis, jerk_axis, step_axis;
+  AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
 } HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;

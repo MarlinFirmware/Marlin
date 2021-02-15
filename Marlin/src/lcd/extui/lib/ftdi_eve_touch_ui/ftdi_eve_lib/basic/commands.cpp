@@ -1083,7 +1083,7 @@ void CLCD::init() {
 
    if (counter == 249) {
       #if ENABLED(TOUCH_UI_DEBUG)
-        SERIAL_ECHO_MSG("Timeout waiting for device ID, should be 124, got ", int(device_id));
+        SERIAL_ECHO_MSG("Timeout waiting for device ID, should be 124, got ", device_id);
       #endif
     }
   }
@@ -1101,7 +1101,7 @@ void CLCD::init() {
       delay(1);
 
     if (ENABLED(TOUCH_UI_DEBUG) && counter == 99)
-      SERIAL_ECHO_MSG("Timeout waiting for reset status. Should be 0x00, got ", int(reset_status));
+      SERIAL_ECHO_MSG("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default

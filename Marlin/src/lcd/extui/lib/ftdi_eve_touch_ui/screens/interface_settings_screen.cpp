@@ -21,11 +21,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_INTERFACE_SETTINGS_SCREEN
 
 #include "../archim2-flash/flash_storage.h"
 
@@ -42,13 +41,14 @@ using namespace ExtUI;
 using namespace Theme;
 
 constexpr bool PERSISTENT_STORE_SUCCESS = false; // persistentStore uses true for error
+constexpr static InterfaceSettingsScreenData &mydata = screen_data.InterfaceSettingsScreen;
 
 void InterfaceSettingsScreen::onStartup() {
 }
 
 void InterfaceSettingsScreen::onEntry() {
-  screen_data.InterfaceSettings.brightness = CLCD::get_brightness();
-  screen_data.InterfaceSettings.volume     = SoundPlayer::get_volume();
+  mydata.brightness = CLCD::get_brightness();
+  mydata.volume     = SoundPlayer::get_volume();
   BaseScreen::onEntry();
 }
 
@@ -96,9 +96,9 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
     #define EDGE_R 30
        .colors(ui_slider)
     #if DISABLED(LCD_FYSETC_TFT81050)
-       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettings.brightness, 128)
+       .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), mydata.brightness, 128)
     #endif
-       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), screen_data.InterfaceSettings.volume,     0xFF)
+       .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), mydata.volume,     0xFF)
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
     #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
@@ -161,13 +161,13 @@ void InterfaceSettingsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettings.brightness = max(11, (value * 128UL) / 0xFFFF);
-        CLCD::set_brightness(screen_data.InterfaceSettings.brightness);
+        mydata.brightness = max(11, (value * 128UL) / 0xFFFF);
+        CLCD::set_brightness(mydata.brightness);
         SaveSettingsDialogBox::settingsChanged();
         break;
       case 3:
-        screen_data.InterfaceSettings.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettings.volume);
+        mydata.volume = value >> 8;
+        SoundPlayer::set_volume(mydata.volume);
         SaveSettingsDialogBox::settingsChanged();
         break;
       default:
@@ -288,4 +288,4 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   }
 #endif
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_INTERFACE_SETTINGS_SCREEN

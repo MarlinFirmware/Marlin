@@ -327,30 +327,61 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
 #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
 
+  #if ENABLED(PREHEAT_BEFORE_PROBING)
+    #ifndef PROBING_NOZZLE_TEMP
+      #define PROBING_NOZZLE_TEMP 0
+    #endif
+    #ifndef PROBING_BED_TEMP
+      #define PROBING_BED_TEMP 0
+    #endif
+  #endif
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    #ifndef LEVELING_NOZZLE_TEMP
+      #define LEVELING_NOZZLE_TEMP 0
+    #endif
+    #ifndef LEVELING_BED_TEMP
+      #define LEVELING_BED_TEMP 0
+    #endif
+  #endif
+
   /**
-   * Do preheating as required before leveling or probing
+   * Do preheating as required before leveling or probing.
+   *  - If a preheat input is higher than the current target, raise the target temperature.
+   *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
   void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
-    #if PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP
+    #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
-    #if PROBING_BED_TEMP || LEVELING_BED_TEMP
+    #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
-    const uint16_t hotendPreheat = TERN0(WAIT_FOR_NOZZLE_HEAT, thermalManager.degHotend(0) < hotend_temp) ? hotend_temp : 0,
-                      bedPreheat = TERN0(WAIT_FOR_BED_HEAT,    thermalManager.degBed()     < bed_temp)    ? bed_temp    : 0;
+
     DEBUG_ECHOPGM("Preheating ");
-    if (hotendPreheat) {
-      DEBUG_ECHOPAIR("hotend (", hotendPreheat, ") ");
-      if (bedPreheat) DEBUG_ECHOPGM("and ");
-    }
-    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ") ");
+
+    #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
+      const uint16_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
+      if (hotendPreheat) {
+        DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
+        thermalManager.setTargetHotend(hotendPreheat, 0);
+      }
+    #elif ENABLED(WAIT_FOR_BED_HEAT)
+      constexpr uint16_t hotendPreheat = 0;
+    #endif
+
+    #if ENABLED(WAIT_FOR_BED_HEAT)
+      const uint16_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
+      if (bedPreheat) {
+        if (hotendPreheat) DEBUG_ECHOPGM(" and ");
+        DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
+        thermalManager.setTargetBed(bedPreheat);
+      }
+    #endif
+
     DEBUG_EOL();
 
-    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.setTargetBed(bedPreheat));
-    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotendPreheat) thermalManager.wait_for_hotend(0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bedPreheat)    thermalManager.wait_for_bed_heating());
+    TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.degHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
+    TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp > thermalManager.degBed() + (TEMP_BED_WINDOW))    thermalManager.wait_for_bed_heating());
   }
 
 #endif
@@ -719,7 +750,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     DEBUG_ECHOLNPAIR(
       "...(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
       ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
-      ", ", int(verbose_level),
+      ", ", verbose_level,
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
     );
     DEBUG_POS("", current_position);
