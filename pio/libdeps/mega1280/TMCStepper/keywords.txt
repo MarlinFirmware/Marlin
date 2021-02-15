@@ -1,0 +1,146 @@
+#######################################
+# Syntax Coloring Map For Test
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+TMC2130Stepper	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin 					KEYWORD2
+checkStatus 			KEYWORD2
+SilentStepStick2130		KEYWORD2
+setCurrent 				KEYWORD2
+checkOT					KEYWORD2
+getOTPW					KEYWORD2
+clear_otpw				KEYWORD2
+isEnabled				KEYWORD2
+GCONF 					KEYWORD2
+external_ref 			KEYWORD2
+internal_sense_R 		KEYWORD2
+stealthChop 			KEYWORD2
+commutation		 		KEYWORD2
+shaft_dir				KEYWORD2
+diag0_errors 			KEYWORD2
+diag0_temp_prewarn		KEYWORD2
+diag0_stall 			KEYWORD2
+diag1_stall 			KEYWORD2
+diag1_index 			KEYWORD2
+diag1_chopper_on 		KEYWORD2
+diag1_steps_skipped 	KEYWORD2
+diag0_active_high 		KEYWORD2
+diag1_active_high 		KEYWORD2
+small_hysterisis 		KEYWORD2
+stop_enable 			KEYWORD2
+direct_mode 			KEYWORD2
+hold_current			KEYWORD2
+run_current 			KEYWORD2
+hold_delay	 			KEYWORD2
+power_down_delay		KEYWORD2
+status_flags			KEYWORD2
+input					KEYWORD2
+microstep_time			KEYWORD2
+stealth_max_speed		KEYWORD2
+coolstep_min_speed 		KEYWORD2
+mode_sw_speed 			KEYWORD2
+coil_A_current 			KEYWORD2
+coil_B_current 			KEYWORD2
+DCstep_min_speed 		KEYWORD2
+CHOPCONF 				KEYWORD2
+off_time 				KEYWORD2
+hysterisis_start 		KEYWORD2
+fast_decay_time 		KEYWORD2
+hysterisis_low			KEYWORD2
+sine_offset 			KEYWORD2
+disable_I_comparator 	KEYWORD2
+random_off_time 		KEYWORD2
+chopper_mode 			KEYWORD2
+blank_time 				KEYWORD2
+high_sense_R 			KEYWORD2
+fullstep_threshold 		KEYWORD2
+high_speed_mode 		KEYWORD2
+sync_phases 			KEYWORD2
+microsteps 				KEYWORD2
+interpolate 			KEYWORD2
+double_edge_step 		KEYWORD2
+disable_short_protection	KEYWORD2
+sg_min 					KEYWORD2
+sg_step_width 			KEYWORD2
+sg_max 					KEYWORD2
+sg_current_decrease 	KEYWORD2
+smart_min_current 		KEYWORD2
+sg_stall_value 			KEYWORD2
+sg_filter 				KEYWORD2
+stealth_amplitude 		KEYWORD2
+stealth_gradient 		KEYWORD2
+stealth_freq 			KEYWORD2
+stealth_autoscale		KEYWORD2
+stealth_symmetric 		KEYWORD2
+standstill_mode 		KEYWORD2
+DRVSTATUS 				KEYWORD2
+PWM_SCALE				KEYWORD2
+invert_encoder			KEYWORD2
+maxspeed 				KEYWORD2
+LOST_STEPS				KEYWORD2
+_started	 			KEYWORD2
+
+I_scale_analog	 		KEYWORD2
+internal_Rsense	 		KEYWORD2
+en_pwm_mode	 			KEYWORD2
+enc_commutation	 		KEYWORD2
+shaft	 				KEYWORD2
+diag0_error	 			KEYWORD2
+diag0_otpw	 			KEYWORD2
+diag1_onstate	 		KEYWORD2
+diag0_int_pushpull	 	KEYWORD2
+diag1_int_pushpull	 	KEYWORD2
+GSTAT		 			KEYWORD2
+IOIN	 				KEYWORD2
+IHOLD	 				KEYWORD2
+IRUN	 				KEYWORD2
+IHOLDDELAY	 			KEYWORD2
+TPOWERDOWN	 			KEYWORD2
+TSTEP	 				KEYWORD2
+TPWMTHRS	 			KEYWORD2
+TCOOLTHRS	 			KEYWORD2
+THIGH	 				KEYWORD2
+XDIRECT_A	 			KEYWORD2
+XDIRECT_B	 			KEYWORD2
+VDCMIN	 				KEYWORD2
+CHOPCONF	 			KEYWORD2
+toff	 				KEYWORD2
+hstrt	 				KEYWORD2
+hend	 				KEYWORD2
+fd	 					KEYWORD2
+disfdcc	 				KEYWORD2
+rndtf	 				KEYWORD2
+chm	 					KEYWORD2
+tbl	 					KEYWORD2
+vsense	 				KEYWORD2
+vhighfs	 				KEYWORD2
+vhighchm	 			KEYWORD2
+sync	 				KEYWORD2
+mres	 				KEYWORD2
+intpol	 				KEYWORD2
+dedge	 				KEYWORD2
+diss2g	 				KEYWORD2
+semin	 				KEYWORD2
+seup	 				KEYWORD2
+semax	 				KEYWORD2
+sedn	 				KEYWORD2
+seimin	 				KEYWORD2
+sgt	 					KEYWORD2
+sfilt	 				KEYWORD2
+PWM_AMPL	 			KEYWORD2
+PWM_GRAD	 			KEYWORD2
+pwm_freq	 			KEYWORD2
+pwm_autoscale	 		KEYWORD2
+pwm_symmetric	 		KEYWORD2
+freewheel	 			KEYWORD2
+ENCM_CTRL0	 			KEYWORD2
+ENCM_CTRL1	 			KEYWORD2
