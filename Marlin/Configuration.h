@@ -1959,7 +1959,7 @@
 // Note: This controller requires Testato, Koepel softwarewire library
 //		and Andriy Golovnya LiquidCrystal_AIP31068 libray.
 //
-#define YHCB2004
+//#define YHCB2004
 #if ENABLED (YHCB2004)
   #define ULTIPANEL
 #endif
