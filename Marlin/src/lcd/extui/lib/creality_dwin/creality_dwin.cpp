@@ -2519,7 +2519,7 @@ inline void CrealityDWINClass::File_Control() {
           len = MENU_CHAR_LIMIT;
         char name[len+1];
         if (pos >= 0) {
-          LOOP_L_N(i, pos) name[i] = filename[i+filescrl];
+          LOOP_L_N(i, len) name[i] = filename[i+filescrl];
         }
         else {
           LOOP_L_N(i, MENU_CHAR_LIMIT+pos) name[i] = ' ';
@@ -2835,31 +2835,30 @@ void CrealityDWINClass::Stop_Print() {
 
 void CrealityDWINClass::Update() {
   Screen_Update();
-  Variable_Update();
-}
 
-void CrealityDWINClass::Variable_Update() {
-  #if HAS_ZOFFSET_ITEM
-    static float lastzoffset = zoffsetvalue;
-    if (zoffsetvalue != lastzoffset) {
-      lastzoffset = zoffsetvalue;
-      #if HAS_BED_PROBE
-        probe.offset.z = zoffsetvalue;
-      #else
-        set_home_offset(Z_AXIS, -zoffsetvalue);
-      #endif
-    }
-    
-    #if HAS_BED_PROBE
-      if (probe.offset.z != lastzoffset) {
-        zoffsetvalue = lastzoffset = probe.offset.z;
-      }
-    #else
-      if (-home_offset.z != lastzoffset) {
-        zoffsetvalue = lastzoffset = -home_offset.z;
-      }
-    #endif
-  #endif
+  switch(process) {
+    case Main:
+      Main_Menu_Control();
+      break;
+    case Menu:
+      Menu_Control();
+      break;
+    case Value:
+      Value_Control();
+      break;
+    case File:
+      File_Control();
+      break;
+    case Print:
+      Print_Screen_Control();
+      break;
+    case Popup:
+      Popup_Control();
+      break;
+    case Confirm:
+      Confirm_Control();
+      break;
+  }
 }
 
 void CrealityDWINClass::Screen_Update() {
@@ -2896,28 +2895,98 @@ void CrealityDWINClass::Screen_Update() {
       Draw_SD_List();
   }
 
-  switch(process) {
-    case Main:
-      Main_Menu_Control();
-      break;
-    case Menu:
-      Menu_Control();
-      break;
-    case Value:
-      Value_Control();
-      break;
-    case File:
-      File_Control();
-      break;
-    case Print:
-      Print_Screen_Control();
-      break;
-    case Popup:
-      Popup_Control();
-      break;
-    case Confirm:
-      Confirm_Control();
-      break;
+  #if HAS_HOTEND
+    static int16_t hotendtarget = -1;
+  #endif
+  #if HAS_HEATED_BED
+    static int16_t bedtarget = -1;
+  #endif
+  #if HAS_FAN
+    static int16_t fanspeed = -1;
+  #endif
+  #if HAS_ZOFFSET_ITEM
+    static float lastzoffset = zoffsetvalue;
+    if (zoffsetvalue != lastzoffset) {
+      lastzoffset = zoffsetvalue;
+      #if HAS_BED_PROBE
+        probe.offset.z = zoffsetvalue;
+      #else
+        set_home_offset(Z_AXIS, -zoffsetvalue);
+      #endif
+    }
+    
+    #if HAS_BED_PROBE
+      if (probe.offset.z != lastzoffset) {
+        zoffsetvalue = lastzoffset = probe.offset.z;
+      }
+    #else
+      if (-home_offset.z != lastzoffset) {
+        zoffsetvalue = lastzoffset = -home_offset.z;
+      }
+    #endif
+  #endif
+
+  if (process == Menu || process == Value) {
+    switch(active_menu) {
+      case TempMenu:
+        #if HAS_HOTEND
+          if (thermalManager.temp_hotend[0].target != hotendtarget) {
+            hotendtarget = thermalManager.temp_hotend[0].target;
+            if (scrollpos <= TEMP_HOTEND && TEMP_HOTEND <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.temp_hotend[0].target, TEMP_HOTEND-scrollpos, false, 1);
+            }
+          }
+        #endif
+        #if HAS_HEATED_BED
+          if (thermalManager.temp_bed.target != bedtarget) {
+            bedtarget = thermalManager.temp_bed.target;
+            if (scrollpos <= TEMP_BED && TEMP_BED <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.temp_bed.target, TEMP_BED-scrollpos, false, 1);
+            }
+          }
+        #endif
+        #if HAS_FAN
+          if (thermalManager.fan_speed[0] != fanspeed) {
+            fanspeed = thermalManager.fan_speed[0];
+            if (scrollpos <= TEMP_FAN && TEMP_FAN <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.fan_speed[0], TEMP_FAN-scrollpos, false, 1);
+            }
+          }
+        #endif
+        break;
+      case Tune:
+        #if HAS_HOTEND
+          if (thermalManager.temp_hotend[0].target != hotendtarget) {
+            hotendtarget = thermalManager.temp_hotend[0].target;
+            if (scrollpos <= TUNE_HOTEND && TUNE_HOTEND <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.temp_hotend[0].target, TUNE_HOTEND-scrollpos, false, 1);
+            }
+          }
+        #endif
+        #if HAS_HEATED_BED
+          if (thermalManager.temp_bed.target != bedtarget) {
+            bedtarget = thermalManager.temp_bed.target;
+            if (scrollpos <= TUNE_BED && TUNE_BED <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.temp_bed.target, TUNE_BED-scrollpos, false, 1);
+            }
+          }
+        #endif
+        #if HAS_FAN
+          if (thermalManager.fan_speed[0] != fanspeed) {
+            fanspeed = thermalManager.fan_speed[0];
+            if (scrollpos <= TUNE_FAN && TUNE_FAN <= scrollpos + MROWS) {
+              if (process != Value || selection != TEMP_HOTEND-scrollpos)
+                Draw_Float(thermalManager.fan_speed[0], TUNE_FAN-scrollpos, false, 1);
+            }
+          }
+        #endif
+        break;
+    }
   }
 }
 

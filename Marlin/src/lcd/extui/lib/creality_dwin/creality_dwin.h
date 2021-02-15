@@ -253,7 +253,6 @@ public:
   void Start_Print(bool sd);
   void Stop_Print();
   void Update();
-  void Variable_Update();
   void Screen_Update();
   void Startup();
   void AudioFeedback(const bool success=true);
