@@ -35,16 +35,17 @@ else
   echo "Resuming from $2"
 fi
 
-TMPDIR=`mktemp -d`
+TMPDIR="$PWD/tmp"
+
 
 # Ok, let's do our stuff now
 # First extract the current temporary folder
 echo "Fetching configuration repository"
 if [ ! -e "$TMPDIR/README.md" ]; then
-  git clone --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
-  rm -r $TMPDIR/.git
+  git clone --depth 1 --single-branch --branch "$1" https://github.com/MarlinFirmware/Configurations.git "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
 fi
 
+echo "Temporary path used: $TMPDIR"
 echo
 echo "Start building now..."
 echo "====================="
@@ -59,4 +60,6 @@ for config in $TMPDIR/config/examples/*/; do
   "$HERE/build_example" "internal" "$TMPDIR" "$base" || { echo "Failed to build $base"; exit ; }
 done
 
+# Remove write protection used by git
+chmod 0755 -R "$TMPDIR"
 rm -r "$TMPDIR"
