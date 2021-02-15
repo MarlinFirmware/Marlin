@@ -5,9 +5,8 @@ if [ "$1" != "internal" ]; then
   exit 1
 fi
 
-SED=$(which gsed 2>/dev/null|| which sed)
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
 HERE=`dirname "$0"`
-
 
 if [ -z $SED ]; then
   echo "No sed found, please install sed"
