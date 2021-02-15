@@ -248,7 +248,7 @@ public:
         static inline uint32_t _calculated_remaining_time() {
           const duration_t elapsed = print_job_timer.duration();
           const progress_t progress = _get_progress();
-          return elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+          return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
         }
         #if ENABLED(USE_M73_REMAINING_TIME)
           static uint32_t remaining_time;
