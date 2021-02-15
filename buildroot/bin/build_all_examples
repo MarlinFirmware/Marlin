@@ -37,31 +37,31 @@ else
   echo "Resuming from $2"
 fi
 
-TMPDIR="$PWD/tmp"
-
+# Create a temporary folder if needed
+[[ -d $MFTEMP ]] || export MFTEMP=$(mktemp -d)
 
 # Ok, let's do our stuff now
 # First extract the current temporary folder
 echo "Fetching configuration repository"
-if [ ! -e "$TMPDIR/README.md" ]; then
-  git clone --depth 1 --single-branch --branch "$1" $GITREPO "$TMPDIR" || { echo "Failed to clone the configuration repository"; exit ; }
+if [ ! -e "$MFTEMP/README.md" ]; then
+  git clone --depth 1 --single-branch --branch "$1" $GITREPO "$MFTEMP" || { echo "Failed to clone the configuration repository"; exit ; }
 fi
 
-echo "Temporary path used: $TMPDIR"
+echo "Temporary path used: $MFTEMP"
 echo
 echo "Start building now..."
 echo "====================="
 shopt -s nullglob
-for config in $TMPDIR/config/examples/*/; do
+for config in $MFTEMP/config/examples/*/; do
   [ -d "${config}" ] || continue
   base=`basename "$config"`
   if [ ! -z "$2" ] && [ "$2" != "$base" ]; then
     echo "Skipping $base..."
     continue
   fi
-  "$HERE/build_example" "internal" "$TMPDIR" "$base" || { echo "Failed to build $base"; exit ; }
+  "$HERE/build_example" "internal" "$MFTEMP" "$base" || { echo "Failed to build $base"; exit ; }
 done
 
 # Remove write protection used by git
-chmod 0755 -R "$TMPDIR"
-rm -r "$TMPDIR"
+chmod 0755 -R "$MFTEMP"
+rm -r "$MFTEMP"

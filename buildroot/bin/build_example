@@ -49,4 +49,3 @@ for sub in $2/config/examples/$3/*/; do
 done
 
 echo "Success"
-exit 0
