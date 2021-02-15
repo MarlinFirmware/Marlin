@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+if [ "$1" != "internal" ]; then
+  echo "Don't call this script directly, use build_all_examples instead."
+  exit 1
+fi
+
+SED=$(which gsed || which sed)
+HERE=`dirname "$0"`
+
+echo "Testing $3:"
+
+shopt -s nullglob
+for sub in find $2/config/examples/$3 -type d; do
+  [[ -d $sub ]] || continue
+  base=`basename "$sub"`
+
+  if [[ ! -f $sub/Configuration.h ]] && [[ ! -f $sub/Configuration_adv.h ]]; then
+    echo "No configuration files found in $sub"
+    continue
+  fi
+
+  echo "Getting configuration files from $sub"
+  cp "$2/config/default"/*.h    Marlin/
+  cp "$sub"/Configuration.h     Marlin/ 2>/dev/null
+  cp "$sub"/Configuration_adv.h Marlin/ 2>/dev/null
+  cp "$sub"/_Bootscreen.h       Marlin/ 2>/dev/null
+  cp "$sub"/_Statusscreen.h     Marlin/ 2>/dev/null
+
+  echo "Building the firmware now..."
+  echo "$HERE/mftest" -a || exit 1
+done
+
+echo "Success"
+exit 0

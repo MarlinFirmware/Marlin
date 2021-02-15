@@ -343,7 +343,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
 
   /**
-   * Do preheating as required before leveling or probing
+   * Do preheating as required before leveling or probing.
+   *  - If a preheat input is higher than the current target, raise the target temperature.
+   *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
   void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
     // Temperatures is MAX(current_target, settings_temp)
@@ -353,9 +355,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_ECHOPGM("Preheating ");
     if (hotendPreheat) {
       DEBUG_ECHOPAIR("hotend (", hotendPreheat, ") ");
-      if (bedPreheat) DEBUG_ECHOPGM("and ");
     }
-    if (bedPreheat) DEBUG_ECHOPAIR("bed (", bedPreheat, ") ");
     DEBUG_EOL();
 
     // Set temperatures if set

@@ -111,27 +111,28 @@ if ((REBUILD)); then
 fi
 
 case $TESTENV in
-   tree) pio run -d . -e include_tree ; exit 1 ;;
-    due) TESTENV='DUE' ;;
-    esp) TESTENV='esp32' ;;
-   lin*) TESTENV='linux_native' ;;
-lpc?(8)) TESTENV='LPC1768' ;;
-   lpc9) TESTENV='LPC1769' ;;
-   m128) TESTENV='mega1280' ;;
-   m256) TESTENV='mega2560' ;;
-   mega) TESTENV='mega2560' ;;
-    stm) TESTENV='STM32F103RE' ;;
-     f1) TESTENV='STM32F103RE' ;;
-     f4) TESTENV='STM32F4' ;;
-     f7) TESTENV='STM32F7' ;;
-     s6) TESTENV='FYSETC_S6' ;;
- teensy) TESTENV='teensy31' ;;
-    t31) TESTENV='teensy31' ;;
-    t32) TESTENV='teensy31' ;;
-    t35) TESTENV='teensy35' ;;
-    t36) TESTENV='teensy35' ;;
-    t40) TESTENV='teensy41' ;;
-    t41) TESTENV='teensy41' ;;
+    tree) pio run -d . -e include_tree ; exit 1 ;;
+     due) TESTENV='DUE' ;;
+     esp) TESTENV='esp32' ;;
+    lin*) TESTENV='linux_native' ;;
+lp8|lpc8) TESTENV='LPC1768' ;;
+lp9|lpc9) TESTENV='LPC1769' ;;
+    m128) TESTENV='mega1280' ;;
+    m256) TESTENV='mega2560' ;;
+    mega) TESTENV='mega2560' ;;
+     stm) TESTENV='STM32F103RE' ;;
+      f1) TESTENV='STM32F103RE' ;;
+      f4) TESTENV='STM32F4' ;;
+      f7) TESTENV='STM32F7' ;;
+      s6) TESTENV='FYSETC_S6' ;;
+  teensy) TESTENV='teensy31' ;;
+     t31) TESTENV='teensy31' ;;
+     t32) TESTENV='teensy31' ;;
+     t35) TESTENV='teensy35' ;;
+     t36) TESTENV='teensy35' ;;
+     t40) TESTENV='teensy41' ;;
+     t41) TESTENV='teensy41' ;;
+[1-9][1-9]|[1-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
 esac
 
 if ((AUTO_BUILD)); then
@@ -217,8 +218,14 @@ if [[ $TESTENV == '-' ]]; then
   echo
   for (( ; ; ))
   do
-    read -p "Select a test to apply (1-$IND) : " NAMEIND
-    [[ -z "$NAMEIND" ]] && { errout "(canceled)" ; exit 1 ; }
+    if [[ $TESTNUM -gt 0 ]]; then
+      NAMEIND=$TESTNUM
+    else
+      read -p "Select a test to apply (1-$IND) : " NAMEIND
+    fi
+    [[ -z $NAMEIND ]] && { errout "(canceled)" ; exit 1 ; }
+    TESTENV=${NAMES[$NAMEIND-1]}
+    [[ $TESTNUM -gt 0 ]] && { echo "Preselected test $TESTNUM ... ($TESTENV)" ; TESTNUM='' ; }
     [[ $NAMEIND =~ $ISNUM ]] && ((NAMEIND >= 1 && NAMEIND <= IND)) && { TESTENV=${NAMES[$NAMEIND-1]} ; echo ; break ; }
     errout "Invalid selection."
   done
