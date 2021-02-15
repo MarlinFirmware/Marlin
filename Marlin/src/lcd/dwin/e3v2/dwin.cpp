@@ -1675,7 +1675,7 @@ void update_variable() {
   }
 
   #if HAS_FAN
-    if (_fanspeed != thermalManager.fan_speed[0]) {
+    if (_new_fanspeed) {
       _fanspeed = thermalManager.fan_speed[0];
       DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 195 + 2 * STAT_CHR_W, 384, _fanspeed);
     }
