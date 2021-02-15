@@ -2292,11 +2292,11 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 /**
  * Make sure only one display is enabled
- */
+ * had to remove   + ENABLED(ULTIPANEL) \
+ */ 
 #if 1 < 0 \
   + ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
   + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + ENABLED(ULTIPANEL) \
   + ENABLED(ULTRA_LCD) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
