@@ -71,8 +71,8 @@
  *                    pliers while holding the LCD Click wheel in a depressed state. If you do not have
  *                    an LCD, you must specify a value if you use P.
  *
- *   Q #  Multiplier  Retraction Multiplier. Normally not needed. Retraction defaults to 1.0mm and
- *                    un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
+ *   Q #  Multiplier  Retraction Multiplier. (Normally not needed.) During G26 retraction will use the length
+ *                    specified by this parameter (1mm by default). Recover will be 1.2x the retract distance.
  *
  *   R #  Repeat      Prints the number of patterns given as a parameter, starting at the current location.
  *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
