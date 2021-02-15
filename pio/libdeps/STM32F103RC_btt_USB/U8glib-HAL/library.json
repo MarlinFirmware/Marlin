@@ -1,0 +1,23 @@
+{
+  "name": "U8glib-HAL",
+  "keywords": "u8g, u8glib, arm, hal",
+  "id": 1932,
+  "description": "Unofficial repository for combined U8G and U8Glib-ARM with HAL extensions",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/MarlinFirmware/U8glib-HAL.git"
+  },
+  "version": "0.4.3",
+  "authors":
+  [
+    {
+        "url": null,
+        "maintainer": false,
+        "email": "olikraus@gmail.com",
+        "name": "Oliver Kraus"
+    }
+  ],
+  "frameworks": "*",
+  "platforms": "*"
+}

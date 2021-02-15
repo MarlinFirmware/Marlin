@@ -1,0 +1,12 @@
+{
+  "name": "SoftwareSerialM",
+  "keywords": "serial",
+  "description": "This lib aims at making a lib of software serial for cortex-M core MCUs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FYSETC/SoftwareSerialM.git"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
