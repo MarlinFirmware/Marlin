@@ -324,28 +324,18 @@ void GCodeQueue::flush_and_request_resend() {
   ok_to_send();
 }
 
-inline bool serial_data_available() {
-  byte data_available = 0;
-  if (MYSERIAL0.available()) data_available++;
-  #ifdef SERIAL_PORT_2
-    const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
-    if (port2_open && MYSERIAL1.available()) data_available++;
-  #endif
-  return data_available > 0;
+// Multiserial already handle the dispatch to/from multiple port by itself
+inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
+  if (index == SERIAL_ALL) {
+    for (index = 0; index < NUM_SERIAL; index++) {
+      if (SERIAL_IMPL.available(index)) return true;
+    }
+    return false;
+  }
+  return SERIAL_IMPL.available(index);
 }
 
-inline int read_serial(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.read();
-    case 1: {
-      #if HAS_MULTI_SERIAL
-        const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
-        if (port2_open) return MYSERIAL1.read();
-      #endif
-    }
-    default: return -1;
-  }
-}
+inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
@@ -468,14 +458,32 @@ void GCodeQueue::get_serial_commands() {
     }
   #endif
 
-  /**
-   * Loop while serial characters are incoming and the queue is not full
-   */
-  while (length < BUFSIZE && serial_data_available()) {
+  // Loop while serial characters are incoming and the queue is not full
+  bool hasData = true;
+  while (length < BUFSIZE && hasData) {
+    // Unless a serial port has data, this will exit on next iteration
+    hasData = false;
+
     LOOP_L_N(p, NUM_SERIAL) {
+      // Is there data available on this specific port ?
+      if (!serial_data_available(p)) continue;
+
+      hasData = true; // Let's make progress
 
       const int c = read_serial(p);
-      if (c < 0) continue;
+      if (c < 0) {
+        // This should never happen, let's log it
+        PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
+        #if BOTH(MARLIN_DEV_MODE, POSTMORTEM_DEBUGGING)
+          // Crash here to get more information why it failed
+          BUG_ON("SP available but read -1");
+        #else
+          SERIAL_ERROR_START();
+          SERIAL_ECHOLNPGM(STR_ERR_SERIAL_MISMATCH);
+          SERIAL_FLUSH();
+          continue;
+        #endif
+      }
 
       #if ENABLED(MEATPACK)
         meatpack.handle_rx_char(uint8_t(c), p);
@@ -563,7 +571,7 @@ void GCodeQueue::get_serial_commands() {
             }
           #endif
 
-          #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
+          #if NO_TIMEOUTS > 0
             last_command_time = ms;
           #endif
 
