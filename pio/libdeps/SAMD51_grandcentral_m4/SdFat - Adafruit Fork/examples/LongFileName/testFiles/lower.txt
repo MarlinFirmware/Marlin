@@ -1,0 +1,5 @@
+lower.txt does not have a Long File Name.
+
+Starting with NT, file names of this form,
+have the basename and extension character case
+encoded in two bits of the 8.3 directory entry.

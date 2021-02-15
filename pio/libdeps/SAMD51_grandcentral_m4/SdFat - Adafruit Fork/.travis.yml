@@ -1,0 +1,31 @@
+language: c
+sudo: false
+
+cache:
+  directories:
+    - ~/arduino_ide
+    - ~/.arduino15/packages/
+
+git:
+  depth: false
+  quiet: true
+
+env:
+  global:
+    - PRETTYNAME="SdFat (Adafruit Fork)"
+
+before_install:
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+
+install:
+    - git clone --quiet http://github.com/jrowberg/i2cdevlib.git $HOME/i2cdevlib
+    - mv $HOME/i2cdevlib/Arduino/* $HOME/Arduino/libraries/
+    - rm -rf $HOME/arduino_ide/libraries/Adafruit_Test_Library/examples/*attic
+    - rm -rf $HOME/arduino_ide/libraries/Adafruit_Test_Library/extras
+
+script:
+  - build_main_platforms
+
+after_success:
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/library_check.sh)
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/doxy_gen_and_deploy.sh)

@@ -1,0 +1,72 @@
+#######################################
+# Syntax Coloring Map For Adafruit_NeoPixel
+#######################################
+# Class
+#######################################
+
+Adafruit_NeoPixel	KEYWORD1
+
+#######################################
+# Methods and Functions
+#######################################	
+
+begin			KEYWORD2
+show			KEYWORD2
+setPin			KEYWORD2
+setPixelColor		KEYWORD2
+fill			KEYWORD2
+setBrightness		KEYWORD2
+clear			KEYWORD2
+updateLength		KEYWORD2
+updateType		KEYWORD2
+canShow			KEYWORD2
+getPixels		KEYWORD2
+getBrightness		KEYWORD2
+getPin			KEYWORD2
+numPixels		KEYWORD2
+getPixelColor		KEYWORD2
+sine8			KEYWORD2
+gamma8			KEYWORD2
+Color			KEYWORD2
+ColorHSV		KEYWORD2
+gamma32			KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+NEO_COLMASK		LITERAL1
+NEO_SPDMASK		LITERAL1
+NEO_KHZ800		LITERAL1
+NEO_KHZ400		LITERAL1
+NEO_RGB			LITERAL1
+NEO_RBG			LITERAL1
+NEO_GRB			LITERAL1
+NEO_GBR			LITERAL1
+NEO_BRG			LITERAL1
+NEO_BGR			LITERAL1
+NEO_WRGB		LITERAL1
+NEO_WRBG		LITERAL1
+NEO_WGRB		LITERAL1
+NEO_WGBR		LITERAL1
+NEO_WBRG		LITERAL1
+NEO_WBGR		LITERAL1
+NEO_RWGB		LITERAL1
+NEO_RWBG		LITERAL1
+NEO_RGWB		LITERAL1
+NEO_RGBW		LITERAL1
+NEO_RBWG		LITERAL1
+NEO_RBGW		LITERAL1
+NEO_GWRB		LITERAL1
+NEO_GWBR		LITERAL1
+NEO_GRWB		LITERAL1
+NEO_GRBW		LITERAL1
+NEO_GBWR		LITERAL1
+NEO_GBRW		LITERAL1
+NEO_BWRG		LITERAL1
+NEO_BWGR		LITERAL1
+NEO_BRWG		LITERAL1
+NEO_BRGW		LITERAL1
+NEO_BGWR		LITERAL1
+NEO_BGRW		LITERAL1
+

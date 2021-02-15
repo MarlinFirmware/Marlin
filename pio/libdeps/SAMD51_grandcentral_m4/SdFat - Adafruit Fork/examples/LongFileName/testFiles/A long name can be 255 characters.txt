@@ -1,0 +1,4 @@
+This is "A long name can be 255 characters.txt"
+This file has a typical Long File Name.
+
+The maximum length of a Long File Name is 255 characters.
