@@ -46,8 +46,9 @@ mkdir -p ./.pio
 BUILD_STATE="./.pio/.buildall"
 [[ -f "$BUILD_STATE" ]] && read MFTEMP <"$BUILD_STATE"
 
-# Create a temporary folder if needed
+# Create a temporary folder if needed and remember it
 [[ -d $MFTEMP ]] || MFTEMP=$(mktemp -d)
+echo "$MFTEMP" >"$BUILD_STATE"
 
 # Download Configurations into the temporary folder
 if [[ ! -e "$MFTEMP/README.md" ]]; then
@@ -57,15 +58,12 @@ else
   echo "Using previously downloaded Configurations at $MFTEMP"
 fi
 
-echo "$MFTEMP" >"$BUILD_STATE"
-
 echo -e "Start building now...\n====================="
 FIRST_CONF=$2
 shopt -s nullglob
 IFS='
 '
 CONF_TREE=$( ls -d "$MFTEMP"/config/examples/*/ "$MFTEMP"/config/examples/*/*/ "$MFTEMP"/config/examples/*/*/*/ "$MFTEMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
-
 for CONF in $CONF_TREE ; do
   DIR=$( echo $CONF | sed "s|$MFTEMP/config/examples/||" )
   echo -n "$DIR:"
