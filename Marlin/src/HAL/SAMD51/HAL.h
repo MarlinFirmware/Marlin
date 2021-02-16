@@ -33,9 +33,15 @@
 
   // Serial ports
   typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-  extern DefaultSerial MSerial;
   typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
+  typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
+  typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
+  typedef ForwardSerial0Type< decltype(Serial4) > DefaultSerial4;
+  extern DefaultSerial MSerial;
   extern DefaultSerial1 MSerial1;
+  extern DefaultSerial2 MSerial2;
+  extern DefaultSerial3 MSerial3;
+  extern DefaultSerial4 MSerial4;
 
   // MYSERIAL0 required before MarlinSerial includes!
 
