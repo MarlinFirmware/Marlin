@@ -10,7 +10,7 @@ which curl 1>/dev/null 2>&1 || { echo "curl not found! Please install it."; exit
 which git 1>/dev/null 2>&1 || { echo "git not found! Please install it."; exit ; }
 
 SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
-[[ -z $SED ]] && { echo "No sed found, please install sed" ; exit 1 ; }
+[[ -z "$SED" ]] && { echo "No sed found, please install sed" ; exit 1 ; }
 
 # Check if called in the right location
 if [[ ! -e "Marlin/src" ]]; then
@@ -35,7 +35,7 @@ echo "On failure the last-built configs will be left in your working copy."
 echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
 
 # Check if the current repository has unmerged changes
-if [[ -z $2 ]]; then
+if [[ -z "$2" ]]; then
   git diff --quiet || { echo "Your current repository is not clean. Either commit your change or stash them, and re-run this script"; exit ; }
 else
   echo "Resuming from $2"
@@ -47,7 +47,7 @@ BUILD_STATE="./.pio/.buildall"
 [[ -f "$BUILD_STATE" ]] && read MFTEMP <"$BUILD_STATE"
 
 # Create a temporary folder if needed and remember it
-[[ -d $MFTEMP ]] || MFTEMP=$(mktemp -d)
+[[ -d "$MFTEMP" ]] || MFTEMP=$(mktemp -d)
 echo "$MFTEMP" >"$BUILD_STATE"
 
 # Download Configurations into the temporary folder
@@ -66,14 +66,12 @@ IFS='
 CONF_TREE=$( ls -d "$MFTEMP"/config/examples/*/ "$MFTEMP"/config/examples/*/*/ "$MFTEMP"/config/examples/*/*/*/ "$MFTEMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
 for CONF in $CONF_TREE ; do
   DIR=$( echo $CONF | sed "s|$MFTEMP/config/examples/||" )
-  echo -n "$DIR:"
-  [[ ! -z $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && { echo " Skipping" ; continue ; }
+  [[ ! -z $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
   unset FIRST_CONF
   compgen -G "${CONF}Con*.h" > /dev/null || continue
-  echo
   "$HERE/build_example" "internal" "$MFTEMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
 done
 
 # Delete the temp folder and build state
-[[ -e $MFTEMP/config/examples ]] && rm -rf "$MFTEMP"
+[[ -e "$MFTEMP/config/examples" ]] && rm -rf "$MFTEMP"
 rm "$BUILD_STATE"
