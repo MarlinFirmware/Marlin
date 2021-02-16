@@ -77,5 +77,5 @@ for CONF in $CONF_TREE ; do
 done
 
 # Delete the temp folder and build state
-rm -rf "$MFTEMP"
+[[ -e $MFTEMP/config/examples ]] && rm -rf "$MFTEMP"
 rm "$BUILD_STATE"
