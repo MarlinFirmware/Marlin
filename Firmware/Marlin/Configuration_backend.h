@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.21a"
+#define UNIFIED_VERSION "TH3D UFW 2.22"
 
 /**
  * TH3D Sanity Checks
@@ -292,9 +292,9 @@
   #define Z_PROBE_OFFSET_RANGE_MAX     1
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
-  //#define Z_AFTER_PROBING              5 //Disabled for testing.
   #define Z_AFTER_HOMING               5
   #define Z_PROBE_LOW_POINT           -10
+  #define PROBING_STEPPERS_OFF
   
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
