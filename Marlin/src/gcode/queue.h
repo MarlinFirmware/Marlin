@@ -56,12 +56,9 @@ public:
    * The port that the command was received on
    */
   #if HAS_MULTI_SERIAL
-    static int16_t port[BUFSIZE];
+    static serial_index_t port[BUFSIZE];
   #endif
-
-  static int16_t command_port() {
-    return TERN0(HAS_MULTI_SERIAL, port[index_r]);
-  }
+  static inline serial_index_t command_port() { return TERN0(HAS_MULTI_SERIAL, port[index_r]); }
 
   GCodeQueue();
 
@@ -159,13 +156,13 @@ private:
 
   static void _commit_command(bool say_ok
     #if HAS_MULTI_SERIAL
-      , int16_t p=-1
+      , serial_index_t serial_ind=-1
     #endif
   );
 
   static bool _enqueue(const char* cmd, bool say_ok=false
     #if HAS_MULTI_SERIAL
-      , int16_t p=-1
+      , serial_index_t serial_ind=-1
     #endif
   );
 
@@ -181,8 +178,10 @@ private:
    */
   static bool enqueue_one(const char* cmd);
 
-  static void gcode_line_error(PGM_P const err, const int8_t pn);
+  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 
 };
 
 extern GCodeQueue queue;
+
+extern const char G28_STR[];

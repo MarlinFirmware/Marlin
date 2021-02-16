@@ -166,10 +166,10 @@
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     -1
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PA7
-  #define SS_PIN                            PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_SS_PIN                         PA4
 #endif
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1

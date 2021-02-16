@@ -105,12 +105,19 @@ namespace Language_it {
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Prerisc.personal.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Raffredda");
+
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenza");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Controllo laser");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potenza laser");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Controllo mandrino");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potenza laser");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potenza mandrino");
+  PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Alterna Laser");
+  PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("ms impulso di test");
+  PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Spara impulso");
+  PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Alterna mandrino");
+  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Mandrino in avanti");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Inverti mandrino");
+
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Accendi aliment.");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Spegni aliment.");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Estrudi");
@@ -121,6 +128,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Calibra piano");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Punti buoni: ");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Ultimo Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo punto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifica Mesh");
@@ -292,16 +301,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Calibrazione fallita. Estrusore errato.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Calibrazione fallita. Temperatura troppo alta.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Calibrazione fallita! Tempo scaduto.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seleziona");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seleziona *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
@@ -383,6 +382,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
   PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Host Avvio");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Arresta stampa");
+  PROGMEM Language_Str MSG_END_LOOPS                       = _UxGT("Fine cicli di rip.");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Stampa Oggetto");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancella Oggetto");
   PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Canc. Oggetto =");

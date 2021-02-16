@@ -22,14 +22,19 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+#include "serial_hook.h"
 
-#if HAS_ETHERNET
-  #include "../feature/ethernet.h"
-#endif
+// Commonly-used strings in serial output
+extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
+                  X_STR[], Y_STR[], Z_STR[], E_STR[],
+                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
+                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
+                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
 
-/**
- * Define debug bit-masks
- */
+//
+// Debugging flags for use by M111
+//
 enum MarlinDebugFlags : uint8_t {
   MARLIN_DEBUG_NONE          = 0,
   MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
@@ -50,65 +55,78 @@ enum MarlinDebugFlags : uint8_t {
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
-#define SERIAL_BOTH 0x7F
+//
+// Serial redirection
+//
+typedef int8_t serial_index_t;
+#define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
-  extern int8_t serial_port_index;
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
-  #define _PORT_RESTORE(n)      RESTORE(n)
-
+  #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
+  #define _PORT_RESTORE(n,p)    RESTORE(n)
+  #define SERIAL_ASSERT(P)      if(multiSerial.portMask!=(P)){ debugger(); }
   #ifdef SERIAL_CATCHALL
-    #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
+    typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    #define SERIAL_OUT(WHAT, V...) do{ \
-      const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client); \
-      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
-      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
-    }while(0)
+    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
   #endif
-
-  #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
+  extern SerialOutputT          multiSerial;
+  #define SERIAL_IMPL           multiSerial
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_OUT(WHAT, V...) (void)MYSERIAL0.WHAT(V)
   #define SERIAL_ASSERT(P)      NOOP
+  #define SERIAL_IMPL           MYSERIAL0
 #endif
+
+#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()          _PORT_RESTORE(1)
+#define SERIAL_PORTMASK(P)      _BV(P)
 
-#define SERIAL_ECHO(x)          SERIAL_OUT(print, x)
-#define SERIAL_ECHO_F(V...)     SERIAL_OUT(print, V)
-#define SERIAL_ECHOLN(x)        SERIAL_OUT(println, x)
-#define SERIAL_PRINT(x,b)       SERIAL_OUT(print, x, b)
-#define SERIAL_PRINTLN(x,b)     SERIAL_OUT(println, x, b)
-#define SERIAL_PRINTF(V...)     SERIAL_OUT(printf, V)
-#define SERIAL_FLUSH()          SERIAL_OUT(flush)
+//
+// SERIAL_CHAR - Print one or more individual chars
+//
+inline void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
+template <typename ... Args>
+void SERIAL_CHAR(char a, Args ... args) { SERIAL_IMPL.write(a); SERIAL_CHAR(args ...); }
 
-#ifdef ARDUINO_ARCH_STM32
-  #define SERIAL_FLUSHTX()      SERIAL_OUT(flush)
-#elif TX_BUFFER_SIZE > 0
-  #define SERIAL_FLUSHTX()      SERIAL_OUT(flushTX)
-#else
-  #define SERIAL_FLUSHTX()
-#endif
+/**
+ * SERIAL_ECHO - Print a single string or value.
+ *   Any numeric parameter (including char) is printed as a base-10 number.
+ *   A string pointer or literal will be output as a string.
+ *
+ * NOTE: Use SERIAL_CHAR to print char as a single character.
+ */
+template <typename T>
+void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
 
-// Print up to 10 chars from a list
-#define __CHAR_N(N,V...)  _CHAR_##N(V)
-#define _CHAR_N(N,V...)   __CHAR_N(N,V)
-#define _CHAR_1(c)        SERIAL_OUT(write, c)
-#define _CHAR_2(a,b)      do{ _CHAR_1(a); _CHAR_1(b); }while(0)
-#define _CHAR_3(a,V...)   do{ _CHAR_1(a); _CHAR_2(V); }while(0)
-#define _CHAR_4(a,V...)   do{ _CHAR_1(a); _CHAR_3(V); }while(0)
-#define _CHAR_5(a,V...)   do{ _CHAR_1(a); _CHAR_4(V); }while(0)
-#define _CHAR_6(a,V...)   do{ _CHAR_1(a); _CHAR_5(V); }while(0)
-#define _CHAR_7(a,V...)   do{ _CHAR_1(a); _CHAR_6(V); }while(0)
-#define _CHAR_8(a,V...)   do{ _CHAR_1(a); _CHAR_7(V); }while(0)
-#define _CHAR_9(a,V...)   do{ _CHAR_1(a); _CHAR_8(V); }while(0)
-#define _CHAR_10(a,V...)  do{ _CHAR_1(a); _CHAR_9(V); }while(0)
+// Wrapper for ECHO commands to interpret a char
+typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
+inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+#define AS_CHAR(C) serial_char_t(C)
 
-#define SERIAL_CHAR(V...) _CHAR_N(NUM_ARGS(V),V)
+// SERIAL_ECHO_F prints a floating point value with optional precision
+inline void SERIAL_ECHO_F(EnsureDouble x, int digit = 2) { SERIAL_IMPL.print(x, digit); }
 
+template <typename T>
+void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
+
+// SERIAL_PRINT works like SERIAL_ECHO but allow to specify the encoding base of the number printed
+template <typename T, typename U>
+void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
+
+template <typename T, typename U>
+void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
+
+// Flush the serial port
+inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
+inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
+
+// Print a single PROGMEM string to serial
+void serialprintPGM(PGM_P str);
+
+// SERIAL_ECHOPAIR / SERIAL_ECHOPAIR_P is used to output a key value pair. The key must be a string and the value can be anything
 // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
 #define __SEP_N(N,V...)   _SEP_##N(V)
 #define _SEP_N(N,V...)    __SEP_N(N,V)
@@ -167,6 +185,7 @@ extern uint8_t marlin_debug_flags;
 #define _SEP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_21_P(V); }while(0)
 #define _SEP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_22_P(V); }while(0)
 
+// SERIAL_ECHOPAIR_P is used to output a key value pair. Unlike SERIAL_ECHOPAIR, the key must be a PGM string already and the value can be anything
 #define SERIAL_ECHOPAIR_P(V...) _SEP_N_P(NUM_ARGS(V),V)
 
 // Print up to 12 pairs of values followed by newline
@@ -241,32 +260,39 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_ECHOLNPAIR_P(V...) _SELP_N_P(NUM_ARGS(V),V)
 
-// Print up to 20 comma-separated pairs of values
-#define __SLST_N(N,V...)   _SLST_##N(V)
-#define _SLST_N(N,V...)    __SLST_N(N,V)
-#define _SLST_1(a)         SERIAL_ECHO(a)
-#define _SLST_2(a,b)       do{ SERIAL_ECHO(a); SERIAL_ECHOPAIR(", ",b);     }while(0)
-#define _SLST_3(a,b,c)     do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_1(c);  }while(0)
-#define _SLST_4(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_2(V);  }while(0)
-#define _SLST_5(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_3(V);  }while(0)
-#define _SLST_6(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_4(V);  }while(0)
-#define _SLST_7(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_5(V);  }while(0)
-#define _SLST_8(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_6(V);  }while(0)
-#define _SLST_9(a,b,V...)  do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_7(V);  }while(0)
-#define _SLST_10(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_8(V);  }while(0)
-#define _SLST_11(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_9(V);  }while(0)
-#define _SLST_12(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_10(V); }while(0)
-#define _SLST_13(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_11(V); }while(0)
-#define _SLST_14(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_12(V); }while(0)
-#define _SLST_15(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_13(V); }while(0)
-#define _SLST_16(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_14(V); }while(0)
-#define _SLST_17(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_15(V); }while(0)
-#define _SLST_18(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_16(V); }while(0)
-#define _SLST_19(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_17(V); }while(0)
-#define _SLST_20(a,b,V...) do{ SERIAL_ECHO(a); _SEP_2(", ",b); _SLST_18(V); }while(0) // Eat two args, pass the rest up
+#ifdef AllowDifferentTypeInList
 
-#define SERIAL_ECHOLIST(pre,V...)   do{ SERIAL_ECHOPGM(pre); _SLST_N(NUM_ARGS(V),V); }while(0)
-#define SERIAL_ECHOLIST_N(N,V...)   _SLST_N(N,LIST_N(N,V))
+  inline void SERIAL_ECHOLIST_IMPL() {}
+  template <typename T>
+  void SERIAL_ECHOLIST_IMPL(T && t) { SERIAL_IMPL.print(t); }
+
+  template <typename T, typename ... Args>
+  void SERIAL_ECHOLIST_IMPL(T && t, Args && ... args) {
+    SERIAL_IMPL.print(t);
+    serialprintPGM(PSTR(", "));
+    SERIAL_ECHOLIST_IMPL(args...);
+  }
+
+  template <typename ... Args>
+  void SERIAL_ECHOLIST(PGM_P const str, Args && ... args) {
+    SERIAL_IMPL.print(str);
+    SERIAL_ECHOLIST_IMPL(args...);
+  }
+
+#else // Optimization if the listed type are all the same (seems to be the case in the codebase so use that instead)
+
+  template <typename ... Args>
+  void SERIAL_ECHOLIST(PGM_P const str, Args && ... args) {
+    serialprintPGM(str);
+    typename Private::first_type_of<Args...>::type values[] = { args... };
+    constexpr size_t argsSize = sizeof...(args);
+    for (size_t i = 0; i < argsSize; i++) {
+      if (i) serialprintPGM(PSTR(", "));
+      SERIAL_IMPL.print(values[i]);
+    }
+  }
+
+#endif
 
 #define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
 #define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
@@ -300,19 +326,19 @@ extern uint8_t marlin_debug_flags;
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
+void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, long v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 void serial_echopair_PGM(PGM_P const s_P, float v);
 void serial_echopair_PGM(PGM_P const s_P, double v);
-inline void serial_echopair_PGM(PGM_P const s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
+void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
-void serialprintPGM(PGM_P str);
 void serial_echo_start();
 void serial_error_start();
 void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post=nullptr);

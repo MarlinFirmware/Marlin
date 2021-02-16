@@ -93,7 +93,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_wifi_settings(void) {
+void lv_draw_wifi_settings() {
   scr = lv_screen_create(WIFI_SETTINGS_UI, machine_menu.WifiConfTitle);
 
   lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
