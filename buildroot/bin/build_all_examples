@@ -41,28 +41,41 @@ else
   echo "Resuming from $2"
 fi
 
-# Create a temporary folder if needed
-[[ -d $MFTEMP ]] || export MFTEMP=$(mktemp -d)
+# Get previous build state, if any.
+mkdir -p ./.pio
+BUILD_STATE="./.pio/.buildall"
+[[ -f "$BUILD_STATE" ]] && read MFTEMP <"$BUILD_STATE"
 
-# Ok, let's do our stuff now
-# First extract the current temporary folder
-echo "Fetching configuration repository"
+# Create a temporary folder if needed
+[[ -d $MFTEMP ]] || MFTEMP=$(mktemp -d)
+
+# Download Configurations into the temporary folder
 if [[ ! -e "$MFTEMP/README.md" ]]; then
-  git clone --depth 1 --single-branch --branch "$1" $GITREPO "$MFTEMP" || { echo "Failed to clone the configuration repository"; exit ; }
+  echo "Downloading Configurations from GitHub into $MFTEMP"
+  git clone --depth=1 --single-branch --branch "$1" $GITREPO "$MFTEMP" || { echo "Failed to clone the configuration repository"; exit ; }
+else
+  echo "Using previously downloaded Configurations at $MFTEMP"
 fi
 
-echo "Temporary path used: $MFTEMP"
-echo
-echo "Start building now..."
-echo "====================="
+echo "$MFTEMP" >"$BUILD_STATE"
+
+echo -e "Start building now...\n====================="
+FIRST_CONF=$2
 shopt -s nullglob
-for config in $MFTEMP/config/examples/**/; do
-  [[ -d $config ]] || continue
-  base=`basename "$config"`
-  [[ ! -z $2 ]] && [[ $2 != $base ]] && { echo "Skipping $base..." ; continue ; }
-  "$HERE/build_example" "internal" "$MFTEMP" "$base" || { echo "Failed to build $base"; exit ; }
+IFS='
+'
+CONF_TREE=$( ls -d "$MFTEMP"/config/examples/*/ "$MFTEMP"/config/examples/*/*/ "$MFTEMP"/config/examples/*/*/*/ "$MFTEMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
+
+for CONF in $CONF_TREE ; do
+  DIR=$( echo $CONF | sed "s|$MFTEMP/config/examples/||" )
+  echo -n "$DIR:"
+  [[ ! -z $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && { echo " Skipping" ; continue ; }
+  unset FIRST_CONF
+  compgen -G "${CONF}Con*.h" > /dev/null || continue
+  echo
+  "$HERE/build_example" "internal" "$MFTEMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
 done
 
-# Delete the temp folder
+# Delete the temp folder and build state
 rm -rf "$MFTEMP"
-unset MFTEMP
+rm "$BUILD_STATE"
