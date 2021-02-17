@@ -23,6 +23,7 @@ uint16_t AxisSettingsHandler::axis_settings_title_icon = ICON_AXIS_SETTINGS_TITL
 float AxisSettingsHandler::axis_steps_mm;
 uint32_t AxisSettingsHandler::max_acceleration_mm_per_s2;
 float AxisSettingsHandler::jerk;
+feedRate_t AxisSettingsHandler::max_feedrate;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -53,6 +54,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
     axis_steps_mm = planner.settings.axis_steps_per_mm[current_axis];
     max_acceleration_mm_per_s2 = planner.settings.max_acceleration_mm_per_s2[current_axis];
     IF_ENABLED(CLASSIC_JERK, jerk = planner.max_jerk[current_axis]);
+    max_feedrate = planner.settings.max_feedrate_mm_s[current_axis];
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
@@ -60,6 +62,7 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
     planner.settings.axis_steps_per_mm[current_axis] = axis_steps_mm;
     planner.settings.max_acceleration_mm_per_s2[current_axis] = max_acceleration_mm_per_s2;
     IF_ENABLED(CLASSIC_JERK, planner.max_jerk[current_axis] = jerk);
+    planner.settings.max_feedrate_mm_s[current_axis] = max_feedrate;
 
     // Save and pop
     ScreenHandler.PopToOldScreen();
