@@ -2,8 +2,9 @@
 # preflight-checks.py
 # Script to check for common issues prior to compiling
 #
-Import("env")
+import os
 import re
+Import("env")
 
 def get_envs_for_board(board):
     if board.startswith("BOARD_"):
@@ -41,11 +42,8 @@ if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
 
 build_env = env['PIOENV']
 motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
-
 base_envs = get_envs_for_board(motherboard)
-
 config = env.GetProjectConfig()
-
 result = check_envs("env:"+build_env, base_envs, config)
 
 if not result:
@@ -53,3 +51,12 @@ if not result:
           "Please use one of compatible build environments for this board: %s" % \
           (build_env, motherboard, ",".join([e[4:] for e in base_envs if e.startswith("env:")]))
     raise SystemExit(err)
+
+#
+# Check for Config files in two common incorrect places
+#
+for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
+	for f in [ "Configuration.h", "Configuration_adv.h" ]:
+		if os.path.isfile(os.path.join(p, f)):
+			err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subfolder.'
+			raise SystemExit(err)
