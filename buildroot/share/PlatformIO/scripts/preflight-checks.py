@@ -9,7 +9,7 @@ Import("env")
 def get_envs_for_board(board):
     if board.startswith("BOARD_"):
         board = board[6:]
-    with open("Marlin/src/pins/pins.h","r") as f:
+    with open(os.path.join("Marlin", "src", "pins", "pins.h"),"r") as f:
         board_found = ""
         r=re.compile(r"if\s+MB\((.+)\)")
         for line in f.readlines():
