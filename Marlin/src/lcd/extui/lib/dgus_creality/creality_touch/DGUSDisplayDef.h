@@ -319,6 +319,8 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_BUTTON = 0x22EB; // 2-by
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON = 0x22ED; // 2-byte
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD = 0x22EF; // 4-byte (!)
 
+constexpr uint16_t VP_AXIS_TUNING_NAV_BUTTON = 0x22F5; 
+
 // Generic "hide" icon shared across screens
 constexpr uint16_t VP_HIDE_ICON = 0x22F3; // 2-byte (!)
 
