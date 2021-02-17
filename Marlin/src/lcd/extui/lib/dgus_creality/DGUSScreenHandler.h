@@ -36,9 +36,6 @@ struct creality_dwin_settings_t {
   int16_t standby_screen_brightness;
 };
 
-// endianness swap
-inline uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
-
 class DGUSScreenHandler {
 public:
   DGUSScreenHandler() = default;

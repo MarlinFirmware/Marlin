@@ -29,6 +29,7 @@
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
+#include "../creality_touch/AxisSettingsHandler.h"
 #include "../creality_touch/EstepsHandler.h"
 #include "../creality_touch/PIDHandler.h"
 
@@ -283,6 +284,21 @@ const uint16_t VPList_LevelingSettings[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_AxisSettingsNav[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  0x0000
+};
+
+const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  VP_AXIS_SETTINGS_TITLE_ICON,
+
+  0x0000
+};
+
+
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
@@ -337,6 +353,9 @@ const struct VPMapping VPMap[] PROGMEM = {
 
   { DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, VPList_EstepsCalibration },
   { DGUSLCD_SCREEN_LEVELING_SETTINGS, VPList_LevelingSettings },
+
+  { DGUSLCD_SCREEN_AXIS_SETTINGS_NAV, VPList_AxisSettingsNav },
+  { DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS , VPList_AxisSettingsAxis },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -398,6 +417,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, PIDHandler>), nullptr),
 
   VPHELPER(VP_GENERIC_BACK_BUTTON, nullptr, ScreenHandler.OnBackButton, nullptr),
+
+  // Axis settings
+  VPHELPER(VP_AXIS_SETTINGS_NAV_BUTTON, nullptr, AxisSettingsHandler::HandleNavigation, nullptr),
+  VPHELPER(VP_AXIS_SETTINGS_TITLE_ICON, &AxisSettingsHandler::axis_settings_title_icon, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay);
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL

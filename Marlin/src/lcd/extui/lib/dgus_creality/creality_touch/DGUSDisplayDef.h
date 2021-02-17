@@ -76,7 +76,10 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_TUNEFWRETRACT = 70,
 
   DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS = 71,
-  DGUSLCD_SCREEN_LEVELING_SETTINGS = 72
+  DGUSLCD_SCREEN_LEVELING_SETTINGS = 72,
+
+  DGUSLCD_SCREEN_AXIS_SETTINGS_NAV = 73,
+  DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS = 74
 };
 
 // Version checks
@@ -289,6 +292,19 @@ constexpr uint16_t VP_LED_TOGGLE = 0x101F;
 // Feed / retract
 constexpr uint16_t VP_FEED_AMOUNT = 0x1054;
 constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
+
+// Axis settings
+constexpr uint16_t VP_AXIS_SETTINGS_NAV_BUTTON = 0x22D9;
+constexpr uint16_t AXIS_SETTINGS_NAV_BUTTON_VAL_X = 1;
+constexpr uint16_t AXIS_SETTINGS_NAV_BUTTON_VAL_Y = 2;
+constexpr uint16_t AXIS_SETTINGS_NAV_BUTTON_VAL_Z = 3;
+constexpr uint16_t AXIS_SETTINGS_NAV_BUTTON_VAL_E = 4;
+
+constexpr uint16_t VP_AXIS_SETTINGS_TITLE_ICON = 0x22DB;
+constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_X = 20;
+constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_Y = 21;
+constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_Z = 22;
+constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_E = 23;
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;

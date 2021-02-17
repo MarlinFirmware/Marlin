@@ -47,3 +47,8 @@ struct DGUS_VP_Variable {
     return *this;
   }
 };
+
+// endianness swap
+FORCE_INLINE uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
+
+FORCE_INLINE uint16_t uInt16Value(void *val_ptr) { return swap16(*static_cast<uint16_t*>(val_ptr)); }

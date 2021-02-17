@@ -477,9 +477,8 @@ void DGUSCrealityDisplay_HandleReturnKeyEvent(DGUS_VP_Variable &var, void *val_p
 
   while ((ret = (uint16_t*) pgm_read_ptr(&(map->Handler)))) {
     if ((map->ScreenID) == current_screen) {
-        unsigned short button_value = *static_cast<unsigned short*>(val_ptr);
-        button_value = (button_value & 0xffU) << 8U | (button_value >> 8U);
-
+        uint16_t button_value = uInt16Value(val_ptr);
+        
         SERIAL_ECHOPAIR("Invoking handler for screen ", current_screen);
         SERIAL_ECHOLNPAIR("with VP=", var.VP, " value=", button_value);
 
