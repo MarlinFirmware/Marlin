@@ -53,7 +53,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 #endif
 
 #if ENABLED(MEATPACK)
-  MeatPackSerial<decltype(_SERIAL_IMPL)> mpSerial(false, _SERIAL_IMPL);
+  MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial(false, _SERIAL_IMPL);
 #endif
 
 

@@ -49,7 +49,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "../../core/serial_hook.h"
+#include "../core/serial_hook.h"
 
 /**
  * Commands sent to MeatPack to control its behavior.
@@ -79,8 +79,6 @@ enum MeatPack_ConfigStateBits : uint8_t {
 };
 
 class MeatPack {
-private:
-  friend class GCodeQueue;
 
   // Utility definitions
   static const uint8_t kCommandByte         = 0b11111111,
@@ -100,6 +98,7 @@ private:
                  char_out_count;  // Stores number of characters to be read out.
   static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
 
+public:
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
   static void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
@@ -126,11 +125,11 @@ extern MeatPack meatpack;
 // Implement the MeatPack serial class so it's transparent to rest of the code
 template <typename SerialT>
 struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
-  typedef SerialBase< MeatPackSerial<SerialT> > BaseClassT;
+  typedef SerialBase< MeatpackSerial<SerialT> > BaseClassT;
 
   SerialT & out;
 
-  uint8_t serialBuffer[2];
+  char serialBuffer[2];
   uint8_t charCount;
 
   NO_INLINE size_t write(uint8_t c) { return out.write(c); }
@@ -152,7 +151,7 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     int r = out.read();
     if (r == -1) return r;
 
-    meatpack.handle_rx_char((uint8_t)c, index);
+    meatpack.handle_rx_char((uint8_t)r, index);
     charCount = meatpack.get_result_char(serialBuffer);  
     return serialBuffer[sizeof(serialBuffer) - (charCount--)]; 
   }
@@ -161,5 +160,5 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   bool available()              { return charCount > 0 || out.available(); }
   int read()                    { return readImpl(0); }
 
-  MeatPackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
+  MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };

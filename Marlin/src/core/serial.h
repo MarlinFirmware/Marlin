@@ -63,7 +63,6 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-typedef int8_t serial_index_t;
 #define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
@@ -84,7 +83,7 @@ typedef int8_t serial_index_t;
 #endif
 
 #if ENABLED(MEATPACK)
-  extern MeatPackSerial<decltype(_SERIAL_IMPL)> mpSerial;
+  extern MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial;
   #define SERIAL_IMPL          mpSerial
 #else
   #define SERIAL_IMPL          _SERIAL_IMPL
