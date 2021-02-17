@@ -113,7 +113,6 @@ public:
 
   static void reset_state();
   static void report_state();
-  static uint8_t unpacked_char(register const uint8_t in);
   static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
   static void handle_command(const MeatPack_Command c);
   static void handle_output_char(const uint8_t c);
@@ -143,12 +142,16 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
   bool available(uint8_t index) { 
-    return charCount > 0 || (index == 0 && out.available()); 
+    // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
+    // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
+    // TODO, let's fix this later on
+    return charCount > 0 || (bool)out.available(index); 
   }
   int readImpl(uint8_t index) {
+    // DITTO 
     if (charCount > 0) return serialBuffer[sizeof(serialBuffer) - (charCount--)];
     
-    int r = out.read();
+    int r = out.read(index);
     if (r == -1) return r;
 
     meatpack.handle_rx_char((uint8_t)r, index);
@@ -157,7 +160,7 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   }
 
   int read(uint8_t index)       { return readImpl(index); }
-  bool available()              { return charCount > 0 || out.available(); }
+  bool available()              { return charCount > 0 || out.available(0); }
   int read()                    { return readImpl(0); }
 
   MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
