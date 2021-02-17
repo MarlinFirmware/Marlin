@@ -122,6 +122,10 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             #endif
             break;
         #endif
+
+        default:
+        // Too bad
+        break;
     }
     #endif
 
@@ -198,6 +202,10 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
             #endif
             break;
         #endif
+
+        default:
+        // Too bad
+        break;
     }
     #endif
 
