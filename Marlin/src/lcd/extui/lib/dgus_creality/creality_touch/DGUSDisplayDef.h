@@ -315,6 +315,9 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_FEEDRATE = 0x22E7; // 2-byte
 
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCCURRENT = 0x22E9; // 2-byte
 
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_BUTTON = 0x22EB; // 2-byte
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON = 0x22ED; // 2-byte
+
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;

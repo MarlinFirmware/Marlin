@@ -14,6 +14,7 @@ class AxisSettingsHandler {
         static feedRate_t max_feedrate;
 
         static uint16_t tmc_current;
+        static bool stealthchop;
 
     public:
         static void HandleNavigation(DGUS_VP_Variable &var, void *val_ptr);

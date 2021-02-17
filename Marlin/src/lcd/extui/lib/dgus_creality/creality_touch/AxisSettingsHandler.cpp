@@ -31,6 +31,7 @@ float AxisSettingsHandler::jerk;
 feedRate_t AxisSettingsHandler::max_feedrate;
 
 uint16_t AxisSettingsHandler::tmc_current;
+bool AxisSettingsHandler::stealthchop;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -68,24 +69,40 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
         #if AXIS_IS_TMC(X)
         case X_AXIS:
             tmc_current = stepperX.getMilliamps();
+
+            #if AXIS_HAS_STEALTHCHOP(X)
+            stealthchop = stepperX.get_stored_stealthChop();
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(Y)
         case Y_AXIS:
             tmc_current = stepperY.getMilliamps();
+
+            #if AXIS_HAS_STEALTHCHOP(Y)
+            stealthchop = stepperY.get_stored_stealthChop();
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(Z)
         case Z_AXIS:
             tmc_current = stepperZ.getMilliamps();
+
+            #if AXIS_HAS_STEALTHCHOP(Z)
+            stealthchop = stepperZ.get_stored_stealthChop();
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(E0)
         case E_AXIS:
             tmc_current = stepperE0.getMilliamps();
+
+            #if AXIS_HAS_STEALTHCHOP(E0)
+            stealthchop = stepperE0.get_stored_stealthChop();
+            #endif
             break;
         #endif
     }
@@ -104,24 +121,40 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
         #if AXIS_IS_TMC(X)
         case X_AXIS:
             stepperX.rms_current(tmc_current);
+
+            #if AXIS_HAS_STEALTHCHOP(X)
+            stepperX.set_stealthChop(stealthchop);
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(Y)
         case Y_AXIS:
             stepperY.rms_current(tmc_current);
+
+            #if AXIS_HAS_STEALTHCHOP(Y)
+            stepperY.set_stealthChop(stealthchop);
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(Z)
         case Z_AXIS:
             stepperZ.rms_current(tmc_current);
+
+            #if AXIS_HAS_STEALTHCHOP(Z)
+            stepperZ.set_stealthChop(stealthchop);
+            #endif
             break;
         #endif
 
         #if AXIS_IS_TMC(E0)
             case E_AXIS:
             stepperE0.rms_current(tmc_current);
+
+            #if AXIS_HAS_STEALTHCHOP(E0)
+            stepperE0.set_stealthChop(stealthchop);
+            #endif
             break;
         #endif
     }
