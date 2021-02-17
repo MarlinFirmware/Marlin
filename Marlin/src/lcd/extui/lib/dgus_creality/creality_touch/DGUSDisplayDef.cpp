@@ -297,6 +297,7 @@ const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
 
   VP_AXIS_SETTINGS_AXIS_STEPSMM,
   VP_AXIS_SETTINGS_AXIS_MAX_ACCEL,
+  VP_AXIS_SETTINGS_AXIS_JERK,
 
   0x0000
 };
@@ -428,6 +429,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_SETTINGS_AXIS_STEPSMM, &AxisSettingsHandler::axis_steps_mm, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_MAX_ACCEL, &AxisSettingsHandler::max_acceleration_mm_per_s2, ScreenHandler.DGUSLCD_ReceiveUint32LongFromDisplay, ScreenHandler.DGUSLCD_SendUint32LongToDisplay),
   
+  VPHELPER(VP_AXIS_SETTINGS_AXIS_JERK, &AxisSettingsHandler::jerk, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
   VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 
