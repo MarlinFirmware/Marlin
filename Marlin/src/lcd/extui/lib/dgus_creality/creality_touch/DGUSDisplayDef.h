@@ -313,6 +313,8 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_MAX_ACCEL = 0x22E1; // 4-byte (!)
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_JERK = 0x22E5; // 2-byte
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_FEEDRATE = 0x22E7; // 2-byte
 
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCCURRENT = 0x22E9; // 2-byte
+
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;

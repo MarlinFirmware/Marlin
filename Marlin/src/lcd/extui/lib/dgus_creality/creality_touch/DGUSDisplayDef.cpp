@@ -300,6 +300,8 @@ const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
   VP_AXIS_SETTINGS_AXIS_JERK,
   VP_AXIS_SETTINGS_AXIS_FEEDRATE,
 
+  VP_AXIS_SETTINGS_AXIS_TMCCURRENT,
+
   0x0000
 };
 
@@ -432,6 +434,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   
   VPHELPER(VP_AXIS_SETTINGS_AXIS_JERK, &AxisSettingsHandler::jerk, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_FEEDRATE, &AxisSettingsHandler::max_feedrate, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCCURRENT, &AxisSettingsHandler::tmc_current, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 

@@ -17,6 +17,11 @@
 #include "../../../../../module/planner.h"
 #include "../../../../../gcode/gcode.h"
 
+#if HAS_TRINAMIC_CONFIG
+#include "../../../../../feature/tmc_util.h"
+#include "../../../../../module/stepper/indirection.h"
+#endif
+
 AxisEnum AxisSettingsHandler::current_axis;
 uint16_t AxisSettingsHandler::axis_settings_title_icon = ICON_AXIS_SETTINGS_TITLE_X;
 
@@ -24,6 +29,8 @@ float AxisSettingsHandler::axis_steps_mm;
 uint32_t AxisSettingsHandler::max_acceleration_mm_per_s2;
 float AxisSettingsHandler::jerk;
 feedRate_t AxisSettingsHandler::max_feedrate;
+
+uint16_t AxisSettingsHandler::tmc_current;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -55,6 +62,34 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
     max_acceleration_mm_per_s2 = planner.settings.max_acceleration_mm_per_s2[current_axis];
     IF_ENABLED(CLASSIC_JERK, jerk = planner.max_jerk[current_axis]);
     max_feedrate = planner.settings.max_feedrate_mm_s[current_axis];
+
+    #if HAS_TRINAMIC_CONFIG
+    switch (current_axis){
+        #if AXIS_IS_TMC(X)
+        case X_AXIS:
+            tmc_current = stepperX.getMilliamps();
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(Y)
+        case Y_AXIS:
+            tmc_current = stepperY.getMilliamps();
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(Z)
+        case Z_AXIS:
+            tmc_current = stepperZ.getMilliamps();
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(E0)
+        case E_AXIS:
+            tmc_current = stepperE0.getMilliamps();
+            break;
+        #endif
+    }
+    #endif
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
@@ -63,6 +98,34 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
     planner.settings.max_acceleration_mm_per_s2[current_axis] = max_acceleration_mm_per_s2;
     IF_ENABLED(CLASSIC_JERK, planner.max_jerk[current_axis] = jerk);
     planner.settings.max_feedrate_mm_s[current_axis] = max_feedrate;
+
+    #if HAS_TRINAMIC_CONFIG
+    switch (current_axis){
+        #if AXIS_IS_TMC(X)
+        case X_AXIS:
+            stepperX.rms_current(tmc_current);
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(Y)
+        case Y_AXIS:
+            stepperY.rms_current(tmc_current);
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(Z)
+        case Z_AXIS:
+            stepperZ.rms_current(tmc_current);
+            break;
+        #endif
+
+        #if AXIS_IS_TMC(E0)
+            case E_AXIS:
+            stepperE0.rms_current(tmc_current);
+            break;
+        #endif
+    }
+    #endif
 
     // Save and pop
     ScreenHandler.PopToOldScreen();
