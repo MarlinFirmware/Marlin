@@ -31,7 +31,7 @@
 namespace ExtUI {
   void onStartup() { CrealityDWIN.Startup(); }
   void onIdle() { CrealityDWIN.Update(); }
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
+  void onPrinterKilled(PGM_P const error, PGM_P const component) { CrealityDWIN.Draw_Popup((char*)"Printer Kill Reason:", error, (char*)"Restart Required", Wait, ICON_BLTouch); }
   void onMediaInserted() { CrealityDWIN.SDCardInsert(); }
   void onMediaError() {}
   void onMediaRemoved() {}
@@ -74,7 +74,11 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {}
+    void onPidTuning(const result_t rst) {
+      if (rst == result_t::PID_TEMP_TOO_HIGH) {
+        CrealityDWIN.Popup_Handler(TempWarn, true);
+      }
+    }
   #endif
 
   void onSteppersDisabled() {}
