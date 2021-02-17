@@ -82,8 +82,16 @@
  * axis_trusted
  *   Flags that the position is trusted in each linear axis. Set when homed.
  *   Cleared whenever a stepper powers off, potentially losing its position.
+ * 
+ * If we are on a machine with no endstops (e.g. cheap Chinese CNC machine),
+ * then our position should always be considered "known" and "trusted"
  */
+#if NONE(USE_XMIN_PLUG,USE_YMIN_PLUG,USE_ZMIN_PLUG,USE_XMAX_PLUG,USE_YMAX_PLUG,USE_ZMIN_PLUG)
+uint8_t axis_homed = xyz_bits;
+uint8_t axis_trusted = xyz_bits;
+#else
 uint8_t axis_homed, axis_trusted; // = 0
+#endif
 
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
@@ -1456,13 +1464,17 @@ void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
- * Set an axis to be unhomed.
+ * Set an axis to be unhomed. (Unless we are on a machine - e.g. a cheap Chinese CNC machine -
+ * that has no endstops. Such machines should always be considered to be in a "known" and
+ * "trusted" position).
  */
 void set_axis_never_homed(const AxisEnum axis) {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", axis_codes[axis], ")");
 
+#if ANY(USE_XMIN_PLUG,USE_YMIN_PLUG,USE_ZMIN_PLUG,USE_XMAX_PLUG,USE_YMAX_PLUG,USE_ZMIN_PLUG)
   set_axis_untrusted(axis);
   set_axis_unhomed(axis);
+#endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", axis_codes[axis], ")");
 

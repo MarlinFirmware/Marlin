@@ -292,6 +292,17 @@ void set_axis_never_homed(const AxisEnum axis);
 uint8_t axes_should_home(uint8_t axis_bits=0x07);
 bool homing_needed_error(uint8_t axis_bits=0x07);
 
+// Some machines (e.g. cheap Chinese CNC machines) have no endstops, so cannot be homed, and so
+// must always be considered to be in a known and trusted position
+#if NONE(USE_XMIN_PLUG,USE_YMIN_PLUG,USE_ZMIN_PLUG,USE_XMAX_PLUG,USE_YMAX_PLUG,USE_ZMIN_PLUG)
+FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { ; }
+FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { ; }
+FORCE_INLINE void set_all_unhomed()                       { ; }
+#else
+FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
+FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
+FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
+#endif
 FORCE_INLINE bool axis_was_homed(const AxisEnum axis)     { return TEST(axis_homed, axis); }
 FORCE_INLINE bool axis_is_trusted(const AxisEnum axis)    { return TEST(axis_trusted, axis); }
 FORCE_INLINE bool axis_should_home(const AxisEnum axis)   { return (axes_should_home() & _BV(axis)) != 0; }
@@ -300,11 +311,8 @@ FORCE_INLINE bool all_axes_homed()                        { return xyz_bits == (
 FORCE_INLINE bool homing_needed()                         { return !all_axes_homed(); }
 FORCE_INLINE bool all_axes_trusted()                      { return xyz_bits == (axis_trusted & xyz_bits); }
 FORCE_INLINE void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
-FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
 FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
-FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
 FORCE_INLINE void set_all_homed()                         { axis_homed = axis_trusted = xyz_bits; }
-FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())

@@ -2009,7 +2009,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
 #define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
-// At least 3 endstop plugs must be used
+// Either none, or at least 3, endstop plugs must be used
+#if ANY(USE_XMIN_PLUG,USE_YMIN_PLUG,USE_ZMIN_PLUG,USE_XMAX_PLUG,USE_YMAX_PLUG,USE_ZMIN_PLUG)
 #if _AXIS_PLUG_UNUSED_TEST(X)
   #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
 #endif
@@ -2043,6 +2044,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
 #endif
+#endif // No endstops in use
 
 #if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
   #error "HOME_Z_FIRST can't be used when homing Z with a probe."
