@@ -32,6 +32,7 @@ feedRate_t AxisSettingsHandler::max_feedrate;
 
 uint16_t AxisSettingsHandler::tmc_current;
 bool AxisSettingsHandler::stealthchop;
+uint32_t AxisSettingsHandler::hybrid_threshold;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -72,6 +73,10 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
             #if AXIS_HAS_STEALTHCHOP(X)
             stealthchop = stepperX.get_stored_stealthChop();
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            hybrid_threshold = stepperX.get_pwm_thrs();
+            #endif
             #endif
             break;
         #endif
@@ -82,6 +87,10 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
             #if AXIS_HAS_STEALTHCHOP(Y)
             stealthchop = stepperY.get_stored_stealthChop();
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            hybrid_threshold = stepperY.get_pwm_thrs();
+            #endif
             #endif
             break;
         #endif
@@ -92,6 +101,10 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
             #if AXIS_HAS_STEALTHCHOP(Z)
             stealthchop = stepperZ.get_stored_stealthChop();
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            hybrid_threshold = stepperZ.get_pwm_thrs();
+            #endif
             #endif
             break;
         #endif
@@ -102,11 +115,23 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
             #if AXIS_HAS_STEALTHCHOP(E0)
             stealthchop = stepperE0.get_stored_stealthChop();
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            hybrid_threshold = stepperE0.get_pwm_thrs();
+            #endif
             #endif
             break;
         #endif
     }
     #endif
+
+    // Hide TMC settings if not supported
+    #ifndef HAS_TRINAMIC_CONFIG
+        ScreenHandler.HideSection();
+    #endif
+
+    // Nav
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_NAV);
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
@@ -124,6 +149,10 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
 
             #if AXIS_HAS_STEALTHCHOP(X)
             stepperX.set_stealthChop(stealthchop);
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            stepperX.set_pwm_thrs(hybrid_threshold);
+            #endif
             #endif
             break;
         #endif
@@ -134,6 +163,10 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
 
             #if AXIS_HAS_STEALTHCHOP(Y)
             stepperY.set_stealthChop(stealthchop);
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            stepperY.set_pwm_thrs(hybrid_threshold);
+            #endif
             #endif
             break;
         #endif
@@ -144,6 +177,10 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
 
             #if AXIS_HAS_STEALTHCHOP(Z)
             stepperZ.set_stealthChop(stealthchop);
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            stepperZ.set_pwm_thrs(hybrid_threshold);
+            #endif
             #endif
             break;
         #endif
@@ -154,6 +191,10 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
 
             #if AXIS_HAS_STEALTHCHOP(E0)
             stepperE0.set_stealthChop(stealthchop);
+
+            #if ENABLED(HYBRID_THRESHOLD)
+            stepperE0.set_pwm_thrs(hybrid_threshold);
+            #endif
             #endif
             break;
         #endif

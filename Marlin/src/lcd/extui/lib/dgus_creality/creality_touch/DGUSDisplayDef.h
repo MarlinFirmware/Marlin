@@ -317,6 +317,13 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCCURRENT = 0x22E9; // 2-byte
 
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_BUTTON = 0x22EB; // 2-byte
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON = 0x22ED; // 2-byte
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD = 0x22EF; // 4-byte (!)
+
+// Generic "hide" icon shared across screens
+constexpr uint16_t VP_HIDE_ICON = 0x22F3; // 2-byte (!)
+
+constexpr uint16_t HIDE_ICON_SHOWING = 10;
+constexpr uint16_t HIDE_ICON_HIDING = 11;
 
 
 // Mesh leveling
