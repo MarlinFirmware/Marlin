@@ -50,6 +50,10 @@
 
   #define MINIPANEL
 
+#elif ENABLED(YHCB2004)
+
+  #define IS_ULTIPANEL 1
+
 #elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
