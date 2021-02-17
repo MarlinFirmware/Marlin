@@ -252,6 +252,8 @@
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:mega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"               // ATmega2560                             env:mega2560
+#elif MB(HJC2560C_REV1)
+  #include "mega/pins_HJC2560C_REV1.h"          // ATmega2560                             env:mega2560
 #elif MB(HJC2560C_REV2)
   #include "mega/pins_HJC2560C_REV2.h"          // ATmega2560                             env:mega2560
 #elif MB(LEAPFROG_XEED2015)

@@ -1,35 +1,29 @@
 #!/usr/bin/env bash
+#
+# build_example
+#
+# Usage: build_example internal config-home config-folder
+#
 
-if [ "$1" != "internal" ]; then
-  echo "Don't call this script directly, use build_all_examples instead."
-  exit 1
-fi
-
-SED=$(which gsed || which sed)
-HERE=`dirname "$0"`
+# Require 'internal' as the first argument
+[[ "$1" == "internal" ]] || { echo "Don't call this script directly, use build_all_examples instead." ; exit 1 ; }
 
 echo "Testing $3:"
 
-shopt -s nullglob
-for sub in find $2/config/examples/$3 -type d; do
-  [[ -d $sub ]] || continue
-  base=`basename "$sub"`
+SUB=$2/config/examples/$3
+[[ -d "$SUB" ]] || { echo "$SUB is not a good path" ; exit 1 ; }
 
-  if [[ ! -f $sub/Configuration.h ]] && [[ ! -f $sub/Configuration_adv.h ]]; then
-    echo "No configuration files found in $sub"
-    continue
-  fi
+compgen -G "${SUB}Con*.h" > /dev/null || { echo "No configuration files found in $SUB" ; exit 1 ; }
 
-  echo "Getting configuration files from $sub"
-  cp "$2/config/default"/*.h    Marlin/
-  cp "$sub"/Configuration.h     Marlin/ 2>/dev/null
-  cp "$sub"/Configuration_adv.h Marlin/ 2>/dev/null
-  cp "$sub"/_Bootscreen.h       Marlin/ 2>/dev/null
-  cp "$sub"/_Statusscreen.h     Marlin/ 2>/dev/null
+echo "Getting configuration files from $SUB"
+cp "$2/config/default"/*.h    Marlin/
+cp "$SUB"/Configuration.h     Marlin/ 2>/dev/null
+cp "$SUB"/Configuration_adv.h Marlin/ 2>/dev/null
+cp "$SUB"/_Bootscreen.h       Marlin/ 2>/dev/null
+cp "$SUB"/_Statusscreen.h     Marlin/ 2>/dev/null
 
-  echo "Building the firmware now..."
-  echo "$HERE/mftest" -a || exit 1
-done
+echo "Building the firmware now..."
+HERE=`dirname "$0"`
+$HERE/mftest -a || { echo "Failed"; exit 1; }
 
 echo "Success"
-exit 0
