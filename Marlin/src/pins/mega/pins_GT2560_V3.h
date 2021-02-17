@@ -157,11 +157,11 @@
 #define BEEPER_PIN                            18
 
 #if ENABLED(YHCB2004)
-  #ifndef YHCB2004_MOSI
-    #define YHCB2004_MOSI                     21
-  #endif
   #ifndef YHCB2004_SCK
     #define YHCB2004_SCK                      5
+  #endif
+  #ifndef YHCB2004_MOSI
+    #define YHCB2004_MOSI                     21
   #endif
   #ifndef YHCB2004_MISO
     #define YHCB2004_MISO                     36
