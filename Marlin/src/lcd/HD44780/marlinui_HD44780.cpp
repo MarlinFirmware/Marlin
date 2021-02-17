@@ -95,7 +95,7 @@
 
 #elif ENABLED(YHCB2004)
 
- LCD_CLASS lcd(5, 20, 4, 21, 36);//LCD spi ss pin, lcd cols, lcd rows, lcd sclk pin, lcd mosi pin, lcd miso pin  	
+ LCD_CLASS lcd(5, 20, 4, 21, 36); // spi ss pin, cols, rows, sclk pin, mosi pin, miso pin
 
 #else
 

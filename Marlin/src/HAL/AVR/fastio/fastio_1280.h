@@ -39,14 +39,14 @@
 #define TXD         DIO1
 
 // SPI
-#ifndef YHCB2004
-  #define SCK         DIO52
-  #define MISO        DIO50
-  #define MOSI        DIO51
-#else
+#if ENABLED(YHCB2004)
   #define SCK         5
   #define MISO        21
   #define MOSI        36
+#else
+  #define SCK         DIO52
+  #define MISO        DIO50
+  #define MOSI        DIO51
 #endif
 
 #define SS          DIO53

@@ -144,7 +144,7 @@
 #define PS_ON_PIN                             12
 
 #if NUM_RUNOUT_SENSORS < 3
-  #define SUICIDE_PIN                           54  // This pin must be enabled at boot to keep power flowing
+  #define SUICIDE_PIN                         54  // This pin must be enabled at boot to keep power flowing
 #endif
 
 #ifndef CASE_LIGHT_PIN

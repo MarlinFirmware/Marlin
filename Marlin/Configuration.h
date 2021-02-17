@@ -1956,13 +1956,10 @@
 //
 // GT2560 (YHCB2004) LCD Display
 //
-// Note: This controller requires Testato, Koepel softwarewire library
-//		and Andriy Golovnya LiquidCrystal_AIP31068 libray.
+// Requires Testato, Koepel softwarewire library and
+// Andriy Golovnya's LiquidCrystal_AIP31068 library.
 //
 //#define YHCB2004
-#if ENABLED (YHCB2004)
-  #define ULTIPANEL
-#endif
 
 //
 // Original RADDS LCD Display+Encoder+SDCardReader
