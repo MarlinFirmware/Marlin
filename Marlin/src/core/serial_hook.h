@@ -35,10 +35,11 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 
   void msgDone() {}
 
-  bool available(uint8_t index) { return index == 0 && SerialT::available(); }
-  int read(uint8_t index)       { return index == 0 ? SerialT::read() : -1; }
-  bool connected()              { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
-  void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
+  // We don't care about indices here, since if one can call us, it's the right index anyway
+  bool available(uint8_t) { return (bool)SerialT::available(); }
+  int read(uint8_t)       { return (int)SerialT::read(); }
+  bool connected()        { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
+  void flushTX()          { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
 
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
@@ -65,18 +66,19 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   bool    & condition;
   SerialT & out;
   NO_INLINE size_t write(uint8_t c) { if (condition) return out.write(c); return 0; }
-  void flush()            { if (condition) out.flush();  }
-  void begin(long br)     { out.begin(br); }
-  void end()              { out.end(); }
+  void flush()                      { if (condition) out.flush();  }
+  void begin(long br)               { out.begin(br); }
+  void end()                        { out.end(); }
 
   void msgDone() {}
-  bool connected()              { return CALL_IF_EXISTS(bool, &out, connected); }
-  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
+  bool connected()         { return CALL_IF_EXISTS(bool, &out, connected); }
+  void flushTX()           { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t index) { return index == 0 && out.available(); }
-  int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
-  using BaseClassT::available;
-  using BaseClassT::read;
+  bool available(uint8_t ) { return (bool)out.available(); }
+  int read(uint8_t )       { return (int)out.read(); }
+  bool available()         { return (bool)out.available(); }
+  int read()               { return (int)out.read(); }
+  
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
@@ -97,10 +99,10 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t index) { return index == 0 && out.available(); }
-  int read(uint8_t index)       { return index == 0 ? out.read() : -1; }
-  bool available()              { return out.available(); }
-  int read()                    { return out.read(); }
+  bool available(uint8_t)       { return (bool)out.available(); } 
+  int read(uint8_t)             { return (int)out.read(); }
+  bool available()              { return (bool)out.available(); }
+  int read()                    { return (int)out.read(); }
 
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
@@ -125,8 +127,8 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
     if (eofHook) eofHook(userPointer);
   }
 
-  bool available(uint8_t index) { return index == 0 && SerialT::available(); }
-  int read(uint8_t index)       { return index == 0 ? SerialT::read() : -1; }
+  bool available(uint8_t) { return (bool)SerialT::available(); }
+  int read(uint8_t)       { return (int)SerialT::read(); }
   using SerialT::available;
   using SerialT::read;
   using SerialT::flush;

@@ -49,6 +49,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "../../core/serial_hook.h"
 
 /**
  * Commands sent to MeatPack to control its behavior.
@@ -121,3 +122,44 @@ private:
 };
 
 extern MeatPack meatpack;
+
+// Implement the MeatPack serial class so it's transparent to rest of the code
+template <typename SerialT>
+struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
+  typedef SerialBase< MeatPackSerial<SerialT> > BaseClassT;
+
+  SerialT & out;
+
+  uint8_t serialBuffer[2];
+  uint8_t charCount;
+
+  NO_INLINE size_t write(uint8_t c) { return out.write(c); }
+  void flush()                      { out.flush();  }
+  void begin(long br)               { out.begin(br); }
+  void end()                        { out.end(); }
+
+  void msgDone()                    { out.msgDone(); }
+  // Existing instances implement Arduino's operator bool, so use that if it's available
+  bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
+  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
+
+  bool available(uint8_t index) { 
+    return charCount > 0 || (index == 0 && out.available()); 
+  }
+  int readImpl(uint8_t index) {
+    if (charCount > 0) return serialBuffer[sizeof(serialBuffer) - (charCount--)];
+    
+    int r = out.read();
+    if (r == -1) return r;
+
+    meatpack.handle_rx_char((uint8_t)c, index);
+    charCount = meatpack.get_result_char(serialBuffer);  
+    return serialBuffer[sizeof(serialBuffer) - (charCount--)]; 
+  }
+
+  int read(uint8_t index)       { return readImpl(index); }
+  bool available()              { return charCount > 0 || out.available(); }
+  int read()                    { return readImpl(0); }
+
+  MeatPackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
+};

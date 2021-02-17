@@ -48,10 +48,6 @@ GCodeQueue queue;
   #include "../feature/binary_stream.h"
 #endif
 
-#if ENABLED(MEATPACK)
-  #include "../feature/meatpack.h"
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
@@ -321,7 +317,6 @@ void GCodeQueue::flush_and_request_resend() {
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
   SERIAL_ECHOLN(last_N[serial_ind] + 1);
-  ok_to_send();
 }
 
 // Multiserial already handle the dispatch to/from multiple port by itself
@@ -459,16 +454,19 @@ void GCodeQueue::get_serial_commands() {
   #endif
 
   // Loop while serial characters are incoming and the queue is not full
-  bool hasData = true;
-  while (length < BUFSIZE && hasData) {
+  for (bool hadData = true; hadData; ) {
     // Unless a serial port has data, this will exit on next iteration
-    hasData = false;
+    hadData = false;
 
     LOOP_L_N(p, NUM_SERIAL) {
-      // Is there data available on this specific port ?
+      // Check if the queue is full, and exits if it is.
+      if (length >= BUFSIZE) return;
+
+      // No data for this port ? Skip it
       if (!serial_data_available(p)) continue;
 
-      hasData = true; // Let's make progress
+      // Ok, we have some data to process, let's make progress here
+      hadData = true;
 
       const int c = read_serial(p);
       if (c < 0) {
@@ -485,108 +483,110 @@ void GCodeQueue::get_serial_commands() {
         #endif
       }
 
-      #if ENABLED(MEATPACK)
-        meatpack.handle_rx_char(uint8_t(c), p);
-        char c_res[2] = { 0, 0 };
-        const uint8_t char_count = meatpack.get_result_char(c_res);
-      #else
-        constexpr uint8_t char_count = 1;
-      #endif
 
-      LOOP_L_N(char_index, char_count) {
-        const char serial_char = TERN(MEATPACK, c_res[char_index], c);
+      const char serial_char = (char)c;
 
-        if (ISEOL(serial_char)) {
+      if (ISEOL(serial_char)) {
 
-          // Reset our state, continue if the line was empty
-          if (process_line_done(serial_input_state[p], serial_line_buffer[p], serial_count[p]))
-            continue;
+        // Reset our state, continue if the line was empty
+        if (process_line_done(serial_input_state[p], serial_line_buffer[p], serial_count[p]))
+          continue;
 
-          char* command = serial_line_buffer[p];
+        char* command = serial_line_buffer[p];
 
-          while (*command == ' ') command++;                   // Skip leading spaces
-          char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
+        while (*command == ' ') command++;                   // Skip leading spaces
+        char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
 
-          if (npos) {
+        if (npos) {
 
-            const bool M110 = !!strstr_P(command, PSTR("M110"));
+          const bool M110 = !!strstr_P(command, PSTR("M110"));
 
-            if (M110) {
-              char* n2pos = strchr(command + 4, 'N');
-              if (n2pos) npos = n2pos;
-            }
-
-            const long gcode_N = strtol(npos + 1, nullptr, 10);
-
-            if (gcode_N != last_N[p] + 1 && !M110)
-              return gcode_line_error(PSTR(STR_ERR_LINE_NO), p);
-
-            char *apos = strrchr(command, '*');
-            if (apos) {
-              uint8_t checksum = 0, count = uint8_t(apos - command);
-              while (count) checksum ^= command[--count];
-              if (strtol(apos + 1, nullptr, 10) != checksum)
-                return gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
-            }
-            else
-              return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
-
-            last_N[p] = gcode_N;
-          }
-          #if ENABLED(SDSUPPORT)
-            // Pronterface "M29" and "M29 " has no line number
-            else if (card.flag.saving && !is_M29(command))
-              return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
-          #endif
-
-          //
-          // Movement commands give an alert when the machine is stopped
-          //
-
-          if (IsStopped()) {
-            char* gpos = strchr(command, 'G');
-            if (gpos) {
-              switch (strtol(gpos + 1, nullptr, 10)) {
-                case 0: case 1:
-                #if ENABLED(ARC_SUPPORT)
-                  case 2: case 3:
-                #endif
-                #if ENABLED(BEZIER_CURVE_SUPPORT)
-                  case 5:
-                #endif
-                  PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
-                  SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
-                  LCD_MESSAGEPGM(MSG_STOPPED);
-                  break;
-              }
-            }
+          if (M110) {
+            char* n2pos = strchr(command + 4, 'N');
+            if (n2pos) npos = n2pos;
           }
 
-          #if DISABLED(EMERGENCY_PARSER)
-            // Process critical commands early
-            if (command[0] == 'M') switch (command[3]) {
-              case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; TERN_(HAS_LCD_MENU, wait_for_user = false); } break;
-              case '2': if (command[2] == '1' && command[1] == '1') kill(M112_KILL_STR, nullptr, true); break;
-              case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
+          const long gcode_N = strtol(npos + 1, nullptr, 10);
+
+          if (gcode_N != last_N[p] + 1 && !M110) {
+            // In case of error on a serial port, don't prevent other serial port from making progress
+            gcode_line_error(PSTR(STR_ERR_LINE_NO), p);
+            break;
+          }
+
+          char *apos = strrchr(command, '*');
+          if (apos) {
+            uint8_t checksum = 0, count = uint8_t(apos - command);
+            while (count) checksum ^= command[--count];
+            if (strtol(apos + 1, nullptr, 10) != checksum) {
+              // In case of error on a serial port, don't prevent other serial port from making progress
+              gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
+              break;
             }
-          #endif
 
-          #if NO_TIMEOUTS > 0
-            last_command_time = ms;
-          #endif
+          }
+          else {
+            // In case of error on a serial port, don't prevent other serial port from making progress
+            gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
+            break;
+          }
 
-          // Add the command to the queue
-          _enqueue(serial_line_buffer[p], true
-            #if HAS_MULTI_SERIAL
-              , p
-            #endif
-          );
+          last_N[p] = gcode_N;
         }
-        else
-          process_stream_char(serial_char, serial_input_state[p], serial_line_buffer[p], serial_count[p]);
+        #if ENABLED(SDSUPPORT)
+          // Pronterface "M29" and "M29 " has no line number
+          else if (card.flag.saving && !is_M29(command)) {
+            gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
+            break;
+          }
+        #endif
 
-      } // char_count loop
+        //
+        // Movement commands give an alert when the machine is stopped
+        //
 
+        if (IsStopped()) {
+          char* gpos = strchr(command, 'G');
+          if (gpos) {
+            switch (strtol(gpos + 1, nullptr, 10)) {
+              case 0: case 1:
+              #if ENABLED(ARC_SUPPORT)
+                case 2: case 3:
+              #endif
+              #if ENABLED(BEZIER_CURVE_SUPPORT)
+                case 5:
+              #endif
+                PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
+                SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
+                LCD_MESSAGEPGM(MSG_STOPPED);
+                break;
+            }
+          }
+        }
+
+        #if DISABLED(EMERGENCY_PARSER)
+          // Process critical commands early
+          if (command[0] == 'M') switch (command[3]) {
+            case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; TERN_(HAS_LCD_MENU, wait_for_user = false); } break;
+            case '2': if (command[2] == '1' && command[1] == '1') kill(M112_KILL_STR, nullptr, true); break;
+            case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
+          }
+        #endif
+
+        #if NO_TIMEOUTS > 0
+          last_command_time = ms;
+        #endif
+
+        // Add the command to the queue
+        _enqueue(serial_line_buffer[p], true
+          #if HAS_MULTI_SERIAL
+            , p
+          #endif
+        );
+      }
+      else
+        process_stream_char(serial_char, serial_input_state[p], serial_line_buffer[p], serial_count[p]);
+        
     } // NUM_SERIAL loop
   } // queue has space, serial has data
 }
