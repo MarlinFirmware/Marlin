@@ -198,6 +198,10 @@ void DGUSScreenHandler::HandleDevelopmentTestButton(DGUS_VP_Variable &var, void 
 
   // Act on it
   switch (button_value) {
+    case VP_DEVELOPMENT_HELPER_BUTTON_ACTION_FIRMWARE_UPDATE:
+      ExtUI::injectCommands_P(PSTR("M997"));
+    break;
+
     case VP_DEVELOPMENT_HELPER_BUTTON_ACTION_TO_MAIN_MENU:
       setstatusmessagePGM(PSTR("Dev action: main menu"));
       GotoScreen(DGUSLCD_SCREEN_MAIN, false);
