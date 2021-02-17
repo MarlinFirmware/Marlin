@@ -57,8 +57,6 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             break;
     }
 
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS);
-
     // Load settings for axis
     axis_steps_mm = planner.settings.axis_steps_per_mm[current_axis];
     max_acceleration_mm_per_s2 = planner.settings.max_acceleration_mm_per_s2[current_axis];
@@ -135,7 +133,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
     #endif
 
     // Nav
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_NAV);
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS);
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
