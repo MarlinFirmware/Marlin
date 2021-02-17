@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * GT2560 RevB + GT2560 V3.0 + GT2560 V3.1 + GT2560 V4.0 + GT2560 V4.1 pin assignment
+ * Geeetech GT2560 RevB + GT2560 3.0/3.1 + GT2560 4.0/4.1 pin assignments
  */
 
 #if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
@@ -30,13 +30,13 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "GT2560 RevB/V3-V4.1"
+  #define BOARD_INFO_NAME "GT2560 RevB/3.x/4.x"
 #endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                            11  //13 untested  3Dtouch
+#define SERVO0_PIN                            11  // 13 untested  3Dtouch
 
 //
 // Limit Switches
@@ -156,24 +156,26 @@
 //
 #define BEEPER_PIN                            18
 
-#ifndef LCD_PINS_RS
-  #define LCD_PINS_RS                         20
-#endif
-#ifndef LCD_PINS_ENABLE
-  #define LCD_PINS_ENABLE                     17
-#endif
-#ifndef LCD_PINS_D4
-  #define LCD_PINS_D4                         16
-#endif
-#ifndef LCD_PINS_D5
-  #define LCD_PINS_D5                         21
-#endif
-#ifndef LCD_PINS_D6
-  #define LCD_PINS_D6                          5
-#endif
-#ifndef LCD_PINS_D7
-  #define LCD_PINS_D7                         36
+#if HAS_GRAPHICAL_LCD
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS                       20
   #endif
+  #ifndef LCD_PINS_ENABLE
+    #define LCD_PINS_ENABLE                   17
+  #endif
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4                       16
+  #endif
+  #ifndef LCD_PINS_D5
+    #define LCD_PINS_D5                       21
+  #endif
+  #ifndef LCD_PINS_D6
+    #define LCD_PINS_D6                        5
+  #endif
+  #ifndef LCD_PINS_D7
+    #define LCD_PINS_D7                       36
+  #endif
+#endif
 
 #if ENABLED(YHCB2004)
   #ifndef BTN_EN1
