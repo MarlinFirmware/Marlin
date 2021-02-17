@@ -58,8 +58,12 @@
 //
 #define X_STOP_PIN                          PG10
 #define Y_STOP_PIN                          PA12
-#define Z_MAX_PIN                           PA14
-#define Z_MIN_PIN                           PA13
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                         PA14
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                         PA13
+#endif
 
 //
 // Steppers
