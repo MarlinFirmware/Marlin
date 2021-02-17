@@ -95,7 +95,7 @@
 #define PAUSE_HEAT
 
 #define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
+#define USE_STRING_TITLES
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
@@ -512,8 +512,9 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
 
 #define PREPARE_CASE_MOVE  1
-#define PREPARE_CASE_DISA  2
-#define PREPARE_CASE_HOME  3
+#define PREPARE_CASE_MLEV  2
+#define PREPARE_CASE_DISA  3
+#define PREPARE_CASE_HOME  4
 #define PREPARE_CASE_ZOFF (PREPARE_CASE_HOME + ENABLED(HAS_ZOFFSET_ITEM))
 #define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_HOTEND))
 #define PREPARE_CASE_ABS  (PREPARE_CASE_PLA + ENABLED(HAS_HOTEND))
@@ -603,6 +604,12 @@ void Item_Prepare_Home(const uint8_t row) {
     #endif
   }
   Draw_Menu_Line(row, ICON_Homing);
+}
+
+void Item_Prepare_ManualLev(const uint8_t row) {
+  DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_MANUAL_LEVELING));
+  Draw_Menu_Line(row, ICON_SetEndTemp);
+  Draw_More_Icon(row);
 }
 
 #if HAS_ZOFFSET_ITEM
@@ -718,6 +725,7 @@ void Draw_Prepare_Menu() {
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
+  if (PVISI(PREPARE_CASE_MLEV)) Item_Prepare_ManualLev(PSCROL(PREPARE_CASE_MLEV));// Manual Leveling >
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
   #if HAS_ZOFFSET_ITEM
@@ -2325,12 +2333,15 @@ void Draw_Move_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
+      DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MOVE_X));
+      DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MOVE_Y));
+      DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MOVE_Z));
     #else
       DWIN_Frame_TitleCopy(1, 231, 2, 265, 12);                     // "Move"
+      draw_move_en(MBASE(1)); say_x(36, MBASE(1));                    // "Move X"
+      draw_move_en(MBASE(2)); say_y(36, MBASE(2));                    // "Move Y"
+      draw_move_en(MBASE(3)); say_z(36, MBASE(3));                    // "Move Z"
     #endif
-    draw_move_en(MBASE(1)); say_x(36, MBASE(1));                    // "Move X"
-    draw_move_en(MBASE(2)); say_y(36, MBASE(2));                    // "Move Y"
-    draw_move_en(MBASE(3)); say_z(36, MBASE(3));                    // "Move Z"
     #if HAS_HOTEND
       DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4));   // "Extruder"
     #endif
@@ -2341,6 +2352,26 @@ void Draw_Move_Menu() {
 
   // Draw separators and icons
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MoveX + i);
+}
+
+void Draw_ManualLev_Menu() {
+  Clear_Main_Window();
+  Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
+  DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MANLEV_FL));
+  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FC));
+  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_FR));
+  DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_MANLEV_CL));
+  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_C));
+  DWIN_Draw_Label(MBASE(6), GET_TEXT_F(MSG_MANLEV_CR));
+  DWIN_Draw_Label(MBASE(7), GET_TEXT_F(MSG_MANLEV_BL));
+  DWIN_Draw_Label(MBASE(9), GET_TEXT_F(MSG_MANLEV_BC));
+  DWIN_Draw_Label(MBASE(9), GET_TEXT_F(MSG_MANLEV_BR));
+  
+  Draw_Back_First(select_axis.now == 0);
+  if (select_axis.now) Draw_Menu_Cursor(select_axis.now);
+
+  // Draw separators and icons
+  LOOP_L_N(i, 9) Draw_Menu_Line(i + 1, ICON_Axis);
 }
 
 #include "../../../libs/buzzer.h"
@@ -2374,6 +2405,7 @@ void HMI_Prepare() {
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
         #if HAS_HOTEND
+          if (index_prepare == PREPARE_CASE_PLA) Item_Prepare_PLA(MROWS);  // M.A.R.C. Testing
           if (index_prepare == PREPARE_CASE_ABS) Item_Prepare_ABS(MROWS);
         #endif
         #if HAS_PREHEAT
@@ -2402,6 +2434,7 @@ void HMI_Prepare() {
              if (index_prepare == 6) Item_Prepare_Move(0);
         else if (index_prepare == 7) Item_Prepare_Disable(0);
         else if (index_prepare == 8) Item_Prepare_Home(0);
+        else if (index_prepare == 9) Item_Prepare_ManualLev(0);
       }
       else {
         Move_Highlight(-1, select_prepare.now + MROWS - index_prepare);
@@ -2427,6 +2460,9 @@ void HMI_Prepare() {
           DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
         #endif
         break;
+      case PREPARE_CASE_MLEV: // Manual leveling
+        Draw_ManualLev_Menu();
+      break; 
       case PREPARE_CASE_DISA: // Disable steppers
         queue.inject_P(PSTR("M84"));
         break;
