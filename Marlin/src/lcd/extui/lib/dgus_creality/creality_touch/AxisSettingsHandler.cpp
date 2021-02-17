@@ -20,6 +20,8 @@
 AxisEnum AxisSettingsHandler::current_axis;
 uint16_t AxisSettingsHandler::axis_settings_title_icon = ICON_AXIS_SETTINGS_TITLE_X;
 
+float AxisSettingsHandler::axis_steps_mm;
+
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
         case AXIS_SETTINGS_NAV_BUTTON_VAL_X:
@@ -45,11 +47,13 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS);
 
-    // TODO: load settings for axis
+    // Load settings for axis
+    axis_steps_mm = planner.settings.axis_steps_per_mm[current_axis];
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
-    // TODO: save settings for axis
+    // Save settings for axis
+    planner.settings.axis_steps_per_mm[current_axis] = axis_steps_mm;
 
     ScreenHandler.PopToOldScreen();
 }

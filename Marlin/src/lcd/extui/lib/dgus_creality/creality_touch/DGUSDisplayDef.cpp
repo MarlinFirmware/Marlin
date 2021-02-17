@@ -285,7 +285,7 @@ const uint16_t VPList_LevelingSettings[] PROGMEM = {
 };
 
 const uint16_t VPList_AxisSettingsNav[] PROGMEM = {
-  VPList_CommonWithHeatOnly,
+  VPList_CommonWithStatus,
 
   0x0000
 };
@@ -294,6 +294,8 @@ const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
   VPList_CommonWithHeatOnly,
 
   VP_AXIS_SETTINGS_TITLE_ICON,
+
+  VP_AXIS_SETTINGS_AXIS_STEPSMM,
 
   0x0000
 };
@@ -421,6 +423,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Axis settings
   VPHELPER(VP_AXIS_SETTINGS_NAV_BUTTON, nullptr, AxisSettingsHandler::HandleNavigation, nullptr),
   VPHELPER(VP_AXIS_SETTINGS_TITLE_ICON, &AxisSettingsHandler::axis_settings_title_icon, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  VPHELPER(VP_AXIS_SETTINGS_AXIS_STEPSMM, &AxisSettingsHandler::axis_steps_mm, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  
 
   VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 
