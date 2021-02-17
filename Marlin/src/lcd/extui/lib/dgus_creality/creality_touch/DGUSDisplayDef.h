@@ -308,7 +308,8 @@ constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_E = 23;
 
 constexpr uint16_t VP_AXIS_SETTINGS_NAV_BACKBUTTON = 0x22DD;
 
-constexpr uint16_t VP_AXIS_SETTINGS_AXIS_STEPSMM = 0x22DF;
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_STEPSMM = 0x22DF; // 2-byte
+constexpr uint16_t VP_AXIS_SETTINGS_AXIS_MAX_ACCEL = 0x22E1; // 4-byte (!)
 
 
 // Mesh leveling

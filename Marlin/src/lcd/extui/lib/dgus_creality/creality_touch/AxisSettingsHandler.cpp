@@ -21,6 +21,7 @@ AxisEnum AxisSettingsHandler::current_axis;
 uint16_t AxisSettingsHandler::axis_settings_title_icon = ICON_AXIS_SETTINGS_TITLE_X;
 
 float AxisSettingsHandler::axis_steps_mm;
+uint32_t AxisSettingsHandler::max_acceleration_mm_per_s2;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -49,13 +50,18 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
     // Load settings for axis
     axis_steps_mm = planner.settings.axis_steps_per_mm[current_axis];
+    max_acceleration_mm_per_s2 = planner.settings.max_acceleration_mm_per_s2[current_axis];
 }
 
 void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     // Save settings for axis
     planner.settings.axis_steps_per_mm[current_axis] = axis_steps_mm;
+    planner.settings.max_acceleration_mm_per_s2[current_axis] = max_acceleration_mm_per_s2;
 
+    // Save and pop
     ScreenHandler.PopToOldScreen();
+
+    settings.save();
 }
 
 #endif
