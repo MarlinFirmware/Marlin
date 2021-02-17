@@ -420,7 +420,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Axis settings
   VPHELPER(VP_AXIS_SETTINGS_NAV_BUTTON, nullptr, AxisSettingsHandler::HandleNavigation, nullptr),
-  VPHELPER(VP_AXIS_SETTINGS_TITLE_ICON, &AxisSettingsHandler::axis_settings_title_icon, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay);
+  VPHELPER(VP_AXIS_SETTINGS_TITLE_ICON, &AxisSettingsHandler::axis_settings_title_icon, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL

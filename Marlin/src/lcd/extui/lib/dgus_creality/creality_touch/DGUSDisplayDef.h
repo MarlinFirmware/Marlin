@@ -306,6 +306,8 @@ constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_Y = 21;
 constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_Z = 22;
 constexpr uint16_t ICON_AXIS_SETTINGS_TITLE_E = 23;
 
+constexpr uint16_t VP_AXIS_SETTINGS_NAV_BACKBUTTON = 0x22DD;
+
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
 constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 5;

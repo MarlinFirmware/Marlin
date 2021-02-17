@@ -48,4 +48,10 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
     // TODO: load settings for axis
 }
 
+void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr) {
+    // TODO: save settings for axis
+
+    ScreenHandler.PopToOldScreen();
+}
+
 #endif
