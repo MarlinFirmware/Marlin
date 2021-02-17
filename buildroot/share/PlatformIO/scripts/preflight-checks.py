@@ -58,5 +58,5 @@ if not result:
 for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
 	for f in [ "Configuration.h", "Configuration_adv.h" ]:
 		if os.path.isfile(os.path.join(p, f)):
-			err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subfolder.'
+			err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
 			raise SystemExit(err)
