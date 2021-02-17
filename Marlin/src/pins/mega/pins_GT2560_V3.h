@@ -156,7 +156,17 @@
 //
 #define BEEPER_PIN                            18
 
-#if HAS_GRAPHICAL_LCD
+#if ENABLED(YHCB2004)
+  #ifndef YHCB2004_MOSI
+    #define YHCB2004_MOSI                     21
+  #endif
+  #ifndef YHCB2004_SCK
+    #define YHCB2004_SCK                      5
+  #endif
+  #ifndef YHCB2004_MISO
+    #define YHCB2004_MISO                     36
+  #endif
+#elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS
     #define LCD_PINS_RS                       20
   #endif
