@@ -461,7 +461,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Advanced movement settings
   VPHELPER(VP_MOV_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ADV_MOV_SETTINGS>), nullptr),
 
-  
+  VPHELPER(VP_MOV_MINIMUM_SEGMENT_TIME, &planner.settings.min_segment_time_us, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL
