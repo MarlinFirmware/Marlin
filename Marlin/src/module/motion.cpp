@@ -1875,7 +1875,7 @@ void prepare_line_to_destination() {
 
   } // homeaxis()
 
-#endif
+#endif // HAS_ENDSTOPS
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
