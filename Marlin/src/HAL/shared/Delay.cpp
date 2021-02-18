@@ -114,7 +114,7 @@
         serialprintPGM(unit);
         SERIAL_ECHOLNPAIR(" took: ", total);
         serialprintPGM(unit);
-        if (do_flush) SERIAL_FLUSH();
+        if (do_flush) SERIAL_FLUSHTX();
       };
 
       uint32_t s, e;

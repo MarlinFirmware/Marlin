@@ -30,10 +30,23 @@ In the `Marlin/src/core/serial_hook.h` file, the different serial feature are de
 Since all the types above are using CRTP, it's possible to combine them to get the appropriate functionality.
 This is easily done via type definition of the feature.
 
-For example, to present a serial interface that's outputting to 2 serial port, the first one being hooked at runtime and the second one connected to a runtime switchable telnet client, you'll declare the type to use as:
+For example, to present a serial interface that's outputting to 2 serial ports, the first one being hooked at runtime and the second one connected to a runtime switchable telnet client, you'll declare the type to use as:
 ```cpp
 typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial0Type;
 ```
+
+To send the same output to 4 serial ports, you'll then combine the MultiSerial this way:
+```cpp
+typedef MultiSerial< MultiSerial< BaseSerial<Serial>, BaseSerial<Serial1> >, MultiSerial< BaseSerial<Serial2>, BaseSerial<Serial3>, 2, 1>, 0, 2> Serial0Type;
+```
+The magical number here are the step and offset for computing the serial port, let's simplify a bit the above monster to:
+```cpp
+MS< A = MS<a, b>, B = MS<c, d, offset = 2, step = 1>, offset = 0, step = 2>
+```
+This means that the underlying multiserial A (outputting to `a,b`) is available from offset = 0 to offset = 1.
+The multiserial B (outputting to `c, d`) is available from offset = 2 (the next step from the root multiserial) to offset 3.
+In practice, the root multiserial will redirect any index/mask `0` to `step - 1` to its first leaf, and any index/mask `step = 2` to `2*step - 1` to its second leaf.
+
 
 ## Emergency parser
 By default, the serial base interface provide an emergency parser that's only enable for serial classes that support it.

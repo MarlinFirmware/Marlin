@@ -166,17 +166,18 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 };
 
 // A class that's duplicating its output conditionally to 2 serial interface
-template <class Serial0T, class Serial1T, const uint8_t offset = 0>
-struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> > {
-  typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset> > BaseClassT;
+template <class Serial0T, class Serial1T, const uint8_t offset = 0, const uint8_t step = 1>
+struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > {
+  typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > BaseClassT;
 
   uint8_t    portMask;
   Serial0T & serial0;
   Serial1T & serial1;
 
   enum Masks {
-    FirstOutputMask   =  (1 << offset),
-    SecondOutputMask  =  (1 << (offset + 1)),
+    UsageMask         =  ((1 << step) - 1), // A bit mask containing as many bits as step
+    FirstOutputMask   =  (UsageMask << offset),
+    SecondOutputMask  =  (UsageMask << (offset + step)),
     AllMask           = FirstOutputMask | SecondOutputMask,
   };
 
@@ -191,18 +192,18 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
     if (portMask & SecondOutputMask)  serial1.msgDone();
   }
   bool available(uint8_t index) {
-    switch(index) {
-      case 0 + offset: return serial0.available();
-      case 1 + offset: return serial1.available();
-      default: return false;
-    }
+    if (index >= 0 + offset && index < step + offset)
+      return serial0.available(index);
+    else if (index >= step + offset && index < 2 * step + offset)
+      return serial1.available(index);
+    return false;
   }
   NO_INLINE int read(uint8_t index) {
-    switch(index) {
-      case 0 + offset: return serial0.read();
-      case 1 + offset: return serial1.read();
-      default: return -1;
-    }
+    if (index >= 0 + offset && index < step + offset)
+      return serial0.read(index);
+    else if (index >= step + offset && index < 2 * step + offset)
+      return serial1.read(index);
+    return -1;
   }
   void begin(const long br) {
     if (portMask & FirstOutputMask)   serial0.begin(br);
@@ -243,3 +244,4 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
 #ifdef HAS_MULTI_SERIAL
   #define Serial1Type ConditionalSerial
 #endif
+
