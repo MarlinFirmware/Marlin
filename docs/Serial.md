@@ -39,13 +39,13 @@ To send the same output to 4 serial ports, you'll then combine the MultiSerial t
 ```cpp
 typedef MultiSerial< MultiSerial< BaseSerial<Serial>, BaseSerial<Serial1> >, MultiSerial< BaseSerial<Serial2>, BaseSerial<Serial3>, 2, 1>, 0, 2> Serial0Type;
 ```
-The magical number here are the step and offset for computing the serial port, let's simplify a bit the above monster to:
+The magical numbers here are the step and offset for computing the serial port, let's simplify a bit the above monster to:
 ```cpp
-MS< A = MS<a, b>, B = MS<c, d, offset = 2, step = 1>, offset = 0, step = 2>
+MS< A = MS<a, b, offset = 0, step = 1>, B = MS<c, d, offset = 2, step = 1>, offset = 0, step = 2>
 ```
-This means that the underlying multiserial A (outputting to `a,b`) is available from offset = 0 to offset = 1.
-The multiserial B (outputting to `c, d`) is available from offset = 2 (the next step from the root multiserial) to offset 3.
-In practice, the root multiserial will redirect any index/mask `0` to `step - 1` to its first leaf, and any index/mask `step = 2` to `2*step - 1` to its second leaf.
+This means that the underlying multiserial A (outputting to `a,b`) is available from offset = 0 to offset + step = 1 (default value).
+The multiserial B (outputting to `c, d`) is available from offset = 2 (the next step from the root multiserial) to offset + step = 3.
+In practice, the root multiserial will redirect any index/mask `offset` to `offset + step - 1` to its first leaf, and any index/mask `offset + step` to `offset + 2*step - 1` to its second leaf.
 
 
 ## Emergency parser
