@@ -26,7 +26,7 @@ AxisEnum AxisSettingsHandler::current_axis;
 uint16_t AxisSettingsHandler::axis_settings_title_icon = ICON_AXIS_SETTINGS_TITLE_X;
 
 float AxisSettingsHandler::axis_steps_mm;
-uint32_t AxisSettingsHandler::max_acceleration_mm_per_s2;
+uint16_t AxisSettingsHandler::max_acceleration_mm_per_s2;
 float AxisSettingsHandler::jerk;
 feedRate_t AxisSettingsHandler::max_feedrate;
 
@@ -38,7 +38,7 @@ bool AxisSettingsHandler::has_tmc_settings = false;
 
 uint16_t AxisSettingsHandler::tmc_current;
 bool AxisSettingsHandler::stealthchop;
-uint32_t AxisSettingsHandler::hybrid_threshold;
+uint16_t AxisSettingsHandler::hybrid_threshold;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -65,7 +65,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
 
     // Load settings for axis
     axis_steps_mm = planner.settings.axis_steps_per_mm[current_axis];
-    max_acceleration_mm_per_s2 = planner.settings.max_acceleration_mm_per_s2[current_axis];
+    max_acceleration_mm_per_s2 = static_cast<uint16_t>(planner.settings.max_acceleration_mm_per_s2[current_axis]);
     IF_ENABLED(CLASSIC_JERK, jerk = planner.max_jerk[current_axis]);
     max_feedrate = planner.settings.max_feedrate_mm_s[current_axis];
 
@@ -79,7 +79,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperX.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = stepperX.get_pwm_thrs();
+            hybrid_threshold = static_cast<uint16_t>(stepperX.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -93,7 +93,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperY.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = stepperY.get_pwm_thrs();
+            hybrid_threshold = static_cast<uint16_t>(stepperY.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -107,7 +107,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperZ.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = stepperZ.get_pwm_thrs();
+            hybrid_threshold = static_cast<uint16_t>(stepperZ.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -121,7 +121,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperE0.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = stepperE0.get_pwm_thrs();
+            hybrid_threshold = static_cast<uint16_t>(stepperE0.get_pwm_thrs());
             #endif
             #endif
             break;

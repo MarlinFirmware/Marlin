@@ -321,23 +321,6 @@ public:
     //dgusdisplay.SetVariableAppendText(var.VP, suffix);
   }
 
-  static void DGUSLCD_SendUint32LongToDisplay(DGUS_VP_Variable &var) {
-    if (var.memadr) {
-      // Round - truncated values look like skipped numbers
-      long roundedValue = *(uint32_t *) var.memadr;
-      dgusdisplay.WriteVariable(var.VP, roundedValue);
-    }
-  }
-
-  static void DGUSLCD_ReceiveUint32LongFromDisplay(DGUS_VP_Variable &var, void* val_ptr) {
-    if (var.memadr) {
-      // Round - truncated values look like skipped numbers
-      uint32_t incomingValue = *(uint32_t *) val_ptr;
-
-      *(uint32_t*)val_ptr = swap32(incomingValue); 
-    }
-  }
-
   /// Force an update of all VP on the current screen.
   static inline void ForceCompleteUpdate() { update_ptr = 0; ScreenComplete = false; }
   /// Has all VPs sent to the screen

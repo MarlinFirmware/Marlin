@@ -441,7 +441,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_SETTINGS_TITLE_ICON, &AxisSettingsHandler::axis_settings_title_icon, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   VPHELPER(VP_AXIS_SETTINGS_AXIS_STEPSMM, &AxisSettingsHandler::axis_steps_mm, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_AXIS_SETTINGS_AXIS_MAX_ACCEL, &AxisSettingsHandler::max_acceleration_mm_per_s2, ScreenHandler.DGUSLCD_ReceiveUint32LongFromDisplay, ScreenHandler.DGUSLCD_SendUint32LongToDisplay),
+  VPHELPER(VP_AXIS_SETTINGS_AXIS_MAX_ACCEL, &AxisSettingsHandler::max_acceleration_mm_per_s2, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   
   VPHELPER(VP_AXIS_SETTINGS_AXIS_JERK, &AxisSettingsHandler::jerk, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_FEEDRATE, &AxisSettingsHandler::max_feedrate, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
@@ -449,7 +449,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCCURRENT, &AxisSettingsHandler::tmc_current, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_BUTTON, &AxisSettingsHandler::stealthchop, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON, &AxisSettingsHandler::stealthchop, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
-  VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD, &AxisSettingsHandler::hybrid_threshold, ScreenHandler.DGUSLCD_ReceiveUint32LongFromDisplay, ScreenHandler.DGUSLCD_SendUint32LongToDisplay),
+  VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD, &AxisSettingsHandler::hybrid_threshold, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   
   VPHELPER(VP_AXIS_TMC_NAV_ICON, &AxisSettingsHandler::has_tmc_settings,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<AXIS_TMC_NAV_ICON_SHOWING, AXIS_TMC_NAV_ICON_HIDING>)),
 
