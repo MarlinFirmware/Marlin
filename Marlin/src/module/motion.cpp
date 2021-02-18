@@ -1579,6 +1579,10 @@ void homeaxis(const AxisEnum axis) {
   const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
               ? x_home_dir(active_extruder) : home_dir(axis);
 
+  #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
+    if (axis == Z_AXIS) bltouch.init();
+  #endif
+
   //
   // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
   //
