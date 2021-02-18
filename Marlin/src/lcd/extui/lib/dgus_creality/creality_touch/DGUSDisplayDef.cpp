@@ -325,7 +325,7 @@ const uint16_t VPList_AdvMovementSettings[] PROGMEM = {
 
   VP_MOV_MINIMUM_TRAVEL_FEEDRATE,
   VP_MOV_MINIMUM_TRAVEL_ACCELERATION, 
-  
+
   0x0000
 };
 
@@ -479,7 +479,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_MOV_MINIMUM_FEEDRATE, &planner.settings.min_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_MOV_NORMAL_ACCELERATION, &planner.settings.acceleration, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_MOV_RETRACT_ACCELERATION, &planner.settings.retract_acceleration, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_MOV_RETRACT_ACCELERATION, &planner.settings.retract_acceleration, ScreenHandler.DGUSLCD_SetFloatAsLongFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<1>),
 
   VPHELPER(VP_MOV_MINIMUM_TRAVEL_FEEDRATE, &planner.settings.min_travel_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_MOV_MINIMUM_TRAVEL_ACCELERATION, &planner.settings.travel_acceleration, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),

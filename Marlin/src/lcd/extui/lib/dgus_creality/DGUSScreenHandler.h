@@ -262,6 +262,7 @@ public:
       d *= cpow(10, decimals);
 
       // Round - truncated values look like skipped numbers
+      static_assert(sizeof(long) == 4, "Assuming long is 4 bytes");
       long roundedValue = static_cast<long>(round(d));
       dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
@@ -272,6 +273,17 @@ public:
   static void DGUSLCD_SetFloatAsIntFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
       uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
+
+      float value = static_cast<float>(static_cast<double>(value_raw) /cpow(10, decimals));
+      *(float *)var.memadr = value;
+    }
+  }
+
+  // Receive a float from the display - Display will send a 4-byte integer scaled to the number of digits
+  template<unsigned int decimals>
+  static void DGUSLCD_SetFloatAsLongFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
+    if (var.memadr) {
+      uint32_t value_raw = swap32(*(uint32_t*)val_ptr);
 
       float value = static_cast<float>(static_cast<double>(value_raw) /cpow(10, decimals));
       *(float *)var.memadr = value;

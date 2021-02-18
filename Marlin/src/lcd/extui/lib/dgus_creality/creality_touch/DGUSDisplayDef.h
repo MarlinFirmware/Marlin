@@ -335,11 +335,11 @@ constexpr uint16_t VP_MOV_NAV_BUTTON = 0x2305;
 constexpr uint16_t VP_MOV_MINIMUM_SEGMENT_TIME = 0x22F9; // uint 2-byte
 constexpr uint16_t VP_MOV_MINIMUM_FEEDRATE = 0x22FB; // float 2-byte
 constexpr uint16_t VP_MOV_NORMAL_ACCELERATION = 0x22FD; // float 2-byte
-constexpr uint16_t VP_MOV_RETRACT_ACCELERATION = 0x22FF; // float 2-byte
 
 constexpr uint16_t VP_MOV_MINIMUM_TRAVEL_FEEDRATE = 0x2301; // float 2-byte
 constexpr uint16_t VP_MOV_MINIMUM_TRAVEL_ACCELERATION = 0x2303; // float 2-byte
 
+constexpr uint16_t VP_MOV_RETRACT_ACCELERATION = 0x2307; // float 4-byte
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
