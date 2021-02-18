@@ -51,9 +51,9 @@ public:
   #endif
 };
 
-// On LPC176x framework, HardwareSerial does not implement the same interface as Arduino's Serial, so overloads 
-// of 'available' and 'read' method are not used in this multiple inheritance scenario. 
-// Instead, use a ForwardSerial here that'll adapt the interface 
+// On LPC176x framework, HardwareSerial does not implement the same interface as Arduino's Serial, so overloads
+// of 'available' and 'read' method are not used in this multiple inheritance scenario.
+// Instead, use a ForwardSerial here that'll adapt the interface
 typedef ForwardSerial0Type<MarlinSerial> MSerialT;
 extern MSerialT MSerial;
 extern MSerialT MSerial1;

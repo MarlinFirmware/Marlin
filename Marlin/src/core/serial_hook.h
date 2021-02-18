@@ -78,7 +78,7 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   int read(uint8_t )       { return (int)out.read(); }
   bool available()         { return (bool)out.available(); }
   int read()               { return (int)out.read(); }
-  
+
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
@@ -99,7 +99,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t)       { return (bool)out.available(); } 
+  bool available(uint8_t)       { return (bool)out.available(); }
   int read(uint8_t)             { return (int)out.read(); }
   bool available()              { return (bool)out.available(); }
   int read()                    { return (int)out.read(); }

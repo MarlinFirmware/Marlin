@@ -483,7 +483,6 @@ void GCodeQueue::get_serial_commands() {
         #endif
       }
 
-
       const char serial_char = (char)c;
 
       if (ISEOL(serial_char)) {
@@ -586,7 +585,7 @@ void GCodeQueue::get_serial_commands() {
       }
       else
         process_stream_char(serial_char, serial_input_state[p], serial_line_buffer[p], serial_count[p]);
-        
+
     } // NUM_SERIAL loop
   } // queue has space, serial has data
 }
@@ -702,5 +701,4 @@ void GCodeQueue::advance() {
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
   --length;
   if (++index_r >= BUFSIZE) index_r = 0;
-
 }

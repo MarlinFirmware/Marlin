@@ -89,7 +89,6 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL          _SERIAL_IMPL
 #endif
 
-
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)

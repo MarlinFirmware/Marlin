@@ -24,7 +24,6 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "MarlinSerial.h"
 
-
 #if ANY_SERIAL_IS(0)
   MarlinSerial _MSerial(LPC_UART0);
   MSerialT MSerial(true, _MSerial);

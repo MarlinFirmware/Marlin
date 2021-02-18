@@ -141,22 +141,22 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t index) { 
+  bool available(uint8_t index) {
     // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
     // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
     // TODO, let's fix this later on
-    return charCount > 0 || (bool)out.available(index); 
+    return charCount > 0 || (bool)out.available(index);
   }
   int readImpl(uint8_t index) {
-    // DITTO 
+    // DITTO
     if (charCount > 0) return serialBuffer[sizeof(serialBuffer) - (charCount--)];
-    
+
     int r = out.read(index);
     if (r == -1) return r;
 
     meatpack.handle_rx_char((uint8_t)r, index);
-    charCount = meatpack.get_result_char(serialBuffer);  
-    return serialBuffer[sizeof(serialBuffer) - (charCount--)]; 
+    charCount = meatpack.get_result_char(serialBuffer);
+    return serialBuffer[sizeof(serialBuffer) - (charCount--)];
   }
 
   int read(uint8_t index)       { return readImpl(index); }
