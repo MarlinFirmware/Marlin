@@ -75,8 +75,7 @@
 #include "../core/debug_out.h"
 
 #if HAS_ENDSTOPS
-  uint8_t axis_homed = xyz_bits,
-          axis_trusted = xyz_bits;
+  uint8_t axis_homed, axis_trusted; // = 0
 #endif
 
 // Relative Mode. Enable with G91, disable with G90.
