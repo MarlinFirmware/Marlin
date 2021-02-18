@@ -285,6 +285,8 @@ void do_z_clearance(const float &zclear, const bool z_trusted=true, const bool r
  */
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
 
+void set_axis_is_at_home(const AxisEnum axis);
+
 #if HAS_ENDSTOPS
   /**
    * axis_homed
@@ -297,7 +299,6 @@ constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
    */
   extern uint8_t axis_homed, axis_trusted;
   void homeaxis(const AxisEnum axis);
-  void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   uint8_t axes_should_home(uint8_t axis_bits=0x07);
   bool homing_needed_error(uint8_t axis_bits=0x07);
@@ -310,7 +311,6 @@ constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
 #else
   constexpr uint8_t axis_homed = xyz_bits, axis_trusted = xyz_bits; // Zero-endstop machines are always homed and trusted
   FORCE_INLINE void homeaxis(const AxisEnum axis)           {}
-  FORCE_INLINE void set_axis_is_at_home(const AxisEnum)     {}
   FORCE_INLINE void set_axis_never_homed(const AxisEnum)    {}
   FORCE_INLINE uint8_t axes_should_home(uint8_t=0x07)       { return false; }
   FORCE_INLINE bool homing_needed_error(uint8_t=0x07)       { return false; }

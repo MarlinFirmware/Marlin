@@ -1376,82 +1376,6 @@ void prepare_line_to_destination() {
   }
 
   /**
-   * Set an axis' current position to its home position (after homing).
-   *
-   * For Core and Cartesian robots this applies one-to-one when an
-   * individual axis has been homed.
-   *
-   * DELTA should wait until all homing is done before setting the XYZ
-   * current_position to home, because homing is a single operation.
-   * In the case where the axis positions are trusted and previously
-   * homed, DELTA could home to X or Y individually by moving either one
-   * to the center. However, homing Z always homes XY and Z.
-   *
-   * SCARA should wait until all XY homing is done before setting the XY
-   * current_position to home, because neither X nor Y is at home until
-   * both are at home. Z can however be homed individually.
-   *
-   * Callers must sync the planner position after calling this!
-   */
-  void set_axis_is_at_home(const AxisEnum axis) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", AS_CHAR(axis_codes[axis]), ")");
-
-    set_axis_trusted(axis);
-    set_axis_homed(axis);
-
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
-        current_position.x = x_home_pos(active_extruder);
-        return;
-      }
-    #endif
-
-    #if ENABLED(MORGAN_SCARA)
-      scara_set_axis_is_at_home(axis);
-    #elif ENABLED(DELTA)
-      current_position[axis] = (axis == Z_AXIS) ? delta_height - TERN0(HAS_BED_PROBE, probe.offset.z) : base_home_pos(axis);
-    #else
-      current_position[axis] = base_home_pos(axis);
-    #endif
-
-    /**
-     * Z Probe Z Homing? Account for the probe's Z offset.
-     */
-    #if HAS_BED_PROBE && Z_HOME_DIR < 0
-      if (axis == Z_AXIS) {
-        #if HOMING_Z_WITH_PROBE
-
-          current_position.z -= probe.offset.z;
-
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
-
-        #else
-
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
-
-        #endif
-      }
-    #endif
-
-    TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
-
-    TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
-
-    #if HAS_POSITION_SHIFT
-      position_shift[axis] = 0;
-      update_workspace_offset(axis);
-    #endif
-
-    if (DEBUGGING(LEVELING)) {
-      #if HAS_HOME_OFFSET
-        DEBUG_ECHOLNPAIR("> home_offset[", AS_CHAR(axis_codes[axis]), "] = ", home_offset[axis]);
-      #endif
-      DEBUG_POS("", current_position);
-      DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");
-    }
-  }
-
-  /**
    * Set an axis to be unhomed. (Unless we are on a machine - e.g. a cheap Chinese CNC machine -
    * that has no endstops. Such machines should always be considered to be in a "known" and
    * "trusted" position).
@@ -1877,6 +1801,82 @@ void prepare_line_to_destination() {
 
 #endif // HAS_ENDSTOPS
 
+/**
+ * Set an axis' current position to its home position (after homing).
+ *
+ * For Core and Cartesian robots this applies one-to-one when an
+ * individual axis has been homed.
+ *
+ * DELTA should wait until all homing is done before setting the XYZ
+ * current_position to home, because homing is a single operation.
+ * In the case where the axis positions are trusted and previously
+ * homed, DELTA could home to X or Y individually by moving either one
+ * to the center. However, homing Z always homes XY and Z.
+ *
+ * SCARA should wait until all XY homing is done before setting the XY
+ * current_position to home, because neither X nor Y is at home until
+ * both are at home. Z can however be homed individually.
+ *
+ * Callers must sync the planner position after calling this!
+ */
+void set_axis_is_at_home(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", AS_CHAR(axis_codes[axis]), ")");
+
+  set_axis_trusted(axis);
+  set_axis_homed(axis);
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
+      current_position.x = x_home_pos(active_extruder);
+      return;
+    }
+  #endif
+
+  #if ENABLED(MORGAN_SCARA)
+    scara_set_axis_is_at_home(axis);
+  #elif ENABLED(DELTA)
+    current_position[axis] = (axis == Z_AXIS) ? delta_height - TERN0(HAS_BED_PROBE, probe.offset.z) : base_home_pos(axis);
+  #else
+    current_position[axis] = base_home_pos(axis);
+  #endif
+
+  /**
+   * Z Probe Z Homing? Account for the probe's Z offset.
+   */
+  #if HAS_BED_PROBE && Z_HOME_DIR < 0
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+
+        current_position.z -= probe.offset.z;
+
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
+
+      #else
+
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED TO ENDSTOP ***");
+
+      #endif
+    }
+  #endif
+
+  TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
+
+  TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
+
+  #if HAS_POSITION_SHIFT
+    position_shift[axis] = 0;
+    update_workspace_offset(axis);
+  #endif
+
+  if (DEBUGGING(LEVELING)) {
+    #if HAS_HOME_OFFSET
+      DEBUG_ECHOLNPAIR("> home_offset[", AS_CHAR(axis_codes[axis]), "] = ", home_offset[axis]);
+    #endif
+    DEBUG_POS("", current_position);
+    DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");
+  }
+}
+
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
     workspace_offset[axis] = home_offset[axis] + position_shift[axis];
@@ -1893,4 +1893,4 @@ void prepare_line_to_destination() {
     home_offset[axis] = v;
     update_workspace_offset(axis);
   }
-#endif // HAS_M206_COMMAND
+#endif
