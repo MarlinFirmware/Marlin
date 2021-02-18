@@ -458,6 +458,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_TUNING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_AXIS_SETTINGS_NAV>), nullptr),
   VPHELPER(VP_AXIS_TMC_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_AXIS_SETTINGS_TMC>), nullptr),
 
+  // Advanced movement settings
+  VPHELPER(VP_MOV_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ADV_MOV_SETTINGS>), nullptr),
+
+  
+
   // Preheat settings
   #ifdef PREHEAT_1_LABEL
   VPHELPER(VP_PREHEAT_PLA_HOTEND_TEMP, &ui.material_preset[0].hotend_temp, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
