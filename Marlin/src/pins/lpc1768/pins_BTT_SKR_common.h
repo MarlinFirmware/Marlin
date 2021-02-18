@@ -29,7 +29,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-// If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
+// If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define HAS_BTT_EXP_MOT 1
 
@@ -143,46 +143,46 @@
    */
 
   // M1 on Driver Expansion Module
-  #define E2_STEP_PIN               EXPA2_05_PIN
-  #define E2_DIR_PIN                EXPA2_06_PIN
-  #define E2_ENABLE_PIN             EXPA2_04_PIN
+  #define E2_STEP_PIN                EXP2_05_PIN
+  #define E2_DIR_PIN                 EXP2_06_PIN
+  #define E2_ENABLE_PIN              EXP2_04_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E2_DIAG_PIN             EXPA1_06_PIN
-    #define E2_CS_PIN               EXPA1_05_PIN
+    #define E2_DIAG_PIN              EXP1_06_PIN
+    #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
-      #define E2_SERIAL_TX_PIN      EXPA1_05_PIN
-      #define E2_SERIAL_RX_PIN      EXPA1_05_PIN
+      #define E2_SERIAL_TX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
     #endif
   #endif
 
   // M2 on Driver Expansion Module
-  #define E3_STEP_PIN               EXPA2_08_PIN
-  #define E3_DIR_PIN                EXPA2_07_PIN
+  #define E3_STEP_PIN                EXP2_08_PIN
+  #define E3_DIR_PIN                 EXP2_07_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E3_ENABLE_PIN           EXPA1_03_PIN
-    #define E3_DIAG_PIN             EXPA1_08_PIN
-    #define E3_CS_PIN               EXPA1_07_PIN
+    #define E3_ENABLE_PIN            EXP1_03_PIN
+    #define E3_DIAG_PIN              EXP1_08_PIN
+    #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
-      #define E3_SERIAL_TX_PIN      EXPA1_07_PIN
-      #define E3_SERIAL_RX_PIN      EXPA1_07_PIN
+      #define E3_SERIAL_TX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
     #endif
   #else
-    #define E3_ENABLE_PIN           EXPA2_04_PIN
+    #define E3_ENABLE_PIN            EXP2_04_PIN
   #endif
 
   // M3 on Driver Expansion Module
-  #define E4_STEP_PIN               EXPA2_10_PIN
-  #define E4_DIR_PIN                EXPA2_09_PIN
+  #define E4_STEP_PIN                EXP2_10_PIN
+  #define E4_DIR_PIN                 EXP2_09_PIN
   #if !EXP_MOT_USE_EXP2_ONLY
-    #define E4_ENABLE_PIN           EXPA1_04_PIN
-    #define E4_DIAG_PIN             EXPA1_10_PIN
-    #define E4_CS_PIN               EXPA1_09_PIN
+    #define E4_ENABLE_PIN            EXP1_04_PIN
+    #define E4_DIAG_PIN              EXP1_10_PIN
+    #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
-      #define E4_SERIAL_TX_PIN      EXPA1_09_PIN
-      #define E4_SERIAL_RX_PIN      EXPA1_09_PIN
+      #define E4_SERIAL_TX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
     #endif
   #else
-    #define E4_ENABLE_PIN           EXPA2_04_PIN
+    #define E4_ENABLE_PIN            EXP2_04_PIN
   #endif
 
 #endif // HAS_BTT_EXP_MOT

@@ -47,46 +47,109 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
+// LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
+#if LIB_USR_MAX31855
+  #include <Adafruit_MAX31855.h>
+  #if PIN_EXISTS(MAX31855_MISO) && PIN_EXISTS(MAX31855_SCK)
+    #define MAX31855_USES_SW_SPI 1
+  #endif
+  #if TEMP_SENSOR_0_IS_MAX31855 && PIN_EXISTS(MAX31855_CS)
+    #define HAS_MAX31855_TEMP 1
+    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(MAX31855_CS_PIN
+      #if MAX31855_USES_SW_SPI
+        , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
+    );
+  #endif
+  #if TEMP_SENSOR_1_IS_MAX31855 && PIN_EXISTS(MAX31855_CS2)
+    #define HAS_MAX31855_TEMP 1
+    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_CS2_PIN
+      #if MAX31855_USES_SW_SPI
+        , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
+    );
+  #endif
+#endif
+
+// LIB_MAX31865 can be added to the build_flags in platformio.ini to use a user-defined library.
+// If LIB_MAX31865 is not on the build_flags then the Adafruit MAX31865 V1.1.0 library is used.
+#if HAS_MAX31865
   #include <Adafruit_MAX31865.h>
-  #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
-    #define MAX31865_CS_PIN   MAX6675_SS_PIN
-  #endif
-  #if MAX6675_1_IS_MAX31865 && !defined(MAX31865_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
-    #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
-  #endif
   #ifndef MAX31865_MOSI_PIN
     #define MAX31865_MOSI_PIN SD_MOSI_PIN
   #endif
-  #ifndef MAX31865_MISO_PIN
-    #define MAX31865_MISO_PIN MAX6675_DO_PIN
+  #if PIN_EXISTS(MAX31865_MISO) && PIN_EXISTS(MAX31865_SCK)
+    #define MAX31865_USES_SW_SPI 1
   #endif
-  #ifndef MAX31865_SCK_PIN
-    #define MAX31865_SCK_PIN  MAX6675_SCK_PIN
+  #if TEMP_SENSOR_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
+    #define HAS_MAX31865_TEMP 1
+      Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
+        #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
+          , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+        #endif
+        #if ENABLED(LARGE_PINMAP)
+          , HIGH
+        #endif
+      );
   #endif
-  #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
-    #define HAS_MAX31865 1
-    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
-      #if MAX31865_CS_PIN != MAX6675_SS_PIN
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
-      #endif
-    );
-  #endif
-  #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
-    #define HAS_MAX31865 1
+  #if TEMP_SENSOR_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
+    #define HAS_MAX31865_TEMP 1
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
-      #if MAX31865_CS2_PIN != MAX6675_SS2_PIN
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
+      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
       #endif
     );
   #endif
 #endif
 
-#if EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO)
-  #define MAX6675_SEPARATE_SPI 1
+// LIB_MAX6675 can be added to the build_flags in platformio.ini to use a user-defined library
+#if LIB_USR_MAX6675
+  #include <max6675.h>
+  #if PIN_EXISTS(MAX6675_MISO) && PIN_EXISTS(MAX6675_SCK)
+    #define MAX6675_USES_SW_SPI 1
+  #endif
+  #if TEMP_SENSOR_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
+    #define HAS_MAX6675_TEMP 1
+    MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN
+      #if MAX6675_USES_SW_SPI
+        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
+    );
+  #endif
+  #if TEMP_SENSOR_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
+    #define HAS_MAX6675_TEMP 1
+    MAX6675 max6675_1 = MAX6675(MAX6675_CS2_PIN
+      #if MAX6675_USES_SW_SPI
+        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
+      #endif
+      #if ENABLED(LARGE_PINMAP)
+        , HIGH
+      #endif
+    );
+  #endif
 #endif
 
-#if MAX6675_SEPARATE_SPI
+#if !HAS_MAX6675_TEMP && !HAS_MAX31855_TEMP && !HAS_MAX31865_TEMP
+  #define NO_THERMO_TEMPS 1
+#endif
+
+#if (TEMP_SENSOR_0_IS_MAX_TC || TEMP_SENSOR_1_IS_MAX_TC) && PINS_EXIST(MAX6675_SCK, MAX6675_DO) && NO_THERMO_TEMPS
+  #define THERMO_SEPARATE_SPI 1
+#endif
+
+#if THERMO_SEPARATE_SPI
   #include "../libs/private_spi.h"
 #endif
 
@@ -132,20 +195,20 @@
   #include "./servo.h"
 #endif
 
-#if ANY(HEATER_0_USES_THERMISTOR, HEATER_1_USES_THERMISTOR, HEATER_2_USES_THERMISTOR, HEATER_3_USES_THERMISTOR, \
-        HEATER_4_USES_THERMISTOR, HEATER_5_USES_THERMISTOR, HEATER_6_USES_THERMISTOR, HEATER_7_USES_THERMISTOR )
+#if ANY(TEMP_SENSOR_0_IS_THERMISTOR, TEMP_SENSOR_1_IS_THERMISTOR, TEMP_SENSOR_2_IS_THERMISTOR, TEMP_SENSOR_3_IS_THERMISTOR, \
+        TEMP_SENSOR_4_IS_THERMISTOR, TEMP_SENSOR_5_IS_THERMISTOR, TEMP_SENSOR_6_IS_THERMISTOR, TEMP_SENSOR_7_IS_THERMISTOR )
   #define HAS_HOTEND_THERMISTOR 1
 #endif
 
 #if HAS_HOTEND_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    static const temp_entry_t* heater_ttbl_map[2] = { HEATER_0_TEMPTABLE, HEATER_1_TEMPTABLE };
-    static constexpr uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
+    static const temp_entry_t* heater_ttbl_map[2] = { TEMPTABLE_0, TEMPTABLE_1 };
+    static constexpr uint8_t heater_ttbllen_map[2] = { TEMPTABLE_0_LEN, TEMPTABLE_1_LEN };
   #else
-    #define NEXT_TEMPTABLE(N) ,HEATER_##N##_TEMPTABLE
-    #define NEXT_TEMPTABLE_LEN(N) ,HEATER_##N##_TEMPTABLE_LEN
-    static const temp_entry_t* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
-    static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
+    #define NEXT_TEMPTABLE(N) ,TEMPTABLE_##N
+    #define NEXT_TEMPTABLE_LEN(N) ,TEMPTABLE_##N##_LEN
+    static const temp_entry_t* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0 REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
+    static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
   #endif
 #endif
 
@@ -285,10 +348,10 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
   #ifdef BED_MINTEMP
-    int16_t Temperature::mintemp_raw_BED = HEATER_BED_RAW_LO_TEMP;
+    int16_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP;
   #endif
   #ifdef BED_MAXTEMP
-    int16_t Temperature::maxtemp_raw_BED = HEATER_BED_RAW_HI_TEMP;
+    int16_t Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
   #endif
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
@@ -303,10 +366,10 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     millis_t next_cool_check_ms_2 = 0;
     float old_temp = 9999;
     #ifdef CHAMBER_MINTEMP
-      int16_t Temperature::mintemp_raw_CHAMBER = HEATER_CHAMBER_RAW_LO_TEMP;
+      int16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP;
     #endif
     #ifdef CHAMBER_MAXTEMP
-      int16_t Temperature::maxtemp_raw_CHAMBER = HEATER_CHAMBER_RAW_HI_TEMP;
+      int16_t Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     #endif
     #if WATCH_CHAMBER
       chamber_watch_t Temperature::watch_chamber{0};
@@ -347,18 +410,18 @@ volatile bool Temperature::raw_temps_ready = false;
   lpq_ptr_t Temperature::lpq_ptr = 0;
 #endif
 
-#define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
+#define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
 
 #if HAS_HOTEND
   // Init mintemp and maxtemp with extreme values to prevent false errors during startup
-  constexpr temp_range_t sensor_heater_0 { HEATER_0_RAW_LO_TEMP, HEATER_0_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_1 { HEATER_1_RAW_LO_TEMP, HEATER_1_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_2 { HEATER_2_RAW_LO_TEMP, HEATER_2_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_3 { HEATER_3_RAW_LO_TEMP, HEATER_3_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_4 { HEATER_4_RAW_LO_TEMP, HEATER_4_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_5 { HEATER_5_RAW_LO_TEMP, HEATER_5_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_6 { HEATER_6_RAW_LO_TEMP, HEATER_6_RAW_HI_TEMP, 0, 16383 },
-                         sensor_heater_7 { HEATER_7_RAW_LO_TEMP, HEATER_7_RAW_HI_TEMP, 0, 16383 };
+  constexpr temp_range_t sensor_heater_0 { TEMP_SENSOR_0_RAW_LO_TEMP, TEMP_SENSOR_0_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_1 { TEMP_SENSOR_1_RAW_LO_TEMP, TEMP_SENSOR_1_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_2 { TEMP_SENSOR_2_RAW_LO_TEMP, TEMP_SENSOR_2_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_3 { TEMP_SENSOR_3_RAW_LO_TEMP, TEMP_SENSOR_3_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_4 { TEMP_SENSOR_4_RAW_LO_TEMP, TEMP_SENSOR_4_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_5 { TEMP_SENSOR_5_RAW_LO_TEMP, TEMP_SENSOR_5_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_6 { TEMP_SENSOR_6_RAW_LO_TEMP, TEMP_SENSOR_6_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_7 { TEMP_SENSOR_7_RAW_LO_TEMP, TEMP_SENSOR_7_RAW_HI_TEMP, 0, 16383 };
 
   temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7);
 #endif
@@ -828,7 +891,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     serialprintPGM(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
     if (heater_id >= 0)
-      SERIAL_ECHO((int)heater_id);
+      SERIAL_ECHO(heater_id);
     else if (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER))
       SERIAL_ECHOPGM(STR_HEATER_CHAMBER);
     else
@@ -1037,8 +1100,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #if ENABLED(PID_BED_DEBUG)
     {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHO_MSG(
         " PID_BED_DEBUG : Input ", temp_bed.celsius, " Output ", pid_output,
         #if DISABLED(PID_OPENLOOP)
           STR_PID_DEBUG_PTERM, work_pid.Kp,
@@ -1084,13 +1146,13 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
-    #if HEATER_0_USES_MAX6675
-      if (temp_hotend[0].celsius > _MIN(HEATER_0_MAXTEMP, HEATER_0_MAX6675_TMAX - 1.0)) max_temp_error(H_E0);
-      if (temp_hotend[0].celsius < _MAX(HEATER_0_MINTEMP, HEATER_0_MAX6675_TMIN + .01)) min_temp_error(H_E0);
+    #if TEMP_SENSOR_0_IS_MAX_TC
+      if (temp_hotend[0].celsius > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
+      if (temp_hotend[0].celsius < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
     #endif
-    #if HEATER_1_USES_MAX6675
-      if (temp_hotend[1].celsius > _MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(H_E1);
-      if (temp_hotend[1].celsius < _MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
+    #if TEMP_SENSOR_1_IS_MAX_TC
+      if (temp_hotend[1].celsius > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
+      if (temp_hotend[1].celsius < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
     #endif
   #endif
 
@@ -1374,35 +1436,38 @@ void Temperature::manage_heater() {
 
   void Temperature::reset_user_thermistors() {
     user_thermistor_t default_user_thermistor[USER_THERMISTORS] = {
-      #if HEATER_0_USER_THERMISTOR
+      #if TEMP_SENSOR_0_IS_CUSTOM
         { true, 0, 0, HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS, 0, 0, HOTEND0_BETA, 0 },
       #endif
-      #if HEATER_1_USER_THERMISTOR
+      #if TEMP_SENSOR_1_IS_CUSTOM
         { true, 0, 0, HOTEND1_PULLUP_RESISTOR_OHMS, HOTEND1_RESISTANCE_25C_OHMS, 0, 0, HOTEND1_BETA, 0 },
       #endif
-      #if HEATER_2_USER_THERMISTOR
+      #if TEMP_SENSOR_2_IS_CUSTOM
         { true, 0, 0, HOTEND2_PULLUP_RESISTOR_OHMS, HOTEND2_RESISTANCE_25C_OHMS, 0, 0, HOTEND2_BETA, 0 },
       #endif
-      #if HEATER_3_USER_THERMISTOR
+      #if TEMP_SENSOR_3_IS_CUSTOM
         { true, 0, 0, HOTEND3_PULLUP_RESISTOR_OHMS, HOTEND3_RESISTANCE_25C_OHMS, 0, 0, HOTEND3_BETA, 0 },
       #endif
-      #if HEATER_4_USER_THERMISTOR
+      #if TEMP_SENSOR_4_IS_CUSTOM
         { true, 0, 0, HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS, 0, 0, HOTEND4_BETA, 0 },
       #endif
-      #if HEATER_5_USER_THERMISTOR
+      #if TEMP_SENSOR_5_IS_CUSTOM
         { true, 0, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
       #endif
-      #if HEATER_6_USER_THERMISTOR
+      #if TEMP_SENSOR_6_IS_CUSTOM
         { true, 0, 0, HOTEND6_PULLUP_RESISTOR_OHMS, HOTEND6_RESISTANCE_25C_OHMS, 0, 0, HOTEND6_BETA, 0 },
       #endif
-      #if HEATER_7_USER_THERMISTOR
+      #if TEMP_SENSOR_7_IS_CUSTOM
         { true, 0, 0, HOTEND7_PULLUP_RESISTOR_OHMS, HOTEND7_RESISTANCE_25C_OHMS, 0, 0, HOTEND7_BETA, 0 },
       #endif
-      #if HEATER_BED_USER_THERMISTOR
+      #if TEMP_SENSOR_BED_IS_CUSTOM
         { true, 0, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
       #endif
-      #if HEATER_CHAMBER_USER_THERMISTOR
+      #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
         { true, 0, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 }
+      #endif
+      #if TEMP_SENSOR_PROBE_IS_CUSTOM
+        { true, 0, 0, PROBE_PULLUP_RESISTOR_OHMS, PROBE_RESISTANCE_25C_OHMS, 0, 0, PROBE_BETA, 0 }
       #endif
     };
     COPY(user_thermistor, default_user_thermistor);
@@ -1424,16 +1489,17 @@ void Temperature::manage_heater() {
     SERIAL_ECHOPAIR_F_P(SP_C_STR, t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
     serialprintPGM(
-      TERN_(HEATER_0_USER_THERMISTOR, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
-      TERN_(HEATER_1_USER_THERMISTOR, t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :)
-      TERN_(HEATER_2_USER_THERMISTOR, t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :)
-      TERN_(HEATER_3_USER_THERMISTOR, t_index == CTI_HOTEND_3 ? PSTR("HOTEND 3") :)
-      TERN_(HEATER_4_USER_THERMISTOR, t_index == CTI_HOTEND_4 ? PSTR("HOTEND 4") :)
-      TERN_(HEATER_5_USER_THERMISTOR, t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :)
-      TERN_(HEATER_6_USER_THERMISTOR, t_index == CTI_HOTEND_6 ? PSTR("HOTEND 6") :)
-      TERN_(HEATER_7_USER_THERMISTOR, t_index == CTI_HOTEND_7 ? PSTR("HOTEND 7") :)
-      TERN_(HEATER_BED_USER_THERMISTOR, t_index == CTI_BED ? PSTR("BED") :)
-      TERN_(HEATER_CHAMBER_USER_THERMISTOR, t_index == CTI_CHAMBER ? PSTR("CHAMBER") :)
+      TERN_(TEMP_SENSOR_0_IS_CUSTOM, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
+      TERN_(TEMP_SENSOR_1_IS_CUSTOM, t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :)
+      TERN_(TEMP_SENSOR_2_IS_CUSTOM, t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :)
+      TERN_(TEMP_SENSOR_3_IS_CUSTOM, t_index == CTI_HOTEND_3 ? PSTR("HOTEND 3") :)
+      TERN_(TEMP_SENSOR_4_IS_CUSTOM, t_index == CTI_HOTEND_4 ? PSTR("HOTEND 4") :)
+      TERN_(TEMP_SENSOR_5_IS_CUSTOM, t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :)
+      TERN_(TEMP_SENSOR_6_IS_CUSTOM, t_index == CTI_HOTEND_6 ? PSTR("HOTEND 6") :)
+      TERN_(TEMP_SENSOR_7_IS_CUSTOM, t_index == CTI_HOTEND_7 ? PSTR("HOTEND 7") :)
+      TERN_(TEMP_SENSOR_BED_IS_CUSTOM, t_index == CTI_BED ? PSTR("BED") :)
+      TERN_(TEMP_SENSOR_CHAMBER_IS_CUSTOM, t_index == CTI_CHAMBER ? PSTR("CHAMBER") :)
+      TERN_(TEMP_SENSOR_PROBE_IS_CUSTOM, t_index == CTI_PROBE ? PSTR("PROBE") :)
       nullptr
     );
     SERIAL_EOL();
@@ -1491,7 +1557,7 @@ void Temperature::manage_heater() {
   float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
       if (e > HOTENDS - DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)) {
         SERIAL_ERROR_START();
-        SERIAL_ECHO((int)e);
+        SERIAL_ECHO(e);
         SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
         kill();
         return 0;
@@ -1499,85 +1565,85 @@ void Temperature::manage_heater() {
 
     switch (e) {
       case 0:
-        #if HEATER_0_USER_THERMISTOR
+        #if TEMP_SENSOR_0_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
-        #elif HEATER_0_USES_MAX6675
-          return TERN(MAX6675_0_IS_MAX31865, max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0), raw * 0.25);
-        #elif HEATER_0_USES_AD595
+        #elif TEMP_SENSOR_0_IS_MAX_TC
+          return TERN(TEMP_SENSOR_0_IS_MAX31865, max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0), raw * 0.25);
+        #elif TEMP_SENSOR_0_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_0_USES_AD8495
+        #elif TEMP_SENSOR_0_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 1:
-        #if HEATER_1_USER_THERMISTOR
+        #if TEMP_SENSOR_1_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
-        #elif HEATER_1_USES_MAX6675
-          return TERN(MAX6675_1_IS_MAX31865, max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1), raw * 0.25);
-        #elif HEATER_1_USES_AD595
+        #elif TEMP_SENSOR_1_IS_MAX_TC
+          return TERN(TEMP_SENSOR_1_IS_MAX31865, max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1), raw * 0.25);
+        #elif TEMP_SENSOR_1_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_1_USES_AD8495
+        #elif TEMP_SENSOR_1_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 2:
-        #if HEATER_2_USER_THERMISTOR
+        #if TEMP_SENSOR_2_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_2, raw);
-        #elif HEATER_2_USES_AD595
+        #elif TEMP_SENSOR_2_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_2_USES_AD8495
+        #elif TEMP_SENSOR_2_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 3:
-        #if HEATER_3_USER_THERMISTOR
+        #if TEMP_SENSOR_3_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_3, raw);
-        #elif HEATER_3_USES_AD595
+        #elif TEMP_SENSOR_3_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_3_USES_AD8495
+        #elif TEMP_SENSOR_3_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 4:
-        #if HEATER_4_USER_THERMISTOR
+        #if TEMP_SENSOR_4_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_4, raw);
-        #elif HEATER_4_USES_AD595
+        #elif TEMP_SENSOR_4_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_4_USES_AD8495
+        #elif TEMP_SENSOR_4_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 5:
-        #if HEATER_5_USER_THERMISTOR
+        #if TEMP_SENSOR_5_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_5, raw);
-        #elif HEATER_5_USES_AD595
+        #elif TEMP_SENSOR_5_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_5_USES_AD8495
+        #elif TEMP_SENSOR_5_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 6:
-        #if HEATER_6_USER_THERMISTOR
+        #if TEMP_SENSOR_6_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_6, raw);
-        #elif HEATER_6_USES_AD595
+        #elif TEMP_SENSOR_6_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_6_USES_AD8495
+        #elif TEMP_SENSOR_6_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
         #endif
       case 7:
-        #if HEATER_7_USER_THERMISTOR
+        #if TEMP_SENSOR_7_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_7, raw);
-        #elif HEATER_7_USES_AD595
+        #elif TEMP_SENSOR_7_IS_AD595
           return TEMP_AD595(raw);
-        #elif HEATER_7_USES_AD8495
+        #elif TEMP_SENSOR_7_IS_AD8495
           return TEMP_AD8495(raw);
         #else
           break;
@@ -1599,13 +1665,13 @@ void Temperature::manage_heater() {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
-    #if HEATER_BED_USER_THERMISTOR
+    #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
-    #elif HEATER_BED_USES_THERMISTOR
-      SCAN_THERMISTOR_TABLE(BED_TEMPTABLE, BED_TEMPTABLE_LEN);
-    #elif HEATER_BED_USES_AD595
+    #elif TEMP_SENSOR_BED_IS_THERMISTOR
+      SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
+    #elif TEMP_SENSOR_BED_IS_AD595
       return TEMP_AD595(raw);
-    #elif HEATER_BED_USES_AD8495
+    #elif TEMP_SENSOR_BED_IS_AD8495
       return TEMP_AD8495(raw);
     #else
       UNUSED(raw);
@@ -1618,13 +1684,13 @@ void Temperature::manage_heater() {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
-    #if HEATER_CHAMBER_USER_THERMISTOR
+    #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
-    #elif HEATER_CHAMBER_USES_THERMISTOR
-      SCAN_THERMISTOR_TABLE(CHAMBER_TEMPTABLE, CHAMBER_TEMPTABLE_LEN);
-    #elif HEATER_CHAMBER_USES_AD595
+    #elif TEMP_SENSOR_CHAMBER_IS_THERMISTOR
+      SCAN_THERMISTOR_TABLE(TEMPTABLE_CHAMBER, TEMPTABLE_CHAMBER_LEN);
+    #elif TEMP_SENSOR_CHAMBER_IS_AD595
       return TEMP_AD595(raw);
-    #elif HEATER_CHAMBER_USES_AD8495
+    #elif TEMP_SENSOR_CHAMBER_IS_AD8495
       return TEMP_AD8495(raw);
     #else
       UNUSED(raw);
@@ -1637,13 +1703,13 @@ void Temperature::manage_heater() {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For probe temperature measurement.
   float Temperature::analog_to_celsius_probe(const int raw) {
-    #if HEATER_PROBE_USER_THERMISTOR
+    #if TEMP_SENSOR_PROBE_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_PROBE, raw);
-    #elif HEATER_PROBE_USES_THERMISTOR
-      SCAN_THERMISTOR_TABLE(PROBE_TEMPTABLE, PROBE_TEMPTABLE_LEN);
-    #elif HEATER_PROBE_USES_AD595
+    #elif TEMP_SENSOR_PROBE_IS_THERMISTOR
+      SCAN_THERMISTOR_TABLE(TEMPTABLE_PROBE, TEMPTABLE_PROBE_LEN);
+    #elif TEMP_SENSOR_PROBE_IS_AD595
       return TEMP_AD595(raw);
-    #elif HEATER_PROBE_USES_AD8495
+    #elif TEMP_SENSOR_PROBE_IS_AD8495
       return TEMP_AD8495(raw);
     #else
       UNUSED(raw);
@@ -1659,8 +1725,8 @@ void Temperature::manage_heater() {
  * as it would block the stepper routine.
  */
 void Temperature::updateTemperaturesFromRawValues() {
-  TERN_(HEATER_0_USES_MAX6675, temp_hotend[0].raw = READ_MAX6675(0));
-  TERN_(HEATER_1_USES_MAX6675, temp_hotend[1].raw = READ_MAX6675(1));
+  TERN_(TEMP_SENSOR_0_IS_MAX_TC, temp_hotend[0].raw = READ_MAX_TC(0));
+  TERN_(TEMP_SENSOR_1_IS_MAX_TC, temp_hotend[1].raw = READ_MAX_TC(1));
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   #endif
@@ -1677,9 +1743,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   raw_temps_ready = false;
 }
 
-#if MAX6675_SEPARATE_SPI
+#if THERMO_SEPARATE_SPI
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<MAX6675_DO_PIN, SD_MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
+  SPIclass<MAX6675_DO_PIN, SD_MOSI_PIN, MAX6675_SCK_PIN> max_tc_spi;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -1715,9 +1781,38 @@ void Temperature::updateTemperaturesFromRawValues() {
  * The manager is implemented by periodic calls to manage_heater()
  */
 void Temperature::init() {
+  // Init (and disable) SPI thermocouples
+  #if TEMP_SENSOR_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
+    OUT_WRITE(MAX6675_CS_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
+    OUT_WRITE(MAX6675_CS2_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_0_IS_MAX6675 && PIN_EXISTS(MAX31855_CS)
+    OUT_WRITE(MAX31855_CS_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_1_IS_MAX6675 && PIN_EXISTS(MAX31855_CS2)
+    OUT_WRITE(MAX31855_CS2_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_0_IS_MAX6675 && PIN_EXISTS(MAX31865_CS)
+    OUT_WRITE(MAX31865_CS_PIN, HIGH);
+  #endif
+  #if TEMP_SENSOR_1_IS_MAX6675 && PIN_EXISTS(MAX31865_CS2)
+    OUT_WRITE(MAX31865_CS2_PIN, HIGH);
+  #endif
 
-  TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
-  TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
+  #if HAS_MAX31865_TEMP
+    TERN_(TEMP_SENSOR_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+    TERN_(TEMP_SENSOR_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
+  #endif
+  #if HAS_MAX31855_TEMP
+    TERN_(TEMP_SENSOR_0_IS_MAX31855, max31855_0.begin());
+    TERN_(TEMP_SENSOR_1_IS_MAX31855, max31855_1.begin());
+  #endif
+  #if HAS_MAX6675_TEMP
+    TERN_(TEMP_SENSOR_0_IS_MAX6675, max6675_0.begin());
+    TERN_(TEMP_SENSOR_1_IS_MAX6675, max6675_1.begin());
+  #endif
 
   #if EARLY_WATCHDOG
     // Flag that the thermalManager should be running
@@ -1727,7 +1822,7 @@ void Temperature::init() {
 
   #if MB(RUMBA)
     // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-    #define _AD(N) (HEATER_##N##_USES_AD595 || HEATER_##N##_USES_AD8495)
+    #define _AD(N) (TEMP_SENSOR_##N##_IS_AD595 || TEMP_SENSOR_##N##_IS_AD8495)
     #if _AD(0) || _AD(1) || _AD(2) || _AD(BED) || _AD(CHAMBER)
       MCUCR = _BV(JTD);
       MCUCR = _BV(JTD);
@@ -1735,11 +1830,11 @@ void Temperature::init() {
   #endif
 
   // Thermistor activation by MCU pin
-  #if PIN_EXISTS(TEMP_0_TR_ENABLE_PIN)
-    OUT_WRITE(TEMP_0_TR_ENABLE_PIN, ENABLED(HEATER_0_USES_MAX6675));
+  #if PIN_EXISTS(TEMP_0_TR_ENABLE)
+    OUT_WRITE(TEMP_0_TR_ENABLE_PIN, ENABLED(TEMP_SENSOR_0_IS_MAX_TC));
   #endif
-  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
-    OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(HEATER_1_USES_MAX6675));
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE)
+    OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(TEMP_SENSOR_1_IS_MAX_TC));
   #endif
 
   #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
@@ -1816,7 +1911,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
+  TERN_(THERMO_SEPARATE_SPI, max_tc_spi.init());
 
   HAL_adc_init();
 
@@ -1915,19 +2010,19 @@ void Temperature::init() {
   #if HAS_HOTEND
 
     #define _TEMP_MIN_E(NR) do{ \
-      const int16_t tmin = _MAX(HEATER_ ##NR## _MINTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 0, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MINTEMP_IND].celsius))); \
+      const int16_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, (int16_t)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
       temp_range[NR].mintemp = tmin; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
-      const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
+      const int16_t tmax = _MIN(HEATER_##NR##_MAXTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 2000, (int16_t)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MAXTEMP_IND].celsius) - 1)); \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
-    #define _MINMAX_TEST(N,M) (HOTENDS > N && THERMISTOR_HEATER_##N && THERMISTOR_HEATER_##N != 998 && THERMISTOR_HEATER_##N != 999 && defined(HEATER_##N##_##M##TEMP))
+    #define _MINMAX_TEST(N,M) (HOTENDS > N && TEMP_SENSOR_ ##N## THERMISTOR_ID && TEMP_SENSOR_ ##N## THERMISTOR_ID != 998 && TEMP_SENSOR_ ##N## THERMISTOR_ID != 999 && defined(HEATER_##N##_##M##TEMP))
 
     #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
@@ -2222,163 +2317,196 @@ void Temperature::disable_all_heaters() {
 
 #endif
 
-#if HAS_MAX6675
+#if HAS_MAX_TC
 
   #ifndef THERMOCOUPLE_MAX_ERRORS
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
 
-  int Temperature::read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex/*=0*/)) {
+  int Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
     #define MAX6675_HEAT_INTERVAL 250UL
 
-    #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
-      static uint32_t max6675_temp = 2000;
-      #define MAX6675_ERROR_MASK    7
-      #define MAX6675_DISCARD_BITS 18
-      #define MAX6675_SPEED_BITS    3       // (_BV(SPR1)) // clock ÷ 64
-    #elif HAS_MAX31865
-      static uint16_t max6675_temp = 2000;  // From datasheet 16 bits D15-D0
-      #define MAX6675_ERROR_MASK    1       // D0 Bit not used
-      #define MAX6675_DISCARD_BITS  1       // Data is in D15-D1
-      #define MAX6675_SPEED_BITS    3       //  (_BV(SPR1)) // clock ÷ 64
+    #if HAS_MAX31855_TEMP
+      static uint32_t max_tc_temp = 2000;
+      #define MAX_TC_ERROR_MASK    7
+      #define MAX_TC_DISCARD_BITS 18
+      #define MAX_TC_SPEED_BITS    3        // (_BV(SPR1)) // clock ÷ 64
+    #elif HAS_MAX31865_TEMP
+      static uint16_t max_tc_temp = 2000;   // From datasheet 16 bits D15-D0
+      #define MAX_TC_ERROR_MASK    1        // D0 Bit not used
+      #define MAX_TC_DISCARD_BITS  1        // Data is in D15-D1
+      #define MAX_TC_SPEED_BITS    3        //  (_BV(SPR1)) // clock ÷ 64
     #else
-      static uint16_t max6675_temp = 2000;
-      #define MAX6675_ERROR_MASK    4
-      #define MAX6675_DISCARD_BITS  3
-      #define MAX6675_SPEED_BITS    2       // (_BV(SPR0)) // clock ÷ 16
+      static uint16_t max_tc_temp = 2000;
+      #define MAX_TC_ERROR_MASK    4
+      #define MAX_TC_DISCARD_BITS  3
+      #define MAX_TC_SPEED_BITS    2        // (_BV(SPR0)) // clock ÷ 16
     #endif
 
-    #if HAS_MULTI_6675
+    #if HAS_MULTI_MAX_TC
       // Needed to return the correct temp when this is called between readings
-      static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
-      #define MAX6675_TEMP(I) max6675_temp_previous[I]
-      #define MAX6675_SEL(A,B) (hindex ? (B) : (A))
+      static uint16_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
+      #define THERMO_TEMP(I) max_tc_temp_previous[I]
+      #define THERMO_SEL(A,B) (hindex ? (B) : (A))
       #define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
       #define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
     #else
       constexpr uint8_t hindex = 0;
-      #define MAX6675_TEMP(I) max6675_temp
-      #if MAX6675_1_IS_MAX31865
-        #define MAX6675_SEL(A,B) B
+      #define THERMO_TEMP(I) max_tc_temp
+      #if TEMP_SENSOR_1_IS_MAX31865
+        #define THERMO_SEL(A,B) B
       #else
-        #define MAX6675_SEL(A,B) A
+        #define THERMO_SEL(A,B) A
       #endif
-      #if HEATER_0_USES_MAX6675
+      #if TEMP_SENSOR_0_IS_MAX6675
         #define MAX6675_WRITE(V)          WRITE(MAX6675_SS_PIN, V)
         #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS_PIN)
       #else
         #define MAX6675_WRITE(V)          WRITE(MAX6675_SS2_PIN, V)
         #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS2_PIN)
       #endif
+
     #endif
 
-    static uint8_t max6675_errors[COUNT_6675] = { 0 };
+    static uint8_t max_tc_errors[MAX_TC_COUNT] = { 0 };
 
     // Return last-read value between readings
-    static millis_t next_max6675_ms[COUNT_6675] = { 0 };
+    static millis_t next_max_tc_ms[MAX_TC_COUNT] = { 0 };
     millis_t ms = millis();
-    if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
-    next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
-
-    #if HAS_MAX31865
-      Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      const uint16_t max31865_ohms = (uint32_t(maxref.readRTD()) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
-    #endif
+    if (PENDING(ms, next_max_tc_ms[hindex])) return int(THERMO_TEMP(hindex));
+    next_max_tc_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if !MAX6675_SEPARATE_SPI
+    #if !THERMO_SEPARATE_SPI && NO_THERMO_TEMPS
       spiBegin();
-      spiInit(MAX6675_SPEED_BITS);
+      spiInit(MAX_TC_SPEED_BITS);
     #endif
 
-    MAX6675_WRITE(LOW);  // enable TT_MAX6675
-    DELAY_NS(100);       // Ensure 100ns delay
+    #if NO_THERMO_TEMPS
+      MAX6675_WRITE(LOW);  // enable TT_MAX6675
+      DELAY_NS(100);       // Ensure 100ns delay
+    #endif
+
+    max_tc_temp = 0;
 
     // Read a big-endian temperature value
-    max6675_temp = 0;
-    for (uint8_t i = sizeof(max6675_temp); i--;) {
-      max6675_temp |= TERN(MAX6675_SEPARATE_SPI, max6675_spi.receive(), spiRec());
-      if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
-    }
+    #if NO_THERMO_TEMPS
+      for (uint8_t i = sizeof(max_tc_temp); i--;) {
+        max_tc_temp |= TERN(THERMO_SEPARATE_SPI, max_tc_spi.receive(), spiRec());
+        if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
+      }
+        MAX6675_WRITE(HIGH); // disable TT_MAX6675
+    #endif
 
-    MAX6675_WRITE(HIGH); // disable TT_MAX6675
+    #if HAS_MAX31855_TEMP
+      Adafruit_MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1);
+      max_tc_temp = max855ref.readRaw32();
+    #endif
 
-    const uint8_t fault_31865 = TERN1(HAS_MAX31865, maxref.readFault());
+    #if HAS_MAX31865_TEMP
+      Adafruit_MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1);
+      #if ENABLED(LIB_USR_MAX31865)
+        max_tc_temp = max865ref.readRTD_with_Fault();
+      #endif
+    #endif
 
-    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
-      max6675_errors[hindex]++;
-      if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
+    #if HAS_MAX6675_TEMP
+      MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1);
+      max_tc_temp = max6675ref.readRaw16();
+    #endif
+
+    #if ENABLED(LIB_ADAFRUIT_MAX31865)
+      const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
+    #endif
+
+    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
+      && TERN(LIB_ADAFRUIT_MAX31865, fault_31865, (max_tc_temp & MAX_TC_ERROR_MASK))
+    ) {
+      max_tc_errors[hindex]++;
+      if (max_tc_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
-        #if MAX6675_ERROR_MASK == 7
-          SERIAL_ECHOPGM("MAX31855 ");
-          if (max6675_temp & 1)
+        #if MAX_TC_ERROR_MASK == 7
+          SERIAL_ECHOPGM("MAX31855 Fault : (", max_tc_temp & 0x7, ") >> ");
+          if (max_tc_temp & 0x1)
             SERIAL_ECHOLNPGM("Open Circuit");
-          else if (max6675_temp & 2)
+          else if (max_tc_temp & 0x2)
             SERIAL_ECHOLNPGM("Short to GND");
-          else if (max6675_temp & 4)
+          else if (max_tc_temp & 0x4)
             SERIAL_ECHOLNPGM("Short to VCC");
         #elif HAS_MAX31865
+          #if ENABLED(LIB_USR_MAX31865)
+            // At the present time we do not have the ability to set the MAX31865 HIGH threshold
+            // or thr LOW threshold, so no need to check for them, zero these bits out
+            const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
+          #endif
+          max865ref.clearFault();
           if (fault_31865) {
-            maxref.clearFault();
-            SERIAL_ECHOPAIR("MAX31865 Fault :(", fault_31865, ")  >>");
+            SERIAL_EOL();
+            SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
             if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
-            else if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
+            if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
               SERIAL_ECHOLNPGM("RTD Low Threshold");
-            else if (fault_31865 & MAX31865_FAULT_REFINLOW)
+            if (fault_31865 & MAX31865_FAULT_REFINLOW)
               SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
-            else if (fault_31865 & MAX31865_FAULT_REFINHIGH)
+            if (fault_31865 & MAX31865_FAULT_REFINHIGH)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault_31865 & MAX31865_FAULT_RTDINLOW)
+            if (fault_31865 & MAX31865_FAULT_RTDINLOW)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault_31865 & MAX31865_FAULT_OVUV)
+            if (fault_31865 & MAX31865_FAULT_OVUV)
               SERIAL_ECHOLNPGM("Under/Over voltage");
           }
         #else
-          SERIAL_ECHOLNPGM("MAX6675");
+          SERIAL_ECHOLNPGM("MAX6675 Open Circuit");
         #endif
 
         // Thermocouple open
-        max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
+        max_tc_temp = 4 * THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX);
       }
       else
-        max6675_temp >>= MAX6675_DISCARD_BITS;
+        max_tc_temp >>= MAX_TC_DISCARD_BITS;
     }
     else {
-      max6675_temp >>= MAX6675_DISCARD_BITS;
-      max6675_errors[hindex] = 0;
+      max_tc_temp >>= MAX_TC_DISCARD_BITS;
+      max_tc_errors[hindex] = 0;
     }
 
-    #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
-      if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
+    #if HAS_MAX31855
+      if (max_tc_temp & 0x00002000) max_tc_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
     // Return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
-    TERN_(HAS_MAX31865, max6675_temp = max31865_ohms);
+    #if HAS_MAX31865_TEMP
+      #if ENABLED(LIB_ADAFRUIT_MAX31865)
+        max_tc_temp = (uint32_t(max865ref.readRTD()) * THERMO_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
+      #elif ENABLED(LIB_USR_MAX31865)
+        max_tc_temp = (uint32_t(max_tc_temp) * THERMO_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
+      #endif
+    #endif
 
-    MAX6675_TEMP(hindex) = max6675_temp;
+    THERMO_TEMP(hindex) = max_tc_temp;
 
-    return int(max6675_temp);
+    return int(max_tc_temp);
   }
 
-#endif // HAS_MAX6675
+#endif // HAS_MAX_TC
 
 /**
  * Update raw temperatures
  */
 void Temperature::update_raw_temperatures() {
 
-  #if HAS_TEMP_ADC_0 && !HEATER_0_USES_MAX6675
+  #if HAS_TEMP_ADC_0 && !TEMP_SENSOR_0_IS_MAX_TC
     temp_hotend[0].update();
   #endif
 
   #if HAS_TEMP_ADC_1
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       redundant_temperature_raw = temp_hotend[1].acc;
-    #elif !HEATER_1_USES_MAX6675
+    #elif !TEMP_SENSOR_1_IS_MAX_TC
       temp_hotend[1].update();
     #endif
   #endif
@@ -2424,9 +2552,9 @@ void Temperature::readings_ready() {
   #if HAS_HOTEND
 
     static constexpr int8_t temp_dir[] = {
-      TERN(HEATER_0_USES_MAX6675, 0, TEMPDIR(0))
+      TERN(TEMP_SENSOR_0_IS_MAX_TC, 0, TEMPDIR(0))
       #if HAS_MULTI_HOTEND
-        , TERN(HEATER_1_USES_MAX6675, 0, TEMPDIR(1))
+        , TERN(TEMP_SENSOR_1_IS_MAX_TC, 0, TEMPDIR(1))
         #if HOTENDS > 2
           #define _TEMPDIR(N) , TEMPDIR(N)
           REPEAT_S(2, HOTENDS, _TEMPDIR)
@@ -3043,7 +3171,8 @@ void Temperature::tick() {
     SERIAL_ECHOPGM(" /");
     SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      SERIAL_ECHOPAIR(" (", r * RECIPROCAL(OVERSAMPLENR));
+      // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
+      SERIAL_ECHOPAIR(" (", TERN(NO_THERMO_TEMPS, false, k == 'T') ? r : r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
     #endif
     delay(2);
@@ -3089,7 +3218,7 @@ void Temperature::tick() {
         #endif
         , H_CHAMBER
       );
-    #endif // HAS_TEMP_CHAMBER
+    #endif
     #if HAS_TEMP_PROBE
       print_heater_state(degProbe(), 0
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -3097,7 +3226,7 @@ void Temperature::tick() {
         #endif
         , H_PROBE
       );
-    #endif // HAS_TEMP_PROBE
+    #endif
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -3123,8 +3252,8 @@ void Temperature::tick() {
   }
 
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
-    Temperature::AutoReportTemp Temperature::auto_reporter;
-    void Temperature::AutoReportTemp::auto_report() {
+    AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
+    void Temperature::AutoReportTemp::report() {
       print_heater_states(active_extruder);
       SERIAL_EOL();
     }

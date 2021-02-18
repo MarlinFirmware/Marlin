@@ -82,14 +82,14 @@ typedef int8_t pin_t;
 
 // Serial ports
 #ifdef USBCON
-  #include "../../core/serial_hook.h" 
+  #include "../../core/serial_hook.h"
   typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
   extern DefaultSerial MSerial;
   #ifdef BLUETOOTH
     typedef ForwardSerial0Type< decltype(bluetoothSerial) > BTSerial;
     extern BTSerial btSerial;
   #endif
-  
+
   #define MYSERIAL0 TERN(BLUETOOTH, btSerial, MSerial)
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)

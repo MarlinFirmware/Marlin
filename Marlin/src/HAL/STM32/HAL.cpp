@@ -42,6 +42,11 @@
   #endif
 #endif
 
+#if HAS_SD_HOST_DRIVE
+  #include "msc_sd.h"
+  #include "usbd_cdc_if.h"
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------
@@ -51,17 +56,6 @@ uint16_t HAL_adc_result;
 // ------------------------
 // Public functions
 // ------------------------
-
-// Needed for DELAY_NS() / DELAY_US() on CORTEX-M7
-#if (defined(__arm__) || defined(__thumb__)) && __CORTEX_M == 7
-  // HAL pre-initialization task
-  // Force the preinit function to run between the premain() and main() function
-  // of the STM32 arduino core
-  __attribute__((constructor (102)))
-  void HAL_preinit() {
-    enableCycleCounter();
-  }
-#endif
 
 // HAL initialization task
 void HAL_init() {
@@ -87,6 +81,19 @@ void HAL_init() {
 
   #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
     USB_Hook_init();
+  #endif
+
+  #if HAS_SD_HOST_DRIVE
+    MSC_SD_init();                         // Enable USB SD card access
+  #endif
+}
+
+// HAL idle task
+void HAL_idletask() {
+  #if HAS_SHARED_MEDIA
+    // Stm32duino currently doesn't have a "loop/idle" method
+    CDC_resume_receive();
+    CDC_continue_transmit();
   #endif
 }
 
