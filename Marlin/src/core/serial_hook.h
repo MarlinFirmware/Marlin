@@ -24,6 +24,9 @@
 #include "macros.h"
 #include "serial_base.h"
 
+// Used in multiple places
+typedef int8_t serial_index_t;
+
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class
 template <class SerialT>
 struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
@@ -240,6 +243,3 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset> 
 #ifdef HAS_MULTI_SERIAL
   #define Serial1Type ConditionalSerial
 #endif
-
-// Used in multiple places
-typedef int8_t serial_index_t;

@@ -28,7 +28,6 @@
   #include "../feature/meatpack.h"
 #endif
 
-
 // Commonly-used strings in serial output
 extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],

@@ -46,24 +46,25 @@
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
+
   bool MarlinSerial::recv_callback(const char c) {
     // Need to figure out which serial port we are and react in consequence (Marlin does not have CONTAINER_OF macro)
     if (false) {}
-#if ANY_SERIAL_IS(0)
-    else if (this == &_MSerial) emergency_parser.update(MSerial.emergency_state, c);
-#endif
-#if ANY_SERIAL_IS(1)
-    else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);
-#endif
-#if ANY_SERIAL_IS(2)
-    else if (this == &_MSerial2) emergency_parser.update(MSerial2.emergency_state, c);
-#endif
-#if ANY_SERIAL_IS(3)
-    else if (this == &_MSerial3) emergency_parser.update(MSerial3.emergency_state, c);
-#endif
+    #if ANY_SERIAL_IS(0)
+      else if (this == &_MSerial) emergency_parser.update(MSerial.emergency_state, c);
+    #endif
+    #if ANY_SERIAL_IS(1)
+      else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);
+    #endif
+    #if ANY_SERIAL_IS(2)
+      else if (this == &_MSerial2) emergency_parser.update(MSerial2.emergency_state, c);
+    #endif
+    #if ANY_SERIAL_IS(3)
+      else if (this == &_MSerial3) emergency_parser.update(MSerial3.emergency_state, c);
+    #endif
     return true;
   }
-#endif
 
+#endif
 
 #endif // TARGET_LPC1768
