@@ -79,7 +79,8 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_LEVELING_SETTINGS = 72,
 
   DGUSLCD_SCREEN_AXIS_SETTINGS_NAV = 73,
-  DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS = 74
+  DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS = 74,
+  DGUSLCD_SCREEN_AXIS_SETTINGS_TMC = 75
 };
 
 // Version checks
@@ -320,6 +321,7 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON = 0x22ED; // 2-byte
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD = 0x22EF; // 4-byte (!)
 
 constexpr uint16_t VP_AXIS_TUNING_NAV_BUTTON = 0x22F5; 
+constexpr uint16_t VP_AXIS_TMC_NAV_BUTTON = 0x22F7; 
 
 // Generic "hide" icon shared across screens
 constexpr uint16_t VP_HIDE_ICON = 0x22F3; // 2-byte (!)

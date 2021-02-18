@@ -300,11 +300,17 @@ const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
   VP_AXIS_SETTINGS_AXIS_JERK,
   VP_AXIS_SETTINGS_AXIS_FEEDRATE,
 
+  VP_HIDE_ICON,
+
+  0x0000
+};
+
+const uint16_t VPList_AxisSettingsTMC[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
   VP_AXIS_SETTINGS_AXIS_TMCCURRENT,
   VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON,
   VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD,
-
-  VP_HIDE_ICON,
 
   0x0000
 };
@@ -367,6 +373,7 @@ const struct VPMapping VPMap[] PROGMEM = {
 
   { DGUSLCD_SCREEN_AXIS_SETTINGS_NAV, VPList_AxisSettingsNav },
   { DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS , VPList_AxisSettingsAxis },
+  { DGUSLCD_SCREEN_AXIS_SETTINGS_TMC, VPList_AxisSettingsTMC },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -449,6 +456,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 
   VPHELPER(VP_AXIS_TUNING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_AXIS_SETTINGS_NAV>), nullptr),
+  VPHELPER(VP_AXIS_TMC_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_AXIS_SETTINGS_TMC>), nullptr),
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL
