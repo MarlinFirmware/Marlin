@@ -315,6 +315,19 @@ const uint16_t VPList_AxisSettingsTMC[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_AdvMovementSettings[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  VP_MOV_MINIMUM_SEGMENT_TIME,
+  VP_MOV_MINIMUM_FEEDRATE,
+  VP_MOV_NORMAL_ACCELERATION,
+  VP_MOV_RETRACT_ACCELERATION,
+
+  VP_MOV_MINIMUM_TRAVEL_FEEDRATE,
+  VP_MOV_MINIMUM_TRAVEL_ACCELERATION, 
+  
+  0x0000
+};
 
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
@@ -374,6 +387,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_AXIS_SETTINGS_NAV, VPList_AxisSettingsNav },
   { DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS , VPList_AxisSettingsAxis },
   { DGUSLCD_SCREEN_AXIS_SETTINGS_TMC, VPList_AxisSettingsTMC },
+  { DGUSLCD_SCREEN_ADV_MOV_SETTINGS, VPList_AdvMovementSettings },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
