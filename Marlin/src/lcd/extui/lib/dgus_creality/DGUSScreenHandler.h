@@ -258,11 +258,11 @@ public:
   template<unsigned int decimals>
   static void DGUSLCD_SendFloatAsLongValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
-      float f = *(float *)var.memadr;
-      f *= cpow(10, decimals);
+      double d = static_cast<double>(*(float *)var.memadr);
+      d *= cpow(10, decimals);
 
       // Round - truncated values look like skipped numbers
-      long roundedValue = static_cast<long>(round(f));
+      long roundedValue = static_cast<long>(round(d));
       dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
   }
@@ -272,7 +272,8 @@ public:
   static void DGUSLCD_SetFloatAsIntFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
       uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
-      float value = (float)value_raw/cpow(10, decimals);
+
+      float value = static_cast<float>(static_cast<double>(value_raw) /cpow(10, decimals));
       *(float *)var.memadr = value;
     }
   }
@@ -301,11 +302,11 @@ public:
   template<unsigned int decimals>
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
-      float f = *(float *)var.memadr;
-      f *= cpow(10, decimals);
+      double d = static_cast<double>(*(float *)var.memadr);
+      d *= cpow(10, decimals);
 
       // Round - truncated values look like skipped numbers
-      int16_t roundedValue = static_cast<int16_t>(round(f));
+      int16_t roundedValue = static_cast<int16_t>(round(d));
       dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
   }
