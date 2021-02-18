@@ -1457,7 +1457,13 @@ void DGUSScreenHandler::PopToOldScreen() {
 }
 
 void DGUSScreenHandler::OnBackButton(DGUS_VP_Variable &var, void *val_ptr) {
+  uint16_t button_value = uInt16Value(val_ptr);
+
   PopToOldScreen();
+
+  if (button_value == GENERIC_BACK_BUTTON_NEED_SAVE) {
+    RequestSaveSettings();
+  }
 }
 
 void DGUSScreenHandler::UpdateScreenVPData() {

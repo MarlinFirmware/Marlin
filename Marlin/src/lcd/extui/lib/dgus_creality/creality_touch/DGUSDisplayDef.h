@@ -400,6 +400,8 @@ constexpr uint16_t VP_ESTEP_NAV_BUTTON = 0x2291;
 constexpr uint16_t VP_PIDTUNE_NAV_BUTTON = 0x2293;
 constexpr uint16_t VP_GENERIC_BACK_BUTTON = 0x2295; // Generic button for popping back to the old display
 
+constexpr uint16_t GENERIC_BACK_BUTTON_NEED_SAVE = 0x1;
+
 // PID tuning
 constexpr uint16_t VP_PIDTUNE_TARGET_TEMP = 0x2297;
 constexpr uint16_t VP_PIDTUNE_CYCLES = 0x2299;
