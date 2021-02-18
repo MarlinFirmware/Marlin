@@ -74,10 +74,6 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#if HAS_ENDSTOPS
-  uint8_t axis_homed, axis_trusted; // = 0
-#endif
-
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
@@ -1116,6 +1112,8 @@ void prepare_line_to_destination() {
 }
 
 #if HAS_ENDSTOPS
+
+  uint8_t axis_homed, axis_trusted; // = 0
 
   uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
     #define SHOULD_HOME(A) TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(A)
