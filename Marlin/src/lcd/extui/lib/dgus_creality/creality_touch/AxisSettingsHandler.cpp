@@ -30,6 +30,12 @@ uint32_t AxisSettingsHandler::max_acceleration_mm_per_s2;
 float AxisSettingsHandler::jerk;
 feedRate_t AxisSettingsHandler::max_feedrate;
 
+#if HAS_TRINAMIC_CONFIG
+bool AxisSettingsHandler::has_tmc_settings = true;
+#else 
+bool AxisSettingsHandler::has_tmc_settings = false;
+#endif
+
 uint16_t AxisSettingsHandler::tmc_current;
 bool AxisSettingsHandler::stealthchop;
 uint32_t AxisSettingsHandler::hybrid_threshold;
@@ -127,11 +133,6 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
     }
     #endif
 
-    // Hide TMC settings if not supported
-    #ifndef HAS_TRINAMIC_CONFIG
-        ScreenHandler.HideSection();
-    #endif
-
     // Nav
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS);
 }
@@ -211,6 +212,12 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
     ScreenHandler.PopToOldScreen();
 
     settings.save();
+}
+
+void AxisSettingsHandler::HandleTMCNavigation(DGUS_VP_Variable &var, void *val_ptr) {
+    #if HAS_TRINAMIC_CONFIG
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AXIS_SETTINGS_TMC);
+    #endif
 }
 
 #endif

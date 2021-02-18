@@ -69,7 +69,6 @@ uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 uint8_t DGUSScreenHandler::MeshLevelIconIndex = -1;
 float DGUSScreenHandler::feed_amount = 100;
 bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
-bool DGUSScreenHandler::hide_section = false;
 
 static_assert(GRID_MAX_POINTS_X == GRID_MAX_POINTS_Y, "Assuming bed leveling points is square");
 
@@ -334,14 +333,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var) {
 void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
   char *tmp = (char*) var.memadr;
   dgusdisplay.WriteVariablePGM(var.VP, tmp, var.size, true);
-}
-
-void DGUSScreenHandler::HideSection() {
-  hide_section = true;
-}
-
-void DGUSScreenHandler::ResetHideSection() {
-  hide_section = false;
 }
 
 #if HAS_PID_HEATING
@@ -1451,8 +1442,6 @@ void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_cur
 
 void DGUSScreenHandler::PopToOldScreen() {
   DEBUG_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
-
-  ResetHideSection();
 
   if(past_screens[0] != 0) {
     GotoScreen(past_screens[0], false);

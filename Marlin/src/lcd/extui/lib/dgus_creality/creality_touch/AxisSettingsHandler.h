@@ -13,6 +13,7 @@ class AxisSettingsHandler {
         static float jerk;
         static feedRate_t max_feedrate;
 
+        static bool has_tmc_settings;
         static uint16_t tmc_current;
         static bool stealthchop;
         static uint32_t hybrid_threshold;
@@ -20,6 +21,6 @@ class AxisSettingsHandler {
     public:
         static void HandleNavigation(DGUS_VP_Variable &var, void *val_ptr);
         static void HandleBackNavigation(DGUS_VP_Variable &var, void *val_ptr);
-
+        static void HandleTMCNavigation(DGUS_VP_Variable &var, void *val_ptr);
 };
 

@@ -351,12 +351,8 @@ public:
   static void SetSynchronousOperationFinish();
   static void SendBusyState(DGUS_VP_Variable &var);
 
-  static void HideSection();
-  static void ResetHideSection();
-
   static float feed_amount;
   static bool fwretract_available;
-  static bool hide_section;
 
 private:
   static void HandleScreenVersionMismatchLEDFlash();

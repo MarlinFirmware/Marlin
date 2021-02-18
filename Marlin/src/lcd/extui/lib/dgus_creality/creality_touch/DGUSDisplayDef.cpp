@@ -300,7 +300,7 @@ const uint16_t VPList_AxisSettingsAxis[] PROGMEM = {
   VP_AXIS_SETTINGS_AXIS_JERK,
   VP_AXIS_SETTINGS_AXIS_FEEDRATE,
 
-  VP_HIDE_ICON,
+  VP_AXIS_TMC_NAV_ICON,
 
   0x0000
 };
@@ -451,7 +451,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON, &AxisSettingsHandler::stealthchop, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
   VPHELPER(VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD, &AxisSettingsHandler::hybrid_threshold, ScreenHandler.DGUSLCD_ReceiveUint32LongFromDisplay, ScreenHandler.DGUSLCD_SendUint32LongToDisplay),
   
-  VPHELPER(VP_HIDE_ICON, &ScreenHandler.hide_section,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<HIDE_ICON_HIDING, HIDE_ICON_SHOWING>)),
+  VPHELPER(VP_AXIS_TMC_NAV_ICON, &AxisSettingsHandler::has_tmc_settings,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<AXIS_TMC_NAV_ICON_SHOWING, AXIS_TMC_NAV_ICON_HIDING>)),
 
   VPHELPER(VP_AXIS_SETTINGS_NAV_BACKBUTTON, nullptr, AxisSettingsHandler::HandleBackNavigation, nullptr),
 
