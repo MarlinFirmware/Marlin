@@ -126,6 +126,10 @@
 
     sync_plan_position();
 
+    #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
+      bltouch.init();
+    #endif
+
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
