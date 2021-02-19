@@ -566,7 +566,7 @@ ISR(SERIAL_REGNAME(USART, SERIAL_PORT, _UDRE_vect)) {
   MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>::_tx_udr_empty_irq();
 }
 
-// Because of the template definition above, it's required to instantiate the template to have all method generated
+// Because of the template definition above, it's required to instantiate the template to have all methods generated
 template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
 MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
