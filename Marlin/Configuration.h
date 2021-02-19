@@ -1323,9 +1323,15 @@
   #endif
 #endif
 #if BOTH(QQSP, Q_TMC)
-  #define INVERT_X_DIR true
-  #define INVERT_Y_DIR true
-  #define INVERT_Z_DIR true
+  #ifdef XP
+    #define INVERT_X_DIR false
+    #define INVERT_Y_DIR false
+    #define INVERT_Z_DIR false
+  #else
+    #define INVERT_X_DIR true
+    #define INVERT_Y_DIR true
+    #define INVERT_Z_DIR true
+  #endif
   #ifdef INV_EXT
     #define INVERT_E0_DIR true
   #else
@@ -1863,8 +1869,8 @@
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_5_LABEL       "UBL"
-#define PREHEAT_5_TEMP_HOTEND  39
-#define PREHEAT_5_TEMP_BED     50
+#define PREHEAT_5_TEMP_HOTEND  50
+#define PREHEAT_5_TEMP_BED     60
 #define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
 
 /**
