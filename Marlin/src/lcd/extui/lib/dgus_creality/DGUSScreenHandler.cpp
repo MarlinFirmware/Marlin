@@ -981,6 +981,10 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
+  void DGUSScreenHandler::TogglePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr) {
+    PrintJobRecovery::enable(!PrintJobRecovery::enabled);
+  }
+
   void DGUSScreenHandler::HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {

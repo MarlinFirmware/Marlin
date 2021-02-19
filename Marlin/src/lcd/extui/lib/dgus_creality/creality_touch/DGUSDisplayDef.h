@@ -82,7 +82,8 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS = 74,
   DGUSLCD_SCREEN_AXIS_SETTINGS_TMC = 75,
 
-  DGUSLCD_SCREEN_ADV_MOV_SETTINGS = 76
+  DGUSLCD_SCREEN_ADV_MOV_SETTINGS = 76,
+  DGUSLCD_SCREEN_MISC_SETTINGS = 77
 };
 
 // Version checks
@@ -340,6 +341,16 @@ constexpr uint16_t VP_MOV_MINIMUM_TRAVEL_FEEDRATE = 0x2301; // float 2-byte
 constexpr uint16_t VP_MOV_MINIMUM_TRAVEL_ACCELERATION = 0x2303; // float 2-byte
 
 constexpr uint16_t VP_MOV_RETRACT_ACCELERATION = 0x2307; // float 4-byte
+
+// Misc settings
+constexpr uint16_t VP_MISCSETTINGS_NAV_BUTTON = 0x2311; 
+
+constexpr uint16_t VP_FILAMENTRUNOUT_SENSOR_TOGGLE_BUTTON = 0x2309;
+constexpr uint16_t VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON = 0x230b;
+
+constexpr uint16_t VP_PLR_TOGGLE_BUTTON = 0x230d;
+constexpr uint16_t VP_PLR_TOGGLE_ICON = 0x230F;
+
 
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;

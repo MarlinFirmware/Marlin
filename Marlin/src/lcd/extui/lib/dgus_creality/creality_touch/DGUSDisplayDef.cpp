@@ -43,6 +43,14 @@
   #include "../../../../../feature/fwretract.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../../../feature/powerloss.h"
+#endif
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#include "../../../../../feature/runout.h"
+#endif
+
 #include "../../../ui_api.h"
 #include "../../../../marlinui.h"
 
@@ -329,6 +337,16 @@ const uint16_t VPList_AdvMovementSettings[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_MiscSettings[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON,
+
+  VP_PLR_TOGGLE_ICON,
+
+  0x0000
+};
+
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
@@ -388,6 +406,8 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_AXIS_SETTINGS_AXIS , VPList_AxisSettingsAxis },
   { DGUSLCD_SCREEN_AXIS_SETTINGS_TMC, VPList_AxisSettingsTMC },
   { DGUSLCD_SCREEN_ADV_MOV_SETTINGS, VPList_AdvMovementSettings },
+
+  { DGUSLCD_SCREEN_MISC_SETTINGS, VPList_MiscSettings },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -483,6 +503,19 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_MOV_MINIMUM_TRAVEL_FEEDRATE, &planner.settings.min_travel_feedrate_mm_s, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_MOV_MINIMUM_TRAVEL_ACCELERATION, &planner.settings.travel_acceleration, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+
+  // Misc settings
+  VPHELPER(VP_MISCSETTINGS_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_MISC_SETTINGS>), nullptr),
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  VPHELPER(VP_FILAMENTRUNOUT_SENSOR_TOGGLE_BUTTON, &runout.enabled, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
+  VPHELPER(VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON, &runout.enabled,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  VPHELPER(VP_PLR_TOGGLE_BUTTON, nullptr, ScreenHandler.TogglePowerLossRecovery, nullptr),
+  VPHELPER(VP_PLR_TOGGLE_ICON, &PrintJobRecovery::enabled,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
+#endif
 
   // Preheat settings
   #ifdef PREHEAT_1_LABEL

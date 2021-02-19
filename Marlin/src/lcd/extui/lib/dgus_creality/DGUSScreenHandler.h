@@ -82,6 +82,8 @@ public:
   // Hook for motor lock and unlook
   static void HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_ptr);
   #if ENABLED(POWER_LOSS_RECOVERY)
+    static void TogglePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr);
+
     // Hook for power loss recovery.
     static void HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr);
   #endif
