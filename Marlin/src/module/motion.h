@@ -384,7 +384,6 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
 /**
  * position_is_reachable family of functions
  */
-
 #if IS_KINEMATIC // (DELTA or SCARA)
 
   #if HAS_SCARA_OFFSET
@@ -414,14 +413,14 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
+    if (COORDINATE_WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
+        return COORDINATE_WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
       else
-        return WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
+        return COORDINATE_WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
+      return COORDINATE_WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
     #endif
   }
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }

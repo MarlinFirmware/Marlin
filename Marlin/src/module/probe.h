@@ -82,9 +82,13 @@ public:
        *          nozzle must be be able to reach +10,-10.
        */
       static bool can_reach(const float &rx, const float &ry) {
-        return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
-            && WITHIN(rx, min_x() - fslop, max_x() + fslop)
-            && WITHIN(ry, min_y() - fslop, max_y() + fslop);
+        #if HAS_ENDSTOPS
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
+              && WITHIN(rx, min_x() - fslop, max_x() + fslop)
+              && WITHIN(ry, min_y() - fslop, max_y() + fslop);
+        #else
+          return true;
+        #endif
       }
 
     #endif
@@ -196,9 +200,11 @@ public:
       static constexpr bool can_reach(float x, float y) {
         #if IS_KINEMATIC
           return HYPOT2(x, y) <= sq(probe_radius(default_probe_xy_offset));
-        #else
+        #elif HAS_ENDSTOPS
           return WITHIN(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
               && WITHIN(y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
+        #else
+          return true;
         #endif
       }
 
