@@ -213,11 +213,7 @@
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
    * below 2.
    */
-<<<<<<< HEAD
-  #define WATCH_TEMP_PERIOD 40                // Seconds
-=======
   #define WATCH_TEMP_PERIOD  20               // Seconds
->>>>>>> origin/bugfix-2.0.x
   #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
@@ -1539,8 +1535,6 @@
 #endif // HAS_DGUS_LCD
 
 //
-<<<<<<< HEAD
-=======
 // Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
 //
 #if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE)
@@ -1554,7 +1548,6 @@
 #endif
 
 //
->>>>>>> origin/bugfix-2.0.x
 // Touch UI for the FTDI Embedded Video Engine (EVE)
 //
 #if ENABLED(TOUCH_UI_FTDI_EVE)

@@ -195,35 +195,13 @@ enum menuID : uint8_t {
 
 extern millis_t dwin_heat_time;
 
-<<<<<<< HEAD
 inline void Clear_Screen(uint8_t e=3);
 inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
 inline void Draw_Title(char* title);
 inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label=(char*)"", bool more=false);
 inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
-=======
-typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
-  TERN_(HAS_FAN,        int16_t Fan_speed = 0);
-  int16_t print_speed     = 100;
-  float Max_Feedspeed     = 0;
-  float Max_Acceleration  = 0;
-  float Max_Jerk_scaled   = 0;
-  float Max_Step_scaled   = 0;
-  float Move_X_scaled     = 0;
-  float Move_Y_scaled     = 0;
-  float Move_Z_scaled     = 0;
-  #if HAS_HOTEND
-    float Move_E_scaled   = 0;
-  #endif
-  float offset_value      = 0;
-  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
-} HMI_value_t;
->>>>>>> origin/bugfix-2.0.x
 
 
-<<<<<<< HEAD
 void Main_Menu_Icons();
 void Draw_Main_Menu(uint8_t select=0);
 void Print_Screen_Icons();
@@ -237,25 +215,6 @@ void Draw_SD_List(bool removed=false);
 void Draw_Status_Area(const bool with_update);
 void Update_Status_Area();
 void Draw_Popup(char *line1, char *line2, char *line3, uint8_t mode, uint8_t icon=0);
-=======
-typedef struct {
-  uint8_t language;
-  bool pause_flag:1;
-  bool pause_action:1;
-  bool print_finish:1;
-  bool done_confirm_flag:1;
-  bool select_flag:1;
-  bool home_flag:1;
-  bool heat_flag:1;  // 0: heating done  1: during heating
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    bool ETempTooLow_flag:1;
-  #endif
-  #if HAS_LEVELING
-    bool leveling_offset_flag:1;
-  #endif
-  AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
-} HMI_Flag_t;
->>>>>>> origin/bugfix-2.0.x
 
 
 char* Get_Menu_Title(uint8_t menu);

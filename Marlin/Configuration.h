@@ -1602,7 +1602,6 @@
 
 // @section temperature
 
-<<<<<<< HEAD
 // Preheat Constants
 #define PREHEAT_1_LABEL       "Warmup"
 #define PREHEAT_1_TEMP_HOTEND 150
@@ -1618,15 +1617,6 @@
 #define PREHEAT_3_TEMP_HOTEND 240
 #define PREHEAT_3_TEMP_BED     70
 #define PREHEAT_3_FAN_SPEED   255 // Value from 0 to 255
-=======
-//
-// Preheat Constants - Up to 5 are supported without changes
-//
-#define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
-#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
->>>>>>> origin/bugfix-2.0.x
 
 #define PREHEAT_4_LABEL       "PETG"
 #define PREHEAT_4_TEMP_HOTEND 240
