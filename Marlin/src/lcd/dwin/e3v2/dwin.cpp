@@ -167,7 +167,7 @@ typedef struct {
 } select_t;
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
-         , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
+         , select_control{0}, select_axis{0}, select_point{0}, select_temp{0}, select_motion{0}, select_tune{0}
          , select_PLA{0}, select_ABS{0}
          , select_speed{0}
          , select_acc{0}
@@ -2358,20 +2358,16 @@ void Draw_ManualLev_Menu() {
   Clear_Main_Window();
   Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
   DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MANLEV_FL));
-  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FC));
-  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_FR));
-  DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_MANLEV_CL));
-  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_C));
-  DWIN_Draw_Label(MBASE(6), GET_TEXT_F(MSG_MANLEV_CR));
-  DWIN_Draw_Label(MBASE(7), GET_TEXT_F(MSG_MANLEV_BL));
-  DWIN_Draw_Label(MBASE(9), GET_TEXT_F(MSG_MANLEV_BC));
-  DWIN_Draw_Label(MBASE(9), GET_TEXT_F(MSG_MANLEV_BR));
+  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FR));
+  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_C));
+  DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_MANLEV_BL));
+  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_BR));
   
-  Draw_Back_First(select_axis.now == 0);
-  if (select_axis.now) Draw_Menu_Cursor(select_axis.now);
+  Draw_Back_First(select_point.now == 0);
+  if (select_point.now) Draw_Menu_Cursor(select_point.now);
 
   // Draw separators and icons
-  LOOP_L_N(i, 9) Draw_Menu_Line(i + 1, ICON_Axis);
+  LOOP_L_N(i, 5) Draw_Menu_Line(i + 1, ICON_Axis);
 }
 
 #include "../../../libs/buzzer.h"
@@ -2405,7 +2401,7 @@ void HMI_Prepare() {
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
         #if HAS_HOTEND
-          if (index_prepare == PREPARE_CASE_PLA) Item_Prepare_PLA(MROWS);  // M.A.R.C. Testing
+          if (index_prepare == PREPARE_CASE_PLA) Item_Prepare_PLA(MROWS);  // M.A.R.C. bug fix Show PLA 
           if (index_prepare == PREPARE_CASE_ABS) Item_Prepare_ABS(MROWS);
         #endif
         #if HAS_PREHEAT
@@ -2432,9 +2428,9 @@ void HMI_Prepare() {
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
              if (index_prepare == 6) Item_Prepare_Move(0);
-        else if (index_prepare == 7) Item_Prepare_Disable(0);
-        else if (index_prepare == 8) Item_Prepare_Home(0);
-        else if (index_prepare == 9) Item_Prepare_ManualLev(0);
+        else if (index_prepare == 7) Item_Prepare_ManualLev(0);
+        else if (index_prepare == 8) Item_Prepare_Disable(0);
+        else if (index_prepare == 9) Item_Prepare_Home(0);
       }
       else {
         Move_Highlight(-1, select_prepare.now + MROWS - index_prepare);
@@ -2461,8 +2457,10 @@ void HMI_Prepare() {
         #endif
         break;
       case PREPARE_CASE_MLEV: // Manual leveling
+        checkkey = ManualLev;
+        select_point.reset();
         Draw_ManualLev_Menu();
-      break; 
+        break; 
       case PREPARE_CASE_DISA: // Disable steppers
         queue.inject_P(PSTR("M84"));
         break;
@@ -2770,6 +2768,46 @@ void HMI_AxisMove() {
             EncoderRate.enabled = true;
             break;
         #endif
+    }
+  }
+  DWIN_UpdateLCD();
+}
+
+/* Manual Leveling */
+void HMI_ManualLev() {
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_point.inc(1 + 5)) Move_Highlight(1, select_point.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_point.dec()) Move_Highlight(-1, select_point.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    switch (select_point.now) {
+      case 0: // Back
+        checkkey = Prepare;
+        select_prepare.set(1);
+        index_prepare = MROWS;
+        Draw_Prepare_Menu();
+        break;
+      case 1: // move to front left
+        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
+        break;
+      case 2: // move to front right
+        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
+        break;
+      case 3: // move to center
+        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
+        break;
+      case 4: // move to back left
+        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
+        break;
+      case 5: // move to back right
+        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
+        break;
     }
   }
   DWIN_UpdateLCD();
@@ -3781,6 +3819,7 @@ void DWIN_HandleScreen() {
     case PrintProcess:    HMI_Printing(); break;
     case Print_window:    HMI_PauseOrStop(); break;
     case AxisMove:        HMI_AxisMove(); break;
+    case ManualLev:       HMI_ManualLev(); break;
     case TemperatureID:   HMI_Temperature(); break;
     case Motion:          HMI_Motion(); break;
     case Info:            HMI_Info(); break;
