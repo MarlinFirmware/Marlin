@@ -360,7 +360,7 @@
     To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
     If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
     
-    ![transport_blocs](../../docs/images/ProtectTravel.png)
+    [transport_blocs](../../docs/images/ProtectTravel.png)
 
     The problem with these blocks is that they come loose over time or with vibration. By detaching, they can position themselves askew and force on the pulleys of the belt.
     They can also jam your belts and overheat the stepper motor and even burn the stepper driver.
@@ -368,14 +368,18 @@
     The stepper motor support gradually twists and the stepper motor/pulley axis is no longer perpendicular to the axis of the belts. This causes wear of the belts and friction noises on the passage of the belts !! 
     
     Some [videos](https://www.facebook.com/groups/120961628750040/permalink/664723794373818/)
+    
     To remedy all this, just print one of the models on thingiverse (links: thing:4587495, thing:4376799, thing:4586703)
+
+    [SupportMotor](../../docs/images/SupportMotor.png)
+
     Do not forget to check that your pulleys are tight and centered on the axis of the belt with the appropriate screws or that they are well stamped on the axis of the motors !
     
-    ![Appropriate screws](../../docs/images/Screws.png) [Pulley_stemped](../../docs/images/StampedPulley.png).
+    [Appropriate screws](../../docs/images/Screws.png) [Pulley_stemped](../../docs/images/StampedPulley.png).
 
-    Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.
-    
-    ![SupportMotor](../../docs/images/SupportMotor.png)
+    **Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.**
+
+    [Final_Support_Motor](../../docs/images/FinalSupportMotor.png)
 
   - Electronic check.
     Check your power supply with a controler
