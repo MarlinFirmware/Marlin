@@ -1,0 +1,1 @@
+Precompiled builds have been moved to the relases section of github. Check them out here: https://github.com/Jyers/Marlin/releases
