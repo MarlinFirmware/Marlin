@@ -148,8 +148,8 @@ jobs:
       id: build_configs
       run: |
         echo "::set-output name=filename::E3V2-ManualMesh-${GRID}x${GRID}-${BOARD}.bin"
-        cp Configuration\ Files/E3V2\ Templates/Manual-Mesh-3x3/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/Manual-Mesh-3x3/Configuration_adv.h Marlin/Configuration_adv.h
+        cp Configuration\ Files/E3V2\ Templates/ManualMesh-3x3/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/E3V2\ Templates/ManualMesh-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
