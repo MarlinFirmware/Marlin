@@ -20,10 +20,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_COCOA_PREHEAT_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -110,4 +109,4 @@ bool PreheatMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_COCOA_PREHEAT_MENU

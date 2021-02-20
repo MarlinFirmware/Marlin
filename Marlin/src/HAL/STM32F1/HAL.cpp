@@ -84,6 +84,32 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
+  DefaultSerial MSerial(true, SerialUSB);
+
+  #if ENABLED(EMERGENCY_PARSER)
+    #include "../libmaple/usb/stm32f1/usb_reg_map.h"
+    #include "libmaple/usb_cdcacm.h"
+    // The original callback is not called (no way to retrieve address).
+    // That callback detects a special STM32 reset sequence: this functionality is not essential
+    // as M997 achieves the same.
+    void my_rx_callback(unsigned int, void*) {
+      // max length of 16 is enough to contain all emergency commands
+      uint8 buf[16];
+
+      //rx is usbSerialPart.endpoints[2]
+      uint16 len = usb_get_ep_rx_count(USB_CDCACM_RX_ENDP);
+      uint32 total = usb_cdcacm_data_available();
+
+      if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
+        return;
+
+      // cannot get character by character due to bug in composite_cdcacm_peek_ex
+      len = usb_cdcacm_peek(buf, total);
+
+      for (uint32 i = 0; i < len; i++)
+        emergency_parser.update(MSerial.emergency_state, buf[i + total - len]);
+    }
+  #endif
 #endif
 
 uint16_t HAL_adc_result;
@@ -253,6 +279,8 @@ void HAL_init() {
   #endif
   #if HAS_SD_HOST_DRIVE
     MSC_SD_init();
+  #elif BOTH(SERIAL_USB, EMERGENCY_PARSER)
+    usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection

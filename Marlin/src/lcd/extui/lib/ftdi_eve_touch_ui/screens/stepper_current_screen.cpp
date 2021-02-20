@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_TRINAMIC_CONFIG)
-
 #include "screens.h"
+
+#ifdef FTDI_STEPPER_CURRENT_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -124,4 +123,4 @@ bool StepperCurrentScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_STEPPER_CURRENT_SCREEN

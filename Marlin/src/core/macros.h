@@ -53,12 +53,15 @@
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
+#define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
 #define _Os          __attribute__((optimize("Os")))
 #define _O1          __attribute__((optimize("O1")))
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
+
+#define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
 #ifndef UNUSED
   #define UNUSED(x) ((void)(x))
@@ -127,20 +130,20 @@
 
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
@@ -162,6 +165,7 @@
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
 #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
 #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+#define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
@@ -312,6 +316,38 @@
     }
 
   #endif
+
+  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
+  namespace Private {
+    template<bool, typename _Tp = void> struct enable_if { };
+    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
+  }
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
+  #define HAS_MEMBER_IMPL(Member) \
+    namespace Private { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
+        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
+        template <typename C> static No& test(...); \
+        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+    }
+
+  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
+  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
+  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
+    HAS_MEMBER_IMPL(Method) \
+    namespace Private { \
+      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
+    }
+  #define CALL_IF_EXISTS(Return, That, Method, ...) \
+    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
 
 #else
 

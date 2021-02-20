@@ -367,19 +367,20 @@ void startOrResumeJob() {
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.endFilePrint(TERN_(SD_RESORT, true));
+
     queue.clear();
     quickstop_stepper();
-    print_job_timer.stop();
-    #if DISABLED(SD_ABORT_NO_COOLDOWN)
-      thermalManager.disable_all_heaters();
-    #endif
-    #if !HAS_CUTTER
-      thermalManager.zero_fan_speeds();
-    #else
-      cutter.kill();              // Full cutter shutdown including ISR control
-    #endif
+
+    print_job_timer.abort();
+
+    IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
+
+    TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
+
     wait_for_heatup = false;
+
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
@@ -423,8 +424,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
+    SERIAL_ERROR_MSG(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
@@ -618,8 +618,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if ENABLED(MARLIN_DEV_MODE)
-    static uint8_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", int(idle_depth));
+    static uint16_t idle_depth = 0;
+    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
@@ -691,8 +691,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
-      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_report_temperatures());
-      TERN_(AUTO_REPORT_SD_STATUS, card.auto_report_sd_status());
+      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
     }
   #endif
 
@@ -788,6 +788,7 @@ void minkill(const bool steppers_off/*=false*/) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
   print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
@@ -889,6 +890,38 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
+  MYSERIAL0.begin(BAUDRATE);
+  millis_t serial_connect_timeout = millis() + 1000UL;
+  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+
+  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
+    MYSERIAL1.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+  SERIAL_ECHOLNPGM("start");
+
+  // Set up these pins early to prevent suicide
+  #if HAS_KILL
+    SETUP_LOG("KILL_PIN");
+    #if KILL_PIN_STATE
+      SET_INPUT_PULLDOWN(KILL_PIN);
+    #else
+      SET_INPUT_PULLUP(KILL_PIN);
+    #endif
+  #endif
+
+  #if HAS_SUICIDE
+    SETUP_LOG("SUICIDE_PIN");
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    SETUP_LOG("PSU_CONTROL");
+    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
+    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
+  #endif
+
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
@@ -900,17 +933,6 @@ void setup() {
     #endif
   #endif
 
-  MYSERIAL0.begin(BAUDRATE);
-  millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-
-  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-  SERIAL_ECHOLNPGM("start");
-
   #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
     mks_esp_wifi_init();
     WIFISERIAL.begin(WIFI_BAUDRATE);
@@ -920,11 +942,11 @@ void setup() {
 
   SETUP_RUN(HAL_init());
 
-  // Init and disable SPI thermocouples
-  #if HEATER_0_USES_MAX6675
+  // Init and disable SPI thermocouples; this is still needed
+  #if TEMP_SENSOR_0_IS_MAX_TC
     OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
   #endif
-  #if HEATER_1_USES_MAX6675
+  #if TEMP_SENSOR_1_IS_MAX_TC
     OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
   #endif
 
@@ -944,28 +966,8 @@ void setup() {
     SETUP_RUN(recovery.setup());
   #endif
 
-  #if HAS_KILL
-    SETUP_LOG("KILL_PIN");
-    #if KILL_PIN_STATE
-      SET_INPUT_PULLDOWN(KILL_PIN);
-    #else
-      SET_INPUT_PULLUP(KILL_PIN);
-    #endif
-  #endif
-
   #if HAS_TMC220x
     SETUP_RUN(tmc_serial_begin());
-  #endif
-
-  #if HAS_SUICIDE
-    SETUP_LOG("SUICIDE_PIN")
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
-  #endif
-
-  #if ENABLED(PSU_CONTROL)
-    SETUP_LOG("PSU_CONTROL");
-    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
-    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
   #endif
 
   #if HAS_STEPPER_RESET
@@ -1006,7 +1008,10 @@ void setup() {
     );
   #endif
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
-  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+
+  // Some HAL need precise delay adjustment
+  calibrate_delay_loop();
 
   // Init buzzer pin(s)
   #if USE_BEEPER
