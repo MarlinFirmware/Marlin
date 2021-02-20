@@ -1269,7 +1269,7 @@ void HMI_Move_Z(void) {
 #if HAS_HOTEND
 
   void HMI_Move_E(void) {
-    static float last_E_scale = 0;
+    static float last_E_scaled = 0;
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_E_scaled)) {

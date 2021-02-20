@@ -433,6 +433,10 @@
   #define Force10SProDisplay
 #endif
 
+#if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max )
+  #define Force10SProDisplay
+#endif
+
 #if ENABLED(MachineCRX)
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
@@ -503,6 +507,10 @@
 //Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
 #if NONE(MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus) || ENABLED(GraphicLCD)
   #undef SolidBedMounts
+#endif
+
+#if NONE(LowMemoryBoard, MachineCR10Orig)
+  #define POWER_LOSS_RECOVERY
 #endif
 
 #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2) || ENABLED(GraphicLCD)
