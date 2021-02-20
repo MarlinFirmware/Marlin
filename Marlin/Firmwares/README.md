@@ -357,6 +357,7 @@
       ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
   ## 3.5. Mechanical & electronic precautions
   - Mechanical check.
+
     To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
     If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
     
@@ -375,13 +376,15 @@
 
     Do not forget to check that your pulleys are tight and centered on the axis of the belt with the appropriate screws or that they are well stamped on the axis of the motors !
     
-    ![Appropriate screws](../../docs/images/Screws.png) [Pulley_stemped](../../docs/images/StampedPulley.png).
+    ![CkeckBelts](../../docs/images/CheckBelts.png) ![Appropriate screws](../../docs/images/Screws.png) ![Pulley_stemped](../../docs/images/StampedPulley.png).
+    
 
     **Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.**
 
     ![Final_Support_Motor](../../docs/images/FinalSupportMotor.png)
 
   - Electronic check.
+
     Check your power supply with a controler....
 
 # 4. SLICER PART
