@@ -93,6 +93,7 @@
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
+  bool extruder_primed[EXTRUDERS];  // Log that extruders have been primed
   #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
     #undef TOOLCHANGE_FS_WIPE_RETRACT
     #define TOOLCHANGE_FS_WIPE_RETRACT 0
@@ -969,12 +970,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
           else {
-            #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-              // For first new tool, change without unloading the old. 'Just prime/init the new'
-              if (first_tool_is_primed)
+            //Only perform retraction for this nozzle if it has been primed
+            if (extruder_primed[old_tool]){
                 unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-              first_tool_is_primed = true; // The first new tool will be primed by toolchanging
-            #endif
+            }
           }
         }
       #endif
@@ -1093,6 +1092,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
             // Extra Prime
             unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
+
+            // Log that this extruder has been primed
+            extruder_primed[new_tool] = true;
 
             // Cutting retraction
             #if TOOLCHANGE_FS_WIPE_RETRACT
