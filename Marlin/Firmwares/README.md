@@ -32,7 +32,7 @@
   - [3.2. Special mode 2209,](#32-TMC2209-Single-Wire)
   - [3.3. TIPS for Raspberry,](#33-Raspberry)
   - [3.4. Led_Strip, Fans, Convertors, thermal probe,...](#34-Various-assembly)
-  - [3.5. Mecanical & Electronic](#35-Mechanical-&-electronic-precautions)
+  - [3.5. Mecanical & Electronic](#35-Mechanical--electronic-precautions)
 - [4. The slicer](#4-SLICER-PART)
 - [5. Wifi Part](#5-Firmware-Wifi)
 - [6. Version History.](#6-Version-History)
@@ -358,7 +358,9 @@
   ## 3.5. Mechanical & electronic precautions
   - Mechanical check.
     To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
-    If you find white blocks ![transport_blocs](../../docs/images/ProtectTravel.png) stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer.
+    If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
+    ![transport_blocs](../../docs/images/ProtectTravel.png)
+    
     The problem with these blocks is that they come loose over time or with vibration. By detaching, they can position themselves askew and force on the pulleys of the belt.
     They can also jam your belts and overheat the stepper motor and even burn the stepper driver.
     Another problem arises when you try to over-tension the belts:
@@ -370,7 +372,7 @@
 
     Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.
     ![SupportMotor](../../docs/images/SupportMotor.png)
-    
+
   - Electronic check.
     Check your power supply with a controler
 
