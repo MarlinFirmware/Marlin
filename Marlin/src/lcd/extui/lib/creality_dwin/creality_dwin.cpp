@@ -80,7 +80,7 @@
 
 #define CORP_WEBSITE_E "github.com/Jyers"
 
-#define BUILD_NUMBER "1.1"
+#define BUILD_NUMBER "1.1.0"
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
@@ -779,6 +779,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         case MOVE_E:
           if (draw) {
             Draw_Menu_Item(row, ICON_Extruder, (char*)"Extruder");
+            current_position.e = 0;
+            sync_plan_position();
             Draw_Float(current_position.e, item);
           }
           else {
@@ -786,6 +788,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Popup_Handler(ETemp);
             }
             else {
+              current_position.e = 0;
+              sync_plan_position();
               Modify_Value(current_position.e, -500, 500, 10);
             }
           }
@@ -1948,7 +1952,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             DWIN_ICON_Show(ICON, ICON_Version, 26, MBASE(2) - 3);
             DWIN_Draw_Line(Line_Color, 16, MBASE(2) + 33, 256, MBASE(2) + 34);
 
-            DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Build Number: " BUILD_NUMBER) * MENU_CHR_W) / 2, MBASE(3) - 1, (char*)"Build Number: " BUILD_NUMBER);
+            DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Build Number: v" BUILD_NUMBER) * MENU_CHR_W) / 2, MBASE(3) - 1, (char*)"Build Number: v" BUILD_NUMBER);
             DWIN_ICON_Show(ICON, ICON_Version, 26, MBASE(3) - 3);
             DWIN_Draw_Line(Line_Color, 16, MBASE(3) + 33, 256, MBASE(3) + 34);
 
