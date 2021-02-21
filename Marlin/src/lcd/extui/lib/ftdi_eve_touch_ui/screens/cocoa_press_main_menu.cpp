@@ -29,17 +29,19 @@
 using namespace FTDI;
 using namespace Theme;
 
-#define GRID_ROWS 4
+#define GRID_ROWS 5
 #define GRID_COLS 2
 
-#define MOVE_XYZ_POS          BTN_POS(1,1), BTN_SIZE(1,1)
+#define ZPROBE_ZOFFSET_POS    BTN_POS(1,1), BTN_SIZE(1,1)
+#define MOVE_XYZ_POS          BTN_POS(1,2), BTN_SIZE(1,1)
 #define TEMPERATURE_POS       BTN_POS(2,1), BTN_SIZE(1,1)
-#define ZPROBE_ZOFFSET_POS    BTN_POS(1,2), BTN_SIZE(1,1)
 #define MOVE_E_POS            BTN_POS(2,2), BTN_SIZE(1,1)
 #define SPEED_POS             BTN_POS(1,3), BTN_SIZE(1,1)
 #define ADVANCED_SETTINGS_POS BTN_POS(2,3), BTN_SIZE(1,1)
-#define ABOUT_PRINTER_POS     BTN_POS(1,4), BTN_SIZE(1,1)
-#define BACK_POS              BTN_POS(2,4), BTN_SIZE(1,1)
+#define DISABLE_STEPPERS_POS  BTN_POS(1,4), BTN_SIZE(1,1)
+#define LEVELING_POS          BTN_POS(2,4), BTN_SIZE(1,1)
+#define ABOUT_PRINTER_POS     BTN_POS(1,5), BTN_SIZE(1,1)
+#define BACK_POS              BTN_POS(2,5), BTN_SIZE(1,1)
 
 void MainMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
@@ -52,16 +54,19 @@ void MainMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-       .tag(2).button(MOVE_XYZ_POS,          GET_TEXT_F(MSG_XYZ_MOVE))
-       .tag(3).button(TEMPERATURE_POS,       GET_TEXT_F(MSG_TEMPERATURE))
+       .tag( 2).button(MOVE_XYZ_POS,          GET_TEXT_F(MSG_XYZ_MOVE))
+       .tag( 3).button(TEMPERATURE_POS,       GET_TEXT_F(MSG_TEMPERATURE))
        .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE))
-       .tag(4).button(ZPROBE_ZOFFSET_POS,    GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-       .tag(5).button(MOVE_E_POS,            GET_TEXT_F(MSG_E_MOVE))
-       .tag(6).button(SPEED_POS,             GET_TEXT_F(MSG_PRINT_SPEED))
-       .tag(7).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-       .tag(8).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
+       .tag( 4).button(ZPROBE_ZOFFSET_POS,    GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+       .tag( 5).button(MOVE_E_POS,            GET_TEXT_F(MSG_E_MOVE))
+       .tag( 6).button(SPEED_POS,             GET_TEXT_F(MSG_PRINT_SPEED))
+       .tag( 7).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
+       .tag( 8).button(DISABLE_STEPPERS_POS,  GET_TEXT_F(MSG_DISABLE_STEPPERS))
+       .enabled(HAS_LEVELING)
+       .tag( 9).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
+       .tag(10).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
-       .tag(1).button(BACK_POS,              GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BACK));
   }
 }
 
@@ -69,16 +74,20 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 1: SaveSettingsDialogBox::promptToSaveSettings(); break;
-    case 2: GOTO_SCREEN(MoveXYZScreen);                    break;
-    case 3: GOTO_SCREEN(TemperatureScreen);                break;
+    case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
+    case  2: GOTO_SCREEN(MoveXYZScreen);                    break;
+    case  3: GOTO_SCREEN(TemperatureScreen);                break;
     #if BOTH(HAS_LEVELING, HAS_BED_PROBE)
-    case 4: GOTO_SCREEN(ZOffsetScreen);                    break;
+    case  4: GOTO_SCREEN(ZOffsetScreen);                    break;
     #endif
-    case 5: GOTO_SCREEN(MoveEScreen);                      break;
-    case 6: GOTO_SCREEN(FeedratePercentScreen);            break;
-    case 7: GOTO_SCREEN(AdvancedSettingsMenu);             break;
-    case 8: GOTO_SCREEN(AboutScreen);                      break;
+    case  5: GOTO_SCREEN(MoveEScreen);                      break;
+    case  6: GOTO_SCREEN(FeedratePercentScreen);            break;
+    case  7: GOTO_SCREEN(AdvancedSettingsMenu);             break;
+    case  8: injectCommands_P(PSTR("M84"));                 break;
+    #if HAS_LEVELING
+    case 9:  GOTO_SCREEN(LevelingMenu);                     break;
+    #endif
+    case 10: GOTO_SCREEN(AboutScreen);                      break;
     default:
       return false;
   }
