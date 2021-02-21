@@ -335,14 +335,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #define PROBING_BED_TEMP 0
     #endif
   #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    #ifndef LEVELING_NOZZLE_TEMP
-      #define LEVELING_NOZZLE_TEMP 0
-    #endif
-    #ifndef LEVELING_BED_TEMP
-      #define LEVELING_BED_TEMP 0
-    #endif
-  #endif
 
   /**
    * Do preheating as required before leveling or probing.

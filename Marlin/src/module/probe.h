@@ -44,6 +44,15 @@
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
 #endif
 
+#if ENABLED(PREHEAT_BEFORE_LEVELING)
+  #ifndef LEVELING_NOZZLE_TEMP
+    #define LEVELING_NOZZLE_TEMP 0
+  #endif
+  #ifndef LEVELING_BED_TEMP
+    #define LEVELING_BED_TEMP 0
+  #endif
+#endif
+
 class Probe {
 public:
 
