@@ -152,7 +152,7 @@
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
-        bltouch.init();
+        bltouch.init(); // Called again by homeaxis(Z_AXIS), but for extra safety init (i.e., stow) the probe before XY move.
       #endif
 
       do_blocking_move_to_xy(destination);
