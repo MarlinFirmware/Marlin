@@ -1581,7 +1581,7 @@ void homeaxis(const AxisEnum axis) {
 
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS) {             // Homing Z with a probe?
-      TERN_(BLTOUCH, bltouch.init()); // For BLTouch init now (reset, stow, set mode)
+      TERN_(BLTOUCH, bltouch.init()); // For BLTouch init now (reset and stow)
       if (probe.deploy())             // Raise Z (maybe) and deploy the Z probe
         return;                       // Exit if the probe is unable to deploy
     }
