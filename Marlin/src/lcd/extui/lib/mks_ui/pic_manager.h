@@ -116,7 +116,7 @@
 #endif
 
 // Flash flag
-#define REFLSHE_FLGA_ADD                (0X800000-32)
+#define REFLSHE_FLGA_ADD                (0x800000-32)
 
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000

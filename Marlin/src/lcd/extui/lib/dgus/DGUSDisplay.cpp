@@ -44,6 +44,8 @@
 #include "DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
+DGUSDisplay dgusdisplay;
+
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
 constexpr uint8_t DGUS_HEADER1 = 0x5A;
 constexpr uint8_t DGUS_HEADER2 = 0xA5;
@@ -82,12 +84,12 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
-  value = (value & 0xffU) << 8U | (value >> 8U);
+  value = (value & 0xFFU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, int16_t value) {
-  value = (value & 0xffU) << 8U | (value >> 8U);
+  value = (value & 0xFFU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 

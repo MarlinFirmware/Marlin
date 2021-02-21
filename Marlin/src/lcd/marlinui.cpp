@@ -23,10 +23,9 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "../gcode/gcode.h"
-  #include "../module/planner.h"
-  #include "../lcd/extui/lib/dgus/DGUSDisplayDef.h"
-  #include "../../src/libs/nozzle.h"
+  #include "extui/lib/dgus/DGUSDisplayDef.h"
+  //#include "../gcode/gcode.h"
+  //#include "../libs/nozzle.h"
 #endif
 
 #ifdef LED_BACKLIGHT_TIMEOUT
