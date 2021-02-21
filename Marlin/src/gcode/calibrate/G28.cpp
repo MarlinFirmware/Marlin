@@ -126,10 +126,6 @@
 
     sync_plan_position();
 
-    #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
-      bltouch.init();
-    #endif
-
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
@@ -154,6 +150,10 @@
       TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
+
+      #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
+        bltouch.init();
+      #endif
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
