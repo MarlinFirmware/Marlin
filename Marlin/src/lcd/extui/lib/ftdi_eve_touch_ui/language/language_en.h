@@ -157,13 +157,13 @@ namespace Language_en {
 
   #ifdef TOUCH_UI_COCOA_PRESS
     PROGMEM Language_Str MSG_BODY                   = u8"Body";
-    PROGMEM Language_Str MSG_INTERNAL               = u8"Internal";
+    PROGMEM Language_Str MSG_SELECT_CHOCOLATE_TYPE  = u8"Select Chocolate Type";
     PROGMEM Language_Str MSG_EXTERNAL               = u8"External";
     PROGMEM Language_Str MSG_CHOCOLATE              = u8"Chocolate";
     PROGMEM Language_Str MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
-    PROGMEM Language_Str MSG_LOAD_CHOCOLATE         = u8"Load Chocolate";
-    PROGMEM Language_Str MSG_CARTRIDGE_IN           = u8"Cartridge In";
-    PROGMEM Language_Str MSG_CARTRIDGE_OUT          = u8"Cartridge Out";
+    PROGMEM Language_Str MSG_LOAD_UNLOAD            = u8"Load/Unload";
+    PROGMEM Language_Str MSG_FULL_LOAD              = u8"Full Load";
+    PROGMEM Language_Str MSG_FULL_UNLOAD            = u8"Full Unload";
     PROGMEM Language_Str MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     PROGMEM Language_Str MSG_PREHEAT_FINISHED       = u8"Preheat finished";
     PROGMEM Language_Str MSG_PREHEAT                = u8"Preheat";

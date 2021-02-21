@@ -32,7 +32,7 @@ using namespace Theme;
 #define GRID_COLS 2
 
 void PreheatMenu::onRedraw(draw_mode_t what) {
-  const int16_t w = has_extra_heater() ? BTN_W(1) : BTN_W(2);
+  const int16_t w = TERN0(COCOA_PRESS_EXTRA_HEATER, has_extra_heater() ? BTN_W(1) : BTN_W(2));
   const int16_t h = BTN_H(1);
 
   if (what & BACKGROUND) {
@@ -42,10 +42,12 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
        .tag(0)
        .cmd(COLOR_RGB(bg_text_enabled))
        .font(Theme::font_medium)
-       .text  ( BTN_POS(1,1), w, h, GET_TEXT_F(MSG_INTERNAL));
-    if (has_extra_heater()) {
+       .text( BTN_POS(1,1), w, h, GET_TEXT_F(MSG_SELECT_CHOCOLATE_TYPE));
+    #if ENABLED(COCOA_PRESS_EXTRA_HEATER)
+      if (has_extra_heater()) {
         cmd.text( BTN_POS(2,1), w, h, GET_TEXT_F(MSG_EXTERNAL));
-    }
+      }
+    #endif
   }
 
   if (what & FOREGROUND) {
@@ -55,11 +57,13 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
        .tag(2).button(BTN_POS(1,2), w, h, F("Dark Chocolate"))
        .tag(3).button(BTN_POS(1,3), w, h, F("Milk Chocolate"))
        .tag(4).button(BTN_POS(1,4), w, h, F("White Chocolate"));
-    if (has_extra_heater()) {
+    #if ENABLED(COCOA_PRESS_EXTRA_HEATER)
+      if (has_extra_heater()) {
         cmd.tag(5).button(BTN_POS(2,2), w, h, F("Dark Chocolate"))
            .tag(6).button(BTN_POS(2,3), w, h, F("Milk Chocolate"))
            .tag(7).button(BTN_POS(2,4), w, h, F("White Chocolate"));
-    }
+      }
+    #endif
     cmd.colors(action_btn)
        .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
   }
