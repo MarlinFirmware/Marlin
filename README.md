@@ -70,7 +70,7 @@ Once you have selected a branch you will have access to the source code (Marlin 
 
 ![Step2](/step3_download.png)
 
-Finally, locate the TFT zip folder in the same file listing and download it.
+Finally, locate the TFT zip folder in the same file listing and download it (if there is no TFT folder then it means that it is not required for that particular update).
 
 ## Using the firmware on the B1
 
@@ -100,7 +100,21 @@ By this point you should have the TFT graphics and the Marlin firmware downloade
 2. All versions of this firmware support the silent fan modification (see opening gist) but you don't **have** to do the mod if you want to use the firmware. It will work either way.
 3. This firmware adjusts the speed at which homng takes place as well as the current that is provided to the motors during homing. Since there are no endstops on X and Y you will need to recalibrate your sensorless homing sensitivity for each axis to account for the changes. Start by using the terminal to send M502 followed by M500. That will clear out your old sensitivities and load in the new ones that are default with the new firmware. Next try to home the X and Y axes. If they start to grind when they reach their home positions then you need to bump up the homing sensitivity for that axis. Just hit the reset button on the TFT to stop the grinding and then go into the terminal and type M914 to see the current sensitivities. Increase the sensitivity on the axis that is grinding by 5 by typing M914 XZZZ or M914 YZZZ where 'ZZZ' is the new sensitivity. Be careful not to make it too sensitive otherwise the axis will stop before it gets to the homing position.
 
-**To install the firmware:** simply copy the firmware.bin, config.ini and TFT70 files and folders onto the root of a FAT32 formatted SD card. Insert the card into the front facing SD card slot on the BX. Technically both will work but when installing firmware it is best to minimise the possibility of bit errors and the SD card closest to the CPU is the one that will do this. Reboot the machine and the firmware will update. Once the firmware update is complete, make sure that firmware.bin has changed to FIRMWARE.CUR and config.ini has changed to CONFIG.CUR.
+**To install the firmware:** simply copy the firmware.bin, config.ini and TFT70 files (if the config.ini file and TFT70 folder are not there it means that they are not needed for that update) and folders onto the root of a FAT32 formatted SD card. Insert the card into the front facing SD card slot on the BX. Technically both will work but when installing firmware it is best to minimise the possibility of bit errors and the SD card closest to the CPU is the one that will do this. Reboot the machine and the firmware will update. Once the firmware update is complete, make sure that firmware.bin has changed to FIRMWARE.CUR and config.ini has changed to CONFIG.CUR.
+
+## Other mods
+
+Here is a list of useful mods that you may want to perform on your machine. If there is a mod that you are aware of and feel that it should be added here then please feel free to submit it.
+
+First for the BX:
+
+Mod Name | Mod Link
+------------ | -------------
+BX Silent fan mod | https://gist.github.com/looxonline/2966862620b831a33cb36340ed73f644
+BX USB free pi integration | https://gist.github.com/looxonline/89e79b2554771eee8aa8b6492f30400d
+BX Pi safe, auto shutdown | COMING SOON
+
+B1 Mod list coming soon...
 
 ## Want to help?
 
