@@ -306,7 +306,7 @@ void GCodeQueue::ok_to_send() {
 
 // WIP: TTTTTTTTTTTTT  REMOVE THIS WHEN IT'S VALIDATED  TTTTTTTTTTTTTTTT
 static bool dumpUponError = false;
-extern MarlinSerial _MSerial;
+extern MSerialT _MSerial;
 
 /**
  * Send a "Resend: nnn" message to the host to
@@ -424,9 +424,6 @@ inline bool process_line_done(uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind
     ind = 0;                          // Start a new line
   return is_empty;                    // Inform the caller
 }
-
-
-
 
 /**
  * Get all commands waiting on the serial port and queue them.
