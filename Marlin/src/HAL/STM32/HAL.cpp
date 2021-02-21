@@ -57,6 +57,8 @@ uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 // HAL initialization task
 void HAL_init() {
   FastIO_init();
@@ -82,6 +84,8 @@ void HAL_init() {
   #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
     USB_Hook_init();
   #endif
+
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 
   #if HAS_SD_HOST_DRIVE
     MSC_SD_init();                         // Enable USB SD card access

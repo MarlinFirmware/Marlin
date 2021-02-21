@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,24 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
-
-/**
- * Test TEENSY35_36 specific configuration values for errors at compile-time.
- */
-
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.1/3.2. Disable EMERGENCY_PARSER to continue."
-#endif
-
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on Teensy 3.1/3.2."
-#endif
-
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on Teensy 3.1/3.2."
-#endif
+#include "HAL_MinSerial.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on Teensy 3.1/3.2."
+
+void HAL_min_serial_init_default() {}
+void HAL_min_serial_out_default(char ch) { SERIAL_CHAR(ch); }
+void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
+void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
+
+bool MinSerial::force_using_default_output = false;
+
 #endif

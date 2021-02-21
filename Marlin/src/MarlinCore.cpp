@@ -36,6 +36,7 @@
 
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
+#include "HAL/shared/cpu_exception/exception_hook.h"
 
 #ifdef ARDUINO
   #include <pins_arduino.h>
@@ -934,6 +935,8 @@ void setup() {
     serial_connect_timeout = millis() + 1000UL;
     while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
+
+  TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(HAL_init());
 
