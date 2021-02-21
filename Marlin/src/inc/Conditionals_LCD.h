@@ -1200,5 +1200,5 @@
   #define HAS_ENDSTOPS 1
   #define COORDINATE_WITHIN(N,L,H) WITHIN(N,L,H)
 #else
-  #define COORDINATE_WITHIN(N,L,H) (true)
+  #define COORDINATE_WITHIN(N,L,H) true
 #endif
