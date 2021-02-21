@@ -154,12 +154,12 @@ public:
     static void HandleFilamentLoadUnload(DGUS_VP_Variable &var);
 
     #if ENABLED(DGUS_LCD_UI_MKS)
-    static void MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr);
-    static void MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr);
-    static void MKS_LOAD_UNLOAD_IDLE();
-    static void MKS_LOAD_Cancle(DGUS_VP_Variable &var, void *val_ptr);
-    static void GetManualFilament(DGUS_VP_Variable &var, void *val_ptr);
-    static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
+      static void MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr);
+      static void MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr);
+      static void MKS_LOAD_UNLOAD_IDLE();
+      static void MKS_LOAD_Cancle(DGUS_VP_Variable &var, void *val_ptr);
+      static void GetManualFilament(DGUS_VP_Variable &var, void *val_ptr);
+      static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
     #endif
   #endif
 
@@ -186,6 +186,10 @@ public:
     static void SDCardRemoved();
     // Marlin informed us about a bad SD Card.
     static void SDCardError();
+    #if ENABLED(DGUS_LCD_UI_MKS)
+      // Marlin informed us about SD print completion.
+      static void SDPrintingFinished();
+    #endif
   #endif
 
   // OK Button the Confirm screen.
@@ -311,6 +315,6 @@ extern DGUSScreenHandler ScreenHandler;
 
   #define MKS_SimpleChinese     0
   #define MKS_English           1
-  extern uint16_t DGUSLanguageSwitch;
-  extern uint16_t DGUSAutoTurnOff;
+  extern uint8_t DGUSLanguageSwitch;
+  extern bool DGUSAutoTurnOff;
 #endif
