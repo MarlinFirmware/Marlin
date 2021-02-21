@@ -584,7 +584,7 @@
   #define MIN_CHAMBER_POWER 0
   //#define PID_CHAMBER_DEBUG // Sends debug data to the serial port.
 
-  // Lasko "MyHeat Personal Heater" (200w) modified with a Fostek SSR-10DA to control only the heating element
+  // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
   // and placed inside the small Creality printer enclosure tent.
   //
   #define DEFAULT_chamberKp 37.04
