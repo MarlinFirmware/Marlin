@@ -292,7 +292,7 @@ namespace Anycubic {
     #if ACDEBUG(AC_SOME)
       serialprintPGM(str);
     #endif
-    while (const char c = pgm_read_byte(str++)) TFTSer.print(c);
+    while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
   }
 
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
@@ -305,7 +305,8 @@ namespace Anycubic {
         SERIAL_EOL();
       #endif
     }
-    TFTSer.println("");
+    TFTSer.write('\r');
+    TFTSer.write('\n');
   }
 
   bool ChironTFT::ReadTFTCommand() {
