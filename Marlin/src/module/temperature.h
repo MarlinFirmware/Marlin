@@ -210,7 +210,11 @@ struct PIDHeaterInfo : public HeaterInfo {
   typedef temp_info_t probe_info_t;
 #endif
 #if HAS_HEATED_CHAMBER
-  typedef heater_info_t chamber_info_t;
+  #if ENABLED(PIDTEMPCHAMBER)
+    typedef struct PIDHeaterInfo<PID_t> chamber_info_t;
+  #else
+    typedef heater_info_t chamber_info_t;
+  #endif
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
@@ -415,7 +419,7 @@ class Temperature {
 
     #if HAS_HEATED_CHAMBER
       TERN_(WATCH_CHAMBER, static chamber_watch_t watch_chamber);
-      static millis_t next_chamber_check_ms;
+      TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       #ifdef CHAMBER_MINTEMP
         static int16_t mintemp_raw_CHAMBER;
       #endif
@@ -830,7 +834,7 @@ class Temperature {
 
     TERN_(PIDTEMPBED, static float get_pid_output_bed());
 
-    TERN_(HAS_HEATED_CHAMBER, static float get_pid_output_chamber());
+    TERN_(PIDTEMPCHAMBER, static float get_pid_output_chamber());
 
     static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);

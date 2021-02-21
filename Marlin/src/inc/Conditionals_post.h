@@ -2001,6 +2001,10 @@
 #endif
 #if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
   #define HAS_HEATED_CHAMBER 1
+  #ifndef CHAMBER_OVERSHOOT
+    #define CHAMBER_OVERSHOOT 10
+  #endif
+  #define CHAMBER_MAX_TARGET (CHAMBER_MAXTEMP - (CHAMBER_OVERSHOOT))
 #endif
 
 // PID heating
@@ -2012,6 +2016,9 @@
 #endif
 #if BOTH(PIDTEMP, PIDTEMPBED)
   #define HAS_PID_FOR_BOTH 1
+#endif
+#if ALL(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
+  #define HAS_PID_FOR_ALL 1
 #endif
 
 // Thermal protection
@@ -2346,6 +2353,9 @@
  * Heated chamber requires settings
  */
 #if HAS_HEATED_CHAMBER
+  #ifndef MIN_CHAMBER_POWER
+    #define MIN_CHAMBER_POWER 0
+  #endif
   #ifndef MAX_CHAMBER_POWER
     #define MAX_CHAMBER_POWER 255
   #endif

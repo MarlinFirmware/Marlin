@@ -60,7 +60,8 @@ void GcodeSuite::M303() {
     }
   #endif
 
-  #define SI TERN(PIDTEMPBED, H_BED, H_E0)
+  //This makes an assumption there will always be bed heat avaliable.
+  #define SI TERN(PIDTEMPCHAMBER, H_CHAMBER, TERN(PIDTEMPBED, H_BED, H_E0))
   #define EI TERN(PIDTEMP, HOTENDS - 1, H_BED)
   const heater_id_t e = (heater_id_t)parser.intval('E');
   if (!WITHIN(e, SI, EI)) {
@@ -71,6 +72,8 @@ void GcodeSuite::M303() {
 
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
+
+  // FIXME: The following will try to preheat the chamber to the bed preset. That's probably bad.
   const int16_t temp = parser.celsiusval('S', e < 0 ? PREHEAT_1_TEMP_BED : PREHEAT_1_TEMP_HOTEND);
 
   #if DISABLED(BUSY_WHILE_HEATING)
