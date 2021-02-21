@@ -44,7 +44,7 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                     " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                     " F", toolchange_settings.fan_speed,
-                    " G", toolchange_settings.fan_time);
+                    " D", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SERIAL_ECHOPAIR(" A", migration.automode);
@@ -72,25 +72,25 @@ void M217_report(const bool eeprom=false) {
 }
 
 /**
- * M217 - Set SINGLENOZZLE toolchange parameters
+ * M217 - Set toolchange parameters
  *
  *  // Tool change command
  *  Q           Prime active tool and exit
  *
  *  // Tool change settings
- *  S[linear]   Swap length
- *  B[linear]   Extra Swap length
- *  E[linear]   Prime length
- *  P[linear/m] Prime speed
- *  R[linear/m] Retract speed
- *  U[linear/m] UnRetract speed
- *  V[linear]   0/1 Enable auto prime first extruder used
- *  W[linear]   0/1 Enable park & Z Raise
- *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
- *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
- *  Z[linear]   Z Raise
- *  F[linear]   Fan Speed 0-255
- *  G[linear/s] Fan time
+ *  S[linear]     Swap length
+ *  B[linear]     Extra Swap resume length
+ *  E[linear]     Extra Prime length (as used by M217 Q)
+ *  P[linear/min] Prime speed
+ *  R[linear/min] Retract speed
+ *  U[linear/min] UnRetract speed
+ *  V[linear]     0/1 Enable auto prime first extruder used
+ *  W[linear]     0/1 Enable park & Z Raise
+ *  X[linear]     Park X (Requires TOOLCHANGE_PARK)
+ *  Y[linear]     Park Y (Requires TOOLCHANGE_PARK)
+ *  Z[linear]     Z Raise
+ *  F[speed]      Fan Speed 0-255
+ *  D[seconds]    Fan time
  *
  * Tool migration settings
  *  A[0|1]      Enable auto-migration on runout
@@ -115,7 +115,7 @@ void GcodeSuite::M217() {
     if (parser.seenval('U')) { const int16_t v = parser.value_linear_units(); toolchange_settings.unretract_speed = constrain(v, 10, 5400); }
     #if TOOLCHANGE_FS_FAN >= 0 && HAS_FAN
       if (parser.seenval('F')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_speed = constrain(v, 0, 255); }
-      if (parser.seenval('G')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
+      if (parser.seenval('D')) { const int16_t v = parser.value_linear_units(); toolchange_settings.fan_time = constrain(v, 1, 30); }
     #endif
   #endif
 

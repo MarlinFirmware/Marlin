@@ -42,11 +42,7 @@
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
   migration_settings_t migration = migration_defaults;
-  bool enable_first_prime;
-#endif
-
-#if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-  bool toolchange_extruder_ready[EXTRUDERS];
+  bool enable_first_prime; // As set by M217 V
 #endif
 
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
@@ -93,7 +89,6 @@
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #include "../gcode/gcode.h"
-  bool extruder_primed[EXTRUDERS];  // Log that extruders have been primed
   #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
     #undef TOOLCHANGE_FS_WIPE_RETRACT
     #define TOOLCHANGE_FS_WIPE_RETRACT 0
@@ -784,6 +779,15 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
  */
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
 
+  // Cool down with fan
+  inline void filament_swap_cooling() {
+    #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
+      gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+    #endif
+  }
+
   void tool_change_prime() {
     if (toolchange_settings.extra_prime > 0
       && TERN(PREVENT_COLD_EXTRUSION, !thermalManager.targetTooColdToExtrude(active_extruder), 1)
@@ -827,11 +831,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       #endif
 
       // Cool down with fan
-      #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-        gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-        thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
-      #endif
+      filament_swap_cooling();
 
       // Move back
       #if ENABLED(TOOLCHANGE_PARK)
@@ -927,13 +927,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
+    #if EITHER(TOOLCHANGE_FS_PRIME_FIRST_USED, TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+      static uint8_t extruder_did_first_prime = 0;
+    #endif
+
     // First tool priming. To prime again, reboot the machine.
     #if BOTH(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_FS_PRIME_FIRST_USED)
       static bool first_tool_is_primed = false;
-      if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
+      if (enable_first_prime && !first_tool_is_primed && new_tool == old_tool) {
         tool_change_prime();
         first_tool_is_primed = true;
-        toolchange_extruder_ready[old_tool] = true; // Primed and initialized
+        SBI(extruder_did_first_prime, old_tool); // Primed and initialized
       }
     #endif
 
@@ -960,6 +964,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       // Unload / Retract
       #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+        static uint8_t extruder_was_primed = 0; // Flags for primed extruders
         const bool should_swap = can_move_away && toolchange_settings.swap_length,
                    too_cold = TERN0(PREVENT_COLD_EXTRUSION,
                      !DEBUGGING(DRYRUN) && (thermalManager.targetTooColdToExtrude(old_tool) || thermalManager.targetTooColdToExtrude(new_tool))
@@ -969,12 +974,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
-          else {
-            //Only perform retraction for this nozzle if it has been primed
-            if (extruder_primed[old_tool]){
-                unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-            }
-          }
+          else if (TEST(extruder_was_primed, old_tool)) // Retract the old extruder if it was previously primed
+            unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
         }
       #endif
 
@@ -1080,9 +1081,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             float fr = toolchange_settings.unretract_speed;
 
             #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
-              if (!toolchange_extruder_ready[new_tool]) {
-                toolchange_extruder_ready[new_tool] = true;
-                fr = toolchange_settings.prime_speed;       // Next move is a prime
+              if (!TEST(extruder_did_first_prime, new_tool)) {
+                SBI(extruder_did_first_prime, new_tool);
+                fr = toolchange_settings.prime_speed;       // Next move is a prime, not just un-retract
                 unscaled_e_move(0, MMM_TO_MMS(fr));         // Init planner with 0 length move
               }
             #endif
@@ -1094,7 +1095,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             unscaled_e_move(toolchange_settings.extra_prime, MMM_TO_MMS(toolchange_settings.prime_speed));
 
             // Log that this extruder has been primed
-            extruder_primed[new_tool] = true;
+            SBI(extruder_was_primed, new_tool);
 
             // Cutting retraction
             #if TOOLCHANGE_FS_WIPE_RETRACT
@@ -1102,11 +1103,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #endif
 
             // Cool down with fan
-            #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
-              gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-              thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
-            #endif
+            filament_swap_cooling();
           }
         #endif
 
