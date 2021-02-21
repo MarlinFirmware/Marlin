@@ -97,18 +97,18 @@ void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
 
 void LoadChocolateScreen::draw_text(draw_mode_t what) {
   if (what & BACKGROUND) {
-      int16_t x, y, h, v;
+    int16_t x, y, h, v;
 
-      CommandProcessor cmd;
-      PolyUI ui(cmd, what);
+    CommandProcessor cmd;
+    PolyUI ui(cmd, what);
 
-      cmd.font(font_medium).cmd(COLOR_RGB(bg_text_enabled));
+    cmd.font(font_medium).cmd(COLOR_RGB(bg_text_enabled));
 
-      ui.bounds(POLY(load_sreen_title), x, y, h, v);
-      cmd.tag(2).text(x, y, h, v, GET_TEXT_F(MSG_LOAD_UNLOAD));
+    ui.bounds(POLY(load_sreen_title), x, y, h, v);
+    cmd.tag(2).text(x, y, h, v, GET_TEXT_F(MSG_LOAD_UNLOAD));
 
-      ui.bounds(POLY(load_screen_increment), x, y, h, v);
-      cmd.tag(3).text(x, y, h, v, GET_TEXT_F(MSG_INCREMENT));
+    ui.bounds(POLY(load_screen_increment), x, y, h, v);
+    cmd.tag(3).text(x, y, h, v, GET_TEXT_F(MSG_INCREMENT));
   }
 }
 
@@ -145,8 +145,8 @@ void LoadChocolateScreen::onRedraw(draw_mode_t what) {
 }
 
 bool LoadChocolateScreen::onTouchStart(uint8_t) {
-    mydata.repeat_tag = 0;
-    return true;
+  mydata.repeat_tag = 0;
+  return true;
 }
 
 bool LoadChocolateScreen::onTouchEnd(uint8_t tag) {
@@ -179,27 +179,27 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
   #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   switch (tag) {
     case 2: {
-        if(get_chocolate_fill_level() < 0.1) {
-            mydata.repeat_tag = 0;
-            return false;
-        }
-        UI_INCREMENT_AXIS(E0);
-        break;
+      if (get_chocolate_fill_level() < 0.1) {
+        mydata.repeat_tag = 0;
+        return false;
+      }
+      UI_INCREMENT_AXIS(E0);
+      break;
     }
     case 3: {
-        if(get_chocolate_fill_level() > 0.9) {
-            mydata.repeat_tag = 0;
-            return false;
-        }
-        UI_DECREMENT_AXIS(E0);
-        break;
+      if (get_chocolate_fill_level() > 0.9) {
+        mydata.repeat_tag = 0;
+        return false;
+      }
+      UI_DECREMENT_AXIS(E0);
+      break;
     }
     case 4:
-        UI_INCREMENT_AXIS(E0);
-        break;
+      UI_INCREMENT_AXIS(E0);
+      break;
     case 5:
-        UI_DECREMENT_AXIS(E0);
-        break;
+      UI_DECREMENT_AXIS(E0);
+      break;
     default: return false;
   }
   #undef UI_DECREMENT_AXIS

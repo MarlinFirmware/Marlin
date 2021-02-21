@@ -27,7 +27,7 @@
 #define FTDI_COCOA_LOAD_CHOCOLATE_SCREEN_CLASS LoadChocolateScreen
 
 struct LoadChocolateScreenData {
-    uint8_t repeat_tag;
+  uint8_t repeat_tag;
 };
 
 class LoadChocolateScreen : public BaseScreen, public CachedScreen<LOAD_CHOCOLATE_SCREEN_CACHE> {
