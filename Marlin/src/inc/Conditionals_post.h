@@ -2758,7 +2758,7 @@
 
 // Add commands that need sub-codes to this list
 #if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
-  #define USE_GCODE_SUBCODES
+  #define USE_GCODE_SUBCODES 1
 #endif
 
 // Parking Extruder
