@@ -153,6 +153,9 @@ namespace ExtUI {
 
   void onSteppersDisabled() {}
   void onSteppersEnabled()  {}
+
+  void onMeshValidationStarting() {}
+  void onMeshValidationFinished() {}
 }
 
 #endif // HAS_DGUS_LCD

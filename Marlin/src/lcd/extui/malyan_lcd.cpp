@@ -538,6 +538,9 @@ namespace ExtUI {
 
   void onSteppersDisabled() {}
   void onSteppersEnabled()  {}
+  
+  void onMeshValidationStarting() {}
+  void onMeshValidationFinished() {}
 }
 
 #endif // MALYAN_LCD

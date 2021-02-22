@@ -113,6 +113,10 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #define EXTRUSION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
 #define OOZE_AMOUNT 0.3
@@ -164,6 +168,7 @@ int16_t g26_bed_temp,
 int8_t g26_prime_flag;
 
 #if HAS_LCD_MENU
+  #define HAS_G26_CANCEL
 
   /**
    * If the LCD is clicked, cancel, wait for release, return true
@@ -174,6 +179,22 @@ int8_t g26_prime_flag;
     TERN_(HAS_LCD_MENU, ui.quick_feedback());
     ui.wait_for_release();
     return true;
+  }
+
+#elif ENABLED(EXTENSIBLE_UI)
+  #define HAS_G26_CANCEL
+
+  bool user_canceled() {
+    if (!ExtUI::isCanceled()) return false;
+
+    ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
+    ExtUI::resetCancelState();
+
+    return true;
+  }
+
+  void updateStatus_P(PGM_P const str) {
+    ExtUI::onStatusChanged_P(str);
   }
 
 #endif
@@ -308,7 +329,7 @@ inline bool look_for_lines_to_connect() {
 
   GRID_LOOP(i, j) {
 
-    if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
+    if (TERN0(HAS_G26_CANCEL, user_canceled())) return true;
 
     if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
                                     // Already a half circle at the edge of the bed.
@@ -371,6 +392,8 @@ inline bool turn_on_heaters() {
         ui.quick_feedback();
         TERN_(HAS_LCD_MENU, ui.capture());
       #endif
+
+      IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_HEATING_BED)));
       thermalManager.setTargetBed(g26_bed_temp);
 
       // Wait for the temperature to stabilize
@@ -389,6 +412,7 @@ inline bool turn_on_heaters() {
     ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
     ui.quick_feedback();
   #endif
+  IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_HEATING_NOZZLE)));
   thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
 
   // Wait for the temperature to stabilize
@@ -454,9 +478,13 @@ inline bool prime_nozzle() {
   #endif
   {
     #if HAS_WIRED_LCD
+
       ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
+
+    IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_FIXED_LENGTH)));
+
     destination = current_position;
     destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
@@ -672,6 +700,9 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshValidationStarting());
+  IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(PSTR("Starting mesh validation...")));
+
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
   current_position.e = 0.0;
@@ -723,6 +754,8 @@ void GcodeSuite::G26() {
 
   mesh_index_pair location;
   do {
+    IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(PSTR("Running pattern...")));
+
     // Find the nearest confluence
     location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_xy_pos);
 
@@ -794,7 +827,7 @@ void GcodeSuite::G26() {
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 
-        if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
+        if (TERN0(HAS_G26_CANCEL, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
       #else // !ARC_SUPPORT
 
@@ -818,7 +851,7 @@ void GcodeSuite::G26() {
 
         for (int8_t ind = start_ind; ind <= end_ind; ind++) {
 
-          if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
+          if (TERN0(HAS_G26_CANCEL, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
           xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
@@ -848,6 +881,7 @@ void GcodeSuite::G26() {
 
   LEAVE:
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
+  IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
   retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
@@ -861,6 +895,7 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshValidationFinished());
   TERN_(HAS_LCD_MENU, ui.release()); // Give back control of the LCD
 
   if (!g26_keep_heaters_on) {

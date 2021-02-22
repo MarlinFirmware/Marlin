@@ -167,6 +167,15 @@ namespace ExtUI {
     #endif
   #endif
 
+  #if ENABLED(G26_MESH_VALIDATION)    
+  void onMeshValidationStarting();
+  void onMeshValidationFinished();
+  #endif
+
+  void setCancelState();
+  void resetCancelState();
+  bool isCanceled();
+
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t);
   #endif

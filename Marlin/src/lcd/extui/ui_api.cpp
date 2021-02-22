@@ -830,6 +830,12 @@ namespace ExtUI {
     #endif
   #endif
 
+
+  bool is_canceled;
+  void setCancelState() { is_canceled = true; }
+  void resetCancelState() { is_canceled = false; }
+  bool isCanceled() { return is_canceled; }
+
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
   #endif
