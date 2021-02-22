@@ -110,7 +110,7 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
   if (TEST(state, MPConfig_Bit_Active)) {                   // Is MeatPack active?
     if (!full_char_count) {                                 // No literal characters to fetch?
       uint8_t buf[2] = { 0, 0 };
-      register const uint8_t res = unpack_chars(c, buf);    // Decode the byte into one or two characters.
+      const uint8_t res = unpack_chars(c, buf);             // Decode the byte into one or two characters.
       if (res & kFirstCharIsLiteral) {                      // The 1st character couldn't be packed.
         ++full_char_count;                                  // So the next stream byte is a full character.
         if (res & kSecondCharIsLiteral) ++full_char_count;  // The 2nd character couldn't be packed. Another stream byte is a full character.
@@ -219,7 +219,7 @@ uint8_t MeatPack::get_result_char(char* const __restrict out) {
   if (char_out_count) {
     res = char_out_count;
     char_out_count = 0;
-    for (register uint8_t i = 0; i < res; ++i)
+    for (uint8_t i = 0; i < res; ++i)
       out[i] = (char)char_out_buf[i];
   }
   return res;
