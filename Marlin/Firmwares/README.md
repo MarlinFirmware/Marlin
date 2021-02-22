@@ -13,7 +13,11 @@
 
   ![QQS](../../docs/images/FLSunMarlin.png)
 
-  __Not for production use. Use with caution!__
+  `__Not for production use.__`
+  
+  `Use with caution!`
+
+***
 
 - [1.Title](#1-Marlin-3D-Printer-Firmware-for-Delta-QQS-Pro-and-Q5)
   - [1.1. Last News,](#11-Last-news-Marlin-2-Bugfix-Branch)
@@ -36,7 +40,7 @@
 - [4. The slicer](#4-SLICER-PART)
 - [5. Wifi Part](#5-Firmware-Wifi)
 - [6. Version History.](#6-Version-History)
-
+***
 ## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210129
   - Last fix by Marlin,
@@ -48,7 +52,7 @@
   - Update ReadMe.
 
 ## 1.2. Validate and Actived parts
- Validate:
+### Validate:
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire.
 
  With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
@@ -105,7 +109,7 @@
     ![Version Probe](../../docs/images/VersionProbe.jpg)        ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
   
 
-  Optionals:
+###  Optionals:
 
   * Modules Wifi
   
@@ -170,10 +174,10 @@
   - (Q5_8+SCWTULR-Robin_nano35)   Q5 Stock(3xTMC2208+1xA4988). 
   - (Q5_9CWTULR-Robin_nano35)     Q5 with 4xTMC2209.
   - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
-
+***
 # 2. SETTINGS THE PRINTER 
   
-  ## HELP - PROCEDURE - TIPS 
+  ### HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer!!
   
   By menu:
@@ -189,7 +193,7 @@
   Now YOU are ready to start a calibration of your printer!!
   
 ## 2.1. Delta Calibration
-  **Perform a Delta Calibration:**
+###  **Perform a Delta Calibration:**
   
   By menu: 
   - "Configuration/Delta_Calibration/AutoCalibration"(5/8 iterations).
@@ -206,7 +210,7 @@
   After removing the probe, you need to redo/adjust the Z offset (Space between the nozzle and the bed=Real dimension of your probe).
   
 ## 2.2. Z_OffSet
-  **Perform a Z offset:**
+###  **Perform a Z offset:**
   
   By menu: 
   - "Motion/MoveAxis" deactived the endstops.
@@ -221,7 +225,7 @@
   - Control your result of operations by command "M503".
   
 ## 2.3. Bed Levelling
-  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
+###  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
 
   By terminal with the commands:
   - M190 S60 (temp bed at 60° or other)
@@ -240,7 +244,7 @@
   - Put your bed at working temperature.
   - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
 
-  **Perform a bed calibration ([**ABL**](https://marlinfw.org/docs/features/auto_bed_leveling.html))**
+###  **Perform a bed calibration ([**ABL**](https://marlinfw.org/docs/features/auto_bed_leveling.html))**
   
   By terminal:
   - with the command "G29"
@@ -261,7 +265,7 @@
     to correct these errors.
 
   ## 2.4. DIMENSIONS
-  **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
+  ### **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
   - you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or odt file) and you insert them all the parameters to be modified with this command [M665](https://marlinfw.org/docs/gcode/M665.html) Lxx Axx Bxx Cxx.
@@ -277,7 +281,7 @@
   ## 2.5. PID
   [Proportional-Integral-Derivative](https://reprap.org/wiki/PID_Tuning)
 
-  **Perform a nozzle PID:**
+  ### **Perform a nozzle PID:**
   
   By the menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
@@ -285,7 +289,7 @@
   By terminal: 
   - with the command "M303 E0 **S210** C8 U0" (ie: S210 for PLA)
   
-  **Perform a bed PID:**
+  ### **Perform a bed PID:**
   
   By menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune Bed" and choose your current working temperature (ie: PLA 60, PETG 80, ABS 90)  
@@ -294,7 +298,7 @@
   - with the command "M303 E-1 **S60** C8 U" (ie: S60 for PLA)
   
   ## 2.6. EXTRUDER
-  **Perform correct adjustment of the steps of your extruder.**
+  ### **Perform correct adjustment of the steps of your extruder.**
 
   ie: For the BMG, I set it to 415 but it's better to confirm it by command "M83" then "G1 E100 F100" which extrudes 100mm of filament.
   
@@ -314,82 +318,82 @@
   - Heat your nozzle to 190°C and go to "Motion/MoveAxis/Extruder/Move 10mm"
   - .......
 
-  **Perform correct filament flow.**
+  ### **Perform correct filament flow.**
   - This chapter is being written ...............
-  
+***  
 # 3. SPECIAL MODS
   - This chapter is being written ...............
-  ## 3.1 TMC with UART mode
+
+## 3.1 TMC with UART mode
   - Wiring for UART mode.
     - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1)
   
     ![Wiring UART](../../docs/images/WireUART.png)
-  ## 3.2 TMC2209 Single wire
+## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
     Caution!! 
     - Power off 
 
     ![Wiring 2209](../../docs/images/Wire2209.png)
-  ## 3.3 Raspberry
+## 3.3 Raspberry
   - Improve your Raspberry (Bauds, plugins, Network).
   
     ![Wiring for Raspberry](../../docs/images/WireRPI.png)
-  ## 3.4. Various assembly
-  - Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
+## 3.4. Various assembly
+### Wiring for mounting Esp8266, filament detector, temperature probes, relay control, etc.
   
-    - Module Wifi (ESP or MKS_Wifi):
+  1. Module Wifi (ESP or MKS_Wifi):
       - Use a cable.....
   
       ![External Wiring for modules Wifi](../../docs/images/ModuleESP.png)
-    - Module filament Sensor:
+  2. Module filament Sensor:
       - Use the socket MT_DET on your board with a cable (3 wires).
       - Wires are: Signal (White), Ground (Black), Power (Red) 
   
       ![Wiring for modules Runout](../../docs/images/ModuleRunout.png)
   
-    - Module Relay(s)
+  3. Module Relay(s)
       - Put a platine.....
   
       ![Wiring for modules Relay](../../docs/images/ModuleRelay.png)
-    - Module convertor, probe, ......
+  4. Module convertor, probe, ......
       - You can insert.....
   
       ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
-  ## 3.5. Mechanical & electronic precautions
-  - Mechanical check.
+      
+## 3.5. Mechanical & electronic precautions
+###  - Mechanical check.
 
-    To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
-    If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
+  To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
+  If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
     
-    ![transport_blocs](../../docs/images/ProtectTravel.png)
+  ![transport_blocs](../../docs/images/ProtectTravel.png)
 
-    The problem with these blocks is that they come loose over time or with vibration. By detaching, they can position themselves askew and force on the pulleys of the belt.
-    They can also jam your belts and overheat the stepper motor and even burn the stepper driver.
-    Another problem arises when you try to over-tension the belts:
-    The stepper motor support gradually twists and the stepper motor/pulley axis is no longer perpendicular to the axis of the belts. This causes wear of the belts and friction noises on the passage of the belts !! 
+  The problem with these blocks is that they come loose over time or with vibration. By detaching, they can position themselves askew and force on the pulleys of the belt.
+  They can also jam your belts and overheat the stepper motor and even burn the stepper driver.
+  Another problem arises when you try to over-tension the belts:
+  The stepper motor support gradually twists and the stepper motor/pulley axis is no longer perpendicular to the axis of the belts. This causes wear of the belts and friction noises on the passage of the belts !! 
     
-    Some [videos](https://www.facebook.com/groups/120961628750040/permalink/664723794373818/) on the problems generated by this.  
+  Some [videos](https://www.facebook.com/groups/120961628750040/permalink/664723794373818/) on the problems generated by this.      
+  To remedy all this, just print one of the models on thingiverse (links: thing:4587495, thing:4376799, thing:4586703)
+
+  ![SupportMotor](../../docs/images/SupportMotor.png)
+
+  Do not forget to check that your pulleys are tight and centered on the axis of the belt with the appropriate screws or that they are well stamped on the axis of the motors !
     
-    To remedy all this, just print one of the models on thingiverse (links: thing:4587495, thing:4376799, thing:4586703)
-
-    ![SupportMotor](../../docs/images/SupportMotor.png)
-
-    Do not forget to check that your pulleys are tight and centered on the axis of the belt with the appropriate screws or that they are well stamped on the axis of the motors !
-    
-    ![CkeckBelts](../../docs/images/CheckBelts.png) ![Appropriate screws](../../docs/images/Screws.png) ![Pulley_stemped](../../docs/images/StampedPulley.png).
+  ![CkeckBelts](../../docs/images/CheckBelts.png) ![Appropriate screws](../../docs/images/Screws.png) ![Pulley_stemped](../../docs/images/StampedPulley.png).
 
 
-    **Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.**
+###    **Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.**
 
-    ![Final_Support_Motor](../../docs/images/FinalSupportMotor.png)
+   ![Final_Support_Motor](../../docs/images/FinalSupportMotor.png)
 
-  - Electronic check.
+###  - Electronic check.
 
     Check your power supply with a controler....
-
+***
 # 4. SLICER PART
-
-  **TIPS-SLICER** 
+### **TIPS-SLICER** 
   
   In your **Start_GCode** on your Slicer.
   - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
@@ -402,14 +406,14 @@
 
   This works fine in [PrusaSlicer](https://help.prusa3d.com/en/article/macros_1775) and goes 100cm above the finished object. It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).** 
+  ### **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).** 
 
 ![Final_Print](../../docs/images/Final.png)
 ![Presentation](../../docs/images/Final2.jpg)
 
 ![Tests](../../docs/images/Tests.png)
 ![MotorMounts](../../docs/images/BottomPulley.png)
-
+***
 # 5. Firmware Wifi
 
 For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3D):
@@ -418,6 +422,7 @@ For the firmware Wifi Module, go to ESP3DV2 [directory](./ESP3D):
 
 Enjoy and support my work ....🙃
 
+ 
  ## Support my work
 
   This QQS-Pro porting project for the Marlin firmware was only possible thanks to its supporters, you can participate via
@@ -432,7 +437,7 @@ Enjoy and support my work ....🙃
   You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
  Massive thank you in advance :heart:
-
+***
 # 6. Version history
 
   ## Marlin 2.0 Bugfix Branch
