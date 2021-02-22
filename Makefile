@@ -27,6 +27,7 @@ tests-single-ci:
 
 tests-single-local:
 	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-all-local" ; return 1; fi
+	@if test -e "Marlin/Configuration.h" ; then cp -n Marlin/Configuration.h Marlin/Configuration.h.backup; cp -n Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup; echo "***WARNING*** Previous configuration file saved to Marlin/'file'.h.backup"; fi 
 	export PATH=./buildroot/bin/:./buildroot/tests/:${PATH} \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
 	  && run_tests . $(TEST_TARGET) "$(ONLY_TEST)"
@@ -38,6 +39,7 @@ tests-single-local-docker:
 .PHONY: tests-single-local-docker
 
 tests-all-local:
+	@if test -e "Marlin/Configuration.h" ; then cp -n Marlin/Configuration.h Marlin/Configuration.h.backup; cp -n Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup; echo "***WARNING*** Previous configuration file saved to Marlin/'file'.h.backup"; fi 
 	export PATH=./buildroot/bin/:./buildroot/tests/:${PATH} \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
 	  && for TEST_TARGET in $$(./get_test_targets.py) ; do echo "Running tests for $$TEST_TARGET" ; run_tests . $$TEST_TARGET ; done

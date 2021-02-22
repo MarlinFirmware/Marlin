@@ -46,6 +46,7 @@ if [[ $2 = "ALL" ]]; then
     testenv=$(basename $f | cut -d"-" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
+    # Restore a clean build environment
     if [[ $GIT_RESET_HARD == "true" ]]; then
       git reset --hard HEAD
     else

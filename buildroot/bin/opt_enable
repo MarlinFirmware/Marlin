@@ -3,7 +3,7 @@
 # exit on first failure
 set -e
 
-SED=$(which gsed || which sed)
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
 
 for opt in "$@" ; do
   # Logic for returning nonzero based on answer here: https://stackoverflow.com/a/15966279/104648
