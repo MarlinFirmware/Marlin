@@ -152,8 +152,7 @@
         NOMORE(len, FLASH_SIZE - addr);
         if (parser.seenval('X')) {
           // TODO: Write the hex bytes after the X
-          //while (len--) {
-          //}
+          //while (len--) {}
         }
         else {
           // while (len--) {
@@ -180,7 +179,25 @@
         for (int i = 10000; i--;) DELAY_US(1000UL);
         ENABLE_ISRS();
         SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
+      } break;
+
+      #if ENABLED(POSTMORTEM_DEBUGGING)
+      case 451: { // Trigger all kind of faults to test exception catcher
+        SERIAL_ECHOLNPGM("Disabling heaters");
+        thermalManager.disable_all_heaters();
+        delay(1000); // Allow time to print
+        volatile uint8_t type[5] = { parser.byteval('T', 1) };
+
+        // The code below is obviously wrong and it's full of quirks to fool the compiler from optimizing away the code
+        switch (type[0]) {
+          case 1: default: *(int*)0 = 451; break; // Write at bad address
+          case 2: { volatile int a = 0; volatile int b = 452 / a; *(int*)&a = b; } break; // Divide by zero (some CPUs accept this, like ARM)
+          case 3: { *(uint32_t*)&type[1] = 453; volatile int a = *(int*)&type[1]; type[0] = a / 255; } break; // Unaligned access (some CPUs accept this)
+          case 4: { volatile void (*func)() = (volatile void (*)()) 0xE0000000; func(); } break; // Invalid instruction
+        }
+        break;
       }
+      #endif
     }
   }
 
