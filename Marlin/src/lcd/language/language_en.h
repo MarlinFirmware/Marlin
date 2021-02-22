@@ -73,6 +73,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_MANUAL_LEVELING                 = _UxGT("Manual Leveling");
+  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh"); 
   PROGMEM Language_Str MSG_MANLEV_FL                       = _UxGT("Front Left");
   PROGMEM Language_Str MSG_MANLEV_FR                       = _UxGT("Front Right"); 
   PROGMEM Language_Str MSG_MANLEV_C                        = _UxGT("Center");

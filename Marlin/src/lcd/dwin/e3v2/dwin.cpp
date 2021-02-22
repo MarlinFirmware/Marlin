@@ -167,7 +167,7 @@ typedef struct {
 } select_t;
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
-         , select_control{0}, select_axis{0}, select_point{0}, select_temp{0}, select_motion{0}, select_tune{0}
+         , select_control{0}, select_axis{0}, select_point{0}, select_mmesh{0}, select_temp{0}, select_motion{0}, select_tune{0}
          , select_PLA{0}, select_ABS{0}
          , select_speed{0}
          , select_acc{0}
@@ -192,6 +192,8 @@ constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
 
 static uint8_t _card_percent = 0;
 static uint16_t _remain_time = 0;
+
+bool sdprint = true;
 
 #if ENABLED(PAUSE_HEAT)
   TERN_(HAS_HOTEND, uint16_t resume_hotend_temp = 0);
@@ -514,8 +516,9 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define PREPARE_CASE_MOVE  1
 #define PREPARE_CASE_MLEV  2
 #define PREPARE_CASE_DISA  3
-#define PREPARE_CASE_HOME  4
-#define PREPARE_CASE_ZOFF (PREPARE_CASE_HOME + ENABLED(HAS_ZOFFSET_ITEM))
+#define PREPARE_CASE_HOME  4 
+#define PREPARE_CASE_MMESH (PREPARE_CASE_HOME + ENABLED(MESH_BED_LEVELING))
+#define PREPARE_CASE_ZOFF (PREPARE_CASE_MMESH + ENABLED(HAS_ZOFFSET_ITEM))
 #define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_HOTEND))
 #define PREPARE_CASE_ABS  (PREPARE_CASE_PLA + ENABLED(HAS_HOTEND))
 #define PREPARE_CASE_COOL (PREPARE_CASE_ABS + EITHER(HAS_HOTEND, HAS_HEATED_BED))
@@ -611,6 +614,16 @@ void Item_Prepare_ManualLev(const uint8_t row) {
   Draw_Menu_Line(row, ICON_SetEndTemp);
   Draw_More_Icon(row);
 }
+
+#if ENABLED(MESH_BED_LEVELING)
+
+void Item_Prepare_ManualMesh(const uint8_t row) {
+  DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_MANUAL_MESH));
+  Draw_Menu_Line(row, ICON_PrintSize);
+  Draw_More_Icon(row);
+}  
+
+#endif
 
 #if HAS_ZOFFSET_ITEM
 
@@ -728,6 +741,9 @@ void Draw_Prepare_Menu() {
   if (PVISI(PREPARE_CASE_MLEV)) Item_Prepare_ManualLev(PSCROL(PREPARE_CASE_MLEV));// Manual Leveling >
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
+  #if ENABLED(MESH_BED_LEVELING)
+    if (PVISI(PREPARE_CASE_MLEV)) Item_Prepare_ManualMesh(PSCROL(PREPARE_CASE_MMESH));// Manual Mesh >
+  #endif
   #if HAS_ZOFFSET_ITEM
     if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
   #endif
@@ -1174,8 +1190,12 @@ void Goto_PrintProcess() {
   if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
   ICON_Stop();
 
-  // Copy into filebuf string before entry
-  char * const name = card.longest_filename();
+  if (sdprint) {
+    // Copy into filebuf string before entry
+    char *const name = card.longest_filename();
+  } else {
+    char * const name = (char*)"Host Print";
+  }
   const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
 
@@ -2171,6 +2191,7 @@ void HMI_SelectFile() {
       HMI_ValueStruct.show_mode = 0;
 
       card.openAndPrintFile(card.filename);
+      sdprint=true;
 
       #if FAN_COUNT > 0
         // All fans on for Ender 3 v2 ?
@@ -2359,9 +2380,9 @@ void Draw_ManualLev_Menu() {
   Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
   DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MANLEV_FL));
   DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FR));
-  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_C));
+  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_BR));
   DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_MANLEV_BL));
-  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_BR));
+  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_C));
   
   Draw_Back_First(select_point.now == 0);
   if (select_point.now) Draw_Menu_Cursor(select_point.now);
@@ -2369,6 +2390,24 @@ void Draw_ManualLev_Menu() {
   // Draw separators and icons
   LOOP_L_N(i, 5) Draw_Menu_Line(i + 1, ICON_Axis);
 }
+
+#if ENABLED(MESH_BED_LEVELING)
+void Draw_ManualMesh_Menu() {
+  Clear_Main_Window();
+  Draw_Title(GET_TEXT_F(MSG_UBL_MANUAL_MESH));
+  DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_UBL_BUILD_MESH_MENU)); //Start -> G29 S1
+  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MOVE_Z)); //Move Z ->
+  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_UBL_CONTINUE_MESH)); //Next -> G29 S2
+  DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_UBL_SAVE_MESH)); //Save -> M500
+ 
+  
+  Draw_Back_First(select_point.now == 0);
+  if (select_point.now) Draw_Menu_Cursor(select_point.now);
+
+  // Draw separators and icons
+  LOOP_L_N(i, 4) Draw_Menu_Line(i + 1, ICON_Axis);
+}
+#endif
 
 #include "../../../libs/buzzer.h"
 
@@ -2400,8 +2439,11 @@ void HMI_Prepare() {
         // Draw "More" icon for sub-menus
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
+        #if HAS_ZOFFSET_ITEM
+         if (index_prepare == PREPARE_CASE_ZOFF) Item_Prepare_Offset(MROWS); // M.A.R.C. Show Edit Z-Offset
+        #endif
         #if HAS_HOTEND
-          if (index_prepare == PREPARE_CASE_PLA) Item_Prepare_PLA(MROWS);  // M.A.R.C. bug fix Show PLA 
+          if (index_prepare == PREPARE_CASE_PLA) Item_Prepare_PLA(MROWS);  // M.A.R.C. Show PLA 
           if (index_prepare == PREPARE_CASE_ABS) Item_Prepare_ABS(MROWS);
         #endif
         #if HAS_PREHEAT
@@ -2431,6 +2473,9 @@ void HMI_Prepare() {
         else if (index_prepare == 7) Item_Prepare_ManualLev(0);
         else if (index_prepare == 8) Item_Prepare_Disable(0);
         else if (index_prepare == 9) Item_Prepare_Home(0);
+      #if ENABLED(MESH_BED_LEVELING)
+        else if (index_prepare == 10) Item_Prepare_ManualMesh(0);
+      #endif  
       }
       else {
         Move_Highlight(-1, select_prepare.now + MROWS - index_prepare);
@@ -2470,6 +2515,14 @@ void HMI_Prepare() {
         queue.inject_P(G28_STR); // G28 will set home_flag
         Popup_Window_Home();
         break;
+      #if ENABLED(MESH_BED_LEVELING)
+      case PREPARE_CASE_MMESH: // Manual Mesh
+        checkkey = ManualMesh;
+        select_mmesh.reset();
+        Draw_ManualMesh_Menu();
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 2, 216, MBASE(2), current_position.z * 100);
+        break; 
+      #endif      
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF: // Z-offset
           #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
@@ -2794,24 +2847,88 @@ void HMI_ManualLev() {
         Draw_Prepare_Menu();
         break;
       case 1: // move to front left
-        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
         break;
       case 2: // move to front right
-        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
         break;
-      case 3: // move to center
-        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
+      case 3: // move to back right
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
         break;
       case 4: // move to back left
-        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
         break;
-      case 5: // move to back right
-        queue.inject_P(PSTR("G28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
+      case 5: // move to center
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
         break;
     }
   }
   DWIN_UpdateLCD();
 }
+
+#if ENABLED(MESH_BED_LEVELING)
+
+/* Manual Mesh */
+void HMI_ManualMesh() {
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_mmesh.inc(1 + 4)) Move_Highlight(1, select_mmesh.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_mmesh.dec()) Move_Highlight(-1, select_mmesh.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    switch (select_mmesh.now) {
+      case 0: // Back
+        checkkey = Prepare;
+        select_prepare.set(1);
+        index_prepare = MROWS;
+        Draw_Prepare_Menu();
+        break;
+      case 1: // Start manual mesh
+        queue.inject_P(PSTR("G28O\nM211 S0\nG29 S1"));
+        break;
+      case 2: // move Z
+        checkkey = MMeshMoveZ;
+        HMI_ValueStruct.Move_Z_scaled = current_position.z * 100;
+        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 2, 216, MBASE(2), HMI_ValueStruct.Move_Z_scaled);
+        EncoderRate.enabled = true;
+        break;
+      case 3: // Next mesh point
+        queue.inject_P(PSTR("G29 S2"));
+        break;
+      case 4: // Save Mesh
+        queue.inject_P(PSTR("M211 S1\nM500"));
+        break;
+    }
+  }
+  DWIN_UpdateLCD();
+}
+
+void HMI_MMeshMoveZ() {
+  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Z_scaled)) {
+      EncoderRate.enabled = false;
+      planner.synchronize();
+      checkkey = ManualMesh;
+      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 2, 216, MBASE(2), HMI_ValueStruct.Move_Z_scaled);
+      DWIN_UpdateLCD();
+      return;
+    }
+    LIMIT(HMI_ValueStruct.Move_Z_scaled, -100, 100);
+    current_position.z = HMI_ValueStruct.Move_Z_scaled / 100;
+    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 2, 216, MBASE(2), HMI_ValueStruct.Move_Z_scaled);
+    DWIN_UpdateLCD();
+    HMI_Plan_Move(homing_feedrate(Z_AXIS));
+  }
+}
+
+#endif
+
 
 /* TemperatureID */
 void HMI_Temperature() {
@@ -3820,6 +3937,10 @@ void DWIN_HandleScreen() {
     case Print_window:    HMI_PauseOrStop(); break;
     case AxisMove:        HMI_AxisMove(); break;
     case ManualLev:       HMI_ManualLev(); break;
+    #if ENABLED(MESH_BED_LEVELING)
+      case ManualMesh:    HMI_ManualMesh(); break;
+      case MMeshMoveZ:    HMI_MMeshMoveZ(); break;
+    #endif
     case TemperatureID:   HMI_Temperature(); break;
     case Motion:          HMI_Motion(); break;
     case Info:            HMI_Info(); break;

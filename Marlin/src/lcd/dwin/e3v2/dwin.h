@@ -48,6 +48,8 @@ enum processID : uint8_t {
   PrintProcess,
   AxisMove,
   ManualLev,
+  ManualMesh,
+  MMeshMoveZ,
   TemperatureID,
   Motion,
   Info,
@@ -348,6 +350,10 @@ void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
 void HMI_AxisMove();    // Axis movement menu
 void HMI_ManualLev();   // Manual Leveling menu
+#if ENABLED(MESH_BED_LEVELING)
+void HMI_ManualMesh();  // Manual Mesh menu
+void HMI_MMeshMoveZ();  // Manual Mesh move Z
+#endif
 void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
