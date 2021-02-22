@@ -73,8 +73,19 @@ void GcodeSuite::M303() {
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
 
+  int16_t default_temp;
+  switch (e) {
+    default: default_temp = PREHEAT_1_TEMP_HOTEND; break;
+    #if HAS_HEATED_BED
+      case H_BED: default_temp = PREHEAT_1_TEMP_BED; break;
+    #endif
+    #if HAS_HEATED_CHAMBER
+      case H_CHAMBER: default_temp = PREHEAT_1_TEMP_CHAMBER; break;
+    #endif
+  }
+
   // FIXME: The following will try to preheat the chamber to the bed preset. That's probably bad.
-  const int16_t temp = parser.celsiusval('S', e < 0 ? PREHEAT_1_TEMP_BED : PREHEAT_1_TEMP_HOTEND);
+  const int16_t temp = parser.celsiusval('S', default_temp);
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
