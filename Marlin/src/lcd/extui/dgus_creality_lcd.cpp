@@ -36,6 +36,7 @@
 #include "lib/dgus_creality/DGUSDisplayDef.h"
 #include "lib/dgus_creality/DGUSScreenHandler.h"
 #include "lib/dgus_creality/creality_touch/PIDHandler.h"
+#include "lib/dgus_creality/creality_touch/MeshValidationHandler.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/powerloss.h"
@@ -240,11 +241,11 @@ bool hasPrintTimer = false;
   }
 
   void onMeshValidationStarting() {
-
+    MeshValidationHandler::OnMeshValidationStart();
   }
 
   void onMeshValidationFinished() {
-    
+    MeshValidationHandler::OnMeshValidationFinish();
   }
 }
 #endif // HAS_DGUS_LCD

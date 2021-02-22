@@ -1,0 +1,28 @@
+#include <cstdint>
+
+class MeshValidationHandler {
+    public:
+        static void Init();
+
+        static void HandleTemperature(DGUS_VP_Variable &var, void *val_ptr);
+
+        static void HandleStartOrCancelButton(DGUS_VP_Variable &var, void *val_ptr);
+
+        static void OnMeshValidationStart();
+        static void OnMeshValidationFinish();
+
+    public:
+        static uint16_t nozzle_temperature;
+        static uint16_t bed_temperature;
+
+        static bool is_cancelling;
+        static bool is_running;
+        static bool was_running;
+
+    private:
+        static void Start();
+        static void Cancel();
+
+        static void ValidateTemperatures();
+        static void SetStatusMessage(PGM_P statusMessage);
+};

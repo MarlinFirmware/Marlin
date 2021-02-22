@@ -32,6 +32,7 @@
 #include "../creality_touch/AxisSettingsHandler.h"
 #include "../creality_touch/EstepsHandler.h"
 #include "../creality_touch/PIDHandler.h"
+#include "../creality_touch/MeshValidationHandler.h"
 
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
@@ -347,6 +348,17 @@ const uint16_t VPList_MiscSettings[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_MeshValidation[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  VP_MESHPATTERN_NOZZLE_TEMP,
+  VP_MESHPATTERN_BED_TEMP,
+
+  VP_MESHPATTERN_BUTTON_ICON,
+
+  0x0000
+};
+
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
@@ -408,6 +420,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_ADV_MOV_SETTINGS, VPList_AdvMovementSettings },
 
   { DGUSLCD_SCREEN_MISC_SETTINGS, VPList_MiscSettings },
+  { DGUSLCD_SCREEN_MESH_VALIDATION, VPList_MeshValidation },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -469,6 +482,16 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, PIDHandler>), nullptr),
 
   VPHELPER(VP_GENERIC_BACK_BUTTON, nullptr, ScreenHandler.OnBackButton, nullptr),
+
+  // ... Mesh validation
+  VPHELPER(VP_MESHPATTERN_NOZZLE_TEMP, &MeshValidationHandler::nozzle_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_MESHPATTERN_BED_TEMP, &MeshValidationHandler::bed_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  VPHELPER(VP_MESHPATTERN_BUTTON_ICON, &MeshValidationHandler::is_running,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<MESHPATTERN_BUTTON_CANCEL, MESHPATTERN_BUTTON_START>)),
+
+  VPHELPER(VP_MESHPATTERN_START_BUTTON, nullptr, MeshValidationHandler::HandleStartOrCancelButton, nullptr),
+  VPHELPER(VP_MESHPATTERN_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_MESH_VALIDATION, MeshValidationHandler>), nullptr),
+
 
   // Axis settings
   VPHELPER(VP_AXIS_SETTINGS_NAV_BUTTON, nullptr, AxisSettingsHandler::HandleNavigation, nullptr),

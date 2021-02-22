@@ -83,7 +83,8 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_AXIS_SETTINGS_TMC = 75,
 
   DGUSLCD_SCREEN_ADV_MOV_SETTINGS = 76,
-  DGUSLCD_SCREEN_MISC_SETTINGS = 77
+  DGUSLCD_SCREEN_MISC_SETTINGS = 77,
+  DGUSLCD_SCREEN_MESH_VALIDATION = 78
 };
 
 // Version checks
@@ -351,7 +352,6 @@ constexpr uint16_t VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON = 0x230b;
 constexpr uint16_t VP_PLR_TOGGLE_BUTTON = 0x230d;
 constexpr uint16_t VP_PLR_TOGGLE_ICON = 0x230F;
 
-
 // Mesh leveling
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
 constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 5;
@@ -396,6 +396,19 @@ constexpr uint16_t MESH_COLOR_NOT_MEASURED = 0xFFFF; // White (becomes invisible
 
 constexpr float MESH_NEAR_ZERO = 0.020;
 constexpr float MESH_UNSET_EPSILON = 0.001;
+
+// Mesh validation pattern
+constexpr uint16_t VP_MESHPATTERN_NOZZLE_TEMP = 0x2313;
+constexpr uint16_t VP_MESHPATTERN_BED_TEMP = 0x2315;
+
+constexpr uint16_t VP_MESHPATTERN_START_BUTTON = 0x2317;
+constexpr uint16_t VP_MESHPATTERN_BUTTON_ICON = 0x2319;
+
+constexpr uint16_t VP_MESHPATTERN_NAV_BUTTON = 0x231B;
+
+constexpr uint16_t MESHPATTERN_BUTTON_START = 24; // This icon does not exist, and will therefore not show
+constexpr uint16_t MESHPATTERN_BUTTON_CANCEL = 25;
+
 
 // Movement screen
 constexpr uint16_t VP_X_POSITION = 0x1048;
