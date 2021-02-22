@@ -60,7 +60,7 @@ void GcodeSuite::M303() {
     }
   #endif
 
-  //This makes an assumption there will always be bed heat avaliable.
+  // This makes an assumption there will always be bed heat avaliable.
   #define SI TERN(PIDTEMPCHAMBER, H_CHAMBER, TERN(PIDTEMPBED, H_BED, H_E0))
   #define EI TERN(PIDTEMP, HOTENDS - 1, H_BED)
   const heater_id_t e = (heater_id_t)parser.intval('E');
