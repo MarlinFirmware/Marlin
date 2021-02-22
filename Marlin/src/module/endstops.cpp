@@ -463,7 +463,7 @@ void _O2 Endstops::report_states() {
   #if HAS_Z4_MAX
     ES_REPORT(Z4_MAX);
   #endif
-  #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
     print_es_state(probe_switch_activated(), PSTR(STR_PROBE_EN));
   #endif
   #if HAS_CUSTOM_PROBE_PIN
