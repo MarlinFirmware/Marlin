@@ -677,19 +677,28 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     MeshLevelIndex = -1;
 
     RequestSaveSettings();
-
-    PopToOldScreen();
-    SetSynchronousOperationFinish();
-
-    // If the user is in the leveling workflow (not printing), get that hotend out of the way
-    if (current_screen == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
+    
+    if (GetPreviousScreen() == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
+      // If the user is in the leveling workflow (not printing), get that hotend out of the way
       char gcodeBuffer[50] = {0};
       sprintf_P(gcodeBuffer, PSTR("G0 F2500 X%d Y%d Z%d"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
       queue.inject(gcodeBuffer);
+
+      // Change text at the top
+      ScreenHandler.SetViewMeshLevelState();
+    } else {
+      // When leveling from anywhere but the Z-offset/level screen, automatically pop back to the previous screen
+      PopToOldScreen();
     }
+
+    SetSynchronousOperationFinish();
   } else {
     // We've already updated the icon, so nothing left
   }
+}
+
+void DGUSScreenHandler::SetViewMeshLevelState() {
+  dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_VIEWING));
 }
 
 void DGUSScreenHandler::InitMeshValues() {

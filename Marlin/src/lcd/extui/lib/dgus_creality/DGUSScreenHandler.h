@@ -349,6 +349,8 @@ public:
   static void SetSynchronousOperationFinish();
   static void SendBusyState(DGUS_VP_Variable &var);
 
+  static void SetViewMeshLevelState();
+
   static float feed_amount;
   static bool fwretract_available;
 
@@ -375,6 +377,11 @@ private:
     static int16_t top_file;    ///< file on top of file chooser
     static int16_t file_to_print; ///< touched file to be confirmed
   #endif
+
+private:
+  FORCE_INLINE static DGUSLCD_Screens GetPreviousScreen() {
+    return past_screens[0];
+  }
 
 public: // Needed for VP auto-upload
   static creality_dwin_settings_t Settings;

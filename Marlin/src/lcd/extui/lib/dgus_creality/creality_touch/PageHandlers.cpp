@@ -117,7 +117,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
             if (buttonValue == 1) {
                 // TODO: set state for "view leveling mesh"
-                dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_VIEWING));
+                ScreenHandler.SetViewMeshLevelState();
                 ScreenHandler.InitMeshValues();
 
                 ScreenHandler.GotoScreen(DGUSLCD_SCREEN_LEVELING);
