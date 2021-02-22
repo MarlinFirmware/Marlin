@@ -304,10 +304,6 @@ void GCodeQueue::ok_to_send() {
   SERIAL_EOL();
 }
 
-// WIP: TTTTTTTTTTTTT  REMOVE THIS WHEN IT'S VALIDATED  TTTTTTTTTTTTTTTT
-static bool dumpUponError = false;
-extern MSerialT _MSerial;
-
 /**
  * Send a "Resend: nnn" message to the host to
  * indicate that a command needs to be re-sent.
@@ -321,7 +317,6 @@ void GCodeQueue::flush_and_request_resend() {
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
   SERIAL_ECHOLN(last_N[serial_ind] + 1);
-  dumpUponError = true;
 }
 
 // Multiserial already handle the dispatch to/from multiple port by itself
@@ -470,13 +465,6 @@ void GCodeQueue::get_serial_commands() {
       // No data for this port ? Skip it
       if (!serial_data_available(p)) continue;
 
-      if (dumpUponError) {
-        SERIAL_ECHO_START();
-        // On LPC1768, available is returning the number of bytes that are available
-        if (p == 1) SERIAL_ECHOPAIR("A:", (int)_MSerial.available());
-        else SERIAL_ECHOPAIR("A:", (int)MYSERIAL0.available());
-      }
-
       // Ok, we have some data to process, let's make progress here
       hadData = true;
 
@@ -495,10 +483,6 @@ void GCodeQueue::get_serial_commands() {
         #endif
       }
 
-      if (dumpUponError) {
-        SERIAL_ECHOPAIR(" L", length, " R", p, " C", ISEOL(c) ? AS_CHAR('$') : AS_CHAR(c));
-      }
-
       const char serial_char = (char)c;
 
       if (ISEOL(serial_char)) {
@@ -508,10 +492,6 @@ void GCodeQueue::get_serial_commands() {
           continue;
 
         char* command = serial_line_buffer[p];
-
-        if (dumpUponError) {
-          SERIAL_ECHOPAIR(" CMD:", command);
-        }
 
         while (*command == ' ') command++;                   // Skip leading spaces
         char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
@@ -526,9 +506,6 @@ void GCodeQueue::get_serial_commands() {
           }
 
           const long gcode_N = strtol(npos + 1, nullptr, 10);
-          if (dumpUponError) {
-            SERIAL_ECHOPAIR(" N:", gcode_N, " n:", npos+1, " lN:", last_N[p]);
-          }
 
           if (gcode_N != last_N[p] + 1 && !M110) {
             // In case of error on a serial port, don't prevent other serial port from making progress
@@ -605,17 +582,9 @@ void GCodeQueue::get_serial_commands() {
             , p
           #endif
         );
-        if (dumpUponError) {
-          SERIAL_ECHOPAIR(" El:", length);
-        }
-
       }
       else
         process_stream_char(serial_char, serial_input_state[p], serial_line_buffer[p], serial_count[p]);
-
-      if (dumpUponError) {
-        SERIAL_ECHOLNPAIR(" SiS:", serial_input_state[p], " SLB:", serial_line_buffer[p], " SC:", serial_count[p]);
-      }
 
     } // NUM_SERIAL loop
   } // queue has space, serial has data
