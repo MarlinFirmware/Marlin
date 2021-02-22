@@ -4,6 +4,7 @@
 #
 import subprocess
 import os
+import shutil
 import re
 try:
 	import configparser
@@ -321,6 +322,10 @@ def check_configfile_locations():
 			if os.path.isfile(os.path.join(p, f)):
 				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
 				raise SystemExit(err)
+	for f in [ "Configuration.h", "Configuration_adv.h" ]:
+		p = os.path.join(os.path.join(env['PROJECT_DIR'], "Marlin"), f)
+		if not os.path.isfile(p):
+			shutil.copyfile(p + ".template", p);
 
 #
 # Add a method for other PIO scripts to query enabled features
