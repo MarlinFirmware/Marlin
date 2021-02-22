@@ -60,31 +60,25 @@ void GcodeSuite::M303() {
     }
   #endif
 
-  // This makes an assumption there will always be bed heat avaliable.
-  #define SI TERN(PIDTEMPCHAMBER, H_CHAMBER, TERN(PIDTEMPBED, H_BED, H_E0))
-  #define EI TERN(PIDTEMP, HOTENDS - 1, H_BED)
-  const heater_id_t e = (heater_id_t)parser.intval('E');
-  if (!WITHIN(e, SI, EI)) {
+  const heater_id_t hid = (heater_id_t)parser.intval('E');
+  int16_t default_temp;
+  do {
+    #if ENABLED(PIDTEMP)
+      if (WITHIN(hid, 0, HOTENDS - 1)) { default_temp = PREHEAT_1_TEMP_HOTEND; break; }
+    #endif
+    #if ENABLED(PIDTEMPBED)
+      if (hid == H_BED) { default_temp = PREHEAT_1_TEMP_BED; break; }
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      if (hid == H_CHAMBER) { default_temp = PREHEAT_1_TEMP_CHAMBER; break; }
+    #endif
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
     return;
-  }
+  } while(0);
 
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
-
-  int16_t default_temp;
-  switch (e) {
-    default: default_temp = PREHEAT_1_TEMP_HOTEND; break;
-    #if HAS_HEATED_BED
-      case H_BED: default_temp = PREHEAT_1_TEMP_BED; break;
-    #endif
-    #if HAS_HEATED_CHAMBER
-      case H_CHAMBER: default_temp = PREHEAT_1_TEMP_CHAMBER; break;
-    #endif
-  }
-
-  // FIXME: The following will try to preheat the chamber to the bed preset. That's probably bad.
   const int16_t temp = parser.celsiusval('S', default_temp);
 
   #if DISABLED(BUSY_WHILE_HEATING)
@@ -92,7 +86,7 @@ void GcodeSuite::M303() {
   #endif
 
   LCD_MESSAGEPGM(MSG_PID_AUTOTUNE);
-  thermalManager.PID_autotune(temp, e, c, u);
+  thermalManager.PID_autotune(temp, hid, c, u);
   ui.reset_status();
 }
 

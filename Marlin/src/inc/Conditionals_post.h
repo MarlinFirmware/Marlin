@@ -2011,6 +2011,9 @@
 #if !HAS_HEATED_BED
   #undef PIDTEMPBED
 #endif
+#if !HAS_HEATED_CHAMBER
+  #undef PIDTEMPCHAMBER
+#endif
 #if EITHER(PIDTEMP, PIDTEMPBED)
   #define HAS_PID_HEATING 1
 #endif

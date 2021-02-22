@@ -490,39 +490,35 @@ volatile bool Temperature::raw_temps_ready = false;
     const bool isbed = (heater_id == H_BED);
     const bool ischamber = (heater_id == H_CHAMBER);
 
-    #if HAS_PID_FOR_ALL
-      #define GHV(C,B,H) (ischamber ? (C) : (isbed ? (B) : (H)))
-      #define SHV(C,B,H) do{ if (ischamber) temp_chamber.soft_pwm_amount = C; else if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater_id].soft_pwm_amount = H; }while(0)
-      #define ONHEATINGSTART() (ischamber ? printerEventLEDs.onChamberHeatingStart() : (isbed ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart()))
-      #define ONHEATING(S,C,T) (ischamber ? printerEventLEDs.onChamberHeating(S,C,T) : (isbed ? printerEventLEDs.onBedHeating(S,C,T) : printerEventLEDs.onHotendHeating(S,C,T)))
-    #elif HAS_PID_FOR_BOTH
-      #define GHV(C,B,H) (isbed ? (B) : (H))
-      #define SHV(C,B,H) do{ if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater_id].soft_pwm_amount = H; }while(0)
-      #define ONHEATINGSTART() (isbed ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
-      #define ONHEATING(S,C,T) (isbed ? printerEventLEDs.onBedHeating(S,C,T) : printerEventLEDs.onHotendHeating(S,C,T))
-    #elif ENABLED(PIDTEMPBED)
-      #define GHV(C,B,H) B
-      #define SHV(C,B,H) (temp_bed.soft_pwm_amount = B)
-      #define ONHEATINGSTART() printerEventLEDs.onBedHeatingStart()
-      #define ONHEATING(S,C,T) printerEventLEDs.onBedHeating(S,C,T)
+    #if ENABLED(PIDTEMPCHAMBER)
+      #define C_TERN(T,A,B) ((T) ? (A) : (B))
     #else
-      #define GHV(C,B,H) H
-      #define SHV(C,B,H) (temp_hotend[heater_id].soft_pwm_amount = H)
-      #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
-      #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
+      #define C_TERN(T,A,B) (B)
     #endif
+    #if ENABLED(PIDTEMPBED)
+      #define B_TERN(T,A,B) ((T) ? (A) : (B))
+    #else
+      #define B_TERN(T,A,B) (B)
+    #endif
+    #define GHV(C,B,H) C_TERN(ischamber, C, B_TERN(isbed, B, H))
+    #define SHV(C,B,H) C_TERN(ischamber, temp_chamber.soft_pwm_amount = C, B_TERN(isbed, temp_bed.soft_pwm_amount = B, temp_hotend[heater_id].soft_pwm_amount = H))
+    #define ONHEATINGSTART() C_TERN(ischamber, printerEventLEDs.onChamberHeatingStart(), B_TERN(isbed, printerEventLEDs.onBedHeatingStart(), printerEventLEDs.onHotendHeatingStart()))
+    #define ONHEATING(S,C,T) C_TERN(ischamber, printerEventLEDs.onChamberHeating(S,C,T), B_TERN(isbed, printerEventLEDs.onBedHeating(S,C,T), printerEventLEDs.onHotendHeating(S,C,T)))
+
     #define WATCH_PID BOTH(WATCH_CHAMBER, PIDTEMPCHAMBER) || BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP)
 
     #if WATCH_PID
-      #if ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED, THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
-        #define GTV(C,B,H) (ischamber ? (C) : (isbed ? (B) : (H)))
-      #elif ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED)
-        #define GTV(C,B,H) (isbed ? (B) : (H))
-      #elif BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
-        #define GTV(C,B,H) (H)
+      #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
+        #define C_GTV(T,A,B) ((T) ? (A) : (B))
       #else
-        #define GTV(C,B,H) (B)
+        #define C_GTV(T,A,B) (B)
       #endif
+      #if BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+        #define B_GTV(T,A,B) ((T) ? (A) : (B))
+      #else
+        #define B_GTV(T,A,B) (B)
+      #endif
+      #define GTV(C,B,H) C_GTV(ischamber, C, B_GTV(isbed, B, H))
       const uint16_t watch_temp_period = GTV(WATCH_CHAMBER_TEMP_PERIOD, WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_CHAMBER_TEMP_INCREASE, WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
       const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_CHAMBER_HYSTERESIS, TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
@@ -692,51 +688,45 @@ volatile bool Temperature::raw_temps_ready = false;
       if (cycles > ncycles && cycles > 2) {
         SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_FINISHED);
 
-        #if (HAS_PID_FOR_ALL || HAS_PID_FOR_BOTH)
-          const char * const estring = GHV(PSTR("chamber"), PSTR("bed"), NUL_STR);
+        #if EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
+          PGM_P const estring = GHV(PSTR("chamber"), PSTR("bed"), NUL_STR);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
           say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);
-        #elif ENABLED(PIDTEMP)
+        #else
           say_default_(); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
           say_default_(); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
           say_default_(); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);
-        #else
-          say_default_(); SERIAL_ECHOLNPAIR("bedKp ", tune_pid.Kp);
-          say_default_(); SERIAL_ECHOLNPAIR("bedKi ", tune_pid.Ki);
-          say_default_(); SERIAL_ECHOLNPAIR("bedKd ", tune_pid.Kd);
         #endif
 
-        #define _SET_CHAMBER_PID() do { \
-          temp_chamber.pid.Kp = tune_pid.Kp; \
-          temp_chamber.pid.Ki = scalePID_i(tune_pid.Ki); \
-          temp_chamber.pid.Kd = scalePID_d(tune_pid.Kd); \
-        }while(0)
+        #if ENABLED(PIDTEMP)
+          auto _set_hotend_pid = [](const uint8_t e, const PID_t &in_pid) {
+            PID_PARAM(Kp, e) = in_pid.Kp;
+            PID_PARAM(Ki, e) = scalePID_i(in_pid.Ki);
+            PID_PARAM(Kd, e) = scalePID_d(in_pid.Kd);
+            updatePID();
+          };
+        #endif
 
-        #define _SET_BED_PID() do { \
-          temp_bed.pid.Kp = tune_pid.Kp; \
-          temp_bed.pid.Ki = scalePID_i(tune_pid.Ki); \
-          temp_bed.pid.Kd = scalePID_d(tune_pid.Kd); \
-        }while(0)
+        #if ENABLED(PIDTEMPBED)
+          auto _set_bed_pid = [](const PID_t &in_pid) {
+            temp_bed.pid.Kp = in_pid.Kp;
+            temp_bed.pid.Ki = scalePID_i(in_pid.Ki);
+            temp_bed.pid.Kd = scalePID_d(in_pid.Kd);
+          };
+        #endif
 
-        #define _SET_EXTRUDER_PID() do { \
-          PID_PARAM(Kp, heater_id) = tune_pid.Kp; \
-          PID_PARAM(Ki, heater_id) = scalePID_i(tune_pid.Ki); \
-          PID_PARAM(Kd, heater_id) = scalePID_d(tune_pid.Kd); \
-          updatePID(); }while(0)
+        #if ENABLED(PIDTEMPCHAMBER)
+          auto _set_chamber_pid = [](const PID_t &in_pid) {
+            temp_chamber.pid.Kp = in_pid.Kp;
+            temp_chamber.pid.Ki = scalePID_i(in_pid.Ki);
+            temp_chamber.pid.Kd = scalePID_d(in_pid.Kd);
+          };
+        #endif
 
         // Use the result? (As with "M303 U1")
-        if (set_result) {
-          #if HAS_PID_FOR_ALL
-            if (ischamber) _SET_CHAMBER_PID(); else if (isbed) _SET_BED_PID(); else _SET_EXTRUDER_PID();
-          #elif HAS_PID_FOR_BOTH
-            if (isbed) _SET_BED_PID(); else _SET_EXTRUDER_PID();
-          #elif ENABLED(PIDTEMP)
-            _SET_EXTRUDER_PID();
-          #else
-            _SET_BED_PID();
-          #endif
-        }
+        if (set_result)
+          GHV(_set_chamber_pid(tune_pid), _set_bed_pid(tune_pid), _set_hotend_pid(heater_id, tune_pid));
 
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
 
@@ -1476,7 +1466,7 @@ void Temperature::manage_heater() {
           temp_chamber.soft_pwm_amount = 0;
           WRITE_HEATER_CHAMBER(LOW);
         }
-  
+
      }
      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
        tr_state_machine[RUNAWAY_IND_CHAMBER].run(temp_chamber.celsius, temp_chamber.target, H_CHAMBER, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);

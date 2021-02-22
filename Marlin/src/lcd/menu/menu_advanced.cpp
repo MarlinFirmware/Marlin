@@ -187,15 +187,15 @@ void menu_backlash();
     char cmd[30];
     int16_t tune_temp;
     switch (hid) {
-      #if HAS_HEATED_BED
+      #if ENABLED(PIDTEMPBED)
         case H_BED: tune_temp = autotune_temp_bed; break;
       #endif
-      #if HAS_HEATED_CHAMBER
+      #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: tune_temp = autotune_temp_chamber; break;
       #endif
-      default: tune_temp = autotune_temp[e]; break;
+      default: tune_temp = autotune_temp[hid]; break;
     }
-    sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), e, tune_temp);
+    sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), hid, tune_temp);
     queue.inject(cmd);
     ui.return_to_status();
   }
@@ -232,7 +232,7 @@ void menu_backlash();
 #if ENABLED(PID_AUTOTUNE_MENU)
   #define DEFINE_PIDTEMP_FUNCS(N) \
     _DEFINE_PIDTEMP_BASE_FUNCS(N); \
-    void lcd_autotune_callback_E##N() { _lcd_autotune(N); }
+    void lcd_autotune_callback_E##N() { _lcd_autotune(heater_id_t(N)); }
 #else
   #define DEFINE_PIDTEMP_FUNCS(N) _DEFINE_PIDTEMP_BASE_FUNCS(N);
 #endif
@@ -315,7 +315,7 @@ void menu_backlash();
     #if ENABLED(PID_AUTOTUNE_MENU)
       #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
         _HOTEND_PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.heater_maxtemp[N] - HOTEND_OVERSHOOT, []{ _lcd_autotune(MenuItemBase::itemIndex); });
+        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.heater_maxtemp[N] - HOTEND_OVERSHOOT, []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
     #else
       #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
     #endif
