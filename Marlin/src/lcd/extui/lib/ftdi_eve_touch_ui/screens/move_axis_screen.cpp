@@ -70,8 +70,8 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
 }
 
 bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
-  #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
+  #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
+  #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
     case  2: UI_DECREMENT_AXIS(X); break;

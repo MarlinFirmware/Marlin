@@ -40,6 +40,8 @@ uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 // HAL initialization task
 void HAL_init() {
   // Initialize the USB stack
@@ -47,6 +49,7 @@ void HAL_init() {
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
   usb_task_init();
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 // HAL idle task
