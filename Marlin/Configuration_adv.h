@@ -2012,6 +2012,13 @@
   //#define SERIAL_STATS_DROPPED_RX
 #endif
 
+// Monitor RX buffer usage
+// This will dump an error to the serial port in case of overflow of the serial receive buffer
+// If it happens, increase the RX_BUFFER_SIZE value
+// Not supported on all platform.
+#define RX_BUFFER_MONITOR
+
+
 /**
  * Emergency Command Parser
  *

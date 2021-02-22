@@ -31,41 +31,124 @@
 class GCodeQueue {
 public:
   /**
-   * GCode line number handling. Hosts may include line numbers when sending
-   * commands to Marlin, and lines will be checked for sequentiality.
-   * M110 N<int> sets the current line number.
+   * The buffers per serial port.
    */
+  struct PerSerial
+  {
+    /**
+     * GCode line number handling. Hosts may include line numbers when sending
+     * commands to Marlin, and lines will be checked for sequentiality.
+     * M110 N<int> sets the current line number.
+     */
+    long last_N;
+    /**
+     * Number of characters read in the current line of serial input
+     */
+    int count;
 
-  static long last_N[NUM_SERIAL];
+    /**
+     * The current line accumulator
+     */
+    char line_buffer[MAX_CMD_SIZE];
+
+    /**
+     * The input state
+     */
+    uint8_t input_state;
+  };
+
+  /**
+   * The array of per serial state variable
+   */
+  static PerSerial per_serial[NUM_SERIAL];
 
   /**
    * GCode Command Queue
-   * A simple ring buffer of BUFSIZE command strings.
+   * A simple (circular) ring buffer of BUFSIZE command strings.
    *
    * Commands are copied into this buffer by the command injectors
    * (immediate, serial, sd card) and they are processed sequentially by
    * the main loop. The gcode.process_next_command method parses the next
    * command and hands off execution to individual handler functions.
    */
-  static uint8_t length,  // Count of commands in the queue
-                 index_r; // Ring buffer read position
+  struct CommandQueue
+  {
+    /**
+     * The command buffer
+     */
+    char buffer[MAX_CMD_SIZE];
 
-  static char command_buffer[BUFSIZE][MAX_CMD_SIZE];
+    /**
+     * Skip sending ok when command is processed ?
+     * The logic is inverted here to skip setting all the variables to true upon construction
+     */
+    bool skip_ok;
+
+    #if HAS_MULTI_SERIAL
+      /**
+       * The port that the command was received on
+       */
+      serial_index_t port;
+    #endif
+  };
+
 
   /**
-   * The port that the command was received on
+   * The ring buffer head
    */
-  #if HAS_MULTI_SERIAL
-    static serial_index_t port[BUFSIZE];
-  #endif
-  static inline serial_index_t command_port() { return TERN0(HAS_MULTI_SERIAL, port[index_r]); }
+  struct RingBuffer
+  {
+    /**
+     * Number of commands in the queue
+     */
+    uint8_t length;
+    /**
+     * Ring buffer's read position
+     */
+    uint8_t index_r;
+    /**
+     * Ring buffer's write position
+     */
+    uint8_t index_w;
+    /**
+     * The ring buffer of commands
+     */
+    CommandQueue commands[BUFSIZE];
 
-  GCodeQueue();
+    inline serial_index_t command_port() { return TERN0(HAS_MULTI_SERIAL, commands[index_r].port); }
+
+    inline void clear() { length = index_r = index_w = 0; }
+
+    void advance_pos(uint8_t & p, int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
+
+    void commit_command(bool skip_ok
+    #if HAS_MULTI_SERIAL
+      , serial_index_t serial_ind = -1
+    #endif
+    );
+
+    bool enqueue(const char* cmd, bool skip_ok = true
+    #if HAS_MULTI_SERIAL
+      , serial_index_t serial_ind = -1
+    #endif
+    );
+
+    void ok_to_send();
+
+    inline bool full(uint8_t cmdCount = 1) const { return length > (BUFSIZE - cmdCount); }
+
+    inline bool empty() const { return length == 0; }
+  };
+
+  /**
+   * The ring buffer of commands
+   */
+  static RingBuffer ring_buffer;
 
   /**
    * Clear the Marlin command queue
    */
-  static void clear();
+  static void clear() { ring_buffer.clear(); }
 
   /**
    * Next Injected Command (PROGMEM) pointer. (nullptr == empty)
@@ -112,7 +195,7 @@ public:
   /**
    * Check whether there are any commands yet to be executed
    */
-  static bool has_commands_queued();
+  static bool has_commands_queued() { return ring_buffer.length || injected_commands_P || injected_commands[0]; }
 
   /**
    * Get the next command in the queue, optionally log it to SD, then dispatch it
@@ -136,7 +219,7 @@ public:
    *   P<int>  Planner space remaining
    *   B<int>  Block queue space remaining
    */
-  static void ok_to_send();
+  static inline void ok_to_send() { ring_buffer.ok_to_send(); }
 
   /**
    * Clear the serial line and request a resend of
@@ -144,27 +227,21 @@ public:
    */
   static void flush_and_request_resend();
 
+  /**
+   * (Re)Set the current line number for the last received command
+   */
+  static inline void set_current_line_number(long n) { per_serial[ring_buffer.command_port()].last_N = n; }
+
 private:
 
-  static uint8_t index_w;  // Ring buffer write position
+  /** Get the next command from the buffer (or NULL) */
+  CommandQueue & peek_next_command() { return ring_buffer.commands[ring_buffer.index_r]; }
 
   static void get_serial_commands();
 
   #if ENABLED(SDSUPPORT)
     static void get_sdcard_commands();
   #endif
-
-  static void _commit_command(bool say_ok
-    #if HAS_MULTI_SERIAL
-      , serial_index_t serial_ind=-1
-    #endif
-  );
-
-  static bool _enqueue(const char* cmd, bool say_ok=false
-    #if HAS_MULTI_SERIAL
-      , serial_index_t serial_ind=-1
-    #endif
-  );
 
   // Process the next "immediate" command (PROGMEM)
   static bool process_injected_command_P();
@@ -180,6 +257,7 @@ private:
 
   static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 
+  friend class GcodeSuite;
 };
 
 extern GCodeQueue queue;

@@ -260,13 +260,6 @@ void GcodeSuite::dwell(millis_t time) {
 
 #endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
 
-//
-// Placeholders for non-migrated codes
-//
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  extern void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
-#endif
-
 /**
  * Process the parsed command and dispatch it to its handler
  */
@@ -995,25 +988,30 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
  * This is called from the main loop()
  */
 void GcodeSuite::process_next_command() {
-  char * const current_command = queue.command_buffer[queue.index_r];
+  GCodeQueue::CommandQueue & command = queue.peek_next_command();
 
-  PORT_REDIRECT(SERIAL_PORTMASK(queue.port[queue.index_r]));
+  #if HAS_MULTI_SERIAL
+    PORT_REDIRECT(SERIAL_PORTMASK(command.port));
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.queue_index_r = queue.index_r;
+    recovery.queue_index_r = queue.ring_buffer.index_r;
   #endif
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLN(current_command);
+    SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", queue.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), &queue.command_buffer[0][0], &queue.command_buffer[BUFSIZE - 1][MAX_CMD_SIZE - 1]);
+      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
+      serialprintPGM(PSTR("   Command Queue:"));
+      SERIAL_EOL();
+      for (GCodeQueue::CommandQueue * start = &queue.ring_buffer.commands[0]; start < &queue.ring_buffer.commands[BUFSIZE]; start++)
+        SERIAL_ECHOLN(start->buffer);
     #endif
   }
 
   // Parse the next command in the queue
-  parser.parse(current_command);
+  parser.parse(command.buffer);
   process_parsed_command();
 }
 

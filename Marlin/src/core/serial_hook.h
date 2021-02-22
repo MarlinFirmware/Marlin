@@ -39,7 +39,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   void msgDone() {}
 
   // We don't care about indices here, since if one can call us, it's the right index anyway
-  bool available(uint8_t) { return (bool)SerialT::available(); }
+  int available(uint8_t)  { return (int)SerialT::available(); }
   int read(uint8_t)       { return (int)SerialT::read(); }
   bool connected()        { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
   void flushTX()          { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
@@ -74,13 +74,13 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   void end()                        { out.end(); }
 
   void msgDone() {}
-  bool connected()         { return CALL_IF_EXISTS(bool, &out, connected); }
-  void flushTX()           { CALL_IF_EXISTS(void, &out, flushTX); }
+  bool connected()          { return CALL_IF_EXISTS(bool, &out, connected); }
+  void flushTX()            { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t ) { return (bool)out.available(); }
-  int read(uint8_t )       { return (int)out.read(); }
-  bool available()         { return (bool)out.available(); }
-  int read()               { return (int)out.read(); }
+  int available(uint8_t )   { return (int)out.available(); }
+  int read(uint8_t )        { return (int)out.read(); }
+  int available()           { return (int)out.available(); }
+  int read()                { return (int)out.read(); }
 
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
@@ -102,9 +102,9 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t)       { return (bool)out.available(); }
+  int available(uint8_t)        { return (int)out.available(); }
   int read(uint8_t)             { return (int)out.read(); }
-  bool available()              { return (bool)out.available(); }
+  int available()               { return (int)out.available(); }
   int read()                    { return (int)out.read(); }
 
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
@@ -130,7 +130,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
     if (eofHook) eofHook(userPointer);
   }
 
-  bool available(uint8_t) { return (bool)SerialT::available(); }
+  int available(uint8_t)  { return (int)SerialT::available(); }
   int read(uint8_t)       { return (int)SerialT::read(); }
   using SerialT::available;
   using SerialT::read;
@@ -191,14 +191,14 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
     if (portMask & FirstOutputMask)   serial0.msgDone();
     if (portMask & SecondOutputMask)  serial1.msgDone();
   }
-  bool available(uint8_t index) {
+  int available(uint8_t index) {
     if (index >= 0 + offset && index < step + offset)
       return serial0.available(index);
     else if (index >= step + offset && index < 2 * step + offset)
       return serial1.available(index);
     return false;
   }
-  NO_INLINE int read(uint8_t index) {
+  int read(uint8_t index) {
     if (index >= 0 + offset && index < step + offset)
       return serial0.read(index);
     else if (index >= step + offset && index < 2 * step + offset)
