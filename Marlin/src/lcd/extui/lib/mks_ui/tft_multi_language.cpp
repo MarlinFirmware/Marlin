@@ -945,6 +945,11 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_CN;
       more_menu.gcode       = MORE_GCODE_CN;
       more_menu.entergcode  = MORE_ENTER_GCODE_CN;
+      #if ENABLED(NEOPIXEL_LED)
+        more_menu.ledstrip       = MORE_LEDSTRIP_CN;
+        more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_CN;
+        more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_CN;
+      #endif
       #if HAS_USER_ITEM(1)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
       #endif
@@ -1190,6 +1195,11 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_T_CN;
             more_menu.gcode       = MORE_GCODE_T_CN;
             more_menu.entergcode  = MORE_ENTER_GCODE_T_CN;
+            #if ENABLED(NEOPIXEL_LED)
+              more_menu.ledstrip       = MORE_LEDSTRIP_T_CN;
+              more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_T_CN;
+              more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_T_CN;
+            #endif
             #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
             #endif
@@ -1422,6 +1432,12 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_EN;
             more_menu.gcode       = MORE_GCODE_EN;
             more_menu.entergcode  = MORE_ENTER_GCODE_EN;
+            #if ENABLED(NEOPIXEL_LED)
+              more_menu.ledstrip       = MORE_LEDSTRIP_EN;
+              more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_EN;
+              more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_EN;
+            #endif
+
             #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
             #endif
@@ -1655,6 +1671,12 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_RU;
             more_menu.gcode       = MORE_GCODE_RU;
             more_menu.entergcode  = MORE_ENTER_GCODE_RU;
+            #if ENABLED(NEOPIXEL_LED)
+              more_menu.ledstrip       = MORE_LEDSTRIP_EN;
+              more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_EN;
+              more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_EN;
+            #endif
+
             #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
             #endif
@@ -1984,6 +2006,12 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_SP;
             more_menu.gcode       = MORE_GCODE_SP;
             more_menu.entergcode  = MORE_ENTER_GCODE_SP;
+            #if ENABLED(NEOPIXEL_LED)
+              more_menu.ledstrip       = MORE_LEDSTRIP_SP;
+              more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_SP;
+              more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_SP;
+            #endif
+
             #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
             #endif
@@ -2218,6 +2246,12 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_FR;
           more_menu.gcode       = MORE_GCODE_FR;
           more_menu.entergcode  = MORE_ENTER_GCODE_FR;
+          #if ENABLED(NEOPIXEL_LED)
+            more_menu.ledstrip       = MORE_LEDSTRIP_FR;
+            more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_FR;
+            more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_FR;
+          #endif
+
           #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
           #endif
@@ -2453,6 +2487,12 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_IT;
           more_menu.gcode       = MORE_GCODE_IT;
           more_menu.entergcode  = MORE_ENTER_GCODE_IT;
+          #if ENABLED(NEOPIXEL_LED)
+            more_menu.ledstrip       = MORE_LEDSTRIP_IT;
+            more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_IT;
+            more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_IT;
+          #endif
+
           #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
           #endif
@@ -2688,6 +2728,12 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_EN;
       more_menu.gcode       = MORE_GCODE_EN;
       more_menu.entergcode  = MORE_ENTER_GCODE_EN;
+      #if ENABLED(NEOPIXEL_LED)
+        more_menu.ledstrip       = MORE_LEDSTRIP_EN;
+        more_menu.ledstrip_all   = MORE_LEDSTRIP_ALL_EN;
+        more_menu.ledstrip_help  = MORE_LEDSTRIP_HELP_EN;
+      #endif
+
       #if HAS_USER_ITEM(1)
         more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
       #endif

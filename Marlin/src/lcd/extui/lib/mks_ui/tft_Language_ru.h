@@ -35,6 +35,10 @@
 #define MORE_GCODE_RU                   "G-код"
 #define MORE_ENTER_GCODE_RU             "Введите G-код"
 
+#define MORE_LEDSTRIP_RU                "Набор светодиодных цветов"
+#define MORE_LEDSTRIP_ALL_RU            "Все"
+#define MORE_LEDSTRIP_HELP_RU           "Длинное нажатие центра для изменения режима"
+
 #define ADD_TEXT_RU                     "добавить"
 #define DEC_TEXT_RU                     "уменьшить"
 #define EXTRUDER_1_TEXT_RU              "экструдер1"

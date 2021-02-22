@@ -282,6 +282,11 @@
 #define MORE_GCODE_EN           "G-Code"
 #define MORE_ENTER_GCODE_EN     "Enter G-Code"
 
+#define MORE_LEDSTRIP_EN        "Set LED color"
+#define MORE_LEDSTRIP_ALL_EN    "All"
+#define MORE_LEDSTRIP_HELP_EN   "Long press center to switch mode"
+
+
 #define ADD_TEXT_EN             "Add"
 #define DEC_TEXT_EN             "Dec"
 #define EXTRUDER_1_TEXT_EN      "Extrusion1"

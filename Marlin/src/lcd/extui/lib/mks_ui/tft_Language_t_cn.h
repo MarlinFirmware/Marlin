@@ -266,6 +266,10 @@
 #define MORE_GCODE_T_CN                 "G-Code"
 #define MORE_ENTER_GCODE_T_CN           "Enter G-Code"
 
+#define MORE_LEDSTRIP_T_CN              "Set LED color"
+#define MORE_LEDSTRIP_ALL_T_CN          "All"
+#define MORE_LEDSTRIP_HELP_T_CN         "Long press center to switch mode"
+
 #define ADD_TEXT_T_CN                   "增加"
 #define DEC_TEXT_T_CN                   "減少"
 #define EXTRUDER_1_TEXT_T_CN            "噴頭1"

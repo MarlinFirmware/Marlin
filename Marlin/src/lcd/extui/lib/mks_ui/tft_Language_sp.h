@@ -36,6 +36,10 @@
 #define MORE_GCODE_SP           "G-Code"
 #define MORE_ENTER_GCODE_SP     "Introduzca el G-Code"
 
+#define MORE_LEDSTRIP_SP        "Cambiar la luz"
+#define MORE_LEDSTRIP_ALL_SP    "Todo"
+#define MORE_LEDSTRIP_HELP_SP   "Pulsación larga en el centro para cambiar de modo"
+
 #define ADD_TEXT_SP             "Más"
 #define DEC_TEXT_SP             "Menos"
 #define EXTRUDER_1_TEXT_SP      "Extrusor1: "

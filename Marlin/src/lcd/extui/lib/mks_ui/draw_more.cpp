@@ -103,7 +103,7 @@ void lv_draw_more() {
   lv_obj_t *labelGCode = lv_label_create_empty(buttonGCode);
 
   #if ENABLED(NEOPIXEL_LED)
-    lv_obj_t *buttonLedstrip = lv_imgbtn_create(scr, "F:/bmp_rgbstrip.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_GCODE);
+    lv_obj_t *buttonLedstrip = lv_imgbtn_create(scr, "F:/bmp_rgbstrip.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_LEDSTRIP);
     if (enc_ena) lv_group_add_obj(g, buttonLedstrip);
     lv_obj_t *labelLedstrip = lv_label_create_empty(buttonLedstrip);
   #endif
@@ -161,6 +161,11 @@ void lv_draw_more() {
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelGCode, more_menu.gcode);
     lv_obj_align(labelGCode, buttonGCode, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+
+    #if ENABLED(NEOPIXEL_LED)
+      lv_label_set_text(labelLedstrip, more_menu.ledstrip);
+      lv_obj_align(labelLedstrip, buttonLedstrip, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #endif
 
     #if HAS_USER_ITEM(1)
       lv_label_set_text(labelCustom1, more_menu.custom1);

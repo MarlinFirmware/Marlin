@@ -466,6 +466,9 @@ typedef struct more_menu_disp {
   const char *custom7;
   const char *gcode;
   const char *entergcode;
+  const char *ledstrip;
+  const char *ledstrip_help;
+  const char *ledstrip_all;
   const char *back;
 } more_menu_def;
 

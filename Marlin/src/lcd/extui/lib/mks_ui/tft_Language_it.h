@@ -35,6 +35,11 @@
 #define MORE_GCODE_IT                 "G-Code"
 #define MORE_ENTER_GCODE_IT           "Inserisci il G-Code"
 
+#define MORE_LEDSTRIP_IT              "Cambia luce"
+#define MORE_LEDSTRIP_ALL_IT          "Tutti"
+#define MORE_LEDSTRIP_HELP_IT         "Premere a lungo il centro per cambiare modalità"
+
+
 #define ADD_TEXT_IT                   "Aumentare"
 #define DEC_TEXT_IT                   "Ridurre"
 #define EXTRUDER_1_TEXT_IT            "Estrude1"

@@ -35,6 +35,11 @@
 #define MORE_GCODE_FR                 "G-Code"
 #define MORE_ENTER_GCODE_FR           "Saisir G-Code"
 
+#define MORE_LEDSTRIP_FR              "Changer lum."
+#define MORE_LEDSTRIP_ALL_FR          "Toutes"
+#define MORE_LEDSTRIP_HELP_FR         "Appui long au centre pour autre mode"
+
+
 #define ADD_TEXT_FR                   "Ajouter"
 #define DEC_TEXT_FR                   "Réduire"
 #define EXTRUDER_1_TEXT_FR            "Extr1"
