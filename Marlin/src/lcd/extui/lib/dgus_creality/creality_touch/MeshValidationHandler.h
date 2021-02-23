@@ -19,7 +19,7 @@ class MeshValidationHandler {
 
         static bool is_cancelling;
         static bool is_running;
-        static bool was_running;
+        static bool started_from_screen;
 
     private:
         static void Start();

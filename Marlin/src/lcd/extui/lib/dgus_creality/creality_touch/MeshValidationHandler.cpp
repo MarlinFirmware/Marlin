@@ -20,7 +20,7 @@
 uint16_t MeshValidationHandler::nozzle_temperature;
 uint16_t MeshValidationHandler::bed_temperature;
 bool MeshValidationHandler::is_running;
-bool MeshValidationHandler::was_running;
+bool MeshValidationHandler::started_from_screen;
 bool MeshValidationHandler::is_cancelling;
 feedRate_t MeshValidationHandler::prev_feedrate;
 
@@ -56,7 +56,7 @@ void MeshValidationHandler::Start() {
     // Block
     ScreenHandler.SetSynchronousOperationStart();
     is_running = true;
-    was_running = true;
+    started_from_screen = true;
 
     // Home if necessary - do this synchronously
     if (!all_axes_trusted()) {
@@ -101,34 +101,36 @@ void MeshValidationHandler::OnMeshValidationStart() {
 
 void MeshValidationHandler::OnMeshValidationFinish() {
     // If invoked externally, pop back
-    if (!was_running) {
+    if (!started_from_screen) {
         ScreenHandler.PopToOldScreen();
     }
 
-    if (was_running) {
+    if (started_from_screen) {
         ExtUI::setFeedrate_mm_s(prev_feedrate);
 
+        char gcodeBuffer[128] = {0};
         if (!is_cancelling) {
             // Present
             // - Set absolute mode
             // - Present bed, high Z
             // - Disable stepper
-            char gcodeBuffer[128] = {0};
             sprintf_P(gcodeBuffer, PSTR("G90\nG0 Y%d Z%d Z35 F3000\nM84"), (Y_BED_SIZE - 15), Z_AFTER_HOMING);
-            queue.inject(gcodeBuffer);
 
             SetStatusMessage("Mesh validation pattern printed");
         } else {
             // Park and disable steppers
-            queue.inject_P(PSTR("G27\nM84"));
+            strcpy_P(gcodeBuffer, PSTR("G27\nM84"));
 
             SetStatusMessage("Canceled mesh validation pattern");
         }
+
+        // Enqueue
+        gcode.process_subcommands_now(gcodeBuffer);
     }
 
     // Reset state
     is_running = false;
-    was_running = false;
+    started_from_screen = false;
     is_cancelling = false;
 
     ScreenHandler.SetSynchronousOperationFinish();
