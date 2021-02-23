@@ -1470,10 +1470,15 @@ void DGUSScreenHandler::PopToOldScreen() {
 }
 
 void DGUSScreenHandler::OnBackButton(DGUS_VP_Variable &var, void *val_ptr) {
+  // If we're busy: ignore
+  if (HasSynchronousOperation) return;
+
+  // Pop back
   uint16_t button_value = uInt16Value(val_ptr);
 
   PopToOldScreen();
 
+  // Handle optional save from back button
   if (button_value == GENERIC_BACK_BUTTON_NEED_SAVE) {
     RequestSaveSettings();
   }
