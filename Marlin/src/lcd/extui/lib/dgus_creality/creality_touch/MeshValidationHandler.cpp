@@ -106,13 +106,15 @@ void MeshValidationHandler::OnMeshValidationFinish() {
             char gcodeBuffer[128] = {0};
             sprintf_P(gcodeBuffer, PSTR("G90\nG0 Y%d Z35 F3000\nM84"), (Y_BED_SIZE - 15));
             queue.inject(gcodeBuffer);
+
+            SetStatusMessage("Mesh validation pattern printed");
         } else {
             // Park and disable steppers
             queue.inject_P(PSTR("G27\nM84"));
+
+            SetStatusMessage("Canceled mesh validation pattern");
         }
     }
-
-    
 
     // Reset state
     is_running = false;
@@ -121,8 +123,6 @@ void MeshValidationHandler::OnMeshValidationFinish() {
 
     ScreenHandler.SetSynchronousOperationFinish();
     ExtUI::resetCancelState();
-
-    SetStatusMessage("Mesh validation pattern printed");
 }
 
 void MeshValidationHandler::ValidateTemperatures() {
