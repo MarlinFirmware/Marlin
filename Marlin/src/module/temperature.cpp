@@ -495,7 +495,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #define B_TERN(T,A,B) (B)
     #endif
     #define GHV(C,B,H) C_TERN(ischamber, C, B_TERN(isbed, B, H))
-    #define SHV(C,B,H) C_TERN(ischamber, temp_chamber.soft_pwm_amount = C, B_TERN(isbed, temp_bed.soft_pwm_amount = B, temp_hotend[heater_id].soft_pwm_amount = H))
+    #define SHV(V) C_TERN(ischamber, temp_chamber.soft_pwm_amount = V, B_TERN(isbed, temp_bed.soft_pwm_amount = V, temp_hotend[heater_id].soft_pwm_amount = V))
     #define ONHEATINGSTART() C_TERN(ischamber, printerEventLEDs.onChamberHeatingStart(), B_TERN(isbed, printerEventLEDs.onBedHeatingStart(), printerEventLEDs.onHotendHeatingStart()))
     #define ONHEATING(S,C,T) C_TERN(ischamber, printerEventLEDs.onChamberHeating(S,C,T), B_TERN(isbed, printerEventLEDs.onBedHeating(S,C,T), printerEventLEDs.onHotendHeating(S,C,T)))
 
@@ -534,7 +534,8 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
     TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
-    long bias = SHV(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX) >> 1, d = bias;
+    long bias = GHV(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX) >> 1, d = bias;
+    SHV(bias);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = GHV(temp_chamber.celsius, temp_bed.celsius, temp_hotend[heater_id].celsius);
@@ -568,62 +569,46 @@ volatile bool Temperature::raw_temps_ready = false;
           }
         #endif
 
-        if (heating && current_temp > target) {
-          if (ELAPSED(ms, t2 + 5000UL)) {
-            heating = false;
-            SHV((bias - d) >> 1, (bias - d) >> 1, (bias - d) >> 1);
-            t1 = ms;
-            t_high = t1 - t2;
-            maxT = target;
-          }
+        if (heating && current_temp > target && ELAPSED(ms, t2 + 5000UL)) {
+          heating = false;
+          SHV((bias - d) >> 1);
+          t1 = ms;
+          t_high = t1 - t2;
+          maxT = target;
         }
 
-        if (!heating && current_temp < target) {
-          if (ELAPSED(ms, t1 + 5000UL)) {
-            heating = true;
-            t2 = ms;
-            t_low = t2 - t1;
-            if (cycles > 0) {
-              const long max_pow = GHV(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX);
-              bias += (d * (t_high - t_low)) / (t_low + t_high);
-              LIMIT(bias, 20, max_pow - 20);
-              d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
+        if (!heating && current_temp < target && ELAPSED(ms, t1 + 5000UL)) {
+          heating = true;
+          t2 = ms;
+          t_low = t2 - t1;
+          if (cycles > 0) {
+            const long max_pow = GHV(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX);
+            bias += (d * (t_high - t_low)) / (t_low + t_high);
+            LIMIT(bias, 20, max_pow - 20);
+            d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 
-              SERIAL_ECHOPAIR(STR_BIAS, bias, STR_D_COLON, d, STR_T_MIN, minT, STR_T_MAX, maxT);
-              if (cycles > 2) {
-                const float Ku = (4.0f * d) / (float(M_PI) * (maxT - minT) * 0.5f),
-                            Tu = float(t_low + t_high) * 0.001f,
-                            pf = ischamber ? 0.2f : (isbed ? 0.2f : 0.6f),
-                            df = ischamber ? 1.0f / 3.0f : (isbed ? 1.0f / 3.0f : 1.0f / 8.0f);
+            SERIAL_ECHOPAIR(STR_BIAS, bias, STR_D_COLON, d, STR_T_MIN, minT, STR_T_MAX, maxT);
+            if (cycles > 2) {
+              const float Ku = (4.0f * d) / (float(M_PI) * (maxT - minT) * 0.5f),
+                          Tu = float(t_low + t_high) * 0.001f,
+                          pf = ischamber ? 0.2f : (isbed ? 0.2f : 0.6f),
+                          df = ischamber ? 1.0f / 3.0f : (isbed ? 1.0f / 3.0f : 1.0f / 8.0f);
 
-                tune_pid.Kp = Ku * pf;
-                tune_pid.Ki = tune_pid.Kp * 2.0f / Tu;
-                tune_pid.Kd = tune_pid.Kp * Tu * df;
+              tune_pid.Kp = Ku * pf;
+              tune_pid.Ki = tune_pid.Kp * 2.0f / Tu;
+              tune_pid.Kd = tune_pid.Kp * Tu * df;
 
-                SERIAL_ECHOLNPAIR(STR_KU, Ku, STR_TU, Tu);
-                if (ischamber || isbed)
-                  SERIAL_ECHOLNPGM(" No overshoot");
-                else
-                  SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
-                SERIAL_ECHOLNPAIR(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
-
-                /**
-                tune_pid.Kp = 0.33 * Ku;
-                tune_pid.Ki = tune_pid.Kp / Tu;
-                tune_pid.Kd = tune_pid.Kp * Tu / 3;
-                SERIAL_ECHOLNPGM(" Some overshoot");
-                SERIAL_ECHOLNPAIR(" Kp: ", tune_pid.Kp, " Ki: ", tune_pid.Ki, " Kd: ", tune_pid.Kd, " No overshoot");
-                tune_pid.Kp = 0.2 * Ku;
-                tune_pid.Ki = 2 * tune_pid.Kp / Tu;
-                tune_pid.Kd = tune_pid.Kp * Tu / 3;
-                SERIAL_ECHOPAIR(" Kp: ", tune_pid.Kp, " Ki: ", tune_pid.Ki, " Kd: ", tune_pid.Kd);
-                */
-              }
+              SERIAL_ECHOLNPAIR(STR_KU, Ku, STR_TU, Tu);
+              if (ischamber || isbed)
+                SERIAL_ECHOLNPGM(" No overshoot");
+              else
+                SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
+              SERIAL_ECHOLNPAIR(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
             }
-            SHV((bias + d) >> 1, (bias + d) >> 1, (bias + d) >> 1);
-            cycles++;
-            minT = target;
           }
+          SHV((bias + d) >> 1);
+          cycles++;
+          minT = target;
         }
       }
 
