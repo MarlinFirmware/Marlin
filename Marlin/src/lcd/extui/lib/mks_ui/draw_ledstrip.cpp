@@ -32,7 +32,7 @@ extern lv_group_t *g;
 static lv_obj_t *scr,*cpicker,*help,*ledsel,*sliderLbl;
 
 
-#define CPICKER_SIZE  (TFT_HEIGHT - titleHeight - BTN_Y_PIXEL)
+#define CPICKER_SIZE  (TFT_HEIGHT - titleHeight - 100)
 
 enum {
   ID_LEDSTRIP_RETURN = 1,
@@ -74,17 +74,31 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_ledstrip() {
   scr = lv_screen_create(LEDSTRIP_UI, more_menu.ledstrip);
   // Create a label as an help
-  help = lv_label_create(scr, TITLE_XPOS, titleHeight, more_menu.ledstrip_help);
+  help = lv_label_create(scr, TITLE_XPOS, titleHeight - TITLE_YPOS * 2, more_menu.ledstrip_help);
   // Need to create both a slider and a color picker here
   cpicker = lv_cpicker_create(scr, NULL);
   lv_obj_set_size(cpicker, CPICKER_SIZE, CPICKER_SIZE);
-  lv_obj_align(cpicker, NULL, LV_ALIGN_IN_TOP_MID, 0, titleHeight * 2);
+  lv_obj_align(cpicker, NULL, LV_ALIGN_IN_TOP_MID, 0, titleHeight * 2 - TITLE_YPOS * 2);
+  static lv_style_t style_knob;
+  lv_cpicker_set_knob_colored(cpicker, true);
+  lv_style_copy(&style_knob, lv_cpicker_get_style(cpicker, LV_CPICKER_STYLE_KNOB));
+  style_knob.body.padding.top = 10;
+  style_knob.body.padding.left = 10;
+  style_knob.body.padding.right = 10;
+  style_knob.body.padding.bottom = 10;
+  lv_cpicker_set_style(cpicker, LV_CPICKER_STYLE_KNOB, &style_knob);
+  static lv_style_t style_main;
+  lv_style_copy(&style_main, lv_cpicker_get_style(cpicker, LV_CPICKER_STYLE_MAIN));
+  style_main.line.width = 8;
+  lv_cpicker_set_style(cpicker, LV_CPICKER_STYLE_MAIN, &style_main);
+
+
   lv_obj_set_event_cb(cpicker, event_handler);
 
   // Finally create a slider for selecting the LED to run
   ledsel = lv_slider_create(scr, NULL);
-  lv_obj_set_width(ledsel, TFT_WIDTH - 4 * titleHeight);
-  lv_obj_align(ledsel, cpicker, LV_ALIGN_OUT_BOTTOM_MID, 0, TITLE_YPOS);
+  lv_obj_set_width(ledsel, TFT_WIDTH - 16 * TITLE_XPOS - 70); // Size of the back button
+  lv_obj_align(ledsel, cpicker, LV_ALIGN_OUT_BOTTOM_LEFT, (CPICKER_SIZE-TFT_WIDTH) / 2 + 8*TITLE_XPOS, 3*TITLE_YPOS);
   lv_slider_set_range(ledsel, 0, NEOPIXEL_PIXELS);
   lv_obj_set_event_cb(ledsel, event_handler);
 
