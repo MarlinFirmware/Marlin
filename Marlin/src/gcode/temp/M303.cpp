@@ -72,7 +72,7 @@ void GcodeSuite::M303() {
     #if ENABLED(PIDTEMPCHAMBER)
       if (hid == H_CHAMBER) { default_temp = PREHEAT_1_TEMP_CHAMBER; break; }
     #endif
-    SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
+    SERIAL_ECHOLNPGM(STR_PID_BAD_HEATER_ID);
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
     return;
   } while(0);

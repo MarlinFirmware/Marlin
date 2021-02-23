@@ -371,7 +371,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     #ifdef CHAMBER_MAXTEMP
       int16_t Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     #endif
-    TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0}); // = { 0 }
+    TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     TERN(PIDTEMPCHAMBER,, millis_t Temperature::next_chamber_check_ms);
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
@@ -602,21 +602,16 @@ volatile bool Temperature::raw_temps_ready = false;
                             pf = ischamber ? 0.2f : (isbed ? 0.2f : 0.6f),
                             df = ischamber ? 1.0f / 3.0f : (isbed ? 1.0f / 3.0f : 1.0f / 8.0f);
 
-                SERIAL_ECHOPAIR(STR_KU, Ku, STR_TU, Tu);
-                if (ischamber||isbed) { // Do not remove this otherwise PID autotune won't work right for the bed!
-                  tune_pid.Kp = Ku * 0.2f;
-                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
-                  tune_pid.Kd = tune_pid.Kp * Tu / 3;
-                  SERIAL_ECHOLNPGM("\n" " No overshoot"); // Works far better for the bed. Classic and some have bad ringing.
-                  SERIAL_ECHOLNPAIR(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
-                }
-                else {
-                  tune_pid.Kp = Ku * pf;
-                  tune_pid.Kd = tune_pid.Kp * Tu * df;
-                  tune_pid.Ki = 2 * tune_pid.Kp / Tu;
-                  SERIAL_ECHOLNPGM("\n" STR_CLASSIC_PID);
-                  SERIAL_ECHOLNPAIR(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
-                }
+                tune_pid.Kp = Ku * pf;
+                tune_pid.Ki = tune_pid.Kp * 2.0f / Tu;
+                tune_pid.Kd = tune_pid.Kp * Tu * df;
+
+                SERIAL_ECHOLNPAIR(STR_KU, Ku, STR_TU, Tu);
+                if (ischamber || isbed)
+                  SERIAL_ECHOLNPGM(" No overshoot");
+                else
+                  SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
+                SERIAL_ECHOLNPAIR(STR_KP, tune_pid.Kp, STR_KI, tune_pid.Ki, STR_KD, tune_pid.Kd);
 
                 /**
                 tune_pid.Kp = 0.33 * Ku;
@@ -699,14 +694,16 @@ volatile bool Temperature::raw_temps_ready = false;
           say_default_(); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);
         #endif
 
-        #if ENABLED(PIDTEMP)
-          auto _set_hotend_pid = [](const uint8_t e, const PID_t &in_pid) {
+        auto _set_hotend_pid = [](const uint8_t e, const PID_t &in_pid) {
+          #if ENABLED(PIDTEMP)
             PID_PARAM(Kp, e) = in_pid.Kp;
             PID_PARAM(Ki, e) = scalePID_i(in_pid.Ki);
             PID_PARAM(Kd, e) = scalePID_d(in_pid.Kd);
             updatePID();
-          };
-        #endif
+          #else
+            UNUSED(e); UNUSED(in_pid);
+          #endif
+        };
 
         #if ENABLED(PIDTEMPBED)
           auto _set_bed_pid = [](const PID_t &in_pid) {
