@@ -47,6 +47,13 @@ void MeshValidationHandler::HandleStartOrCancelButton(DGUS_VP_Variable &var, voi
 void MeshValidationHandler::Start() {
     if (is_running) return;
 
+    // Validate
+    if (!ExtUI::getMeshValid()) {
+        SetStatusMessage("Please level bed first");
+        return;
+    }
+
+    // Block
     ScreenHandler.SetSynchronousOperationStart();
     is_running = true;
     was_running = true;
