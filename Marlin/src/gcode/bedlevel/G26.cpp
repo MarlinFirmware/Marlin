@@ -884,7 +884,7 @@ void GcodeSuite::G26() {
   IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
   retract_filament(destination);
-  destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+  destination.z = Z_AFTER_HOMING;
   move_to(destination, 0);                                    // Raise the nozzle
 
   destination = g26_xy_pos;                                   // Move back to the starting XY position
