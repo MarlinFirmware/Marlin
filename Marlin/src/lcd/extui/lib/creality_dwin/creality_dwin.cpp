@@ -1939,7 +1939,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case ADVANCED_LOAD:
           if (draw) {
-            Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Filament Load Length");
+            Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Load Length");
             Draw_Float(fc_settings[0].load_length, row, false, 1);
           }
           else {
@@ -1948,7 +1948,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case ADVANCED_UNLOAD:
           if (draw) {
-            Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Filament Unload Length");
+            Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Length");
             Draw_Float(fc_settings[0].unload_length, row, false, 1);
           }
           else {
