@@ -29,4 +29,4 @@ class MeshValidationHandler {
         static void SetStatusMessage(PGM_P statusMessage);
 };
 
-constexpr feedRate_t MESH_VALIDATION_PATTERN_FEEDRATE = 15;
+constexpr feedRate_t MESH_VALIDATION_PATTERN_FEEDRATE = G26_XY_FEEDRATE;
