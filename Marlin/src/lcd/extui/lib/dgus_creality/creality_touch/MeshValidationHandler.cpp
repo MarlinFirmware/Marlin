@@ -55,12 +55,12 @@ void MeshValidationHandler::Start() {
     queue.advance();
 
     // Several commands being buffered here
-    // - G26 with temperature and set for full bed
+    // - G26 with temperature and set for full bed, full pattern, retract 4mm, prime 5mm
     // - Set absolute mode
     // - Present bed, high Z
     // - Disable stepper
     char gcodeBuffer[128] = {0};
-    sprintf_P(gcodeBuffer, PSTR("G26 B%d H%d R\nG90\nG0 Y%d Z35 F3000\nM84"), bed_temperature, nozzle_temperature, (Y_BED_SIZE - 15));
+    sprintf_P(gcodeBuffer, PSTR("G26 B%d H%d R Q4 P5 X0 Y0\nG90\nG0 Y%d Z35 F3000\nM84"), bed_temperature, nozzle_temperature, (Y_BED_SIZE - 15));
     queue.inject(gcodeBuffer);
 
     SetStatusMessage("Starting...");
@@ -99,6 +99,8 @@ void MeshValidationHandler::OnMeshValidationFinish() {
 
     ScreenHandler.SetSynchronousOperationFinish();
     ExtUI::resetCancelState();
+
+    SetStatusMessage("Mesh validation pattern printed");
 }
 
 void MeshValidationHandler::ValidateTemperatures() {
