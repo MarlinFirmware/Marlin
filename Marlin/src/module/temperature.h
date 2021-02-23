@@ -755,6 +755,11 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
+
+      #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+        static bool pid_debug_flag;
+      #endif
+
       static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
@@ -830,10 +835,8 @@ class Temperature {
 
     static void checkExtruderAutoFans();
 
-    static float get_pid_output_hotend(const uint8_t e);
-
-    TERN_(PIDTEMPBED, static float get_pid_output_bed());
-
+    TERN_(HAS_HOTEND,     static float get_pid_output_hotend(const uint8_t e));
+    TERN_(PIDTEMPBED,     static float get_pid_output_bed());
     TERN_(PIDTEMPCHAMBER, static float get_pid_output_chamber());
 
     static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);

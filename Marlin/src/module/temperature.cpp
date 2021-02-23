@@ -919,10 +919,11 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
+#if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+  bool Temperature::pid_debug_flag; // = 0
+#endif
+
 #if HAS_HOTEND
-  #if ENABLED(PID_DEBUG)
-    extern bool pid_debug_flag;
-  #endif
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
@@ -1003,23 +1004,18 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
       #if ENABLED(PID_DEBUG)
         if (ee == active_extruder && pid_debug_flag) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
-          #if DISABLED(PID_OPENLOOP)
-          {
-            SERIAL_ECHOPAIR(
-              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
-              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
-              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+          SERIAL_ECHO_MSG(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output
+            #if DISABLED(PID_OPENLOOP)
+              , STR_PID_DEBUG_PTERM, work_pid[ee].Kp
+              , STR_PID_DEBUG_ITERM, work_pid[ee].Ki
+              , STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
-            );
-          }
-          #endif
-          SERIAL_EOL();
+            #endif
+          );
         }
-      #endif // PID_DEBUG
+      #endif
 
     #else // No PID enabled
 
@@ -1079,16 +1075,16 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
     #endif // PID_OPENLOOP
 
     #if ENABLED(PID_BED_DEBUG)
-    {
-      SERIAL_ECHO_MSG(
-        " PID_BED_DEBUG : Input ", temp_bed.celsius, " Output ", pid_output,
-        #if DISABLED(PID_OPENLOOP)
-          STR_PID_DEBUG_PTERM, work_pid.Kp,
-          STR_PID_DEBUG_ITERM, work_pid.Ki,
-          STR_PID_DEBUG_DTERM, work_pid.Kd,
-        #endif
-      );
-    }
+      if (pid_debug_flag) {
+        SERIAL_ECHO_MSG(
+          " PID_BED_DEBUG : Input ", temp_bed.celsius, " Output ", pid_output
+          #if DISABLED(PID_OPENLOOP)
+            , STR_PID_DEBUG_PTERM, work_pid.Kp
+            , STR_PID_DEBUG_ITERM, work_pid.Ki
+            , STR_PID_DEBUG_DTERM, work_pid.Kd
+          #endif
+        );
+      }
     #endif
 
     return pid_output;
@@ -1143,13 +1139,12 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #if ENABLED(PID_CHAMBER_DEBUG)
     {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(
-        " PID_CHAMBER_DEBUG : Input ", temp_chamber.celsius, " Output ", pid_output,
+      SERIAL_ECHO_MSG(
+        " PID_CHAMBER_DEBUG : Input ", temp_chamber.celsius, " Output ", pid_output
         #if DISABLED(PID_OPENLOOP)
-          STR_PID_DEBUG_PTERM, work_pid.Kp,
-          STR_PID_DEBUG_ITERM, work_pid.Ki,
-          STR_PID_DEBUG_DTERM, work_pid.Kd,
+          , STR_PID_DEBUG_PTERM, work_pid.Kp
+          , STR_PID_DEBUG_ITERM, work_pid.Ki
+          , STR_PID_DEBUG_DTERM, work_pid.Kd
         #endif
       );
     }

@@ -40,19 +40,15 @@
  *  C<cycles>       Number of times to repeat the procedure. (Minimum: 3, Default: 5)
  *  U<bool>         Flag to apply the result to the current PID values
  *
- * With PID_DEBUG:
+ * With PID_DEBUG, PID_BED_DEBUG, or PID_CHAMBER_DEBUG:
  *  D               Toggle PID debugging and EXIT without further action.
  */
 
-#if ENABLED(PID_DEBUG)
-  bool pid_debug_flag = 0;
-#endif
-
 void GcodeSuite::M303() {
 
-  #if ENABLED(PID_DEBUG)
+  #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
     if (parser.seen('D')) {
-      pid_debug_flag = !pid_debug_flag;
+      thermalManager.pid_debug_flag ^= true;
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("PID Debug ");
       serialprintln_onoff(pid_debug_flag);
