@@ -15,6 +15,8 @@ class MeshValidationHandler {
         static uint16_t nozzle_temperature;
         static uint16_t bed_temperature;
 
+        static feedRate_t prev_feedrate;
+
         static bool is_cancelling;
         static bool is_running;
         static bool was_running;
@@ -26,3 +28,5 @@ class MeshValidationHandler {
         static void ValidateTemperatures();
         static void SetStatusMessage(PGM_P statusMessage);
 };
+
+constexpr feedRate_t MESH_VALIDATION_PATTERN_FEEDRATE = 15;

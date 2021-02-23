@@ -22,6 +22,7 @@ uint16_t MeshValidationHandler::bed_temperature;
 bool MeshValidationHandler::is_running;
 bool MeshValidationHandler::was_running;
 bool MeshValidationHandler::is_cancelling;
+feedRate_t MeshValidationHandler::prev_feedrate;
 
 void MeshValidationHandler::Init() {
     // Set to PLA pre-heat temps by default
@@ -53,6 +54,10 @@ void MeshValidationHandler::Start() {
     // Home if necessary - do this synchronously
     queue.inject_P("G28 O U0");
     queue.advance();
+
+    // Set feedrate
+    prev_feedrate = ExtUI::getFeedrate_mm_s();
+    ExtUI::setFeedrate_mm_s(MESH_VALIDATION_PATTERN_FEEDRATE);
 
     // Several commands being buffered here
     // - G26 with temperature and set for full bed, full pattern, retract 4mm, prime 5mm
@@ -90,6 +95,10 @@ void MeshValidationHandler::OnMeshValidationFinish() {
     // If invoked externally, pop back
     if (!was_running) {
         ScreenHandler.PopToOldScreen();
+    }
+
+    if (was_running) {
+        ExtUI::setFeedrate_mm_s(prev_feedrate);
     }
 
     // Reset state
