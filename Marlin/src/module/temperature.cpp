@@ -372,17 +372,12 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
       int16_t Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     #endif
     TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
-    TERN(PIDTEMPCHAMBER,, millis_t Temperature::next_chamber_check_ms);
+    IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
   #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
 #if HAS_TEMP_PROBE
   probe_info_t Temperature::temp_probe; // = { 0 }
-#endif
-
-// Initialized by settings.load()
-#if ENABLED(PIDTEMP)
-  //hotend_pid_t Temperature::pid[HOTENDS];
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -483,7 +478,6 @@ volatile bool Temperature::raw_temps_ready = false;
     millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
     long t_high = 0, t_low = 0;
 
-    long bias, d;
     PID_t tune_pid = { 0, 0, 0 };
     float maxT = 0, minT = 10000;
 
@@ -540,7 +534,7 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
     TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
-    SHV(bias = d = (MAX_CHAMBER_POWER) >> 1, bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
+    long bias = SHV(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX) >> 1, d = bias;
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = GHV(temp_chamber.celsius, temp_bed.celsius, temp_hotend[heater_id].celsius);
