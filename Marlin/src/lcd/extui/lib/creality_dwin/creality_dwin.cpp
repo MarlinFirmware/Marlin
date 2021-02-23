@@ -1903,7 +1903,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_BACK 0
       #define ADVANCED_XOFFSET (ADVANCED_BACK + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
-      #define ADVANCED_TOTAL ADVANCED_YOFFSET
+      #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
+      #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
+      #define ADVANCED_TOTAL ADVANCED_UNLOAD
 
       switch (item) {
         case ADVANCED_BACK:
@@ -1917,7 +1919,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ENABLED(HAS_BED_PROBE)
         case ADVANCED_XOFFSET:
           if (draw) {
-            Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe X Offset");
+            Draw_Menu_Item(row, ICON_StepX, (char*)"Probe X Offset");
             Draw_Float(probe.offset.x, row, false, 10);
           }
           else {
@@ -1926,11 +1928,31 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case ADVANCED_YOFFSET:
           if (draw) {
-            Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Probe Y Offset");
+            Draw_Menu_Item(row, ICON_StepY, (char*)"Probe Y Offset");
             Draw_Float(probe.offset.y, row, false, 10);
           }
           else {
             Modify_Value(probe.offset.y, -100, 100, 10);
+          }
+          break;
+        #endif
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        case ADVANCED_LOAD:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Filament Load Length");
+            Draw_Float(fc_settings[0].load_length, row, false, 1);
+          }
+          else {
+            Modify_Value(fc_settings[0].load_length, 0, EXTRUDE_MAXLENGTH, 1);
+          }
+          break;
+        case ADVANCED_UNLOAD:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Filament Unload Length");
+            Draw_Float(fc_settings[0].unload_length, row, false, 1);
+          }
+          else {
+            Modify_Value(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
           }
           break;
         #endif
