@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 
+
 #dynamic build flags for generic compile options
 if __name__ == "__main__":
   args = " ".join([ "-std=gnu++14",
