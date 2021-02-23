@@ -57,14 +57,17 @@ void MeshValidationHandler::Start() {
         queue.advance();
     }
 
+    // Home X and Y so we droop at the side of the bed.
+    // G26 with temperature and set for full bed, full pattern, retract 4mm, prime 5mm
+    char gcodeBuffer[128] = {0};
+    sprintf_P(gcodeBuffer, PSTR("G90\nG0 X0\nG26 B%d H%d R Q4 P15 X0 Y0"), bed_temperature, nozzle_temperature);
+    queue.inject(gcodeBuffer);
+    queue.advance();
+
     // Set feedrate
     prev_feedrate = ExtUI::getFeedrate_mm_s();
     ExtUI::setFeedrate_mm_s(MESH_VALIDATION_PATTERN_FEEDRATE);
 
-    // G26 with temperature and set for full bed, full pattern, retract 4mm, prime 5mm
-    char gcodeBuffer[128] = {0};
-    sprintf_P(gcodeBuffer, PSTR("G26 B%d H%d R Q4 P5 X0 Y0"), bed_temperature, nozzle_temperature);
-    queue.inject(gcodeBuffer);
 
     SetStatusMessage("Starting...");
 }
