@@ -175,7 +175,6 @@ enum {
 #include "change_filament_screen.h"
 #include "move_axis_screen.h"
 #include "steps_screen.h"
-#include "stepper_current_screen.h"
 #include "feedrate_percent_screen.h"
 #include "max_velocity_screen.h"
 #include "max_acceleration_screen.h"
