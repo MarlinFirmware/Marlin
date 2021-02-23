@@ -162,7 +162,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
   // Forward constructor
   template <typename... Args>
-  RuntimeSerial(const bool e, Args... args) : BaseClassT(e), SerialT(args...) {}
+  RuntimeSerial(const bool e, Args... args) : BaseClassT(e), SerialT(args...), writeHook(0), eofHook(0), userPointer(0) {}
 };
 
 // A class that's duplicating its output conditionally to 2 serial interface

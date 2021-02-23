@@ -64,6 +64,9 @@ PGMSTR(G28_STR, "G28");
 GCodeQueue::PerSerial GCodeQueue::per_serial[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
+#if NO_TIMEOUTS > 0
+  static millis_t last_command_time = 0;
+#endif
 
 /**
  * Serial command injection
@@ -234,6 +237,10 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  *   B<int>  Block queue space remaining
  */
 void GCodeQueue::RingBuffer::ok_to_send() {
+  #if NO_TIMEOUTS > 0
+    // Start counting from the last command's execution
+    last_command_time = millis();
+  #endif
   CommandQueue & command = commands[index_r];
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command.port;
@@ -409,9 +416,8 @@ void GCodeQueue::get_serial_commands() {
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
-    static millis_t last_command_time = 0;
     const millis_t ms = millis();
-    if (length == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
