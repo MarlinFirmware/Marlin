@@ -107,7 +107,7 @@ void MeshValidationHandler::OnMeshValidationFinish() {
             // - Present bed, high Z
             // - Disable stepper
             char gcodeBuffer[128] = {0};
-            sprintf_P(gcodeBuffer, PSTR("G90\nG0 Y%d Z35 F3000\nM84"), (Y_BED_SIZE - 15));
+            sprintf_P(gcodeBuffer, PSTR("G90\nG0 Y%d Z%d Z35 F3000\nM84"), (Y_BED_SIZE - 15), Z_AFTER_HOMING);
             queue.inject(gcodeBuffer);
 
             SetStatusMessage("Mesh validation pattern printed");
