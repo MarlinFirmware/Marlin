@@ -212,6 +212,17 @@
   #endif
 #endif
 
+#if ENABLED(EXTENSIBLE_UI) && G26_CLICK_CAN_CANCEL
+bool g26_user_canceled() {
+  if (!ExtUI::isCanceled()) return false;
+
+  ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
+  ExtUI::resetCancelState();
+
+  return true;
+}
+#endif
+
 Temperature thermalManager;
 
 const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
@@ -3388,10 +3399,18 @@ void Temperature::tick() {
         }
 
         #if G26_CLICK_CAN_CANCEL
+          #if HAS_LCD_MENU
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
             ui.quick_feedback();
           }
+          #endif
+
+          #if ENABLED(EXTENSIBLE_UI)
+          if (g26_user_canceled()) {
+            wait_for_heatup = false;
+          }
+          #endif
         #endif
 
       } while (wait_for_heatup && TEMP_CONDITIONS);
@@ -3512,11 +3531,19 @@ void Temperature::tick() {
           }
         }
 
-        #if G26_CLICK_CAN_CANCEL
+         #if G26_CLICK_CAN_CANCEL
+          #if HAS_LCD_MENU
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
             ui.quick_feedback();
           }
+          #endif
+
+          #if ENABLED(EXTENSIBLE_UI)
+          if (g26_user_canceled()) {
+            wait_for_heatup = false;
+          }
+          #endif
         #endif
 
         #if TEMP_BED_RESIDENCY_TIME > 0
