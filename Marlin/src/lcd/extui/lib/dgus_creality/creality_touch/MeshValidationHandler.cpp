@@ -52,8 +52,10 @@ void MeshValidationHandler::Start() {
     was_running = true;
 
     // Home if necessary - do this synchronously
-    queue.inject_P("G28 O U0");
-    queue.advance();
+    if (!all_axes_trusted()) {
+        queue.inject_P("G28 U0");
+        queue.advance();
+    }
 
     // Set feedrate
     prev_feedrate = ExtUI::getFeedrate_mm_s();
