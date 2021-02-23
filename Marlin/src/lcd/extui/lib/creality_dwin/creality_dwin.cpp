@@ -156,7 +156,7 @@ bool printing = false;
 bool paused = false;
 bool sdprint = false;
 
-int16_t pausetemp, pausebed;
+int16_t pausetemp, pausebed, pausefan;
 
 bool liveadjust = false;
 bool bedonly = false;
@@ -1918,7 +1918,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Float(probe.offset.x, row, false, 10);
           }
           else {
-            Modify_Value(probe.offset.x, -50, 50, 10);
+            Modify_Value(probe.offset.x, -100, 100, 10);
           }
           break;
         case ADVANCED_YOFFSET:
@@ -1927,7 +1927,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Float(probe.offset.y, row, false, 10);
           }
           else {
-            Modify_Value(probe.offset.y, -50, 50, 10);
+            Modify_Value(probe.offset.y, -100, 100, 10);
           }
           break;
         #endif
@@ -2638,6 +2638,7 @@ inline void CrealityDWINClass::Print_Screen_Control() {
               gcode.process_subcommands_now_P(PSTR(cmnd));
               cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
               gcode.process_subcommands_now_P(PSTR(cmnd));
+              thermalManager.fan_speed[0] = pausefan;
               planner.synchronize();
               queue.inject_P(PSTR("M24"));
             #endif
@@ -2692,6 +2693,7 @@ inline void CrealityDWINClass::Popup_Control() {
               queue.inject_P(PSTR("M25"));
               pausetemp = thermalManager.temp_hotend[0].target;
               pausebed = thermalManager.temp_bed.target;
+              pausefan = thermalManager.fan_speed[0];
               thermalManager.disable_all_heaters();
               thermalManager.zero_fan_speeds();
             #endif
