@@ -95,6 +95,7 @@ public:
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleFadeHeight(DGUS_VP_Variable &var, void *val_ptr);
 
   // Hook for move to position
   static void HandlePositionChange(DGUS_VP_Variable &var, void *val_ptr);

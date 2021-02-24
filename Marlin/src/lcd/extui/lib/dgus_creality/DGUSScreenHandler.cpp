@@ -1182,7 +1182,14 @@ void DGUSScreenHandler::HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val
 
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;
-  }
+}
+
+void DGUSScreenHandler::HandleFadeHeight(DGUS_VP_Variable &var, void *val_ptr) {
+    DGUSLCD_SetFloatAsIntFromDisplay<1>(var, val_ptr);
+
+    RequestSaveSettings();
+    return;
+}
 
 void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandlePositionChange");
@@ -1258,121 +1265,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 
   *(int16_t*)var.memadr = *(int16_t*)var.memadr > 0 ? 0 : preheat_temp;
 }
-
-#if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
-
-  typedef struct  {
-    ExtUI::extruder_t extruder; // which extruder to operate
-    uint8_t action; // load or unload
-    bool heated; // heating done ?
-    float purge_length; // the length to extrude before unload, prevent filament jam
-  } filament_data_t;
-
-  static filament_data_t filament_data;
-
-  void DGUSScreenHandler::HandleFilamentOption(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandleFilamentOption");
-
-    uint8_t e_temp = 0;
-    filament_data.heated = false;
-    uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
-    if (preheat_option <= 8)          // Load filament type
-      filament_data.action = 1;
-    else if (preheat_option >= 10) {  // Unload filament type
-      preheat_option -= 10;
-      filament_data.action = 2;
-      filament_data.purge_length = DGUS_FILAMENT_PURGE_LENGTH;
-    }
-    else                              // Cancel filament operation
-      filament_data.action = 0;
-
-    switch (preheat_option) {
-      case 0: // Load PLA
-        #ifdef PREHEAT_1_TEMP_HOTEND
-          e_temp = PREHEAT_1_TEMP_HOTEND;
-        #endif
-        break;
-      case 1: // Load ABS
-        TERN_(PREHEAT_2_TEMP_HOTEND, e_temp = PREHEAT_2_TEMP_HOTEND);
-        break;
-      case 2: // Load PET
-        #ifdef PREHEAT_3_TEMP_HOTEND
-          e_temp = PREHEAT_3_TEMP_HOTEND;
-        #endif
-        break;
-      case 3: // Load FLEX
-        #ifdef PREHEAT_4_TEMP_HOTEND
-          e_temp = PREHEAT_4_TEMP_HOTEND;
-        #endif
-        break;
-      case 9: // Cool down
-      default:
-        e_temp = 0;
-        break;
-    }
-
-    if (filament_data.action == 0) { // Go back to utility screen
-      #if HOTENDS >= 1
-        thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E0);
-      #endif
-      #if HOTENDS >= 2
-        thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
-      #endif
-      GotoScreen(DGUSLCD_SCREEN_UTILITY);
-    }
-    else { // Go to the preheat screen to show the heating progress
-      switch (var.VP) {
-        default: return;
-        #if HOTENDS >= 1
-          case VP_E0_FILAMENT_LOAD_UNLOAD:
-            filament_data.extruder = ExtUI::extruder_t::E0;
-            thermalManager.setTargetHotend(e_temp, filament_data.extruder);
-            break;
-        #endif
-        #if HOTENDS >= 2
-          case VP_E1_FILAMENT_LOAD_UNLOAD:
-            filament_data.extruder = ExtUI::extruder_t::E1;
-            thermalManager.setTargetHotend(e_temp, filament_data.extruder);
-          break;
-        #endif
-      }
-      GotoScreen(DGUSLCD_SCREEN_FILAMENT_HEATING);
-    }
-  }
-
-  void DGUSScreenHandler::HandleFilamentLoadUnload(DGUS_VP_Variable &var) {
-    DEBUG_ECHOLNPGM("HandleFilamentLoadUnload");
-    if (filament_data.action <= 0) return;
-
-    // If we close to the target temperature, we can start load or unload the filament
-    if (thermalManager.hotEnoughToExtrude(filament_data.extruder) && \
-       thermalManager.targetHotEnoughToExtrude(filament_data.extruder)) {
-      float movevalue = DGUS_FILAMENT_LOAD_LENGTH_PER_TIME;
-
-      if (filament_data.action == 1) { // load filament
-        if (!filament_data.heated) {
-          GotoScreen(DGUSLCD_SCREEN_FILAMENT_LOADING);
-          filament_data.heated = true;
-        }
-        movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder)+movevalue;
-      }
-      else { // unload filament
-        if (!filament_data.heated) {
-          GotoScreen(DGUSLCD_SCREEN_FILAMENT_UNLOADING);
-          filament_data.heated = true;
-        }
-        // Before unloading extrude to prevent jamming
-        if (filament_data.purge_length >= 0) {
-          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder) + movevalue;
-          filament_data.purge_length -= movevalue;
-        }
-        else
-          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder) - movevalue;
-      }
-      ExtUI::setAxisPosition_mm(movevalue, filament_data.extruder);
-    }
-  }
-#endif
 
 void DGUSScreenHandler::HandleLEDToggle() {
   bool newState = !caselight.on;
