@@ -499,7 +499,7 @@ inline float circle_arc_length(float quarters, float radius) {
   return radius * M_PI * quarters;
 }
 
-inline bool draw_circle(float g26_layer_height, float radius, const xy_pos_t& circle, const mesh_index_pair& location) {
+inline bool draw_circle(float radius, const xy_pos_t& circle, const mesh_index_pair& location) {
   // If this mesh location is outside the printable radius, skip it.
   if (!position_is_reachable(circle)) return false;
 
@@ -882,7 +882,7 @@ void GcodeSuite::G26() {
       float radius = INTERSECTION_CIRCLE_RADIUS;
       bool cont = true;
       while (radius > 0 && cont) {
-        cont = cont && draw_circle(g26_layer_height, radius, circle, location);
+        cont = cont && draw_circle(radius, circle, location);
 
         radius -= g26_nozzle * 2;
       }
