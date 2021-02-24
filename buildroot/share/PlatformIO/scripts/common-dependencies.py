@@ -259,12 +259,9 @@ def search_compiler():
 	return filepath
 
 #
-# Use the compiler to get a list of all enabled features
+# Run the preprocessor
 #
-def load_marlin_features():
-	if 'MARLIN_FEATURES' in env:
-		return
-
+def run_preprocessor(filename):
 	# Process defines
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
@@ -281,16 +278,161 @@ def load_marlin_features():
 		else:
 			cmd += ['-D' + s]
 
-	cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
-	cmd = ' '.join(cmd)
+	cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++']
+	depcmd = cmd + [ filename ]
+	cmd = ' '.join(depcmd)
 	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
+	return define_list
+
+
+#
+# Use the compiler to get a list of all enabled features
+#
+def load_marlin_features():
+	if 'MARLIN_FEATURES' in env:
+		return
+
+	# Process defines
+	define_list = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
 	marlin_features = {}
 	for define in define_list:
 		feature = define[8:].strip().decode().split(' ')
 		feature, definition = feature[0], ' '.join(feature[1:])
 		marlin_features[feature] = definition
 	env['MARLIN_FEATURES'] = marlin_features
+
+
+
+def resolve_macro(value, defines):
+	is_id = re.compile("([a-zA-Z][a-zA-Z0-9_]*)") # No underscore for the first value
+
+	# Easy case first
+	if value in defines:
+		return defines[value]
+	
+	# Now, the complex part, let's parse the expression
+	if value[0:5] == "TERN(":
+		v = value[6:].split(',')
+		if len(v) > 2:
+			if v[0] in defines:
+				return resolve_macro(v[1].strip(','), defines)
+			else:
+				return resolve_macro(v[2].strip(',)'), defines)
+	
+	# Remains the long expression that needs evaluating
+	# Don't solve for now
+	return value
+
+#
+# Compute the build signature. The idea is to extract all defines in the configuration headers
+# to build a unique reversible signature from this build so it can be included in the binary
+# We can reverse the signature to get a 1:1 equivalent configuration file
+#
+def compute_build_signature():
+	if 'BUILD_SIGNATURE' in env:
+		return
+	
+	# Need to parse all valid defines in the configuration files
+	complete_cfg = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
+#	remove_define = run_preprocessor('Marlin/src/core/macros.h')
+	compiler_default_define = run_preprocessor('buildroot/share/PlatformIO/scripts/empty.h')
+#	drivers_define = run_preprocessor('Marlin/src/core/drivers.h')
+#	remove_board = run_preprocessor('Marlin/src/core/boards.h')
+
+	r = re.compile("\(+(\s*-*\s*_.*)\)+")
+
+	# First step is to collect all valid macros
+	defines = {}
+	for line in complete_cfg:
+		if line in compiler_default_define: # or line in remove_define  or line in drivers_define:
+			continue
+		# Split the define from the value
+		key_val = line[8:].strip().decode().split(' ')
+		key, value = key_val[0], ' '.join(key_val[1:])
+		# Ignore values starting with two underscore, since it's low level
+		if len(key) > 2 and key[0:2] == "__" :
+			continue
+		# Ignore values containing a parenthesis (likely a function macro)
+		if '(' in key and ')' in key: 
+			continue
+
+		# Then filter dumb values
+		if r.match(value):
+			continue
+
+		defines[key] = value if len(value) else "true" 
+		
+
+	# Second step if to resolve recursive macro
+	is_numeric = re.compile("\(*[-0-9.]+\)*")
+	is_text = re.compile('\(*"[^"]*"\)')
+	is_bool = re.compile('true|false')
+	is_list = re.compile('{[^}]*}')
+
+	resolved_defines = {}
+	for key in defines:
+		# Remove all boards now
+		if key[0:6] == "BOARD_" and key != "BOARD_INFO_NAME":
+			continue
+		# Remove all keys ending by "_NAME" as it does not make a difference to the configuration
+		if key[-5:] == "_NAME":
+			continue
+		# Remove all keys ending by "_T_DECLARED" as it's a copy of not important system stuff
+		if key[-11:] == "_T_DECLARED": 
+			continue
+
+		value = defines[key]
+
+		# Easy case first
+		if is_numeric.match(str(value)) or is_text.match(str(value)) or is_bool.match(str(value)):
+			resolved_defines[key] = value
+			continue
+
+		# Process list now
+		if is_list.match(value):
+			v = value.strip("{}")
+			v = list(map(str.strip, v.strip("{ }").split(',')))
+			values = [resolve_macro(p, defines) for p in v]
+			resolved_defines[key] = '{' + ','.join(values) + '}'
+		
+
+		# Try to simplify the rest now
+		resolved_defines[key] = resolve_macro(value, defines)
+
+	# Compute the required entropy for the fingerprint
+	keyCount = 0
+	valEntropy = 0
+	for k in resolved_defines:
+		keyCount = keyCount + 1
+		v = resolved_defines[k]
+		bits = 0
+		if is_numeric.match(v):
+			if v == "-1" or v == "1":
+				bits = 0 # All -1 and 1 can be listed in a specific section and don't take any space
+			elif '.' in v:
+				bits = 32
+			else:
+				f = int(v.strip("()"))
+				bits = f.bit_length()
+			valEntropy = valEntropy + bits
+		elif is_text.match(v):
+			bits = 8 * len(v)
+		elif is_bool.match(v):
+			bits = 1
+		elif is_list.match(v):
+			l = len(v.split(","))
+			if l * 32 < 8 * len(v):
+				bits = l * 32 + 5 # Let's say we don't have a list with more than 31 values here
+			else:
+				bits = 8 * len(v) # Store has a string
+		else:
+			bits = 32 # Consider it's a computable value here
+
+		valEntropy = valEntropy + bits + 1
+		if verbose: 
+			print(str(k) + " = " + str(v) + "(" + str(bits) + ")")
+	print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
 
 #
 # Return True if a matching feature is enabled
@@ -333,3 +475,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()
+
+# print(env.Dump())
+compute_build_signature()
