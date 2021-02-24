@@ -840,7 +840,7 @@ namespace Anycubic {
         // Ignore request if printing
         //if (isPrinting()) break;
         //injectCommands_P(PSTR("M500\nM420 S1\nG1 Z10 F240\nG1 X0 Y0 F6000"));
-        //TFTSer.println("");
+        //TFTSer.println();
       } break;
 
       // A33 firmware info request seet PanelInfo()
