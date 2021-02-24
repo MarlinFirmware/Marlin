@@ -138,29 +138,36 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
 
   void msgDone()                    { out.msgDone(); }
   // Existing instances implement Arduino's operator bool, so use that if it's available
-  bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
-  void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
+  bool connected()                  { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
+  void flushTX()                    { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  bool available(uint8_t index) {
+  int available(uint8_t index) {
     // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
     // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
     // TODO, let's fix this later on
-    return charCount > 0 || (bool)out.available(index);
+    if (charCount > 0) return charCount;
+
+    // Don't read in read method, instead do it here, so we can make progress in the read method
+    while (out.available(index) > 0) {
+      int r = out.read(index);
+      if (r == -1) return 0; // This is an error from the underlying serial code
+
+      meatpack.handle_rx_char((uint8_t)r, index);
+      charCount = meatpack.get_result_char(serialBuffer);
+      if (charCount) return charCount;
+    }
+    return 0;
   }
   int readImpl(uint8_t index) {
     // DITTO
     if (charCount > 0) return serialBuffer[sizeof(serialBuffer) - (charCount--)];
-
-    int r = out.read(index);
-    if (r == -1) return r;
-
-    meatpack.handle_rx_char((uint8_t)r, index);
-    charCount = meatpack.get_result_char(serialBuffer);
+    // Not enough char to make progress ?
+    if (available(index) == 0) return -1;
     return serialBuffer[sizeof(serialBuffer) - (charCount--)];
   }
 
   int read(uint8_t index)       { return readImpl(index); }
-  bool available()              { return charCount > 0 || out.available(0); }
+  int available()               { return available(0); }
   int read()                    { return readImpl(0); }
 
   MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
