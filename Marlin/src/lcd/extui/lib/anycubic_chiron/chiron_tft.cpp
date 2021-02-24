@@ -578,8 +578,8 @@ namespace Anycubic {
       case 15:   // A15 Resuming from outage
         if (printer_state == AC_printer_resuming_from_power_outage) {
           // Need to home here to restore the Z position
-          injectCommands(AC_cmnd_power_loss_recovery);
-          injectCommands("M1000");  // home and start recovery
+          injectCommands_P(AC_cmnd_power_loss_recovery);
+          injectCommands_P(PSTR("M1000"));  // home and start recovery
         }
         break;
 
