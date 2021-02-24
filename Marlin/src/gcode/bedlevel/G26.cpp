@@ -122,7 +122,7 @@
 #define OOZE_AMOUNT 0.3
 
 #define INTERSECTION_CIRCLE_RADIUS 10
-#define CROSSHAIRS_SIZE 10
+#define CROSSHAIRS_SIZE 0
 
 #ifndef G26_RETRACT_MULTIPLIER
   #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
@@ -184,11 +184,11 @@ int8_t g26_prime_flag;
 #elif ENABLED(EXTENSIBLE_UI)
   #define HAS_G26_CANCEL
 
-  bool user_canceled() {
+  bool user_canceled(bool reset = true) {
     if (!ExtUI::isCanceled()) return false;
 
     ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
-    ExtUI::resetCancelState();
+    if (reset) ExtUI::resetCancelState();
 
     return true;
   }
@@ -495,6 +495,122 @@ inline bool prime_nozzle() {
   return G26_OK;
 }
 
+inline float circle_arc_length(float quarters, float radius) {
+  return radius * M_PI * quarters;
+}
+
+inline bool draw_circle(float g26_layer_height, float radius, const xy_pos_t& circle, const mesh_index_pair& location) {
+  // If this mesh location is outside the printable radius, skip it.
+  if (!position_is_reachable(circle)) return false;
+
+  // Determine where to start and end the circle,
+  // which is always drawn counter-clockwise.
+  const xy_int8_t st = location;
+  const bool f = st.y == 0,
+              r = st.x >= GRID_MAX_POINTS_X - 1,
+              b = st.y >= GRID_MAX_POINTS_Y - 1;
+
+  #if ENABLED(ARC_SUPPORT)
+
+    xy_float_t e = { circle.x + radius, circle.y };
+    xyz_float_t s = e;
+
+    // Figure out where to start and end the arc - we always print counterclockwise
+    float diameter = radius * 2;
+    float arc_length = circle_arc_length(4, radius);
+    float arc_length_1 = circle_arc_length(1, radius);
+    float arc_length_2 = circle_arc_length(2, radius);
+
+    if (st.x == 0) {                             // left edge
+      if (!f) { s.x = circle.x; s.y -= radius; }
+      if (!b) { e.x = circle.x; e.y += radius; }
+      arc_length = (f || b) ? arc_length_1 : arc_length_2;
+    }
+    else if (r) {                             // right edge
+      if (b) s.set(circle.x - radius, circle.y);
+      else   s.set(circle.x, circle.y + radius);
+      if (f) e.set(circle.x - radius, circle.y);
+      else   e.set(circle.x, circle.y - radius);
+      arc_length = (f || b) ? arc_length_1 : arc_length_2;
+    }
+    else if (f) {
+      e.x -= diameter;
+      arc_length = arc_length_2;
+    }
+    else if (b) {
+      s.x -= diameter;
+      arc_length = arc_length_2;
+    }
+
+    const ab_float_t arc_offset = circle - s;
+    const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
+    const float dist_start = HYPOT2(dist.x, dist.y);
+    const xyze_pos_t endpoint = {
+      e.x, e.y, g26_layer_height, // 0.8: temporary fix overextrusion on arc (TODO)
+      current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier * 0.8)
+    };
+
+    if (dist_start > 2.0) {
+      s.z = g26_layer_height + 0.5f;
+      retract_lift_move(s);
+    }
+
+    s.z = g26_layer_height;
+    move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
+
+    recover_filament(destination);
+
+    plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
+    destination = current_position;
+
+    if (TERN0(HAS_G26_CANCEL, user_canceled(false))) return false; // Check if the user wants to stop the Mesh Validation
+
+  #else // !ARC_SUPPORT
+
+    int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
+    if (st.x == 0) {                    // Left edge? Just right half.
+      start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
+      end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
+    }
+    else if (r) {                       // Right edge? Just left half.
+      start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
+      end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
+    }
+    else if (f) {                       // Front edge? Just back half.
+      start_ind = 0;                    //  03:00
+      end_ind = 5;                      //  09:00
+    }
+    else if (b) {                       // Back edge? Just front half.
+      start_ind = 6;                    //  09:00
+      end_ind = 11;                     //  03:00
+    }
+
+    for (int8_t ind = start_ind; ind <= end_ind; ind++) {
+
+      if (TERN0(HAS_G26_CANCEL, user_canceled(false))) return false; // Check if the user wants to stop the Mesh Validation
+
+      xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
+                  q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
+
+      #if IS_KINEMATIC
+        // Check to make sure this segment is entirely on the bed, skip if not.
+        if (!position_is_reachable(p) || !position_is_reachable(q)) return true;
+      #else
+        LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
+        LIMIT(p.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+        LIMIT(q.x, X_MIN_POS + 1, X_MAX_POS - 1);
+        LIMIT(q.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+      #endif
+
+      print_line_from_here_to_there(p, q);
+      SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
+    }
+
+  #endif // !ARC_SUPPORT
+
+  return true;
+}
+
 /**
  * G26: Mesh Validation Pattern generation.
  *
@@ -762,116 +878,16 @@ void GcodeSuite::G26() {
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
-      // If this mesh location is outside the printable radius, skip it.
-      if (!position_is_reachable(circle)) continue;
+      // Draw a filled circle
+      float radius = INTERSECTION_CIRCLE_RADIUS;
+      bool cont = true;
+      while (radius > 0 && cont) {
+        cont = cont && draw_circle(g26_layer_height, radius, circle, location);
 
-      // Determine where to start and end the circle,
-      // which is always drawn counter-clockwise.
-      const xy_int8_t st = location;
-      const bool f = st.y == 0,
-                 r = st.x >= GRID_MAX_POINTS_X - 1,
-                 b = st.y >= GRID_MAX_POINTS_Y - 1;
+        radius -= g26_nozzle * 2;
+      }
 
-      #if ENABLED(ARC_SUPPORT)
-
-        #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
-        #define INTERSECTION_CIRCLE_DIAM  ((INTERSECTION_CIRCLE_RADIUS) * 2)
-
-        xy_float_t e = { circle.x + INTERSECTION_CIRCLE_RADIUS, circle.y };
-        xyz_float_t s = e;
-
-        // Figure out where to start and end the arc - we always print counterclockwise
-        float arc_length = ARC_LENGTH(4);
-        if (st.x == 0) {                             // left edge
-          if (!f) { s.x = circle.x; s.y -= INTERSECTION_CIRCLE_RADIUS; }
-          if (!b) { e.x = circle.x; e.y += INTERSECTION_CIRCLE_RADIUS; }
-          arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
-        }
-        else if (r) {                             // right edge
-          if (b) s.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
-          else   s.set(circle.x, circle.y + INTERSECTION_CIRCLE_RADIUS);
-          if (f) e.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
-          else   e.set(circle.x, circle.y - (INTERSECTION_CIRCLE_RADIUS));
-          arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
-        }
-        else if (f) {
-          e.x -= INTERSECTION_CIRCLE_DIAM;
-          arc_length = ARC_LENGTH(2);
-        }
-        else if (b) {
-          s.x -= INTERSECTION_CIRCLE_DIAM;
-          arc_length = ARC_LENGTH(2);
-        }
-
-        const ab_float_t arc_offset = circle - s;
-        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
-        const float dist_start = HYPOT2(dist.x, dist.y);
-        const xyze_pos_t endpoint = {
-          e.x, e.y, g26_layer_height,
-          current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
-        };
-
-        if (dist_start > 2.0) {
-          s.z = g26_layer_height + 0.5f;
-          retract_lift_move(s);
-        }
-
-        s.z = g26_layer_height;
-        move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
-
-        recover_filament(destination);
-
-        const feedRate_t old_feedrate = feedrate_mm_s;
-        feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
-        plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
-        feedrate_mm_s = old_feedrate;
-        destination = current_position;
-
-        if (TERN0(HAS_G26_CANCEL, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
-
-      #else // !ARC_SUPPORT
-
-        int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
-        if (st.x == 0) {                    // Left edge? Just right half.
-          start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
-          end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
-        }
-        else if (r) {                       // Right edge? Just left half.
-          start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
-          end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
-        }
-        else if (f) {                       // Front edge? Just back half.
-          start_ind = 0;                    //  03:00
-          end_ind = 5;                      //  09:00
-        }
-        else if (b) {                       // Back edge? Just front half.
-          start_ind = 6;                    //  09:00
-          end_ind = 11;                     //  03:00
-        }
-
-        for (int8_t ind = start_ind; ind <= end_ind; ind++) {
-
-          if (TERN0(HAS_G26_CANCEL, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
-
-          xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
-                      q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
-
-          #if IS_KINEMATIC
-            // Check to make sure this segment is entirely on the bed, skip if not.
-            if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
-          #else
-            LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
-            LIMIT(p.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(q.x, X_MIN_POS + 1, X_MAX_POS - 1);
-            LIMIT(q.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-          #endif
-
-          print_line_from_here_to_there(p, q);
-          SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
-        }
-
-      #endif // !ARC_SUPPORT
-
+      if (!cont) continue;
       if (look_for_lines_to_connect()) goto LEAVE;
     }
 
