@@ -305,8 +305,7 @@ namespace Anycubic {
         SERIAL_EOL();
       #endif
     }
-    TFTSer.write('\r');
-    TFTSer.write('\n');
+    TFTSer.println();
   }
 
   bool ChironTFT::ReadTFTCommand() {
