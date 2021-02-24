@@ -881,7 +881,7 @@ void GcodeSuite::G26() {
       // Draw a filled circle
       float radius = INTERSECTION_CIRCLE_RADIUS;
       bool cont = true;
-      while (radius > 0 && cont) {
+      while (radius > g26_nozzle && cont) {
         cont = cont && draw_circle(radius, circle, location);
 
         radius -= g26_nozzle * 2;
