@@ -111,7 +111,7 @@ namespace ExtUI {
 #endif
 
 #if defined(MCU_LPC1769) || defined(MCU_LPC1768)
-  #define DWIN_SERIAL DGUS_SERIAL
+  #define DWIN_SERIAL LCD_SERIAL
 #elif defined(TARGET_STM32F4)
   #define DWIN_SERIAL Serial1
 #elif defined(__STM32F1__)
