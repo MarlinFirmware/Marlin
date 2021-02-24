@@ -38,7 +38,7 @@ bool AxisSettingsHandler::has_tmc_settings = false;
 
 uint16_t AxisSettingsHandler::tmc_current;
 bool AxisSettingsHandler::stealthchop;
-uint16_t AxisSettingsHandler::hybrid_threshold;
+uint32_t AxisSettingsHandler::hybrid_threshold;
 
 void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr) {
     switch (uInt16Value(val_ptr)) {
@@ -79,7 +79,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperX.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = static_cast<uint16_t>(stepperX.get_pwm_thrs());
+            hybrid_threshold = static_cast<uint32_t>(stepperX.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -93,7 +93,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperY.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = static_cast<uint16_t>(stepperY.get_pwm_thrs());
+            hybrid_threshold = static_cast<uint32_t>(stepperY.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -107,7 +107,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperZ.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = static_cast<uint16_t>(stepperZ.get_pwm_thrs());
+            hybrid_threshold = static_cast<uint32_t>(stepperZ.get_pwm_thrs());
             #endif
             #endif
             break;
@@ -121,7 +121,7 @@ void AxisSettingsHandler::HandleNavigation(DGUS_VP_Variable &var, void *val_ptr)
             stealthchop = stepperE0.get_stored_stealthChop();
 
             #if ENABLED(HYBRID_THRESHOLD)
-            hybrid_threshold = static_cast<uint16_t>(stepperE0.get_pwm_thrs());
+            hybrid_threshold = static_cast<uint32_t>(stepperE0.get_pwm_thrs());
             #endif
             #endif
             break;

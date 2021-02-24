@@ -16,7 +16,7 @@ class AxisSettingsHandler {
         static bool has_tmc_settings;
         static uint16_t tmc_current;
         static bool stealthchop;
-        static uint16_t hybrid_threshold;
+        static uint32_t hybrid_threshold;
 
     public:
         static void HandleNavigation(DGUS_VP_Variable &var, void *val_ptr);
