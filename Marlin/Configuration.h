@@ -551,7 +551,7 @@
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
 #elif ANY(SKR13, SKR14, SKR14Turbo)
-  #define DGUS_SERIAL_PORT 0
+  #define LCD_SERIAL_PORT 0
 #elif ANY(MachineEnder3Pro422, MachineEnder3Pro427)&& DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
 #endif
