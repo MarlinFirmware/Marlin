@@ -68,7 +68,7 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDRD: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif
@@ -108,7 +108,7 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDWR: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif

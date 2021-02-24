@@ -74,7 +74,6 @@ void MeatPack::reset_state() {
   second_char = 0;
   cmd_count = full_char_count = char_out_count = 0;
   TERN_(MP_DEBUG, chars_decoded = 0);
-  report_state();
 }
 
 /**
@@ -164,7 +163,6 @@ void MeatPack::handle_command(const MeatPack_Command c) {
     case MPCommand_QueryConfig:     break;
     case MPCommand_EnablePacking:   SBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] ENA REC");   break;
     case MPCommand_DisablePacking:  CBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] DIS REC");   break;
-    case MPCommand_TogglePacking:   TBI(state, MPConfig_Bit_Active);   DEBUG_ECHOLNPGM("[MPDBG] TGL REC");   break;
     case MPCommand_ResetAll:        reset_state();                     DEBUG_ECHOLNPGM("[MPDBG] RESET REC"); break;
     case MPCommand_EnableNoSpaces:
       SBI(state, MPConfig_Bit_NoSpaces);
@@ -190,7 +188,7 @@ void MeatPack::report_state() {
  * Interpret a single character received from serial
  * according to the current meatpack state.
  */
-void MeatPack::handle_rx_char(const uint8_t c) {
+void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) {
   if (c == kCommandByte) {                // A command (0xFF) byte?
     if (cmd_count) {                      // In fact, two in a row?
       cmd_is_next = true;                 // Then a MeatPack command follows
@@ -202,6 +200,7 @@ void MeatPack::handle_rx_char(const uint8_t c) {
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
+    PORT_REDIRECT(serial_ind);
     handle_command((MeatPack_Command)c);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;

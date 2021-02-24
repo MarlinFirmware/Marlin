@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-
 #include "screens.h"
+
+#ifdef FTDI_FILAMENT_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -82,4 +81,4 @@ bool FilamentMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_FILAMENT_MENU

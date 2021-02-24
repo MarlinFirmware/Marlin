@@ -263,6 +263,8 @@
 #define AUTO_LEVELING_TEXT_T_CN         "自動調平"
 #define SET_TEXT_T_CN                   "設置"
 #define MORE_TEXT_T_CN                  "更多"
+#define MORE_GCODE_T_CN                 "G-Code"
+#define MORE_ENTER_GCODE_T_CN           "Enter G-Code"
 
 #define ADD_TEXT_T_CN                   "增加"
 #define DEC_TEXT_T_CN                   "減少"
@@ -497,4 +499,3 @@
 #define MORE_CUSTOM4_TEXT_T_CN  USER_DESC_4
 #define MORE_CUSTOM5_TEXT_T_CN  USER_DESC_5
 #define MORE_CUSTOM6_TEXT_T_CN  USER_DESC_6
-#define MORE_CUSTOM7_TEXT_T_CN  USER_DESC_7
