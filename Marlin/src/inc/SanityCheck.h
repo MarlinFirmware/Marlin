@@ -3374,3 +3374,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 
 // Misc. Cleanup
 #undef _TEST_PWM
+
+// Sanity check to prevent Home offset use with a probe  
+#if HAS_BED_PROBE || ENABLED (BLTOUCH) && DISABLED (NO_WORKSPACE_OFFSETS)
+  #error "WORKSAPCE_OFFSETS cant be used with a probe."
+#endif
