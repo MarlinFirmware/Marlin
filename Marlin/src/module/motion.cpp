@@ -1393,7 +1393,7 @@ void prepare_line_to_destination() {
     TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
   }
 
-  #if ENABLED(TMC_HOME_PHASE)
+  #ifdef TMC_HOME_PHASE
     /**
      * Move the axis back to its home_phase if set and driver is capable (TMC)
      *
