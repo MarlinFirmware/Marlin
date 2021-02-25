@@ -569,7 +569,6 @@
  * the issues involved, don't use chamber PID until someone else verifies that your hardware works.
  */
 //#define PIDTEMPCHAMBER
-
 //#define CHAMBER_LIMIT_SWITCHING
 
 /**
@@ -1196,7 +1195,13 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
 //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+
+/**
+ * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
+ *  - Use a low value (i.e., Z_MIN_POS) if the nozzle falls down to the bed.
+ *  - Use a large value (i.e., Z_MAX_POS) if the bed falls down, away from the nozzle.
+ */
+//#define Z_IDLE_HEIGHT Z_HOME_POS
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.

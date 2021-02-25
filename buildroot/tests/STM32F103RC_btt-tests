@@ -17,7 +17,7 @@ opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2209
 opt_set Z_DRIVER_TYPE TMC2209
 opt_set E0_DRIVER_TYPE TMC2209
-opt_enable PINS_DEBUGGING
+opt_enable PINS_DEBUGGING Z_IDLE_HEIGHT
 
 exec_test $1 $2 "BigTreeTech SKR Mini E3 1.0 - Basic Config with TMC2209 HW Serial" "$3"
 
