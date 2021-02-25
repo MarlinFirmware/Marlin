@@ -226,7 +226,7 @@ void menu_temperature() {
 
   #if PREHEAT_COUNT
     //
-    // Preheat for Materials 1 to 5
+    // Preheat for all Materials
     //
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
@@ -248,5 +248,25 @@ void menu_temperature() {
 
   END_MENU();
 }
+
+#if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
+
+  void menu_preheat_only() {
+    START_MENU();
+    BACK_ITEM(MSG_MAIN);
+
+    LOOP_L_N(m, PREHEAT_COUNT) {
+      editable.int8 = m;
+      #if HOTENDS > 1 || HAS_HEATED_BED
+        SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
+      #else
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
+      #endif
+    }
+
+    END_MENU();
+  }
+
+#endif
 
 #endif // HAS_LCD_MENU && HAS_TEMPERATURE
