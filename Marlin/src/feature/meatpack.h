@@ -146,31 +146,30 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
     // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
     // TODO, let's fix this later on
-    if (charCount > 0) return charCount;
-
-    // Don't read in read method, instead do it here, so we can make progress in the read method
-    while (out.available(index) > 0) {
-      int r = out.read(index);
-      if (r == -1) return 0; // This is an error from the underlying serial code
-
-      meatpack.handle_rx_char((uint8_t)r, index);
-      charCount = meatpack.get_result_char(serialBuffer);
-      readIndex = 0;
-      if (charCount) return charCount;
+    if (!charCount) {
+      // Don't read in read method, instead do it here, so we can make progress in the read method
+      while (out.available(index) > 0) {
+        const int r = out.read(index);
+        if (r == -1) return 0; // This is an error from the underlying serial code
+        meatpack.handle_rx_char((uint8_t)r, index);
+        charCount = meatpack.get_result_char(serialBuffer);
+        readIndex = 0;
+      }
     }
-    return 0;
+    return charCount;
   }
+
   int readImpl(uint8_t index) {
-    // Not enough char to make progress ?
+    // Not enough char to make progress?
     if (charCount == 0 && available(index) == 0) return -1;
 
     charCount--;
     return serialBuffer[readIndex++];
   }
 
-  int read(uint8_t index)       { return readImpl(index); }
-  int available()               { return available(0); }
-  int read()                    { return readImpl(0); }
+  int read(uint8_t index) { return readImpl(index); }
+  int available()         { return available(0); }
+  int read()              { return readImpl(0); }
 
   MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
