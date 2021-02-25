@@ -40,7 +40,7 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT)
+#if ENABLED(HOST_ACTION_COMMANDS)
   #include "../feature/host_actions.h"
 #endif
 
@@ -61,7 +61,7 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
-#include "../MarlinCore.h" // for idle()
+#include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
@@ -105,7 +105,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
   return active_extruder;
@@ -124,7 +124,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
 
@@ -209,6 +209,31 @@ void GcodeSuite::dwell(millis_t time) {
  */
 #if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
 
+  void GcodeSuite::event_probe_recover() {
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    #ifdef ACTION_ON_G29_RECOVER
+      host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+    #endif
+  }
+
+  void GcodeSuite::event_probe_failure() {
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE));
+    #endif
+    #ifdef G29_FAILURE_COMMANDS
+      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+    #endif
+    #if ENABLED(G29_HALT_ON_FAILURE)
+      #ifdef ACTION_ON_CANCEL
+        host_action_cancel();
+      #endif
+      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+    #endif
+  }
+
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
   #endif
@@ -216,7 +241,10 @@ void GcodeSuite::dwell(millis_t time) {
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
     while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries--) event_probe_recover();
+      if (retries) {
+        event_probe_recover();
+        --retries;
+      }
       else {
         event_probe_failure();
         return;
@@ -654,6 +682,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 304: M304(); break;                                  // M304: Set bed PID parameters
       #endif
 
+      #if ENABLED(PIDTEMPCHAMBER)
+        case 309: M309(); break;                                  // M309: Set chamber PID parameters
+      #endif
+
       #if ENABLED(PHOTO_GCODE)
         case 240: M240(); break;                                  // M240: Trigger a camera
       #endif
@@ -716,6 +748,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_FILAMENT_SENSOR
         case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
+      #endif
+
+      #if HAS_MULTI_LANGUAGE
+        case 414: M414(); break;                                  // M414: Select multi language menu
       #endif
 
       #if HAS_LEVELING
@@ -954,6 +990,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   }
 
   if (!no_ok) queue.ok_to_send();
+
+  SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
 }
 
 /**
@@ -963,7 +1001,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 void GcodeSuite::process_next_command() {
   char * const current_command = queue.command_buffer[queue.index_r];
 
-  PORT_REDIRECT(queue.port[queue.index_r]);
+  PORT_REDIRECT(SERIAL_PORTMASK(queue.port[queue.index_r]));
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.queue_index_r = queue.index_r;

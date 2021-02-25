@@ -38,7 +38,7 @@
 #include "../../feature/probe_temp_comp.h"
 
 #include "../../lcd/marlinui.h"
-#include "../../MarlinCore.h" // for wait_for_heatup and idle()
+#include "../../MarlinCore.h" // for wait_for_heatup, idle()
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
@@ -168,7 +168,7 @@ void GcodeSuite::G76() {
       return;
     }
 
-    process_subcommands_now_P(PSTR("G28"));
+    process_subcommands_now_P(G28_STR);
   }
 
   remember_feedrate_scaling_off();
@@ -267,7 +267,7 @@ void GcodeSuite::G76() {
 
       say_waiting_for_probe_heating();
       SERIAL_ECHOLNPAIR(" Bed:", target_bed, " Probe:", target_probe);
-      const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
+      const millis_t probe_timeout_ms = millis() + SEC_TO_MS(900UL);
       while (thermalManager.degProbe() < target_probe) {
         if (report_temps(next_temp_report, probe_timeout_ms)) {
           SERIAL_ECHOLNPGM("!Probe heating timed out.");

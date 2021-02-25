@@ -78,6 +78,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
+#if HAS_MULTI_LANGUAGE
+  uint8_t MarlinUI::language; // Initialized by settings.load()
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   bool MarlinUI::buzzer_enabled = true;
 #endif
@@ -747,7 +751,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // For Cartesian / Core motion simply move to the current_position
         planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
 
-        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", int(axis), " at FR ", fr_mm_s);
+        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", axis, " at FR ", fr_mm_s);
 
         axis = NO_AXIS;
 
@@ -768,7 +772,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
-    //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
+    //SERIAL_ECHOLNPAIR("Post Move with Axis ", axis, " soon.");
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -990,7 +994,7 @@ void MarlinUI::update() {
         refresh(LCDVIEW_REDRAW_NOW);
 
         #ifdef LED_BACKLIGHT_TIMEOUT
-          leds.reset_timeout(ms);
+          if (!powersupply_on) leds.reset_timeout(ms);
         #endif
       }
 
@@ -1450,7 +1454,8 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-
+    #else // HAS_SPI_LCD
+      UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
@@ -1490,8 +1495,8 @@ void MarlinUI::update() {
     #ifdef ACTION_ON_CANCEL
       host_action_cancel();
     #endif
+    IF_DISABLED(SDSUPPORT, print_job_timer.stop());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
-    print_job_timer.stop();
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
   }
@@ -1511,7 +1516,7 @@ void MarlinUI::update() {
     LCD_MESSAGEPGM(MSG_PRINT_PAUSED);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
-      TERN_(HAS_WIRED_LCD, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT)); // Show message immediately to let user know about pause in progress
+      pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT); // Show message immediately to let user know about pause in progress
       queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       queue.inject_P(PSTR("M25"));
@@ -1523,7 +1528,7 @@ void MarlinUI::update() {
   void MarlinUI::resume_print() {
     reset_status();
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
-    if (IS_SD_PAUSED()) queue.inject_P(M24_STR);
+    TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif
@@ -1647,7 +1652,13 @@ void MarlinUI::update() {
 #endif // SDSUPPORT
 
 #if HAS_LCD_MENU
-  void MarlinUI::reset_settings() { settings.reset(); completion_feedback(); }
+  void MarlinUI::reset_settings() {
+    settings.reset();
+    completion_feedback();
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
+    #endif
+  }
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)

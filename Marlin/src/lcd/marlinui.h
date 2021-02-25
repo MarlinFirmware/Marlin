@@ -51,14 +51,12 @@
   #include "../module/printcounter.h"
 #endif
 
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+  #include "../module/motion.h" // for active_extruder
+#endif
+
 #if HAS_WIRED_LCD
-
-  #include "../MarlinCore.h"
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #include "../feature/pause.h"
-    #include "../module/motion.h" // for active_extruder
-  #endif
 
   enum LCDViewAction : uint8_t {
     LCDVIEW_NONE,
@@ -86,12 +84,6 @@
 
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
-
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_pause_show_message(const PauseMessage message,
-                                  const PauseMode mode=PAUSE_MODE_SAME,
-                                  const uint8_t extruder=active_extruder);
-    #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       void lcd_mesh_edit_setup(const float &initial);
@@ -178,6 +170,17 @@ public:
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
+  #if HAS_MULTI_LANGUAGE
+    static uint8_t language;
+    static inline void set_language(const uint8_t lang) {
+      if (lang < NUM_LANGUAGES) {
+        language = lang;
+        return_to_status();
+        refresh();
+      }
+    }
+  #endif
+
   #if ENABLED(SOUND_MENU_ITEM)
     static bool buzzer_enabled; // Initialized by settings.load()
   #else
@@ -245,7 +248,7 @@ public:
         static inline uint32_t _calculated_remaining_time() {
           const duration_t elapsed = print_job_timer.duration();
           const progress_t progress = _get_progress();
-          return elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+          return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
         }
         #if ENABLED(USE_M73_REMAINING_TIME)
           static uint32_t remaining_time;
@@ -493,6 +496,13 @@ public:
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+  #endif
+
+  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+  #else
+    static inline void _pause_show_message() {}
+    #define pause_show_message(...) _pause_show_message()
   #endif
 
   //

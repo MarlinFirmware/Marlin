@@ -279,6 +279,8 @@
 #define AUTO_LEVELING_TEXT_EN   "AutoLevel"
 #define SET_TEXT_EN             "Settings"
 #define MORE_TEXT_EN            "More"
+#define MORE_GCODE_EN           "G-Code"
+#define MORE_ENTER_GCODE_EN     "Enter G-Code"
 
 #define ADD_TEXT_EN             "Add"
 #define DEC_TEXT_EN             "Dec"
@@ -732,4 +734,3 @@
 #define MORE_CUSTOM4_TEXT_EN  USER_DESC_4
 #define MORE_CUSTOM5_TEXT_EN  USER_DESC_5
 #define MORE_CUSTOM6_TEXT_EN  USER_DESC_6
-#define MORE_CUSTOM7_TEXT_EN  USER_DESC_7

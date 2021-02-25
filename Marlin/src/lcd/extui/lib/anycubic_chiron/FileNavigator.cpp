@@ -44,6 +44,8 @@ using namespace ExtUI;
 
 namespace Anycubic {
 
+  FileNavigator filenavigator;
+
   FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
   char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
   uint16_t  FileNavigator::lastindex;
@@ -112,7 +114,7 @@ namespace Anycubic {
     }
     else {
       // Logical Name
-      TFTSer.print("/");
+      TFTSer.write('/');
       if (folderdepth > 0) TFTSer.print(currentfoldername);
 
       TFTSer.println(filelist.shortFilename());

@@ -75,7 +75,7 @@ extern lv_group_t *g;
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {
-  "G28\nG29\nM500",
+  "G29N\nM500",
   "G28",
   "G28",
   "G28",
@@ -181,22 +181,22 @@ void ui_cfg_init() {
   uiCfg.curTempType         = 0;
   uiCfg.curSprayerChoose    = 0;
   uiCfg.stepHeat            = 10;
-  uiCfg.leveling_first_time = 0;
-  uiCfg.para_ui_page        = 0;
+  uiCfg.leveling_first_time = false;
+  uiCfg.para_ui_page        = false;
   uiCfg.extruStep           = 5;
   uiCfg.extruSpeed          = 10;
   uiCfg.move_dist           = 1;
   uiCfg.moveSpeed           = 3000;
   uiCfg.stepPrintSpeed      = 10;
-  uiCfg.command_send        = 0;
+  uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;
-  uiCfg.filament_heat_completed_load = 0;
+  uiCfg.filament_heat_completed_load = false;
   uiCfg.filament_rate                = 0;
-  uiCfg.filament_loading_completed   = 0;
-  uiCfg.filament_unloading_completed = 0;
-  uiCfg.filament_loading_time_flg    = 0;
+  uiCfg.filament_loading_completed   = false;
+  uiCfg.filament_unloading_completed = false;
+  uiCfg.filament_loading_time_flg    = false;
   uiCfg.filament_loading_time_cnt    = 0;
-  uiCfg.filament_unloading_time_flg  = 0;
+  uiCfg.filament_unloading_time_flg  = false;
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
@@ -889,7 +889,7 @@ void GUI_RefreshPage() {
               lv_draw_wifi_tips();
 
             }
-            if (tips_disp.timer_count >= 30 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(30)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
               lv_clear_wifi_tips();
@@ -898,7 +898,7 @@ void GUI_RefreshPage() {
             }
             break;
           case TIPS_TYPE_TAILED_JOIN:
-            if (tips_disp.timer_count >= 3 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(3)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
 
@@ -908,7 +908,7 @@ void GUI_RefreshPage() {
             }
             break;
           case TIPS_TYPE_WIFI_CONECTED:
-            if (tips_disp.timer_count >= 3 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(3)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
 
@@ -1077,6 +1077,7 @@ void draw_return_ui() {
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif
       case TOOL_UI:                     lv_draw_tool(); break;
+      case GCODE_UI:                    lv_draw_gcode(); break;
       case MESHLEVELING_UI:             break;
       case HARDWARE_TEST_UI:            break;
       #if ENABLED(MKS_WIFI_MODULE)
