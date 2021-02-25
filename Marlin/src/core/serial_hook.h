@@ -244,4 +244,3 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
 #ifdef HAS_MULTI_SERIAL
   #define Serial1Type ConditionalSerial
 #endif
-
