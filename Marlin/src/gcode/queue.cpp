@@ -64,7 +64,6 @@ PGMSTR(G28_STR, "G28");
   static millis_t last_command_time = 0;
 #endif
 
-
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
@@ -92,7 +91,7 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
   #if HAS_MULTI_SERIAL
     , serial_index_t serial_ind/*=-1*/
   #endif
-  ) {
+) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
   TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
@@ -124,10 +123,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char* cmd, bool skip_ok/*=true*/
  * Return true if the command was consumed
  */
 bool GCodeQueue::enqueue_one(const char* cmd) {
-
-  //SERIAL_ECHOPGM("enqueue_one(\"");
-  //SERIAL_ECHO(cmd);
-  //SERIAL_ECHOPGM("\") \n");
+  //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
 
@@ -285,7 +281,7 @@ void GCodeQueue::flush_and_request_resend() {
 inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
   if (index == SERIAL_ALL) {
     for (index = 0; index < NUM_SERIAL; index++) {
-      int a = SERIAL_IMPL.available(index);
+      const int a = SERIAL_IMPL.available(index);
       #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
         if (a > RX_BUFFER_SIZE - 2) {
           PORT_REDIRECT(SERIAL_PORTMASK(index));
@@ -296,7 +292,7 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
     }
     return false;
   }
-  int a = SERIAL_IMPL.available(index);
+  const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
       PORT_REDIRECT(SERIAL_PORTMASK(index));
@@ -314,7 +310,7 @@ void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_i
   SERIAL_ERROR_START();
   SERIAL_ECHOPGM_P(err);
   SERIAL_ECHOLN(serial_state[serial_ind].last_N);
-  while (read_serial(serial_ind) != -1);      // Clear out the RX buffer. Why don't use flush here ?
+  while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend();
   serial_state[serial_ind].count = 0;
 }
@@ -634,8 +630,8 @@ void GCodeQueue::advance() {
   #if ENABLED(SDSUPPORT)
 
     if (card.flag.saving) {
-      char* command = ring_buffer.commands[ring_buffer.index_r].buffer;
-      if (is_M29(command)) {
+      char * const cmd = ring_buffer.peek_next_command_string();
+      if (is_M29(cmd)) {
         // M29 closes the file
         card.closefile();
         SERIAL_ECHOLNPGM(STR_FILE_SAVED);
@@ -653,7 +649,7 @@ void GCodeQueue::advance() {
       }
       else {
         // Write the string from the read buffer to SD
-        card.write_command(command);
+        card.write_command(cmd);
         if (card.flag.logging)
           gcode.process_next_command(); // The card is saving because it's logging
         else

@@ -69,7 +69,7 @@ public:
     uint8_t length;                 //!< Number of commands in the queue
     uint8_t index_r;                //!< Ring buffer's read position
     uint8_t index_w;                //!< Ring buffer's write position
-    CommandLine commands[BUFSIZE]; //!< The ring buffer of commands
+    CommandLine commands[BUFSIZE];  //!< The ring buffer of commands
 
     inline serial_index_t command_port() const { return TERN0(HAS_MULTI_SERIAL, commands[index_r].port); }
 
@@ -94,6 +94,10 @@ public:
     inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
 
     inline bool empty() const { return length == 0; }
+
+    inline CommandLine& peek_next_command() { return commands[index_r]; }
+
+    inline char* peek_next_command_string() { return peek_next_command().buffer; }
   };
 
   /**
@@ -189,9 +193,6 @@ public:
   static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port()].last_N = n; }
 
 private:
-
-  /** Get the next command from the buffer (or NULL) */
-  CommandLine & peek_next_command() { return ring_buffer.commands[ring_buffer.index_r]; }
 
   static void get_serial_commands();
 
