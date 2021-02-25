@@ -23,7 +23,10 @@
 
 #include <stdint.h>
 
-// Convert a full-range unsigned 8bit int to a percentage
+// Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
+const char* pcttostrpctrj(const uint8_t i);
+
+// Convert uint8_t (0-255) to a percentage, format as above
 const char* ui8tostr4pctrj(const uint8_t i);
 
 // Convert uint8_t to string with 12 format

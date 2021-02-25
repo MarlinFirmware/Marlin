@@ -28,13 +28,10 @@
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
+#include "../../../lcd/marlinui.h"
 
 #if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
-#endif
-
-#if HAS_LCD_MENU
-  #include "../../../lcd/marlinui.h"
 #endif
 
 #if ENABLED(MMU2_MENUS)
@@ -96,13 +93,13 @@ void GcodeSuite::M600() {
   #endif
 
   // Show initial "wait for start" message
-  #if HAS_LCD_MENU && DISABLED(MMU2_MENUS)
-    lcd_pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
+  #if DISABLED(MMU2_MENUS)
+    ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // If needed, home before parking for filament change
-    if (!all_axes_trusted()) home_all_axes();
+    if (!all_axes_trusted()) home_all_axes(true);
   #endif
 
   #if HAS_MULTI_EXTRUDER

@@ -106,10 +106,10 @@
 #else
 
   #define HEATER_BED_PIN                      14  // (bed)
-  #define X_ENABLE_PIN                        -1
-  #define Y_ENABLE_PIN                        -1
-  #define Z_ENABLE_PIN                        -1
-  #define E0_ENABLE_PIN                       -1
+  #define X_ENABLE_PIN                         4
+  #define Y_ENABLE_PIN                         4
+  #define Z_ENABLE_PIN                         4
+  #define E0_ENABLE_PIN                        4
 
 #endif
 
@@ -163,6 +163,8 @@
       #define LCD_PINS_RS                     17
       #define LCD_PINS_ENABLE                 16
       #define LCD_PINS_D4                     11
+      #define KILL_PIN                        10
+      #define BEEPER_PIN                      27
 
       #ifndef BOARD_ST7920_DELAY_1
         #define BOARD_ST7920_DELAY_1 DELAY_NS(0)

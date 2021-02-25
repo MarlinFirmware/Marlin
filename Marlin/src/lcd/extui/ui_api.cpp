@@ -123,7 +123,7 @@ namespace ExtUI {
       // Machine was killed, reinit SysTick so we are able to compute time without ISRs
       if (currTimeHI == 0) {
         // Get the last time the Arduino time computed (from CMSIS) and convert it to SysTick
-        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU / 8000)) >> 24);
+        currTimeHI = uint32_t((GetTickCount() * uint64_t(F_CPU / 8000)) >> 24);
 
         // Reinit the SysTick timer to maximize its period
         SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    // get the full range for the systick timer
@@ -148,9 +148,9 @@ namespace ExtUI {
     }
   #endif // __SAM3X8E__
 
-  void delay_us(unsigned long us) { DELAY_US(us); }
+  void delay_us(uint32_t us) { DELAY_US(us); }
 
-  void delay_ms(unsigned long ms) {
+  void delay_ms(uint32_t ms) {
     if (flags.printer_killed)
       DELAY_US(ms * 1000);
     else
@@ -245,7 +245,7 @@ namespace ExtUI {
   }
 
   #ifdef TOUCH_UI_LCD_TEMP_SCALING
-    #define GET_TEMP_ADJUSTMENT(A) float(A)/TOUCH_UI_LCD_TEMP_SCALING
+    #define GET_TEMP_ADJUSTMENT(A) (float(A) / (TOUCH_UI_LCD_TEMP_SCALING))
   #else
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
@@ -807,10 +807,6 @@ namespace ExtUI {
     #endif
   #endif
 
-  uint8_t getProgress_percent() {
-    return ui.get_progress_percent();
-  }
-
   uint32_t getProgress_seconds_elapsed() {
     const duration_t elapsed = print_job_timer.duration();
     return elapsed.value;
@@ -947,6 +943,10 @@ namespace ExtUI {
     feedrate_percentage = constrain(value, 10, 500);
   }
 
+  bool awaitingUserConfirm() {
+    return wait_for_user;
+  }
+
   void setUserConfirmed() {
     TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
   }
@@ -1016,7 +1016,7 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename[0] ? card.longFilename : card.filename, "");
+    return IFSD(card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
