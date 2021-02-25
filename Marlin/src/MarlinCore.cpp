@@ -915,12 +915,6 @@ void setup() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
-  #if ENABLED(PSU_CONTROL)
-    SETUP_LOG("PSU_CONTROL");
-    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
-    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
-  #endif
-
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
@@ -969,6 +963,12 @@ void setup() {
 
   #if HAS_TMC220x
     SETUP_RUN(tmc_serial_begin());
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    SETUP_LOG("PSU_CONTROL");
+    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
+    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
   #endif
 
   #if HAS_STEPPER_RESET
