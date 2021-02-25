@@ -994,23 +994,16 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 void GcodeSuite::process_next_command() {
   GCodeQueue::CommandQueue & command = queue.peek_next_command();
 
-  #if HAS_MULTI_SERIAL
-    PORT_REDIRECT(SERIAL_PORTMASK(command.port));
-  #endif
+  PORT_REDIRECT(SERIAL_PORTMASK(command.port));
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.queue_index_r = queue.ring_buffer.index_r;
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.queue_index_r = queue.ring_buffer.index_r);
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
-      serialprintPGM(PSTR("   Command Queue:"));
-      SERIAL_EOL();
-      for (GCodeQueue::CommandQueue * start = &queue.ring_buffer.commands[0]; start < &queue.ring_buffer.commands[BUFSIZE]; start++)
-        SERIAL_ECHOLN(start->buffer);
+      SERIAL_ECHOLNPAIR("slot:", queue.ring_buffer.index_r, "   Command Queue:");
+      LOOP_L_N(i, BUFSIZE) SERIAL_ECHOLN(queue.ring_buffer.commands[i].buffer);
     #endif
   }
 
