@@ -65,7 +65,7 @@ PGMSTR(G28_STR, "G28");
 #endif
 
 
-GCodeQueue::PerSerial GCodeQueue::per_serial[NUM_SERIAL] = { 0 };
+GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
 #if NO_TIMEOUTS > 0
@@ -245,7 +245,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
     // Start counting from the last command's execution
     last_command_time = millis();
   #endif
-  CommandQueue &command = commands[index_r];
+  CommandLine &command = commands[index_r];
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command.port;
     if (serial_ind < 0) return;
@@ -278,7 +278,7 @@ void GCodeQueue::flush_and_request_resend() {
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  SERIAL_ECHOLN(per_serial[serial_ind].last_N + 1);
+  SERIAL_ECHOLN(serial_state[serial_ind].last_N + 1);
 }
 
 // Multiserial already handle the dispatch to/from multiple port by itself
@@ -289,8 +289,7 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
       #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
         if (a > RX_BUFFER_SIZE - 2) {
           PORT_REDIRECT(SERIAL_PORTMASK(index));
-          SERIAL_ERROR_START();
-          SERIAL_ECHOLNPAIR("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
+          SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
         }
       #endif
       if (a > 0) return true;
@@ -301,8 +300,7 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
       PORT_REDIRECT(SERIAL_PORTMASK(index));
-      SERIAL_ERROR_START();
-      SERIAL_ECHOLNPAIR("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
+      SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
     }
   #endif
 
@@ -314,11 +312,11 @@ inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  serialprintPGM(err);
-  SERIAL_ECHOLN(per_serial[serial_ind].last_N);
+  SERIAL_ECHOPGM_P(err);
+  SERIAL_ECHOLN(serial_state[serial_ind].last_N);
   while (read_serial(serial_ind) != -1);      // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend();
-  per_serial[serial_ind].count = 0;
+  serial_state[serial_ind].count = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -412,7 +410,7 @@ void GCodeQueue::get_serial_commands() {
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream[card.transfer_port_index].receive(per_serial[card.transfer_port_index].line_buffer);
+      binaryStream[card.transfer_port_index].receive(serial_state[card.transfer_port_index].line_buffer);
       return;
     }
   #endif
@@ -428,12 +426,12 @@ void GCodeQueue::get_serial_commands() {
   #endif
 
   // Loop while serial characters are incoming and the queue is not full
-  for (bool hadData = true; hadData; ) {
+  for (bool hadData = true; hadData;) {
     // Unless a serial port has data, this will exit on next iteration
     hadData = false;
 
     LOOP_L_N(p, NUM_SERIAL) {
-      // Check if the queue is full, and exits if it is.
+      // Check if the queue is full and exit if it is.
       if (ring_buffer.full()) return;
 
       // No data for this port ? Skip it
@@ -448,14 +446,13 @@ void GCodeQueue::get_serial_commands() {
         PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
         // Crash here to get more information why it failed
         BUG_ON("SP available but read -1");
-        SERIAL_ERROR_START();
-        SERIAL_ECHOLNPGM(STR_ERR_SERIAL_MISMATCH);
+        SERIAL_ERROR_MSG(STR_ERR_SERIAL_MISMATCH);
         SERIAL_FLUSH();
         continue;
       }
 
       const char serial_char = (char)c;
-      PerSerial & serial = per_serial[p];
+      SerialState &serial = serial_state[p];
 
       if (ISEOL(serial_char)) {
 
@@ -494,7 +491,6 @@ void GCodeQueue::get_serial_commands() {
               gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
-
           }
           else {
             // In case of error on a serial port, don't prevent other serial port from making progress
@@ -581,7 +577,7 @@ void GCodeQueue::get_serial_commands() {
       const bool card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
-      CommandQueue &command = ring_buffer.commands[ring_buffer.index_w];
+      CommandLine &command = ring_buffer.commands[ring_buffer.index_w];
       const char sd_char = (char)n;
       const bool is_eol = ISEOL(sd_char);
       if (is_eol || card_eof) {

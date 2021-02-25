@@ -992,7 +992,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
  * This is called from the main loop()
  */
 void GcodeSuite::process_next_command() {
-  GCodeQueue::CommandQueue &command = queue.peek_next_command();
+  GCodeQueue::CommandLine &command = queue.peek_next_command();
 
   PORT_REDIRECT(SERIAL_PORTMASK(command.port));
 

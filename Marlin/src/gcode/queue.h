@@ -33,34 +33,19 @@ public:
   /**
    * The buffers per serial port.
    */
-  struct PerSerial
-  {
+  struct SerialState {
     /**
      * GCode line number handling. Hosts may include line numbers when sending
      * commands to Marlin, and lines will be checked for sequentiality.
      * M110 N<int> sets the current line number.
      */
     long last_N;
-    /**
-     * Number of characters read in the current line of serial input
-     */
-    int count;
-
-    /**
-     * The current line accumulator
-     */
-    char line_buffer[MAX_CMD_SIZE];
-
-    /**
-     * The input state
-     */
-    uint8_t input_state;
+    int count;                        //!< Number of characters read in the current line of serial input
+    char line_buffer[MAX_CMD_SIZE];   //!< The current line accumulator
+    uint8_t input_state;              //!< The input state
   };
 
-  /**
-   * The array of per serial state variable
-   */
-  static PerSerial per_serial[NUM_SERIAL];
+  static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
 
   /**
    * GCode Command Queue
@@ -71,71 +56,42 @@ public:
    * the main loop. The gcode.process_next_command method parses the next
    * command and hands off execution to individual handler functions.
    */
-  struct CommandQueue
-  {
-    /**
-     * The command buffer
-     */
-    char buffer[MAX_CMD_SIZE];
-
-    /**
-     * Skip sending ok when command is processed ?
-     * The logic is inverted here to skip setting all the variables to true upon construction
-     */
-    bool skip_ok;
-
-    #if HAS_MULTI_SERIAL
-      /**
-       * The port that the command was received on
-       */
-      serial_index_t port;
-    #endif
+  struct CommandLine {
+    char buffer[MAX_CMD_SIZE];                    //!< The command buffer
+    bool skip_ok;                                 //!< Skip sending ok when command is processed?
+    TERN_(HAS_MULTI_SERIAL, serial_index_t port); //!< Serial port the command was received on
   };
 
-
   /**
-   * The ring buffer head
+   * A handy ring buffer type
    */
-  struct RingBuffer
-  {
-    /**
-     * Number of commands in the queue
-     */
-    uint8_t length;
-    /**
-     * Ring buffer's read position
-     */
-    uint8_t index_r;
-    /**
-     * Ring buffer's write position
-     */
-    uint8_t index_w;
-    /**
-     * The ring buffer of commands
-     */
-    CommandQueue commands[BUFSIZE];
+  struct RingBuffer {
+    uint8_t length;                 //!< Number of commands in the queue
+    uint8_t index_r;                //!< Ring buffer's read position
+    uint8_t index_w;                //!< Ring buffer's write position
+    CommandLine commands[BUFSIZE]; //!< The ring buffer of commands
 
-    inline serial_index_t command_port() { return TERN0(HAS_MULTI_SERIAL, commands[index_r].port); }
+    inline serial_index_t command_port() const { return TERN0(HAS_MULTI_SERIAL, commands[index_r].port); }
 
     inline void clear() { length = index_r = index_w = 0; }
 
-    void advance_pos(uint8_t & p, int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
+    void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-    #if HAS_MULTI_SERIAL
-      , serial_index_t serial_ind = -1
-    #endif
+      #if HAS_MULTI_SERIAL
+        , serial_index_t serial_ind=-1
+      #endif
     );
 
     bool enqueue(const char* cmd, bool skip_ok = true
-    #if HAS_MULTI_SERIAL
-      , serial_index_t serial_ind = -1
-    #endif
+      #if HAS_MULTI_SERIAL
+        , serial_index_t serial_ind=-1
+      #endif
     );
 
     void ok_to_send();
 
-    inline bool full(uint8_t cmdCount = 1) const { return length > (BUFSIZE - cmdCount); }
+    inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
 
     inline bool empty() const { return length == 0; }
   };
@@ -230,12 +186,12 @@ public:
   /**
    * (Re)Set the current line number for the last received command
    */
-  static inline void set_current_line_number(long n) { per_serial[ring_buffer.command_port()].last_N = n; }
+  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port()].last_N = n; }
 
 private:
 
   /** Get the next command from the buffer (or NULL) */
-  CommandQueue & peek_next_command() { return ring_buffer.commands[ring_buffer.index_r]; }
+  CommandLine & peek_next_command() { return ring_buffer.commands[ring_buffer.index_r]; }
 
   static void get_serial_commands();
 
