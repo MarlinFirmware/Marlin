@@ -61,6 +61,8 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
+
 #ifndef UNUSED
   #define UNUSED(x) ((void)(x))
 #endif
@@ -128,20 +130,20 @@
 
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
@@ -319,9 +321,15 @@
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
     template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time. 
-  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists  
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
       template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \

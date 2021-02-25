@@ -105,7 +105,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
   return active_extruder;
@@ -124,7 +124,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
 
@@ -680,6 +680,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(PIDTEMPBED)
         case 304: M304(); break;                                  // M304: Set bed PID parameters
+      #endif
+
+      #if ENABLED(PIDTEMPCHAMBER)
+        case 309: M309(); break;                                  // M309: Set chamber PID parameters
       #endif
 
       #if ENABLED(PHOTO_GCODE)

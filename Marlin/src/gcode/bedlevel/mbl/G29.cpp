@@ -142,8 +142,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('I')) {
         ix = parser.value_int();
         if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_ECHOPAIR("I out of range (0-", int(GRID_MAX_POINTS_X - 1));
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLNPAIR("I out of range (0-", GRID_MAX_POINTS_X - 1, ")");
           return;
         }
       }
@@ -153,8 +152,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('J')) {
         iy = parser.value_int();
         if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_ECHOPAIR("J out of range (0-", int(GRID_MAX_POINTS_Y - 1));
-          SERIAL_ECHOLNPGM(")");
+          SERIAL_ECHOLNPAIR("J out of range (0-", GRID_MAX_POINTS_Y - 1, ")");
           return;
         }
       }
@@ -182,10 +180,8 @@ void GcodeSuite::G29() {
 
   } // switch(state)
 
-  if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
-    SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
-  }
+  if (state == MeshNext)
+    SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
 
   report_current_position();
 }

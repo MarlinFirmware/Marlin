@@ -418,11 +418,11 @@ void Planner::init() {
         L("2")
         A("cpi %16,0x10")                 // (nr & 0xF00000) == 0 ?
         A("brcc 3f")                      // No, skip this
-        A("swap %15")                     // Swap nibbles
-        A("swap %16")                     // Swap nibbles. Low nibble is 0
+        A("swap %15")                     // Swap nybbles
+        A("swap %16")                     // Swap nybbles. Low nybble is 0
         A("mov %14, %15")
-        A("andi %14,0x0F")                // Isolate low nibble
-        A("andi %15,0xF0")                // Keep proper nibble in %15
+        A("andi %14,0x0F")                // Isolate low nybble
+        A("andi %15,0xF0")                // Keep proper nybble in %15
         A("or %16, %14")                  // %16:%15 <<= 4
         A("subi %3,-4")                   // idx += 4
 
@@ -473,10 +473,10 @@ void Planner::init() {
         L("9")
         A("sbrs %3,2")                    // shift by 4bits position?
         A("rjmp 16f")                     // No
-        A("swap %15")                     // Swap nibbles. lo nibble of %15 will always be 0
-        A("swap %14")                     // Swap nibbles
+        A("swap %15")                     // Swap nybbles. lo nybble of %15 will always be 0
+        A("swap %14")                     // Swap nybbles
         A("mov %12,%14")
-        A("andi %12,0x0F")                // isolate low nibble
+        A("andi %12,0x0F")                // isolate low nybble
         A("andi %14,0xF0")                // and clear it
         A("or %15,%12")                   // %15:%16 <<= 4
         L("16")
@@ -504,11 +504,11 @@ void Planner::init() {
         L("11")
         A("sbrs %3,2")                    // shift by 4 bit position ?
         A("rjmp 12f")                     // No, skip it
-        A("swap %15")                     // Swap nibbles
-        A("andi %14, 0xF0")               // Lose the lowest nibble
-        A("swap %14")                     // Swap nibbles. Upper nibble is 0
-        A("or %14,%15")                   // Pass nibble from upper byte
-        A("andi %15, 0x0F")               // And get rid of that nibble
+        A("swap %15")                     // Swap nybbles
+        A("andi %14, 0xF0")               // Lose the lowest nybble
+        A("swap %14")                     // Swap nybbles. Upper nybble is 0
+        A("or %14,%15")                   // Pass nybble from upper byte
+        A("andi %15, 0x0F")               // And get rid of that nybble
         L("12")
         A("sbrs %3,3")                    // shift by 8 bit position ?
         A("rjmp 6f")                      // No, skip it
@@ -1690,12 +1690,14 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
 ) {
 
-  // If we are cleaning, do not accept queuing of movements
-  if (cleaning_buffer_counter) return false;
-
   // Wait for the next available block
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
+
+  // If we are cleaning, do not accept queuing of movements
+  // This must be after get_next_free_block() because it calls idle()
+  // where cleaning_buffer_counter can be changed
+  if (cleaning_buffer_counter) return false;
 
   // Fill the block with the specified movement
   if (!_populate_block(block, false, target

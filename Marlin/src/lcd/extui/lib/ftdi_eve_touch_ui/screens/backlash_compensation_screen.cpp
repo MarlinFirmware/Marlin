@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, BACKLASH_GCODE)
-
 #include "screens.h"
+
+#ifdef FTDI_BACKLASH_COMP_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -73,4 +72,4 @@ bool BacklashCompensationScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BACKLASH_COMP_SCREEN

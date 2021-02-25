@@ -221,7 +221,7 @@
 
 // temperature.cpp strings
 #define STR_PID_AUTOTUNE_START              "PID Autotune start"
-#define STR_PID_BAD_EXTRUDER_NUM            "PID Autotune failed! Bad extruder number"
+#define STR_PID_BAD_HEATER_ID               "PID Autotune failed! Bad heater id"
 #define STR_PID_TEMP_TOO_HIGH               "PID Autotune failed! Temperature too high"
 #define STR_PID_TIMEOUT                     "PID Autotune failed! timeout"
 #define STR_BIAS                            " bias: "

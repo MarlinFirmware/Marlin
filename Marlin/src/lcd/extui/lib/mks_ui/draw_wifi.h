@@ -33,6 +33,3 @@ extern void disp_wifi_state();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif
-
-
-

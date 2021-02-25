@@ -23,14 +23,14 @@
 
 #include "../inc/MarlinConfig.h"
 
-template<serial_index_t AR_PORT_INDEX>
-class AutoReporter {
-public:
+template <typename Helper>
+struct AutoReporter {
   millis_t next_report_ms;
   uint8_t report_interval;
-
-  // Override this method
-  inline void auto_report() { }
+  #if HAS_MULTI_SERIAL
+    serial_index_t report_port_mask;
+    AutoReporter() : report_port_mask(SERIAL_ALL) {}
+  #endif
 
   inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
     report_interval = _MIN(seconds, limit);
@@ -42,8 +42,9 @@ public:
     const millis_t ms = millis();
     if (ELAPSED(ms, next_report_ms)) {
       next_report_ms = ms + SEC_TO_MS(report_interval);
-      PORT_REDIRECT(AR_PORT_INDEX);
-      auto_report();
+      PORT_REDIRECT(report_port_mask);
+      Helper::report();
+      //PORT_RESTORE();
     }
   }
 };

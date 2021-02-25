@@ -60,34 +60,35 @@ static uint8_t has_adjust_z = 0;
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   char baby_buf[30] = { 0 };
+  char str_1[16];
   switch (obj->mks_obj_id) {
     case ID_BABY_STEP_X_P:
-      sprintf_P(baby_buf, PSTR("M290 X%.3f"), babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_X_N:
-      sprintf_P(baby_buf, PSTR("M290 X%.3f"), -babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(-babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_P:
-      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_N:
-      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), -babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(-babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_P:
-      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_N:
-      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), -babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(-babystep_dist, 1, 3, str_1));
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
@@ -161,7 +162,12 @@ void disp_baby_step_dist() {
 
 void disp_z_offset_value() {
   char buf[20];
-  sprintf_P(buf, PSTR("offset Z: %.3f"), (float)TERN(HAS_BED_PROBE, probe.offset.z, 0));
+  #if HAS_BED_PROBE
+    char str_1[16];
+    sprintf_P(buf, PSTR("Offset Z: %s mm"), dtostrf(probe.offset.z, 1, 3, str_1));
+  #else
+    strcpy_P(buf, PSTR("Offset Z: 0 mm"));
+  #endif
   lv_label_set_text(zOffsetText, buf);
 }
 

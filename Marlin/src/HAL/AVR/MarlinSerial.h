@@ -238,11 +238,11 @@
     static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
   };
 
-  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT; 
+  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
   extern MSerialT customizedSerial1;
 
   #ifdef SERIAL_PORT_2
-    typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2; 
+    typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
     extern MSerialT2 customizedSerial2;
   #endif
 
@@ -262,8 +262,8 @@
     static constexpr bool RX_OVERRUNS       = false;
   };
 
-  typedef Serial0Type< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialT3; 
-  extern MSerial3 mmuSerial;
+  typedef Serial0Type< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialT3;
+  extern MSerialT3 mmuSerial;
 #endif
 
 #ifdef LCD_SERIAL_PORT
@@ -292,7 +292,7 @@
   };
 
 
-  typedef Serial0Type< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialT4; 
+  typedef Serial0Type< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialT4;
   extern MSerialT4 lcdSerial;
 #endif
 
