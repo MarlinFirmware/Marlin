@@ -245,7 +245,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
     // Start counting from the last command's execution
     last_command_time = millis();
   #endif
-  CommandQueue & command = commands[index_r];
+  CommandQueue &command = commands[index_r];
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command.port;
     if (serial_ind < 0) return;
@@ -581,7 +581,7 @@ void GCodeQueue::get_serial_commands() {
       const bool card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
-      CommandQueue & command = ring_buffer.commands[ring_buffer.index_w];
+      CommandQueue &command = ring_buffer.commands[ring_buffer.index_w];
       const char sd_char = (char)n;
       const bool is_eol = ISEOL(sd_char);
       if (is_eol || card_eof) {

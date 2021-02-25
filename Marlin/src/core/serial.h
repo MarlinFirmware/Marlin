@@ -305,7 +305,7 @@ void serialprintPGM(PGM_P str);
 #endif
 
 #define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
-#define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
+#define SERIAL_ECHOLNPGM_P(P)       do{ serialprintPGM(P); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
 #define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
