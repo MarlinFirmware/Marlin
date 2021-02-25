@@ -60,6 +60,10 @@ GCodeQueue queue;
 // Frequently used G-code strings
 PGMSTR(G28_STR, "G28");
 
+#if NO_TIMEOUTS > 0
+  static millis_t last_command_time = 0;
+#endif
+
 
 GCodeQueue::PerSerial GCodeQueue::per_serial[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
@@ -288,7 +292,6 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
           SERIAL_ERROR_START();
           SERIAL_ECHOLNPAIR("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
         }
-      #endif
       if (a > 0) return true;
     }
     return false;
