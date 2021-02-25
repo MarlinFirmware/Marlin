@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
+ *    void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size);
  *
  * Initial version by Roxy-3D
  */
@@ -182,11 +182,12 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, const char * const start, const char * const end) {
+  void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size) {
     SERIAL_ECHOLNPGM_P(title);
     //
     // Round the start and end locations to produce full lines of output
     //
+    const char * const end = start + size - 1;
     dump_free_memory(
       (char*)(uintptr_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
       (char*)(uintptr_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
@@ -216,7 +217,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     //  idle();
     serial_delay(20);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, (const char*)0x21FF);
+      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, 0x0680);
     #endif
   }
 
@@ -226,13 +227,11 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     if (start_free_memory[i] == TEST_BYTE) {
       int32_t j = count_test_bytes(start_free_memory + i);
       if (j > 8) {
-        // SERIAL_ECHOPAIR("Found ", j);
-        // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(start_free_memory + i));
+        //SERIAL_ECHOPAIR("Found ", j);
+        //SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(start_free_memory + i));
         i += j;
         block_cnt++;
-        SERIAL_ECHOPAIR(" (", block_cnt);
-        SERIAL_ECHOPAIR(") found=", j);
-        SERIAL_ECHOLNPGM("   ");
+        SERIAL_ECHOLNPAIR(" (", block_cnt, ") found=", j);
       }
     }
   }

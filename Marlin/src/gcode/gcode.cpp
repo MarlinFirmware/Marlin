@@ -988,7 +988,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
+  void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size);
 #endif
 
 /**
@@ -1007,7 +1007,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, (const char*)&queue.ring_buffer + sizeof(queue.ring_buffer) - 1);
+      M100_dump_routine(PSTR("   Command Queue:"), &queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
 
