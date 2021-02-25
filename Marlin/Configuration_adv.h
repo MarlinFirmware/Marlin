@@ -143,12 +143,19 @@
 //
 // Heated Chamber options
 //
+#if DISABLED(PIDTEMPCHAMBER)
+  #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+  #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+    #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
+  #endif
+#endif
+
 #if TEMP_SENSOR_CHAMBER
-  #define CHAMBER_MINTEMP             5
-  #define CHAMBER_MAXTEMP            60
-  #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
-  //#define CHAMBER_LIMIT_SWITCHING
-  //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
+  // Make sure you define where your heater is connected, the following works on a BTT SKR 1.4 Turbo
+  // using the secondary tool heater output. (FAN1 by default).
+  //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (SKR 1.4 Turbo specific)
+  //#define HEATER_CHAMBER_PIN      P2_04   // Chamber heater on/off pin (HE1 connector on SKR 1.4 Turbo)
+
   //#define HEATER_CHAMBER_INVERTING false
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
