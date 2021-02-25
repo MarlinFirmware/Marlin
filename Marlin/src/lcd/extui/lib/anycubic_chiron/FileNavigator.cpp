@@ -110,8 +110,7 @@ namespace Anycubic {
       //TFTSer.print(currentfoldername);
       TFTSer.println(filelist.shortFilename());
       TFTSer.print(filelist.shortFilename());
-      TFTSer.write('/');
-      TFTSer.println();
+      TFTSer.println("/");
     }
     else {
       // Logical Name
