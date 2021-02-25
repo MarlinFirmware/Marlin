@@ -1007,7 +1007,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), &queue.ring_buffer, &queue.ring_buffer + sizeof(queue.ring_buffer) - 1);
+      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, (const char*)&queue.ring_buffer + sizeof(queue.ring_buffer) - 1);
     #endif
   }
 
