@@ -27,3 +27,15 @@ if env.MarlinFeatureIsEnabled("POSTMORTEM_DEBUGGING"):
         print("Done patching exception handler")
 
     print("Libmaple modified and ready for post mortem debugging")
+
+rxBuf = env["MARLIN_FEATURES"]["RX_BUFFER_SIZE"] if "RX_BUFFER_SIZE" in env["MARLIN_FEATURES"] else "0"
+txBuf = env["MARLIN_FEATURES"]["TX_BUFFER_SIZE"] if "TX_BUFFER_SIZE" in env["MARLIN_FEATURES"] else "0"
+if int(rxBuf) < 64:
+	rxBuf = "64"
+
+if int(txBuf) < 64:
+	txBuf = "64"
+
+build_flags = env.get('BUILD_FLAGS')
+build_flags.append("-DUSART_RX_BUF_SIZE=" + rxBuf + " -DUSART_TX_BUF_SIZE=" + txBuf)
+env.Replace(BUILD_FLAGS=build_flags)
