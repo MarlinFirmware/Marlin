@@ -292,6 +292,7 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
           SERIAL_ERROR_START();
           SERIAL_ECHOLNPAIR("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
         }
+      #endif
       if (a > 0) return true;
     }
     return false;
