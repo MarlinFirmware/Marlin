@@ -151,10 +151,6 @@
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
-      #if BOTH(BLTOUCH, HOMING_Z_WITH_PROBE)
-        bltouch.init(); // Called again by homeaxis(Z_AXIS), but for extra safety init (i.e., stow) the probe before XY move.
-      #endif
-
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
     }
@@ -338,6 +334,7 @@ void GcodeSuite::G28() {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height, axis_is_trusted(Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
+      TERN_(BLTOUCH, bltouch.init());
     }
 
     #if ENABLED(QUICK_HOME)
