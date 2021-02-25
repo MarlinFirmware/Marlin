@@ -1579,13 +1579,11 @@ void homeaxis(const AxisEnum axis) {
   const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
               ? x_home_dir(active_extruder) : home_dir(axis);
 
-  #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS) {             // Homing Z with a probe?
-      TERN_(BLTOUCH, bltouch.init()); // For BLTouch init now (reset and stow)
-      if (probe.deploy())             // Raise Z (maybe) and deploy the Z probe
-        return;                       // Exit if the probe is unable to deploy
-    }
-  #endif
+  //
+  // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
+  //
+  if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy()))
+    return;
 
   // Set flags for X, Y, Z motor locking
   #if HAS_EXTRA_ENDSTOPS
