@@ -148,7 +148,7 @@ void MeatPack::handle_output_char(const uint8_t c) {
     if (chars_decoded < 1024) {
       ++chars_decoded;
       DEBUG_ECHOPGM("RB: ");
-      MYSERIAL.print((char)c);
+      DEBUG_ECHO((char)c);
       DEBUG_EOL();
     }
   #endif

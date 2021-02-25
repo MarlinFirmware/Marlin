@@ -130,10 +130,11 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
 
   char serialBuffer[2];
   uint8_t charCount;
+  uint8_t readIndex;
 
   NO_INLINE size_t write(uint8_t c) { return out.write(c); }
   void flush()                      { out.flush();  }
-  void begin(long br)               { out.begin(br); }
+  void begin(long br)               { out.begin(br); readIndex = 0; }
   void end()                        { out.end(); }
 
   void msgDone()                    { out.msgDone(); }
@@ -154,16 +155,17 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
 
       meatpack.handle_rx_char((uint8_t)r, index);
       charCount = meatpack.get_result_char(serialBuffer);
+      readIndex = 0;
       if (charCount) return charCount;
     }
     return 0;
   }
   int readImpl(uint8_t index) {
-    // DITTO
-    if (charCount > 0) return serialBuffer[sizeof(serialBuffer) - (charCount--)];
     // Not enough char to make progress ?
-    if (available(index) == 0) return -1;
-    return serialBuffer[sizeof(serialBuffer) - (charCount--)];
+    if (charCount == 0 && available(index) == 0) return -1;
+
+    charCount--;
+    return serialBuffer[readIndex++];
   }
 
   int read(uint8_t index)       { return readImpl(index); }
