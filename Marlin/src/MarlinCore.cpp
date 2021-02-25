@@ -871,8 +871,7 @@ inline void tmc_standby_setup() {
  */
 void setup() {
   #ifdef BOARD_PREINIT
-    // no serial yet...
-    BOARD_PREINIT();
+    BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
