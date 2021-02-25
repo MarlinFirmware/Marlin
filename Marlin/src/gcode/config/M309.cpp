@@ -19,20 +19,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EMERGENCY_PARSER)
+#if ENABLED(PIDTEMPCHAMBER)
 
-#include "../../feature/e_parser.h"
+#include "../gcode.h"
+#include "../../module/temperature.h"
 
-EmergencyParser::State emergency_state;
+/**
+ * M309 - Set and/or Report the current Chamber PID values
+ *
+ *  P<pval> - Set the P value
+ *  I<ival> - Set the I value
+ *  D<dval> - Set the D value
+ */
+void GcodeSuite::M309() {
+  if (parser.seen('P')) thermalManager.temp_chamber.pid.Kp = parser.value_float();
+  if (parser.seen('I')) thermalManager.temp_chamber.pid.Ki = scalePID_i(parser.value_float());
+  if (parser.seen('D')) thermalManager.temp_chamber.pid.Kd = scalePID_d(parser.value_float());
 
-bool CDC_RecvCallback(const char c) {
-  emergency_parser.update(emergency_state, c);
-  return true;
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPAIR(" p:", thermalManager.temp_chamber.pid.Kp,
+                    " i:", unscalePID_i(thermalManager.temp_chamber.pid.Ki),
+                    " d:", unscalePID_d(thermalManager.temp_chamber.pid.Kd));
 }
 
-#endif // EMERGENCY_PARSER
-#endif // TARGET_LPC1768
+#endif // PIDTEMPCHAMBER

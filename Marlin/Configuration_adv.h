@@ -143,12 +143,19 @@
 //
 // Heated Chamber options
 //
+#if DISABLED(PIDTEMPCHAMBER)
+  #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+  #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+    #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
+  #endif
+#endif
+
 #if TEMP_SENSOR_CHAMBER
-  #define CHAMBER_MINTEMP             5
-  #define CHAMBER_MAXTEMP            60
-  #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
-  //#define CHAMBER_LIMIT_SWITCHING
-  //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
+  // Make sure you define where your heater is connected, the following works on a BTT SKR 1.4 Turbo
+  // using the secondary tool heater output. (FAN1 by default).
+  //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (SKR 1.4 Turbo specific)
+  //#define HEATER_CHAMBER_PIN      P2_04   // Chamber heater on/off pin (HE1 connector on SKR 1.4 Turbo)
+
   //#define HEATER_CHAMBER_INVERTING false
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
@@ -736,8 +743,8 @@
   /**
    * Use "HIGH SPEED" mode for probing.
    * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
-   * This feature was designed for Delta's with very fast Z moves however higher speed cartesians may function
-   * If the machine cannot raise the probe fast enough after a trigger, it may enter a fault state.
+   * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
+   * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
    */
   //#define BLTOUCH_HS_MODE
 
