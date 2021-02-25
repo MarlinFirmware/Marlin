@@ -151,7 +151,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
    *  the block. If so, it may indicate memory corruption due to a bad pointer.
    *  Unexpected bytes are flagged in the right column.
    */
-  inline void dump_free_memory(char *start_free_memory, char *end_free_memory) {
+  void dump_free_memory(char *start_free_memory, char *end_free_memory) {
     //
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
