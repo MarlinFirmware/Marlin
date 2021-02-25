@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,13 +34,27 @@
   #define FIL_RUNOUT_PIN                      10
 #endif
 
-#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
-    #if NONE(VIKI2, miniVIKI)
-      #define BTN_EN1                         64
-      #define BTN_EN2                         63
-    #endif
+// Support BLTouch and fixed probes
+#if ENABLED(BLTOUCH)
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #define Z_MIN_PIN                         22
+  #elif !defined(Z_MIN_PROBE_PIN)
+    #define Z_MIN_PROBE_PIN                   22
+  #endif
+#elif ENABLED(FIX_MOUNTED_PROBE)
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #define Z_MIN_PIN                          4
+  #elif !defined(Z_MIN_PROBE_PIN)
+    #define Z_MIN_PROBE_PIN                    4
   #endif
 #endif
+
+// Eryone has the fan pins reversed
+#define FAN1_PIN                               2
+#define FAN2_PIN                               6
+
+// Encoder
+#define BTN_EN1                               64
+#define BTN_EN2                               63
 
 #include "pins_RAMBO.h"
