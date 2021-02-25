@@ -1318,9 +1318,14 @@ void prepare_line_to_destination() {
     if (is_home_dir) {
 
       if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS)) {
-        #if ALL(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
+        #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
           // Wait for bed to heat back up between probing points
           thermalManager.wait_for_bed_heating();
+        #endif
+
+        #if BOTH(HAS_HOTEND, WAIT_FOR_HOTEND)
+          // Wait for the hotend to heat back up between probing points
+          thermalManager.wait_for_hotend_heating(active_extruder);
         #endif
 
         TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));

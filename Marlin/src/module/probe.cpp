@@ -478,6 +478,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     thermalManager.wait_for_bed_heating();
   #endif
 
+  #if BOTH(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
+    thermalManager.wait_for_hotend_heating(active_extruder);
+  #endif
+
   if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
