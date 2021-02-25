@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size);
+ *    void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
  *
  * Initial version by Roxy-3D
  */
@@ -182,7 +182,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size) {
+  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size) {
     SERIAL_ECHOLNPGM_P(title);
     //
     // Round the start and end locations to produce full lines of output
@@ -290,7 +290,7 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
    *  Corrupt <num> locations in the free memory pool and report the corrupt addresses.
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
-  inline void corrupt_free_memory(char *start_free_memory, const uint32_t size) {
+  inline void corrupt_free_memory(char *start_free_memory, const uintptr_t size) {
     start_free_memory += 8;
     const uint32_t near_top = top_of_stack() - start_free_memory - 250, // -250 to avoid interrupt activity that's altered the stack.
                    j = near_top / (size + 1);

@@ -988,7 +988,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void M100_dump_routine(PGM_P const title, const char * const start, const uint32_t size);
+  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
 #endif
 
 /**
