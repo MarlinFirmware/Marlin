@@ -349,8 +349,7 @@
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
     static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
 
-
-  // Compile time string manipulation
+  // Compile-time string manipulation
   namespace CompileTimeString {
     // Simple compile-time parser to find the position of the end of a string
     constexpr const char* findStringEnd(const char *str) {
