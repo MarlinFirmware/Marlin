@@ -122,7 +122,7 @@
  */
 #if HAS_TMC_UART
   #define TMC_BAUD_RATE                   19200
-  #ifdef HARDWARE_SERIAL /*  TMC2209 */
+  #ifdef TMC_HARDWARE_SERIAL /*  TMC2209 */
     /**
     * HardwareSerial with one pin for four drivers.
     * Compatible with TMC2209. Provides best performance.
@@ -138,16 +138,16 @@
     //#define E0_SLAVE_ADDRESS 0    // :  :  :
 
     #define X_SERIAL_TX_PIN                  PA8  // IO0
-    #define X_SERIAL_RX_PIN                  PA8  // IO0
-    #define Y_SERIAL_TX_PIN                  PA8  // IO0
-    #define Y_SERIAL_RX_PIN                  PA8  // IO0
-    #define Z_SERIAL_TX_PIN                  PA8  // IO0
-    #define Z_SERIAL_RX_PIN                  PA8  // IO0
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN  // IO0
+    #define Y_SERIAL_TX_PIN      X_SERIAL_TX_PIN  // IO0
+    #define Y_SERIAL_RX_PIN      X_SERIAL_TX_PIN  // IO0
+    #define Z_SERIAL_TX_PIN      X_SERIAL_TX_PIN  // IO0
+    #define Z_SERIAL_RX_PIN      X_SERIAL_TX_PIN  // IO0
     #ifdef ESP_WIFI
       //Module ESP-WIFI
       #define ESP_WIFI_MODULE_COM               2
       #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE
-      #define ESP_WIFI_MODULE_RESET_PIN         PA5
+      //#define ESP_WIFI_MODULE_RESET_PIN         PA5
       #define ESP_WIFI_MODULE_ENABLE_PIN        -1
       #define ESP_WIFI_MODULE_TXD_PIN           PA9
       #define ESP_WIFI_MODULE_RXD_PIN           PA10
@@ -191,12 +191,12 @@
    *       ￣￣ AE￣￣
    */
   // Module ESP-WIFI
-  #define ESP_WIFI_MODULE_COM                  2  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PA5   // WIFI CTRL/RST
-  #define ESP_WIFI_MODULE_ENABLE_PIN        -1
-  #define ESP_WIFI_MODULE_TXD_PIN           PA9   // MKS or ESP WIFI RX PIN
-  #define ESP_WIFI_MODULE_RXD_PIN           PA10  // MKS or ESP WIFI TX PIN
+  //#define ESP_WIFI_MODULE_COM                  2  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  //#define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  //#define ESP_WIFI_MODULE_RESET_PIN         PA5   // WIFI CTRL/RST
+  //#define ESP_WIFI_MODULE_ENABLE_PIN        -1
+  //#define ESP_WIFI_MODULE_TXD_PIN           PA9   // MKS or ESP WIFI RX PIN
+  //#define ESP_WIFI_MODULE_RXD_PIN           PA10  // MKS or ESP WIFI TX PIN
   #define WIFI_IO0_PIN                      PA8   // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN       			          PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN				            PA5   // MKS ESP WIFI RESET PIN
