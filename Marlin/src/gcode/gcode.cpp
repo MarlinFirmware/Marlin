@@ -682,6 +682,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 304: M304(); break;                                  // M304: Set bed PID parameters
       #endif
 
+      #if ENABLED(PIDTEMPCHAMBER)
+        case 309: M309(); break;                                  // M309: Set chamber PID parameters
+      #endif
+
       #if ENABLED(PHOTO_GCODE)
         case 240: M240(); break;                                  // M240: Trigger a camera
       #endif

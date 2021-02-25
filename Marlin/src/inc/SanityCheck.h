@@ -1204,6 +1204,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Chamber Heating Options - PID vs Limit Switching
+ */
+#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+  #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
+#endif
+
+/**
  * Kinematics
  */
 
