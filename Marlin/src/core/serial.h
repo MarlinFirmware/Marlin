@@ -58,7 +58,6 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-typedef int8_t serial_index_t;
 #define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
