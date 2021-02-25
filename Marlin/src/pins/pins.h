@@ -481,9 +481,9 @@
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
-  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
 #elif MB(MKS_ROBIN_NANO_V2)
-  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite
 #elif MB(MKS_ROBIN_LITE3)
@@ -513,7 +513,7 @@
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_CR6)
-  #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32f1/pins_JGAURORA_A5S_A1.h"     // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
