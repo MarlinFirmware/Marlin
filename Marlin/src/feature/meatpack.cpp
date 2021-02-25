@@ -200,7 +200,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) 
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
-    PORT_REDIRECT(serial_ind);
+    PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));
     handle_command((MeatPack_Command)c);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;
