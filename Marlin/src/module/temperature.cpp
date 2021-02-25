@@ -3447,6 +3447,17 @@ void Temperature::tick() {
       return false;
     }
 
+    #if ENABLED(WAIT_FOR_HOTEND)
+      void Temperature::wait_for_hotend_heating(const uint8_t target_extruder) {
+        if (isHeatingHotend(target_extruder)) {
+          SERIAL_ECHOLNPGM("Wait for hotend heating...");
+          LCD_MESSAGEPGM(MSG_HEATING);
+          wait_for_hotend(target_extruder);
+          ui.reset_status();
+        }
+      }
+    #endif
+
   #endif // HAS_TEMP_HOTEND
 
   #if HAS_HEATED_BED
