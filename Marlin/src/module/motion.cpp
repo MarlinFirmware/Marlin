@@ -83,7 +83,13 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
+xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS,
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
+  #else
+    Z_HOME_POS
+  #endif
+};
 
 /**
  * Cartesian Destination
@@ -494,9 +500,8 @@ void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float &z, const feedRat
   do_blocking_move_to(raw.x, raw.y, z, fr_mm_s);
 }
 
-void do_z_clearance(const float &zclear, const bool z_trusted/*=true*/, const bool raise_on_untrusted/*=true*/, const bool lower_allowed/*=false*/) {
-  const bool rel = raise_on_untrusted && !z_trusted;
-  float zdest = zclear + (rel ? current_position.z : 0.0f);
+void do_z_clearance(const float &zclear, const bool lower_allowed/*=false*/) {
+  float zdest = zclear;
   if (!lower_allowed) NOLESS(zdest, current_position.z);
   do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
 }
