@@ -207,6 +207,8 @@
   #include "rambo/pins_EINSY_RETRO.h"           // ATmega2560                             env:rambo
 #elif MB(SCOOVO_X9H)
   #include "rambo/pins_SCOOVO_X9H.h"            // ATmega2560                             env:rambo
+#elif MB(RAMBO_THINKERV2)
+  #include "rambo/pins_RAMBO_THINKERV2.h"       // ATmega2560                             env:rambo
 
 //
 // Other ATmega1280, ATmega2560
