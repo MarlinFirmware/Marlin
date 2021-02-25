@@ -2381,7 +2381,7 @@
 #endif
 
 #if !PREHEAT_COUNT
-  #undef PREHEAT_MENU_ITEM_SHORTCUT
+  #undef PREHEAT_SHORTCUT_MENU_ITEM
 #endif
 
 /**

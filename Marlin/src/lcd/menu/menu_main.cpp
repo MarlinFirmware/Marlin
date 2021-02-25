@@ -97,7 +97,7 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
-#if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
+#if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
   void menu_preheat_only();
 #endif
 
@@ -181,7 +181,7 @@ void menu_main() {
       ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
     #endif
 
-    #if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
+    #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
       SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
     #endif
 

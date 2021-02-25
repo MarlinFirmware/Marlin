@@ -249,7 +249,7 @@ void menu_temperature() {
   END_MENU();
 }
 
-#if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
+#if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
 
   void menu_preheat_only() {
     START_MENU();
@@ -267,6 +267,6 @@ void menu_temperature() {
     END_MENU();
   }
 
-#endif // PREHEAT_MENU_ITEM_SHORTCUT
+#endif
 
 #endif // HAS_LCD_MENU && HAS_TEMPERATURE
