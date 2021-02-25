@@ -1118,8 +1118,8 @@ bool unified_bed_leveling::g29_parameter_parsing() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!WITHIN(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!WITHIN(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
 
   if (err_flag) return UBL_ERR;
 
