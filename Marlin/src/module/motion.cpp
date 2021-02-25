@@ -84,8 +84,8 @@ bool relative_mode; // = false;
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
 xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS,
-  #ifdef Z_IDLE_POS
-    Z_IDLE_POS
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
   #else
     Z_HOME_POS
   #endif
