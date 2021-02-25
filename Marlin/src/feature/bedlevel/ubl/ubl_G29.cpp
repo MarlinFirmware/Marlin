@@ -910,7 +910,8 @@ void unified_bed_leveling::shift_mesh_height() {
       if (parser.seen('B')) {
         serialprintPGM(GET_TEXT(MSG_UBL_BC_INSERT));
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
-      } else {
+      }
+      else {
         serialprintPGM(GET_TEXT(MSG_UBL_BC_INSERT2));
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT2);
       }
