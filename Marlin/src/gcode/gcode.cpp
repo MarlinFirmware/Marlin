@@ -987,9 +987,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
 }
 
-
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void dump_free_memory(char *start_free_memory, char *end_free_memory);
+  void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
 #endif
 
 /**
@@ -1007,11 +1006,8 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOLNPAIR("slot:", queue.ring_buffer.index_r, "   Command Queue:");
-
-      LOOP_L_N(i, BUFSIZE) {
-        dump_free_memory(queue.ring_buffer.commands[i].buffer, &queue.ring_buffer.commands[i].buffer[MAX_CMD_SIZE]);
-      }
+      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
+      M100_dump_routine(PSTR("   Command Queue:"), &queue.ring_buffer, &queue.ring_buffer + sizeof(queue.ring_buffer) - 1);
     #endif
   }
 

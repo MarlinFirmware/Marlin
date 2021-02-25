@@ -66,9 +66,9 @@ public:
    * A handy ring buffer type
    */
   struct RingBuffer {
-    uint8_t length;                 //!< Number of commands in the queue
-    uint8_t index_r;                //!< Ring buffer's read position
-    uint8_t index_w;                //!< Ring buffer's write position
+    uint8_t length,                 //!< Number of commands in the queue
+            index_r,                //!< Ring buffer's read position
+            index_w;                //!< Ring buffer's write position
     CommandLine commands[BUFSIZE];  //!< The ring buffer of commands
 
     inline serial_index_t command_port() const { return TERN0(HAS_MULTI_SERIAL, commands[index_r].port); }
