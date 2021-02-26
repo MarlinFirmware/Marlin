@@ -49,6 +49,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "../core/serial_hook.h"
 
 /**
  * Commands sent to MeatPack to control its behavior.
@@ -78,8 +79,6 @@ enum MeatPack_ConfigStateBits : uint8_t {
 };
 
 class MeatPack {
-private:
-  friend class GCodeQueue;
 
   // Utility definitions
   static const uint8_t kCommandByte         = 0b11111111,
@@ -99,6 +98,7 @@ private:
                  char_out_count;  // Stores number of characters to be read out.
   static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
 
+public:
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
   static void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
@@ -113,7 +113,6 @@ private:
 
   static void reset_state();
   static void report_state();
-  static uint8_t unpacked_char(register const uint8_t in);
   static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
   static void handle_command(const MeatPack_Command c);
   static void handle_output_char(const uint8_t c);
@@ -121,3 +120,57 @@ private:
 };
 
 extern MeatPack meatpack;
+
+// Implement the MeatPack serial class so it's transparent to rest of the code
+template <typename SerialT>
+struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
+  typedef SerialBase< MeatpackSerial<SerialT> > BaseClassT;
+
+  SerialT & out;
+
+  char serialBuffer[2];
+  uint8_t charCount;
+  uint8_t readIndex;
+
+  NO_INLINE size_t write(uint8_t c) { return out.write(c); }
+  void flush()                      { out.flush();  }
+  void begin(long br)               { out.begin(br); readIndex = 0; }
+  void end()                        { out.end(); }
+
+  void msgDone()                    { out.msgDone(); }
+  // Existing instances implement Arduino's operator bool, so use that if it's available
+  bool connected()                  { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
+  void flushTX()                    { CALL_IF_EXISTS(void, &out, flushTX); }
+
+  int available(uint8_t index) {
+    // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
+    // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
+    // TODO, let's fix this later on
+
+    if (charCount) return charCount;          // The buffer still has data
+    if (out.available(index) <= 0) return 0;  // No data to read
+
+    // Don't read in read method, instead do it here, so we can make progress in the read method
+    const int r = out.read(index);
+    if (r == -1) return 0;  // This is an error from the underlying serial code
+    meatpack.handle_rx_char((uint8_t)r, index);
+    charCount = meatpack.get_result_char(serialBuffer);
+    readIndex = 0;
+
+    return charCount;
+  }
+
+  int readImpl(const uint8_t index) {
+    // Not enough char to make progress?
+    if (charCount == 0 && available(index) == 0) return -1;
+
+    charCount--;
+    return serialBuffer[readIndex++];
+  }
+
+  int read(uint8_t index) { return readImpl(index); }
+  int available()         { return available(0); }
+  int read()              { return readImpl(0); }
+
+  MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
+};

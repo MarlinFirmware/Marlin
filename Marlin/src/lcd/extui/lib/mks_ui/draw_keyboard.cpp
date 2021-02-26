@@ -162,7 +162,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           draw_return_ui();
           break;
         case GCodeCommand:
-          if (queue.length <= (BUFSIZE - 3)) {
+          if (!queue.ring_buffer.full(3)) {
             // Hook anything that goes to the serial port
             MYSERIAL0.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
             queue.enqueue_one_now(ret_ta_txt);
