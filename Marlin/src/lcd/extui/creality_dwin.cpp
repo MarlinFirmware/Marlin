@@ -39,7 +39,7 @@ namespace ExtUI {
   void onPrintTimerStarted() { CrealityDWIN.Start_Print(isPrintingFromMedia()); }
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
-  void onFilamentRunout(const extruder_t extruder) {}
+  void onFilamentRunout(const extruder_t extruder) { CrealityDWIN.Popup_Handler(Runout); }
   void onUserConfirmRequired(const char * const msg) { CrealityDWIN.Confirm_Handler(msg); }
   void onStatusChanged(const char * const msg) { CrealityDWIN.Update_Status(msg); }
 
@@ -75,8 +75,19 @@ namespace ExtUI {
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
-      if (rst == result_t::PID_TEMP_TOO_HIGH) {
-        CrealityDWIN.Popup_Handler(TempWarn, true);
+      switch (rst) {
+        case PID_BAD_EXTRUDER_NUM:
+          CrealityDWIN.Popup_Handler(PidBadExtruder);
+          break;
+        case PID_TEMP_TOO_HIGH:
+          CrealityDWIN.Popup_Handler(TempWarn, true);
+          break;
+        case PID_TUNING_TIMEOUT:
+          CrealityDWIN.Popup_Handler(PidTimeout);
+          break;
+        case PID_DONE:
+          CrealityDWIN.Popup_Handler(PidDone);
+          break;
       }
     }
   #endif

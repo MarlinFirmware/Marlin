@@ -44,6 +44,10 @@
   #include "../../feature/pause.h"
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../../feature/runout.h"
+#endif
+
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../feature/host_actions.h"
 #endif
@@ -1905,7 +1909,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
-      #define ADVANCED_TOTAL ADVANCED_UNLOAD
+      #define ADVANCED_FILSENSORENABLED (ADVANCED_UNLOAD + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define ADVANCED_TOTAL ADVANCED_FILSENSORDISTANCE
 
       switch (item) {
         case ADVANCED_BACK:
@@ -1953,6 +1959,31 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Modify_Value(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
+          }
+          break;
+        #endif
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        case ADVANCED_FILSENSORENABLED:
+          if (draw) {
+            if (ExtUI::getFilamentRunoutEnabled()) {
+              Draw_Menu_Item(row, ICON_Extruder, (char*)"Filament Sensor: Enabled");
+            }
+            else {
+              Draw_Menu_Item(row, ICON_Extruder, (char*)"Filament Sensor: Disabled");
+            }
+          }
+          else {
+            ExtUI::setFilamentRunoutEnabled(!ExtUI::getFilamentRunoutEnabled());
+            Draw_Menu(Advanced, ADVANCED_FILSENSORENABLED);
+          }
+          break;
+        case ADVANCED_FILSENSORDISTANCE:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_MaxAccE, (char*)"Runout Distance");
+            Draw_Float(runout.runout_distance(), row, false, 10);
+          }
+          else {
+            Modify_Value(runout.runout_distance(), 0, 999, 10);
           }
           break;
         #endif
@@ -2091,7 +2122,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define TUNE_ZUP (TUNE_ZOFFSET + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_ZDOWN (TUNE_ZUP + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_CHANGEFIL (TUNE_ZDOWN + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
-      #define TUNE_TOTAL TUNE_CHANGEFIL
+      #define TUNE_FILSENSORENABLED (TUNE_CHANGEFIL + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define TUNE_TOTAL TUNE_FILSENSORENABLED
 
       switch (item) {
         case TUNE_BACK:
@@ -2199,6 +2231,22 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             gcode.process_subcommands_now_P(PSTR("M600 B1"));
             planner.synchronize();
             Draw_Menu(Tune, TUNE_CHANGEFIL);
+          }
+          break;
+        #endif
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        case TUNE_FILSENSORENABLED:
+          if (draw) {
+            if (ExtUI::getFilamentRunoutEnabled()) {
+              Draw_Menu_Item(row, ICON_Extruder, (char*)"Filament Sensor: Enabled");
+            }
+            else {
+              Draw_Menu_Item(row, ICON_Extruder, (char*)"Filament Sensor: Disabled");
+            }
+          }
+          else {
+            ExtUI::setFilamentRunoutEnabled(!ExtUI::getFilamentRunoutEnabled());
+            Draw_Menu(Tune, TUNE_FILSENSORENABLED);
           }
           break;
         #endif
@@ -2390,6 +2438,18 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       break;
     case TempWarn:
       Draw_Popup(option ? (char*)"Nozzle temp too low!" : (char*)"Nozzle temp too high!", (char*)"", (char*)"", Wait, option ? ICON_TempTooLow : ICON_TempTooHigh);
+      break;
+    case Runout:
+      Draw_Popup((char*)"Filament Runout", (char*)"", (char*)"", Wait, ICON_BLTouch);
+      break;
+    case PidBadExtruder:
+      Draw_Popup((char*)"PID Autotune failed", (char*)"Bad extruder!", (char*)"", Confirm, ICON_BLTouch);
+      break;
+    case PidTimeout:
+      Draw_Popup((char*)"PID Autotune failed", (char*)"Timeout!", (char*)"", Confirm, ICON_BLTouch);
+      break;
+    case PidDone:
+      Draw_Popup((char*)"PID tuning done", (char*)"", (char*)"", Confirm, ICON_BLTouch);
       break;
   }
 }
