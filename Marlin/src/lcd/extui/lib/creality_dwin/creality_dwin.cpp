@@ -1119,7 +1119,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Filament");
           }
           else {
-            Popup_Handler(FilLoad, true);;
+            Popup_Handler(FilLoad, true);
             gcode.process_subcommands_now_P(PSTR("M702"));
             planner.synchronize();
             Draw_Menu(ChangeFilament, CHANGEFIL_UNLOAD);
