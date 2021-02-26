@@ -8,9 +8,9 @@ The firmware needs to maintain continuity and timing so the command senders rema
 
 To keep things flowing Marlin feeds a single queue of G-code commands from all inputs, inserting them in the order received. Movement commands immediately go into the Planner Buffer, if there is room. The buffering of a move is considered the completion of the command, so if a non-movement command has to occur after a move is done, and not just after a move is buffered, then there has to be an `M400` to wait for the Planner Buffer to finish.
 
-Whenever the command queue gets full the sender has to wait and may need to re-send the last command again, so Marlin does some handshaking to keep the host informed during a print job, with "wait"
+Whenever the command queue gets full the sender needs to wait for space to open up, and the host may need to re-send the last command again. Marlin does some handshaking to keep the host informed during a print job, described below.
 
-An opposite problem called "planner starvation" occurs if the Planner Buffer is full of short and fast moves so the host can't send commands fast enough to prevent the Planner Buffer from emptying out. This causes "stuttering" and is common on an overloaded deltabot. Marlin has strategies to mitigate this, but sometimes a model has to be re-sliced to stay within the machine's inherent processing limits.
+An opposite problem called "planner starvation" occurs when Marlin receives many short and fast moves in a row so the Planner Buffer gets completed very quickly. In this case the host can't send commands fast enough to prevent the Planner Buffer from emptying out. Planner starvation causes obvious stuttering and is commonly seen on overloaded deltabots during small curves. Marlin has strategies to mitigate this issue, but sometimes a model has to be re-sliced (or the G-code has to be post-processed with Arc Welder) just to stay within the machine's inherent limits.
 
 Here's a basic flowchart of Marlin command processing:
 ```
