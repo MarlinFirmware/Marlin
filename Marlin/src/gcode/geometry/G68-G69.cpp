@@ -38,7 +38,7 @@ void GcodeSuite::G68() {
   if (parser.seenval('R')) {
     sync_needed = sync_needed || planner.g68_rotation.setR(parser.value_float());
   }
-  planner.g68_rotation.report_rotation();
+  if (DEBUGGING(INFO)) planner.g68_rotation.report_rotation();
   if (sync_needed) planner.g68_rotation.update_current_position();
 }
 
