@@ -36,7 +36,7 @@ namespace ExtUI {
   void onMediaError() {}
   void onMediaRemoved() {}
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
-  void onPrintTimerStarted() { CrealityDWIN.Start_Print(isPrintingFromMedia()); }
+  void onPrintTimerStarted() { CrealityDWIN.Start_Print(card.isFileOpen()); }
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
   void onFilamentRunout(const extruder_t extruder) { CrealityDWIN.Popup_Handler(Runout); }

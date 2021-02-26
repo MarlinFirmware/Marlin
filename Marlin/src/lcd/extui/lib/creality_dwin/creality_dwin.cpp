@@ -340,7 +340,7 @@ void CrealityDWINClass::Draw_Print_Screen() {
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
   if (sdprint) {
-    char * const name = card.longest_filename();
+    char * const name = (card.isFileOpen()) ? card.longest_filename() : (char*)"";
     const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, name);
   }
@@ -2799,9 +2799,9 @@ inline void CrealityDWINClass::Popup_Control() {
           else {
             #if ENABLED(HOST_ACTION_COMMANDS)
               host_action_cancel();
+              Draw_Main_Menu();
             #endif
           }
-          Draw_Main_Menu();
         }
         else {
           Draw_Print_Screen();
