@@ -41,17 +41,8 @@ inline void report_workspace_plane() {
 }
 
 inline void set_workspace_plane(const GcodeSuite::WorkspacePlane plane) {
-  #if ENABLED(G68_G69_ROTATE)
-    if (planner.g68_rotation.isActive() && plane != gcode.workspace_plane) {
-      gcode.workspace_plane = plane;
-      if (DEBUGGING(INFO)) planner.g68_rotation.report_rotation();
-      planner.g68_rotation.update_current_position();
-    } else {
-      gcode.workspace_plane = plane;
-    }
-  #else
-    gcode.workspace_plane = plane;
-  #endif
+  TERN_(G68_G69_ROTATE, planner.g68_rotation.reset(true));
+  gcode.workspace_plane = plane;
   if (DEBUGGING(INFO)) report_workspace_plane();
 }
 

@@ -27,6 +27,10 @@
 
 #include "../../module/stepper.h"
 
+#if ENABLED(G68_G69_ROTATE)
+  #include "../../module/planner.h"
+#endif
+
 //#define DEBUG_M53
 
 /**
@@ -35,6 +39,7 @@
  */
 bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   if (active_coordinate_system == _new) return false;
+  TERN_(G68_G69_ROTATE,planner.g68_rotation.reset(false));
   active_coordinate_system = _new;
   xyz_float_t new_offset{0};
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))

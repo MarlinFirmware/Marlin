@@ -58,10 +58,6 @@
   #include "../feature/fwretract.h"
 #endif
 
-#if ENABLED(G68_G69_ROTATE)
-  #include "../gcode/gcode.h"
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -294,12 +290,10 @@ typedef struct {
 #if ENABLED(G68_G69_ROTATE)
   typedef struct {
     float a, b, r, cos_r, sin_r;
-    bool setA(float pa);
-    bool setB(float pb);
-    bool setR(float pr);
-    bool reset();
+    void update(abc_float_t abr, bool a_valid, bool b_valid, xyz_float_t current, bool report_position = true);
+    void reset(bool report_position = true);
     bool isActive();
-    void update_current_position();
+    void update_current_position(bool report_position = true);
     void report_rotation();
   } g68_rotation_t;
 #endif

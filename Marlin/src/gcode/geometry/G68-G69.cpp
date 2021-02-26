@@ -28,27 +28,30 @@
 #include "../../module/planner.h"
 
 void GcodeSuite::G68() {
-  bool sync_needed = false;
-  if (parser.seenval('A')) {
-    sync_needed = planner.g68_rotation.setA(parser.value_float());
+  xyz_float_t current;
+  abc_float_t abr;
+  bool a_valid,b_valid;
+
+  if ((a_valid = parser.seenval('A'))) {
+    abr.a = parser.value_float();
   }
-  if (parser.seenval('B')) {
-    sync_needed = sync_needed || planner.g68_rotation.setB(parser.value_float());
+  if ((b_valid = parser.seenval('B'))) {
+    abr.b = parser.value_float();
   }
   if (parser.seenval('R')) {
-    sync_needed = sync_needed || planner.g68_rotation.setR(parser.value_float());
+    abr.c = parser.value_float();
+  } else {
+    abr.c = planner.g68_rotation.r;
   }
-  if (DEBUGGING(INFO)) planner.g68_rotation.report_rotation();
-  if (sync_needed) planner.g68_rotation.update_current_position();
+  if (!(a_valid && b_valid)) {
+    set_current_from_steppers_for_axis(AxisEnum::ALL_AXES);
+    current = cartes.asLogical();
+  }
+  planner.g68_rotation.update(abr, a_valid, b_valid, current, true);
 }
 
 void GcodeSuite::G69() {
-  if (planner.g68_rotation.reset()) {
-    if (DEBUGGING(INFO)) planner.g68_rotation.report_rotation();
-    planner.g68_rotation.update_current_position();
-  } else {
-    if (DEBUGGING(INFO)) planner.g68_rotation.report_rotation();
-  }
+  planner.g68_rotation.reset(true);
 }
 
 #endif

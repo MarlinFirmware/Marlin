@@ -99,6 +99,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(G68_G69_ROTATE)
+  #include "../gcode/gcode.h"
+#endif
+
 #if ENABLED(CANCEL_OBJECTS)
   #include "../feature/cancel_object.h"
 #endif
@@ -198,38 +202,62 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(G68_G69_ROTATE)
 
-  bool g68_rotation_t::setA(float pa) {
-    if (a == pa) return false;
-    a = pa;
-    return true;
-  }
-  bool g68_rotation_t::setB(float pb) {
-    if (b == pb) return false;
-    b = pb;
-    return true;
-  }
-  bool g68_rotation_t::setR(float pr) {
-    if (r == pr) return false;
-    else {
-      float rad;
-      r = pr;
-      rad = RADIANS(r);
-      cos_r = cos(rad);
-      sin_r = sin(rad);
+  void g68_rotation_t::update(abc_float_t abr, bool a_valid, bool b_valid, xyz_float_t current, bool report_position) {
+    abc_float_t native = current.asNative();
+    if (!a_valid) {
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        switch (gcode.workspace_plane) {
+          case GcodeSuite::PLANE_YZ:
+            abr.a = native.y;
+            break;
+          case GcodeSuite::PLANE_ZX:
+            abr.a = native.z;
+            break;
+          default:
+            abr.a = native.x;
+        }
+      #else
+        abr.a = native.x;
+      #endif
     }
-    return true;
-  } 
-  bool g68_rotation_t::reset() {
+    if (!b_valid) {
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        switch (gcode.workspace_plane) {
+          case GcodeSuite::PLANE_YZ:
+            abr.b = native.z;
+            break;
+          case GcodeSuite::PLANE_ZX:
+            abr.b = native.x;
+            break;
+          default:
+            abr.b = native.y;
+        }
+      #else
+        abr.b = native.y;
+      #endif
+    }
+    if ((abr.a != a) || (abr.b != b) || (abr.c != r)) {
+      float rad;
+      a = abr.a; b = abr.b; r = abr.c;
+      rad = RADIANS(r);
+      cos_r = cos(rad); sin_r = sin(rad);
+      if (DEBUGGING(INFO)) report_rotation();
+      update_current_position(report_position);
+    }
+  }
+  void g68_rotation_t::reset(bool report_position) {
     a = b = 0.0f;
-    if (r == 0.0f) return false;
-    r = 0.0f;
-    return true;
+    if (r != 0.0f) {
+      r = 0.0f;
+      if (DEBUGGING(INFO)) report_rotation();
+      update_current_position(report_position);
+    }
   }
   bool g68_rotation_t::isActive() { return r != 0.0f; }
-  void g68_rotation_t::update_current_position() {
+  void g68_rotation_t::update_current_position(bool report_position) {
     set_current_from_steppers_for_axis(ALL_AXES);
     sync_plan_position();
-    report_current_position();
+    if (report_position) report_current_position();
   }
   void g68_rotation_t::report_rotation() {
     PGMSTR(sp_r_lbl," R:");
