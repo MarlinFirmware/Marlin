@@ -63,6 +63,10 @@ GCodeQueue queue;
 // Frequently used G-code strings
 PGMSTR(G28_STR, "G28");
 
+#if NO_TIMEOUTS > 0
+  static millis_t last_command_time = 0;
+#endif
+
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
@@ -288,6 +292,10 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  *   B<int>  Block queue space remaining
  */
 void GCodeQueue::ok_to_send() {
+  #if NO_TIMEOUTS > 0
+    // Start counting from the last command's execution
+    last_command_time = millis();
+  #endif
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command_port();
     if (serial_ind < 0) return;
@@ -324,28 +332,19 @@ void GCodeQueue::flush_and_request_resend() {
   ok_to_send();
 }
 
-inline bool serial_data_available() {
-  byte data_available = 0;
-  if (MYSERIAL0.available()) data_available++;
-  #ifdef SERIAL_PORT_2
-    const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
-    if (port2_open && MYSERIAL1.available()) data_available++;
-  #endif
-  return data_available > 0;
+
+// Multiserial already handle the dispatch to/from multiple port by itself
+inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
+  if (index == SERIAL_ALL) {
+    for (index = 0; index < NUM_SERIAL; index++) {
+      if (SERIAL_IMPL.available(index) > 0) return true;
+    }
+    return false;
+  }
+  return SERIAL_IMPL.available(index) > 0;
 }
 
-inline int read_serial(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.read();
-    case 1: {
-      #if HAS_MULTI_SERIAL
-        const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
-        if (port2_open) return MYSERIAL1.read();
-      #endif
-    }
-    default: return -1;
-  }
-}
+inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
@@ -460,7 +459,6 @@ void GCodeQueue::get_serial_commands() {
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
-    static millis_t last_command_time = 0;
     const millis_t ms = millis();
     if (length == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
