@@ -28,26 +28,21 @@
 #include "../../module/planner.h"
 
 void GcodeSuite::G68() {
-  xyz_float_t current;
-  abc_float_t abr;
+  float a = 0.0f, b = 0.0f, r;
   bool a_valid,b_valid;
 
   if ((a_valid = parser.seenval('A'))) {
-    abr.a = parser.value_float();
+    a = parser.value_float();
   }
   if ((b_valid = parser.seenval('B'))) {
-    abr.b = parser.value_float();
+    b = parser.value_float();
   }
   if (parser.seenval('R')) {
-    abr.c = parser.value_float();
+    r = parser.value_float();
   } else {
-    abr.c = planner.g68_rotation.r;
+    r = planner.g68_rotation.r;
   }
-  if (!(a_valid && b_valid)) {
-    set_current_from_steppers_for_axis(AxisEnum::ALL_AXES);
-    current = cartes.asLogical();
-  }
-  planner.g68_rotation.update(abr, a_valid, b_valid, current, true);
+  planner.g68_rotation.set(a, a_valid, b, b_valid, r, true);
 }
 
 void GcodeSuite::G69() {

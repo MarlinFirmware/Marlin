@@ -202,43 +202,50 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(G68_G69_ROTATE)
 
-  void g68_rotation_t::update(abc_float_t abr, bool a_valid, bool b_valid, xyz_float_t current, bool report_position) {
-    abc_float_t native = current.asNative();
-    if (!a_valid) {
-      #if ENABLED(CNC_WORKSPACE_PLANES)
-        switch (gcode.workspace_plane) {
-          case GcodeSuite::PLANE_YZ:
-            abr.a = native.y;
-            break;
-          case GcodeSuite::PLANE_ZX:
-            abr.a = native.z;
-            break;
-          default:
-            abr.a = native.x;
-        }
-      #else
-        abr.a = native.x;
-      #endif
+  void g68_rotation_t::set(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position) {
+    xyz_float_t centre;
+    xyz_float_t current;
+    if (!(a_valid && b_valid)) {
+      current = current_position.asLogical();
     }
-    if (!b_valid) {
-      #if ENABLED(CNC_WORKSPACE_PLANES)
-        switch (gcode.workspace_plane) {
-          case GcodeSuite::PLANE_YZ:
-            abr.b = native.z;
-            break;
-          case GcodeSuite::PLANE_ZX:
-            abr.b = native.x;
-            break;
-          default:
-            abr.b = native.y;
-        }
-      #else
-        abr.b = native.y;
-      #endif
-    }
-    if ((abr.a != a) || (abr.b != b) || (abr.c != r)) {
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      switch (gcode.workspace_plane) {
+        case GcodeSuite::PLANE_YZ:
+          if (a_valid) centre.y = a_arg; else if (b_valid) centre.y = 0.0f; else centre.y = current.y;
+          if (b_valid) centre.z = b_arg; else if (a_valid) centre.z = 0.0f; else centre.z = current.z;
+          centre.x = 0.0f;
+          break;
+        case GcodeSuite::PLANE_ZX:
+          if (a_valid) centre.z = a_arg; else if (b_valid) centre.z = 0.0f; else centre.z = current.z;
+          if (b_valid) centre.x = b_arg; else if (a_valid) centre.x = 0.0f; else centre.x = current.x;
+          centre.y = 0.0f;
+          break;
+        default:
+          if (a_valid) centre.x = a_arg; else if (b_valid) centre.x = 0.0f; else centre.x = current.x;
+          if (b_valid) centre.y = b_arg; else if (a_valid) centre.y = 0.0f; else centre.y = current.y;
+          centre.z = 0.0f;
+      }
+    #else
+      if (a_valid) centre.x = a_arg; else if (b_valid) centre.x = 0.0f; else centre.x = current.x;
+      if (b_valid) centre.y = b_arg; else if (a_valid) centre.y = 0.0f; else centre.y = current.y;
+      centre.z = 0.0f;
+    #endif
+    centre = centre.asNative();
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      switch (gcode.workspace_plane) {
+        case GcodeSuite::PLANE_YZ:
+          a_arg = centre.y; b_arg = centre.z; break;
+        case GcodeSuite::PLANE_ZX:
+          a_arg = centre.z; b_arg = centre.x; break;
+        default:
+          a_arg = centre.x; b_arg = centre.y; break;
+      }
+    #else
+      a_arg = centre.x; b_arg = centre.y; break;
+    #endif
+    if ((a_arg != a) || (b_arg != b) || (r_arg != r)) {
       float rad;
-      a = abr.a; b = abr.b; r = abr.c;
+      a = a_arg; b = b_arg; r = r_arg;
       rad = RADIANS(r);
       cos_r = cos(rad); sin_r = sin(rad);
       if (DEBUGGING(INFO)) report_rotation();

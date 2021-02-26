@@ -290,7 +290,7 @@ typedef struct {
 #if ENABLED(G68_G69_ROTATE)
   typedef struct {
     float a, b, r, cos_r, sin_r;
-    void update(abc_float_t abr, bool a_valid, bool b_valid, xyz_float_t current, bool report_position = true);
+    void set(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position = true);
     void reset(bool report_position = true);
     bool isActive();
     void update_current_position(bool report_position = true);
