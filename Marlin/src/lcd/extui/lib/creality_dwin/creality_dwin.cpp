@@ -182,11 +182,11 @@ inline void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selecte
   if (selected) bColor = Select_Color;
   else bColor = Color_Bg_Black;
   if (value < 0) {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, 4-log10(minunit), log10(minunit), 202, MBASE(row), -value * minunit);
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, 5-log10(minunit), log10(minunit), 202, MBASE(row), -value * minunit);
     DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_White, bColor, 196, MBASE(row), F("-"));
   }
   else {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, 4-log10(minunit), log10(minunit), 202, MBASE(row), value * minunit);
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, bColor, 5-log10(minunit), log10(minunit), 202, MBASE(row), value * minunit);
     DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_White, bColor, 196, MBASE(row), F(" "));
   }
 }
