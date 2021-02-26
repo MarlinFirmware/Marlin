@@ -28,6 +28,10 @@
   #include "../../feature/encoder_i2c.h"
 #endif
 
+#if ENABLED(G68_G69_ROTATE)
+  #include "../../module/planner.h"
+#endif
+
 /**
  * G92: Set the Current Position to the given X Y Z E values.
  *
@@ -56,6 +60,8 @@ void GcodeSuite::G92() {
     constexpr uint8_t subcode_G92 = 0;
   #endif
 
+  TERN_(G68_G69_ROTATE, planner.g68_rotation.reset(false));
+  
   switch (subcode_G92) {
     default: return;                                                  // Ignore unknown G92.x
 
