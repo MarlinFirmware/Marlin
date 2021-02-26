@@ -62,7 +62,7 @@ void GcodeSuite::M355() {
   else {
     #if CASELIGHT_USES_BRIGHTNESS
       if (PWM_PIN(CASE_LIGHT_PIN)) {
-        SERIAL_ECHOLN(int(caselight.brightness));
+        if (TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN)))) {
         return;
       }
     #endif
