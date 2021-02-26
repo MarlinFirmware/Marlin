@@ -523,10 +523,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
   }
   if (current_position.z != z) {
     z = current_position.z;
-    if (current_position.z <= Z_MAX_POS)
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 3, 2, 205, 459, current_position.z * 100);
-    else
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 3, 2, 205, 459, 0);
+    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 3, 2, 205, 459, (current_position.z < 0) ? 0 : current_position.z * 100);
   }
   DWIN_UpdateLCD();
 }
@@ -2795,7 +2792,7 @@ inline void CrealityDWINClass::Popup_Control() {
       case Stop:
         if (selection==0) {
           if (sdprint) {
-            card.flag.abort_sd_printing = true; 
+            ExtUI::stopPrint();
             thermalManager.zero_fan_speeds();
             thermalManager.disable_all_heaters();
           }
