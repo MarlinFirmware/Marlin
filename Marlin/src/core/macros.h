@@ -366,13 +366,13 @@
     }
     // Compile-time evaluation of the last part of a file path
     // Typically used to shorten the path to file in compiled strings
-    // CompileTimeString::fileName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-    constexpr const char* fileName(const char* str) {
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char* str) {
       return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
     }
   }
 
-  #define ONLY_FILENAME CompileTimeString::fileName(__FILE__)
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
 
 #else
 
