@@ -1,13 +1,18 @@
 # Marlin's command queue concept
 
-Marlin is a software that process commands encoded in G-Code coming from multiple different source (serial port, SD card, WIFI connection, and other).
-It's also processing this command by converting them to actions on many physical actuators (motors, resistances, lasers, RGB leds and other).
+Marlin Firmware processes G-code commands as they arrive from multiple sources, including the SD card and one or more serial ports such as USB-connected hosts, WiFi, Bluetooth, and so on.
 
-Since physical actuators are limited by physic, a synchronization must be achieved between the source of the commands and the physical movement or action.
+Marlin is also continuously processing the commands at the front of the queue, converting them into signals for many physical actuators such as motors, heaters, lasers, and RGB LEDs.
 
-The synchronization is done via a queue that's buffering/adapting the next commands in memory so that the command processor is never starved (whenever possible).
+The firmware needs to maintain continuity and timing so the command senders remain unblocked, while still performing physical movements and other actions in real-time, respecting the physical limits of stepper motors and other peripherals.
 
-There are multiple buffers in the system to achieve this goal:
+To keep things flowing Marlin feeds a single queue of G-code commands from all inputs, inserting them in the order received. Movement commands immediately go into the Planner Buffer, if there is room. The buffering of a move is considered the completion of the command, so if a non-movement command has to occur after a move is done, and not just after a move is buffered, then there has to be an `M400` to wait for the Planner Buffer to finish.
+
+Whenever the command queue gets full the sender has to wait and may need to re-send the last command again, so Marlin does some handshaking to keep the host informed during a print job, with "wait"
+
+An opposite problem called "planner starvation" occurs if the Planner Buffer is full of short and fast moves so the host can't send commands fast enough to prevent the Planner Buffer from emptying out. This causes "stuttering" and is common on an overloaded deltabot. Marlin has strategies to mitigate this, but sometimes a model has to be re-sliced to stay within the machine's inherent processing limits.
+
+Here's a basic flowchart of Marlin command processing:
 ```
 +------+                                Marlin's GCodeQueue
 |      |                             +--------------------------------------+     +-----------+
@@ -17,9 +22,9 @@ There are multiple buffers in the system to achieve this goal:
    |             +------------+      |    |   |        |                  | |     | GCode     |
    |             |            |      |    |   |        |   MAX_CMD_SIZE   +-+-----> processor |
    |             | Platform   |      |    |   | On EOL | +--------------+ | r_pos |           |
-   +-------------> serial's   +----------->   +--------> |              | | |     +-----------+
-                 | buffer     |      |    |   |  w_pos | | CommandQueue | | |
-                 |            |      |    |   |        | |              | | |
+   +-------------> serial's   +----------->   +--------> |   G-code     | | |     +-----------+
+                 | buffer     |      |    |   |  w_pos | |   command    | | |
+                 |            |      |    |   |        | |    line      | | |
                  +------------+      |    +---+        | +--------------+ | |
                                      |  Line buffer    |    x BUF_SIZE    | |
                                      |                 |                  | |
@@ -33,29 +38,22 @@ There are multiple buffers in the system to achieve this goal:
                                      +--------------------------------------+
 ```
 
-Marlin is not a multithread or multiprocess software, so the processing loop performs the following actions sequentially:
-1. Check if data is available in the platform's serial buffer and in that case, move them into the per-serial line buffer
-2. If the data in the line buffer contains a End Of Line character, it's committed to the ring buffer of CommandQueue
-3. Loop to 1 until there is no more data in the serial buffer
-4. Run the G-Code processor by pop'ing from the CommandQueue ring buffer and execute one command
-5. Loop to 1
-
+Marlin is a single-threaded application with a main `loop()` that manages the command queue and an `idle()` routine that manages the hardware. The command queue is handled in two stages:
+1. The `idle()` routine reads all inputs and attempts to enqueue any completed command lines.
+2. The `loop()` gets the command at the front the G-code queue (if any) and runs it. The command will block the main loop and prevent the queue from advancing until it returns.
 
 ## Synchronization
-To achieve synchronization, Marlin sends a `ok` answer to the host when it's done processing a command (end of G-Code processor task).
-Most host will then wait until this answer is received to feed more command into the serial's buffer.
 
+To maintain synchronization Marlin replies "`ok`" to the host as soon as the command has been enqueued. This lets the host know that it can send another command, and well-behaved hosts will wait for this message. With `ADVANCED_OK` enabled the `ok` message includes extra information (such as the number of slots left in the queue).
 
-In some case, if no data is available in the serial buffer for a long time, Marlin can ask the host to send more data via the `wait` message.
-
+If no data is available on the serial buffer, Marlin can be configured to periodically send a "`wait`" message to the host. This was the only method of "host keepalive" provided in Marlin 1.0, but today the better options are `HOST_KEEPALIVE` and `ADVANCED_OK`.
 
 ## Limitation of the design
 
-Please notice few limitations here:
-1. While the G-Code processor is busy processing a command, the G-Code queue is not running. 
-2. If the host is sending data to the serial buffer, then the serial buffer will fill up (by interrupting the CPU).
-3. This means that the serial buffer must be able to contain at least a complete line of data (the size of the serial buffer must be greater than the maximum G-Code command line the host can generate). The default value `MAX_CMD_SIZE` is 96 bytes for Marlin's CommandQueue lines, so a serial buffer that's smaller than 96 bytes can loose data. 
-4. Since serial buffer size are likely used as ring buffer themselves, their size should be a power of 2 (64 or 128 bytes recommanded)
-5. A host generating too many G-Code command simultaneously will saturate the GCodeQueue but will not improve the processing rate of Marlin since only one command is processed per loop iteration.
-6. Because of this, having a large BUF_SIZE is likely useless. The default value of 4 is good for a single serial port. 
-
+Some limitations to the design are evident:
+1. Whenever the G-code processor is busy processing a command, the G-code queue cannot advance.
+2. A long command like `G29` causes commands to pile up and to fill the queue, making the host wait.
+3. Each serial input requires a buffer large enough for a complete G-code line. This is set by `MAX_CMD_SIZE` with a default value of 96.
+4. Since serial buffer sizes are likely used as ring buffers themselves, as an optimization their sizes must be a power of 2 (64 or 128 bytes recommended).
+5. If a host sends too much G-code at once it can saturate the `GCodeQueue`. This doesn't do anything to improve the processing rate of Marlin since only one command can be dispatched per loop iteration.
+6. With the previous point in mind, it's clear that the longstanding wisdom that you don't need a large `BUF_SIZE` is not just apocryphal. The default value of 4 is typically just fine for a single serial port. (And, if you decide to send a `G25` to pause the machine, the wait will be much shorter!)
