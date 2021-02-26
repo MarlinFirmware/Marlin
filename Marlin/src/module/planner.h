@@ -58,6 +58,10 @@
   #include "../feature/fwretract.h"
 #endif
 
+#if ENABLED(G68_G69_ROTATE)
+  #include "../gcode/gcode.h"
+#endif
+
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -287,6 +291,19 @@ typedef struct {
   #endif
 } skew_factor_t;
 
+#if ENABLED(G68_G69_ROTATE)
+  typedef struct {
+    float a, b, r, cos_r, sin_r;
+    bool setA(float pa);
+    bool setB(float pb);
+    bool setR(float pr);
+    bool reset();
+    bool isActive();
+    void update_current_position();
+    void report_rotation();
+  } g68_rotation_t;
+#endif
+
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
 #endif
@@ -394,6 +411,10 @@ class Planner {
     #endif
 
     static skew_factor_t skew_factor;
+
+    #if ENABLED(G68_G69_ROTATE)
+      static g68_rotation_t g68_rotation;
+    #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       static bool abort_on_endstop_hit;
@@ -587,6 +608,12 @@ class Planner {
 
     #endif // SKEW_CORRECTION
 
+    #if ENABLED(G68_G69_ROTATE)
+      static void perform_g68_rotation(float *x, float *y, float a, float b, float cos_r, float sin_r);
+      static void apply_g68_rotation(xyz_pos_t &raw);
+      static void unapply_g68_rotation(xyz_pos_t &raw);
+    #endif
+
     #if HAS_LEVELING
       /**
        * Apply leveling to transform a cartesian position
@@ -613,6 +640,7 @@ class Planner {
 
     #if HAS_POSITION_MODIFIERS
       FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
+        TERN_(G68_G69_ROTATE, apply_g68_rotation(pos));
         TERN_(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
@@ -622,6 +650,7 @@ class Planner {
         TERN_(FWRETRACT, unapply_retract(pos));
         if (leveling) unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
+        TERN_(G68_G69_ROTATE, unapply_g68_rotation(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
 

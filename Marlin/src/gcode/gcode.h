@@ -70,6 +70,8 @@
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
+ * G68  - Rotate around an axis
+ * G69  - Cancel rotation around an axis
  * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -501,6 +503,11 @@ private:
   #if SAVED_POSITIONS
     static void G60();
     static void G61();
+  #endif
+
+  #if ENABLED(G68_G69_ROTATE)
+    static void G68();
+    static void G69();
   #endif
 
   TERN_(GCODE_MOTION_MODES, static void G80());

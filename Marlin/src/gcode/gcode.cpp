@@ -386,6 +386,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
+      #if ENABLED(G68_G69_ROTATE)
+        case 68: G68(); break;                                    // G68:  Rotate around an axis
+        case 69: G69(); break;                                    // G69:  Cancel rotation around an axie
+      #endif
+
       #if ENABLED(PROBE_TEMP_COMPENSATION)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif

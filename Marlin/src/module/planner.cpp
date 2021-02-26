@@ -196,6 +196,115 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
+#if ENABLED(G68_G69_ROTATE)
+
+  bool g68_rotation_t::setA(float pa) {
+    if (a == pa) return false;
+    a = pa;
+    return true;
+  }
+  bool g68_rotation_t::setB(float pb) {
+    if (b == pb) return false;
+    b = pb;
+    return true;
+  }
+  bool g68_rotation_t::setR(float pr) {
+    if (r == pr) return false;
+    else {
+      float rad;
+      r = pr;
+      rad = RADIANS(r);
+      cos_r = cos(rad);
+      sin_r = sin(rad);
+    }
+    return true;
+  } 
+  bool g68_rotation_t::reset() {
+    a = b = 0.0f;
+    if (r == 0.0f) return false;
+    r = 0.0f;
+    return true;
+  }
+  bool g68_rotation_t::isActive() { return r != 0.0f; }
+  void g68_rotation_t::update_current_position() {
+    set_current_from_steppers_for_axis(ALL_AXES);
+    sync_plan_position();
+    report_current_position();
+  }
+  void g68_rotation_t::report_rotation() {
+    PGMSTR(sp_r_lbl," R:");
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM("G68 rotation");
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      switch (gcode.workspace_plane) {
+        case GcodeSuite::PLANE_YZ:
+          SERIAL_ECHOPAIR_P(SP_Y_LBL,a,SP_Z_LBL,b,sp_r_lbl,r);
+          break;
+        case GcodeSuite::PLANE_ZX:
+          SERIAL_ECHOPAIR_P(SP_Z_LBL,a,SP_X_LBL,b,sp_r_lbl,r);
+          break;
+        default:
+          SERIAL_ECHOPAIR_P(SP_X_LBL,a,SP_Y_LBL,b,sp_r_lbl,r);
+      }
+    #else
+      SERIAL_ECHOPAIR_P(SP_X_LBL,a,SP_Y_LBL,b,sp_r_lbl,r);
+    #endif
+    SERIAL_EOL();
+  }
+
+  g68_rotation_t Planner::g68_rotation;
+
+  void Planner::perform_g68_rotation(float *x, float *y, float a, float b, float cos_r, float sin_r) {
+    float p, q;
+    *x -= a; *y -= b;
+    p = cos_r * (*x) - sin_r * (*y);
+    q = sin_r * (*x) + cos_r * (*y);
+    *x = p+a; *y = q+b;
+  }
+
+  void Planner::apply_g68_rotation(xyz_pos_t &raw) {
+    if (!g68_rotation.isActive()) {
+      return;
+    } else {
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        switch (GcodeSuite::workspace_plane) {
+          case GcodeSuite::WorkspacePlane::PLANE_YZ:
+            perform_g68_rotation(&(raw.y),&(raw.z),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,g68_rotation.sin_r);
+            break;
+          case GcodeSuite::WorkspacePlane::PLANE_ZX:
+            perform_g68_rotation(&(raw.x),&(raw.z),g68_rotation.b,g68_rotation.a,g68_rotation.cos_r,g68_rotation.sin_r);
+            break;
+          default:
+            perform_g68_rotation(&(raw.x),&(raw.y),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,g68_rotation.sin_r);
+        }
+      #else
+        perform_g68_rotation(&(raw.x),&(raw.y),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,g68_rotation.sin_r);
+      #endif
+    }
+  }
+
+  void Planner::unapply_g68_rotation(xyz_pos_t &raw) {
+    if (!g68_rotation.isActive()) {
+      return;
+    } else {
+      #if ENABLED(CNC_WORKSPACE_PLANES)
+        switch (GcodeSuite::workspace_plane) {
+          case GcodeSuite::WorkspacePlane::PLANE_YZ:
+            perform_g68_rotation(&(raw.y),&(raw.z),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,-g68_rotation.sin_r);
+            break;
+          case GcodeSuite::WorkspacePlane::PLANE_ZX:
+            perform_g68_rotation(&(raw.x),&(raw.z),g68_rotation.b,g68_rotation.a,g68_rotation.cos_r,-g68_rotation.sin_r);
+            break;
+          default:
+            perform_g68_rotation(&(raw.x),&(raw.y),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,-g68_rotation.sin_r);
+        }
+      #else
+        perform_g68_rotation(&(raw.x),&(raw.y),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,-g68_rotation.sin_r);
+      #endif
+    }
+  }
+#endif
+
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
