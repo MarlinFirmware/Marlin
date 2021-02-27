@@ -42,15 +42,19 @@
 //===========================================================================
 
 /**
- * Here are some standard links for getting your machine calibrated:
+ * Here are some useful links to help get your machine configured and calibrated:
  *
- * https://reprap.org/wiki/Calibration
- * https://youtu.be/wAL9d7FgInk
- * http://calculator.josefprusa.cz
- * https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
- * https://www.thingiverse.com/thing:5573
- * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
- * https://www.thingiverse.com/thing:298812
+ * Example Configs:     https://github.com/MarlinFirmware/Configurations/branches/all
+ *
+ * Průša Calculator:    https://blog.prusaprinters.org/calculator_3416/
+ *
+ * Calibration Guides:  https://reprap.org/wiki/Calibration
+ *                      https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ *                      https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ *                      https://youtu.be/wAL9d7FgInk
+ *
+ * Calibration Objects: https://www.thingiverse.com/thing:5573
+ *                      https://www.thingiverse.com/thing:1278865
  */
 
 //===========================================================================
@@ -1641,7 +1645,7 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
@@ -2622,12 +2626,10 @@
 #endif
 
 // Support for Adafruit NeoPixel LED driver
-#if ENABLED(NEOPIXEL)
-  #define NEOPIXEL_LED
-#endif
+//#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     PB2       // LED driving pin
+  #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_PIN     4       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
   #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
