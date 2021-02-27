@@ -83,7 +83,7 @@ void GcodeSuite::M106() {
     thermalManager.set_fan_speed(pfan, speed);
 
     if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
-      thermalManager.set_fan_speed(1, speed);
+      thermalManager.set_fan_speed(1 - pfan, speed);
   }
 }
 
@@ -92,10 +92,12 @@ void GcodeSuite::M106() {
  */
 void GcodeSuite::M107() {
   const uint8_t pfan = parser.byteval('P', _ALT_P);
-  thermalManager.set_fan_speed(pfan, 0);
+  if (pfan < _CNT_P) {
+    thermalManager.set_fan_speed(pfan, 0);
 
-  if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
-    thermalManager.set_fan_speed(1, 0);
+    if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
+      thermalManager.set_fan_speed(1 - pfan, 0);
+  }
 }
 
 #endif // HAS_FAN
