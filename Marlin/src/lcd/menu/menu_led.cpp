@@ -158,7 +158,7 @@ void menu_led() {
   //
   #if ENABLED(CASE_LIGHT_MENU)
     #if CASELIGHT_USES_BRIGHTNESS
-      if (caselight.can_set_brightness())
+      if (caselight.has_brightness())
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif
