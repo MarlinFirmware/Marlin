@@ -446,10 +446,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = X_center + displacement;
       echo_min_max('X', position_min, position_max);
       if (false
-        #ifdef X_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (X_MIN_POS)
-        #endif
-        #ifdef X_MAX_POS
           || position_max > (X_MAX_POS)
         #endif
       ) {
@@ -463,10 +461,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = Y_center + displacement;
       echo_min_max('Y', position_min, position_max);
       if (false
-        #ifdef Y_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (Y_MIN_POS)
-        #endif
-        #ifdef Y_MAX_POS
           || position_max > (Y_MAX_POS)
         #endif
       ) {
@@ -480,10 +476,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = Z_center + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
-        #ifdef Z_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (Z_MIN_POS)
-        #endif
-        #ifdef Z_MAX_POS
           || position_max > (Z_MAX_POS)
         #endif
       ) {

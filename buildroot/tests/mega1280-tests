@@ -33,13 +33,13 @@ exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD
 # Test DUAL_X_CARRIAGE
 #
 restore_configs
-opt_set MOTHERBOARD BOARD_TT_OSCAR
+opt_set MOTHERBOARD BOARD_ZRIB_V52
 opt_set LCD_LANGUAGE pt
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
 opt_enable USE_XMAX_PLUG DUAL_X_CARRIAGE REPRAPWORLD_KEYPAD
 opt_set REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
-exec_test $1 $2 "TT Oscar | DUAL_X_CARRIAGE" "$3"
+exec_test $1 $2 "ZRIB_V52 | DUAL_X_CARRIAGE" "$3"
 
 #
 # Delta Config (generic) + Probeless

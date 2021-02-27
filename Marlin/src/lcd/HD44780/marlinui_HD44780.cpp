@@ -93,6 +93,10 @@
 
   LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
+#elif ENABLED(YHCB2004)
+
+  LCD_CLASS lcd(YHCB2004_CLK, 20, 4, YHCB2004_MOSI, YHCB2004_MISO); // CLK, cols, rows, MOSI, MISO
+
 #else
 
   // Standard direct-connected LCD implementations
