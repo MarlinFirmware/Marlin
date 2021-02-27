@@ -323,6 +323,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1203)
 else ifeq ($(HARDWARE_MOTHERBOARD),1204)
 # abee Scoovo X9H
 else ifeq ($(HARDWARE_MOTHERBOARD),1205)
+# Rambo ThinkerV2
+else ifeq ($(HARDWARE_MOTHERBOARD),1206)
 
 #
 # Other ATmega1280, ATmega2560

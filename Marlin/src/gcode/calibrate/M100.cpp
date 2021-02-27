@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
+ *    void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
  *
  * Initial version by Roxy-3D
  */
@@ -151,7 +151,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
    *  the block. If so, it may indicate memory corruption due to a bad pointer.
    *  Unexpected bytes are flagged in the right column.
    */
-  inline void dump_free_memory(char *start_free_memory, char *end_free_memory) {
+  void dump_free_memory(char *start_free_memory, char *end_free_memory) {
     //
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
@@ -182,12 +182,12 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, const char * const start, const char * const end) {
-    serialprintPGM(title);
-    SERIAL_EOL();
+  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size) {
+    SERIAL_ECHOLNPGM_P(title);
     //
     // Round the start and end locations to produce full lines of output
     //
+    const char * const end = start + size - 1;
     dump_free_memory(
       (char*)(uintptr_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
       (char*)(uintptr_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
@@ -197,27 +197,27 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
 #endif // M100_FREE_MEMORY_DUMPER
 
 inline int check_for_free_memory_corruption(PGM_P const title) {
-  serialprintPGM(title);
+  SERIAL_ECHOPGM_P(title);
 
   char *start_free_memory = free_memory_start, *end_free_memory = free_memory_end;
   int n = end_free_memory - start_free_memory;
 
-  SERIAL_ECHOPAIR("\nfmc() n=", n);
-  SERIAL_ECHOPAIR("\nfree_memory_start=", hex_address(free_memory_start));
-  SERIAL_ECHOLNPAIR("  end_free_memory=", hex_address(end_free_memory));
+  SERIAL_ECHOLNPAIR("\nfmc() n=", n,
+                    "\nfree_memory_start=", hex_address(free_memory_start),
+                    "  end=", hex_address(end_free_memory));
 
   if (end_free_memory < start_free_memory)  {
     SERIAL_ECHOPGM(" end_free_memory < Heap ");
-    // SET_INPUT_PULLUP(63);           // if the developer has a switch wired up to their controller board
-    // safe_delay(5);                  // this code can be enabled to pause the display as soon as the
-    // while ( READ(63))               // malfunction is detected.   It is currently defaulting to a switch
-    //   idle();                       // being on pin-63 which is unassigend and available on most controller
-    // safe_delay(20);                 // boards.
-    // while ( !READ(63))
-    //   idle();
+    //SET_INPUT_PULLUP(63);           // if the developer has a switch wired up to their controller board
+    //safe_delay(5);                  // this code can be enabled to pause the display as soon as the
+    //while ( READ(63))               // malfunction is detected.   It is currently defaulting to a switch
+    //  idle();                       // being on pin-63 which is unassigend and available on most controller
+    //safe_delay(20);                 // boards.
+    //while ( !READ(63))
+    //  idle();
     serial_delay(20);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, (const char*)0x21FF);
+      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, 0x0680);
     #endif
   }
 
@@ -227,13 +227,11 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     if (start_free_memory[i] == TEST_BYTE) {
       int32_t j = count_test_bytes(start_free_memory + i);
       if (j > 8) {
-        // SERIAL_ECHOPAIR("Found ", j);
-        // SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(start_free_memory + i));
+        //SERIAL_ECHOPAIR("Found ", j);
+        //SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(start_free_memory + i));
         i += j;
         block_cnt++;
-        SERIAL_ECHOPAIR(" (", block_cnt);
-        SERIAL_ECHOPAIR(") found=", j);
-        SERIAL_ECHOLNPGM("   ");
+        SERIAL_ECHOLNPAIR(" (", block_cnt, ") found=", j);
       }
     }
   }
@@ -269,8 +267,7 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
     if (*addr == TEST_BYTE) {
       const int32_t j = count_test_bytes(addr);
       if (j > 8) {
-        SERIAL_ECHOPAIR("Found ", j);
-        SERIAL_ECHOLNPAIR(" bytes free at ", hex_address(addr));
+        SERIAL_ECHOLNPAIR("Found ", j, " bytes free at ", hex_address(addr));
         if (j > max_cnt) {
           max_cnt  = j;
           max_addr = addr;
@@ -280,11 +277,10 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
       }
     }
   }
-  if (block_cnt > 1) {
-    SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
-    SERIAL_ECHOPAIR("\nLargest free block is ", max_cnt);
-    SERIAL_ECHOLNPAIR(" bytes at ", hex_address(max_addr));
-  }
+  if (block_cnt > 1) SERIAL_ECHOLNPAIR(
+    "\nMemory Corruption detected in free memory area."
+    "\nLargest free block is ", max_cnt, " bytes at ", hex_address(max_addr)
+  );
   SERIAL_ECHOLNPAIR("check_for_free_memory_corruption() = ", check_for_free_memory_corruption(PSTR("M100 F ")));
 }
 
@@ -294,12 +290,12 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
    *  Corrupt <num> locations in the free memory pool and report the corrupt addresses.
    *  This is useful to check the correctness of the M100 D and the M100 F commands.
    */
-  inline void corrupt_free_memory(char *start_free_memory, const uint32_t size) {
+  inline void corrupt_free_memory(char *start_free_memory, const uintptr_t size) {
     start_free_memory += 8;
     const uint32_t near_top = top_of_stack() - start_free_memory - 250, // -250 to avoid interrupt activity that's altered the stack.
                    j = near_top / (size + 1);
 
-    SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
+    SERIAL_ECHOLNPGM("Corrupting free memory block.");
     for (uint32_t i = 1; i <= size; i++) {
       char * const addr = start_free_memory + i * j;
       *addr = i;
@@ -322,8 +318,8 @@ inline void init_free_memory(char *start_free_memory, int32_t size) {
     return;
   }
 
-  start_free_memory += 8;       // move a few bytes away from the heap just because we don't want
-                  // to be altering memory that close to it.
+  start_free_memory += 8; // move a few bytes away from the heap just because we
+                          // don't want to be altering memory that close to it.
   memset(start_free_memory, TEST_BYTE, size);
 
   SERIAL_ECHO(size);
@@ -342,16 +338,16 @@ inline void init_free_memory(char *start_free_memory, int32_t size) {
  * M100: Free Memory Check
  */
 void GcodeSuite::M100() {
-
   char *sp = top_of_stack();
   if (!free_memory_end) free_memory_end = sp - MEMORY_END_CORRECTION;
-  SERIAL_ECHOPAIR("\nbss_end               : ", hex_address(end_bss));
-  if (heaplimit) SERIAL_ECHOPAIR("\n__heaplimit           : ", hex_address(heaplimit));
-  SERIAL_ECHOPAIR("\nfree_memory_start     : ", hex_address(free_memory_start));
+                  SERIAL_ECHOPAIR("\nbss_end               : ", hex_address(end_bss));
+  if (heaplimit)  SERIAL_ECHOPAIR("\n__heaplimit           : ", hex_address(heaplimit));
+                  SERIAL_ECHOPAIR("\nfree_memory_start     : ", hex_address(free_memory_start));
   if (stacklimit) SERIAL_ECHOPAIR("\n__stacklimit          : ", hex_address(stacklimit));
-  SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end));
-  if (MEMORY_END_CORRECTION)  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION: ", MEMORY_END_CORRECTION);
-  SERIAL_ECHOLNPAIR("\nStack Pointer         : ", hex_address(sp));
+                  SERIAL_ECHOPAIR("\nfree_memory_end       : ", hex_address(free_memory_end));
+  if (MEMORY_END_CORRECTION)
+                  SERIAL_ECHOPAIR("\nMEMORY_END_CORRECTION : ", MEMORY_END_CORRECTION);
+                  SERIAL_ECHOLNPAIR("\nStack Pointer       : ", hex_address(sp));
 
   // Always init on the first invocation of M100
   static bool m100_not_initialized = true;
@@ -369,10 +365,8 @@ void GcodeSuite::M100() {
     return free_memory_pool_report(free_memory_start, free_memory_end - free_memory_start);
 
   #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
-
     if (parser.seen('C'))
       return corrupt_free_memory(free_memory_start, parser.value_int());
-
   #endif
 }
 
