@@ -70,7 +70,7 @@ void lv_draw_wifi() {
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
     if (gCfgItems.cloud_enable)
-      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL+INTERVAL_V*2, BUTTON_Y(1), event_handler, ID_W_CLOUD);
+      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BUTTON_X(1), BUTTON_Y(1), event_handler, ID_W_CLOUD);
 
     buttonReconnect = lv_imgbtn_create(scr, "F:/bmp_wifi.bin", BUTTON_X(2), BUTTON_Y(1), event_handler, ID_W_RECONNECT);
 
