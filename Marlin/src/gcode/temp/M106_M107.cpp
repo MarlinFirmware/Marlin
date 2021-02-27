@@ -81,6 +81,11 @@ void GcodeSuite::M106() {
 
     // Set speed, with constraint
     thermalManager.set_fan_speed(pfan, speed);
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (idex_is_duplicating())
+        thermalManager.set_fan_speed(1, speed);
+    #endif
   }
 }
 
@@ -90,6 +95,11 @@ void GcodeSuite::M106() {
 void GcodeSuite::M107() {
   const uint8_t p = parser.byteval('P', _ALT_P);
   thermalManager.set_fan_speed(p, 0);
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    if (idex_is_duplicating())
+      thermalManager.set_fan_speed(1, 0);
+  #endif
 }
 
 #endif // HAS_FAN
