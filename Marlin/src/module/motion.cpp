@@ -180,7 +180,7 @@ xyz_pos_t cartes;
 #endif
 
 #if HAS_ABL_NOT_UBL
-  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
+  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
 /**
@@ -1151,7 +1151,7 @@ void prepare_line_to_destination() {
    */
   feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
     #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
     #endif
     static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
     uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -1569,7 +1569,7 @@ void prepare_line_to_destination() {
     if (bump) {
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) : 0, false);
+      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST) : 0, false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
         // Check for a broken endstop

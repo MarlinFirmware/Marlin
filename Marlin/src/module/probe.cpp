@@ -619,7 +619,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     // Raise to give the probe clearance
     do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
 
-  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
+  #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
@@ -650,7 +650,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
       if (TERN0(PROBE_TARE, tare())) return true;
 
       // Probe downward slowly to find the bed
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW),
                        sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
