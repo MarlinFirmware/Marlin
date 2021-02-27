@@ -231,6 +231,10 @@
   #include "feature/password/password.h"
 #endif
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -388,6 +392,7 @@ void startOrResumeJob() {
     if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
+      TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
   }
 
