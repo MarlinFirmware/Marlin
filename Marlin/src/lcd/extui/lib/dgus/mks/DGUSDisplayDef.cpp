@@ -36,61 +36,61 @@
 #include "../../../../marlinui.h"
 
 #if ENABLED(HAS_STEALTHCHOP)
-  #include "../../../../src/module/stepper/trinamic.h"
+  #include "../../../../module/stepper/trinamic.h"
 #endif
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 10;
 #endif
 
-#if ENABLED(DGUS_LCD_UI_MKS)
-  uint16_t distanceMove = 1;
-  float distanceFilament = 10;
-  uint16_t FilamentSpeed = 25;
-  float ZOffset_distance = 0.1;
-  float mesh_adj_distance = 0.1;
-  float Z_distance = 0.1;
+uint16_t distanceMove = 1;
+float distanceFilament = 10;
+uint16_t FilamentSpeed = 25;
+float ZOffset_distance = 0.1;
+float mesh_adj_distance = 0.1;
+float Z_distance = 0.1;
 
-  int16_t level_1_x_point = 20;
-  int16_t level_1_y_point = 20;
+int16_t level_1_x_point = 20;
+int16_t level_1_y_point = 20;
 
-  int16_t level_2_x_point = 20;
-  int16_t level_2_y_point = 20;
+int16_t level_2_x_point = 20;
+int16_t level_2_y_point = 20;
 
-  int16_t level_3_x_point = 20;
-  int16_t level_3_y_point = 20;
+int16_t level_3_x_point = 20;
+int16_t level_3_y_point = 20;
 
-  int16_t level_4_x_point = 20;
-  int16_t level_4_y_point = 20;
-  int16_t level_5_x_point = X_MAX_POS / 2;
-  int16_t level_5_y_point = Y_MAX_POS / 2;
+int16_t level_4_x_point = 20;
+int16_t level_4_y_point = 20;
+int16_t level_5_x_point = X_MAX_POS / 2;
+int16_t level_5_y_point = Y_MAX_POS / 2;
 
-  uint16_t tim_h;
-  uint16_t tim_m;
-  uint16_t tim_s;
+uint16_t tim_h;
+uint16_t tim_m;
+uint16_t tim_s;
 
-  uint16_t x_park_pos = 20;
-  uint16_t y_park_pos = 20;
-  uint16_t z_park_pos = 10;
+uint16_t x_park_pos = 20;
+uint16_t y_park_pos = 20;
+uint16_t z_park_pos = 10;
 
-  uint16_t min_ex_temp = 0;
+uint16_t min_ex_temp = 0;
 
-  float z_offset_add = 0;
+float z_offset_add = 0;
 
-  #if ENABLED(SENSORLESS_HOMING)
-    uint16_t tmc_x_step = 0;
-    uint16_t tmc_y_step = 0;
-    uint16_t tmc_z_step = 0;
-  #else
-    uint16_t tmc_x_step = 0;
-    uint16_t tmc_y_step = 0;
-    uint16_t tmc_z_step = 0;
-  #endif
+#if ENABLED(SENSORLESS_HOMING)
+  uint16_t tmc_x_step = 0;
+  uint16_t tmc_y_step = 0;
+  uint16_t tmc_z_step = 0;
+#else
+  uint16_t tmc_x_step = 0;
+  uint16_t tmc_y_step = 0;
+  uint16_t tmc_z_step = 0;
+#endif
 
-  EX_FILAMENT_DEF ex_filament;
-  RUNOUT_MKS_DEF runout_mks;
-  NOZZLE_PARK_DEF nozzle_park_mks;
-#endif // DGUS_LCD_UI_MKS
+uint16_t lcd_default_light = 50;
+
+EX_FILAMENT_DEF ex_filament;
+RUNOUT_MKS_DEF runout_mks;
+NOZZLE_PARK_DEF nozzle_park_mks;
 
 const uint16_t VPList_Boot[] PROGMEM = {
   VP_MARLIN_VERSION,
@@ -121,202 +121,6 @@ const uint16_t VPList_Main[] PROGMEM = {
   #endif
   0x0000
 };
-
-//const uint16_t VPList_Temp[] PROGMEM = {
-//  REPEAT(HOTENDS, MKSLIST_E_ITEM)
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_Status[] PROGMEM = {
-//  // VP_M117, for completeness, but it cannot be auto-uploaded
-//  REPEAT(HOTENDS, MKSLIST_E_ITEM)
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  #if HAS_FAN
-//    VP_Fan0_Percentage,
-//  #endif
-//  VP_XPos, VP_YPos, VP_ZPos,
-//  VP_Fan0_Percentage,
-//  VP_Feedrate_Percentage,
-//  VP_PrintProgress_Percentage,
-//  0x0000
-//};
-
-//const uint16_t VPList_Status2[] PROGMEM = {
-//  /* VP_M117, for completeness, but it cannot be auto-uploaded */
-//  #if HOTENDS >= 1
-//    VP_Flowrate_E0,
-//  #endif
-//  #if HOTENDS >= 2
-//    VP_Flowrate_E1,
-//  #endif
-//  VP_PrintProgress_Percentage,
-//  VP_PrintTime,
-//  0x0000
-//};
-
-//const uint16_t VPList_Preheat[] PROGMEM = {
-//  REPEAT(HOTENDS, MKSLIST_E_ITEM)
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_ManualMove[] PROGMEM = {
-//  VP_XPos, VP_YPos, VP_ZPos,
-//  0x0000
-//};
-
-//const uint16_t VPList_ManualExtrude[] PROGMEM = {
-//  REPEAT(HOTENDS, MKSLIST_E_ITEM)
-//  VP_EPos,
-//  0x0000
-//};
-
-//const uint16_t VPList_FanAndFeedrate[] PROGMEM = {
-//  VP_Feedrate_Percentage, VP_Fan0_Percentage,
-//  0x0000
-//};
-
-//const uint16_t VPList_SD_FlowRates[] PROGMEM = {
-//  VP_Flowrate_E0, VP_Flowrate_E1,
-//  0x0000
-//};
-
-//const uint16_t VPList_Filament_heating[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    MKSLIST_E_ITEM(0)
-//    VP_E0_FILAMENT_LOAD_UNLOAD,
-//  #endif
-//  #if HOTENDS >= 2
-//    MKSLIST_E_ITEM(1)
-//    VP_E1_FILAMENT_LOAD_UNLOAD,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_Filament_load_unload[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    VP_E0_FILAMENT_LOAD_UNLOAD,
-//  #endif
-//  #if HOTENDS >= 2
-//    VP_E1_FILAMENT_LOAD_UNLOAD,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_SDFileList[] PROGMEM = {
-//  VP_SD_FileName0, VP_SD_FileName1, VP_SD_FileName2, VP_SD_FileName3, VP_SD_FileName4,
-//  0x0000
-//};
-
-//const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
-//  VP_PrintProgress_Percentage, VP_PrintTime,
-//  REPEAT(HOTENDS, MKSLIST_E_ITEM)
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  #if HAS_FAN
-//    VP_Fan0_Percentage,
-//    #if FAN_COUNT > 1
-//      VP_Fan1_Percentage,
-//    #endif
-//  #endif
-//  VP_Flowrate_E0,
-//  0x0000
-//};
-
-//const uint16_t VPList_SDPrintTune[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    MKSLIST_E_ITEM(0) VP_Flowrate_E0,
-//  #endif
-//  #if HOTENDS >= 2
-//    MKSLIST_E_ITEM(1) VP_Flowrate_E1,
-//  #endif
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  VP_Feedrate_Percentage,
-//  VP_SD_Print_ProbeOffsetZ,
-//  0x0000
-//};
-
-//const uint16_t VPList_StepPerMM[] PROGMEM = {
-//  VP_X_STEP_PER_MM,
-//  VP_Y_STEP_PER_MM,
-//  VP_Z_STEP_PER_MM,
-//  #if HOTENDS >= 1
-//    VP_E0_STEP_PER_MM,
-//  #endif
-//  #if HOTENDS >= 2
-//    VP_E1_STEP_PER_MM,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_PIDE0[] PROGMEM = {
-//  #if ENABLED(PIDTEMP)
-//    VP_E0_PID_P,
-//    VP_E0_PID_I,
-//    VP_E0_PID_D,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_PIDBED[] PROGMEM = {
-//  #if ENABLED(PIDTEMP)
-//    VP_BED_PID_P,
-//    VP_BED_PID_I,
-//    VP_BED_PID_D,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_Infos[] PROGMEM = {
-//  VP_MARLIN_VERSION,
-//  VP_PrintTime,
-//  #if ENABLED(PRINTCOUNTER)
-//    VP_PrintAccTime,
-//    VP_PrintsTotal,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_PIDTuningWaiting[] PROGMEM = {
-//  VP_WAITING_STATUS,
-//  0x0000
-//};
-
-//const uint16_t VPList_FLCPreheat[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    MKSLIST_E_ITEM(0)
-//  #endif
-//  #if HAS_HEATED_BED
-//    VP_T_Bed_Is, VP_T_Bed_Set,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_FLCPrinting[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    VP_SD_Print_ProbeOffsetZ,
-//  #endif
-//  0x0000
-//};
-
-//const uint16_t VPList_Z_Offset[] PROGMEM = {
-//  #if HOTENDS >= 1
-//    VP_SD_Print_ProbeOffsetZ,
-//  #endif
-//  0x0000
-//};
-
-/* --------------------------------------------------MKS Data Update-------------------------------------------------- */
 
 const uint16_t MKSList_Home[] PROGMEM = {
   // E Temp
@@ -352,6 +156,8 @@ const uint16_t MKSList_Tool[] PROGMEM = {
   VP_Fan0_Percentage,
   // Language
   VP_Tool_Dis,
+  // LCD BLK
+  VP_LCD_BLK,
   0x0000
 };
 
@@ -435,7 +241,8 @@ const uint16_t MKSList_TempOnly[] PROGMEM = {
   VP_T_Bed_Is, VP_T_Bed_Set,
   // FAN
   VP_Fan0_Percentage,
-
+  // LCD BLK
+  VP_LCD_BLK,
   0x0000
 };
 
@@ -633,64 +440,38 @@ const uint16_t MKSList_About[] PROGMEM = {
 
 // Page data updata
 const struct VPMapping VPMap[] PROGMEM = {
-  #if 0
-    { DGUSLCD_SCREEN_BOOT, VPList_Boot },
-    { DGUSLCD_SCREEN_MAIN, VPList_Main },
-    { DGUSLCD_SCREEN_TEMPERATURE, VPList_Temp },
-    { DGUSLCD_SCREEN_STATUS, VPList_Status },
-    { DGUSLCD_SCREEN_STATUS2, VPList_Status2 },
-    { DGUSLCD_SCREEN_PREHEAT, VPList_Preheat },
-    { DGUSLCD_SCREEN_MANUALMOVE, VPList_ManualMove },
-    { DGUSLCD_SCREEN_MANUALEXTRUDE, VPList_ManualExtrude },
-    { DGUSLCD_SCREEN_FILAMENT_HEATING, VPList_Filament_heating },
-    { DGUSLCD_SCREEN_FILAMENT_LOADING, VPList_Filament_load_unload },
-    { DGUSLCD_SCREEN_FILAMENT_UNLOADING, VPList_Filament_load_unload },
-    { DGUSLCD_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
-    { DGUSLCD_SCREEN_SDFILELIST, VPList_SDFileList },
-    { DGUSLCD_SCREEN_SDPRINTTUNE, VPList_SDPrintTune },
-    { DGUSLCD_SCREEN_WAITING, VPList_PIDTuningWaiting },
-    { DGUSLCD_SCREEN_FLC_PREHEAT, VPList_FLCPreheat },
-    { DGUSLCD_SCREEN_FLC_PRINTING, VPList_FLCPrinting },
-    { DGUSLCD_SCREEN_Z_OFFSET, VPList_Z_Offset },
-    { DGUSLCD_SCREEN_STEPPERMM, VPList_StepPerMM },
-    { DGUSLCD_SCREEN_PID_E, VPList_PIDE0 },
-    { DGUSLCD_SCREEN_PID_BED, VPList_PIDBED },
-    { DGUSLCD_SCREEN_INFOS, VPList_Infos },
-  #else
-    { MKSLCD_SCREEN_BOOT, VPList_Boot },                        // Boot Page to show logo  0
-    { MKSLCD_SCREEN_HOME, MKSList_Home },                       // Home, Page 1
-    { MKSLCD_SCREEN_SETTING, MKSList_Setting },                 // Setting, Page 2
-    { MKSLCD_SCREEM_TOOL, MKSList_Tool },                       // Page 3
-    { MKSLCD_SCREEN_EXTRUDE_P1, MKSList_EXTRUE },               // Page 4
-    { MKSLCD_SCREEN_EXTRUDE_P2, MKSList_EXTRUE },               // Page 11
-    { MKSLCD_PAUSE_SETTING_EX, MKSList_EXTRUE },                // Page 57
-    { MKSLCD_PAUSE_SETTING_EX2, MKSList_EXTRUE },               // Page 61
-    { MKSLCD_SCREEN_LEVEL, MKSList_LEVEL },                     // Page 5
-    { MKSLCD_SCREEN_MOVE, MKSList_MOVE },                       // Page 6
-    { MKSLCD_SCREEN_PRINT, MKSList_Print },                     // Page 7
-    { MKSLCD_SCREEN_PAUSE, MKSList_Print },                     // Page 26
-    { MKSLCD_SCREEN_CHOOSE_FILE, MKSList_SD_File },             // Page 15
-    { MKSLCD_SCREEN_MOTOR_PLUSE, MKSList_Pluse },               // Page 51
-    { MKSLCD_SCREEN_MOTOR_SPEED, MKSList_MaxSpeed },            // Page 55
-    { MKSLCD_SCREEN_MOTOR_ACC_MAX, MKSList_MaxAcc },            // Page 53
-    { MKSLCD_SCREEN_LEVEL_DATA, MKSList_Level_Point },          // Page 48
-    { MKSLCD_PrintPause_SET, MKSList_PrintPauseConfig },        // Page 49
-    { MKSLCD_FILAMENT_DATA, MKSList_SD_File },                  // Page 50
-    { MKSLCD_SCREEN_Config, MKSList_TempOnly },                 // Page 46
-    { MKSLCD_SCREEN_Config_MOTOR, MKSList_MotoConfig },         // Page 47
-    { MKSLCD_PID, MKSList_PID },                                // Page 56
-    { MKSLCD_ABOUT, MKSList_About },                            // Page 36
-    { MKSLCD_SCREEN_PRINT_CONFIG, MKSList_Level_PrintConfig },  // Page 60
-    { MKSLCD_SCREEN_EX_CONFIG, MKSList_EX_Config },             // Page 65
-    { MKSLCD_SCREEN_TMC_Config, MKSTMC_Config },                // Page 70
-    { MKSLCD_AUTO_LEVEL, MKSAuto_Level },                       // Page 73
-    { MKSLCD_Screen_Offset_Config, MKSOffset_Config },          // Page 30
-    { MKSLCD_Screen_PMove, MKSList_MOVE },                      // Page 64
-    { MKSLCD_Screen_Baby, MKSBabyStep },                        // Page 71
-
-    // { MKSLCD_SCREEN_LEVEL_DATA, MKSList_SD_File},
-    // { MKSLCD_SCREEN_HOME, VPList_Boot },
-  #endif
+  { MKSLCD_SCREEN_BOOT, VPList_Boot },                        // Boot Page to show logo  0
+  { MKSLCD_SCREEN_HOME, MKSList_Home },                       // Home, Page 1
+  { MKSLCD_SCREEN_SETTING, MKSList_Setting },                 // Setting, Page 2
+  { MKSLCD_SCREEM_TOOL, MKSList_Tool },                       // Page 3
+  { MKSLCD_SCREEN_EXTRUDE_P1, MKSList_EXTRUE },               // Page 4
+  { MKSLCD_SCREEN_EXTRUDE_P2, MKSList_EXTRUE },               // Page 11
+  { MKSLCD_PAUSE_SETTING_EX, MKSList_EXTRUE },                // Page 57
+  { MKSLCD_PAUSE_SETTING_EX2, MKSList_EXTRUE },               // Page 61
+  { MKSLCD_SCREEN_LEVEL, MKSList_LEVEL },                     // Page 5
+  { MKSLCD_SCREEN_MOVE, MKSList_MOVE },                       // Page 6
+  { MKSLCD_SCREEN_PRINT, MKSList_Print },                     // Page 7
+  { MKSLCD_SCREEN_PAUSE, MKSList_Print },                     // Page 26
+  { MKSLCD_SCREEN_CHOOSE_FILE, MKSList_SD_File },             // Page 15
+  { MKSLCD_SCREEN_MOTOR_PLUSE, MKSList_Pluse },               // Page 51
+  { MKSLCD_SCREEN_MOTOR_SPEED, MKSList_MaxSpeed },            // Page 55
+  { MKSLCD_SCREEN_MOTOR_ACC_MAX, MKSList_MaxAcc },            // Page 53
+  { MKSLCD_SCREEN_LEVEL_DATA, MKSList_Level_Point },          // Page 48
+  { MKSLCD_PrintPause_SET, MKSList_PrintPauseConfig },        // Page 49
+  { MKSLCD_FILAMENT_DATA, MKSList_SD_File },                  // Page 50
+  { MKSLCD_SCREEN_Config, MKSList_TempOnly },                 // Page 46
+  { MKSLCD_SCREEN_Config_MOTOR, MKSList_MotoConfig },         // Page 47
+  { MKSLCD_PID, MKSList_PID },                                // Page 56
+  { MKSLCD_ABOUT, MKSList_About },                            // Page 36
+  { MKSLCD_SCREEN_PRINT_CONFIG, MKSList_Level_PrintConfig },  // Page 60
+  { MKSLCD_SCREEN_EX_CONFIG, MKSList_EX_Config },             // Page 65
+  { MKSLCD_SCREEN_TMC_Config, MKSTMC_Config },                // Page 70
+  { MKSLCD_AUTO_LEVEL, MKSAuto_Level },                       // Page 73
+  { MKSLCD_Screen_Offset_Config, MKSOffset_Config },          // Page 30
+  { MKSLCD_Screen_PMove, MKSList_MOVE },                      // Page 64
+  { MKSLCD_Screen_Baby, MKSBabyStep },                        // Page 71
+  //{ MKSLCD_SCREEN_LEVEL_DATA, MKSList_SD_File},
+  //{ MKSLCD_SCREEN_HOME, VPList_Boot },
   { 0, nullptr } // List is terminated with an nullptr as table entry.
 };
 
@@ -730,16 +511,14 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_MOVE_Z, nullptr, &ScreenHandler.HandleManualMove, nullptr),
   VPHELPER(VP_HOME_ALL, nullptr, &ScreenHandler.HandleManualMove, nullptr),
 
-  #if ENABLED(DGUS_LCD_UI_MKS)
-    VPHELPER(VP_X_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
-    VPHELPER(VP_Y_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
-    VPHELPER(VP_Z_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
+  VPHELPER(VP_X_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
+  VPHELPER(VP_Y_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
+  VPHELPER(VP_Z_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
 
-    VPHELPER(VP_MOVE_DISTANCE, &distanceMove, &ScreenHandler.GetManualMovestep, nullptr),
+  VPHELPER(VP_MOVE_DISTANCE, &distanceMove, &ScreenHandler.GetManualMovestep, nullptr),
 
-    VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, &ScreenHandler.HandleManualMove, nullptr),
-    VPHELPER(VP_LEVEL_POINT, nullptr, &ScreenHandler.ManualAssistLeveling, nullptr),
-  #endif
+  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, &ScreenHandler.HandleManualMove, nullptr),
+  VPHELPER(VP_LEVEL_POINT, nullptr, &ScreenHandler.ManualAssistLeveling, nullptr),
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, &ScreenHandler.HandlePowerLossRecovery, nullptr),
@@ -818,17 +597,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Fan Data
   #if HAS_FAN
-    #if DISABLED(DGUS_LCD_UI_MKS)
-      #define FAN_VPHELPER(N)                                                                                                                                    \
-        VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], ScreenHandler.DGUSLCD_PercentageToUint8, &ScreenHandler.DGUSLCD_SendPercentageToDisplay), \
-        VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &ScreenHandler.HandleFanControl, nullptr),                                               \
-        VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, &ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
-    #else
-      #define FAN_VPHELPER(N)                                                                                                                    \
-        VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], ScreenHandler.DGUSLCD_SetUint8, &ScreenHandler.DGUSLCD_SendFanToDisplay), \
-        VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &ScreenHandler.HandleFanControl, nullptr),                               \
-        VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, &ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
-    #endif
+    #define FAN_VPHELPER(N)                                                                                                                    \
+      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], ScreenHandler.DGUSLCD_SetUint8, &ScreenHandler.DGUSLCD_SendFanToDisplay), \
+      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], &ScreenHandler.HandleFanControl, nullptr),                               \
+      VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, &ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
     REPEAT(FAN_COUNT, FAN_VPHELPER)
   #endif
 
@@ -855,130 +627,113 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
 
-  #if DISABLED(DGUS_LCD_UI_MKS)
-    // Print Time
-    VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay),
-  #else
-    VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay_MKS),
-  #endif
+  //LCD Control
+  VPHELPER(VP_LCD_BLK, &lcd_default_light, &ScreenHandler.LCD_BLK_Adjust, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  // Print Time
+  VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay_MKS),
 
   #if ENABLED(PRINTCOUNTER)
     VPHELPER_STR(VP_PrintAccTime, nullptr, VP_PrintAccTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintAccTimeToDisplay),
     VPHELPER_STR(VP_PrintsTotal, nullptr, VP_PrintsTotal_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintsTotalToDisplay),
   #endif
 
-  #if ENABLED(DGUS_LCD_UI_MKS)
-    VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], ScreenHandler.HandleStepPerMMChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
 
-    VPHELPER(VP_X_MAX_SPEED, &planner.settings.max_feedrate_mm_s[X_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_Y_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Y_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_X_MAX_SPEED, &planner.settings.max_feedrate_mm_s[X_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Y_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Y_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
 
-    #if HOTENDS >= 1
-      VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E0_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  #if HOTENDS >= 1
+    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E0_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  #endif
+  #if HOTENDS >= 2
+    VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E1_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  #endif
+
+  VPHELPER(VP_X_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[X_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Y_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Y_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Z_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Z_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if HOTENDS >= 1
+    VPHELPER(VP_E0_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E0_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
+  #if HOTENDS >= 2
+    VPHELPER(VP_E1_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E1_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
+
+  VPHELPER(VP_TRAVEL_SPEED, (uint16_t *)&planner.settings.travel_acceleration, ScreenHandler.HandleTravelAccChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_FEEDRATE_MIN_SPEED, (uint16_t *)&planner.settings.min_feedrate_mm_s, ScreenHandler.HandleFeedRateMinChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_T_F_SPEED, (uint16_t *)&planner.settings.min_travel_feedrate_mm_s, ScreenHandler.HandleMin_T_F_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_ACC_SPEED, (uint16_t *)&planner.settings.acceleration, ScreenHandler.HandleAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  VPHELPER(VP_X_PARK_POS, &x_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Y_PARK_POS, &y_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Z_PARK_POS, &z_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
+    #if AXIS_HAS_STEALTHCHOP(X)
+      VPHELPER(VP_TMC_X_STEP, &tmc_x_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
-    #if HOTENDS >= 2
-      VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E1_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    #if AXIS_HAS_STEALTHCHOP(Y)
+      VPHELPER(VP_TMC_Y_STEP, &tmc_y_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
-
-    VPHELPER(VP_X_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[X_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Y_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Y_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Z_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Z_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-
-    #if HOTENDS >= 1
-      VPHELPER(VP_E0_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E0_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    #if AXIS_HAS_STEALTHCHOP(Z)
+      VPHELPER(VP_TMC_Z_STEP, &tmc_z_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
-    #if HOTENDS >= 2
-      VPHELPER(VP_E1_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E1_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
+
+  #if HAS_TRINAMIC_CONFIG   // TMC Current Setting
+    #if AXIS_IS_TMC(X)
+      VPHELPER(VP_TMC_X_Current, &stepperX.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-
-    VPHELPER(VP_TRAVEL_SPEED, (uint16_t *)&planner.settings.travel_acceleration, ScreenHandler.HandleTravelAccChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_FEEDRATE_MIN_SPEED, (uint16_t *)&planner.settings.min_feedrate_mm_s, ScreenHandler.HandleFeedRateMinChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_T_F_SPEED, (uint16_t *)&planner.settings.min_travel_feedrate_mm_s, ScreenHandler.HandleMin_T_F_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-    VPHELPER(VP_ACC_SPEED, (uint16_t *)&planner.settings.acceleration, ScreenHandler.HandleAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-
-    VPHELPER(VP_X_PARK_POS, &x_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Y_PARK_POS, &y_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Z_PARK_POS, &z_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-
-    #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
-      #if AXIS_HAS_STEALTHCHOP(X)
-        VPHELPER(VP_TMC_X_STEP, &tmc_x_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Y)
-        VPHELPER(VP_TMC_Y_STEP, &tmc_y_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z)
-        VPHELPER(VP_TMC_Z_STEP, &tmc_z_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
-      #endif
+    #if AXIS_IS_TMC(Y)
+      VPHELPER(VP_TMC_Y_Current, &stepperY.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-
-    #if HAS_TRINAMIC_CONFIG   // TMC Current Setting
-      #if AXIS_IS_TMC(X)
-        VPHELPER(VP_TMC_X_Current, &stepperX.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(Y)
-        VPHELPER(VP_TMC_Y_Current, &stepperY.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(Z)
-        VPHELPER(VP_TMC_Z_Current, &stepperZ.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(E0)
-        VPHELPER(VP_TMC_E0_Current, &stepperE0.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(E1)
-        VPHELPER(VP_TMC_E1_Current, &stepperE1.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(X2)
-        VPHELPER(VP_TMC_X1_Current, &stepperX2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        VPHELPER(VP_TMC_Y1_Current, &stepperY2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
-      #if AXIS_IS_TMC(Z2)
-        VPHELPER(VP_TMC_Z1_Current, &stepperZ2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      #endif
+    #if AXIS_IS_TMC(Z)
+      VPHELPER(VP_TMC_Z_Current, &stepperZ.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-
-    VPHELPER(VP_EEPROM_CTRL, nullptr, ScreenHandler.EEPROM_CTRL, nullptr),
-    VPHELPER(VP_LEVEL_BUTTON, nullptr, ScreenHandler.Level_Ctrl_MKS, nullptr),
-    VPHELPER(VP_LANGUAGE_CHANGE, nullptr, ScreenHandler.LanguageChange_MKS, nullptr),
-
-    //VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, ScreenHandler.HandleLiveAdjustZ, nullptr),
-
-    VPHELPER(VP_SD_Print_LiveAdjustZ_Confirm, nullptr, ScreenHandler.ZoffsetConfirm, nullptr),
-
-    VPHELPER(VP_ZOffset_Distance,nullptr ,ScreenHandler.GetZoffsetDistance, nullptr),
-    VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, ScreenHandler.MeshLevelDistanceConfig, nullptr),
-    VPHELPER(VP_MESH_LEVEL_POINT,nullptr, ScreenHandler.MeshLevel,nullptr),
-    VPHELPER(VP_MESH_LEVEL_POINT_DIS,&current_position.z,nullptr,ScreenHandler.DGUSLCD_SendFloatByStringToDisplay),
-    VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_AutoTurnOffSw, nullptr, &ScreenHandler.GetTurnOffCtrl, nullptr),
-
-    #if HOTENDS >= 1
-      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], ScreenHandler.HandleStepPerMMExtruderChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    #if AXIS_IS_TMC(E0)
+      VPHELPER(VP_TMC_E0_Current, &stepperE0.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-    #if HOTENDS >= 2
-      VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], ScreenHandler.HandleStepPerMMExtruderChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    #if AXIS_IS_TMC(E1)
+      VPHELPER(VP_TMC_E1_Current, &stepperE1.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-
-  #else // !DGUS_LCD_UI_MKS
-
-    VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], ScreenHandler.HandleStepPerMMChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-    VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], ScreenHandler.HandleStepPerMMChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-    VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], ScreenHandler.HandleStepPerMMChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-
-    #if HOTENDS >= 1
-      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], ScreenHandler.HandleStepPerMMExtruderChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    #if AXIS_IS_TMC(X2)
+      VPHELPER(VP_TMC_X1_Current, &stepperX2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
-    #if HOTENDS >= 2
-      VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], ScreenHandler.HandleStepPerMMExtruderChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+    #if AXIS_IS_TMC(Y2)
+      VPHELPER(VP_TMC_Y1_Current, &stepperY2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
+    #if AXIS_IS_TMC(Z2)
+      VPHELPER(VP_TMC_Z1_Current, &stepperZ2.val_mA, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    #endif
+  #endif
 
-  #endif // !DGUS_LCD_UI_MKS
+  VPHELPER(VP_EEPROM_CTRL, nullptr, ScreenHandler.EEPROM_CTRL, nullptr),
+  VPHELPER(VP_LEVEL_BUTTON, nullptr, ScreenHandler.Level_Ctrl_MKS, nullptr),
+  VPHELPER(VP_LANGUAGE_CHANGE, nullptr, ScreenHandler.LanguageChange_MKS, nullptr),
+
+  //VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, ScreenHandler.HandleLiveAdjustZ, nullptr),
+
+  VPHELPER(VP_SD_Print_LiveAdjustZ_Confirm, nullptr, ScreenHandler.ZoffsetConfirm, nullptr),
+
+  VPHELPER(VP_ZOffset_Distance,nullptr ,ScreenHandler.GetZoffsetDistance, nullptr),
+  VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, ScreenHandler.MeshLevelDistanceConfig, nullptr),
+  VPHELPER(VP_MESH_LEVEL_POINT,nullptr, ScreenHandler.MeshLevel,nullptr),
+  VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_AutoTurnOffSw, nullptr, &ScreenHandler.GetTurnOffCtrl, nullptr),
+
+  #if HOTENDS >= 1
+    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], ScreenHandler.HandleStepPerMMExtruderChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  #endif
+  #if HOTENDS >= 2
+    VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], ScreenHandler.HandleStepPerMMExtruderChanged_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+  #endif
+
 
   // SDCard File listing
   #if ENABLED(SDSUPPORT)

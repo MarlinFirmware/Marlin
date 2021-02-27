@@ -232,12 +232,9 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "src/lcd/extui/lib/dgus/DGUSScreenHandler.h"
-  #include "src/lcd/extui/lib/dgus/DGUSDisplay.h"
-  #include "src/lcd/extui/lib/dgus/mks/DGUSDisplayDef.h"
+  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
-PGMSTR(NUL_STR, "");
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -395,14 +392,7 @@ void startOrResumeJob() {
     if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
-
-      #if ENABLED(DGUS_LCD_UI_MKS)
-        if (DGUSAutoTurnOff == 1) {
-          while (queue.length) queue.advance();
-          gcode.process_subcommands_now_P(PSTR("M81"));
-        }
-        ScreenHandler.GotoScreen(MKSLCD_SCREEN_PrintDone);
-      #endif
+      TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
   }
 
