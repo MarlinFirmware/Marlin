@@ -1136,10 +1136,7 @@ void setup() {
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)
-    #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-      if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
-    #endif
-    SETUP_RUN(caselight.update_brightness());
+    SETUP_RUN(caselight.init());
   #endif
 
   #if HAS_PRUSA_MMU1
