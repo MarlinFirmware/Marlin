@@ -1,9 +1,8 @@
 #
 # preflight-checks.py
-# Script to check for common issues prior to compiling
+# Check for common issues prior to compiling
 #
-import os
-import re
+import os,re
 Import("env")
 
 def get_envs_for_board(board):
