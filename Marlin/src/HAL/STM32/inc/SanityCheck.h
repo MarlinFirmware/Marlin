@@ -47,9 +47,9 @@
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on STM32."
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)
-  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
+  #error "SERIAL_STATS_DROPPED_RX is not supported on STM32."
 #endif
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32F4xx, STM32F1xx)

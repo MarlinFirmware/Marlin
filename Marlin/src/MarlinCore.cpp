@@ -36,6 +36,7 @@
 
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
+#include "HAL/shared/cpu_exception/exception_hook.h"
 
 #ifdef ARDUINO
   #include <pins_arduino.h>
@@ -406,7 +407,7 @@ void startOrResumeJob() {
  */
 inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
-  if (queue.length < BUFSIZE) queue.get_available_commands();
+  queue.get_available_commands();
 
   const millis_t ms = millis();
 
@@ -869,6 +870,9 @@ inline void tmc_standby_setup() {
  *    • Max7219
  */
 void setup() {
+  #ifdef BOARD_PREINIT
+    BOARD_PREINIT(); // Low-level init (before serial init)
+  #endif
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
@@ -934,6 +938,8 @@ void setup() {
     serial_connect_timeout = millis() + 1000UL;
     while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
+
+  TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(HAL_init());
 
