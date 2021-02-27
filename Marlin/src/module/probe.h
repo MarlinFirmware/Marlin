@@ -92,15 +92,15 @@ public:
        */
       static bool can_reach(const float &rx, const float &ry) {
         return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
-            && WITHIN(rx, min_x() - fslop, max_x() + fslop)
-            && WITHIN(ry, min_y() - fslop, max_y() + fslop);
+            && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
+            && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
       }
 
     #endif
 
     static void move_z_after_probing() {
       #ifdef Z_AFTER_PROBING
-        do_z_clearance(Z_AFTER_PROBING, true, true, true); // Move down still permitted
+        do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
       #endif
     }
     static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
@@ -120,7 +120,7 @@ public:
 
   static void move_z_after_homing() {
     #ifdef Z_AFTER_HOMING
-      do_z_clearance(Z_AFTER_HOMING, true, true, true);
+      do_z_clearance(Z_AFTER_HOMING, true);
     #elif BOTH(Z_AFTER_PROBING, HAS_BED_PROBE)
       move_z_after_probing();
     #endif
@@ -206,8 +206,8 @@ public:
         #if IS_KINEMATIC
           return HYPOT2(x, y) <= sq(probe_radius(default_probe_xy_offset));
         #else
-          return WITHIN(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
-              && WITHIN(y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
+          return COORDINATE_OKAY(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
+              && COORDINATE_OKAY(y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
         #endif
       }
 

@@ -407,7 +407,7 @@ void startOrResumeJob() {
  */
 inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
-  if (queue.length < BUFSIZE) queue.get_available_commands();
+  queue.get_available_commands();
 
   const millis_t ms = millis();
 
@@ -870,6 +870,9 @@ inline void tmc_standby_setup() {
  *    • Max7219
  */
 void setup() {
+  #ifdef BOARD_PREINIT
+    BOARD_PREINIT(); // Low-level init (before serial init)
+  #endif
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 

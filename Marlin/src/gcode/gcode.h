@@ -197,6 +197,7 @@
  * M303 - PID relay autotune S<temperature> sets the target temperature. Default 150C. (Requires PIDTEMP)
  * M304 - Set bed PID parameters P I and D. (Requires PIDTEMPBED)
  * M305 - Set user thermistor parameters R T and P. (Requires TEMP_SENSOR_x 1000)
+ * M309 - Set chamber PID parameters P I and D. (Requires PIDTEMPCHAMBER)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  * M355 - Set Case Light on/off and set brightness. (Requires CASE_LIGHT_PIN)
@@ -710,6 +711,8 @@ private:
   TERN_(PIDTEMPBED, static void M304());
 
   TERN_(HAS_USER_THERMISTORS, static void M305());
+
+  TERN_(PIDTEMPCHAMBER, static void M309());
 
   #if HAS_MICROSTEPS
     static void M350();
