@@ -62,6 +62,10 @@ extern uint16_t x_park_pos;
 extern uint16_t y_park_pos;
 extern uint16_t z_park_pos;
 
+extern xyz_pos_t position_before_pause;
+void MKS_pause_print_move();
+void MKS_resume_print_move();
+
 extern uint16_t min_ex_temp;
 
 extern float z_offset_add;

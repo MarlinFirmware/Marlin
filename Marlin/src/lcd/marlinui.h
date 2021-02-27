@@ -305,11 +305,6 @@ public:
     static void pause_print();
     static void resume_print();
 
-    #if ENABLED(DGUS_LCD_UI_MKS)
-      static void pause_print_move();
-      static void resume_print_move();
-    #endif
-
     #if HAS_WIRED_LCD
 
       static millis_t next_button_update_ms;

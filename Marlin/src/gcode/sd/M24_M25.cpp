@@ -41,6 +41,10 @@
   #include "../../feature/powerloss.h"
 #endif
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "../../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+#endif
+
 #include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
@@ -50,7 +54,7 @@ void GcodeSuite::M24() {
 
   #if ENABLED(DGUS_LCD_UI_MKS)
     if ((print_job_timer.isPaused() || print_job_timer.isRunning()) && !parser.seen("ST"))
-      ui.resume_print_move();
+      MKS_resume_print_move();
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -103,7 +107,7 @@ void GcodeSuite::M25() {
 
     print_job_timer.pause();
 
-    TERN_(DGUS_LCD_UI_MKS, ui.pause_print_move());
+    TERN_(DGUS_LCD_UI_MKS, MKS_pause_print_move());
 
     IF_DISABLED(DWIN_CREALITY_LCD, ui.reset_status());
 
