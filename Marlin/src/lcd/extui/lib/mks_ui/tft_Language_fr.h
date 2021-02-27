@@ -39,7 +39,6 @@
 #define MORE_LEDSTRIP_ALL_FR          "Toutes"
 #define MORE_LEDSTRIP_HELP_FR         "Appui long au centre pour autre mode"
 
-
 #define ADD_TEXT_FR                   "Ajouter"
 #define DEC_TEXT_FR                   "Réduire"
 #define EXTRUDER_1_TEXT_FR            "Extr1"

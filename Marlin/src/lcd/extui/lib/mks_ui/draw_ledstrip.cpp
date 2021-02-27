@@ -38,8 +38,7 @@ enum {
   ID_LEDSTRIP_RETURN = 1,
 };
 
-static void make_slider_label(int value)
-{
+static void make_slider_label(int value) {
   if (!value) lv_label_set_text(sliderLbl, more_menu.ledstrip_all);
   else {
     sprintf_P(public_buf_l, PSTR("%d"), value);
@@ -69,8 +68,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-
-
 void lv_draw_ledstrip() {
   scr = lv_screen_create(LEDSTRIP_UI, more_menu.ledstrip);
   // Create a label as an help
@@ -91,7 +88,6 @@ void lv_draw_ledstrip() {
   lv_style_copy(&style_main, lv_cpicker_get_style(cpicker, LV_CPICKER_STYLE_MAIN));
   style_main.line.width = 8;
   lv_cpicker_set_style(cpicker, LV_CPICKER_STYLE_MAIN, &style_main);
-
 
   lv_obj_set_event_cb(cpicker, event_handler);
 

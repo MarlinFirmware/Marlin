@@ -286,7 +286,6 @@
 #define MORE_LEDSTRIP_ALL_EN    "All"
 #define MORE_LEDSTRIP_HELP_EN   "Long press center to switch mode"
 
-
 #define ADD_TEXT_EN             "Add"
 #define DEC_TEXT_EN             "Dec"
 #define EXTRUDER_1_TEXT_EN      "Extrusion1"

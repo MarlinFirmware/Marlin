@@ -39,7 +39,6 @@
 #define MORE_LEDSTRIP_ALL_IT          "Tutti"
 #define MORE_LEDSTRIP_HELP_IT         "Premere a lungo il centro per cambiare modalità"
 
-
 #define ADD_TEXT_IT                   "Aumentare"
 #define DEC_TEXT_IT                   "Ridurre"
 #define EXTRUDER_1_TEXT_IT            "Estrude1"

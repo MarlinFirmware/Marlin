@@ -53,10 +53,10 @@ enum {
   #if HAS_USER_ITEM(5)
     ID_CUSTOM_5,
   #endif
-  #if HAS_USER_ITEM(6)
+  #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
     ID_CUSTOM_6,
   #endif
-  ID_M_RETURN,
+  ID_M_RETURN
 };
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
@@ -81,7 +81,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if HAS_USER_ITEM(5)
       case ID_CUSTOM_5: queue.inject_P(PSTR(USER_GCODE_5)); break;
     #endif
-    #if HAS_USER_ITEM(6) && !ENABLED(NEOPIXEL_LED)
+    #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
       case ID_CUSTOM_6: queue.inject_P(PSTR(USER_GCODE_6)); break;
     #endif
     case ID_M_RETURN:
@@ -148,7 +148,7 @@ void lv_draw_more() {
     lv_obj_t *labelCustom5 = lv_label_create_empty(buttonCustom5);
   #endif
 
-  #if HAS_USER_ITEM(6) && !ENABLED(NEOPIXEL_LED)
+  #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
     lv_obj_t *buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_6);
     if (enc_ena) lv_group_add_obj(g, buttonCustom6);
     lv_obj_t *labelCustom6 = lv_label_create_empty(buttonCustom6);
@@ -187,7 +187,7 @@ void lv_draw_more() {
       lv_label_set_text(labelCustom5, more_menu.custom5);
       lv_obj_align(labelCustom5, buttonCustom5, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     #endif
-    #if HAS_USER_ITEM(6) && !ENABLED(NEOPIXEL_LED)
+    #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
       lv_label_set_text(labelCustom6, more_menu.custom6);
       lv_obj_align(labelCustom6, buttonCustom6, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     #endif
@@ -216,7 +216,7 @@ void lv_draw_more() {
       #if HAS_USER_ITEM(5)
         lv_group_add_obj(g, buttonCustom5);
       #endif
-      #if HAS_USER_ITEM(6) && !ENABLED(NEOPIXEL_LED)
+      #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
         lv_group_add_obj(g, buttonCustom6);
       #endif
       lv_group_add_obj(g, buttonBack);
