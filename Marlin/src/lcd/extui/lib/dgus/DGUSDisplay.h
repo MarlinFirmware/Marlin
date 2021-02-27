@@ -21,7 +21,9 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplay.h
+ */
 
 #include "../../../../inc/MarlinConfigPre.h"
 
@@ -34,6 +36,7 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
+//#define DEBUG_DGUSLCD
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../../core/debug_out.h"
 
@@ -60,6 +63,8 @@ public:
   static void WriteVariable(uint16_t adr, uint8_t value);
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
+  static void MKS_WriteVariable(uint16_t adr, uint8_t value);
+
 
   // Utility functions for bridging ui_api and dbus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>

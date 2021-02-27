@@ -1231,13 +1231,13 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
 
   while (1) {
     char_byte_num = source[i] & 0xF0;
-    if (source[i] < 0X80) {
+    if (source[i] < 0x80) {
       //ASCII --1byte
       FileName_unicode[char_i] = source[i];
       i += 1;
       char_i += 1;
     }
-    else if (char_byte_num == 0XC0 || char_byte_num == 0XD0) {
+    else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) {
       //--2byte
       u16_h = (((uint16_t)source[i] << 8) & 0x1F00) >> 2;
       u16_l = ((uint16_t)source[i + 1] & 0x003F);
@@ -1247,7 +1247,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 2;
       char_i += 2;
     }
-    else if (char_byte_num == 0XE0) {
+    else if (char_byte_num == 0xE0) {
       //--3byte
       u16_h = (((uint16_t)source[i] << 8) & 0x0F00) << 4;
       u16_m = (((uint16_t)source[i + 1] << 8) & 0x3F00) >> 2;
@@ -1258,7 +1258,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 3;
       char_i += 2;
     }
-    else if (char_byte_num == 0XF0) {
+    else if (char_byte_num == 0xF0) {
       //--4byte
       i += 4;
       //char_i += 3;

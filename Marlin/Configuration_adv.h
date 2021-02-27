@@ -1517,12 +1517,12 @@
 
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
 
-  #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+  #if ANY(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_MKS, DGUS_LCD_UI_HIPRECY)
     #define DGUS_PRINT_FILENAME           // Display the filename during printing
     #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
 
-    #if ENABLED(DGUS_LCD_UI_FYSETC)
-      //#define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for UI_FYSETC
+    #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_MKS)
+      //#define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for FYSETC and MKS
     #else
       #define DGUS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
     #endif

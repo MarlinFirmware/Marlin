@@ -283,7 +283,7 @@ void CommonHandler_C(ContextStateFrame * frame, unsigned long lr, unsigned long 
     savedFrame.CFSR = 0;
 
     frame->pc = (uint32_t)resume_from_fault; // Patch where to return to
-    frame->lr = 0xdeadbeef;  // If our handler returns (it shouldn't), let's make it trigger an exception immediately
+    frame->lr = 0xDEADBEEF;  // If our handler returns (it shouldn't), let's make it trigger an exception immediately
     frame->xpsr = _BV(24);   // Need to clean the PSR register to thumb II only
     MinSerial::force_using_default_output = true;
     return; // The CPU will resume in our handler hopefully, and we'll try to use default serial output
