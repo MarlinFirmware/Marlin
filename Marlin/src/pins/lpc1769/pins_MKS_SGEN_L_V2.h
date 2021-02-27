@@ -241,103 +241,28 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-#if IS_TFTGLCD_PANEL
 
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS                     P3_25
-  #endif
+   #if ENABLED(ZONESTAR_12864LCD)
+   #define	LCDSCREEN_NAME		"ZONESTAR LCD12864"
+#define LCD_PINS_RS 		P0_16 	//7 CS make sure for zonestar zm3e4!
+#define LCD_PINS_ENABLE 	P0_15		//6 DATA make sure for zonestar zm3e4!
+#define LCD_PINS_D4 		P0_18    //8 SCK make sure for zonestar zm3e4!
+#define LCD_PINS_D5 		-1    	//mosi
+#define LCD_PINS_D6 		-1      
+#define LCD_PINS_D7 		-1
+#define LCD_RESET_PIN       -1
 
-  #define SD_DETECT_PIN                    P0_27
-
-#elif HAS_WIRED_LCD
-
-  #define BEEPER_PIN                       P1_31
-  #define BTN_ENC                          P1_30
-
-  #if ENABLED(CR10_STOCKDISPLAY)
-
-    #define LCD_PINS_RS                    P1_00
-
-    #define BTN_EN1                        P0_18
-    #define BTN_EN2                        P0_15
-
-    #define LCD_PINS_ENABLE                P1_22
-    #define LCD_PINS_D4                    P0_17
-
-  #else
-
-    #define BTN_EN1                        P3_25
-    #define BTN_EN2                        P3_26
-
-    #define LCD_SDSS                       P0_28
-
-    #if ENABLED(MKS_12864OLED_SSD1306)
-
-      #define LCD_PINS_DC                  P0_17
-      #define DOGLCD_CS                    P0_16
-      #define DOGLCD_A0              LCD_PINS_DC
-      #define DOGLCD_SCK                   P0_15
-      #define DOGLCD_MOSI                  P0_18
-
-      #define LCD_PINS_RS                  P1_00
-      #define LCD_PINS_D7                  P1_22
-      #define KILL_PIN                     -1     // NC
-
-    #else                                         // !MKS_12864OLED_SSD1306
-
-      #define LCD_PINS_RS                  P0_16
-
-      #define LCD_PINS_ENABLE              P0_18
-      #define LCD_PINS_D4                  P0_15
-
-      #if ENABLED(FYSETC_MINI_12864)
-
-        #define DOGLCD_CS                  P0_18
-        #define DOGLCD_A0                  P0_16
-        #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P1_20
-
-        #define LCD_BACKLIGHT_PIN          -1
-
-        #define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
-
-        #define LCD_RESET_PIN              P0_15  // Must be high or open for LCD to operate normally.
-
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-          #ifndef RGB_LED_R_PIN
-            #define RGB_LED_R_PIN          P0_17
-          #endif
-          #ifndef RGB_LED_G_PIN
-            #define RGB_LED_G_PIN          P1_00
-          #endif
-          #ifndef RGB_LED_B_PIN
-            #define RGB_LED_B_PIN          P1_22
-          #endif
-        #elif ENABLED(FYSETC_MINI_12864_2_1)
-          #define NEOPIXEL_PIN             P0_17
-        #endif
-
-      #else                                       // !FYSETC_MINI_12864
-
-        #if ENABLED(MKS_MINI_12864)
-          #define DOGLCD_CS                P0_17
-          #define DOGLCD_A0                P1_00
-        #endif
-
-        #if ENABLED(ULTIPANEL)
-          #define LCD_PINS_D5              P0_17
-          #define LCD_PINS_D6              P1_00
-          #define LCD_PINS_D7              P1_22
-        #endif
-
-      #endif // !FYSETC_MINI_12864
-
-    #endif // !MKS_12864OLED_SSD1306
-
-  #endif // !CR10_STOCKDISPLAY
-
-#endif // HAS_WIRED_LCD
+#define BEEPER_PIN          P1_31
+#define KILL_PIN          	-1
+#define BTN_EN1 			P0_17
+#define BTN_EN2 			P1_00
+#define BTN_ENC 			P1_22
+	
+#define DOGLCD_A0           -1
+#define DOGLCD_CS           -1
+#define DOGLCD_MOSI         -1
+#define DOGLCD_SCK          -1
+#endif
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
