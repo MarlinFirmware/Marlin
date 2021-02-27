@@ -259,7 +259,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
-      TERN_(HOST_PROMPT_SUPPORT, filament_load_host_prompt()); // Initiate another host prompt. (NOTE: host_response_handler may also do this!)
+      TERN_(HOST_PROMPT_SUPPORT, filament_load_host_prompt()); // Initiate another host prompt.
 
       #if HAS_LCD_MENU
         if (show_lcd) {
