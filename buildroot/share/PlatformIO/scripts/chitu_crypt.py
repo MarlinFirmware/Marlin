@@ -1,5 +1,6 @@
 #
 # chitu_crypt.py
+# Customizations for Chitu boards
 #
 Import("env")
 import os,random,struct,uuid

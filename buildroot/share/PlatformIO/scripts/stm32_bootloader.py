@@ -1,3 +1,6 @@
+#
+# stm32_bootloader.py
+#
 import os,sys,shutil
 Import("env")
 

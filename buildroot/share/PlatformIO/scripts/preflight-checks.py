@@ -1,6 +1,6 @@
 #
 # preflight-checks.py
-# Script to check for common issues prior to compiling
+# Check for common issues prior to compiling
 #
 import os,re
 Import("env")
