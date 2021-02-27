@@ -51,7 +51,7 @@
   // Use hardware cycle counter instead, it's much safer
   void delay_dwt(uint32_t count) {
     // Reuse the ASM_CYCLES_PER_ITERATION variable to avoid wasting another useless variable
-    register uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
+    uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
     do {
       elapsed = HW_REG(_DWT_CYCCNT) - start;
     } while (elapsed < count);
@@ -114,7 +114,7 @@
         serialprintPGM(unit);
         SERIAL_ECHOLNPAIR(" took: ", total);
         serialprintPGM(unit);
-        if (do_flush) SERIAL_FLUSH();
+        if (do_flush) SERIAL_FLUSHTX();
       };
 
       uint32_t s, e;

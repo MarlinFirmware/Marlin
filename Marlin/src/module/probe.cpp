@@ -401,14 +401,7 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool z_raise_wanted = true;
   #endif
 
-  // For beds that fall when Z is powered off only raise for trusted Z
-  #if ENABLED(UNKNOWN_Z_NO_RAISE)
-    const bool z_is_trusted = axis_is_trusted(Z_AXIS);
-  #else
-    constexpr float z_is_trusted = true;
-  #endif
-
-  if (z_is_trusted && z_raise_wanted)
+  if (z_raise_wanted)
     do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
@@ -476,6 +469,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 
   #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
     thermalManager.wait_for_bed_heating();
+  #endif
+
+  #if BOTH(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
+    thermalManager.wait_for_hotend_heating(active_extruder);
   #endif
 
   if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
