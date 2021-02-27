@@ -108,18 +108,18 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_filament_change() {
   scr = lv_screen_create(FILAMENTCHANGE_UI);
   // Create an Image button
-  lv_obj_t *buttonIn = lv_big_button_create(scr, "F:/bmp_in.bin", filament_menu.in, INTERVAL_V, titleHeight, event_handler, ID_FILAMNT_IN);
+  lv_obj_t *buttonIn = lv_big_button_create(scr, "F:/bmp_in.bin", filament_menu.in, BUTTON_X(0), BUTTON_Y(0), event_handler, ID_FILAMNT_IN);
   lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
-  lv_big_button_create(scr, "F:/bmp_out.bin", filament_menu.out, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_FILAMNT_OUT);
+  lv_big_button_create(scr, "F:/bmp_out.bin", filament_menu.out, BUTTON_X(3), BUTTON_Y(0), event_handler, ID_FILAMNT_OUT);
 
-  buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_TYPE);
+  buttonType = lv_imgbtn_create(scr, nullptr, BUTTON_X(0), BUTTON_Y(1), event_handler, ID_FILAMNT_TYPE);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonType);
     }
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_RETURN);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BUTTON_X(3), BUTTON_Y(1), event_handler, ID_FILAMNT_RETURN);
 
   // Create labels on the image buttons
   labelType = lv_label_create_empty(buttonType);

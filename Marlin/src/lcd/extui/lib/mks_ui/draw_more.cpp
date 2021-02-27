@@ -98,24 +98,24 @@ void lv_draw_more() {
 
   int offsetX = 0, offsetY = 0;
 
-  lv_obj_t *buttonGCode = lv_imgbtn_create(scr, "F:/bmp_machine_para.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_GCODE);
+  lv_obj_t *buttonGCode = lv_imgbtn_create(scr, "F:/bmp_machine_para.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_GCODE);
   if (enc_ena) lv_group_add_obj(g, buttonGCode);
   lv_obj_t *labelGCode = lv_label_create_empty(buttonGCode);
 
   #if ENABLED(NEOPIXEL_LED)
-    lv_obj_t *buttonLedstrip = lv_imgbtn_create(scr, "F:/bmp_rgbstrip.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_LEDSTRIP);
+    lv_obj_t *buttonLedstrip = lv_imgbtn_create(scr, "F:/bmp_rgbstrip.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_LEDSTRIP);
     if (enc_ena) lv_group_add_obj(g, buttonLedstrip);
     lv_obj_t *labelLedstrip = lv_label_create_empty(buttonLedstrip);
   #endif
 
   #if HAS_USER_ITEM(1)
-    lv_obj_t *buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_1);
+    lv_obj_t *buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_1);
     if (enc_ena) lv_group_add_obj(g, buttonCustom1);
     lv_obj_t *labelCustom1 = lv_label_create_empty(buttonCustom1);
   #endif
 
   #if HAS_USER_ITEM(2)
-    lv_obj_t *buttonCustom2 = lv_imgbtn_create(scr, "F:/bmp_custom2.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_2);
+    lv_obj_t *buttonCustom2 = lv_imgbtn_create(scr, "F:/bmp_custom2.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_2);
     if (enc_ena) lv_group_add_obj(g, buttonCustom2);
     lv_obj_t *labelCustom2 = lv_label_create_empty(buttonCustom2);
   #endif
@@ -126,7 +126,7 @@ void lv_draw_more() {
   }
 
   #if HAS_USER_ITEM(3)
-    lv_obj_t *buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_3);
+    lv_obj_t *buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_3);
     if (enc_ena) lv_group_add_obj(g, buttonCustom3);
     lv_obj_t *labelCustom3 = lv_label_create_empty(buttonCustom3);
   #endif
@@ -137,24 +137,24 @@ void lv_draw_more() {
   }
 
   #if HAS_USER_ITEM(4)
-    lv_obj_t *buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_4);
+    lv_obj_t *buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_4);
     if (enc_ena) lv_group_add_obj(g, buttonCustom4);
     lv_obj_t *labelCustom4 = lv_label_create_empty(buttonCustom4);
   #endif
 
   #if HAS_USER_ITEM(5)
-    lv_obj_t *buttonCustom5 = lv_imgbtn_create(scr, "F:/bmp_custom5.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_5);
+    lv_obj_t *buttonCustom5 = lv_imgbtn_create(scr, "F:/bmp_custom5.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_5);
     if (enc_ena) lv_group_add_obj(g, buttonCustom5);
     lv_obj_t *labelCustom5 = lv_label_create_empty(buttonCustom5);
   #endif
 
   #if HAS_USER_ITEM(6) && DISABLED(NEOPIXEL_LED)
-    lv_obj_t *buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", (offsetX++) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V, offsetY * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight, event_handler, ID_CUSTOM_6);
+    lv_obj_t *buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_6);
     if (enc_ena) lv_group_add_obj(g, buttonCustom6);
     lv_obj_t *labelCustom6 = lv_label_create_empty(buttonCustom6);
   #endif
 
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_RETURN);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BUTTON_X(3), BUTTON_Y(1), event_handler, ID_M_RETURN);
   if (enc_ena) lv_group_add_obj(g, buttonBack);
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 

@@ -125,8 +125,8 @@
 
   #define FILE_BTN_CNT        6
 
-  #define OTHER_BTN_XPIEL   117
-  #define OTHER_BTN_YPIEL    92
+  #define OTHER_BTN_X_PIXEL   117
+  #define OTHER_BTN_Y_PIXEL    92
 
   #define FILE_PRE_PIC_X_OFFSET 8
   #define FILE_PRE_PIC_Y_OFFSET 0
@@ -542,3 +542,9 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue);
 
 #define _DIA_1(T)       (uiCfg.dialogType == DIALOG_##T)
 #define DIALOG_IS(V...) DO(DIA,||,V)
+
+#define BUTTON_X(N) ((N) * (BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V)
+#define BUTTON_Y(N) ((N) * (BTN_Y_PIXEL + INTERVAL_H) + titleHeight)
+
+#define OTHER_BUTTON_X(N) ((N) * (OTHER_BTN_X_PIXEL + INTERVAL_V) + INTERVAL_V)
+#define OTHER_BUTTON_Y(N) ((N) * (OTHER_BTN_Y_PIXEL + INTERVAL_H) + titleHeight)

@@ -157,11 +157,11 @@ void lv_draw_preHeat() {
   scr = lv_screen_create(PRE_HEAT_UI);
 
   // Create image buttons
-  lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
-  lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+  lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, BUTTON_X(0), BUTTON_Y(0), event_handler, ID_P_ADD);
+  lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BUTTON_X(3), BUTTON_Y(0), event_handler, ID_P_DEC);
 
-  buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_TYPE);
-  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
+  buttonType = lv_imgbtn_create(scr, nullptr, BUTTON_X(0), BUTTON_Y(1), event_handler, ID_P_TYPE);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BUTTON_X(1), BUTTON_Y(1), event_handler, ID_P_STEP);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonType);
@@ -169,8 +169,8 @@ void lv_draw_preHeat() {
     }
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_speed0.bin", preheat_menu.off, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_OFF);
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_RETURN);
+  lv_big_button_create(scr, "F:/bmp_speed0.bin", preheat_menu.off, BUTTON_X(2), BUTTON_Y(1), event_handler, ID_P_OFF);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BUTTON_X(3), BUTTON_Y(1), event_handler, ID_P_RETURN);
 
   // Create labels on the image buttons
   labelType = lv_label_create_empty(buttonType);

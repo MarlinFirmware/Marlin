@@ -70,9 +70,9 @@ void lv_draw_wifi() {
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
     if (gCfgItems.cloud_enable)
-      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL+INTERVAL_V*2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_CLOUD);
+      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL+INTERVAL_V*2, BUTTON_Y(1), event_handler, ID_W_CLOUD);
 
-    buttonReconnect = lv_imgbtn_create(scr, "F:/bmp_wifi.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RECONNECT);
+    buttonReconnect = lv_imgbtn_create(scr, "F:/bmp_wifi.bin", BUTTON_X(2), BUTTON_Y(1), event_handler, ID_W_RECONNECT);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.cloud_enable) lv_group_add_obj(g, buttonCloud);
@@ -84,7 +84,7 @@ void lv_draw_wifi() {
   }
 
   // Create an Image button
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RETURN);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BUTTON_X(3), BUTTON_Y(1), event_handler, ID_W_RETURN);
   if (enc_ena) lv_group_add_obj(g, buttonBack);
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 

@@ -81,7 +81,7 @@ void lv_update_touch_calibration_screen() {
     // end calibration
     str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED);
     touch_calibration.calibration_end();
-    lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_TC_RETURN);
+    lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BUTTON_X(3), BUTTON_Y(1), event_handler, ID_TC_RETURN);
   }
 
   // draw current message
