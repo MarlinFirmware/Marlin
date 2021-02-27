@@ -378,3 +378,9 @@ inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
+
+// Aditional Aux Host Support
+void Host_Print_Update(uint8_t percent, uint32_t remaining);
+void Host_Print_Text(char * const text);
+void Start_Print(bool sd);
+void Stop_Print();

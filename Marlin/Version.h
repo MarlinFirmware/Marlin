@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.7.3 M.A.R.C."       // M.A.R.C.
+#define SHORT_BUILD_VERSION "2.0.7.3 M.A.R.C."  // M.A.R.C.
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -41,14 +41,13 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-
 #define STRING_DISTRIBUTION_DATE __DATE__       // M.A.R.C. Set Automatic Distribution Date
 #define STRING_DISTRIBUTION_TIME __TIME__       // M.A.R.C. Set Automatic Distribution Time
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "Ender 3 v2"
+//#define MACHINE_NAME "3D Printer"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source

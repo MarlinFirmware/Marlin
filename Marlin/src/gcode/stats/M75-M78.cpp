@@ -26,11 +26,16 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 /**
  * M75: Start print timer
  */
 void GcodeSuite::M75() {
   startOrResumeJob();
+  TERN_(DWIN_CREALITY_LCD, Start_Print(false));
 }
 
 /**
@@ -45,6 +50,7 @@ void GcodeSuite::M76() {
  */
 void GcodeSuite::M77() {
   print_job_timer.stop();
+  TERN_(DWIN_CREALITY_LCD, Stop_Print());
 }
 
 #if ENABLED(PRINTCOUNTER)

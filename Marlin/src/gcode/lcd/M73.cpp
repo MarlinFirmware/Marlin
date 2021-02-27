@@ -34,6 +34,14 @@
  * Example:
  *   M73 P25 ; Set progress to 25%
  */
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/e3v2/dwin.h"
+
+  void GcodeSuite::M73() {
+    Host_Print_Update(parser.seen('P') ? parser.value_byte() : 0, parser.seen('R') ? parser.value_ulong() : 0);
+  }
+#else
 void GcodeSuite::M73() {
   if (parser.seen('P'))
     ui.set_progress((PROGRESS_SCALE) > 1
@@ -44,5 +52,6 @@ void GcodeSuite::M73() {
     if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
   #endif
 }
+#endif
 
 #endif // LCD_SET_PROGRESS_MANUALLY
