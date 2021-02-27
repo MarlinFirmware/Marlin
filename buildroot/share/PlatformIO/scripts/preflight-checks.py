@@ -1,6 +1,6 @@
 #
 # preflight-checks.py
-# Script to check for common issues prior to compiling
+# Check for common issues prior to compiling
 #
 import os
 import re
@@ -25,9 +25,12 @@ def check_envs(build_env, base_envs, config):
         return True
     ext = config.get(build_env, 'extends', default=None)
     if ext:
-        for ext_env in ext:
-            if check_envs(ext_env, base_envs, config):
-                return True
+        if isinstance(ext, str):
+            return check_envs(ext, base_envs, config)
+        elif isinstance(ext, list):
+            for ext_env in ext:
+                if check_envs(ext_env, base_envs, config):
+                    return True
     return False
 
 # Sanity checks:
@@ -56,7 +59,7 @@ if not result:
 # Check for Config files in two common incorrect places
 #
 for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
-	for f in [ "Configuration.h", "Configuration_adv.h" ]:
-		if os.path.isfile(os.path.join(p, f)):
-			err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
-			raise SystemExit(err)
+    for f in [ "Configuration.h", "Configuration_adv.h" ]:
+        if os.path.isfile(os.path.join(p, f)):
+            err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
+            raise SystemExit(err)
