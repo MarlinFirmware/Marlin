@@ -506,6 +506,15 @@
   #define NEED_HEX_PRINT 1
 #endif
 
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
