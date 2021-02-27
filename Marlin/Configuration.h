@@ -492,9 +492,9 @@
     #define DEFAULT_Ki_LIST {   6.33,   6.33 }
     #define DEFAULT_Kd_LIST {  95.60,  95.60 }
   #else
-    #define DEFAULT_Kp 19.28
-    #define DEFAULT_Ki  1.17
-    #define DEFAULT_Kd 79.28
+    #define DEFAULT_Kp 19.56
+    #define DEFAULT_Ki  1.93
+    #define DEFAULT_Kd 49.50
   #endif
 #endif // PIDTEMP
 
@@ -533,9 +533,9 @@
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 277.22
-  #define DEFAULT_bedKi 52.70
-  #define DEFAULT_bedKd 972.12
+  #define DEFAULT_bedKp 26.10
+  #define DEFAULT_bedKi 1.76
+  #define DEFAULT_bedKd 257.64
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -736,7 +736,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 294 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 412.92 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1120,8 +1120,8 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
-#define INVERT_Y_DIR true
+#define INVERT_X_DIR false
+#define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
 
 // @section extruder
@@ -1156,16 +1156,16 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 300
-#define Y_BED_SIZE 300
+#define X_BED_SIZE 310
+#define Y_BED_SIZE 236 // should be 310, but compensating for bad y axis belt tightener until i can print a new one
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -10
-#define Y_MIN_POS -17
+#define X_MIN_POS -5.5
+#define Y_MIN_POS -13
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 365
+#define Z_MAX_POS 350
 
 /**
  * Software Endstops
