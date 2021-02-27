@@ -20,7 +20,7 @@ exec_test () {
   if [[ -z "$VERBOSE_PLATFORMIO" ]] ; then
     silent="--silent"
   else
-    silent=""
+    silent="-v"
   fi
   if platformio run --project-dir $1 -e $2 $silent; then
     printf "\033[0;32mPassed\033[0m\n"

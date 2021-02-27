@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+#
+# build_all_examples base_branch [resume_point]
+#
+
+GITREPO=https://github.com/MarlinFirmware/Configurations.git
+STAT_FILE=./.pio/.buildall
+
+# Check dependencies
+which curl 1>/dev/null 2>&1 || { echo "curl not found! Please install it."; exit ; }
+which git 1>/dev/null 2>&1 || { echo "git not found! Please install it."; exit ; }
+
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
+[[ -z "$SED" ]] && { echo "No sed found, please install sed" ; exit 1 ; }
+
+SELF=`basename "$0"`
+HERE=`dirname "$0"`
+
+# Check if called in the right location
+[[ -e "Marlin/src" ]] || { echo -e "This script must be called from a Marlin working copy with:\n ./buildroot/bin/$SELF $1" ; exit ; }
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "Usage: $SELF base_branch [resume_point]
+  base_branch  - Configuration branch to download and build
+  resume_point - Configuration path to start from"
+  exit
+fi
+
+echo "This script downloads all Configurations and builds Marlin with each one."
+echo "On failure the last-built configs will be left in your working copy."
+echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
+
+# If -c is given start from the last attempted build
+if [[ $1 == '-c' ]]; then
+  if [[ -f "$STAT_FILE" ]]; then
+    read BRANCH FIRST_CONF <"$STAT_FILE"
+  else
+    echo "Nothing to continue"
+    exit
+  fi
+else
+  BRANCH=${1:-"import-2.0.x"}
+  FIRST_CONF=$2
+fi
+
+# Check if the current repository has unmerged changes
+if [[ -z "$FIRST_CONF" ]]; then
+  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit ; }
+else
+  echo "Resuming from $FIRST_CONF"
+fi
+
+# Create a temporary folder inside .pio
+TMP=./.pio/build-$BRANCH
+[[ -d "$TMP" ]] || mkdir -p $TMP
+
+# Download Configurations into the temporary folder
+if [[ ! -e "$TMP/README.md" ]]; then
+  echo "Downloading Configurations from GitHub into $TMP"
+  git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$TMP" || { echo "Failed to clone the configuration repository"; exit ; }
+else
+  echo "Using previously downloaded Configurations at $TMP"
+fi
+
+echo -e "Start building now...\n====================="
+shopt -s nullglob
+IFS='
+'
+CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/config/examples/*/*/*/ "$TMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
+for CONF in $CONF_TREE ; do
+  DIR=$( echo $CONF | sed "s|$TMP/config/examples/||" )
+  [[ ! -z $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
+  unset FIRST_CONF
+  compgen -G "${CONF}Con*.h" > /dev/null || continue
+  echo -e "$BRANCH\n$DIR" >"$STAT_FILE"
+  "$HERE/build_example" "internal" "$TMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
+done
+
+# Delete the temp folder and build state
+[[ -e "$TMP/config/examples" ]] && rm -rf "$TMP"
+rm "$STAT_FILE"

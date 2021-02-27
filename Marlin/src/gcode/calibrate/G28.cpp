@@ -96,7 +96,7 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
+    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
@@ -241,7 +241,7 @@ void GcodeSuite::G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-    IF_ENABLED(RESTORE_LEVELING_AFTER_G28, const bool leveling_restore_state = planner.leveling_active);
+    const bool leveling_restore_state = parser.boolval('L', TERN(RESTORE_LEVELING_AFTER_G28, planner.leveling_active, ENABLED(ENABLE_LEVELING_AFTER_G28)));
     IF_ENABLED(PROBE_MANUALLY, g29_in_progress = false); // Cancel the active G29 session
     set_bed_leveling_enabled(false);
   #endif
@@ -326,14 +326,13 @@ void GcodeSuite::G28() {
 
     #endif
 
-    const float z_homing_height = TERN1(UNKNOWN_Z_NO_RAISE, axis_is_trusted(Z_AXIS))
-                                  ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-                                  : 0;
+    const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
     if (z_homing_height && (doX || doY || TERN0(Z_SAFE_HOMING, doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height, axis_is_trusted(Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
+      do_z_clearance(z_homing_height);
+      TERN_(BLTOUCH, bltouch.init());
     }
 
     #if ENABLED(QUICK_HOME)
@@ -386,7 +385,6 @@ void GcodeSuite::G28() {
           stepper.set_separate_multi_axis(false);
         #endif
 
-        TERN_(BLTOUCH, bltouch.init());
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
         probe.move_z_after_homing();
       }
@@ -440,8 +438,7 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  IF_ENABLED(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
-  IF_ENABLED(ENABLE_LEVELING_AFTER_G28, set_bed_leveling_enabled(true));
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_restore_state));
 
   restore_feedrate_and_scaling();
 

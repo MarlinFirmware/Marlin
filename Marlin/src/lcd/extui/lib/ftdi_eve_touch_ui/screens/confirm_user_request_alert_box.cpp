@@ -21,11 +21,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
 
 using namespace FTDI;
 
@@ -36,18 +35,31 @@ void ConfirmUserRequestAlertBox::onRedraw(draw_mode_t mode) {
 bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      ExtUI::setUserConfirmed();
-      GOTO_PREVIOUS();
+      if (ExtUI::isPrintingPaused()) {
+        // The TuneMenu will call ExtUI::setUserConfirmed()
+        GOTO_SCREEN(TuneMenu);
+        current_screen.forget();
+      }
+      else {
+        ExtUI::setUserConfirmed();
+        GOTO_PREVIOUS();
+      }
       return true;
     case 2: GOTO_PREVIOUS(); return true;
     default:                 return false;
   }
 }
 
+void ConfirmUserRequestAlertBox::onIdle() {
+  if (!ExtUI::awaitingUserConfirm()) {
+    hide();
+  }
+}
+
 void ConfirmUserRequestAlertBox::show(const char* msg) {
   drawMessage(msg);
   storeBackground();
-  screen_data.AlertDialog.isError = false;
+  screen_data.AlertDialogBox.isError = false;
   GOTO_SCREEN(ConfirmUserRequestAlertBox);
 }
 
@@ -56,4 +68,4 @@ void ConfirmUserRequestAlertBox::hide() {
     GOTO_PREVIOUS();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
