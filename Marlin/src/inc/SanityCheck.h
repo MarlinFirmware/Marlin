@@ -539,6 +539,10 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
+#elif defined(UNKNOWN_Z_NO_RAISE)
+  #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
+#elif defined(Z_AFTER_DEACTIVATE)
+  #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
 #endif
 
 /**
@@ -1201,6 +1205,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if BOTH(PIDTEMPBED, BED_LIMIT_SWITCHING)
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
+#endif
+
+/**
+ * Chamber Heating Options - PID vs Limit Switching
+ */
+#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+  #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
 #endif
 
 /**
@@ -2009,39 +2020,41 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
 #define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
-// At least 3 endstop plugs must be used
-#if _AXIS_PLUG_UNUSED_TEST(X)
-  #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Y)
-  #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Z)
-  #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
-#endif
-
-// Delta and Cartesian use 3 homing endstops
-#if NONE(IS_SCARA, SPI_ENDSTOPS)
-  #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
-    #error "Enable USE_XMIN_PLUG when homing X to MIN."
-  #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
-    #error "Enable USE_XMAX_PLUG when homing X to MAX."
-  #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
-    #error "Enable USE_YMIN_PLUG when homing Y to MIN."
-  #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
-    #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+// A machine with endstops must have a minimum of 3
+#if HAS_ENDSTOPS
+  #if _AXIS_PLUG_UNUSED_TEST(X)
+    #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
   #endif
-#endif
+  #if _AXIS_PLUG_UNUSED_TEST(Y)
+    #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
+  #endif
+  #if _AXIS_PLUG_UNUSED_TEST(Z)
+    #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+  #endif
 
-// Z homing direction and plug usage flags
-#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
-  #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
-#elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
-  #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
-#elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
-  #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  // Delta and Cartesian use 3 homing endstops
+  #if NONE(IS_SCARA, SPI_ENDSTOPS)
+    #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+      #error "Enable USE_XMIN_PLUG when homing X to MIN."
+    #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+      #error "Enable USE_XMAX_PLUG when homing X to MAX."
+    #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+      #error "Enable USE_YMIN_PLUG when homing Y to MIN."
+    #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+      #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+    #endif
+  #endif
+
+  // Z homing direction and plug usage flags
+  #if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
+    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+  #elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+    #error "Z_HOME_DIR must be -1 when homing Z with the probe."
+  #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
+    #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
+  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  #endif
 #endif
 
 #if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
