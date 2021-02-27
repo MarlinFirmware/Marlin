@@ -120,10 +120,7 @@ void lv_draw_more() {
     lv_obj_t *labelCustom2 = lv_label_create_empty(buttonCustom2);
   #endif
 
-  if (offsetX == 4) {
-    offsetX = 0;
-    offsetY++;
-  }
+  if (offsetX == 4) { offsetX = 0; offsetY++; }
 
   #if HAS_USER_ITEM(3)
     lv_obj_t *buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_3);
@@ -131,10 +128,7 @@ void lv_draw_more() {
     lv_obj_t *labelCustom3 = lv_label_create_empty(buttonCustom3);
   #endif
 
-  if (offsetX == 4) {
-    offsetX = 0;
-    offsetY++;
-  }
+  if (offsetX == 4) { offsetX = 0; offsetY++; }
 
   #if HAS_USER_ITEM(4)
     lv_obj_t *buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", BUTTON_X(offsetX++), BUTTON_Y(offsetY), event_handler, ID_CUSTOM_4);
