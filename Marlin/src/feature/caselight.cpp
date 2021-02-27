@@ -28,7 +28,7 @@
 
 CaseLight caselight;
 
-#if CASE_LIGHT_HAS_LEDCOLOR
+#if CASE_LIGHT_IS_COLOR_LED
   #include "leds/leds.h"
 #endif
 
@@ -42,7 +42,7 @@ CaseLight caselight;
 
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
-#if CASE_LIGHT_HAS_LEDCOLOR
+#if CASE_LIGHT_IS_COLOR_LED
   LEDColor CaseLight::color =
     #ifdef CASE_LIGHT_DEFAULT_COLOR
       CASE_LIGHT_DEFAULT_COLOR
@@ -75,14 +75,14 @@ void CaseLight::update(const bool sflag) {
     const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
   #endif
 
-  #if CASE_LIGHT_HAS_LEDCOLOR
+  #if CASE_LIGHT_IS_COLOR_LED
 
     leds.set_color(
       MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),
       false
     );
 
-  #else // !CASE_LIGHT_HAS_LEDCOLOR
+  #else // !CASE_LIGHT_IS_COLOR_LED
 
     #if CASELIGHT_USES_BRIGHTNESS
       if (pin_is_pwm())
@@ -100,7 +100,7 @@ void CaseLight::update(const bool sflag) {
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
       }
 
-  #endif // !CASE_LIGHT_HAS_LEDCOLOR
+  #endif // !CASE_LIGHT_IS_COLOR_LED
 
   #if ENABLED(CASE_LIGHT_USE_RGB_LED)
     if (leds.lights_on) leds.update(); else leds.set_off();

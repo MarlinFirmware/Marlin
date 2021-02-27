@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if CASE_LIGHT_HAS_LEDCOLOR
+#if CASE_LIGHT_IS_COLOR_LED
   #include "leds/leds.h" // for LEDColor
 #endif
 
@@ -51,7 +51,7 @@ public:
   static inline void update_enabled()    { update(true);  }
 
 private:
-  TERN_(CASE_LIGHT_HAS_LEDCOLOR, static LEDColor color);
+  TERN_(CASE_LIGHT_IS_COLOR_LED, static LEDColor color);
 };
 
 extern CaseLight caselight;

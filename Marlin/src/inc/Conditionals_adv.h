@@ -509,7 +509,7 @@
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
-    #define CASE_LIGHT_HAS_LEDCOLOR 1
+    #define CASE_LIGHT_IS_COLOR_LED 1
   #else
     #define NEED_CASE_LIGHT_PIN 1
   #endif
