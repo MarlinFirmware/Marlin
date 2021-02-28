@@ -86,11 +86,9 @@ void event_filament_runout(const uint8_t extruder) {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
 
-  const char tool = '0'
-    #if E_STEPPERS > 1
-      + extruder
-    #endif
-  ;
+  #if ANY(HOST_PROMPT_SUPPORT, ACTION_ON_FILAMENT_RUNOUT, MULTI_FILAMENT_SENSOR)
+    const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
+  #endif
 
   //action:out_of_filament
   #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -126,7 +124,7 @@ void event_filament_runout(const uint8_t extruder) {
   #endif // HOST_ACTION_COMMANDS
 
   if (run_runout_script) {
-    #if NUM_RUNOUT_SENSORS > 1
+    #if MULTI_FILAMENT_SENSOR
       char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
       sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
       #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
