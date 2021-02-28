@@ -82,7 +82,7 @@ void GcodeSuite::M7219() {
     LOOP_L_N(r, MAX7219_LINES) {
       SERIAL_ECHOPGM("led_line[");
       if (r < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHO(int(r));
+      SERIAL_ECHO(r);
       SERIAL_ECHOPGM("]=");
       for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(max7219.led_line[r], b));
       SERIAL_EOL();

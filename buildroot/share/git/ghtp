@@ -5,29 +5,35 @@
 # Set all remotes in the current repo to HTTPS or SSH connection.
 # Useful when switching environments, using public wifi, etc.
 #
+# Optionally, specify a particular remote to change.
+#
 
 GH_SSH="git@github\.com:"
 GH_HTTPS="https:\/\/github\.com\/"
 
 case "$1" in
-  -[Hh]) TYPE=HTTPS ; MATCH="git@" ; FORMULA="$GH_SSH/$GH_HTTPS" ;;
-  -[Ss]) TYPE=SSH ; MATCH="https:" ; FORMULA="$GH_HTTPS/$GH_SSH" ;;
+  -[Hh]) TYPE=HTTPS ; MATCH="git@" ; REPLACE="$GH_SSH/$GH_HTTPS" ;;
+  -[Ss]) TYPE=SSH ; MATCH="https:" ; REPLACE="$GH_HTTPS/$GH_SSH" ;;
   *)
-    echo "usage: `basename $0` -h | -s" 1>&2
+    echo "Usage: `basename $0` -h | -s" 1>&2
     echo -e " \e[0;92m-h\e[0m to switch to HTTPS" 1>&2
     echo -e " \e[0;92m-s\e[0m to switch to SSH" 1>&2
     exit 1
     ;;
 esac
 
-REMOTES=$(git remote -v | egrep "\t$MATCH" | gawk '{print $1 " " $2}' | sort -u | sed "s/$FORMULA/")
+AWK=$(which gawk || which awk)
 
-if [[ -z $REMOTES ]]; then
-  echo "Nothing to do." ; exit
-fi
+# Match all or specified remotes of the other type
+REGEX="\t$MATCH" ; [[ $# > 1 ]] && REGEX="^$2$REGEX"
 
+REMOTES=$(git remote -v | egrep "$REGEX" | "$AWK" '{print $1 " " $2}' | sort -u | sed  "s/$REPLACE/")
+
+[[ -z $REMOTES ]] && { echo "Nothing to do." ; exit ; }
+
+# Update a remote for each results pair
 echo "$REMOTES" | xargs -n2 git remote set-url
 
 echo -n "Remotes set to $TYPE: "
-echo "$REMOTES" | gawk '{printf "%s ", $1}'
+echo "$REMOTES" | "$AWK" '{printf "%s ", $1}'
 echo

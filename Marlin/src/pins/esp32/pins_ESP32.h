@@ -25,7 +25,7 @@
  * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
  */
 
-#ifndef ARDUINO_ARCH_ESP32
+#if NOT_TARGET(ARDUINO_ARCH_ESP32)
   "Oops! Select an ESP32 board in 'Tools > Board.'"
 #endif
 

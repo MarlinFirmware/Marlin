@@ -7,7 +7,7 @@
 set -e
 
 use_example_configs Malyan/M200
-exec_test $1 $2 "Malyan M200"
+exec_test $1 $2 "Malyan M200" "$3"
 
 # cleanup
 restore_configs

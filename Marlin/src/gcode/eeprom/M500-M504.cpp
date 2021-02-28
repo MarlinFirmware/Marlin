@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
@@ -60,7 +60,7 @@ void GcodeSuite::M502() {
 #if ENABLED(EEPROM_SETTINGS)
 
   #if ENABLED(MARLIN_DEV_MODE)
-    #include "../../libs/hex_print_routines.h"
+    #include "../../libs/hex_print.h"
   #endif
 
   /**
@@ -75,7 +75,7 @@ void GcodeSuite::M502() {
         if (dowrite) {
           val = parser.byteval('V');
           persistentStore.write_data(addr, &val);
-          SERIAL_ECHOLNPAIR("Wrote address ", addr, " with ", int(val));
+          SERIAL_ECHOLNPAIR("Wrote address ", addr, " with ", val);
         }
         else {
           if (parser.seenval('T')) {
@@ -90,7 +90,7 @@ void GcodeSuite::M502() {
           }
           else {
             persistentStore.read_data(addr, &val);
-            SERIAL_ECHOLNPAIR("Read address ", addr, " and got ", int(val));
+            SERIAL_ECHOLNPAIR("Read address ", addr, " and got ", val);
           }
         }
         return;

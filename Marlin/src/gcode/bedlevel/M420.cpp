@@ -30,7 +30,7 @@
 #include "../../module/probe.h"
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../../module/configuration_store.h"
+  #include "../../module/settings.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)

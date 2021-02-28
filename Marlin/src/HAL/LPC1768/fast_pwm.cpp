@@ -35,5 +35,5 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   LPC176x::pwm_write_ratio(pin, invert ? 1.0f - (float)v / v_size : (float)v / v_size);
 }
 
-#endif // FAST_PWM_FAN || SPINDLE_LASER_PWM
+#endif // NEEDS_HARDWARE_PWM
 #endif // TARGET_LPC1768

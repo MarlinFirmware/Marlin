@@ -26,9 +26,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_TRINAMIC_CONFIG && HAS_LCD_MENU
+#if HAS_LCD_MENU && HAS_TRINAMIC_CONFIG
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/stepper/indirection.h"
 #include "../../feature/tmc_util.h"
 
@@ -247,7 +247,7 @@ void menu_tmc_current() {
 
 void menu_tmc() {
   START_MENU();
-  BACK_ITEM(MSG_CONTROL);
+  BACK_ITEM(MSG_ADVANCED_SETTINGS);
   SUBMENU(MSG_TMC_CURRENT, menu_tmc_current);
   #if ENABLED(HYBRID_THRESHOLD)
     SUBMENU(MSG_TMC_HYBRID_THRS, menu_tmc_hybrid_thrs);

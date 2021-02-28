@@ -60,7 +60,6 @@ typedef struct machine_common_disp{
   const char *HomeDir;
   const char *EndStopType;
   const char *FilamentConf;
-  const char *LevelingConf;
 
   const char *MachineTypeConfTitle;
   const char *xyz;
@@ -96,17 +95,17 @@ typedef struct machine_common_disp{
   const char *closed;
 
   const char *FilamentConfTitle;
-  const char *InTemperature;
   const char *InLength;
   const char *InSpeed;
-  const char *OutTemperature;
+  const char *FilamentTemperature;
   const char *OutLength;
   const char *OutSpeed;
 
   const char *LevelingParaConfTitle;
   const char *LevelingParaConf;
-  const char *DeltaLevelConf;
-  const char *XYZLevelconf;
+  const char *LevelingManuPosConf;
+  const char *LevelingAutoCommandConf;
+  const char *LevelingAutoZoffsetConf;
 
   const char *LevelingSubConfTitle;
   const char *AutoLevelEnable;
@@ -119,6 +118,7 @@ typedef struct machine_common_disp{
   const char *ProbeZspeed;
   const char *enable;
   const char *disable;
+  const char *locked;
   const char *z_min;
   const char *z_max;
 
@@ -132,10 +132,6 @@ typedef struct machine_common_disp{
   const char *CalibrationRadius;
 
   const char *LevelingSubXYZConfTitle;
-  //const char *Level_positon1;
-  //const char *Level_positon2;
-  //const char *Level_positon3;
-  //const char *Level_positon4;
 
   const char *TemperatureConfTitle;
   const char *NozzleConf;
@@ -165,6 +161,7 @@ typedef struct machine_common_disp{
   const char *HomeFeedRateConf;
   const char *TMCcurrentConf;
   const char *TMCStepModeConf;
+  const char *HomingSensitivityConf;
 
   const char *MaxFeedRateConfTitle;
   const char *XMaxFeedRate;
@@ -210,6 +207,12 @@ typedef struct machine_common_disp{
   const char *E0_StepMode;
   const char *E1_StepMode;
 
+  const char *HomingSensitivityConfTitle;
+  const char *X_Sensitivity;
+  const char *Y_Sensitivity;
+  const char *Z_Sensitivity;
+  const char *Z2_Sensitivity;
+
   const char *MotorDirConfTitle;
   const char *X_MotorDir;
   const char *Y_MotorDir;
@@ -231,6 +234,8 @@ typedef struct machine_common_disp{
   const char *Z2andZ2Endstop;
   const char *EnablePinsInvert;
   const char *PausePosition;
+  const char *WifiSettings;
+  const char *EncoderSettings;
 
   const char *Z2ConfTitle;
   const char *Z2Enable;
@@ -265,6 +270,23 @@ typedef struct machine_common_disp{
   const char *xPos;
   const char *yPos;
   const char *zPos;
+
+  const char *WifiConfTitle;
+  const char *wifiMode;
+  const char *wifiName;
+  const char *wifiPassWord;
+  const char *wifiCloud;
+  const char *wifiConfig;
+  const char *wifiEdit;
+  const char *wifiConfigTips;
+
+  const char *OffsetConfTitle;
+  const char *Xoffset;
+  const char *Yoffset;
+  const char *Zoffset;
+
+  const char *EncoderConfTitle;
+  const char *EncoderConfText;
 
 } machine_common_def;
 
@@ -435,7 +457,15 @@ extern filesys_menu_def filesys_menu;
 
 typedef struct more_menu_disp {
   const char *title;
-  const char *zoffset;
+  const char *custom1;
+  const char *custom2;
+  const char *custom3;
+  const char *custom4;
+  const char *custom5;
+  const char *custom6;
+  const char *custom7;
+  const char *gcode;
+  const char *entergcode;
   const char *back;
 } more_menu_def;
 
@@ -643,9 +673,9 @@ extern dialog_menu_def dialog_menu;
 typedef struct print_file_dialog_disp {
   const char *title;
   const char *confirm;
-  const char *cancle;
+  const char *cancel;
   const char *print_file;
-  const char *cancle_print;
+  const char *cancel_print;
   const char *retry;
   const char *stop;
   const char *no_file_print_tips;
@@ -660,18 +690,6 @@ typedef struct print_file_dialog_disp {
 } print_file_dialog_menu_def;
 
 extern print_file_dialog_menu_def print_file_dialog_menu;
-
-typedef struct zoffset_menu_disp {
-  const char *title;
-  const char *inc;
-  const char *dec;
-  const char *step001;
-  const char *step01;
-  const char *step1;
-  const char *back;
-} zoffset_menu_def;
-
-extern zoffset_menu_def zoffset_menu;
 
 typedef struct tool_menu_disp {
   const char *title;
@@ -691,36 +709,12 @@ extern tool_menu_def tool_menu;
 typedef struct MachinePara_menu_disp {
   const char *title;
   const char *MachineSetting;
-  const char *TemperatureSetting;
   const char *MotorSetting;
+  const char *leveling;
   const char *AdvanceSetting;
-  //const char *back;
 } MachinePara_menu_def;
 
 extern MachinePara_menu_def MachinePara_menu;
-
-typedef struct MachineSettings_menu_disp {
-  const char *title;
-  const char *Machine;
-  const char *Stroke;
-  const char *HomeDir;
-  const char *EndStopType;
-  const char *filamet;
-  const char *leveling;
-  const char *back;
-} MachineSettings_menu_def;
-
-extern MachineSettings_menu_def MachineSettings_menu;
-
-typedef struct TemperatureSettings_menu_disp {
-  const char *title;
-  const char *nozzle;
-  const char *hotbed;
-  const char *preheat;
-  const char *back;
-} TemperatureSettings_menu_def;
-
-extern TemperatureSettings_menu_def TemperatureSettings_menu;
 
 typedef struct pause_msg_disp {
   const char *pausing;
@@ -752,12 +746,8 @@ typedef struct eeprom_disp{
 
 extern eeprom_def eeprom_menu;
 /*****************************************/
-//********************************************//
-//#if defined(TFT70)
 //
-//#elif defined(TFT35)
 #define TEXT_VALUE          "%d/%d"
-//#endif
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"
@@ -777,15 +767,15 @@ extern eeprom_def eeprom_menu;
 #define AXIS_Y_DEC_TEXT     "Y-"
 #define AXIS_Z_ADD_TEXT     "Z+"
 #define AXIS_Z_DEC_TEXT     "Z-"
-#define TEXT_001MM          "0.01mm"
-#define TEXT_005MM          "0.05mm"
-#define TEXT_01MM           "0.1mm"
-#define TEXT_1MM            "1mm"
-#define TEXT_10MM           "10mm"
+#define TEXT_001MM          "0.01 mm"
+#define TEXT_005MM          "0.05 mm"
+#define TEXT_01MM           "0.1 mm"
+#define TEXT_1MM            "1 mm"
+#define TEXT_10MM           "10 mm"
 
-#define EXTRUDE_1MM_TEXT    "1mm"
-#define EXTRUDE_5MM_TEXT    "5mm"
-#define EXTRUDE_10MM_TEXT   "10mm"
+#define EXTRUDE_1MM_TEXT    "1 mm"
+#define EXTRUDE_5MM_TEXT    "5 mm"
+#define EXTRUDE_10MM_TEXT   "10 mm"
 
 #define STEP_1PERCENT       "1%"
 #define STEP_5PERCENT       "5%"
@@ -808,19 +798,14 @@ extern eeprom_def eeprom_menu;
 #define HOME_Y_TEXT         "Y"
 #define HOME_Z_TEXT         "Z"
 #define HOME_ALL_TEXT       "All"
-//#if defined(MKS_ROBIN_NANO)
+
 #define ABOUT_TYPE_TEXT     "MKS Robin Pro"
-//#elif defined(MKS_ROBIN_MINI)
-//#define ABOUT_TYPE_TEXT       "MKS Robin Mini"
-//#endif
+
 #define ABOUT_VERSION_TEXT  "1.0.0"
-//#define ABOUT_WIFI_TEXT   "WiFi:"
 
 #define FAN_OPEN_TEXT       "100%"
 #define FAN_HALF_TEXT       "50%"
 #define FAN_CLOSE_TEXT      "0%"
-//#define FAN_TIPS1_TEXT      "FAN"
-//#define FAN_TIPS2_TEXT      "FAN\nClose"
 
 #define WIFI_TEXT                       "WIFI"
 #define WIFI_IP_TEXT                    "IP: "
@@ -842,7 +827,8 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check whether\nmemory device inserted!"
 
-#define ZOFFSET_STEP001                 "0.01mm"
-#define ZOFFSET_STEP01                  "0.1mm"
-#define ZOFFSET_STEP1                   "1mm"
+#define ZOFFSET_STEP001                 "0.01 mm"
+#define ZOFFSET_STEP01                  "0.1 mm"
+#define ZOFFSET_STEP1                   "1 mm"

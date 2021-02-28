@@ -27,10 +27,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
-#include "../core/macros.h"
 #include "../module/temperature.h"
-
-//#define JOYSTICK_DEBUG
 
 class Joystick {
   friend class Temperature;
