@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * M21: Init SD Card
@@ -36,9 +37,8 @@ void GcodeSuite::M21() { card.mount(); }
  * M22: Release SD Card
  */
 void GcodeSuite::M22() {
-
   if (!IS_SD_PRINTING()) card.release();
-
+  IF_ENABLED(TFT_COLOR_UI, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
 }
 
 #endif // SDSUPPORT

@@ -926,7 +926,7 @@ int SdBaseFile::peek() {
 // print uint8_t with width 2
 static void print2u(const uint8_t v) {
   if (v < 10) SERIAL_CHAR('0');
-  SERIAL_ECHO(int(v));
+  SERIAL_ECHO(v);
 }
 
 /**

@@ -2,9 +2,7 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
-import subprocess
-import os
-import re
+import subprocess,os,re
 try:
 	import configparser
 except ImportError:
@@ -313,16 +311,6 @@ def MarlinFeatureIsEnabled(env, feature):
 	return some_on
 
 #
-# Check for Configfiles in two common incorrect places
-#
-def check_configfile_locations():
-	for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
-		for f in [ "Configuration.h", "Configuration_adv.h" ]:
-			if os.path.isfile(os.path.join(p, f)):
-				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
-				raise SystemExit(err)
-
-#
 # Add a method for other PIO scripts to query enabled features
 #
 env.AddMethod(MarlinFeatureIsEnabled)
@@ -330,6 +318,5 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
-check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()
