@@ -451,7 +451,7 @@
 #endif
 
 // Aliases for LCD features
-#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS)
   #define HAS_DGUS_LCD 1
 #endif
 
@@ -513,7 +513,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= SMUFF_EMU_MMU2
+  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
     #define HAS_SMUFF 1
   #endif
 #endif

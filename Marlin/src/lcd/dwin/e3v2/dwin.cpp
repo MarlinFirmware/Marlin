@@ -906,7 +906,7 @@ void Draw_Tune_Menu() {
 }
 
 void draw_max_en(const uint16_t line) {
-  DWIN_Frame_AreaCopy(1, 245, 119, 270, 129, LBLX, line);   // "Max"  // M.A.R.C. Coorect Label Max
+  DWIN_Frame_AreaCopy(1, 245, 119, 270, 129, LBLX, line);   // "Max"  // M.A.R.C. Correct Label Max
 }
 void draw_max_accel_en(const uint16_t line) {
   draw_max_en(line);
