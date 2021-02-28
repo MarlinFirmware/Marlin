@@ -1,3 +1,6 @@
+#
+# fix_framework_weakness.py
+#
 from os.path import join, isfile
 import shutil
 from pprint import pprint
