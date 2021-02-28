@@ -131,7 +131,13 @@
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+  #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(XY_PROBE_SPEED)
+  #error "XY_PROBE_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(Z_PROBE_SPEED_FAST)
+  #error "Z_PROBE_SPEED_FAST is now Z_PROBE_FEEDRATE_FAST."
+#elif defined(Z_PROBE_SPEED_SLOW)
+  #error "Z_PROBE_SPEED_SLOW is now Z_PROBE_FEEDRATE_SLOW."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
   #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
 #elif defined(SERVO_DEACTIVATION_DELAY)
@@ -431,6 +437,8 @@
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION."
 #elif defined(MENU_ITEM_CASE_LIGHT)
   #error "MENU_ITEM_CASE_LIGHT is now CASE_LIGHT_MENU."
+#elif defined(CASE_LIGHT_NEOPIXEL_COLOR)
+  #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #elif defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #error "ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED is now SD_ABORT_ON_ENDSTOP_HIT."
 #elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM_CABLE)
@@ -539,6 +547,10 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
+#elif defined(UNKNOWN_Z_NO_RAISE)
+  #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
+#elif defined(Z_AFTER_DEACTIVATE)
+  #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
 #endif
 
 /**
@@ -1204,6 +1216,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Chamber Heating Options - PID vs Limit Switching
+ */
+#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+  #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
+#endif
+
+/**
  * Kinematics
  */
 
@@ -1687,9 +1706,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
     #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
   #endif
@@ -2009,7 +2028,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
 #define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
-// At least 3 endstop plugs must be used
+// A machine with endstops must have a minimum of 3
+#if HAS_ENDSTOPS
 #if _AXIS_PLUG_UNUSED_TEST(X)
   #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
 #endif
@@ -2042,6 +2062,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+#endif
 #endif
 
 #if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
@@ -2303,7 +2324,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD, DGUS_LCD_UI_CREALITY_TOUCH) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
