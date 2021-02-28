@@ -1,3 +1,7 @@
+#
+# STM32F103VE_longer.py
+# Customizations for env:STM32F103VE_longer
+#
 import os
 Import("env")
 

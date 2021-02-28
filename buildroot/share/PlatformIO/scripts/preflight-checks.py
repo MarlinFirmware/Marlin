@@ -2,8 +2,7 @@
 # preflight-checks.py
 # Check for common issues prior to compiling
 #
-import os
-import re
+import os,re
 Import("env")
 
 def get_envs_for_board(board):

@@ -2,9 +2,7 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
-import subprocess
-import os
-import re
+import subprocess,os,re
 try:
 	import configparser
 except ImportError:
