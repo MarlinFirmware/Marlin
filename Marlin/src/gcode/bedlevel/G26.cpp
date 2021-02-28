@@ -547,7 +547,7 @@ inline bool draw_circle(float radius, const xy_pos_t& circle, const mesh_index_p
     const float dist_start = HYPOT2(dist.x, dist.y);
     const xyze_pos_t endpoint = {
       e.x, e.y, g26_layer_height, // 0.8: temporary fix overextrusion on arc (TODO)
-      current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier * 0.8)
+      current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier * 0.8f)
     };
 
     if (dist_start > 2.0) {
