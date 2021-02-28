@@ -38,7 +38,7 @@ If your display remains blank try with other µSD card, format it to FAT32 and p
    
 ## Credits
 
-This fork of Marlin firmware is manteined by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru
+This fork of Marlin firmware is maintained by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru
 
 The current Marlin dev team consists of:
 
