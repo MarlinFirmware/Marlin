@@ -43,7 +43,7 @@
 ***
 ## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210228
-  - Last fix by Marlin,
+  - Last fix by Marlin (Serial coms, latency MCU, Preheat leveling, fix Host pause(M876), Improve GCode queue, Preheat menu option, Wifi, etc)
   - New release (binaries and source)
   - Support QQSP/Q5 Stock, TMC and UART mode.
   - **All QQSP features on Q5 and SKR**
@@ -56,7 +56,9 @@
  With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
 
   * [PID_EDIT_MENU]
+  * [NATIVE LANGUAGE]
   * [DELTA_CALIBRATION_MENU]
+  * [PREHEAT LEVELING]
   * [MULTI_BUILD_MESH]
   * [POWER_LOSS_RECOVERY]
   * [FILAMENT_RUNOUT_SENSOR]
