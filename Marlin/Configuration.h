@@ -1214,9 +1214,9 @@
   //#define FIL_RUNOUT8_PULLUP
   //#define FIL_RUNOUT8_PULLDOWN
 
-  // Set one or more commands to execute on filament runout.
-  // Use %t as placeholder for the triggering sensor, e.g. "M600 T%t". (requires NUM_RUNOUT_SENSORS > 1)
-  // (After 'M412 H' Marlin will ask the host to handle the process.)
+  // Commands to execute on filament runout.
+  // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
+  // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament

@@ -127,12 +127,8 @@ void event_filament_runout(const uint8_t extruder) {
 
   if (run_runout_script) {
     #if NUM_RUNOUT_SENSORS > 1
-      char script[] = FILAMENT_RUNOUT_SCRIPT,
-           *ptr = strstr_P(script, PSTR("%t"));
-      if (ptr) {
-        // replace %t with tool
-        *ptr++ = tool; *ptr = ' ';
-      }
+      char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
+      sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
       #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
         SERIAL_ECHOLNPAIR("Runout Command: ", script);
       #endif
