@@ -15,8 +15,8 @@ Test applying diffs only - no compilation
 #>
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$true)]
-    $TouchscreenRepositoryPath,
+    [Parameter(Mandatory=$false)]
+    $TouchscreenRepositoryPath = "..\CR-6-Touchscreen",
 
     [Parameter(Mandatory=$true)]
     $ReleaseName,
@@ -42,7 +42,7 @@ Write-Host "Building touch screen..."
 $TouchscreenRepositoryPath = Resolve-Path -Path $TouchscreenRepositoryPath
 
 if (!(Test-Path -Path $TouchscreenRepositoryPath)) {
-    Write-FatalError "Unable to find path of CR-6 touch screen repository"
+    Write-FatalError "Unable to find path of CR-6 touch screen repository [$TouchscreenRepositoryPath]"
 }
 
 Push-Location $TouchscreenRepositoryPath
