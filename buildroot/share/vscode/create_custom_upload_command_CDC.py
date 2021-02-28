@@ -13,11 +13,9 @@
 from __future__ import print_function
 from __future__ import division
 
-import subprocess
-import os
-import sys
+import subprocess,os,sys,platform
 from SCons.Script import DefaultEnvironment
-import platform
+
 current_OS = platform.system()
 
 env = DefaultEnvironment()
