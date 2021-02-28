@@ -232,6 +232,17 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
 
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      info.workspace_plane = GcodeSuite::workspace_plane;
+    #endif
+
+    #if ENABLED(G68_G69_ROTATE)
+      info.g68_a = Planner::g68_rotation.a;
+      info.g68_b = Planner::g68_rotation.b;
+      info.g68_r = Planner::g68_rotation.r;
+      info.g68_plane = Planner::g68_rotation.g68_plane;
+    #endif
+
     write();
   }
 }
@@ -394,9 +405,20 @@ void PrintJobRecovery::resume() {
   // Pretend that all axes are homed
   set_all_homed();
 
+  // Re-establish axis rotations before we move anywhere
+  TERN_(G68_G69_ROTATE, Planner::g68_rotation.powerloss_recover(info.g68_a, info.g68_b, info.g68_r, info.g68_plane));
+
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
     // Z has been homed so restore Z to ZsavedPos + POWER_LOSS_ZRAISE
-    sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    #if ENABLED(G68_G69_ROTATE)
+      // Restore in all axes, as there may be a rotation in force which changes the orientation of Z. Adding POWER_LOSS_ZRAISE
+      // to the current z position could cause problems if the Z axis now points down. Power loss recovery is very difficult
+      // on anything other than a 3D printer which adds layer upon layer in Z, or on anything in which a rotation is applied
+      // on anything other than the XY plane.
+      sprintf_P(cmd, PSTR("G1 X%1.3f Y%1.3f Z%1.3f F500"), info.current_position.x, info.current_position.y, info.current_position.z + POWER_LOSS_ZRAISE);
+    #else
+      sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    #endif
     gcode.process_subcommands_now(cmd);
   #endif
 

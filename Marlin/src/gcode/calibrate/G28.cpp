@@ -249,6 +249,9 @@ void GcodeSuite::G28() {
   // Reset to the XY plane
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
+  // Reset the rotation
+  TERN_(G68_G69_ROTATE, Planner::g68_rotation.reset(false));
+
   // Count this command as movement / activity
   reset_stepper_timeout();
 

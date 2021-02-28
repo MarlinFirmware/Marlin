@@ -202,14 +202,15 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(G68_G69_ROTATE)
 
-  void g68_rotation_t::set(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position) {
+  void g68_rotation_t::set_g68(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position) {
     xyz_float_t centre;
     xyz_float_t current;
+    TERN_(CNC_WORKSPACE_PLANES, g68_plane = gcode.workspace_plane);
     if (!(a_valid && b_valid)) {
       current = current_position.asLogical();
     }
     #if ENABLED(CNC_WORKSPACE_PLANES)
-      switch (gcode.workspace_plane) {
+      switch (g68_plane) {
         case GcodeSuite::PLANE_YZ:
           if (a_valid) centre.y = a_arg; else if (b_valid) centre.y = 0.0f; else centre.y = current.y;
           if (b_valid) centre.z = b_arg; else if (a_valid) centre.z = 0.0f; else centre.z = current.z;
@@ -232,7 +233,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
     #endif
     centre = centre.asNative();
     #if ENABLED(CNC_WORKSPACE_PLANES)
-      switch (gcode.workspace_plane) {
+      switch (g68_plane) {
         case GcodeSuite::PLANE_YZ:
           a_arg = centre.y; b_arg = centre.z; break;
         case GcodeSuite::PLANE_ZX:
@@ -251,6 +252,11 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
       if (DEBUGGING(INFO)) report_rotation();
       update_current_position(report_position);
     }
+  }
+  void g68_rotation_t::powerloss_recover(float pa, float pb, float pr, char plane) {
+    float rad = RADIANS(r);
+    a = pa; b = pb; r = pr; g68_plane = plane;
+    cos_r = cos(rad); sin_r = sin(rad);
   }
   void g68_rotation_t::reset(bool report_position) {
     a = b = 0.0f;
@@ -271,7 +277,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("G68 rotation");
     #if ENABLED(CNC_WORKSPACE_PLANES)
-      switch (gcode.workspace_plane) {
+      switch (g68_plane) {
         case GcodeSuite::PLANE_YZ:
           SERIAL_ECHOPAIR_P(SP_Y_LBL,a,SP_Z_LBL,b,sp_r_lbl,r);
           break;
@@ -302,7 +308,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
       return;
     } else {
       #if ENABLED(CNC_WORKSPACE_PLANES)
-        switch (GcodeSuite::workspace_plane) {
+        switch (g68_rotation.g68_plane) {
           case GcodeSuite::WorkspacePlane::PLANE_YZ:
             perform_g68_rotation(&(raw.y),&(raw.z),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,g68_rotation.sin_r);
             break;
@@ -323,7 +329,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
       return;
     } else {
       #if ENABLED(CNC_WORKSPACE_PLANES)
-        switch (GcodeSuite::workspace_plane) {
+        switch (g68_rotation.g68_plane) {
           case GcodeSuite::WorkspacePlane::PLANE_YZ:
             perform_g68_rotation(&(raw.y),&(raw.z),g68_rotation.a,g68_rotation.b,g68_rotation.cos_r,-g68_rotation.sin_r);
             break;

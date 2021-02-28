@@ -290,7 +290,9 @@ typedef struct {
 #if ENABLED(G68_G69_ROTATE)
   typedef struct {
     float a, b, r, cos_r, sin_r;
-    void set(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position = true);
+    TERN_(CNC_WORKSPACE_PLANES, char g68_plane);
+    void set_g68(float a_arg, bool a_valid, float b_arg, bool b_valid, float r_arg, bool report_position = true);
+    void powerloss_recover(float pa, float pb, float pr, char plane);
     void reset(bool report_position = true);
     bool isActive();
     void update_current_position(bool report_position = true);

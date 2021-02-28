@@ -100,6 +100,17 @@ typedef struct {
     TERN_(HAS_LEVELING, bool leveling:1);
   } flag;
 
+  #if ENABLED(CNC_WORKSPACE_PLANES)
+    char workspace_plane;
+  #endif
+
+  #if ENABLED(G68_G69_ROTATE)
+    float g68_a;
+    float g68_b;
+    float g68_r;
+    char g68_plane;
+  #endif
+
   uint8_t valid_foot;
 
   bool valid() { return valid_head && valid_head == valid_foot; }

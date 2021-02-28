@@ -24,10 +24,6 @@
 
 #if ENABLED(CNC_WORKSPACE_PLANES)
 
-#if ENABLED(G68_G69_ROTATE)
-  #include "../../module/planner.h"
-#endif
-
 #include "../gcode.h"
 
 inline void report_workspace_plane() {
@@ -41,7 +37,6 @@ inline void report_workspace_plane() {
 }
 
 inline void set_workspace_plane(const GcodeSuite::WorkspacePlane plane) {
-  TERN_(G68_G69_ROTATE, planner.g68_rotation.reset(true));
   gcode.workspace_plane = plane;
   if (DEBUGGING(INFO)) report_workspace_plane();
 }

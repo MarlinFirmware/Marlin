@@ -42,7 +42,7 @@ void GcodeSuite::G68() {
   } else {
     r = planner.g68_rotation.r;
   }
-  planner.g68_rotation.set(a, a_valid, b, b_valid, r, true);
+  planner.g68_rotation.set_g68(a, a_valid, b, b_valid, r, true);
 }
 
 void GcodeSuite::G69() {
