@@ -791,7 +791,7 @@ void Draw_Control_Menu() {
       DWIN_Frame_AreaCopy(1,  1, 89,  83, 101, LBLX, CLINE(CONTROL_CASE_TEMP));           // Temperature >
       DWIN_Frame_AreaCopy(1, 84, 89, 128,  99, LBLX, CLINE(CONTROL_CASE_MOVE));           // Motion >
       #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Frame_AreaCopy(1, 148,  89, 268, 101, LBLX     , CLINE(CONTROL_CASE_SAVE));  // "Store Configuration"
+        DWIN_Frame_AreaCopy(1, 130,  89, 268, 101, LBLX     , CLINE(CONTROL_CASE_SAVE));  // "Store Configuration"  // M.A.R.C. Correct label
         DWIN_Frame_AreaCopy(1,  26, 104,  57, 114, LBLX     , CLINE(CONTROL_CASE_LOAD));  // "Read"
         DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 34, CLINE(CONTROL_CASE_LOAD));  // "Configuration"
         DWIN_Frame_AreaCopy(1,  59, 104,  93, 114, LBLX     , CLINE(CONTROL_CASE_RESET)); // "Reset"
@@ -906,7 +906,7 @@ void Draw_Tune_Menu() {
 }
 
 void draw_max_en(const uint16_t line) {
-  DWIN_Frame_AreaCopy(1, 245, 119, 269, 129, LBLX, line);   // "Max"
+  DWIN_Frame_AreaCopy(1, 245, 119, 270, 129, LBLX, line);   // "Max"  // M.A.R.C. Coorect Label Max
 }
 void draw_max_accel_en(const uint16_t line) {
   draw_max_en(line);
@@ -919,7 +919,7 @@ void draw_jerk_en(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 64, 119, 106, 129, LBLX + 27, line); // "Jerk"
 }
 void draw_steps_per_mm(const uint16_t line) {
-  DWIN_Frame_AreaCopy(1, 1, 151, 101, 161, LBLX, line);   // "Steps-per-mm"
+  DWIN_Frame_AreaCopy(1, 1, 151, 118, 161, LBLX, line);   // "Steps-per-mm" // M.A.R.C. Correct Label Transmission ratio
 }
 void say_x(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 95, 104, 102, 114, LBLX + inset, line); // "X"
@@ -1570,7 +1570,7 @@ void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y,
 
   if (force || changed || draw_qmark || draw_empty) {
     if (blink && draw_qmark)
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("???.?"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("--?--"));
     else if (blink && draw_empty)
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
     else
@@ -2027,6 +2027,7 @@ void HMI_MainMenu() {
     switch (select_page.now) {
       case 0: // Print File
         checkkey = SelectFile;
+        gcode.process_subcommands_now_P(PSTR("M21" )); // M.A.R.C. Re-Init SD card for support Extension
         Draw_Print_File_Menu();
         break;
 
@@ -3172,11 +3173,11 @@ void Draw_Steps_Menu() {
         DWIN_Draw_Label(MBASE(4), F("Steps/mm E"));
       #endif
     #else
-      draw_steps_per_mm(MBASE(1)); say_x(103, MBASE(1)); // "Steps-per-mm X"
-      draw_steps_per_mm(MBASE(2)); say_y(103, MBASE(2)); // "Y"
-      draw_steps_per_mm(MBASE(3)); say_z(103, MBASE(3)); // "Z"
+      draw_steps_per_mm(MBASE(1)); say_x(120, MBASE(1)); // "Steps-per-mm X"  // M.A.R.C. Correct Label position
+      draw_steps_per_mm(MBASE(2)); say_y(120, MBASE(2)); // "Y"               // M.A.R.C. Correct Label position
+      draw_steps_per_mm(MBASE(3)); say_z(120, MBASE(3)); // "Z"               // M.A.R.C. Correct Label position
       #if HAS_HOTEND
-        draw_steps_per_mm(MBASE(4)); say_e(103, MBASE(4)); // "E"
+        draw_steps_per_mm(MBASE(4)); say_e(120, MBASE(4)); // "E"             // M.A.R.C. Correct Label position
       #endif
     #endif
   }
