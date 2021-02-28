@@ -253,7 +253,7 @@
 // and proper jumper configuration. Uses I/O pins PA8(Default QQS).
 #ifdef QQS_UARTH
     #define Q_TMC
-    #define HARDWARE_SERIAL
+    #define TMC_HARDWARE_SERIAL
     #define STEALTHCHOP_E
     #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
