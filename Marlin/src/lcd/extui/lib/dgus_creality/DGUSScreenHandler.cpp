@@ -231,7 +231,7 @@ void DGUSScreenHandler::setstatusmessage(const char *msg) {
   // Update scrolling message to either NULL or the value
   if (populate_VPVar(VP_M117, &ramcopy)) {
     ramcopy.memadr = (void*) (needs_scrolling ? msg : NUL_STR);
-    DGUSLCD_SendStringToDisplay(ramcopy);
+    DGUSLCD_SendScrollingStringToDisplay(ramcopy);
   }
 }
 
@@ -249,7 +249,7 @@ void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
   // Update scrolling message to either NULL or the value
   if (populate_VPVar(VP_M117, &ramcopy)) {
     ramcopy.memadr = (void*) (needs_scrolling ? msg : nullptr);
-    DGUSLCD_SendStringToDisplayPGM(ramcopy);
+    DGUSLCD_SendScrollingStringToDisplayPGM(ramcopy);
   }
 }
 
@@ -324,7 +324,15 @@ void DGUSScreenHandler::DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *v
 // overwrite the remainings with spaces.// var.size has the display buffer size!
 void DGUSScreenHandler::DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var) {
   char *tmp = (char*) var.memadr;
-  dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
+  dgusdisplay.WriteVariable(var.VP, tmp, var.size, true, DWIN_DEFAULT_FILLER_CHAR);
+}
+
+// Sends a (RAM located) string to the DGUS Display
+// (Note: The DGUS Display does not clear after the \0, you have to
+// overwrite the remainings with spaces.// var.size has the display buffer size!
+void DGUSScreenHandler::DGUSLCD_SendScrollingStringToDisplay(DGUS_VP_Variable &var) {
+  char *tmp = (char*) var.memadr;
+  dgusdisplay.WriteVariable(var.VP, tmp, var.size, true, DWIN_SCROLLER_FILLER_CHAR);
 }
 
 // Sends a (flash located) string to the DGUS Display
@@ -332,7 +340,16 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var) {
 // overwrite the remainings with spaces.// var.size has the display buffer size!
 void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
   char *tmp = (char*) var.memadr;
-  dgusdisplay.WriteVariablePGM(var.VP, tmp, var.size, true);
+  dgusdisplay.WriteVariablePGM(var.VP, tmp, var.size, true, DWIN_DEFAULT_FILLER_CHAR);
+}
+
+
+// Sends a (flash located) string to the DGUS Display
+// (Note: The DGUS Display does not clear after the \0, you have to
+// overwrite the remainings with spaces.// var.size has the display buffer size!
+void DGUSScreenHandler::DGUSLCD_SendScrollingStringToDisplayPGM(DGUS_VP_Variable &var) {
+  char *tmp = (char*) var.memadr;
+  dgusdisplay.WriteVariablePGM(var.VP, tmp, var.size, true, DWIN_SCROLLER_FILLER_CHAR);
 }
 
 #if HAS_PID_HEATING

@@ -43,6 +43,9 @@ extern const struct VPMapping VPMap[];
 // List of VPs handled by Marlin / The Display.
 extern const struct DGUS_VP_Variable ListOfVP[];
 
+#define DWIN_DEFAULT_FILLER_CHAR ' '
+#define DWIN_SCROLLER_FILLER_CHAR 0x0
+
 #include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)

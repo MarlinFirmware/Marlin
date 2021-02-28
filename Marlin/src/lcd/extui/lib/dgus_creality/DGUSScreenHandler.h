@@ -210,7 +210,9 @@ public:
   // Helpers to convert and transfer data to the display.
   static void DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendScrollingStringToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendScrollingStringToDisplayPGM(DGUS_VP_Variable &var);
   static void DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var);

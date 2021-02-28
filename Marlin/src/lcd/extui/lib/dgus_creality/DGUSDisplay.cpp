@@ -97,7 +97,7 @@ void DGUSDisplay::ReadVariable(uint16_t adr) {
   dgusserial.write(static_cast<uint8_t>(1));
 }
 
-void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr, char fillChar) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -106,7 +106,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
     if (!strend) x = *myvalues++;
     if ((isstr && !x) || strend) {
       strend = true;
-      x = ' ';
+      x = fillChar;
     }
     dgusserial.write(x);
   }
@@ -154,7 +154,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, float value) {
     WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(float));
 }
 
-void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr, char fillChar) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -163,7 +163,7 @@ void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t val
     if (!strend) x = pgm_read_byte(myvalues++);
     if ((isstr && !x) || strend) {
       strend = true;
-      x = ' ';
+      x = fillChar;
     }
     dgusserial.write(x);
   }
