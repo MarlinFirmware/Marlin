@@ -2238,97 +2238,93 @@
   #if AXIS_DRIVER_TYPE_X(TMC26X)
     #define X_MAX_CURRENT     1000  // (mA)
     #define X_SENSE_RESISTOR    91  // (mOhms)
-    #define X_MICROSTEPS        16  // Number of microsteps
   #endif
 
   #if AXIS_DRIVER_TYPE_X2(TMC26X)
     #define X2_MAX_CURRENT    1000
     #define X2_SENSE_RESISTOR   91
-    #define X2_MICROSTEPS       16
+    #define X2_MICROSTEPS       X_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_Y(TMC26X)
     #define Y_MAX_CURRENT     1000
     #define Y_SENSE_RESISTOR    91
-    #define Y_MICROSTEPS        16
   #endif
 
   #if AXIS_DRIVER_TYPE_Y2(TMC26X)
     #define Y2_MAX_CURRENT    1000
     #define Y2_SENSE_RESISTOR   91
-    #define Y2_MICROSTEPS       16
+    #define Y2_MICROSTEPS       Y_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_Z(TMC26X)
     #define Z_MAX_CURRENT     1000
     #define Z_SENSE_RESISTOR    91
-    #define Z_MICROSTEPS        16
   #endif
 
   #if AXIS_DRIVER_TYPE_Z2(TMC26X)
     #define Z2_MAX_CURRENT    1000
     #define Z2_SENSE_RESISTOR   91
-    #define Z2_MICROSTEPS       16
+    #define Z2_MICROSTEPS       Z_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_Z3(TMC26X)
     #define Z3_MAX_CURRENT    1000
     #define Z3_SENSE_RESISTOR   91
-    #define Z3_MICROSTEPS       16
+    #define Z3_MICROSTEPS       Z_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_Z4(TMC26X)
     #define Z4_MAX_CURRENT    1000
     #define Z4_SENSE_RESISTOR   91
-    #define Z4_MICROSTEPS       16
+    #define Z4_MICROSTEPS       Z_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     #define E0_MAX_CURRENT    1000
     #define E0_SENSE_RESISTOR   91
-    #define E0_MICROSTEPS       16
   #endif
 
   #if AXIS_DRIVER_TYPE_E1(TMC26X)
     #define E1_MAX_CURRENT    1000
     #define E1_SENSE_RESISTOR   91
-    #define E1_MICROSTEPS       16
+    #define E1_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E2(TMC26X)
     #define E2_MAX_CURRENT    1000
     #define E2_SENSE_RESISTOR   91
-    #define E2_MICROSTEPS       16
+    #define E2_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E3(TMC26X)
     #define E3_MAX_CURRENT    1000
     #define E3_SENSE_RESISTOR   91
-    #define E3_MICROSTEPS       16
+    #define E3_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E4(TMC26X)
     #define E4_MAX_CURRENT    1000
     #define E4_SENSE_RESISTOR   91
-    #define E4_MICROSTEPS       16
+    #define E4_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E5(TMC26X)
     #define E5_MAX_CURRENT    1000
     #define E5_SENSE_RESISTOR   91
-    #define E5_MICROSTEPS       16
+    #define E5_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E6(TMC26X)
     #define E6_MAX_CURRENT    1000
     #define E6_SENSE_RESISTOR   91
-    #define E6_MICROSTEPS       16
+    #define E6_MICROSTEPS       E0_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E7(TMC26X)
     #define E7_MAX_CURRENT    1000
     #define E7_SENSE_RESISTOR   91
-    #define E7_MICROSTEPS       16
+    #define E7_MICROSTEPS       E0_MICROSTEPS
   #endif
 
 #endif // TMC26X
@@ -2748,7 +2744,6 @@
   //#define L6470_CHITCHAT        // Display additional status info
 
   #if AXIS_IS_L64XX(X)
-    #define X_MICROSTEPS       128  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128) - L6474 max is 16
     #define X_OVERCURRENT     2000  // (mA) Current where the driver detects an over current
                                     //   L6470 & L6474 - VALID: 375 x (1 - 16) - 6A max - rounds down
                                     //   POWERSTEP01: VALID: 1000 x (1 - 32) - 32A max - rounds down
@@ -2762,138 +2757,135 @@
   #endif
 
   #if AXIS_IS_L64XX(X2)
-    #define X2_MICROSTEPS      128
-    #define X2_OVERCURRENT    2000
-    #define X2_STALLCURRENT   1500
-    #define X2_MAX_VOLTAGE     127
-    #define X2_CHAIN_POS        -1
-    #define X2_SLEW_RATE         1
+    #define X2_MICROSTEPS     X_MICROSTEPS  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128) - L6474 max is 16
+    #define X2_OVERCURRENT            2000
+    #define X2_STALLCURRENT           1500
+    #define X2_MAX_VOLTAGE             127
+    #define X2_CHAIN_POS                -1
+    #define X2_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(Y)
-    #define Y_MICROSTEPS       128
-    #define Y_OVERCURRENT     2000
-    #define Y_STALLCURRENT    1500
-    #define Y_MAX_VOLTAGE      127
-    #define Y_CHAIN_POS         -1
-    #define Y_SLEW_RATE          1
+    #define Y_OVERCURRENT             2000
+    #define Y_STALLCURRENT            1500
+    #define Y_MAX_VOLTAGE              127
+    #define Y_CHAIN_POS                 -1
+    #define Y_SLEW_RATE                  1
   #endif
 
   #if AXIS_IS_L64XX(Y2)
-    #define Y2_MICROSTEPS      128
-    #define Y2_OVERCURRENT    2000
-    #define Y2_STALLCURRENT   1500
-    #define Y2_MAX_VOLTAGE     127
-    #define Y2_CHAIN_POS        -1
-    #define Y2_SLEW_RATE         1
+    #define Y2_MICROSTEPS     Y_MICROSTEPS
+    #define Y2_OVERCURRENT            2000
+    #define Y2_STALLCURRENT           1500
+    #define Y2_MAX_VOLTAGE             127
+    #define Y2_CHAIN_POS                -1
+    #define Y2_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(Z)
-    #define Z_MICROSTEPS       128
-    #define Z_OVERCURRENT     2000
-    #define Z_STALLCURRENT    1500
-    #define Z_MAX_VOLTAGE      127
-    #define Z_CHAIN_POS         -1
-    #define Z_SLEW_RATE          1
+    #define Z_OVERCURRENT             2000
+    #define Z_STALLCURRENT            1500
+    #define Z_MAX_VOLTAGE              127
+    #define Z_CHAIN_POS                 -1
+    #define Z_SLEW_RATE                  1
   #endif
 
   #if AXIS_IS_L64XX(Z2)
-    #define Z2_MICROSTEPS      128
-    #define Z2_OVERCURRENT    2000
-    #define Z2_STALLCURRENT   1500
-    #define Z2_MAX_VOLTAGE     127
-    #define Z2_CHAIN_POS        -1
-    #define Z2_SLEW_RATE         1
+    #define Z2_MICROSTEPS     Z_MICROSTEPS
+    #define Z2_OVERCURRENT            2000
+    #define Z2_STALLCURRENT           1500
+    #define Z2_MAX_VOLTAGE             127
+    #define Z2_CHAIN_POS                -1
+    #define Z2_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(Z3)
-    #define Z3_MICROSTEPS      128
-    #define Z3_OVERCURRENT    2000
-    #define Z3_STALLCURRENT   1500
-    #define Z3_MAX_VOLTAGE     127
-    #define Z3_CHAIN_POS        -1
-    #define Z3_SLEW_RATE         1
+    #define Z3_MICROSTEPS     Z_MICROSTEPS
+    #define Z3_OVERCURRENT            2000
+    #define Z3_STALLCURRENT           1500
+    #define Z3_MAX_VOLTAGE             127
+    #define Z3_CHAIN_POS                -1
+    #define Z3_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(Z4)
-    #define Z4_MICROSTEPS      128
-    #define Z4_OVERCURRENT    2000
-    #define Z4_STALLCURRENT   1500
-    #define Z4_MAX_VOLTAGE     127
-    #define Z4_CHAIN_POS        -1
-    #define Z4_SLEW_RATE         1
+    #define Z4_MICROSTEPS     Z_MICROSTEPS
+    #define Z4_OVERCURRENT            2000
+    #define Z4_STALLCURRENT           1500
+    #define Z4_MAX_VOLTAGE             127
+    #define Z4_CHAIN_POS                -1
+    #define Z4_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E0)
-    #define E0_MICROSTEPS      128
-    #define E0_OVERCURRENT    2000
-    #define E0_STALLCURRENT   1500
-    #define E0_MAX_VOLTAGE     127
-    #define E0_CHAIN_POS        -1
-    #define E0_SLEW_RATE         1
+    #define E0_OVERCURRENT            2000
+    #define E0_STALLCURRENT           1500
+    #define E0_MAX_VOLTAGE             127
+    #define E0_CHAIN_POS                -1
+    #define E0_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E1)
-    #define E1_MICROSTEPS      128
-    #define E1_OVERCURRENT    2000
-    #define E1_STALLCURRENT   1500
-    #define E1_MAX_VOLTAGE     127
-    #define E1_CHAIN_POS        -1
-    #define E1_SLEW_RATE         1
+    #define E1_MICROSTEPS    E0_MICROSTEPS
+    #define E1_OVERCURRENT            2000
+    #define E1_STALLCURRENT           1500
+    #define E1_MAX_VOLTAGE             127
+    #define E1_CHAIN_POS                -1
+    #define E1_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E2)
-    #define E2_MICROSTEPS      128
-    #define E2_OVERCURRENT    2000
-    #define E2_STALLCURRENT   1500
-    #define E2_MAX_VOLTAGE     127
-    #define E2_CHAIN_POS        -1
-    #define E2_SLEW_RATE         1
+    #define E2_MICROSTEPS    E0_MICROSTEPS
+    #define E2_OVERCURRENT            2000
+    #define E2_STALLCURRENT           1500
+    #define E2_MAX_VOLTAGE             127
+    #define E2_CHAIN_POS                -1
+    #define E2_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E3)
-    #define E3_MICROSTEPS      128
-    #define E3_OVERCURRENT    2000
-    #define E3_STALLCURRENT   1500
-    #define E3_MAX_VOLTAGE     127
-    #define E3_CHAIN_POS        -1
-    #define E3_SLEW_RATE         1
+    #define E3_MICROSTEPS    E0_MICROSTEPS
+    #define E3_OVERCURRENT            2000
+    #define E3_STALLCURRENT           1500
+    #define E3_MAX_VOLTAGE             127
+    #define E3_CHAIN_POS                -1
+    #define E3_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E4)
-    #define E4_MICROSTEPS      128
-    #define E4_OVERCURRENT    2000
-    #define E4_STALLCURRENT   1500
-    #define E4_MAX_VOLTAGE     127
-    #define E4_CHAIN_POS        -1
-    #define E4_SLEW_RATE         1
+    #define E4_MICROSTEPS    E0_MICROSTEPS
+    #define E4_OVERCURRENT            2000
+    #define E4_STALLCURRENT           1500
+    #define E4_MAX_VOLTAGE             127
+    #define E4_CHAIN_POS                -1
+    #define E4_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E5)
-    #define E5_MICROSTEPS      128
-    #define E5_OVERCURRENT    2000
-    #define E5_STALLCURRENT   1500
-    #define E5_MAX_VOLTAGE     127
-    #define E5_CHAIN_POS        -1
-    #define E5_SLEW_RATE         1
+    #define E5_MICROSTEPS    E0_MICROSTEPS
+    #define E5_OVERCURRENT            2000
+    #define E5_STALLCURRENT           1500
+    #define E5_MAX_VOLTAGE             127
+    #define E5_CHAIN_POS                -1
+    #define E5_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E6)
-    #define E6_MICROSTEPS      128
-    #define E6_OVERCURRENT    2000
-    #define E6_STALLCURRENT   1500
-    #define E6_MAX_VOLTAGE     127
-    #define E6_CHAIN_POS        -1
-    #define E6_SLEW_RATE         1
+    #define E6_MICROSTEPS    E0_MICROSTEPS
+    #define E6_OVERCURRENT            2000
+    #define E6_STALLCURRENT           1500
+    #define E6_MAX_VOLTAGE             127
+    #define E6_CHAIN_POS                -1
+    #define E6_SLEW_RATE                 1
   #endif
 
   #if AXIS_IS_L64XX(E7)
-    #define E7_MICROSTEPS      128
-    #define E7_OVERCURRENT    2000
-    #define E7_STALLCURRENT   1500
-    #define E7_MAX_VOLTAGE     127
-    #define E7_CHAIN_POS        -1
-    #define E7_SLEW_RATE         1
+    #define E7_MICROSTEPS    E0_MICROSTEPS
+    #define E7_OVERCURRENT            2000
+    #define E7_STALLCURRENT           1500
+    #define E7_MAX_VOLTAGE             127
+    #define E7_CHAIN_POS                -1
+    #define E7_SLEW_RATE                 1
   #endif
 
   /**
