@@ -42,13 +42,11 @@
 - [6. Version History.](#6-Version-History)
 ***
 ## 1.1. Last news Marlin 2 Bugfix Branch
-  Update Marlin-BugFix 20210129
+  Update Marlin-BugFix 20210228
   - Last fix by Marlin,
-  - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
+  - New release (binaries and source)
   - Support QQSP/Q5 Stock, TMC and UART mode.
-  - **All QQSP features on Q5.**
-  - Choice UI Classic (Lcd) and Color (TFT)
-  - Change BAUDSRATE at 250000
+  - **All QQSP features on Q5 and SKR**
   - Update ReadMe.
 
 ## 1.2. Validate and Actived parts
@@ -439,6 +437,15 @@ Enjoy and support my work ....🙃
  Massive thank you in advance :heart:
 ***
 # 6. Version history
+  ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20210129
+  - Last fix by Marlin,
+  - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
+  - Support QQSP/Q5 Stock, TMC and UART mode.
+  - **All QQSP features on Q5.**
+  - Choice UI Classic (Lcd) and Color (TFT)
+  - Change BAUDSRATE at 250000
+  - Update ReadMe.
 
   ## Marlin 2.0 Bugfix Branch
   Update Marlin-BugFix 20210117
