@@ -1565,6 +1565,8 @@
   //#define LCD_HAOYU_FT810CB         // Haoyu with 5" (800x480)
   //#define LCD_ALEPHOBJECTS_CLCD_UI  // Aleph Objects Color LCD UI
   //#define LCD_FYSETC_TFT81050       // FYSETC with 5" (800x480)
+  //#define LCD_EVE3_50G              // Matrix Orbital 5.0", 800x480, BT815
+  //#define LCD_EVE2_50G              // Matrix Orbital 5.0", 800x480, FT813
 
   // Correct the resolution if not using the stock TFT panel.
   //#define TOUCH_UI_320x240
