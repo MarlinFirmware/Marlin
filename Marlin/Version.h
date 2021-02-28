@@ -47,7 +47,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-//#define MACHINE_NAME "3D Printer"
+#define MACHINE_NAME "Ender 3 v2"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
