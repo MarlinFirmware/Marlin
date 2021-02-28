@@ -112,7 +112,7 @@
   }
 
 /**
- * Settings for the 4D Systems,        4.3" Embedded SPI Display             480x272, SPI, FT800 (4DLCD-FT843)
+ * Settings for the 4D Systems, 4.3" Embedded SPI Display 480x272, SPI, FT800 (4DLCD-FT843)
  *  https://4dsystems.com.au/4dlcd-ft843
  * Datasheet:
  *  https://4dsystems.com.au/mwdownloads/download/link/id/52/
