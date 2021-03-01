@@ -183,8 +183,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
   }
 
   void M100_dump_routine(PGM_P const title, const char * const start, const char * const end) {
-    serialprintPGM(title);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM_P(title);
     //
     // Round the start and end locations to produce full lines of output
     //
@@ -197,7 +196,7 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
 #endif // M100_FREE_MEMORY_DUMPER
 
 inline int check_for_free_memory_corruption(PGM_P const title) {
-  serialprintPGM(title);
+  SERIAL_ECHOPGM_P(title);
 
   char *start_free_memory = free_memory_start, *end_free_memory = free_memory_end;
   int n = end_free_memory - start_free_memory;

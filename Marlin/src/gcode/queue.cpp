@@ -345,8 +345,7 @@ inline int read_serial(const uint8_t index) {
 void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
   PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  serialprintPGM(err);
-  SERIAL_ECHOLN(last_N[pn]);
+  SERIAL_ECHOLNPAIR_P(err, last_N[pn]);
   while (read_serial(pn) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
   serial_count[pn] = 0;

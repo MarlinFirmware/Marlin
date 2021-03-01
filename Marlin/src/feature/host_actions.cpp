@@ -40,7 +40,7 @@
 void host_action(PGM_P const pstr, const bool eol) {
   PORT_REDIRECT(SERIAL_BOTH);
   SERIAL_ECHOPGM("//action:");
-  serialprintPGM(pstr);
+  SERIAL_ECHOPGM_P(pstr);
   if (eol) SERIAL_EOL();
 }
 
@@ -86,14 +86,13 @@ void host_action(PGM_P const pstr, const bool eol) {
   void host_action_notify_P(PGM_P const message) {
     PORT_REDIRECT(SERIAL_BOTH);
     host_action(PSTR("notification "), false);
-    serialprintPGM(message);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM_P(message);
   }
 
   void host_action_prompt(PGM_P const ptype, const bool eol=true) {
     PORT_REDIRECT(SERIAL_BOTH);
     host_action(PSTR("prompt_"), false);
-    serialprintPGM(ptype);
+    SERIAL_ECHOPGM_P(ptype);
     if (eol) SERIAL_EOL();
   }
 
@@ -101,7 +100,7 @@ void host_action(PGM_P const pstr, const bool eol) {
     host_action_prompt(ptype, false);
     PORT_REDIRECT(SERIAL_BOTH);
     SERIAL_CHAR(' ');
-    serialprintPGM(pstr);
+    SERIAL_ECHOPGM_P(pstr);
     if (extra_char != '\0') SERIAL_CHAR(extra_char);
     SERIAL_EOL();
   }
@@ -145,8 +144,8 @@ void host_action(PGM_P const pstr, const bool eol) {
   void host_response_handler(const uint8_t response) {
     #ifdef DEBUG_HOST_ACTIONS
       static PGMSTR(m876_prefix, "M876 Handle Re");
-      serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
-      serialprintPGM(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
+      SERIAL_ECHOPGM_P(m876_prefix); SERIAL_ECHOLNPAIR("ason: ", host_prompt_reason);
+      SERIAL_ECHOPGM_P(m876_prefix); SERIAL_ECHOLNPAIR("sponse: ", response);
     #endif
     PGM_P msg = PSTR("UNKNOWN STATE");
     const PromptReason hpr = host_prompt_reason;
@@ -193,8 +192,7 @@ void host_action(PGM_P const pstr, const bool eol) {
       default: break;
     }
     SERIAL_ECHOPGM("M876 Responding PROMPT_");
-    serialprintPGM(msg);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM_P(msg);
   }
 
 #endif // HOST_PROMPT_SUPPORT

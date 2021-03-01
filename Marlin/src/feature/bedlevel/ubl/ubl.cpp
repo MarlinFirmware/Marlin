@@ -160,7 +160,7 @@
     }
     else {
       SERIAL_ECHOPGM(" for ");
-      serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
+      SERIAL_ECHOPGM_P(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
     // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
@@ -191,7 +191,7 @@
           // TODO: Display on Graphical LCD
         }
         else if (isnan(f))
-          serialprintPGM(human ? PSTR("  .   ") : PSTR("NAN"));
+          SERIAL_ECHOPGM_P(human ? PSTR("  .   ") : PSTR("NAN"));
         else if (human || csv) {
           if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Space for positive ('-' for negative)
           SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits

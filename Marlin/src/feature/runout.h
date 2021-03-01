@@ -124,32 +124,32 @@ class TFilamentMonitor : public FilamentMonitorBase {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
-        const uint8_t sensor_bitmask = response.has_run_out();
+        const uint8_t runout_flags = response.has_run_out();
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
         #if MULTI_FILAMENT_SENSOR
           #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
-            const bool ran_out = !!sensor_bitmask;  // any sensor triggers
+            const bool ran_out = !!runout_flags;  // any sensor triggers
             uint8_t extruder = 0;
             if (ran_out) {
-              uint8_t bitmask = sensor_bitmask;
+              uint8_t bitmask = runout_flags;
               while (!(bitmask & 1)) {
                 bitmask >>= 1;
                 extruder++;
               }
             }
           #else
-            const bool ran_out = TEST(sensor_bitmask, active_extruder);  // suppress non active extruders
+            const bool ran_out = TEST(runout_flags, active_extruder);  // suppress non active extruders
             uint8_t extruder = active_extruder;
           #endif
         #else
-          const bool ran_out = !!sensor_bitmask;
+          const bool ran_out = !!runout_flags;
           uint8_t extruder = active_extruder;
         #endif
 
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          if (sensor_bitmask) {
+          if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(sensor_bitmask, i));
+            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
             SERIAL_ECHOPAIR(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
@@ -315,18 +315,14 @@ class FilamentSensorBase {
       static inline void block_completed(const block_t* const) {}
 
       static inline void run() {
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          static bool was_out[NUM_RUNOUT_SENSORS] = { false };
-        #endif
         LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
           const bool out = poll_runout_state(s);
           if (!out) filament_present(s);
           #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-            if (out != was_out[s]) {
-              was_out[s] = out;
-              SERIAL_ECHOPAIR("Filament Sensor", '0' + s);
-              serialprintPGM(out ? PSTR(" OUT") : PSTR(" IN"));
-              SERIAL_EOL();
+            static uint8_t was_out; // = 0
+            if (out != TEST(was_out, s)) {
+              TBI(was_out, s);
+              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor"), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
             }
           #endif
         }
@@ -360,19 +356,17 @@ class FilamentSensorBase {
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
-            LOOP_L_N(i, NUM_RUNOUT_SENSORS) {
-              serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
-              SERIAL_ECHO(runout_mm_countdown[i]);
-            }
+            LOOP_L_N(i, NUM_RUNOUT_SENSORS)
+              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
             SERIAL_EOL();
           }
         #endif
       }
 
       static inline uint8_t has_run_out() {
-        uint8_t sensor_bitmask = 0;
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_mm_countdown[i] < 0) SBI(sensor_bitmask, i);
-        return sensor_bitmask;
+        uint8_t runout_flags = 0;
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_mm_countdown[i] < 0) SBI(runout_flags, i);
+        return runout_flags;
       }
 
       static inline void filament_present(const uint8_t extruder) {
@@ -411,9 +405,9 @@ class FilamentSensorBase {
       }
 
       static inline uint8_t has_run_out() {
-        uint8_t sensor_bitmask = 0;
-        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] < 0) SBI(sensor_bitmask, i);
-        return sensor_bitmask;
+        uint8_t runout_flags = 0;
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] < 0) SBI(runout_flags, i);
+        return runout_flags;
       }
 
       static inline void block_completed(const block_t* const) { }
