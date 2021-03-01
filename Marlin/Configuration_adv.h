@@ -3365,34 +3365,34 @@
 #endif
 
 /**
- * User-defined button to run custom G-code.
+ * User-defined buttons to run custom G-code.
  * Up to 25 may be defined.
  */
 //#define CUSTOM_USER_BUTTONS
 #if ENABLED(CUSTOM_USER_BUTTONS)
 
-  //#define BUTTON_GCODE_PIN_1 -1         // PIN assigned to trigger BUTTON_GCODE_1 execution
-  #ifdef BUTTON_GCODE_PIN_1
-    #define BUTTON_DESC_1 "Homing"
-    #define BUTTON_GCODE_1 "G28"
-    #define BUTTON_GCODE_PIN_STATE_1 LOW  // What state should trigger BUTTON_GCODE_1 execution (LOW or HIGH)
-    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_1 false // PIN can trigger BUTTON_GCODE_1 even if print job timer is running
+  //#define BUTTON1_PIN -1
+  #if PIN_EXISTS(BUTTON1_PIN)
+    #define BUTTON1_HIT_STATE     LOW       // State of the triggered button. NC=LOW. NO=HIGH.
+    #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
+    #define BUTTON1_GCODE         "G28"
+    #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
   #endif
 
-  //#define BUTTON_GCODE_PIN_2 -1         // PIN assigned to trigger BUTTON_DESC_2 execution
-  #ifdef BUTTON_GCODE_PIN_2
-    #define BUTTON_DESC_2 "Preheat for " PREHEAT_1_LABEL
-    #define BUTTON_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
-    #define BUTTON_GCODE_PIN_STATE_2 LOW  // What state should trigger BUTTON_DESC_2 execution (LOW or HIGH)
-    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_2 false // PIN can trigger BUTTON_DESC_2 even if print job timer is running
+  //#define BUTTON2_PIN -1
+  #if PIN_EXISTS(BUTTON2_PIN)
+    #define BUTTON2_HIT_STATE     LOW
+    #define BUTTON2_WHEN_PRINTING false
+    #define BUTTON2_GCODE         "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+    #define BUTTON2_DESC          "Preheat for " PREHEAT_1_LABEL
   #endif
 
-  //#define BUTTON_GCODE_PIN_3 -1         // PIN assigned to trigger BUTTON_DESC_3 execution
-  #ifdef BUTTON_GCODE_PIN_3
-    #define BUTTON_DESC_3 "Preheat for " PREHEAT_2_LABEL
-    #define BUTTON_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
-    #define BUTTON_GCODE_PIN_STATE_3 LOW  // What state should trigger BUTTON_DESC_3 execution (LOW or HIGH)
-    #define BUTTON_GCODE_PIN_TRIGGER_ALWAYS_3 false // PIN can trigger BUTTON_DESC_3 even if print job timer is running
+  //#define BUTTON3_PIN -1
+  #if PIN_EXISTS(BUTTON3_PIN)
+    #define BUTTON3_HIT_STATE     LOW
+    #define BUTTON3_WHEN_PRINTING false
+    #define BUTTON3_GCODE         "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
+    #define BUTTON3_DESC          "Preheat for " PREHEAT_2_LABEL
   #endif
 #endif
 
