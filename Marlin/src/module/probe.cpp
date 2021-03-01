@@ -279,8 +279,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
       ui.set_status_P(ds_str, 99);
-      serialprintPGM(ds_str);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(ds_str);
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
@@ -586,7 +585,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
-        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM_P(plbl);
         DEBUG_ECHOPGM(" Probe fail! -");
         if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
         if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
