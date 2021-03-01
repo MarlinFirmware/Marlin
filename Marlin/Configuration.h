@@ -790,34 +790,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-
-//Deprecated approach
-//#define DEFAULT_AXIS_MICROSTEPS_PER_UNIT   { 80, 80, 400, 500 } 
-
-//New, siplier way to calculate DEFAULT_AXIS_MICROSTEPS_PER_UNIT.
-//System parameters separated in few physical properties of the machine.
-//This way you can easily swap motors with more precise, change microstepping settings,
-//or change dimensions of the machine,
-//without having to recalculate STEPS_PER_UNIT
-#define  X_MICROSTEPS          16        // 0..256
-#define  Y_MICROSTEPS          16
-#define  Z_MICROSTEPS          16
-#define E0_MICROSTEPS          16
-#define  X_DEGREES_PER_STEP     1.8
-#define  Y_DEGREES_PER_STEP     1.8
-#define  Z_DEGREES_PER_STEP     1.8
-#define E0_DEGREES_PER_STEP     1.8
-#define  X_DEGREES_PER_UNIT     9.0
-#define  Y_DEGREES_PER_UNIT     9.0
-#define  Z_DEGREES_PER_UNIT    45.0
-#define E0_DEGREES_PER_UNIT    56.25
-
-#define DEFAULT_AXIS_MICROSTEPS_PER_UNIT { \
-  X_MICROSTEPS * X_DEGREES_PER_UNIT / X_DEGREES_PER_STEP, \
-  Y_MICROSTEPS * Y_DEGREES_PER_UNIT / Y_DEGREES_PER_STEP, \
-  Z_MICROSTEPS * Z_DEGREES_PER_UNIT / Z_DEGREES_PER_STEP, \
-  E0_MICROSTEPS * E0_DEGREES_PER_UNIT / E0_DEGREES_PER_STEP, \
-}
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
 
 /**
  * Default Max Feed Rate (mm/s)

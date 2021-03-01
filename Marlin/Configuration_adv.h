@@ -2238,6 +2238,7 @@
   #if AXIS_DRIVER_TYPE_X(TMC26X)
     #define X_MAX_CURRENT     1000  // (mA)
     #define X_SENSE_RESISTOR    91  // (mOhms)
+    #define X_MICROSTEPS        16  // Number of microsteps
   #endif
 
   #if AXIS_DRIVER_TYPE_X2(TMC26X)
@@ -2249,6 +2250,7 @@
   #if AXIS_DRIVER_TYPE_Y(TMC26X)
     #define Y_MAX_CURRENT     1000
     #define Y_SENSE_RESISTOR    91
+    #define Y_MICROSTEPS        16
   #endif
 
   #if AXIS_DRIVER_TYPE_Y2(TMC26X)
@@ -2260,6 +2262,7 @@
   #if AXIS_DRIVER_TYPE_Z(TMC26X)
     #define Z_MAX_CURRENT     1000
     #define Z_SENSE_RESISTOR    91
+    #define Z_MICROSTEPS        16
   #endif
 
   #if AXIS_DRIVER_TYPE_Z2(TMC26X)
@@ -2283,6 +2286,7 @@
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     #define E0_MAX_CURRENT    1000
     #define E0_SENSE_RESISTOR   91
+    #define E0_MICROSTEPS       16
   #endif
 
   #if AXIS_DRIVER_TYPE_E1(TMC26X)
@@ -2360,6 +2364,7 @@
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
+    #define X_MICROSTEPS     16        // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
@@ -2377,6 +2382,7 @@
   #if AXIS_IS_TMC(Y)
     #define Y_CURRENT       800
     #define Y_CURRENT_HOME  Y_CURRENT
+    #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
     //#define Y_INTERPOLATE  true
@@ -2394,6 +2400,7 @@
   #if AXIS_IS_TMC(Z)
     #define Z_CURRENT       800
     #define Z_CURRENT_HOME  Z_CURRENT
+    #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
     #define Z_CHAIN_POS      -1
     //#define Z_INTERPOLATE  true
@@ -2428,6 +2435,7 @@
 
   #if AXIS_IS_TMC(E0)
     #define E0_CURRENT      800
+    #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
     //#define E0_INTERPOLATE true
@@ -2744,6 +2752,7 @@
   //#define L6470_CHITCHAT        // Display additional status info
 
   #if AXIS_IS_L64XX(X)
+    #define X_MICROSTEPS       128  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128) - L6474 max is 16
     #define X_OVERCURRENT     2000  // (mA) Current where the driver detects an over current
                                     //   L6470 & L6474 - VALID: 375 x (1 - 16) - 6A max - rounds down
                                     //   POWERSTEP01: VALID: 1000 x (1 - 32) - 32A max - rounds down
@@ -2757,7 +2766,7 @@
   #endif
 
   #if AXIS_IS_L64XX(X2)
-    #define X2_MICROSTEPS     X_MICROSTEPS  // Number of microsteps (VALID: 1, 2, 4, 8, 16, 32, 128) - L6474 max is 16
+    #define X2_MICROSTEPS     X_MICROSTEPS
     #define X2_OVERCURRENT            2000
     #define X2_STALLCURRENT           1500
     #define X2_MAX_VOLTAGE             127
@@ -2766,6 +2775,7 @@
   #endif
 
   #if AXIS_IS_L64XX(Y)
+    #define Y_MICROSTEPS               128
     #define Y_OVERCURRENT             2000
     #define Y_STALLCURRENT            1500
     #define Y_MAX_VOLTAGE              127
@@ -2783,6 +2793,7 @@
   #endif
 
   #if AXIS_IS_L64XX(Z)
+    #define Z_MICROSTEPS               128
     #define Z_OVERCURRENT             2000
     #define Z_STALLCURRENT            1500
     #define Z_MAX_VOLTAGE              127
@@ -2818,6 +2829,7 @@
   #endif
 
   #if AXIS_IS_L64XX(E0)
+    #define E0_MICROSTEPS              128
     #define E0_OVERCURRENT            2000
     #define E0_STALLCURRENT           1500
     #define E0_MAX_VOLTAGE             127
