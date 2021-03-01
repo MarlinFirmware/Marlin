@@ -47,11 +47,11 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOPGM("Extrapolate [");
     if (x < 10) DEBUG_CHAR(' ');
-    DEBUG_ECHO((int)x);
+    DEBUG_ECHO(x);
     DEBUG_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
     DEBUG_CHAR(' ');
     if (y < 10) DEBUG_CHAR(' ');
-    DEBUG_ECHO((int)y);
+    DEBUG_ECHO(y);
     DEBUG_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
     DEBUG_ECHOLNPGM("]");
   }
@@ -168,7 +168,7 @@ void print_bilinear_leveling_grid() {
       // cancelled out in bed_level_virt_cmr and does not impact the result. Return 0.0 rather than
       // making this function more complex by extrapolating two points.
       return 0.0;
-    }    
+    }
     if (!x || x == ABL_TEMP_POINTS_X - 1) {
       if (x) {
         ep = GRID_MAX_POINTS_X - 1;

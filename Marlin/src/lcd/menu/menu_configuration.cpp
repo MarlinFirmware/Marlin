@@ -164,7 +164,7 @@ void menu_advanced_settings();
   void menu_tool_offsets() {
 
     auto _recalc_offsets = []{
-      if (active_extruder && all_axes_known()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+      if (active_extruder && all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
         queue.inject_P(G28_STR); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
         active_extruder = 0;
       }
@@ -216,7 +216,7 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch.last_written_mode);
+      SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", bltouch.last_written_mode);
       SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));

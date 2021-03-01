@@ -31,7 +31,7 @@
 
 #define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"
-#define BOARD_WEBSITE_URL    "https://tinyurl.com/yyxw7se7"
+#define BOARD_WEBSITE_URL    "tinyurl.com/yyxw7se7"
 
 //
 // Limit Switches
@@ -82,7 +82,7 @@
 //
 // SD Card
 //
-#define SD_DETECT_PIN                         -1
+#define SD_DETECT_PIN                         83
 #define SDSS                                  53
 
 //

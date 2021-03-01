@@ -93,6 +93,10 @@
 
   LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
+#elif ENABLED(YHCB2004)
+
+  LCD_CLASS lcd(YHCB2004_CLK, 20, 4, YHCB2004_MOSI, YHCB2004_MISO); // CLK, cols, rows, MOSI, MISO
+
 #else
 
   // Standard direct-connected LCD implementations
@@ -471,7 +475,6 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
       // Show the Marlin logo and short build version
       // After a delay show the website URL
       //
-      extern const char NUL_STR[];
       logo_lines(NUL_STR);
       CENTER_OR_SCROLL(SHORT_BUILD_VERSION, 1500);
       CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 1500);
@@ -506,18 +509,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   lcd_put_wchar('X' + uint8_t(axis));
   if (blink)
     lcd_put_u8str(value);
-  else {
-    if (!TEST(axis_homed, axis))
-      while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
-    else {
-      #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!TEST(axis_known_position, axis))
-          lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
-        else
-      #endif
-          lcd_put_u8str(value);
-    }
-  }
+  else if (axis_should_home(axis))
+    while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
+    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+  else
+    lcd_put_u8str(value);
 }
 
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {

@@ -28,6 +28,10 @@
 
 CaseLight caselight;
 
+#if CASE_LIGHT_IS_COLOR_LED
+  #include "leds/leds.h"
+#endif
+
 #if CASELIGHT_USES_BRIGHTNESS && !defined(CASE_LIGHT_DEFAULT_BRIGHTNESS)
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 0 // For use on PWM pin as non-PWM just sets a default
 #endif
@@ -38,10 +42,10 @@ CaseLight caselight;
 
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
-#if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+#if CASE_LIGHT_IS_COLOR_LED
   LEDColor CaseLight::color =
-    #ifdef CASE_LIGHT_NEOPIXEL_COLOR
-      CASE_LIGHT_NEOPIXEL_COLOR
+    #ifdef CASE_LIGHT_DEFAULT_COLOR
+      CASE_LIGHT_DEFAULT_COLOR
     #else
       { 255, 255, 255, 255 }
     #endif
@@ -71,17 +75,17 @@ void CaseLight::update(const bool sflag) {
     const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
   #endif
 
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #if CASE_LIGHT_IS_COLOR_LED
 
     leds.set_color(
       MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),
       false
     );
 
-  #else // !CASE_LIGHT_USE_NEOPIXEL
+  #else // !CASE_LIGHT_IS_COLOR_LED
 
     #if CASELIGHT_USES_BRIGHTNESS
-      if (PWM_PIN(CASE_LIGHT_PIN))
+      if (pin_is_pwm())
         analogWrite(pin_t(CASE_LIGHT_PIN), (
           #if CASE_LIGHT_MAX_PWM == 255
             n10ct
@@ -96,7 +100,11 @@ void CaseLight::update(const bool sflag) {
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
       }
 
-  #endif // !CASE_LIGHT_USE_NEOPIXEL
+  #endif // !CASE_LIGHT_IS_COLOR_LED
+
+  #if ENABLED(CASE_LIGHT_USE_RGB_LED)
+    if (leds.lights_on) leds.update(); else leds.set_off();
+  #endif
 }
 
 #endif // CASE_LIGHT_ENABLE

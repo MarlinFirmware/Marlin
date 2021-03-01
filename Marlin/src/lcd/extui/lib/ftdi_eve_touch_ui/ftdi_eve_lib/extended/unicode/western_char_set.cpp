@@ -32,7 +32,7 @@
   constexpr static uint8_t std_font = 31;
   constexpr static uint8_t alt_font = 1;
 
-  static uint32_t bitmap_addr;
+  uint32_t FTDI::WesternCharSet::bitmap_addr;
 
   /* Glyphs in the WesternCharSet bitmap */
 
@@ -71,9 +71,9 @@
       YEN_SIGN,
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      SUPERSCRIPT_ONE,
-      SUPERSCRIPT_TWO,
-      SUPERSCRIPT_THREE,
+      SUPERSCRIPT_1,
+      SUPERSCRIPT_2,
+      SUPERSCRIPT_3,
     #endif
     #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
       MASCULINE_ORDINAL,
@@ -177,15 +177,15 @@
       {UTF8('±'),  0 , NOT_SIGN,           32   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('²'),  0 , SUPERSCRIPT_TWO,    16   },
-      {UTF8('³'),  0 , SUPERSCRIPT_THREE,  16   },
+      {UTF8('²'),  0 , SUPERSCRIPT_2,    16   },
+      {UTF8('³'),  0 , SUPERSCRIPT_3,  16   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
       {UTF8('µ'),  0 , MICRON_SIGN,        28   },
       {UTF8('¶'),  0 , PILCROW_SIGN,       24   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('¹'),  0 , SUPERSCRIPT_ONE,    16   },
+      {UTF8('¹'),  0 , SUPERSCRIPT_1,    16   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
       {UTF8('º'),  0 , MASCULINE_ORDINAL,  19   },
@@ -286,7 +286,7 @@
     #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
       {UTF8('þ'),  0 , SML_THORN,          25   },
     #endif
-    {UTF8('ÿ'), 'y', DIAERESIS,          mid_y}
+    {UTF8('ÿ'), 'y', DIAERESIS,          mid_y},
   };
 
   static_assert(UTF8('¡') == 0xC2A1, "Incorrect encoding for character");
@@ -331,7 +331,10 @@
    *   addr  - Address in RAMG where the font data is written
    */
 
-  void FTDI::WesternCharSet::load_data(uint32_t addr) {
+  uint32_t FTDI::WesternCharSet::load_data(uint32_t addr) {
+    if (addr % 4 != 0)
+      addr += 4 - (addr % 4);
+
     // Load the alternative font metrics
     CLCD::FontMetrics alt_fm;
     alt_fm.ptr    = addr + 148;
@@ -352,9 +355,11 @@
     CLCD::mem_write_bulk(addr, &alt_fm,  148);
 
     // Decode the RLE data and load it into RAMG as a bitmap
-    write_rle_data(addr + 148, font, sizeof(font));
+    uint32_t lastaddr = write_rle_data(addr + 148, font, sizeof(font));
 
     bitmap_addr = addr;
+
+    return lastaddr;
   }
 
   /**
@@ -394,7 +399,7 @@
    *
    *   c    - The unicode code point to draw. If the renderer does not
    *          support the character, it should return false.
-
+   *
    * Returns: Whether the character was supported.
    */
 

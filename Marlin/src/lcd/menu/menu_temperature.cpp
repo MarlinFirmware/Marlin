@@ -35,7 +35,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   #include "../../module/tool_change.h"
 #endif
 
@@ -159,7 +159,7 @@ void menu_temperature() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT));
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT));
   #endif
 
   //
@@ -226,7 +226,7 @@ void menu_temperature() {
 
   #if PREHEAT_COUNT
     //
-    // Preheat for Materials 1 to 5
+    // Preheat for all Materials
     //
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
@@ -248,5 +248,25 @@ void menu_temperature() {
 
   END_MENU();
 }
+
+#if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
+
+  void menu_preheat_only() {
+    START_MENU();
+    BACK_ITEM(MSG_MAIN);
+
+    LOOP_L_N(m, PREHEAT_COUNT) {
+      editable.int8 = m;
+      #if HOTENDS > 1 || HAS_HEATED_BED
+        SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
+      #else
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
+      #endif
+    }
+
+    END_MENU();
+  }
+
+#endif
 
 #endif // HAS_LCD_MENU && HAS_TEMPERATURE
