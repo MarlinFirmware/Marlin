@@ -16,8 +16,8 @@
 /*_______________________1___________________________*/
 //==================== Hardware =====================//
 /*-------------Motherboard/Printer-(1 CHOICE)-------*/
-#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
-//#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
+//#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
+#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
                                      // click on the "Default" icon on the bottom edge of the window and 
                                      // choose "mks_robin_nano35").
 
@@ -97,7 +97,8 @@
       */
 
 //#define DELTA_HOME_TO_SAFE_ZONE    // Option to move down after homing to a height where XYZ movement is unconstrained.
-#define PREHEAT_BEFORE_LEVELING    //(P) Run a PreHeat bed at 50°C (Default)
+#define PREHEAT_BEFORE_PROBING     //(P) Run a PreHeat bed at 60°C (Default)
+//#define PREHEAT_BEFORE_LEVELING    
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 
@@ -121,6 +122,7 @@
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
 #define LCD_INFO_MENU              // Informations printer (Default).
+//#define PREHEAT_SHORTCUT_MENU_ITEM // add preheat/temperatur menu (first page)
 
 // For user who change their nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
 //#define TEMP_SENSOR_0 5             // uncomment with a good number/type.

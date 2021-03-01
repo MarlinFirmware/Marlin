@@ -1335,8 +1335,8 @@
 // Require minimum nozzle and/or bed temperature for probing.
 //#define PREHEAT_BEFORE_PROBING
 #if ENABLED(PREHEAT_BEFORE_PROBING)
-  #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
-  #define PROBING_BED_TEMP     50
+  //#define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+  #define PROBING_BED_TEMP     60
 #endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1

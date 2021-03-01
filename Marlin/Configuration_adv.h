@@ -1162,7 +1162,7 @@
   #endif
 
   // Insert a menu for preheating at the top level to allow for quick access
-  //#define PREHEAT_SHORTCUT_MENU_ITEM
+  //#define PREHEAT_SHORTCUT_MENU_ITEM  // Define on FLSUNQ_Config
 
 #endif // HAS_LCD_MENU
 
