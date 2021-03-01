@@ -38,7 +38,7 @@
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
-#define TP                                        // Enable to define servo and probe pins
+#define TP                                        // Enable to define servo / probe pins
 #define M5_EXTENDER                               // The M5 extender is attached
 
 //
@@ -46,15 +46,17 @@
 //
 #if ENABLED(TP)
   #define SERVO0_PIN                        PB11  // BLTOUCH
-  #define SOL0_PIN                          PC7   // toolchanger
+  #define SOL0_PIN                          PC7   // Toolchanger
 #endif
 
 //#define TOOL_SENSOR
-#define TOOL_SENSOR1_PIN                    PH6
-#define TOOL_SENSOR2_PIN                    PI4
-//#define TOOL_SENSOR3_PIN                  PF4
-
-//#define PS_ON_PIN                         PH6
+#if ENABLED(TOOL_SENSOR)
+  #define TOOL_SENSOR1_PIN                  PH6
+  #define TOOL_SENSOR2_PIN                  PI4
+  //#define TOOL_SENSOR3_PIN                PF4
+#else
+  #define PS_ON_PIN                         PH6
+#endif
 
 //
 // Trinamic Stallguard pins
@@ -144,39 +146,25 @@
   #define Z_CS_PIN                          PB5
 #endif
 
-#define Z2_STEP_PIN                         PG12
-#define Z2_DIR_PIN                          PG11
-#define Z2_ENABLE_PIN                       PG13
-#ifndef Z2_CS_PIN
-  #define Z2_CS_PIN                         PG10
-#endif
-
-#define Z3_STEP_PIN                         PD6
-#define Z3_DIR_PIN                          PD5
-#define Z3_ENABLE_PIN                       PD7
-#ifndef Z3_CS_PIN
-  #define Z3_CS_PIN                         PD4
-#endif
-
-#define E0_STEP_PIN                         PD1
-#define E0_DIR_PIN                          PD0
-#define E0_ENABLE_PIN                       PD2
+#define E0_STEP_PIN                         PG12
+#define E0_DIR_PIN                          PG11
+#define E0_ENABLE_PIN                       PG13
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PC12
+  #define E0_CS_PIN                         PG10
 #endif
 
-#define E1_STEP_PIN                         PF3
-#define E1_DIR_PIN                          PG3
-#define E1_ENABLE_PIN                       PF8
+#define E1_STEP_PIN                         PD6
+#define E1_DIR_PIN                          PD5
+#define E1_ENABLE_PIN                       PD7
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                         PG4
+  #define E1_CS_PIN                         PD4
 #endif
 
-#define E2_STEP_PIN                         PD14
-#define E2_DIR_PIN                          PD11
-#define E2_ENABLE_PIN                       PG2
+#define E2_STEP_PIN                         PD1
+#define E2_DIR_PIN                          PD0
+#define E2_ENABLE_PIN                       PD2
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN                         PE15
+  #define E2_CS_PIN                         PC12
 #endif
 
 #if ENABLED(M5_EXTENDER)
@@ -233,7 +221,7 @@
   #endif
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -407,11 +395,11 @@
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS                     PG6
 
-    #define BTN_EN1                         PD10
-    #define BTN_EN2                         PH10
+    #define BTN_EN1                         PC10
+    #define BTN_EN2                         PG8
 
-    #define LCD_PINS_ENABLE                 PG7
-    #define LCD_PINS_D4                     PG8
+    #define LCD_PINS_ENABLE                 PG5
+    #define LCD_PINS_D4                     PG7
 
     // CR10_STOCKDISPLAY default timing is too fast
     #undef BOARD_ST7920_DELAY_1
@@ -458,7 +446,7 @@
           #define RGB_LED_B_PIN             PG5
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PF13
+        #define NEOPIXEL_PIN                PG7
       #endif
     #endif // !FYSETC_MINI_12864
 
