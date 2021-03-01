@@ -230,7 +230,7 @@ class FilamentSensorBase {
                       change    = old_state ^ new_state;
         old_state = new_state;
 
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
             LOOP_L_N(e, NUM_RUNOUT_SENSORS)
@@ -266,12 +266,12 @@ class FilamentSensorBase {
     private:
       static inline bool poll_runout_state(const uint8_t extruder) {
         const uint8_t runout_states = poll_runout_states();
-        #if NUM_RUNOUT_SENSORS == 1
-          UNUSED(extruder);
-        #else
+        #if MULTI_FILAMENT_SENSOR
           if ( !TERN0(DUAL_X_CARRIAGE, idex_is_duplicating())
             && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
           ) return TEST(runout_states, extruder); // A specific extruder ran out
+        #else
+          UNUSED(extruder);
         #endif
         return !!runout_states;                   // Any extruder ran out
       }
@@ -282,7 +282,7 @@ class FilamentSensorBase {
       static inline void run() {
         const bool out = poll_runout_state(active_extruder);
         if (!out) filament_present(active_extruder);
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           static bool was_out = false;
           if (out != was_out) {
             was_out = out;
@@ -315,7 +315,7 @@ class FilamentSensorBase {
       }
 
       static inline void run() {
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           static millis_t t = 0;
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
