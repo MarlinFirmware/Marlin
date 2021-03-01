@@ -340,8 +340,10 @@ namespace ExtUI {
     #endif
   }
 
-  extruder_t getActiveTool() {
-    switch (active_extruder) {
+  extruder_t getTool(const uint8_t extruder) {
+    switch (extruder) {
+      case 7:  return E7;
+      case 6:  return E6;
       case 5:  return E5;
       case 4:  return E4;
       case 3:  return E3;
@@ -350,6 +352,8 @@ namespace ExtUI {
       default: return E0;
     }
   }
+
+  extruder_t getActiveTool() { return getTool(active_extruder); }
 
   bool isMoving() { return planner.has_blocks_queued(); }
 
