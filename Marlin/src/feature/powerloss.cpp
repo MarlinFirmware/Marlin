@@ -393,8 +393,8 @@ void PrintJobRecovery::resume() {
 
   #ifdef POWER_LOSS_ZHOME_POS
     // If defined move to a safe Z homing position that avoids the print
-    constexpr xy_pos_t homepos = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z", dtostrf(homepos.x, 1, 3, str_1), dtostrf(homepos.y, 1, 3, str_2)));
+    constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
+    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
 
