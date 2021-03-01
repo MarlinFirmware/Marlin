@@ -1323,13 +1323,26 @@ void HMI_Move_Z() {
     if (encoder_diffState != ENCODER_DIFF_NO) {
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_E_scaled)) {
         last_E_scaled = HMI_ValueStruct.Move_E_scaled;
-        return HMI_Move_Done(E_AXIS);
+// M.A.R.C Apply Move
+        EncoderRate.enabled = false;
+        checkkey = AxisMove;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
+        HMI_Plan_Move(MMM_TO_MMS(FEEDRATE_E));
+        DWIN_UpdateLCD();
+        return;
+//
+//        return HMI_Move_Done(E_AXIS);
+
       }
       LIMIT(HMI_ValueStruct.Move_E_scaled, last_E_scaled - (EXTRUDE_MAXLENGTH) * MINUNITMULT, last_E_scaled + (EXTRUDE_MAXLENGTH) * MINUNITMULT);
       current_position.e = HMI_ValueStruct.Move_E_scaled / MINUNITMULT;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
+// M.A.R.C. No live move
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
       DWIN_UpdateLCD();
-      HMI_Plan_Move(MMM_TO_MMS(FEEDRATE_E));
+//
+//      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, UNITFDIGITS, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
+//      DWIN_UpdateLCD();
+//      HMI_Plan_Move(MMM_TO_MMS(FEEDRATE_E));
     }
   }
 
@@ -4069,8 +4082,9 @@ void Start_Print(bool sd) {
 //End print job from Host
 void Stop_Print() {
   HMI_flag.select_flag = true;
-  checkkey = Print_window;
-  select_print.now = 2;
+  checkkey = Back_Main;
+  thermalManager.zero_fan_speeds();
+  thermalManager.disable_all_heaters();
 }
 
 #endif // DWIN_CREALITY_LCD
