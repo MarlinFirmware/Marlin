@@ -390,17 +390,17 @@
 
 ###  - Electronic check.
 
-    Check your power supply with a controler....
+  Check your power supply with a controler....
     
     
+  When my printer arrived but you can still do it afterwards, I switched on and controlled the power output using a multimeter (channel higher than 30V DC). I noticed that the multimeter was measuring 23.6v DC output!! This is not enough to power all the electronics. 
+    
+  ![PowerSupply](../../docs/images/PowerSupply.png)
 
-    When my printer arrived but you can still do it afterwards, I switched on and controlled the power output using a multimeter (channel higher than 30V DC). I noticed that the multimeter was measuring 23.6v DC output!! This is not enough to power all the electronics. 
+  You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
     
-    ![PowerSupply](../../docs/images/PowerSupply.png)
+  ![Voltage](../../docs/images/AdjustVolt.png)
 
-    You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
-    
-    ![Voltage](../../docs/images/AdjustVolt.png)
 ***
 # 4. SLICER PART
 ### **TIPS-SLICER** 
