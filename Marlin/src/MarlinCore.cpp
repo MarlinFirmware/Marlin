@@ -503,19 +503,19 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // Handle a custom user button if defined
     const bool printer_not_busy = !printingIsActive();
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE) && defined(BUTTON##N##_DESC))
-    #define CHECK_CUSTOM_USER_BUTTON(N) do{                     \
-      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;        \
-      static millis_t next_cub_ms_##N;                          \
-      if ((BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN))      \
+    #define CHECK_CUSTOM_USER_BUTTON(N) do{                   \
+      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;      \
+      static millis_t next_cub_ms_##N;                        \
+      if ((BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN))    \
         && (BUTTON##N##_WHEN_PRINTING || printer_not_busy)) { \
-        const millis_t ms = millis();                           \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                     \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;        \
-          if (strlen(BUTTON##N##_DESC))                         \
-            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));           \
-          queue.inject_P(PSTR(BUTTON##N##_GCODE));              \
-        }                                                       \
-      }                                                         \
+        const millis_t ms = millis();                         \
+        if (ELAPSED(ms, next_cub_ms_##N)) {                   \
+          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;      \
+          if (strlen(BUTTON##N##_DESC))                       \
+            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));         \
+          queue.inject_P(PSTR(BUTTON##N##_GCODE));            \
+        }                                                     \
+      }                                                       \
     }while(0)
 
     #if HAS_CUSTOM_USER_BUTTON(1)
