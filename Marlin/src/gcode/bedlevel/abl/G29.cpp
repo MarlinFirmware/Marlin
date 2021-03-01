@@ -786,7 +786,7 @@ G29_TYPE GcodeSuite::G29() {
         float min_diff = 999;
 
         auto print_topo_map = [&](PGM_P const title, const bool get_min) {
-          serialprintPGM(title);
+          SERIAL_ECHOPGM_P(title);
           for (int8_t yy = abl_grid_points.y - 1; yy >= 0; yy--) {
             LOOP_L_N(xx, abl_grid_points.x) {
               const int ind = indexIntoAB[xx][yy];
