@@ -328,18 +328,10 @@
 
 ## 3.1 TMC with UART mode
   - Wiring for UART mode.
-    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1)   
-      -                 ____ ESP(M1) ____      
-      -             GND| 15 |       | 08 |+3v3    
-      -                | 16 |       | 07 |MOSI    
-      - Steppers    IO2| 17 |       | 06 |MISO  
-      - E =>  (PA8) IO0| 18 |       | 05 |CLK   
-      - Z =>  (PC7) IO1| 19 |       | 03 |EN        
-      -                | nc |       | nc |      
-      - Y =>  (PA9)  RX| 21 |       | nc |
-      - X =>  (PA10) TX| 22 |       | 01 |RST
-      -                 ￣￣ Antenne  ￣￣
-   
+    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1) 
+    
+    ![UART-WIFI](../../docs/images/UART-WIFI.png)  
+
     ![Wiring UART](../../docs/images/WireUART.png)
 ## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
