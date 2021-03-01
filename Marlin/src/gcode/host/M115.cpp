@@ -35,7 +35,7 @@
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
     SERIAL_ECHOPGM_P(name);
-    SERIAL_CHAR(':', ena ? '1' : '0');
+    SERIAL_CHAR(':', '0' + ena);
     SERIAL_EOL();
   }
 #endif
