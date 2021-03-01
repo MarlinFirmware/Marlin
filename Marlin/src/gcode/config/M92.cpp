@@ -37,7 +37,7 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
     LOOP_L_N(i, E_STEPPERS) {
       if (e >= 0 && i != e) continue;
       if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), (int)i,
+      SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), i,
                         SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
     }
   #endif

@@ -414,8 +414,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
-    last_usb_connected_status = MYSERIAL0;
+  if (last_usb_connected_status != MYSERIAL0.connected() || forceUpdate) {
+    last_usb_connected_status = MYSERIAL0.connected();
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -511,12 +511,15 @@ namespace ExtUI {
 
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
+  void onMediaInserted() {}
+  void onMediaError() {}
+  void onMediaRemoved() {}
   void onPlayTone(const uint16_t, const uint16_t) {}
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
   void onFactoryReset() {}
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
@@ -524,6 +527,7 @@ namespace ExtUI {
   void onConfigurationStoreRead(bool) {}
 
   #if HAS_MESH
+    void onMeshLevelingStart() {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif
@@ -531,6 +535,9 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
   #endif
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // MALYAN_LCD

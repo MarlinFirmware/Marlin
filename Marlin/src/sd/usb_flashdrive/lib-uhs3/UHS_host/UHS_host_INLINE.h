@@ -984,7 +984,7 @@ uint8_t UHS_USB_HOST_BASE::ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbyt
         //bool direction = bmReqType & 0x80; //request direction, IN or OUT
         uint8_t rcode = 0;
 
-        //        Serial.println("");
+        //Serial.println();
         UHS_EpInfo *pep = ctrlReqOpen(addr, Request, dataptr);
         if(!pep) {
                 HOST_DEBUG("ctrlReq1: ERROR_NULL_EPINFO addr: %d\r\n", addr);

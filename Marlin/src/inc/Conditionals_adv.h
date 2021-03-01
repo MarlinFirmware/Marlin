@@ -128,8 +128,14 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
@@ -140,6 +146,10 @@
   #endif
 #else
   #undef SD_FINISHED_RELEASECOMMAND
+#endif
+
+#if ENABLED(NO_SD_AUTOSTART)
+  #undef MENU_ADDAUTOSTART
 #endif
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
@@ -207,14 +217,18 @@
 #if DISABLED(Y_DUAL_STEPPER_DRIVERS)
   #undef Y2_DRIVER_TYPE
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 2
-  #undef Z2_DRIVER_TYPE
-#endif
-#if NUM_Z_STEPPER_DRIVERS < 3
-  #undef Z3_DRIVER_TYPE
-#endif
+
 #if NUM_Z_STEPPER_DRIVERS < 4
   #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -378,6 +392,14 @@
   #define POLL_JOG
 #endif
 
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
+#endif
+
 /**
  * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
@@ -490,41 +512,29 @@
   #define NEED_HEX_PRINT 1
 #endif
 
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
 #endif
 
 // Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
-#if ANY_SERIAL_IS(-1)
-  #define USING_SERIAL_DEFAULT
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || \
+                         (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || \
+                         (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
+                         (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+
+#if ENABLED(CUSTOM_USER_MENUS)
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define HAS_USER_ITEM(V...) DO(HAS,||,V)
+#else
+  #define HAS_USER_ITEM(N) 0
 #endif
-#if ANY_SERIAL_IS(0)
-  #define USING_SERIAL_0 1
-#endif
-#if ANY_SERIAL_IS(1)
-  #define USING_SERIAL_1 1
-#endif
-#if ANY_SERIAL_IS(2)
-  #define USING_SERIAL_2 1
-#endif
-#if ANY_SERIAL_IS(3)
-  #define USING_SERIAL_3 1
-#endif
-#if ANY_SERIAL_IS(4)
-  #define USING_SERIAL_4 1
-#endif
-#if ANY_SERIAL_IS(5)
-  #define USING_SERIAL_5 1
-#endif
-#if ANY_SERIAL_IS(6)
-  #define USING_SERIAL_6 1
-#endif
-#if ANY_SERIAL_IS(7)
-  #define USING_SERIAL_7 1
-#endif
-#if ANY_SERIAL_IS(8)
-  #define USING_SERIAL_8 1
-#endif
-#undef ANY_SERIAL_IS
