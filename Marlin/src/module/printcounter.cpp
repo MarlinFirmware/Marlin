@@ -118,7 +118,7 @@ void PrintCounter::initStats() {
   inline bool _service_warn(const char * const msg) {
     _print_divider();
     SERIAL_ECHO_START();
-    serialprintPGM(msg);
+    SERIAL_ECHOPGM_P(msg);
     SERIAL_ECHOLNPGM("!");
     _print_divider();
     return true;
@@ -177,7 +177,7 @@ void PrintCounter::saveStats() {
 #if HAS_SERVICE_INTERVALS
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
     SERIAL_ECHOPGM(STR_STATS);
-    serialprintPGM(msg);
+    SERIAL_ECHOPGM_P(msg);
     SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
   }
 #endif
@@ -339,7 +339,7 @@ void PrintCounter::reset() {
   void PrintCounter::debug(const char func[]) {
     if (DEBUGGING(INFO)) {
       SERIAL_ECHOPGM("PrintCounter::");
-      serialprintPGM(func);
+      SERIAL_ECHOPGM_P(func);
       SERIAL_ECHOLNPGM("()");
     }
   }

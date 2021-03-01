@@ -908,11 +908,11 @@ void unified_bed_leveling::shift_mesh_height() {
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
       if (parser.seen('B')) {
-        serialprintPGM(GET_TEXT(MSG_UBL_BC_INSERT));
+        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT));
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
       }
       else {
-        serialprintPGM(GET_TEXT(MSG_UBL_BC_INSERT2));
+        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT2));
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT2);
       }
 
@@ -1576,7 +1576,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
         auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
-          d_from(); serialprintPGM(pre);
+          d_from(); SERIAL_ECHOPGM_P(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
         };

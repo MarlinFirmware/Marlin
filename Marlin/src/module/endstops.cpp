@@ -405,10 +405,9 @@ void Endstops::event_handler() {
 }
 
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
-  if (label) serialprintPGM(label);
+  if (label) SERIAL_ECHOPGM_P(label);
   SERIAL_ECHOPGM(": ");
-  serialprintPGM(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
-  SERIAL_EOL();
+  SERIAL_ECHOLNPGM_P(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
 }
 
 void _O2 Endstops::report_states() {

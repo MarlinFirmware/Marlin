@@ -40,7 +40,7 @@ void menu_job_recovery();
 inline void plr_error(PGM_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    serialprintPGM(prefix);
+    DEBUG_ECHOPGM_P(prefix);
     DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);

@@ -290,7 +290,7 @@ namespace Anycubic {
 
   void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEN string to the panel
     #if ACDEBUG(AC_SOME)
-      serialprintPGM(str);
+      SERIAL_ECHOPGM_P(str);
     #endif
     while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
   }
