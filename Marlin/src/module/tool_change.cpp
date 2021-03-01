@@ -65,7 +65,7 @@
   #include "servo.h"
 #endif
 
-#if (ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)) || true
+#if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
   #include "../feature/solenoid.h"
 #endif
 
