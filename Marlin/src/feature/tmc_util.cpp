@@ -546,7 +546,7 @@
   };
 
   template<class TMC>
-  static void print_vsense(TMC &st) { serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
+  static void print_vsense(TMC &st) { SERIAL_ECHOPGM_P(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); }
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
@@ -717,7 +717,7 @@
           SERIAL_ECHO(st.cs());
           SERIAL_ECHOPGM("/31");
           break;
-        case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.165") : PSTR("0=.310")); break;
+        case TMC_VSENSE: SERIAL_ECHOPGM_P(st.vsense() ? PSTR("1=.165") : PSTR("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
         //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
         //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
@@ -1208,7 +1208,7 @@ static bool test_connection(TMC &st) {
     case 1: stat = PSTR("HIGH"); break;
     case 2: stat = PSTR("LOW"); break;
   }
-  serialprintPGM(stat);
+  SERIAL_ECHOPGM_P(stat);
   SERIAL_EOL();
 
   return test_result;
