@@ -945,13 +945,24 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_CN;
       more_menu.gcode       = MORE_GCODE_CN;
       more_menu.entergcode  = MORE_ENTER_GCODE_CN;
-      TERN_(USER_CMD_1_ENABLE, more_menu.custom1 = MORE_CUSTOM1_TEXT_CN);
-      TERN_(USER_CMD_2_ENABLE, more_menu.custom2 = MORE_CUSTOM2_TEXT_CN);
-      TERN_(USER_CMD_3_ENABLE, more_menu.custom3 = MORE_CUSTOM3_TEXT_CN);
-      TERN_(USER_CMD_4_ENABLE, more_menu.custom4 = MORE_CUSTOM4_TEXT_CN);
-      TERN_(USER_CMD_5_ENABLE, more_menu.custom5 = MORE_CUSTOM5_TEXT_CN);
-      TERN_(USER_CMD_6_ENABLE, more_menu.custom6 = MORE_CUSTOM6_TEXT_CN);
-      TERN_(USER_CMD_7_ENABLE, more_menu.custom7 = MORE_CUSTOM7_TEXT_CN);
+      #if HAS_USER_ITEM(1)
+        more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
+      #endif
+      #if HAS_USER_ITEM(2)
+        more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
+      #endif
+      #if HAS_USER_ITEM(3)
+        more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
+      #endif
+      #if HAS_USER_ITEM(4)
+        more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
+      #endif
+      #if HAS_USER_ITEM(5)
+        more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
+      #endif
+      #if HAS_USER_ITEM(6)
+        more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
+      #endif
       // WIFI
       wifi_menu.title = WIFI_TEXT;
       wifi_menu.cloud     = CLOUD_TEXT_CN;
@@ -1179,13 +1190,24 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_T_CN;
             more_menu.gcode       = MORE_GCODE_T_CN;
             more_menu.entergcode  = MORE_ENTER_GCODE_T_CN;
-            TERN_(USER_CMD_1_ENABLE, more_menu.custom1 = MORE_CUSTOM1_TEXT_T_CN);
-            TERN_(USER_CMD_2_ENABLE, more_menu.custom2 = MORE_CUSTOM2_TEXT_T_CN);
-            TERN_(USER_CMD_3_ENABLE, more_menu.custom3 = MORE_CUSTOM3_TEXT_T_CN);
-            TERN_(USER_CMD_4_ENABLE, more_menu.custom4 = MORE_CUSTOM4_TEXT_T_CN);
-            TERN_(USER_CMD_5_ENABLE, more_menu.custom5 = MORE_CUSTOM5_TEXT_T_CN);
-            TERN_(USER_CMD_6_ENABLE, more_menu.custom6 = MORE_CUSTOM6_TEXT_T_CN);
-            TERN_(USER_CMD_7_ENABLE, more_menu.custom7 = MORE_CUSTOM7_TEXT_T_CN);
+            #if HAS_USER_ITEM(1)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
+            #endif
+            #if HAS_USER_ITEM(2)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
+            #endif
+            #if HAS_USER_ITEM(3)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
+            #endif
+            #if HAS_USER_ITEM(4)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
+            #endif
+            #if HAS_USER_ITEM(5)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
+            #endif
+            #if HAS_USER_ITEM(6)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
+            #endif
             // WIFI
             wifi_menu.title     = WIFI_TEXT;
             wifi_menu.cloud     = CLOUD_TEXT_T_CN;
@@ -1400,13 +1422,24 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_EN;
             more_menu.gcode       = MORE_GCODE_EN;
             more_menu.entergcode  = MORE_ENTER_GCODE_EN;
-            TERN_(USER_CMD_1_ENABLE, more_menu.custom1 = MORE_CUSTOM1_TEXT_EN);
-            TERN_(USER_CMD_2_ENABLE, more_menu.custom2 = MORE_CUSTOM2_TEXT_EN);
-            TERN_(USER_CMD_3_ENABLE, more_menu.custom3 = MORE_CUSTOM3_TEXT_EN);
-            TERN_(USER_CMD_4_ENABLE, more_menu.custom4 = MORE_CUSTOM4_TEXT_EN);
-            TERN_(USER_CMD_5_ENABLE, more_menu.custom5 = MORE_CUSTOM5_TEXT_EN);
-            TERN_(USER_CMD_6_ENABLE, more_menu.custom6 = MORE_CUSTOM6_TEXT_EN);
-            TERN_(USER_CMD_7_ENABLE, more_menu.custom7 = MORE_CUSTOM7_TEXT_EN);
+            #if HAS_USER_ITEM(1)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
+            #endif
+            #if HAS_USER_ITEM(2)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
+            #endif
+            #if HAS_USER_ITEM(3)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
+            #endif
+            #if HAS_USER_ITEM(4)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
+            #endif
+            #if HAS_USER_ITEM(5)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
+            #endif
+            #if HAS_USER_ITEM(6)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
+            #endif
 
             //
             filesys_menu.title   = TITLE_FILESYS_EN;
@@ -1622,26 +1655,23 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_RU;
             more_menu.gcode       = MORE_GCODE_RU;
             more_menu.entergcode  = MORE_ENTER_GCODE_RU;
-            #if ENABLED(USER_CMD_1_ENABLE)
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
             #endif
-            #if ENABLED(USER_CMD_2_ENABLE)
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_RU;
             #endif
-            #if ENABLED(USER_CMD_3_ENABLE)
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_RU;
             #endif
-            #if ENABLED(USER_CMD_4_ENABLE)
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_RU;
             #endif
-            #if ENABLED(USER_CMD_5_ENABLE)
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_RU;
             #endif
-            #if ENABLED(USER_CMD_6_ENABLE)
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_RU;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_RU;
             #endif
             //
             filesys_menu.title   = TITLE_FILESYS_RU;
@@ -1954,26 +1984,23 @@ void disp_language_init() {
             more_menu.title       = TITLE_MORE_SP;
             more_menu.gcode       = MORE_GCODE_SP;
             more_menu.entergcode  = MORE_ENTER_GCODE_SP;
-            #if ENABLED(USER_CMD_1_ENABLE)
+            #if HAS_USER_ITEM(1)
               more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
             #endif
-            #if ENABLED(USER_CMD_2_ENABLE)
+            #if HAS_USER_ITEM(2)
               more_menu.custom2 = MORE_CUSTOM2_TEXT_SP;
             #endif
-            #if ENABLED(USER_CMD_3_ENABLE)
+            #if HAS_USER_ITEM(3)
               more_menu.custom3 = MORE_CUSTOM3_TEXT_SP;
             #endif
-            #if ENABLED(USER_CMD_4_ENABLE)
+            #if HAS_USER_ITEM(4)
               more_menu.custom4 = MORE_CUSTOM4_TEXT_SP;
             #endif
-            #if ENABLED(USER_CMD_5_ENABLE)
+            #if HAS_USER_ITEM(5)
               more_menu.custom5 = MORE_CUSTOM5_TEXT_SP;
             #endif
-            #if ENABLED(USER_CMD_6_ENABLE)
+            #if HAS_USER_ITEM(6)
               more_menu.custom6 = MORE_CUSTOM6_TEXT_SP;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_SP;
             #endif
             //
             filesys_menu.title   = TITLE_FILESYS_SP;
@@ -2191,26 +2218,23 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_FR;
           more_menu.gcode       = MORE_GCODE_FR;
           more_menu.entergcode  = MORE_ENTER_GCODE_FR;
-          #if ENABLED(USER_CMD_1_ENABLE)
+          #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
           #endif
-          #if ENABLED(USER_CMD_2_ENABLE)
+          #if HAS_USER_ITEM(2)
             more_menu.custom2 = MORE_CUSTOM2_TEXT_FR;
           #endif
-          #if ENABLED(USER_CMD_3_ENABLE)
+          #if HAS_USER_ITEM(3)
             more_menu.custom3 = MORE_CUSTOM3_TEXT_FR;
           #endif
-          #if ENABLED(USER_CMD_4_ENABLE)
+          #if HAS_USER_ITEM(4)
             more_menu.custom4 = MORE_CUSTOM4_TEXT_FR;
           #endif
-          #if ENABLED(USER_CMD_5_ENABLE)
+          #if HAS_USER_ITEM(5)
             more_menu.custom5 = MORE_CUSTOM5_TEXT_FR;
           #endif
-          #if ENABLED(USER_CMD_6_ENABLE)
+          #if HAS_USER_ITEM(6)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
-          #endif
-          #if ENABLED(USER_CMD_7_ENABLE)
-            more_menu.custom7 = MORE_CUSTOM7_TEXT_FR;
           #endif
           //
           filesys_menu.title          = TITLE_FILESYS_FR;
@@ -2429,26 +2453,23 @@ void disp_language_init() {
           more_menu.title       = TITLE_MORE_IT;
           more_menu.gcode       = MORE_GCODE_IT;
           more_menu.entergcode  = MORE_ENTER_GCODE_IT;
-          #if ENABLED(USER_CMD_1_ENABLE)
+          #if HAS_USER_ITEM(1)
             more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
           #endif
-          #if ENABLED(USER_CMD_2_ENABLE)
+          #if HAS_USER_ITEM(2)
             more_menu.custom2 = MORE_CUSTOM2_TEXT_IT;
           #endif
-          #if ENABLED(USER_CMD_3_ENABLE)
+          #if HAS_USER_ITEM(3)
             more_menu.custom3 = MORE_CUSTOM3_TEXT_IT;
           #endif
-          #if ENABLED(USER_CMD_4_ENABLE)
+          #if HAS_USER_ITEM(4)
             more_menu.custom4 = MORE_CUSTOM4_TEXT_IT;
           #endif
-          #if ENABLED(USER_CMD_5_ENABLE)
+          #if HAS_USER_ITEM(5)
             more_menu.custom5 = MORE_CUSTOM5_TEXT_IT;
           #endif
-          #if ENABLED(USER_CMD_6_ENABLE)
+          #if HAS_USER_ITEM(6)
             more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
-          #endif
-          #if ENABLED(USER_CMD_7_ENABLE)
-            more_menu.custom7 = MORE_CUSTOM7_TEXT_IT;
           #endif
           //
           filesys_menu.title   = TITLE_FILESYS_IT;
@@ -2667,13 +2688,24 @@ void disp_language_init() {
       more_menu.title       = TITLE_MORE_EN;
       more_menu.gcode       = MORE_GCODE_EN;
       more_menu.entergcode  = MORE_ENTER_GCODE_EN;
-      TERN_(USER_CMD_1_ENABLE, more_menu.custom1 = MORE_CUSTOM1_TEXT_EN);
-      TERN_(USER_CMD_2_ENABLE, more_menu.custom2 = MORE_CUSTOM2_TEXT_EN);
-      TERN_(USER_CMD_3_ENABLE, more_menu.custom3 = MORE_CUSTOM3_TEXT_EN);
-      TERN_(USER_CMD_4_ENABLE, more_menu.custom4 = MORE_CUSTOM4_TEXT_EN);
-      TERN_(USER_CMD_5_ENABLE, more_menu.custom5 = MORE_CUSTOM5_TEXT_EN);
-      TERN_(USER_CMD_6_ENABLE, more_menu.custom6 = MORE_CUSTOM6_TEXT_EN);
-      TERN_(USER_CMD_7_ENABLE, more_menu.custom7 = MORE_CUSTOM7_TEXT_EN);
+      #if HAS_USER_ITEM(1)
+        more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
+      #endif
+      #if HAS_USER_ITEM(2)
+        more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
+      #endif
+      #if HAS_USER_ITEM(3)
+        more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
+      #endif
+      #if HAS_USER_ITEM(4)
+        more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
+      #endif
+      #if HAS_USER_ITEM(5)
+        more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
+      #endif
+      #if HAS_USER_ITEM(6)
+        more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
+      #endif
       //
       filesys_menu.title   = TITLE_FILESYS_EN;
       filesys_menu.sd_sys  = SD_CARD_TEXT_EN;

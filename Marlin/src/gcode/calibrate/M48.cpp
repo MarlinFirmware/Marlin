@@ -202,7 +202,7 @@ void GcodeSuite::M48() {
               if (verbose_level > 3)
                 SERIAL_ECHOLNPAIR_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
             }
-          #else
+          #elif HAS_ENDSTOPS
             // For a rectangular bed just keep the probe in bounds
             LIMIT(next_pos.x, X_MIN_POS, X_MAX_POS);
             LIMIT(next_pos.y, Y_MIN_POS, Y_MAX_POS);
@@ -240,8 +240,8 @@ void GcodeSuite::M48() {
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {
-        SERIAL_ECHO((int)(n + 1));
-        SERIAL_ECHOPAIR(" of ", (int)n_samples);
+        SERIAL_ECHO(n + 1);
+        SERIAL_ECHOPAIR(" of ", n_samples);
         SERIAL_ECHOPAIR_F(": z: ", pz, 3);
         SERIAL_CHAR(' ');
         dev_report(verbose_level > 2, mean, sigma, min, max);

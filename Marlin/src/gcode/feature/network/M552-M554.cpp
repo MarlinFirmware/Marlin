@@ -48,7 +48,7 @@ void MAC_report() {
     SERIAL_ECHOPGM("  MAC: ");
     LOOP_L_N(i, 6) {
       if (mac[i] < 16) SERIAL_CHAR('0');
-      SERIAL_PRINT(mac[i], HEX);
+      SERIAL_PRINT(mac[i], PrintBase::Hex);
       if (i < 5) SERIAL_CHAR(':');
     }
   }

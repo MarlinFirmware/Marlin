@@ -130,7 +130,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
  */
 static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=PAUSE_MODE_SAME) {
   DEBUG_SECTION(est, "ensure_safe_temperature", true);
-  DEBUG_ECHOLNPAIR("... wait:", int(wait), " mode:", int(mode));
+  DEBUG_ECHOLNPAIR("... wait:", wait, " mode:", mode);
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
@@ -176,7 +176,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
                    DXC_ARGS
 ) {
   DEBUG_SECTION(lf, "load_filament", true);
-  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", int(max_beep_count), " showlcd:", int(show_lcd), " pauseforuser:", int(pause_for_user), " pausemode:", int(mode) DXC_SAY);
+  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " showlcd:", show_lcd, " pauseforuser:", pause_for_user, " pausemode:", mode DXC_SAY);
 
   if (!ensure_safe_temperature(false, mode)) {
     if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_STATUS, mode);
@@ -192,11 +192,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      const char tool = '0'
-        #if NUM_RUNOUT_SENSORS > 1
-          + active_extruder
-        #endif
-      ;
+      const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, active_extruder);
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
 
@@ -259,7 +255,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
-      TERN_(HOST_PROMPT_SUPPORT, filament_load_host_prompt()); // Initiate another host prompt. (NOTE: host_response_handler may also do this!)
+      TERN_(HOST_PROMPT_SUPPORT, filament_load_host_prompt()); // Initiate another host prompt.
 
       #if HAS_LCD_MENU
         if (show_lcd) {
@@ -309,7 +305,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
                      #endif
 ) {
   DEBUG_SECTION(uf, "unload_filament", true);
-  DEBUG_ECHOLNPAIR("... unloadlen:", unload_length, " showlcd:", int(show_lcd), " mode:", int(mode)
+  DEBUG_ECHOLNPAIR("... unloadlen:", unload_length, " showlcd:", show_lcd, " mode:", mode
     #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
       , " mixmult:", mix_multiplier
     #endif
@@ -373,7 +369,7 @@ uint8_t did_pause_print = 0;
 
 bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
-  DEBUG_ECHOLNPAIR("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", int(show_lcd) DXC_SAY);
+  DEBUG_ECHOLNPAIR("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
   UNUSED(show_lcd);
 
@@ -456,16 +452,16 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
 
 void show_continue_prompt(const bool is_reload) {
   DEBUG_SECTION(scp, "pause_print", true);
-  DEBUG_ECHOLNPAIR("... is_reload:", int(is_reload));
+  DEBUG_ECHOLNPAIR("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
   SERIAL_ECHO_START();
-  serialprintPGM(is_reload ? PSTR(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
+  SERIAL_ECHOPGM_P(is_reload ? PSTR(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(wfc, "wait_for_confirmation", true);
-  DEBUG_ECHOLNPAIR("... is_reload:", is_reload, " maxbeep:", int(max_beep_count) DXC_SAY);
+  DEBUG_ECHOLNPAIR("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
 
   bool nozzle_timed_out = false;
 
@@ -561,7 +557,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  */
 void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/, int16_t targetTemp/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(rp, "resume_print", true);
-  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", int(max_beep_count), " targetTemp:", targetTemp DXC_SAY);
+  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp DXC_SAY);
 
   /*
   SERIAL_ECHOLNPAIR(

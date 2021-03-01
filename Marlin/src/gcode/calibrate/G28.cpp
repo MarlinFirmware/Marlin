@@ -96,7 +96,7 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
+    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
@@ -259,7 +259,7 @@ void GcodeSuite::G28() {
 
   #if HAS_HOMING_CURRENT
     auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
-      serialprintPGM(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
+      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -326,14 +326,13 @@ void GcodeSuite::G28() {
 
     #endif
 
-    const float z_homing_height = TERN1(UNKNOWN_Z_NO_RAISE, axis_is_trusted(Z_AXIS))
-                                  ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-                                  : 0;
+    const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
     if (z_homing_height && (doX || doY || TERN0(Z_SAFE_HOMING, doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height, axis_is_trusted(Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
+      do_z_clearance(z_homing_height);
+      TERN_(BLTOUCH, bltouch.init());
     }
 
     #if ENABLED(QUICK_HOME)
@@ -386,7 +385,6 @@ void GcodeSuite::G28() {
           stepper.set_separate_multi_axis(false);
         #endif
 
-        TERN_(BLTOUCH, bltouch.init());
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
         probe.move_z_after_homing();
       }

@@ -43,7 +43,7 @@
   #define FILAMENT_RUNOUT_THRESHOLD 5
 #endif
 
-void event_filament_runout();
+void event_filament_runout(const uint8_t extruder);
 
 template<class RESPONSE_T, class SENSOR_T>
 class TFilamentMonitor;
@@ -119,11 +119,41 @@ class TFilamentMonitor : public FilamentMonitorBase {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
-        const bool ran_out = response.has_run_out();
+        const uint8_t runout_flags = response.has_run_out();
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
+        #if MULTI_FILAMENT_SENSOR
+          #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
+            const bool ran_out = !!runout_flags;  // any sensor triggers
+            uint8_t extruder = 0;
+            if (ran_out) {
+              uint8_t bitmask = runout_flags;
+              while (!(bitmask & 1)) {
+                bitmask >>= 1;
+                extruder++;
+              }
+            }
+          #else
+            const bool ran_out = TEST(runout_flags, active_extruder);  // suppress non active extruders
+            uint8_t extruder = active_extruder;
+          #endif
+        #else
+          const bool ran_out = !!runout_flags;
+          uint8_t extruder = active_extruder;
+        #endif
+
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+          if (runout_flags) {
+            SERIAL_ECHOPGM("Runout Sensors: ");
+            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
+            SERIAL_ECHOPAIR(" -> ", extruder);
+            if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
+            SERIAL_EOL();
+          }
+        #endif
+
         if (ran_out) {
           filament_ran_out = true;
-          event_filament_runout();
+          event_filament_runout(extruder);
           planner.synchronize();
         }
       }
@@ -230,7 +260,7 @@ class FilamentSensorBase {
                       change    = old_state ^ new_state;
         old_state = new_state;
 
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
             LOOP_L_N(e, NUM_RUNOUT_SENSORS)
@@ -266,12 +296,12 @@ class FilamentSensorBase {
     private:
       static inline bool poll_runout_state(const uint8_t extruder) {
         const uint8_t runout_states = poll_runout_states();
-        #if NUM_RUNOUT_SENSORS == 1
-          UNUSED(extruder);
-        #else
+        #if MULTI_FILAMENT_SENSOR
           if ( !TERN0(DUAL_X_CARRIAGE, idex_is_duplicating())
             && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
           ) return TEST(runout_states, extruder); // A specific extruder ran out
+        #else
+          UNUSED(extruder);
         #endif
         return !!runout_states;                   // Any extruder ran out
       }
@@ -280,16 +310,17 @@ class FilamentSensorBase {
       static inline void block_completed(const block_t* const) {}
 
       static inline void run() {
-        const bool out = poll_runout_state(active_extruder);
-        if (!out) filament_present(active_extruder);
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          static bool was_out = false;
-          if (out != was_out) {
-            was_out = out;
-            SERIAL_ECHOPGM("Filament ");
-            serialprintPGM(out ? PSTR("OUT\n") : PSTR("IN\n"));
-          }
-        #endif
+        LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
+          const bool out = poll_runout_state(s);
+          if (!out) filament_present(s);
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+            static uint8_t was_out; // = 0
+            if (out != TEST(was_out, s)) {
+              TBI(was_out, s);
+              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+            }
+          #endif
+        }
       }
   };
 
@@ -305,32 +336,32 @@ class FilamentSensorBase {
   // during a runout condition.
   class RunoutResponseDelayed {
     private:
-      static volatile float runout_mm_countdown[EXTRUDERS];
+      static volatile float runout_mm_countdown[NUM_RUNOUT_SENSORS];
 
     public:
       static float runout_distance_mm;
 
       static inline void reset() {
-        LOOP_L_N(i, EXTRUDERS) filament_present(i);
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
       }
 
       static inline void run() {
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           static millis_t t = 0;
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
-            LOOP_L_N(i, EXTRUDERS) {
-              serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
-              SERIAL_ECHO(runout_mm_countdown[i]);
-            }
+            LOOP_L_N(i, NUM_RUNOUT_SENSORS)
+              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
             SERIAL_EOL();
           }
         #endif
       }
 
-      static inline bool has_run_out() {
-        return runout_mm_countdown[active_extruder] < 0;
+      static inline uint8_t has_run_out() {
+        uint8_t runout_flags = 0;
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_mm_countdown[i] < 0) SBI(runout_flags, i);
+        return runout_flags;
       }
 
       static inline void filament_present(const uint8_t extruder) {
@@ -355,13 +386,28 @@ class FilamentSensorBase {
   class RunoutResponseDebounced {
     private:
       static constexpr int8_t runout_threshold = FILAMENT_RUNOUT_THRESHOLD;
-      static int8_t runout_count;
+      static int8_t runout_count[NUM_RUNOUT_SENSORS];
+
     public:
-      static inline void reset()                                  { runout_count = runout_threshold; }
-      static inline void run()                                    { if (runout_count >= 0) runout_count--; }
-      static inline bool has_run_out()                            { return runout_count < 0; }
-      static inline void block_completed(const block_t* const)    { }
-      static inline void filament_present(const uint8_t)          { runout_count = runout_threshold; }
+      static inline void reset() {
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
+      }
+
+      static inline void run() {
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] >= 0) runout_count[i]--;
+      }
+
+      static inline uint8_t has_run_out() {
+        uint8_t runout_flags = 0;
+        LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_count[i] < 0) SBI(runout_flags, i);
+        return runout_flags;
+      }
+
+      static inline void block_completed(const block_t* const) { }
+
+      static inline void filament_present(const uint8_t extruder) {
+        runout_count[extruder] = runout_threshold;
+      }
   };
 
 #endif // !HAS_FILAMENT_RUNOUT_DISTANCE

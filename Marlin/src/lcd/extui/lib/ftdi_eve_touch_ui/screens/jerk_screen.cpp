@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, CLASSIC_JERK)
-
 #include "screens.h"
+
+#ifdef FTDI_JERK_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -62,4 +61,4 @@ bool JerkScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && CLASSIC_JERK
+#endif // FTDI_JERK_SCREEN

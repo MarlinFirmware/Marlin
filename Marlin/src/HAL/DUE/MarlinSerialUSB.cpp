@@ -33,10 +33,6 @@
 
 #include "MarlinSerialUSB.h"
 
-#if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/e_parser.h"
-#endif
-
 // Imports from Atmel USB Stack/CDC implementation
 extern "C" {
   bool usb_task_cdc_isenabled();
@@ -69,7 +65,7 @@ int MarlinSerialUSB::peek() {
 
   pending_char = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(emergency_state, (char)pending_char));
+  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, (char)pending_char));
 
   return pending_char;
 }
@@ -91,21 +87,19 @@ int MarlinSerialUSB::read() {
 
   int c = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(emergency_state, (char)c));
+  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, (char)c));
 
   return c;
 }
 
-bool MarlinSerialUSB::available() {
-    /* If Pending chars */
-  return pending_char >= 0 ||
-    /* or USB CDC enumerated and configured on the PC side and some
-       bytes where sent to us */
-      (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
+int MarlinSerialUSB::available() {
+  if (pending_char > 0) return pending_char;
+  return pending_char == 0 ||
+    // or USB CDC enumerated and configured on the PC side and some bytes where sent to us */
+    (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
 }
 
 void MarlinSerialUSB::flush() { }
-void MarlinSerialUSB::flushTX() { }
 
 size_t MarlinSerialUSB::write(const uint8_t c) {
 

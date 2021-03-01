@@ -37,12 +37,12 @@
 #include <stdint.h>
 
 #include "../../core/serial_hook.h"
-typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-extern DefaultSerial MSerial;
 
+typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
 typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
 typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
 typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
+extern DefaultSerial MSerial;
 extern DefaultSerial1 MSerial1;
 extern DefaultSerial2 MSerial2;
 extern DefaultSerial3 MSerial3;
