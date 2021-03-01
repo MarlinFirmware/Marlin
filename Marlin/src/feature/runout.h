@@ -287,7 +287,7 @@ class FilamentSensorBase {
           if (out != was_out) {
             was_out = out;
             SERIAL_ECHOPGM("Filament ");
-            serialprintPGM(out ? PSTR("OUT\n") : PSTR("IN\n"));
+            SERIAL_ECHOPGM_P(out ? PSTR("OUT\n") : PSTR("IN\n"));
           }
         #endif
       }
@@ -320,10 +320,8 @@ class FilamentSensorBase {
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
-            LOOP_L_N(i, EXTRUDERS) {
-              serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
-              SERIAL_ECHO(runout_mm_countdown[i]);
-            }
+            LOOP_L_N(i, EXTRUDERS)
+              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
             SERIAL_EOL();
           }
         #endif
