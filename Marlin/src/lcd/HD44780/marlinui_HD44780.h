@@ -90,6 +90,11 @@
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
+#elif ENABLED(YHCB2004)
+
+  #include <LiquidCrystal_AIP31068_SPI.h>
+  #define LCD_CLASS LiquidCrystal_AIP31068_SPI
+
 #else
 
   // Standard directly connected LCD implementations

@@ -131,7 +131,13 @@
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+  #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(XY_PROBE_SPEED)
+  #error "XY_PROBE_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(Z_PROBE_SPEED_FAST)
+  #error "Z_PROBE_SPEED_FAST is now Z_PROBE_FEEDRATE_FAST."
+#elif defined(Z_PROBE_SPEED_SLOW)
+  #error "Z_PROBE_SPEED_SLOW is now Z_PROBE_FEEDRATE_SLOW."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
   #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
 #elif defined(SERVO_DEACTIVATION_DELAY)
@@ -431,6 +437,8 @@
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION."
 #elif defined(MENU_ITEM_CASE_LIGHT)
   #error "MENU_ITEM_CASE_LIGHT is now CASE_LIGHT_MENU."
+#elif defined(CASE_LIGHT_NEOPIXEL_COLOR)
+  #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #elif defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #error "ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED is now SD_ABORT_ON_ENDSTOP_HIT."
 #elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM_CABLE)
@@ -539,6 +547,10 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
+#elif defined(UNKNOWN_Z_NO_RAISE)
+  #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
+#elif defined(Z_AFTER_DEACTIVATE)
+  #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
 #endif
 
 /**
@@ -811,26 +823,24 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif NUM_RUNOUT_SENSORS > E_STEPPERS
-    #if HAS_PRUSA_MMU2
+  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
       #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
-    #else
-      #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
-    #endif
-  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
-    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
-  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
-    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
-  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
-    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
-  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
-    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
-  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
-    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
-  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
-    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
+    #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
   #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
     #error "FIL_RUNOUT8_PIN is required with NUM_RUNOUT_SENSORS >= 8."
+  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
+    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
+  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
+    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
+  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
+    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
+  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
+    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
+  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
+    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
   #elif BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
     #error "You can't enable FIL_RUNOUT1_PULLUP and FIL_RUNOUT1_PULLDOWN at the same time."
   #elif BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
@@ -1201,6 +1211,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if BOTH(PIDTEMPBED, BED_LIMIT_SWITCHING)
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
+#endif
+
+/**
+ * Chamber Heating Options - PID vs Limit Switching
+ */
+#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+  #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
 #endif
 
 /**
@@ -1687,9 +1704,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
     #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
   #endif
@@ -2009,39 +2026,41 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
 #define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
-// At least 3 endstop plugs must be used
-#if _AXIS_PLUG_UNUSED_TEST(X)
-  #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Y)
-  #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Z)
-  #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
-#endif
-
-// Delta and Cartesian use 3 homing endstops
-#if NONE(IS_SCARA, SPI_ENDSTOPS)
-  #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
-    #error "Enable USE_XMIN_PLUG when homing X to MIN."
-  #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
-    #error "Enable USE_XMAX_PLUG when homing X to MAX."
-  #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
-    #error "Enable USE_YMIN_PLUG when homing Y to MIN."
-  #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
-    #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+// A machine with endstops must have a minimum of 3
+#if HAS_ENDSTOPS
+  #if _AXIS_PLUG_UNUSED_TEST(X)
+    #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
   #endif
-#endif
+  #if _AXIS_PLUG_UNUSED_TEST(Y)
+    #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
+  #endif
+  #if _AXIS_PLUG_UNUSED_TEST(Z)
+    #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+  #endif
 
-// Z homing direction and plug usage flags
-#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
-  #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
-#elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
-  #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
-#elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
-  #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  // Delta and Cartesian use 3 homing endstops
+  #if NONE(IS_SCARA, SPI_ENDSTOPS)
+    #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+      #error "Enable USE_XMIN_PLUG when homing X to MIN."
+    #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+      #error "Enable USE_XMAX_PLUG when homing X to MAX."
+    #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+      #error "Enable USE_YMIN_PLUG when homing Y to MIN."
+    #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+      #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+    #endif
+  #endif
+
+  // Z homing direction and plug usage flags
+  #if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
+    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+  #elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+    #error "Z_HOME_DIR must be -1 when homing Z with the probe."
+  #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
+    #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
+  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  #endif
 #endif
 
 #if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
@@ -2296,8 +2315,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if 1 < 0 \
   + ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
   + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + ENABLED(ULTIPANEL) \
-  + ENABLED(ULTRA_LCD) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(MKS_MINI_12864) && DISABLED(MKS_LCD12864)) \
@@ -2305,7 +2322,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
@@ -2346,6 +2363,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(ULTI_CONTROLLER) \
   + ENABLED(ULTIMAKERCONTROLLER) \
+  + ENABLED(ULTIPANEL) \
+  + ENABLED(ULTRA_LCD) \
+  + ENABLED(YHCB2004) \
   + ENABLED(ZONESTAR_LCD)
   #error "Please select only one LCD controller option."
 #endif
@@ -3237,6 +3257,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #endif
   #endif
   #undef _PIN_CONFLICT
+#endif
+
+#if ENABLED(COOLANT_MIST) && !PIN_EXISTS(COOLANT_MIST)
+  #error "COOLANT_MIST requires COOLANT_MIST_PIN to be defined."
+#elif ENABLED(COOLANT_FLOOD) && !PIN_EXISTS(COOLANT_FLOOD)
+  #error "COOLANT_FLOOD requires COOLANT_FLOOD_PIN to be defined."
 #endif
 
 #if NONE(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI) && ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)

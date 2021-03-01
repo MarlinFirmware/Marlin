@@ -126,6 +126,7 @@
 #define BOARD_EINSY_RAMBO             1203  // Einsy Rambo
 #define BOARD_EINSY_RETRO             1204  // Einsy Retro
 #define BOARD_SCOOVO_X9H              1205  // abee Scoovo X9H
+#define BOARD_RAMBO_THINKERV2         1206  // ThinkerV2
 
 //
 // Other ATmega1280, ATmega2560
@@ -327,7 +328,7 @@
 #define BOARD_LONGER3D_LK             4034  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
 #define BOARD_CCROBOT_MEEB_3DP        4035  // ccrobot-online.com MEEB_3DP (STM32F103RC)
 #define BOARD_CHITU3D_V5              4036  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V6 Board
 #define BOARD_CREALITY_V4             4038  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4039  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_CREALITY_V4210          4040  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
