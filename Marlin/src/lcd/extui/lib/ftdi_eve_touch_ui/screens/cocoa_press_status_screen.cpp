@@ -235,7 +235,7 @@ bool StatusScreen::onTouchStart(uint8_t) {
 
 bool StatusScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case  1: SpinnerDialogBox::enqueueAndWait_P(F("G0 X0 Y0")); break;
+    case  1: SpinnerDialogBox::enqueueAndWait_P(F("G28 O\nG27")); break;
     case  2: GOTO_SCREEN(LoadChocolateScreen); break;
     case  3: GOTO_SCREEN(PreheatMenu); break;
     case  4: GOTO_SCREEN(MainMenu); break;
@@ -274,8 +274,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
   if (tag == 8 && !ExtUI::isMoving()) {
-    increment = 0.05;
-    MoveAxisScreen::setManualFeedrate(E0, increment);
+    LoadChocolateScreen::setManualFeedrateAndIncrement(1, increment);
     UI_INCREMENT(AxisPosition_mm, E0);
     current_screen.onRefresh();
   }

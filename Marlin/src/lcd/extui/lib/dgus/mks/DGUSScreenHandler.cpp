@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_MKS)
 

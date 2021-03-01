@@ -187,7 +187,7 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
       break;
     }
     case 3: {
-      if (get_chocolate_fill_level() > 0.9) {
+      if (get_chocolate_fill_level() > 0.75) {
         mydata.repeat_tag = 0;
         return false;
       }
