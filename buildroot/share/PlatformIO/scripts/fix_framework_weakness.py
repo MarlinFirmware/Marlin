@@ -1,3 +1,6 @@
+#
+# fix_framework_weakness.py
+#
 from os.path import join, isfile
 import shutil
 from pprint import pprint
@@ -28,11 +31,11 @@ if env.MarlinFeatureIsEnabled("POSTMORTEM_DEBUGGING"):
 
     print("Libmaple modified and ready for post mortem debugging")
 
-rxBuf = env["MARLIN_FEATURES"]["RX_BUFFER_SIZE"] if "RX_BUFFER_SIZE" in env["MARLIN_FEATURES"] else "0"
-txBuf = env["MARLIN_FEATURES"]["TX_BUFFER_SIZE"] if "TX_BUFFER_SIZE" in env["MARLIN_FEATURES"] else "0"
+mf = env["MARLIN_FEATURES"]
+rxBuf = mf["RX_BUFFER_SIZE"] if "RX_BUFFER_SIZE" in mf else "0"
+txBuf = mf["TX_BUFFER_SIZE"] if "TX_BUFFER_SIZE" in mf else "0"
 if int(rxBuf) < 64:
 	rxBuf = "64"
-
 if int(txBuf) < 64:
 	txBuf = "64"
 

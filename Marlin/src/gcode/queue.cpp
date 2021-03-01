@@ -60,10 +60,6 @@ GCodeQueue queue;
 // Frequently used G-code strings
 PGMSTR(G28_STR, "G28");
 
-#if NO_TIMEOUTS > 0
-  static millis_t last_command_time = 0;
-#endif
-
 GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 

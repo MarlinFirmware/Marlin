@@ -518,6 +518,9 @@ void PrintJobRecovery::resume() {
   // Continue to apply PLR when a file is resumed!
   enable(true);
 
+  // M.A.R.C. Re-Init SD-Card, compatibility with SDCard extension
+  gcode.process_subcommands_now_P(PSTR("M21"));
+
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
   sprintf_P(cmd, M23_STR, fn);

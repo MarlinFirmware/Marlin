@@ -28,8 +28,8 @@ def add_cpu_freq():
 if env.GetBuildType() == "debug":
 	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 
-# On some platform, F_CPU is a runtime variable. Since it's used to convert from ns 
-# to CPU cycles, this adds overhead preventing small delay (in the order of less than 
+# On some platform, F_CPU is a runtime variable. Since it's used to convert from ns
+# to CPU cycles, this adds overhead preventing small delay (in the order of less than
 # 30 cycles) to be generated correctly. By using a compile time constant instead
 # the compiler will perform the computation and this overhead will be avoided
 add_cpu_freq()

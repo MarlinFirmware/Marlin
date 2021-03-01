@@ -29,6 +29,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
+extern const char G28_STR[];
+
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
