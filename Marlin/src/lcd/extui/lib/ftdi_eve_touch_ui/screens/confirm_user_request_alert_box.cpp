@@ -50,6 +50,12 @@ bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
   }
 }
 
+void ConfirmUserRequestAlertBox::onIdle() {
+  if (!ExtUI::awaitingUserConfirm()) {
+    hide();
+  }
+}
+
 void ConfirmUserRequestAlertBox::show(const char* msg) {
   drawMessage(msg);
   storeBackground();

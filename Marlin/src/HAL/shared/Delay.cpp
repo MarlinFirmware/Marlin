@@ -51,7 +51,7 @@
   // Use hardware cycle counter instead, it's much safer
   void delay_dwt(uint32_t count) {
     // Reuse the ASM_CYCLES_PER_ITERATION variable to avoid wasting another useless variable
-    register uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
+    uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
     do {
       elapsed = HW_REG(_DWT_CYCCNT) - start;
     } while (elapsed < count);
@@ -109,12 +109,12 @@
     void dump_delay_accuracy_check() {
       auto report_call_time = [](PGM_P const name, PGM_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
-        serialprintPGM(name);
+        SERIAL_ECHOPGM_P(name);
         SERIAL_ECHOLNPAIR(" for ", cycles);
-        serialprintPGM(unit);
+        SERIAL_ECHOPGM_P(unit);
         SERIAL_ECHOLNPAIR(" took: ", total);
-        serialprintPGM(unit);
-        if (do_flush) SERIAL_FLUSH();
+        SERIAL_ECHOPGM_P(unit);
+        if (do_flush) SERIAL_FLUSHTX();
       };
 
       uint32_t s, e;
@@ -169,10 +169,7 @@
 
   void calibrate_delay_loop() {}
   #if ENABLED(MARLIN_DEV_MODE)
-    void dump_delay_accuracy_check() {
-      static PGMSTR(none, "N/A on this platform");
-      serialprintPGM(none);
-    }
+    void dump_delay_accuracy_check() { SERIAL_ECHOPGM_P(PSTR("N/A on this platform")); }
   #endif
 
 #endif

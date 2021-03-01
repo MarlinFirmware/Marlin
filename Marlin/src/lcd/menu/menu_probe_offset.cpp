@@ -145,7 +145,7 @@ void prepare_for_probe_offset_wizard() {
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
   current_position += probe.offset_xy;
-  line_to_current_position(MMM_TO_MMS(XY_PROBE_SPEED));
+  line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
   ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 

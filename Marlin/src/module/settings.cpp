@@ -319,6 +319,11 @@ typedef struct SettingsDataStruct {
   PID_t bedPID;                                         // M304 PID / M303 E-1 U
 
   //
+  // PIDTEMPCHAMBER
+  //
+  PID_t chamberPID;                                     // M309 PID / M303 E-2 U
+
+  //
   // User-defined Thermistors
   //
   #if HAS_USER_THERMISTORS
@@ -924,6 +929,25 @@ void MarlinSettings::postprocess() {
         #endif
       };
       EEPROM_WRITE(bed_pid);
+    }
+
+    //
+    // PIDTEMPCHAMBER
+    //
+    {
+      _FIELD_TEST(chamberPID);
+
+      const PID_t chamber_pid = {
+        #if DISABLED(PIDTEMPCHAMBER)
+          NAN, NAN, NAN
+        #else
+          // Store the unscaled PID values
+          thermalManager.temp_chamber.pid.Kp,
+          unscalePID_i(thermalManager.temp_chamber.pid.Ki),
+          unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+        #endif
+      };
+      EEPROM_WRITE(chamber_pid);
     }
 
     //
@@ -1783,6 +1807,22 @@ void MarlinSettings::postprocess() {
             thermalManager.temp_bed.pid.Kp = pid.Kp;
             thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
             thermalManager.temp_bed.pid.Kd = scalePID_d(pid.Kd);
+          }
+        #endif
+      }
+
+      //
+      // Heated Chamber PID
+      //
+      {
+        PID_t pid;
+        EEPROM_READ(pid);
+        #if ENABLED(PIDTEMPCHAMBER)
+          if (!validating && !isnan(pid.Kp)) {
+            // Scale PID values since EEPROM values are unscaled
+            thermalManager.temp_chamber.pid.Kp = pid.Kp;
+            thermalManager.temp_chamber.pid.Ki = scalePID_i(pid.Ki);
+            thermalManager.temp_chamber.pid.Kd = scalePID_d(pid.Kd);
           }
         #endif
       }
@@ -2812,6 +2852,16 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Heated Chamber PID
+  //
+
+  #if ENABLED(PIDTEMPCHAMBER)
+    thermalManager.temp_chamber.pid.Kp = DEFAULT_chamberKp;
+    thermalManager.temp_chamber.pid.Ki = scalePID_i(DEFAULT_chamberKi);
+    thermalManager.temp_chamber.pid.Kd = scalePID_d(DEFAULT_chamberKd);
+  #endif
+
+  //
   // User-Defined Thermistors
   //
   TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
@@ -2940,7 +2990,7 @@ void MarlinSettings::reset() {
     if (!repl) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("; ");
-      serialprintPGM(pstr);
+      SERIAL_ECHOPGM_P(pstr);
       if (eol) SERIAL_EOL();
     }
   }
@@ -2957,7 +3007,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM("  M569 S1");
         if (etc) {
           SERIAL_CHAR(' ');
-          serialprintPGM(etc);
+          SERIAL_ECHOPGM_P(etc);
         }
         if (newLine) SERIAL_EOL();
       }
@@ -2975,7 +3025,7 @@ void MarlinSettings::reset() {
   #endif
 
   inline void say_units(const bool colon) {
-    serialprintPGM(
+    SERIAL_ECHOPGM_P(
       #if ENABLED(INCH_MODE_SUPPORT)
         parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :
       #endif
@@ -3016,7 +3066,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM("  M149 ");
         SERIAL_CHAR(parser.temp_units_code());
         SERIAL_ECHOPGM(" ; Units in ");
-        serialprintPGM(parser.temp_units_name());
+        SERIAL_ECHOPGM_P(parser.temp_units_name());
       #else
         SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
       #endif
@@ -3204,12 +3254,12 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), px, PSTR(" J"), py);
+              SERIAL_ECHOPAIR("  G29 S3 I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
           CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR_F_P(PSTR("  G29 S4 Z"), LINEAR_UNIT(mbl.z_offset), 5);
+          SERIAL_ECHOLNPAIR_F("  G29 S4 Z", LINEAR_UNIT(mbl.z_offset), 5);
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3386,7 +3436,16 @@ void MarlinSettings::reset() {
         );
       #endif
 
-    #endif // PIDTEMP || PIDTEMPBED
+      #if ENABLED(PIDTEMPCHAMBER)
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR(
+            "  M309 P", thermalManager.temp_chamber.pid.Kp
+          , " I", unscalePID_i(thermalManager.temp_chamber.pid.Ki)
+          , " D", unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+        );
+      #endif
+
+    #endif // PIDTEMP || PIDTEMPBED || PIDTEMPCHAMBER
 
     #if HAS_USER_THERMISTORS
       CONFIG_ECHO_HEADING("User thermistors:");
