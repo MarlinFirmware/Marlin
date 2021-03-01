@@ -45,16 +45,16 @@
 // Servos
 //
 #if ENABLED(TP)
-  #define SERVO0_PIN       PB11 // BLTOUCH
-  #define SOL0_PIN       PC7  // toolchanger
+  #define SERVO0_PIN                        PB11  // BLTOUCH
+  #define SOL0_PIN                          PC7   // toolchanger
 #endif
 
-//#define HAS_TOOL_SENSOR 1
-#define tool_sensor1 PH6
-#define tool_sensor2 PI4
-// #define tool_sensor3 PF4
+//#define TOOL_SENSOR
+#define TOOL_SENSOR1_PIN                    PH6
+#define TOOL_SENSOR2_PIN                    PI4
+//#define TOOL_SENSOR3_PIN                  PF4
 
-// #define PS_ON_PIN          PH6
+//#define PS_ON_PIN                         PH6
 
 //
 // Trinamic Stallguard pins
@@ -117,66 +117,66 @@
 #endif
 
 #if ENABLED(TP) && !defined(Z_MIN_PROBE_PIN)
-  #define Z_MIN_PROBE_PIN PH11   // Z Probe must be PH11
+  #define Z_MIN_PROBE_PIN                   PH11  // Z Probe must be PH11
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN         PC15
-#define X_DIR_PIN          PF0
-#define X_ENABLE_PIN       PF1
+#define X_STEP_PIN                          PC15
+#define X_DIR_PIN                           PF0
+#define X_ENABLE_PIN                        PF1
 #ifndef X_CS_PIN
-  #define X_CS_PIN         PC14
+  #define X_CS_PIN                          PC14
 #endif
 
-#define Y_STEP_PIN         PE3
-#define Y_DIR_PIN          PE2
-#define Y_ENABLE_PIN       PE4
+#define Y_STEP_PIN                          PE3
+#define Y_DIR_PIN                           PE2
+#define Y_ENABLE_PIN                        PE4
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN         PE1
+  #define Y_CS_PIN                          PE1
 #endif
 
-#define Z_STEP_PIN         PB8
-#define Z_DIR_PIN          PB7   // PB7
-#define Z_ENABLE_PIN       PB9
+#define Z_STEP_PIN                          PB8
+#define Z_DIR_PIN                           PB7   // PB7
+#define Z_ENABLE_PIN                        PB9
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         PB5
+  #define Z_CS_PIN                          PB5
 #endif
 
-#define Z2_STEP_PIN        PG12
-#define Z2_DIR_PIN         PG11
-#define Z2_ENABLE_PIN      PG13
+#define Z2_STEP_PIN                         PG12
+#define Z2_DIR_PIN                          PG11
+#define Z2_ENABLE_PIN                       PG13
 #ifndef Z2_CS_PIN
-  #define Z2_CS_PIN        PG10
+  #define Z2_CS_PIN                         PG10
 #endif
 
-#define Z3_STEP_PIN        PD6
-#define Z3_DIR_PIN         PD5
-#define Z3_ENABLE_PIN      PD7
+#define Z3_STEP_PIN                         PD6
+#define Z3_DIR_PIN                          PD5
+#define Z3_ENABLE_PIN                       PD7
 #ifndef Z3_CS_PIN
-  #define Z3_CS_PIN        PD4
+  #define Z3_CS_PIN                         PD4
 #endif
 
-#define E0_STEP_PIN        PD1
-#define E0_DIR_PIN         PD0
-#define E0_ENABLE_PIN      PD2
+#define E0_STEP_PIN                         PD1
+#define E0_DIR_PIN                          PD0
+#define E0_ENABLE_PIN                       PD2
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        PC12
+  #define E0_CS_PIN                         PC12
 #endif
 
-#define E1_STEP_PIN        PF3
-#define E1_DIR_PIN         PG3
-#define E1_ENABLE_PIN      PF8
+#define E1_STEP_PIN                         PF3
+#define E1_DIR_PIN                          PG3
+#define E1_ENABLE_PIN                       PF8
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN        PG4
+  #define E1_CS_PIN                         PG4
 #endif
 
-#define E2_STEP_PIN        PD14
-#define E2_DIR_PIN         PD11
-#define E2_ENABLE_PIN      PG2
+#define E2_STEP_PIN                         PD14
+#define E2_DIR_PIN                          PD11
+#define E2_ENABLE_PIN                       PG2
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN        PE15
+  #define E2_CS_PIN                         PE15
 #endif
 
 #if ENABLED(M5_EXTENDER)
@@ -223,13 +223,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    PG15
+    #define TMC_SW_MOSI                     PG15
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    PB6
+    #define TMC_SW_MISO                     PB6
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     PB3
+    #define TMC_SW_SCK                      PB3
   #endif
 #endif
 
@@ -258,23 +258,23 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN  PC14
-  #define X_SERIAL_RX_PIN  PC14
+  #define X_SERIAL_TX_PIN                   PC14
+  #define X_SERIAL_RX_PIN                   PC14
 
-  #define Y_SERIAL_TX_PIN  PE1
-  #define Y_SERIAL_RX_PIN  PE1
+  #define Y_SERIAL_TX_PIN                   PE1
+  #define Y_SERIAL_RX_PIN                   PE1
 
-  #define Z_SERIAL_TX_PIN  PB5
-  #define Z_SERIAL_RX_PIN  PB5
+  #define Z_SERIAL_TX_PIN                   PB5
+  #define Z_SERIAL_RX_PIN                   PB5
 
-  #define E0_SERIAL_TX_PIN PG10
-  #define E0_SERIAL_RX_PIN PG10
+  #define E0_SERIAL_TX_PIN                  PG10
+  #define E0_SERIAL_RX_PIN                  PG10
 
-  #define E1_SERIAL_TX_PIN PD4
-  #define E1_SERIAL_RX_PIN PD4
+  #define E1_SERIAL_TX_PIN                  PD4
+  #define E1_SERIAL_RX_PIN                  PD4
 
-  #define E2_SERIAL_TX_PIN PC12
-  #define E2_SERIAL_RX_PIN PC12
+  #define E2_SERIAL_TX_PIN                  PC12
+  #define E2_SERIAL_RX_PIN                  PC12
 
   #if ENABLED(M5_EXTENDER)
     #define E3_SERIAL_TX_PIN                PG4
@@ -300,9 +300,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PC1   // T1 <-> E0
-#define TEMP_1_PIN         PC2   // T2 <-> E1
-#define TEMP_2_PIN         PC3   // T3 <-> E2
+#define TEMP_0_PIN                          PC1   // T1 <-> E0
+#define TEMP_1_PIN                          PC2   // T2 <-> E1
+#define TEMP_2_PIN                          PC3   // T3 <-> E2
 
 #if ENABLED(M5_EXTENDER)
   #define TEMP_3_PIN                        PA3   // M5 TEMP1
@@ -312,7 +312,7 @@
   #define TEMP_7_PIN                        PF5   // M5 TEMP5
 #endif
 
-#define TEMP_BED_PIN       PC0   // T0 <-> Bed
+#define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus
@@ -323,17 +323,17 @@
 #define THERMO_CS1_PIN                      PH9   // GTR K-TEMP
 #define THERMO_CS2_PIN                      PH2   // M5 K-TEMP
 
-#define MAX6675_SS_PIN     THERMO_CS1_PIN
-#define MAX6675_SS2_PIN    THERMO_CS2_PIN
-#define MAX6675_SCK_PIN    THERMO_SCK_PIN
-#define MAX6675_DO_PIN     THERMO_DO_PIN
+#define MAX6675_SS_PIN            THERMO_CS1_PIN
+#define MAX6675_SS2_PIN           THERMO_CS2_PIN
+#define MAX6675_SCK_PIN           THERMO_SCK_PIN
+#define MAX6675_DO_PIN             THERMO_DO_PIN
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       PB1   // Heater0
-#define HEATER_1_PIN       PA1   // Heater1
-#define HEATER_2_PIN       PB0   // Heater2
+#define HEATER_0_PIN                        PB1   // Heater0
+#define HEATER_1_PIN                        PA1   // Heater1
+#define HEATER_2_PIN                        PB0   // Heater2
 
 #if ENABLED(M5_EXTENDER)
   #define HEATER_3_PIN                      PD15  // M5 HEAT1
@@ -343,11 +343,11 @@
   #define HEATER_7_PIN                      PI6   // M5 HEAT5
 #endif
 
-#define HEATER_BED_PIN     PA2   // Hotbed
+#define HEATER_BED_PIN                      PA2   // Hotbed
 
-#define FAN_PIN            PE5   // Fan0
-#define FAN1_PIN           PE6   // Fan1
-#define FAN2_PIN           PC8   // Fan2
+#define FAN_PIN                             PE5   // Fan0
+#define FAN1_PIN                            PE6   // Fan1
+#define FAN2_PIN                            PC8   // Fan2
 
 #if ENABLED(M5_EXTENDER)
   #define FAN3_PIN                          PI5   // M5 FAN1
@@ -358,7 +358,7 @@
 #endif
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 //
@@ -407,11 +407,11 @@
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS                     PG6
 
-    #define BTN_EN1        PD10
-    #define BTN_EN2        PH10
+    #define BTN_EN1                         PD10
+    #define BTN_EN2                         PH10
 
-    #define LCD_PINS_ENABLE PG7
-    #define LCD_PINS_D4    PG8
+    #define LCD_PINS_ENABLE                 PG7
+    #define LCD_PINS_D4                     PG8
 
     // CR10_STOCKDISPLAY default timing is too fast
     #undef BOARD_ST7920_DELAY_1
@@ -429,10 +429,10 @@
     #endif
   #else
 
-    #define LCD_PINS_RS    PA8
+    #define LCD_PINS_RS                     PA8
 
-    #define BTN_EN1        PD10
-    #define BTN_EN2        PH10
+    #define BTN_EN1                         PD10
+    #define BTN_EN2                         PH10
 
     #define LCD_PINS_ENABLE                 PC10
     #define LCD_PINS_D4                     PG8
@@ -449,16 +449,16 @@
       #define LCD_RESET_PIN                 PG8   // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN PG7
+          #define RGB_LED_R_PIN             PG7
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN PG6
+          #define RGB_LED_G_PIN             PG6
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN PG5
+          #define RGB_LED_B_PIN             PG5
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN    PF13
+        #define NEOPIXEL_PIN                PF13
       #endif
     #endif // !FYSETC_MINI_12864
 

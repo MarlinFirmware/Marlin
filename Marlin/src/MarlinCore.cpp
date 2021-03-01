@@ -634,11 +634,11 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
-       
+
   // check tool status
   // todo: still causing errors
-  // check_tool_sensor_stats(active_extruder, true);
-  TERN_(HAS_TOOL_SENSOR, check_tool_sensor_stats(active_extruder, true));
+  //check_tool_sensor_stats(active_extruder, true);
+  TERN_(TOOL_SENSOR, check_tool_sensor_stats(active_extruder, true));
 
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
