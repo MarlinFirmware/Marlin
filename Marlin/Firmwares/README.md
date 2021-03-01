@@ -379,7 +379,7 @@
 
   Do not forget to check that your pulleys are tight and centered on the axis of the belt with the appropriate screws or that they are well stamped on the axis of the motors !
     
-  ![CkeckBelts](../../docs/images/CheckBelts.png) ![Appropriate screws](../../docs/images/Screws.png) ![Pulley_stemped](../../docs/images/StampedPulley.png).
+  ![CkeckBelts](../../docs/images/CheckBelts.png) ![Appropriate screws](../../docs/images/Screws.png) ![Pulley_stemped](../../docs/images/PulleyFixe.png).
 
 
 ###    **Once you've got all of that sorted out, you'll be comfortable with your belts' even tension and longevity.**
