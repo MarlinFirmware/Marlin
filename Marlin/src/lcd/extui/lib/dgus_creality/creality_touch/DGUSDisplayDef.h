@@ -235,7 +235,7 @@ constexpr uint16_t VP_PrintProgress_Percentage = 0x1016; // 2 Byte Integer (0..1
 constexpr uint16_t VP_PrintTimeProgressBar = 0x100E;
 
 constexpr uint16_t VP_PrintTime = 0x21a0;
-constexpr uint16_t VP_PrintTime_LEN = 6;
+constexpr uint16_t VP_PrintTime_LEN = 12;
 
 constexpr uint16_t VP_Z_OFFSET = 0x1026;
 
