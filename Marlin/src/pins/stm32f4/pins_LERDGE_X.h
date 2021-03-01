@@ -32,6 +32,9 @@
 
 #define I2C_EEPROM
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Servos
 //
@@ -117,16 +120,17 @@
 // Lerdge supports auto-power off and power loss sense through a single pin.
 #define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
 
 //
 // SD support
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PA8
+#define SDIO_CLOCK                       4800000
 
 //
 // LCD / Controller

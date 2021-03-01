@@ -52,79 +52,61 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_MANUAL_POS_RETURN:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_manual_level_pos_settings();
       draw_return_ui();
-      break;
+      return;
     case ID_MANUAL_POS_X1:
       value = level_pos_x1;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y1:
       value = level_pos_y1;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X2:
       value = level_pos_x2;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y2:
       value = level_pos_y2;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X3:
       value = level_pos_x3;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y3:
       value = level_pos_y3;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X4:
       value = level_pos_x4;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y4:
       value = level_pos_y4;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X5:
       value = level_pos_y5;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y5:
       value = level_pos_y5;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_UP:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_manual_level_pos_settings();
       lv_draw_manual_level_pos_settings();
-      break;
+      return;
     case ID_MANUAL_POS_DOWN:
-      uiCfg.para_ui_page = 1;
+      uiCfg.para_ui_page = true;
       lv_clear_manual_level_pos_settings();
       lv_draw_manual_level_pos_settings();
-      break;
+      return;
   }
+  lv_clear_manual_level_pos_settings();
+  lv_draw_number_key();
 }
 
-void lv_draw_manual_level_pos_settings(void) {
+void lv_draw_manual_level_pos_settings() {
   char buf2[50];
 
   scr = lv_screen_create(MANUAL_LEVELING_POSIGION_UI, machine_menu.LevelingParaConfTitle);
 
-  if (uiCfg.para_ui_page != 1) {
+  if (!uiCfg.para_ui_page) {
     sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);
     sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[0][1]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position1, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y1, 0, buf2, ID_MANUAL_POS_X1, public_buf_l);

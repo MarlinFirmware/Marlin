@@ -84,7 +84,6 @@ class TFT_FSMC {
     }
 };
 
-
 #ifdef STM32F1xx
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
 #elif defined(STM32F4xx)
