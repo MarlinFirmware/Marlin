@@ -3375,7 +3375,6 @@
  */
 //#define CUSTOM_USER_BUTTONS
 #if ENABLED(CUSTOM_USER_BUTTONS)
-
   //#define BUTTON1_PIN -1
   #if PIN_EXISTS(BUTTON1_PIN)
     #define BUTTON1_HIT_STATE     LOW       // State of the triggered button. NC=LOW. NO=HIGH.
