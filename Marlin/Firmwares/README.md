@@ -179,6 +179,7 @@
   
   ### HELP - PROCEDURE - TIPS 
   After the flash, you must **RESET** your printer!!
+  ![RAZ-EEPROM](../../docs/images/RAZ-EEProm.png)
   
   By menu:
   - "Configuration/AdvancedSettings/InitializeEEPROM"
