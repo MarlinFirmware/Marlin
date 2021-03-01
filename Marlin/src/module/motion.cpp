@@ -83,7 +83,13 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
+xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS,
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
+  #else
+    Z_HOME_POS
+  #endif
+};
 
 /**
  * Cartesian Destination
@@ -174,7 +180,7 @@ xyz_pos_t cartes;
 #endif
 
 #if HAS_ABL_NOT_UBL
-  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
+  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
 /**
@@ -494,9 +500,8 @@ void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float &z, const feedRat
   do_blocking_move_to(raw.x, raw.y, z, fr_mm_s);
 }
 
-void do_z_clearance(const float &zclear, const bool z_trusted/*=true*/, const bool raise_on_untrusted/*=true*/, const bool lower_allowed/*=false*/) {
-  const bool rel = raise_on_untrusted && !z_trusted;
-  float zdest = zclear + (rel ? current_position.z : 0.0f);
+void do_z_clearance(const float &zclear, const bool lower_allowed/*=false*/) {
+  float zdest = zclear;
   if (!lower_allowed) NOLESS(zdest, current_position.z);
   do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
 }
@@ -1146,7 +1151,7 @@ void prepare_line_to_destination() {
    */
   feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
     #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
     #endif
     static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
     uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -1318,9 +1323,14 @@ void prepare_line_to_destination() {
     if (is_home_dir) {
 
       if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS)) {
-        #if ALL(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
+        #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
           // Wait for bed to heat back up between probing points
           thermalManager.wait_for_bed_heating();
+        #endif
+
+        #if BOTH(HAS_HOTEND, WAIT_FOR_HOTEND)
+          // Wait for the hotend to heat back up between probing points
+          thermalManager.wait_for_hotend_heating(active_extruder);
         #endif
 
         TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
@@ -1388,7 +1398,7 @@ void prepare_line_to_destination() {
     TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
   }
 
-  #if ENABLED(TMC_HOME_PHASE)
+  #ifdef TMC_HOME_PHASE
     /**
      * Move the axis back to its home_phase if set and driver is capable (TMC)
      *
@@ -1559,7 +1569,7 @@ void prepare_line_to_destination() {
     if (bump) {
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) : 0, false);
+      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS) ? MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST) : 0, false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
         // Check for a broken endstop

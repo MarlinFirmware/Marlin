@@ -128,8 +128,14 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
@@ -504,6 +510,15 @@
 // Flag whether hex_print.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
   #define NEED_HEX_PRINT 1
+#endif
+
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
 #endif
 
 // Flag whether least_squares_fit.cpp is used

@@ -29,6 +29,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
+extern const char G28_STR[];
+
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
@@ -46,7 +48,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_M_POINT1 ... ID_M_POINT5:
-      if (queue.length == 0) {
+      if (queue.ring_buffer.empty()) {
         if (uiCfg.leveling_first_time) {
           uiCfg.leveling_first_time = false;
           queue.inject_P(G28_STR);

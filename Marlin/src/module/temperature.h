@@ -630,6 +630,10 @@ class Temperature {
             , const bool click_to_cancel=false
           #endif
         );
+
+        #if ENABLED(WAIT_FOR_HOTEND)
+          static void wait_for_hotend_heating(const uint8_t target_extruder);
+        #endif
       #endif
 
       FORCE_INLINE static bool still_heating(const uint8_t e) {
