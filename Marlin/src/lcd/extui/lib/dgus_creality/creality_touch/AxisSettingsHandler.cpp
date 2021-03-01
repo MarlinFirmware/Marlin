@@ -7,6 +7,7 @@
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 
+#include "EstepsHandler.h"
 #include "AxisSettingsHandler.h"
 
 #include "../../../ui_api.h"
@@ -143,6 +144,12 @@ void AxisSettingsHandler::HandleBackNavigation(DGUS_VP_Variable &var, void *val_
     planner.settings.max_acceleration_mm_per_s2[current_axis] = max_acceleration_mm_per_s2;
     IF_ENABLED(CLASSIC_JERK, planner.max_jerk[current_axis] = jerk);
     planner.settings.max_feedrate_mm_s[current_axis] = max_feedrate;
+
+    // If we're handling the E-axis, the back button might end on that screen. Show that we didn't forget the settings.
+    if (current_axis == E_AXIS) {
+        EstepsHandler::set_esteps = axis_steps_mm;
+        EstepsHandler::calculated_esteps = axis_steps_mm;
+    }
 
     #if HAS_TRINAMIC_CONFIG
     switch (current_axis){
