@@ -317,7 +317,7 @@ class FilamentSensorBase {
             static uint8_t was_out; // = 0
             if (out != TEST(was_out, s)) {
               TBI(was_out, s);
-              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor"), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
             }
           #endif
         }
