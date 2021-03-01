@@ -1,3 +1,7 @@
+#
+# fly_mini.py
+# Customizations for env:FLY_MINI
+#
 import os
 Import("env")
 

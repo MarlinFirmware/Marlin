@@ -279,8 +279,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
       ui.set_status_P(ds_str, 99);
-      serialprintPGM(ds_str);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(ds_str);
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
@@ -586,7 +585,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
-        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM_P(plbl);
         DEBUG_ECHOPGM(" Probe fail! -");
         if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
         if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
@@ -619,7 +618,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     // Raise to give the probe clearance
     do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
 
-  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
+  #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
@@ -650,7 +649,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
       if (TERN0(PROBE_TARE, tare())) return true;
 
       // Probe downward slowly to find the bed
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW),
                        sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());

@@ -552,7 +552,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
     PORT_REDIRECT(SERIAL_ALL);
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Now ");
-    serialprintPGM(doing == 1 ? PSTR("doing") : PSTR("fresh"));
+    SERIAL_ECHOPGM_P(doing == 1 ? PSTR("doing") : PSTR("fresh"));
     SERIAL_ECHOLNPAIR(" file: ", path);
   }
 }
@@ -1251,7 +1251,7 @@ void CardReader::fileHasFinished() {
       removeFile(recovery.filename);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOPGM("Power-loss file delete");
-        serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
+        SERIAL_ECHOPGM_P(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
       #endif
     }
   }
