@@ -267,7 +267,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
         if (start_string) SERIAL_ECHOPGM_P(start_string);
-        SERIAL_ECHOPGM_P(PSTR("PIN: "));
+        SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {

@@ -108,5 +108,5 @@ void GcodeSuite::M81() {
     PSU_OFF_SOON();
   #endif
 
-  LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
+  LCD_MESSAGEPGM(MACHINE_NAME " " STR_OFF ".");
 }
