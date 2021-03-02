@@ -107,19 +107,15 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
     //*/
   }
 
-#endif
-
-#if ENABLED(MORGAN_SCARA)
-
+  /**
+   * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
+   *
+   * See https://reprap.org/forum/read.php?185,283327
+   *
+   * Maths and first version by QHARLEY.
+   * Integrated into Marlin and slightly restructured by Joachim Cerny.
+   */
   void inverse_kinematics(const xyz_pos_t &raw) {
-    /**
-     * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
-     *
-     * See https://reprap.org/forum/read.php?185,283327
-     *
-     * Maths and first version by QHARLEY.
-     * Integrated into Marlin and slightly restructured by Joachim Cerny.
-     */
     float C2, S2, SK1, SK2, THETA, PSI;
 
     // Translate SCARA to standard XY with scaling factor
