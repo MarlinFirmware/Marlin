@@ -175,6 +175,7 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   VP_PrintTimeProgressBar,
   VP_PrintTime,
   VP_PrintTimeRemaining,
+  VP_LINEAR_ADVANCE_FACTOR,
 
   0x0000
 };
@@ -192,6 +193,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   VP_PrintTimeProgressBar,
   VP_PrintTime,
   VP_PrintTimeRemaining,
+  VP_LINEAR_ADVANCE_FACTOR,
 
   VP_FWRETRACT_INDICATOR_ICON,
 
