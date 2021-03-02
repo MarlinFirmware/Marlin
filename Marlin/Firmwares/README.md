@@ -314,7 +314,7 @@
 
         **LengthtoExtrude / LengthExtruded * Actuel_eStep (M92 E_old) = New_eStep (M92 E_new).**
   
-  - Put a new value with command M92 Zxxx and memorize M500 or "Store Settings"
+  - Put a new value with command M92 Exxx and memorize M500 or "Store Settings"
   
   By menu (No possibility to adjust start and speed !!):
   - Heat your nozzle to 190°C and go to "Motion/MoveAxis/Extruder/Move 10mm"
