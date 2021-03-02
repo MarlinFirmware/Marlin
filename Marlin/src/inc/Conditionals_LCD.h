@@ -50,6 +50,10 @@
 
   #define MINIPANEL
 
+#elif ENABLED(YHCB2004)
+
+  #define IS_ULTIPANEL 1
+
 #elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
@@ -320,6 +324,7 @@
 // FSMC/SPI TFT Panels (LVGL)
 #if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
+  #define SERIAL_RUNTIME_HOOK 1
 #endif
 
 // FSMC/SPI TFT Panels
@@ -446,7 +451,7 @@
 #endif
 
 // Aliases for LCD features
-#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS)
   #define HAS_DGUS_LCD 1
 #endif
 
@@ -508,7 +513,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= SMUFF_EMU_MMU2
+  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
     #define HAS_SMUFF 1
   #endif
 #endif
@@ -651,6 +656,9 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #define SERIAL_CATCHALL 0
+  #ifndef LCD_SERIAL_PORT
+    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+  #endif
 #endif
 
 /**
@@ -812,22 +820,6 @@
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
     #else
       #define TOTAL_PROBING MULTIPLE_PROBING
-    #endif
-  #endif
-  #if ENABLED(PREHEAT_BEFORE_PROBING)
-    #ifndef PROBING_NOZZLE_TEMP
-      #define PROBING_NOZZLE_TEMP 0
-    #endif
-    #ifndef PROBING_BED_TEMP
-      #define PROBING_BED_TEMP 0
-    #endif
-  #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    #ifndef LEVELING_NOZZLE_TEMP
-      #define LEVELING_NOZZLE_TEMP 0
-    #endif
-    #ifndef LEVELING_BED_TEMP
-      #define LEVELING_BED_TEMP 0
     #endif
   #endif
 #else
@@ -1045,11 +1037,6 @@
   #define INVERT_E_DIR false
 #endif
 
-// Fallback SPI Speed
-#ifndef SPI_SPEED
-  #define SPI_SPEED SPI_FULL_SPEED
-#endif
-
 /**
  * This setting is also used by M109 when trying to calculate
  * a ballpark safe margin to prevent wait-forever situation.
@@ -1157,36 +1144,37 @@
   #endif
 #endif
 
-#if ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 240
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_320x240_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_320x240
-  #endif
-#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 320
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_480x320_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_480x320
-  #endif
-#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 272
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_480x272_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_480x272
+#if ENABLED(TFT_COLOR_UI)
+  #if TFT_HEIGHT == 240
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_320x240_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_320x240
+    #endif
+  #elif TFT_HEIGHT == 320
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_480x320_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_480x320
+    #endif
+  #elif TFT_HEIGHT == 272
+    #if ENABLED(TFT_INTERFACE_SPI)
+      #define TFT_480x272_SPI
+    #elif ENABLED(TFT_INTERFACE_FSMC)
+      #define TFT_480x272
+    #endif
   #endif
 #endif
 
-// Fewer lines with touch buttons on-screen
 #if EITHER(TFT_320x240, TFT_320x240_SPI)
   #define HAS_UI_320x240 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define HAS_UI_480x320 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x272, TFT_480x272_SPI)
   #define HAS_UI_480x272 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#endif
+#if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
@@ -1206,4 +1194,11 @@
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
+#endif
+
+#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+  #define HAS_ENDSTOPS 1
+  #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
+#else
+  #define COORDINATE_OKAY(N,L,H) true
 #endif

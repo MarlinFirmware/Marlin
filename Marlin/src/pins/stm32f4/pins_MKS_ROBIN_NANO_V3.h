@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -42,6 +42,8 @@
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB6
+#define I2C_SDA_PIN                         PB7
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
@@ -217,11 +219,11 @@
   #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI3
-    #define SS_PIN                          -1
+    #define SD_SS_PIN                       -1
     #define SDSS                            PC9
-    #define SCK_PIN                         PC10
-    #define MISO_PIN                        PC11
-    #define MOSI_PIN                        PC12
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
     #define SD_DETECT_PIN                   PD12
   #endif
 #endif
@@ -234,9 +236,9 @@
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
     #define SDSS                            PE10
-    #define SCK_PIN                         PA5
-    #define MISO_PIN                        PA6
-    #define MOSI_PIN                        PA7
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif
