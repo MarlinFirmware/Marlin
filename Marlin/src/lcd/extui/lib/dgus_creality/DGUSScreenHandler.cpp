@@ -286,37 +286,38 @@ void DGUSScreenHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var
 // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
 void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
   duration_t elapsed = print_job_timer.duration();
+
   char buf[32];
   elapsed.toString(buf);
   dgusdisplay.WriteVariable(VP_PrintTime, buf, var.size, true);
+}
 
+// Send the current print time to the display.
+// It is using a hex display for that: It expects BSD coded data in the format xxyyzz
+void DGUSScreenHandler::DGUSLCD_SendPrintTimeRemainingToDisplay(DGUS_VP_Variable &var) { 
 #if ENABLED(SHOW_REMAINING_TIME)
   static uint32_t lastRemainingTime = -1;
   uint32_t remaining_time = ui.get_remaining_time();
-  if (lastRemainingTime != remaining_time && remaining_time) {
-      // Send a progress update to the display if anything is different.
-      // This allows custom M117 commands to override the displayed string if desired.
-
-      // Remaining time is seconds. When Marlin accepts a M73 R[minutes] command, it multiplies
-      // the R value by 60 to make a number of seconds. But... Marlin can also predict time
-      // if the M73 R command has not been used.
-
-      duration_t remaining(remaining_time);
-      
-      // So duration_t wants 21 bytes and we want to prepend remaining before it
-      static PGM_P remainingStr = PSTR("Remaining: ");
-      constexpr size_t buffer_size = 11 /* remaining */ + 21 /*for duration_t*/ + 2 /*zero bytes*/;
-
-      // Add the "remaining" string
-      char buffer[buffer_size] = {0};
-      strcpy_P(buffer, remainingStr);
-
-      // Write the duration
-      char* duration_buffer_str = buffer + 11;
-      remaining.toString(duration_buffer_str);
-
-      setstatusmessage(buffer);
+  if (lastRemainingTime == remaining_time) {
+    return;
   }
+
+  // Send a progress update to the display if anything is different.
+  // This allows custom M117 commands to override the displayed string if desired.
+
+  // Remaining time is seconds. When Marlin accepts a M73 R[minutes] command, it multiplies
+  // the R value by 60 to make a number of seconds. But... Marlin can also predict time
+  // if the M73 R command has not been used. So we should be good either way.
+  duration_t remaining(remaining_time);
+  constexpr size_t buffer_size = 21;
+
+  // Write the duration
+  char buffer[buffer_size] = {0};
+  remaining.toString(buffer);
+
+  dgusdisplay.WriteVariable(VP_PrintTimeRemaining, buffer, var.size, true);
+
+  lastRemainingTime = remaining_time;
 #endif
 }
 

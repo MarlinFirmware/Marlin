@@ -217,6 +217,7 @@ public:
   static void DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var);
   static void DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var);
+  static void DGUSLCD_SendPrintTimeRemainingToDisplay(DGUS_VP_Variable &var);
   #if ENABLED(PRINTCOUNTER)
     static void DGUSLCD_SendPrintAccTimeToDisplay(DGUS_VP_Variable &var);
     static void DGUSLCD_SendPrintsTotalToDisplay(DGUS_VP_Variable &var);
