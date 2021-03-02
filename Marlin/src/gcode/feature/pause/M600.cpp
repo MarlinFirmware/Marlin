@@ -83,7 +83,7 @@ void GcodeSuite::M600() {
     int8_t DXC_ext = target_extruder;
     if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
-      #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
+      #if MULTI_FILAMENT_SENSOR
         if (idex_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
       #else
