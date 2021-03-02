@@ -59,26 +59,30 @@ uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
-// void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
-//   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
-// }
+#if 0
 
-// void DGUSScreenHandler::sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) {
-//   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
-//   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
-// }
+void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
+  dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
+}
 
-// void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4, uint16_t language) {
-//   if (language == MKS_English)
-//     DGUSScreenHandler::sendinfoscreen_en_mks((char *)line1, (char *)line2, (char *)line3, (char *)line4);
-//   else if (language == MKS_SimpleChinese)
-//     DGUSScreenHandler::sendinfoscreen_ch_mks((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
-// }
+void DGUSScreenHandler::sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) {
+  dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
+  dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
+}
+
+void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4, uint16_t language) {
+  if (language == MKS_English)
+    DGUSScreenHandler::sendinfoscreen_en_mks((char *)line1, (char *)line2, (char *)line3, (char *)line4);
+  else if (language == MKS_SimpleChinese)
+    DGUSScreenHandler::sendinfoscreen_ch_mks((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
+}
+
+#endif
 
 void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
@@ -260,7 +264,6 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
-      // while (queue.length) queue.advance();
       while(!queue.ring_buffer.empty()) queue.advance();
       gcode.process_subcommands_now_P(PSTR("M81"));
     }
@@ -791,7 +794,6 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
-  // if (!print_job_timer.isPaused() && queue.length >= BUFSIZE)
   if (!print_job_timer.isPaused() && queue.ring_buffer.full(1))
     return;
 
