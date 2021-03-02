@@ -272,6 +272,8 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   } }
 #endif
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 void HAL_init() {
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
@@ -287,6 +289,7 @@ void HAL_init() {
     delay(1000);                                         // Give OS time to notice
     OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
 }
 
 // HAL idle task

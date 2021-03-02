@@ -26,9 +26,22 @@
 #define FTDI_COCOA_LOAD_CHOCOLATE_SCREEN
 #define FTDI_COCOA_LOAD_CHOCOLATE_SCREEN_CLASS LoadChocolateScreen
 
+struct LoadChocolateScreenData {
+  uint8_t repeat_tag;
+};
+
 class LoadChocolateScreen : public BaseScreen, public CachedScreen<LOAD_CHOCOLATE_SCREEN_CACHE> {
+  private:
+    static void draw_syringe(draw_mode_t what);
+    static void draw_arrows(draw_mode_t what);
+    static void draw_buttons(draw_mode_t what);
+    static void draw_text(draw_mode_t what);
   public:
+    static void setManualFeedrateAndIncrement(float feedrate_mm_s, float &increment);
+    static void onEntry();
+    static void onIdle();
     static void onRedraw(draw_mode_t);
+    static bool onTouchStart(uint8_t tag);
     static bool onTouchEnd(uint8_t tag);
     static bool onTouchHeld(uint8_t tag);
 };

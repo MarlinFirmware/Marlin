@@ -11,6 +11,14 @@ opt_set MOTHERBOARD BOARD_TEENSY31_32
 exec_test $1 $2 "Teensy3.1 with default config" "$3"
 
 #
+# Zero endstops, as with a CNC
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_TEENSY31_32
+opt_disable USE_XMIN_PLUG USE_YMIN_PLUG USE_ZMIN_PLUG
+exec_test $1 $2 "Teensy3.1 with Zero Endstops" "$3"
+
+#
 # Test many features together
 #
 restore_configs

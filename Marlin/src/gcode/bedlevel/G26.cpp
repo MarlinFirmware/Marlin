@@ -319,9 +319,13 @@ inline bool look_for_lines_to_connect() {
           s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
           e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
-          LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-          s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-          LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+          #if HAS_ENDSTOPS
+            LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+            s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+            LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+          #else
+            s.y = e.y = _GET_MESH_Y(j);
+          #endif
 
           if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
             print_line_from_here_to_there(s, e);
@@ -339,9 +343,13 @@ inline bool look_for_lines_to_connect() {
             s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
             e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
-            s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-            LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            #if HAS_ENDSTOPS
+              s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
+              LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            #else
+              s.x = e.x = _GET_MESH_X(i);
+            #endif
 
             if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
               print_line_from_here_to_there(s, e);
@@ -826,7 +834,7 @@ void GcodeSuite::G26() {
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
             if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
-          #else
+          #elif HAS_ENDSTOPS
             LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
             LIMIT(p.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
             LIMIT(q.x, X_MIN_POS + 1, X_MAX_POS - 1);
