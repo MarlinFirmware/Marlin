@@ -242,28 +242,39 @@ probe_settings_t Probe::settings;  // Initialized by settings.load()
 
 #if HAS_QUIET_PROBING
 
-  void Probe::set_probing_paused(const bool p) {
+  #ifndef DELAY_BEFORE_PROBING
+    #define DELAY_BEFORE_PROBING 25
+  #endif
+
+  void Probe::set_probing_paused(const bool dopause) {
     #if ENABLED(PROBING_HEATERS_OFF)
-    if (TERN1(HAS_PROBE_SETTINGS, settings.turn_heaters_off)) { thermalManager.pause(p); }
+    if (TERN1(HAS_PROBE_SETTINGS, settings.turn_heaters_off)) { thermalManager.pause(dopause); }
     #endif
 
-    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(p));
+    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
 
     #if ENABLED(PROBING_STEPPERS_OFF)
+      IF_DISABLED(DELTA, static uint8_t old_trusted);
+      if (dopause) {
+        #if DISABLED(DELTA)
+          old_trusted = axis_trusted;
+          DISABLE_AXIS_X();
+          DISABLE_AXIS_Y();
+        #endif
       disable_e_steppers();
-      #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
-        DISABLE_AXIS_X(); DISABLE_AXIS_Y();
+      }
+      else {
+        #if DISABLED(DELTA)
+          if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
+          if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
       #endif
+        axis_trusted = old_trusted;
+      }
     #endif
-
-    if (p) safe_delay(25
-      #if DELAY_BEFORE_PROBING > 25
-        - 25 + DELAY_BEFORE_PROBING
-      #endif
-    );
+    if (dopause) safe_delay(_MAX(DELAY_BEFORE_PROBING, 25));
 
 #if ENABLED(PROBE_TARE)
-    if (p) {
+    if (dopause) {
       tare();
     }
 #endif
@@ -294,8 +305,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
       ui.set_status_P(ds_str, 99);
-      serialprintPGM(ds_str);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(ds_str);
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
@@ -347,7 +357,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    *  - If a preheat input is higher than the current target, raise the target temperature.
    *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
-  void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
+  void Probe::preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp) {
     // Temperatures is MAX(current_target, settings_temp)
     const uint16_t hotendPreheat = thermalManager.degTargetHotend(0) < hotend_temp ? hotend_temp : thermalManager.degTargetHotend(0),
                       bedPreheat = thermalManager.degTargetBed()     < bed_temp    ? bed_temp    : thermalManager.degTargetBed();
@@ -597,7 +607,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
-        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM_P(plbl);
         DEBUG_ECHOPGM(" Probe fail! -");
         if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
         if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
