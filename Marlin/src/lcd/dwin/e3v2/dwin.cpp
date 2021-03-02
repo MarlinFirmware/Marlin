@@ -1181,8 +1181,8 @@ void Draw_Printing_Screen() {
 void Draw_Print_ProgressBar() {
   DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, BarFill_Color, 16 + _card_percent * 240 / 100, 93, 256, 113);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 2, 117, 133, _card_percent);
-  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133, 133, F("%"));
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 3, 117, 133, _card_percent);
+  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 142, 133, F("%"));
 }
 
 void Draw_Print_ProgressElapsed() {
@@ -3855,7 +3855,7 @@ void EachMomentUpdate() {
       planner.finish_and_disable();
 
       // show percent bar and value
-      _card_percent = 0;
+      _card_percent = 100;
       Draw_Print_ProgressBar();
 
       // show print done confirm
@@ -3873,8 +3873,13 @@ void EachMomentUpdate() {
   if (HMI_flag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
     HMI_flag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
-      TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].target);
-      TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.target);
+      if (sdprint) {
+        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].target);
+        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.target);
+      } else {
+        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].celsius);
+        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.celsius);
+      }
       thermalManager.disable_all_heaters();
     #endif
     queue.inject_P(PSTR("G1 F1200 X0 Y0"));
@@ -4081,10 +4086,11 @@ void Start_Print(bool sd) {
 
 //End print job from Host
 void Stop_Print() {
-  HMI_flag.select_flag = true;
-  checkkey = Back_Main;
-  thermalManager.zero_fan_speeds();
   thermalManager.disable_all_heaters();
+  thermalManager.zero_fan_speeds();
+  checkkey = PrintProcess;
+  HMI_flag.print_finish = true;
+  HMI_flag.done_confirm_flag = false;
 }
 
 #endif // DWIN_CREALITY_LCD
