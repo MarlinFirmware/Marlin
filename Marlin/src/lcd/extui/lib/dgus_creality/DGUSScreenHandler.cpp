@@ -287,9 +287,16 @@ void DGUSScreenHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var
 void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
   duration_t elapsed = print_job_timer.duration();
 
+  static uint32_t last_elapsed;
+  if (elapsed == last_elapsed) {
+    return;
+  }
+
   char buf[32];
   elapsed.toString(buf);
   dgusdisplay.WriteVariable(VP_PrintTime, buf, var.size, true);
+
+  last_elapsed = elapsed.second();
 }
 
 // Send the current print time to the display.
