@@ -406,6 +406,7 @@ void startOrResumeJob() {
  *  - Check if CHDK_PIN needs to go LOW
  *  - Check for KILL button held down
  *  - Check for HOME button held down
+ *  - Check for CUSTOM USER button held down
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
@@ -496,6 +497,102 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         queue.inject_P(G28_STR);
       }
     }
+  #endif
+
+  #if ENABLED(CUSTOM_USER_BUTTONS)
+    // Handle a custom user button if defined
+    const bool printer_not_busy = !printingIsActive();
+    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE) && defined(BUTTON##N##_DESC))
+    #define CHECK_CUSTOM_USER_BUTTON(N) do{                            \
+      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
+      static millis_t next_cub_ms_##N;                                 \
+      if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
+        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
+        const millis_t ms = millis();                                  \
+        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
+          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
+          if (strlen(BUTTON##N##_DESC))                                \
+            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));                  \
+          queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
+        }                                                              \
+      }                                                                \
+    }while(0)
+
+    #if HAS_CUSTOM_USER_BUTTON(1)
+      CHECK_CUSTOM_USER_BUTTON(1);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(2)
+      CHECK_CUSTOM_USER_BUTTON(2);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(3)
+      CHECK_CUSTOM_USER_BUTTON(3);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(4)
+      CHECK_CUSTOM_USER_BUTTON(4);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(5)
+      CHECK_CUSTOM_USER_BUTTON(5);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(6)
+      CHECK_CUSTOM_USER_BUTTON(6);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(7)
+      CHECK_CUSTOM_USER_BUTTON(7);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(8)
+      CHECK_CUSTOM_USER_BUTTON(8);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(9)
+      CHECK_CUSTOM_USER_BUTTON(9);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(10)
+      CHECK_CUSTOM_USER_BUTTON(10);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(11)
+      CHECK_CUSTOM_USER_BUTTON(11);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(12)
+      CHECK_CUSTOM_USER_BUTTON(12);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(13)
+      CHECK_CUSTOM_USER_BUTTON(13);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(14)
+      CHECK_CUSTOM_USER_BUTTON(14);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(15)
+      CHECK_CUSTOM_USER_BUTTON(15);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(16)
+      CHECK_CUSTOM_USER_BUTTON(16);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(17)
+      CHECK_CUSTOM_USER_BUTTON(17);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(18)
+      CHECK_CUSTOM_USER_BUTTON(18);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(19)
+      CHECK_CUSTOM_USER_BUTTON(19);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(20)
+      CHECK_CUSTOM_USER_BUTTON(20);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(21)
+      CHECK_CUSTOM_USER_BUTTON(21);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(22)
+      CHECK_CUSTOM_USER_BUTTON(22);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(23)
+      CHECK_CUSTOM_USER_BUTTON(23);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(24)
+      CHECK_CUSTOM_USER_BUTTON(24);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(25)
+      CHECK_CUSTOM_USER_BUTTON(25);
+    #endif
   #endif
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
@@ -857,7 +954,7 @@ inline void tmc_standby_setup() {
 
 /**
  * Marlin entry-point: Set up before the program loop
- *  - Set up the kill pin, filament runout, power hold
+ *  - Set up the kill pin, filament runout, power hold, custom user buttons
  *  - Start the serial port
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
@@ -885,8 +982,7 @@ void setup() {
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
       SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
-      serialprintPGM(msg);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(msg);
     };
     #define SETUP_LOG(M) log_current_ms(PSTR(M))
   #else
@@ -1003,7 +1099,7 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  serialprintPGM(GET_TEXT(MSG_MARLIN));
+  SERIAL_ECHOPGM_P(GET_TEXT(MSG_MARLIN));
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
   SERIAL_EOL();
@@ -1130,6 +1226,86 @@ void setup() {
 
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
+  #endif
+
+  #if ENABLED(CUSTOM_USER_BUTTONS)
+    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{ SET_INPUT(BUTTON##N##_PIN); WRITE(BUTTON##N##_PIN, !BUTTON##N##_HIT_STATE); }while(0)
+
+    #if HAS_CUSTOM_USER_BUTTON(1)
+      INIT_CUSTOM_USER_BUTTON_PIN(1);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(2)
+      INIT_CUSTOM_USER_BUTTON_PIN(2);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(3)
+      INIT_CUSTOM_USER_BUTTON_PIN(3);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(4)
+      INIT_CUSTOM_USER_BUTTON_PIN(4);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(5)
+      INIT_CUSTOM_USER_BUTTON_PIN(5);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(6)
+      INIT_CUSTOM_USER_BUTTON_PIN(6);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(7)
+      INIT_CUSTOM_USER_BUTTON_PIN(7);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(8)
+      INIT_CUSTOM_USER_BUTTON_PIN(8);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(9)
+      INIT_CUSTOM_USER_BUTTON_PIN(9);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(10)
+      INIT_CUSTOM_USER_BUTTON_PIN(10);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(11)
+      INIT_CUSTOM_USER_BUTTON_PIN(11);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(12)
+      INIT_CUSTOM_USER_BUTTON_PIN(12);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(13)
+      INIT_CUSTOM_USER_BUTTON_PIN(13);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(14)
+      INIT_CUSTOM_USER_BUTTON_PIN(14);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(15)
+      INIT_CUSTOM_USER_BUTTON_PIN(15);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(16)
+      INIT_CUSTOM_USER_BUTTON_PIN(16);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(17)
+      INIT_CUSTOM_USER_BUTTON_PIN(17);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(18)
+      INIT_CUSTOM_USER_BUTTON_PIN(18);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(19)
+      INIT_CUSTOM_USER_BUTTON_PIN(19);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(20)
+      INIT_CUSTOM_USER_BUTTON_PIN(20);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(21)
+      INIT_CUSTOM_USER_BUTTON_PIN(21);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(22)
+      INIT_CUSTOM_USER_BUTTON_PIN(22);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(23)
+      INIT_CUSTOM_USER_BUTTON_PIN(23);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(24)
+      INIT_CUSTOM_USER_BUTTON_PIN(24);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(25)
+      INIT_CUSTOM_USER_BUTTON_PIN(25);
+    #endif
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)

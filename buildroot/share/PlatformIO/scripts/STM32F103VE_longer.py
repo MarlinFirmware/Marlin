@@ -18,7 +18,6 @@ for i, flag in enumerate(env["LINKFLAGS"]):
     elif flag == "-T":
         env["LINKFLAGS"][i + 1] = custom_ld_script
 
-
 # Rename ${PROGNAME}.bin and save it as 'project.bin' (No encryption on the Longer3D)
 def encrypt(source, target, env):
     firmware = open(target[0].path, "rb")

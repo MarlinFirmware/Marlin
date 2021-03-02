@@ -30,12 +30,23 @@ echo "This script downloads all Configurations and builds Marlin with each one."
 echo "On failure the last-built configs will be left in your working copy."
 echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
 
+unset BRANCH
+unset FIRST_CONF
+if [[ -f "$STAT_FILE" ]]; then
+  IFS='*' read BRANCH FIRST_CONF <"$STAT_FILE"
+fi
+
 # If -c is given start from the last attempted build
 if [[ $1 == '-c' ]]; then
-  if [[ -f "$STAT_FILE" ]]; then
-    read BRANCH FIRST_CONF <"$STAT_FILE"
-  else
+  if [[ -z $BRANCH || -z $FIRST_CONF ]]; then
     echo "Nothing to continue"
+    exit
+  fi
+elif [[ $1 == '-s' ]]; then
+  if [[ -n $BRANCH && -n $FIRST_CONF ]]; then
+    SKIP_CONF=1
+  else
+    echo "Nothing to skip"
     exit
   fi
 else
@@ -44,10 +55,12 @@ else
 fi
 
 # Check if the current repository has unmerged changes
-if [[ -z "$FIRST_CONF" ]]; then
-  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit ; }
-else
+if [[ $SKIP_CONF ]]; then
+  echo "Skipping $FIRST_CONF"
+elif [[ $FIRST_CONF ]]; then
   echo "Resuming from $FIRST_CONF"
+else
+  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit ; }
 fi
 
 # Create a temporary folder inside .pio
@@ -67,12 +80,19 @@ shopt -s nullglob
 IFS='
 '
 CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/config/examples/*/*/*/ "$TMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
+DOSKIP=0
 for CONF in $CONF_TREE ; do
+  # Get a config's directory name
   DIR=$( echo $CONF | sed "s|$TMP/config/examples/||" )
-  [[ ! -z $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
+  # If looking for a config, skip others
+  [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
+  # Once found, stop looking
   unset FIRST_CONF
+  # If skipping, don't build the found one
+  [[ $SKIP_CONF ]] && { unset SKIP_CONF ; continue ; }
+  # ...if skipping, don't build this one
   compgen -G "${CONF}Con*.h" > /dev/null || continue
-  echo -e "$BRANCH\n$DIR" >"$STAT_FILE"
+  echo "${BRANCH}*${DIR}" >"$STAT_FILE"
   "$HERE/build_example" "internal" "$TMP" "$DIR" || { echo "Failed to build $DIR"; exit ; }
 done
 
