@@ -235,11 +235,15 @@ constexpr uint16_t VP_PrintProgress_Percentage = 0x1016; // 2 Byte Integer (0..1
 constexpr uint16_t VP_PrintTimeProgressBar = 0x100E;
 
 constexpr uint16_t VP_PrintTime = 0x21a0;
+constexpr uint16_t VP_PrintTimeWithRemainingVisible = 0x2335;
 constexpr uint16_t VP_PrintTime_LEN = 19;
 
 constexpr uint16_t VP_PrintTimeRemaining = 0x231f;
 constexpr uint16_t VP_PrintTimeRemaining_LEN = 21;
 
+constexpr uint16_t VP_HideRemainingTime_Ico = 0x21b4;
+constexpr uint16_t ICON_REMAINING_VISIBLE = 26;
+constexpr uint16_t ICON_REMAINING_HIDDEN = 27;
 
 constexpr uint16_t VP_Z_OFFSET = 0x1026;
 

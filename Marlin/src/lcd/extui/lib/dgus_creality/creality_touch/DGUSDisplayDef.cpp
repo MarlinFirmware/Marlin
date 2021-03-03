@@ -174,6 +174,7 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   VP_PrintProgress_Percentage,
   VP_PrintTimeProgressBar,
   VP_PrintTime,
+  VP_PrintTimeWithRemainingVisible,
   VP_PrintTimeRemaining,
   VP_LINEAR_ADVANCE_FACTOR,
 
@@ -192,6 +193,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   VP_PrintProgress_Percentage,
   VP_PrintTimeProgressBar,
   VP_PrintTime,
+  VP_PrintTimeWithRemainingVisible,
   VP_PrintTimeRemaining,
   VP_LINEAR_ADVANCE_FACTOR,
 
@@ -580,6 +582,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay),
+  VPHELPER_STR(VP_PrintTimeWithRemainingVisible, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeWithRemainingToDisplay),
   VPHELPER_STR(VP_PrintTimeRemaining, nullptr, VP_PrintTimeRemaining_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeRemainingToDisplay),
   VPHELPER(VP_SCREENCHANGE, nullptr, ScreenHandler.ScreenChangeHook, nullptr),
   VPHELPER(VP_CONFIRMED, nullptr, ScreenHandler.ScreenConfirmedOK, nullptr),

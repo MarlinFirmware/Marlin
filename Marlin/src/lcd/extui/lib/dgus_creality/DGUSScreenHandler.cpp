@@ -285,6 +285,19 @@ void DGUSScreenHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var
 // Send the current print time to the display.
 // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
 void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
+  // Clear if changed and we shouldn't display
+  static bool last_shouldDisplay = true;
+  bool shouldDisplay = ui.remaining_time == 0;
+  if (last_shouldDisplay != shouldDisplay) {
+    if (!shouldDisplay) {
+      dgusdisplay.WriteVariable(VP_PrintTime, nullptr, var.size, true);
+    }
+  }
+
+  last_shouldDisplay = shouldDisplay;
+  if (!shouldDisplay) return;
+
+  // Write if changed
   duration_t elapsed = print_job_timer.duration();
 
   static uint32_t last_elapsed;
@@ -299,13 +312,57 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
   last_elapsed = elapsed.second();
 }
 
+void DGUSScreenHandler::DGUSLCD_SendPrintTimeWithRemainingToDisplay(DGUS_VP_Variable &var) {
+  // Clear if changed and we shouldn't display
+  static bool last_shouldDisplay = true;
+  bool shouldDisplay = ui.remaining_time != 0;
+  if (last_shouldDisplay != shouldDisplay) {
+    if (!shouldDisplay) {
+      dgusdisplay.WriteVariable(VP_PrintTimeWithRemainingVisible, nullptr, var.size, true);
+    }
+  }
+
+  last_shouldDisplay = shouldDisplay;
+  if (!shouldDisplay) return;
+
+  // Write if changed
+  duration_t elapsed = print_job_timer.duration();
+
+  static uint32_t last_elapsed;
+  if (elapsed == last_elapsed) {
+    return;
+  }
+
+  char buf[32];
+  elapsed.toString(buf);
+  dgusdisplay.WriteVariable(VP_PrintTimeWithRemainingVisible, buf, var.size, true);
+
+  last_elapsed = elapsed.second();
+}
+
 // Send the current print time to the display.
 // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
 void DGUSScreenHandler::DGUSLCD_SendPrintTimeRemainingToDisplay(DGUS_VP_Variable &var) { 
 #if ENABLED(SHOW_REMAINING_TIME)
   static uint32_t lastRemainingTime = -1;
-  uint32_t remaining_time = ui.get_remaining_time();
+  uint32_t remaining_time = ui.remaining_time;
   if (lastRemainingTime == remaining_time) {
+    return;
+  }
+
+  bool has_remaining_time = remaining_time != 0;
+
+  // Update display of SPs (toggle between large and small print timer)
+  if (has_remaining_time) {
+    dgusdisplay.WriteVariable(VP_HideRemainingTime_Ico, ICON_REMAINING_VISIBLE);
+  } else {
+    dgusdisplay.WriteVariable(VP_HideRemainingTime_Ico, ICON_REMAINING_HIDDEN);
+  }
+
+  if (!has_remaining_time) {
+    // Clear remaining time
+    dgusdisplay.WriteVariable(VP_PrintTimeRemaining, nullptr, var.size, true);
+    lastRemainingTime = remaining_time;
     return;
   }
 
