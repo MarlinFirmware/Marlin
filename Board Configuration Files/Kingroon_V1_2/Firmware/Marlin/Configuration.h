@@ -23,6 +23,8 @@
 
 // LCD Notes - Use the included LCD STL files in the "KP3S LCD Rotate Mount.zip" file to mount 
 // the LCD horizontal instead of vertical. This firmware will use a landscape mode for the LCD.
+// If you mount the LCD and its upside down, uncomment the below line to rotate it 180 degrees.
+//#define KP3S_LCD_ROTATE_180
 
 // EZABL Probe Mounts
 //#define KP3S_OEM_MOUNT
