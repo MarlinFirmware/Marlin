@@ -120,10 +120,10 @@ float delta_safe_distance_from_top();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
+void forward_kinematics(const float &z1, const float &z2, const float &z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(const abc_float_t &point) {
-  forward_kinematics_DELTA(point.a, point.b, point.c);
+FORCE_INLINE void forward_kinematics(const abc_float_t &point) {
+  forward_kinematics(point.a, point.b, point.c);
 }
 
 void home_delta();

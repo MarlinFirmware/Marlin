@@ -263,10 +263,10 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
  */
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
-    forward_kinematics_DELTA(planner.get_axis_positions_mm());
+    forward_kinematics(planner.get_axis_positions_mm());
   #else
     #if IS_SCARA
-      forward_kinematics_SCARA(
+      forward_kinematics(
           planner.get_axis_position_degrees(A_AXIS)
         , planner.get_axis_position_degrees(B_AXIS)
         #if ENABLED(AXEL_TPARA)
@@ -949,7 +949,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
   float x_home_pos(const uint8_t extruder) {
     if (extruder == 0)
-      return base_home_pos(X_AXIS);
+      return X_HOME_POS;
     else
       /**
        * In dual carriage mode the extruder offset provides an override of the

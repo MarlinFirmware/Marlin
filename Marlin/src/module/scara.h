@@ -35,7 +35,7 @@ extern float delta_segments_per_second;
                   L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
                   L2_2 = sq(float(L2));
 
-  void forward_kinematics_TPARA(const float &a, const float &b, const float &c);
+  void forward_kinematics(const float &a, const float &b, const float &c);
   void home_TPARA();
 
 #else
@@ -44,7 +44,7 @@ extern float delta_segments_per_second;
                   L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
                   L2_2 = sq(float(L2));
 
-  void forward_kinematics_SCARA(const float &a, const float &b);
+  void forward_kinematics(const float &a, const float &b);
 
 #endif
 
