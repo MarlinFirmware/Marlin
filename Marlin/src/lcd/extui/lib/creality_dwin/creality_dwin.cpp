@@ -1907,7 +1907,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_FILSENSORENABLED (ADVANCED_UNLOAD + ENABLED(FILAMENT_RUNOUT_SENSOR))
-      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(FILAMENT_RUNOUT_DISTANCE))
       #define ADVANCED_TOTAL ADVANCED_FILSENSORDISTANCE
 
       switch (item) {
@@ -1974,6 +1974,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu(Advanced, ADVANCED_FILSENSORENABLED);
           }
           break;
+        #if ENABLED(FILAMENT_RUNOUT_DISTANCE)
         case ADVANCED_FILSENSORDISTANCE:
           if (draw) {
             Draw_Menu_Item(row, ICON_MaxAccE, (char*)"Runout Distance");
@@ -1983,6 +1984,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Modify_Value(runout.runout_distance(), 0, 999, 10);
           }
           break;
+        #endif
         #endif
       }
       break;
