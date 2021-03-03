@@ -34,9 +34,10 @@
 
 static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8_t ind=-1) {
   SERIAL_ECHOPGM("Config:");
-  if (pref) SERIAL_ECHOPGM_P(pref);
+  if (pref) serialprintPGM(pref);
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
-  SERIAL_ECHOPAIR_P(name, AS_CHAR(':'));
+  serialprintPGM(name);
+  SERIAL_CHAR(':');
 }
 static void config_line(PGM_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
@@ -162,8 +163,8 @@ void GcodeSuite::M360() {
   //
   // Heated Bed
   //
-  config_line(PSTR("HeatedBed"), ENABLED(HAS_HEATED_BED));
-  #if HAS_HEATED_BED
+  config_line(PSTR("HeatedBed"), ENABLED(HAS_BED));
+  #if HAS_BED
     config_line(PSTR("MaxBedTemp"), BED_MAX_TARGET);
   #endif
 

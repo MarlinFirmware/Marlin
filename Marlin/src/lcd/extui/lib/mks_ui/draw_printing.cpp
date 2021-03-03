@@ -51,7 +51,7 @@ static lv_obj_t *buttonPause, *buttonOperat, *buttonStop;
 
 TERN_(HAS_MULTI_EXTRUDER, static lv_obj_t *labelExt2);
 
-#if HAS_HEATED_BED
+#if HAS_BED
   static lv_obj_t* labelBed;
 #endif
 
@@ -126,7 +126,7 @@ void lv_draw_printing() {
     lv_obj_set_pos(buttonExt2, 350, 136);
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     lv_obj_t *buttonBedstate = lv_img_create(scr, nullptr);
     lv_img_set_src(buttonBedstate, "F:/bmp_bed_state.bin");
     lv_obj_set_pos(buttonBedstate, 205, 186);
@@ -162,7 +162,7 @@ void lv_draw_printing() {
     labelExt2 = lv_label_create(scr, 395, 146, nullptr);
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     labelBed = lv_label_create(scr, 250, 196, nullptr);
   #endif
 
@@ -213,7 +213,7 @@ void disp_ext_temp() {
 }
 
 void disp_bed_temp() {
-  #if HAS_HEATED_BED
+  #if HAS_BED
     sprintf(public_buf_l, printing_menu.bed_temp, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
     lv_label_set_text(labelBed, public_buf_l);
   #endif

@@ -204,7 +204,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
     #endif
 
-    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
+    TERN_(HAS_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
 
     #if HAS_FAN
       COPY(info.fan_speed, thermalManager.fan_speed);
@@ -342,7 +342,7 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     const int16_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
@@ -584,7 +584,7 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
         #endif
 
-        #if HAS_HEATED_BED
+        #if HAS_BED
           DEBUG_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
         #endif
 

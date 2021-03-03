@@ -53,7 +53,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Definir desvio");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Definir origem");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");

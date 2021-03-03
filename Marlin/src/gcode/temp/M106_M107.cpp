@@ -28,7 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
-#if PREHEAT_COUNT
+#if PRESET_TEMP_COUNT
   #include "../../lcd/marlinui.h"
 #endif
 
@@ -69,9 +69,9 @@ void GcodeSuite::M106() {
     uint16_t speed = dspeed;
 
     // Accept 'I' if temperature presets are defined
-    #if PREHEAT_COUNT
+    #if PRESET_TEMP_COUNT
       const bool got_preset = parser.seenval('I');
-      if (got_preset) speed = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].fan_speed;
+      if (got_preset) speed = ui.material_preset[_MIN(parser.value_byte(), PRESET_TEMP_COUNT - 1)].fan_speed;
     #else
       constexpr bool got_preset = false;
     #endif
@@ -81,9 +81,6 @@ void GcodeSuite::M106() {
 
     // Set speed, with constraint
     thermalManager.set_fan_speed(pfan, speed);
-
-    if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
-      thermalManager.set_fan_speed(1 - pfan, speed);
   }
 }
 
@@ -91,13 +88,8 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
-  const uint8_t pfan = parser.byteval('P', _ALT_P);
-  if (pfan < _CNT_P) {
-    thermalManager.set_fan_speed(pfan, 0);
-
-    if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
-      thermalManager.set_fan_speed(1 - pfan, 0);
-  }
+  const uint8_t p = parser.byteval('P', _ALT_P);
+  thermalManager.set_fan_speed(p, 0);
 }
 
 #endif // HAS_FAN

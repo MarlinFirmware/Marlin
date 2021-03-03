@@ -79,9 +79,19 @@
 #endif
 
 //
+// Laser Cooler
+//
+#if !STATUS_COOLER_WIDTH && HAS_COOLER
+  #include "status/cooler.h"
+#endif
+#ifndef STATUS_COOLER_WIDTH
+  #define STATUS_COOLER_WIDTH 0
+#endif
+
+//
 // Bed
 //
-#if !STATUS_BED_WIDTH && HAS_HEATED_BED && DISABLED(STATUS_COMBINE_HEATERS)
+#if !STATUS_BED_WIDTH && HAS_BED && DISABLED(STATUS_COMBINE_HEATERS)
   #include "status/bed.h"
 #endif
 #ifndef STATUS_BED_WIDTH
@@ -91,7 +101,7 @@
 //
 // Chamber
 //
-#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
+#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_BED) || (HOTENDS <= 3 && HAS_BED))
   #include "status/chamber.h"
 #endif
 #ifndef STATUS_CHAMBER_WIDTH
@@ -101,7 +111,7 @@
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_OR_CHAMBER) || BOTH(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_OR_CHAMBER) || BOTH(STATUS_COMBINE_HEATERS, HAS_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -211,7 +221,7 @@
         ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
     #define STATUS_HEATERS_X 5
   #else
-    #if BOTH(STATUS_COMBINE_HEATERS, HAS_HEATED_BED) && HOTENDS <= 4
+    #if BOTH(STATUS_COMBINE_HEATERS, HAS_BED) && HOTENDS <= 4
       #define STATUS_HEATERS_X 5
     #else
       #define STATUS_HEATERS_X 8 // Like the included bitmaps
@@ -499,6 +509,47 @@
 #endif
 
 //
+// Cooler Bitmap Properties
+//
+#ifndef STATUS_COOLER_BYTEWIDTH
+  #define STATUS_COOLER_BYTEWIDTH BW(STATUS_COOLER_WIDTH)
+#endif
+#if STATUS_COOLER_WIDTH
+
+  #ifndef STATUS_COOLER_X
+    #define STATUS_COOLER_X (LCD_PIXEL_WIDTH - (STATUS_COOLER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH) * 8)
+  #endif
+
+  #ifndef STATUS_COOLER_HEIGHT
+    #ifdef STATUS_COOLER_ANIM
+      #define STATUS_COOLER_HEIGHT(S) ((S) ? sizeof(status_cooler_on_bmp) / (STATUS_COOLER_BYTEWIDTH) : sizeof(status_cooler_bmp) / (STATUS_COOLER_BYTEWIDTH))
+    #else
+      #define STATUS_COOLER_HEIGHT(S) (sizeof(status_cooler_bmp) / (STATUS_COOLER_BYTEWIDTH))
+    #endif
+  #endif
+
+  #ifndef STATUS_COOLER_Y
+    #define STATUS_COOLER_Y(S) (18 - STATUS_COOLER_HEIGHT(S))
+  #endif
+
+  #ifndef STATUS_COOLER_TEXT_X
+    #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 8)
+  #endif
+
+  static_assert(
+    sizeof(status_cooler_bmp) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(0)),
+    "Status cooler bitmap (status_cooler_bmp) dimensions don't match data."
+  );
+  #ifdef STATUS_COOLER_ANIM
+    static_assert(
+      sizeof(status_cooler_on_bmp) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(1)),
+      "Status cooler bitmap (status_cooler_on_bmp) dimensions don't match data."
+    );
+  #endif
+
+#endif
+
+//
 // Bed Bitmap Properties
 //
 #ifndef STATUS_BED_BYTEWIDTH
@@ -579,12 +630,16 @@
 #if HOTENDS > 0
   #define DO_DRAW_HOTENDS 1
 #endif
-#if HAS_HEATED_BED && HOTENDS <= 4
+#if HAS_BED && HOTENDS <= 4
   #define DO_DRAW_BED 1
 #endif
 #if HAS_CUTTER && !DO_DRAW_BED
   #define DO_DRAW_CUTTER 1
 #endif
+#if HAS_COOLER
+  #define DO_DRAW_COOLER 1
+#endif
+
 #if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4
   #define DO_DRAW_CHAMBER 1
 #endif
@@ -602,6 +657,9 @@
 #endif
 #if BOTH(DO_DRAW_CUTTER, STATUS_CUTTER_ANIM)
   #define ANIM_CUTTER 1
+#endif
+#if BOTH(DO_DRAW_COOLER, STATUS_COOLER_ANIM)
+  #define ANIM_COOLER 1
 #endif
 #if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER || ANIM_CUTTER
   #define ANIM_HBCC 1

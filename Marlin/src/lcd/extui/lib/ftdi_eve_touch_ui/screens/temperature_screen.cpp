@@ -60,10 +60,10 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
       #endif
     #endif
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     w.adjuster(    20, GET_TEXT_F(MSG_BED),     getTargetTemp_celsius(BED));
   #endif
-  #if HAS_HEATED_CHAMBER
+  #if HAS_CHAMBER
     w.adjuster(    22, GET_TEXT_F(MSG_CHAMBER), getTargetTemp_celsius(CHAMBER));
   #endif
   #if HAS_FAN
@@ -103,8 +103,8 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     case 30:
       #define _HOTEND_OFF(N) setTargetTemp_celsius(0, E##N);
       REPEAT(HOTENDS, _HOTEND_OFF);
-      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0, BED));
-      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
+      TERN_(HAS_BED, setTargetTemp_celsius(0, BED));
+      TERN_(HAS_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
       #if HAS_FAN
         setTargetFan_percent(0, FAN0);
       #endif

@@ -62,7 +62,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("キジュンオフセットセッテイ");         // "Set home offsets"
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("オフセットガテキヨウサレマシタ");       // "Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("キジュンセット");                 // "Set origin"
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_1_LABEL
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"

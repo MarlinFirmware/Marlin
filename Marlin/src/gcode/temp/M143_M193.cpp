@@ -21,20 +21,22 @@
  */
 
 /**
- * gcode/temp/M141_M191.cpp
+ * gcode/temp/M143_M193.cpp
  *
- * Chamber target temperature control
+ * Laser Cooler target temperature control
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_CHAMBER
+#if HAS_COOLER
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
 #include "../../module/motion.h"
 #include "../../lcd/marlinui.h"
+#include "../../feature/cooler.h"
+extern Cooler cooler;
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
@@ -47,43 +49,38 @@
 #include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
- * M141: Set chamber temperature
+ * M141: Set cooler temperature
  */
-void GcodeSuite::M141() {
+void GcodeSuite::M143() {
   if (DEBUGGING(DRYRUN)) return;
   if (parser.seenval('S')) {
-    thermalManager.setTargetChamber(parser.value_celsius());
+    thermalManager.setTargetCooler(parser.value_celsius());
+    if (parser.value_celsius() > 0)
 
-    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-      /**
-       * Stop the timer at the end of print. Hotend, bed target, and chamber
-       * temperatures need to be set below mintemp. Order of M140, M104, and M141
-       * at the end of the print does not matter.
-       */
-      thermalManager.auto_job_check_timer(false, true);
-    #endif
+      cooler.enable();
+    else
+      cooler.disable();
   }
 }
 
 /**
- * M191: Sxxx Wait for chamber current temp to reach target temp. Waits only when heating
- *       Rxxx Wait for chamber current temp to reach target temp. Waits when heating and cooling
+ * M193: Sxxx Wait for laser current temp to reach target temp. Waits only when cooling
  */
-void GcodeSuite::M191() {
+void GcodeSuite::M193() {
   if (DEBUGGING(DRYRUN)) return;
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (no_wait_for_cooling || parser.seenval('R')) {
-    thermalManager.setTargetChamber(parser.value_celsius());
-    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(true, false));
+  const bool wait_for_cooling = parser.seenval('S');
+  if (wait_for_cooling) {
+    cooler.enable();
+    thermalManager.setTargetCooler(parser.value_celsius());
   }
   else return;
 
-  const bool is_heating = thermalManager.isHeatingChamber();
-  if (is_heating || !no_wait_for_cooling) {
-    ui.set_status_P(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
-    thermalManager.wait_for_chamber(false);
+  const bool is_laser_cooling = thermalManager.isLaserCooling();
+  if (is_laser_cooling) {
+    ui.set_status_P(GET_TEXT(MSG_LASER_COOLING));
+    thermalManager.wait_for_cooler(true);
   }
 }
 
-#endif // HAS_CHAMBER
+#endif // HAS_COOLER

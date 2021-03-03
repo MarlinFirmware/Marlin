@@ -120,7 +120,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
     currentTemperature = thermalManager.degHotend(Heater);
     targetTemperature = thermalManager.degTargetHotend(Heater);
   }
-  #if HAS_HEATED_BED
+  #if HAS_BED
     else if (Heater == H_BED) {
       currentTemperature = thermalManager.degBed();
       targetTemperature = thermalManager.degTargetBed();
@@ -129,8 +129,18 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   #if HAS_TEMP_CHAMBER
     else if (Heater == H_CHAMBER) {
       currentTemperature = thermalManager.degChamber();
-      #if HAS_HEATED_CHAMBER
+      #if HAS_CHAMBER
         targetTemperature = thermalManager.degTargetChamber();
+      #else
+        targetTemperature = ABSOLUTE_ZERO;
+      #endif
+    }
+  #endif
+    #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      currentTemperature = thermalManager.degCooler();
+      #if HAS_COOLER
+        targetTemperature = thermalManager.degTargetCooler();
       #else
         targetTemperature = ABSOLUTE_ZERO;
       #endif
@@ -147,7 +157,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   if (Heater >= 0) { // HotEnd
     if (currentTemperature >= 50) Color = COLOR_HOTEND;
   }
-  #if HAS_HEATED_BED
+  #if HAS_BED
     else if (Heater == H_BED) {
       if (currentTemperature >= 50) Color = COLOR_HEATED_BED;
       image = targetTemperature > 0 ? imgBedHeated : imgBed;

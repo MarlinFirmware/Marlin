@@ -108,10 +108,10 @@
   };
 #endif
 
-#if PREHEAT_COUNT
+#if PRESET_TEMP_COUNT
   typedef struct {
     TERN_(HAS_HOTEND,     uint16_t hotend_temp);
-    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
+    TERN_(HAS_BED, uint16_t bed_temp   );
     TERN_(HAS_FAN,        uint16_t fan_speed  );
   } preheat_t;
 #endif
@@ -410,8 +410,8 @@ public:
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
-  #if PREHEAT_COUNT
-    static preheat_t material_preset[PREHEAT_COUNT];
+  #if PRESET_TEMP_COUNT
+    static preheat_t material_preset[PRESET_TEMP_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
 

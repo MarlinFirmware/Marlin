@@ -896,7 +896,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             strcpy_P(outBuf, PSTR(" B:"));
             outBuf += 3;
-            #if HAS_HEATED_BED
+            #if HAS_BED
               strcpy(outBuf, dtostrf(thermalManager.temp_bed.celsius, 1, 1, str_1));
               strcat_P(outBuf, PSTR(" /"));
               strcat(outBuf, dtostrf(thermalManager.temp_bed.target, 1, 1, str_1));
@@ -925,7 +925,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
               (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
-              #if HAS_HEATED_BED
+              #if HAS_BED
                 (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target,
               #else
                 0, 0,

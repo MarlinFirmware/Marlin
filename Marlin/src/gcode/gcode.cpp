@@ -529,15 +529,20 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 113: M113(); break;                                  // M113: Set Host Keepalive interval
       #endif
 
-      #if HAS_HEATED_BED
+      #if HAS_BED
         case 140: M140(); break;                                  // M140: Set bed temperature
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
       #endif
 
-      #if HAS_HEATED_CHAMBER
+      #if HAS_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
+
+      #if HAS_COOLER
+        case 143: M143(); break;                                  // M143: Set cooler temperature
+        case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
+      #endif      
 
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
@@ -579,7 +584,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if PREHEAT_COUNT
+      #if PRESET_TEMP_COUNT
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 

@@ -118,7 +118,7 @@
   #define MIN_E_TEMP    HEATER_0_MINTEMP
 #endif
 
-#if HAS_HEATED_BED
+#if HAS_BED
   #define MIN_BED_TEMP  BED_MINTEMP
 #endif
 
@@ -195,7 +195,7 @@ static uint16_t _remain_time = 0;
 
 #if ENABLED(PAUSE_HEAT)
   TERN_(HAS_HOTEND, uint16_t resume_hotend_temp = 0);
-  TERN_(HAS_HEATED_BED, uint16_t resume_bed_temp = 0);
+  TERN_(HAS_BED, uint16_t resume_bed_temp = 0);
 #endif
 
 #if HAS_ZOFFSET_ITEM
@@ -517,7 +517,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define PREPARE_CASE_ZOFF (PREPARE_CASE_HOME + ENABLED(HAS_ZOFFSET_ITEM))
 #define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_HOTEND))
 #define PREPARE_CASE_ABS  (PREPARE_CASE_PLA + ENABLED(HAS_HOTEND))
-#define PREPARE_CASE_COOL (PREPARE_CASE_ABS + EITHER(HAS_HOTEND, HAS_HEATED_BED))
+#define PREPARE_CASE_COOL (PREPARE_CASE_ABS + EITHER(HAS_HOTEND, HAS_BED))
 #define PREPARE_CASE_LANG (PREPARE_CASE_COOL + 1)
 #define PREPARE_CASE_TOTAL PREPARE_CASE_LANG
 
@@ -531,20 +531,20 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 
 #define TUNE_CASE_SPEED 1
 #define TUNE_CASE_TEMP (TUNE_CASE_SPEED + ENABLED(HAS_HOTEND))
-#define TUNE_CASE_BED  (TUNE_CASE_TEMP + ENABLED(HAS_HEATED_BED))
+#define TUNE_CASE_BED  (TUNE_CASE_TEMP + ENABLED(HAS_BED))
 #define TUNE_CASE_FAN  (TUNE_CASE_BED + ENABLED(HAS_FAN))
 #define TUNE_CASE_ZOFF (TUNE_CASE_FAN + ENABLED(HAS_ZOFFSET_ITEM))
 #define TUNE_CASE_TOTAL TUNE_CASE_ZOFF
 
 #define TEMP_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
-#define TEMP_CASE_BED  (TEMP_CASE_TEMP + ENABLED(HAS_HEATED_BED))
+#define TEMP_CASE_BED  (TEMP_CASE_TEMP + ENABLED(HAS_BED))
 #define TEMP_CASE_FAN  (TEMP_CASE_BED + ENABLED(HAS_FAN))
 #define TEMP_CASE_PLA  (TEMP_CASE_FAN + ENABLED(HAS_HOTEND))
 #define TEMP_CASE_ABS  (TEMP_CASE_PLA + ENABLED(HAS_HOTEND))
 #define TEMP_CASE_TOTAL TEMP_CASE_ABS
 
 #define PREHEAT_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
-#define PREHEAT_CASE_BED  (PREHEAT_CASE_TEMP + ENABLED(HAS_HEATED_BED))
+#define PREHEAT_CASE_BED  (PREHEAT_CASE_TEMP + ENABLED(HAS_BED))
 #define PREHEAT_CASE_FAN  (PREHEAT_CASE_BED + ENABLED(HAS_FAN))
 #define PREHEAT_CASE_SAVE (PREHEAT_CASE_FAN + ENABLED(EEPROM_SETTINGS))
 #define PREHEAT_CASE_TOTAL PREHEAT_CASE_SAVE
@@ -834,7 +834,7 @@ void Draw_Tune_Menu() {
     #if HAS_HOTEND
       DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX, MBASE(TUNE_CASE_TEMP));
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX, MBASE(TUNE_CASE_BED));
     #endif
     #if HAS_FAN
@@ -855,7 +855,7 @@ void Draw_Tune_Menu() {
       #if HAS_HOTEND
         DWIN_Draw_Label(MBASE(TUNE_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         DWIN_Draw_Label(MBASE(TUNE_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
       #endif
       #if HAS_FAN
@@ -868,7 +868,7 @@ void Draw_Tune_Menu() {
         DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX, MBASE(TUNE_CASE_TEMP));  // Hotend...
         DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 44, MBASE(TUNE_CASE_TEMP)); // ...Temperature
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX, MBASE(TUNE_CASE_BED));   // Bed...
         DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 27, MBASE(TUNE_CASE_BED));  // ...Temperature
       #endif
@@ -891,7 +891,7 @@ void Draw_Tune_Menu() {
     Draw_Menu_Line(TUNE_CASE_TEMP, ICON_HotendTemp);
     DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP), thermalManager.temp_hotend[0].target);
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     Draw_Menu_Line(TUNE_CASE_BED, ICON_BedTemp);
     DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED), thermalManager.temp_bed.target);
   #endif
@@ -988,7 +988,7 @@ void Draw_Motion_Menu() {
 //
 // Draw Popup Windows
 //
-#if HAS_HOTEND || HAS_HEATED_BED
+#if HAS_HOTEND || HAS_BED
 
   void DWIN_Popup_Temperature(const bool toohigh) {
     Clear_Popup_Area();
@@ -1365,7 +1365,7 @@ void HMI_Move_Z() {
 
 #endif // HAS_HOTEND
 
-#if HAS_HEATED_BED
+#if HAS_BED
 
   void HMI_BedTemp() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -1406,7 +1406,7 @@ void HMI_Move_Z() {
     }
   }
 
-#endif // HAS_HEATED_BED
+#endif // HAS_BED
 
 #if HAS_PREHEAT && HAS_FAN
 
@@ -1601,7 +1601,7 @@ void update_variable() {
     const bool _new_hotend_target = _hotendtarget != thermalManager.temp_hotend[0].target;
     if (_new_hotend_target) _hotendtarget = thermalManager.temp_hotend[0].target;
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     static float _bedtemp = 0;
     const bool _new_bed_temp = _bedtemp != thermalManager.temp_bed.celsius;
     if (_new_bed_temp) _bedtemp = thermalManager.temp_bed.celsius;
@@ -1621,7 +1621,7 @@ void update_variable() {
       if (_new_hotend_target)
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), _hotendtarget);
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       if (_new_bed_target)
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), _bedtarget);
     #endif
@@ -1636,7 +1636,7 @@ void update_variable() {
       if (_new_hotend_target)
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), _hotendtarget);
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       if (_new_bed_target)
         DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), _bedtarget);
     #endif
@@ -1661,7 +1661,7 @@ void update_variable() {
     }
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     if (_new_bed_temp)
       DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, _bedtemp);
     if (_new_bed_target)
@@ -1899,7 +1899,7 @@ void Draw_Status_Area(const bool with_update) {
     DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 116 + 5 * STAT_CHR_W + 2, 417, F("%"));
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
     DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.temp_bed.celsius);
     DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
@@ -2236,7 +2236,7 @@ void HMI_Printing() {
           char cmd[40];
           cmd[0] = '\0';
 
-          #if BOTH(HAS_HEATED_BED, PAUSE_HEAT)
+          #if BOTH(HAS_BED, PAUSE_HEAT)
             if (resume_bed_temp) sprintf_P(cmd, PSTR("M190 S%i\n"), resume_bed_temp);
           #endif
           #if BOTH(HAS_HOTEND, PAUSE_HEAT)
@@ -2452,17 +2452,17 @@ void HMI_Prepare() {
       #if HAS_PREHEAT
         case PREPARE_CASE_PLA: // PLA preheat
           TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0));
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[0].bed_temp));
+          TERN_(HAS_BED, thermalManager.setTargetBed(ui.material_preset[0].bed_temp));
           TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed));
           break;
         case PREPARE_CASE_ABS: // ABS preheat
           TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0));
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[1].bed_temp));
+          TERN_(HAS_BED, thermalManager.setTargetBed(ui.material_preset[1].bed_temp));
           TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed));
           break;
         case PREPARE_CASE_COOL: // Cool
           TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-          #if HAS_HOTEND || HAS_HEATED_BED
+          #if HAS_HOTEND || HAS_BED
             thermalManager.disable_all_heaters();
           #endif
           break;
@@ -2485,7 +2485,7 @@ void Draw_Temperature_Menu() {
     #if HAS_HOTEND
       DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX, MBASE(TEMP_CASE_TEMP));
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX, MBASE(TEMP_CASE_BED));
     #endif
     #if HAS_FAN
@@ -2506,7 +2506,7 @@ void Draw_Temperature_Menu() {
       #if HAS_HOTEND
         DWIN_Draw_Label(MBASE(TEMP_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         DWIN_Draw_Label(MBASE(TEMP_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
       #endif
       #if HAS_FAN
@@ -2521,7 +2521,7 @@ void Draw_Temperature_Menu() {
         DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX, MBASE(TEMP_CASE_TEMP));      // Nozzle...
         DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 44, MBASE(TEMP_CASE_TEMP));     // ...Temperature
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX, MBASE(TEMP_CASE_BED));       // Bed...
         DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 27, MBASE(TEMP_CASE_BED));      // ...Temperature
       #endif
@@ -2549,7 +2549,7 @@ void Draw_Temperature_Menu() {
     _TMENU_ICON(TEMP_CASE_TEMP);
     DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), thermalManager.temp_hotend[0].target);
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     _TMENU_ICON(TEMP_CASE_BED);
     DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), thermalManager.temp_bed.target);
   #endif
@@ -2765,7 +2765,7 @@ void HMI_Temperature() {
           EncoderRate.enabled = true;
           break;
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         case TEMP_CASE_BED: // Bed temperature
           checkkey = BedTemp;
           HMI_ValueStruct.Bed_Temp = thermalManager.temp_bed.target;
@@ -2793,7 +2793,7 @@ void HMI_Temperature() {
             DWIN_Frame_TitleCopy(1, 59, 16, 139, 29);                                         // "PLA Settings"
             DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_TEMP));
             DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));     // PLA nozzle temp
-            #if HAS_HEATED_BED
+            #if HAS_BED
               DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_BED));
               DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // PLA bed temp
             #endif
@@ -2813,7 +2813,7 @@ void HMI_Temperature() {
             #endif
             #ifdef USE_STRING_TITLES
               DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
-              #if HAS_HEATED_BED
+              #if HAS_BED
                 DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
               #endif
               #if HAS_FAN
@@ -2826,7 +2826,7 @@ void HMI_Temperature() {
               DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
               DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
               DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP)); // PLA nozzle temp
-              #if HAS_HEATED_BED
+              #if HAS_BED
                 DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
                 DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
                 DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // PLA bed temp
@@ -2846,7 +2846,7 @@ void HMI_Temperature() {
           uint8_t i = 0;
           Draw_Menu_Line(++i, ICON_SetEndTemp);
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
-          #if HAS_HEATED_BED
+          #if HAS_BED
             Draw_Menu_Line(++i, ICON_SetBedTemp);
             DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[0].bed_temp);
           #endif
@@ -2871,7 +2871,7 @@ void HMI_Temperature() {
 
             DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_TEMP));
             DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));    // ABS nozzle temp
-            #if HAS_HEATED_BED
+            #if HAS_BED
               DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_BED));
               DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // ABS bed temp
             #endif
@@ -2892,7 +2892,7 @@ void HMI_Temperature() {
             #endif
             #ifdef USE_STRING_TITLES
               DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
-              #if HAS_HEATED_BED
+              #if HAS_BED
                 DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
               #endif
               #if HAS_FAN
@@ -2905,7 +2905,7 @@ void HMI_Temperature() {
               DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
               DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
               DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // ABS nozzle temp
-              #if HAS_HEATED_BED
+              #if HAS_BED
                 DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
                 DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
                 DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // ABS bed temp
@@ -2926,7 +2926,7 @@ void HMI_Temperature() {
           uint8_t i = 0;
           Draw_Menu_Line(++i, ICON_SetEndTemp);
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
-          #if HAS_HEATED_BED
+          #if HAS_BED
             Draw_Menu_Line(++i, ICON_SetBedTemp);
             DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[1].bed_temp);
           #endif
@@ -3304,7 +3304,7 @@ void HMI_Tune() {
           EncoderRate.enabled = true;
           break;
       #endif
-      #if HAS_HEATED_BED
+      #if HAS_BED
         case TUNE_CASE_BED: // Bed temp
           checkkey = BedTemp;
           HMI_ValueStruct.Bed_Temp = thermalManager.temp_bed.target;
@@ -3370,7 +3370,7 @@ void HMI_Tune() {
             EncoderRate.enabled = true;
             break;
         #endif
-        #if HAS_HEATED_BED
+        #if HAS_BED
           case PREHEAT_CASE_BED: // Bed temperature
             checkkey = BedTemp;
             HMI_ValueStruct.Bed_Temp = ui.material_preset[0].bed_temp;
@@ -3426,7 +3426,7 @@ void HMI_Tune() {
             EncoderRate.enabled = true;
             break;
         #endif
-        #if HAS_HEATED_BED
+        #if HAS_BED
           case PREHEAT_CASE_BED: // Set bed temperature
             checkkey = BedTemp;
             HMI_ValueStruct.Bed_Temp = ui.material_preset[1].bed_temp;
@@ -3635,7 +3635,7 @@ void EachMomentUpdate() {
     HMI_flag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
       TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].target);
-      TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.target);
+      TERN_(HAS_BED, resume_bed_temp = thermalManager.temp_bed.target);
       thermalManager.disable_all_heaters();
     #endif
     queue.inject_P(PSTR("G1 F1200 X0 Y0"));
@@ -3767,7 +3767,7 @@ void DWIN_HandleScreen() {
     #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
       case Homeoffset:    HMI_Zoffset(); break;
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       case BedTemp:       HMI_BedTemp(); break;
     #endif
     #if HAS_PREHEAT && HAS_FAN

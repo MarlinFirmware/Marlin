@@ -104,7 +104,7 @@ void mks_disp_test() {
     sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
     lv_label_set_text(e2, buf);
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
     lv_label_set_text(bed, buf);
   #endif
@@ -142,7 +142,7 @@ void lv_draw_ready_print() {
         lv_label_set_text(e2, buf);
       #endif
 
-      #if HAS_HEATED_BED
+      #if HAS_BED
         bed = lv_label_create_empty(scr);
         lv_obj_set_pos(bed, 20, 95);
         sprintf_P(buf, PSTR("bed:  %d"), (int)thermalManager.temp_bed.celsius);

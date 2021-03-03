@@ -432,7 +432,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
   uint8_t pic_hot_bits;
-  #if HAS_HEATED_BED
+  #if HAS_BED
     const bool isBed = heater_id < 0;
     const float t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater_id));
     const float t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
@@ -673,7 +673,7 @@ void MarlinUI::draw_status_screen() {
   _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink); lcd.write(' ');
   _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
-  #if HAS_LEVELING && !HAS_HEATED_BED
+  #if HAS_LEVELING && !HAS_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
   #endif
 
@@ -717,7 +717,7 @@ void MarlinUI::draw_status_screen() {
   // Line 5
   //
 
-  #if HOTENDS <= 1 || (HOTENDS <= 2 && !HAS_HEATED_BED)
+  #if HOTENDS <= 1 || (HOTENDS <= 2 && !HAS_BED)
     #if DUAL_MIXING_EXTRUDER
       lcd.setCursor(0, 4);
       // Two-component mix / gradient instead of XY
@@ -753,13 +753,13 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif // HOTENDS <= 1
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     #if HAS_LEVELING
       _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
     #else
       _draw_heater_status(H_BED, "BED", blink);
     #endif
-  #endif // HAS_HEATED_BED
+  #endif // HAS_BED
 
   #if FAN_COUNT > 0
     uint16_t spd = thermalManager.fan_speed[0];

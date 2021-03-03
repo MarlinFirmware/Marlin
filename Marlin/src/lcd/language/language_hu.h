@@ -78,7 +78,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Kezdöpont eltolás");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Fütés ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej");

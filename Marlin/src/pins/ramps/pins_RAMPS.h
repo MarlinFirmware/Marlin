@@ -279,12 +279,26 @@
     #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS
     #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM    
     #define SPINDLE_DIR_PIN                   65
   #else
     #error "No auto-assignable Spindle/Laser pins available."
   #endif
 #endif
+
+#if ENABLED(COOLANT_FLOOD) && HAS_FREE_AUX2_PINS 
+  #define COOLANT_FLOOD_PIN             	  44  // Control coolant pump   
+#else
+  #error "No auto-assignable coolant flood pins available."
+#endif
+
+
+#if ENABLED(COOLANT_FLOOD) && HAS_FREE_AUX2_PINS 
+  #define COOLANT_FLOOD_PIN             44  // Control coolant pump   
+#else
+  #error "No auto-assignable coolant flood pins available."
+#endif
+
 
 //
 // TMC software SPI

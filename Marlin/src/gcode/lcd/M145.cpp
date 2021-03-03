@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if PREHEAT_COUNT
+#if PRESET_TEMP_COUNT
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
@@ -37,7 +37,7 @@
  */
 void GcodeSuite::M145() {
   const uint8_t material = (uint8_t)parser.intval('S');
-  if (material >= PREHEAT_COUNT)
+  if (material >= PRESET_TEMP_COUNT)
     SERIAL_ERROR_MSG(STR_ERR_MATERIAL_INDEX);
   else {
     preheat_t &mat = ui.material_preset[material];
@@ -45,7 +45,7 @@ void GcodeSuite::M145() {
       if (parser.seenval('H'))
         mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_BED
       if (parser.seenval('B'))
         mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
     #endif
@@ -56,4 +56,4 @@ void GcodeSuite::M145() {
   }
 }
 
-#endif // PREHEAT_COUNT
+#endif // PRESET_TEMP_COUNT

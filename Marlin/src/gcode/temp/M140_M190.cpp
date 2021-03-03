@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HEATED_BED
+#if HAS_BED
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
@@ -58,11 +58,11 @@ void GcodeSuite::M140() {
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
-      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+      temp = ui.material_preset[_MIN(index, PRESET_TEMP_COUNT - 1)].bed_temp;
     }
   #endif
 
@@ -108,11 +108,11 @@ void GcodeSuite::M190() {
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
-      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+      temp = ui.material_preset[_MIN(index, PRESET_TEMP_COUNT - 1)].bed_temp;
     }
   #endif
 
@@ -135,4 +135,4 @@ void GcodeSuite::M190() {
   thermalManager.wait_for_bed(no_wait_for_cooling);
 }
 
-#endif // HAS_HEATED_BED
+#endif // HAS_BED

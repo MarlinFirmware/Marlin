@@ -131,7 +131,7 @@
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
+    #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
 #elif defined(XY_PROBE_SPEED)
   #error "XY_PROBE_SPEED is now XY_PROBE_FEEDRATE."
 #elif defined(Z_PROBE_SPEED_FAST)
@@ -547,7 +547,7 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
-#elif defined(UNKNOWN_Z_NO_RAISE)
+  #elif defined(UNKNOWN_Z_NO_RAISE)
   #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
 #elif defined(Z_AFTER_DEACTIVATE)
   #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
@@ -823,7 +823,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
+   #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
       #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
   #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
     #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
@@ -1874,6 +1874,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
+#endif
+
+#if TEMP_SENSOR_COOLER && !PIN_EXISTS(TEMP_COOLER)
+  #error "TEMP_SENSOR_COOLER requires TEMP_COOLER_PIN."
 #endif
 
 #if ENABLED(CHAMBER_FAN) && !(defined(CHAMBER_FAN_MODE) && WITHIN(CHAMBER_FAN_MODE, 0, 2))

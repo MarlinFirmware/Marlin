@@ -54,7 +54,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Postavi home offsete");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets postavljeni");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Postavi ishodište");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Predgrij ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");

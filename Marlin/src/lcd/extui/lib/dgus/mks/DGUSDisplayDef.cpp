@@ -117,7 +117,7 @@ const uint16_t VPList_Main[] PROGMEM = {
   #if HOTENDS >= 2
     MKSLIST_E_ITEM(1)
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set, VP_BED_STATUS,
   #endif
   #if HAS_FAN
@@ -592,7 +592,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_E1_FILAMENT_LOAD_UNLOAD, nullptr, &ScreenHandler.HandleFilamentOption, &ScreenHandler.HandleFilamentLoadUnload),
   #endif
 
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VPHELPER(VP_T_Bed_Is, &thermalManager.temp_bed.celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, &ScreenHandler.HandleHeaterControl, nullptr),

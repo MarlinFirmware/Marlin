@@ -73,7 +73,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Assistant Molettes");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Molette du lit"); // Not a selection of the origin
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Ecart origine ");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
@@ -154,7 +154,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Réglage fin");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Terminer");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Créer la grille");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Créer grille $");
     PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Impr. grille $");
   #endif

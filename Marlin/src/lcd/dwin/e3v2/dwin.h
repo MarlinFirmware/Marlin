@@ -31,9 +31,9 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
+#if ANY(HAS_HOTEND, HAS_BED, HAS_FAN) && PRESET_TEMP_COUNT
   #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
+  #if PRESET_TEMP_COUNT < 2
     #error "Creality DWIN requires two material preheat presets."
   #endif
 #endif
@@ -80,7 +80,7 @@ enum processID : uint8_t {
     ETemp,
   #endif
   Homeoffset,
-  #if HAS_HEATED_BED
+  #if HAS_BED
     BedTemp,
   #endif
   #if HAS_FAN
@@ -235,7 +235,7 @@ extern millis_t dwin_heat_time;
 
 typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
+  TERN_(HAS_BED, int16_t Bed_Temp  = 0);
   TERN_(HAS_FAN,        int16_t Fan_speed = 0);
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
@@ -288,7 +288,7 @@ void ICON_Pause(bool show);
 void ICON_Continue(bool show);
 void ICON_Stop(bool show);
 
-#if HAS_HOTEND || HAS_HEATED_BED
+#if HAS_HOTEND || HAS_BED
   // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
 #endif
@@ -313,7 +313,7 @@ void HMI_Move_E();
 void HMI_Zoffset();
 
 TERN_(HAS_HOTEND,     void HMI_ETemp());
-TERN_(HAS_HEATED_BED, void HMI_BedTemp());
+TERN_(HAS_BED, void HMI_BedTemp());
 TERN_(HAS_FAN,        void HMI_FanSpeed());
 
 void HMI_PrintSpeed();

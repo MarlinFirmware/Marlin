@@ -63,7 +63,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         #endif
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
-      #if HAS_HEATED_BED
+      #if HAS_BED
         else {
           thermalManager.temp_bed.target += uiCfg.stepHeat;
           if ((int)thermalManager.temp_bed.target > BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
@@ -83,7 +83,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
-      #if HAS_HEATED_BED
+      #if HAS_BED
         else {
           if ((int)thermalManager.temp_bed.target > uiCfg.stepHeat)
             thermalManager.temp_bed.target -= uiCfg.stepHeat;
@@ -138,7 +138,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = 0;
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
-      #if HAS_HEATED_BED
+      #if HAS_BED
         else {
           thermalManager.temp_bed.target = 0;
           thermalManager.start_watching_bed();
@@ -220,7 +220,7 @@ void disp_desire_temp() {
     strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
     sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius,  (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
   }
-  #if HAS_HEATED_BED
+  #if HAS_BED
     else {
       strcat(public_buf_l, preheat_menu.hotbed);
       sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_bed.celsius,  (int)thermalManager.temp_bed.target);

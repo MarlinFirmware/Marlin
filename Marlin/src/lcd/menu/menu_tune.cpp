@@ -140,7 +140,7 @@ void menu_tune() {
   //
   // Bed:
   //
-  #if HAS_HEATED_BED
+  #if HAS_BED
     EDIT_ITEM_FAST(int3, MSG_BED, &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
   #endif
 

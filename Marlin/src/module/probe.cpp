@@ -356,7 +356,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
-    #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
+    #if HAS_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
 
@@ -478,7 +478,7 @@ bool Probe::set_deployed(const bool deploy) {
 bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   DEBUG_SECTION(log_probe, "Probe::probe_down_to_z", DEBUGGING(LEVELING));
 
-  #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
+  #if BOTH(HAS_BED, WAIT_FOR_BED_HEATER)
     thermalManager.wait_for_bed_heating();
   #endif
 

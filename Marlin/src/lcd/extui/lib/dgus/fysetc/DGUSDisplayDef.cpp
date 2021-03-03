@@ -54,7 +54,7 @@ const uint16_t VPList_Main[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set, VP_BED_STATUS,
   #endif
   #if HAS_FAN
@@ -76,7 +76,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   0x0000
@@ -90,7 +90,7 @@ const uint16_t VPList_Status[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   #if HAS_FAN
@@ -123,7 +123,7 @@ const uint16_t VPList_Preheat[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   0x0000
@@ -190,7 +190,7 @@ const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   #if HAS_FAN
@@ -210,7 +210,7 @@ const uint16_t VPList_SDPrintTune[] PROGMEM = {
   #if HOTENDS >= 2
     VP_T_E1_Is, VP_T_E1_Set, VP_Flowrate_E1,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   VP_Feedrate_Percentage,
@@ -268,7 +268,7 @@ const uint16_t VPList_FLCPreheat[] PROGMEM = {
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VP_T_Bed_Is, VP_T_Bed_Set,
   #endif
   0x0000
@@ -399,7 +399,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #endif
     VPHELPER(VP_E1_FILAMENT_LOAD_UNLOAD, nullptr, &ScreenHandler.HandleFilamentOption, &ScreenHandler.HandleFilamentLoadUnload),
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     VPHELPER(VP_T_Bed_Is, &thermalManager.temp_bed.celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, &ScreenHandler.HandleHeaterControl, nullptr),

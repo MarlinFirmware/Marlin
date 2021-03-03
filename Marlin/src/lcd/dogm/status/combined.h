@@ -32,7 +32,7 @@
 //
 // Status Screen Combined Heater bitmaps
 //
-#if HAS_HEATED_BED && HOTENDS <= 4
+#if HAS_BED && HOTENDS <= 4
 
   #if HOTENDS == 0
 
@@ -163,7 +163,7 @@
 
   #define STATUS_BED_TEXT_X (STATUS_HEATERS_WIDTH - 10)
 
-#else // !HAS_HEATED_BED || HOTENDS > 3
+#else // !HAS_BED || HOTENDS > 3
 
   #if HOTENDS == 0
 
@@ -306,4 +306,4 @@
 
   #endif // HOTENDS
 
-#endif // !HAS_HEATED_BED || HOTENDS > 3
+#endif // !HAS_BED || HOTENDS > 3

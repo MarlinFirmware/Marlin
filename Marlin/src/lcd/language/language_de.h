@@ -71,7 +71,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Setze Homeversatz");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
@@ -147,7 +147,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Bearbeitung beendet");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Eigenes Netz erst.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Netz erstellen");
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("$ Netz erstellen");
     PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("$ Netz validieren");
   #endif

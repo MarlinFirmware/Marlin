@@ -64,7 +64,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Đặt bù đắp nhà");                       // Set home offsets
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Bù đắp được áp dụng");                  // Offsets applied
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Đặt nguồn gốc");                        // Set origin
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước");      // Preheat
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" trước ~");    // Preheat
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu");
@@ -126,7 +126,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Chỉnh sửa xong lưới");                  // Done Editing Mesh
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Xây dựng lưới");                        // Build Mesh
-  #if PREHEAT_COUNT
+  #if PRESET_TEMP_COUNT
     PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Xây dựng lưới ($)");
     PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Thẩm tra lưới ($)");
   #endif

@@ -172,10 +172,11 @@ namespace ExtUI {
   void enableHeater(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        #if HAS_HEATED_BED
+        #if HAS_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
+        TERN_(HAS_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
+        TERN_(HAS_COOLER, case COOLER: return); // Cooler has no idle timer
         default:
           TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
@@ -233,8 +234,8 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
+        TERN_(HAS_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
+        TERN_(HAS_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
         default:
           return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
@@ -252,8 +253,8 @@ namespace ExtUI {
 
   float getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber()));
+      TERN_(HAS_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed()));
+      TERN_(HAS_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber()));
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
@@ -264,8 +265,8 @@ namespace ExtUI {
 
   float getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber()));
+      TERN_(HAS_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed()));
+      TERN_(HAS_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber()));
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
@@ -340,10 +341,8 @@ namespace ExtUI {
     #endif
   }
 
-  extruder_t getTool(const uint8_t extruder) {
-    switch (extruder) {
-      case 7:  return E7;
-      case 6:  return E6;
+  extruder_t getActiveTool() {
+    switch (active_extruder) {
       case 5:  return E5;
       case 4:  return E4;
       case 3:  return E3;
@@ -352,8 +351,6 @@ namespace ExtUI {
       default: return E0;
     }
   }
-
-  extruder_t getActiveTool() { return getTool(active_extruder); }
 
   bool isMoving() { return planner.has_blocks_queued(); }
 
@@ -904,12 +901,17 @@ namespace ExtUI {
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     enableHeater(heater);
-    #if HAS_HEATED_CHAMBER
+    #if HAS_CHAMBER
       if (heater == CHAMBER)
         thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10)));
       else
     #endif
-    #if HAS_HEATED_BED
+    #if HAS_COOLER
+      if (heater == COOLER)
+        thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP)));
+      else
+    #endif  
+    #if HAS_BED
       if (heater == BED)
         thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET)));
       else

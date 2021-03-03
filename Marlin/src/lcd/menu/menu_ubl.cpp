@@ -45,7 +45,7 @@ static int16_t ubl_storage_slot = 0,
 static uint8_t n_edit_pts = 1;
 static int8_t x_plot = 0, y_plot = 0; // May be negative during move
 
-#if HAS_HEATED_BED
+#if HAS_BED
   static int16_t custom_bed_temp = 50;
 #endif
 
@@ -106,7 +106,7 @@ void lcd_z_offset_edit_setup(const float &initial) {
  */
 void _lcd_ubl_build_custom_mesh() {
   char ubl_lcd_gcode[64];
-  #if HAS_HEATED_BED
+  #if HAS_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nM109 S%i\nG29 P1"), custom_bed_temp, custom_hotend_temp);
   #else
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S%i\nG29 P1"), custom_hotend_temp);
@@ -128,7 +128,7 @@ void _lcd_ubl_custom_mesh() {
   #if HAS_HOTEND
     EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
   #endif
-  #if HAS_HEATED_BED
+  #if HAS_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
   #endif
   ACTION_ITEM(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_build_custom_mesh);
@@ -188,9 +188,9 @@ void _lcd_ubl_edit_mesh() {
    */
   void _lcd_ubl_validate_custom_mesh() {
     char ubl_lcd_gcode[20];
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_BED, "B%" PRIi16))
       , custom_hotend_temp
-      #if HAS_HEATED_BED
+      #if HAS_BED
         , custom_bed_temp
       #endif
     );
@@ -208,8 +208,8 @@ void _lcd_ubl_edit_mesh() {
   void _lcd_ubl_validate_mesh() {
     START_MENU();
     BACK_ITEM(MSG_UBL_TOOLS);
-    #if PREHEAT_COUNT
-      #if HAS_HEATED_BED
+    #if PRESET_TEMP_COUNT
+      #if HAS_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
           GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)))
       #else
@@ -218,19 +218,19 @@ void _lcd_ubl_edit_mesh() {
       #endif
 
       VALIDATE_MESH_GCODE_ITEM(0);
-      #if PREHEAT_COUNT > 1
+      #if PRESET_TEMP_COUNT > 1
         VALIDATE_MESH_GCODE_ITEM(1);
-        #if PREHEAT_COUNT > 2
+        #if PRESET_TEMP_COUNT > 2
           VALIDATE_MESH_GCODE_ITEM(2);
-          #if PREHEAT_COUNT > 3
+          #if PRESET_TEMP_COUNT > 3
             VALIDATE_MESH_GCODE_ITEM(3);
-            #if PREHEAT_COUNT > 4
+            #if PRESET_TEMP_COUNT > 4
               VALIDATE_MESH_GCODE_ITEM(4);
             #endif
           #endif
         #endif
       #endif
-    #endif // PREHEAT_COUNT
+    #endif // PRESET_TEMP_COUNT
     ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
     ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
@@ -324,8 +324,8 @@ void _lcd_ubl_invalidate() {
 void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  #if PREHEAT_COUNT
-    #if HAS_HEATED_BED
+  #if PRESET_TEMP_COUNT
+    #if HAS_BED
       #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
     #else
       #define PREHEAT_BED_GCODE(M) ""
@@ -340,19 +340,19 @@ void _lcd_ubl_build_mesh() {
         "M140S0" \
       ) )
     BUILD_MESH_GCODE_ITEM(0);
-    #if PREHEAT_COUNT > 1
+    #if PRESET_TEMP_COUNT > 1
       BUILD_MESH_GCODE_ITEM(1);
-      #if PREHEAT_COUNT > 2
+      #if PRESET_TEMP_COUNT > 2
         BUILD_MESH_GCODE_ITEM(2);
-        #if PREHEAT_COUNT > 3
+        #if PRESET_TEMP_COUNT > 3
           BUILD_MESH_GCODE_ITEM(3);
-          #if PREHEAT_COUNT > 4
+          #if PRESET_TEMP_COUNT > 4
             BUILD_MESH_GCODE_ITEM(4);
           #endif
         #endif
       #endif
     #endif
-  #endif // PREHEAT_COUNT
+  #endif // PRESET_TEMP_COUNT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G29NP1"));
