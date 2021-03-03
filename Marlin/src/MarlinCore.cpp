@@ -211,9 +211,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if ANY(DO_SWITCH_EXTRUDER, SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD, TOOL_SENSOR)
-  #include "module/tool_change.h"
-#endif
+#include "module/tool_change.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"

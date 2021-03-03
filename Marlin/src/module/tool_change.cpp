@@ -434,17 +434,22 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   #endif
 
-  inline void swt_lock(const bool locked=true) {
-    //const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-    //MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
-    OUT_WRITE(SOL0_PIN, locked);
-    gcode.dwell(10);
+  inline void switching_toolhead_lock(const bool locked) {
+    #if defined(SWITCHING_TOOLHEAD_SERVO_ANGLES)
+      const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+      MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+    #elif PIN_EXISTS(SWT_SOLENOID)
+      OUT_WRITE(SWT_SOLENOID_PIN, locked);
+      gcode.dwell(10);
+    #else
+      #error "No toolhead locking mechanism configured."
+    #endif
   }
 
   #include <bitset>
 
   void swt_init() {
-    swt_lock();
+    switching_toolhead_lock(true);
 
     #if ENABLED(TOOL_SENSOR)
       // Init tool sensors
@@ -461,9 +466,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       if (check_tool_sensor_stats(0)) {
         std::string status = "TC ERROR " + std::bitset<8>(poll_tool_sensor_pins()).to_string();
         ui.set_status_P(status.c_str());
-        swt_lock(false);
+        switching_toolhead_lock(false);
         do { /* nada */ } while (check_tool_sensor_stats(0));
-        swt_lock();
+        switching_toolhead_lock(true);
       }
       ui.set_status_P("TC Success");
     #endif
@@ -508,7 +513,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     planner.synchronize();
     DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    swt_lock(false);
+    switching_toolhead_lock(false);
     safe_delay(500);
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -558,7 +563,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     (void)check_tool_sensor_stats(new_tool, true, true);
 
-    swt_lock();
+    switching_toolhead_lock(true);
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
