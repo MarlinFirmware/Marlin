@@ -407,7 +407,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   #if ENABLED(TOOL_SENSOR)
 
-    bool disable_sensor; // = false
+    bool tool_sensor_disabled; // = false
 
     uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
       static uint8_t sensor_tries; // = 0
@@ -416,7 +416,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
           sensor_tries = 0;
           return tool_index;
         }
-        else if (kill_on_error && (!disable_sensor || disable)) {
+        else if (kill_on_error && (!tool_sensor_disabled || disable)) {
           sensor_tries++;
           if (sensor_tries > 10) {
             std::string status = "TS error " + std::to_string(tool_index);
@@ -509,7 +509,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     slow_line_to_current(Y_AXIS);
 
     // 2. Unlock tool and drop it in the dock
-    TERN_(TOOL_SENSOR, disable_sensor = true);
+    TERN_(TOOL_SENSOR, tool_sensor_disabled = true);
 
     planner.synchronize();
     DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
@@ -1145,10 +1145,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      #if DISABLED(DUAL_X_CARRIAGE)
-        active_extruder = new_tool; // Set the new active extruder
-        TERN_(TOOL_SENSOR, disable_sensor = false);
-      #endif
+      IF_DISABLED(DUAL_X_CARRIAGE, active_extruder = new_tool); // Set the new active extruder
+
+      TERN_(TOOL_SENSOR, tool_sensor_disabled = false);
 
       (void)check_tool_sensor_stats(active_extruder, true);
 
