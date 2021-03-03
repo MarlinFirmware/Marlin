@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.22a"
+#define UNIFIED_VERSION "TH3D UFW 2.23"
 
 /**
  * TH3D Sanity Checks
@@ -116,6 +116,10 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(KP3S_OEM_MOUNT)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { 37, -3, 0 }
 #endif
 #if ENABLED(ANET_A2_OEM_MOUNT)
   #define ABL_ENABLE
@@ -497,7 +501,7 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
-#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(LCD2004)
+#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(LCD2004) && DISABLED(TFT_COLOR_UI)
   #define SHOW_BOOTSCREEN
   #define SHOW_CUSTOM_BOOTSCREEN
 #endif
