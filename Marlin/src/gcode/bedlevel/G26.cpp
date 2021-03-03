@@ -173,7 +173,7 @@ int8_t g26_prime_flag;
   /**
    * If the LCD is clicked, cancel, wait for release, return true
    */
-  bool user_canceled(bool reset = true) {
+  bool user_canceled() {
     UNUSED(reset);
     
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
@@ -186,11 +186,11 @@ int8_t g26_prime_flag;
 #elif ENABLED(EXTENSIBLE_UI)
   #define HAS_G26_CANCEL
 
-  bool user_canceled(bool reset = true) {
+  bool user_canceled() {
     if (!ExtUI::isCanceled()) return false;
 
+    planner.clear_block_buffer();
     ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
-    if (reset) ExtUI::resetCancelState();
 
     return true;
   }
@@ -565,7 +565,7 @@ inline bool draw_circle(float radius, const xy_pos_t& circle, const mesh_index_p
     plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
     destination = current_position;
 
-    if (TERN0(HAS_G26_CANCEL, user_canceled(false))) return false; // Check if the user wants to stop the Mesh Validation
+    if (TERN0(HAS_G26_CANCEL, user_canceled())) return false; // Check if the user wants to stop the Mesh Validation
 
   #else // !ARC_SUPPORT
 
@@ -895,9 +895,10 @@ void GcodeSuite::G26() {
 
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
-  } while (--g26_repeats && location.valid());
+  } while (--g26_repeats && location.valid() && TERN1(HAS_G26_CANCEL, !user_canceled()));
 
   LEAVE:
+  ExtUI::resetCancelState();
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
   IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
