@@ -374,7 +374,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       DEBUG_POS("PE Tool-Change done.", current_position);
       parking_extruder_set_parked(false);
     }
-    else if (do_solenoid_activation) { // && nomove == true
+    else if (do_solenoid_activation) { // && nomove
       // Deactivate current extruder solenoid
       pe_solenoid_set_pin_state(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
       // Engage new extruder magnetic field
@@ -389,7 +389,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 #if ENABLED(SWITCHING_TOOLHEAD)
 
   // Return a bitmask of tool sensor states
-  static inline uint8_t poll_tool_sensor_pins() {
+  inline uint8_t poll_tool_sensor_pins() {
     return (0
       #if ENABLED(TOOL_SENSOR)
         #if PIN_EXISTS(TOOL_SENSOR1)
@@ -410,23 +410,23 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     bool disable_sensor; // = false
 
     uint8_t check_tool_sensor_stats(const uint8_t tool_index, const bool kill_on_error/*=false*/, const bool disable/*=false*/) {
-      static uint8_t sensor_try_Again; // = 0
+      static uint8_t sensor_tries; // = 0
       for (;;) {
         if (poll_tool_sensor_pins() == _BV(tool_index)) {
-          sensor_try_Again = 0;
+          sensor_tries = 0;
           return tool_index;
         }
-        else if (kill_on_error == true && (disable_sensor == false || disable == true)) {
-          sensor_try_Again++;
-          if (sensor_try_Again > 10) {
+        else if (kill_on_error && (!disable_sensor || disable)) {
+          sensor_tries++;
+          if (sensor_tries > 10) {
             std::string status = "TS error " + std::to_string(tool_index);
             kill(status.c_str());
           }
           safe_delay(5);
         }
         else {
-          sensor_try_Again++;
-          if (sensor_try_Again > 10) return -1;
+          sensor_tries++;
+          if (sensor_tries > 10) return -1;
           safe_delay(5);
         }
       }
