@@ -1,3 +1,7 @@
+#
+# STM32F401VE_STEVAL.py
+# Customizations for env:STM32F401VE_STEVAL
+#
 import os
 Import("env")
 

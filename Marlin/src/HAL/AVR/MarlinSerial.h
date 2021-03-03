@@ -263,7 +263,7 @@
   };
 
   typedef Serial0Type< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialT3;
-  extern MSerial3 mmuSerial;
+  extern MSerialT3 mmuSerial;
 #endif
 
 #ifdef LCD_SERIAL_PORT

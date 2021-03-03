@@ -73,7 +73,7 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     float temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      serialprintPGM(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
           s == TSI_EXT ? PSTR("Extruder") :
         #endif

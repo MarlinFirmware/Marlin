@@ -59,13 +59,15 @@ extern xyz_pos_t cartes;
 #if HAS_ABL_NOT_UBL
   extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
-#elif defined(XY_PROBE_SPEED)
-  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
+#elif defined(XY_PROBE_FEEDRATE)
+  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
 #else
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
-constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_SPEED_FAST);
+#if HAS_BED_PROBE
+  constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+#endif
 
 /**
  * Feed rates are often configured with mm/m
@@ -278,33 +280,57 @@ void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
-void do_z_clearance(const float &zclear, const bool z_trusted=true, const bool raise_on_untrusted=true, const bool lower_allowed=false);
+void do_z_clearance(const float &zclear, const bool lower_allowed=false);
 
 /**
  * Homing and Trusted Axes
  */
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
-extern uint8_t axis_homed, axis_trusted;
 
-void homeaxis(const AxisEnum axis);
 void set_axis_is_at_home(const AxisEnum axis);
-void set_axis_never_homed(const AxisEnum axis);
-uint8_t axes_should_home(uint8_t axis_bits=0x07);
-bool homing_needed_error(uint8_t axis_bits=0x07);
 
-FORCE_INLINE bool axis_was_homed(const AxisEnum axis)     { return TEST(axis_homed, axis); }
-FORCE_INLINE bool axis_is_trusted(const AxisEnum axis)    { return TEST(axis_trusted, axis); }
-FORCE_INLINE bool axis_should_home(const AxisEnum axis)   { return (axes_should_home() & _BV(axis)) != 0; }
-FORCE_INLINE bool no_axes_homed()                         { return !axis_homed; }
-FORCE_INLINE bool all_axes_homed()                        { return xyz_bits == (axis_homed & xyz_bits); }
-FORCE_INLINE bool homing_needed()                         { return !all_axes_homed(); }
-FORCE_INLINE bool all_axes_trusted()                      { return xyz_bits == (axis_trusted & xyz_bits); }
-FORCE_INLINE void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
-FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
-FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
-FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
-FORCE_INLINE void set_all_homed()                         { axis_homed = axis_trusted = xyz_bits; }
-FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
+#if HAS_ENDSTOPS
+  /**
+   * axis_homed
+   *   Flags that each linear axis was homed.
+   *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
+   *
+   * axis_trusted
+   *   Flags that the position is trusted in each linear axis. Set when homed.
+   *   Cleared whenever a stepper powers off, potentially losing its position.
+   */
+  extern uint8_t axis_homed, axis_trusted;
+  void homeaxis(const AxisEnum axis);
+  void set_axis_never_homed(const AxisEnum axis);
+  uint8_t axes_should_home(uint8_t axis_bits=0x07);
+  bool homing_needed_error(uint8_t axis_bits=0x07);
+  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
+  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
+  FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
+  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
+  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
+  FORCE_INLINE void set_all_homed()                         { axis_homed = axis_trusted = xyz_bits; }
+#else
+  constexpr uint8_t axis_homed = xyz_bits, axis_trusted = xyz_bits; // Zero-endstop machines are always homed and trusted
+  FORCE_INLINE void homeaxis(const AxisEnum axis)           {}
+  FORCE_INLINE void set_axis_never_homed(const AxisEnum)    {}
+  FORCE_INLINE uint8_t axes_should_home(uint8_t=0x07)       { return false; }
+  FORCE_INLINE bool homing_needed_error(uint8_t=0x07)       { return false; }
+  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   {}
+  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) {}
+  FORCE_INLINE void set_all_unhomed()                       {}
+  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     {}
+  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   {}
+  FORCE_INLINE void set_all_homed()                         {}
+#endif
+
+FORCE_INLINE bool axis_was_homed(const AxisEnum axis)       { return TEST(axis_homed, axis); }
+FORCE_INLINE bool axis_is_trusted(const AxisEnum axis)      { return TEST(axis_trusted, axis); }
+FORCE_INLINE bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
+FORCE_INLINE bool no_axes_homed()                           { return !axis_homed; }
+FORCE_INLINE bool all_axes_homed()                          { return xyz_bits == (axis_homed & xyz_bits); }
+FORCE_INLINE bool homing_needed()                           { return !all_axes_homed(); }
+FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits == (axis_trusted & xyz_bits); }
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
@@ -360,7 +386,6 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
 /**
  * position_is_reachable family of functions
  */
-
 #if IS_KINEMATIC // (DELTA or SCARA)
 
   #if HAS_SCARA_OFFSET
@@ -390,14 +415,14 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
+    if (!COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
+        return COORDINATE_OKAY(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
       else
-        return WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
+        return COORDINATE_OKAY(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
+      return COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
     #endif
   }
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
@@ -450,7 +475,7 @@ FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_tr
     FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
-  FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
+  FORCE_INLINE int x_home_dir(const uint8_t) { return X_HOME_DIR; }
 
 #endif
 

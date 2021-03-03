@@ -476,7 +476,7 @@ void ubl_map_screen() {
         if (position_is_reachable(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
-    } while(ENABLED(IS_KINEMATIC));
+    } while (ENABLED(IS_KINEMATIC));
 
     // Determine number of points to edit
     #if IS_KINEMATIC

@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE,HAS_LEVELING)
-
 #include "screens.h"
+
+#ifdef FTDI_LEVELING_MENU
 
 #if BOTH(HAS_BED_PROBE,BLTOUCH)
   #include "../../../../../feature/bltouch.h"
@@ -118,4 +117,4 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && HAS_LEVELING
+#endif // FTDI_LEVELING_MENU

@@ -210,7 +210,11 @@ struct PIDHeaterInfo : public HeaterInfo {
   typedef temp_info_t probe_info_t;
 #endif
 #if HAS_HEATED_CHAMBER
-  typedef heater_info_t chamber_info_t;
+  #if ENABLED(PIDTEMPCHAMBER)
+    typedef struct PIDHeaterInfo<PID_t> chamber_info_t;
+  #else
+    typedef heater_info_t chamber_info_t;
+  #endif
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
@@ -257,31 +261,31 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 #if HAS_USER_THERMISTORS
 
   enum CustomThermistorIndex : uint8_t {
-    #if HEATER_0_USER_THERMISTOR
+    #if TEMP_SENSOR_0_IS_CUSTOM
       CTI_HOTEND_0,
     #endif
-    #if HEATER_1_USER_THERMISTOR
+    #if TEMP_SENSOR_1_IS_CUSTOM
       CTI_HOTEND_1,
     #endif
-    #if HEATER_2_USER_THERMISTOR
+    #if TEMP_SENSOR_2_IS_CUSTOM
       CTI_HOTEND_2,
     #endif
-    #if HEATER_3_USER_THERMISTOR
+    #if TEMP_SENSOR_3_IS_CUSTOM
       CTI_HOTEND_3,
     #endif
-    #if HEATER_4_USER_THERMISTOR
+    #if TEMP_SENSOR_4_IS_CUSTOM
       CTI_HOTEND_4,
     #endif
-    #if HEATER_5_USER_THERMISTOR
+    #if TEMP_SENSOR_5_IS_CUSTOM
       CTI_HOTEND_5,
     #endif
-    #if HEATER_BED_USER_THERMISTOR
+    #if TEMP_SENSOR_BED_IS_CUSTOM
       CTI_BED,
     #endif
-    #if HEATER_PROBE_USER_THERMISTOR
+    #if TEMP_SENSOR_PROBE_IS_CUSTOM
       CTI_PROBE,
     #endif
-    #if HEATER_CHAMBER_USER_THERMISTOR
+    #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
     USER_THERMISTORS
@@ -415,7 +419,7 @@ class Temperature {
 
     #if HAS_HEATED_CHAMBER
       TERN_(WATCH_CHAMBER, static chamber_watch_t watch_chamber);
-      static millis_t next_chamber_check_ms;
+      TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       #ifdef CHAMBER_MINTEMP
         static int16_t mintemp_raw_CHAMBER;
       #endif
@@ -626,6 +630,10 @@ class Temperature {
             , const bool click_to_cancel=false
           #endif
         );
+
+        #if ENABLED(WAIT_FOR_HOTEND)
+          static void wait_for_hotend_heating(const uint8_t target_extruder);
+        #endif
       #endif
 
       FORCE_INLINE static bool still_heating(const uint8_t e) {
@@ -751,6 +759,11 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
+
+      #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
+        static bool pid_debug_flag;
+      #endif
+
       static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
@@ -813,25 +826,22 @@ class Temperature {
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
 
-    #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-    #if HAS_MAX6675
-      #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-      #if COUNT_6675 > 1
-        #define HAS_MULTI_6675 1
-        #define READ_MAX6675(N) read_max6675(N)
+    #if HAS_MAX_TC
+      #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
+      #if MAX_TC_COUNT > 1
+        #define HAS_MULTI_MAX_TC 1
+        #define READ_MAX_TC(N) read_max_tc(N)
       #else
-        #define READ_MAX6675(N) read_max6675()
+        #define READ_MAX_TC(N) read_max_tc()
       #endif
-      static int read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex=0));
+      static int read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
     static void checkExtruderAutoFans();
 
-    static float get_pid_output_hotend(const uint8_t e);
-
-    TERN_(PIDTEMPBED, static float get_pid_output_bed());
-
-    TERN_(HAS_HEATED_CHAMBER, static float get_pid_output_chamber());
+    TERN_(HAS_HOTEND,     static float get_pid_output_hotend(const uint8_t e));
+    TERN_(PIDTEMPBED,     static float get_pid_output_bed());
+    TERN_(PIDTEMPCHAMBER, static float get_pid_output_chamber());
 
     static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
