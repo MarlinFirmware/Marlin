@@ -310,7 +310,7 @@ namespace Anycubic {
 
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
-    while(TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
+    while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
       panel_command[command_len] = TFTSer.read();
       if (panel_command[command_len] == '\n') {
         command_ready = true;
@@ -338,7 +338,7 @@ namespace Anycubic {
 
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
     int8_t pos = 0;
-    do { if (buff[pos] == q) return pos; } while(++pos < MAX_CMND_LEN);
+    do { if (buff[pos] == q) return pos; } while (++pos < MAX_CMND_LEN);
     return -1;
   }
 
