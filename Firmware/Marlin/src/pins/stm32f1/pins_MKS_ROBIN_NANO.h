@@ -95,8 +95,14 @@
   #define HEATER_0_PIN                      PC3
 #endif
 #if HOTENDS == 1
+  #if ENABLED(KINGROON_KP3S)
+    #ifndef FAN1_PIN
+      #define FAN1_PIN                      -1
+    #endif
+  #else
   #ifndef FAN1_PIN
     #define FAN1_PIN                        PB0
+    #endif
   #endif
 #else
   #ifndef HEATER_1_PIN
