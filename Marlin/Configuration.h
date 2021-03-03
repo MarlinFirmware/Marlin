@@ -1157,15 +1157,14 @@
 
 // The size of the print bed
 #define X_BED_SIZE 310
-#define Y_BED_SIZE 236 // should be 310, but compensating for bad y axis belt tightener until i can print a new one
-
+#define Y_BED_SIZE 310
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -5.5
 #define Y_MIN_POS -13
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 350
+#define Z_MAX_POS 355
 
 /**
  * Software Endstops
