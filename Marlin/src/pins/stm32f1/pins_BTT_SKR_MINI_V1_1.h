@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef TARGET_STM32F1
+#if NOT_TARGET(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -31,7 +31,7 @@
 #define DISABLE_JTAG
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
@@ -110,7 +110,7 @@
  *                EXP2                                              EXP1
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC10
   #define BTN_ENC                           PC11
 
@@ -122,6 +122,17 @@
 
     #define LCD_PINS_ENABLE                 PC14
     #define LCD_PINS_D4                     PB7
+
+  #elif IS_TFTGLCD_PANEL
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PD2
+    #endif
+
+    #define SD_DETECT_PIN                   PB9
 
   #else
 
@@ -164,15 +175,20 @@
     #else                                         // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4                   PC13
-      #if ENABLED(ULTIPANEL)
+      #if IS_ULTIPANEL
         #define LCD_PINS_D5                 PB7
         #define LCD_PINS_D6                 PC15
         #define LCD_PINS_D7                 PC14
+
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #endif
+
       #endif
 
     #endif // !FYSETC_MINI_12864
 
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #ifndef BOARD_ST7920_DELAY_1
         #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
       #endif
@@ -186,7 +202,7 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card
@@ -199,19 +215,18 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI3
+  #define SPI_DEVICE                           3
   #define SD_DETECT_PIN                     PB9
-  #define SCK_PIN                           PB3
-  #define MISO_PIN                          PB4
-  #define MOSI_PIN                          PB5
-  #define SS_PIN                            PA15
+  #define SD_SCK_PIN                        PB3
+  #define SD_MISO_PIN                       PB4
+  #define SD_MOSI_PIN                       PB5
+  #define SD_SS_PIN                         PA15
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI1
   #define SD_DETECT_PIN                     PA3
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PA7
-  #define SS_PIN                            PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_SS_PIN                         PA4
 #endif
-#define ON_BOARD_SPI_DEVICE 1                     // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

@@ -14,13 +14,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL for Arduino Due and compatible (SAM3X8E)
  */
 
 #ifdef ARDUINO_ARCH_SAM
@@ -41,6 +40,8 @@ uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 // HAL initialization task
 void HAL_init() {
   // Initialize the USB stack
@@ -48,6 +49,7 @@ void HAL_init() {
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
   usb_task_init();
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 // HAL idle task
@@ -102,5 +104,19 @@ uint16_t HAL_adc_get_result() {
   // nop
   return HAL_adc_result;
 }
+
+// Forward the default serial ports
+#if ANY_SERIAL_IS(0)
+  DefaultSerial MSerial(false, Serial);
+#endif
+#if ANY_SERIAL_IS(1)
+  DefaultSerial1 MSerial1(false, Serial1);
+#endif
+#if ANY_SERIAL_IS(2)
+  DefaultSerial2 MSerial2(false, Serial2);
+#endif
+#if ANY_SERIAL_IS(3)
+  DefaultSerial3 MSerial3(false, Serial3);
+#endif
 
 #endif // ARDUINO_ARCH_SAM

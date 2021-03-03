@@ -1,8 +1,9 @@
+#
+# chitu_crypt.py
+# Customizations for Chitu boards
+#
 Import("env")
-import os
-import random
-import struct
-import uuid
+import os,random,struct,uuid
 
 # Relocate firmware from 0x08000000 to 0x08008800
 env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
@@ -32,7 +33,7 @@ def xor_block(r0, r1, block_number, block_size, file_key):
     key_length = 0x18
 
     # This is an initial seed
-    xor_seed = 0x4bad
+    xor_seed = 0x4BAD
 
     # This is the block counter
     block_number = xor_seed * block_number
@@ -77,7 +78,7 @@ def encrypt_file(input, output_file, file_length):
     uid_value = uuid.uuid4()
     file_key = int(uid_value.hex[0:8], 16)
 
-    xor_crc = 0xef3d4323;
+    xor_crc = 0xEF3D4323;
 
     # the input file is exepcted to be in chunks of 0x800
     # so round the size

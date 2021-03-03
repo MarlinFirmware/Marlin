@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
@@ -48,7 +48,8 @@
    *   addr  - Address in RAMG where the font data is written
    */
 
-  void FTDI::StandardCharSet::load_data(uint32_t) {
+  uint32_t FTDI::StandardCharSet::load_data(uint32_t addr) {
+    return addr;
   }
 
   /**

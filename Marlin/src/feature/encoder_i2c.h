@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -261,32 +261,32 @@ class I2CPositionEncodersMgr {
 
     static void report_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
-      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis is ", encoders[idx].get_error_count());
+      SERIAL_ECHOLNPAIR("Error count on ", AS_CHAR(axis_codes[axis]), " axis is ", encoders[idx].get_error_count());
     }
 
     static void reset_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_error_count(0);
-      SERIAL_ECHOLNPAIR("Error count on ", axis_codes[axis], " axis has been reset.");
+      SERIAL_ECHOLNPAIR("Error count on ", AS_CHAR(axis_codes[axis]), " axis has been reset.");
     }
 
     static void enable_ec(const int8_t idx, const bool enabled, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
-      SERIAL_ECHOPAIR("Error correction on ", axis_codes[axis]);
+      SERIAL_ECHOPAIR("Error correction on ", AS_CHAR(axis_codes[axis]));
       SERIAL_ECHO_TERNARY(encoders[idx].get_ec_enabled(), " axis is ", "en", "dis", "abled.\n");
     }
 
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
-      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis set to ", newThreshold, "mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", AS_CHAR(axis_codes[axis]), " axis set to ", newThreshold, "mm.");
     }
 
     static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
-      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis is ", threshold, "mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", AS_CHAR(axis_codes[axis]), " axis is ", threshold, "mm.");
     }
 
     static int8_t idx_from_axis(const AxisEnum axis) {

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -69,9 +69,9 @@
   #undef ADC_KEYPAD_PIN
   #undef BEEPER_PIN
 
-  #undef SHIFT_OUT
-  #undef SHIFT_CLK
-  #undef SHIFT_LD
+  #undef SHIFT_OUT_PIN
+  #undef SHIFT_CLK_PIN
+  #undef SHIFT_LD_PIN
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC

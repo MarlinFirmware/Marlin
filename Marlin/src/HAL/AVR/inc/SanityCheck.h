@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -36,9 +36,10 @@
  * Sanity checks for Spindle / Laser PWM
  */
 #if ENABLED(SPINDLE_LASER_PWM)
+  #include "../ServoTimers.h"   // Needed to check timer availability (_useTimer3)
   #if SPINDLE_LASER_PWM_PIN == 4 || WITHIN(SPINDLE_LASER_PWM_PIN, 11, 13)
     #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by a system interrupt."
-  #elif NUM_SERVOS > 0 && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
+  #elif NUM_SERVOS > 0 && defined(_useTimer3) && (WITHIN(SPINDLE_LASER_PWM_PIN, 2, 3) || SPINDLE_LASER_PWM_PIN == 5)
     #error "Counter/Timer for SPINDLE_LASER_PWM_PIN is used by the servo system."
   #endif
 #elif defined(SPINDLE_LASER_FREQUENCY)
@@ -54,4 +55,11 @@
 
 #if BOTH(HAS_TMC_SW_SERIAL, MONITOR_DRIVER_STATUS)
   #error "MONITOR_DRIVER_STATUS causes performance issues when used with SoftwareSerial-connected drivers. Disable MONITOR_DRIVER_STATUS or use hardware serial to continue."
+#endif
+
+/**
+ * Postmortem debugging
+ */
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not supported on AVR boards."
 #endif

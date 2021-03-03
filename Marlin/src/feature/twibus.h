@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,6 +30,17 @@
 
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
+
+/**
+ * For a light i2c protocol that runs on two boards running Marlin see:
+ * See https://github.com/MarlinFirmware/Marlin/issues/4776#issuecomment-246262879
+ */
+#if I2C_SLAVE_ADDRESS > 0
+
+  void i2c_on_receive(int bytes); // Demo i2c onReceive handler
+  void i2c_on_request();          // Demo i2c onRequest handler
+
+#endif
 
 #define TWIBUS_BUFFER_SIZE 32
 
@@ -48,7 +59,6 @@ typedef void (*twiRequestFunc_t)();
  *  For more information see
  *    - https://marlinfw.org/docs/gcode/M260.html
  *    - https://marlinfw.org/docs/gcode/M261.html
- *
  */
 class TWIBus {
   private:
@@ -239,3 +249,5 @@ class TWIBus {
       static inline void debug(const char[], uint8_t) {}
     #endif
 };
+
+extern TWIBus i2c;

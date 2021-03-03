@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,7 +55,6 @@
   }
 
   void report_current_position_detail() {
-
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
     report_xyz(current_position.asLogical());
@@ -81,11 +80,7 @@
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
-      #if IS_SCARA
-        SERIAL_ECHOPGM("ScaraK: ");
-      #else
-        SERIAL_ECHOPGM("DeltaK: ");
-      #endif
+      SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
       inverse_kinematics(leveled);  // writes delta[]
       report_xyz(delta);
     #endif

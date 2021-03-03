@@ -16,25 +16,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 #define MIN_EXT_SPEED_PERCENT    10
 #define MAX_EXT_SPEED_PERCENT   999
 
-extern void lv_draw_change_speed(void);
+extern void lv_draw_change_speed();
 extern void lv_clear_change_speed();
 extern void disp_speed_step();
 extern void disp_print_speed();
 extern void disp_speed_type();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

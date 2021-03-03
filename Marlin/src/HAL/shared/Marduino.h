@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,9 +28,9 @@
 #undef DISABLED       // Redefined by ESP32
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
-#undef sq             // Redefined by teensy3/wiring.h
 #undef SBI            // Redefined by arduino/const_functions.h
 #undef CBI            // Redefined by arduino/const_functions.h
+#undef sq             // Redefined by teensy3/wiring.h
 #undef UNUSED         // Redefined by stm32f4xx_hal_def.h
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
@@ -40,17 +40,15 @@
 
 #undef _BV
 #define _BV(b) (1UL << (b))
+#ifndef SBI
+  #define SBI(A,B) (A |= _BV(B))
+#endif
+#ifndef CBI
+  #define CBI(A,B) (A &= ~_BV(B))
+#endif
 
 #undef sq
 #define sq(x) ((x)*(x))
-
-#ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
-#endif
-
-#ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
-#endif
 
 #ifndef __AVR__
   #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
@@ -83,3 +81,5 @@
 #ifndef UNUSED
   #define UNUSED(x) ((void)(x))
 #endif
+
+#include "progmem.h"

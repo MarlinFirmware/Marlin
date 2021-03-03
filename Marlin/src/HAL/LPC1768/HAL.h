@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -47,9 +47,6 @@ extern "C" volatile uint32_t _millis;
 #include <pinmapping.h>
 #include <CDCSerial.h>
 
-// i2c uses 8-bit shifted address
-#define I2C_ADDRESS(A) uint8_t((A) << 1)
-
 //
 // Default graphical display delays
 //
@@ -63,58 +60,48 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
+typedef ForwardSerial0Type< decltype(UsbSerial) > DefaultSerial;
+extern DefaultSerial USBSerial;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+#define MSerial0 MSerial
+
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 MSerial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 MSerial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 MSerial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 MSerial3
+  #define MYSERIAL0 USBSerial
+#elif WITHIN(SERIAL_PORT, 0, 3)
+  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
   #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 MSerial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 MSerial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 MSerial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 MSerial3
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL1 USBSerial
+  #elif WITHIN(SERIAL_PORT_2, 0, 3)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL UsbSerial
-  #elif DGUS_SERIAL_PORT == 0
-    #define DGUS_SERIAL MSerial
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL MSerial1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL MSerial2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL MSerial3
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL USBSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL USBSerial
+  #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+  #else
+    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 #endif
 
@@ -130,10 +117,16 @@ extern "C" volatile uint32_t _millis;
 //
 // Utility functions
 //
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC API
@@ -223,7 +216,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
-#endif
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader

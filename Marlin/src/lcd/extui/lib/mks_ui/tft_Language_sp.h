@@ -16,22 +16,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 //****************西班牙语***************************
 #define TOOL_TEXT_SP            "Ajustes"
-#define PREHEAT_TEXT_SP         "Precalentar"//"precalent\nar"
+#define PREHEAT_TEXT_SP         "Precalentar"
 #define MOVE_TEXT_SP            "Mover"
 #define HOME_TEXT_SP            "Origen"
 #define PRINT_TEXT_SP           "Imprimir"
 #define EXTRUDE_TEXT_SP         "Extrusor"
-#define LEVELING_TEXT_SP        "Leveling"//"nivelac\nión"
-#define AUTO_LEVELING_TEXT_SP   "Autolevel"//"auto\nnivelación"
+#define LEVELING_TEXT_SP        "Leveling"
+#define MLEVELING_TEXT_SP       "Leveling"
+#define AUTO_LEVELING_TEXT_SP   "Autolevel"
 #define SET_TEXT_SP             "Config"
 #define MORE_TEXT_SP            "Más"
+#define MORE_GCODE_SP           "G-Code"
+#define MORE_ENTER_GCODE_SP     "Introduzca el G-Code"
 
 #define ADD_TEXT_SP             "Más"
 #define DEC_TEXT_SP             "Menos"
@@ -50,6 +53,7 @@
 #define TOOL_MOVE_SP            "Mover"
 #define TOOL_HOME_SP            "Origen"
 #define TOOL_LEVELING_SP        "Leveling"
+#define TOOL_MLEVELING_SP       "Leveling"
 #define TOOL_AUTO_LEVELING_SP   "Autolevel"
 #define TOOL_FILAMENT_SP        "Filamento"
 #define TOOL_MORE_SP            "Más"
@@ -98,6 +102,8 @@
 #define MOTOR_OFF_TEXT_SP       "Apagar motor"
 #define MOTOR_OFF_XY_TEXT_SP    "Off-XY"
 #define SHUTDOWN_TEXT_SP        "Apagar"
+#define MACHINE_PARA_SP         "Config"
+#define EEPROM_SETTINGS_SP      "Eeprom Set"
 
 #define U_DISK_TEXT_SP              "PENDRIVE"
 #define SD_CARD_TEXT_SP             "SD"
@@ -133,49 +139,29 @@
 #define FILAMENT_EXT1_TEXT_SP       "Extrusor2"
 #define FILAMENT_HEAT_TEXT_SP       "Precalentar"
 #define FILAMENT_STOP_TEXT_SP       "Parar"
-//#define FILAMENT_CHANGE_TEXT_SP   "Filamento"
 #define FILAMENT_TIPS2_TEXT_SP      "T:"
 #define FILAMENT_TIPS3_TEXT_SP      "Dentro..."
 #define FILAMENT_TIPS4_TEXT_SP      "Fuera..."
 #define FILAMENT_TIPS5_TEXT_SP      "Temperatura demasiado baja, por favor calentar"
 #define FILAMENT_TIPS6_TEXT_SP      "Completado"
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_SP           "Please click <Dentro> or <Fuera> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_SP                 "Please click <Dentro> or <Fuera>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor, por favor espere..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor, por favor espere..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el filamento y luego presione\"Confirmar\"para comenzar la carga."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y luego presione\"Confirmar\"para comenzar la carga."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.Presione\"Confirmar\"para retirar el filamento."
-  #define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,por favor espere."
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,por favor espere."
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,presione\"Confirmar\"."
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,presione\"Confirmar\"."
-#else
-  #define FILAMENT_CHANGE_TEXT_SP                 "Please click <Load> \nor <unload>,After \npinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor,\npor favor espere..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor,\npor favor espere..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el \nfilamento y luego presione\"Confirmar\"\npara comenzar la carga."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y \nluego presione\"Confirmar\"para \ncomenzar la carga."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.\nPresione\"Confirmar\"para retirar \nel filamento."
-  #define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,\npor favor espere."
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,\npor favor espere."
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,\npresione\"Confirmar\"."
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,\npresione\"Confirmar\"."
-#endif
+
+#define FILAMENT_CHANGE_TEXT_SP                 "Please click <Load> \nor <unload>,After \npinter pause."
+#define FILAMENT_DIALOG_LOAD_HEAT_TIPS_SP       "Calentando el extrusor,\npor favor espere..."
+#define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_SP     "Calentando el extrusor,\npor favor espere..."
+#define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_SP   "Temperatura alcanzada.Inserte el \nfilamento y luego presione\"Confirmar\"\npara comenzar la carga."
+#define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_SP   "Inserte el filamento y \nluego presione\"Confirmar\"para \ncomenzar la carga."
+#define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_SP  "Temperatura alcanzada.\nPresione\"Confirmar\"para retirar \nel filamento."
+#define FILAMENT_DIALOG_LOADING_TIPS_SP         "Cargando filamento,\npor favor espere."
+#define FILAMENT_DIALOG_UNLOADING_TIPS_SP       "Retirando filamento,\npor favor espere."
+#define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_SP   "Filamento cargado,\npresione\"Confirmar\"."
+#define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_SP "Filamento retirado,\npresione\"Confirmar\"."
 
 #define PRE_HEAT_EXT_TEXT_SP        "Extrusor"
 #define PRE_HEAT_BED_TEXT_SP        "cama"
 
 #define FILE_LOADING_SP             "Cargando......"
-#if 0
-  #define NO_FILE_AND_CHECK_SP        "No se encontraron archivos! Por favor, inserte la tarjeta SD o el disco U!"
-#endif
 #define NO_FILE_AND_CHECK_SP        "Archivo no encontrado,\n         por favor insertar SD o disco USB!"
-
 #define NO_FILE_SP                  "Sin archivo!"
-
-
 
 #define EXTRUDER_TEMP_TEXT_SP       "Temper"
 #define EXTRUDER_E_LENGTH1_TEXT_SP  "Extrusor1"
@@ -204,10 +190,6 @@
 #define STEP_5PERCENT_SP            "5%"
 #define STEP_10PERCENT_SP           "10%"
 
-#define ZOFFSET_SP                  "Z Offset"
-#define ZOFFSET_INC_SP              "Más"
-#define ZOFFSET_DEC_SP              "Menos"
-
 #define TITLE_READYPRINT_SP         "Inicio"
 #define TITLE_PREHEAT_SP            "Precalentar"
 #define TITLE_MOVE_SP               "Mover"
@@ -231,7 +213,6 @@
 #define TITLE_CLOUD_TEXT_SP         "Cloud"
 #define TITLE_DIALOG_CONFIRM_SP     "Confirmar"
 #define TITLE_FILESYS_SP            "Puerto"
-#define TITLE_ZOFFSET_SP            "Z Offset"
 
 #define AUTO_SHUTDOWN_SP            "Auto"
 #define MANUAL_SHUTDOWN_SP          "manual"
@@ -245,10 +226,9 @@
 #define DIALOG_PRINT_MODEL_SP       "¿Está seguro?"
 #define DIALOG_CANCEL_PRINT_SP      "¿Está seguro que desea detener la impresión?"
 
-#define DIALOG_RETRY_SP               "Reintentar"
-#define DIALOG_STOP_SP                "Stop"
-#define DIALOG_REPRINT_FROM_BREAKPOINT_SP   "Reprint from breakpoint?"
-//#define DIALOG_UNBIND_PRINTER_SP    "Unbind the printer?"
+#define DIALOG_RETRY_SP             "Reintentar"
+#define DIALOG_STOP_SP              "Stop"
+#define DIALOG_REPRINT_FROM_BREAKPOINT_SP "Reprint from breakpoint?"
 #define DIALOG_ERROR_TIPS1_SP         "Error:archivo no encontrado, \npor favor insertar SD o disco USB."
 #define DIALOG_ERROR_TIPS2_SP         "error:transacción fallida, \nconfigurar  baudrate del \ndisplay para la placa base!"
 #define DIALOG_ERROR_TIPS3_SP         "Error : nombre de archivo o \nruta demasiado largo!"
@@ -260,20 +240,35 @@
 #define DIALOG_REPRINT_SP             "Print again"
 #define DIALOG_WIFI_ENABLE_TIPS_SP    "The wifi module is being configured,\nplease wait a moment....."
 
-#define PRINTING_SP                 "Imprimiendo"
-#define PRINTING_AJUSTES_SP         "Ajustes"
-#define PRINTING_PAUSAR_SP          "Pausar"
+#define PRINTING_SP               "Imprimiendo"
+#define PRINTING_AJUSTES_SP       "Ajustes"
+#define PRINTING_PAUSAR_SP        "Pausar"
 
-#define MESSEGE_PAUSING_SP          "Aparcando..."
-#define MESSEGE_CHANGING_SP         "Esperando para iniciar el cambio de filamento"
-#define MESSEGE_UNLOAD_SP           "Espere para liberar el filamento"
-#define MESSEGE_WAITING_SP          "Pulsar el botón para reanudar impresión"
-#define MESSEGE_INSERT_SP           "Inserte el filamento y pulse el botón para continuar..."
-#define MESSEGE_LOAD_SP             "Espere para purgar el filamento"
-#define MESSEGE_PURGE_SP            "Espere para purgar el filamento"
-#define MESSEGE_RESUME_SP           "Esperando impresora para reanudar..."
-#define MESSEGE_HEAT_SP             "Pulse el botón para calentar la boquilla"
-#define MESSEGE_HEATING_SP          "Calentando boquilla Espere por favor..."
-#define MESSEGE_OPTION_SP           "¿Purgar más o continuar con la impresión?"
-#define MESSEGE_PURGE_MORE_SP       "Purga"
-#define MESSEGE_CONTINUE_PRINT_SP   "Impresión"
+#define MESSAGE_PAUSING_SP        "Aparcando..."
+#define MESSAGE_CHANGING_SP       "Esperando para iniciar el cambio de filamento"
+#define MESSAGE_UNLOAD_SP         "Espere para liberar el filamento"
+#define MESSAGE_WAITING_SP        "Pulsar el botón para reanudar impresión"
+#define MESSAGE_INSERT_SP         "Inserte el filamento y pulse el botón para continuar..."
+#define MESSAGE_LOAD_SP           "Espere para purgar el filamento"
+#define MESSAGE_PURGE_SP          "Espere para purgar el filamento"
+#define MESSAGE_RESUME_SP         "Esperando impresora para reanudar..."
+#define MESSAGE_HEAT_SP           "Pulse el botón para calentar la boquilla"
+#define MESSAGE_HEATING_SP        "Calentando boquilla Espere por favor..."
+#define MESSAGE_OPTION_SP         "¿Purgar más o continuar con la impresión?"
+#define MESSAGE_PURGE_MORE_SP     "Purga"
+#define MESSAGE_CONTINUE_PRINT_SP "Impresión"
+#define EEPROM_SETTINGS_TITLE_SP  "Configuraciones EEPROM"
+#define EEPROM_SETTINGS_STORE_SP  "Guardar configuración en EEPROM"
+#define EEPROM_SETTINGS_READ_SP   "Leer la configuración de EEPROM"
+#define EEPROM_SETTINGS_REVERT_SP "Revert settings to factory defaults"
+
+#define EEPROM_STORE_TIPS_SP  "¿Guardar ajustes en EEPROM?"
+#define EEPROM_READ_TIPS_SP   "Leer la configuración de EEPROM?"
+#define EEPROM_REVERT_TIPS_SP "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_SP  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_SP  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_SP  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_SP  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_SP  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_SP  USER_DESC_6

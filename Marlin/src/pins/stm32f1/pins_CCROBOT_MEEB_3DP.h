@@ -16,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef TARGET_STM32F1
+#if NOT_TARGET(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "CCROBOT-ONLINE MEEB_3DP only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "CCROBOT-ONLINE MEEB_3DP only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 // https://github.com/ccrobot-online/MEEB_3DP
@@ -43,9 +43,9 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE 0x800U                 // 2KB
+  #define EEPROM_PAGE_SIZE                0x800U  // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -95,7 +95,7 @@
 #define E0_SERIAL_RX_PIN                    PC4
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE 19200
+#define TMC_BAUD_RATE                      19200
 
 //
 // Temperature Sensors
@@ -113,7 +113,7 @@
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 
-// One neopixel onboard and a connector for other neopixels
+// One NeoPixel onboard and a connector for other NeoPixels
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**
@@ -142,7 +142,7 @@
 #endif
 
 // Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #endif
@@ -165,15 +165,14 @@
 // SD-NAND
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI1
   #define SD_DETECT_PIN                     -1
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PA7
-  #define SS_PIN                            PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_SS_PIN                         PA4
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1                     // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for SD-NAND
 
 #endif

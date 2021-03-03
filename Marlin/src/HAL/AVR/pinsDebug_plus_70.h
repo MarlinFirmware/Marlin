@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -22,15 +22,12 @@
  * Structures for 2560 family boards that use more than 70 pins
  */
 
-#undef NUM_DIGITAL_PINS
-#if MB(BQ_ZUM_MEGA_3D)
+#if MB(BQ_ZUM_MEGA_3D, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
+  #undef NUM_DIGITAL_PINS
   #define NUM_DIGITAL_PINS            85
 #elif MB(MIGHTYBOARD_REVE)
+  #undef NUM_DIGITAL_PINS
   #define NUM_DIGITAL_PINS            80
-#elif MB(MINIRAMBO)
-  #define NUM_DIGITAL_PINS            85
-#elif MB(SCOOVO_X9H)
-  #define NUM_DIGITAL_PINS            85
 #endif
 
 #define PA 1

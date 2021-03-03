@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, FILAMENT_RUNOUT_SENSOR)
-
 #include "screens.h"
+
+#ifdef FTDI_FILAMENT_RUNOUT_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -36,7 +35,6 @@ void FilamentRunoutScreen::onRedraw(draw_mode_t what) {
   w.toggle( 2, GET_TEXT_F(MSG_RUNOUT_SENSOR), getFilamentRunoutEnabled());
 
   #if HAS_FILAMENT_RUNOUT_DISTANCE
-    extern const char NUL_STR[];
     w.heading(GET_TEXT_F(MSG_RUNOUT_DISTANCE_MM));
     w.units(GET_TEXT_F(MSG_UNITS_MM));
     w.precision(0);
@@ -63,4 +61,4 @@ bool FilamentRunoutScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_FILAMENT_RUNOUT_SCREEN

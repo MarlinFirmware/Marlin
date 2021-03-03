@@ -17,18 +17,19 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
 
+#ifdef FTDI_SPINNER_DIALOG_BOX
+
 using namespace FTDI;
 using namespace ExtUI;
+
+constexpr static SpinnerDialogBoxData &mydata = screen_data.SpinnerDialogBox;
 
 void SpinnerDialogBox::onRedraw(draw_mode_t) {
 }
@@ -37,7 +38,7 @@ void SpinnerDialogBox::show(const progmem_str message) {
   drawMessage(message);
   drawSpinner();
   storeBackground();
-  screen_data.SpinnerDialogBox.auto_hide = false;
+  mydata.auto_hide = false;
 }
 
 void SpinnerDialogBox::hide() {
@@ -53,16 +54,16 @@ void SpinnerDialogBox::enqueueAndWait_P(const progmem_str message, const progmem
   show(message);
   GOTO_SCREEN(SpinnerDialogBox);
   ExtUI::injectCommands_P((const char*)commands);
-  screen_data.SpinnerDialogBox.auto_hide = true;
+  mydata.auto_hide = true;
 }
 
 void SpinnerDialogBox::onIdle() {
   reset_menu_timeout();
-  if (screen_data.SpinnerDialogBox.auto_hide && !commandsInQueue()) {
-    screen_data.SpinnerDialogBox.auto_hide = false;
+  if (mydata.auto_hide && !commandsInQueue()) {
+    mydata.auto_hide = false;
     hide();
     GOTO_PREVIOUS();
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_SPINNER_DIALOG_BOX

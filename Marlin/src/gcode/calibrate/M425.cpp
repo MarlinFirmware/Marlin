@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -56,7 +56,7 @@ void GcodeSuite::M425() {
   };
 
   LOOP_XYZ(a) {
-    if (AXIS_CAN_CALIBRATE(a) && parser.seen(XYZ_CHAR(a))) {
+    if (axis_can_calibrate(a) && parser.seen(XYZ_CHAR(a))) {
       planner.synchronize();
       backlash.distance_mm[a] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a));
       noArgs = false;

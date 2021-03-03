@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -49,7 +49,7 @@ void GcodeSuite::M111() {
     LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));
+        SERIAL_ECHOPGM_P((char*)pgm_read_ptr(&debug_strings[i]));
       }
     }
   }
@@ -71,7 +71,7 @@ void GcodeSuite::M111() {
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
         SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
       #endif
-    #endif //  !defined(__AVR__) || !defined(USBCON)
+    #endif // !__AVR__ || !USBCON
   }
   SERIAL_EOL();
 }

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -93,7 +93,7 @@ void GcodeSuite::M852() {
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_SKEW_FACTOR));
     SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
       SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);

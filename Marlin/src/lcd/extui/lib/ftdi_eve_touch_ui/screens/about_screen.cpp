@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_ABOUT_SCREEN
 
 #define GRID_COLS 4
 #define GRID_ROWS 7
@@ -80,6 +79,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
     #endif
     , OPT_CENTER, font_xlarge
   );
+  cmd.tag(3);
   draw_text_box(cmd, FW_VERS_POS,
   #ifdef TOUCH_UI_VERSION
     F(TOUCH_UI_VERSION)
@@ -87,6 +87,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
     progmem_str(getFirmwareName_str())
   #endif
   , OPT_CENTER, font_medium);
+  cmd.tag(0);
   draw_text_box(cmd, FW_INFO_POS, about_str, OPT_CENTER, font_medium);
   draw_text_box(cmd, INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 
@@ -111,4 +112,4 @@ bool AboutScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_ABOUT_SCREEN

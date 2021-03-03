@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -43,7 +43,7 @@
 void GcodeSuite::M900() {
 
   auto echo_value_oor = [](const char ltr, const bool ten=true) {
-    SERIAL_CHAR('?'); SERIAL_CHAR(ltr);
+    SERIAL_CHAR('?', ltr);
     SERIAL_ECHOPGM(" value out of range");
     if (ten) SERIAL_ECHOPGM(" (0-10)");
     SERIAL_ECHOLNPGM(".");
@@ -115,12 +115,12 @@ void GcodeSuite::M900() {
     #if ENABLED(EXTRA_LIN_ADVANCE_K)
 
       #if EXTRUDERS < 2
-        SERIAL_ECHOLNPAIR("Advance S", int(new_slot), " K", kref, "(S", int(!new_slot), " K", lref, ")");
+        SERIAL_ECHOLNPAIR("Advance S", new_slot, " K", kref, "(S", !new_slot, " K", lref, ")");
       #else
         LOOP_L_N(i, EXTRUDERS) {
           const bool slot = TEST(lin_adv_slot, i);
-          SERIAL_ECHOLNPAIR("Advance T", int(i), " S", int(slot), " K", planner.extruder_advance_K[i],
-                            "(S", int(!slot), " K", other_extruder_advance_K[i], ")");
+          SERIAL_ECHOLNPAIR("Advance T", i, " S", slot, " K", planner.extruder_advance_K[i],
+                            "(S", !slot, " K", other_extruder_advance_K[i], ")");
           SERIAL_EOL();
         }
       #endif

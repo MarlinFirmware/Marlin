@@ -18,7 +18,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -85,6 +85,9 @@ namespace Theme {
     constexpr uint32_t logo_bg_rgb          = accent_color_1;
     constexpr uint32_t logo_fill_rgb        = accent_color_0;
     constexpr uint32_t logo_stroke_rgb      = accent_color_4;
+
+    constexpr uint32_t bed_mesh_lines_rgb   = 0xFFFFFF;
+    constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
   #elif ANY(TOUCH_UI_COCOA_THEME, TOUCH_UI_FROZEN_THEME)
     constexpr uint32_t theme_darkest        = accent_color_1;
     constexpr uint32_t theme_dark           = accent_color_4;
@@ -102,6 +105,9 @@ namespace Theme {
     constexpr uint32_t logo_bg_rgb          = accent_color_5;
     constexpr uint32_t logo_fill_rgb        = accent_color_6;
     constexpr uint32_t logo_stroke_rgb      = accent_color_2;
+
+    constexpr uint32_t bed_mesh_lines_rgb   = accent_color_6;
+    constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
   #else
     constexpr uint32_t theme_darkest        = gray_color_1;
     constexpr uint32_t theme_dark           = gray_color_2;
@@ -119,12 +125,21 @@ namespace Theme {
     constexpr uint32_t logo_bg_rgb          = accent_color_4;
     constexpr uint32_t logo_fill_rgb        = accent_color_3;
     constexpr uint32_t logo_stroke_rgb      = 0x000000;
+
+    constexpr uint32_t bed_mesh_lines_rgb   = 0xFFFFFF;
+    constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
   #endif
 
   constexpr uint32_t shadow_rgb             = gray_color_6;
   constexpr uint32_t stroke_rgb             = accent_color_1;
   constexpr uint32_t fill_rgb               = accent_color_3;
-  constexpr uint32_t syringe_rgb            = accent_color_5;
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    constexpr uint32_t syringe_rgb          = 0xFFFFFF;
+    constexpr uint32_t fluid_rgb            = accent_color_5;
+  #else
+    constexpr uint32_t syringe_rgb          = accent_color_5;
+    constexpr uint32_t fluid_rgb            = accent_color_3;
+  #endif
 
   #if ENABLED(TOUCH_UI_ROYAL_THEME)
     constexpr uint32_t x_axis               = hsl_to_rgb(0,   1.00, 0.26);

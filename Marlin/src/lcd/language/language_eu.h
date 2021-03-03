@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -43,7 +42,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Txartela sartuta");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Txartela kenduta");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu nagusia");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto hasiera");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto hasiera");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Itzali motoreak");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Arazketa Menua");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Prog. Barra Proba");
@@ -140,7 +139,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mugitu Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Estrusorea");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Estrusorea *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mugitu %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mugitu %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mugitu 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mugitu 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mugitu 10mm");
@@ -244,8 +243,6 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TENP. KONTROL EZA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: Tenp Maximoa");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: Tenp Minimoa");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: Ohe Tenp Max");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: Ohe Tenp Min");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("INPRIMA. GELDIRIK");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Berrabia. Mesedez");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -278,8 +275,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Baudioak");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokoloa");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Kabina Argia");
-  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS
-  = ;
+  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Argiaren Distira");
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Inprim. Zenbaketa");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Burututa");
@@ -310,7 +306,6 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Pita: ");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Hasi. huts egin du");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Neurketak huts egin du");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: hotzegi");
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Inprimagailu okerra");
 

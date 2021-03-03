@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_TOUCH_CALIBRATION_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -85,7 +84,10 @@ void TouchCalibrationScreen::onRedraw(draw_mode_t) {
 void TouchCalibrationScreen::onIdle() {
   if (!CLCD::is_touching() && !CommandProcessor::is_processing()) {
     GOTO_PREVIOUS();
+    #if ENABLED(TOUCH_UI_DEBUG)
+      SERIAL_ECHO_MSG("Calibration routine finished");
+    #endif
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_TOUCH_CALIBRATION_SCREEN

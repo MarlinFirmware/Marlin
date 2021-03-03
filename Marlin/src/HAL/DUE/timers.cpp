@@ -16,14 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL Timers for Arduino Due and compatible (SAM3X8E)
  */
 
 #ifdef ARDUINO_ARCH_SAM
@@ -123,7 +121,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 // missing from CMSIS: Check if interrupt is enabled or not
 static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
-  return (NVIC->ISER[(uint32_t)(IRQn) >> 5] & (1 << ((uint32_t)(IRQn) & 0x1F))) != 0;
+  return TEST(NVIC->ISER[uint32_t(IRQn) >> 5], uint32_t(IRQn) & 0x1F);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {

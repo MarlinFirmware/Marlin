@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,15 +24,13 @@
   #include "../../feature/e_parser.h"
 #endif
 
+#include "../../core/serial_hook.h"
+
 typedef void (*usart_rx_callback_t)(serial_t * obj);
 
-class MarlinSerial : public HardwareSerial {
-public:
+struct MarlinSerial : public HardwareSerial {
   MarlinSerial(void* peripheral, usart_rx_callback_t rx_callback) :
       HardwareSerial(peripheral), _rx_callback(rx_callback)
-      #if ENABLED(EMERGENCY_PARSER)
-        , emergency_state(EmergencyParser::State::EP_RESET)
-      #endif
   { }
 
   void begin(unsigned long baud, uint8_t config);
@@ -42,19 +40,17 @@ public:
 
 protected:
   usart_rx_callback_t _rx_callback;
-  #if ENABLED(EMERGENCY_PARSER)
-    EmergencyParser::State emergency_state;
-  #endif
 };
 
-extern MarlinSerial MSerial1;
-extern MarlinSerial MSerial2;
-extern MarlinSerial MSerial3;
-extern MarlinSerial MSerial4;
-extern MarlinSerial MSerial5;
-extern MarlinSerial MSerial6;
-extern MarlinSerial MSerial7;
-extern MarlinSerial MSerial8;
-extern MarlinSerial MSerial9;
-extern MarlinSerial MSerial10;
-extern MarlinSerial MSerialLP1;
+typedef Serial0Type<MarlinSerial> MSerialT;
+extern MSerialT MSerial1;
+extern MSerialT MSerial2;
+extern MSerialT MSerial3;
+extern MSerialT MSerial4;
+extern MSerialT MSerial5;
+extern MSerialT MSerial6;
+extern MSerialT MSerial7;
+extern MSerialT MSerial8;
+extern MSerialT MSerial9;
+extern MSerialT MSerial10;
+extern MSerialT MSerialLP1;

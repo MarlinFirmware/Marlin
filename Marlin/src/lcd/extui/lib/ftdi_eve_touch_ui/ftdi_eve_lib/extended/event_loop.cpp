@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 using namespace FTDI;
 
 enum {
@@ -109,7 +109,6 @@ namespace FTDI {
    *  - Handles auto-repetition by sending onTouchHeld to the active screen periodically.
    *  - Plays touch feedback "click" sounds when appropriate.
    *  - Performs debouncing to supress spurious touch events.
-   *
    */
   void EventLoop::process_events() {
     // If the LCD is processing commands, don't check
@@ -125,8 +124,7 @@ namespace FTDI {
       case UNPRESSED:
         if (tag != 0) {
           #if ENABLED(TOUCH_UI_DEBUG)
-            SERIAL_ECHO_START();
-            SERIAL_ECHOLNPAIR("Touch start: ", tag);
+            SERIAL_ECHO_MSG("Touch start: ", tag);
           #endif
 
           pressed_tag = tag;
@@ -187,8 +185,7 @@ namespace FTDI {
             if (UIData::flags.bits.touch_end_sound) sound.play(unpress_sound);
 
             #if ENABLED(TOUCH_UI_DEBUG)
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Touch end: ", pressed_tag);
+              SERIAL_ECHO_MSG("Touch end: ", pressed_tag);
             #endif
 
             const uint8_t saved_pressed_tag = pressed_tag;

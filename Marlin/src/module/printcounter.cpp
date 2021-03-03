@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,6 +39,11 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #if HAS_BUZZER && SERVICE_WARNING_BUZZES > 0
   #include "../libs/buzzer.h"
+#endif
+
+#if PRINTCOUNTER_SYNC
+  #include "../module/planner.h"
+  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
 // Service intervals
@@ -114,7 +119,7 @@ void PrintCounter::initStats() {
   inline bool _service_warn(const char * const msg) {
     _print_divider();
     SERIAL_ECHO_START();
-    serialprintPGM(msg);
+    SERIAL_ECHOPGM_P(msg);
     SERIAL_ECHOLNPGM("!");
     _print_divider();
     return true;
@@ -160,6 +165,8 @@ void PrintCounter::saveStats() {
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
+  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
+
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
@@ -171,13 +178,13 @@ void PrintCounter::saveStats() {
 #if HAS_SERVICE_INTERVALS
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
     SERIAL_ECHOPGM(STR_STATS);
-    serialprintPGM(msg);
+    SERIAL_ECHOPGM_P(msg);
     SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
   }
 #endif
 
 void PrintCounter::showStats() {
-  char buffer[21];
+  char buffer[22];
 
   SERIAL_ECHOPGM(STR_STATS);
   SERIAL_ECHOLNPAIR(
@@ -224,9 +231,12 @@ void PrintCounter::tick() {
 
   millis_t now = millis();
 
-  static uint32_t update_next; // = 0
+  static millis_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
+    update_next = now + updateInterval;
+
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
+
     millis_t delta = deltaDuration();
     data.printTime += delta;
 
@@ -239,15 +249,15 @@ void PrintCounter::tick() {
     #if SERVICE_INTERVAL_3 > 0
       data.nextService3 -= _MIN(delta, data.nextService3);
     #endif
-
-    update_next = now + updateInterval * 1000;
   }
 
-  static uint32_t eeprom_next; // = 0
-  if (ELAPSED(now, eeprom_next)) {
-    eeprom_next = now + saveInterval * 1000;
-    saveStats();
-  }
+  #if PRINTCOUNTER_SAVE_INTERVAL > 0
+    static millis_t eeprom_next; // = 0
+    if (ELAPSED(now, eeprom_next)) {
+      eeprom_next = now + saveInterval;
+      saveStats();
+    }
+  #endif
 }
 
 // @Override
@@ -267,21 +277,20 @@ bool PrintCounter::start() {
   return false;
 }
 
-// @Override
-bool PrintCounter::stop() {
+bool PrintCounter::_stop(const bool completed) {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
-  if (super::stop()) {
-    data.finishedPrints++;
+  const bool did_stop = super::stop();
+  if (did_stop) {
     data.printTime += deltaDuration();
-
-    if (duration() > data.longestPrint)
-      data.longestPrint = duration();
-
-    saveStats();
-    return true;
+    if (completed) {
+      data.finishedPrints++;
+      if (duration() > data.longestPrint)
+        data.longestPrint = duration();
+    }
   }
-  else return false;
+  saveStats();
+  return did_stop;
 }
 
 // @Override
@@ -331,7 +340,7 @@ void PrintCounter::reset() {
   void PrintCounter::debug(const char func[]) {
     if (DEBUGGING(INFO)) {
       SERIAL_ECHOPGM("PrintCounter::");
-      serialprintPGM(func);
+      SERIAL_ECHOPGM_P(func);
       SERIAL_ECHOLNPGM("()");
     }
   }

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * CartesioV11 pin assignments
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -141,7 +141,7 @@
 // Pins for DOGM SPI LCD Support
 #define DOGLCD_A0                             26
 #define DOGLCD_CS                             24
-#define DOGLCD_MOSI                           -1
+#define DOGLCD_MOSI                           -1  // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                            -1
 
 #define BTN_EN1                               23
@@ -149,9 +149,9 @@
 #define BTN_ENC                               27
 
 // Hardware buttons for manual movement of XYZ
-#define SHIFT_OUT                             19
-#define SHIFT_LD                              18
-#define SHIFT_CLK                             17
+#define SHIFT_OUT_PIN                         19
+#define SHIFT_LD_PIN                          18
+#define SHIFT_CLK_PIN                         17
 
 //#define UI1                                 31
 //#define UI2                                 22

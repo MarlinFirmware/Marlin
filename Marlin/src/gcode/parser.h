@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
 
 //#define DEBUG_GCODE_PARSER
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #include "../libs/hex_print_routines.h"
+  #include "../libs/hex_print.h"
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
@@ -84,14 +84,14 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
-  static int codenum;                     // 123
-  #if ENABLED(USE_GCODE_SUBCODES)
+  static uint16_t codenum;                // 123
+  #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
     static int16_t motion_mode_codenum;
-    #if ENABLED(USE_GCODE_SUBCODES)
+    #if USE_GCODE_SUBCODES
       static uint8_t motion_mode_subcode;
     #endif
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
@@ -114,6 +114,11 @@ public:
     return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
   }
 
+  FORCE_INLINE static bool valid_number(const char * const p) {
+    // TODO: With MARLIN_DEV_MODE allow HEX values starting with "x"
+    return valid_float(p);
+  }
+
   #if ENABLED(FASTER_GCODE_PARSER)
 
     FORCE_INLINE static bool valid_int(const char * const p) {
@@ -128,9 +133,9 @@ public:
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
-          SERIAL_ECHOPAIR("Set bit ", (int)ind, " of codebits (", hex_address((void*)(codebits >> 16)));
+          SERIAL_ECHOPAIR("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
           print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPAIR(") | param = ", (int)param[ind]);
+          SERIAL_ECHOLNPAIR(") | param = ", param[ind]);
         }
       #endif
     }
@@ -142,8 +147,12 @@ public:
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST32(codebits, ind);
       if (b) {
-        char * const ptr = command_ptr + param[ind];
-        value_ptr = param[ind] && valid_float(ptr) ? ptr : nullptr;
+        if (param[ind]) {
+          char * const ptr = command_ptr + param[ind];
+          value_ptr = valid_number(ptr) ? ptr : nullptr;
+        }
+        else
+          value_ptr = nullptr;
       }
       return b;
     }
@@ -198,7 +207,7 @@ public:
     static inline bool seen(const char c) {
       char *p = strgchr(command_args, c);
       const bool b = !!p;
-      if (b) value_ptr = valid_float(&p[1]) ? &p[1] : nullptr;
+      if (b) value_ptr = valid_number(&p[1]) ? &p[1] : nullptr;
       return b;
     }
 
@@ -235,8 +244,11 @@ public:
     static bool chain();
   #endif
 
+  // Test whether the parsed command matches the input
+  static inline bool is_command(const char ltr, const uint16_t num) { return command_letter == ltr && codenum == num; }
+
   // The code value pointer was set
-  FORCE_INLINE static bool has_value() { return value_ptr != nullptr; }
+  FORCE_INLINE static bool has_value() { return !!value_ptr; }
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
@@ -270,7 +282,7 @@ public:
 
   // Code value for use as time
   static inline millis_t value_millis() { return value_ulong(); }
-  static inline millis_t value_millis_from_seconds() { return (millis_t)(value_float() * 1000); }
+  static inline millis_t value_millis_from_seconds() { return (millis_t)SEC_TO_MS(value_float()); }
 
   // Reduce to fewer bits
   static inline int16_t value_int() { return (int16_t)value_long(); }
@@ -317,6 +329,10 @@ public:
 
   #endif
 
+  static inline bool using_inch_units() { return mm_to_linear_unit(1.0f) != 1.0f; }
+
+  #define IN_TO_MM(I)        ((I) * 25.4f)
+  #define MM_TO_IN(M)        ((M) / 25.4f)
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
@@ -401,6 +417,25 @@ public:
   static inline float    linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
   static inline float    celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
 
+  #if ENABLED(MARLIN_DEV_MODE)
+
+    static inline uint8_t* hex_adr_val(const char c, uint8_t * const dval=nullptr) {
+      if (!seen(c) || *value_ptr != 'x') return dval;
+      uint8_t *out = nullptr;
+      for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
+        out = (uint8_t*)((uintptr_t(out) << 8) | HEXCHR(*vp));
+      return out;
+    }
+
+    static inline uint16_t hex_val(const char c, uint16_t const dval=0) {
+      if (!seen(c) || *value_ptr != 'x') return dval;
+      uint16_t out = 0;
+      for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
+        out = ((out) << 8) | HEXCHR(*vp);
+      return out;
+    }
+
+  #endif
 };
 
 extern GCodeParser parser;

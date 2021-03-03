@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
  #define DISPLAY_CHARSET_ISO10646_1
@@ -82,7 +81,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mover Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Mover Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Mover Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
@@ -110,7 +109,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Diam.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Diam. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
@@ -139,7 +138,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT(" DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Troca DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT(" DesRet  V");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" AutoRetr.");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar filamento *");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inici. cartão SD");
@@ -150,8 +149,6 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: T Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: T Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: T Base Máxima");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: T Base Mínima");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Aquecendo...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Aquecendo base...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibração Delta");
@@ -163,4 +160,11 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Fim de curso");
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Superior Esquerdo");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Inferior Esquerdo");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Superior Direto");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Inferior Direto");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibração Completa");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibração Falhou");
 }

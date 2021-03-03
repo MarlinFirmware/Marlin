@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,13 +28,10 @@
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
+#include "../../../lcd/marlinui.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
-#endif
-
-#if HAS_LCD_MENU
-  #include "../../../lcd/ultralcd.h"
 #endif
 
 #if ENABLED(MMU2_MENUS)
@@ -43,6 +40,10 @@
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "../../../feature/mixing.h"
+#endif
+
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
 #endif
 
 /**
@@ -82,9 +83,9 @@ void GcodeSuite::M600() {
     int8_t DXC_ext = target_extruder;
     if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
-      #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
-        if (dxc_is_duplicating())
-          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_STATE) ? 1 : 0;
+      #if MULTI_FILAMENT_SENSOR
+        if (idex_is_duplicating())
+          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
       #else
         DXC_ext = active_extruder;
       #endif
@@ -92,19 +93,19 @@ void GcodeSuite::M600() {
   #endif
 
   // Show initial "wait for start" message
-  #if HAS_LCD_MENU && DISABLED(MMU2_MENUS)
-    lcd_pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
+  #if DISABLED(MMU2_MENUS)
+    ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // If needed, home before parking for filament change
-    if (!all_axes_known()) home_all_axes();
+    if (!all_axes_trusted()) home_all_axes(true);
   #endif
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = active_extruder;
-    if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !dxc_is_duplicating()))
+    if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !idex_is_duplicating()))
       tool_change(target_extruder, false);
   #endif
 
@@ -159,7 +160,7 @@ void GcodeSuite::M600() {
     #endif
   }
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, false);

@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_ADVANCED_SETTINGS_MENU
 
 using namespace FTDI;
 using namespace Theme;
@@ -43,50 +42,50 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 9
     #define GRID_COLS 2
 
-      .tag(2) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
+      .tag(2) .button(BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_DISPLAY_MENU))
       .enabled(
         #if HAS_TRINAMIC_CONFIG
           1
         #endif
       )
-      .tag(3) .button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
+      .tag(3) .button(BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_CURRENT))
       .enabled(
         #if HAS_TRINAMIC_CONFIG
           1
         #endif
       )
-      .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
-      .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
+      .tag(4) .button(BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
+      .tag(5) .button(BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .enabled(
         #if HAS_MULTI_HOTEND
           1
         #endif
       )
-      .tag(6) .button( BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(6) .button(BTN_POS(1,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_OFFSETS_MENU))
 
 
-      .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
-      .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
-      .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
+      .tag(7) .button(BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
+      .tag(8) .button(BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
+      .tag(9) .button(BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
       #if HAS_JUNCTION_DEVIATION
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JUNCTION_DEVIATION))
+        .tag(10) .button(BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JUNCTION_DEVIATION))
       #else
-        .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
+        .tag(10) .button(BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
       #endif
       .enabled(
         #if ENABLED(BACKLASH_GCODE)
           1
         #endif
       )
-      .tag(11) .button( BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
+      .tag(11) .button(BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
       .enabled(
         #if ENABLED(LIN_ADVANCE)
           1
         #endif
       )
-      .tag(12) .button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
-      .tag(13) .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE))
-      .tag(14) .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
+      .tag(12) .button(BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
+      .tag(13) .button(BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE))
+      .tag(14) .button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
       .colors(action_btn)
       .tag(1). button( BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
     #undef GRID_COLS
@@ -134,4 +133,4 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BIO_ADVANCED_SETTINGS_MENU

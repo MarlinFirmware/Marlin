@@ -16,9 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * HAL SPI for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
+
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "HAL.h"
@@ -30,18 +35,18 @@
 static SPISettings spiConfig;
 
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error SS_PIN not defined!
+  #if !PIN_EXISTS(SD_SS)
+    #error "SD_SS_PIN not defined!"
   #endif
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
+  OUT_WRITE(SD_SS_PIN, HIGH);
+  SET_OUTPUT(SD_SCK_PIN);
+  SET_INPUT(SD_MISO_PIN);
+  SET_OUTPUT(SD_MOSI_PIN);
 
   #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
+      WRITE(SD_SS_PIN, HIGH);
     #endif
     // set a default rate
     spiInit(SPI_HALF_SPEED); // 1

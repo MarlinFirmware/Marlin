@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,14 +34,18 @@ char conv[8] = { 0 };
 #define INTFLOAT(V,N) (((V) * 10 * pow(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10?
 #define UINTFLOAT(V,N) INTFLOAT((V) < 0 ? -(V) : (V), N)
 
-// Convert a full-range unsigned 8bit int to a percentage
-const char* ui8tostr4pctrj(const uint8_t i) {
-  const uint8_t n = ui8_to_percent(i);
-  conv[3] = RJDIGIT(n, 100);
-  conv[4] = RJDIGIT(n, 10);
-  conv[5] = DIGIMOD(n, 1);
+// Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
+const char* pcttostrpctrj(const uint8_t i) {
+  conv[3] = RJDIGIT(i, 100);
+  conv[4] = RJDIGIT(i, 10);
+  conv[5] = DIGIMOD(i, 1);
   conv[6] = '%';
   return &conv[3];
+}
+
+// Convert uint8_t (0-255) to a percentage, format as above
+const char* ui8tostr4pctrj(const uint8_t i) {
+  return pcttostrpctrj(ui8_to_percent(i));
 }
 
 // Convert unsigned 8bit int to string 123 format
@@ -50,6 +54,13 @@ const char* ui8tostr3rj(const uint8_t i) {
   conv[5] = RJDIGIT(i, 10);
   conv[6] = DIGIMOD(i, 1);
   return &conv[4];
+}
+
+// Convert uint8_t to string with 12 format
+const char* ui8tostr2(const uint8_t i) {
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return &conv[5];
 }
 
 // Convert signed 8bit int to rj string with 123 or -12 format

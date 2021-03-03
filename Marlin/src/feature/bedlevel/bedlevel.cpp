@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,7 +36,7 @@
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
-  #include "../../lcd/ultralcd.h"
+  #include "../../lcd/marlinui.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -160,7 +160,7 @@ void reset_bed_level() {
     #ifndef SCAD_MESH_OUTPUT
       LOOP_L_N(x, sx) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
-        SERIAL_ECHO(int(x));
+        SERIAL_ECHO(x);
       }
       SERIAL_EOL();
     #endif
@@ -172,7 +172,7 @@ void reset_bed_level() {
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO(int(y));
+        SERIAL_ECHO(y);
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
@@ -196,7 +196,7 @@ void reset_bed_level() {
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_CHAR(' ', ']');            // close sub-array
+        SERIAL_ECHOPGM(" ]");            // close sub-array
         if (y < sy - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();

@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  http://www.circuitsathome.com
+ * Web      :  https://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 #pragma once
@@ -52,16 +52,16 @@
 #define BGRAB7(__usi__)  (((uint8_t *)&(__usi__))[7])
 #else
 // Note: The cast alone to uint8_t is actually enough.
-// GCC throws out the "& 0xff", and the size is no different.
+// GCC throws out the "& 0xFF", and the size is no different.
 // Some compilers need it.
-#define BGRAB0(__usi__)  ((uint8_t)((__usi__) & 0xff ))
-#define BGRAB1(__usi__)  ((uint8_t)(((__usi__) >> 8) & 0xff))
-#define BGRAB2(__usi__)  ((uint8_t)(((__usi__) >> 16) & 0xff))
-#define BGRAB3(__usi__)  ((uint8_t)(((__usi__) >> 24) & 0xff))
-#define BGRAB4(__usi__)  ((uint8_t)(((__usi__) >> 32) & 0xff))
-#define BGRAB5(__usi__)  ((uint8_t)(((__usi__) >> 40) & 0xff))
-#define BGRAB6(__usi__)  ((uint8_t)(((__usi__) >> 48) & 0xff))
-#define BGRAB7(__usi__)  ((uint8_t)(((__usi__) >> 56) & 0xff))
+#define BGRAB0(__usi__)  ((uint8_t)((__usi__) & 0xFF ))
+#define BGRAB1(__usi__)  ((uint8_t)(((__usi__) >> 8) & 0xFF))
+#define BGRAB2(__usi__)  ((uint8_t)(((__usi__) >> 16) & 0xFF))
+#define BGRAB3(__usi__)  ((uint8_t)(((__usi__) >> 24) & 0xFF))
+#define BGRAB4(__usi__)  ((uint8_t)(((__usi__) >> 32) & 0xFF))
+#define BGRAB5(__usi__)  ((uint8_t)(((__usi__) >> 40) & 0xFF))
+#define BGRAB6(__usi__)  ((uint8_t)(((__usi__) >> 48) & 0xFF))
+#define BGRAB7(__usi__)  ((uint8_t)(((__usi__) >> 56) & 0xFF))
 #endif
 #define BOVER1(__usi__)  ((uint16_t)(__usi__) << 8)
 #define BOVER2(__usi__)  ((uint32_t)(__usi__) << 16)

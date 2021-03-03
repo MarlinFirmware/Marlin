@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -41,7 +40,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Kortti asetettu");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Kortti poistettu");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Palaa");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Automaatti");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Automaatti");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Vapauta moottorit");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Aja referenssiin");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Aseta origo");
@@ -73,7 +72,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Liikuta Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Liikuta %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Liikuta %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Liikuta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Liikuta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Liikuta 10mm");
@@ -96,7 +95,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Lämpötila");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Liike");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrasti");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Tallenna muistiin");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Lataa muistista");
@@ -117,9 +116,9 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Va. Vedä mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Vedä V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Z mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Va. UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Va. Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVeto.");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Kalibrointi");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Kalibroi X");

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -49,10 +49,8 @@ void GcodeSuite::M305() {
   const bool do_set = parser.seen("BCRT");
 
   // A valid P index is required
-  if (t_index >= (USER_THERMISTORS) || (do_set && t_index < 0)) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("!Invalid index. (0 <= P <= ", int(USER_THERMISTORS - 1), ")");
-  }
+  if (t_index >= (USER_THERMISTORS) || (do_set && t_index < 0))
+    SERIAL_ECHO_MSG("!Invalid index. (0 <= P <= ", USER_THERMISTORS - 1, ")");
   else if (do_set) {
     if (parser.seen('R')) // Pullup resistor value
       if (!thermalManager.set_pull_up_res(t_index, parser.value_float()))

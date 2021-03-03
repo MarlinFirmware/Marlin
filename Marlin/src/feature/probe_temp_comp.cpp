@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -73,7 +73,7 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     float temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      serialprintPGM(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
           s == TSI_EXT ? PSTR("Extruder") :
         #endif

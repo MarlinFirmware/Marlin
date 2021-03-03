@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
@@ -41,7 +40,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Εισαγωγή κάρτας");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Αφαίρεση κάρτας");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Βασική Οθόνη");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Αυτόματη εκκίνηση");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Αυτόματη εκκίνηση");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Απενεργοποίηση Μοτέρ");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο"); //SHORTEN
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Αρχικό σημείο X");
@@ -84,7 +83,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Μετακίνηση Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Εξωθητήρας");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Εξωθητήρας *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Μετακίνηση %s μμ");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Μετακίνηση %s μμ");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Μετακίνηση 0,1 μμ");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Μετακίνηση 1 μμ");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Μετακίνηση 10 μμ");
@@ -133,7 +132,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Θερμοκρασία");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Κίνηση");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Νήμα");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Διάμετρος νήματος");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Διάμετρος νήματος *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");
@@ -159,9 +158,9 @@ namespace Language_el {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Εναλλαγή ανάσυρσης μμ");  //SHORTEN
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Ανάσυρση V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Μεταπήδηση μμ");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Αυτόματη ανάσυρση");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Αλλαγή νήματος");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Αλλαγή νήματος *");
@@ -180,8 +179,6 @@ namespace Language_el {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΚΡΑΣΙΑΣ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("ΠΕΡΙΤΗ ΘΕΡΜΟΚΡΑΣΙΑ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("ΜΗ ΕΠΑΡΚΗΣ ΘΕΡΜΟΚΡΑΣΙΑΣ"); //SHORTEN
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("ΜΕΓΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ"); //SHORTEN
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ"); //SHORTEN
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("H εκτύπωση διακόπηκε");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Θερμαίνεται…");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Θέρμανση ΕΠ. Εκτύπωσης"); //SHORTEN

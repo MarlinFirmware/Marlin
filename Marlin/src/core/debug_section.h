@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,10 +38,10 @@ private:
   bool debug;
 
   void echo_msg(PGM_P const pre) {
-    serialprintPGM(pre);
+    SERIAL_ECHOPGM_P(pre);
     if (the_msg) {
       SERIAL_CHAR(' ');
-      serialprintPGM(the_msg);
+      SERIAL_ECHOPGM_P(the_msg);
     }
     SERIAL_CHAR(' ');
     print_xyz(current_position);

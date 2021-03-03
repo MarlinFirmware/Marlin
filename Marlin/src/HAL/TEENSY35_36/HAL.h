@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * Description: HAL for Teensy 3.5 and Teensy 3.6
+ * HAL for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  */
 
 #define CPU_32_BIT
@@ -45,22 +45,28 @@
 // Defines
 // ------------------------
 
-#define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
-#define IS_TEENSY35 defined(__MK64FX512__)
-#define IS_TEENSY36 defined(__MK66FX1M0__)
+#define IS_32BIT_TEENSY 1
+#define IS_TEENSY_35_36 1
+#ifdef __MK66FX1M0__
+  #define IS_TEENSY36 1
+#else // __MK64FX512__
+  #define IS_TEENSY35 1
+#endif
 
-#define NUM_SERIAL 1
+#include "../../core/serial_hook.h"
+typedef Serial0Type<decltype(Serial)> DefaultSerial;
+extern DefaultSerial MSerial;
+typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 USBSerial
+#elif WITHIN(SERIAL_PORT, 0, 3)
+  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -68,7 +74,7 @@
 typedef int8_t pin_t;
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); __disable_irq()
@@ -80,17 +86,6 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
-
 inline void HAL_init() {}
 
 // Clear reset reason
@@ -99,14 +94,20 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  int freeMemory();
-}
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" int freeMemory();
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 // ADC
 

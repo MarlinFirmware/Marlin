@@ -18,18 +18,17 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_BIO_STATUS_SCREEN
 
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
 #else
   #include "bio_printer_ui_landscape.h"
@@ -70,57 +69,32 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
   if (what & BACKGROUND) {
     cmd.cmd(COLOR_RGB(bg_color));
 
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-       // The LulzBot Bio shows the temperature for
-       // the bed.
+    // The LulzBot Bio shows the temperature for
+    // the bed.
 
-      #ifdef TOUCH_UI_PORTRAIT
-        // Draw touch surfaces
-        ui.bounds(POLY(target_temp), x, y, h, v);
-        cmd.rectangle(x, y, h, v);
-        ui.bounds(POLY(actual_temp), x, y, h, v);
-        cmd.rectangle(x, y, h, v);
-      #else
-        ui.bounds(POLY(bed_temp), x, y, h, v);
-        cmd.rectangle(x, y, h, v);
-      #endif
-      ui.bounds(POLY(bed_icon), x, y, h, v);
+    #if ENABLED(TOUCH_UI_PORTRAIT)
+      // Draw touch surfaces
+      ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.rectangle(x, y, h, v);
-
-      // Draw bed icon
-      cmd.cmd(BITMAP_SOURCE(Bed_Heat_Icon_Info))
-         .cmd(BITMAP_LAYOUT(Bed_Heat_Icon_Info))
-         .cmd(BITMAP_SIZE  (Bed_Heat_Icon_Info))
-         .cmd(COLOR_RGB(shadow_rgb))
-         .icon (x + 2, y + 2, h, v, Bed_Heat_Icon_Info, icon_scale * 2)
-         .cmd(COLOR_RGB(bg_text_enabled))
-         .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
-    #elif ENABLED(TOUCH_UI_COCOA_PRESS) && DISABLED(TOUCH_UI_PORTRAIT)
-      // The CocoaPress shows the temperature for two
-      // heating zones, but has no bed temperature
-
-      cmd.cmd(COLOR_RGB(bg_text_enabled));
-      cmd.font(font_medium);
-
-      ui.bounds(POLY(h0_label), x, y, h, v);
-      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_1));
-
-      ui.bounds(POLY(h1_label), x, y, h, v);
-      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_2));
-
-      ui.bounds(POLY(h2_label), x, y, h, v);
-      cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_3));
-
-      ui.bounds(POLY(h3_label), x, y, h, v);
-      cmd.text(x, y, h, v, GET_TEXT_F(MSG_CHAMBER));
+      ui.bounds(POLY(actual_temp), x, y, h, v);
+      cmd.rectangle(x, y, h, v);
     #else
-      UNUSED(x);
-      UNUSED(y);
-      UNUSED(h);
-      UNUSED(v);
+      ui.bounds(POLY(bed_temp), x, y, h, v);
+      cmd.rectangle(x, y, h, v);
     #endif
+    ui.bounds(POLY(bed_icon), x, y, h, v);
+    cmd.rectangle(x, y, h, v);
 
-    #ifdef TOUCH_UI_USE_UTF8
+    // Draw bed icon
+    cmd.cmd(BITMAP_SOURCE(Bed_Heat_Icon_Info))
+       .cmd(BITMAP_LAYOUT(Bed_Heat_Icon_Info))
+       .cmd(BITMAP_SIZE  (Bed_Heat_Icon_Info))
+       .cmd(COLOR_RGB(shadow_rgb))
+       .icon (x + 2, y + 2, h, v, Bed_Heat_Icon_Info, icon_scale * 2)
+       .cmd(COLOR_RGB(bg_text_enabled))
+       .icon (x, y, h, v, Bed_Heat_Icon_Info, icon_scale * 2);
+
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       load_utf8_bitmaps(cmd); // Restore font bitmap handles
     #endif
   }
@@ -128,71 +102,29 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
   if (what & FOREGROUND) {
     char str[15];
     cmd.cmd(COLOR_RGB(bg_text_enabled));
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      cmd.font(font_medium);
+    cmd.font(font_medium);
 
-      #ifdef TOUCH_UI_PORTRAIT
-        if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
-          format_temp(str, getTargetTemp_celsius(BED));
-        else
-          strcpy_P(str, GET_TEXT(MSG_BED));
-
-        ui.bounds(POLY(target_temp), x, y, h, v);
-        cmd.text(x, y, h, v, str);
-
-        format_temp(str, getActualTemp_celsius(BED));
-        ui.bounds(POLY(actual_temp), x, y, h, v);
-        cmd.text(x, y, h, v, str);
-      #else
-        if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
-          format_temp_and_temp(str, getActualTemp_celsius(BED), getTargetTemp_celsius(BED));
-        else
-          format_temp_and_idle(str, getActualTemp_celsius(BED));
-
-        ui.bounds(POLY(bed_temp), x, y, h, v);
-        cmd.text(x, y, h, v, str);
-      #endif
-
-    #elif ENABLED(TOUCH_UI_COCOA_PRESS) && DISABLED(TOUCH_UI_PORTRAIT)
-      // The CocoaPress shows the temperature for two
-      // heating zones, but has no bed temperature
-
-      cmd.font(font_large);
-
-      if (!isHeaterIdle(E0) && getTargetTemp_celsius(E0) > 0)
-        format_temp_and_temp(str, getActualTemp_celsius(E0), getTargetTemp_celsius(E0));
+    #if ENABLED(TOUCH_UI_PORTRAIT)
+      if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
+        format_temp(str, getTargetTemp_celsius(BED));
       else
-        format_temp_and_idle(str, getActualTemp_celsius(E0));
+        strcpy_P(str, GET_TEXT(MSG_BED));
 
-      ui.bounds(POLY(h0_temp), x, y, h, v);
+      ui.bounds(POLY(target_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
 
-      if (!isHeaterIdle(E1) && getTargetTemp_celsius(E1) > 0)
-        format_temp_and_temp(str, getActualTemp_celsius(E1), getTargetTemp_celsius(E1));
-      else
-        format_temp_and_idle(str, getActualTemp_celsius(E1));
-
-      ui.bounds(POLY(h1_temp), x, y, h, v);
-      cmd.text(x, y, h, v, str);
-
-      if (!isHeaterIdle(E2) && getTargetTemp_celsius(E2) > 0)
-        format_temp_and_temp(str, getActualTemp_celsius(E2), getTargetTemp_celsius(E2));
-      else
-        format_temp_and_idle(str, getActualTemp_celsius(E2));
-
-      ui.bounds(POLY(h2_temp), x, y, h, v);
-      cmd.text(x, y, h, v, str);
-
-      if (!isHeaterIdle(CHAMBER) && getTargetTemp_celsius(CHAMBER) > 0)
-        format_temp_and_temp(str, getActualTemp_celsius(CHAMBER), getTargetTemp_celsius(CHAMBER));
-      else
-        format_temp_and_idle(str, getActualTemp_celsius(CHAMBER));
-
-      ui.bounds(POLY(h3_temp), x, y, h, v);
+      format_temp(str, getActualTemp_celsius(BED));
+      ui.bounds(POLY(actual_temp), x, y, h, v);
       cmd.text(x, y, h, v, str);
     #else
-      UNUSED(str);
-    #endif
+      if (!isHeaterIdle(BED) && getTargetTemp_celsius(BED) > 0)
+        format_temp_and_temp(str, getActualTemp_celsius(BED), getTargetTemp_celsius(BED));
+      else
+        format_temp_and_idle(str, getActualTemp_celsius(BED));
+
+      ui.bounds(POLY(bed_temp), x, y, h, v);
+      cmd.text(x, y, h, v, str);
+      #endif
   }
 }
 
@@ -205,7 +137,7 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
       0.75
     #endif
   );
-  const bool e_homed = TERN0(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0));
+  const bool e_homed = TERN1(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0));
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -221,7 +153,7 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
     ui.color(syringe_rgb);
     ui.fill(POLY(syringe_outline));
 
-    ui.color(fill_rgb);
+    ui.color(fluid_rgb);
     ui.bounds(POLY(syringe_fluid), x, y, h, v);
     cmd.cmd(SAVE_CONTEXT());
     cmd.cmd(SCISSOR_XY(x,y + v * (1.0 - fill_level)));
@@ -245,23 +177,23 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   ui.button_stroke(stroke_rgb, 28);
   ui.button_shadow(shadow_rgb, shadow_depth);
 
+  constexpr uint8_t style = PolyUI::REGULAR;
+
   if ((what & BACKGROUND) || jog_xy) {
-    ui.button(1, POLY(x_neg));
-    ui.button(2, POLY(x_pos));
-    ui.button(3, POLY(y_neg));
-    ui.button(4, POLY(y_pos));
+    ui.button(1, POLY(x_neg), style);
+    ui.button(2, POLY(x_pos), style);
+    ui.button(3, POLY(y_neg), style);
+    ui.button(4, POLY(y_pos), style);
   }
 
   if ((what & BACKGROUND) || z_homed) {
-    ui.button(5, POLY(z_neg));
-    ui.button(6, POLY(z_pos));
+    ui.button(5, POLY(z_neg), style);
+    ui.button(6, POLY(z_pos), style);
   }
 
   if ((what & BACKGROUND) || e_homed) {
-    #if DISABLED(TOUCH_UI_COCOA_PRESS)
-      ui.button(7, POLY(e_neg));
-    #endif
-    ui.button(8, POLY(e_pos));
+    ui.button(7, POLY(e_neg), style);
+    ui.button(8, POLY(e_pos), style);
   }
 }
 
@@ -271,7 +203,7 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_medium
     #else
       font_small
@@ -304,9 +236,10 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    if (!jog_xy)  ui.button(12, POLY(padlock));
-    if (!e_homed) ui.button(13, POLY(home_e));
-    if (!z_homed) ui.button(14, POLY(home_z));
+    constexpr uint8_t style = PolyUI::REGULAR;
+    if (!jog_xy)  ui.button(12, POLY(padlock), style);
+    if (!e_homed) ui.button(13, POLY(home_e), style);
+    if (!z_homed) ui.button(14, POLY(home_z), style);
   }
 }
 
@@ -339,7 +272,7 @@ void StatusScreen::loadBitmaps() {
   CLCD::mem_write_pgm(base + Bed_Heat_Icon_Info.RAMG_offset, Bed_Heat_Icon, sizeof(Bed_Heat_Icon));
 
   // Load fonts for internationalization
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     load_utf8_data(base + UTF8_FONT_OFFSET);
   #endif
 }
@@ -384,10 +317,8 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       break;
     case  9: GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      case 13: GOTO_SCREEN(BioConfirmHomeE); break;
-    #endif
-    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
+    case 13: GOTO_SCREEN(BioConfirmHomeE); break;
+    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
     case 16: fine_motion = !fine_motion; break;
     default: return false;
@@ -426,19 +357,11 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
 }
 
 void StatusScreen::setStatusMessage(progmem_str pstr) {
-  #ifdef TOUCH_UI_LULZBOT_BIO
-    BioPrintingDialogBox::setStatusMessage(pstr);
-  #else
-    UNUSED(pstr);
-  #endif
+  BioPrintingDialogBox::setStatusMessage(pstr);
 }
 
 void StatusScreen::setStatusMessage(const char * const str) {
-  #ifdef TOUCH_UI_LULZBOT_BIO
-    BioPrintingDialogBox::setStatusMessage(str);
-  #else
-    UNUSED(str);
-  #endif
+  BioPrintingDialogBox::setStatusMessage(str);
 }
 
 void StatusScreen::onIdle() {
@@ -446,12 +369,10 @@ void StatusScreen::onIdle() {
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
     if (!EventLoop::is_touch_held())
       onRefresh();
-    #ifdef TOUCH_UI_LULZBOT_BIO
-      if (isPrintingFromMedia())
-        BioPrintingDialogBox::show();
-    #endif
+    if (isPrintingFromMedia())
+      BioPrintingDialogBox::show();
     refresh_timer.start();
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BIO_STATUS_SCREEN

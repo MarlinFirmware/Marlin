@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Selena Compact pin assignments
  */
 
-#ifndef MCU_LPC1768
+#if NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -96,7 +96,7 @@
 // Display
 //
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#if IS_RRD_FG_SC
     #define LCD_PINS_RS                    P0_16
     #define LCD_PINS_ENABLE                P0_18
     #define LCD_PINS_D4                    P0_15
@@ -110,4 +110,9 @@
     #define BTN_ENC                        P1_30
 
     #define SD_DETECT_PIN                  -1
-#endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
+#endif // IS_RRD_FG_SC

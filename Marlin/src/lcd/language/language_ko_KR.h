@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_ko_KR {
   using namespace Language_en; // Inherit undefined strings from English
@@ -43,7 +42,7 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("뒤로");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("고급 설정");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("설정");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("자동 시작");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("자동 시작");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("모터 정지");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("디버깅 메뉴");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("프로그레스바 테스트");

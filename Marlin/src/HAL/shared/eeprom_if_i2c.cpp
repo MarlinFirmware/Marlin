@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,13 @@
 #include "eeprom_if.h"
 #include <Wire.h>
 
-void eeprom_init() { Wire.begin(); }
+void eeprom_init() {
+  Wire.begin(
+    #if PINS_EXIST(I2C_SCL, I2C_SDA)
+      uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
+    #endif
+  );
+}
 
 #if ENABLED(USE_SHARED_EEPROM)
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,8 +30,22 @@
  * Hardware serial communication ports.
  */
 #if HAS_TMC_UART
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
+  #define X_HARDWARE_SERIAL  MSerial4
+  #define Y_HARDWARE_SERIAL  MSerial4
+  #define Z_HARDWARE_SERIAL  MSerial4
+  #define E0_HARDWARE_SERIAL MSerial4
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  2
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  1
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 3
+  #endif
 #endif

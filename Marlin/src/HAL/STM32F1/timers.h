@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -129,8 +129,10 @@ timer_dev* get_timer_dev(int number);
   #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
 #endif
 
-extern "C" void tempTC_Handler();
-extern "C" void stepTC_Handler();
+extern "C" {
+  void tempTC_Handler();
+  void stepTC_Handler();
+}
 
 // ------------------------
 // Public Variables

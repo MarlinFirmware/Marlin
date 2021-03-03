@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-/*****************************************************************
- * GT2560 V3.0 pin assignment (for Mecreator 2)
- *****************************************************************/
+/**
+ * Geeetech GT2560 V 3.0 board pin assignments (for Mecreator 2)
+ */
 
 #define BOARD_INFO_NAME "GT2560 V3.0 (MC2)"
 

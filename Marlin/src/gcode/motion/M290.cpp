@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../feature/babystep.h"
 #include "../../module/probe.h"
-#include "../../module/temperature.h"
 #include "../../module/planner.h"
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -43,14 +42,12 @@
   FORCE_INLINE void mod_probe_offset(const float &offs) {
     if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+      SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         hotend_offset[active_extruder].z -= offs;
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
+        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
       #endif
     }
   }
@@ -100,7 +97,7 @@ void GcodeSuite::M290() {
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
       SERIAL_ECHOLNPAIR_P(
-        PSTR("Hotend "), int(active_extruder)
+        PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
           , PSTR("Offset X"), hotend_offset[active_extruder].x
           , SP_Y_STR, hotend_offset[active_extruder].y
@@ -127,7 +124,7 @@ void GcodeSuite::M290() {
         #else
           PSTR("Babystep Z")
         #endif
-        , babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        , babystep.axis_total[BS_TOTAL_IND(Z_AXIS)]
       );
     }
     #endif

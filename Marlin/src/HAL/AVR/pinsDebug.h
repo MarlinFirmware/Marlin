@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,9 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
-#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H)
+#if MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
+  #define AVR_ATmega2560_FAMILY_PLUS_70 1
+#endif
 
 #if AVR_AT90USB1286_FAMILY
 
@@ -233,8 +235,8 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 
 inline void com_print(const uint8_t N, const uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
-  SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR('0' + N, Z);
+  SERIAL_ECHOPAIR("    COM", AS_CHAR('0' + N));
+  SERIAL_CHAR(Z);
   SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
@@ -245,8 +247,8 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
-  SERIAL_ECHOPGM("    TIMER");
-  SERIAL_CHAR(T + '0', L);
+  SERIAL_ECHOPAIR("    TIMER", AS_CHAR(T + '0'));
+  SERIAL_CHAR(L);
   SERIAL_ECHO_SP(3);
 
   if (N == 3) {
@@ -260,19 +262,11 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   SERIAL_ECHOPAIR("    WGM: ", WGM);
   com_print(T,L);
   SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
-
-  SERIAL_ECHOPGM("    TCCR");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR("A: ", *TCCRA);
-
-  SERIAL_ECHOPGM("    TCCR");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR("B: ", *TCCRB);
+  SERIAL_ECHOPAIR("    TCCR", AS_CHAR(T + '0'), "A: ", *TCCRA);
+  SERIAL_ECHOPAIR("    TCCR", AS_CHAR(T + '0'), "B: ", *TCCRB);
 
   const uint8_t *TMSK = (uint8_t*)TIMSK(T);
-  SERIAL_ECHOPGM("    TIMSK");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR(": ", *TMSK);
+  SERIAL_ECHOPAIR("    TIMSK", AS_CHAR(T + '0'), ": ", *TMSK);
 
   const uint8_t OCIE = L - 'A' + 1;
   if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }
