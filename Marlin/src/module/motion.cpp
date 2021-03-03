@@ -267,11 +267,15 @@ void get_cartesian_from_steppers() {
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
-        planner.get_axis_position_degrees(A_AXIS),
-        planner.get_axis_position_degrees(B_AXIS)
+          planner.get_axis_position_degrees(A_AXIS)
+        , planner.get_axis_position_degrees(B_AXIS)
+        #if ENABLED(AXEL_TPARA)
+          , planner.get_axis_position_degrees(C_AXIS)
+        #endif
       );
     #else
-      cartes.set(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_mm(Y_AXIS));
+      cartes.x = planner.get_axis_position_mm(X_AXIS);
+      cartes.y = planner.get_axis_position_mm(Y_AXIS);
     #endif
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #endif
@@ -1340,7 +1344,7 @@ void prepare_line_to_destination() {
       TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
     }
 
-    #if IS_SCARA
+    #if EITHER(MORGAN_SCARA, MP_SCARA)
       // Tell the planner the axis is at 0
       current_position[axis] = 0;
       sync_plan_position();
@@ -1490,7 +1494,7 @@ void prepare_line_to_destination() {
 
   void homeaxis(const AxisEnum axis) {
 
-    #if IS_SCARA
+    #if EITHER(MORGAN_SCARA, MP_SCARA)
       // Only Z homing (with probe) is permitted
       if (axis != Z_AXIS) { BUZZ(100, 880); return; }
     #else
@@ -1732,7 +1736,8 @@ void prepare_line_to_destination() {
         TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
           stepper.set_separate_multi_axis(false);
       }
-    #endif
+
+    #endif // HAS_EXTRA_ENDSTOPS
 
     #ifdef TMC_HOME_PHASE
       // move back to homing phase if configured and capable
@@ -1839,7 +1844,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  #if ENABLED(MORGAN_SCARA)
+  #if EITHER(MORGAN_SCARA, AXEL_TPARA)
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? delta_height - TERN0(HAS_BED_PROBE, probe.offset.z) : base_home_pos(axis);
