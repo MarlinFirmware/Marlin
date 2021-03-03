@@ -288,17 +288,7 @@
 
 #if ENABLED(COOLANT_FLOOD) && HAS_FREE_AUX2_PINS 
   #define COOLANT_FLOOD_PIN             	  44  // Control coolant pump   
-#else
-  #error "No auto-assignable coolant flood pins available."
 #endif
-
-
-#if ENABLED(COOLANT_FLOOD) && HAS_FREE_AUX2_PINS 
-  #define COOLANT_FLOOD_PIN             44  // Control coolant pump   
-#else
-  #error "No auto-assignable coolant flood pins available."
-#endif
-
 
 //
 // TMC software SPI
