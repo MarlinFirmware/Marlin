@@ -189,9 +189,7 @@ int8_t g26_prime_flag;
   bool user_canceled() {
     if (!ExtUI::isCanceled()) return false;
 
-    planner.clear_block_buffer();
     ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
-    planner.clear_block_buffer();
 
     return true;
   }
@@ -492,10 +490,10 @@ inline bool prime_nozzle() {
     prepare_internal_move_to_destination(fr_slow_e);
     destination.e -= g26_prime_length;
 
-    constexpr float prime_start_xy_line_length = X_BED_SIZE / GRID_MAX_POINTS_X / 2.0f;
-    constexpr float prime_start_x_start = prime_start_xy_line_length / 2;
-    constexpr float prime_start_y = prime_start_xy_line_length / 2;
-    constexpr float prime_start_x_end = (X_BED_SIZE / GRID_MAX_POINTS_X);
+    constexpr float prime_start_xy_line_offset = X_BED_SIZE / GRID_MAX_POINTS_X / 2.0f;
+    constexpr float prime_start_x_start = prime_start_xy_line_offset / 2;
+    constexpr float prime_start_y = prime_start_xy_line_offset / 2;
+    constexpr float prime_start_x_end = X_BED_SIZE - prime_start_xy_line_offset;
 
     print_line_from_here_to_there(
         { prime_start_x_start, prime_start_y, g26_layer_height  },
@@ -901,7 +899,7 @@ void GcodeSuite::G26() {
         radius -= g26_nozzle * 2;
       }
 
-      if (!cont) continue;
+      if (!cont) break;
       if (look_for_lines_to_connect()) goto LEAVE;
     }
 
@@ -914,12 +912,11 @@ void GcodeSuite::G26() {
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
   IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
-  retract_filament(destination);
-  destination.z = Z_AFTER_HOMING;
-  move_to(destination, 0);                                    // Raise the nozzle
+  planner.clear_block_buffer();
+  planner.synchronize();
 
-  destination = g26_xy_pos;                                   // Move back to the starting XY position
-  move_to(destination, 0);                                    // Move back to the starting position
+  move_to(current_position.x, current_position.y, current_position.z + Z_HOMING_HEIGHT, 0.0);
+  planner.synchronize();
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;
