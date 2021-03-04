@@ -119,7 +119,7 @@ void MeshValidationHandler::OnMeshValidationFinish() {
             SetStatusMessage("Mesh validation pattern printed");
         } else {
             // Park and disable steppers
-            strcpy_P(gcodeBuffer, PSTR("G27\nM84"));
+            strcpy_P(gcodeBuffer, PSTR("G0 X5 F2000\nG27\nM84"));
 
             SetStatusMessage("Canceled mesh validation pattern");
         }
