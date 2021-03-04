@@ -438,7 +438,7 @@ volatile bool Temperature::raw_temps_ready = false;
   lpq_ptr_t Temperature::lpq_ptr = 0;
 #endif
 
-#define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) < (HEATER_##N##_RAW_HI_TEMP) ? 1 : -1)
+#define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
 #define TEMPDIRCOOL ((TEMP_SENSOR_COOLER_RAW_LO_TEMP) < (TEMP_SENSOR_COOLER_RAW_HI_TEMP) ? 1 : -1 )
 
 #if HAS_HOTEND
@@ -3403,8 +3403,9 @@ void Temperature::tick() {
         #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
           case H_REDUNDANT: k = 'R'; break;
         #endif
-      #endif
+      #elif HAS_BED
         default: k = 'B'; break;
+      #endif
     }
     SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
