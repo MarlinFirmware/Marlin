@@ -122,7 +122,9 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN                    PC2   // "E0-STOP"
+    #define FIL_RUNOUT_PIN                    PA13   // SDA
+    //#define FIL_RUNOUT_PIN                    PA14   // SCL
+    //#define FIL_RUNOUT_PIN                    PC2   // "E0-STOP"
 #endif
 
 //
