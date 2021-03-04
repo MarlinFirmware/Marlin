@@ -262,7 +262,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
  * Send a "Resend: nnn" message to the host to
  * indicate that a command needs to be re-sent.
  */
-void GCodeQueue::flush_and_request_resend(const serial_index_t& serial_ind) {
+void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   #if HAS_MULTI_SERIAL
     if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
@@ -300,7 +300,7 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
 
 inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t& serial_ind) {
+void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind].last_N);
