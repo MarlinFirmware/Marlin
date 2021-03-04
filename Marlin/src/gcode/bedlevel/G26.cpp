@@ -385,6 +385,14 @@ inline bool turn_on_heaters() {
 
   SERIAL_ECHOLNPGM("Waiting for heatup.");
 
+  // Start heating the active nozzle
+  #if HAS_WIRED_LCD
+    ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
+    ui.quick_feedback();
+  #endif
+  IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_HEATING_NOZZLE)));
+  thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
+
   #if HAS_HEATED_BED
 
     if (g26_bed_temp > 25) {
@@ -407,14 +415,6 @@ inline bool turn_on_heaters() {
     }
 
   #endif // HAS_HEATED_BED
-
-  // Start heating the active nozzle
-  #if HAS_WIRED_LCD
-    ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
-    ui.quick_feedback();
-  #endif
-  IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_HEATING_NOZZLE)));
-  thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
 
   // Wait for the temperature to stabilize
   if (!thermalManager.wait_for_hotend(active_extruder, true
