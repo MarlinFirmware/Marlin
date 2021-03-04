@@ -3404,7 +3404,7 @@ void Temperature::tick() {
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         case H_REDUNDANT: k = 'R'; break;
       #endif
-        default: k = 'T'; break;
+        default: k = 'T'; break; // All others = Hotends
     }
     SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
