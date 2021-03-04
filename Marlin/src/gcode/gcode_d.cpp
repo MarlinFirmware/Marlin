@@ -165,7 +165,7 @@
 
       case 6: // D6 Check delay loop accuracy
         dump_delay_accuracy_check();
-      break;
+        break;
 
       case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
         SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");

@@ -49,11 +49,17 @@
   #include "../../../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(SDSUPPORT)
+  static ExtUI::FileList filelist;
+#endif
+
 bool DGUSAutoTurnOff = false;
 uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
 
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
+
+#if 0
 
 void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
@@ -75,6 +81,8 @@ void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2,
   else if (language == MKS_SimpleChinese)
     DGUSScreenHandler::sendinfoscreen_ch_mks((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
 }
+
+#endif
 
 void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
@@ -256,7 +264,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
-      while (queue.length) queue.advance();
+      while (!queue.ring_buffer.empty()) queue.advance();
       gcode.process_subcommands_now_P(PSTR("M81"));
     }
     GotoScreen(MKSLCD_SCREEN_PrintDone);
@@ -786,7 +794,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
-  if (!print_job_timer.isPaused() && queue.length >= BUFSIZE)
+  if (!print_job_timer.isPaused() && queue.ring_buffer.full(1))
     return;
 
   char axiscode;
@@ -1778,7 +1786,7 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     dgusdisplay.WriteVariable(VP_PrintAcc_Dis, PrintAcc_buf_en, 32, true);
 
     const char FAN_Speed_buf_en[] = "FAN_Speed";
-    dgusdisplay.WriteVariable(VP_FAN_Speed_Dis, FAN_Speed_buf_en, 32, true);
+    dgusdisplay.WriteVariable(VP_Fan_Speed_Dis, FAN_Speed_buf_en, 32, true);
 
     const char Printing_buf_en[] = "Printing";
     dgusdisplay.WriteVariable(VP_Printing_Dis, Printing_buf_en, 32, true);
@@ -2033,7 +2041,7 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     dgusdisplay.WriteVariable(VP_PrintAcc_Dis, PrintAcc_buf_ch, 16, true);
 
     const uint16_t FAN_Speed_buf_ch[] = { 0xE7B7, 0xC8C9, 0xD9CB, 0xC8B6, 0x2000 };
-    dgusdisplay.WriteVariable(VP_FAN_Speed_Dis, FAN_Speed_buf_ch, 16, true);
+    dgusdisplay.WriteVariable(VP_Fan_Speed_Dis, FAN_Speed_buf_ch, 16, true);
 
     const uint16_t Printing_buf_ch[] = { 0xF2B4, 0xA1D3, 0xD0D6, 0x2000 };
     dgusdisplay.WriteVariable(VP_Printing_Dis, Printing_buf_ch, 16, true);
