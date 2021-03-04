@@ -678,7 +678,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(Home);
-            gcode.process_subcommands_now_P( PSTR("G28"));
+            gcode.process_subcommands_now_P(PSTR("G28"));
+            #if ANY(HAS_ONESTEP_LEVELING, PROBE_MANUALLY)
+              gcode.process_subcommands_now_P(PSTR("G420 S0"));
+            #endif
             planner.synchronize();
             Draw_Menu(ManualLevel);
           }
@@ -818,6 +821,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu_Item(row, ICON_Back, (char*)"Back");
           }
           else {
+            #if ANY(HAS_ONESTEP_LEVELING, PROBE_MANUALLY)
+              gcode.process_subcommands_now_P(PSTR("G420 S1"));
+            #endif
             Draw_Menu(Prepare, PREPARE_MANUALLEVEL);
           }
           break;
