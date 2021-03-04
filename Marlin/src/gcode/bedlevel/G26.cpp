@@ -191,6 +191,7 @@ int8_t g26_prime_flag;
 
     planner.clear_block_buffer();
     ExtUI::onStatusChanged_P(GET_TEXT(MSG_G26_CANCELED));
+    planner.clear_block_buffer();
 
     return true;
   }
@@ -487,10 +488,21 @@ inline bool prime_nozzle() {
 
     IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_FIXED_LENGTH)));
 
-    destination = current_position;
     destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
     destination.e -= g26_prime_length;
+
+    constexpr float prime_start_xy_line_length = X_BED_SIZE / GRID_MAX_POINTS_X / 2.0f;
+    constexpr float prime_start_x_start = prime_start_xy_line_length / 2;
+    constexpr float prime_start_y = prime_start_xy_line_length / 2;
+    constexpr float prime_start_x_end = (X_BED_SIZE / GRID_MAX_POINTS_X);
+
+    print_line_from_here_to_there(
+        { prime_start_x_start, prime_start_y, g26_layer_height  },
+        { prime_start_x_end, prime_start_y, g26_layer_height  }
+    );
+
+    
     retract_filament(destination);
   }
 
