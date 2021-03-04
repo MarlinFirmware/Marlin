@@ -147,6 +147,7 @@ uint8_t scrollpos = 0;
 uint8_t process = Main;
 uint8_t last_process = Main;
 uint8_t popup;
+uint8_t last_popup;
 
 void *valuepointer;
 float tempvalue;
@@ -2403,7 +2404,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
 /* Popup Config */
 
 void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
-  popup = popupid;
+  popup = last_popup = popupid;
   switch (popupid) {
     case Pause:
       Draw_Popup((char*)"Pause Print", (char*)"", (char*)"", Popup);
@@ -2862,7 +2863,10 @@ inline void CrealityDWINClass::Confirm_Control() {
             Draw_SD_List();
             break;
           case Wait:
-            Popup_Handler(FilLoad);
+            if (last_popup == Runout)
+              Draw_Print_Screen();
+            else
+              Popup_Handler(last_popup);
             break;
         }
         wait_for_user = false;
