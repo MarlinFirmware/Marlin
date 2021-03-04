@@ -1875,7 +1875,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #elif TEMP_SENSOR_6 != 0
   #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_7 != 0
-  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
+  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."  
 #endif
 
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
@@ -1884,6 +1884,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if TEMP_SENSOR_COOLER && !PIN_EXISTS(TEMP_COOLER)
   #error "TEMP_SENSOR_COOLER requires TEMP_COOLER_PIN."
+#endif
+
+#if TEMP_SENSOR_COOLER && !ENABLED(LASER_FEATURE)
+  #error "TEMP_SENSOR_COOLER requires LASER_FEATURE."
 #endif
 
 #if ENABLED(CHAMBER_FAN) && !(defined(CHAMBER_FAN_MODE) && WITHIN(CHAMBER_FAN_MODE, 0, 2))
