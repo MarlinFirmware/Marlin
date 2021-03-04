@@ -54,7 +54,7 @@ float delta_height;
 abc_float_t delta_endstop_adj{0};
 float delta_radius,
       delta_diagonal_rod,
-      delta_segments_per_second;
+      segments_per_second;
 abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;

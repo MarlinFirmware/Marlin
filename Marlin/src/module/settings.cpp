@@ -279,7 +279,7 @@ typedef struct SettingsDataStruct {
     abc_float_t delta_endstop_adj;                      // M666 X Y Z
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
-          delta_segments_per_second;                    // M665 S
+          segments_per_second;                          // M665 S
     abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
                 delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
@@ -840,7 +840,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_endstop_adj);         // 3 floats
         EEPROM_WRITE(delta_radius);              // 1 float
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
-        EEPROM_WRITE(delta_segments_per_second); // 1 float
+        EEPROM_WRITE(segments_per_second);       // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
 
@@ -1721,7 +1721,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_endstop_adj);         // 3 floats
           EEPROM_READ(delta_radius);              // 1 float
           EEPROM_READ(delta_diagonal_rod);        // 1 float
-          EEPROM_READ(delta_segments_per_second); // 1 float
+          EEPROM_READ(segments_per_second);       // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
 
@@ -2711,7 +2711,7 @@ void MarlinSettings::reset() {
     delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-    delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
     delta_diagonal_rod_trim = ddr;
   #endif
@@ -3320,7 +3320,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-          PSTR("  M665 S"), delta_segments_per_second
+          PSTR("  M665 S"), segments_per_second
         , SP_P_STR, scara_home_offset.a
         , SP_T_STR, scara_home_offset.b
         , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
@@ -3342,7 +3342,7 @@ void MarlinSettings::reset() {
           PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
         , PSTR(" R"), LINEAR_UNIT(delta_radius)
         , PSTR(" H"), LINEAR_UNIT(delta_height)
-        , PSTR(" S"), delta_segments_per_second
+        , PSTR(" S"), segments_per_second
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)

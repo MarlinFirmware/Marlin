@@ -763,7 +763,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
     // The number of segments-per-second times the duration
     // gives the number of segments
-    uint16_t segments = delta_segments_per_second * seconds;
+    uint16_t segments = segments_per_second * seconds;
 
     // For SCARA enforce a minimum segment size
     #if IS_SCARA

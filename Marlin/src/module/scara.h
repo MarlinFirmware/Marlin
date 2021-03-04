@@ -27,7 +27,7 @@
 
 #include "../core/macros.h"
 
-extern float delta_segments_per_second;
+extern float segments_per_second;
 
 #if ENABLED(AXEL_TPARA)
 
