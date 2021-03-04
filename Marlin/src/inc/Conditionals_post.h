@@ -2337,21 +2337,21 @@
  * Helper Macros for heaters and extruder fan
  */
 
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
+#define WRITE_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
 #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
+  #define WRITE_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
   #if HOTENDS > 2
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
+    #define WRITE_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
     #if HOTENDS > 3
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
+      #define WRITE_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
       #if HOTENDS > 4
-        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
+        #define WRITE_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
         #if HOTENDS > 5
-          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ HEATER_5_INVERTING)
+          #define WRITE_5(v) WRITE(HEATER_5_PIN, (v) ^ HEATER_5_INVERTING)
           #if HOTENDS > 6
-            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ HEATER_6_INVERTING)
+            #define WRITE_6(v) WRITE(HEATER_6_PIN, (v) ^ HEATER_6_INVERTING)
             #if HOTENDS > 7
-              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ HEATER_7_INVERTING)
+              #define WRITE_7(v) WRITE(HEATER_7_PIN, (v) ^ HEATER_7_INVERTING)
             #endif // HOTENDS > 7
           #endif // HOTENDS > 6
         #endif // HOTENDS > 5
@@ -2360,9 +2360,9 @@
   #endif // HOTENDS > 2
 #endif // HAS_MULTI_HOTEND || HEATERS_PARALLEL
 #if ENABLED(HEATERS_PARALLEL)
-  #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
+  #define WRITE_0(v) { WRITE_0P(v); WRITE_1(v); }
 #else
-  #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
+  #define WRITE_0(v) WRITE_0P(v)
 #endif
 
 #ifndef MIN_POWER
