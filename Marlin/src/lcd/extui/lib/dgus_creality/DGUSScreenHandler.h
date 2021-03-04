@@ -129,6 +129,8 @@ public:
     static void ResetMeshValues();
 
     static void UpdateMeshValue(const int8_t x, const int8_t y, const float z);
+
+    static void HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   // Hook for live z adjust action

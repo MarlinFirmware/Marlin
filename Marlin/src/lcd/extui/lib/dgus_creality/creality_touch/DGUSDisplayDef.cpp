@@ -665,6 +665,29 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Development test button
   VPHELPER(VP_DEVELOPMENT_HELPER_BUTTON, nullptr, ScreenHandler.HandleDevelopmentTestButton, nullptr),
 
+  // Mesh override input
+#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS
+  //#define _VPHELPER_GP(N) VPHELPER((VP_MESH_INPUT_X0_Y0 + ( ##N## * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  //REPEAT(MESH_INPUT_SUPPORTED_SIZE, _VPHELPER_GP)
+
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 0 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 1 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 2 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 3 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 4 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 5 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 6 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 7 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 8 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 9 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 10 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 11 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 12 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 13 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 14 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+  VPHELPER((VP_MESH_INPUT_X0_Y0 + ( 15 * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
+#endif
+
   // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr
   { .VP = VP_M117, .memadr = nullptr, .size = VP_M117_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
   { .VP = VP_M117_STATIC, .memadr = nullptr, .size = VP_M117_STATIC_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },

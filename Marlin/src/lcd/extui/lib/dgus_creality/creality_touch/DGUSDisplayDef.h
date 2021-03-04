@@ -392,6 +392,13 @@ constexpr uint16_t MESH_LEVEL_SP_EDGE_SIZE = MESH_LEVEL_SP_SIZE * MESH_LEVEL_EDG
 
 constexpr uint16_t MESH_LEVEL_MAX_POINTS = MESH_LEVEL_EDGE_MAX_POINTS * MESH_LEVEL_EDGE_MAX_POINTS;
 
+// Mesh inputs
+constexpr uint16_t VP_MESH_INPUT_X0_Y0 = 0x2360;
+
+#define MESH_INPUT_SUPPORTED_X_SIZE 4
+#define MESH_INPUT_SUPPORTED_Y_SIZE 4
+#define MESH_INPUT_SUPPORTED_SIZE 16
+#define MESH_INPUT_DATA_SIZE 2 // 2 byte integer
 
 // Color table: https://stackoverflow.com/q/13720937/646215
 // Color picker: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html

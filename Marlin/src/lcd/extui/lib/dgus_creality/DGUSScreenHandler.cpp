@@ -948,6 +948,35 @@ void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const fl
   dgusdisplay.SetVariableDisplayColor(spAddr, color);
 }
 
+void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
+  // Determine the X and Y for this mesh point
+  // We can do this because we assume MESH_INPUT_SUPPORTED_X_SIZE and MESH_INPUT_SUPPORTED_Y_SIZE with MESH_INPUT_DATA_SIZE.
+  // So each VP is MESH_INPUT_DATA_SIZE apart
+
+  if (HasSynchronousOperation) {
+    setstatusmessagePGM(PSTR("Wait for leveling to complete"));
+    return;
+  }
+
+  const uint16_t probe_point = var.VP - VP_MESH_INPUT_X0_Y0;
+  constexpr uint16_t col_size = MESH_INPUT_SUPPORTED_Y_SIZE * MESH_INPUT_DATA_SIZE;
+
+  const uint8_t x = probe_point / col_size; // Will be 0 to 3 inclusive
+  const uint8_t y = (probe_point - (x * col_size)) / MESH_INPUT_DATA_SIZE;
+
+  float z = swap16(*(int16_t*)val_ptr) * 0.001;
+
+  SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
+  SERIAL_ECHOPAIR(" Y:", y);
+  SERIAL_ECHOPAIR_F(" Z:", z);
+  SERIAL_ECHOPAIR(" [point ", probe_point, "] ");
+  SERIAL_ECHOPAIR(" [VP: ", var.VP);
+  SERIAL_ECHOLN("]");
+
+  UpdateMeshValue(x, y, z);
+  ExtUI::setMeshPoint({ x, y }, z);
+}
+
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
