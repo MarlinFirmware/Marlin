@@ -503,8 +503,8 @@ inline bool prime_nozzle() {
     const xyz_pos_t p4 = { x_offset, Y_BED_SIZE - y_offset, g26_layer_height };
 
     // Small prime
-    const xyz_pos_t pp1 = { x_gp_size + x_offset, y_offset + 10, g26_layer_height };
-    const xyz_pos_t pp2 = { X_BED_SIZE - x_gp_size - x_offset, y_offset + 10, g26_layer_height };
+    const xyz_pos_t pp1 = { X_BED_SIZE - x_gp_size - x_offset, y_offset + 10, g26_layer_height };
+    const xyz_pos_t pp2 = { x_gp_size + x_offset, y_offset + 10, g26_layer_height };
     print_line_from_here_to_there(
       pp1,
       pp2
