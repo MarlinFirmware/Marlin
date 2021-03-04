@@ -287,7 +287,7 @@ void menu_temperature() {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
 
-    LOOP_L_N(m, PREHEAT_COUNT) {
+    LOOP_L_N(m, PRESET_TEMP_COUNT) {
       editable.int8 = m;
       #if HOTENDS > 1 || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
