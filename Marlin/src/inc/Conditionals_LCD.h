@@ -575,7 +575,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMuFF force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif
