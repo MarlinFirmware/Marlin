@@ -331,7 +331,7 @@ class Temperature {
     TERN_(HAS_TEMP_COOLER, static cooler_info_t temp_cooler);
     TERN_(AUTO_POWER_E_FANS, static uint8_t autofan_speed[HOTENDS]);
     TERN_(AUTO_POWER_CHAMBER_FAN, static uint8_t chamberfan_speed);
-
+    TERN_(AUTO_POWER_COOLER_FAN, static uint8_t coolerfan_speed);
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];

@@ -268,6 +268,9 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   uint8_t Temperature::chamberfan_speed; // = 0
 #endif
 
+#if ENABLED(AUTO_POWER_COOLER_FAN)
+  uint8_t Temperature::coolerfan_speed; // = 0
+#endif
 #if HAS_FAN
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
