@@ -46,6 +46,9 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "../../feature/runout.h"
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #define FILAMENT_RUNOUT_DISTANCE
+  #endif
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
