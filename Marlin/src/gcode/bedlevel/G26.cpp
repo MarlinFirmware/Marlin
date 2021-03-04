@@ -486,20 +486,42 @@ inline bool prime_nozzle() {
 
     IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_FIXED_LENGTH)));
 
+    destination = current_position;
     destination.e += g26_prime_length;
     prepare_internal_move_to_destination(fr_slow_e);
     destination.e -= g26_prime_length;
+    
+    constexpr float x_gp_size = X_BED_SIZE / GRID_MAX_POINTS_X;
+    constexpr float y_gp_size = Y_BED_SIZE / GRID_MAX_POINTS_Y;
+    constexpr float x_offset = x_gp_size / 2.0f;
+    constexpr float y_offset = y_gp_size / 2.0f;
 
-    constexpr float prime_start_xy_line_offset = X_BED_SIZE / GRID_MAX_POINTS_X / 2.0f;
-    constexpr float prime_start_x_start = prime_start_xy_line_offset / 2;
-    constexpr float prime_start_y = prime_start_xy_line_offset / 2;
-    constexpr float prime_start_x_end = X_BED_SIZE - prime_start_xy_line_offset;
+     // Draw 4 points
+    const xyz_pos_t p1 = { x_offset, y_offset, g26_layer_height };
+    const xyz_pos_t p2 = { X_BED_SIZE - x_offset, y_offset, g26_layer_height };
+    const xyz_pos_t p3 = { X_BED_SIZE - x_offset, Y_BED_SIZE - y_offset, g26_layer_height };
+    const xyz_pos_t p4 = { x_offset, Y_BED_SIZE - y_offset, g26_layer_height };
 
+    // Small prime
+    const xyz_pos_t pp1 = { x_gp_size + x_offset, y_offset + 10, g26_layer_height };
+    const xyz_pos_t pp2 = { X_BED_SIZE - x_gp_size - x_offset, y_offset + 10, g26_layer_height };
     print_line_from_here_to_there(
-        { prime_start_x_start, prime_start_y, g26_layer_height  },
-        { prime_start_x_end, prime_start_y, g26_layer_height  }
+      pp1,
+      pp2
     );
+    if (user_canceled()) return G26_ERR;
 
+    print_line_from_here_to_there(p1,p2);
+    if (user_canceled()) return G26_ERR;
+
+    print_line_from_here_to_there(p2,p3);
+    if (user_canceled()) return G26_ERR;
+
+    print_line_from_here_to_there(p3,p4);
+    if (user_canceled()) return G26_ERR;
+
+    print_line_from_here_to_there(p4,p1);
+    if (user_canceled()) return G26_ERR;
     
     retract_filament(destination);
   }
