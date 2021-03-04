@@ -35,13 +35,13 @@
 #if ENABLED(AXEL_TPARA)
   #include "endstops.h"
   #include "../MarlinCore.h"
-#endif
-
-#ifndef SCARA_OFFSET_THETA1
-  #define SCARA_OFFSET_THETA1  12 // degrees
-#endif
-#ifndef SCARA_OFFSET_THETA2
-  #define SCARA_OFFSET_THETA2 131 // degrees
+#elif ENABLED(MORGAN_SCARA)
+  #ifndef SCARA_OFFSET_THETA1
+    #define SCARA_OFFSET_THETA1  12 // degrees
+  #endif
+  #ifndef SCARA_OFFSET_THETA2
+    #define SCARA_OFFSET_THETA2 131 // degrees
+  #endif
 #endif
 
 float delta_segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SEGMENTS_PER_SECOND);
