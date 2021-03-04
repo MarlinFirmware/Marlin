@@ -3398,17 +3398,13 @@ void Temperature::tick() {
       #if HAS_TEMP_PROBE
         case H_PROBE: k = 'P'; break;
       #endif
-      #if HAS_TEMP_HOTEND
-        default: k = 'T'; break;
-        #if HAS_BED
-          case H_BED: k = 'B'; break;
-        #endif
-        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-          case H_REDUNDANT: k = 'R'; break;
-        #endif
-      #elif HAS_BED
-        default: k = 'B'; break;
+      #if HAS_TEMP_BED
+        case H_BED: k = 'B'; break;
       #endif
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        case H_REDUNDANT: k = 'R'; break;
+      #endif
+        default: k = 'T'; break;
     }
     SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND
