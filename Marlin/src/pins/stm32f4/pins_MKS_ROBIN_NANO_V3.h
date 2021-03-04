@@ -42,6 +42,8 @@
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB6
+#define I2C_SDA_PIN                         PB7
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
@@ -163,8 +165,8 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
-#define FAN1_PIN                            PC14  // FAN1
+#define FAN_PIN                             PC14  // FAN
+#define FAN1_PIN                            PB1   // FAN1
 
 //
 // Thermocouples

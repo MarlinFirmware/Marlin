@@ -114,7 +114,7 @@ namespace Anycubic {
     }
     else {
       // Logical Name
-      TFTSer.print("/");
+      TFTSer.write('/');
       if (folderdepth > 0) TFTSer.print(currentfoldername);
 
       TFTSer.println(filelist.shortFilename());

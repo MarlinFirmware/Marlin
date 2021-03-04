@@ -41,5 +41,5 @@ void GcodeSuite::M999() {
 
   if (parser.boolval('S')) return;
 
-  queue.flush_and_request_resend();
+  queue.flush_and_request_resend(queue.ring_buffer.command_port());
 }

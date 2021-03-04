@@ -92,12 +92,11 @@ int MarlinSerialUSB::read() {
   return c;
 }
 
-bool MarlinSerialUSB::available() {
-    /* If Pending chars */
-  return pending_char >= 0 ||
-    /* or USB CDC enumerated and configured on the PC side and some
-       bytes where sent to us */
-      (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
+int MarlinSerialUSB::available() {
+  if (pending_char > 0) return pending_char;
+  return pending_char == 0 ||
+    // or USB CDC enumerated and configured on the PC side and some bytes where sent to us */
+    (usb_task_cdc_isenabled() && udi_cdc_is_rx_ready());
 }
 
 void MarlinSerialUSB::flush() { }
