@@ -374,14 +374,49 @@ void CrealityDWINClass::Draw_Print_Screen() {
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
   if (sdprint) {
-    char * const name = (card.isFileOpen()) ? card.longest_filename() : (char*)"";
-    const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
-    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, name);
+    Draw_Print_Filename(true);
   }
   else {
     char * const name = (char*)"Host Print";
     const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, name);
+  }
+}
+
+void CrealityDWINClass::Draw_Print_Filename(bool reset/*=false*/) {
+  static uint8_t namescrl = 0;
+  if (reset) namescrl = 0;
+  if (process == Print) {
+    if (card.isFileOpen()) {
+      size_t len = strlen(card.longest_filename());
+      int8_t pos = len;
+      if (pos > 30) {
+        pos -= namescrl;
+        len = pos;
+        if (len > 30)
+          len = 30;
+        char dispname[len+1];
+        if (pos >= 0) {
+          LOOP_L_N(i, len) dispname[i] = card.longest_filename()[i+namescrl];
+        }
+        else {
+          LOOP_L_N(i, 30+pos) dispname[i] = ' ';
+          LOOP_S_L_N(i, 30+pos, 30) dispname[i] = card.longest_filename()[i-(30+pos)];
+        }
+        dispname[len] = '\0';
+        DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
+        const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, dispname);
+        if (-pos >= 30)
+          namescrl = 0;
+        namescrl++;
+      }
+      else {
+        DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
+        const int8_t npos = (DWIN_WIDTH - strlen(card.longest_filename()) * MENU_CHR_W) / 2;
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, card.longest_filename());
+      }
+    }
   }
 }
 
@@ -606,54 +641,54 @@ void CrealityDWINClass::Update_Status_Bar() {
   static uint8_t msgscrl = 0;
   static char lastmsg[64];
   if (strcmp_P(lastmsg, statusmsg) != 0) {
-      strcpy_P(lastmsg, statusmsg);
-      msgscrl = 0;
-      new_msg = true;
+    strcpy_P(lastmsg, statusmsg);
+    msgscrl = 0;
+    new_msg = true;
+  }
+  size_t len = strlen(statusmsg);
+  int8_t pos = len;
+  if (pos > 30) {
+    pos -= msgscrl;
+    len = pos;
+    if (len > 30)
+      len = 30;
+    char dispmsg[len+1];
+    if (pos >= 0) {
+      LOOP_L_N(i, len) dispmsg[i] = statusmsg[i+msgscrl];
     }
-    size_t len = strlen(statusmsg);
-    int8_t pos = len;
-    if (pos > 30) {
-      pos -= msgscrl;
-      len = pos;
-      if (len > 30)
-        len = 30;
-      char dispmsg[len+1];
-      if (pos >= 0) {
-        LOOP_L_N(i, len) dispmsg[i] = statusmsg[i+msgscrl];
-      }
-      else {
-        LOOP_L_N(i, 30+pos) dispmsg[i] = ' ';
-        LOOP_S_L_N(i, 30+pos, 30) dispmsg[i] = statusmsg[i-(30+pos)];
-      }
-      dispmsg[len] = '\0';
+    else {
+      LOOP_L_N(i, 30+pos) dispmsg[i] = ' ';
+      LOOP_S_L_N(i, 30+pos, 30) dispmsg[i] = statusmsg[i-(30+pos)];
+    }
+    dispmsg[len] = '\0';
+    if (process == Print) {
+      DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH-8, 238);
+      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 219, dispmsg);
+    }
+    else {
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH-8, 376);
+      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 357, dispmsg);
+    }
+    if (-pos >= 30)
+      msgscrl = 0;
+    msgscrl++;
+  } else {
+    if (new_msg) {
+      new_msg = false;
       if (process == Print) {
         DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH-8, 238);
-        const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 219, dispmsg);
+        const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 219, statusmsg);
       }
       else {
         DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH-8, 376);
-        const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 357, dispmsg);
-      }
-      if (-pos >= 30)
-        msgscrl = 0;
-      msgscrl++;
-    } else {
-      if (new_msg) {
-        new_msg = false;
-        if (process == Print) {
-          DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH-8, 238);
-          const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
-          DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 219, statusmsg);
-        }
-        else {
-          DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH-8, 376);
-          const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
-          DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 357, statusmsg);
-        }
+        const int8_t npos = (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 357, statusmsg);
       }
     }
+  }
 }
 
 /* Menu Item Config */
@@ -3067,10 +3102,12 @@ void CrealityDWINClass::Update() {
 }
 
 void CrealityDWINClass::Screen_Update() {
-  static millis_t msgtime = 0;
-  if (ELAPSED(millis(), msgtime)) {
-    msgtime = millis() + 200;
+  static millis_t scrltime = 0;
+  if (ELAPSED(millis(), scrltime)) {
+    scrltime = millis() + 200;
     Update_Status_Bar();
+    if (process==Print)
+      Draw_Print_Filename();
   }
 
   static millis_t statustime = 0;

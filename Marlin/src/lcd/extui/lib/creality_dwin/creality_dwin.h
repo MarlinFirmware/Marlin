@@ -230,6 +230,7 @@ public:
   void Draw_Main_Menu(uint8_t select=0);
   void Print_Screen_Icons();
   void Draw_Print_Screen();
+  void Draw_Print_Filename(bool reset=false);
   void Draw_Print_ProgressBar();
   void Draw_Print_ProgressRemain();
   void Draw_Print_ProgressElapsed();
