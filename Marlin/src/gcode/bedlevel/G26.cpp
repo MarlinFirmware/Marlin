@@ -928,7 +928,7 @@ void GcodeSuite::G26() {
   } while (--g26_repeats && location.valid() && TERN1(HAS_G26_CANCEL, !user_canceled()));
 
   LEAVE:
-  ExtUI::resetCancelState();
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::resetCancelState());
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
   IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
