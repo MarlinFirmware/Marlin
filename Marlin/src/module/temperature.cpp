@@ -1530,7 +1530,7 @@ void Temperature::manage_heater() {
           #if ENABLED(COOLER_FAN)
             set_fan_speed(COOLER_FAN_INDEX, temp_cooler.celsius > temp_cooler.target - 2 ? COOLER_FAN_BASE : 0);
           #endif
-          WRITE_COOLER(LOW);
+          WRITE_HEATER_COOLER(LOW);
         }
       }
     }
@@ -1540,7 +1540,7 @@ void Temperature::manage_heater() {
         flag_cooler_state = false;
         thermalManager.set_fan_speed(COOLER_FAN_INDEX, 0);
       }
-      WRITE_COOLER(LOW);
+      WRITE_HEATER_COOLER(LOW);
     }
 
     #if ENABLED(THERMAL_PROTECTION_COOLER)
@@ -2454,7 +2454,7 @@ void Temperature::disable_all_heaters() {
   #if HAS_COOLER
     setTargetCooler(0);
     temp_cooler.soft_pwm_amount = 0;
-    WRITE_COOLER(LOW);
+    WRITE_HEATER_COOLER(LOW);
   #endif
 
 }
@@ -3398,6 +3398,8 @@ void Temperature::tick() {
         #endif
       #elif HAS_TEMP_BED
         default: k = 'B'; break;
+      #else
+        default: k = 'T'; break;
       #endif
     }
     SERIAL_CHAR(' ', k);
