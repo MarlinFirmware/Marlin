@@ -38,9 +38,6 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-// Custom flags and defines for the build
-//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
-
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS S 1.2"
 #endif
