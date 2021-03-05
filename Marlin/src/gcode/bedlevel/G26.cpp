@@ -933,10 +933,9 @@ void GcodeSuite::G26() {
   IF_ENABLED(EXTENSIBLE_UI, updateStatus_P(GET_TEXT(MSG_G26_LEAVING)));
 
   planner.clear_block_buffer();
-  planner.synchronize();
-
-  move_to(current_position.x, current_position.y, current_position.z + Z_HOMING_HEIGHT, 0.0);
-  planner.synchronize();
+  char cmdBuffer[80] = {0};
+  sprintf_P(cmdBuffer, PSTR("G90\nG0 Z%d F2000\nG0 X%d Y%d"), Z_HOMING_HEIGHT, X_BED_SIZE/4, Y_BED_SIZE/2);
+  gcode.process_subcommands_now(cmdBuffer);
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;
