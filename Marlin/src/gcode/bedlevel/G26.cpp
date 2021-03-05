@@ -174,8 +174,6 @@ int8_t g26_prime_flag;
    * If the LCD is clicked, cancel, wait for release, return true
    */
   bool user_canceled() {
-    UNUSED(reset);
-    
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
     ui.set_status_P(GET_TEXT(MSG_G26_CANCELED), 99);
     TERN_(HAS_LCD_MENU, ui.quick_feedback());
