@@ -431,15 +431,25 @@ void CrealityDWINClass::Draw_Print_ProgressBar() {
 void CrealityDWINClass::Draw_Print_ProgressRemain() {
   uint16_t remainingtime = ui.get_remaining_time();
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 2, 176, 187, remainingtime / 3600);
-  DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 192, 187, (char*)":");
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 2, 200, 187, (remainingtime % 3600) / 60);
+  if (eeprom_settings.time_format_textual) {
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 192, 187, (char*)"h");
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 216, 187, (char*)"m");
+  } else {
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 192, 187, (char*)":");
+  }
 }
 
 void CrealityDWINClass::Draw_Print_ProgressElapsed() {
   duration_t elapsed = print_job_timer.duration();
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 2, 42, 187, elapsed.value / 3600);
-  DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 58, 187, (char*)":");
   DWIN_Draw_IntValue(true, true, 1, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 2, 66, 187, (elapsed.value % 3600) / 60);
+  if (eeprom_settings.time_format_textual) {
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 58, 187, (char*)"h");
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 82, 187, (char*)"m");
+  } else {
+    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 58, 187, (char*)":");
+  }
 }
 
 void CrealityDWINClass::Draw_Print_confirm() {
@@ -744,6 +754,12 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           else {
             Popup_Handler(Home);
             gcode.process_subcommands_now_P(PSTR("G28"));
+            #if ENABLED(Z_SAFE_HOMING)
+              planner.synchronize();
+              char buf[20];
+              sprintf(buf, "G0 X%i Y%i", Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+              gcode.process_subcommands_now_P(buf);
+            #endif
             planner.synchronize();
             Redraw_Menu();
           }
@@ -2026,7 +2042,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
       #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
-      #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
+      #define ADVANCED_TIME_FORMAT (ADVANCED_POWER_LOSS + 1)
+      #define ADVANCED_TOTAL ADVANCED_TIME_FORMAT
 
       switch (item) {
         case ADVANCED_BACK:
@@ -2124,6 +2141,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+        case ADVANCED_TIME_FORMAT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_PrintTime, (char*)"Progress as __h__m");
+            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+          } else {
+            eeprom_settings.time_format_textual = !eeprom_settings.time_format_textual;
+            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+          }
+          break;
       }
       break;
     case InfoMain:

@@ -49,9 +49,13 @@ namespace ExtUI {
 
   void onFactoryReset() {}
 
-  void onStoreSettings(char *buff) {}
+  void onStoreSettings(char *buff) {
+    memcpy(buff, &CrealityDWIN.eeprom_settings, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
+  }
 
-  void onLoadSettings(const char *buff) {}
+  void onLoadSettings(const char *buff) {
+    memcpy(&CrealityDWIN.eeprom_settings, buff, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
+  }
 
   void onConfigurationStoreWritten(bool success) {}
 
