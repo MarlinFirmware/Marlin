@@ -74,23 +74,23 @@ void Temperature::lcd_preset_temp(const int16_t e, const int8_t indh, const int8
 #if PRESET_TEMP_COUNT
 
   #if HAS_TEMP_HOTEND
-    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, -1); }
+    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
     void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
   #endif
   #if HAS_BED
-    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preset_temp(-1, -1, m); }
+    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
   #endif
   #if HAS_COOLER
     inline void _precool_laser(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, -1); }
     void do_precool_laser_m() { _precool_laser(editable.int8, thermalManager.temp_cooler.target); }
   #endif
   #if HAS_CHAMBER
-    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, -1); }
+    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
     void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
   #endif
 
   #if HAS_TEMP_HOTEND && HAS_BED
-    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, m); }
+    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
     #define PREHEAT_ITEMS(M,E) do{ \
