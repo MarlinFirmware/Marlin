@@ -71,7 +71,6 @@ public:
   static void WriteVariable(uint16_t adr, float value);
 
   static void SetVariableDisplayColor(uint16_t sp, uint16_t color);
-  static void SetVariableAppendText(uint16_t sp, PGM_P appendText);
 
   static void ReadVariable(uint16_t adr);
 

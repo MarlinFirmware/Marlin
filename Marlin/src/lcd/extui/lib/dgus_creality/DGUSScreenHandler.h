@@ -355,9 +355,6 @@ public:
 
     uint16_t color = trust ? 0xFFFF /*White*/ : 0XF800 /*Red*/;
     dgusdisplay.SetVariableDisplayColor(var.VP, color);
-
-    //PGM_P suffix = trust ? nullptr : "???";
-    //dgusdisplay.SetVariableAppendText(var.VP, suffix);
   }
 
   /// Force an update of all VP on the current screen.

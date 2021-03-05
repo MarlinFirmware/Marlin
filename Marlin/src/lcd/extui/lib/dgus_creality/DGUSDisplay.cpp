@@ -173,18 +173,6 @@ void DGUSDisplay::SetVariableDisplayColor(uint16_t sp, uint16_t color) {
   WriteVariable(sp + 0x03, color);
 }
 
-void DGUSDisplay::SetVariableAppendText(uint16_t sp, PGM_P appendText) {
-  // High byte is length, low byte is first char
-  if (!appendText) {
-    WriteVariable(sp + 0x07, static_cast<uint8_t>(0));
-    return;
-  }
-
-  uint8_t lengthFirstChar = strlen_P(appendText);// << 8;
-  WriteVariable(sp + 0x07, lengthFirstChar);
-  WriteVariablePGM(sp + 0x08, appendText, strlen_P(appendText));
-}
-
 void DGUSDisplay::ProcessRx() {
 
   #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
