@@ -297,7 +297,7 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
-        #if COOLER_USER_THERMISTOR
+    #if COOLER_USER_THERMISTOR
       CTI_COOLER,
     #endif
     USER_THERMISTORS
@@ -329,9 +329,11 @@ class Temperature {
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
     TERN_(HAS_TEMP_CHAMBER, static chamber_info_t temp_chamber);
     TERN_(HAS_TEMP_COOLER, static cooler_info_t temp_cooler);
+
     TERN_(AUTO_POWER_E_FANS, static uint8_t autofan_speed[HOTENDS]);
     TERN_(AUTO_POWER_CHAMBER_FAN, static uint8_t chamberfan_speed);
     TERN_(AUTO_POWER_COOLER_FAN, static uint8_t coolerfan_speed);
+
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];
@@ -442,8 +444,7 @@ class Temperature {
 
     #if HAS_COOLER
       TERN_(WATCH_COOLER, static cooler_watch_t watch_cooler);
-      static millis_t next_cooler_check_ms;
-      static millis_t cooler_fan_flush_ms;
+      static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       #ifdef COOLER_MIN_TEMP
         static int16_t mintemp_raw_COOLER;
       #endif

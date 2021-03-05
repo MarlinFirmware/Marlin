@@ -35,13 +35,9 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if ENABLED(HAS_COOLER)
-      #ifndef COOLER_CLASS
-        #include "..\feature\cooler.h"
-        #include "..\feature\spindle_laser.h"
-        extern Cooler cooler;
-        extern SpindleLaser cutter;
-      #endif
+#if HAS_COOLER
+  #include "..\feature\cooler.h"
+  #include "..\feature\spindle_laser.h"
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -372,14 +368,11 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   #endif
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
-#endif // HAS_HEATED_BED
+#endif
 
 #if HAS_TEMP_CHAMBER
   chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
-    int16_t fan_chamber_pwm;
-    bool flag_chamber_off;
-    bool flag_chamber_excess_heat = false;
     millis_t next_cool_check_ms_2 = 0;
     float old_temp = 9999;
     #ifdef CHAMBER_MINTEMP
@@ -390,13 +383,12 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     #endif
     TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
-  #endif // HAS_HEATED_CHAMBER
-#endif // HAS_TEMP_CHAMBER
+  #endif
+#endif
 
 #if HAS_TEMP_COOLER
   cooler_info_t Temperature::temp_cooler; // = { 0 }
   #if HAS_COOLER
-    int16_t fan_cooler_pwm;
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
     float previous_temp = 9999;
@@ -409,10 +401,9 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     #if WATCH_COOLER
       cooler_watch_t Temperature::watch_cooler{0};
     #endif
-    millis_t Temperature::next_cooler_check_ms;
-    millis_t Temperature::cooler_fan_flush_ms;
-  #endif // HAS_COOLER
-#endif // HAS_TEMP_COOLER
+    millis_t Temperature::next_cooler_check_ms, Temperature::cooler_fan_flush_ms;
+  #endif
+#endif
 
 #if HAS_TEMP_PROBE
   probe_info_t Temperature::temp_probe; // = { 0 }
@@ -442,7 +433,6 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
-#define TEMPDIRCOOL ((TEMP_SENSOR_COOLER_RAW_LO_TEMP) < (TEMP_SENSOR_COOLER_RAW_HI_TEMP) ? 1 : -1 )
 
 #if HAS_HOTEND
   // Init mintemp and maxtemp with extreme values to prevent false errors during startup
@@ -1396,11 +1386,18 @@ void Temperature::manage_heater() {
       }
     #endif
 
+    #if EITHER(CHAMBER_FAN, CHAMBER_VENT) || DISABLED(PIDTEMPCHAMBER)
+      static bool flag_chamber_excess_heat; // = false;
+    #endif
+
     #if EITHER(CHAMBER_FAN, CHAMBER_VENT)
+      static bool flag_chamber_off; // = false
+
       if (temp_chamber.target > CHAMBER_MINTEMP) {
         flag_chamber_off = false;
 
         #if ENABLED(CHAMBER_FAN)
+          int16_t fan_chamber_pwm;
           #if CHAMBER_FAN_MODE == 0
             fan_chamber_pwm = CHAMBER_FAN_BASE;
           #elif CHAMBER_FAN_MODE == 1
@@ -1425,7 +1422,8 @@ void Temperature::manage_heater() {
             // Open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds if the
             // temperature didn't drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             if (next_cool_check_ms_2 == 0 || ELAPSED(ms, next_cool_check_ms_2)) {
-              if (old_temp - temp_chamber.celsius < float(MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)) flag_chamber_excess_heat = true; //the bed is heating the chamber too much
+              if (temp_chamber.celsius - old_temp > MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)
+                flag_chamber_excess_heat = true; // the bed is heating the chamber too much
               next_cool_check_ms_2 = ms + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_CHAMBER_VENT);
               old_temp = temp_chamber.celsius;
             }
@@ -1434,9 +1432,8 @@ void Temperature::manage_heater() {
             next_cool_check_ms_2 = 0;
             old_temp = 9999;
           }
-          if (flag_chamber_excess_heat && (temp_chamber.celsius - temp_chamber.target <= -LOW_EXCESS_HEAT_LIMIT) ) {
+          if (flag_chamber_excess_heat && (temp_chamber.target - temp_chamber.celsius >= LOW_EXCESS_HEAT_LIMIT))
             flag_chamber_excess_heat = false;
-          }
         #endif
       }
       else if (!flag_chamber_off) {
@@ -1451,17 +1448,14 @@ void Temperature::manage_heater() {
       }
     #endif
 
-
-
-
     #if ENABLED(PIDTEMPCHAMBER)
       // PIDTEMPCHAMBER doens't support a CHAMBER_VENT yet.
       temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
     #else
-    if (ELAPSED(ms, next_chamber_check_ms)) {
-      next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+      if (ELAPSED(ms, next_chamber_check_ms)) {
+        next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
-      if (WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
+        if (WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
           if (flag_chamber_excess_heat) {
             temp_chamber.soft_pwm_amount = 0;
             #if ENABLED(CHAMBER_VENT)
@@ -1514,38 +1508,37 @@ void Temperature::manage_heater() {
       }
     #endif
 
+    static bool flag_cooler_state; // = false
+
     if (cooler.is_enabled()) {
-      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TEMP;
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
+      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TEMP;
       if (ELAPSED(ms, next_cooler_check_ms)) {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
         if (temp_cooler.celsius > temp_cooler.target) {
           temp_cooler.soft_pwm_amount = temp_cooler.celsius > temp_cooler.target ? MAX_COOLER_POWER : 0;
           flag_cooler_state = temp_cooler.soft_pwm_amount > 0 ? true : false; // used to allow M106 fan control when cooler is disabled
           #if ENABLED(COOLER_FAN)
-            fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
+            int16_t fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
             NOMORE(fan_cooler_pwm, 255);
             set_fan_speed(COOLER_FAN_INDEX, fan_cooler_pwm); // Set cooler fan pwm
             cooler_fan_flush_ms = ms + 5000;
           #endif
-        } else {
+        }
+        else {
           temp_cooler.soft_pwm_amount = 0;
           #if ENABLED(COOLER_FAN)
-            if (temp_cooler.celsius+2 <= temp_cooler.target) {
-              set_fan_speed(COOLER_FAN_INDEX, 0);
-            } else {
-              set_fan_speed(COOLER_FAN_INDEX, COOLER_FAN_BASE);
-            }
+            set_fan_speed(COOLER_FAN_INDEX, temp_cooler.celsius > temp_cooler.target - 2 ? COOLER_FAN_BASE : 0);
           #endif
           WRITE_COOLER(LOW);
         }
       }
-
-    } else {
+    }
+    else {
       temp_cooler.soft_pwm_amount = 0;
-      if (flag_cooler_state == true) {
-        thermalManager.set_fan_speed(COOLER_FAN_INDEX,0);
+      if (flag_cooler_state) {
         flag_cooler_state = false;
+        thermalManager.set_fan_speed(COOLER_FAN_INDEX, 0);
       }
       WRITE_COOLER(LOW);
     }
@@ -1819,7 +1812,6 @@ void Temperature::manage_heater() {
 #endif // HAS_HOTEND
 
 #if HAS_HEATED_BED
-  // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
     #if TEMP_SENSOR_BED_IS_CUSTOM
@@ -1838,7 +1830,6 @@ void Temperature::manage_heater() {
 #endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
-  // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog_to_celsius_chamber(const int raw) {
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
@@ -1857,7 +1848,6 @@ void Temperature::manage_heater() {
 #endif // HAS_TEMP_CHAMBER
 
 #if HAS_TEMP_COOLER
-  // Derived from RepRap FiveD extruder::getTemperature()
   // For cooler temperature measurement.
   float Temperature::analog_to_celsius_cooler(const int raw) {
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
@@ -1876,7 +1866,6 @@ void Temperature::manage_heater() {
 #endif // HAS_TEMP_COOLER
 
 #if HAS_TEMP_PROBE
-  // Derived from RepRap FiveD extruder::getTemperature()
   // For probe temperature measurement.
   float Temperature::analog_to_celsius_probe(const int raw) {
     #if TEMP_SENSOR_PROBE_IS_CUSTOM
@@ -2279,10 +2268,10 @@ void Temperature::init() {
 
   #if HAS_COOLER
     #ifdef COOLER_MIN_TEMP
-      while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MIN_TEMP) mintemp_raw_COOLER += TEMPDIRCOOL * (OVERSAMPLENR);
+      while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MIN_TEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
     #endif
     #ifdef COOLER_MAX_TEMP
-      while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAX_TEMP) maxtemp_raw_COOLER -= TEMPDIRCOOL * (OVERSAMPLENR);
+      while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAX_TEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
     #endif
   #endif
 
@@ -2821,7 +2810,7 @@ void Temperature::readings_ready() {
   #endif
 
   #if BOTH(HAS_COOLER, THERMAL_PROTECTION_COOLER)
-    #if TEMPDIRCOOL < 0
+    #if TEMPDIR(COOLER) < 0
       #define COOLERCMP(A,B) ((A)<(B))
     #else
       #define COOLERCMP(A,B) ((A)>(B))

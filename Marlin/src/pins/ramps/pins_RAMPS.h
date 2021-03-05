@@ -275,10 +275,6 @@
   #endif
 #endif
 
-#if ENABLED(COOLANT_FLOOD) && HAS_FREE_AUX2_PINS 
-  #define COOLANT_FLOOD_PIN             	  44  // Control coolant pump   
-#endif
-
 //
 // TMC software SPI
 //

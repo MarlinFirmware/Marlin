@@ -22,15 +22,16 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_COOLER)
+#if HAS_COOLER
 
-  #include "Cooler.h"
-  Cooler cooler;
-  cooler_prop_t cooling;
-  bool is_enabled() { return cooler.cooling.state;};
-  void enable() { cooling.state = true;};
-  void disable() { cooling.state = false;};
-  //void set_state(const bool sflag) { cooler.cooling.state = sflag;};
-  //static void init_cooler() { set_state(false);};
+#include "Cooler.h"
+Cooler cooler;
 
-#endif // COOLER
+uint16_t Cooler::flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
+uint8_t Cooler::mode = 0;         // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
+uint16_t Cooler::capacity;        // Cooling capacity in watts
+uint16_t Cooler::load;            // Cooling load in watts
+bool Cooler::flowmeter = false;
+bool Cooler::state = false;       // on = true, off = false
+
+#endif

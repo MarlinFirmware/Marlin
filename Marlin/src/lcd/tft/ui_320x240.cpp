@@ -139,11 +139,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   #if HAS_TEMP_COOLER
     else if (Heater == H_COOLER) {
       currentTemperature = thermalManager.degCooler();
-      #if HAS_COOLER
-        targetTemperature = thermalManager.degTargetCooler();
-      #else
-        targetTemperature = ABSOLUTE_ZERO;
-      #endif
+      targetTemperature = TERN(HAS_COOLER, thermalManager.degTargetCooler(), ABSOLUTE_ZERO);
     }
   #endif
   else return;

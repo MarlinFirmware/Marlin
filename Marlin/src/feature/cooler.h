@@ -20,34 +20,29 @@
  *
  */
 #pragma once
-#define COOLER_CLASS
+
 #define _MSG_COOLER(M) MSG_COOLER_##M
 #define MSG_COOLER(M) _MSG_COOLER(M)
 
-// Cooling device properties
-  typedef struct CoolerProp {
-  uint16_t flowrate;             // Flow meter reading in liters, 0 will result in shutdown if equiped 
-  uint8_t mode = 0;             // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling 
-  uint16_t capacity;            // Cooling capacity in watts
-  uint16_t load;                // Cooling load in watts
-  bool flowmeter = false;
-  bool state = false ;          // on = true, off = false
-  } cooler_prop_t;
+// Cooling device
 
 class Cooler {
-
 public:
+  static uint16_t flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
+  static uint8_t mode;             // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
+  static uint16_t capacity;        // Cooling capacity in watts
+  static uint16_t load;            // Cooling load in watts
+  static bool flowmeter;
+  static bool state;               // on = true, off = false
 
-  cooler_prop_t cooling;
-  bool is_enabled() { return cooling.state;};
-  void enable() { cooling.state = true;};
-  void disable() { cooling.state = false;};
-  void set_mode(uint8_t mode) { cooling.mode = mode;};
-  void set_flowmeter(const bool sflag) { cooling.flowmeter = sflag;};
-  uint16_t get_flowrate() { return cooling.flowrate;};
-  void update_flowrate(uint16_t flow) { cooling.flowrate = flow;};
-  //static void init_cooler(void);
-
-
-
+  static bool is_enabled()                    { return state; }
+  static void enable()                        { state = true; }
+  static void disable()                       { state = false; }
+  static void set_mode(const uint8_t m)       { mode = m; }
+  static void set_flowmeter(const bool sflag) { flowmeter = sflag; }
+  static uint16_t get_flowrate()              { return flowrate; }
+  static void update_flowrate(uint16_t flow)  { flowrate = flow; }
+  //static void init() { set_state(false); }
 };
+
+extern Cooler cooler;

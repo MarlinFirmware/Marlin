@@ -35,15 +35,12 @@
   #include "../../module/motion.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  #include "../../module/tool_change.h"
+#if HAS_COOLER
+  #include "../../feature/cooler.h"
 #endif
 
-#if ENABLED(HAS_COOLER)
-      #ifndef COOLER_CLASS
-        #include "..\..\feature\cooler.h"
-        extern Cooler cooler;
-      #endif
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+  #include "../../module/tool_change.h"
 #endif
 
 //
@@ -184,7 +181,7 @@ void menu_temperature() {
   // Chamber:
   //
   #if HAS_HEATED_CHAMBER
-    EDIT_ITEM_FAST(int3, MSG_CHAMBER, &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 12, thermalManager.start_watching_chamber);
+    EDIT_ITEM_FAST(int3, MSG_CHAMBER, &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 10, thermalManager.start_watching_chamber);
   #endif
 
   //
@@ -193,7 +190,7 @@ void menu_temperature() {
   #if HAS_COOLER
     editable.state = cooler.is_enabled();
     if (thermalManager.temp_cooler.target == 0) thermalManager.temp_cooler.target = COOLER_DEFAULT_TEMP;
-    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.cooling.state, []{ if (editable.state) cooler.disable(); else cooler.enable();});
+    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.cooling.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
     EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MIN_TEMP + 2, COOLER_MAX_TEMP - 2, thermalManager.start_watching_cooler);
   #endif
 

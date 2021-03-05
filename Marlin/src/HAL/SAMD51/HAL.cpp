@@ -191,7 +191,7 @@ uint16_t HAL_adc_result;
     #endif
     #if GET_COOLER_ADC() == 1
       TEMP_COOLER_PIN,
-    #endif    
+    #endif
     #if GET_FILAMENT_WIDTH_ADC() == 1
       FILWIDTH_PIN,
     #endif
@@ -294,7 +294,7 @@ uint16_t HAL_adc_result;
       #endif
       #if GET_COOLER_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_COOLER_PIN) },
-      #endif      
+      #endif
       #if GET_FILAMENT_WIDTH_ADC() == 1
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
       #endif

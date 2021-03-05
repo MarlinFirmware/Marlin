@@ -367,27 +367,22 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #endif // DO_DRAW_BED
 
 #if DO_DRAW_CHAMBER
-
   FORCE_INLINE void _draw_chamber_status() {
     #if HAS_HEATED_CHAMBER
       if (PAGE_UNDER(7))
         _draw_centered_temp(thermalManager.degTargetChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 7);
     #endif
-
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
       _draw_centered_temp(thermalManager.degChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
   }
-
-#endif // DO_DRAW_CHAMBER
+#endif
 
 #if DO_DRAW_COOLER
-
   FORCE_INLINE void _draw_cooler_status() {
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
       _draw_centered_temp(thermalManager.degCooler(), STATUS_COOLER_TEXT_X, 28);
   }
-
-#endif // DO_DRAW_COOLER
+#endif
 
 //
 // Before homing, blink '123' <-> '???'.
