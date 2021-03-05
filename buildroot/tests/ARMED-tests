@@ -11,8 +11,7 @@ set -e
 #
 restore_configs
 use_example_configs ArmEd
-opt_set X_DRIVER_TYPE TMC2130
-opt_set Y_DRIVER_TYPE TMC2208
+opt_set X_DRIVER_TYPE TMC2130 Y_DRIVER_TYPE TMC2208
 exec_test $1 $2 "ArmEd Example Configuration with mixed TMC Drivers" "$3"
 
 # clean up
