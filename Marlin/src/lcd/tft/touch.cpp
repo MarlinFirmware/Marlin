@@ -192,12 +192,12 @@ void Touch::touch(touch_control_t *control) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.heater_maxtemp[heater] - 15, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
         #endif
       }
-      #if HAS_BED
+      #if HAS_HEATED_BED
         else if (heater == H_BED) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAXTEMP - 10, thermalManager.start_watching_bed);
         }
       #endif
-      #if HAS_CHAMBER
+      #if HAS_HEATED_CHAMBER
         else if (heater == H_CHAMBER) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 10, thermalManager.start_watching_chamber);
         }
@@ -207,7 +207,7 @@ void Touch::touch(touch_control_t *control) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAXTEMP - 8, thermalManager.start_watching_cooler);
         }
       #endif
-      
+
       break;
     case FAN:
       ui.clear_lcd();

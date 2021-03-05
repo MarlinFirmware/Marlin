@@ -624,12 +624,12 @@ private:
     #endif
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
     static void M140();
     static void M190();
   #endif
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     static void M141();
     static void M191();
   #endif
@@ -639,7 +639,7 @@ private:
     static void M193();
   #endif
 
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     static void M145();
   #endif
 

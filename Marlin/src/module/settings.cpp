@@ -303,8 +303,8 @@ typedef struct SettingsDataStruct {
   //
   // Material Presets
   //
-  #if PRESET_TEMP_COUNT
-    preheat_t ui_material_preset[PRESET_TEMP_COUNT];        // M145 S0 H B F
+  #if PREHEAT_COUNT
+    preheat_t ui_material_preset[PREHEAT_COUNT];        // M145 S0 H B F
   #endif
 
   //
@@ -879,7 +879,7 @@ void MarlinSettings::postprocess() {
     //
     // LCD Preheat settings
     //
-    #if PRESET_TEMP_COUNT
+    #if PREHEAT_COUNT
       _FIELD_TEST(ui_material_preset);
       EEPROM_WRITE(ui.material_preset);
     #endif
@@ -1757,7 +1757,7 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
-      #if PRESET_TEMP_COUNT
+      #if PREHEAT_COUNT
         _FIELD_TEST(ui_material_preset);
         EEPROM_READ(ui.material_preset);
       #endif
@@ -2752,21 +2752,21 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     #if HAS_HOTEND
-      constexpr uint16_t hpre[] = ARRAY_N(PRESET_TEMP_COUNT, PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND, PREHEAT_5_TEMP_HOTEND);
+      constexpr uint16_t hpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND, PREHEAT_5_TEMP_HOTEND);
     #endif
-    #if HAS_BED
-      constexpr uint16_t bpre[] = ARRAY_N(PRESET_TEMP_COUNT, PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED, PREHEAT_3_TEMP_BED, PREHEAT_4_TEMP_BED, PREHEAT_5_TEMP_BED);
+    #if HAS_HEATED_BED
+      constexpr uint16_t bpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED, PREHEAT_3_TEMP_BED, PREHEAT_4_TEMP_BED, PREHEAT_5_TEMP_BED);
     #endif
     #if HAS_FAN
-      constexpr uint8_t fpre[] = ARRAY_N(PRESET_TEMP_COUNT, PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED, PREHEAT_3_FAN_SPEED, PREHEAT_4_FAN_SPEED, PREHEAT_5_FAN_SPEED);
+      constexpr uint8_t fpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED, PREHEAT_3_FAN_SPEED, PREHEAT_4_FAN_SPEED, PREHEAT_5_FAN_SPEED);
     #endif
-    LOOP_L_N(i, PRESET_TEMP_COUNT) {
+    LOOP_L_N(i, PREHEAT_COUNT) {
       #if HAS_HOTEND
         ui.material_preset[i].hotend_temp = hpre[i];
       #endif
-      #if HAS_BED
+      #if HAS_HEATED_BED
         ui.material_preset[i].bed_temp = bpre[i];
       #endif
       #if HAS_FAN
@@ -3378,17 +3378,17 @@ void MarlinSettings::reset() {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if PRESET_TEMP_COUNT
+    #if PREHEAT_COUNT
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
-      LOOP_L_N(i, PRESET_TEMP_COUNT) {
+      LOOP_L_N(i, PREHEAT_COUNT) {
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(
           PSTR("  M145 S"), i
           #if HAS_HOTEND
             , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
           #endif
-          #if HAS_BED
+          #if HAS_HEATED_BED
             , SP_B_STR, TEMP_UNIT(ui.material_preset[i].bed_temp)
           #endif
           #if HAS_FAN

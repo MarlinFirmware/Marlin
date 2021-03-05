@@ -47,7 +47,7 @@
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
   INDEX_NONE = -6,
-  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED, 
+  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
   H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
@@ -202,7 +202,7 @@ struct PIDHeaterInfo : public HeaterInfo {
 #else
   typedef heater_info_t hotend_info_t;
 #endif
-#if HAS_BED
+#if HAS_HEATED_BED
   #if ENABLED(PIDTEMPBED)
     typedef struct PIDHeaterInfo<PID_t> bed_info_t;
   #else
@@ -212,7 +212,7 @@ struct PIDHeaterInfo : public HeaterInfo {
 #if HAS_TEMP_PROBE
   typedef temp_info_t probe_info_t;
 #endif
-#if HAS_CHAMBER
+#if HAS_HEATED_CHAMBER
   #if ENABLED(PIDTEMPCHAMBER)
     typedef struct PIDHeaterInfo<PID_t> chamber_info_t;
   #else
@@ -223,7 +223,7 @@ struct PIDHeaterInfo : public HeaterInfo {
 #endif
 #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
-#endif  
+#endif
 
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
@@ -325,7 +325,7 @@ class Temperature {
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
       static const uint16_t heater_maxtemp[HOTENDS];
     #endif
-    TERN_(HAS_BED, static bed_info_t temp_bed);
+    TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
     TERN_(HAS_TEMP_CHAMBER, static chamber_info_t temp_chamber);
     TERN_(HAS_TEMP_COOLER, static cooler_info_t temp_cooler);
@@ -379,7 +379,7 @@ class Temperature {
       #define _ENUM_FOR_E(N) IDLE_INDEX_E##N,
       enum IdleIndex : uint8_t {
         REPEAT(HOTENDS, _ENUM_FOR_E)
-        #if ENABLED(HAS_BED)
+        #if ENABLED(HAS_HEATED_BED)
           IDLE_INDEX_BED,
         #endif
         NR_HEATER_IDLE
@@ -388,7 +388,7 @@ class Temperature {
 
       // Convert the given heater_id_t to idle array index
       static inline IdleIndex idle_index_for_id(const int8_t heater_id) {
-        #if HAS_BED
+        #if HAS_HEATED_BED
           if (heater_id == H_BED) return IDLE_INDEX_BED;
         #endif
         return (IdleIndex)_MAX(heater_id, 0);
@@ -418,7 +418,7 @@ class Temperature {
 
     TERN_(HAS_HOTEND, static temp_range_t temp_range[HOTENDS]);
 
-    #if HAS_BED
+    #if HAS_HEATED_BED
       TERN_(WATCH_BED, static bed_watch_t watch_bed);
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       #ifdef BED_MINTEMP
@@ -429,7 +429,7 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       TERN_(WATCH_CHAMBER, static chamber_watch_t watch_chamber);
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       #ifdef CHAMBER_MINTEMP
@@ -516,7 +516,7 @@ class Temperature {
     #if HAS_HOTEND
       static float analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       static float analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_PROBE
@@ -672,7 +672,7 @@ class Temperature {
 
     #endif // HAS_HOTEND
 
-    #if HAS_BED
+    #if HAS_HEATED_BED
 
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()  { return temp_bed.raw; }
@@ -712,7 +712,7 @@ class Temperature {
         return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
-    #endif // HAS_BED
+    #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_PROBE
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -735,7 +735,7 @@ class Temperature {
         FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
       #endif
       FORCE_INLINE static float degChamber()            { return temp_chamber.celsius; }
-      #if HAS_CHAMBER
+      #if HAS_HEATED_CHAMBER
         FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
         FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.celsius; }
         FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.celsius; }
@@ -750,7 +750,7 @@ class Temperature {
       static inline void start_watching_chamber() {}
     #endif
 
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       static void setTargetChamber(const int16_t celsius) {
         temp_chamber.target =
           #ifdef CHAMBER_MAXTEMP
@@ -853,7 +853,7 @@ class Temperature {
         start_watching_hotend(HOTEND_INDEX);
       }
 
-      #if HAS_BED
+      #if HAS_HEATED_BED
         static void reset_bed_idle_timer() {
           heater_idle[IDLE_INDEX_BED].reset();
           start_watching_bed();

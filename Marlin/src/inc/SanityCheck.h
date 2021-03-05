@@ -419,12 +419,6 @@
   #error "SPINDLE_LASER_ENABLE_PIN is now SPINDLE_LASER_ENA_PIN."
 #elif defined(SPINDLE_DIR_CHANGE)
   #error "SPINDLE_DIR_CHANGE is now SPINDLE_CHANGE_DIR."
-#elif defined(HAS_HEATED_BED)
-  #error "HAS_HEATED_BED is now HAS_BED."
-#elif defined(HAS_HEATED_CHAMBER)
-  #error "HAS_HEATED_CHAMBER is now HAS_CHAMBER."
-#elif defined(PREHEAT_COUNT)
-  #error "PREHEAT_COUNT is now PRESET_TEMP_COUNT."
 #elif defined(SPINDLE_STOP_ON_DIR_CHANGE)
   #error "SPINDLE_STOP_ON_DIR_CHANGE is now SPINDLE_CHANGE_DIR_STOP."
 #elif defined(SPINDLE_LASER_ACTIVE_HIGH)
@@ -1875,7 +1869,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #elif TEMP_SENSOR_6 != 0
   #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_7 != 0
-  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."  
+  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)

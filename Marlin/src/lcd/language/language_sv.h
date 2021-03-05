@@ -80,7 +80,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Välj Origo");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Senaste värde ");
 
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");

@@ -126,7 +126,7 @@ const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_PROBE
     TEMP_PROBE_PIN,
   #endif
-  #if HAS_BED
+  #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
   #if HAS_TEMP_CHAMBER
@@ -186,7 +186,7 @@ enum TempPinIndex : char {
   #if HAS_TEMP_ADC_PROBE
     TEMP_PROBE,
   #endif
-  #if HAS_BED
+  #if HAS_HEATED_BED
     TEMP_BED,
   #endif
   #if HAS_TEMP_CHAMBER
@@ -194,7 +194,7 @@ enum TempPinIndex : char {
   #endif
   #if HAS_TEMP_COOLER
     TEMP_COOLER_PIN,
-  #endif  
+  #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
   #endif
@@ -385,7 +385,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_PROBE
       case TEMP_PROBE_PIN: pin_index = TEMP_PROBE; break;
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
     #if HAS_TEMP_CHAMBER

@@ -518,8 +518,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 }
 
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
-  #if HAS_BED
-    const bool isBed = TERN(HAS_CHAMBER, heater_id == H_BED, heater_id < 0);
+  #if HAS_HEATED_BED
+    const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
     const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
                 t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
@@ -755,7 +755,7 @@ void MarlinUI::draw_status_screen() {
       #if HAS_MULTI_HOTEND
         lcd_moveto(8, 0);
         _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_BED
+      #elif HAS_HEATED_BED
         lcd_moveto(8, 0);
         _draw_bed_status(blink);
       #endif
@@ -773,7 +773,7 @@ void MarlinUI::draw_status_screen() {
       #if HAS_MULTI_HOTEND
         lcd_moveto(10, 0);
         _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_BED
+      #elif HAS_HEATED_BED
         lcd_moveto(10, 0);
         _draw_bed_status(blink);
       #endif
@@ -798,7 +798,7 @@ void MarlinUI::draw_status_screen() {
         // If the first line has two extruder temps,
         // show more temperatures on the next line
 
-        #if HOTENDS > 2 || (HAS_MULTI_HOTEND && HAS_BED)
+        #if HOTENDS > 2 || (HAS_MULTI_HOTEND && HAS_HEATED_BED)
 
           #if HOTENDS > 2
             _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
@@ -807,7 +807,7 @@ void MarlinUI::draw_status_screen() {
 
           _draw_bed_status(blink);
 
-        #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_BED)
+        #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
           #if HAS_DUAL_MIXING
 
@@ -850,14 +850,14 @@ void MarlinUI::draw_status_screen() {
 
           #endif // !HAS_DUAL_MIXING
 
-        #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_BED)
+        #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
       #endif // LCD_WIDTH >= 20
 
       lcd_moveto(LCD_WIDTH - 8, 1);
       _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
-      #if HAS_LEVELING && !HAS_BED
+      #if HAS_LEVELING && !HAS_HEATED_BED
         lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');
       #endif
 
@@ -924,7 +924,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(LCD_WIDTH - 9, 0);
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
-    #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_BED)
+    #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
       lcd_put_wchar(LCD_WIDTH - 1, 0, planner.leveling_active || blink ? '_' : ' ');
     #endif
 
@@ -936,7 +936,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, 1);
     #if HAS_MULTI_HOTEND
       _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-    #elif HAS_BED
+    #elif HAS_HEATED_BED
       _draw_bed_status(blink);
     #endif
 
@@ -952,7 +952,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, 2);
     #if HOTENDS > 2
       _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
-    #elif HAS_MULTI_HOTEND && HAS_BED
+    #elif HAS_MULTI_HOTEND && HAS_HEATED_BED
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1
@@ -1075,7 +1075,7 @@ void MarlinUI::draw_status_screen() {
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
 
-      if (TERN0(HAS_BED, thermalManager.degTargetBed() > 0)) leds |= LED_A;
+      if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) leds |= LED_A;
       if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
       #if HAS_FAN

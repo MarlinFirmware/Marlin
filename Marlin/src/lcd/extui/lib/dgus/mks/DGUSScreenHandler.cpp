@@ -1153,7 +1153,7 @@ void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_
           case VP_E1_PID_I: newvalue = scalePID_i(value); break;
           case VP_E1_PID_D: newvalue = scalePID_d(value); break;
         #endif
-        #if HAS_BED
+        #if HAS_HEATED_BED
           case VP_BED_PID_P: newvalue = value; break;
           case VP_BED_PID_I: newvalue = scalePID_i(value); break;
           case VP_BED_PID_D: newvalue = scalePID_d(value); break;

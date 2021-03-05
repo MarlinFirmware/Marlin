@@ -163,8 +163,8 @@ void GcodeSuite::M360() {
   //
   // Heated Bed
   //
-  config_line(PSTR("HeatedBed"), ENABLED(HAS_BED));
-  #if HAS_BED
+  config_line(PSTR("HeatedBed"), ENABLED(HAS_HEATED_BED));
+  #if HAS_HEATED_BED
     config_line(PSTR("MaxBedTemp"), BED_MAX_TARGET);
   #endif
 

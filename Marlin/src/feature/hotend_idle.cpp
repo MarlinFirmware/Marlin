@@ -80,7 +80,7 @@ void HotendIdleProtection::timed_out() {
     if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
       thermalManager.setTargetHotend(HOTEND_IDLE_NOZZLE_TARGET, e);
   }
-  #if HAS_BED
+  #if HAS_HEATED_BED
     if ((HOTEND_IDLE_BED_TARGET) < thermalManager.degTargetBed())
       thermalManager.setTargetBed(HOTEND_IDLE_BED_TARGET);
   #endif

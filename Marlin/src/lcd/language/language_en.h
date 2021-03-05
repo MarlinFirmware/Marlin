@@ -88,7 +88,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Tramming Wizard");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Select Origin");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Last value ");
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preheat ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");

@@ -189,7 +189,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
         case VP_E1_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E1_PID_D: valuesend = unscalePID_d(value); break;
       #endif
-      #if HAS_BED
+      #if HAS_HEATED_BED
         case VP_BED_PID_P: valuesend = value; break;
         case VP_BED_PID_I: valuesend = unscalePID_i(value); break;
         case VP_BED_PID_D: valuesend = unscalePID_d(value); break;
@@ -405,7 +405,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
         acceptedvalue = thermalManager.temp_hotend[1].target;
         break;
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       case VP_T_Bed_Set:
         thermalManager.setTargetBed(newvalue);
         acceptedvalue = thermalManager.temp_bed.target;
@@ -621,32 +621,32 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
     DEBUG_ECHOLNPGM("HandlePreheat");
 
     uint8_t e_temp = 0;
-    TERN_(HAS_BED, uint8_t bed_temp = 0);
+    TERN_(HAS_HEATED_BED, uint8_t bed_temp = 0);
     const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
     switch (preheat_option) {
       default:
       case 0: // Preheat PLA
         #if defined(PREHEAT_1_TEMP_HOTEND) && defined(PREHEAT_1_TEMP_BED)
           e_temp = PREHEAT_1_TEMP_HOTEND;
-          TERN_(HAS_BED, bed_temp = PREHEAT_1_TEMP_BED);
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_1_TEMP_BED);
         #endif
         break;
       case 1: // Preheat ABS
         #if defined(PREHEAT_2_TEMP_HOTEND) && defined(PREHEAT_2_TEMP_BED)
           e_temp = PREHEAT_2_TEMP_HOTEND;
-          TERN_(HAS_BED, bed_temp = PREHEAT_2_TEMP_BED);
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_2_TEMP_BED);
         #endif
         break;
       case 2: // Preheat PET
         #if defined(PREHEAT_3_TEMP_HOTEND) && defined(PREHEAT_3_TEMP_BED)
           e_temp = PREHEAT_3_TEMP_HOTEND;
-          TERN_(HAS_BED, bed_temp = PREHEAT_3_TEMP_BED);
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_3_TEMP_BED);
         #endif
         break;
       case 3: // Preheat FLEX
         #if defined(PREHEAT_4_TEMP_HOTEND) && defined(PREHEAT_4_TEMP_BED)
           e_temp = PREHEAT_4_TEMP_HOTEND;
-          TERN_(HAS_BED, bed_temp = PREHEAT_4_TEMP_BED);
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_4_TEMP_BED);
         #endif
         break;
       case 7: break; // Custom preheat
@@ -658,13 +658,13 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
         #if HOTENDS >= 1
           case VP_E0_BED_PREHEAT:
             thermalManager.setTargetHotend(e_temp, 0);
-            TERN_(HAS_BED, thermalManager.setTargetBed(bed_temp));
+            TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
             break;
         #endif
         #if HOTENDS >= 2
           case VP_E1_BED_PREHEAT:
             thermalManager.setTargetHotend(e_temp, 1);
-            TERN_(HAS_BED, thermalManager.setTargetBed(bed_temp));
+            TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
             break;
         #endif
     }

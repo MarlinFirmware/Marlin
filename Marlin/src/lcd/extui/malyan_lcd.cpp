@@ -138,7 +138,7 @@ void process_lcd_c_command(const char* command) {
         ExtUI::setTargetTemp_celsius(target_val, ExtUI::extruder_t::E0);
       break;
 
-    #if HAS_BED
+    #if HAS_HEATED_BED
       case 'P': ExtUI::setTargetTemp_celsius(target_val, ExtUI::heater_t::BED); break;
     #endif
 
@@ -173,7 +173,7 @@ void process_lcd_eb_command(const char* command) {
       sprintf_P(message_buffer,
         PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}{TQ:%03i}{TT:%s}"),
         int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
-        #if HAS_BED
+        #if HAS_HEATED_BED
           int(thermalManager.degBed()), thermalManager.degTargetBed(),
         #else
           0, 0,
@@ -308,7 +308,7 @@ void process_lcd_s_command(const char* command) {
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer, PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}"),
         int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
-        #if HAS_BED
+        #if HAS_HEATED_BED
           int(thermalManager.degBed()), thermalManager.degTargetBed()
         #else
           0, 0

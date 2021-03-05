@@ -309,7 +309,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if PRESET_TEMP_COUNT && DISABLED(SLIM_LCD_MENUS)
+#if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
   void _menu_configuration_preheat_settings() {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
@@ -327,7 +327,7 @@ void menu_advanced_settings();
     #if HAS_TEMP_HOTEND
       EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       EDIT_ITEM(uint16_3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
@@ -414,8 +414,8 @@ void menu_configuration() {
   #endif
 
   // Preheat configurations
-  #if PRESET_TEMP_COUNT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PRESET_TEMP_COUNT)
+  #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
+    LOOP_L_N(m, PREHEAT_COUNT)
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 

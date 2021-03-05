@@ -536,9 +536,9 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  TERN_(HAS_BED, bool bed_show_target : 1);
+  TERN_(HAS_HEATED_BED, bool bed_show_target : 1);
 } display_state = {
-  true, true, TERN_(HAS_BED, true)
+  true, true, TERN_(HAS_HEATED_BED, true)
 };
 
 void ST7920_Lite_Status_Screen::draw_temps(uint8_t line, const int16_t temp, const int16_t target, bool showTarget, bool targetStateChange) {
@@ -575,7 +575,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
   display_state.E2_show_target = show_target;
 }
 
-#if HAS_BED
+#if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
     draw_temps(TERN(HAS_MULTI_HOTEND, 2, 1), temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate);
@@ -698,13 +698,13 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if HAS_MULTI_HOTEND
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
-  #if HAS_BED
+  #if HAS_HEATED_BED
     const int16_t  bed_target        = thermalManager.degTargetBed();
   #endif
   static uint16_t last_checksum = 0;
   const uint16_t checksum = blink ^ feedrate_perc ^ fs ^ extruder_1_target
     ^ TERN0(HAS_MULTI_HOTEND, extruder_2_target)
-    ^ TERN0(HAS_BED, bed_target);
+    ^ TERN0(HAS_HEATED_BED, bed_target);
   if (last_checksum == checksum) return false;
   last_checksum = checksum;
   return true;
@@ -722,14 +722,14 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       const int16_t  bed_temp          = thermalManager.degBed(),
                      bed_target        = thermalManager.degTargetBed();
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
     TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
-    TERN_(HAS_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
+    TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
     uint16_t spd = thermalManager.fan_speed[0];
 
@@ -756,7 +756,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 
     // Update the fan and bed animations
     if (spd) draw_fan_icon(blink);
-    TERN_(HAS_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
+    TERN_(HAS_HEATED_BED, draw_heat_icon(bed_target > 0 && blink, bed_target > 0));
   }
 }
 

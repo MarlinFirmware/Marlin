@@ -40,9 +40,9 @@
         #include "..\feature\cooler.h"
         #include "..\feature\spindle_laser.h"
         extern Cooler cooler;
-        extern SpindleLaser cutter; 
-      #endif  
-#endif    
+        extern SpindleLaser cutter;
+      #endif
+#endif
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "motion.h"
@@ -231,12 +231,12 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
  * elimination should (hopefully) optimize out the unused strings.
  */
 
-#if HAS_BED
+#if HAS_HEATED_BED
   #define _BED_PSTR(h) (h) == H_BED ? GET_TEXT(MSG_BED) :
 #else
   #define _BED_PSTR(h)
 #endif
-#if HAS_CHAMBER
+#if HAS_HEATED_CHAMBER
   #define _CHAMBER_PSTR(h) (h) == H_CHAMBER ? GET_TEXT(MSG_CHAMBER) :
 #else
   #define _CHAMBER_PSTR(h)
@@ -361,7 +361,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   Temperature::heater_idle_t Temperature::heater_idle[NR_HEATER_IDLE]; // = { { 0 } }
 #endif
 
-#if HAS_BED
+#if HAS_HEATED_BED
   bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
   #ifdef BED_MINTEMP
@@ -372,11 +372,11 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   #endif
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
-#endif // HAS_BED
+#endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
   chamber_info_t Temperature::temp_chamber; // = { 0 }
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     int16_t fan_chamber_pwm;
     bool flag_chamber_off;
     bool flag_chamber_excess_heat = false;
@@ -390,7 +390,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     #endif
     TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
-  #endif // HAS_CHAMBER
+  #endif // HAS_HEATED_CHAMBER
 #endif // HAS_TEMP_CHAMBER
 
 #if HAS_TEMP_COOLER
@@ -777,10 +777,10 @@ volatile bool Temperature::raw_temps_ready = false;
 
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
-    #if HAS_BED
+    #if HAS_HEATED_BED
       case H_BED: return temp_bed.soft_pwm_amount;
     #endif
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       case H_CHAMBER: return temp_chamber.soft_pwm_amount;
     #endif
     #if HAS_COOLER
@@ -820,7 +820,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       if (temp_chamber.celsius >= CHAMBER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
-    
+
     #if HAS_AUTO_COOLER_FAN
       if (temp_cooler.celsius >= COOLER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[COOLER_FAN_INDEX]));
@@ -912,14 +912,14 @@ inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
 void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_msg, PGM_P const lcd_msg) {
 
   static uint8_t killed = 0;
-  
+
   if (IsRunning() && TERN1(BOGUS_TEMPERATURE_GRACE_PERIOD, killed == 2)) {
     SERIAL_ERROR_START();
     serialprintPGM(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
     if (heater_id >= 0)
       SERIAL_ECHO(heater_id);
-    else if (TERN0(HAS_CHAMBER, heater_id == H_CHAMBER))
+    else if (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER))
       SERIAL_ECHOPGM(STR_HEATER_CHAMBER);
     else if (TERN0(HAS_COOLER, heater_id == H_COOLER))
       SERIAL_ECHOPGM(STR_COOLER);
@@ -955,14 +955,14 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 }
 
 void Temperature::max_temp_error(const heater_id_t heater_id) {
-  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_BED)
+  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(1);
   #endif
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
-  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_BED)
+  #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
   #endif
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
@@ -1299,7 +1299,7 @@ void Temperature::manage_heater() {
     filwidth.update_volumetric();
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
       if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
@@ -1374,9 +1374,9 @@ void Temperature::manage_heater() {
 
     } while (false);
 
-  #endif // HAS_BED
+  #endif // HAS_HEATED_BED
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
 
     #ifndef CHAMBER_CHECK_INTERVAL
       #define CHAMBER_CHECK_INTERVAL 1000UL
@@ -1492,7 +1492,7 @@ void Temperature::manage_heater() {
      #endif
    #endif
 
-  #endif // HAS_CHAMBER
+  #endif // HAS_HEATED_CHAMBER
 
   #if HAS_COOLER
 
@@ -1521,7 +1521,7 @@ void Temperature::manage_heater() {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
         if (temp_cooler.celsius > temp_cooler.target) {
           temp_cooler.soft_pwm_amount = temp_cooler.celsius > temp_cooler.target ? MAX_COOLER_POWER : 0;
-          flag_cooler_state = temp_cooler.soft_pwm_amount > 0 ? true : false; // used to allow M106 fan control when cooler is disabled 
+          flag_cooler_state = temp_cooler.soft_pwm_amount > 0 ? true : false; // used to allow M106 fan control when cooler is disabled
           #if ENABLED(COOLER_FAN)
             fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
             NOMORE(fan_cooler_pwm, 255);
@@ -1546,7 +1546,7 @@ void Temperature::manage_heater() {
       if (flag_cooler_state == true) {
         thermalManager.set_fan_speed(COOLER_FAN_INDEX,0);
         flag_cooler_state = false;
-      }  
+      }
       WRITE_COOLER(LOW);
     }
 
@@ -1621,7 +1621,7 @@ void Temperature::manage_heater() {
       #endif
       #if TEMP_SENSOR_COOLER_IS_CUSTOM
         { true, 0, 0, COOLER_PULLUP_RESISTOR_OHMS, COOLER_RESISTANCE_25C_OHMS, 0, 0, COOLER_BETA, 0 }
-      #endif  
+      #endif
       #if TEMP_SENSOR_PROBE_IS_CUSTOM
         { true, 0, 0, PROBE_PULLUP_RESISTOR_OHMS, PROBE_RESISTANCE_25C_OHMS, 0, 0, PROBE_BETA, 0 }
       #endif
@@ -1818,7 +1818,7 @@ void Temperature::manage_heater() {
   }
 #endif // HAS_HOTEND
 
-#if HAS_BED
+#if HAS_HEATED_BED
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog_to_celsius_bed(const int raw) {
@@ -1835,7 +1835,7 @@ void Temperature::manage_heater() {
       return 0;
     #endif
   }
-#endif // HAS_BED
+#endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
   // Derived from RepRap FiveD extruder::getTemperature()
@@ -1906,7 +1906,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   #endif
-  TERN_(HAS_BED, temp_bed.celsius = analog_to_celsius_bed(temp_bed.raw));
+  TERN_(HAS_HEATED_BED, temp_bed.celsius = analog_to_celsius_bed(temp_bed.raw));
   TERN_(HAS_TEMP_CHAMBER, temp_chamber.celsius = analog_to_celsius_chamber(temp_chamber.raw));
   TERN_(HAS_TEMP_COOLER, temp_cooler.celsius = analog_to_celsius_cooler(temp_cooler.raw));
   TERN_(HAS_TEMP_PROBE, temp_probe.celsius = analog_to_celsius_probe(temp_probe.raw));
@@ -2048,7 +2048,7 @@ void Temperature::init() {
     OUT_WRITE(HEATER_7_PIN, HEATER_7_INVERTING);
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
     #ifdef BOARD_OPENDRAIN_MOSFETS
       OUT_WRITE_OD(HEATER_BED_PIN, HEATER_BED_INVERTING);
     #else
@@ -2056,7 +2056,7 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     OUT_WRITE(HEATER_CHAMBER_PIN, HEATER_CHAMBER_INVERTING);
   #endif
 
@@ -2259,16 +2259,16 @@ void Temperature::init() {
 
   #endif // HAS_HOTEND
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
     #ifdef BED_MINTEMP
       while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
     #ifdef BED_MAXTEMP
       while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
     #endif
-  #endif // HAS_BED
+  #endif // HAS_HEATED_BED
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     #ifdef CHAMBER_MINTEMP
       while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
     #endif
@@ -2450,13 +2450,13 @@ void Temperature::disable_all_heaters() {
     REPEAT(HOTENDS, DISABLE_HEATER);
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
     setTargetBed(0);
     temp_bed.soft_pwm_amount = 0;
     WRITE_BED(LOW);
   #endif
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     setTargetChamber(0);
     temp_chamber.soft_pwm_amount = 0;
     WRITE_CHAMBER(LOW);
@@ -2476,8 +2476,8 @@ void Temperature::disable_all_heaters() {
     #if HAS_HOTEND
       HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
-    return TERN0(HAS_BED, degTargetBed() > BED_MINTEMP)
-        || TERN0(HAS_CHAMBER, degTargetChamber() > CHAMBER_MINTEMP);
+    return TERN0(HAS_HEATED_BED, degTargetBed() > BED_MINTEMP)
+        || TERN0(HAS_HEATED_CHAMBER, degTargetChamber() > CHAMBER_MINTEMP);
   }
 
   void Temperature::auto_job_check_timer(const bool can_start, const bool can_stop) {
@@ -2499,11 +2499,11 @@ void Temperature::disable_all_heaters() {
       paused = p;
       if (p) {
         HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
+        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
       }
       else {
         HOTEND_LOOP() reset_hotend_idle_timer(e);
-        TERN_(HAS_BED, reset_bed_idle_timer());
+        TERN_(HAS_HEATED_BED, reset_bed_idle_timer());
       }
     }
   }
@@ -2753,7 +2753,7 @@ void Temperature::readings_ready() {
     TERN_(TEMP_SENSOR_1_AS_REDUNDANT, temp_hotend[1].reset());
   #endif
 
-  TERN_(HAS_BED, temp_bed.reset());
+  TERN_(HAS_HEATED_BED, temp_bed.reset());
   TERN_(HAS_TEMP_CHAMBER, temp_chamber.reset());
   TERN_(HAS_TEMP_PROBE, temp_probe.reset());
   TERN_(HAS_TEMP_COOLER, temp_cooler.reset());
@@ -2809,7 +2809,7 @@ void Temperature::readings_ready() {
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif
 
-  #if BOTH(HAS_CHAMBER, THERMAL_PROTECTION_CHAMBER)
+  #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
     #if TEMPDIR(CHAMBER) < 0
       #define CHAMBERCMP(A,B) ((A)<(B))
     #else
@@ -2908,11 +2908,11 @@ void Temperature::tick() {
     static SoftPWM soft_pwm_hotend[HOTENDS];
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
     static SoftPWM soft_pwm_bed;
   #endif
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
     static SoftPWM soft_pwm_chamber;
   #endif
 
@@ -2924,14 +2924,14 @@ void Temperature::tick() {
 
   #if DISABLED(SLOW_PWM_HEATERS)
 
-    #if ANY(HAS_HOTEND, HAS_BED, HAS_CHAMBER, HAS_COOLER, FAN_SOFT_PWM)
+    #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_HEATED_CHAMBER, HAS_COOLER, FAN_SOFT_PWM)
       constexpr uint8_t pwm_mask = TERN0(SOFT_PWM_DITHER, _BV(SOFT_PWM_SCALE) - 1);
       #define _PWM_MOD(N,S,T) do{                           \
         const bool on = S.add(pwm_mask, T.soft_pwm_amount); \
         WRITE_##N(on);                               \
       }while(0)
     #endif
-    
+
     /**
      * Standard heater PWM modulation
      */
@@ -2943,11 +2943,11 @@ void Temperature::tick() {
         REPEAT(HOTENDS, _PWM_MOD_E);
       #endif
 
-      #if HAS_BED
+      #if HAS_HEATED_BED
         _PWM_MOD(BED,soft_pwm_bed,temp_bed);
       #endif
 
-      #if HAS_CHAMBER
+      #if HAS_HEATED_CHAMBER
         _PWM_MOD(CHAMBER,soft_pwm_chamber,temp_chamber);
       #endif
 
@@ -2994,11 +2994,11 @@ void Temperature::tick() {
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
 
-      #if HAS_BED
+      #if HAS_HEATED_BED
         _PWM_LOW(BED, soft_pwm_bed);
       #endif
 
-      #if HAS_CHAMBER
+      #if HAS_HEATED_CHAMBER
         _PWM_LOW(CHAMBER, soft_pwm_chamber);
       #endif
 
@@ -3064,11 +3064,11 @@ void Temperature::tick() {
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
 
-      #if HAS_BED
+      #if HAS_HEATED_BED
         _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
       #endif
 
-      #if HAS_CHAMBER
+      #if HAS_HEATED_CHAMBER
         _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
       #endif
 
@@ -3083,11 +3083,11 @@ void Temperature::tick() {
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
 
-    #if HAS_BED
+    #if HAS_HEATED_BED
       _PWM_OFF(BED, soft_pwm_bed);
     #endif
 
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       _PWM_OFF(CHAMBER, soft_pwm_chamber);
     #endif
 
@@ -3172,8 +3172,8 @@ void Temperature::tick() {
       #if HAS_HOTEND
         HOTEND_LOOP() soft_pwm_hotend[e].dec();
       #endif
-      TERN_(HAS_BED, soft_pwm_bed.dec());
-      TERN_(HAS_CHAMBER, soft_pwm_chamber.dec());
+      TERN_(HAS_HEATED_BED, soft_pwm_bed.dec());
+      TERN_(HAS_HEATED_CHAMBER, soft_pwm_chamber.dec());
       TERN_(HAS_COOLER, soft_pwm_cooler.dec());
     }
 
@@ -3394,7 +3394,7 @@ void Temperature::tick() {
       #endif
       #if HAS_TEMP_COOLER
         case H_COOLER: k = 'L'; break;
-      #endif      
+      #endif
       #if HAS_TEMP_PROBE
         case H_PROBE: k = 'P'; break;
       #endif
@@ -3447,7 +3447,7 @@ void Temperature::tick() {
         );
       #endif
     #endif
-    #if HAS_BED
+    #if HAS_HEATED_BED
       print_heater_state(degBed(), degTargetBed()
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawBedTemp()
@@ -3457,7 +3457,7 @@ void Temperature::tick() {
     #endif
     #if HAS_TEMP_CHAMBER
       print_heater_state(degChamber()
-        #if HAS_CHAMBER
+        #if HAS_HEATED_CHAMBER
           , degTargetChamber()
         #else
           , 0
@@ -3480,7 +3480,7 @@ void Temperature::tick() {
         #endif
         , H_COOLER
       );
-    #endif // HAS_TEMP_COOLER    
+    #endif // HAS_TEMP_COOLER
     #if HAS_TEMP_PROBE
       print_heater_state(degProbe(), 0
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -3498,10 +3498,10 @@ void Temperature::tick() {
       );
     #endif
     SERIAL_ECHOPAIR(" @:", getHeaterPower((heater_id_t)target_extruder));
-    #if HAS_BED
+    #if HAS_HEATED_BED
       SERIAL_ECHOPAIR(" B@:", getHeaterPower(H_BED));
     #endif
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       SERIAL_ECHOPAIR(" C@:", getHeaterPower(H_CHAMBER));
     #endif
     #if HAS_COOLER
@@ -3681,7 +3681,7 @@ void Temperature::tick() {
 
   #endif // HAS_TEMP_HOTEND
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
 
     #ifndef MIN_COOLING_SLOPE_DEG_BED
       #define MIN_COOLING_SLOPE_DEG_BED 1.00
@@ -3810,7 +3810,7 @@ void Temperature::tick() {
       }
     }
 
-  #endif // HAS_BED
+  #endif // HAS_HEATED_BED
 
   #if HAS_TEMP_PROBE
 
@@ -3883,7 +3883,7 @@ void Temperature::tick() {
 
   #endif // HAS_TEMP_PROBE
 
-  #if HAS_CHAMBER
+  #if HAS_HEATED_CHAMBER
 
     #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER
       #define MIN_COOLING_SLOPE_DEG_CHAMBER 1.50
@@ -3978,7 +3978,7 @@ void Temperature::tick() {
       return false;
     }
 
-  #endif // HAS_CHAMBER
+  #endif // HAS_HEATED_CHAMBER
 
   #if HAS_COOLER
 

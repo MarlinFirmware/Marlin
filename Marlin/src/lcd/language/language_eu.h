@@ -57,7 +57,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Etxe. offset eza.");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsetak ezarrita");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Hasiera ipini");
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Berotu ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
@@ -100,7 +100,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Sarea editatu");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Sarea editatzea eginda");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Sarea sortu");
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("$ sarea sortu");
     PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("$ sarea balioetsi");
   #endif

@@ -72,11 +72,11 @@ void GcodeSuite::M104() {
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
-      temp = ui.material_preset[_MIN(index, PRESET_TEMP_COUNT - 1)].hotend_temp;
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
     }
   #endif
 
@@ -148,11 +148,11 @@ void GcodeSuite::M109() {
   int16_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
-      temp = ui.material_preset[_MIN(index, PRESET_TEMP_COUNT - 1)].hotend_temp;
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
     }
   #endif
 

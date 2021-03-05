@@ -36,7 +36,7 @@ PrinterEventLEDs printerEventLEDs;
   bool PrinterEventLEDs::leds_off_after_print; // = false
 #endif
 
-#if HAS_TEMP_HOTEND || HAS_BED
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   uint8_t PrinterEventLEDs::old_intensity = 0;
 
@@ -68,7 +68,7 @@ PrinterEventLEDs printerEventLEDs;
 
 #endif
 
-#if HAS_BED
+#if HAS_HEATED_BED
 
   void PrinterEventLEDs::onBedHeating(const float &start, const float &current, const float &target) {
     const uint8_t red = pel_intensity(start, current, target);
@@ -80,7 +80,7 @@ PrinterEventLEDs printerEventLEDs;
 
 #endif
 
-#if HAS_CHAMBER
+#if HAS_HEATED_CHAMBER
 
   void PrinterEventLEDs::onChamberHeating(const float &start, const float &current, const float &target) {
     const uint8_t green = pel_intensity(start, current, target);

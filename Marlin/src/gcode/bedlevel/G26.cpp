@@ -371,7 +371,7 @@ inline bool turn_on_heaters() {
 
   SERIAL_ECHOLNPGM("Waiting for heatup.");
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
 
     if (g26_bed_temp > 25) {
       #if HAS_WIRED_LCD
@@ -390,7 +390,7 @@ inline bool turn_on_heaters() {
       ) return G26_ERR;
     }
 
-  #endif // HAS_BED
+  #endif // HAS_HEATED_BED
 
   // Start heating the active nozzle
   #if HAS_WIRED_LCD
@@ -526,17 +526,17 @@ void GcodeSuite::G26() {
        g26_keep_heaters_on       = parser.boolval('K');
 
   // Accept 'I' if temperature presets are defined
-  #if PRESET_TEMP_COUNT
-    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PRESET_TEMP_COUNT - 1) + 1 : 0;
+  #if PREHEAT_COUNT
+    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0;
   #endif
 
-  #if HAS_BED
+  #if HAS_HEATED_BED
 
     // Get a temperature from 'I' or 'B'
     int16_t bedtemp = 0;
 
     // Use the 'I' index if temperature presets are defined
-    #if PRESET_TEMP_COUNT
+    #if PREHEAT_COUNT
       if (preset_index) bedtemp = ui.material_preset[preset_index - 1].bed_temp;
     #endif
 
@@ -551,7 +551,7 @@ void GcodeSuite::G26() {
       g26_bed_temp = bedtemp;
     }
 
-  #endif // HAS_BED
+  #endif // HAS_HEATED_BED
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -619,7 +619,7 @@ void GcodeSuite::G26() {
   int16_t noztemp = 0;
 
   // Accept 'I' if temperature presets are defined
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     if (preset_index) noztemp = ui.material_preset[preset_index - 1].hotend_temp;
   #endif
 
@@ -872,7 +872,7 @@ void GcodeSuite::G26() {
   TERN_(HAS_LCD_MENU, ui.release()); // Give back control of the LCD
 
   if (!g26_keep_heaters_on) {
-    TERN_(HAS_BED, thermalManager.setTargetBed(0));
+    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
     thermalManager.setTargetHotend(active_extruder, 0);
   }
 }

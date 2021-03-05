@@ -91,7 +91,7 @@
 //
 // Bed
 //
-#if !STATUS_BED_WIDTH && HAS_BED && DISABLED(STATUS_COMBINE_HEATERS)
+#if !STATUS_BED_WIDTH && HAS_HEATED_BED && DISABLED(STATUS_COMBINE_HEATERS)
   #include "status/bed.h"
 #endif
 #ifndef STATUS_BED_WIDTH
@@ -101,7 +101,7 @@
 //
 // Chamber
 //
-#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_BED) || (HOTENDS <= 3 && HAS_BED))
+#if !STATUS_CHAMBER_WIDTH && HAS_TEMP_CHAMBER && ((HOTENDS <= 4 && !HAS_HEATED_BED) || (HOTENDS <= 3 && HAS_HEATED_BED))
   #include "status/chamber.h"
 #endif
 #ifndef STATUS_CHAMBER_WIDTH
@@ -111,7 +111,7 @@
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_OR_CHAMBER) || BOTH(STATUS_COMBINE_HEATERS, HAS_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && BED_OR_CHAMBER) || BOTH(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -221,7 +221,7 @@
         ((STATUS_CHAMBER_WIDTH || STATUS_FAN_WIDTH  ||  STATUS_BED_WIDTH) && STATUS_HOTEND_BITMAPS == 4)
     #define STATUS_HEATERS_X 5
   #else
-    #if BOTH(STATUS_COMBINE_HEATERS, HAS_BED) && HOTENDS <= 4
+    #if BOTH(STATUS_COMBINE_HEATERS, HAS_HEATED_BED) && HOTENDS <= 4
       #define STATUS_HEATERS_X 5
     #else
       #define STATUS_HEATERS_X 8 // Like the included bitmaps
@@ -630,7 +630,7 @@
 #if HOTENDS > 0
   #define DO_DRAW_HOTENDS 1
 #endif
-#if HAS_BED && HOTENDS <= 4
+#if HAS_HEATED_BED && HOTENDS <= 4
   #define DO_DRAW_BED 1
 #endif
 #if HAS_CUTTER && !DO_DRAW_BED

@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_CHAMBER
+#if HAS_HEATED_CHAMBER
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
@@ -86,4 +86,4 @@ void GcodeSuite::M191() {
   }
 }
 
-#endif // HAS_CHAMBER
+#endif // HAS_HEATED_CHAMBER

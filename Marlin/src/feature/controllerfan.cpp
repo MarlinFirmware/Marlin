@@ -77,7 +77,7 @@ void ControllerFan::update() {
     );
 
     // If any of the drivers or the heated bed are enabled...
-    if (motor_on || TERN0(HAS_BED, thermalManager.temp_bed.soft_pwm_amount > 0))
+    if (motor_on || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0))
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:

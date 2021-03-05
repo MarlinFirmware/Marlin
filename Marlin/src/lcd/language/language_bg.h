@@ -45,7 +45,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Паркиране");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Изходна точка");
-  #if PRESET_TEMP_COUNT
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Подгряване ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");

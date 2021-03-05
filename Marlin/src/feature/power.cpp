@@ -80,17 +80,17 @@ bool Power::is_power_needed() {
       REPEAT(E_STEPPERS, _OR_ENABLED_E)
     #endif
   ) return true;
-  
+
   #if HAS_HOTEND
     HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
   #endif
-  if (TERN0(HAS_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
+  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
   #endif
 
-  #if HAS_CHAMBER && AUTO_POWER_CHAMBER_TEMP
+  #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
     if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
   #endif
 

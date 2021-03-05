@@ -369,7 +369,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #if DO_DRAW_CHAMBER
 
   FORCE_INLINE void _draw_chamber_status() {
-    #if HAS_CHAMBER
+    #if HAS_HEATED_CHAMBER
       if (PAGE_UNDER(7))
         _draw_centered_temp(thermalManager.degTargetChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 7);
     #endif
@@ -459,7 +459,7 @@ void MarlinUI::draw_status_screen() {
         HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, HEATBIT_HOTEND + e);
       #endif
       if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
-      #if DO_DRAW_CHAMBER && HAS_CHAMBER
+      #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
       #endif
       #if DO_DRAW_COOLER && HAS_COOLER
