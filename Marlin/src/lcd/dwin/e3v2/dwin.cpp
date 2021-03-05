@@ -167,7 +167,7 @@ typedef struct {
 } select_t;
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
-         , select_control{0}, select_axis{0}, select_point{0}, select_mmesh{0}, select_temp{0}, select_motion{0}, select_tune{0}
+         , select_control{0}, select_FilMan{0}, select_axis{0}, select_point{0}, select_mmesh{0}, select_temp{0}, select_motion{0}, select_tune{0}
          , select_PLA{0}, select_ABS{0}
          , select_speed{0}
          , select_acc{0}
@@ -515,11 +515,11 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
 #define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
 
-//#define PREPARE_CASE_FMAN  1  // Filament management
-#define PREPARE_CASE_MOVE  1
-#define PREPARE_CASE_MLEV  2
-#define PREPARE_CASE_DISA  3
-#define PREPARE_CASE_HOME  4 
+#define PREPARE_CASE_FMAN  1  // Filament management
+#define PREPARE_CASE_MOVE  2
+#define PREPARE_CASE_MLEV  3
+#define PREPARE_CASE_DISA  4
+#define PREPARE_CASE_HOME  5 
 #define PREPARE_CASE_MMESH (PREPARE_CASE_HOME + ENABLED(MESH_BED_LEVELING))
 #define PREPARE_CASE_ZOFF (PREPARE_CASE_MMESH + ENABLED(HAS_ZOFFSET_ITEM))
 #define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_HOTEND))
@@ -619,14 +619,18 @@ void Item_Prepare_ManualLev(const uint8_t row) {
   Draw_More_Icon(row);
 }
 
-#if ENABLED(MESH_BED_LEVELING)
+void Item_Prepare_FilMan(const uint8_t row) {
+  DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_FILAMENT_MAN));
+  Draw_Menu_Line(row, ICON_ResumeEEPROM);
+  Draw_More_Icon(row);
+}
 
+#if ENABLED(MESH_BED_LEVELING)
 void Item_Prepare_ManualMesh(const uint8_t row) {
   DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_MANUAL_MESH));
   Draw_Menu_Line(row, ICON_PrintSize);
   Draw_More_Icon(row);
 }  
-
 #endif
 
 #if HAS_ZOFFSET_ITEM
@@ -741,12 +745,13 @@ void Draw_Prepare_Menu() {
   }
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
+  if (PVISI(PREPARE_CASE_FMAN)) Item_Prepare_FilMan(PSCROL(PREPARE_CASE_FMAN));   // Filament Management >
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
   if (PVISI(PREPARE_CASE_MLEV)) Item_Prepare_ManualLev(PSCROL(PREPARE_CASE_MLEV));// Manual Leveling >
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
   #if ENABLED(MESH_BED_LEVELING)
-    if (PVISI(PREPARE_CASE_MLEV)) Item_Prepare_ManualMesh(PSCROL(PREPARE_CASE_MMESH));// Manual Mesh >
+    if (PVISI(PREPARE_CASE_MMESH)) Item_Prepare_ManualMesh(PSCROL(PREPARE_CASE_MMESH));// Manual Mesh >
   #endif
   #if HAS_ZOFFSET_ITEM
     if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
@@ -2411,6 +2416,20 @@ void Draw_Move_Menu() {
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MoveX + i);
 }
 
+void Draw_FilamentMan_Menu(){
+  Clear_Main_Window();
+  Draw_Title(GET_TEXT_F(MSG_FILAMENT_MAN));
+  DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_FILAMENTCHANGE));
+  Draw_Menu_Line(1, ICON_ResumeEEPROM);
+  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_FILAMENTUNLOAD));
+  Draw_Menu_Line(2, ICON_ReadEEPROM);
+  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_FILAMENTLOAD));
+  Draw_Menu_Line(3, ICON_WriteEEPROM);
+  
+  Draw_Back_First(select_FilMan.now == 0);
+  if (select_FilMan.now) Draw_Menu_Cursor(select_FilMan.now);
+}
+
 void Draw_ManualLev_Menu() {
   Clear_Main_Window();
   Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
@@ -2478,6 +2497,9 @@ void HMI_Prepare() {
         // Draw "More" icon for sub-menus
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
+        #if ENABLED(MESH_BED_LEVELING)
+        if (index_prepare == PREPARE_CASE_MMESH) Item_Prepare_ManualMesh(MROWS);// M.A.R.C. Manual Mesh
+        #endif
         #if HAS_ZOFFSET_ITEM
          if (index_prepare == PREPARE_CASE_ZOFF) Item_Prepare_Offset(MROWS); // M.A.R.C. Show Edit Z-Offset
         #endif
@@ -2508,12 +2530,13 @@ void HMI_Prepare() {
 
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
-             if (index_prepare == 6) Item_Prepare_Move(0);
-        else if (index_prepare == 7) Item_Prepare_ManualLev(0);
-        else if (index_prepare == 8) Item_Prepare_Disable(0);
-        else if (index_prepare == 9) Item_Prepare_Home(0);
+             if (index_prepare == 6) Item_Prepare_FilMan(0);
+        else if (index_prepare == 7) Item_Prepare_Move(0);
+        else if (index_prepare == 8) Item_Prepare_ManualLev(0);
+        else if (index_prepare == 9) Item_Prepare_Disable(0);
+        else if (index_prepare == 10) Item_Prepare_Home(0);
       #if ENABLED(MESH_BED_LEVELING)
-        else if (index_prepare == 10) Item_Prepare_ManualMesh(0);
+        else if (index_prepare == 11) Item_Prepare_ManualMesh(0);
       #endif  
       }
       else {
@@ -2527,6 +2550,11 @@ void HMI_Prepare() {
         select_page.set(1);
         Goto_MainMenu();
         break;
+      case PREPARE_CASE_FMAN: // Filament Management
+        checkkey = FilamentMan;
+        select_FilMan.reset();
+        Draw_FilamentMan_Menu();
+        break; 
       case PREPARE_CASE_MOVE: // Axis move
         checkkey = AxisMove;
         select_axis.reset();
@@ -2860,6 +2888,40 @@ void HMI_AxisMove() {
             EncoderRate.enabled = true;
             break;
         #endif
+    }
+  }
+  DWIN_UpdateLCD();
+}
+
+/* Filament Management */
+void HMI_FilamentMan(){
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_FilMan.inc(1 + 3)) Move_Highlight(1, select_FilMan.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_FilMan.dec()) Move_Highlight(-1, select_FilMan.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    switch (select_FilMan.now) {
+      case 0: // Back
+        checkkey = Prepare;
+        select_prepare.set(1);
+        index_prepare = MROWS;
+        Draw_Prepare_Menu();
+        break;
+      case 1: // Filament Change
+        queue.inject_P(PSTR("M600 B2"));
+        break;
+      case 2: // Unload Filament
+        queue.inject_P(PSTR("M702 Z20"));
+        break;
+      case 3: // Load Filament
+        queue.inject_P(PSTR("M701 Z20"));
+        break;
     }
   }
   DWIN_UpdateLCD();
@@ -3988,6 +4050,7 @@ void DWIN_HandleScreen() {
     case Leveling:        break;
     case PrintProcess:    HMI_Printing(); break;
     case Print_window:    HMI_PauseOrStop(); break;
+    case FilamentMan:     HMI_FilamentMan(); break;
     case AxisMove:        HMI_AxisMove(); break;
     case ManualLev:       HMI_ManualLev(); break;
     #if ENABLED(MESH_BED_LEVELING)

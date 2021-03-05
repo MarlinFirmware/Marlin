@@ -46,6 +46,7 @@ enum processID : uint8_t {
   Control,
   Leveling,
   PrintProcess,
+  FilamentMan,
   AxisMove,
   ManualLev,
   ManualMesh,
