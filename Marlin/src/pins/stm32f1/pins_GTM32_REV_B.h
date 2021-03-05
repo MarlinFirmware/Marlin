@@ -25,9 +25,7 @@
  * Geeetech GTM32 Rev. B board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "GTM32 Rev B"
 #define DEFAULT_MACHINE_NAME "M201"
