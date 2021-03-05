@@ -190,7 +190,7 @@ void menu_temperature() {
   #if HAS_COOLER
     editable.state = cooler.is_enabled();
     if (thermalManager.temp_cooler.target == 0) thermalManager.temp_cooler.target = COOLER_DEFAULT_TEMP;
-    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.cooling.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
+    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
     EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MIN_TEMP + 2, COOLER_MAX_TEMP - 2, thermalManager.start_watching_cooler);
   #endif
 
