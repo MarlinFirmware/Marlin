@@ -364,6 +364,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           break;
       #endif
 
+      #if HAS_MESH
+        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
+      #endif
+
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
         case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
         case 54: G54(); break;                                    // G54: Switch to Workspace 1
@@ -391,10 +395,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
-
-      #if HAS_MESH
-        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
-      #endif
 
       #if ENABLED(CALIBRATION_GCODE)
         case 425: G425(); break;                                  // G425: Perform calibration with calibration cube

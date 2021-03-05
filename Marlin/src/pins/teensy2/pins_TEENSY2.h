@@ -107,9 +107,7 @@
  *       E DIR   35 a7  a3 31 Y DIR
  */
 
-#if NOT_TARGET(__AVR_AT90USB1286__)
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Teensy++2.0"
 

@@ -40,21 +40,21 @@
    *    X = Alpha (Tower 1) angle trim
    *    Y = Beta  (Tower 2) angle trim
    *    Z = Gamma (Tower 3) angle trim
-   *    A = Alpha (Tower 1) digonal rod trim
-   *    B = Beta  (Tower 2) digonal rod trim
-   *    C = Gamma (Tower 3) digonal rod trim
+   *    A = Alpha (Tower 1) diagonal rod trim
+   *    B = Beta  (Tower 2) diagonal rod trim
+   *    C = Gamma (Tower 3) diagonal rod trim
    */
   void GcodeSuite::M665() {
-    if (parser.seen('H')) delta_height              = parser.value_linear_units();
-    if (parser.seen('L')) delta_diagonal_rod        = parser.value_linear_units();
-    if (parser.seen('R')) delta_radius              = parser.value_linear_units();
-    if (parser.seen('S')) delta_segments_per_second = parser.value_float();
-    if (parser.seen('X')) delta_tower_angle_trim.a  = parser.value_float();
-    if (parser.seen('Y')) delta_tower_angle_trim.b  = parser.value_float();
-    if (parser.seen('Z')) delta_tower_angle_trim.c  = parser.value_float();
-    if (parser.seen('A')) delta_diagonal_rod_trim.a = parser.value_float();
-    if (parser.seen('B')) delta_diagonal_rod_trim.b = parser.value_float();
-    if (parser.seen('C')) delta_diagonal_rod_trim.c = parser.value_float();
+    if (parser.seenval('H')) delta_height              = parser.value_linear_units();
+    if (parser.seenval('L')) delta_diagonal_rod        = parser.value_linear_units();
+    if (parser.seenval('R')) delta_radius              = parser.value_linear_units();
+    if (parser.seenval('S')) segments_per_second       = parser.value_float();
+    if (parser.seenval('X')) delta_tower_angle_trim.a  = parser.value_float();
+    if (parser.seenval('Y')) delta_tower_angle_trim.b  = parser.value_float();
+    if (parser.seenval('Z')) delta_tower_angle_trim.c  = parser.value_float();
+    if (parser.seenval('A')) delta_diagonal_rod_trim.a = parser.value_float();
+    if (parser.seenval('B')) delta_diagonal_rod_trim.b = parser.value_float();
+    if (parser.seenval('C')) delta_diagonal_rod_trim.c = parser.value_float();
     recalc_delta_settings();
   }
 
@@ -76,7 +76,7 @@
    *   B, T, and Y are all aliases for the elbow angle
    */
   void GcodeSuite::M665() {
-    if (parser.seenval('S')) delta_segments_per_second = parser.value_float();
+    if (parser.seenval('S')) segments_per_second = parser.value_float();
 
     #if HAS_SCARA_OFFSET
 
