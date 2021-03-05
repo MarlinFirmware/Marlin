@@ -119,7 +119,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
 
 void DGUSDisplay::WriteVariable(uint16_t adr, int16_t value) {
   value = (value & 0xffU) << 8U | (value >> 8U);
-  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(int16_t));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint8_t value) {
