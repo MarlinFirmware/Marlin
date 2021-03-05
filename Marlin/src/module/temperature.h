@@ -877,7 +877,7 @@ class Temperature {
     TERN_(HAS_DISPLAY, static void set_heating_message(const uint8_t e));
 
     #if HAS_LCD_MENU && HAS_TEMPERATURE
-      static void lcd_preset_temp(const int16_t e, const int8_t indh, const int8_t indb);
+      static void lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb);
     #endif
 
   private:

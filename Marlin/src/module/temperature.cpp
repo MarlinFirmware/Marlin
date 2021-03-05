@@ -703,9 +703,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
         #if EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
           PGM_P const estring = GHV(PSTR("chamber"), PSTR("bed"), NUL_STR);
-          say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
-          say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
-          say_default_(); serialprintPGM(estring); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);
+          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
+          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
+          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPAIR("Kd ", tune_pid.Kd);
         #else
           say_default_(); SERIAL_ECHOLNPAIR("Kp ", tune_pid.Kp);
           say_default_(); SERIAL_ECHOLNPAIR("Ki ", tune_pid.Ki);
@@ -915,7 +915,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 
   if (IsRunning() && TERN1(BOGUS_TEMPERATURE_GRACE_PERIOD, killed == 2)) {
     SERIAL_ERROR_START();
-    serialprintPGM(serial_msg);
+    SERIAL_ECHOPGM_P(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
     if (heater_id >= 0)
       SERIAL_ECHO(heater_id);
@@ -1345,7 +1345,7 @@ void Temperature::manage_heater() {
         if (heater_idle[IDLE_INDEX_BED].timed_out) {
           temp_bed.soft_pwm_amount = 0;
           #if DISABLED(PIDTEMPBED)
-            WRITE_BED(LOW);
+            WRITE_HEATER_BED(LOW);
           #endif
         }
         else
@@ -1367,7 +1367,7 @@ void Temperature::manage_heater() {
           }
           else {
             temp_bed.soft_pwm_amount = 0;
-            WRITE_BED(LOW);
+            WRITE_HEATER_BED(LOW);
           }
         #endif
       }
@@ -1484,7 +1484,7 @@ void Temperature::manage_heater() {
         }
         else {
           temp_chamber.soft_pwm_amount = 0;
-          WRITE_CHAMBER(LOW);
+          WRITE_HEATER_CHAMBER(LOW);
         }
      }
      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
@@ -1644,7 +1644,7 @@ void Temperature::manage_heater() {
     SERIAL_ECHOPAIR_F_P(SP_B_STR, t.beta, 1);
     SERIAL_ECHOPAIR_F_P(SP_C_STR, t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
-    serialprintPGM(
+    SERIAL_ECHOPGM_P(
       TERN_(TEMP_SENSOR_0_IS_CUSTOM, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
       TERN_(TEMP_SENSOR_1_IS_CUSTOM, t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :)
       TERN_(TEMP_SENSOR_2_IS_CUSTOM, t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :)
@@ -2446,20 +2446,20 @@ void Temperature::disable_all_heaters() {
   #endif
 
   #if HAS_TEMP_HOTEND
-    #define DISABLE_HEATER(N) WRITE_##N(LOW);
+    #define DISABLE_HEATER(N) WRITE_HEATER_##N(LOW);
     REPEAT(HOTENDS, DISABLE_HEATER);
   #endif
 
   #if HAS_HEATED_BED
     setTargetBed(0);
     temp_bed.soft_pwm_amount = 0;
-    WRITE_BED(LOW);
+    WRITE_HEATER_BED(LOW);
   #endif
 
   #if HAS_HEATED_CHAMBER
     setTargetChamber(0);
     temp_chamber.soft_pwm_amount = 0;
-    WRITE_CHAMBER(LOW);
+    WRITE_HEATER_CHAMBER(LOW);
   #endif
 
   #if HAS_COOLER
@@ -2928,7 +2928,7 @@ void Temperature::tick() {
       constexpr uint8_t pwm_mask = TERN0(SOFT_PWM_DITHER, _BV(SOFT_PWM_SCALE) - 1);
       #define _PWM_MOD(N,S,T) do{                           \
         const bool on = S.add(pwm_mask, T.soft_pwm_amount); \
-        WRITE_##N(on);                               \
+        WRITE_HEATER_##N(on);                               \
       }while(0)
     #endif
 
@@ -2988,7 +2988,7 @@ void Temperature::tick() {
       #endif
     }
     else {
-      #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_##N(LOW); }while(0)
+      #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
       #if HAS_HOTEND
         #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
         REPEAT(HOTENDS, _PWM_LOW_E);
@@ -3051,7 +3051,7 @@ void Temperature::tick() {
      *
      * For relay-driven heaters
      */
-    #define _SLOW_SET(NR,PWM,V) do{ if (PWM.ready(V)) WRITE_##NR(V); }while(0)
+    #define _SLOW_SET(NR,PWM,V) do{ if (PWM.ready(V)) WRITE_HEATER_##NR(V); }while(0)
     #define _SLOW_PWM(NR,PWM,SRC) do{ PWM.count = SRC.soft_pwm_amount; _SLOW_SET(NR,PWM,(PWM.count > 0)); }while(0)
     #define _PWM_OFF(NR,PWM) do{ if (PWM.count < slow_pwm_count) _SLOW_SET(NR,PWM,0); }while(0)
 
@@ -3386,7 +3386,8 @@ void Temperature::tick() {
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
     #endif
-    , const heater_id_t e=INDEX_NONE) {
+    , const heater_id_t e=INDEX_NONE
+  ) {
     char k;
     switch (e) {
       #if HAS_TEMP_CHAMBER
@@ -3398,13 +3399,17 @@ void Temperature::tick() {
       #if HAS_TEMP_PROBE
         case H_PROBE: k = 'P'; break;
       #endif
-      #if HAS_TEMP_BED
-        case H_BED: k = 'B'; break;
+      #if HAS_TEMP_HOTEND
+        default: k = 'T'; break;
+        #if HAS_TEMP_BED
+          case H_BED: k = 'B'; break;
+        #endif
+        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+          case H_REDUNDANT: k = 'R'; break;
+        #endif
+      #elif HAS_TEMP_BED
+        default: k = 'B'; break;
       #endif
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        case H_REDUNDANT: k = 'R'; break;
-      #endif
-        default: k = 'T'; break; // All others = Hotends
     }
     SERIAL_CHAR(' ', k);
     #if HAS_MULTI_HOTEND

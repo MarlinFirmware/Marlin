@@ -24,8 +24,6 @@
 // Temperature Menu
 //
 
-
-
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_LCD_MENU && HAS_TEMPERATURE
@@ -52,7 +50,7 @@
 // "Temperature" submenu items
 //
 
-void Temperature::lcd_preset_temp(const int16_t e, const int8_t indh, const int8_t indb) {
+void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
   UNUSED(e); UNUSED(indh); UNUSED(indb);
   #if HAS_HOTEND
     if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
@@ -68,25 +66,22 @@ void Temperature::lcd_preset_temp(const int16_t e, const int8_t indh, const int8
   ui.return_to_status();
 }
 
-//
-// "Temperature" submenu items
-//
 #if PREHEAT_COUNT
 
   #if HAS_TEMP_HOTEND
-    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, -1); }
+    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
     void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
   #endif
   #if HAS_HEATED_BED
-    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preset_temp(-1, -1, m); }
+    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
   #endif
   #if HAS_COOLER
-    inline void _precool_laser(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, -1); }
+    inline void _precool_laser(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
     void do_precool_laser_m() { _precool_laser(editable.int8, thermalManager.temp_cooler.target); }
   #endif
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
-    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preset_temp(e, m, m); }
+    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
     #define PREHEAT_ITEMS(M,E) do{ \
@@ -250,21 +245,19 @@ void menu_temperature() {
 
   #endif // HAS_FAN
 
-  #if HAS_HOTEND
-    #if PREHEAT_COUNT
-      //
-      // Preheat for Materials 1 to 5
-      //
-      LOOP_L_N(m, PREHEAT_COUNT) {
-        editable.int8 = m;
-        #if HOTENDS > 1 || HAS_HEATED_BED
-          SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
-        #else
-          ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
-        #endif
-      }
-    #endif
-  #endif //HAS_HOTEND
+  #if PREHEAT_COUNT
+    //
+    // Preheat for all Materials
+    //
+    LOOP_L_N(m, PREHEAT_COUNT) {
+      editable.int8 = m;
+      #if HOTENDS > 1 || HAS_HEATED_BED
+        SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
+      #else
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
+      #endif
+    }
+  #endif
 
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
     //

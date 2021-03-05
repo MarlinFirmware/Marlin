@@ -26,7 +26,7 @@
 //
 
 #define STATUS_CUTTER_WIDTH 24
-//#define STATUS_CUTTER_X     80
+#define STATUS_CUTTER_X     80
 
 #if ENABLED(LASER_FEATURE)
   #ifdef STATUS_CUTTER_ANIM
