@@ -1370,7 +1370,7 @@ void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_pt
 void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 
-  float absoluteAmount = float(swap16(*(uint16_t*)val_ptr))  / 100.0f;
+  float absoluteAmount = float(swap16(*(int16_t*)val_ptr))  / 100.0f;
   float existingAmount = ExtUI::getZOffset_mm();
   float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
 
