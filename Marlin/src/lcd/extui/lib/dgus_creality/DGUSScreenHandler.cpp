@@ -964,12 +964,14 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
   const uint8_t x = probe_point / col_size; // Will be 0 to 3 inclusive
   const uint8_t y = (probe_point - (x * col_size)) / MESH_INPUT_DATA_SIZE;
 
-  float z = swap16(*(int16_t*)val_ptr) * 0.001;
+  int16_t rawZ = *(int16_t*)val_ptr;
+  float z = swap16(rawZ) * 0.001;
 
   SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
   SERIAL_ECHOPAIR(" Y:", y);
   SERIAL_ECHOPAIR_F(" Z:", z);
-  SERIAL_ECHOPAIR(" [point ", probe_point, "] ");
+  SERIAL_ECHOPAIR(" [raw: ", rawZ);
+  SERIAL_ECHOPAIR("] [point ", probe_point, "] ");
   SERIAL_ECHOPAIR(" [VP: ", var.VP);
   SERIAL_ECHOLN("]");
 
