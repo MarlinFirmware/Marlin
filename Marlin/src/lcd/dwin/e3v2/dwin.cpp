@@ -515,6 +515,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
 #define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
 
+//#define PREPARE_CASE_FMAN  1  // Filament management
 #define PREPARE_CASE_MOVE  1
 #define PREPARE_CASE_MLEV  2
 #define PREPARE_CASE_DISA  3
@@ -2014,8 +2015,7 @@ void Draw_Info_Menu() {
 
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, (char*)MACHINE_SIZE);
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, (char*)SHORT_BUILD_VERSION);
-  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 320, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));    // M.A.R.C. Display Firmware distribution date-time
-
+  
   if (HMI_IsChinese()) {
     DWIN_Frame_TitleCopy(1, 30, 17, 57, 29); // "Info"
 
@@ -2032,9 +2032,11 @@ void Draw_Info_Menu() {
 
     DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
     DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
-    DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
+    // DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
   }
-  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE));
+  //DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE));
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Buil Datetime") * MENU_CHR_W) / 2, 248, (char*)("Buil Datetime"));    // M.A.R.C. Display Firmware build date-time
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 268, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
 
   Draw_Back_First();
   LOOP_L_N(i, 3) {
