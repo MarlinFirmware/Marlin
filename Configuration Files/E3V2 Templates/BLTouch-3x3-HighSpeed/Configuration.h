@@ -2280,6 +2280,13 @@
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 #define CREALITY_DWIN_EXTUI
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  //
+  // Enable custom icons
+  // NB: Requires Ender-3 v2 OEM display firmware update, or you will get blank icons!
+  //
+  //#define CREALITY_DWIN_EXTUI_CUSTOM_ICONS
+#endif
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers
