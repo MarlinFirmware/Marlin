@@ -25,9 +25,7 @@
  * Arduino Mega with RAMPS v1.0, v1.1, v1.2 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RAMPS <1.2"
 

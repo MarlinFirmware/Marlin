@@ -49,8 +49,7 @@ config = env.GetProjectConfig()
 result = check_envs("env:"+build_env, base_envs, config)
 
 if not result:
-	err = "Error: your selected build environment '%s' is not compatible with MOTHERBOARD=%s in Configuration.h. " \
-		  "Please use one of compatible build environments for this board: %s" % \
+	err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
 		  (build_env, motherboard, ",".join([e[4:] for e in base_envs if e.startswith("env:")]))
 	raise SystemExit(err)
 

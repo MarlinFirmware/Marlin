@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // BigTreeTech driver expansion module https://bit.ly/3ptRRoj
 //#define BTT_MOTOR_EXPANSION
