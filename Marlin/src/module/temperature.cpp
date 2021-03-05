@@ -1484,7 +1484,7 @@ void Temperature::manage_heater() {
         }
         else {
           temp_chamber.soft_pwm_amount = 0;
-          WRITE_HEATER_CHAMBER(LOW);
+          WRITE_CHAMBER(LOW);
         }
      }
      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
