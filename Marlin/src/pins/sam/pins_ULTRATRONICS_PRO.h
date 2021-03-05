@@ -26,9 +26,7 @@
  * https://reprapworld.com/documentation/datasheet_ultratronics10_05.pdf
  */
 
-#if NOT_TARGET(ARDUINO_ARCH_SAM)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Ultratronics v1.0"
 
