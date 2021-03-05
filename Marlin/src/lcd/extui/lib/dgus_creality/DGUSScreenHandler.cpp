@@ -977,6 +977,8 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
 
   UpdateMeshValue(x, y, z);
   ExtUI::setMeshPoint({ x, y }, z);
+
+  RequestSaveSettings();
 }
 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
