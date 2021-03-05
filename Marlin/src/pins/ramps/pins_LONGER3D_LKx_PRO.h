@@ -25,9 +25,10 @@
  * Longer3D LK1/LK4/LK5 Pro board pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "Longer3D LGT KIT V1.0 board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -41,9 +42,6 @@
   #define CHANGE_Y_LIMIT_PINS
   #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
 #endif
-
-// Custom flags and defines for the build
-//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
 
 #define BOARD_INFO_NAME "LGT KIT V1.0"
 
