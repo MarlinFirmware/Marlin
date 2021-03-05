@@ -185,7 +185,7 @@ public:
    * Clear the serial line and request a resend of
    * the next expected line number.
    */
-  static void flush_and_request_resend();
+  static void flush_and_request_resend(const serial_index_t serial_ind);
 
   /**
    * (Re)Set the current line number for the last received command

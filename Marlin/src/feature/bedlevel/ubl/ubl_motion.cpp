@@ -335,7 +335,7 @@
 
     #if IS_KINEMATIC
       const float seconds = cart_xy_mm / scaled_fr_mm_s;                             // Duration of XY move at requested rate
-      uint16_t segments = LROUND(delta_segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
+      uint16_t segments = LROUND(segments_per_second * seconds),                     // Preferred number of segments for distance @ feedrate
                seglimit = LROUND(cart_xy_mm * RECIPROCAL(DELTA_SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
       NOMORE(segments, seglimit);                                                    // Limit to minimum segment length (fewer segments)
     #else
