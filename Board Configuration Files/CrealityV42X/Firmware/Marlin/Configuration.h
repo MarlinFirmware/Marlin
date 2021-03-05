@@ -227,12 +227,12 @@
 #define LINEAR_ADVANCE_K 0
 
 // BL TOUCH ----------------------------------------
-// If you want to use the BL-Touch uncomment the 2 lines below and refer to the V42X BLTouch Picture in the Marlin Folder for wiring.
-// You also need to uncomment #define CUSTOM_PROBE above and then enter in your offsets above in the CUSTOM PROBE section.
-// Video guide from Teaching Tech: https://youtu.be/neS7lB7fCww?t=790
+// There are 2 ways to connect the BL Touch to the V4.2.X boards - All on the 5 pin header or using 3 pins on the 5 pin header + Z Endstop port
+// For details on these 2 types of connections refer to our help center article here: https://support.th3dstudio.com/hc/product-information/3rd-party-control-boards/creality-boards/creality-v4-2-2-v4-2-7-board-bl-touch-wiring-options/
+// If you want to use the BL-Touch uncomment the BLTOUCH line below and uncomment #define CUSTOM_PROBE above and then enter in your offsets above in the CUSTOM PROBE section.
 //#define BLTOUCH
-// Here is where you set your servo pin. For V4.2.X Boards use PB0
-//#define SERVO0_PIN PB0
+// If you are using the 5 pin header for all the BL Touch connections, uncomment the below line
+//#define CREALITY_V42X_BLTOUCH_ON_5PIN
 
 // MANUAL MESH LEVELING ----------------------------
 // If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
@@ -437,7 +437,12 @@
   #define Y_MAX_ENDSTOP_INVERTING false
   #define Z_MAX_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
-  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+  #if ENABLED(CREALITY_V42X_BLTOUCH_ON_5PIN)
+    #define USE_PROBE_FOR_Z_HOMING
+  #else
+    #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #endif
 
   #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(V422_TMC220X_DRIVERS)
     #define X_DRIVER_TYPE TMC2208_STANDALONE
@@ -633,7 +638,12 @@
   #define Y_MAX_ENDSTOP_INVERTING false
   #define Z_MAX_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
-  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+  #if ENABLED(CREALITY_V42X_BLTOUCH_ON_5PIN)
+    #define USE_PROBE_FOR_Z_HOMING
+  #else
+    #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #endif
 
   #define X_DRIVER_TYPE TMC2208_STANDALONE
   #define Y_DRIVER_TYPE TMC2208_STANDALONE
