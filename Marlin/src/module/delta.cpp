@@ -54,7 +54,7 @@ float delta_height;
 abc_float_t delta_endstop_adj{0};
 float delta_radius,
       delta_diagonal_rod,
-      delta_segments_per_second;
+      segments_per_second;
 abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
@@ -177,7 +177,7 @@ float delta_safe_distance_from_top() {
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3) {
+void forward_kinematics(const float &z1, const float &z2, const float &z3) {
   // Create a vector in old coordinates along x axis of new coordinate
   const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
 
@@ -242,9 +242,9 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-  TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-  TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-  TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+    TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
+    TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
+    TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -254,9 +254,9 @@ void home_delta() {
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-  TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-  TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-  TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+    TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
+    TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
+    TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
   #endif
 
   endstops.validate_homing_move();
