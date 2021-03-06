@@ -93,7 +93,9 @@ public:
 
     inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
 
-    inline bool empty() const { return length == 0; }
+    inline bool occupied() const { return length != 0; }
+
+    inline bool empty() const { return !occupied(); }
 
     inline CommandLine& peek_next_command() { return commands[index_r]; }
 
@@ -161,6 +163,11 @@ public:
    * Get the next command in the queue, optionally log it to SD, then dispatch it
    */
   static void advance();
+
+  /**
+   * Run the entire queue in-place
+   */
+  static void exhaust();
 
   /**
    * Add to the circular command queue the next command from:
