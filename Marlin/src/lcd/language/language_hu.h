@@ -22,25 +22,16 @@
 #pragma once
 
 /**
- *
- *
- *
- *
  * Magyar
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * Marlin 2.0.x bugfix Magyar fordítása. A fordítást folyamatosan javítom és frissítem.
  * A Magyar fordítást készítette: AntoszHUN
  * A Fordítás utolsó frissítése: 2021.03.06. - 08:00
- *
- *
- *
- *
  */
 
 namespace Language_hu {
   using namespace Language_en; // A fordítás az örökölt Amerikai Angol (English) karakterláncokat használja.
-
 
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Magyar");
