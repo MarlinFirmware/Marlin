@@ -448,7 +448,7 @@ class Temperature {
       #ifdef COOLER_MINTEMP
         static int16_t mintemp_raw_COOLER;
       #endif
-      #ifdef COOLER_MAX_TEMP
+      #ifdef COOLER_MAXTEMP
         static int16_t maxtemp_raw_COOLER;
       #endif
     #endif

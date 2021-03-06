@@ -395,7 +395,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     #ifdef COOLER_MINTEMP
       int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP;
     #endif
-    #ifdef COOLER_MAX_TEMP
+    #ifdef COOLER_MAXTEMP
       int16_t Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
     #endif
     #if WATCH_COOLER
@@ -1495,7 +1495,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_COOLER)
-      if (degCooler() > COOLER_MAX_TEMP) max_temp_error(H_COOLER);
+      if (degCooler() > COOLER_MAXTEMP) max_temp_error(H_COOLER);
     #endif
 
     #if WATCH_COOLER
@@ -2270,8 +2270,8 @@ void Temperature::init() {
     #ifdef COOLER_MINTEMP
       while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MINTEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
     #endif
-    #ifdef COOLER_MAX_TEMP
-      while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAX_TEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
+    #ifdef COOLER_MAXTEMP
+      while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAXTEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
     #endif
   #endif
 
