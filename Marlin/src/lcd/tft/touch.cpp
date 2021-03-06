@@ -202,6 +202,12 @@ void Touch::touch(touch_control_t *control) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 10, thermalManager.start_watching_chamber);
         }
       #endif
+      #if HAS_COOLER
+        else if (heater == H_COOLER) {
+          MenuItem_int3::action((const char *)GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAXTEMP - 8, thermalManager.start_watching_cooler);
+        }
+      #endif
+
       break;
     case FAN:
       ui.clear_lcd();

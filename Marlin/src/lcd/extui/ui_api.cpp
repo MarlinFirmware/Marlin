@@ -176,6 +176,7 @@ namespace ExtUI {
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
         TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
+        TERN_(HAS_COOLER, case COOLER: return); // Cooler has no idle timer
         default:
           TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
@@ -904,22 +905,23 @@ namespace ExtUI {
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     enableHeater(heater);
-    #if HAS_HEATED_CHAMBER
-      if (heater == CHAMBER)
-        thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10)));
-      else
-    #endif
-    #if HAS_HEATED_BED
-      if (heater == BED)
-        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET)));
-      else
-    #endif
-      {
+    switch (heater) {
+      #if HAS_HEATED_CHAMBER
+        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10))); break;
+      #endif
+      #if HAS_COOLER
+        case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP))); break;
+      #endif
+      #if HAS_HEATED_BED
+        case BED: thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET))); break;
+      #endif
+      default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
           thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
         #endif
-      }
+      } break;
+    }
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
