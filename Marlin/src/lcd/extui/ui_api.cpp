@@ -910,7 +910,7 @@ namespace ExtUI {
         case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10))); break;
       #endif
       #if HAS_COOLER
-        case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP))); break;
+        case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAX_TEMP))); break;
       #endif
       #if HAS_HEATED_BED
         case BED: thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET))); break;

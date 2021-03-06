@@ -56,7 +56,6 @@ void GcodeSuite::M143() {
   if (parser.seenval('S')) {
     thermalManager.setTargetCooler(parser.value_celsius());
     if (parser.value_celsius() > 0)
-
       cooler.enable();
     else
       cooler.disable();
