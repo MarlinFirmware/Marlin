@@ -51,16 +51,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_P_ADD: {
       if (uiCfg.curTempType == 0) {
         int16_t max_target;
-        thermalManager.temp_hotend[uiCfg.curSprayerChoose].target += uiCfg.stepHeat;
-        if (uiCfg.curSprayerChoose == 0)
+        thermalManager.temp_hotend[uiCfg.extruderIndex].target += uiCfg.stepHeat;
+        if (uiCfg.extruderIndex == 0)
           max_target = HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
         #if HAS_MULTI_HOTEND
           else
             max_target = HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
         #endif
-        if (thermalManager.degTargetHotend(uiCfg.curSprayerChoose) > max_target)
-          thermalManager.setTargetHotend(max_target, uiCfg.curSprayerChoose);
-        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+        if (thermalManager.degTargetHotend(uiCfg.extruderIndex) > max_target)
+          thermalManager.setTargetHotend(max_target, uiCfg.extruderIndex);
+        thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
       #if HAS_HEATED_BED
         else {
@@ -76,11 +76,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
     case ID_P_DEC:
       if (uiCfg.curTempType == 0) {
-        if ((int)thermalManager.degTargetHotend(uiCfg.curSprayerChoose) > uiCfg.stepHeat)
-          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target -= uiCfg.stepHeat;
+        if ((int)thermalManager.degTargetHotend(uiCfg.extruderIndex) > uiCfg.stepHeat)
+          thermalManager.temp_hotend[uiCfg.extruderIndex].target -= uiCfg.stepHeat;
         else
-          thermalManager.setTargetHotend(0, uiCfg.curSprayerChoose);
-        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+          thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
+        thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
       #if HAS_HEATED_BED
         else {
@@ -97,20 +97,20 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_P_TYPE:
       if (uiCfg.curTempType == 0) {
         if (ENABLED(HAS_MULTI_EXTRUDER)) {
-          if (uiCfg.curSprayerChoose == 0) {
-            uiCfg.curSprayerChoose = 1;
+          if (uiCfg.extruderIndex == 0) {
+            uiCfg.extruderIndex = 1;
           }
-          else if (uiCfg.curSprayerChoose == 1) {
+          else if (uiCfg.extruderIndex == 1) {
             if (TEMP_SENSOR_BED != 0) {
               uiCfg.curTempType = 1;
             }
             else {
               uiCfg.curTempType      = 0;
-              uiCfg.curSprayerChoose = 0;
+              uiCfg.extruderIndex = 0;
             }
           }
         }
-        else if (uiCfg.curSprayerChoose == 0) {
+        else if (uiCfg.extruderIndex == 0) {
           if (TEMP_SENSOR_BED != 0)
             uiCfg.curTempType = 1;
           else
@@ -118,7 +118,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         }
       }
       else if (uiCfg.curTempType == 1) {
-        uiCfg.curSprayerChoose = 0;
+        uiCfg.extruderIndex = 0;
         uiCfg.curTempType      = 0;
       }
       disp_temp_type();
@@ -134,8 +134,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_P_OFF:
       if (uiCfg.curTempType == 0) {
-        thermalManager.setTargetHotend(0, uiCfg.curSprayerChoose);
-        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+        thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
+        thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
       #if HAS_HEATED_BED
         else {
@@ -185,7 +185,7 @@ void lv_draw_preHeat() {
 
 void disp_temp_type() {
   if (uiCfg.curTempType == 0) {
-    if (uiCfg.curSprayerChoose == 1) {
+    if (uiCfg.extruderIndex == 1) {
     lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
       if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext2);
@@ -216,8 +216,8 @@ void disp_desire_temp() {
   public_buf_l[0] = '\0';
 
   if (uiCfg.curTempType == 0) {
-    strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.curSprayerChoose), (int)thermalManager.degTargetHotend(uiCfg.curSprayerChoose));
+    strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
+    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
   }
   #if HAS_HEATED_BED
     else {

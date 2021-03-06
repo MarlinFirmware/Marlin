@@ -589,8 +589,8 @@ void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
 
   uint16_t lcd_value = swap16(*(uint16_t *)val_ptr);
 
-  if(lcd_value > 100) lcd_value = 100;
-  else if(lcd_value < 10) lcd_value = 10;
+  if (lcd_value > 100) lcd_value = 100;
+  else if (lcd_value < 10) lcd_value = 10;
 
   lcd_default_light = lcd_value;
 
