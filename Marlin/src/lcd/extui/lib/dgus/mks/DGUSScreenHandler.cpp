@@ -39,6 +39,7 @@
 #include "../../../../../gcode/gcode.h"
 #include "../../../../../pins/pins.h"
 #include "../../../../../libs/nozzle.h"
+
 #if ENABLED(HAS_STEALTHCHOP)
   #include "../../../../../module/stepper/trinamic.h"
   #include "../../../../../module/stepper/indirection.h"
@@ -60,7 +61,6 @@ uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
 #if 0
-
 void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
@@ -264,7 +264,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
-      while (!queue.ring_buffer.empty()) queue.advance();
+      queue.exhaust();
       gcode.process_subcommands_now_P(PSTR("M81"));
     }
     GotoScreen(MKSLCD_SCREEN_PrintDone);
@@ -465,7 +465,6 @@ void DGUSScreenHandler::Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr) {
 
         cs = getCurrentScreen();
         if (cs != MKSLCD_AUTO_LEVEL) GotoScreen(MKSLCD_AUTO_LEVEL);
-
       #else
 
         GotoScreen(MKSLCD_SCREEN_LEVEL);
@@ -499,14 +498,15 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
     char cmd_buf[30];
     float offset = mesh_adj_distance;
     int16_t integer, Deci, Deci2;
-    // float f3 = current_position.z;
-    // float f4 = current_position.z;
+
+    if (!queue.ring_buffer.empty()) return;
+
     switch (mesh_value) {
       case 0:
         offset = mesh_adj_distance;
         integer = offset; // get int
-        Deci = (offset * 100);
-        Deci = Deci % 100;
+        Deci = (offset * 10);
+        Deci = Deci % 10;
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
@@ -520,8 +520,8 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
       case 1:
         offset = mesh_adj_distance;
         integer = offset;       // get int
-        Deci = (offset * 100);
-        Deci = Deci % 100;
+        Deci = (offset * 10);
+        Deci = Deci % 10;
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
@@ -589,8 +589,8 @@ void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
 
   uint16_t lcd_value = swap16(*(uint16_t *)val_ptr);
 
-  if(lcd_value > 100) lcd_value = 100;
-  else if(lcd_value < 10) lcd_value = 10;
+  if (lcd_value > 100) lcd_value = 100;
+  else if (lcd_value < 10) lcd_value = 10;
 
   lcd_default_light = lcd_value;
 
@@ -794,7 +794,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
-  if (!print_job_timer.isPaused() && queue.ring_buffer.full(1))
+  if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
 
   char axiscode;
@@ -1249,8 +1249,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1268,8 +1268,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
 
     case 1:
       #if HOTENDS >= 2
-        if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(1) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(1) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1284,8 +1284,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
         }
       #endif
       #if ENABLED(SINGLENOZZLE)
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1313,8 +1313,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1331,8 +1331,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
       break;
     case 1:
       #if HOTENDS >= 2
-        if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(1) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(1) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1348,8 +1348,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
       #endif
 
       #if ENABLED(SINGLENOZZLE)
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);

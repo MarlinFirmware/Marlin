@@ -611,6 +611,14 @@ void GCodeQueue::get_available_commands() {
 }
 
 /**
+ * Run the entire queue in-place. Blocks SD completion/abort until complete.
+ */
+void GCodeQueue::exhaust() {
+  while (ring_buffer.occupied()) advance();
+  planner.synchronize();
+}
+
+/**
  * Get the next command in the queue, optionally log it to SD, then dispatch it
  */
 void GCodeQueue::advance() {
