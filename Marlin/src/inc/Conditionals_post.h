@@ -761,7 +761,7 @@
     #define COOLER_DUMMY_THERMISTOR 1
   #endif
 #else
-  #undef COOLER_MIN_TEMP
+  #undef COOLER_MINTEMP
   #undef COOLER_MAX_TEMP
 #endif
 

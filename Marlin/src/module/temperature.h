@@ -445,7 +445,7 @@ class Temperature {
     #if HAS_COOLER
       TERN_(WATCH_COOLER, static cooler_watch_t watch_cooler);
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
-      #ifdef COOLER_MIN_TEMP
+      #ifdef COOLER_MINTEMP
         static int16_t mintemp_raw_COOLER;
       #endif
       #ifdef COOLER_MAX_TEMP

@@ -204,7 +204,7 @@ void Touch::touch(touch_control_t *control) {
       #endif
       #if HAS_COOLER
         else if (heater == H_COOLER) {
-          MenuItem_int3::action((const char *)GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAX_TEMP - 8, thermalManager.start_watching_cooler);
+          MenuItem_int3::action((const char *)GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAXTEMP - 8, thermalManager.start_watching_cooler);
         }
       #endif
 

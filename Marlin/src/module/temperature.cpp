@@ -392,7 +392,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
     float previous_temp = 9999;
-    #ifdef COOLER_MIN_TEMP
+    #ifdef COOLER_MINTEMP
       int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP;
     #endif
     #ifdef COOLER_MAX_TEMP
@@ -1512,7 +1512,7 @@ void Temperature::manage_heater() {
 
     if (cooler.is_enabled()) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
-      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TEMP;
+      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MINTEMP;
       if (ELAPSED(ms, next_cooler_check_ms)) {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
         if (temp_cooler.celsius > temp_cooler.target) {
@@ -2267,8 +2267,8 @@ void Temperature::init() {
   #endif
 
   #if HAS_COOLER
-    #ifdef COOLER_MIN_TEMP
-      while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MIN_TEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
+    #ifdef COOLER_MINTEMP
+      while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MINTEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
     #endif
     #ifdef COOLER_MAX_TEMP
       while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAX_TEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);

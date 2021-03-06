@@ -151,6 +151,10 @@ void menu_temperature() {
     #endif
   #endif
 
+  #if HAS_COOLER
+    if (thermalManager.temp_cooler.target == 0) thermalManager.temp_cooler.target = COOLER_DEFAULT_TEMP;
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -189,9 +193,8 @@ void menu_temperature() {
   //
   #if HAS_COOLER
     editable.state = cooler.is_enabled();
-    if (thermalManager.temp_cooler.target == 0) thermalManager.temp_cooler.target = COOLER_DEFAULT_TEMP;
     EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
-    EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MIN_TEMP + 2, COOLER_MAX_TEMP - 2, thermalManager.start_watching_cooler);
+    EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MINTEMP + 2, COOLER_MAXTEMP - 2, thermalManager.start_watching_cooler);
   #endif
 
   //
@@ -250,10 +253,8 @@ void menu_temperature() {
       editable.int8 = m;
       #if HOTENDS > 1 || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
-      #else
-        #if HOTENDS > 0
-          ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
-        #endif  
+      #elif HAS_HOTEND
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
       #endif
     }
   #endif

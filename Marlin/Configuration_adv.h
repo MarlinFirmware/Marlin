@@ -189,18 +189,18 @@
 // Laser Cooler options
 //
 #if TEMP_SENSOR_COOLER
-  #define COOLER_MIN_TEMP            8
-  #define COOLER_MAX_TEMP           26
-  #define COOLER_DEFAULT_TEMP       16
-  #define TEMP_COOLER_HYSTERESIS     1      // (°C) Temperature proximity considered "close enough" to the target
-  #define COOLER_PIN                 8      // Laser cooler on/off pin used to control power to the cooling element e.g. TEC, External chiller via relay
-  #define COOLER_INVERTING       false
-  #define TEMP_COOLER_PIN           15      // Laser/Cooler temp pin
-  #define COOLER_FAN                        // Enable a fan on the cooler, Fan# 0,1,2,3 etc.
-  #define COOLER_FAN_INDEX           0      // FAN number 0, 1, 2 etc. e.g.
+  #define COOLER_MINTEMP           8  // (°C)
+  #define COOLER_MAXTEMP          26  // (°C)
+  #define COOLER_DEFAULT_TEMP     16  // (°C)
+  #define TEMP_COOLER_HYSTERESIS   1  // (°C) Temperature proximity considered "close enough" to the target
+  #define COOLER_PIN               8  // Laser cooler on/off pin used to control power to the cooling element e.g. TEC, External chiller via relay
+  #define COOLER_INVERTING     false
+  #define TEMP_COOLER_PIN         15  // Laser/Cooler temperature sensor pinl. ADC is required.
+  #define COOLER_FAN                  // Enable a fan on the cooler, Fan# 0,1,2,3 etc.
+  #define COOLER_FAN_INDEX         0  // FAN number 0, 1, 2 etc. e.g.
   #if ENABLED(COOLER_FAN)
-    #define COOLER_FAN_BASE        100      // Base Cooler fan PWM (0-255); turns on when Cooler temperature is above the target
-    #define COOLER_FAN_FACTOR       25      // PWM increase per °C above target
+    #define COOLER_FAN_BASE      100  // Base Cooler fan PWM (0-255); turns on when Cooler temperature is above the target
+    #define COOLER_FAN_FACTOR     25  // PWM increase per °C above target
   #endif
 #endif
 
