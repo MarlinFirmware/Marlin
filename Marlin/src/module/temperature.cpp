@@ -3379,27 +3379,24 @@ void Temperature::tick() {
   ) {
     char k;
     switch (e) {
+      default:
+        #if HAS_TEMP_HOTEND
+          k = 'T'; break;
+        #endif
+      #if HAS_TEMP_BED
+        case H_BED: k = 'B'; break;
+      #endif
       #if HAS_TEMP_CHAMBER
         case H_CHAMBER: k = 'C'; break;
-      #endif
-      #if HAS_TEMP_COOLER
-        case H_COOLER: k = 'L'; break;
       #endif
       #if HAS_TEMP_PROBE
         case H_PROBE: k = 'P'; break;
       #endif
-      #if HAS_TEMP_HOTEND
-        default: k = 'T'; break;
-        #if HAS_TEMP_BED
-          case H_BED: k = 'B'; break;
-        #endif
-        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-          case H_REDUNDANT: k = 'R'; break;
-        #endif
-      #elif HAS_TEMP_BED
-        default: k = 'B'; break;
-      #else
-        default: k = 'T'; break;
+      #if HAS_TEMP_COOLER
+        case H_COOLER: k = 'L'; break;
+      #endif
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        case H_REDUNDANT: k = 'R'; break;
       #endif
     }
     SERIAL_CHAR(' ', k);
