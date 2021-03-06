@@ -2040,7 +2040,7 @@ void Draw_Info_Menu() {
     // DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
   }
   //DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE));
-  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Buil Datetime") * MENU_CHR_W) / 2, 248, (char*)("Buil Datetime"));    // M.A.R.C. Display Firmware build date-time
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Buil Datetime") * MENU_CHR_W) / 2, 248, (char*)("Build Datetime"));    // M.A.R.C. Display Firmware build date-time
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 268, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
 
   Draw_Back_First();
