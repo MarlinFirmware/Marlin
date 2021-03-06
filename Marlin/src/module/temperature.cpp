@@ -36,8 +36,8 @@
 #include "planner.h"
 
 #if HAS_COOLER
-  #include "..\feature\cooler.h"
-  #include "..\feature\spindle_laser.h"
+  #include "../feature/cooler.h"
+  #include "../feature/spindle_laser.h"
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
