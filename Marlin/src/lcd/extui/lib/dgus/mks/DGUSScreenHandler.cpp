@@ -1249,8 +1249,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1268,8 +1268,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
 
     case 1:
       #if HOTENDS >= 2
-        if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(1) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(1) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1284,8 +1284,8 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
         }
       #endif
       #if ENABLED(SINGLENOZZLE)
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1313,8 +1313,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1331,8 +1331,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
       break;
     case 1:
       #if HOTENDS >= 2
-        if (thermalManager.temp_hotend[1].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[1].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(1) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(1) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 1);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);
@@ -1348,8 +1348,8 @@ void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr)
       #endif
 
       #if ENABLED(SINGLENOZZLE)
-        if (thermalManager.temp_hotend[0].celsius < thermalManager.extrude_min_temp) {
-          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
+        if (thermalManager.degHotend(0) < thermalManager.extrude_min_temp) {
+          if (thermalManager.degTargetHotend(0) < thermalManager.extrude_min_temp)
             thermalManager.setTargetHotend(thermalManager.extrude_min_temp, 0);
           sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
           SetupConfirmAction(nullptr);

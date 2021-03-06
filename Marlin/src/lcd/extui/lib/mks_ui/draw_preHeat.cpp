@@ -48,39 +48,38 @@ enum {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
-    case ID_P_ADD:
+    case ID_P_ADD: {
       if (uiCfg.curTempType == 0) {
+        int16_t max_target;
         thermalManager.temp_hotend[uiCfg.curSprayerChoose].target += uiCfg.stepHeat;
-        if (uiCfg.curSprayerChoose == 0) {
-          if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
-            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-          }
-        }
+        if (uiCfg.curSprayerChoose == 0)
+          max_target = HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
         #if HAS_MULTI_HOTEND
-          else if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
-            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-          }
+          else
+            max_target = HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
         #endif
+        if (thermalManager.degTargetHotend(uiCfg.curSprayerChoose) > max_target)
+          thermalManager.setTargetHotend(max_target, uiCfg.curSprayerChoose);
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
       #if HAS_HEATED_BED
         else {
+          constexpr int16_t max_target = BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1);
           thermalManager.temp_bed.target += uiCfg.stepHeat;
-          if ((int)thermalManager.temp_bed.target > BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
-            thermalManager.temp_bed.target = (float)BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1);
-          }
+          if (thermalManager.degTargetBed() > max_target)
+            thermalManager.setTargetBed(max_target);
           thermalManager.start_watching_bed();
         }
       #endif
       disp_desire_temp();
-      break;
+    } break;
+
     case ID_P_DEC:
       if (uiCfg.curTempType == 0) {
-        if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > uiCfg.stepHeat)
+        if ((int)thermalManager.degTargetHotend(uiCfg.curSprayerChoose) > uiCfg.stepHeat)
           thermalManager.temp_hotend[uiCfg.curSprayerChoose].target -= uiCfg.stepHeat;
         else
-          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = 0;
-
+          thermalManager.setTargetHotend(0, uiCfg.curSprayerChoose);
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
       #if HAS_HEATED_BED
@@ -88,7 +87,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           if ((int)thermalManager.temp_bed.target > uiCfg.stepHeat)
             thermalManager.temp_bed.target -= uiCfg.stepHeat;
           else
-            thermalManager.temp_bed.target = 0;
+            thermalManager.setTargetBed(0);
 
           thermalManager.start_watching_bed();
         }
@@ -135,7 +134,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_P_OFF:
       if (uiCfg.curTempType == 0) {
-        thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = 0;
+        thermalManager.setTargetHotend(0, uiCfg.curSprayerChoose);
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
       #if HAS_HEATED_BED
@@ -218,12 +217,12 @@ void disp_desire_temp() {
 
   if (uiCfg.curTempType == 0) {
     strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius,  (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
+    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.curSprayerChoose), (int)thermalManager.degTargetHotend(uiCfg.curSprayerChoose));
   }
   #if HAS_HEATED_BED
     else {
       strcat(public_buf_l, preheat_menu.hotbed);
-      sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_bed.celsius,  (int)thermalManager.temp_bed.target);
+      sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
     }
   #endif
   strcat_P(public_buf_l, PSTR(": "));

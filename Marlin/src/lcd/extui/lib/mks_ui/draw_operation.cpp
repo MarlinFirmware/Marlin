@@ -76,7 +76,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         #endif
       }
       uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
-      uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[active_extruder].target;
+      uiCfg.desireSprayerTempBak = thermalManager.degTargetHotend(active_extruder);
       lv_clear_operation();
       lv_draw_filament_change();
       break;
