@@ -30,23 +30,12 @@
 
 #if HAS_COOLER
 
-#include "../gcode.h"
-#include "../../module/temperature.h"
-
-#include "../../module/motion.h"
-#include "../../lcd/marlinui.h"
 #include "../../feature/cooler.h"
 extern Cooler cooler;
 
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
-
-#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
+#include "../gcode.h"
+#include "../../module/temperature.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * M143: Set cooler temperature
@@ -55,10 +44,7 @@ void GcodeSuite::M143() {
   if (DEBUGGING(DRYRUN)) return;
   if (parser.seenval('S')) {
     thermalManager.setTargetCooler(parser.value_celsius());
-    if (parser.value_celsius() > 0)
-      cooler.enable();
-    else
-      cooler.disable();
+    parser.value_celsius() ? cooler.enable() : cooler.disable();
   }
 }
 
@@ -68,17 +54,13 @@ void GcodeSuite::M143() {
 void GcodeSuite::M193() {
   if (DEBUGGING(DRYRUN)) return;
 
-  const bool wait_for_cooling = parser.seenval('S');
-  if (wait_for_cooling) {
+  if (parser.seenval('S')) {
     cooler.enable();
     thermalManager.setTargetCooler(parser.value_celsius());
-  }
-  else return;
-
-  const bool is_laser_cooling = thermalManager.isLaserCooling();
-  if (is_laser_cooling) {
-    ui.set_status_P(GET_TEXT(MSG_LASER_COOLING));
-    thermalManager.wait_for_cooler(true);
+    if (thermalManager.isLaserCooling()) {
+      ui.set_status_P(GET_TEXT(MSG_LASER_COOLING));
+      thermalManager.wait_for_cooler(true);
+    }
   }
 }
 

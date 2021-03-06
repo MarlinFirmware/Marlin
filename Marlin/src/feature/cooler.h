@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 #define _MSG_COOLER(M) MSG_COOLER_##M
 #define MSG_COOLER(M) _MSG_COOLER(M)
 
