@@ -21,7 +21,7 @@ Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
 
 OPTIONS
   -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
-  -n --num         The index of the test to run. (In *-tests file order.)
+  -n --num         The index of the test to run. (In file order.)
   -m --make        Use the make / Docker method for the build.
   -y --build       Skip 'Do you want to build this test?' and assume YES.
   -h --help        Print this help.
@@ -105,7 +105,7 @@ if ((REBUILD)); then
   # Build with the last-built env
   [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
-  pio run -d . -e $TESTENV
+  pio run -s -d . -e $TESTENV
   exit
 fi
 
@@ -192,7 +192,7 @@ if ((AUTO_BUILD)); then
     pio run -t upload -e $TARGET
   else
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
-    pio run -e $TARGET
+    pio run -s -e $TARGET
   fi
   exit
 fi
@@ -204,11 +204,10 @@ fi
 if [[ $TESTENV == '-' ]]; then
   IND=0
   NAMES=()
-  for FILE in $( ls -1 $TESTPATH/*-tests )
+  for FILE in $( ls -1 $TESTPATH/* )
   do
     let IND++
-    TNAME=${FILE/-tests/}
-    TNAME=${TNAME/$TESTPATH\//}
+    TNAME=${FILE/$TESTPATH\//}
     NAMES+=($TNAME)
     (( IND < 10 )) && echo -n " "
     echo " $IND) $TNAME"
@@ -231,7 +230,7 @@ if [[ $TESTENV == '-' ]]; then
 fi
 
 # Get the contents of the test file
-OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
+OUT=$( cat $TESTPATH/$TESTENV 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
 
 # Count up the number of tests
 TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
@@ -297,7 +296,7 @@ echo "$OUT" | {
 echo -ne "\033[0m"
 
 # Make clear it's a TEST
-opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
+opt_set CUSTOM_MACHINE_NAME "\"Test $TESTENV ($CHOICE)\""
 
 # Build the test too?
 if [[ -z "$BUILD_YES" ]]; then
@@ -307,6 +306,6 @@ fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
   ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
-  ((USE_MAKE)) || pio run -d . -e $TESTENV
+  ((USE_MAKE)) || pio run -s -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }

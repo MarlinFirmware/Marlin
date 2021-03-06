@@ -25,9 +25,9 @@
  * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin E3P only supports one hotend / E-stepper. Comment out this line to continue."
 #elif HAS_FSMC_TFT
   #error "MKS Robin E3P doesn't support FSMC-based TFT displays."

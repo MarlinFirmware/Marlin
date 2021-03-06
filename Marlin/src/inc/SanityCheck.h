@@ -131,7 +131,13 @@
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+  #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(XY_PROBE_SPEED)
+  #error "XY_PROBE_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(Z_PROBE_SPEED_FAST)
+  #error "Z_PROBE_SPEED_FAST is now Z_PROBE_FEEDRATE_FAST."
+#elif defined(Z_PROBE_SPEED_SLOW)
+  #error "Z_PROBE_SPEED_SLOW is now Z_PROBE_FEEDRATE_SLOW."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
   #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
 #elif defined(SERVO_DEACTIVATION_DELAY)
@@ -431,6 +437,8 @@
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION."
 #elif defined(MENU_ITEM_CASE_LIGHT)
   #error "MENU_ITEM_CASE_LIGHT is now CASE_LIGHT_MENU."
+#elif defined(CASE_LIGHT_NEOPIXEL_COLOR)
+  #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #elif defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #error "ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED is now SD_ABORT_ON_ENDSTOP_HIT."
 #elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM_CABLE)
@@ -815,26 +823,24 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif NUM_RUNOUT_SENSORS > E_STEPPERS
-    #if HAS_PRUSA_MMU2
+  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
       #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
-    #else
-      #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
-    #endif
-  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
-    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
-  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
-    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
-  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
-    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
-  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
-    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
-  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
-    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
-  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
-    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
+    #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
   #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
     #error "FIL_RUNOUT8_PIN is required with NUM_RUNOUT_SENSORS >= 8."
+  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
+    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
+  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
+    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
+  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
+    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
+  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
+    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
+  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
+    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
   #elif BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
     #error "You can't enable FIL_RUNOUT1_PULLUP and FIL_RUNOUT1_PULLDOWN at the same time."
   #elif BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
@@ -913,7 +919,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Multi-Material-Unit 2 / SMUFF requirements
+ * Multi-Material-Unit 2 / SMuFF requirements
  */
 #if HAS_PRUSA_MMU2
   #if EXTRUDERS != 5
@@ -1221,8 +1227,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
+#if MANY(DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
 #endif
 
 /**
@@ -1635,7 +1641,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Allen Key
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
-#if BOTH(Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && (Z_HOME_DIR < 0)
+#if BOTH(Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && Z_HOME_DIR < 0
   #error "You can't home to a Z min endstop with a Z_PROBE_ALLEN_KEY."
 #endif
 
@@ -1698,9 +1704,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
     #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
   #endif
@@ -2316,7 +2322,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
@@ -2907,12 +2913,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
-  #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
-#endif
-
-#if BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
-  #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
+    #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
+  #elif BOTH(POWER_LOSS_RECOVER_ZHOME, Z_SAFE_HOMING)
+    #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
+  #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
+    #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+  #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR < 0 && !defined(POWER_LOSS_ZHOME_POS)
+    #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)

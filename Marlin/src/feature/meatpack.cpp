@@ -179,7 +179,7 @@ void MeatPack::report_state() {
   SERIAL_ECHOPGM("[MP] ");
   SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
-  serialprintPGM(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
+  SERIAL_ECHOPGM_P(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
 }
 
 /**

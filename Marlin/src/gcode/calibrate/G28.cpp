@@ -259,7 +259,7 @@ void GcodeSuite::G28() {
 
   #if HAS_HOMING_CURRENT
     auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
-      serialprintPGM(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
+      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -311,7 +311,13 @@ void GcodeSuite::G28() {
 
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
-  #else // NOT DELTA
+  #elif ENABLED(AXEL_TPARA)
+
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
+
+    home_TPARA();
+
+  #else
 
     const bool homeZ = parser.seen('Z'),
                needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
@@ -392,7 +398,7 @@ void GcodeSuite::G28() {
 
     sync_plan_position();
 
-  #endif // !DELTA (G28)
+  #endif
 
   /**
    * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.

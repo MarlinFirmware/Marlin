@@ -25,9 +25,7 @@
  * Geeetech HJC2560-C Rev 2.x board pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "ADIMLab Gantry v2"
 #define BOARD_INFO_NAME      "HJC2560-C"
