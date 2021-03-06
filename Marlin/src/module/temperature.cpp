@@ -3450,12 +3450,7 @@ void Temperature::tick() {
       );
     #endif
     #if HAS_TEMP_CHAMBER
-      print_heater_state(degChamber()
-        #if HAS_HEATED_CHAMBER
-          , degTargetChamber()
-        #else
-          , 0
-        #endif
+      print_heater_state(degChamber(), TERN0(HAS_HEATED_CHAMBER, degTargetChamber())
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawChamberTemp()
         #endif
@@ -3463,12 +3458,7 @@ void Temperature::tick() {
       );
     #endif // HAS_TEMP_CHAMBER
     #if HAS_TEMP_COOLER
-      print_heater_state(degCooler()
-        #if HAS_COOLER
-          , degTargetCooler()
-        #else
-          , 0
-        #endif
+      print_heater_state(degCooler(), TERN0(HAS_COOLER, degTargetCooler())
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawCoolerTemp()
         #endif

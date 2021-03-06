@@ -24,7 +24,7 @@
 
 #if HAS_COOLER
 
-#include "Cooler.h"
+#include "cooler.h"
 Cooler cooler;
 
 uint16_t Cooler::flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
