@@ -39,6 +39,7 @@
 #include "../../../../../gcode/gcode.h"
 #include "../../../../../pins/pins.h"
 #include "../../../../../libs/nozzle.h"
+
 #if ENABLED(HAS_STEALTHCHOP)
   #include "../../../../../module/stepper/trinamic.h"
   #include "../../../../../module/stepper/indirection.h"
@@ -60,7 +61,6 @@ uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
 #if 0
-
 void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
@@ -465,7 +465,6 @@ void DGUSScreenHandler::Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr) {
 
         cs = getCurrentScreen();
         if (cs != MKSLCD_AUTO_LEVEL) GotoScreen(MKSLCD_AUTO_LEVEL);
-
       #else
 
         GotoScreen(MKSLCD_SCREEN_LEVEL);
@@ -499,14 +498,15 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
     char cmd_buf[30];
     float offset = mesh_adj_distance;
     int16_t integer, Deci, Deci2;
-    // float f3 = current_position.z;
-    // float f4 = current_position.z;
+
+    if (!queue.ring_buffer.empty()) return;
+
     switch (mesh_value) {
       case 0:
         offset = mesh_adj_distance;
         integer = offset; // get int
-        Deci = (offset * 100);
-        Deci = Deci % 100;
+        Deci = (offset * 10);
+        Deci = Deci % 10;
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
@@ -520,8 +520,8 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
       case 1:
         offset = mesh_adj_distance;
         integer = offset;       // get int
-        Deci = (offset * 100);
-        Deci = Deci % 100;
+        Deci = (offset * 10);
+        Deci = Deci % 10;
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
@@ -794,7 +794,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
-  if (!print_job_timer.isPaused() && queue.ring_buffer.full(1))
+  if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
 
   char axiscode;
