@@ -29,7 +29,6 @@
 #endif
 
 #define BOARD_INFO_NAME "Longer3D"
-#define ALFAWISE_UX0                              // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
 
 #define BOARD_NO_NATIVE_USB
 
@@ -92,9 +91,19 @@
 #define FAN_MAX_PWM                          255
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
-                                 // Can drive a PC Buzzer, if connected between PWM and 5V pins
+                                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
 
 #define LED_PIN                             PC2   // pin 17
+
+// Longer3D board mosfets are passing by default
+// Avoid nozzle heat and fan start before serial init
+#define BOARD_OPENDRAIN_MOSFETS
+
+#define BOARD_PREINIT() { \
+  OUT_WRITE_OD(HEATER_0_PIN, 0); \
+  OUT_WRITE_OD(HEATER_BED_PIN, 0); \
+  OUT_WRITE_OD(FAN_PIN, 0); \
+}
 
 //
 // PWM for a servo probe

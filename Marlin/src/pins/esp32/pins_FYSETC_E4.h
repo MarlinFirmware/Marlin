@@ -27,9 +27,9 @@
  * Supports 4 stepper drivers, heated bed, single hotend.
  */
 
-#ifndef ARDUINO_ARCH_ESP32
-  #error "Oops! Select an ESP32 board in 'Tools > Board.'"
-#elif EXTRUDERS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if EXTRUDERS > 1 || E_STEPPERS > 1
   #error "FYSETC E4 only supports one E Stepper. Comment out this line to continue."
 #elif HOTENDS > 1
   #error "FYSETC E4 only supports one hotend / E-stepper. Comment out this line to continue."
@@ -104,9 +104,9 @@
 //
 // MicroSD card
 //
-#define MOSI_PIN                              23
-#define MISO_PIN                              19
-#define SCK_PIN                               18
+#define SD_MOSI_PIN                           23
+#define SD_MISO_PIN                           19
+#define SD_SCK_PIN                            18
 #define SDSS                                   5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 

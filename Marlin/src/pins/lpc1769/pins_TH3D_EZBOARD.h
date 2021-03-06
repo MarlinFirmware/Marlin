@@ -25,9 +25,7 @@
  * TH3D EZBoard pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
@@ -141,11 +139,11 @@
 
 #define SDCARD_CONNECTION                ONBOARD
 
-#define SCK_PIN                            P0_07
-#define MISO_PIN                           P0_08
-#define MOSI_PIN                           P0_09
+#define SD_SCK_PIN                         P0_07
+#define SD_MISO_PIN                        P0_08
+#define SD_MOSI_PIN                        P0_09
 #define ONBOARD_SD_CS_PIN                  P0_06
-#define SS_PIN                 ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 
 //
 // LCD / Controller

@@ -21,9 +21,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
 #endif
 
@@ -220,11 +221,11 @@
       #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)
     #else
       #define ENABLE_SPI3
-      #define SS_PIN                        -1
+      #define SD_SS_PIN                     -1
       #define SDSS                          PC9
-      #define SCK_PIN                       PC10
-      #define MISO_PIN                      PC11
-      #define MOSI_PIN                      PC12
+      #define SD_SCK_PIN                    PC10
+      #define SD_MISO_PIN                   PC11
+      #define SD_MOSI_PIN                   PC12
     #endif
     #define SD_DETECT_PIN                   PD12
   #endif
@@ -239,9 +240,9 @@
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
     #define SDSS                            PE10
-    #define SCK_PIN                         PA5
-    #define MISO_PIN                        PA6
-    #define MOSI_PIN                        PA7
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif

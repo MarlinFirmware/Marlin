@@ -36,6 +36,7 @@
 
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
+#include "HAL/shared/cpu_exception/exception_hook.h"
 
 #ifdef ARDUINO
   #include <pins_arduino.h>
@@ -43,6 +44,7 @@
 #include <math.h>
 
 #include "core/utility.h"
+
 #include "module/motion.h"
 #include "module/planner.h"
 #include "module/endstops.h"
@@ -57,6 +59,7 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
+#include "feature/pause.h"
 #include "sd/cardreader.h"
 
 #include "lcd/marlinui.h"
@@ -139,7 +142,6 @@
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
-  TWIBus i2c;
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -171,10 +173,6 @@
 
 #if HAS_LEVELING
   #include "feature/bedlevel/bedlevel.h"
-#endif
-
-#if BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT)
-  #include "feature/pause.h"
 #endif
 
 #if ENABLED(GCODE_REPEAT_MARKERS)
@@ -233,18 +231,11 @@
   #include "feature/password/password.h"
 #endif
 
-PGMSTR(NUL_STR, "");
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
-PGMSTR(G28_STR, "G28");
-PGMSTR(M21_STR, "M21");
-PGMSTR(M23_STR, "M23 %s");
-PGMSTR(M24_STR, "M24");
-PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
-PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
-PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
-PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
-PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
-PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 MarlinState marlin_state = MF_INITIALIZING;
 
@@ -267,39 +258,11 @@ bool wait_for_heatup = true;
 
 #endif
 
-#if PIN_EXISTS(CHDK)
-  extern millis_t chdk_timeout;
-#endif
-
-#if ENABLED(I2C_POSITION_ENCODERS)
-  I2CPositionEncodersMgr I2CPEM;
-#endif
-
 /**
  * ***************************************************************************
  * ******************************** FUNCTIONS ********************************
  * ***************************************************************************
  */
-
-void setup_killpin() {
-  #if HAS_KILL
-    #if KILL_PIN_STATE
-      SET_INPUT_PULLDOWN(KILL_PIN);
-    #else
-      SET_INPUT_PULLUP(KILL_PIN);
-    #endif
-  #endif
-}
-
-void setup_powerhold() {
-  #if HAS_SUICIDE
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
-  #endif
-  #if ENABLED(PSU_CONTROL)
-    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
-    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
-  #endif
-}
 
 /**
  * Stepper Reset (RigidBoard, et.al.)
@@ -307,18 +270,6 @@ void setup_powerhold() {
 #if HAS_STEPPER_RESET
   void disableStepperDrivers() { OUT_WRITE(STEPPER_RESET_PIN, LOW); } // Drive down to keep motor driver chips in reset
   void enableStepperDrivers()  { SET_INPUT(STEPPER_RESET_PIN); }      // Set to input, allowing pullups to pull the pin high
-#endif
-
-#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
-
-  void i2c_on_receive(int bytes) { // just echo all bytes received to serial
-    i2c.receive(bytes);
-  }
-
-  void i2c_on_request() {          // just send dummy data for now
-    i2c.reply("Hello World!\n");
-  }
-
 #endif
 
 /**
@@ -341,17 +292,6 @@ bool pin_is_protected(const pin_t pin) {
 }
 
 #pragma GCC diagnostic pop
-
-void protected_pin_err() {
-  SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
-}
-
-void quickstop_stepper() {
-  planner.quick_stop();
-  planner.synchronize();
-  set_current_from_steppers_for_axis(ALL_AXES);
-  sync_plan_position();
-}
 
 void enable_e_steppers() {
   #define _ENA_E(N) ENABLE_AXIS_E##N();
@@ -388,41 +328,6 @@ void disable_all_steppers() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
-
-#if ENABLED(G29_RETRY_AND_RECOVER)
-
-  void event_probe_failure() {
-    #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
-    #endif
-    #ifdef G29_FAILURE_COMMANDS
-      gcode.process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
-    #endif
-    #if ENABLED(G29_HALT_ON_FAILURE)
-      #ifdef ACTION_ON_CANCEL
-        host_action_cancel();
-      #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
-    #endif
-  }
-
-  void event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
-    #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
-    #endif
-    #ifdef G29_RECOVER_COMMANDS
-      gcode.process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-    #endif
-  }
-
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "feature/pause.h"
-#else
-  constexpr bool did_pause_print = false;
-#endif
 
 /**
  * A Print Job exists when the timer is running or SD printing
@@ -462,19 +367,20 @@ void startOrResumeJob() {
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.endFilePrint(TERN_(SD_RESORT, true));
+
     queue.clear();
     quickstop_stepper();
-    print_job_timer.stop();
-    #if DISABLED(SD_ABORT_NO_COOLDOWN)
-      thermalManager.disable_all_heaters();
-    #endif
-    #if !HAS_CUTTER
-      thermalManager.zero_fan_speeds();
-    #else
-      cutter.kill();              // Full cutter shutdown including ISR control
-    #endif
+
+    print_job_timer.abort();
+
+    IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
+
+    TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
+
     wait_for_heatup = false;
+
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
@@ -486,6 +392,7 @@ void startOrResumeJob() {
     if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
+      TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
   }
 
@@ -499,27 +406,27 @@ void startOrResumeJob() {
  *  - Check if CHDK_PIN needs to go LOW
  *  - Check for KILL button held down
  *  - Check for HOME button held down
+ *  - Check for CUSTOM USER button held down
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
  */
 inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
-  if (queue.length < BUFSIZE) queue.get_available_commands();
+  queue.get_available_commands();
 
   const millis_t ms = millis();
 
   // Prevent steppers timing-out in the middle of M600
   // unless PAUSE_PARK_NO_STEPPER_TIMEOUT is disabled
-  const bool parked_or_ignoring = ignore_stepper_queue ||
-     (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print);
+  const bool parked_or_ignoring = ignore_stepper_queue
+                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
 
   // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
   if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
+    SERIAL_ERROR_MSG(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
@@ -550,6 +457,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   }
 
   #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
+    extern millis_t chdk_timeout;
     if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
       chdk_timeout = 0;
       WRITE(CHDK_PIN, LOW);
@@ -589,6 +497,102 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         queue.inject_P(G28_STR);
       }
     }
+  #endif
+
+  #if ENABLED(CUSTOM_USER_BUTTONS)
+    // Handle a custom user button if defined
+    const bool printer_not_busy = !printingIsActive();
+    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE) && defined(BUTTON##N##_DESC))
+    #define CHECK_CUSTOM_USER_BUTTON(N) do{                            \
+      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
+      static millis_t next_cub_ms_##N;                                 \
+      if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
+        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
+        const millis_t ms = millis();                                  \
+        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
+          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
+          if (strlen(BUTTON##N##_DESC))                                \
+            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));                  \
+          queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
+        }                                                              \
+      }                                                                \
+    }while(0)
+
+    #if HAS_CUSTOM_USER_BUTTON(1)
+      CHECK_CUSTOM_USER_BUTTON(1);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(2)
+      CHECK_CUSTOM_USER_BUTTON(2);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(3)
+      CHECK_CUSTOM_USER_BUTTON(3);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(4)
+      CHECK_CUSTOM_USER_BUTTON(4);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(5)
+      CHECK_CUSTOM_USER_BUTTON(5);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(6)
+      CHECK_CUSTOM_USER_BUTTON(6);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(7)
+      CHECK_CUSTOM_USER_BUTTON(7);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(8)
+      CHECK_CUSTOM_USER_BUTTON(8);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(9)
+      CHECK_CUSTOM_USER_BUTTON(9);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(10)
+      CHECK_CUSTOM_USER_BUTTON(10);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(11)
+      CHECK_CUSTOM_USER_BUTTON(11);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(12)
+      CHECK_CUSTOM_USER_BUTTON(12);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(13)
+      CHECK_CUSTOM_USER_BUTTON(13);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(14)
+      CHECK_CUSTOM_USER_BUTTON(14);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(15)
+      CHECK_CUSTOM_USER_BUTTON(15);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(16)
+      CHECK_CUSTOM_USER_BUTTON(16);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(17)
+      CHECK_CUSTOM_USER_BUTTON(17);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(18)
+      CHECK_CUSTOM_USER_BUTTON(18);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(19)
+      CHECK_CUSTOM_USER_BUTTON(19);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(20)
+      CHECK_CUSTOM_USER_BUTTON(20);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(21)
+      CHECK_CUSTOM_USER_BUTTON(21);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(22)
+      CHECK_CUSTOM_USER_BUTTON(22);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(23)
+      CHECK_CUSTOM_USER_BUTTON(23);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(24)
+      CHECK_CUSTOM_USER_BUTTON(24);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(25)
+      CHECK_CUSTOM_USER_BUTTON(25);
+    #endif
   #endif
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
@@ -655,11 +659,12 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout
-    if (delayed_move_time && ELAPSED(ms, delayed_move_time + 1000UL) && IsRunning()) {
+    if (delayed_move_time && ELAPSED(ms, delayed_move_time) && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       destination = current_position;
       prepare_line_to_destination();
+      planner.synchronize();
     }
   #endif
 
@@ -711,8 +716,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if ENABLED(MARLIN_DEV_MODE)
-    static uint8_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", int(idle_depth));
+    static uint16_t idle_depth = 0;
+    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
@@ -784,8 +789,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
-      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_report_temperatures());
-      TERN_(AUTO_REPORT_SD_STATUS, card.auto_report_sd_status());
+      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
     }
   #endif
 
@@ -881,6 +886,7 @@ void minkill(const bool steppers_off/*=false*/) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+
   print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
@@ -948,7 +954,7 @@ inline void tmc_standby_setup() {
 
 /**
  * Marlin entry-point: Set up before the program loop
- *  - Set up the kill pin, filament runout, power hold
+ *  - Set up the kill pin, filament runout, power hold, custom user buttons
  *  - Start the serial port
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
@@ -966,6 +972,9 @@ inline void tmc_standby_setup() {
  *    • Max7219
  */
 void setup() {
+  #ifdef BOARD_PREINIT
+    BOARD_PREINIT(); // Low-level init (before serial init)
+  #endif
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
@@ -973,14 +982,39 @@ void setup() {
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
       SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
-      serialprintPGM(msg);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(msg);
     };
     #define SETUP_LOG(M) log_current_ms(PSTR(M))
   #else
     #define SETUP_LOG(...) NOOP
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
+
+  MYSERIAL0.begin(BAUDRATE);
+  millis_t serial_connect_timeout = millis() + 1000UL;
+  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+
+  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
+    MYSERIAL1.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+  SERIAL_ECHOLNPGM("start");
+
+  // Set up these pins early to prevent suicide
+  #if HAS_KILL
+    SETUP_LOG("KILL_PIN");
+    #if KILL_PIN_STATE
+      SET_INPUT_PULLDOWN(KILL_PIN);
+    #else
+      SET_INPUT_PULLUP(KILL_PIN);
+    #endif
+  #endif
+
+  #if HAS_SUICIDE
+    SETUP_LOG("SUICIDE_PIN");
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+  #endif
 
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     // Disable any hardware debug to free up pins for IO
@@ -993,16 +1027,6 @@ void setup() {
     #endif
   #endif
 
-  MYSERIAL0.begin(BAUDRATE);
-  uint32_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-  SERIAL_ECHOLNPGM("start");
-
   #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
     mks_esp_wifi_init();
     WIFISERIAL.begin(WIFI_BAUDRATE);
@@ -1010,18 +1034,16 @@ void setup() {
     while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
 
+  TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
+
   SETUP_RUN(HAL_init());
 
-  // Init and disable SPI thermocouples
-  #if HEATER_0_USES_MAX6675
+  // Init and disable SPI thermocouples; this is still needed
+  #if TEMP_SENSOR_0_IS_MAX_TC
     OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
   #endif
-  #if HEATER_1_USES_MAX6675
+  #if TEMP_SENSOR_1_IS_MAX_TC
     OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
-  #endif
-
-  #if HAS_L64XX
-    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
@@ -1032,17 +1054,23 @@ void setup() {
     SETUP_RUN(runout.setup());
   #endif
 
+  #if ENABLED(PSU_CONTROL)
+    SETUP_LOG("PSU_CONTROL");
+    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
+    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     SETUP_RUN(recovery.setup());
   #endif
 
-  SETUP_RUN(setup_killpin());
+  #if HAS_L64XX
+    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
+  #endif
 
   #if HAS_TMC220x
     SETUP_RUN(tmc_serial_begin());
   #endif
-
-  SETUP_RUN(setup_powerhold());
 
   #if HAS_STEPPER_RESET
     SETUP_RUN(disableStepperDrivers());
@@ -1071,7 +1099,7 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  serialprintPGM(GET_TEXT(MSG_MARLIN));
+  SERIAL_ECHOPGM_P(GET_TEXT(MSG_MARLIN));
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
   SERIAL_EOL();
@@ -1082,7 +1110,10 @@ void setup() {
     );
   #endif
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
-  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+
+  // Some HAL need precise delay adjustment
+  calibrate_delay_loop();
 
   // Init buzzer pin(s)
   #if USE_BEEPER
@@ -1197,6 +1228,86 @@ void setup() {
     SET_INPUT_PULLUP(HOME_PIN);
   #endif
 
+  #if ENABLED(CUSTOM_USER_BUTTONS)
+    #define INIT_CUSTOM_USER_BUTTON_PIN(N) do{ SET_INPUT(BUTTON##N##_PIN); WRITE(BUTTON##N##_PIN, !BUTTON##N##_HIT_STATE); }while(0)
+
+    #if HAS_CUSTOM_USER_BUTTON(1)
+      INIT_CUSTOM_USER_BUTTON_PIN(1);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(2)
+      INIT_CUSTOM_USER_BUTTON_PIN(2);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(3)
+      INIT_CUSTOM_USER_BUTTON_PIN(3);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(4)
+      INIT_CUSTOM_USER_BUTTON_PIN(4);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(5)
+      INIT_CUSTOM_USER_BUTTON_PIN(5);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(6)
+      INIT_CUSTOM_USER_BUTTON_PIN(6);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(7)
+      INIT_CUSTOM_USER_BUTTON_PIN(7);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(8)
+      INIT_CUSTOM_USER_BUTTON_PIN(8);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(9)
+      INIT_CUSTOM_USER_BUTTON_PIN(9);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(10)
+      INIT_CUSTOM_USER_BUTTON_PIN(10);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(11)
+      INIT_CUSTOM_USER_BUTTON_PIN(11);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(12)
+      INIT_CUSTOM_USER_BUTTON_PIN(12);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(13)
+      INIT_CUSTOM_USER_BUTTON_PIN(13);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(14)
+      INIT_CUSTOM_USER_BUTTON_PIN(14);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(15)
+      INIT_CUSTOM_USER_BUTTON_PIN(15);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(16)
+      INIT_CUSTOM_USER_BUTTON_PIN(16);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(17)
+      INIT_CUSTOM_USER_BUTTON_PIN(17);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(18)
+      INIT_CUSTOM_USER_BUTTON_PIN(18);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(19)
+      INIT_CUSTOM_USER_BUTTON_PIN(19);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(20)
+      INIT_CUSTOM_USER_BUTTON_PIN(20);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(21)
+      INIT_CUSTOM_USER_BUTTON_PIN(21);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(22)
+      INIT_CUSTOM_USER_BUTTON_PIN(22);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(23)
+      INIT_CUSTOM_USER_BUTTON_PIN(23);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(24)
+      INIT_CUSTOM_USER_BUTTON_PIN(24);
+    #endif
+    #if HAS_CUSTOM_USER_BUTTON(25)
+      INIT_CUSTOM_USER_BUTTON_PIN(25);
+    #endif
+  #endif
+
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
@@ -1206,10 +1317,7 @@ void setup() {
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)
-    #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-      if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
-    #endif
-    SETUP_RUN(caselight.update_brightness());
+    SETUP_RUN(caselight.init());
   #endif
 
   #if HAS_PRUSA_MMU1

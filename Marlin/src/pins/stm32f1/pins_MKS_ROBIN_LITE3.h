@@ -25,9 +25,9 @@
  * MKS Robin Lite 3 (STM32F103RCT6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -153,7 +153,7 @@
 // SPI
 //
 #define SPI_DEVICE                             2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PA15
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PA15

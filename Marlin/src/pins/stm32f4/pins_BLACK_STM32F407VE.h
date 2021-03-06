@@ -27,9 +27,10 @@
  * Shield - https://github.com/jmz52/Hardware
  */
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Black STM32F4VET6 supports up to 2 hotends / E-steppers."
 #endif
 
@@ -156,8 +157,8 @@
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SD_SCK_PIN               SDIO_CK_PIN
+    #define SD_MISO_PIN              SDIO_D0_PIN
+    #define SD_MOSI_PIN             SDIO_CMD_PIN
   #endif
 #endif
