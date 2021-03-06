@@ -2456,7 +2456,6 @@ void Temperature::disable_all_heaters() {
     temp_cooler.soft_pwm_amount = 0;
     WRITE_HEATER_COOLER(LOW);
   #endif
-
 }
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
