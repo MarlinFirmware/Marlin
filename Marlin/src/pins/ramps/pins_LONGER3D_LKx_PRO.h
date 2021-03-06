@@ -43,6 +43,9 @@
   #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
 #endif
 
+// Custom flags and defines for the build
+//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
+
 #define BOARD_INFO_NAME "LGT KIT V1.0"
 
 //
