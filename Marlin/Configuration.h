@@ -459,6 +459,16 @@
 #define BED_MINTEMP        5
 #define CHAMBER_MINTEMP    5
 
+/**
+ * As an operator of a 3D printer it is VITAL that you understand the concept of "overshoot."
+ * If you set the target temperature right at MAXTEMP you must be trying to cause a MAXTEMP error.
+ * If you have observed your printer heating, you know that it can "overshoot the target" by a
+ * lot, especially before you do your PID tuning. Marlin sets reasonable OVERSHOOT values to
+ * prevent accidental MAXTEMP errors. If you like MAXTEMP errors, set OVERSHOOT to 0.
+ */
+#define HOTEND_OVERSHOOT 15
+#define BED_OVERSHOOT    10
+
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
