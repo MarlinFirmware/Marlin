@@ -49,7 +49,7 @@ extern Cooler cooler;
 #include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
- * M143: Set cooler temperature (because i love you)
+ * M143: Set cooler temperature
  */
 void GcodeSuite::M143() {
   if (DEBUGGING(DRYRUN)) return;
