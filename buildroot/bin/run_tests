@@ -2,8 +2,9 @@
 #
 # run_tests
 #
-export PATH="$PATH:$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
-export PATH="$PATH:./buildroot/bin"
+HERE="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
+TESTS="$HERE/../tests"
+export PATH="$HERE:$TESTS:$PATH"
 
 # exit on first failure
 set -e
@@ -40,10 +41,9 @@ export -f exec_test
 printf "Running \033[0;32m$2\033[0m Tests\n"
 
 if [[ $2 = "ALL" ]]; then
-  dir_list=("$(dirname "${BASH_SOURCE[0]}")"/*)
-  declare -a tests=(${dir_list[@]/*run_tests/})
+  tests=("$TESTS"/*)
   for f in "${tests[@]}"; do
-    testenv=$(basename $f | cut -d"-" -f1)
+    testenv=$(basename $f)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
     if [[ $GIT_RESET_HARD == "true" ]]; then
@@ -58,16 +58,16 @@ else
   # If the test name is 1 or 2 digits, treat it as an index
   if [[ "$test_name" =~ ^[0-9][0-9]?$ ]] ; then
     # Find the test name that corresponds to that index
-    test_name="$(cat buildroot/tests/$2-tests | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
+    test_name="$(cat $TESTS/$2 | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
     if [[ -z "$test_name" ]] ; then
       # Fail if none matches
-      printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2-tests\n"
+      printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2\n"
       exit 1
     else
       printf "\033[0;32mMatching test \033[0m#$3\033[0;32m: '\033[0m$test_name\033[0;32m'\n"
     fi
   fi
-  $2-tests $1 $2 "$test_name"
+  $TESTS/$2 $1 $2 "$test_name"
   if [[ $GIT_RESET_HARD == "true" ]]; then
     git reset --hard HEAD
   else
