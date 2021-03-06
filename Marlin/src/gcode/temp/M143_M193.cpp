@@ -49,7 +49,7 @@ extern Cooler cooler;
 #include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
- * M141: Set cooler temperature
+ * M143: Set cooler temperature (because i love you)
  */
 void GcodeSuite::M143() {
   if (DEBUGGING(DRYRUN)) return;
@@ -64,7 +64,7 @@ void GcodeSuite::M143() {
 }
 
 /**
- * M193: Sxxx Wait for laser current temp to reach target temp. Waits only when cooling
+ * M193: Sxxx Wait for laser current temp to reach target temp. Waits only when cooling.
  */
 void GcodeSuite::M193() {
   if (DEBUGGING(DRYRUN)) return;
