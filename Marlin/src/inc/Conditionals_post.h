@@ -762,7 +762,7 @@
   #endif
 #else
   #undef COOLER_MINTEMP
-  #undef COOLER_MAX_TEMP
+  #undef COOLER_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_PROBE == -4
