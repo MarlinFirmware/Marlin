@@ -141,7 +141,9 @@ constexpr float default_steps[]               = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
 
 uint8_t active_menu = MainMenu;
+uint8_t last_menu = MainMenu;
 uint8_t selection = 0;
+uint8_t last_selection = 0;
 uint8_t scrollpos = 0;
 uint8_t process = Main;
 uint8_t last_process = Main;
@@ -233,6 +235,10 @@ inline void CrealityDWINClass::Draw_Checkbox(uint8_t row, bool value) {
 }
 
 inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uint8_t scroll/*=0*/) {
+  if (process==menu && active_menu!=menu) {
+    last_selection = selection;
+    last_menu = active_menu;
+  }
   selection = select;
   scrollpos = scroll;
   if (selection-scrollpos > MROWS)
@@ -613,6 +619,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
 }
 
 void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const char *line3, uint8_t mode, uint8_t icon/*=0*/) {
+  if (process == Menu) last_selection = selection;
   process = mode;
   Clear_Screen();
   DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 350);
@@ -817,10 +824,21 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                 Draw_Menu(ChangeFilament);
               #else
-                Popup_Handler(FilChange);
-                gcode.process_subcommands_now_P(PSTR("M600 B1"));
-                planner.synchronize();
-                Redraw_Menu();
+                if (thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) {
+                  if (thermalManager.temp_hotend[0].celsius < thermalManager.temp_hotend[0].target-2) {
+                    Popup_Handler(Heating);
+                    thermalManager.wait_for_hotend(0);
+                  }
+                  Popup_Handler(FilChange);
+                  char buf[20];
+                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                  gcode.process_subcommands_now_P(buf);
+                  planner.synchronize();
+                  Redraw_Menu();
+                }
+                else {
+                  Popup_Handler(ETemp);
+                }
               #endif
             }
             break;
@@ -1238,10 +1256,19 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Load Filament");
             }
             else {
-              Popup_Handler(FilLoad);
-              gcode.process_subcommands_now_P(PSTR("M701"));
-              planner.synchronize();
-              Redraw_Menu();
+              if (thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) {
+                if (thermalManager.temp_hotend[0].celsius < thermalManager.temp_hotend[0].target-2) {
+                  Popup_Handler(Heating);
+                  thermalManager.wait_for_hotend(0);
+                }
+                Popup_Handler(FilLoad);
+                gcode.process_subcommands_now_P(PSTR("M701"));
+                planner.synchronize();
+                Redraw_Menu();
+              }
+              else {
+                Popup_Handler(ETemp);
+              }
             }
             break;
           case CHANGEFIL_UNLOAD:
@@ -1249,10 +1276,19 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Unload Filament");
             }
             else {
-              Popup_Handler(FilLoad, true);
-              gcode.process_subcommands_now_P(PSTR("M702"));
-              planner.synchronize();
-              Redraw_Menu();
+              if (thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) {
+                if (thermalManager.temp_hotend[0].celsius < thermalManager.temp_hotend[0].target-2) {
+                  Popup_Handler(Heating);
+                  thermalManager.wait_for_hotend(0);
+                }
+                Popup_Handler(FilLoad, true);
+                gcode.process_subcommands_now_P(PSTR("M702"));
+                planner.synchronize();
+                Redraw_Menu();
+              }
+              else {
+                Popup_Handler(ETemp);
+              }
             }
             break;
           case CHANGEFIL_CHANGE:
@@ -1260,10 +1296,21 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
             }
             else {
-              Popup_Handler(FilChange);
-              gcode.process_subcommands_now_P(PSTR("M600 B1"));
-              planner.synchronize();
-              Redraw_Menu();
+              if (thermalManager.temp_hotend[0].target > EXTRUDE_MINTEMP) {
+                if (thermalManager.temp_hotend[0].celsius < thermalManager.temp_hotend[0].target-2) {
+                  Popup_Handler(Heating);
+                  thermalManager.wait_for_hotend(0);
+                }
+                Popup_Handler(FilChange);
+                char buf[20];
+                sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                gcode.process_subcommands_now_P(buf);
+                planner.synchronize();
+                Redraw_Menu();
+              }
+              else {
+                Popup_Handler(ETemp);
+              }
             }
             break;
         }
@@ -2396,7 +2443,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Popup_Handler(FilChange);
-              gcode.process_subcommands_now_P(PSTR("M600 B1"));
+              char buf[20];
+              sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+              gcode.process_subcommands_now_P(buf);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -2416,6 +2465,135 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif
       }
       break;
+    case PreheatHotend:
+
+        #define PREHEATHOTEND_BACK 0
+        #define PREHEATHOTEND_1 (PREHEATHOTEND_BACK + (PREHEAT_COUNT >= 1))
+        #define PREHEATHOTEND_2 (PREHEATHOTEND_1 + (PREHEAT_COUNT >= 2))
+        #define PREHEATHOTEND_3 (PREHEATHOTEND_2 + (PREHEAT_COUNT >= 3))
+        #define PREHEATHOTEND_4 (PREHEATHOTEND_3 + (PREHEAT_COUNT >= 4))
+        #define PREHEATHOTEND_5 (PREHEATHOTEND_4 + (PREHEAT_COUNT >= 5))
+        #define PREHEATHOTEND_CUSTOM (PREHEATHOTEND_5 + 1)
+        #define PREHEATHOTEND_CONTINUE (PREHEATHOTEND_CUSTOM + 1)
+        #define PREHEATHOTEND_TOTAL PREHEATHOTEND_CONTINUE
+
+        switch (item) {
+          case PREHEATHOTEND_BACK:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Back, (char*)"Cancel");
+            }
+            else {
+              thermalManager.setTargetHotend(0, 0);
+              thermalManager.set_fan_speed(0, 0);
+              Draw_Menu(last_menu, last_selection);
+            }
+            break;
+          #if (PREHEAT_COUNT >= 1)
+            case PREHEATHOTEND_1:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_1_LABEL);
+              }
+              else {
+                thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
+                thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
+              }
+              break;
+          #endif
+          #if (PREHEAT_COUNT >= 2)
+            case PREHEATHOTEND_2:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_2_LABEL);
+              }
+              else {
+                thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
+                thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
+              }
+              break;
+          #endif
+          #if (PREHEAT_COUNT >= 3)
+            case PREHEATHOTEND_3:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_3_LABEL);
+              }
+              else {
+                thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
+                thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
+              }
+              break;
+          #endif
+          #if (PREHEAT_COUNT >= 4)
+            case PREHEATHOTEND_4:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_4_LABEL);
+              }
+              else {
+                thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
+                thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
+              }
+              break;
+          #endif
+          #if (PREHEAT_COUNT >= 5)
+            case PREHEATHOTEND_5:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_5_LABEL);
+              }
+              else {
+                thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
+                thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
+              }
+              break;
+          #endif
+          case PREHEATHOTEND_CUSTOM:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Temperature, (char*)"Custom");
+              Draw_Float(thermalManager.temp_hotend[0].target, row, false, 1);
+            }
+            else {
+              Modify_Value(thermalManager.temp_hotend[0].target, EXTRUDE_MINTEMP, MAX_E_TEMP, 1);
+            }
+            break;
+          case PREHEATHOTEND_CONTINUE:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Continue");
+            }
+            else {
+              Popup_Handler(Heating);
+              thermalManager.wait_for_hotend(0);
+              switch (last_menu) {
+                case Preheat:
+                  Popup_Handler(FilChange);
+                  char buf[20];
+                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                  gcode.process_subcommands_now_P(buf);
+                  planner.synchronize();
+                  break;
+                case ChangeFilament:
+                  switch (last_selection) {
+                    case CHANGEFIL_LOAD:
+                      Popup_Handler(FilLoad);
+                      gcode.process_subcommands_now_P("M701");
+                      planner.synchronize();
+                      break;
+                    case CHANGEFIL_UNLOAD:
+                      Popup_Handler(FilLoad, true);
+                      gcode.process_subcommands_now_P("M702");
+                      planner.synchronize();
+                      break;
+                    case CHANGEFIL_CHANGE:
+                      Popup_Handler(FilChange);
+                      char buf[20];
+                      sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                      gcode.process_subcommands_now_P(buf);
+                      planner.synchronize();
+                      break;
+                  }
+                  break;
+              }
+              Draw_Menu(last_menu, last_selection);
+            }
+            break;
+        }
+        break;
   }
 }
 
@@ -2489,6 +2667,8 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #endif
     case Tune:
       return (char*)"Tune";
+    case PreheatHotend:
+      return (char*)"Preheat Hotend";
   }
   return (char*)"";
 }
@@ -2561,6 +2741,8 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #endif
     case Tune:
       return TUNE_TOTAL;
+    case PreheatHotend:
+      return PREHEATHOTEND_TOTAL;
   }
   return 0;
 }
@@ -2583,7 +2765,7 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       Draw_Popup((char*)"Leveling Complete", (char*)"Save to EEPROM?", (char*)"", Popup);
       break;
     case ETemp:
-      Draw_Popup((char*)"Nozzle is too cold", (char*)"Preheat to 200C?", (char*)"", Popup);
+      Draw_Popup((char*)"Nozzle is too cold", (char*)"Open Preheat Menu?", (char*)"", Popup);
       break;
     case Level:
       Draw_Popup((char*)"Auto Bed Leveling", (char*)"Please wait until done.", (char*)"", Wait, ICON_AutoLeveling);
@@ -2593,6 +2775,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       break;
     case MoveWait:
       Draw_Popup((char*)"Moving to Point", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
+      break;
+    case Heating:
+      Draw_Popup((char*)"Heating", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
       break;
     case FilLoad:
       Draw_Popup(option ? (char*)"Unloading Filament" : (char*)"Loading Filament", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
@@ -2985,9 +3170,13 @@ inline void CrealityDWINClass::Popup_Control() {
         break;
       case ETemp:
         if (selection==0) {
-          thermalManager.temp_hotend[0].target = 200;
+          thermalManager.setTargetHotend(EXTRUDE_MINTEMP, 0);
+          thermalManager.set_fan_speed(0, MAX_FAN_SPEED);
+          Draw_Menu(PreheatHotend);
         }
-        Redraw_Menu();
+        else {
+          Redraw_Menu();
+        }
         break;
       case SaveLevel:
         if (selection==0) {
