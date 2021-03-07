@@ -2567,27 +2567,29 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   gcode.process_subcommands_now_P(buf);
                   planner.synchronize();
                   break;
-                case ChangeFilament:
-                  switch (last_selection) {
-                    case CHANGEFIL_LOAD:
-                      Popup_Handler(FilLoad);
-                      gcode.process_subcommands_now_P("M701");
-                      planner.synchronize();
-                      break;
-                    case CHANGEFIL_UNLOAD:
-                      Popup_Handler(FilLoad, true);
-                      gcode.process_subcommands_now_P("M702");
-                      planner.synchronize();
-                      break;
-                    case CHANGEFIL_CHANGE:
-                      Popup_Handler(FilChange);
-                      char buf[20];
-                      sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                      gcode.process_subcommands_now_P(buf);
-                      planner.synchronize();
-                      break;
-                  }
-                  break;
+                #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+                  case ChangeFilament:
+                    switch (last_selection) {
+                      case CHANGEFIL_LOAD:
+                        Popup_Handler(FilLoad);
+                        gcode.process_subcommands_now_P("M701");
+                        planner.synchronize();
+                        break;
+                      case CHANGEFIL_UNLOAD:
+                        Popup_Handler(FilLoad, true);
+                        gcode.process_subcommands_now_P("M702");
+                        planner.synchronize();
+                        break;
+                      case CHANGEFIL_CHANGE:
+                        Popup_Handler(FilChange);
+                        char buf[20];
+                        sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                        gcode.process_subcommands_now_P(buf);
+                        planner.synchronize();
+                        break;
+                    }
+                    break;
+                #endif
               }
               Draw_Menu(last_menu, last_selection);
             }
