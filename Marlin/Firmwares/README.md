@@ -100,7 +100,8 @@
     
     [SKR](./SKR)
     
-    ![Board_SKRs](../../docs/images/Fam_SKR.png)
+    ![Board_SKRs](../../docs/images/Fam_SKR.png) 
+    ![Cnx_SKRs](../../docs/images/SKR_EndStop.png)
 
   Typically the probe for the QQS-Pro printers.
   
