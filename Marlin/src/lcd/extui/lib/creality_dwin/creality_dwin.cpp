@@ -2025,7 +2025,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(planner.settings.axis_steps_per_mm[E_AXIS], row, false, 10);
             }
             else {
-              Modify_Value(planner.settings.axis_steps_per_mm[E_AXIS], 0, default_steps[E_AXIS]*2, 10);
+              Modify_Value(planner.settings.axis_steps_per_mm[E_AXIS], 0, 1000, 10);
             }
             break;
         #endif
