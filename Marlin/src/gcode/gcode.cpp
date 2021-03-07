@@ -972,7 +972,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     #if HAS_PROBE_SETTINGS
       case 'C': switch (parser.codenum) {
         case 1: C001(); break;
+        #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
         case 100: C100(); break;
+        #endif
       }
     #endif
 
