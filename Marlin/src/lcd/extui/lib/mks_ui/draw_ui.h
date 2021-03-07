@@ -211,9 +211,9 @@ typedef struct {
 
 typedef struct {
   uint8_t curTempType:1,
-          curSprayerChoose:3,
+          extruderIndex:3,
           stepHeat:4,
-          curSprayerChoose_bak:4;
+          extruderIndexBak:4;
   bool    leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
@@ -246,7 +246,7 @@ typedef struct {
            filament_loading_time_cnt,
            filament_unloading_time_cnt;
   float move_dist;
-  float desireSprayerTempBak;
+  float hotendTargetTempBak;
   float current_x_position_bak,
         current_y_position_bak,
         current_z_position_bak,

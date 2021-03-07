@@ -62,6 +62,10 @@ void menu_item(const uint8_t row, bool sel = false);
   #define ITEM_CHAMBER    2
   #define ITEM_FAN        3
   #define ITEMS_COUNT     4
+#elif HAS_TEMP_COOLER
+  #define ITEM_COOLER     0
+  #define ITEM_FAN        1
+  #define ITEMS_COUNT     2
 #elif HOTENDS > 1
   #define ITEM_E0         0
   #define ITEM_E1         1

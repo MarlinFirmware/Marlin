@@ -25,9 +25,9 @@
  * Common pin assignments for all RUMBA32 boards
  */
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
 #endif
 
