@@ -75,7 +75,7 @@ uint16_t z_park_pos = 10;
 xyz_pos_t position_before_pause;
 
 void MKS_pause_print_move() {
-  planner.synchronize();
+  queue.exhaust();
   position_before_pause = current_position;
   do_blocking_move_to(X_MIN_POS + x_park_pos, Y_MIN_POS + y_park_pos, current_position.z + z_park_pos);
 }

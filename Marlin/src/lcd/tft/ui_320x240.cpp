@@ -136,6 +136,12 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
       #endif
     }
   #endif
+  #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      currentTemperature = thermalManager.degCooler();
+      targetTemperature = TERN(HAS_COOLER, thermalManager.degTargetCooler(), ABSOLUTE_ZERO);
+    }
+  #endif
   else return;
 
   TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, 64, 100, Heater));
@@ -157,6 +163,13 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
     else if (Heater == H_CHAMBER) {
       if (currentTemperature >= 50) Color = COLOR_CHAMBER;
       image = targetTemperature > 0 ? imgChamberHeated : imgChamber;
+    }
+  #endif
+  #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      if (currentTemperature <= 26) Color = COLOR_COLD;
+      if (currentTemperature > 26) Color = COLOR_RED;
+      image = targetTemperature > 26 ? imgCoolerHot : imgCooler;
     }
   #endif
 
