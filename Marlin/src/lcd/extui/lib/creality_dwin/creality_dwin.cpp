@@ -2753,13 +2753,11 @@ inline void CrealityDWINClass::Value_Control() {
         planner.synchronize();
         planner.buffer_line(current_position, (selection < 4) ? homing_feedrate( AxisEnum(selection-1)) : FEEDRATE_E, active_extruder);
         break;
-      #if HAS_ONESTEP_LEVELING
-        case ManualMesh:
-          planner.synchronize();
-          planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
-          planner.synchronize();
-          break;
-      #endif
+      case ManualMesh:
+        planner.synchronize();
+        planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+        planner.synchronize();
+        break;
     }
     return;
   }
