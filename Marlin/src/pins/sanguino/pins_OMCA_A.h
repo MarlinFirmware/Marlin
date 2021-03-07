@@ -74,7 +74,7 @@
  */
 
 #if NOT_TARGET(__AVR_ATmega644__)
-  #error "Oops! Select 'Sanguino' in 'Tools > Board' and ATmega644 in 'Tools > Processor.'"
+  #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' in 'Tools > Processor.'"
 #endif
 
 #define BOARD_INFO_NAME "Alpha OMCA"
