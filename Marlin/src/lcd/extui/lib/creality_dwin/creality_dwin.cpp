@@ -776,7 +776,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Popup_Handler(Home);
             gcode.process_subcommands_now_P(PSTR("G28"));
             #if ANY(HAS_ONESTEP_LEVELING, PROBE_MANUALLY)
-              gcode.process_subcommands_now_P(PSTR("G420 S0"));
+              gcode.process_subcommands_now_P(PSTR("M420 S0"));
             #endif
             planner.synchronize();
             Draw_Menu(ManualLevel);
@@ -948,7 +948,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             #if ANY(HAS_ONESTEP_LEVELING, PROBE_MANUALLY)
-              gcode.process_subcommands_now_P(PSTR("G420 S1"));
+              gcode.process_subcommands_now_P(PSTR("M420 S1"));
             #endif
             Draw_Menu(Prepare, PREPARE_MANUALLEVEL);
           }
