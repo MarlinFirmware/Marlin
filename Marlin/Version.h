@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "CR6Comm-Rel6-Pre4"
+#define SHORT_BUILD_VERSION "CR6Comm-Rel6-Pre-Nightly"
 
 /**
  * Verbose version identifier which should contain a reference to the location
