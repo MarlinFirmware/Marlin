@@ -366,10 +366,7 @@ void CrealityDWINClass::Draw_Print_Screen() {
   DWIN_ICON_Show(ICON, ICON_RemainTime, 147, 169);
   DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 41, 163, (char*)"Elapsed");
   DWIN_Draw_String(false, false, DWIN_FONT_MENU,  Color_White, Color_Bg_Black, 176, 163, (char*)"Remaining");
-  DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH-8, 238);
-  DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH-8, 238);
-  const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2;
-  DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 219, statusmsg);
+  Update_Status_Bar();
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
@@ -2874,7 +2871,7 @@ inline void CrealityDWINClass::Print_Screen_Control() {
     switch(selection) {
       case 0:
         Draw_Menu(Tune);
-        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(statusmsg) * MENU_CHR_W) / 2, 357, statusmsg);
+        Update_Status_Bar();
         break;
       case 1:
         if (paused) {
