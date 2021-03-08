@@ -347,11 +347,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   #include "../../module/motion.h"
 
   void lcd_babystep_global_zoffset() {
-
-    if(!babystep.can_babystep(Z_AXIS)){
-        //TODO: Needs proper message
-        TERN_(HAS_DISPLAY, ui.set_status(GET_TEXT(MSG_HOME_FIRST)));
-        return ui.return_to_status();
+    if (!babystep.can_babystep(Z_AXIS)) {
+      // TODO: Needs proper message
+      TERN_(HAS_DISPLAY, ui.set_status(GET_TEXT(MSG_HOME_FIRST)));
+      return ui.return_to_status();
     }
 
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
@@ -360,10 +359,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.encoderPosition) {
       int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
 
-      //For large probe offsets moving one step at a time is very slow
-      if(ui.encoderPosition > 2){
-        babystep_increment *= 10;
-      }
+      // For large probe offsets moving one step at a time is very slow
+      if (ui.encoderPosition > 2) babystep_increment *= 10;
 
       const float difference_in_mm = planner.steps_to_mm[Z_AXIS] * babystep_increment,
                   new_z_offset = home_offset[Z_AXIS] + difference_in_mm;
@@ -377,8 +374,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     }
 
     if (ui.should_draw()) {
-        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
-        TERN_(BABYSTEP_GLOBAL_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
+      MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_GLOBAL_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
     }
   }
 

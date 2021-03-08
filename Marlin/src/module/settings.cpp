@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V83"
+#define EEPROM_VERSION "V84"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -481,6 +481,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 /**
  * Post-process after Retrieve or Reset
  */
+
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   float new_z_fade_height;
 #endif
@@ -3270,10 +3271,6 @@ void MarlinSettings::reset() {
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
-          #if ENABLED(ENABLE_MESH_Z_OFFSET)
-            CONFIG_ECHO_START();
-            SERIAL_ECHOLNPAIR_F("  G29 S4 Z", LINEAR_UNIT(mbl.z_offset), 5);
-          #endif
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)

@@ -572,7 +572,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
+  #if SHOW_KNOB_GFX_OVERLAY
 
     const unsigned char cw_bmp[] PROGMEM = {
       B00000000,B11111110,B00000000,

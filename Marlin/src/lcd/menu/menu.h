@@ -25,6 +25,10 @@
 #include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
+  #define SHOW_KNOB_GFX_OVERLAY 1
+#endif
+
 #include "limits.h"
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
@@ -39,7 +43,7 @@ typedef void (*selectFunc_t)();
 #define SS_INVERT  0x02
 #define SS_DEFAULT SS_CENTER
 
-#if HAS_MARLINUI_U8GLIB && ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
+#if HAS_MARLINUI_U8GLIB && SHOW_KNOB_GFX_OVERLAY
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
@@ -215,7 +219,7 @@ void _lcd_draw_homing();
   void line_to_z(const float &z);
 #endif
 
-#if HAS_MARLINUI_U8GLIB && ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
+#if HAS_MARLINUI_U8GLIB && SHOW_KNOB_GFX_OVERLAY
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 

@@ -65,7 +65,7 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
 }
 
 bool Babystep::can_babystep(const AxisEnum axis) {
-  return ENABLED(BABYSTEP_WITHOUT_HOMING) || TEST(axis_known_position, axis);
+  return ENABLED(BABYSTEP_WITHOUT_HOMING) || axis_is_trusted(axis);
 }
 
 #endif // BABYSTEPPING

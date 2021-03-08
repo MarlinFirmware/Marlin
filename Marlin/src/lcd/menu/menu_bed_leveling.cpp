@@ -240,6 +240,10 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_trusted(),
              is_valid = leveling_is_valid();
 
+  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+    const bool can_babystep = babystep.can_babystep(Z_AXIS);
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
@@ -288,8 +292,9 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    //TODO: Needs proper name
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+    // TODO: Needs proper name
+    if (can_babystep)
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
@@ -300,6 +305,7 @@ void menu_bed_leveling() {
     ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
     ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
+
   END_MENU();
 }
 

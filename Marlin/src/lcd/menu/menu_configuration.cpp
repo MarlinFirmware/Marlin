@@ -251,10 +251,14 @@ void menu_advanced_settings();
 
   void menu_touchmi() {
     ui.defer_status_screen();
+
+    const bool can_babystep = babystep.can_babystep(Z_AXIS);
+
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     GCODES_ITEM(MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    if (can_babystep)
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     GCODES_ITEM(MSG_TOUCHMI_SAVE, PSTR("M500\nG1 F200 Z10"));
     GCODES_ITEM(MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
     END_MENU();
@@ -341,6 +345,10 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
+  #if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+    const bool can_babystep = babystep.can_babystep(Z_AXIS);
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -354,15 +362,18 @@ void menu_configuration() {
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    if (can_babystep)
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-    //TODO: Needs proper name
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+    // TODO: Needs proper name
+    if (can_babystep)
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
   #endif
+
   //
   // Set Fan Controller speed
   //

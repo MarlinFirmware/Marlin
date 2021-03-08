@@ -106,6 +106,15 @@
 #endif // BABYSTEPPING
 
 void menu_tune() {
+
+  #if ENABLED(BABYSTEPPING)
+    const bool can_babystep_z = babystep.can_babystep(Z_AXIS);
+    #if ENABLED(BABYSTEP_XY)
+      const bool can_babystep_x = babystep.can_babystep(X_AXIS),
+                 can_babystep_y = babystep.can_babystep(Y_AXIS);
+    #endif
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -223,18 +232,22 @@ void menu_tune() {
   //
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
-      SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
-      SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
+      if (can_babystep_x)
+        SUBMENU(MSG_BABYSTEP_X, []{ _lcd_babystep_go(_lcd_babystep_x); });
+      if (can_babystep_y)
+        SUBMENU(MSG_BABYSTEP_Y, []{ _lcd_babystep_go(_lcd_babystep_y); });
     #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    #else
-      SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
-    #endif
-    #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
-      //TODO: Needs proper name
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
-    #endif
+    if (can_babystep_z) {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      #else
+        SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
+      #endif
+      #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+        // TODO: Needs proper name
+        SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+      #endif
+    }
   #endif
 
   END_MENU();

@@ -126,8 +126,6 @@
     SERIAL_ECHOPGM(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh.");
     #if ENABLED(ENABLE_MESH_Z_OFFSET)
       SERIAL_ECHOPAIR_F(" Z offset: ", planner.mesh_z_offset, 5);
-    #else
-      SERIAL_EOL();
     #endif
 
     SERIAL_ECHOLNPGM("\nMeasured points:");

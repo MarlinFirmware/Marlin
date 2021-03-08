@@ -781,7 +781,7 @@ private:
   static void M500();
   static void M501();
   static void M502();
-  TERN(DISABLE_M503,, static void M503());
+  IF_DISABLED(DISABLE_M503, static void M503());
   TERN_(EEPROM_SETTINGS, static void M504());
 
   #if ENABLED(PASSWORD_FEATURE)
