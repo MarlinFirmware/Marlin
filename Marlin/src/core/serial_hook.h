@@ -165,7 +165,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   RuntimeSerial(const bool e, Args... args) : BaseClassT(e), SerialT(args...), writeHook(0), eofHook(0), userPointer(0) {}
 };
 
-// A class that's duplicating its output conditionally to 2 serial interface
+// A class that duplicates its output conditionally to 2 serial interfaces
 template <class Serial0T, class Serial1T, const uint8_t offset = 0, const uint8_t step = 1>
 struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > {
   typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > BaseClassT;
