@@ -2494,6 +2494,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
                 gcode.process_subcommands_now_P(PSTR(buf));
                 planner.synchronize();
+                Redraw_Menu();
               }
               break;
             case UBL_GET_MESH:
