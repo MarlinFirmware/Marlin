@@ -120,8 +120,8 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   }
 
   if (abs(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
-    else temp_diffState = ENCODER_DIFF_CCW;
+    if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CCW;
+    else temp_diffState = ENCODER_DIFF_CW;
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
