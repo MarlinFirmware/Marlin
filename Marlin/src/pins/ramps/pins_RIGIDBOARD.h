@@ -124,7 +124,7 @@
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22
 
-#elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#elif IS_RRD_SC
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22

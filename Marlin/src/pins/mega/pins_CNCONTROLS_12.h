@@ -25,9 +25,8 @@
  * CartesioV12 pin assignments
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "CN Controls V12"
 
@@ -156,9 +155,9 @@
 #define BTN_ENC                               38
 
 // Hardware buttons for manual movement of XYZ
-#define SHIFT_OUT                             42
-#define SHIFT_LD                              41
-#define SHIFT_CLK                             40
+#define SHIFT_OUT_PIN                         42
+#define SHIFT_LD_PIN                          41
+#define SHIFT_CLK_PIN                         40
 
 //#define UI1                                 43
 //#define UI2                                 37

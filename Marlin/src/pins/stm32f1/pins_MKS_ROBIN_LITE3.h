@@ -25,9 +25,9 @@
  * MKS Robin Lite 3 (STM32F103RCT6) board pin assignments
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -36,9 +36,10 @@
 #endif
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
+#define BOARD_NO_NATIVE_USB
+
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
-#define ENABLE_SPI2
 
 //
 // Servos
@@ -87,16 +88,16 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PA1   //TB
-#define TEMP_0_PIN                          PA0   //TH1
-#define TEMP_1_PIN                          PA2   //TH2
+#define TEMP_BED_PIN                        PA1   // TB
+#define TEMP_0_PIN                          PA0   // TH1
+#define TEMP_1_PIN                          PA2   // TH2
 
 #define FIL_RUNOUT_PIN                      PB10  // MT_DET
 
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
@@ -115,37 +116,44 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-    #undef SHOW_BOOTSCREEN
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PB11
+    #endif
 
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card
 //
-#define ENABLE_SPI2
 #define SD_DETECT_PIN                       PC10
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PA15
 
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
-#endif
+//
+// SPI
+//
+#define SPI_DEVICE                             2
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PA15

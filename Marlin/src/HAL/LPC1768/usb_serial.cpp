@@ -26,9 +26,11 @@
 #if ENABLED(EMERGENCY_PARSER)
 
 #include "../../feature/e_parser.h"
+
 EmergencyParser::State emergency_state;
-bool CDC_RecvCallback(const char buffer) {
-  emergency_parser.update(emergency_state, buffer);
+
+bool CDC_RecvCallback(const char c) {
+  emergency_parser.update(emergency_state, c);
   return true;
 }
 

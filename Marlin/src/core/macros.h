@@ -53,6 +53,7 @@
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
+#define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
 #define _Os          __attribute__((optimize("Os")))
@@ -60,12 +61,10 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
+
 #ifndef UNUSED
-  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-    #define UNUSED(X) (void)X
-  #else
-    #define UNUSED(x) ((void)(x))
-  #endif
+  #define UNUSED(x) ((void)(x))
 #endif
 
 // Clock speed factors
@@ -88,17 +87,13 @@
 #define _BV(n) (1<<(n))
 #define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-
 #ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
+  #define SBI(A,B) (A |= _BV(B))
 #endif
-
 #ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
+  #define CBI(A,B) (A &= ~_BV(B))
 #endif
-
 #define TBI(N,B) (N ^= _BV(B))
-
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
@@ -109,6 +104,7 @@
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
@@ -135,27 +131,27 @@
 
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
 
 #endif
 
-// Macros to chain up to 12 conditions
+// Macros to chain up to 14 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
 #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
@@ -168,9 +164,12 @@
 #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
 #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+#define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
+#define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+#define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
-#define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
+#define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
 
 // Macros to support option testing
 #define _CAT(a,V...) a##V
@@ -186,6 +185,7 @@
 #define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define COUNT_ENABLED(V...) DO(ENA,+,V)
 
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
@@ -195,11 +195,15 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
+#define IF_ENABLED          TERN_
+#define IF_DISABLED(O,A)    TERN(O,,A)
+
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
 #define ALL(V...)           ENABLED(V)
 #define BOTH(V1,V2)         ALL(V1,V2)
 #define EITHER(V1,V2)       ANY(V1,V2)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
@@ -213,8 +217,10 @@
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
+#define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
+#define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
@@ -282,6 +288,7 @@
 #define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
+#define TRUNC(x)    truncf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
@@ -310,6 +317,63 @@
     }
 
   #endif
+
+  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
+  namespace Private {
+    template<bool, typename _Tp = void> struct enable_if { };
+    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
+  }
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
+  #define HAS_MEMBER_IMPL(Member) \
+    namespace Private { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
+        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
+        template <typename C> static No& test(...); \
+        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+    }
+
+  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
+  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
+  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
+    HAS_MEMBER_IMPL(Method) \
+    namespace Private { \
+      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
+    }
+  #define CALL_IF_EXISTS(Return, That, Method, ...) \
+    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a slash
+    constexpr bool containsSlash(const char *str) {
+      return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
+    }
+    // Find the last position of the slash
+    constexpr const char* findLastSlashPos(const char* str) {
+      return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char* str) {
+      return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
 
 #else
 
@@ -450,6 +514,12 @@
 
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
+
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
 
 //
 // REPEAT core macros. Recurse N times with ascending I.

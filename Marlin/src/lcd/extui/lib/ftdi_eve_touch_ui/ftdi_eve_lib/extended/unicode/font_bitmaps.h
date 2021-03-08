@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -24,7 +24,7 @@
 class CommandProcessor;
 
 namespace FTDI {
-  void write_rle_data(uint16_t addr, const uint8_t *data, size_t n);
+  uint32_t write_rle_data(uint32_t addr, const uint8_t *data, size_t n);
   void set_font_bitmap(CommandProcessor& cmd, CLCD::FontMetrics &fm, uint8_t handle);
   void ext_vertex2ii(CommandProcessor &cmd, int x, int y, uint8_t handle, uint8_t cell);
 }

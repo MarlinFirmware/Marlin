@@ -27,12 +27,16 @@
   #include "../../module/motion.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
-    serialprintPGM(name);
-    SERIAL_CHAR(':');
-    SERIAL_ECHOLN(int(ena ? 1 : 0));
+    SERIAL_ECHOPGM_P(name);
+    SERIAL_CHAR(':', '0' + ena);
+    SERIAL_EOL();
   }
 #endif
 
@@ -42,8 +46,16 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-
-  SERIAL_ECHOLNPGM(STR_M115_REPORT);
+  SERIAL_ECHOLNPGM(
+    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
+    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
+    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
+    "MACHINE_TYPE:" MACHINE_NAME " "
+    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #ifdef MACHINE_UUID
+      "UUID:" MACHINE_UUID
+    #endif
+  );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
@@ -94,7 +106,7 @@ void GcodeSuite::M115() {
 
     // TOGGLE_LIGHTS (M355)
     cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, PWM_PIN(CASE_LIGHT_PIN)));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, caselight.has_brightness()));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
@@ -104,6 +116,9 @@ void GcodeSuite::M115() {
 
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
+
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
@@ -125,6 +140,12 @@ void GcodeSuite::M115() {
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // COOLER_TEMPERATURE (M143, M193)
+    cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
+
+    // MEATPACK Compresson
+    cap_line(PSTR("MEATPACK"), ENABLED(MEATPACK));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

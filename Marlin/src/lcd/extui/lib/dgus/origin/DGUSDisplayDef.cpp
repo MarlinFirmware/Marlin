@@ -20,13 +20,15 @@
  *
  */
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/origin/DGUSDisplayDef.cpp
+ */
 
 #include "../../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
 
-#include "../DGUSDisplayDef.h"
+#include "DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 
@@ -34,7 +36,7 @@
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
 
-#include "../../../../ultralcd.h"
+#include "../../../../marlinui.h"
 #include "../../../ui_api.h"
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
@@ -87,7 +89,7 @@ const uint16_t VPList_Status[] PROGMEM = {
 };
 
 const uint16_t VPList_Status2[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded */
+  // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HOTENDS >= 1
     VP_Flowrate_E0,
   #endif

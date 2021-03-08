@@ -39,10 +39,11 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
+#include "../marlinui.h"
 
 namespace ExtUI {
 
@@ -54,7 +55,7 @@ namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
   enum result_t   : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
@@ -129,8 +130,18 @@ namespace ExtUI {
   float getTravelAcceleration_mm_s2();
   float getFeedrate_percent();
   int16_t getFlowPercentage(const extruder_t);
-  uint8_t getProgress_percent();
+
+  inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
+
+  #if HAS_PRINT_PROGRESS_PERMYRIAD
+    inline uint16_t getProgress_permyriad() { return ui.get_progress_permyriad(); }
+  #endif
+
   uint32_t getProgress_seconds_elapsed();
+
+  #if ENABLED(SHOW_REMAINING_TIME)
+    inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
+  #endif
 
   #if HAS_LEVELING
     bool getLevelingActive();
@@ -140,10 +151,16 @@ namespace ExtUI {
       bed_mesh_t& getMeshArray();
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const float zval);
+      void onMeshLevelingStart();
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
-      typedef enum : unsigned char { PROBE_START, PROBE_FINISH } probe_state_t;
+      typedef enum : uint8_t {
+        MESH_START,    // Prior to start of probe
+        MESH_FINISH,   // Following probe of all points
+        PROBE_START,   // Beginning probe of grid location
+        PROBE_FINISH   // Finished probe of grid location
+      } probe_state_t;
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state);
       inline void onMeshUpdate(const xy_int8_t &pos, probe_state_t state) { onMeshUpdate(pos.x, pos.y, state); }
     #endif
@@ -180,6 +197,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const float);
   void setFeedrate_percent(const float);
   void setFlow_percent(const int16_t, const extruder_t);
+  bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
@@ -197,6 +215,7 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const float, const extruder_t);
   #endif
 
+  extruder_t getTool(const uint8_t extruder);
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 
@@ -284,8 +303,8 @@ namespace ExtUI {
     FORCE_INLINE uint32_t safe_millis() { return millis(); } // TODO: Implement for AVR
   #endif
 
-  void delay_us(unsigned long us);
-  void delay_ms(unsigned long ms);
+  void delay_us(uint32_t us);
+  void delay_ms(uint32_t ms);
   void yield();
 
   /**
@@ -297,6 +316,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
+  bool isPrintingPaused();
 
   void printFile(const char *filename);
   void stopPrint();
@@ -338,11 +358,16 @@ namespace ExtUI {
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
+  void onPrintFinished();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired_P(PGM_P const pstr);
   void onStatusChanged(const char * const msg);
   void onStatusChanged_P(PGM_P const pstr);
+  void onHomingStart();
+  void onHomingComplete();
+  void onSteppersDisabled();
+  void onSteppersEnabled();
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
@@ -370,7 +395,6 @@ namespace ExtUI {
  *   constexpr float increment = 10;
  *
  *   UI_INCREMENT(TargetTemp_celsius, E0)
- *
  */
 #define UI_INCREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
 #define UI_DECREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)

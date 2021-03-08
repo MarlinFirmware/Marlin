@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_RESTORE_FAILSAFE_DIALOG_BOX
 
 using namespace ExtUI;
 
@@ -48,4 +47,4 @@ bool RestoreFailsafeDialogBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_RESTORE_FAILSAFE_DIALOG_BOX

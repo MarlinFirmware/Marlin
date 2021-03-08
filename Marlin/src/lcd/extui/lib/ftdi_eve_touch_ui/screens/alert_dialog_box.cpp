@@ -17,22 +17,23 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_ALERT_DIALOG_BOX
+
+constexpr static AlertDialogBoxData &mydata = screen_data.AlertDialogBox;
 
 using namespace FTDI;
 using namespace Theme;
 
 void AlertDialogBox::onEntry() {
   BaseScreen::onEntry();
-  sound.play(screen_data.AlertDialogBox.isError ? sad_trombone : twinkle, PLAY_ASYNCHRONOUS);
+  sound.play(mydata.isError ? sad_trombone : twinkle, PLAY_ASYNCHRONOUS);
 }
 
 void AlertDialogBox::onRedraw(draw_mode_t what) {
@@ -45,7 +46,7 @@ template<typename T>
 void AlertDialogBox::show(const T message) {
   drawMessage(message);
   storeBackground();
-  screen_data.AlertDialogBox.isError = false;
+  mydata.isError = false;
   GOTO_SCREEN(AlertDialogBox);
 }
 
@@ -53,7 +54,7 @@ template<typename T>
 void AlertDialogBox::showError(const T message) {
   drawMessage(message);
   storeBackground();
-  screen_data.AlertDialogBox.isError = true;
+  mydata.isError = true;
   GOTO_SCREEN(AlertDialogBox);
 }
 
@@ -67,4 +68,4 @@ template void AlertDialogBox::show(const progmem_str);
 template void AlertDialogBox::showError(const char *);
 template void AlertDialogBox::showError(const progmem_str);
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_ALERT_DIALOG_BOX

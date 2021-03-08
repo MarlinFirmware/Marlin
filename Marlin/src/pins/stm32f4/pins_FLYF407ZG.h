@@ -21,15 +21,20 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 6 || E_STEPPERS > 6
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 6 || E_STEPPERS > 6
   #error "FLYF407ZG supports up to 6 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+
+// Avoid conflict with fans and TIMER_TONE
+#define TEMP_TIMER 3
+#define STEP_TIMER 5
 
 //
 // EEPROM Emulation
@@ -45,11 +50,11 @@
   // the 128kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
 #endif
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -192,16 +197,16 @@
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SD_SCK_PIN               SDIO_CK_PIN
+    #define SD_MISO_PIN              SDIO_D0_PIN
+    #define SD_MOSI_PIN             SDIO_CMD_PIN
   #endif
 
 #elif SD_CONNECTION_IS(LCD)
 
-  #define SCK_PIN                           PB13
-  #define MISO_PIN                          PB14
-  #define MOSI_PIN                          PB15
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB15
   #define SDSS                              PF11
   #define SD_DETECT_PIN                     PB2
 

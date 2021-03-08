@@ -22,7 +22,7 @@
 #pragma once
 
 #ifndef LCD_READ_ID
-  #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
+  #define LCD_READ_ID  0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
 #ifndef LCD_READ_ID4
   #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
@@ -30,9 +30,9 @@
 
 #include <libmaple/dma.h>
 
-#define DATASIZE_8BIT    DMA_SIZE_8BITS
-#define DATASIZE_16BIT   DMA_SIZE_16BITS
-#define TFT_IO TFT_FSMC
+#define DATASIZE_8BIT  DMA_SIZE_8BITS
+#define DATASIZE_16BIT DMA_SIZE_16BITS
+#define TFT_IO_DRIVER  TFT_FSMC
 
 typedef struct {
   __IO uint16_t REG;
@@ -61,4 +61,11 @@ class TFT_FSMC {
 
     static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_MODE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_CIRC_MODE, &Data, Count); }
+    static void WriteMultiple(uint16_t Color, uint32_t Count) {
+      static uint16_t Data; Data = Color;
+      while (Count > 0) {
+        TransmitDMA(DMA_CIRC_MODE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
+        Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
+      }
+    }
 };

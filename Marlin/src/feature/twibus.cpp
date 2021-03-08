@@ -28,6 +28,8 @@
 
 #include <Wire.h>
 
+TWIBus i2c;
+
 TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
     Wire.begin();                  // No address joins the BUS as the master
@@ -81,7 +83,7 @@ void TWIBus::send() {
 // static
 void TWIBus::echoprefix(uint8_t bytes, const char pref[], uint8_t adr) {
   SERIAL_ECHO_START();
-  serialprintPGM(pref);
+  SERIAL_ECHOPGM_P(pref);
   SERIAL_ECHOPAIR(": from:", adr, " bytes:", bytes, " data:");
 }
 
@@ -155,6 +157,14 @@ void TWIBus::flush() {
     reset();
   }
 
+  void i2c_on_receive(int bytes) { // just echo all bytes received to serial
+    i2c.receive(bytes);
+  }
+
+  void i2c_on_request() {          // just send dummy data for now
+    i2c.reply("Hello World!\n");
+  }
+
 #endif
 
 #if ENABLED(DEBUG_TWIBUS)
@@ -162,7 +172,7 @@ void TWIBus::flush() {
   // static
   void TWIBus::prefix(const char func[]) {
     SERIAL_ECHOPGM("TWIBus::");
-    serialprintPGM(func);
+    SERIAL_ECHOPGM_P(func);
     SERIAL_ECHOPGM(": ");
   }
   void TWIBus::debug(const char func[], uint32_t adr) {
