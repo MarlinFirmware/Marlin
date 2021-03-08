@@ -2565,14 +2565,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         break;
       case UBLView:
 
-        #define VIEWMENU_BACK 0
-        #define VIEWMENU_MESH (VIEWMENU_BACK + 1)
-        #define VIEWMENU_TEXT (VIEWMENU_MESH + 1)
-        #define VIEWMENU_ASYMMETRIC (VIEWMENU_TEXT + 1)
-        #define VIEWMENU_TOTAL VIEWMENU_ASYMMETRIC
+        #define UBLVIEW_BACK 0
+        #define UBLVIEW_MESH (UBLVIEW_BACK + 1)
+        #define UBLVIEW_TEXT (UBLVIEW_MESH + 1)
+        #define UBLVIEW_ASYMMETRIC (UBLVIEW_TEXT + 1)
+        #define UBLVIEW_TOTAL UBLVIEW_ASYMMETRIC
 
         switch (item) {
-          case VIEWMENU_BACK:
+          case UBLVIEW_BACK:
             if (draw) {
               Draw_Menu_Item(row, ICON_Back, (char*)"Back");
             }
@@ -2580,7 +2580,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu(UBL, UBL_VIEW);
             }
             break;
-          case VIEWMENU_MESH:
+          case UBLVIEW_MESH:
             if (draw) {
               Draw_Menu_Item(row, ICON_PrintSize, (char*)"Mesh Viewer", NULL, true);
             }
@@ -2588,7 +2588,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu(MeshViewer);
             }
             break;
-          case VIEWMENU_TEXT:
+          case UBLVIEW_TEXT:
             if (draw) {
               Draw_Menu_Item(row, ICON_Contact, (char*)"Viewer Show Values");
               Draw_Checkbox(row, ubl_conf.viewer_print_value);
@@ -2598,7 +2598,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Checkbox(row, ubl_conf.viewer_print_value);
             }
             break;
-          case VIEWMENU_ASYMMETRIC:
+          case UBLVIEW_ASYMMETRIC:
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Viewer Asymmetric");
               Draw_Checkbox(row, ubl_conf.viewer_asymmetric_range);
@@ -2694,7 +2694,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Set_Mesh_Viewer_Status();
             }
             else {
-              Draw_Menu(UBL, UBL_VIEW);
+              Draw_Menu(UBLView, UBLVIEW_MESH);
               Update_Status("");
             }
             break;
@@ -3374,7 +3374,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       case UBL:
         return UBL_TOTAL;
       case UBLView:
-        return VIEWMENU_TOTAL;
+        return UBLVIEW_TOTAL;
       case UBLSettings:
         return UBLSETTINGS_TOTAL;
       case MeshViewer:
