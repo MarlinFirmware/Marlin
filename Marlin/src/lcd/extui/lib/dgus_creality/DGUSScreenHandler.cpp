@@ -345,19 +345,18 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeWithRemainingToDisplay(DGUS_VP_Vari
 void DGUSScreenHandler::DGUSLCD_SendPrintTimeRemainingToDisplay(DGUS_VP_Variable &var) { 
 #if ENABLED(SHOW_REMAINING_TIME)
   static uint32_t lastRemainingTime = -1;
-
   uint32_t remaining_time = ui.remaining_time;
+  if (lastRemainingTime == remaining_time) {
+    return;
+  }
+
   bool has_remaining_time = remaining_time != 0;
 
-  // Update display remaining icon
+  // Update display of SPs (toggle between large and small print timer)
   if (has_remaining_time) {
     dgusdisplay.WriteVariable(VP_HideRemainingTime_Ico, ICON_REMAINING_VISIBLE);
   } else {
     dgusdisplay.WriteVariable(VP_HideRemainingTime_Ico, ICON_REMAINING_HIDDEN);
-  }
-
-  if (lastRemainingTime == remaining_time) {
-    return;
   }
 
   if (!has_remaining_time) {
