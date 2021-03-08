@@ -412,7 +412,9 @@ void GcodeSuite::G34() {
 
       // Stow the probe, as the last call to probe.probe_at_point(...) left
       // the probe deployed if it was successful.
-      probe.stow();
+      #ifndef TOUCH_MI_PROBE
+        probe.stow();
+      #endif
 
       #if ENABLED(HOME_AFTER_G34)
         // After this operation the z position needs correction
