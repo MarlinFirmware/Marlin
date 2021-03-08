@@ -51,7 +51,7 @@ void GcodeSuite::M303() {
       thermalManager.pid_debug_flag ^= true;
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("PID Debug ");
-      serialprintln_onoff(pid_debug_flag);
+      serialprintln_onoff(thermalManager.pid_debug_flag);
       return;
     }
   #endif
