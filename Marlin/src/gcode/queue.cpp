@@ -272,7 +272,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_ECHOLN(serial_state[serial_ind].last_N + 1);
 }
 
-inline bool serial_data_available(int8_t index) {
+inline bool serial_data_available(uint8_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
