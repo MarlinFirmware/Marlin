@@ -231,6 +231,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Przesuń co 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Przesuń co 10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Predkość");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Stół Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Dysza");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Dysza ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Stół");

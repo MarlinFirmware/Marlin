@@ -264,7 +264,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Flytta 0.01tum");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Flytta 0.1tum");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Hastighet");
-  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bädd Z");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Bädd Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Munstycke");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Munstycke ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Munstycke Parkerad");

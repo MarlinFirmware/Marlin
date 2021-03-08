@@ -89,6 +89,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Μετακίνηση 1 μμ");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Μετακίνηση 10 μμ");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Ταχύτητα");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Κλίνη Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Ακροφύσιο");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ακροφύσιο ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Κλίνη");

@@ -269,6 +269,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Muovi di 0.01in");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Muovi di 0.1in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocità");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Piatto Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Ugello");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Ugello ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Ugello parcheggiato");

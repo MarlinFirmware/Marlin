@@ -234,6 +234,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidade");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Cama Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Bico");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Bico ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Bico Estacionado");

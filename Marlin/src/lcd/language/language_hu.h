@@ -260,6 +260,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Mozgás 0.01mm");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Mozgás 0.1mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Sebesség");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Z ágy");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Fúvóka");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Fúvóka ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Fej parkolva");

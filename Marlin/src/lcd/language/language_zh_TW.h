@@ -229,6 +229,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移動 1 mm");     //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移動 10 mm");     //"Move 10mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("熱床Z");     //"Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴 ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" 熱床");     //"Bed"

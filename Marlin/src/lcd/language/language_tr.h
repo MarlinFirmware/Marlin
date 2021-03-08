@@ -236,6 +236,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Hız");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Z Mesafesi");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozul");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozul ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Tabla");

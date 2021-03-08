@@ -323,6 +323,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Рух 1мм");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Рух 10мм");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Швидкість");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Z Столу");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Сопло ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Сопло запарковане");

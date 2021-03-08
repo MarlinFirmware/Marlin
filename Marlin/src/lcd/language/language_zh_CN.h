@@ -231,6 +231,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移动 1 mm");     //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("热床Z");     //"Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("喷嘴");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("喷嘴 ~");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("喷嘴已停靠");

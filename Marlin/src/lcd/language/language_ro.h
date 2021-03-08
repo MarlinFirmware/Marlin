@@ -233,6 +233,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Move 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Move 10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
+  PROGMEM Language_Str MSG_MESH_Z_OFFSET                   = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Nozzle Parked");
