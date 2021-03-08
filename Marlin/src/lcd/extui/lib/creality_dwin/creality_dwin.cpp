@@ -460,8 +460,8 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
       DWIN_Draw_Rectangle(1,        // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
         isnan(ubl.z_values[x][y]) ? Color_Grey : (                                                              // gray if undefined
           (ubl.z_values[x][y] < 0 ? 
-            round(0b11111  * -ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-            round(0b111111 *  ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+            (uint16_t)round(0b11111  * -ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
+            (uint16_t)round(0b111111 *  ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
               min(0b11111, (((uint8_t)abs(ubl.z_values[x][y]) / 10) * 4))),                                     // + blue stepping for every mm
         start_x_px, start_y_px, end_x_px, end_y_px);
       while (LCD_SERIAL.availableForWrite() < 32) { // wait for serial to be available without blocking and resetting the MCU 
