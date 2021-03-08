@@ -342,6 +342,10 @@ void menu_advanced_settings();
 
 #endif
 
+#if EITHER(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+  #include "../../feature/babystep.h"
+#endif
+
 void menu_configuration() {
   const bool busy = printer_busy();
 
