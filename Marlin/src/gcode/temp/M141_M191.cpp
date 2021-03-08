@@ -32,19 +32,7 @@
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
-
-#include "../../module/motion.h"
 #include "../../lcd/marlinui.h"
-
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
-
-#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M141: Set chamber temperature

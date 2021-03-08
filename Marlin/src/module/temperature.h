@@ -44,10 +44,10 @@
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
-// Heater identifiers. Positive values are hotends. Negative values are other heaters.
+// Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  INDEX_NONE = -5,
-  H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
+  INDEX_NONE = -6,
+  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
   H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
@@ -98,6 +98,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_CHAMBER
     PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
+  #endif
+  #if HAS_TEMP_ADC_COOLER
+    PrepareTemp_COOLER, MeasureTemp_COOLER,
   #endif
   #if HAS_TEMP_ADC_PROBE
     PrepareTemp_PROBE, MeasureTemp_PROBE,
@@ -218,6 +221,9 @@ struct PIDHeaterInfo : public HeaterInfo {
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
+#if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
+  typedef heater_info_t cooler_info_t;
+#endif
 
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
@@ -248,6 +254,9 @@ struct HeaterWatch {
 #endif
 #if WATCH_CHAMBER
   typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+#endif
+#if WATCH_COOLER
+  typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
 #endif
 
 // Temperature sensor read value ranges
@@ -288,6 +297,9 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
+    #if COOLER_USER_THERMISTOR
+      CTI_COOLER,
+    #endif
     USER_THERMISTORS
   };
 
@@ -316,9 +328,11 @@ class Temperature {
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
     TERN_(HAS_TEMP_CHAMBER, static chamber_info_t temp_chamber);
+    TERN_(HAS_TEMP_COOLER, static cooler_info_t temp_cooler);
 
     TERN_(AUTO_POWER_E_FANS, static uint8_t autofan_speed[HOTENDS]);
     TERN_(AUTO_POWER_CHAMBER_FAN, static uint8_t chamberfan_speed);
+    TERN_(AUTO_POWER_COOLER_FAN, static uint8_t coolerfan_speed);
 
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
@@ -428,6 +442,17 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_COOLER
+      TERN_(WATCH_COOLER, static cooler_watch_t watch_cooler);
+      static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
+      #ifdef COOLER_MINTEMP
+        static int16_t mintemp_raw_COOLER;
+      #endif
+      #ifdef COOLER_MAXTEMP
+        static int16_t maxtemp_raw_COOLER;
+      #endif
+    #endif
+
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
@@ -492,7 +517,6 @@ class Temperature {
     #if HAS_HOTEND
       static float analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
-
     #if HAS_HEATED_BED
       static float analog_to_celsius_bed(const int raw);
     #endif
@@ -501,6 +525,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_CHAMBER
       static float analog_to_celsius_chamber(const int raw);
+    #endif
+    #if HAS_TEMP_COOLER
+      static float analog_to_celsius_cooler(const int raw);
     #endif
 
     #if HAS_FAN
@@ -737,6 +764,38 @@ class Temperature {
       }
     #endif
 
+    #if HAS_TEMP_COOLER
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        FORCE_INLINE static int16_t rawCoolerTemp()    { return temp_cooler.raw; }
+      #endif
+      FORCE_INLINE static float degCooler()            { return temp_cooler.celsius; }
+      #if HAS_COOLER
+        FORCE_INLINE static int16_t degTargetCooler()  { return temp_cooler.target; }
+        FORCE_INLINE static bool isLaserHeating()     { return temp_cooler.target > temp_cooler.celsius; }
+        FORCE_INLINE static bool isLaserCooling()     { return temp_cooler.target < temp_cooler.celsius; }
+        static bool wait_for_cooler(const bool no_wait_for_cooling=true);
+      #endif
+    #endif
+
+    #if WATCH_COOLER
+      static void start_watching_cooler();
+    #else
+      static inline void start_watching_cooler() {}
+    #endif
+
+    #if HAS_COOLER
+      static void setTargetCooler(const int16_t celsius) {
+        temp_cooler.target =
+          #ifdef COOLER_MAXTEMP
+            _MIN(celsius, COOLER_MAXTEMP - 10)
+          #else
+            celsius
+          #endif
+        ;
+        start_watching_cooler();
+      }
+    #endif
+
     /**
      * The software PWM power for a heater
      */
@@ -847,7 +906,7 @@ class Temperature {
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 
-    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, HAS_THERMALLY_PROTECTED_BED)
+    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, HAS_THERMALLY_PROTECTED_BED, THERMAL_PROTECTION_COOLER)
 
     #if HAS_THERMAL_PROTECTION
 
@@ -863,6 +922,9 @@ class Temperature {
         #if ENABLED(THERMAL_PROTECTION_CHAMBER)
           RUNAWAY_IND_CHAMBER,
         #endif
+        #if ENABLED(THERMAL_PROTECTION_COOLER)
+          RUNAWAY_IND_COOLER,
+        #endif
         NR_HEATER_RUNAWAY
       };
       #undef _ENUM_FOR_E
@@ -871,6 +933,9 @@ class Temperature {
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
         #if HAS_THERMALLY_PROTECTED_CHAMBER
           if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
+        #endif
+        #if HAS_THERMALLY_PROTECTED_CHAMBER
+          if (heater_id == H_COOLER) return RUNAWAY_IND_COOLER;
         #endif
         #if HAS_THERMALLY_PROTECTED_BED
           if (heater_id == H_BED) return RUNAWAY_IND_BED;

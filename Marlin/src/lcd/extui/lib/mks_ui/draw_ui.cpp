@@ -179,7 +179,7 @@ void gCfgItems_init() {
 
 void ui_cfg_init() {
   uiCfg.curTempType         = 0;
-  uiCfg.curSprayerChoose    = 0;
+  uiCfg.extruderIndex       = 0;
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;

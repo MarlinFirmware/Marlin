@@ -47,6 +47,9 @@
 
 #include "env_validate.h"
 
+// Custom flags and defines for the build
+//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
