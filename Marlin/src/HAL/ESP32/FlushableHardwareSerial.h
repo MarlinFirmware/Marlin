@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include "../shared/serial_hook.h"
 #include <HardwareSerial.h>
 #include "../../core/serial_hook.h"
 
