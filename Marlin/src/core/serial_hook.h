@@ -170,7 +170,7 @@ template <class Serial0T, class Serial1T, const uint8_t offset = 0, const uint8_
 struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > {
   typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > BaseClassT;
 
-  uint8_t    portMask = 0xFF;
+  uint8_t    portMask;
   Serial0T & serial0;
   Serial1T & serial1;
 
