@@ -198,10 +198,10 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
   Serial0T & serial0;
   Serial1T & serial1;
 
-  static constexpr SerialMask Usage         =  ((1 << step) - 1); // A bit mask containing as many bits as step
-  static constexpr SerialMask FirstOutput   = (Usage << offset);
-  static constexpr SerialMask SecondOutput  = (Usage << (offset + step));
-  static constexpr SerialMask Both          = FirstOutput.combine(SecondOutput);
+  static constexpr uint8_t Usage         =  ((1 << step) - 1); // A bit mask containing as many bits as step
+  static constexpr uint8_t FirstOutput   = (Usage << offset);
+  static constexpr uint8_t SecondOutput  = (Usage << (offset + step));
+  static constexpr uint8_t Both          = FirstOutput | SecondOutput;
 
   NO_INLINE size_t write(uint8_t c) {
     size_t ret = 0;
