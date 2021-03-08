@@ -241,7 +241,7 @@ constexpr uint16_t VP_PrintTime_LEN = 19;
 constexpr uint16_t VP_PrintTimeRemaining = 0x231f;
 constexpr uint16_t VP_PrintTimeRemaining_LEN = 21;
 
-constexpr uint16_t VP_HideRemainingTime_Ico = 0x21b4;
+constexpr uint16_t VP_HideRemainingTime_Ico = 0x2380;
 constexpr uint16_t ICON_REMAINING_VISIBLE = 26;
 constexpr uint16_t ICON_REMAINING_HIDDEN = 27;
 
