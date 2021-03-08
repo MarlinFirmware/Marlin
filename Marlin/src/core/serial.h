@@ -62,7 +62,7 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-#define SERIAL_ALL 0xFF
+#define SERIAL_ALL SerialMask::All
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n,p)    RESTORE(n)
@@ -92,7 +92,7 @@ extern uint8_t marlin_debug_flags;
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()          _PORT_RESTORE(1)
-#define SERIAL_PORTMASK(P)      _BV(P)
+#define SERIAL_PORTMASK(P)      SerialMask::from(P)
 
 //
 // SERIAL_CHAR - Print one or more individual chars
