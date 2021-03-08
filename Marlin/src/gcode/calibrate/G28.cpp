@@ -54,7 +54,7 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
-#if HAS_L64XX                         // set L6470 absolute position registers to counts
+#if HAS_L64XX
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
 
@@ -67,50 +67,95 @@
 
 #if ENABLED(QUICK_HOME)
 
+  #if IS_SCARA
+    #include "../../module/planner.h"
+  #endif
+
   static void quick_home_xy() {
 
-    // Pretend the current position is 0,0
-    current_position.set(0.0, 0.0);
-    sync_plan_position();
+    #if IS_SCARA
 
-    const int x_axis_home_dir = x_home_dir(active_extruder);
+      auto scara_home_endstop = [](const float theta, const float psi, const feedRate_t feedRate) {
+        uint8_t extruder = 0;
+        const float e_tam = 0, mm = 360.0;
+        planner.buffer_segment(theta, psi, delta.c, e_tam, feedRate, extruder, mm);
 
-    const float mlx = max_length(X_AXIS),
-                mly = max_length(Y_AXIS),
-                mlratio = mlx > mly ? mly / mlx : mlx / mly,
-                fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
-
-    #if ENABLED(SENSORLESS_HOMING)
-      sensorless_t stealth_states {
-          tmc_enable_stallguard(stepperX)
-        , tmc_enable_stallguard(stepperY)
-        , false
-        , false
-          #if AXIS_HAS_STALLGUARD(X2)
-            || tmc_enable_stallguard(stepperX2)
-          #endif
-        , false
-          #if AXIS_HAS_STALLGUARD(Y2)
-            || tmc_enable_stallguard(stepperY2)
-          #endif
+        constexpr millis_t check_interval = 1000;
+        millis_t pos_check_ms = millis() + check_interval;
+        while (!endstops.any()) {
+          const millis_t ms = millis();
+          if (ELAPSED(ms, pos_check_ms)) { // check
+            pos_check_ms = ms + check_interval;
+            const float x_tam = planner.get_axis_position_degrees(A_AXIS),
+                        y_tam = planner.get_axis_position_degrees(B_AXIS);
+            if (NEAR(x_tam, theta) && NEAR(y_tam, psi)) break;
+          }
+          idle();
+        }
+        endstops.validate_homing_move();
       };
-    #endif
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
+      auto scara_set_pos_from_angles = [](float theta, float psi) {
+        forward_kinematics(theta, psi);
+        current_position.set(cartes.x, cartes.y);
+        sync_plan_position();
+      };
 
-    endstops.validate_homing_move();
+      // TODO: Move both arms until some endstop is hit,
+      //       then move the one that didn't trigger.
+      endstops.hit_on_purpose();
+      scara_set_pos_from_angles(0, 0);
+      scara_home_endstop(360.0 * (X_HOME_DIR), 360.0 * (Y_HOME_DIR), homing_feedrate(X_AXIS)); // Rotate A by 360 degrees, halt on endstop
+      scara_set_pos_from_angles(0, 0);
+      scara_home_endstop(0, 360.0 * (Y_HOME_DIR), homing_feedrate(Y_AXIS)); // Rotate B by 360 degrees, halt on endstop
+      scara_set_pos_from_angles(THETA_HOMING_OFFSET, PSI_HOMING_OFFSET);  // Set Home position
 
-    current_position.set(0.0, 0.0);
+    #else
 
-    #if ENABLED(SENSORLESS_HOMING)
-      tmc_disable_stallguard(stepperX, stealth_states.x);
-      tmc_disable_stallguard(stepperY, stealth_states.y);
-      #if AXIS_HAS_STALLGUARD(X2)
-        tmc_disable_stallguard(stepperX2, stealth_states.x2);
+      // Pretend the current position is 0,0
+      current_position.set(0.0, 0.0);
+      sync_plan_position();
+
+      const int x_axis_home_dir = x_home_dir(active_extruder);
+
+      const float mlx = max_length(X_AXIS),
+                  mly = max_length(Y_AXIS),
+                  mlratio = mlx > mly ? mly / mlx : mlx / mly,
+                  fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
+
+      #if ENABLED(SENSORLESS_HOMING)
+        sensorless_t stealth_states {
+            tmc_enable_stallguard(stepperX)
+          , tmc_enable_stallguard(stepperY)
+          , false
+          , false
+            #if AXIS_HAS_STALLGUARD(X2)
+              || tmc_enable_stallguard(stepperX2)
+            #endif
+          , false
+            #if AXIS_HAS_STALLGUARD(Y2)
+              || tmc_enable_stallguard(stepperY2)
+            #endif
+        };
       #endif
-      #if AXIS_HAS_STALLGUARD(Y2)
-        tmc_disable_stallguard(stepperY2, stealth_states.y2);
+
+      do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
+
+      endstops.validate_homing_move();
+
+      current_position.set(0.0, 0.0);
+
+      #if ENABLED(SENSORLESS_HOMING)
+        tmc_disable_stallguard(stepperX, stealth_states.x);
+        tmc_disable_stallguard(stepperY, stealth_states.y);
+        #if AXIS_HAS_STALLGUARD(X2)
+          tmc_disable_stallguard(stepperX2, stealth_states.x2);
+        #endif
+        #if AXIS_HAS_STALLGUARD(Y2)
+          tmc_disable_stallguard(stepperY2, stealth_states.y2);
+        #endif
       #endif
+
     #endif
   }
 
