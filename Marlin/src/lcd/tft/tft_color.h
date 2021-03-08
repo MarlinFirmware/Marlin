@@ -94,6 +94,9 @@
 #ifndef COLOR_CHAMBER
   #define COLOR_CHAMBER           COLOR_DARK_ORANGE
 #endif
+#ifndef COLOR_COOLER
+  #define COLOR_COOLER            COLOR_DARK_ORANGE
+#endif
 #ifndef COLOR_FAN
   #define COLOR_FAN               COLOR_AQUA
 #endif

@@ -21,10 +21,9 @@
  */
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, CUSTOM_USER_MENUS) && NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_CUSTOM_USER_MENUS
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -35,9 +34,6 @@ using namespace Theme;
 #define _USER_GCODE(N) USER_GCODE_##N
 #define _USER_ITEM(N) .tag(_ITEM_TAG(N)).button(USER_ITEM_POS(N), _USER_DESC(N))
 #define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
-
-#define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-#define HAS_USER_ITEM(V...) DO(HAS,||,V)
 
 void CustomUserMenus::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
@@ -212,4 +208,4 @@ bool CustomUserMenus::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && CUSTOM_USER_MENUS && !TOUCH_UI_LULZBOT_BIO && !TOUCH_UI_COCOA_PRESS
+#endif // FTDI_CUSTOM_USER_MENUS

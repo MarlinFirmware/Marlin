@@ -1,9 +1,8 @@
+#
+# download_mks_assets.py
+#
 Import("env")
-import os
-import requests
-import zipfile
-import tempfile
-import shutil
+import os,requests,zipfile,tempfile,shutil
 
 url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/master.zip"
 zip_path = os.path.join(env.Dictionary("PROJECT_LIBDEPS_DIR"), "mks-assets.zip")

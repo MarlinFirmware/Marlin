@@ -36,17 +36,7 @@
 #include "../../module/temperature.h"
 #include "../../module/probe.h"
 #include "../../feature/probe_temp_comp.h"
-
 #include "../../lcd/marlinui.h"
-#include "../../MarlinCore.h" // for wait_for_heatup, idle()
-
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENTS_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
 
 /**
  * G76: calibrate probe and/or bed temperature offsets
@@ -172,7 +162,6 @@ void GcodeSuite::G76() {
   }
 
   remember_feedrate_scaling_off();
-
 
   /******************************************
    * Calibrate bed temperature offsets

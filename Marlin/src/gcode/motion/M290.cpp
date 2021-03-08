@@ -97,7 +97,7 @@ void GcodeSuite::M290() {
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
       SERIAL_ECHOLNPAIR_P(
-        PSTR("Hotend "), int(active_extruder)
+        PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
           , PSTR("Offset X"), hotend_offset[active_extruder].x
           , SP_Y_STR, hotend_offset[active_extruder].y
