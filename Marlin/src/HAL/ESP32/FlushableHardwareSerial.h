@@ -22,6 +22,8 @@
 #pragma once
 
 #include <HardwareSerial.h>
+
+#include "../shared/Marduino.h"
 #include "../../core/serial_hook.h"
 
 class FlushableHardwareSerial : public HardwareSerial {
