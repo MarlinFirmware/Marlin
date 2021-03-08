@@ -286,7 +286,7 @@ void menu_advanced_settings();
 
   void menu_config_retract() {
     START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
+    BACK_ITEM(MSG_BACK);
     #if ENABLED(FWRETRACT_AUTORETRACT)
       EDIT_ITEM(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
     #endif

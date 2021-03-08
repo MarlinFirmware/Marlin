@@ -204,6 +204,10 @@ void menu_tune() {
     #endif
   #endif
 
+  #if ENABLED(FWRETRACT)
+    SUBMENU(MSG_RETRACT, menu_config_retract);
+  #endif
+
   //
   // Advance K:
   //

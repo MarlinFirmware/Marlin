@@ -254,6 +254,10 @@ void _lcd_draw_homing();
   void touch_screen_calibration();
 #endif
 
+#if ENABLED(FWRETRACT)
+  void menu_config_retract();
+#endif
+
 extern uint8_t screen_history_depth;
 inline void clear_menu_history() { screen_history_depth = 0; }
 
