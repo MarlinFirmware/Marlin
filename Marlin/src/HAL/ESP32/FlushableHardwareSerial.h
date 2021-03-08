@@ -21,8 +21,7 @@
  */
 #pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
-
+#include "../shared/serial_hook.h"
 #include <HardwareSerial.h>
 #include "../../core/serial_hook.h"
 
@@ -32,5 +31,3 @@ public:
 };
 
 extern Serial0Type<FlushableHardwareSerial> flushableSerial;
-
-#endif // ARDUINO_ARCH_ESP32
