@@ -103,7 +103,6 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   int available()                 { return (int)out.available(); }
   int read()                      { return (int)out.read(); }
 
-
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
 
@@ -123,10 +122,10 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(serial_index_t)     { return (int)out.available(); }
-  int read(serial_index_t)          { return (int)out.read(); }
-  int available()                   { return (int)out.available(); }
-  int read()                        { return (int)out.read(); }
+  int available(serial_index_t) { return (int)out.available(); }
+  int read(serial_index_t)      { return (int)out.read(); }
+  int available()               { return (int)out.available(); }
+  int read()                    { return (int)out.read(); }
 
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
