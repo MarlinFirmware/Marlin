@@ -1067,6 +1067,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     static millis_t next_busy_signal_ms = 0;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
+      PORT_REDIRECT(SERIAL_ALL);
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
