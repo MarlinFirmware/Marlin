@@ -210,16 +210,16 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
     if (portMask.enabled(SecondOutput))  serial1.msgDone();
   }
   int available(serial_index_t index) {
-    if (index.between(0 + offset, step + offset))
+    if (index.within(0 + offset, step + offset - 1))
       return serial0.available(index);
-    else if (index.between(step + offset, 2 * step + offset))
+    else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.available(index);
     return false;
   }
   int read(serial_index_t index) {
-    if (index.between(0 + offset, step + offset))
+    if (index.within(0 + offset, step + offset - 1))
       return serial0.read(index);
-    else if (index.between(step + offset, 2 * step + offset))
+    else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.read(index);
     return -1;
   }
