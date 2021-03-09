@@ -128,13 +128,15 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
 
   SerialT & out;
 
-  char serialBuffer[2];
-  uint8_t charCount;
-  uint8_t readIndex;
+  struct serial_state_t {
+    char buffer[2];
+    uint8_t charCount;
+    uint8_t readIndex;
+  } serial_state[NUM_SERIAL];
 
   NO_INLINE size_t write(uint8_t c)   { return out.write(c); }
   void flush()                        { out.flush();  }
-  void begin(long br)                 { out.begin(br); readIndex = 0; }
+  void begin(long br)                 { out.begin(br); LOOP_L_N(p, NUM_SERIAL) { serial_state[p].readIndex = 0; serial_state[p].charCount = 0; } }
   void end()                          { out.end(); }
 
   void msgDone()                      { out.msgDone(); }
@@ -147,25 +149,25 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
     // TODO, let's fix this later on
 
-    if (charCount) return charCount;          // The buffer still has data
+    if (serial_state[index.index].charCount) return serial_state[index.index].charCount;          // The buffer still has data
     if (out.available(index) <= 0) return 0;  // No data to read
 
     // Don't read in read method, instead do it here, so we can make progress in the read method
     const int r = out.read(index);
     if (r == -1) return 0;  // This is an error from the underlying serial code
     meatpack.handle_rx_char((uint8_t)r, index);
-    charCount = meatpack.get_result_char(serialBuffer);
-    readIndex = 0;
+    serial_state[index.index].charCount = meatpack.get_result_char(serial_state[index.index].buffer);
+    serial_state[index.index].readIndex = 0;
 
-    return charCount;
+    return serial_state[index.index].charCount;
   }
 
   int readImpl(const serial_index_t index) {
     // Not enough char to make progress?
-    if (charCount == 0 && available(index) == 0) return -1;
+    if (serial_state[index.index].charCount == 0 && available(index) == 0) return -1;
 
-    charCount--;
-    return serialBuffer[readIndex++];
+    serial_state[index.index].charCount--;
+    return serial_state[index.index].buffer[serial_state[index.index].readIndex++];
   }
 
   int read(serial_index_t index)  { return readImpl(index); }
