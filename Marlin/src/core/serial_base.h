@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-#include "macros.h"
 #include "types.h"
 
 #if ENABLED(EMERGENCY_PARSER)
