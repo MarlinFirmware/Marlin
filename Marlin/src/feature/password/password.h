@@ -25,10 +25,10 @@
 
 class Password {
 public:
-  static bool is_set, is_locked;
+  static bool is_set, is_locked, first_run;
   static uint32_t value, value_entry;
 
-  Password() { is_locked = false; }
+  Password() { is_locked = false, first_run = true; }
 
   static void lock_machine();
   static void authentication_check();
