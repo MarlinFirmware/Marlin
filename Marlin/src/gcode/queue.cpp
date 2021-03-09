@@ -272,21 +272,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_ECHOLN(serial_state[serial_ind].last_N + 1);
 }
 
-// Multiserial already handle the dispatch to/from multiple port by itself
-inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
-  if (index == SERIAL_ALL) {
-    for (index = 0; index < NUM_SERIAL; index++) {
-      const int a = SERIAL_IMPL.available(index);
-      #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
-        if (a > RX_BUFFER_SIZE - 2) {
-          PORT_REDIRECT(SERIAL_PORTMASK(index));
-          SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
-        }
-      #endif
-      if (a > 0) return true;
-    }
-    return false;
-  }
+inline bool serial_data_available(uint8_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
@@ -294,8 +280,14 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
       SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
     }
   #endif
-
   return a > 0;
+}
+
+// Multiserial already handles dispatch to/from multiple ports
+inline bool any_serial_data_available() {
+  LOOP_L_N(p, NUM_SERIAL)
+    if (serial_data_available(p))
+      return true;
 }
 
 inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
@@ -409,7 +401,7 @@ void GCodeQueue::get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
@@ -608,6 +600,14 @@ void GCodeQueue::get_available_commands() {
   get_serial_commands();
 
   TERN_(SDSUPPORT, get_sdcard_commands());
+}
+
+/**
+ * Run the entire queue in-place. Blocks SD completion/abort until complete.
+ */
+void GCodeQueue::exhaust() {
+  while (ring_buffer.occupied()) advance();
+  planner.synchronize();
 }
 
 /**

@@ -539,6 +539,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
+      #if HAS_COOLER
+        case 143: M143(); break;                                  // M143: Set cooler temperature
+        case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
+      #endif
+
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
@@ -1062,6 +1067,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     static millis_t next_busy_signal_ms = 0;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
+      PORT_REDIRECT(SERIAL_ALL);
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
