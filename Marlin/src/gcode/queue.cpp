@@ -288,6 +288,7 @@ inline bool any_serial_data_available() {
   LOOP_L_N(p, NUM_SERIAL)
     if (serial_data_available(p))
       return true;
+  return false;
 }
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
