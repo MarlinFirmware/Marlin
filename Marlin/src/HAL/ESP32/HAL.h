@@ -43,7 +43,9 @@
   #include "esp3dlib.h"
 #endif
 
-#include "FlushableHardwareSerial.h"
+#ifdef ARDUINO_ARCH_ESP32
+  #include "FlushableHardwareSerial.h"
+#endif
 
 // ------------------------
 // Defines
