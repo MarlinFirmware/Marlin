@@ -36,7 +36,7 @@ struct serial_index_t {
 
   // Check if the index is within the range [a ... b]
   constexpr inline bool within(const int8_t a, const int8_t b) const { return WITHIN(index, a, b); }
-  constexpr inline bool valid() const { return WITHIN(index, 0, 8); } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
+  constexpr inline bool valid() const { return WITHIN(index, 0, 7); } // At most, 8 bits
 
   // Construction is either from an index
   constexpr serial_index_t(const int8_t index) : index(index) {}
