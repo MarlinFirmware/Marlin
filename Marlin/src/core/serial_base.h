@@ -36,8 +36,8 @@ struct serial_index_t {
   // A signed index, where -1 is a special case meaning no action (neither output or input)
   int8_t  index;
 
-  // Check if the index is in range [a b]
-  constexpr inline bool between(const int8_t a, const int8_t b) const { return WITHIN(index, a, b); }
+  // Check if the index is in range [a ... b-1]
+  constexpr inline bool between(const int8_t a, const int8_t b) const { return (index >= a) && (index < b); }
   constexpr inline bool valid() const { return WITHIN(index, 0, NUM_SERIAL); } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
 
   // Construction is either from an index
