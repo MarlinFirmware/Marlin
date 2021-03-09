@@ -58,6 +58,16 @@ enum AxisEnum : uint8_t {
 #define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
 
 //
+// Conditional type assignment magic. For example...
+//
+// typename IF<(MYOPT==12), int, float>::type myvar;
+//
+template <bool, class L, class R>
+struct IF { typedef R type; };
+template <class L, class R>
+struct IF<true, L, R> { typedef L type; };
+
+//
 // feedRate_t is just a humble float
 //
 typedef float feedRate_t;
