@@ -575,6 +575,13 @@ void GCodeQueue::get_serial_commands() {
           // M808 L saves the sdpos of the next line. M808 loops to a new sdpos.
           TERN_(GCODE_REPEAT_MARKERS, repeat.early_parse_M808(command.buffer));
 
+          #if DISABLED(PARK_HEAD_ON_PAUSE)
+            // When M25 is non-blocking it can still suspend SD commands
+            // Otherwise the M125 handler needs to know SD printing is active
+            if (command.buffer[0] == 'M' && command.buffer[1] == '2' && command.buffer[2] == '5' && !NUMERIC(command.buffer[3]))
+              card.pauseSDPrint();
+          #endif
+
           // Put the new command into the buffer (no "ok" sent)
           ring_buffer.commit_command(true);
 
