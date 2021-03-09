@@ -62,37 +62,36 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-#define SERIAL_ALL 0xFF
 #if HAS_MULTI_SERIAL
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
-  #define _PORT_RESTORE(n,p)    RESTORE(n)
-  #define SERIAL_ASSERT(P)      if(multiSerial.portMask!=(P)){ debugger(); }
+  #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
+  #define _PORT_RESTORE(n,p)  RESTORE(n)
+  #define SERIAL_ASSERT(P)    if(multiSerial.portMask!=(P)){ debugger(); }
   #ifdef SERIAL_CATCHALL
     typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
+    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0> SerialOutputT;
   #endif
-  extern SerialOutputT          multiSerial;
-  #define _SERIAL_IMPL          multiSerial
+  extern SerialOutputT        multiSerial;
+  #define _SERIAL_IMPL        multiSerial
 #else
-  #define _PORT_REDIRECT(n,p)   NOOP
-  #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_ASSERT(P)      NOOP
-  #define _SERIAL_IMPL          MYSERIAL0
+  #define _PORT_REDIRECT(n,p) NOOP
+  #define _PORT_RESTORE(n)    NOOP
+  #define SERIAL_ASSERT(P)    NOOP
+  #define _SERIAL_IMPL        MYSERIAL0
 #endif
 
 #if ENABLED(MEATPACK)
   extern MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial;
-  #define SERIAL_IMPL          mpSerial
+  #define SERIAL_IMPL mpSerial
 #else
-  #define SERIAL_IMPL          _SERIAL_IMPL
+  #define SERIAL_IMPL _SERIAL_IMPL
 #endif
 
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
-#define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
-#define PORT_RESTORE()          _PORT_RESTORE(1)
-#define SERIAL_PORTMASK(P)      _BV(P)
+#define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
+#define PORT_RESTORE()     _PORT_RESTORE(1)
+#define SERIAL_PORTMASK(P) SerialMask::from(P)
 
 //
 // SERIAL_CHAR - Print one or more individual chars

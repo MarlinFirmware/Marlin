@@ -21,11 +21,32 @@
  */
 #pragma once
 
-#include "macros.h"
 #include "serial_base.h"
 
-// Used in multiple places
-typedef int8_t serial_index_t;
+// A mask containing a bitmap of the serial port to act upon
+// This is written to ensure a serial index is never used as a serial mask
+class SerialMask {
+  uint8_t mask;
+
+  // This constructor is private to ensure you can't convert an index to a mask
+  // The compiler will stop here if you are mixing index and mask in your code.
+  // If you need to, you'll have to use the explicit static "from" method here
+  SerialMask(const serial_index_t);
+
+public:
+  inline constexpr bool enabled(const SerialMask PortMask) const    { return mask & PortMask.mask; }
+  inline constexpr SerialMask combine(const SerialMask other) const { return SerialMask(mask | other.mask); }
+  inline constexpr SerialMask operator<< (const int offset) const   { return SerialMask(mask << offset); }
+  static inline SerialMask from(const serial_index_t index) {
+    if (index.valid()) return SerialMask(_BV(index.index));
+    return SerialMask(0); // A invalid index mean no output
+  }
+
+  constexpr SerialMask(const uint8_t mask) : mask(mask) {}
+  constexpr SerialMask(const SerialMask & other) : mask(other.mask) {} // Can't use = default here since not all framework support this
+
+  static constexpr uint8_t All = 0xFF;
+};
 
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class
 template <class SerialT>
@@ -39,10 +60,10 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   void msgDone() {}
 
   // We don't care about indices here, since if one can call us, it's the right index anyway
-  int available(uint8_t)  { return (int)SerialT::available(); }
-  int read(uint8_t)       { return (int)SerialT::read(); }
-  bool connected()        { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
-  void flushTX()          { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
+  int available(serial_index_t) { return (int)SerialT::available(); }
+  int read(serial_index_t)      { return (int)SerialT::read(); }
+  bool connected()              { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
+  void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
 
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
@@ -77,11 +98,10 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   bool connected()          { return CALL_IF_EXISTS(bool, &out, connected); }
   void flushTX()            { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(uint8_t )   { return (int)out.available(); }
-  int read(uint8_t )        { return (int)out.read(); }
-  int available()           { return (int)out.available(); }
-  int read()                { return (int)out.read(); }
-
+  int available(serial_index_t )  { return (int)out.available(); }
+  int read(serial_index_t )       { return (int)out.read(); }
+  int available()                 { return (int)out.available(); }
+  int read()                      { return (int)out.read(); }
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
@@ -102,8 +122,8 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   bool connected()              { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
   void flushTX()                { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(uint8_t)        { return (int)out.available(); }
-  int read(uint8_t)             { return (int)out.read(); }
+  int available(serial_index_t) { return (int)out.available(); }
+  int read(serial_index_t)      { return (int)out.read(); }
   int available()               { return (int)out.available(); }
   int read()                    { return (int)out.read(); }
 
@@ -130,8 +150,8 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
     if (eofHook) eofHook(userPointer);
   }
 
-  int available(uint8_t)  { return (int)SerialT::available(); }
-  int read(uint8_t)       { return (int)SerialT::read(); }
+  int available(serial_index_t)  { return (int)SerialT::available(); }
+  int read(serial_index_t)       { return (int)SerialT::read(); }
   using SerialT::available;
   using SerialT::read;
   using SerialT::flush;
@@ -170,53 +190,51 @@ template <class Serial0T, class Serial1T, const uint8_t offset = 0, const uint8_
 struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > {
   typedef SerialBase< MultiSerial<Serial0T, Serial1T, offset, step> > BaseClassT;
 
-  uint8_t    portMask;
+  SerialMask portMask;
   Serial0T & serial0;
   Serial1T & serial1;
 
-  enum Masks {
-    UsageMask         =  ((1 << step) - 1), // A bit mask containing as many bits as step
-    FirstOutputMask   =  (UsageMask << offset),
-    SecondOutputMask  =  (UsageMask << (offset + step)),
-    AllMask           = FirstOutputMask | SecondOutputMask,
-  };
+  static constexpr uint8_t Usage         =  ((1 << step) - 1); // A bit mask containing as many bits as step
+  static constexpr uint8_t FirstOutput   = (Usage << offset);
+  static constexpr uint8_t SecondOutput  = (Usage << (offset + step));
+  static constexpr uint8_t Both          = FirstOutput | SecondOutput;
 
   NO_INLINE size_t write(uint8_t c) {
     size_t ret = 0;
-    if (portMask & FirstOutputMask)   ret = serial0.write(c);
-    if (portMask & SecondOutputMask)  ret = serial1.write(c) | ret;
+    if (portMask.enabled(FirstOutput))   ret = serial0.write(c);
+    if (portMask.enabled(SecondOutput))  ret = serial1.write(c) | ret;
     return ret;
   }
   NO_INLINE void msgDone() {
-    if (portMask & FirstOutputMask)   serial0.msgDone();
-    if (portMask & SecondOutputMask)  serial1.msgDone();
+    if (portMask.enabled(FirstOutput))   serial0.msgDone();
+    if (portMask.enabled(SecondOutput))  serial1.msgDone();
   }
-  int available(uint8_t index) {
-    if (index >= 0 + offset && index < step + offset)
+  int available(serial_index_t index) {
+    if (index.within(0 + offset, step + offset - 1))
       return serial0.available(index);
-    else if (index >= step + offset && index < 2 * step + offset)
+    else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.available(index);
     return false;
   }
-  int read(uint8_t index) {
-    if (index >= 0 + offset && index < step + offset)
+  int read(serial_index_t index) {
+    if (index.within(0 + offset, step + offset - 1))
       return serial0.read(index);
-    else if (index >= step + offset && index < 2 * step + offset)
+    else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.read(index);
     return -1;
   }
   void begin(const long br) {
-    if (portMask & FirstOutputMask)   serial0.begin(br);
-    if (portMask & SecondOutputMask)  serial1.begin(br);
+    if (portMask.enabled(FirstOutput))   serial0.begin(br);
+    if (portMask.enabled(SecondOutput))  serial1.begin(br);
   }
   void end() {
-    if (portMask & FirstOutputMask)   serial0.end();
-    if (portMask & SecondOutputMask)  serial1.end();
+    if (portMask.enabled(FirstOutput))   serial0.end();
+    if (portMask.enabled(SecondOutput))  serial1.end();
   }
   bool connected() {
     bool ret = true;
-    if (portMask & FirstOutputMask)   ret = CALL_IF_EXISTS(bool, &serial0, connected);
-    if (portMask & SecondOutputMask)  ret = ret && CALL_IF_EXISTS(bool, &serial1, connected);
+    if (portMask.enabled(FirstOutput))   ret = CALL_IF_EXISTS(bool, &serial0, connected);
+    if (portMask.enabled(SecondOutput))  ret = ret && CALL_IF_EXISTS(bool, &serial1, connected);
     return ret;
   }
 
@@ -225,15 +243,15 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
 
   // Redirect flush
   NO_INLINE void flush()      {
-    if (portMask & FirstOutputMask)   serial0.flush();
-    if (portMask & SecondOutputMask)  serial1.flush();
+    if (portMask.enabled(FirstOutput))   serial0.flush();
+    if (portMask.enabled(SecondOutput))  serial1.flush();
   }
   NO_INLINE void flushTX()    {
-    if (portMask & FirstOutputMask)   CALL_IF_EXISTS(void, &serial0, flushTX);
-    if (portMask & SecondOutputMask)  CALL_IF_EXISTS(void, &serial1, flushTX);
+    if (portMask.enabled(FirstOutput))   CALL_IF_EXISTS(void, &serial0, flushTX);
+    if (portMask.enabled(SecondOutput))  CALL_IF_EXISTS(void, &serial1, flushTX);
   }
 
-  MultiSerial(Serial0T & serial0, Serial1T & serial1, int8_t mask = AllMask, const bool e = false) :
+  MultiSerial(Serial0T & serial0, Serial1T & serial1, const SerialMask mask = Both, const bool e = false) :
     BaseClassT(e),
     portMask(mask), serial0(serial0), serial1(serial1) {}
 };

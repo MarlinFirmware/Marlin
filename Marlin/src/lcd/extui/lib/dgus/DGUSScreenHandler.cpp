@@ -395,21 +395,21 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
     default: return;
     #if HOTENDS >= 1
       case VP_T_E0_Set:
-        NOMORE(newvalue, HEATER_0_MAXTEMP);
+        NOMORE(newvalue, (uint16_t)HEATER_0_MAXTEMP);
         thermalManager.setTargetHotend(newvalue, 0);
         acceptedvalue = thermalManager.degTargetHotend(0);
         break;
     #endif
     #if HOTENDS >= 2
       case VP_T_E1_Set:
-        NOMORE(newvalue, HEATER_1_MAXTEMP);
+        NOMORE(newvalue, (uint16_t)HEATER_1_MAXTEMP);
         thermalManager.setTargetHotend(newvalue, 1);
         acceptedvalue = thermalManager.degTargetHotend(1);
         break;
     #endif
     #if HAS_HEATED_BED
       case VP_T_Bed_Set:
-        NOMORE(newvalue, BED_MAXTEMP);
+        NOMORE(newvalue, (uint16_t)BED_MAXTEMP);
         thermalManager.setTargetBed(newvalue);
         acceptedvalue = thermalManager.degTargetBed();
         break;

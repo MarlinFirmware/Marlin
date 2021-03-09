@@ -79,13 +79,13 @@ public:
 
     void commit_command(bool skip_ok
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
     bool enqueue(const char* cmd, bool skip_ok = true
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
@@ -197,7 +197,7 @@ public:
   /**
    * (Re)Set the current line number for the last received command
    */
-  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port()].last_N = n; }
+  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
 private:
 
