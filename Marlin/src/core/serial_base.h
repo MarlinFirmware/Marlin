@@ -23,6 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 #include "macros.h"
+#include "types.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -31,20 +32,20 @@
 // Used in multiple places
 // You can build it but not manipulate it.
 // There are only few places where it's required to access the underlying member: GCodeQueue, SerialMask and MultiSerial
-struct serial_index_t
-{
+struct serial_index_t {
   // A signed index, where -1 is a special case meaning no action (neither output or input)
   int8_t  index;
-  // Check if the index is in range [a b[
-  constexpr inline bool between(int8_t a, int8_t b) const { return index >= a && index < b; }
-  constexpr inline bool valid() const { return index >= 0 && index < 8; } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
+
+  // Check if the index is in range [a b]
+  constexpr inline bool between(const int8_t a, const int8_t b) const { return WITHIN(index, a, b); }
+  constexpr inline bool valid() const { return WITHIN(index, 0, NUM_SERIAL); } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
 
   // Construction is either from an index
   constexpr serial_index_t(const int8_t index) : index(index) {}
-  // Or a default that builds an invalid index
+
+  // Default to "no index"
   constexpr serial_index_t() : index(-1) {}
 };
-
 
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
 CALL_IF_EXISTS_IMPL(void, flushTX);
