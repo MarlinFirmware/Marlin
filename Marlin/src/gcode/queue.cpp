@@ -284,10 +284,12 @@ inline bool serial_data_available(serial_index_t index) {
 }
 
 // Multiserial already handles dispatch to/from multiple ports
-inline bool any_serial_data_available() {
+static bool any_serial_data_available() {
   LOOP_L_N(p, NUM_SERIAL)
     if (serial_data_available(p))
       return true;
+  
+  return false;
 }
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
