@@ -22,13 +22,11 @@
 #pragma once
 
 #include "serial_base.h"
-#include "../HAL/HAL.h"
 
 // A mask containing a bitmap of the serial port to act upon
 // This is written to ensure a serial index is never used as a serial mask
 class SerialMask {
-  typedef typename IF<(NUM_SERIAL>8), uint16_t, uint8_t>::type serial_mask_t;
-  serial_mask_bits_t mask;
+  uint8_t mask;
 
   // This constructor is private to ensure you can't convert an index to a mask
   // The compiler will stop here if you are mixing index and mask in your code.
@@ -44,10 +42,10 @@ public:
     return SerialMask(0); // A invalid index mean no output
   }
 
-  constexpr SerialMask(const serial_mask_bits_t mask) : mask(mask) {}
+  constexpr SerialMask(const uint8_t mask) : mask(mask) {}
   constexpr SerialMask(const SerialMask & other) : mask(other.mask) {} // Can't use = default here since not all framework support this
 
-  static constexpr serial_mask_bits_t All = serial_mask_bits_t(-1);
+  static constexpr uint8_t All = 0xFF;
 };
 
 // The most basic serial class: it dispatch to the base serial class with no hook whatsoever. This will compile to nothing but the base serial class

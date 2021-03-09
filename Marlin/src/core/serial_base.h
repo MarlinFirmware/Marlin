@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-#include "types.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -37,7 +36,7 @@ struct serial_index_t {
 
   // Check if the index is in range [a ... b-1]
   constexpr inline bool between(const int8_t a, const int8_t b) const { return (index >= a) && (index < b); }
-  constexpr inline bool valid() const { return WITHIN(index, 0, NUM_SERIAL); } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
+  constexpr inline bool valid() const { return WITHIN(index, 0, 8); } // Since the mask has 8 bit, any index larger than 7 is doomed to fail
 
   // Construction is either from an index
   constexpr serial_index_t(const int8_t index) : index(index) {}
