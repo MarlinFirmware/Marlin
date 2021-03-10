@@ -112,7 +112,7 @@ public:
   uint8_t get_result_char(char* const __restrict out);
 
   void reset_state();
-  void report_state();
+  static void report_state();
   uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
   void handle_command(const MeatPack_Command c);
   void handle_output_char(const uint8_t c);
