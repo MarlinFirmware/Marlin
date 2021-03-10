@@ -44,7 +44,8 @@ static uint8_t digit_no;
 // Screen for both editing and setting the password
 //
 void Password::menu_password_entry() {
-  if (!did_first_run) ui.defer_status_screen();
+  ui.defer_status_screen(!did_first_run); // No timeout to status before first auth
+
   START_MENU();
 
   // "Login" or "New Code"
