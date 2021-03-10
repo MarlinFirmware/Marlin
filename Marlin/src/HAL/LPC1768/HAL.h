@@ -65,7 +65,6 @@ extern DefaultSerial1 USBSerial;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
   #define MYSERIAL1 USBSerial

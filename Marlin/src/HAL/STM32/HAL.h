@@ -41,7 +41,7 @@
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
   typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
-  extern DefaultSerial1 MSerial;
+  extern DefaultSerial1 MSerial0;
 #endif
 
 // ------------------------
@@ -51,7 +51,7 @@
 #define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL1 MSerial
+  #define MYSERIAL1 MSerial0
 #elif WITHIN(SERIAL_PORT, 1, 6)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
@@ -60,7 +60,7 @@
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL2 MSerial
+    #define MYSERIAL2 MSerial0
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
@@ -70,7 +70,7 @@
 
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL MSerial
+    #define MMU2_SERIAL MSerial0
   #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
@@ -80,7 +80,7 @@
 
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL MSerial
+    #define LCD_SERIAL MSerial0
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else

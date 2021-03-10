@@ -42,14 +42,13 @@ typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
 typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
 typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
 typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial4;
-extern DefaultSerial1 MSerial;
+extern DefaultSerial1 MSerial0;
 extern DefaultSerial2 MSerial1;
 extern DefaultSerial3 MSerial2;
 extern DefaultSerial4 MSerial3;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
 // Define MYSERIAL1/2 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)

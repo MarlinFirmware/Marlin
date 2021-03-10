@@ -26,7 +26,7 @@
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
   #if ANY_SERIAL_IS(-1)
-    DefaultSerial1 MSerial(false, Serial);
+    DefaultSerial1 MSerial0(false, Serial);
   #endif
   #if ANY_SERIAL_IS(0)
     DefaultSerial2 MSerial1(false, Serial1);

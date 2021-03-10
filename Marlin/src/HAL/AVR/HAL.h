@@ -84,13 +84,13 @@ typedef int8_t pin_t;
 #ifdef USBCON
   #include "../../core/serial_hook.h"
   typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
-  extern DefaultSerial1 MSerial;
+  extern DefaultSerial1 MSerial0;
   #ifdef BLUETOOTH
     typedef ForwardSerial1Class< decltype(bluetoothSerial) > BTSerial;
     extern BTSerial btSerial;
   #endif
 
-  #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial)
+  #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial0)
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)
     #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."

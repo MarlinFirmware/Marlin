@@ -55,7 +55,7 @@ public:
 // of 'available' and 'read' method are not used in this multiple inheritance scenario.
 // Instead, use a ForwardSerial here that adapts the interface.
 typedef ForwardSerial1Class<MarlinSerial> MSerialT;
-extern MSerialT MSerial;
+extern MSerialT MSerial0;
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;
