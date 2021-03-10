@@ -21,6 +21,6 @@
 #include "../../core/serial_hook.h"
 
 extern USBMassStorage MarlinMSC;
-extern Serial0Type<USBCompositeSerial> MarlinCompositeSerial;
+extern Serial1Type<USBCompositeSerial> MarlinCompositeSerial;
 
 void MSC_SD_init();

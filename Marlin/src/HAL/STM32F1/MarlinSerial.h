@@ -47,7 +47,7 @@ struct MarlinSerial : public HardwareSerial {
   #endif
 };
 
-typedef Serial0Type<MarlinSerial> MSerialT;
+typedef Serial1Type<MarlinSerial> MSerialT;
 
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
