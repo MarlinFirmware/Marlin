@@ -1986,6 +1986,10 @@
   #define BLOCK_BUFFER_SIZE 16
 #endif
 
+// CR-6 Community Firmware: use uniform 32 block size
+#undef BLOCK_BUFFER_SIZE
+#define BLOCK_BUFFER_SIZE 32
+
 // @section serial
 
 // The ASCII buffer for serial input
