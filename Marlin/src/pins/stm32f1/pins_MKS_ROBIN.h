@@ -237,7 +237,7 @@
    * This board does not have dedicated TMC UART pins. Custom wiring is needed.
    * You may uncomment one of the options below, or add it to your Configuration.h.
    *
-   * When using up to four TMC2209 drivers, hardware serial is recommented on
+   * When using up to four TMC2209 drivers, hardware serial is recommended on
    * MSerial0 or MSerial1.
    *
    * When using TMC2208 or more than four drivers, SoftwareSerial will be needed,
@@ -246,14 +246,14 @@
 
   //#define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
-    #define X_HARDWARE_SERIAL            MSerial0
-    #define X2_HARDWARE_SERIAL           MSerial0
-    #define Y_HARDWARE_SERIAL            MSerial0
-    #define Y2_HARDWARE_SERIAL           MSerial0
-    #define Z_HARDWARE_SERIAL            MSerial0
-    #define Z2_HARDWARE_SERIAL           MSerial0
-    #define E0_HARDWARE_SERIAL           MSerial0
-    #define E1_HARDWARE_SERIAL           MSerial0
+    #define X_HARDWARE_SERIAL  MSerial0
+    #define X2_HARDWARE_SERIAL MSerial0
+    #define Y_HARDWARE_SERIAL  MSerial0
+    #define Y2_HARDWARE_SERIAL MSerial0
+    #define Z_HARDWARE_SERIAL  MSerial0
+    #define Z2_HARDWARE_SERIAL MSerial0
+    #define E0_HARDWARE_SERIAL MSerial0
+    #define E1_HARDWARE_SERIAL MSerial0
   #endif
 
   //#define TMC_SOFTWARE_SERIAL

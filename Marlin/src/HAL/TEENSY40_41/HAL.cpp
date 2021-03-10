@@ -32,7 +32,7 @@
 
 #include <Wire.h>
 
-DefaultSerial MSerial(false);
+DefaultSerial1 MSerial0(false);
 USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result, HAL_adc_select;

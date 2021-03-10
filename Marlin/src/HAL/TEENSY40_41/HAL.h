@@ -56,30 +56,29 @@
 #endif
 
 #include "../../core/serial_hook.h"
-typedef Serial0Type<decltype(Serial)> DefaultSerial;
-extern DefaultSerial MSerial;
-typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+typedef Serial1Class<decltype(Serial)> DefaultSerial1;
+extern DefaultSerial1 MSerial0;
+typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL1 SerialUSB
 #elif WITHIN(SERIAL_PORT, 0, 8)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 usbSerial
+    #define MYSERIAL2 usbSerial
   #elif SERIAL_PORT_2 == -2
-    #define MYSERIAL1 ethernet.telnetClient
+    #define MYSERIAL2 ethernet.telnetClient
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -2 to 8. Please update your configuration."
   #endif

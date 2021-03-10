@@ -72,9 +72,9 @@ public:
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
     #if HAS_MULTI_SERIAL
-      static int8_t transfer_port_index;
+      static serial_index_t transfer_port_index;
     #else
-      static constexpr int8_t transfer_port_index = 0;
+      static constexpr serial_index_t transfer_port_index = 0;
     #endif
   #endif
 

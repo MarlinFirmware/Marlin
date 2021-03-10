@@ -24,7 +24,7 @@
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
-Serial0Type<USBCompositeSerial> MarlinCompositeSerial(true);
+Serial1Class<USBCompositeSerial> MarlinCompositeSerial(true);
 
 #include "../../inc/MarlinConfig.h"
 
