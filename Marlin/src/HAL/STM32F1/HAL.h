@@ -61,8 +61,8 @@
 #endif
 
 #ifdef SERIAL_USB
-  typedef ForwardSerial1Class< USBSerial > DefaultSerial;
-  extern DefaultSerial MSerial;
+  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
+  extern DefaultSerial1 MSerial;
 
   #if !HAS_SD_HOST_DRIVE
     #define UsbSerial MSerial

@@ -38,14 +38,14 @@
 
 #include "../../core/serial_hook.h"
 
-typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial;
-typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial1;
-typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial2;
-typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial3;
-extern DefaultSerial MSerial;
-extern DefaultSerial1 MSerial1;
-extern DefaultSerial2 MSerial2;
-extern DefaultSerial3 MSerial3;
+typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
+typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
+typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial4;
+extern DefaultSerial1 MSerial;
+extern DefaultSerial2 MSerial1;
+extern DefaultSerial3 MSerial2;
+extern DefaultSerial4 MSerial3;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)

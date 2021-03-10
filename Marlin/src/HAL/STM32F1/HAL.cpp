@@ -84,7 +84,7 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
-  DefaultSerial MSerial(true, SerialUSB);
+  DefaultSerial1 MSerial(true, SerialUSB);
 
   #if ENABLED(EMERGENCY_PARSER)
     #include "../libmaple/usb/stm32f1/usb_reg_map.h"

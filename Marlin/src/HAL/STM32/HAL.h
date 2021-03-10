@@ -40,8 +40,8 @@
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
-  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial;
-  extern DefaultSerial MSerial;
+  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+  extern DefaultSerial1 MSerial;
 #endif
 
 // ------------------------
