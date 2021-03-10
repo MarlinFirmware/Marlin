@@ -3337,12 +3337,15 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-
 /**
- * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
+ * MEATPACK checks
  */
-#if BOTH(MEATPACK, BINARY_FILE_TRANSFER)
-  #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
+#elif ENABLED(MEATPACK)
+  #if ENABLED(BINARY_FILE_TRANSFER)
+    #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
+  #elif EITHER(MEATPACK_ON_SERIAL_PORT_0, MEATPACK_ON_SERIAL_PORT_1)
+    #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_0, MEATPACK_ON_SERIAL_PORT_1, etc."
+  #endif
 #endif
 
 /**

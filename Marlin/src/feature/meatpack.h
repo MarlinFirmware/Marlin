@@ -121,8 +121,6 @@ public:
   MeatPack() : cmd_is_next(false), state(0), second_char(0), cmd_count(0), full_char_count(0), char_out_count(0) {}
 };
 
-
-
 // Implement the MeatPack serial class so it's transparent to rest of the code
 template <typename SerialT>
 struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
