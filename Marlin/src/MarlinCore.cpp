@@ -990,14 +990,14 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
-  MYSERIAL0.begin(BAUDRATE);
+  MYSERIAL1.begin(BAUDRATE);
   millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL1.begin(BAUDRATE);
+    MYSERIAL2.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
   SERIAL_ECHOLNPGM("start");
 
@@ -1053,7 +1053,7 @@ void setup() {
   #if HAS_FILAMENT_SENSOR
     SETUP_RUN(runout.setup());
   #endif
-  
+
   #if HAS_TMC220x
     SETUP_RUN(tmc_serial_begin());
   #endif

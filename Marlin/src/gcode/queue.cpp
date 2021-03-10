@@ -272,7 +272,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
 }
 
-inline bool serial_data_available(serial_index_t index) {
+static bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
@@ -283,13 +283,15 @@ inline bool serial_data_available(serial_index_t index) {
   return a > 0;
 }
 
-// Multiserial already handles dispatch to/from multiple ports
-inline bool any_serial_data_available() {
-  LOOP_L_N(p, NUM_SERIAL)
-    if (serial_data_available(p))
-      return true;
-  return false;
-}
+#if NO_TIMEOUTS > 0
+  // Multiserial already handles dispatch to/from multiple ports
+  static bool any_serial_data_available() {
+    LOOP_L_N(p, NUM_SERIAL)
+      if (serial_data_available(p))
+        return true;
+    return false;
+  }
+#endif
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
