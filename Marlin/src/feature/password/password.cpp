@@ -31,7 +31,7 @@
 Password password;
 
 // public:
-bool     Password::is_set, Password::is_locked, Password::first_run;
+bool     Password::is_set, Password::is_locked, Password::did_first_run; // = false
 uint32_t Password::value, Password::value_entry;
 
 //
@@ -49,7 +49,7 @@ void Password::lock_machine() {
 void Password::authentication_check() {
   if (value_entry == value) {
     is_locked = false;
-    first_run = false;
+    did_first_run = true;
   }
   else {
     is_locked = true;
