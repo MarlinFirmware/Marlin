@@ -3346,6 +3346,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif NONE(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
     #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
   #endif
+  #if ENABLED(MEATPACK_ON_SERIAL_PORT_2) && !DISABLED(SERIAL_PORT_2)
+    #error "MEATPACK_ON_SERIAL_PORT_2 is only valid when SERIAL_PORT_2 is defined"
+  #endif
 #endif
 
 /**
