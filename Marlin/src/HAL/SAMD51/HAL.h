@@ -32,11 +32,11 @@
   #include "MarlinSerial_AGCM4.h"
 
   // Serial ports
-  typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-  typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
-  typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
-  typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
-  typedef ForwardSerial0Type< decltype(Serial4) > DefaultSerial4;
+  typedef ForwardSerial1Type< decltype(Serial) > DefaultSerial;
+  typedef ForwardSerial1Type< decltype(Serial1) > DefaultSerial1;
+  typedef ForwardSerial1Type< decltype(Serial2) > DefaultSerial2;
+  typedef ForwardSerial1Type< decltype(Serial3) > DefaultSerial3;
+  typedef ForwardSerial1Type< decltype(Serial4) > DefaultSerial4;
   extern DefaultSerial MSerial;
   extern DefaultSerial1 MSerial1;
   extern DefaultSerial2 MSerial2;

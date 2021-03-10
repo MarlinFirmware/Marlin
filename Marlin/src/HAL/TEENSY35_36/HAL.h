@@ -56,7 +56,7 @@
 #include "../../core/serial_hook.h"
 typedef Serial0Type<decltype(Serial)> DefaultSerial;
 extern DefaultSerial MSerial;
-typedef ForwardSerial0Type<decltype(SerialUSB)> USBSerialType;
+typedef ForwardSerial1Type<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
 #define _MSERIAL(X) MSerial##X

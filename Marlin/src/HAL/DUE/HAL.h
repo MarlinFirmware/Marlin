@@ -38,10 +38,10 @@
 
 #include "../../core/serial_hook.h"
 
-typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
-typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
-typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
+typedef ForwardSerial1Type< decltype(Serial) > DefaultSerial;
+typedef ForwardSerial1Type< decltype(Serial1) > DefaultSerial1;
+typedef ForwardSerial1Type< decltype(Serial2) > DefaultSerial2;
+typedef ForwardSerial1Type< decltype(Serial3) > DefaultSerial3;
 extern DefaultSerial MSerial;
 extern DefaultSerial1 MSerial1;
 extern DefaultSerial2 MSerial2;
@@ -51,7 +51,7 @@ extern DefaultSerial3 MSerial3;
 #define MSERIAL(X) _MSERIAL(X)
 #define MSerial0 MSerial
 
-// Define MYSERIAL1/1 before MarlinSerial includes!
+// Define MYSERIAL1/2 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
   #define MYSERIAL1 customizedSerial1
 #elif WITHIN(SERIAL_PORT, 0, 3)
