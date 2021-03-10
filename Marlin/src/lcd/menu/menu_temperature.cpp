@@ -35,6 +35,10 @@
   #include "../../module/motion.h"
 #endif
 
+#if HAS_COOLER
+  #include "../../feature/cooler.h"
+#endif
+
 #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   #include "../../module/tool_change.h"
 #endif
@@ -67,6 +71,10 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
   #endif
   #if HAS_HEATED_BED
     inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
+  #endif
+  #if HAS_COOLER
+    inline void _precool_laser(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
+    void do_precool_laser_m() { _precool_laser(editable.int8, thermalManager.temp_cooler.target); }
   #endif
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
@@ -143,6 +151,10 @@ void menu_temperature() {
     #endif
   #endif
 
+  #if HAS_COOLER
+    if (thermalManager.temp_cooler.target == 0) thermalManager.temp_cooler.target = COOLER_DEFAULT_TEMP;
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -174,6 +186,15 @@ void menu_temperature() {
   //
   #if HAS_HEATED_CHAMBER
     EDIT_ITEM_FAST(int3, MSG_CHAMBER, &thermalManager.temp_chamber.target, 0, CHAMBER_MAXTEMP - 10, thermalManager.start_watching_chamber);
+  #endif
+
+  //
+  // Cooler:
+  //
+  #if HAS_COOLER
+    editable.state = cooler.is_enabled();
+    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
+    EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MINTEMP + 2, COOLER_MAXTEMP - 2, thermalManager.start_watching_cooler);
   #endif
 
   //
@@ -232,7 +253,7 @@ void menu_temperature() {
       editable.int8 = m;
       #if HOTENDS > 1 || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
-      #else
+      #elif HAS_HOTEND
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
       #endif
     }

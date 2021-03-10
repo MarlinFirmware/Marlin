@@ -27,7 +27,7 @@
 //
 
 #undef DEBUG_SECTION
-#undef DEBUG_PRINT_P
+#undef DEBUG_ECHOPGM_P
 #undef DEBUG_ECHO_START
 #undef DEBUG_ERROR_START
 #undef DEBUG_CHAR

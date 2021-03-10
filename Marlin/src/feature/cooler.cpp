@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,10 +20,18 @@
  *
  */
 
-#ifdef ARDUINO_ARCH_ESP32
+#include "../inc/MarlinConfig.h"
 
-#include "FlushableHardwareSerial.h"
+#if HAS_COOLER
 
-Serial0Type<FlushableHardwareSerial> flushableSerial(false, 0);
+#include "cooler.h"
+Cooler cooler;
+
+uint16_t Cooler::flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
+uint8_t Cooler::mode = 0;         // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
+uint16_t Cooler::capacity;        // Cooling capacity in watts
+uint16_t Cooler::load;            // Cooling load in watts
+bool Cooler::flowmeter = false;
+bool Cooler::state = false;       // on = true, off = false
 
 #endif

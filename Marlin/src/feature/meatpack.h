@@ -132,17 +132,17 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   uint8_t charCount;
   uint8_t readIndex;
 
-  NO_INLINE size_t write(uint8_t c) { return out.write(c); }
-  void flush()                      { out.flush();  }
-  void begin(long br)               { out.begin(br); readIndex = 0; }
-  void end()                        { out.end(); }
+  NO_INLINE size_t write(uint8_t c)   { return out.write(c); }
+  void flush()                        { out.flush();  }
+  void begin(long br)                 { out.begin(br); readIndex = 0; }
+  void end()                          { out.end(); }
 
-  void msgDone()                    { out.msgDone(); }
+  void msgDone()                      { out.msgDone(); }
   // Existing instances implement Arduino's operator bool, so use that if it's available
-  bool connected()                  { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
-  void flushTX()                    { CALL_IF_EXISTS(void, &out, flushTX); }
+  bool connected()                    { return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, &out, connected) : (bool)out; }
+  void flushTX()                      { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(uint8_t index) {
+  int available(serial_index_t index) {
     // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
     // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
     // TODO, let's fix this later on
@@ -160,7 +160,7 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     return charCount;
   }
 
-  int readImpl(const uint8_t index) {
+  int readImpl(const serial_index_t index) {
     // Not enough char to make progress?
     if (charCount == 0 && available(index) == 0) return -1;
 
@@ -168,9 +168,9 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     return serialBuffer[readIndex++];
   }
 
-  int read(uint8_t index) { return readImpl(index); }
-  int available()         { return available(0); }
-  int read()              { return readImpl(0); }
+  int read(serial_index_t index)  { return readImpl(index); }
+  int available()                 { return available(0); }
+  int read()                      { return readImpl(0); }
 
   MeatpackSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };

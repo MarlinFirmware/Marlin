@@ -240,7 +240,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
   CommandLine &command = commands[index_r];
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command.port;
-    if (serial_ind < 0) return;
+    if (!serial_ind.valid()) return;              // Optimization here, skip processing if it's not going anywhere
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   if (command.skip_ok) return;
@@ -264,29 +264,15 @@ void GCodeQueue::RingBuffer::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   #if HAS_MULTI_SERIAL
-    if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
+    if (!serial_ind.valid()) return;              // Optimization here, skip if the command came from SD or Flash Drive
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  SERIAL_ECHOLN(serial_state[serial_ind].last_N + 1);
+  SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
 }
 
-// Multiserial already handle the dispatch to/from multiple port by itself
-inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
-  if (index == SERIAL_ALL) {
-    for (index = 0; index < NUM_SERIAL; index++) {
-      const int a = SERIAL_IMPL.available(index);
-      #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
-        if (a > RX_BUFFER_SIZE - 2) {
-          PORT_REDIRECT(SERIAL_PORTMASK(index));
-          SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
-        }
-      #endif
-      if (a > 0) return true;
-    }
-    return false;
-  }
+inline bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
@@ -294,19 +280,25 @@ inline bool serial_data_available(uint8_t index = SERIAL_ALL) {
       SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
     }
   #endif
-
   return a > 0;
 }
 
-inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
+// Multiserial already handles dispatch to/from multiple ports
+inline bool any_serial_data_available() {
+  LOOP_L_N(p, NUM_SERIAL)
+    if (serial_data_available(p))
+      return true;
+}
+
+inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind].last_N);
+  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
-  serial_state[serial_ind].count = 0;
+  serial_state[serial_ind.index].count = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -409,7 +401,7 @@ void GCodeQueue::get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
