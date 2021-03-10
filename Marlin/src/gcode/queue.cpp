@@ -393,7 +393,7 @@ void GCodeQueue::get_serial_commands() {
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream[card.transfer_port_index].receive(serial_state[card.transfer_port_index].line_buffer);
+      binaryStream[card.transfer_port_index.index].receive(serial_state[card.transfer_port_index.index].line_buffer);
       return;
     }
   #endif
