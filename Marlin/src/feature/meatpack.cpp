@@ -39,7 +39,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(MEATPACK)
+#if HAS_MEATPACK
 
 #include "meatpack.h"
 MeatPack meatpack;
@@ -215,4 +215,4 @@ uint8_t MeatPack::get_result_char(char* const __restrict out) {
   return res;
 }
 
-#endif // MEATPACK
+#endif // HAS_MEATPACK

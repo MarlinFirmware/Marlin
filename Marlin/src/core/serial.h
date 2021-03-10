@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 #include "serial_hook.h"
 
-#if ENABLED(MEATPACK)
+#if HAS_MEATPACK
   #include "../feature/meatpack.h"
 #endif
 

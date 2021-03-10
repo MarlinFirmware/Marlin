@@ -551,6 +551,8 @@
   #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
 #elif defined(Z_AFTER_DEACTIVATE)
   #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
+#elif defined(MEATPACK)
+  #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
 #endif
 
 /**
@@ -3338,17 +3340,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * MEATPACK checks
+ * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
-#if ENABLED(MEATPACK)
-  #if ENABLED(BINARY_FILE_TRANSFER)
-    #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
-  #elif NONE(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
-    #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
-  #endif
-  #if ENABLED(MEATPACK_ON_SERIAL_PORT_2) && !DISABLED(SERIAL_PORT_2)
-    #error "MEATPACK_ON_SERIAL_PORT_2 is only valid when SERIAL_PORT_2 is defined"
-  #endif
+#if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
+  #error "Either enable MEATPACK or BINARY_FILE_TRANSFER, not both."
 #endif
 
 /**
