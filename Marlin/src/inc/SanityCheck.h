@@ -3343,7 +3343,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
 #if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
-  #error "Either enable MEATPACK or BINARY_FILE_TRANSFER, not both."
+  #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
 #endif
 
 /**
