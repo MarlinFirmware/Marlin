@@ -54,8 +54,13 @@
 #endif
 
 #include "../../core/serial_hook.h"
-typedef Serial1Class<decltype(Serial)> DefaultSerial1;
-extern DefaultSerial1 MSerial0;
+
+#define Serial0 Serial
+#define _DECLARE_SERIAL(X) \
+  typedef Serial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  extern DefaultSerial##X MSerial##X
+#define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
+
 typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
@@ -66,6 +71,7 @@ extern USBSerialType USBSerial;
   #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+  DECLARE_SERIAL(SERIAL_PORT);
 #endif
 
 #define HAL_SERVO_LIB libServo
