@@ -28,7 +28,7 @@ public:
   static bool is_set, is_locked, did_first_run;
   static uint32_t value, value_entry;
 
-  Password() : is_set(false), is_locked(false), did_first_run(false); {}
+  Password() {}
 
   static void lock_machine();
   static void authentication_check();
