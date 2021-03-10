@@ -143,10 +143,6 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   void flushTX()                      { CALL_IF_EXISTS(void, &out, flushTX); }
 
   int available(serial_index_t index) {
-    // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
-    // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
-    // TODO, let's fix this later on
-
     if (charCount) return charCount;          // The buffer still has data
     if (out.available(index) <= 0) return 0;  // No data to read
 

@@ -62,30 +62,61 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
+// Step 1: Find what's the first serial leaf
+#if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
+  #define _SERIAL_LEAF_0  MYSERIAL
+#else
+  #define _SERIAL_LEAF_0  MYSERIAL0
+#endif
+
+// Hook Meatpack if it's enabled on the first leaf
+#ifdef MEATPACK_ENABLED_ON_SERIAL_PORT_0
+  typedef MeatpackSerial<decltype(_SERIAL_LEAF_0)> SerialLeafT0;
+  extern SerialLeafT0 mpSerial0;
+  #define SERIAL_LEAF_0 mpSerial0
+#else
+  #define SERIAL_LEAF_0 _SERIAL_LEAF_0
+#endif
+
+// Step 2: For multiserial, handle the second serial port as well
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n,p)  RESTORE(n)
   #define SERIAL_ASSERT(P)    if(multiSerial.portMask!=(P)){ debugger(); }
+  // If we have a catchall, use that directly
   #ifdef SERIAL_CATCHALL
-    typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
+    #define _SERIAL_LEAF_1 SERIAL_CATCHALL
   #else
-    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0> SerialOutputT;
+    #if HAS_ETHERNET
+      // We need to create an instance here
+      typedef ConditionalSerial<decltype(MYSERIAL1)> SerialLeafT1;
+      extern SerialLeafT1 msSerial1;
+      #define _SERIAL_LEAF_1 msSerial1
+    #else
+      // Don't create a useless instance here, directly use the existing instance
+      #define _SERIAL_LEAF_1 MYSERIAL1
+    #endif
   #endif
+
+  // Hook Meatpack if it's enabled on the second leaf
+  #ifdef MEATPACK_ENABLED_ON_SERIAL_PORT_1
+    typedef MeatpackSerial<decltype(_SERIAL_LEAF_1)> SerialLeafT1;
+    extern SerialLeafT1 mpSerial1;
+    #define SERIAL_LEAF_1 mpSerial1
+  #else
+    #define SERIAL_LEAF_1 _SERIAL_LEAF_1
+  #endif
+
+  typedef MultiSerial<decltype(SERIAL_LEAF_0), decltype(SERIAL_LEAF_1), 0> SerialOutputT;
   extern SerialOutputT        multiSerial;
-  #define _SERIAL_IMPL        multiSerial
+  #define SERIAL_IMPL         multiSerial
 #else
   #define _PORT_REDIRECT(n,p) NOOP
   #define _PORT_RESTORE(n)    NOOP
   #define SERIAL_ASSERT(P)    NOOP
-  #define _SERIAL_IMPL        MYSERIAL0
+  #define SERIAL_IMPL         SERIAL_LEAF_0
 #endif
 
-#if ENABLED(MEATPACK)
-  extern MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial;
-  #define SERIAL_IMPL mpSerial
-#else
-  #define SERIAL_IMPL _SERIAL_IMPL
-#endif
 
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
