@@ -124,7 +124,7 @@ void MarlinEthernet::check() {
       if (!Ethernet.localIP()) break;
 
       SERIAL_ECHOPGM("Successfully started telnet server with IP ");
-      MYSERIAL0.println(Ethernet.localIP());
+      MYSERIAL1.println(Ethernet.localIP());
 
       linkState = LINKED;
       break;

@@ -69,15 +69,15 @@ extern uint8_t marlin_debug_flags;
   #ifdef SERIAL_CATCHALL
     typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
   #else
-    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0> SerialOutputT;
+    typedef MultiSerial<decltype(MYSERIAL1), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL2)>, decltype(MYSERIAL2)), 0> SerialOutputT;
   #endif
-  extern SerialOutputT        multiSerial;
-  #define _SERIAL_IMPL        multiSerial
+  extern SerialOutputT multiSerial;
+  #define _SERIAL_IMPL multiSerial
 #else
   #define _PORT_REDIRECT(n,p) NOOP
   #define _PORT_RESTORE(n)    NOOP
   #define SERIAL_ASSERT(P)    NOOP
-  #define _SERIAL_IMPL        MYSERIAL0
+  #define _SERIAL_IMPL MYSERIAL1
 #endif
 
 #if ENABLED(MEATPACK)
