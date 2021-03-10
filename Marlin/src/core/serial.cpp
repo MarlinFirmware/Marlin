@@ -39,20 +39,20 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
-  SerialLeafT0 mpSerial0(false, _SERIAL_LEAF_0);
+  SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
 #endif
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
-  SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
+  SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
 #endif
 
 // Step 2: For multiserial, handle the second serial port as well
 #if HAS_MULTI_SERIAL
   #if HAS_ETHERNET
     // We need a definition here
-    SerialLeafT1 msSerial1(ethernet.have_telnet_client, MYSERIAL1, false);
+    SerialLeafT2 msSerial1(ethernet.have_telnet_client, MYSERIAL1, false);
   #endif
 
-  SerialOutputT multiSerial(SERIAL_LEAF_0, SERIAL_LEAF_1);
+  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2);
 #endif
 
 void serialprintPGM(PGM_P str) {
