@@ -38,10 +38,10 @@ PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMST
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
 // Hook Meatpack if it's enabled on the first leaf
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_0)
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
   SerialLeafT0 mpSerial0(false, _SERIAL_LEAF_0);
 #endif
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
   SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
 #endif
 

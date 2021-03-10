@@ -70,7 +70,7 @@ extern uint8_t marlin_debug_flags;
 #endif
 
 // Hook Meatpack if it's enabled on the first leaf
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_0)
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
   typedef MeatpackSerial<decltype(_SERIAL_LEAF_0)> SerialLeafT0;
   extern SerialLeafT0 mpSerial0;
   #define SERIAL_LEAF_0 mpSerial0
@@ -99,7 +99,7 @@ extern uint8_t marlin_debug_flags;
   #endif
 
   // Hook Meatpack if it's enabled on the second leaf
-  #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
+  #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
     typedef MeatpackSerial<decltype(_SERIAL_LEAF_1)> SerialLeafT1;
     extern SerialLeafT1 mpSerial1;
     #define SERIAL_LEAF_1 mpSerial1
