@@ -134,9 +134,10 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
     uint8_t readIndex;
   } serial_state[NUM_SERIAL];
 
+  void resetState()                   { LOOP_L_N(p, NUM_SERIAL) { serial_state[p].readIndex = 0; serial_state[p].charCount = 0; } }
   NO_INLINE size_t write(uint8_t c)   { return out.write(c); }
-  void flush()                        { out.flush();  }
-  void begin(long br)                 { out.begin(br); LOOP_L_N(p, NUM_SERIAL) { serial_state[p].readIndex = 0; serial_state[p].charCount = 0; } }
+  void flush()                        { out.flush(); resetState(); }
+  void begin(long br)                 { out.begin(br); resetState(); }
   void end()                          { out.end(); }
 
   void msgDone()                      { out.msgDone(); }
