@@ -68,18 +68,18 @@ extern DefaultSerial USBSerial;
 #define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 USBSerial
+  #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 USBSerial
+    #define MYSERIAL2 USBSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif

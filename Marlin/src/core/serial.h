@@ -66,7 +66,7 @@ extern uint8_t marlin_debug_flags;
 #if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
   #define _SERIAL_LEAF_1  MYSERIAL
 #else
-  #define _SERIAL_LEAF_1  MYSERIAL0
+  #define _SERIAL_LEAF_1  MYSERIAL1
 #endif
 
 // Hook Meatpack if it's enabled on the first leaf
@@ -89,12 +89,12 @@ extern uint8_t marlin_debug_flags;
   #else
     #if HAS_ETHERNET
       // We need to create an instance here
-      typedef ConditionalSerial<decltype(MYSERIAL1)> SerialLeafT2;
-      extern SerialLeafT2 msSerial1;
-      #define _SERIAL_LEAF_2 msSerial1
+      typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;
+      extern SerialLeafT2 msSerial2;
+      #define _SERIAL_LEAF_2 msSerial2
     #else
       // Don't create a useless instance here, directly use the existing instance
-      #define _SERIAL_LEAF_2 MYSERIAL1
+      #define _SERIAL_LEAF_2 MYSERIAL2
     #endif
   #endif
 

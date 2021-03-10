@@ -49,7 +49,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 #if HAS_MULTI_SERIAL
   #if HAS_ETHERNET
     // We need a definition here
-    SerialLeafT2 msSerial1(ethernet.have_telnet_client, MYSERIAL1, false);
+    SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
 
   SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2);

@@ -64,9 +64,9 @@ extern USBSerialType USBSerial;
 #define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 USBSerial
+  #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #endif
 
 #define HAL_SERVO_LIB libServo

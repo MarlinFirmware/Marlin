@@ -51,20 +51,20 @@ extern DefaultSerial3 MSerial3;
 #define MSERIAL(X) _MSERIAL(X)
 #define MSerial0 MSerial
 
-// Define MYSERIAL0/1 before MarlinSerial includes!
+// Define MYSERIAL1/1 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
-  #define MYSERIAL0 customizedSerial1
+  #define MYSERIAL1 customizedSerial1
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
-    #define MYSERIAL1 customizedSerial2
+    #define MYSERIAL2 customizedSerial2
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif
