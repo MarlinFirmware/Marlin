@@ -43,12 +43,12 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
   #else
     #if HAS_ETHERNET
       // Runtime checking of the condition variable
-      ConditionalSerial<decltype(MYSERIAL1)> serialOut1(ethernet.have_telnet_client, MYSERIAL1, false); // Takes reference here
+      ConditionalSerial<decltype(MYSERIAL2)> serialOut2(ethernet.have_telnet_client, MYSERIAL2, false); // Takes reference here
     #else
       // Don't pay for runtime checking a true variable, instead use the output directly
-      #define serialOut1 MYSERIAL1
+      #define serialOut2 MYSERIAL2
     #endif
-    SerialOutputT multiSerial(MYSERIAL0, serialOut1);
+    SerialOutputT multiSerial(MYSERIAL1, serialOut2);
   #endif
 #endif
 
