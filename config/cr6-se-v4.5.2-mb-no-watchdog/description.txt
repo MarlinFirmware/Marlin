@@ -1,1 +1,1 @@
-CR-6 SE (v4.5.2 motherboard) (no watchdog - only use if the normal build does not work for you)
+CR-6 SE (v4.5.2 motherboard) (no watchdog - caution - thermal runaway possible!)
