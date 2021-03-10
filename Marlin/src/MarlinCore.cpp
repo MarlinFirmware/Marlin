@@ -1053,6 +1053,10 @@ void setup() {
   #if HAS_FILAMENT_SENSOR
     SETUP_RUN(runout.setup());
   #endif
+  
+  #if HAS_TMC220x
+    SETUP_RUN(tmc_serial_begin());
+  #endif
 
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
@@ -1066,10 +1070,6 @@ void setup() {
 
   #if HAS_L64XX
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
-  #endif
-
-  #if HAS_TMC220x
-    SETUP_RUN(tmc_serial_begin());
   #endif
 
   #if HAS_STEPPER_RESET
