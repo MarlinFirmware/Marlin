@@ -368,15 +368,22 @@ def compute_build_signature():
 	if 'BUILD_SIGNATURE' in env:
 		return
 	
+	# Definition from these files will be kept
+	files_to_keep = [ 'Marlin/Configuration.h', 
+					  'Marlin/Configuration_adv.h'	
+	]
+
 	# Check if we can skip processing
-	conf_h_hash = get_file_sha256sum('Marlin/Configuration.h')
-	conf_adv_h_hash = get_file_sha256sum('Marlin/Configuration_adv.h')
+	hashes = ''
+	for header in files_to_keep:
+		hashes = hashes + get_file_sha256sum(header)
+
 
 	# Read existing config file
 	try:
 		with open('marlin_config.json', 'r') as infile:
 			conf = json.load(infile)
-			if conf['__INITIAL_CONFIG_H_HASH'] == conf_h_hash and conf['__INITIAL_CONFIG_ADV_H_HASH'] == conf_adv_h_hash:
+			if conf['__INITIAL_HASH'] == hashes:
 				# Same configuration, skip recomputing the building signature
 				return
 	except:
@@ -385,8 +392,14 @@ def compute_build_signature():
 	# Need to parse all valid defines in the configuration files
 	complete_cfg = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
 	# Dumb #define extraction from the configuration files
-	real_defines = extract_defines('Marlin/Configuration.h')
-	real_defines = real_defines + extract_defines('Marlin/Configuration_adv.h')
+	real_defines = {}
+	all_defines = []
+	for header in files_to_keep:
+		defines = extract_defines(header)
+		# To filter only the define we want
+		all_defines = all_defines + defines
+		# To remember from which file it cames from
+		real_defines[header.split('/')[-1]] = defines
 	
 
 	r = re.compile("\(+(\s*-*\s*_.*)\)+")
@@ -431,7 +444,7 @@ def compute_build_signature():
 		if key[-11:] == "_T_DECLARED": 
 			continue
 		# Remove keys that are not in the #define list in the Configuration list
-		if not(key in real_defines):
+		if not(key in all_defines):
 			continue
 
 		value = defines[key]
@@ -491,11 +504,22 @@ def compute_build_signature():
 		print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
 
 	# Generate a build signature now
-	resolved_defines['__INITIAL_CONFIG_H_HASH'] = conf_h_hash
-	resolved_defines['__INITIAL_CONFIG_ADV_H_HASH'] = conf_adv_h_hash
+	# We are making an object that's a bit more complex than a basic dictionary here
+	data = {}
+	data['__INITIAL_HASH'] = hashes
+	# First create a key for each header here
+	for header in real_defines:
+		data[header] = {}
+
+	# Then populate the object where each key is going to (that's a O(N^2) algorithm here...)
+	for key in resolved_defines:
+		for header in real_defines:
+			if key in real_defines[header]:
+				data[header][key] = resolved_defines[key]
+
 
 	with open('marlin_config.json', 'w') as outfile:
-	    json.dump(resolved_defines, outfile)
+	    json.dump(data, outfile)
 
 #
 # Return True if a matching feature is enabled
