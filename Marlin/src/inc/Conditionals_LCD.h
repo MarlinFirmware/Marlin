@@ -451,7 +451,7 @@
 #endif
 
 // Aliases for LCD features
-#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS)
   #define HAS_DGUS_LCD 1
 #endif
 
@@ -513,7 +513,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= SMUFF_EMU_MMU2
+  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
     #define HAS_SMUFF 1
   #endif
 #endif
@@ -575,7 +575,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMuFF force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif
@@ -924,7 +924,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ENABLED(MORGAN_SCARA)
+#if EITHER(MORGAN_SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ENABLED(DELTA)
@@ -1194,4 +1194,11 @@
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
+#endif
+
+#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+  #define HAS_ENDSTOPS 1
+  #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
+#else
+  #define COORDINATE_OKAY(N,L,H) true
 #endif

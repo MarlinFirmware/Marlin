@@ -892,7 +892,7 @@ void unified_bed_leveling::shift_mesh_height() {
       const xyz_pos_t ppos = {
         mesh_index_to_xpos(lpos.x),
         mesh_index_to_ypos(lpos.y),
-        Z_CLEARANCE_BETWEEN_PROBES
+        z_clearance
       };
 
       if (!position_is_reachable(ppos)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
@@ -907,7 +907,14 @@ void unified_bed_leveling::shift_mesh_height() {
 
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
-      serialprintPGM(parser.seen('B') ? GET_TEXT(MSG_UBL_BC_INSERT) : GET_TEXT(MSG_UBL_BC_INSERT2));
+      if (parser.seen('B')) {
+        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT));
+        LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
+      }
+      else {
+        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT2));
+        LCD_MESSAGEPGM(MSG_UBL_BC_INSERT2);
+      }
 
       const float z_step = 0.01f;                         // existing behavior: 0.01mm per click, occasionally step
       //const float z_step = planner.steps_to_mm[Z_AXIS]; // approx one step each click
@@ -1118,8 +1125,8 @@ bool unified_bed_leveling::g29_parameter_parsing() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!WITHIN(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!WITHIN(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
 
   if (err_flag) return UBL_ERR;
 
@@ -1569,7 +1576,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
         auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
-          d_from(); serialprintPGM(pre);
+          d_from(); SERIAL_ECHOPGM_P(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
         };

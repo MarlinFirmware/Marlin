@@ -2973,7 +2973,7 @@ inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_n
   if (before != val) {
     SERIAL_CHAR(axis_codes[lim_axis]);
     SERIAL_ECHOPGM(" Max ");
-    serialprintPGM(setting_name);
+    SERIAL_ECHOPGM_P(setting_name);
     SERIAL_ECHOLNPAIR(" limited to ", val);
   }
 }

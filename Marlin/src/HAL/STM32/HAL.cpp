@@ -29,7 +29,7 @@
 #include "../shared/Delay.h"
 
 #ifdef USBCON
-  DefaultSerial MSerial(false, SerialUSB);
+  DefaultSerial1 MSerial0(false, SerialUSB);
 #endif
 
 #if ENABLED(SRAM_EEPROM_EMULATION)
@@ -62,6 +62,12 @@ TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 // HAL initialization task
 void HAL_init() {
   FastIO_init();
+
+  // Ensure F_CPU is a constant expression.
+  // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
+  // So better safe than sorry here.
+  constexpr int cpuFreq = F_CPU;
+  UNUSED(cpuFreq);
 
   #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT) && (defined(SDSS) && SDSS != -1)
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up

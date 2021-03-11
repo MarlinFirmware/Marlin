@@ -885,9 +885,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             char *outBuf = (char *)tempBuf;
             char str_1[16], tbuf[34];
 
-            dtostrf(thermalManager.temp_hotend[0].celsius, 1, 1, tbuf);
+            dtostrf(thermalManager.degHotend(0), 1, 1, tbuf);
             strcat_P(tbuf, PSTR(" /"));
-            strcat(tbuf, dtostrf(thermalManager.temp_hotend[0].target, 1, 1, str_1));
+            strcat(tbuf, dtostrf(thermalManager.degTargetHotend(0), 1, 1, str_1));
 
             const int tlen = strlen(tbuf);
 
@@ -912,9 +912,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
             #if HAS_MULTI_HOTEND
-              strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].celsius, 1, 1, str_1));
+              strcat(outBuf, dtostrf(thermalManager.degHotend(1), 1, 1, str_1));
               strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].target, 1, 1, str_1));
+              strcat(outBuf, dtostrf(thermalManager.degTargetHotend(1), 1, 1, str_1));
             #else
               strcat_P(outBuf, PSTR("0 /0"));
             #endif
@@ -924,15 +924,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
                 (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target,
               #else
                 0, 0,
               #endif
-              (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target
+                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif
@@ -1231,13 +1231,13 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
 
   while (1) {
     char_byte_num = source[i] & 0xF0;
-    if (source[i] < 0X80) {
+    if (source[i] < 0x80) {
       //ASCII --1byte
       FileName_unicode[char_i] = source[i];
       i += 1;
       char_i += 1;
     }
-    else if (char_byte_num == 0XC0 || char_byte_num == 0XD0) {
+    else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) {
       //--2byte
       u16_h = (((uint16_t)source[i] << 8) & 0x1F00) >> 2;
       u16_l = ((uint16_t)source[i + 1] & 0x003F);
@@ -1247,7 +1247,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 2;
       char_i += 2;
     }
-    else if (char_byte_num == 0XE0) {
+    else if (char_byte_num == 0xE0) {
       //--3byte
       u16_h = (((uint16_t)source[i] << 8) & 0x0F00) << 4;
       u16_m = (((uint16_t)source[i + 1] << 8) & 0x3F00) >> 2;
@@ -1258,7 +1258,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 3;
       char_i += 2;
     }
-    else if (char_byte_num == 0XF0) {
+    else if (char_byte_num == 0xF0) {
       //--4byte
       i += 4;
       //char_i += 3;
@@ -1613,7 +1613,7 @@ void wifi_rcv_handle() {
       if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       getDataF = 1;
     }
-    if (need_ok_later &&  (queue.length < BUFSIZE)) {
+    if (need_ok_later && !queue.ring_buffer.full()) {
       need_ok_later = false;
       send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"));
     }
@@ -1772,7 +1772,7 @@ void get_wifi_commands() {
   static int wifi_read_count = 0;
 
   if (espGcodeFifo.wait_tick > 5) {
-    while ((queue.length < BUFSIZE) && (espGcodeFifo.r != espGcodeFifo.w)) {
+    while (!queue.ring_buffer.full() && (espGcodeFifo.r != espGcodeFifo.w)) {
 
       espGcodeFifo.wait_tick = 0;
 

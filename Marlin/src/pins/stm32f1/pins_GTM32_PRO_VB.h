@@ -26,9 +26,7 @@
  * http://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "GTM32 Pro VB/VD"
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"

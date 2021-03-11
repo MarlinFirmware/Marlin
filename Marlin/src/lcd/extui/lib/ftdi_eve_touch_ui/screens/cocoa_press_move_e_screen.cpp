@@ -34,7 +34,7 @@ constexpr static MoveAxisScreenData &mydata = screen_data.MoveAxisScreen;
 
 void MoveEScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(1);
+  w.precision(1, DEFAULT_MIDRANGE);
   w.units(GET_TEXT_F(MSG_UNITS_MM));
   w.heading(                           GET_TEXT_F(MSG_E_MOVE));
   w.color(Theme::e_axis);

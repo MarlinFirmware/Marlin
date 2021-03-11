@@ -25,9 +25,7 @@
  * Einsy-Retro pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Einsy Retro"
 

@@ -290,7 +290,7 @@ namespace Anycubic {
 
   void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEN string to the panel
     #if ACDEBUG(AC_SOME)
-      serialprintPGM(str);
+      SERIAL_ECHOPGM_P(str);
     #endif
     while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
   }
@@ -310,7 +310,7 @@ namespace Anycubic {
 
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
-    while(TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
+    while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
       panel_command[command_len] = TFTSer.read();
       if (panel_command[command_len] == '\n') {
         command_ready = true;
@@ -338,7 +338,7 @@ namespace Anycubic {
 
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
     int8_t pos = 0;
-    do { if (buff[pos] == q) return pos; } while(++pos < MAX_CMND_LEN);
+    do { if (buff[pos] == q) return pos; } while (++pos < MAX_CMND_LEN);
     return -1;
   }
 
@@ -578,8 +578,8 @@ namespace Anycubic {
       case 15:   // A15 Resuming from outage
         if (printer_state == AC_printer_resuming_from_power_outage) {
           // Need to home here to restore the Z position
-          injectCommands(AC_cmnd_power_loss_recovery);
-          injectCommands("M1000");  // home and start recovery
+          injectCommands_P(AC_cmnd_power_loss_recovery);
+          injectCommands_P(PSTR("M1000"));  // home and start recovery
         }
         break;
 
