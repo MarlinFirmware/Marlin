@@ -144,8 +144,8 @@ void GcodeSuite::M115() {
     // COOLER_TEMPERATURE (M143, M193)
     cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
 
-    // MEATPACK Compresson
-    cap_line(PSTR("MEATPACK"), ENABLED(MEATPACK));
+    // MEATPACK Compression
+    cap_line(PSTR("MEATPACK"), ENABLED(HAS_MEATPACK));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

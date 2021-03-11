@@ -29,11 +29,11 @@
   #include "../libs/heatshrink/heatshrink_decoder.h"
 #endif
 
-inline bool bs_serial_data_available(const uint8_t index) {
+inline bool bs_serial_data_available(const serial_index_t index) {
   return SERIAL_IMPL.available(index);
 }
 
-inline int bs_read_serial(const uint8_t index) {
+inline int bs_read_serial(const serial_index_t index) {
   return SERIAL_IMPL.read(index);
 }
 
