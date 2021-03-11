@@ -606,7 +606,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
   void DGUSScreenHandler::SetPrintingFromHost() {
     const char* printFromHostString = PSTR("Printing from host");
-    dgusdisplay.WriteVariablePGM(VP_SD_Print_Filename, printFromHostString, strlen(printFromHostString), true);
+    dgusdisplay.WriteVariablePGM(VP_SD_Print_Filename, printFromHostString, VP_SD_FileName_LEN, true);
   }
 
   void DGUSScreenHandler::DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr) {
