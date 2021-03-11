@@ -114,7 +114,7 @@ void MeshValidationHandler::OnMeshValidationFinish() {
             // - Set absolute mode
             // - Present bed, high Z
             // - Disable stepper
-            sprintf_P(gcodeBuffer, PSTR("G90\nG0 Y%d Z%d Z35 F3000\nM84"), (Y_BED_SIZE - 15), Z_AFTER_HOMING);
+            strcpy_P(gcodeBuffer, PSTR("M84"));
 
             SetStatusMessage("Mesh validation pattern printed");
         } else {

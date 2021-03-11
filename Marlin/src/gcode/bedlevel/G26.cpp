@@ -927,6 +927,8 @@ void GcodeSuite::G26() {
 
   } while (--g26_repeats && location.valid() && TERN1(HAS_G26_CANCEL, !user_canceled()));
 
+  planner.synchronize();
+
   LEAVE:
   IF_ENABLED(EXTENSIBLE_UI, ExtUI::resetCancelState());
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
@@ -934,7 +936,7 @@ void GcodeSuite::G26() {
 
   planner.clear_block_buffer();
   char cmdBuffer[80] = {0};
-  sprintf_P(cmdBuffer, PSTR("G90\nG0 Z%d F2000\nG0 X%d Y%d"), Z_HOMING_HEIGHT, X_BED_SIZE/4, Y_BED_SIZE/2);
+  sprintf_P(cmdBuffer, PSTR("G90\nG0 Z%d F2000\nG0 X%d Y%d"), max(Z_MAX_POS / 4, Z_HOMING_HEIGHT), X_BED_SIZE/4, ((Y_BED_SIZE) - ((Y_BED_SIZE) / 4)));
   gcode.process_subcommands_now(cmdBuffer);
 
   #if DISABLED(NO_VOLUMETRICS)
