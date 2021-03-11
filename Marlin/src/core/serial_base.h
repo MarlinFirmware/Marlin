@@ -45,10 +45,6 @@ struct serial_index_t {
   constexpr serial_index_t() : index(-1) {}
 };
 
-// flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
-CALL_IF_EXISTS_IMPL(void, flushTX);
-CALL_IF_EXISTS_IMPL(bool, connected, true);
-
 // In order to catch usage errors in code, we make the base to encode number explicit
 // If given a number (and not this enum), the compiler will reject the overload, falling back to the (double, digit) version
 // We don't want hidden conversion of the first parameter to double, so it has to be as hard to do for the compiler as creating this enum
@@ -58,6 +54,23 @@ enum class PrintBase {
   Oct = 8,
   Bin = 2
 };
+
+// A simple feature list enumeration
+enum class SerialFeature {
+  None                = 0x00,
+  MeatPack            = 0x01,   //!< Enabled when Meatpack is present
+  BinaryFileTransfer  = 0x02,   //!< Enabled for BinaryFile transfer support (in the future)
+  Virtual             = 0x04,   //!< Enabled for virtual serial port (like Telnet / Websocket / ...)
+  Hookable            = 0x08,   //!< Enabled if the serial class supports a setHook method
+};
+ENUM_FLAGS(SerialFeature);
+
+// flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
+CALL_IF_EXISTS_IMPL(void, flushTX);
+CALL_IF_EXISTS_IMPL(bool, connected, true);
+CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
+
+
 
 // A simple forward struct that prevent the compiler to select print(double, int) as a default overload for any type different than
 // double or float. For double or float, a conversion exists so the call will be transparent
@@ -100,6 +113,9 @@ struct SerialBase {
   /** Read a value from the port
       @param index  The port index, usually 0 */
   int  read(serial_index_t index = 0)      { return static_cast<Child*>(this)->read(index); }
+  /** Combine the feature of this serial instance and returns it
+      @param index  The port index, usually 0 */
+  SerialFeature features(serial_index_t index = 0) const     { return static_cast<const Child*>(this)->features(index);  }
   // Check if the serial port is connected (usually bypassed)
   bool connected()                  { return static_cast<Child*>(this)->connected(); }
   // Redirect flush

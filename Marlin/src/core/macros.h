@@ -318,6 +318,17 @@
 
   #endif
 
+  // Allow manipulating enumeration value like flags without ugly cast everywhere
+  #define ENUM_FLAGS(T) \
+    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
+    FORCE_INLINE T & operator&=(T &x, T y) { return x = x & y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x = x | y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x = x ^ y; }
+
+
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
