@@ -759,7 +759,11 @@ void unified_bed_leveling::shift_mesh_height() {
 
       best = do_furthest
         ? find_furthest_invalid_mesh_point()
+      #if ENABLED(UBL_HILBERT_CURVE)
+        : next_point_in_grid();
+      #else
         : find_closest_mesh_point_of_type(INVALID, nearby, true);
+      #endif
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
@@ -1297,6 +1301,55 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
 
   return closest;
 }
+
+#if ENABLED(UBL_HILBERT_CURVE)
+   void unified_bed_leveling::hilbert(mesh_index_pair &pt, float x, float y, float xi, float xj, float yi, float yj, int n) {
+      /* Hilbert space filling curve implementation
+       *
+       * x and y are the coordinates of the bottom left corner 
+       * xi & xj are the i & j components of the unit x vector of the frame 
+       * similarly yi and yj
+       *
+       * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
+       */
+      if (n <= 0) {
+        check_if_missing(pt, x + (xi + yi)/2, y + (xj + yj)/2);
+      } else {
+        hilbert(pt, x,           y,           yi/2,  yj/2,  xi/2,  xj/2, n-1);
+        hilbert(pt, x+xi/2,      y+xj/2,      xi/2,  xj/2,  yi/2,  yj/2, n-1);
+        hilbert(pt, x+xi/2+yi/2, y+xj/2+yj/2, xi/2,  xj/2,  yi/2,  yj/2, n-1);
+        hilbert(pt, x+xi/2+yi,   y+xj/2+yj,  -yi/2, -yj/2, -xi/2, -xj/2, n-1);
+      }
+   }
+
+   constexpr size_t log2(size_t n) {
+     return (n > 1) ? 1 + log2(n >> 1) : 0;
+   }
+
+   constexpr size_t order(size_t n) {
+     return size_t(log2(n-1))+1;
+   }
+
+  void unified_bed_leveling::check_if_missing(mesh_index_pair &pt, int x, int y) {
+      if (pt.distance < 0       &&
+          x < GRID_MAX_POINTS_X &&
+          y < GRID_MAX_POINTS_Y &&
+          isnan(z_values[x][y]) &&
+          probe.can_reach(mesh_index_to_xpos(x), mesh_index_to_ypos(y))) {
+        pt.pos.set(x, y);
+        pt.distance = 1;
+      }
+   }
+
+   mesh_index_pair unified_bed_leveling::next_point_in_grid() {
+     mesh_index_pair pt;
+     pt.invalidate();
+     pt.distance = -99999.9f;
+     constexpr int n = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+     hilbert(pt, 0, 0, 1 << n, 0, 0, 1 << n, n);
+     return pt;
+   }
+#endif
 
 /**
  * 'Smart Fill': Scan from the outward edges of the mesh towards the center.

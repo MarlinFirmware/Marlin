@@ -98,6 +98,11 @@ public:
   static void display_map(const int) _O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
+  #if ENABLED(UBL_HILBERT_CURVE)
+    static void check_if_missing(mesh_index_pair &pt, int x, int y) _O0;
+    static void hilbert(mesh_index_pair &pt, float x, float y, float xi, float xj, float yi, float yj, int n) _O0;
+    static mesh_index_pair next_point_in_grid() _O0;
+  #endif
   static void reset();
   static void invalidate();
   static void set_all_mesh_points_to_value(const float value);
