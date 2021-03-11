@@ -3,6 +3,8 @@
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import subprocess,os,re
+# For building the signature and caching the result
+import json,hashlib
 try:
 	import configparser
 except ImportError:
@@ -43,9 +45,16 @@ Import("env")
 #print(env.Dump())
 
 try:
-	verbose = int(env.GetProjectOption('custom_verbose'))
+	verbose = 1 #int(env.GetProjectOption('custom_verbose'))
 except:
 	verbose = 0
+
+try:
+	compute_entropy = int(env.GetProjectOption('compute_entropy'))
+except:
+	compute_entropy = 0
+
+
 
 def blab(str):
 	if verbose:
@@ -323,6 +332,34 @@ def resolve_macro(value, defines):
 	return value
 
 #
+# The dumbest preprocessor in the world
+# Extract macro name from an header file and store them in an array 
+# No processing is done here, so they are raw values here and it does not match what actually enabled 
+# in the file (since you can have #if SOMETHING_UNDEFINED / #define BOB / #endif)
+# But it's useful to filter the useful macro spit out by the preprocessor from noise from the system 
+# headers.
+#
+def extract_defines(filepath):
+	f = open(filepath).read().split("\n")
+	a = []
+	for line in f:
+		sline = line.strip(" \t\n\r")
+		if sline[:7] == "#define":
+			# Extract the key here (we don't care about the value)
+			kv = sline[8:].strip().split(' ')
+			a.append(kv[0])
+	return a
+
+# Compute the SHA256 hash of a file
+def get_file_sha256sum(filepath):
+	sha256_hash = hashlib.sha256()
+	with open(filepath,"rb") as f:
+		# Read and update hash string value in blocks of 4K
+		for byte_block in iter(lambda: f.read(4096),b""):
+			sha256_hash.update(byte_block)
+	return sha256_hash.hexdigest()
+
+#
 # Compute the build signature. The idea is to extract all defines in the configuration headers
 # to build a unique reversible signature from this build so it can be included in the binary
 # We can reverse the signature to get a 1:1 equivalent configuration file
@@ -331,23 +368,41 @@ def compute_build_signature():
 	if 'BUILD_SIGNATURE' in env:
 		return
 	
+	# Check if we can skip processing
+	conf_h_hash = get_file_sha256sum('Marlin/Configuration.h')
+	conf_adv_h_hash = get_file_sha256sum('Marlin/Configuration_adv.h')
+
+	# Read existing config file
+	try:
+		with open('marlin_config.json', 'r') as infile:
+			conf = json.load(infile)
+			if conf['__INITIAL_CONFIG_H_HASH'] == conf_h_hash and conf['__INITIAL_CONFIG_ADV_H_HASH'] == conf_adv_h_hash:
+				# Same configuration, skip recomputing the building signature
+				return
+	except:
+		pass
+
 	# Need to parse all valid defines in the configuration files
 	complete_cfg = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
 #	remove_define = run_preprocessor('Marlin/src/core/macros.h')
 	compiler_default_define = run_preprocessor('buildroot/share/PlatformIO/scripts/empty.h')
 #	drivers_define = run_preprocessor('Marlin/src/core/drivers.h')
 #	remove_board = run_preprocessor('Marlin/src/core/boards.h')
+	real_defines = extract_defines('Marlin/Configuration.h')
+	real_defines = real_defines + extract_defines('Marlin/Configuration_adv.h')
+	
 
 	r = re.compile("\(+(\s*-*\s*_.*)\)+")
 
 	# First step is to collect all valid macros
 	defines = {}
 	for line in complete_cfg:
-		if line in compiler_default_define: # or line in remove_define  or line in drivers_define:
-			continue
+#		if line in compiler_default_define: # or line in remove_define  or line in drivers_define:
+#			continue
 		# Split the define from the value
 		key_val = line[8:].strip().decode().split(' ')
 		key, value = key_val[0], ' '.join(key_val[1:])
+
 		# Ignore values starting with two underscore, since it's low level
 		if len(key) > 2 and key[0:2] == "__" :
 			continue
@@ -359,7 +414,7 @@ def compute_build_signature():
 		if r.match(value):
 			continue
 
-		defines[key] = value if len(value) else "true" 
+		defines[key] = value if len(value) else "" 
 		
 
 	# Second step if to resolve recursive macro
@@ -378,6 +433,9 @@ def compute_build_signature():
 			continue
 		# Remove all keys ending by "_T_DECLARED" as it's a copy of not important system stuff
 		if key[-11:] == "_T_DECLARED": 
+			continue
+		# Remove keys that are not in the #define list in the Configuration list
+		if not(key in real_defines):
 			continue
 
 		value = defines[key]
@@ -399,38 +457,49 @@ def compute_build_signature():
 		resolved_defines[key] = resolve_macro(value, defines)
 
 	# Compute the required entropy for the fingerprint
-	keyCount = 0
-	valEntropy = 0
-	for k in resolved_defines:
-		keyCount = keyCount + 1
-		v = resolved_defines[k]
-		bits = 0
-		if is_numeric.match(v):
-			if v == "-1" or v == "1":
-				bits = 0 # All -1 and 1 can be listed in a specific section and don't take any space
-			elif '.' in v:
-				bits = 32
+	if compute_entropy:
+		keyCount = 0
+		valEntropy = 0
+		for k in resolved_defines:
+			keyCount = keyCount + 1
+			v = resolved_defines[k]
+			bits = 0
+			if is_numeric.match(v):
+				if v == "-1" or v == "1":
+					bits = 0 # All -1 and 1 can be listed in a specific section and don't take any space
+				elif '.' in v:
+					bits = 32
+				else:
+					try:
+						f = int(v.strip("()"))
+					except:
+						f = 1<<31
+					bits = f.bit_length()
+				valEntropy = valEntropy + bits
+			elif is_text.match(v):
+				bits = 8 * len(v)
+			elif is_bool.match(v):
+				bits = 1
+			elif is_list.match(v):
+				l = len(v.split(","))
+				if l * 32 < 8 * len(v):
+					bits = l * 32 + 5 # Let's say we don't have a list with more than 31 values here
+				else:
+					bits = 8 * len(v) # Store has a string
 			else:
-				f = int(v.strip("()"))
-				bits = f.bit_length()
-			valEntropy = valEntropy + bits
-		elif is_text.match(v):
-			bits = 8 * len(v)
-		elif is_bool.match(v):
-			bits = 1
-		elif is_list.match(v):
-			l = len(v.split(","))
-			if l * 32 < 8 * len(v):
-				bits = l * 32 + 5 # Let's say we don't have a list with more than 31 values here
-			else:
-				bits = 8 * len(v) # Store has a string
-		else:
-			bits = 32 # Consider it's a computable value here
+				bits = 32 # Consider it's a computable value here
 
-		valEntropy = valEntropy + bits + 1
-		if verbose: 
-			print(str(k) + " = " + str(v) + "(" + str(bits) + ")")
-	print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
+			valEntropy = valEntropy + bits + 1
+			if verbose: 
+				print(str(k) + " = " + str(v) + "(" + str(bits) + ")")
+		print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
+
+	# Generate a build signature now
+	resolved_defines['__INITIAL_CONFIG_H_HASH'] = conf_h_hash
+	resolved_defines['__INITIAL_CONFIG_ADV_H_HASH'] = conf_adv_h_hash
+
+	with open('marlin_config.json', 'w') as outfile:
+	    json.dump(resolved_defines, outfile)
 
 #
 # Return True if a matching feature is enabled
