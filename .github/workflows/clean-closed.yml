@@ -14,20 +14,25 @@ on:
 jobs:
   remove_label:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        label:
+          - "S: Don't Merge"
+          - "S: Please Merge"
+          - "S: Please Test"
+          - "help wanted"
+          - "Needs: Discussion"
+          - "Needs: Documentation"
+          - "Needs: More Data"
+          - "Needs: Patch"
+          - "Needs: Testing"
+          - "Needs: Work"
+
     steps:
       - uses: actions/checkout@v2
       - name: Remove Labels
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           github_token: ${{ github.token }}
-          labels: |
-            S: Don't Merge
-            S: Please Merge
-            S: Please Test
-            help wanted
-            Needs: Discussion
-            Needs: Documentation
-            Needs: More Data
-            Needs: Patch
-            Needs: Testing
-            Needs: Work
+          labels: ${{ matrix.label }}
