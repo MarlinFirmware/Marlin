@@ -438,7 +438,7 @@ def compute_build_signature():
 		if key[0:6] == "BOARD_" and key != "BOARD_INFO_NAME":
 			continue
 		# Remove all keys ending by "_NAME" as it does not make a difference to the configuration
-		if key[-5:] == "_NAME":
+		if key[-5:] == "_NAME" and key != "CUSTOM_MACHINE_NAME":
 			continue
 		# Remove all keys ending by "_T_DECLARED" as it's a copy of not important system stuff
 		if key[-11:] == "_T_DECLARED": 
