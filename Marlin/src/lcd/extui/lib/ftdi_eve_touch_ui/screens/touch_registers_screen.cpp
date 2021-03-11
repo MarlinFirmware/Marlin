@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_DEVELOPER_MENU)
-
 #include "screens.h"
+
+#ifdef FTDI_TOUCH_REGISTERS_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -83,4 +82,4 @@ void TouchRegistersScreen::onRedraw(draw_mode_t) {
    return true;
  }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_TOUCH_REGISTERS_SCREEN

@@ -52,15 +52,9 @@ void GcodeSuite::M118() {
     while (*p == ' ') ++p;
   }
 
-  #if HAS_MULTI_SERIAL
-    const int8_t old_serial = multiSerial.portMask;
-    if (WITHIN(port, 0, NUM_SERIAL))
-      multiSerial.portMask = port ? _BV(port - 1) : SERIAL_ALL;
-  #endif
+  PORT_REDIRECT(WITHIN(port, 0, NUM_SERIAL) ? (port ? SERIAL_PORTMASK(port - 1) : SerialMask::All) : multiSerial.portMask);
 
   if (hasE) SERIAL_ECHO_START();
   if (hasA) SERIAL_ECHOPGM("//");
   SERIAL_ECHOLN(p);
-
-  TERN_(HAS_MULTI_SERIAL, multiSerial.portMask = old_serial);
 }

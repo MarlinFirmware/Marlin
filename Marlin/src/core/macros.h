@@ -61,6 +61,8 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
+
 #ifndef UNUSED
   #define UNUSED(x) ((void)(x))
 #endif
@@ -102,6 +104,7 @@
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
@@ -128,20 +131,20 @@
 
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
@@ -319,6 +322,12 @@
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
     template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
   }
   // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
@@ -340,6 +349,31 @@
     }
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
     static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a slash
+    constexpr bool containsSlash(const char *str) {
+      return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
+    }
+    // Find the last position of the slash
+    constexpr const char* findLastSlashPos(const char* str) {
+      return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char* str) {
+      return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
 
 #else
 

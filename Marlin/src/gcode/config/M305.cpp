@@ -50,7 +50,7 @@ void GcodeSuite::M305() {
 
   // A valid P index is required
   if (t_index >= (USER_THERMISTORS) || (do_set && t_index < 0))
-    SERIAL_ECHO_MSG("!Invalid index. (0 <= P <= ", int(USER_THERMISTORS - 1), ")");
+    SERIAL_ECHO_MSG("!Invalid index. (0 <= P <= ", USER_THERMISTORS - 1, ")");
   else if (do_set) {
     if (parser.seen('R')) // Pullup resistor value
       if (!thermalManager.set_pull_up_res(t_index, parser.value_float()))

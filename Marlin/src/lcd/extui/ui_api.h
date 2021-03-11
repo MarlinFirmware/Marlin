@@ -55,7 +55,7 @@ namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
   enum result_t   : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
@@ -215,6 +215,7 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const float, const extruder_t);
   #endif
 
+  extruder_t getTool(const uint8_t extruder);
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 

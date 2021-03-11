@@ -51,15 +51,15 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 flushableSerial
+#define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    typedef ForwardSerial0Type< decltype(Serial2Socket) > DefaultSerial;
-    extern DefaultSerial MSerial;
-    #define MYSERIAL1 MSerial
+    typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+    extern DefaultSerial1 MSerial0;
+    #define MYSERIAL2 MSerial0
   #else
-    #define MYSERIAL1 webSocketSerial
+    #define MYSERIAL2 webSocketSerial
   #endif
 #endif
 
@@ -139,7 +139,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 #define HAL_IDLETASK 1
 #define BOARD_INIT() HAL_init_board();
 void HAL_idletask();
-void HAL_init();
+inline void HAL_init() {}
 void HAL_init_board();
 
 //
