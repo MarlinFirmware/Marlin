@@ -19,6 +19,7 @@ jobs:
       - name: Remove Labels
         uses: actions-ecosystem/action-remove-labels@v1
         with:
+          github_token: ${{ github.token }}
           labels: |
             S: Don't Merge
             S: Please Merge
