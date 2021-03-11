@@ -384,10 +384,7 @@ def compute_build_signature():
 
 	# Need to parse all valid defines in the configuration files
 	complete_cfg = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
-#	remove_define = run_preprocessor('Marlin/src/core/macros.h')
-	compiler_default_define = run_preprocessor('buildroot/share/PlatformIO/scripts/empty.h')
-#	drivers_define = run_preprocessor('Marlin/src/core/drivers.h')
-#	remove_board = run_preprocessor('Marlin/src/core/boards.h')
+	# Dumb #define extraction from the configuration files
 	real_defines = extract_defines('Marlin/Configuration.h')
 	real_defines = real_defines + extract_defines('Marlin/Configuration_adv.h')
 	
@@ -397,8 +394,7 @@ def compute_build_signature():
 	# First step is to collect all valid macros
 	defines = {}
 	for line in complete_cfg:
-#		if line in compiler_default_define: # or line in remove_define  or line in drivers_define:
-#			continue
+
 		# Split the define from the value
 		key_val = line[8:].strip().decode().split(' ')
 		key, value = key_val[0], ' '.join(key_val[1:])
