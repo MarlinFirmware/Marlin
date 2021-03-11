@@ -21,9 +21,6 @@
  */
 #pragma once
 
-#define CONFIG_EXAMPLES_DIR "delta/FLSUN/QQS-Pro"
-#include "FLSUNQ_Config.h"
-
 /**
  * Configuration.h
  *
@@ -67,6 +64,9 @@
 // Download configurations from the link above and customize for your machine.
 // Examples are located in config/examples/delta, .../SCARA, and .../TPARA.
 //
+#define CONFIG_EXAMPLES_DIR "delta/FLSUN/QQS-Pro"
+#include "FLSUNQ_Config.h"
+
 //===========================================================================
 
 // @section info
@@ -1241,7 +1241,7 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes 
-#define XY_PROBE_FEEDRATE  (66*60) //3960
+#define XY_PROBE_FEEDRATE  (66*60)    //3960
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 //FEEDRATE_Z
