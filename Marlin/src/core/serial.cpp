@@ -41,7 +41,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
   SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
 #endif
-#if defined(SERIAL_PORT_2) && defined(MEATPACK_ON_SERIAL_PORT_2)
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
   SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
 #endif
 

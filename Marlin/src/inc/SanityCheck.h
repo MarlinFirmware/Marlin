@@ -3345,12 +3345,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
   #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
 #endif
-#if defined(MEATPACK_ON_SERIAL_PORT_1) && !defined(SERIAL_PORT)
-  #error "MEATPACK_ON_SERIAL_PORT_1 requires a valid SERIAL_PORT definition"
-#endif
-#if defined(MEATPACK_ON_SERIAL_PORT_2) && !defined(SERIAL_PORT_2)
-  #error "MEATPACK_ON_SERIAL_PORT_2 requires a valid SERIAL_PORT_2 definition"
-#endif
 
 /**
  * Sanity check for valid stepper driver types
