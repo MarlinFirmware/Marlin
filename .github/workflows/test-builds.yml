@@ -98,6 +98,7 @@ jobs:
         # Non-working environment tests
         #- at90usb1286_cdc
         #- STM32F103CB_malyan
+        #- STM32F103RE
         #- mks_robin_mini
 
     steps:
