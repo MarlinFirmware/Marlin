@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -61,19 +61,19 @@ namespace Nextion {
   void FileNavigator::refresh() { filelist.refresh(); }
 
   void FileNavigator::getFiles(uint16_t index) {
-    uint16_t files = 7;
-    uint16_t fseek = 0;
-    uint16_t fcnt  = 0;
-    if (index == 0) currentindex = 0;
-
-    // Each time we change folder we reset the file index to 0 and keep track
-    // of the current position as the TFT panel isnt aware of folders trees.
-    if (index > 0) {
+    uint16_t files = 7, fseek = 0, fcnt  = 0;
+    if (index == 0)
+      currentindex = 0;
+    else {
+      // Each time we change folder we reset the file index to 0 and keep track
+      // of the current position as the TFT panel isn't aware of folder trees.
       --currentindex; // go back a file to take account off the .. we added to the root.
       if (index > lastindex)
-        currentindex += files+1;
+        currentindex += files + 1;
+      else if (currentindex >= files)
+        currentindex -= files - 1;
       else
-        currentindex = currentindex < files ? 0 : currentindex - files+1;
+        currentindex = 0;
     }
     lastindex = index;
 
@@ -130,8 +130,8 @@ namespace Nextion {
         #endif
       }
     }
-    SEND_VAL("n0",filelist.count());
-    SEND_VAL("n1",fseek+1);
+    SEND_VAL("n0", filelist.count());
+    SEND_VAL("n1", fseek + 1);
   }
 
   void FileNavigator::changeDIR(char *folder) {
@@ -161,7 +161,7 @@ namespace Nextion {
       char *pos = nullptr;
       for (uint8_t f = 0; f < folderdepth; f++)
         pos = strchr(currentfoldername, '/');
-      *(pos + 1) = '\0';
+      pos[1] = '\0';
     }
     #if NEXDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
@@ -169,6 +169,7 @@ namespace Nextion {
   }
 
   char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
-}
+
+} // Nextion
 
 #endif // NEXTION_TFT
