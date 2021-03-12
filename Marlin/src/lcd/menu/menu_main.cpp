@@ -211,11 +211,14 @@ void menu_main() {
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
-    #ifdef CUSTOM_USER_MENU_TITLE
-      SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
-    #else
-      SUBMENU(MSG_USER_MENU, menu_user);
+    #if ENABLED(CUSTOM_MENU_ONLY_IDLE)
+        if(!busy)
     #endif
+      #ifdef CUSTOM_USER_MENU_TITLE
+        SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+      #else
+        SUBMENU(MSG_USER_MENU, menu_user);
+      #endif
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
