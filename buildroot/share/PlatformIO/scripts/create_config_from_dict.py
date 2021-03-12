@@ -14,6 +14,10 @@ try:
 			# We don't care about the hash when restoring here
 			if key == '__INITIAL_HASH': 
 				continue
+			if key == 'VERSION':
+				for k, v in sorted(conf[key].items()):
+					print(k + ': ' + v)
+				continue
 			# The key is the file name, so let's build it now
 			outfile = open('Marlin/' + key + output_suffix, 'w')
 			for k, v in sorted(conf[key].items()):

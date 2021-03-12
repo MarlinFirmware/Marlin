@@ -371,7 +371,6 @@ def compute_build_signature():
 	# Definition from these files will be kept
 	files_to_keep = [ 'Marlin/Configuration.h', 
 					  'Marlin/Configuration_adv.h',
-					  'Marlin/src/inc/Version.h'	
 	]
 
 	# Check if we can skip processing
@@ -445,7 +444,7 @@ def compute_build_signature():
 		if key[-11:] == "_T_DECLARED": 
 			continue
 		# Remove keys that are not in the #define list in the Configuration list
-		if not(key in all_defines):
+		if not(key in all_defines) and key != "DETAILED_BUILD_VERSION" and key != "STRING_DISTRIBUTION_DATE":
 			continue
 
 		value = defines[key]
@@ -517,6 +516,10 @@ def compute_build_signature():
 		for header in real_defines:
 			if key in real_defines[header]:
 				data[header][key] = resolved_defines[key]
+	# Append the source code version and date
+	data['VERSION'] = {}
+	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION'] 
+	data['VERSION']['STRING_DISTRIBUTION_DATE'] = resolved_defines['STRING_DISTRIBUTION_DATE'] 
 
 
 	with open('marlin_config.json', 'w') as outfile:
