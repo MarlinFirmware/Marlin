@@ -18,7 +18,7 @@
 /**
  * creality_dwin.cpp
  *
- * DWIN implementation for Marlin by Jacob Myers, 2021
+ * Creality DWIN Extui support by Miguel A. Risco-Castillo
  */
 
 #include "../../inc/MarlinConfigPre.h"
