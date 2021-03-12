@@ -49,12 +49,6 @@ try:
 except:
 	verbose = 0
 
-try:
-	compute_entropy = int(env.GetProjectOption('compute_entropy'))
-except:
-	compute_entropy = 0
-
-
 
 def blab(str):
 	if verbose:
@@ -463,45 +457,6 @@ def compute_build_signature():
 
 		# Try to simplify the rest now
 		resolved_defines[key] = resolve_macro(value, defines)
-
-
-	# Compute the required entropy for the fingerprint
-	if compute_entropy:
-		keyCount = 0
-		valEntropy = 0
-		for k in resolved_defines:
-			keyCount++
-			v = resolved_defines[k]
-			bits = 0
-			if is_numeric.match(v):
-				if v == "-1" or v == "1":
-					bits = 0 # All -1 and 1 can be listed in a specific section and don't take any space
-				elif '.' in v:
-					bits = 32
-				else:
-					try:
-						f = int(v.strip("()"))
-					except:
-						f = 1<<31
-					bits = f.bit_length()
-				valEntropy += bits
-			elif is_text.match(v):
-				bits = 8 * len(v)
-			elif is_bool.match(v):
-				bits = 1
-			elif is_list.match(v):
-				l = len(v.split(","))
-				if l * 32 < 8 * len(v):
-					bits = l * 32 + 5 # Let's say we don't have a list with more than 31 values here
-				else:
-					bits = 8 * len(v) # Store has a string
-			else:
-				bits = 32 # Consider it's a computable value here
-
-			valEntropy += bits + 1
-			if verbose: 
-				print(str(k) + " = " + str(v) + "(" + str(bits) + ")")
-		print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
 
 	# Generate a build signature now
 	# We are making an object that's a bit more complex than a basic dictionary here
