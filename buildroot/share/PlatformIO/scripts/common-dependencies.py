@@ -308,27 +308,6 @@ def load_marlin_features():
 		marlin_features[feature] = definition
 	env['MARLIN_FEATURES'] = marlin_features
 
-
-def resolve_macro(value, defines):
-	is_id = re.compile("([a-zA-Z][a-zA-Z0-9_]*)") # No underscore for the first value
-
-	# Easy case first
-	if value in defines:
-		return defines[value]
-	
-	# Now, the complex part, let's parse the expression
-	if value[0:5] == "TERN(":
-		v = value[6:].split(',')
-		if len(v) > 2:
-			if v[0] in defines:
-				return resolve_macro(v[1].strip(','), defines)
-			else:
-				return resolve_macro(v[2].strip(',)'), defines)
-	
-	# Remains the long expression that needs evaluating
-	# Don't solve for now
-	return value
-
 #
 # The dumbest preprocessor in the world
 # Extract macro name from an header file and store them in an array 
@@ -442,12 +421,7 @@ def compute_build_signature():
 		defines[key] = value if len(value) else "" 
 		
 
-	# Second step is to resolve recursive macro
-	is_numeric = re.compile("\(*[-0-9.]+\)*")
-	is_text = re.compile('\(*"[^"]*"\)')
-	is_bool = re.compile('true|false')
-	is_list = re.compile('{[^}]*}')
-
+	# Second step is to filter useless macro
 	resolved_defines = {}
 	for key in defines:
 		# Remove all boards now
@@ -463,22 +437,8 @@ def compute_build_signature():
 		if not(key in all_defines) and key != "DETAILED_BUILD_VERSION" and key != "STRING_DISTRIBUTION_DATE":
 			continue
 
-		value = defines[key]
-
-		# Easy case first
-		if is_numeric.match(str(value)) or is_text.match(str(value)) or is_bool.match(str(value)):
-			resolved_defines[key] = value
-			continue
-
-		# Process list now
-		if is_list.match(value):
-			v = value.strip("{}")
-			v = list(map(str.strip, v.strip("{ }").split(',')))
-			values = [resolve_macro(p, defines) for p in v]
-			resolved_defines[key] = '{' + ','.join(values) + '}'
-
-		# Try to simplify the rest now
-		resolved_defines[key] = resolve_macro(value, defines)
+		# Don't be that smart guy here
+		resolved_defines[key] = defines[key]
 
 	# Generate a build signature now
 	# We are making an object that's a bit more complex than a basic dictionary here
