@@ -37,18 +37,18 @@ namespace Nextion {
   class FileNavigator {
     public:
       FileNavigator();
-      void   reset();
-      void   getFiles(uint16_t);
-      void   upDIR();
-      void   changeDIR(char *);
-      void   refresh();
-      char * getCurrentFolderName();
+      static void  reset();
+      static void  getFiles(uint16_t);
+      static void  upDIR();
+      static void  changeDIR(char *);
+      static void  refresh();
+      static char* getCurrentFolderName();
     private:
-      static FileList  filelist;
-      static char      currentfoldername[MAX_PATH_LEN];
-      static uint16_t  lastindex;
-      static uint8_t   folderdepth;
-      static uint16_t  currentindex;
+      static FileList filelist;
+      static char     currentfoldername[MAX_PATH_LEN];
+      static uint16_t lastindex;
+      static uint8_t  folderdepth;
+      static uint16_t currentindex;
   };
   extern FileNavigator filenavigator;
 }

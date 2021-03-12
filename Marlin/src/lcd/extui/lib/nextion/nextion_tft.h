@@ -34,29 +34,30 @@
 namespace Nextion {
 
   class NextionTFT {
-    static uint8_t          command_len;
-    static char             nextion_command[MAX_CMND_LEN];
-    static char             selectedfile[MAX_PATH_LEN];
+    private:
+      static uint8_t command_len;
+      static char    nextion_command[MAX_CMND_LEN];
+      static char    selectedfile[MAX_PATH_LEN];
 
     public:
       NextionTFT();
-      void Startup();
-      void IdleLoop();
-      void PrinterKilled(PGM_P,PGM_P);
-      void ConfirmationRequest(const char * const );
-      void StatusChange(const char * const );
-      void SendtoTFT(PGM_P);
-      void UpdateOnChange();
-      void PrintFinished();
-      void PanelInfo(uint8_t);
+      static void Startup();
+      static void IdleLoop();
+      static void PrinterKilled(PGM_P, PGM_P);
+      static void ConfirmationRequest(const char * const );
+      static void StatusChange(const char * const );
+      static void SendtoTFT(PGM_P);
+      static void UpdateOnChange();
+      static void PrintFinished();
+      static void PanelInfo(uint8_t);
 
     private:
-      bool ReadTFTCommand();
-      void SendFileList(int8_t);
-      void SelectFile();
-      void ProcessPanelRequest();
-      void PanelAction(uint8_t);
-      void _format_time(char *, uint32_t);
+      static bool ReadTFTCommand();
+      static void SendFileList(int8_t);
+      static void SelectFile();
+      static void ProcessPanelRequest();
+      static void PanelAction(uint8_t);
+      static void _format_time(char *, uint32_t);
   };
 
   extern NextionTFT nextion;
