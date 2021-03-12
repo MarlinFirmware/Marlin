@@ -2361,6 +2361,7 @@
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
 //#define DGUS_LCD_UI_MKS
+//#define CREALITY_DWIN_EXTUI
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers

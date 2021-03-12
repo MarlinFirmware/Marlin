@@ -40,7 +40,7 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if EITHER(DWIN_CREALITY_LCD, CREALITY_DWIN_EXTUI)
   bool PrintJobRecovery::dwin_flag; // = false
 #endif
 

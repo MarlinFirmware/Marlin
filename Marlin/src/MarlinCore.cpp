@@ -84,6 +84,11 @@
   #include "lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  #include "lcd/extui/lib/creality_dwin/dwin_lcd.h"
+  #include "lcd/extui/lib/creality_dwin/rotary_encoder.h"
+#endif
+
 #if HAS_ETHERNET
   #include "feature/ethernet.h"
 #endif
