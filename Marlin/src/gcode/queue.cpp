@@ -567,7 +567,6 @@ void GCodeQueue::get_serial_commands() {
       const bool is_eol = ISEOL(sd_char);
       if (is_eol || card_eof) {
 
-
         // Reset stream state, terminate the buffer, and commit a non-empty command
         if (!is_eol && sd_count) ++sd_count;          // End of file with no newline
         if (!process_line_done(sd_input_state, command.buffer, sd_count)) {
