@@ -87,6 +87,10 @@ void GcodeSuite::M24() {
 
 /**
  * M25: Pause SD Print
+ *
+ * With PARK_HEAD_ON_PAUSE:
+ *   Invoke M125 to store the current position and move to the park
+ *   position. M24 will move the head back before resuming the print.
  */
 void GcodeSuite::M25() {
 
