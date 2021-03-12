@@ -271,7 +271,7 @@
   ### **Perform or correct by calculation (worksheet) the adjustment of your dimensions:**
   - To adjust the x, y, z precision, you first need a well-stabilized machine, 
   - ie being able to print on a well-leveled plate. Then by printing this model: [Advanced Delta Printer Calibration](https://www.thingiverse.com/thing:745523)
-  - you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or odt file) and you insert them all the parameters to be modified with this command [M665](https://marlinfw.org/docs/gcode/M665.html) Lxx Axx Bxx Cxx.
+  - you adjust the DELTA_DIAGONAL_ROD (L) and the lengths DIAGONAL_ROD_TRIM_TOWER (ABC) between the laps by calculation (xls or [odt file](https://www.thingiverse.com/thing:1274733)) and you insert them all the parameters to be modified with this command [M665](https://marlinfw.org/docs/gcode/M665.html) Lxx Axx Bxx Cxx.
 
   ![Spreadsheet](../../docs/images/Spreadsheet_Calc.png)
 
