@@ -955,6 +955,14 @@ namespace ExtUI {
     #endif
   }
 
+  void coolDown() {
+    #if HAS_HOTEND
+      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
+    #endif
+    TERN_(HAS_HEATED_BED, setTargetBed(0));
+    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
+  }
+
   void setFeedrate_percent(const float value) {
     feedrate_percentage = constrain(value, 10, 500);
   }

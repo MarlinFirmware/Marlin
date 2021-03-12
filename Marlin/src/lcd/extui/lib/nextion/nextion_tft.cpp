@@ -532,12 +532,7 @@ namespace Nextion {
         break;
 
       case 65: // Cool Down
-        if (!isPrinting()) {
-          setTargetTemp_celsius(0, E0);
-          setTargetTemp_celsius(0, E1);
-          setTargetTemp_celsius(0, BED);
-          setTargetFan_percent(0, FAN0);
-        }
+        if (!isPrinting()) coolDown();
         break;
 
       case 66: // Refresh SD
