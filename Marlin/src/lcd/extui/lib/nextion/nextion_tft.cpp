@@ -117,7 +117,7 @@ namespace Nextion {
     SEND_VALasTXT("tmppage.M117", msg);
   }
 
-  void NextionTFT::SendtoTFT(PGM_P str) { // A helper to print PROGMEN string to the panel
+  void NextionTFT::SendtoTFT(PGM_P str) { // A helper to print PROGMEM string to the panel
     #if NEXDEBUG(N_SOME)
       serialprintPGM(str);
     #endif
