@@ -98,7 +98,7 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+  void set_z_fade_height(const float &zfh, const bool do_report/*=true*/) {
 
     if (planner.z_fade_height == zfh) return;
 
