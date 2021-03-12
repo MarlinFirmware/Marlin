@@ -67,7 +67,7 @@ namespace Nextion {
     else {
       // Each time we change folder we reset the file index to 0 and keep track
       // of the current position as the TFT panel isn't aware of folder trees.
-      --currentindex; // go back a file to take account off the .. we added to the root.
+      --currentindex; // go back a file to take account of the .. added to the root.
       if (index > lastindex)
         currentindex += files + 1;
       else if (currentindex >= files)
