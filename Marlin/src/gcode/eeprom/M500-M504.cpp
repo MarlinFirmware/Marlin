@@ -29,7 +29,7 @@
   #include "../../sd/SdBaseFile.h"
 #endif
 
-#if DISABLED(SKIP_CONFIG_EMBEDDING)
+#if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
   extern const uint8_t _binary_mc_zip_start[] PROGMEM;
   extern const uint8_t _binary_mc_zip_end[] PROGMEM;
   __asm__(
@@ -50,17 +50,6 @@
  */
 void GcodeSuite::M500() {
   (void)settings.save();
-
-  #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
-    const bool writeSD = parser.seenval('S');
-    if (!writeSD) return;
-
-    SdBaseFile file;
-    uint16_t size = (uint16_t)((int*)pgm_read_ptr(_binary_mc_zip_end) - (int*)pgm_read_ptr(_binary_mc_zip_start));
-    // Need to create the config size on the SD card
-    if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(_binary_mc_zip_start), size) != -1 && file.close())
-      SERIAL_ECHO_MSG("Configuration saved to mc.zip on SD card");
-  #endif
 }
 
 /**
@@ -84,6 +73,17 @@ void GcodeSuite::M502() {
    */
   void GcodeSuite::M503() {
     (void)settings.report(!parser.boolval('S', true));
+
+    #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
+      const bool writeSD = parser.seenval('C');
+      if (!writeSD) return;
+
+      SdBaseFile file;
+      uint16_t size = (uint16_t)((int*)pgm_read_ptr(_binary_mc_zip_end) - (int*)pgm_read_ptr(_binary_mc_zip_start));
+      // Need to create the config size on the SD card
+      if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(_binary_mc_zip_start), size) != -1 && file.close())
+        SERIAL_ECHO_MSG("Configuration saved to mc.zip on SD card");
+    #endif
   }
 
 #endif // !DISABLE_M503
