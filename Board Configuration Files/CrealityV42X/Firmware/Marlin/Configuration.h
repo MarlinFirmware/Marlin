@@ -34,6 +34,7 @@
 // If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
 // and then uncomment the #define EZOUT_ENABLE line below.
 // Do NOT ever connect our filament sensor without the supplied adapter board.
+// Ender 3 V2 needs LCD converted to use an EZOut: https://support.th3dstudio.com/hc/guides/upgrades-printer-information/ender-3-v2-swapping-to-the-12864-creality-lcd-for-more-features/
 //#define EZOUT_ENABLE
 
 // EZABL Probe Mounts
