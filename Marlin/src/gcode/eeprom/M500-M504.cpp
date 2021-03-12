@@ -25,11 +25,38 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
+  #include "../../sd/SdBaseFile.h"
+#endif
+
+#if DISABLED(SKIP_CONFIG_EMBEDDING)
+  extern uint8_t _binary_mc_zip_start[];
+  extern uint8_t _binary_mc_zip_end[];
+  __asm__(
+  ".section \".rodata\"\n"
+  "_binary_mc_zip_start:\n"
+  ".incbin \".pio/build/mc.zip\"\n"
+  "_binary_mc_zip_end:\n"
+  ".previous\n"
+  );
+#endif
+
 /**
  * M500: Store settings in EEPROM
  */
 void GcodeSuite::M500() {
   (void)settings.save();
+
+  #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
+    const bool writeSD = parser.seenval('S');
+    if (!writeSD) return;
+
+    SdBaseFile file;
+    uint16_t size = (uint16_t)(_binary_mc_zip_end - _binary_mc_zip_start);
+    // Need to create the config size on the SD card
+    if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(_binary_mc_zip_start, size) != -1 && file.close())
+      SERIAL_ECHO_MSG("Configuration saved to mc.zip on SD card");
+  #endif
 }
 
 /**

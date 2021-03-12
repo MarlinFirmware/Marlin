@@ -358,6 +358,23 @@ def get_file_sha256sum(filepath):
 	return sha256_hash.hexdigest()
 
 #
+# Compress a JSON file into a zip file 
+#
+import zipfile
+def compress_file(filepath, outputbase, dictionary = None):
+#	if dictionary is None:
+		# Create a zip archive here
+		with zipfile.ZipFile(outputbase + '.zip', 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
+			zipf.write(filepath, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
+		# Create a zstd archive here (best compression ratio)
+#	else:
+#		subprocess.check_output(['zstd', '-19', filepath, '-D', dictionary, '-o', outputpath])
+
+
+
+
+
+#
 # Compute the build signature. The idea is to extract all defines in the configuration headers
 # to build a unique reversible signature from this build so it can be included in the binary
 # We can reverse the signature to get a 1:1 equivalent configuration file
@@ -488,7 +505,10 @@ def compute_build_signature():
 		pass
 
 	with open('marlin_config.json', 'w') as outfile:
-	    json.dump(data, outfile)
+	    json.dump(data, outfile, separators=(',', ':'))
+
+	# Now compress the JSON file to as much as we can
+	compress_file('marlin_config.json', '.pio/build/mc', 'mcDictionary')
 
 #
 # Return True if a matching feature is enabled
