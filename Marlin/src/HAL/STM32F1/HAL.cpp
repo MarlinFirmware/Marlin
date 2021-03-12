@@ -84,7 +84,7 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
-  DefaultSerial MSerial(true, SerialUSB);
+  DefaultSerial1 MSerial0(true, SerialUSB);
 
   #if ENABLED(EMERGENCY_PARSER)
     #include "../libmaple/usb/stm32f1/usb_reg_map.h"
@@ -107,7 +107,7 @@
       len = usb_cdcacm_peek(buf, total);
 
       for (uint32 i = 0; i < len; i++)
-        emergency_parser.update(MSerial.emergency_state, buf[i + total - len]);
+        emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
     }
   #endif
 #endif
