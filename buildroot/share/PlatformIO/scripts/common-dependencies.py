@@ -45,7 +45,7 @@ Import("env")
 #print(env.Dump())
 
 try:
-	verbose = 1 #int(env.GetProjectOption('custom_verbose'))
+	verbose = int(env.GetProjectOption('custom_verbose'))
 except:
 	verbose = 0
 
@@ -520,7 +520,11 @@ def compute_build_signature():
 	data['VERSION'] = {}
 	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION'] 
 	data['VERSION']['STRING_DISTRIBUTION_DATE'] = resolved_defines['STRING_DISTRIBUTION_DATE'] 
-
+	try:
+		curver = subprocess.check_output(["git", "describe", "--match=NeVeRmAtCh", "--always"]).strip()
+		data['VERSION']['GIT_REF'] = curver.decode()
+	except:
+		pass
 
 	with open('marlin_config.json', 'w') as outfile:
 	    json.dump(data, outfile)
