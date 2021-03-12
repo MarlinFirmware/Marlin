@@ -287,7 +287,7 @@
     #else
       static constexpr unsigned int RX_SIZE   = 64;
       static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false
+      static constexpr bool RX_OVERRUNS       = false;
     #endif
   };
 
