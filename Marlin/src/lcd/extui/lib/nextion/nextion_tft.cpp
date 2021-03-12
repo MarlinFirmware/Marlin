@@ -100,11 +100,6 @@ namespace Nextion {
 
   void NextionTFT::PrintFinished() {
     SEND_TXT_END("page printfinished");
-    setTargetTemp_celsius(0, E0);
-    setTargetTemp_celsius(0, E1);
-    setTargetTemp_celsius(0, BED);
-    setTargetFan_percent(0, FAN0);
-    // injectCommands_P(PSTR("G28 X Y"));
   }
 
   void NextionTFT::ConfirmationRequest(const char *const msg) {
