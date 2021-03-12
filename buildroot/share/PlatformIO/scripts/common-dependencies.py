@@ -310,7 +310,6 @@ def load_marlin_features():
 	env['MARLIN_FEATURES'] = marlin_features
 
 
-
 def resolve_macro(value, defines):
 	is_id = re.compile("([a-zA-Z][a-zA-Z0-9_]*)") # No underscore for the first value
 
@@ -391,6 +390,7 @@ def compute_build_signature():
 
 	# Need to parse all valid defines in the configuration files
 	complete_cfg = run_preprocessor('buildroot/share/PlatformIO/scripts/common-dependencies.h')
+
 	# Dumb #define extraction from the configuration files
 	real_defines = {}
 	all_defines = []
@@ -426,7 +426,7 @@ def compute_build_signature():
 		defines[key] = value if len(value) else "" 
 		
 
-	# Second step if to resolve recursive macro
+	# Second step is to resolve recursive macro
 	is_numeric = re.compile("\(*[-0-9.]+\)*")
 	is_text = re.compile('\(*"[^"]*"\)')
 	is_bool = re.compile('true|false')
@@ -460,17 +460,17 @@ def compute_build_signature():
 			v = list(map(str.strip, v.strip("{ }").split(',')))
 			values = [resolve_macro(p, defines) for p in v]
 			resolved_defines[key] = '{' + ','.join(values) + '}'
-		
 
 		# Try to simplify the rest now
 		resolved_defines[key] = resolve_macro(value, defines)
+
 
 	# Compute the required entropy for the fingerprint
 	if compute_entropy:
 		keyCount = 0
 		valEntropy = 0
 		for k in resolved_defines:
-			keyCount = keyCount + 1
+			keyCount++
 			v = resolved_defines[k]
 			bits = 0
 			if is_numeric.match(v):
@@ -484,7 +484,7 @@ def compute_build_signature():
 					except:
 						f = 1<<31
 					bits = f.bit_length()
-				valEntropy = valEntropy + bits
+				valEntropy += bits
 			elif is_text.match(v):
 				bits = 8 * len(v)
 			elif is_bool.match(v):
@@ -498,7 +498,7 @@ def compute_build_signature():
 			else:
 				bits = 32 # Consider it's a computable value here
 
-			valEntropy = valEntropy + bits + 1
+			valEntropy += bits + 1
 			if verbose: 
 				print(str(k) + " = " + str(v) + "(" + str(bits) + ")")
 		print("Required entropy for storing configuration: " + str(keyCount.bit_length() + valEntropy) + " bits")		
@@ -516,6 +516,7 @@ def compute_build_signature():
 		for header in real_defines:
 			if key in real_defines[header]:
 				data[header][key] = resolved_defines[key]
+
 	# Append the source code version and date
 	data['VERSION'] = {}
 	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION'] 
