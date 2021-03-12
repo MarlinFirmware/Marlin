@@ -3466,29 +3466,10 @@ void MarlinSettings::reset() {
     #endif
 
     #if ENABLED(FWRETRACT)
-
-      CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
-        , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
-        , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
-      );
-
-      CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
-      CONFIG_ECHO_MSG(
-          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
-        , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
-      );
-
-      #if ENABLED(FWRETRACT_AUTORETRACT)
-        CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        CONFIG_ECHO_MSG("  M209 S", fwretract.autoretract_enabled);
-      #endif
-
-    #endif // FWRETRACT
+      fwretract.M207_report(forReplay);
+      fwretract.M208_report(forReplay);
+      TERN_(FWRETRACT_AUTORETRACT, fwretract.M209_report(forReplay));
+    #endif
 
     /**
      * Probe Offset
