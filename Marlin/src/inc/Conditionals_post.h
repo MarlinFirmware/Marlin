@@ -2907,6 +2907,16 @@
   #define HAS_ROTARY_ENCODER 1
 #endif
 
+#if NUM_SERIAL == 1 && defined(SERIAL_PORT_2)
+  // There's a bug here while platform IO is computing the BUILD_FEATURES for its scripts. It's including
+  // common-dependencies.h that (force) defines NUM_SERIAL to 1
+  // In turn, because NUM_SERIAL is set to 1, the code below undefine MEATPACK
+  // if it's defined from MEATPACK_ON_SERIAL_PORT_2 and it's not build anymore (it fails at link step)
+
+  // When used for actually building the code, the macro NUM_SERIAL is set in HAL.h to the expected value anyway
+  #undef NUM_SERIAL
+  #define NUM_SERIAL 2
+#endif
 #if !NUM_SERIAL
   #undef BAUD_RATE_GCODE
 #elif NUM_SERIAL > 1
