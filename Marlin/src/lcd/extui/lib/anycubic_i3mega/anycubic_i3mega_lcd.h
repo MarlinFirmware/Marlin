@@ -2,7 +2,7 @@
  * anycubic_i3mega_lcd.h  --- Support for Anycubic i3 Mega TFT
  * Created by Christian Hopp on 09.12.17.
  * Improved by David Ramiro
- * Converted to ext_iu by John BouAntoun 21 June 2020
+ * Converted to ExtUI by John BouAntoun 21 June 2020
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -61,15 +61,13 @@ public:
 
 private:
   static char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
-  static int TFTbuflen=0;
-  static int TFTbufindr = 0;
-  static int TFTbufindw = 0;
+  static int TFTbuflen, TFTbufindr, TFTbufindw;
   static char serial3_char;
-  static int serial3_count = 0;
+  static int serial3_count;
   static char *TFTstrchr_pointer;
-  static uint8_t SpecialMenu = false;
-  static AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-  static AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+  static uint8_t SpecialMenu;
+  static AnycubicMediaPrintState mediaPrintingState;
+  static AnycubicMediaPauseState mediaPauseState;
 
   static float CodeValue();
   static bool CodeSeen(char);
