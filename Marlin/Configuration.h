@@ -2294,6 +2294,10 @@
 //
 //#define SILVER_GATE_GLCD_CONTROLLER
 
+//
+// K.3D FULL GRAPHIC Smart CONTROLLER
+//#define K3D_FULL_GRAPHIC_SMART_CONTROLLER
+
 //=============================================================================
 //==============================  OLED Displays  ==============================
 //=============================================================================
@@ -2347,6 +2351,10 @@
 // FYSETC OLED 2.42" 128×64 FULL GRAPHICS CONTROLLER with WS2812 RGB
 // Where to find : https://www.aliexpress.com/item/4000345255731.html
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
+
+//
+// K.3D SSD1309 OLED 2.42" 128×64 FULL GRAPHIC CONTROLLER
+//#define K3D_242_OLED_CONTROLLER   // software SPI
 
 //=============================================================================
 //========================== Extensible UI Displays ===========================

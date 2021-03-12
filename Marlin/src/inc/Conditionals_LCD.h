@@ -238,6 +238,15 @@
   // RepRapDiscount LCD or Graphical LCD with rotary click encoder
   #define IS_RRD_SC 1
 
+#elif ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER)
+  
+  #define IS_RRD_FG_SC 1
+
+#elif ENABLED(K3D_242_OLED_CONTROLLER)
+
+  #define IS_RRD_SC 1
+  #define U8GLIB_SSD1309
+
 #endif
 
 // ST7920-based graphical displays

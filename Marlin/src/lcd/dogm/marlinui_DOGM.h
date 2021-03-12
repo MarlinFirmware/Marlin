@@ -159,6 +159,13 @@
     #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
   #endif
 
+#elif ENABLED(K3D_242_OLED_CONTROLLER)
+
+  // K3D OLED 2.42" 128 × 64 FULL GRAPHIC CONTROLLER
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+  #define U8G_CLASS U8GLIB_SSD1309_128X64_HAL
+
 #elif ENABLED(U8GLIB_SH1106_EINSTART)
 
   // Connected via motherboard header
