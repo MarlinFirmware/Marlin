@@ -181,6 +181,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(PRINTCOUNTER)
+    char* getFailedPrints_str(char buffer[21]);
     char* getTotalPrints_str(char buffer[21]);
     char* getFinishedPrints_str(char buffer[21]);
     char* getTotalPrintTime_str(char buffer[21]);
