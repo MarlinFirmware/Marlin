@@ -885,9 +885,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             char *outBuf = (char *)tempBuf;
             char str_1[16], tbuf[34];
 
-            dtostrf(thermalManager.temp_hotend[0].celsius, 1, 1, tbuf);
+            dtostrf(thermalManager.degHotend(0), 1, 1, tbuf);
             strcat_P(tbuf, PSTR(" /"));
-            strcat(tbuf, dtostrf(thermalManager.temp_hotend[0].target, 1, 1, str_1));
+            strcat(tbuf, dtostrf(thermalManager.degTargetHotend(0), 1, 1, str_1));
 
             const int tlen = strlen(tbuf);
 
@@ -912,9 +912,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
             #if HAS_MULTI_HOTEND
-              strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].celsius, 1, 1, str_1));
+              strcat(outBuf, dtostrf(thermalManager.degHotend(1), 1, 1, str_1));
               strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.temp_hotend[1].target, 1, 1, str_1));
+              strcat(outBuf, dtostrf(thermalManager.degTargetHotend(1), 1, 1, str_1));
             #else
               strcat_P(outBuf, PSTR("0 /0"));
             #endif
@@ -924,15 +924,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
                 (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target,
               #else
                 0, 0,
               #endif
-              (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target,
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target
+                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif
