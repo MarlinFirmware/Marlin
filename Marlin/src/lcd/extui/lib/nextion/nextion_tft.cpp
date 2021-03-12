@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,13 +31,13 @@
 
 #if ENABLED(NEXTION_TFT)
 
-  #include "../../../../MarlinCore.h"
-  #include "../../../../feature/pause.h"
-  #include "../../../../gcode/queue.h"
-  #include "../../../../libs/numtostr.h"
-  #include "../../../../sd/cardreader.h"
-  #include "FileNavigator.h"
-  #include "nextion_tft.h"
+#include "../../../../MarlinCore.h"
+#include "../../../../feature/pause.h"
+#include "../../../../gcode/queue.h"
+#include "../../../../libs/numtostr.h"
+#include "../../../../sd/cardreader.h"
+#include "FileNavigator.h"
+#include "nextion_tft.h"
 
 namespace Nextion {
 
@@ -77,9 +77,9 @@ namespace Nextion {
     SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
     SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
 
-  #if NEXDEBUGLEVEL
-    SERIAL_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
-  #endif
+    #if NEXDEBUGLEVEL
+      SERIAL_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
+    #endif
   }
 
   void NextionTFT::IdleLoop() {
@@ -109,23 +109,23 @@ namespace Nextion {
 
   void NextionTFT::ConfirmationRequest(const char *const msg) {
     SEND_VALasTXT("tmppage.M117", msg);
-  #if NEXDEBUG(N_MARLIN)
-    SERIAL_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
-  #endif
+    #if NEXDEBUG(N_MARLIN)
+      SERIAL_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+    #endif
   }
 
   void NextionTFT::StatusChange(const char *const msg) {
-  #if NEXDEBUG(N_MARLIN)
-    SERIAL_ECHOLNPAIR("StatusChange() ", msg);
-    SERIAL_ECHOLNPAIR("printer_state:", printer_state);
-  #endif
+    #if NEXDEBUG(N_MARLIN)
+      SERIAL_ECHOLNPAIR("StatusChange() ", msg);
+      SERIAL_ECHOLNPAIR("printer_state:", printer_state);
+    #endif
     SEND_VALasTXT("tmppage.M117", msg);
   }
 
   void NextionTFT::SendtoTFT(PGM_P str) { // A helper to print PROGMEN string to the panel
-  #if NEXDEBUG(N_SOME)
-    serialprintPGM(str);
-  #endif
+    #if NEXDEBUG(N_SOME)
+      serialprintPGM(str);
+    #endif
     while (const char c = pgm_read_byte(str++))
       LCD_SERIAL.write(c);
   }
@@ -145,40 +145,40 @@ namespace Nextion {
       nextion_command[command_len] = 0x00;
       if (nextion_command[0] == 'G' || nextion_command[0] == 'M' || nextion_command[0] == 'T')
         injectCommands(nextion_command);
-  #if NEXDEBUG(N_ALL)
-      SERIAL_ECHOLNPAIR("< ", nextion_command);
-  #endif
-  #if NEXDEBUG(N_SOME)
-      uint8_t req = atoi(&nextion_command[1]);
-      if (req > 7 && req != 20) {
-        SERIAL_ECHOLNPAIR("> ", nextion_command[0]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[1]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[2]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[3]);
-        SERIAL_ECHOLNPAIR("printer_state:", printer_state);
-      }
-  #endif
+      #if NEXDEBUG(N_ALL)
+        SERIAL_ECHOLNPAIR("< ", nextion_command);
+      #endif
+      #if NEXDEBUG(N_SOME)
+        uint8_t req = atoi(&nextion_command[1]);
+        if (req > 7 && req != 20) {
+          SERIAL_ECHOLNPAIR("> ", nextion_command[0]);
+          SERIAL_ECHOLNPAIR("> ", nextion_command[1]);
+          SERIAL_ECHOLNPAIR("> ", nextion_command[2]);
+          SERIAL_ECHOLNPAIR("> ", nextion_command[3]);
+          SERIAL_ECHOLNPAIR("printer_state:", printer_state);
+        }
+      #endif
     }
     return command_ready;
   }
 
   void NextionTFT::SendFileList(int8_t startindex) {
-  // respond to panel request for 7 files starting at index
-  #if NEXDEBUG(N_INFO)
-    SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
-  #endif
+    // respond to panel request for 7 files starting at index
+    #if NEXDEBUG(N_INFO)
+      SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
+    #endif
     filenavigator.getFiles(startindex);
   }
 
   void NextionTFT::SelectFile() {
     strncpy(selectedfile, nextion_command + 4, command_len - 4);
     selectedfile[command_len - 5] = '\0';
-  #if NEXDEBUG(N_FILE)
-    SERIAL_ECHOLNPAIR_F(" Selected File: ", selectedfile);
-  #endif
+    #if NEXDEBUG(N_FILE)
+      SERIAL_ECHOLNPAIR_F(" Selected File: ", selectedfile);
+    #endif
     switch (selectedfile[0]) {
     case '/': // Valid file selected
-              // SEND_TXT("tmppage.M117", msg_sd_file_open_success);
+      //SEND_TXT("tmppage.M117", msg_sd_file_open_success);
       break;
     case '<': // .. (go up folder level)
       filenavigator.upDIR();
@@ -216,19 +216,19 @@ namespace Nextion {
     }
   }
 
+  #define SEND_NA(A) SEND_TXT(A, "n/a")
+
   void NextionTFT::PanelInfo(uint8_t req) {
     switch (req) {
-    case 0: //
-
-      break;
+    case 0: break;
 
     case 1: // Get SD Card list
       if (!isPrinting()) {
-        if (!isMediaInserted())
-          safe_delay(500);
+        if (!isMediaInserted()) safe_delay(500);
         if (!isMediaInserted()) { // Make sure the card is removed
-                                  // SEND_TXT("tmppage.M117", msg_no_sd_card);
-        } else if (nextion_command[3] == 'S')
+          //SEND_TXT("tmppage.M117", msg_no_sd_card);
+        }
+        else if (nextion_command[3] == 'S')
           SendFileList(atoi(&nextion_command[4]));
       }
       break;
@@ -262,147 +262,126 @@ namespace Nextion {
         SEND_VAL("tmppage.homedx", isAxisPositionKnown(X));
         SEND_VAL("tmppage.homedy", isAxisPositionKnown(Y));
         SEND_VAL("tmppage.homedz", isAxisPositionKnown(Z));
-  #if ENABLED(DUAL_X_CARRIAGE)
-        SEND_VAL("tmppage.idexmode", getIDEX_Mode());
-  #endif
+        #if ENABLED(DUAL_X_CARRIAGE)
+          SEND_VAL("tmppage.idexmode", getIDEX_Mode());
+        #endif
         SEND_TXT("tmppage.M117", msg_welcome);
       }
       break;
 
     case 23: // Linear Advance
-  #if ENABLED(LIN_ADVANCE)
-      SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
-  #else
-      SEND_TXT("linadvance", "n/a");
-  #endif
+      #if ENABLED(LIN_ADVANCE)
+        SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
+      #else
+        SEND_NA("linadvance");
+      #endif
       break;
 
     case 24: // TMC Motor Current
-  #if HAS_TRINAMIC_CONFIG
-      SEND_VALasTXT("x", getAxisCurrent_mA(X));
-      SEND_VALasTXT("x2", getAxisCurrent_mA(X2));
-      SEND_VALasTXT("y", getAxisCurrent_mA(Y));
-      SEND_VALasTXT("y2", getAxisCurrent_mA(Y2));
-      SEND_VALasTXT("z", getAxisCurrent_mA(Z));
-      SEND_VALasTXT("z2", getAxisCurrent_mA(Z2));
-      SEND_VALasTXT("e", getAxisCurrent_mA(E0));
-      SEND_VALasTXT("e1", getAxisCurrent_mA(E1));
-  #else
-      SEND_TXT("x", "n/a");
-      SEND_TXT("x2", "n/a");
-      SEND_TXT("y", "n/a");
-      SEND_TXT("y2", "n/a");
-      SEND_TXT("z", "n/a");
-      SEND_TXT("z2", "n/a");
-      SEND_TXT("e", "n/a");
-      SEND_TXT("e1", "n/a");
-  #endif
+      #if HAS_TRINAMIC_CONFIG
+        #define SEND_TRINAMIC_CURR(A, B) SEND_VALasTXT(A, getAxisCurrent_mA(B))
+      #else
+        #define SEND_TRINAMIC_CURR(A, B) SEND_NA(A)
+      #endif
+      SEND_TRINAMIC_CURR("x", X);
+      SEND_TRINAMIC_CURR("x2", X2);
+      SEND_TRINAMIC_CURR("y", Y);
+      SEND_TRINAMIC_CURR("y2", Y2);
+      SEND_TRINAMIC_CURR("z", Z);
+      SEND_TRINAMIC_CURR("z2", Z2);
+      SEND_TRINAMIC_CURR("e", E0);
+      SEND_TRINAMIC_CURR("e1", E1);
       break;
 
     case 25: // TMC Bump Sensitivity
-  #if HAS_TRINAMIC_CONFIG
-      SEND_VALasTXT("x", getTMCBumpSensitivity(X));
-      SEND_VALasTXT("x2", getTMCBumpSensitivity(X2));
-      SEND_VALasTXT("y", getTMCBumpSensitivity(Y));
-      SEND_VALasTXT("y2", getTMCBumpSensitivity(Y2));
-      SEND_VALasTXT("z", getTMCBumpSensitivity(Z));
-      SEND_VALasTXT("z2", getTMCBumpSensitivity(Z2));
-  #else
-      SEND_TXT("x", "n/a");
-      SEND_TXT("x2", "n/a");
-      SEND_TXT("y", "n/a");
-      SEND_TXT("y2", "n/a");
-      SEND_TXT("z", "n/a");
-      SEND_TXT("z2", "n/a");
-
-  #endif
+      #if HAS_TRINAMIC_CONFIG
+        #define SEND_TRINAMIC_BUMP(A, B) SEND_VALasTXT(A, getTMCBumpSensitivity(B))
+      #else
+        #define SEND_TRINAMIC_BUMP(A, B) SEND_NA(A)
+      #endif
+      SEND_TRINAMIC_BUMP("x", X);
+      SEND_TRINAMIC_BUMP("x2", X2);
+      SEND_TRINAMIC_BUMP("y", Y);
+      SEND_TRINAMIC_BUMP("y2", Y2);
+      SEND_TRINAMIC_BUMP("z", Z);
+      SEND_TRINAMIC_BUMP("z2", Z2);
       break;
 
     case 26: // TMC Hybrid Threshold Speed
-  #if HAS_TRINAMIC_CONFIG
-      SEND_VALasTXT("x", getAxisCurrent_mA(X));
-      SEND_VALasTXT("x2", getAxisCurrent_mA(X2));
-      SEND_VALasTXT("y", getAxisCurrent_mA(Y));
-      SEND_VALasTXT("y2", getAxisCurrent_mA(Y2));
-      SEND_VALasTXT("z", getAxisCurrent_mA(Z));
-      SEND_VALasTXT("z2", getAxisCurrent_mA(Z2));
-      SEND_VALasTXT("e", getAxisCurrent_mA(E0));
-      SEND_VALasTXT("e1", getAxisCurrent_mA(E1));
-  #else
-      SEND_TXT("x", "n/a");
-      SEND_TXT("x2", "n/a");
-      SEND_TXT("y", "n/a");
-      SEND_TXT("y2", "n/a");
-      SEND_TXT("z", "n/a");
-      SEND_TXT("z2", "n/a");
-      SEND_TXT("e", "n/a");
-      SEND_TXT("e1", "n/a");
-  #endif
+      #if 0 && BOTH(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
+        #define SEND_TRINAMIC_THRS(A, B) SEND_VALasTXT(A, getAxisPWMthrs(B))
+      #else
+        #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
+      #endif
+      SEND_TRINAMIC_THRS("x", X);
+      SEND_TRINAMIC_THRS("x2", X2);
+      SEND_TRINAMIC_THRS("y", Y);
+      SEND_TRINAMIC_THRS("y2", Y2);
+      SEND_TRINAMIC_THRS("z", Z);
+      SEND_TRINAMIC_THRS("z2", Z2);
+      SEND_TRINAMIC_THRS("e", E0);
+      SEND_TRINAMIC_THRS("e1", E1);
       break;
 
     case 27: // Printcounter
-  #ifdef PRINTCOUNTER
-      char buffer[21];
-      SEND_VALasTXT("t5", getTotalPrints_str(buffer));
-      SEND_VALasTXT("t3", getFinishedPrints_str(buffer));
-      SEND_VALasTXT("t4", getFailedPrints_str(buffer));
-      SEND_VALasTXT("t6", getTotalPrintTime_str(buffer));
-      SEND_VALasTXT("t7", getLongestPrint_str(buffer));
-      SEND_VALasTXT("t8", getFilamentUsed_str(buffer));
-  #else
-      SEND_TXT("t5", "n/a");
-      SEND_TXT("t3", "n/a");
-      SEND_TXT("t4", "n/a");
-      SEND_TXT("t6", "n/a");
-      SEND_TXT("t7", "n/a");
-      SEND_TXT("t8", "n/a");
-  #endif
+      #if ENABLED(PRINTCOUNTER)
+        char buffer[21];
+        #define SEND_PRINT_INFO(A, B) SEND_VALasTXT(A, B(buffer))
+      #else
+        #define SEND_PRINT_INFO(A, B) SEND_NA(A)
+      #endif
+      SEND_PRINT_INFO("t5", getTotalPrints_str);
+      SEND_PRINT_INFO("t3", getFinishedPrints_str);
+      SEND_PRINT_INFO("t4", getFailedPrints_str);
+      SEND_PRINT_INFO("t6", getTotalPrintTime_str);
+      SEND_PRINT_INFO("t7", getLongestPrint_str);
+      SEND_PRINT_INFO("t8", getFilamentUsed_str);
       break;
 
     case 28: // Filament laod/unload
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      SEND_VALasTXT("filamentin", fc_settings[getActiveTool()].load_length);
-      SEND_VALasTXT("filamentout", fc_settings[getActiveTool()].unload_length);
-  #else
-      SEND_TXT("filamentin", "n/a");
-      SEND_TXT("filamentout", "n/a");
-  #endif
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #define SEND_PAUSE_INFO(A, B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
+      #else
+        #define SEND_PAUSE_INFO(A, B) SEND_NA(A)
+      #endif
+      SEND_PAUSE_INFO("filamentin", load_length);
+      SEND_PAUSE_INFO("filamentout", unload_length);
       break;
 
     case 29: // Preheat
-  #if PREHEAT_COUNT
-      if (!isPrinting()) {
+      #if PREHEAT_COUNT
+        if (!isPrinting()) {
 
-        // Preheat PLA
-        if (nextion_command[4] == 'P') {
-          SEND_VALasTXT("pe", getMaterial_preset_E(0));
-          #if HAS_HEATED_BED
-          SEND_VALasTXT("pb", getMaterial_preset_B(0));
-          #endif
-        }
+          // Preheat PLA
+          if (nextion_command[4] == 'P') {
+            SEND_VALasTXT("pe", getMaterial_preset_E(0));
+            #if HAS_HEATED_BED
+              SEND_VALasTXT("pb", getMaterial_preset_B(0));
+            #endif
+          }
 
-        // Preheat ABS
-        if (nextion_command[4] == 'A') {
-          SEND_VALasTXT("ae", getMaterial_preset_E(1));
-          #if HAS_HEATED_BED
-          SEND_VALasTXT("ab", getMaterial_preset_B(1));
-          #endif
-        }
+          // Preheat ABS
+          if (nextion_command[4] == 'A') {
+            SEND_VALasTXT("ae", getMaterial_preset_E(1));
+            #if HAS_HEATED_BED
+              SEND_VALasTXT("ab", getMaterial_preset_B(1));
+            #endif
+          }
 
-        // Preheat PETG
-        if (nextion_command[4] == 'G') {
-    #ifdef PREHEAT_3_TEMP_HOTEND
-          SEND_VALasTXT("ge", getMaterial_preset_E(2));
-          #if HAS_HEATED_BED
-          SEND_VALasTXT("gb", getMaterial_preset_B(2));
-          #endif
-    #endif
+          // Preheat PETG
+          if (nextion_command[4] == 'G') {
+            #ifdef PREHEAT_3_TEMP_HOTEND
+              SEND_VALasTXT("ge", getMaterial_preset_E(2));
+              #if HAS_HEATED_BED
+                SEND_VALasTXT("gb", getMaterial_preset_B(2));
+              #endif
+            #endif
+          }
         }
-      }
-  #endif
+      #endif
       break;
 
-    case 30: // velocity
+    case 30: // Velocity
       SEND_VALasTXT("x", getAxisMaxFeedrate_mm_s(X));
       SEND_VALasTXT("y", getAxisMaxFeedrate_mm_s(Y));
       SEND_VALasTXT("z", getAxisMaxFeedrate_mm_s(Z));
@@ -411,23 +390,21 @@ namespace Nextion {
       SEND_VALasTXT("tmin", getMinTravelFeedrate_mm_s());
       break;
 
-    case 31: // jerk
-  #if HAS_JUNCTION_DEVIATION
-        // SEND_VALasTXT("x", getJunctionDeviation_mm());
-      SEND_TXT("tmppage.M117", "classic Jerk not enabled");
-      SEND_TXT("x", "n/a");
-      SEND_TXT("y", "n/a");
-      SEND_TXT("z", "n/a");
-      SEND_TXT("e", "n/a");
-  #else
-      SEND_VALasTXT("x", getAxisMaxJerk_mm_s(X));
-      SEND_VALasTXT("y", getAxisMaxJerk_mm_s(Y));
-      SEND_VALasTXT("z", getAxisMaxJerk_mm_s(Z));
-      SEND_VALasTXT("e", getAxisMaxJerk_mm_s(getActiveTool()));
-  #endif
+    case 31: // Jerk
+      #if ENABLED(CLASSIC_JERK)
+        #define SEND_JERK_INFO(A, B) SEND_VALasTXT(A, getAxisMaxJerk_mm_s(B))
+      #else
+        #define SEND_JERK_INFO(A, B) SEND_NA(A)
+        //SEND_VALasTXT("x", getJunctionDeviation_mm());
+        SEND_TXT("tmppage.M117", "classic Jerk not enabled");
+      #endif
+      SEND_JERK_INFO("x", X);
+      SEND_JERK_INFO("y", Y);
+      SEND_JERK_INFO("z", Z);
+      SEND_JERK_INFO("e", getActiveTool());
       break;
 
-    case 32: // stepsmm
+    case 32: // Steps-per-mm
       SEND_VALasTXT("x", getAxisSteps_per_mm(X));
       SEND_VALasTXT("y", getAxisSteps_per_mm(Y));
       SEND_VALasTXT("z", getAxisSteps_per_mm(Z));
@@ -435,7 +412,7 @@ namespace Nextion {
       SEND_VALasTXT("e1", getAxisSteps_per_mm(E1));
       break;
 
-    case 33: // acceleration
+    case 33: // Acceleration
       SEND_VALasTXT("x", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(X)));
       SEND_VALasTXT("y", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(Y)));
       SEND_VALasTXT("z", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(Z)));
@@ -445,80 +422,84 @@ namespace Nextion {
       SEND_VALasTXT("travel", ui16tostr5rj(getTravelAcceleration_mm_s2()));
       break;
 
-    case 34: // tool offset
-  #ifdef DUAL_X_CARRIAGE
-      SEND_VALasTXT("x", getNozzleOffset_mm(X, getActiveTool()));
-      SEND_VALasTXT("y", getNozzleOffset_mm(Y, getActiveTool()));
-      SEND_VALasTXT("z", getNozzleOffset_mm(Z, getActiveTool()));
-  #else
-      SEND_TXT("x", "n/a");
-      SEND_TXT("y", "n/a");
-      SEND_TXT("z", "n/a");
-  #endif
+    case 34: // Dual X carriage offset
+      #if ENABLED(DUAL_X_CARRIAGE)
+        #define SEND_IDEX_INFO(A, B) SEND_VALasTXT(A, getNozzleOffset_mm(B, getActiveTool()))
+      #else
+        #define SEND_IDEX_INFO(A, B) SEND_NA(A)
+      #endif
+      SEND_IDEX_INFO("x", X);
+      SEND_IDEX_INFO("y", Y);
+      SEND_IDEX_INFO("z", Z);
       break;
 
-    case 35: // z probe offset
-  #if HAS_PROBE_XY_OFFSET
-      SEND_VALasTXT("x", getProbeOffset_mm(X));
-      SEND_VALasTXT("y", getProbeOffset_mm(Y));
-  #else
-      SEND_TXT("x", "n/a");
-      SEND_TXT("y", "n/a");
-  #endif
+    case 35: // Probe offset
+      #if HAS_PROBE_XY_OFFSET
+        #define SEND_PROBE_INFO(A, B) SEND_VALasTXT(A, getProbeOffset_mm(B))
+      #else
+        #define SEND_PROBE_INFO(A, B) SEND_NA(A)
+      #endif
+      SEND_PROBE_INFO("x", X);
+      SEND_PROBE_INFO("y", Y);
       SEND_VALasTXT("z", getZOffset_mm());
       break;
 
     case 36: // Endstop Info
-  #if HAS_X_MIN
-      SEND_VALasTXT("x1", READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_X_MAX
-      SEND_VALasTXT("x2", READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_Y_MIN
-      SEND_VALasTXT("y1", READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_Z_MIN
-      SEND_VALasTXT("z1", READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_Z_MAX
-      SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_Z2_MIN
-      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_Z2_MAX
-      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
-  #endif
-  #if HAS_BED_PROBE
-        //  SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING ? "triggered" : "open");
-  #else
-      SEND_TXT("bltouch", "n/a");
-  #endif
+      #if HAS_X_MIN
+        SEND_VALasTXT("x1", READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_X_MAX
+        SEND_VALasTXT("x2", READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_Y_MIN
+        SEND_VALasTXT("y1", READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_Z_MIN
+        SEND_VALasTXT("z1", READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_Z_MAX
+        SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_Z2_MIN
+        SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_Z2_MAX
+        SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
+      #endif
+      #if HAS_BED_PROBE
+        //SEND_VALasTXT("bltouch", READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING ? "triggered" : "open");
+      #else
+        SEND_NA("bltouch");
+      #endif
       break;
 
     case 37: // PID
-      SEND_VALasTXT("p0", getPIDValues_Kp(E0));
-      SEND_VALasTXT("i0", getPIDValues_Ki(E0));
-      SEND_VALasTXT("d0", getPIDValues_Kd(E0));
-  #if (EXTRUDERS == 2)
-      SEND_VALasTXT("p1", getPIDValues_Kp(E1));
-      SEND_VALasTXT("i1", getPIDValues_Ki(E1));
-      SEND_VALasTXT("d1", getPIDValues_Kd(E1));
-  #else
-      SEND_TXT("p1", "n/a");
-      SEND_TXT("i1", "n/a");
-      SEND_TXT("d1", "n/a");
-  #endif
-  #if ENABLED(PIDTEMPBED)
-      SEND_VALasTXT("hbp", getBedPIDValues_Kp());
-      SEND_VALasTXT("hbi", getBedPIDValues_Ki());
-      SEND_VALasTXT("hbd", getBedPIDValues_Kd());
-  #else
-      SEND_TXT("hbp", "n/a");
-      SEND_TXT("hbi", "n/a");
-      SEND_TXT("hbd", "n/a");
-  #endif
+      #if ENABLED(PIDTEMP)
+        #define SEND_PID_INFO_0(A, B) SEND_VALasTXT(A, getPIDValues_K##B(E0))
+      #else
+        #define SEND_PID_INFO_0(A, B) SEND_NA(A)
+      #endif
+      #if BOTH(PIDTEMP, HAS_MULTI_EXTRUDER)
+        #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPIDValues_K##B(E1))
+      #else
+        #define SEND_PID_INFO_1(A, B) SEND_NA(A)
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        #define SEND_PID_INFO_BED(A, B) SEND_VALasTXT(A, getBedPIDValues_K##B())
+      #else
+        #define SEND_PID_INFO_BED(A, B) SEND_NA(A)
+      #endif
+      SEND_PID_INFO_0("p0", p);
+      SEND_PID_INFO_0("i0", i);
+      SEND_PID_INFO_0("d0", d);
+
+      SEND_PID_INFO_1("p1", p);
+      SEND_PID_INFO_1("i1", i);
+      SEND_PID_INFO_1("d1", d);
+
+      SEND_PID_INFO_BED("hbp", p);
+      SEND_PID_INFO_BED("hbi", i);
+      SEND_PID_INFO_BED("hbd", d);
       break;
     }
   }
@@ -526,110 +507,103 @@ namespace Nextion {
   void NextionTFT::PanelAction(uint8_t req) {
     switch (req) {
 
-    case 50: // Pause SD print
-             //if (isPrintingFromMedia()) {
-      //SEND_TXT("tmppage.M117", "Paused");
-      pausePrint();
-      SEND_TXT_END("qpause.picc=29");
-      //}
-      break;
+      case 50: // Pause SD print
+               //if (isPrintingFromMedia()) {
+        //SEND_TXT("tmppage.M117", "Paused");
+        pausePrint();
+        SEND_TXT_END("qpause.picc=29");
+        //}
+        break;
 
-    case 51: // Resume SD Print
-      resumePrint();
-      SEND_TXT_END("qpause.picc=28");
-      break;
+      case 51: // Resume SD Print
+        resumePrint();
+        SEND_TXT_END("qpause.picc=28");
+        break;
 
-    case 52: // Stop SD print
-             // if (isPrintingFromMedia()) {
-      stopPrint();
-      SEND_TXT_END("page prepare");
-      // }
-      break;
+      case 52: // Stop SD print
+               // if (isPrintingFromMedia()) {
+        stopPrint();
+        SEND_TXT_END("page prepare");
+        // }
+        break;
 
-    case 54: // A13 Select file
-      SelectFile();
-      break;
+      case 54: // A13 Select file
+        SelectFile();
+        break;
 
-    case 65: // Cool Down
-      if (!isPrinting()) {
-        setTargetTemp_celsius(0, E0);
-        setTargetTemp_celsius(0, E1);
-        setTargetTemp_celsius(0, BED);
-        setTargetFan_percent(0, FAN0);
-      }
-      break;
-
-    case 66: // Refresh SD
-      if (!isPrinting()) {
-        injectCommands_P(PSTR("M21"));
-        filenavigator.reset();
-      }
-      break;
-
-    case 56: // Set Fan, Flow, Print Speed
-      if (nextion_command[4] == 'S') {
-        setTargetFan_percent(atof(&nextion_command[5]), FAN0);
-      }
-
-      if (nextion_command[4] == 'P') {
-        setFeedrate_percent(atoi(&nextion_command[5]));
-      }
-
-      if (nextion_command[4] == 'F') {
-        setFlow_percent(atoi(&nextion_command[5]), getActiveTool());
-      }
-
-      break;
-
-    case 57: // disable Motors
-      if (!isPrinting()) {
-        disable_all_steppers(); // from marlincore.h
-        SEND_TXT("tmppage.M117", "Motors disabled");
-      }
-      break;
-
-    case 58: // Load/Unload Filament
-      if (canMove(getActiveTool())) {
-        if (nextion_command[4] == 'L') {
-          injectCommands_P(PSTR("M701"));
+      case 65: // Cool Down
+        if (!isPrinting()) {
+          setTargetTemp_celsius(0, E0);
+          setTargetTemp_celsius(0, E1);
+          setTargetTemp_celsius(0, BED);
+          setTargetFan_percent(0, FAN0);
         }
-        if (nextion_command[4] == 'U') {
-          injectCommands_P(PSTR("M702"));
-        }
-      } else {
-        SEND_TXT("tmppage.M117", "Preheat first");
-        SEND_TXT_END("page preheat");
-      }
-      break;
+        break;
 
-    case 63: // Preheat // Temps defined in configuration.h
-  #if PREHEAT_COUNT
-      if (!isPrinting()) {
+      case 66: // Refresh SD
+        if (!isPrinting()) {
+          injectCommands_P(PSTR("M21"));
+          filenavigator.reset();
+        }
+        break;
 
-        // Preheat PLA
-        if (nextion_command[4] == 'P') {
-          #if HAS_HEATED_BED
-          setTargetTemp_celsius(getMaterial_preset_B(0), BED);
-          #endif
-          setTargetTemp_celsius(getMaterial_preset_E(0), getActiveTool());
+      case 56: // Set Fan, Flow, Print Speed
+        switch (nextion_command[4]) {
+          case 'S': setTargetFan_percent(atof(&nextion_command[5]), FAN0); break;
+          case 'P': setFeedrate_percent(atoi(&nextion_command[5])); break;
+          case 'F': setFlow_percent(atoi(&nextion_command[5]), getActiveTool()); break;
         }
-        // Preheat ABS
-        if (nextion_command[4] == 'A') {
-          #if HAS_HEATED_BED
-          setTargetTemp_celsius(getMaterial_preset_B(1), BED);
-          #endif
-          setTargetTemp_celsius(getMaterial_preset_E(1), getActiveTool());
+        break;
+
+      case 57: // Disable Motors
+        if (!isPrinting()) {
+          disable_all_steppers(); // from marlincore.h
+          SEND_TXT("tmppage.M117", "Motors disabled");
         }
-        // Preheat PETG
-        if (nextion_command[4] == 'G') {
-          #if HAS_HEATED_BED
-          setTargetTemp_celsius(getMaterial_preset_B(2), BED);
-          #endif
-          setTargetTemp_celsius(getMaterial_preset_E(2), getActiveTool());
+        break;
+
+      case 58: // Load/Unload Filament
+        if (canMove(getActiveTool())) {
+          switch(nextion_command[4]) {
+            case 'L': injectCommands_P(PSTR("M701")); break;
+            case 'U': injectCommands_P(PSTR("M702")); break;
+          }
         }
-      }
-  #endif
-      break;
+        else {
+          SEND_TXT("tmppage.M117", "Preheat first");
+          SEND_TXT_END("page preheat");
+        }
+        break;
+
+      case 63: // Preheat // Temps defined in configuration.h
+        #if PREHEAT_COUNT
+          if (!isPrinting()) switch(nextion_command[4]) {
+            // Preheat PLA
+            case 'P':
+              #if HAS_HEATED_BED
+                setTargetTemp_celsius(getMaterial_preset_B(0), BED);
+              #endif
+              setTargetTemp_celsius(getMaterial_preset_E(0), getActiveTool());
+              break;
+
+            // Preheat ABS
+            case 'A':
+              #if HAS_HEATED_BED
+                setTargetTemp_celsius(getMaterial_preset_B(1), BED);
+              #endif
+              setTargetTemp_celsius(getMaterial_preset_E(1), getActiveTool());
+              break;
+
+            // Preheat PETG
+            case 'G':
+              #if HAS_HEATED_BED
+                setTargetTemp_celsius(getMaterial_preset_B(2), BED);
+              #endif
+              setTargetTemp_celsius(getMaterial_preset_E(2), getActiveTool());
+              break;
+          }
+        #endif
+        break;
     }
   }
 
@@ -684,12 +658,12 @@ namespace Nextion {
 
       if (ELAPSED(ms, next_event_ms)) {
         next_event_ms = ms + 1000;
-  #if ENABLED(SHOW_REMAINING_TIME)
-        const uint32_t remaining = getProgress_seconds_remaining();
-        char remaining_str[10];
-        _format_time(remaining_str, remaining);
-        SEND_VALasTXT("tmppage.remaining", remaining_str);
-  #endif
+        #if ENABLED(SHOW_REMAINING_TIME)
+          const uint32_t remaining = getProgress_seconds_remaining();
+          char remaining_str[10];
+          _format_time(remaining_str, remaining);
+          SEND_VALasTXT("tmppage.remaining", remaining_str);
+        #endif
         const uint32_t elapsed = getProgress_seconds_elapsed();
         char elapsed_str[10];
         _format_time(elapsed_str, elapsed);
@@ -752,14 +726,15 @@ namespace Nextion {
       last_homedZ = isAxisPositionKnown(Z);
     }
 
-  // tmppage IDEX Mode
-  #if ENABLED(DUAL_X_CARRIAGE)
-    if (last_IDEX_Mode != getIDEX_Mode()) {
-      SEND_VAL("tmppage.idexmode", getIDEX_Mode());
-      last_IDEX_Mode = getIDEX_Mode();
-    }
-  #endif
+    // tmppage IDEX Mode
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (last_IDEX_Mode != getIDEX_Mode()) {
+        SEND_VAL("tmppage.idexmode", getIDEX_Mode());
+        last_IDEX_Mode = getIDEX_Mode();
+      }
+    #endif
   }
+
 } // namespace Nextion
 
 #endif // NEXTION_TFT
