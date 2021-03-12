@@ -141,11 +141,11 @@ struct MarlinSerialCfg {
 };
 
 #if SERIAL_PORT >= 0
-  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
   extern MSerialT customizedSerial1;
 #endif
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
-  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
   extern MSerialT2 customizedSerial2;
 #endif
