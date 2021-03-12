@@ -240,7 +240,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
   CommandLine &command = commands[index_r];
   #if HAS_MULTI_SERIAL
     const serial_index_t serial_ind = command.port;
-    if (serial_ind < 0) return;
+    if (!serial_ind.valid()) return;              // Optimization here, skip processing if it's not going anywhere
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   if (command.skip_ok) return;
@@ -264,15 +264,15 @@ void GCodeQueue::RingBuffer::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   #if HAS_MULTI_SERIAL
-    if (serial_ind < 0) return;                   // Never mind. Command came from SD or Flash Drive
+    if (!serial_ind.valid()) return;              // Optimization here, skip if the command came from SD or Flash Drive
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
-  SERIAL_ECHOLN(serial_state[serial_ind].last_N + 1);
+  SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
 }
 
-inline bool serial_data_available(uint8_t index) {
+static bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
@@ -283,22 +283,25 @@ inline bool serial_data_available(uint8_t index) {
   return a > 0;
 }
 
-// Multiserial already handles dispatch to/from multiple ports
-inline bool any_serial_data_available() {
-  LOOP_L_N(p, NUM_SERIAL)
-    if (serial_data_available(p))
-      return true;
-}
+#if NO_TIMEOUTS > 0
+  // Multiserial already handles dispatch to/from multiple ports
+  static bool any_serial_data_available() {
+    LOOP_L_N(p, NUM_SERIAL)
+      if (serial_data_available(p))
+        return true;
+    return false;
+  }
+#endif
 
-inline int read_serial(const uint8_t index) { return SERIAL_IMPL.read(index); }
+inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind].last_N);
+  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
-  serial_state[serial_ind].count = 0;
+  serial_state[serial_ind.index].count = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -392,7 +395,7 @@ void GCodeQueue::get_serial_commands() {
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream[card.transfer_port_index].receive(serial_state[card.transfer_port_index].line_buffer);
+      binaryStream[card.transfer_port_index.index].receive(serial_state[card.transfer_port_index.index].line_buffer);
       return;
     }
   #endif
@@ -632,10 +635,10 @@ void GCodeQueue::advance() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL0.dropped());
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL1.dropped());
           #endif
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
           #endif
         #endif
 
