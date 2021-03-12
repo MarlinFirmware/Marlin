@@ -20,7 +20,6 @@
  *
  */
 
-
 /* ****************************************
  * lcd/extui/lib/nextion/FileNavigator.cpp
  * ****************************************
@@ -85,58 +84,54 @@ namespace Nextion {
     if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
       nextion.SendtoTFT(PSTR("vis p0,1"));
       nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
-      SEND_VAL("tmpUP","0");
+      SEND_VAL("tmpUP", "0");
       files--;
-    }else
-    {
+    }
+    else {
       nextion.SendtoTFT(PSTR("vis p0,0"));
       nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
     }
 
     for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
       if (filelist.seek(seek)) {
-         if (filelist.isDir()) {
         nextion.SendtoTFT(PSTR("s"));
         LCD_SERIAL.print(fcnt);
         nextion.SendtoTFT(PSTR(".txt=\""));
-        LCD_SERIAL.print(filelist.shortFilename());
-        nextion.SendtoTFT(PSTR("/\""));
-        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
+        if (filelist.isDir()) {
+          LCD_SERIAL.print(filelist.shortFilename());
+          nextion.SendtoTFT(PSTR("/\""));
+          nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
 
-        nextion.SendtoTFT(PSTR("l"));
-        LCD_SERIAL.print(fcnt);
-        nextion.SendtoTFT(PSTR(".txt=\""));
-        LCD_SERIAL.print(filelist.filename());
-        nextion.SendtoTFT(PSTR("\""));
-        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
-        SEND_PCO2("l",fcnt,"1055");
-        fcnt++;
-    }
-    else {
-        nextion.SendtoTFT(PSTR("s"));
-        LCD_SERIAL.print(fcnt);
-        nextion.SendtoTFT(PSTR(".txt=\""));
-        LCD_SERIAL.print(currentfoldername);
-        LCD_SERIAL.print(filelist.shortFilename());
-        nextion.SendtoTFT(PSTR("\""));
-        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
+          nextion.SendtoTFT(PSTR("l"));
+          LCD_SERIAL.print(fcnt);
+          nextion.SendtoTFT(PSTR(".txt=\""));
+          LCD_SERIAL.print(filelist.filename());
+          nextion.SendtoTFT(PSTR("\""));
+          nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
+          SEND_PCO2("l", fcnt, "1055");
+        }
+        else {
+          LCD_SERIAL.print(currentfoldername);
+          LCD_SERIAL.print(filelist.shortFilename());
+          nextion.SendtoTFT(PSTR("\""));
+          nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
 
-        nextion.SendtoTFT(PSTR("l"));
-        LCD_SERIAL.print(fcnt);
-        nextion.SendtoTFT(PSTR(".txt=\""));
-        LCD_SERIAL.print(filelist.longFilename());
-        nextion.SendtoTFT(PSTR("\""));
-        nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
+          nextion.SendtoTFT(PSTR("l"));
+          LCD_SERIAL.print(fcnt);
+          nextion.SendtoTFT(PSTR(".txt=\""));
+          LCD_SERIAL.print(filelist.longFilename());
+          nextion.SendtoTFT(PSTR("\""));
+          nextion.SendtoTFT(PSTR("\xFF\xFF\xFF"));
+        }
         fcnt++;
-    }
-    fseek=seek;
+        fseek = seek;
         #if NEXDEBUG(AC_FILE)
           SERIAL_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
         #endif
       }
     }
-        SEND_VAL("n0",filelist.count());
-        SEND_VAL("n1",fseek+1);
+    SEND_VAL("n0",filelist.count());
+    SEND_VAL("n1",fseek+1);
   }
 
   void FileNavigator::changeDIR(char *folder) {
