@@ -3351,7 +3351,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   constexpr xyz_pos_t start_xyz[8] = NOZZLE_CLEAN_START_POINT,
                         end_xyz[8] = NOZZLE_CLEAN_END_POINT;
-  #define _CLEAN_ASSERT(N) static_assert(N > HOTENDS || end_xyz[N].x != start_xyz[N].x || TERN(NOZZLE_CLEAN_NO_Y, false, end_xyz[N].y != start_xyz[N].y), \
+  #define _CLEAN_ASSERT(N) static_assert(N >= HOTENDS || end_xyz[N].x != start_xyz[N].x || TERN(NOZZLE_CLEAN_NO_Y, false, end_xyz[N].y != start_xyz[N].y), \
                         "NOZZLE_CLEAN Start and End must be made different on HOTEND " STRINGIFY(N))
   _CLEAN_ASSERT(0); _CLEAN_ASSERT(1);
   _CLEAN_ASSERT(2); _CLEAN_ASSERT(3);
