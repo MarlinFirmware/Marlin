@@ -140,7 +140,7 @@ namespace ExtUI {
   #if HAS_LEVELING && HAS_MESH
     void onMeshLevelingStart() {}
 
-    void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
+    void onMeshUpdate(const int8_t x, const int8_t y, const float &val) {
       BedMeshScreen::onMeshUpdate(x, y, val);
     }
 
