@@ -97,9 +97,7 @@ void StressTestScreen::onEntry() {
   mydata.message = PSTR("Test 1: Stress testing...");
 
   // Turn off heaters.
-  setTargetTemp_celsius(0, E0);
-  setTargetTemp_celsius(0, E1);
-  setTargetTemp_celsius(0, BED);
+  coolDown();
 
   runTestOnBootup(true);
 }
