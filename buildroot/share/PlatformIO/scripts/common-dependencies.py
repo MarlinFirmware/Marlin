@@ -370,7 +370,8 @@ def compute_build_signature():
 	
 	# Definition from these files will be kept
 	files_to_keep = [ 'Marlin/Configuration.h', 
-					  'Marlin/Configuration_adv.h'	
+					  'Marlin/Configuration_adv.h',
+					  'Marlin/src/inc/Version.h'	
 	]
 
 	# Check if we can skip processing
