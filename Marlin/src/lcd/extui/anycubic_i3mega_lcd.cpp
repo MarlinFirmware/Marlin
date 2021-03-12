@@ -65,7 +65,7 @@ namespace ExtUI {
     // into buff.
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
   }
 
@@ -75,7 +75,7 @@ namespace ExtUI {
     // from buff
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
