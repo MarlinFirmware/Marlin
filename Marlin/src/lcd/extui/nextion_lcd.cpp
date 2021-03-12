@@ -33,8 +33,6 @@
 #include "ui_api.h"
 #include "lib/nextion/nextion_tft.h"
 
-using namespace Nextion;
-
 namespace ExtUI {
 
   void onStartup()                                   { nextion.Startup();  }

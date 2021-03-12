@@ -31,34 +31,32 @@
 #include "nextion_tft_defs.h"
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../ui_api.h"
-namespace Nextion {
 
-  class NextionTFT {
-    private:
-      static uint8_t command_len;
-      static char    nextion_command[MAX_CMND_LEN];
-      static char    selectedfile[MAX_PATH_LEN];
+class NextionTFT {
+  private:
+    static uint8_t command_len;
+    static char    nextion_command[MAX_CMND_LEN];
+    static char    selectedfile[MAX_PATH_LEN];
 
-    public:
-      NextionTFT();
-      static void Startup();
-      static void IdleLoop();
-      static void PrinterKilled(PGM_P, PGM_P);
-      static void ConfirmationRequest(const char * const );
-      static void StatusChange(const char * const );
-      static void SendtoTFT(PGM_P);
-      static void UpdateOnChange();
-      static void PrintFinished();
-      static void PanelInfo(uint8_t);
+  public:
+    NextionTFT();
+    static void Startup();
+    static void IdleLoop();
+    static void PrinterKilled(PGM_P, PGM_P);
+    static void ConfirmationRequest(const char * const );
+    static void StatusChange(const char * const );
+    static void SendtoTFT(PGM_P);
+    static void UpdateOnChange();
+    static void PrintFinished();
+    static void PanelInfo(uint8_t);
 
-    private:
-      static bool ReadTFTCommand();
-      static void SendFileList(int8_t);
-      static void SelectFile();
-      static void ProcessPanelRequest();
-      static void PanelAction(uint8_t);
-      static void _format_time(char *, uint32_t);
-  };
+  private:
+    static bool ReadTFTCommand();
+    static void SendFileList(int8_t);
+    static void SelectFile();
+    static void ProcessPanelRequest();
+    static void PanelAction(uint8_t);
+    static void _format_time(char *, uint32_t);
+};
 
-  extern NextionTFT nextion;
-}
+extern NextionTFT nextion;

@@ -33,24 +33,21 @@
 
 using namespace ExtUI;
 
-namespace Nextion {
+class FileNavigator {
+  public:
+    FileNavigator();
+    static void  reset();
+    static void  getFiles(uint16_t);
+    static void  upDIR();
+    static void  changeDIR(char *);
+    static void  refresh();
+    static char* getCurrentFolderName();
+  private:
+    static FileList filelist;
+    static char     currentfoldername[MAX_PATH_LEN];
+    static uint16_t lastindex;
+    static uint8_t  folderdepth;
+    static uint16_t currentindex;
+};
 
-  class FileNavigator {
-    public:
-      FileNavigator();
-      static void  reset();
-      static void  getFiles(uint16_t);
-      static void  upDIR();
-      static void  changeDIR(char *);
-      static void  refresh();
-      static char* getCurrentFolderName();
-    private:
-      static FileList filelist;
-      static char     currentfoldername[MAX_PATH_LEN];
-      static uint16_t lastindex;
-      static uint8_t  folderdepth;
-      static uint16_t currentindex;
-  };
-  extern FileNavigator filenavigator;
-
-} // Nextion
+extern FileNavigator filenavigator;
