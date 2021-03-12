@@ -1,10 +1,9 @@
 ---
-name: Bug report
+name: 🪲 Bug report
 about: Report a bug in Marlin
-title: "[BUG] (short description)"
+title: "[BUG] (bug summary)"
 labels: ''
 assignees: ''
-
 ---
 
 <!--
