@@ -665,6 +665,15 @@ namespace ExtUI {
     }
   #endif
 
+    #if ENABLED(DUAL_X_CARRIAGE)
+  uint8_t getIDEX_Mode()                              { return dual_x_carriage_mode; }
+  #endif
+  #if PREHEAT_COUNT
+  uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+  #if HAS_HEATED_BED
+  uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
+  #endif
+  #endif
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
   int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
@@ -838,6 +847,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(PRINTCOUNTER)
+    char* getFailedPrints_str(char buffer[21])   { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints - print_job_timer.getStats().finishedPrints)); return buffer; }
     char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
     char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,i16tostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
     char* getTotalPrintTime_str(char buffer[21]) { return duration_t(print_job_timer.getStats().printTime).toString(buffer); }
