@@ -138,15 +138,17 @@ namespace ExtUI {
   #endif
 
   uint32_t getProgress_seconds_elapsed();
-   #if PREHEAT_COUNT
-  uint16_t getMaterial_preset_E(const uint16_t);
-  #if HAS_HEATED_BED
-  uint16_t getMaterial_preset_B(const uint16_t);
+  #if PREHEAT_COUNT
+    uint16_t getMaterial_preset_E(const uint16_t);
+    #if HAS_HEATED_BED
+      uint16_t getMaterial_preset_B(const uint16_t);
+    #endif
   #endif
-  #endif
+
   #if ENABLED(DUAL_X_CARRIAGE)
-  uint8_t getIDEX_Mode();
+    uint8_t getIDEX_Mode();
   #endif
+
   #if ENABLED(SHOW_REMAINING_TIME)
     inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
   #endif
