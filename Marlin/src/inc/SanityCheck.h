@@ -3346,6 +3346,47 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
+ * Sanity check for unique start and stop values in NOZZLE_CLEAN_FEATURE
+ */
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  constexpr xyz_pos_t start_xyz[HOTENDS] = NOZZLE_CLEAN_START_POINT;
+  constexpr xyz_pos_t end_xyz[HOTENDS] = NOZZLE_CLEAN_END_POINT;
+
+  #if HOTENDS > 7
+    static_assert( (end_xyz[7].x - start_xyz[7].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 7" );
+    static_assert( (end_xyz[7].y - start_xyz[7].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 7" );
+  #endif
+  #if HOTENDS > 6
+    static_assert( (end_xyz[6].x - start_xyz[6].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 6" );
+    static_assert( (end_xyz[6].y - start_xyz[6].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 6" );
+  #endif
+  #if HOTENDS > 5
+    static_assert( (end_xyz[5].x - start_xyz[5].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 5" );
+    static_assert( (end_xyz[5].y - start_xyz[5].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 5" );
+  #endif
+  #if HOTENDS > 4
+    static_assert( (end_xyz[4].x - start_xyz[4].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 4" );
+    static_assert( (end_xyz[4].y - start_xyz[4].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 4" );
+  #endif
+  #if HOTENDS > 3
+    static_assert( (end_xyz[3].x - start_xyz[3].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 3" );
+    static_assert( (end_xyz[3].y - start_xyz[3].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 3" );
+  #endif
+  #if HOTENDS > 2
+    static_assert( (end_xyz[2].x - start_xyz[2].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 2" );
+    static_assert( (end_xyz[2].y - start_xyz[2].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 2" );
+  #endif
+  #if HOTENDS > 1
+    static_assert( (end_xyz[1].x - start_xyz[1].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 1" );
+    static_assert( (end_xyz[1].y - start_xyz[1].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 1" );
+  #endif
+  #if HOTENDS > 0
+    static_assert( (end_xyz[0].x - start_xyz[0].x), "NOZZLE_CLEAN Start and End X must be different on HOTEND 0" );
+    static_assert( (end_xyz[0].y - start_xyz[0].y), "NOZZLE_CLEAN Start and End Y must be different on HOTEND 0" );
+  #endif
+#endif
+
+/**
  * Sanity check for valid stepper driver types
  */
 #define _BAD_DRIVER(A) (defined(A##_DRIVER_TYPE) && !_DRIVER_ID(A##_DRIVER_TYPE))
