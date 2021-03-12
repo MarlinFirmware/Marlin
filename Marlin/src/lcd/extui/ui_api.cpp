@@ -959,11 +959,11 @@ namespace ExtUI {
 
   void printFile(const char *filename) {
     UNUSED(filename);
-    IFSD(card.openAndPrintFile(filename), NOOP);
+    TERN_(SDSUPPORT, card.openAndPrintFile(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return IFSD(isPrintingFromMedia() && !IS_SD_PRINTING(), false);
+    return TERN0(SDSUPPORT, isPrintingFromMedia() && !IS_SD_PRINTING());
   }
 
   bool isPrintingFromMedia() {
@@ -978,16 +978,14 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false)) || print_job_timer.isRunning() || print_job_timer.isPaused();
+    return (commandsInQueue() || isPrintingFromMedia() || TERN0(SDSUPPORT, IS_SD_PRINTING())) || print_job_timer.isRunning() || print_job_timer.isPaused();
   }
 
   bool isPrintingPaused() {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() {
-    return IFSD(IS_SD_INSERTED() && card.isMounted(), false);
-  }
+  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED() && card.isMounted()); }
 
   void pausePrint() { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
@@ -1022,27 +1020,27 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longest_filename(), "");
+    return TERN(SDSUPPORT, card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
-    return IFSD(card.filename, "");
+    return TERN(SDSUPPORT, card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    return IFSD(card.longFilename, "");
+    return TERN(SDSUPPORT, card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    return IFSD(card.flag.filenameIsDir, false);
+    return TERN0(SDSUPPORT, card.flag.filenameIsDir);
   }
 
   uint16_t FileList::count() {
-    return IFSD((num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)), 0);
+    return TERN0(SDSUPPORT, (num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)));
   }
 
   bool FileList::isAtRootDir() {
-    return IFSD(card.flag.workDirIsRoot, true);
+    return TERN1(SDSUPPORT, card.flag.workDirIsRoot);
   }
 
   void FileList::upDir() {
