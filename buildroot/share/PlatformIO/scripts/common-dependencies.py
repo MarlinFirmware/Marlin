@@ -262,7 +262,11 @@ def search_compiler():
 #
 # Run the preprocessor
 #
+preprocessor_cache = {}
 def run_preprocessor(filename):
+	if filename in preprocessor_cache:
+		return preprocessor_cache[filename]
+
 	# Process defines
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
@@ -284,6 +288,7 @@ def run_preprocessor(filename):
 	cmd = ' '.join(depcmd)
 	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
+	preprocessor_cache[filename] = define_list
 	return define_list
 
 
