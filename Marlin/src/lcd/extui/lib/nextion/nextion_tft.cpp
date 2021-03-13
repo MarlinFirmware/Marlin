@@ -226,7 +226,6 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 2: // Printer Info
-
     if (!isPrinting()) {
       SEND_VAL("tmppage.connected", 1);
       SEND_VALasTXT("tmppage.marlin", SHORT_BUILD_VERSION);
@@ -275,13 +274,13 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #else
       #define SEND_TRINAMIC_CURR(A, B) SEND_NA(A)
     #endif
-    SEND_TRINAMIC_CURR("x", X);
+    SEND_TRINAMIC_CURR("x",  X);
     SEND_TRINAMIC_CURR("x2", X2);
-    SEND_TRINAMIC_CURR("y", Y);
+    SEND_TRINAMIC_CURR("y",  Y);
     SEND_TRINAMIC_CURR("y2", Y2);
-    SEND_TRINAMIC_CURR("z", Z);
+    SEND_TRINAMIC_CURR("z",  Z);
     SEND_TRINAMIC_CURR("z2", Z2);
-    SEND_TRINAMIC_CURR("e", E0);
+    SEND_TRINAMIC_CURR("e",  E0);
     SEND_TRINAMIC_CURR("e1", E1);
     break;
 
@@ -291,11 +290,11 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #else
       #define SEND_TRINAMIC_BUMP(A, B) SEND_NA(A)
     #endif
-    SEND_TRINAMIC_BUMP("x", X);
+    SEND_TRINAMIC_BUMP("x",  X);
     SEND_TRINAMIC_BUMP("x2", X2);
-    SEND_TRINAMIC_BUMP("y", Y);
+    SEND_TRINAMIC_BUMP("y",  Y);
     SEND_TRINAMIC_BUMP("y2", Y2);
-    SEND_TRINAMIC_BUMP("z", Z);
+    SEND_TRINAMIC_BUMP("z",  Z);
     SEND_TRINAMIC_BUMP("z2", Z2);
     break;
 
@@ -305,13 +304,13 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #else
       #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
     #endif
-    SEND_TRINAMIC_THRS("x", X);
+    SEND_TRINAMIC_THRS("x",  X);
     SEND_TRINAMIC_THRS("x2", X2);
-    SEND_TRINAMIC_THRS("y", Y);
+    SEND_TRINAMIC_THRS("y",  Y);
     SEND_TRINAMIC_THRS("y2", Y2);
-    SEND_TRINAMIC_THRS("z", Z);
+    SEND_TRINAMIC_THRS("z",  Z);
     SEND_TRINAMIC_THRS("z2", Z2);
-    SEND_TRINAMIC_THRS("e", E0);
+    SEND_TRINAMIC_THRS("e",  E0);
     SEND_TRINAMIC_THRS("e1", E1);
     break;
 
@@ -343,7 +342,6 @@ void NextionTFT::PanelInfo(uint8_t req) {
   case 29: // Preheat
     #if PREHEAT_COUNT
       if (!isPrinting()) {
-
         // Preheat PLA
         if (nextion_command[4] == 'P') {
           SEND_VALasTXT("pe", getMaterial_preset_E(0));
@@ -374,11 +372,11 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 30: // Velocity
-    SEND_VALasTXT("x", getAxisMaxFeedrate_mm_s(X));
-    SEND_VALasTXT("y", getAxisMaxFeedrate_mm_s(Y));
-    SEND_VALasTXT("z", getAxisMaxFeedrate_mm_s(Z));
-    SEND_VALasTXT("e", getAxisMaxFeedrate_mm_s(getActiveTool()));
-    SEND_VALasTXT("min", getMinFeedrate_mm_s());
+    SEND_VALasTXT("x",    getAxisMaxFeedrate_mm_s(X));
+    SEND_VALasTXT("y",    getAxisMaxFeedrate_mm_s(Y));
+    SEND_VALasTXT("z",    getAxisMaxFeedrate_mm_s(Z));
+    SEND_VALasTXT("e",    getAxisMaxFeedrate_mm_s(getActiveTool()));
+    SEND_VALasTXT("min",  getMinFeedrate_mm_s());
     SEND_VALasTXT("tmin", getMinTravelFeedrate_mm_s());
     break;
 
@@ -397,9 +395,9 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 32: // Steps-per-mm
-    SEND_VALasTXT("x", getAxisSteps_per_mm(X));
-    SEND_VALasTXT("y", getAxisSteps_per_mm(Y));
-    SEND_VALasTXT("z", getAxisSteps_per_mm(Z));
+    SEND_VALasTXT("x",  getAxisSteps_per_mm(X));
+    SEND_VALasTXT("y",  getAxisSteps_per_mm(Y));
+    SEND_VALasTXT("z",  getAxisSteps_per_mm(Z));
     SEND_VALasTXT("e0", getAxisSteps_per_mm(E0));
     SEND_VALasTXT("e1", getAxisSteps_per_mm(E1));
     break;
@@ -409,9 +407,9 @@ void NextionTFT::PanelInfo(uint8_t req) {
     SEND_VALasTXT("y", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(Y)));
     SEND_VALasTXT("z", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(Z)));
     SEND_VALasTXT("e", ui16tostr5rj(getAxisMaxAcceleration_mm_s2(getActiveTool())));
-    SEND_VALasTXT("print", ui16tostr5rj(getPrintingAcceleration_mm_s2()));
+    SEND_VALasTXT("print",   ui16tostr5rj(getPrintingAcceleration_mm_s2()));
     SEND_VALasTXT("retract", ui16tostr5rj(getRetractAcceleration_mm_s2()));
-    SEND_VALasTXT("travel", ui16tostr5rj(getTravelAcceleration_mm_s2()));
+    SEND_VALasTXT("travel",  ui16tostr5rj(getTravelAcceleration_mm_s2()));
     break;
 
   case 34: // Dual X carriage offset
@@ -500,10 +498,10 @@ void NextionTFT::PanelAction(uint8_t req) {
   switch (req) {
 
     case 50: // Pause SD print
-             //if (isPrintingFromMedia()) {
-      //SEND_TXT("tmppage.M117", "Paused");
-      pausePrint();
-      SEND_TXT_END("qpause.picc=29");
+      //if (isPrintingFromMedia()) {
+        //SEND_TXT("tmppage.M117", "Paused");
+        pausePrint();
+        SEND_TXT_END("qpause.picc=29");
       //}
       break;
 
@@ -513,10 +511,10 @@ void NextionTFT::PanelAction(uint8_t req) {
       break;
 
     case 52: // Stop SD print
-             // if (isPrintingFromMedia()) {
-      stopPrint();
-      SEND_TXT_END("page prepare");
-      // }
+      //if (isPrintingFromMedia()) {
+        stopPrint();
+        SEND_TXT_END("page prepare");
+      //}
       break;
 
     case 54: // A13 Select file
@@ -550,21 +548,25 @@ void NextionTFT::PanelAction(uint8_t req) {
       break;
 
     case 58: // Load/Unload Filament
-      if (canMove(getActiveTool())) {
-        switch(nextion_command[4]) {
-          case 'L': injectCommands_P(PSTR("M701")); break;
-          case 'U': injectCommands_P(PSTR("M702")); break;
+      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        if (canMove(getActiveTool())) {
+          switch (nextion_command[4]) {
+            case 'L': injectCommands_P(PSTR("M701")); break;
+            case 'U': injectCommands_P(PSTR("M702")); break;
+          }
         }
-      }
-      else {
-        SEND_TXT("tmppage.M117", "Preheat first");
-        SEND_TXT_END("page preheat");
-      }
+        else {
+          SEND_TXT("tmppage.M117", "Preheat first");
+          SEND_TXT_END("page preheat");
+        }
+      #else
+        SEND_TXT("tmppage.M117", "Filament loading disabled");
+      #endif
       break;
 
     case 63: // Preheat // Temps defined in configuration.h
       #if PREHEAT_COUNT
-        if (!isPrinting()) switch(nextion_command[4]) {
+        if (!isPrinting()) switch (nextion_command[4]) {
           // Preheat PLA
           case 'P':
             #if HAS_HEATED_BED
@@ -589,6 +591,8 @@ void NextionTFT::PanelAction(uint8_t req) {
             setTargetTemp_celsius(getMaterial_preset_E(2), getActiveTool());
             break;
         }
+      #else
+        SEND_TXT("tmppage.M117", "Preheat disabled");
       #endif
       break;
   }
