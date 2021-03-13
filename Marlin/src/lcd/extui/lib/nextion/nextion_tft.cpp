@@ -39,6 +39,9 @@
 #include "FileNavigator.h"
 #include "nextion_tft.h"
 
+#define DEBUG_OUT NEXDEBUGLEVEL
+#include "../../../../core/debug_out.h"
+
 char NextionTFT::selectedfile[MAX_PATH_LEN];
 char NextionTFT::nextion_command[MAX_CMND_LEN];
 uint8_t NextionTFT::command_len;
@@ -75,9 +78,7 @@ void NextionTFT::Startup() {
   SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
   SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
 
-  #if NEXDEBUGLEVEL
-    SERIAL_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
-  #endif
+  DEBUG_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
 }
 
 void NextionTFT::IdleLoop() {
@@ -103,21 +104,20 @@ void NextionTFT::PrintFinished() {
 void NextionTFT::ConfirmationRequest(const char *const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
   #if NEXDEBUG(N_MARLIN)
-    SERIAL_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+    DEBUG_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
   #endif
 }
 
 void NextionTFT::StatusChange(const char *const msg) {
   #if NEXDEBUG(N_MARLIN)
-    SERIAL_ECHOLNPAIR("StatusChange() ", msg);
-    SERIAL_ECHOLNPAIR("printer_state:", printer_state);
+    DEBUG_ECHOLNPAIR("StatusChange() ", msg, "\nprinter_state:", printer_state);
   #endif
   SEND_VALasTXT("tmppage.M117", msg);
 }
 
 void NextionTFT::SendtoTFT(PGM_P str) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
-    serialprintPGM(str);
+    DEBUG_ECHOPGM_P(str);
   #endif
   while (const char c = pgm_read_byte(str++))
     LCD_SERIAL.write(c);
@@ -139,17 +139,16 @@ bool NextionTFT::ReadTFTCommand() {
     if (nextion_command[0] == 'G' || nextion_command[0] == 'M' || nextion_command[0] == 'T')
       injectCommands(nextion_command);
     #if NEXDEBUG(N_ALL)
-      SERIAL_ECHOLNPAIR("< ", nextion_command);
+      DEBUG_ECHOLNPAIR("< ", nextion_command);
     #endif
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
-      if (req > 7 && req != 20) {
-        SERIAL_ECHOLNPAIR("> ", nextion_command[0]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[1]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[2]);
-        SERIAL_ECHOLNPAIR("> ", nextion_command[3]);
-        SERIAL_ECHOLNPAIR("printer_state:", printer_state);
-      }
+      if (req > 7 && req != 20)
+        DEBUG_ECHOLNPAIR(  "> ", nextion_command[0],
+                         "\n> ", nextion_command[1],
+                         "\n> ", nextion_command[2],
+                         "\n> ", nextion_command[3],
+                         "\nprinter_state:", printer_state);
     #endif
   }
   return command_ready;
@@ -158,7 +157,7 @@ bool NextionTFT::ReadTFTCommand() {
 void NextionTFT::SendFileList(int8_t startindex) {
   // respond to panel request for 7 files starting at index
   #if NEXDEBUG(N_INFO)
-    SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
+    DEBUG_ECHOLNPAIR("## SendFileList ## ", startindex);
   #endif
   filenavigator.getFiles(startindex);
 }
@@ -167,7 +166,7 @@ void NextionTFT::SelectFile() {
   strncpy(selectedfile, nextion_command + 4, command_len - 4);
   selectedfile[command_len - 5] = '\0';
   #if NEXDEBUG(N_FILE)
-    SERIAL_ECHOLNPAIR_F(" Selected File: ", selectedfile);
+    DEBUG_ECHOLNPAIR_F(" Selected File: ", selectedfile);
   #endif
   switch (selectedfile[0]) {
   case '/': // Valid file selected

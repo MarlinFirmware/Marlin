@@ -29,22 +29,22 @@
  * ***************************************/
 
 #include "../../../../inc/MarlinConfigPre.h"
-//#define NEXDEBUGLEVEL 255
 
+//#define NEXDEBUGLEVEL 255
 #if NEXDEBUGLEVEL
   // Bit-masks for selective debug:
   enum NexDebugMask : uint8_t {
-    N_INFO   =  1,
-    N_ACTION =  2,
-    N_FILE   =  4,
-    N_PANEL  =  8,
-    N_MARLIN = 16,
-    N_SOME   = 32,
-    N_ALL    = 64
+    N_INFO   = _BV(0),
+    N_ACTION = _BV(1),
+    N_FILE   = _BV(2),
+    N_PANEL  = _BV(3),
+    N_MARLIN = _BV(4),
+    N_SOME   = _BV(5),
+    N_ALL    = _BV(6)
   };
-  #define NEXDEBUG(mask) ( ((mask) & NEXDEBUGLEVEL) == mask )  // Debug flag macro
+  #define NEXDEBUG(M) (((M) & NEXDEBUGLEVEL) == M)  // Debug flag macro
 #else
-  #define NEXDEBUG(mask) false
+  #define NEXDEBUG(M) false
 #endif
 
 #define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path

@@ -36,6 +36,9 @@
 
 using namespace ExtUI;
 
+#define DEBUG_OUT NEXDEBUGLEVEL
+#include "../../../../core/debug_out.h"
+
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
 char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
 uint16_t  FileNavigator::lastindex;
@@ -76,7 +79,7 @@ void FileNavigator::getFiles(uint16_t index) {
   lastindex = index;
 
   #if NEXDEBUG(AC_FILE)
-    SERIAL_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
+    DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
   #endif
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
@@ -124,7 +127,7 @@ void FileNavigator::getFiles(uint16_t index) {
       fcnt++;
       fseek = seek;
       #if NEXDEBUG(AC_FILE)
-        SERIAL_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+        DEBUG_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       #endif
     }
   }
@@ -134,7 +137,7 @@ void FileNavigator::getFiles(uint16_t index) {
 
 void FileNavigator::changeDIR(char *folder) {
   #if NEXDEBUG(AC_FILE)
-    SERIAL_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
+    DEBUG_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
   #endif
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
   strcat(currentfoldername, folder);
@@ -162,7 +165,7 @@ void FileNavigator::upDIR() {
     pos[1] = '\0';
   }
   #if NEXDEBUG(AC_FILE)
-    SERIAL_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
+    DEBUG_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
   #endif
 }
 

@@ -138,6 +138,7 @@ namespace ExtUI {
   #endif
 
   uint32_t getProgress_seconds_elapsed();
+
   #if PREHEAT_COUNT
     uint16_t getMaterial_preset_E(const uint16_t);
     #if HAS_HEATED_BED
