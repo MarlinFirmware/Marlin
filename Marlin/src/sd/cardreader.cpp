@@ -150,6 +150,12 @@ CardReader::CardReader() {
     #elif DEFAULT_SHARED_VOLUME == USB_FLASH_DRIVE
       changeMedia(&sd2card_UsbFlashDrive);
     #endif
+  #elif ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    changeMedia(&sd2card_UsbFlashDrive);
+  #elif ENABLED(SDIO_SUPPORT)
+    changeMedia(&sd2card_sdio);
+  #else
+    changeMedia(&sd2card_sd_spi);
   #endif
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
