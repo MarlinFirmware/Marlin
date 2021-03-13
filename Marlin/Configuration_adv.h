@@ -1462,7 +1462,7 @@
   //#define NO_SD_DETECT
 
   // Multiple volume support - EXPERIMENTAL.
-  #define MULTI_VOLUME
+  //#define MULTI_VOLUME
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #define VOLUME_USB_FLASH_DRIVE
