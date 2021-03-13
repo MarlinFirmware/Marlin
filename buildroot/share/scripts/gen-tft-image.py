@@ -26,7 +26,7 @@ import sys,re,struct
 from PIL import Image,ImageDraw
 
 def image2bin(image, output_file):
-	if '.c' in output_file:
+	if output_file.endswith(('.c', '.cpp')):
 		f = open(output_file, 'wt')
 		is_cpp = True
 		f.write("const uint16_t image[%d] = {\n" % (image.size[1] * image.size[0]))
@@ -57,7 +57,7 @@ if len(sys.argv) <= 2:
 	print("It can dump a raw bin RGB565 image or create a CPP file with an array of 16 bit image pixels.")
 	print("Usage: gen-tft-image.py INPUT_IMAGE.(png|bmp|jpg) OUTPUT_FILE.(cpp|bin)")
 	print("Author: rhapsodyv")
-	exit()
+	exit(1)
 
 
 output_img = sys.argv[2]
