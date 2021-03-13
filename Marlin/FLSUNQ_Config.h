@@ -136,7 +136,9 @@
 * ======================================================
 */
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define MEATPACK                   // Support for MeatPack G-code compression (OCTOPRINT)
+//------ Support for MeatPack G-code compression (OCTOPRINT)--------//
+//#define MEATPACK_ON_SERIAL_PORT_1   // With connection USB
+//#define MEATPACK_ON_SERIAL_PORT_2   // With other connection like Tx/Rx Wifi socket.
 //#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 //#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
 
