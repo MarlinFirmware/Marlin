@@ -27,6 +27,7 @@
  */
 #include "../SdFatConfig.h"
 #include "../SdInfo.h"
+#include "../disk_io_driver.h"
 
 #if DISABLED(USE_OTG_USB_HOST)
   /**
@@ -46,7 +47,7 @@
   #endif
 #endif
 
-class Sd2Card {
+class UsbFlashDrive_DiskIODriver: public DiskIODriver {
   private:
     uint32_t pos;
 
@@ -61,11 +62,11 @@ class Sd2Card {
 
     inline bool readStart(const uint32_t block)                  { pos = block; return isReady(); }
     inline bool readData(uint8_t* dst)                           { return readBlock(pos++, dst); }
-    inline bool readStop() const                                 { return true; }
+    inline bool readStop()                                       { return true; }
 
     inline bool writeStart(const uint32_t block, const uint32_t) { pos = block; return isReady(); }
-    inline bool writeData(uint8_t* src)                          { return writeBlock(pos++, src); }
-    inline bool writeStop() const                                { return true; }
+    inline bool writeData(const uint8_t* src)                    { return writeBlock(pos++, src); }
+    inline bool writeStop()                                      { return true; }
 
     bool readBlock(uint32_t block, uint8_t* dst);
     bool writeBlock(uint32_t blockNumber, const uint8_t* src);

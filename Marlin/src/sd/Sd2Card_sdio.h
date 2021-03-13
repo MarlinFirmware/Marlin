@@ -25,11 +25,13 @@
 
 #if ENABLED(SDIO_SUPPORT)
 
+#include "disk_io_driver.h"
+
 bool SDIO_Init();
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
-class Sd2Card {
+class SDIO_DiskIODriver : public DiskIODriver {
   public:
     bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
     bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }

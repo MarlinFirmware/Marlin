@@ -35,6 +35,7 @@
 
 #include "SdFatConfig.h"
 #include "SdInfo.h"
+#include "disk_io_driver.h"
 
 #include <stdint.h>
 
@@ -44,7 +45,8 @@ uint16_t const SD_INIT_TIMEOUT = 2000,    // init timeout ms
                SD_WRITE_TIMEOUT = 600;    // write time out ms
 
 // SD card errors
-uint8_t const SD_CARD_ERROR_CMD0 = 0x01,                // timeout error for command CMD0 (initialize card in SPI mode)
+typedef enum : uint8_t {
+              SD_CARD_ERROR_CMD0 = 0x01,                // timeout error for command CMD0 (initialize card in SPI mode)
               SD_CARD_ERROR_CMD8 = 0x02,                // CMD8 was not accepted - not a valid SD card
               SD_CARD_ERROR_CMD12 = 0x03,               // card returned an error response for CMD12 (write stop)
               SD_CARD_ERROR_CMD17 = 0x04,               // card returned an error response for CMD17 (read block)
@@ -70,7 +72,8 @@ uint8_t const SD_CARD_ERROR_CMD0 = 0x01,                // timeout error for com
               SD_CARD_ERROR_SCK_RATE = 0x18,            // incorrect rate selected
               SD_CARD_ERROR_INIT_NOT_CALLED = 0x19,     // init() not called
               // 0x1A is unused now, it was: card returned an error for CMD59 (CRC_ON_OFF)
-              SD_CARD_ERROR_READ_CRC = 0x1B;            // invalid read CRC
+              SD_CARD_ERROR_READ_CRC = 0x1B            // invalid read CRC
+} sd_error_code_t;
 
 // card types
 uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 SD card
@@ -93,10 +96,10 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
  * \class Sd2Card
  * \brief Raw access to SD and SDHC flash memory cards.
  */
-class Sd2Card {
+class SD_SPI_DiskIODriver : public DiskIODriver {
 public:
 
-  Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
+  SD_SPI_DiskIODriver() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
 
   uint32_t cardSize();
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
@@ -106,7 +109,7 @@ public:
    *  Set SD error code.
    *  \param[in] code value for error code.
    */
-  inline void error(const uint8_t code) { errorCode_ = code; }
+  void error(const uint8_t code);
 
   /**
    * \return error code for last error. See Sd2Card.h for a list of error codes.
@@ -159,10 +162,13 @@ public:
   int type() const {return type_;}
   bool writeBlock(uint32_t blockNumber, const uint8_t* src);
   bool writeData(const uint8_t* src);
-  bool writeStart(uint32_t blockNumber, const uint32_t eraseCount);
+  bool writeStart(const uint32_t blockNumber, const uint32_t eraseCount);
   bool writeStop();
 
+  bool isReady() { return ready; };
+
 private:
+  bool ready = false;
   uint8_t chipSelectPin_,
           errorCode_,
           spiRate_,

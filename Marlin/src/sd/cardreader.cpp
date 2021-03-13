@@ -120,7 +120,18 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-Sd2Card CardReader::sd2card;
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  UsbFlashDrive_DiskIODriver CardReader::sd2card_UsbFlashDrive;
+#endif
+#if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+  #if ENABLED(SDIO_SUPPORT)
+    SDIO_DiskIODriver CardReader::sd2card_sdio;
+  #else
+    SD_SPI_DiskIODriver CardReader::sd2card_sd_spi;
+  #endif
+#endif
+
+DiskIODriver* CardReader::sd2card = nullptr;
 SdVolume CardReader::volume;
 SdFile CardReader::file;
 
@@ -133,6 +144,13 @@ SdFile CardReader::file;
 uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
+  #if ENABLED(MULTI_VOLUME)
+    #if DEFAULT_SHARED_VOLUME == SD_ONBOARD
+      changeMedia(&sd2card_sd_spi);
+    #elif DEFAULT_SHARED_VOLUME == USB_FLASH_DRIVE
+      changeMedia(&sd2card_UsbFlashDrive);
+    #endif
+  #endif
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
@@ -383,12 +401,12 @@ void CardReader::mount() {
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
-  if (!sd2card.init(SD_SPI_SPEED, SDSS)
+  if (!sd2card->init(SD_SPI_SPEED, SDSS)
     #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !sd2card.init(SD_SPI_SPEED, LCD_SDSS)
+      && !sd2card->init(SD_SPI_SPEED, LCD_SDSS)
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
-  else if (!volume.init(&sd2card))
+  else if (!volume.init(sd2card))
     SERIAL_ERROR_MSG(STR_SD_VOL_INIT_FAIL);
   else if (!root.openRoot(&volume))
     SERIAL_ERROR_MSG(STR_SD_OPENROOT_FAIL);

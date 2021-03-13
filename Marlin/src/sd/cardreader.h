@@ -42,7 +42,24 @@ extern const char M23_STR[], M24_STR[];
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
 
 #include "SdFile.h"
+#include "disk_io_driver.h"
 
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#endif
+
+#if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+  #if ENABLED(SDIO_SUPPORT)
+    #include "Sd2Card_sdio.h"
+  #else
+    #include "Sd2Card.h"
+  #endif
+#endif
+
+#if ENABLED(MULTI_VOLUME)
+  #define SD_ONBOARD      1
+  #define USB_FLASH_DRIVE 2
+#endif
 typedef struct {
   bool saving:1,
        logging:1,
@@ -79,6 +96,10 @@ public:
   // // // Methods // // //
 
   CardReader();
+
+  static void changeMedia(DiskIODriver* _driver = nullptr) {
+    sd2card = _driver;
+  }
 
   static SdFile getroot() { return root; }
 
@@ -171,7 +192,8 @@ public:
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
-  static Sd2Card& getSd2Card() { return sd2card; }
+  // TODO: rename to getDiskIODriver()
+  static DiskIODriver* getSd2Card() { return sd2card; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     //
@@ -179,6 +201,17 @@ public:
     //
     struct AutoReportSD { static void report() { report_status(); } };
     static AutoReporter<AutoReportSD> auto_reporter;
+  #endif
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    static UsbFlashDrive_DiskIODriver sd2card_UsbFlashDrive;
+  #endif
+  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+    #if ENABLED(SDIO_SUPPORT)
+      static SDIO_DiskIODriver sd2card_sdio;
+    #else
+      static SD_SPI_DiskIODriver sd2card_sd_spi;
+    #endif
   #endif
 
 private:
@@ -244,7 +277,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static Sd2Card sd2card;
+  static DiskIODriver* sd2card;
   static SdVolume volume;
   static SdFile file;
 
@@ -275,7 +308,7 @@ private:
 };
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define IS_SD_INSERTED() Sd2Card::isInserted()
+  #define IS_SD_INSERTED() UsbFlashDrive_DiskIODriver::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
   #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else
