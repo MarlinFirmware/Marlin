@@ -19,6 +19,7 @@ jobs:
       matrix:
         label:
           - "S: Don't Merge"
+          - "S: Hold for 2.1"
           - "S: Please Merge"
           - "S: Please Test"
           - "help wanted"

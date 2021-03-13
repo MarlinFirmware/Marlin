@@ -20,8 +20,9 @@ jobs:
     - uses: actions/stale@v3
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'This issue has had no activity in the last 30 days. Please add a reply if you want to keep this issue active, otherwise it will be automatically closed within 7 days.'
-        days-before-stale: 30
-        days-before-close: 7
+        stale-issue-message: 'This issue has had no activity in the last 60 days. Please add a reply if you want to keep this issue active, otherwise it will be automatically closed within 10 days.'
+        days-before-stale: 60
+        days-before-close: 10
         stale-issue-label: 'stale-closing-soon'
-        exempt-issue-labels: 'T: Feature Request'
+        exempt-all-assignees: true
+        exempt-issue-labels: 'T: Feature Request,Needs: Discussion,Needs: Documentation,Needs: More Data,Needs: Patch,Needs: Work,Needs: Testing,help wanted,no-locking'
