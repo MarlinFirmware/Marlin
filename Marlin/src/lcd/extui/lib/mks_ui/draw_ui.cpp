@@ -552,6 +552,9 @@ char *getDispText(int index) {
     case EEPROM_SETTINGS_UI:
       strcpy(public_buf_l, eeprom_menu.title);
       break;
+    case MEDIA_SELECT_UI:
+      strcpy(public_buf_l, media_select_menu.title);
+      break;
     default: break;
   }
 
@@ -1027,6 +1030,9 @@ void clear_cur_ui() {
     #endif
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
+    #endif
+    #if ENABLED(MULTI_VOLUME)
+      case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
     #endif
     default: break;
   }

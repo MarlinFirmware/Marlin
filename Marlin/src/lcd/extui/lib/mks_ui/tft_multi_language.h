@@ -706,6 +706,14 @@ typedef struct tool_menu_disp {
 
 extern tool_menu_def tool_menu;
 
+typedef struct media_select_menu_disp {
+  const char *title;
+  const char *sd_disk;
+  const char *usb_disk;
+} media_select_menu_def;
+
+extern media_select_menu_def media_select_menu;
+
 typedef struct MachinePara_menu_disp {
   const char *title;
   const char *MachineSetting;

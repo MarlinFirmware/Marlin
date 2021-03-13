@@ -66,7 +66,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_set();
       break;
     case ID_PRINT:
-      lv_draw_print_file();
+      TERN(MULTI_VOLUME, lv_draw_media_select(), lv_draw_print_file());
       break;
   }
 }

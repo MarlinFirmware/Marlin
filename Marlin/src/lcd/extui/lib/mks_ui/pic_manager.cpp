@@ -197,6 +197,13 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_cloud.bin",
   #endif
 
+  #if ENABLED(MULTI_VOLUME)
+    "bmp_usb_disk.bin",
+    // "bmp_usb_disk_sel.bin",
+    "bmp_sd.bin",
+    // "bmp_sd_sel.bin",
+  #endif
+
   // Babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
