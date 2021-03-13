@@ -101,13 +101,8 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
-      #define _HOTEND_OFF(N) setTargetTemp_celsius(0, E##N);
-      REPEAT(HOTENDS, _HOTEND_OFF);
-      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0, BED));
+      coolDown();
       TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
-      #if HAS_FAN
-        setTargetFan_percent(0, FAN0);
-      #endif
       break;
     default:
       return false;
