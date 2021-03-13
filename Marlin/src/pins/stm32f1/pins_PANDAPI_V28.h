@@ -32,6 +32,15 @@
 #define BOARD_WEBSITE_URL    "github.com/markniu/PandaPi"
 #define DEFAULT_MACHINE_NAME "PANDAPI 3D"
 
+
+
+#define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+
+//for DGUS_TFT_UI
+//#define I2C_SCL_PIN                         PB6
+//#define I2C_SDA_PIN                         PB7
+
 //
 // Servos
 //
