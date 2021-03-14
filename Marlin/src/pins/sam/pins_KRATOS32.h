@@ -157,7 +157,7 @@
   #define BEEPER_PIN                          41
   #define KILL_PIN                            66
 
-  #if ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       42
     #define LCD_PINS_ENABLE                   43

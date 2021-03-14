@@ -125,8 +125,8 @@
 
 #elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
-  // or K3D OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+  // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
+  // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
 
