@@ -98,8 +98,6 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 352
 
-#define FEEDRATE_E   2
-
 #define MAX_PRINT_SPEED   500
 #define MIN_PRINT_SPEED   10
 
@@ -3601,7 +3599,7 @@ inline void CrealityDWINClass::Value_Control() {
     switch (active_menu) {
       case Move:
         planner.synchronize();
-        planner.buffer_line(current_position, (selection < 4) ? homing_feedrate( AxisEnum(selection-1)) : FEEDRATE_E, active_extruder);
+        planner.buffer_line(current_position, manual_feedrate_mm_s[selection-1], active_extruder);
         break;
       case ManualMesh:
         planner.synchronize();
