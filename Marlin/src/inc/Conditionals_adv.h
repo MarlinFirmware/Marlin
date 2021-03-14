@@ -542,3 +542,10 @@
 #else
   #define HAS_USER_ITEM(N) 0
 #endif
+
+#if !HAS_MULTI_SERIAL
+  #undef MEATPACK_ON_SERIAL_PORT_2
+#endif
+#if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
+  #define HAS_MEATPACK 1
+#endif

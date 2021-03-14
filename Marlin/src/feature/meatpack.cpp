@@ -42,7 +42,6 @@
 #if HAS_MEATPACK
 
 #include "meatpack.h"
-MeatPack meatpack;
 
 #define MeatPack_ProtocolVersion "PV01"
 //#define MP_DEBUG
