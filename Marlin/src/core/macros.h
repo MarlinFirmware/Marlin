@@ -328,7 +328,6 @@
     FORCE_INLINE T & operator|=(T &x, T y) { return x = x | y; } \
     FORCE_INLINE T & operator^=(T &x, T y) { return x = x ^ y; }
 
-
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
