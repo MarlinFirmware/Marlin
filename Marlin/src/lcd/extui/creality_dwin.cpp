@@ -81,16 +81,16 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          CrealityDWIN.Popup_Handler(PidBadExtruder);
+          CrealityDWIN.Confirm_Handler((char*)"Bad extruder number");
           break;
         case PID_TEMP_TOO_HIGH:
-          CrealityDWIN.Popup_Handler(TempWarn, true);
+          CrealityDWIN.Confirm_Handler((char*)"Temp too high");
           break;
         case PID_TUNING_TIMEOUT:
-          CrealityDWIN.Popup_Handler(PidTimeout);
+          CrealityDWIN.Confirm_Handler((char*)"PID Timout");
           break;
         case PID_DONE:
-          CrealityDWIN.Popup_Handler(PidDone);
+          CrealityDWIN.Confirm_Handler((char*)"PID Done");
           break;
       }
     }
