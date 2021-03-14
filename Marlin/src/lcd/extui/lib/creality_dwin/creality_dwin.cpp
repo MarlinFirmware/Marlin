@@ -161,6 +161,7 @@ uint8_t valueunit;
 uint8_t valuetype;
 
 char statusmsg[64];
+char filename[LONG_FILENAME_LENGTH];
 bool printing = false;
 bool paused = false;
 bool sdprint = false;
@@ -564,49 +565,40 @@ void CrealityDWINClass::Draw_Print_Screen() {
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
-  if (sdprint) {
-    Draw_Print_Filename(true);
-  }
-  else {
-    char * const name = (char*)"Host Print";
-    const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
-    DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, name);
-  }
+  Draw_Print_Filename(true);
 }
 
 void CrealityDWINClass::Draw_Print_Filename(bool reset/*=false*/) {
   static uint8_t namescrl = 0;
   if (reset) namescrl = 0;
   if (process == Print) {
-    if (card.isFileOpen()) {
-      size_t len = strlen(card.longest_filename());
-      int8_t pos = len;
-      if (pos > 30) {
-        pos -= namescrl;
-        len = pos;
-        if (len > 30)
-          len = 30;
-        char dispname[len+1];
-        if (pos >= 0) {
-          LOOP_L_N(i, len) dispname[i] = card.longest_filename()[i+namescrl];
-        }
-        else {
-          LOOP_L_N(i, 30+pos) dispname[i] = ' ';
-          LOOP_S_L_N(i, 30+pos, 30) dispname[i] = card.longest_filename()[i-(30+pos)];
-        }
-        dispname[len] = '\0';
-        DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
-        const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, dispname);
-        if (-pos >= 30)
-          namescrl = 0;
-        namescrl++;
+    size_t len = strlen(filename);
+    int8_t pos = len;
+    if (pos > 30) {
+      pos -= namescrl;
+      len = pos;
+      if (len > 30)
+        len = 30;
+      char dispname[len+1];
+      if (pos >= 0) {
+        LOOP_L_N(i, len) dispname[i] = filename[i+namescrl];
       }
       else {
-        DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
-        const int8_t npos = (DWIN_WIDTH - strlen(card.longest_filename()) * MENU_CHR_W) / 2;
-        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, card.longest_filename());
+        LOOP_L_N(i, 30+pos) dispname[i] = ' ';
+        LOOP_S_L_N(i, 30+pos, 30) dispname[i] = filename[i-(30+pos)];
       }
+      dispname[len] = '\0';
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
+      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, dispname);
+      if (-pos >= 30)
+        namescrl = 0;
+      namescrl++;
+    }
+    else {
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH-8, 80);
+      const int8_t npos = (DWIN_WIDTH - strlen(filename) * MENU_CHR_W) / 2;
+      DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, filename);
     }
   }
 }
@@ -3931,8 +3923,18 @@ void CrealityDWINClass::Modify_Value(uint32_t &value, float min, float max, floa
 /* Main Functions */
 
 void CrealityDWINClass::Update_Status(const char * const text) {
-  LOOP_L_N(i, _MIN((size_t)64, strlen(text))) statusmsg[i] = text[i];
-  statusmsg[_MIN((size_t)64, strlen(text))] = '\0';
+  char header[4];
+  LOOP_L_N(i, 3) header[i] = text[i];
+  header[3] = '\0';
+  if (strcmp_P(header,(char*)"<F>")==0) {
+    LOOP_L_N(i, _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text))) filename[i] = text[i+3];
+    filename[_MIN((size_t)LONG_FILENAME_LENGTH-1, strlen(text))] = '\0';
+    Draw_Print_Filename(true);
+  }
+  else {
+    LOOP_L_N(i, _MIN((size_t)64, strlen(text))) statusmsg[i] = text[i];
+    statusmsg[_MIN((size_t)64, strlen(text))] = '\0';
+  }
 }
 
 void CrealityDWINClass::Start_Print(bool sd) {
@@ -3940,6 +3942,10 @@ void CrealityDWINClass::Start_Print(bool sd) {
   if (!printing) {
     printing = true;
     statusmsg[0] = '\0';
+    if (sd)
+      strcpy_P(filename, card.longest_filename());
+    else
+      strcpy_P(filename, (char*)"Host Print");
     Draw_Print_Screen();
   }
 }
