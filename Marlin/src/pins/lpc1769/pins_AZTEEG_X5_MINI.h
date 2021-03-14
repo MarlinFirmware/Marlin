@@ -73,7 +73,7 @@
 #define Z_STEP_PIN                         P2_03
 #define Z_DIR_PIN                          P0_22
 #define Z_ENABLE_PIN                       P0_21
-
+#define Z_MIN_PIN                          P1_29
 #define E0_STEP_PIN                        P2_00
 #define E0_DIR_PIN                         P0_05
 #define E0_ENABLE_PIN                      P0_04
@@ -102,7 +102,7 @@
 #define HEATER_BED_PIN                     P2_07
 #define HEATER_0_PIN                       P2_05
 #ifndef FAN_PIN
-  #define FAN_PIN                          P0_26
+  #define FAN_PIN                          P2_04
 #endif
 #define FAN1_PIN                           P1_25
 
@@ -210,3 +210,4 @@
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
+
