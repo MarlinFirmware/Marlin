@@ -30,7 +30,7 @@
 #include "../../libs/buzzer.h"
 #include "../../MarlinCore.h"
 
-void m206_report() {
+void M206_report() {
   SERIAL_ECHOLNPAIR_P(PSTR("M206 X"), home_offset.x, SP_Y_STR, home_offset.y, SP_Z_STR, home_offset.z);
 }
 
@@ -52,7 +52,7 @@ void GcodeSuite::M206() {
   #endif
 
   if (!parser.seen("XYZ"))
-    m206_report();
+    M206_report();
   else
     report_current_position();
 }
