@@ -2354,7 +2354,7 @@
 
 //
 // K.3D SSD1309 OLED 2.42" 128×64 FULL GRAPHIC CONTROLLER
-//#define K3D_242_OLED_CONTROLLER   // software SPI
+//#define K3D_242_OLED_CONTROLLER   // Software SPI
 
 //=============================================================================
 //========================== Extensible UI Displays ===========================
