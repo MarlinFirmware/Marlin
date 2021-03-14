@@ -25,9 +25,7 @@
  * KRATOS32
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "K.3D KRATOS32"
 
@@ -36,7 +34,7 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE            0x1F400   //   16KB
+  #define MARLIN_EEPROM_SIZE             0x1F400  //   16KB
 #endif
 
 //
@@ -174,8 +172,8 @@
     #define DOGLCD_CS                         52
     #define DOGLCD_MOSI                       43
     #define DOGLCD_SCK                        47
-    #define DOGLCD_A0                         LCD_PINS_DC
-  
+    #define DOGLCD_A0                LCD_PINS_DC
+
   #endif
 
 #endif // HAS_WIRED_LCD
