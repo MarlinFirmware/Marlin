@@ -199,30 +199,30 @@
     static FORCE_INLINE void atomic_set_rx_tail(ring_buffer_pos_t value);
     static FORCE_INLINE ring_buffer_pos_t atomic_read_rx_tail();
 
-    public:
+  public:
     FORCE_INLINE static void store_rxd_char();
     FORCE_INLINE static void _tx_udr_empty_irq();
 
-    public:
-      static void begin(const long);
-      static void end();
-      static int peek();
-      static int read();
-      static void flush();
-      static ring_buffer_pos_t available();
+  public:
+    static void begin(const long);
+    static void end();
+    static int peek();
+    static int read();
+    static void flush();
+    static ring_buffer_pos_t available();
     static size_t write(const uint8_t c);
-      static void flushTX();
-      #if HAS_DGUS_LCD
-        static ring_buffer_pos_t get_tx_buffer_free();
-      #endif
+    static void flushTX();
+    #if HAS_DGUS_LCD
+      static ring_buffer_pos_t get_tx_buffer_free();
+    #endif
 
     enum { HasEmergencyParser = Cfg::EMERGENCYPARSER };
-      static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
+    static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
-      FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
-      FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
-      FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
-      FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
+    FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
+    FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
+    FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
+    FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
   };
 
   template <uint8_t serial>

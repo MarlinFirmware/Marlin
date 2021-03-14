@@ -23,6 +23,7 @@
 
 /**
  * DWIN by Creality3D
+ * Enhanced implementation by Miguel A. Risco-Castillo
  */
 
 #include "../dwin_lcd.h"
@@ -44,6 +45,7 @@ enum processID : uint8_t {
   SelectFile,
   Prepare,
   Control,
+  Homing,
   Leveling,
   PrintProcess,
   FilamentMan,
@@ -67,9 +69,6 @@ enum processID : uint8_t {
   MaxJerk_value,
   Step,
   Step_value,
-
-  // Last Process ID
-  Last_Prepare,
 
   // Back Process ID
   Back_Main,
@@ -100,7 +99,6 @@ enum processID : uint8_t {
 // Picture ID
 #define Start_Process       0
 #define Language_English    1
-#define Language_Chinese    2
 
 // ICON ID
 #define ICON                      0x09
@@ -266,7 +264,7 @@ typedef struct {
   bool print_finish:1;
   bool done_confirm_flag:1;
   bool select_flag:1;
-  bool home_flag:1;
+  bool home_flag:1;  // Homing
   bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
@@ -281,16 +279,17 @@ extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
 
 // Show ICO
-void ICON_Print(bool show);
-void ICON_Prepare(bool show);
-void ICON_Control(bool show);
+void ICON_Print();
+void ICON_Prepare();
+void ICON_Control();
 void ICON_Leveling(bool show);
 void ICON_StartInfo(bool show);
 
-void ICON_Setting(bool show);
-void ICON_Pause(bool show);
-void ICON_Continue(bool show);
-void ICON_Stop(bool show);
+void ICON_Pause();
+void ICON_Continue();
+void ICON_Stop();
+
+void Draw_Popup_Window(uint8_t icon, const char *msg1, const char *msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
@@ -306,7 +305,7 @@ void Popup_Window_Home(const bool parking=false);
 void Popup_Window_Leveling();
 
 void Goto_PrintProcess();
-void Goto_MainMenu();
+void Goto_Main_Menu();
 
 // Variable control
 void HMI_Move_X();
@@ -335,9 +334,8 @@ void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
 // Main Process
-void Icon_print(bool value);
-void Icon_control(bool value);
-void Icon_temperature(bool value);
+void Icon_print();
+void Icon_control();
 void Icon_leveling(bool value);
 
 // Other
@@ -371,16 +369,17 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
+void HMI_Popup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 
-inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+void DWIN_StartHoming();
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
 
-// Aditional Aux Host Support
+// Aditional Host and MarlinUI Support
 void Host_Print_Update(uint8_t percent, uint32_t remaining);
 void Host_Print_Text(char * const text);
 void Start_Print(bool sd);

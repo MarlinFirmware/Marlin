@@ -30,7 +30,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ANY(DWIN_CREALITY_LCD, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -120,6 +120,16 @@ bool DWIN_Handshake(void) {
         && databuf[1] == '\0'
         && databuf[2] == 'O'
         && databuf[3] == 'K' );
+}
+
+void DWIN_Startup(void) {
+  DEBUG_ECHOPGM("\r\nDWIN handshake ");
+  delay(750);   // Delay here or init later in the boot process
+  const bool success = DWIN_Handshake();
+  if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
+  DWIN_Frame_SetDir(DISABLED(DWIN_MARLINUI_LANDSCAPE) ? 1 : 0);
+  TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
+  DWIN_UpdateLCD();
 }
 
 // Set the backlight luminance
@@ -459,4 +469,4 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD || DWIN_MARLINUI_PORTRAIT || DWIN_MARLINUI_LANDSCAPE

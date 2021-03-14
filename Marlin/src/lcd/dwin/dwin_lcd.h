@@ -39,8 +39,13 @@
 #define DWIN_SCROLL_UP   2
 #define DWIN_SCROLL_DOWN 3
 
-#define DWIN_WIDTH  272
-#define DWIN_HEIGHT 480
+#if DISABLED(DWIN_MARLINUI_LANDSCAPE)
+  #define DWIN_WIDTH  272
+  #define DWIN_HEIGHT 480
+#else
+  #define DWIN_WIDTH  480
+  #define DWIN_HEIGHT 272
+#endif
 
 /*-------------------------------------- System variable function --------------------------------------*/
 
