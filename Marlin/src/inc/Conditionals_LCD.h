@@ -948,8 +948,12 @@
 //
 #ifdef SERIAL_PORT_2
   #define NUM_SERIAL 2
-#else
+  #define HAS_MULTI_SERIAL 1
+#elif defined(SERIAL_PORT)
   #define NUM_SERIAL 1
+#else
+  #define NUM_SERIAL 0
+  #undef BAUD_RATE_GCODE
 #endif
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
   #define HAS_USB_SERIAL 1
