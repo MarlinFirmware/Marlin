@@ -329,7 +329,8 @@
 
 ## 3.1 TMC with UART mode
   - Wiring for UART mode.
-    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1) 
+    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1).
+      Also remove only the M3 jumper under the stepper motors and set J11 (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
     
     ![UART-WIFI](../../docs/images/UART-WIFI.png)  
 
