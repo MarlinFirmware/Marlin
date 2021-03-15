@@ -42,6 +42,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_DIALOG_STOP = 40,     // DWINTouchPage::DIALOG_STOP_PRINTING
 
   DGUSLCD_SCREEN_TUNING = 41,          // DWINTouchPage::MENU_TUNING
+  DGUSLCD_SCREEN_TUNING_EXTRA = 79,    // (this is a new page)
   DGUSLCD_SCREEN_PREPARE = 42,         // DWINTouchPage::MENU_PREPARE
 
   DGUSLCD_SCREEN_MOVE10MM = 43,         // DWINTouchPage::MOVE_1MM
@@ -462,6 +463,8 @@ constexpr uint16_t VP_FWRETRACT_INDICATOR_ICON = 0x22BF;
 
 // Other tuning
 constexpr uint16_t VP_LINEAR_ADVANCE_FACTOR = 0x22AF;
+
+constexpr uint16_t VP_OTHER_TUNE_NAV_BUTTON = 0x2382;
 
 // Leveling settings
 constexpr uint16_t VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON = 0x22C1;

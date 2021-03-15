@@ -221,7 +221,7 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
                 case 2:
-                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING, false);
+                    ScreenHandler.GotoScreen(ExtUI::isPrintingPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING, false);
                     break;
 
                 case 3:

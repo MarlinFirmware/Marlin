@@ -227,10 +227,18 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   VP_FAN_TOGGLE,
   VP_Fan0_Percentage,
 
+  0x0000
+};
+
+
+const uint16_t VPList_TuneExtraScreen[] PROGMEM = {
+  VPList_CommonWithStatus,
+
   VP_LINEAR_ADVANCE_FACTOR,
 
   0x0000
 };
+
 
 const uint16_t VPList_Prepare[] PROGMEM = {
   VPList_CommonWithStatus,
@@ -381,6 +389,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_PRINT_PAUSED, VPList_PrintScreen },
 
   { DGUSLCD_SCREEN_TUNING, VPList_TuneScreen },
+  { DGUSLCD_SCREEN_TUNING_EXTRA, VPList_TuneExtraScreen },
   { DGUSLCD_SCREEN_PREPARE, VPList_Prepare },
 
   { DGUSLCD_SCREEN_INFO, VPList_Info },
@@ -645,9 +654,12 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON_ICON, &fwretract.autoretract_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_FWRETRACT_AUTO_TOGGLE_ON, ICON_FWRETRACT_AUTO_TOGGLE_OFF>)),
   VPHELPER(VP_FWRETRACT_TOGGLE_BUTTON, &fwretract.autoretract_enabled, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
 
+  // Other tuning
 #if ENABLED(LIN_ADVANCE)
   VPHELPER(VP_LINEAR_ADVANCE_FACTOR, &planner.extruder_advance_K[0], ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<2>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 #endif
+
+  VPHELPER(VP_OTHER_TUNE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_TUNING_EXTRA>), nullptr),
 
 
   // Additional buttons
