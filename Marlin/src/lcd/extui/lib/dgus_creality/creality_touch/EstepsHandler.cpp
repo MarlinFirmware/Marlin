@@ -79,7 +79,7 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     queue.advance();
 
     // Heat up if necessary
-    if (ExtUI::getActualTemp_celsius(ExtUI::E0) < calibration_temperature && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - calibration_temperature) > 2) {
+    if (abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - calibration_temperature) > 2) {
         thermalManager.setTargetHotend(calibration_temperature, ExtUI::H0);
 
         SetStatusMessage(PSTR("Heating up..."));
