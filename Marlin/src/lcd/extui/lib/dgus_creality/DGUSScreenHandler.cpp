@@ -167,7 +167,7 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 }
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
-  LIMIT(Settings.screen_brightness, 20, 100); // Prevent a possible all-dark screen
+  LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
 
   dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness, Settings.screen_brightness);
 }
