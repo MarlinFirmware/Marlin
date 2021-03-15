@@ -115,6 +115,7 @@ void DGUSScreenHandler::DefaultSettings() {
 
   Settings.standby_screen_brightness = 10;
   Settings.screen_brightness = 100;
+  Settings.standby_time_seconds = 60;
 }
 
 void DGUSScreenHandler::LoadSettings(const char* buff) {
@@ -168,13 +169,14 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
+  LIMIT(Settings.standby_time_seconds, 10, 1000); // Prevent a possible all-dark screen for standby
 
-  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness, Settings.screen_brightness);
+  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness, Settings.screen_brightness, Settings.standby_time_seconds);
 }
 
 void DGUSScreenHandler::KillScreenCalled() {
   // If killed, always fully wake up
-  dgusdisplay.SetTouchScreenConfiguration(false, true, 100, 100);
+  dgusdisplay.SetTouchScreenConfiguration(false, true, 100, 100, 100 /*Doesn't really matter*/);
 
   // Hey! Something is going on!
   Buzzer(1000 /*ignored*/, 880);
@@ -1462,6 +1464,17 @@ void DGUSScreenHandler::HandleToggleProbePreheatTemp(DGUS_VP_Variable &var, void
 } 
 #endif
 
+void DGUSScreenHandler::HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
+  uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
+
+  SERIAL_ECHOLNPAIR("HandleTouchScreenBrightnessSetting: ", newvalue);
+  Settings.screen_brightness = newvalue;
+  ScreenHandler.SetTouchScreenConfiguration();
+
+  RequestSaveSettings();
+  ForceCompleteUpdate();
+}
+
 void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 
@@ -1473,11 +1486,11 @@ void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variab
   ForceCompleteUpdate();
 }
 
-void DGUSScreenHandler::HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
+void DGUSScreenHandler::HandleTouchScreenStandbyTimeSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 
-  SERIAL_ECHOLNPAIR("HandleTouchScreenBrightnessSetting: ", newvalue);
-  Settings.screen_brightness = newvalue;
+  SERIAL_ECHOLNPAIR("HandleTouchScreenStandbyTimeSetting: ", newvalue);
+  Settings.standby_time_seconds = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
   RequestSaveSettings();

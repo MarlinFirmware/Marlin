@@ -202,6 +202,8 @@ constexpr uint16_t VP_MUTE_TOGGLE = 0x2286;
 constexpr uint16_t VP_SCREEN_BACKLIGHT_STANDBY = 0x228D;
 constexpr uint16_t VP_SCREEN_BACKLIGHT = 0x2384;
 
+constexpr uint16_t VP_SCREEN_STANDBY_TIME = 0x2386;
+
 // Material preheat settings
 constexpr uint16_t VP_PREHEAT_PLA_HOTEND_TEMP = 0x1102;
 constexpr uint16_t VP_PREHEAT_PLA_BED_TEMP = 0x1104;
@@ -515,8 +517,6 @@ constexpr uint16_t ICON_LED_TOGGLE_ON = 3;
 constexpr uint16_t ICON_LED_TOGGLE_OFF = 4;
 constexpr uint16_t ICON_SOUND_TOGGLE_ON = 5;
 constexpr uint16_t ICON_SOUND_TOGGLE_OFF = 6;
-constexpr uint16_t ICON_STANDBY_TOGGLE_ON = 7;
-constexpr uint16_t ICON_STANDBY_TOGGLE_OFF = 8;
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_ON = 9;
 constexpr uint16_t ICON_FWRETRACT_AUTO_TOGGLE_OFF = 10;
 constexpr uint16_t ICON_ACCURACY_TOGGLE_ON = 11;

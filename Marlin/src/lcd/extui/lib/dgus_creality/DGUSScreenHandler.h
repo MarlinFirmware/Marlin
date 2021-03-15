@@ -37,6 +37,7 @@ struct creality_dwin_settings_t {
   bool display_sound;
   int16_t standby_screen_brightness;
   int16_t screen_brightness;
+  int16_t standby_time_seconds;
 };
 
 class DGUSScreenHandler {
@@ -107,6 +108,7 @@ public:
   static void HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleTouchScreenStandbyTimeSetting(DGUS_VP_Variable &var, void *val_ptr);
 
   #if HAS_PROBE_SETTINGS
   static void HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr);

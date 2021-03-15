@@ -361,6 +361,7 @@ const uint16_t VPList_MiscSettings[] PROGMEM = {
   VP_STANDBY_BACKLIGHT_ICON,
   VP_SCREEN_BACKLIGHT_STANDBY,
   VP_SCREEN_BACKLIGHT,
+  VP_SCREEN_STANDBY_TIME,
 
   0x0000
 };
@@ -671,6 +672,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Additional settings
   VPHELPER(VP_SCREEN_BACKLIGHT_STANDBY, &ScreenHandler.Settings.standby_screen_brightness, ScreenHandler.HandleTouchScreenStandbyBrightnessSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_SCREEN_BACKLIGHT, &ScreenHandler.Settings.screen_brightness, ScreenHandler.HandleTouchScreenBrightnessSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_SCREEN_STANDBY_TIME, &ScreenHandler.Settings.standby_time_seconds, ScreenHandler.HandleTouchScreenStandbyTimeSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   // Icons
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_LED_TOGGLE_ON, ICON_LED_TOGGLE_OFF>)),
