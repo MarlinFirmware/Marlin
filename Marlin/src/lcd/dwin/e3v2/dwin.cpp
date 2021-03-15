@@ -96,11 +96,7 @@
 #define PAUSE_HEAT
 
 #define USE_STRING_HEADINGS
-#define USE_STRING_TITLES
-
-#define DWIN_FONT_MENU font8x16
-#define DWIN_FONT_STAT font10x20
-#define DWIN_FONT_HEAD font10x20
+//#define USE_STRING_TITLES
 
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 360
@@ -197,7 +193,6 @@ static uint16_t _remain_time = 0;
 
 // Aditional Aux Host Support
 bool sdprint = false;
-char lastmsg[31];
 
 #if ENABLED(PAUSE_HEAT)
   TERN_(HAS_HOTEND, uint16_t resume_hotend_temp = 0);
@@ -346,15 +341,6 @@ void Clear_Menu_Area() {
 void Clear_Main_Window() {
   Clear_Title_Bar();
   Clear_Menu_Area();
-}
-
-void Clear_Popup_Area() {
-  Clear_Title_Bar();
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
-}
-
-void Draw_Popup_Bkgd_105() {
-  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 374);
 }
 
 void Draw_More_Icon(const uint8_t line) {
@@ -866,6 +852,15 @@ void Draw_Motion_Menu() {
 
 inline void Draw_Popup_Bkgd_60() {
   DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 330);
+}
+
+inline void Draw_Popup_Bkgd_105() {
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 374);
+}
+
+void Clear_Popup_Area() {
+  Clear_Title_Bar();
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
 }
 
 void Draw_Popup_Window(uint8_t icon, const char *msg1, const char *msg2) {
@@ -2648,15 +2643,18 @@ void HMI_FilamentMan(){
         checkkey = Prepare;
         select_prepare.set(1);
         index_prepare = MROWS;
+        DWIN_StatusChanged("");
         Draw_Prepare_Menu();
         break;
       case 1: // Filament Change
         queue.inject_P(PSTR("M600 B2"));
         break;
       case 2: // Unload Filament
+        DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTUNLOAD));
         queue.inject_P(PSTR("M702 Z20"));
         break;
       case 3: // Load Filament
+        DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTLOAD));
         queue.inject_P(PSTR("M701 Z20"));
         break;
     }
@@ -2682,21 +2680,27 @@ void HMI_ManualLev() {
         checkkey = Prepare;
         select_prepare.set(1);
         index_prepare = MROWS;
+        DWIN_StatusChanged("");
         Draw_Prepare_Menu();
         break;
       case 1: // move to front left
+        DWIN_StatusChanged("Level front left");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
         break;
       case 2: // move to front right
+        DWIN_StatusChanged("Level front right");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
         break;
       case 3: // move to back right
+        DWIN_StatusChanged("Level back right");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
         break;
       case 4: // move to back left
+        DWIN_StatusChanged("Level back left");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
         break;
       case 5: // move to center
+        DWIN_StatusChanged("Level center");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
         break;
     }
@@ -3775,6 +3779,32 @@ void DWIN_CompletedLeveling() {
   if (checkkey == Leveling) Goto_Main_Menu();
 }
 
+void DWIN_StatusChanged(const char *text) {
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, STATUS_Y, DWIN_WIDTH-8, STATUS_Y+20);
+  const int8_t p = _MAX(0U, DWIN_WIDTH - strlen_P(text) * MENU_CHR_W) / 2;
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, p, STATUS_Y, F(text));
+}
+
+// Start a Print Job
+void Start_Print(bool sd) {
+  if (card.isPrinting()) sdprint = true;
+  else sdprint = sd;
+  _percentDone = 0;
+  _remain_time = 0;
+  Goto_PrintProcess();
+}
+
+//End print job
+void Stop_Print() {
+  if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
+    thermalManager.disable_all_heaters();
+    thermalManager.zero_fan_speeds();
+    HMI_flag.print_finish = true;
+    HMI_flag.done_confirm_flag = false;
+    Goto_PrintProcess();
+  }
+}
+
 // Aditional Aux Host Support
 void Host_Print_Update(uint8_t percent, uint32_t remaining) {
   _percentDone = percent;
@@ -3788,33 +3818,7 @@ void Host_Print_Update(uint8_t percent, uint32_t remaining) {
 
 //Print Text with G-code M117 (only basic ASCII)
 void Host_Print_Text(char * const text) {
-  LOOP_L_N(i, _MIN((size_t)30, strlen(text))) lastmsg[i] = text[i];
-  lastmsg[_MIN((size_t)30, strlen(text))] = '\0';
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, STATUS_Y, DWIN_WIDTH-8, STATUS_Y+20);  // 352 - 376
-  const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(lastmsg) * MENU_CHR_W) / 2;
-  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, STATUS_Y, lastmsg); //357
-}
-
-// Start a Print Job
-void Start_Print(bool sd) {
-  if (card.isPrinting())
-    sdprint = true;
-  else
-    sdprint = sd;
-  lastmsg[0] = '\0';
-  _percentDone = 0;
-  Goto_PrintProcess();
-}
-
-//End print job
-void Stop_Print() {
-  if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
-    thermalManager.disable_all_heaters();
-    thermalManager.zero_fan_speeds();
-    HMI_flag.print_finish = true;
-    HMI_flag.done_confirm_flag = false;
-    Goto_PrintProcess();
-  }
+  DWIN_StatusChanged(text);
 }
 
 #endif // DWIN_CREALITY_LCD

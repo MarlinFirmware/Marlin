@@ -185,7 +185,7 @@ void GcodeSuite::M109() {
       thermalManager.auto_job_check_timer(true, true);
     #endif
 
-    #if HAS_DISPLAY
+    #if HAS_STATUS_MESSAGE
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif

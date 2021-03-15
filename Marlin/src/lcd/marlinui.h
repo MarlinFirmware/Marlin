@@ -333,8 +333,14 @@ public:
 
       #else
 
-        static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
+        #if IS_DWIN_MARLINUI
+          static void set_font(const uint8_t font_nr);
+        #endif
 
+        #if HAS_MARLINUI_HD44780
+          static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
+        #endif
+        
         #if ENABLED(LCD_PROGRESS_BAR)
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
           static void draw_progress_bar(const uint8_t percent);
