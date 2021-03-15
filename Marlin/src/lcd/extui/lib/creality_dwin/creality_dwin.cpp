@@ -2796,6 +2796,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] += 0.01;
                 gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
                 planner.synchronize();
+                current_position.z += 0.01f;
+                sync_plan_position();
                 Draw_Float(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], row-1, false, 100);
               }
             }
@@ -2812,6 +2814,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] -= 0.01;
                 gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
                 planner.synchronize();
+                current_position.z -= 0.01f;
+                sync_plan_position();
                 Draw_Float(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], row-2, false, 100);
               }
             }
