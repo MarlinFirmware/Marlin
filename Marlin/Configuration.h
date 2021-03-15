@@ -1231,7 +1231,7 @@
  *     O-- FRONT --+
  */
 #ifdef XP
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -15.9 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -14.0 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
 #else
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, Z_OFFSET }  //OPT (QQS -16.2) (Q5 -18)
 #endif
