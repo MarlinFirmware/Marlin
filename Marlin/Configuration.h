@@ -97,19 +97,17 @@
 /**
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
- * Serial port -1 is the USB emulated serial port, if available.
- * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
- *
- * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ * You should use the serial port's name here (like USB, UART0, UART1, etc)
+ * You can combine the additional features by chaining with '.with(Meatpack)'
+ * So for example, if you want two serial port (USB and UART3) and the UART3 should support
+ * Meatpack protocol and BinaryFileTransfer, you'll write:
+ *   USB, UART3.with(Meatpack).with(BinaryFileTransfer)
+ * Possible serial port names are:
+ *   USB, UARTx, Ethernet
+ * Possible features are:
+ *   Meatpack, BinaryFileTransfer
  */
-#define SERIAL_PORT 0
-
-/**
- * Select a secondary serial port on the board to use for communication with the host.
- * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
- * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
- */
-//#define SERIAL_PORT_2 -1
+#define SERIAL_PORTS USB, UART3.with(Meatpack)
 
 /**
  * This setting determines the communication speed of the printer.
