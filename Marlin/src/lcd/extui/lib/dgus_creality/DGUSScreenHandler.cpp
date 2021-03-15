@@ -157,12 +157,14 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 }
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
-  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness);
+  LIMIT(Settings.screen_brightness, 20, 100); // Prevent a possible all-dark screen
+
+  dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness, Settings.screen_brightness);
 }
 
 void DGUSScreenHandler::KillScreenCalled() {
   // If killed, always fully wake up
-  dgusdisplay.SetTouchScreenConfiguration(false, true, 100);
+  dgusdisplay.SetTouchScreenConfiguration(false, true, 100, 100);
 
   // Hey! Something is going on!
   Buzzer(1000 /*ignored*/, 880);
@@ -1455,6 +1457,17 @@ void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variab
 
   SERIAL_ECHOLNPAIR("HandleTouchScreenStandbyBrightnessSetting: ", newvalue);
   Settings.standby_screen_brightness = newvalue;
+  ScreenHandler.SetTouchScreenConfiguration();
+
+  RequestSaveSettings();
+  ForceCompleteUpdate();
+}
+
+void DGUSScreenHandler::HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
+  uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
+
+  SERIAL_ECHOLNPAIR("HandleTouchScreenBrightnessSetting: ", newvalue);
+  Settings.screen_brightness = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
   RequestSaveSettings();

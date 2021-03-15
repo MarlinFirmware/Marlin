@@ -304,7 +304,7 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
 
-void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_sound, uint8_t standby_brightness) {
+void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_sound, uint8_t standby_brightness, uint8_t brightness) {
   // Main configuration (System_Config)
   unsigned char cfg_bits = 0x0;
   cfg_bits |= 1UL << 5; // 5: load 22 touch file
@@ -321,7 +321,7 @@ void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_s
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)
-  const unsigned char brightness_set[] = { 100 /*% active*/,  standby_brightness /*% standby*/ };
+  const unsigned char brightness_set[] = { brightness /*% active*/,  standby_brightness /*% standby*/ };
   WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
 }
 

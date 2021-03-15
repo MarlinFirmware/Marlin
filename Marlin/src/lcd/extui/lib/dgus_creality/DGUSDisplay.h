@@ -91,7 +91,7 @@ public:
   // (to implement a pop up message, which may not be nested)
   static void RequestScreen(DGUSLCD_Screens screen);
 
-  static void SetTouchScreenConfiguration(bool enable_standby, bool enable_sound, uint8_t standby_brightness);
+  static void SetTouchScreenConfiguration(bool enable_standby, bool enable_sound, uint8_t standby_brightness, uint8_t active_brightness);
 
   // Periodic tasks, eg. Rx-Queue handling.
   static void loop();
