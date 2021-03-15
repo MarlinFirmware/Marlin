@@ -321,7 +321,13 @@ void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_s
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)
-  const unsigned char brightness_set[] = { brightness /*% active*/,  standby_brightness /*% standby*/, standbyTimeSeconds * 100 /* milliseconds, but divided by 10 (not 5 like the docs say) */ };
+  uint16_t dwinStandbyTimeSeconds = 100 * standbyTimeSeconds;  /* milliseconds, but divided by 10 (not 5 like the docs say) */ 
+  const unsigned char brightness_set[] = { 
+    brightness /*% active*/, 
+    standby_brightness /*% standby*/, 
+    static_cast<uint8_t>(dwinStandbyTimeSeconds >> 8),
+    static_cast<uint8_t>(dwinStandbyTimeSeconds)
+  };
   WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
 }
 

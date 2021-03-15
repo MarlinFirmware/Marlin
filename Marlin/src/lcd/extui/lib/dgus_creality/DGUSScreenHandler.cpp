@@ -106,7 +106,7 @@ void DGUSScreenHandler::RequestSaveSettings() {
 
 void DGUSScreenHandler::DefaultSettings() {
   Settings.settings_size = sizeof(creality_dwin_settings_t);
-  Settings.screen_brightness = dwin_settings_version;
+  Settings.settings_version = dwin_settings_version;
 
   Settings.led_state = false;
 
