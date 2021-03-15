@@ -569,9 +569,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // About info
-  VPHELPER(VP_MARLIN_WEBSITE, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareWebsite),
-  VPHELPER(VP_MARLIN_VERSION, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
-  VPHELPER(VP_PRINTER_BEDSIZE, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
+  VPHELPER_STR(VP_MARLIN_WEBSITE, nullptr, VP_MARLIN_WEBSITE_LEN, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareWebsite),
+  VPHELPER_STR(VP_MARLIN_VERSION, nullptr, VP_MARLIN_VERSION_LEN, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
+  VPHELPER_STR(VP_PRINTER_BEDSIZE, nullptr, VP_PRINTER_BEDSIZE_LEN, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
 
   // Position Data
   VPHELPER(VP_X_POSITION, &current_position.x, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),

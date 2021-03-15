@@ -388,13 +388,13 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeRemainingToDisplay(DGUS_VP_Variable
 void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareWebsite(DGUS_VP_Variable &var) {
   const char* websiteUrl = PSTR(WEBSITE_URL);
 
-  dgusdisplay.WriteVariablePGM(var.VP, websiteUrl, strlen(websiteUrl), true);
+  dgusdisplay.WriteVariablePGM(var.VP, websiteUrl, var.size, true);
 }
 
 void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var) {
   const char* fwVersion = PSTR(SHORT_BUILD_VERSION);
 
-  dgusdisplay.WriteVariablePGM(var.VP, fwVersion, strlen(fwVersion), true);
+  dgusdisplay.WriteVariablePGM(var.VP, fwVersion, var.size, true);
 }
 
 void DGUSScreenHandler::DGUSLCD_SendAboutPrintSize(DGUS_VP_Variable &var) {
