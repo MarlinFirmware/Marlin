@@ -30,6 +30,8 @@ enum DGUSLCD_Screens : uint8_t;
 
 struct creality_dwin_settings_t {
   size_t settings_size;
+  uint8_t settings_version;
+  
   bool led_state;
   bool display_standby;
   bool display_sound;

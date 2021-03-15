@@ -56,6 +56,7 @@ uint16_t DGUSScreenHandler::ConfirmVP;
 #endif
 
 // Storage initialization
+constexpr uint8_t dwin_settings_version = 6; // Increase when properties are added or removed
 creality_dwin_settings_t DGUSScreenHandler::Settings = {.settings_size = sizeof(creality_dwin_settings_t)};
 DGUSLCD_Screens DGUSScreenHandler::current_screen;
 DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS] = {DGUSLCD_SCREEN_MAIN};
@@ -105,6 +106,7 @@ void DGUSScreenHandler::RequestSaveSettings() {
 
 void DGUSScreenHandler::DefaultSettings() {
   Settings.settings_size = sizeof(creality_dwin_settings_t);
+  Settings.screen_brightness = dwin_settings_version;
 
   Settings.led_state = false;
 
@@ -112,6 +114,7 @@ void DGUSScreenHandler::DefaultSettings() {
   Settings.display_sound = true;
 
   Settings.standby_screen_brightness = 10;
+  Settings.screen_brightness = 100;
 }
 
 void DGUSScreenHandler::LoadSettings(const char* buff) {
@@ -129,11 +132,18 @@ void DGUSScreenHandler::LoadSettings(const char* buff) {
 
     ScreenHandler.DefaultSettings();
     return;
-  } else {
-    // Copy into final location
-    SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
-    memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
+  } 
+
+  if (eepromSettings.settings_version != dwin_settings_version) {
+    SERIAL_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - settings version incorrect");
+
+    ScreenHandler.DefaultSettings();
+    return;
   }
+  
+  // Copy into final location
+  SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
+  memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
 
   // Apply settings
   caselight.on = Settings.led_state;
