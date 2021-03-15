@@ -164,12 +164,6 @@ public:
     static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
     /// start print after confirmation received.
     static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr);
-    /// User hit the pause, resume or abort button.
-    static void DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr);
-    /// User confirmed the abort action
-    static void DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &var, void *val_ptr);
-    /// User hit the tune button
-    static void DGUSLCD_SD_PrintTune(DGUS_VP_Variable &var, void *val_ptr);
     /// Send a single filename to the display.
     static void DGUSLCD_SD_SendFilename(DGUS_VP_Variable &var);
     /// Marlin informed us that a new SD has been inserted.

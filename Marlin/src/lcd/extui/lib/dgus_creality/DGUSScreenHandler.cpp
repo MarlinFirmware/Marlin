@@ -631,31 +631,6 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     );
   }
 
-  void DGUSScreenHandler::DGUSLCD_SD_ResumePauseAbort(DGUS_VP_Variable &var, void *val_ptr) {
-    if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
-    switch (swap16(*(uint16_t*)val_ptr)) {
-      case 0:  // Resume
-        if (ExtUI::isPrintingFromMediaPaused()) ExtUI::resumePrint();
-        break;
-      case 1:  // Pause
-        if (!ExtUI::isPrintingFromMediaPaused()) ExtUI::pausePrint();
-        break;
-      case 2:  // Abort
-        ScreenHandler.HandleUserConfirmationPopUp(VP_SD_AbortPrintConfirmed, nullptr, PSTR("Abort printing"), filelist.filename(), PSTR("?"), true, true, false, true);
-        break;
-    }
-  }
-
-  void DGUSScreenHandler::DGUSLCD_SD_ReallyAbort(DGUS_VP_Variable &var, void *val_ptr) {
-    ExtUI::stopPrint();
-    GotoScreen(DGUSLCD_SCREEN_MAIN);
-  }
-
-  void DGUSScreenHandler::DGUSLCD_SD_PrintTune(DGUS_VP_Variable &var, void *val_ptr) {
-    if (!ExtUI::isPrintingFromMedia()) return; // avoid race condition when user stays in this menu and printer finishes.
-    GotoScreen(DGUSLCD_SCREEN_SDPRINTTUNE);
-  }
-
   void DGUSScreenHandler::DGUSLCD_SD_SendFilename(DGUS_VP_Variable& var) {
     uint16_t target_line = (var.VP - VP_SD_FileName0) / VP_SD_FileName_LEN;
     if (target_line > DGUS_SD_FILESPERSCREEN) return;
