@@ -175,43 +175,48 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
      * "Filament Purging..."
      * "HeaterTimeout"
      * "Reheat finished."
-     *
-     * NOTE:  The only way to handle these states is strcmp_P with the msg unfortunately (very expensive)
      */
-    if (strcmp_P(msg, PSTR("Nozzle Parked")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState    = AMPAUSESTATE_PARKED;
-      // enable continue button
-      SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
-    }
-    else if (strcmp_P(msg, PSTR("Load Filament")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState    = AMPAUSESTATE_FILAMENT_OUT;
-      // enable continue button
-      SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is out... J18");
-      SENDLINE_DBG_PGM("J23", "TFT Serial Debug: UserConfirm Blocking filament prompt... J23");
-    }
-    else if (strcmp_P(msg, PSTR("Filament Purging...")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState    = AMPAUSESTATE_PARKING;
-      // TODO: JBA I don't think J05 just disables the continue button, i think it injects a rogue M25. So taking this out
-      // disable continue button
-      // SENDLINE_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
+    switch(HASH(msg)) {
+      case "Nozzle Parked"_hash: {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState    = AMPAUSESTATE_PARKED;
+        // enable continue button
+        SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
+        break;
+      }
+      case "Load Filament"_hash: {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState    = AMPAUSESTATE_FILAMENT_OUT;
+        // enable continue button
+        SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is out... J18");
+        SENDLINE_DBG_PGM("J23", "TFT Serial Debug: UserConfirm Blocking filament prompt... J23");
+        break;
+      }
+      case "Filament Purging..."_hash: {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState    = AMPAUSESTATE_PARKING;
+        // TODO: JBA I don't think J05 just disables the continue button, i think it injects a rogue M25. So taking this out
+        // disable continue button
+        // SENDLINE_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
 
-      // enable continue button
-      SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is purging... J18");
-    }
-    else if (strcmp_P(msg, PSTR("HeaterTimeout")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState    = AMPAUSESTATE_HEATER_TIMEOUT;
-      // enable continue button
-      SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Heater timeout... J18");
-    }
-    else if (strcmp_P(msg, PSTR("Reheat finished.")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState    = AMPAUSESTATE_REHEAT_FINISHED;
-      // enable continue button
-      SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Reheat done... J18");
+        // enable continue button
+        SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is purging... J18");
+        break;
+      }
+      case "HeaterTimeout"_hash: {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState    = AMPAUSESTATE_HEATER_TIMEOUT;
+        // enable continue button
+        SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Heater timeout... J18");
+        break;
+      }
+      case "Reheat finished."_hash: {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState    = AMPAUSESTATE_REHEAT_FINISHED;
+        // enable continue button
+        SENDLINE_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD Reheat done... J18");
+        break;
+      }
     }
   #endif
 }

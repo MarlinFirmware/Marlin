@@ -87,19 +87,19 @@
 #define  AC_msg_version                PSTR("J27")
 
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")
-#define MARLIN_msg_probing_failed      PSTR("Probing Failed")
-#define MARLIN_msg_ready               PSTR(" Ready.")
-#define MARLIN_msg_print_paused        PSTR("Print Paused")
-#define MARLIN_msg_print_aborted       PSTR("Print Aborted")
-#define MARLIN_msg_extruder_heating    PSTR("E Heating...")
-#define MARLIN_msg_bed_heating         PSTR("Bed Heating...")
+#define MARLIN_msg_probing_failed      "Probing Failed"_hash
+#define MARLIN_msg_ready               " Ready."
+#define MARLIN_msg_print_paused        "Print Paused"_hash
+#define MARLIN_msg_print_aborted       "Print Aborted"_hash
+#define MARLIN_msg_extruder_heating    "E Heating..."_hash
+#define MARLIN_msg_bed_heating         "Bed Heating..."_hash
 
-#define MARLIN_msg_nozzle_parked       PSTR("Nozzle Parked")
-#define MARLIN_msg_heater_timeout      PSTR("Heater Timeout")
-#define MARLIN_msg_reheating           PSTR("Reheating...")
-#define MARLIN_msg_reheat_done         PSTR("Reheat finished.")
-#define MARLIN_msg_filament_purging    PSTR("Filament Purging...")
-#define MARLIN_msg_special_pause       PSTR("PB")
+#define MARLIN_msg_nozzle_parked       "Nozzle Parked"_hash
+#define MARLIN_msg_heater_timeout      "Heater Timeout"_hash
+#define MARLIN_msg_reheating           "Reheating..."_hash
+#define MARLIN_msg_reheat_done         "Reheat finished."_hash
+#define MARLIN_msg_filament_purging    "Filament Purging..."_hash
+#define MARLIN_msg_special_pause       "PB"_hash
 #define AC_cmnd_auto_unload_filament   PSTR("M701")                    // Use Marlin unload routine
 #define AC_cmnd_auto_load_filament     PSTR("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
 

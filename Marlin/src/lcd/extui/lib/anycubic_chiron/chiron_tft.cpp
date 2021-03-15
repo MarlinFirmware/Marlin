@@ -40,6 +40,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../libs/numtostr.h"
 #include "../../../../MarlinCore.h"
+#include "../../../../core/ctstring.h"
 
 namespace Anycubic {
 
@@ -180,9 +181,10 @@ namespace Anycubic {
     #if ACDEBUG(AC_MARLIN)
       SERIAL_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
     #endif
+    size_t msgH = HASH(msg);
     switch (printer_state) {
       case AC_printer_pausing: {
-        if (strcmp_P(msg, MARLIN_msg_print_paused) == 0 || strcmp_P(msg, MARLIN_msg_nozzle_parked) == 0) {
+        if (msgH == MARLIN_msg_print_paused || msgH == MARLIN_msg_nozzle_parked) {
           SendtoTFTLN(AC_msg_paused); // enable continue button
           printer_state = AC_printer_paused;
         }
@@ -191,21 +193,27 @@ namespace Anycubic {
       case AC_printer_resuming_from_power_outage:
       case AC_printer_printing:
       case AC_printer_paused: {
-        // Heater timout, send acknowledgement
-        if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
-          pause_state = AC_paused_heater_timed_out;
-          SendtoTFTLN(AC_msg_paused); // enable continue button
-          PlayTune(BEEPER_PIN,Heater_Timedout,1);
-        }
-        // Reheat finished, send acknowledgement
-        else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
-          pause_state = AC_paused_idle;
-          SendtoTFTLN(AC_msg_paused); // enable continue button
-        }
-        // Filament Purging, send acknowledgement enter run mode
-        else if (strcmp_P(msg, MARLIN_msg_filament_purging) == 0) {
-          pause_state = AC_paused_purging_filament;
-          SendtoTFTLN(AC_msg_paused); // enable continue button
+        switch(msgH) {
+          // Heater timout, send acknowledgement
+          case MARLIN_msg_heater_timeout: {
+            pause_state = AC_paused_heater_timed_out;
+            SendtoTFTLN(AC_msg_paused); // enable continue button
+            PlayTune(BEEPER_PIN,Heater_Timedout,1);
+            break;
+          }
+          // Reheat finished, send acknowledgement
+          case MARLIN_msg_reheat_done: {
+            pause_state = AC_paused_idle;
+            SendtoTFTLN(AC_msg_paused); // enable continue button
+            break;
+          }
+          // Filament Purging, send acknowledgement enter run mode
+          case MARLIN_msg_filament_purging: {
+            pause_state = AC_paused_purging_filament;
+            SendtoTFTLN(AC_msg_paused); // enable continue button
+            break;
+          }
+
         }
       } break;
       default:
@@ -221,6 +229,8 @@ namespace Anycubic {
     bool msg_matched = false;
     // The only way to get printer status is to parse messages
     // Use the state to minimise the work we do here.
+    // TODO: Now we are using hashes here, could we reverse the switch/case order here for cleaner code ?
+    size_t msgH = HASH(msg);
     switch (printer_state) {
       case AC_printer_probing: {
         // If probing completes ok save the mesh and park
@@ -232,7 +242,7 @@ namespace Anycubic {
           msg_matched = true;
         }
         // If probing fails dont save the mesh raise the probe above the bad point
-        if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
+        if (msgH == MARLIN_msg_probing_failed) {
           PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
           injectCommands_P(PSTR("G1 Z50 F500"));
           SendtoTFTLN(AC_msg_probing_complete);
@@ -242,14 +252,14 @@ namespace Anycubic {
       } break;
 
       case AC_printer_printing: {
-        if (strcmp_P(msg, MARLIN_msg_reheating) == 0) {
+        if (msgH == MARLIN_msg_reheating) {
           SendtoTFTLN(AC_msg_paused); // enable continue button
           msg_matched = true;
          }
       } break;
 
       case AC_printer_pausing: {
-        if (strcmp_P(msg, MARLIN_msg_print_paused) == 0) {
+        if (msgH == MARLIN_msg_print_paused) {
           SendtoTFTLN(AC_msg_paused);
           printer_state = AC_printer_paused;
           pause_state = AC_paused_idle;
@@ -258,7 +268,7 @@ namespace Anycubic {
       } break;
 
       case AC_printer_stopping: {
-        if (strcmp_P(msg, MARLIN_msg_print_aborted) == 0) {
+        if (msgH == MARLIN_msg_print_aborted) {
           SendtoTFTLN(AC_msg_stop);
           printer_state = AC_printer_idle;
           msg_matched = true;
@@ -270,11 +280,11 @@ namespace Anycubic {
 
     // If not matched earlier see if this was a heater message
     if (!msg_matched) {
-      if (strcmp_P(msg, MARLIN_msg_extruder_heating) == 0) {
+      if (msgH == MARLIN_msg_extruder_heating) {
         SendtoTFTLN(AC_msg_nozzle_heating);
         hotend_state = AC_heater_temp_set;
       }
-      else if (strcmp_P(msg, MARLIN_msg_bed_heating) == 0) {
+      else if (msgH == MARLIN_msg_bed_heating) {
         SendtoTFTLN(AC_msg_bed_heating);
         hotbed_state = AC_heater_temp_set;
       }

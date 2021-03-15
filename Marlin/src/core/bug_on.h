@@ -22,6 +22,7 @@
 
 // We need SERIAL_ECHOPAIR and macros.h
 #include "serial.h"
+#include "ctstring.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
   // Useful macro for stopping the CPU on an unexpected condition
