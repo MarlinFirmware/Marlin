@@ -119,8 +119,6 @@ const uint16_t VPList_Control[] PROGMEM = {
 
   VP_LED_TOGGLE,
   VP_MUTE_ICON,
-  VP_STANDBY_BACKLIGHT_ICON,
-  VP_SCREEN_BACKLIGHT_STANDBY,
 
   0x0000
 };
@@ -359,6 +357,9 @@ const uint16_t VPList_MiscSettings[] PROGMEM = {
   VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON,
 
   VP_PLR_TOGGLE_ICON,
+
+  VP_STANDBY_BACKLIGHT_ICON,
+  VP_SCREEN_BACKLIGHT_STANDBY,
 
   0x0000
 };
@@ -671,7 +672,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Icons
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_LED_TOGGLE_ON, ICON_LED_TOGGLE_OFF>)),
-  VPHELPER(VP_STANDBY_BACKLIGHT_ICON, &ScreenHandler.Settings.display_standby, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_STANDBY_TOGGLE_ON, ICON_STANDBY_TOGGLE_OFF>)),
+  VPHELPER(VP_STANDBY_BACKLIGHT_ICON, &ScreenHandler.Settings.display_standby, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
   VPHELPER(VP_MUTE_ICON, &ScreenHandler.Settings.display_sound, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_SOUND_TOGGLE_ON, ICON_SOUND_TOGGLE_OFF>)),
 
   // Development test button
