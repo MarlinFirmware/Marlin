@@ -1498,6 +1498,8 @@ void DGUSScreenHandler::HandleTouchScreenStandbyTimeSetting(DGUS_VP_Variable &va
 }
 
 void DGUSScreenHandler::HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr) {
+  SERIAL_ECHOLNPAIR("HandleToggleTouchScreenStandbySetting");
+
   Settings.display_standby = !Settings.display_standby;
   ScreenHandler.SetTouchScreenConfiguration();
 
