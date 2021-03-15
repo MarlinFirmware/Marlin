@@ -279,8 +279,9 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
         case VP_BUTTON_PAUSEPRINTKEY:
             switch (buttonValue) {
                 case 2:
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+                    ScreenHandler.setstatusmessagePGM(PSTR("Pausing print - please wait..."));
                     ExtUI::pausePrint();
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
                     break;
 
                 case 3:
