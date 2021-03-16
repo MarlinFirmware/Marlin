@@ -7,7 +7,7 @@ The following examples are available:
 **For the CR-6 SE:**
 
 - [BTT SKR CR6 with BTT TFT](./btt-skr-cr6-with-btt-tft)
-- [BTT SKR CR6 with Creality stock TFT](./btt-skr-cr6-with-btt-tft)
+- [BTT SKR CR6 with Creality stock TFT](./btt-skr-cr6-with-stock-creality-tft)
 
 - [With v4.5.2 motherboard](./cr6-se-v4.5.2-mb)
 - [With v4.5.3 motherboard](./cr6-se-v4.5.3-mb)
