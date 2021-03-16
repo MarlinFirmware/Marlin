@@ -144,6 +144,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edit Mesh");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Mesh Editing Stopped");
+  PROGMEM Language_Str MSG_MESH_DONE                       = _UxGT("Mesh probing done.");
   PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Probing Point");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");

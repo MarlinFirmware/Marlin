@@ -34,6 +34,7 @@
  * Example:
  *   M73 P25 ; Set progress to 25%
  */
+
 #if ENABLED(DWIN_CREALITY_LCD)
 
   #include "../../lcd/dwin/e3v2/dwin.h"

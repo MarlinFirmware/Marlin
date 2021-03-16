@@ -216,61 +216,61 @@ void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t
 
 void ICON_Print() {
   if (select_page.now == 0) {
-    DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
-    DWIN_Draw_Rectangle(0, Color_White, 17, 130, 126, 229);
-    DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 201);
+    DWIN_ICON_Show(ICON, ICON_Print_1, 17, 120);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 120, 126, 219);
+    DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 191);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Print_0, 17, 130);
-    DWIN_Frame_AreaCopy(1, 1, 423, 31, 435, 57, 201);
+    DWIN_ICON_Show(ICON, ICON_Print_0, 17, 120);
+    DWIN_Frame_AreaCopy(1, 1, 423, 31, 435, 57, 191);
   }
 }
 
 void ICON_Prepare() {
   if (select_page.now == 1) {
-    DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 130, 254, 229);
-    DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 201);
+    DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 120);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 120, 254, 219);
+    DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 191);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 130);
-    DWIN_Frame_AreaCopy(1, 33, 423, 82, 438, 175, 201);
+    DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 120);
+    DWIN_Frame_AreaCopy(1, 33, 423, 82, 438, 175, 191);
   }
 }
 
 void ICON_Control() {
   if (select_page.now == 2) {
-    DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
-    DWIN_Draw_Rectangle(0, Color_White, 17, 246, 126, 345);
-    DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 318);
+    DWIN_ICON_Show(ICON, ICON_Control_1, 17, 236);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 236, 126, 335);
+    DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 308);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Control_0, 17, 246);
-    DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 318);
+    DWIN_ICON_Show(ICON, ICON_Control_0, 17, 236);
+    DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 308);
   }
 }
 
 void ICON_StartInfo(bool show) {
   if (show) {
-    DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
-    DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 318);
+    DWIN_ICON_Show(ICON, ICON_Info_1, 145, 236);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 236, 254, 335);
+    DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 308);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Info_0, 145, 246);
-    DWIN_Frame_AreaCopy(1, 132, 423, 159, 435, 186, 318);
+    DWIN_ICON_Show(ICON, ICON_Info_0, 145, 236);
+    DWIN_Frame_AreaCopy(1, 132, 423, 159, 435, 186, 308);
   }
 }
 
 void ICON_Leveling(bool show) {
   if (show) {
-    DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
-    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 318);
+    DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 236);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 335);
+    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 308);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 246);
-    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 318);
+    DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 236);
+    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 308);
   }
 }
 
@@ -1703,7 +1703,7 @@ void DWIN_MediaRemoved() {
   if (checkkey == SelectFile) {
     Redraw_SD_List();
   }
-  else if (sdprint && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
+  else if (sdprint && card.isPrinting() && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
     card.flag.abort_sd_printing = true;
     wait_for_heatup = wait_for_user = false;
     dwin_abort_flag = true; // Reset feedrate, return to Home
@@ -2731,9 +2731,11 @@ void HMI_ManualMesh() {
         Draw_Prepare_Menu();
         break;
       case 1: // Start manual mesh
+        DWIN_StatusChanged(GET_TEXT(MSG_UBL_BUILD_MESH_MENU));
         queue.inject_P(PSTR("G28O\nM211 S0\nG29 S1"));
         break;
       case 2: // move Z
+        DWIN_StatusChanged(GET_TEXT(MSG_MOVE_Z));
         checkkey = MMeshMoveZ;
         HMI_ValueStruct.Move_Z_scaled = current_position.z * 100;
         DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 2, 216, MBASE(2), HMI_ValueStruct.Move_Z_scaled);
@@ -2743,8 +2745,8 @@ void HMI_ManualMesh() {
         queue.inject_P(PSTR("G29 S2"));
         break;
       case 4: // Save Mesh
-        queue.inject_P(PSTR("M211 S1\nM500"));
-        HMI_AudioFeedback(true);        
+        DWIN_StatusChanged(GET_TEXT(MSG_UBL_STORAGE_MESH_MENU));
+        queue.inject_P(PSTR("M211 S1\nM500"));    
         break;
     }
   }
@@ -3590,7 +3592,7 @@ void EachMomentUpdate() {
   }
 
   if (checkkey == PrintProcess) { // print process
-    uint8_t percentDone = sdprint ? card.percentDone() : _percentDone;
+    uint8_t percentDone = (sdprint && card.isPrinting()) ? card.percentDone() : _percentDone;
     static uint8_t last_percentValue = 101;
     if (last_percentValue != percentDone) { // print percent
       last_percentValue = percentDone;
@@ -3778,6 +3780,14 @@ void DWIN_CompletedHoming() {
 void DWIN_CompletedLeveling() {
   if (checkkey == Leveling) Goto_Main_Menu();
 }
+
+#if ENABLED(MESH_BED_LEVELING)
+void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+  char msg[33];
+  sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%.2f"), GET_TEXT(MSG_PROBING_MESH),xpos, ypos, zval);
+  DWIN_StatusChanged(msg);
+}
+#endif
 
 void DWIN_StatusChanged(const char *text) {
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, STATUS_Y, DWIN_WIDTH-8, STATUS_Y+20);

@@ -42,6 +42,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -122,6 +126,7 @@ void GcodeSuite::G29() {
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
+        TERN_(HAS_STATUS_MESSAGE, ui.set_status(GET_TEXT(MSG_MESH_DONE)));
         BUZZ(100, 659);
         BUZZ(100, 698);
 
@@ -162,6 +167,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
+        TERN_(DWIN_CREALITY_LCD, DWIN_ManualMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');
@@ -180,8 +186,10 @@ void GcodeSuite::G29() {
 
   } // switch(state)
 
-  if (state == MeshNext)
+  if (state == MeshNext) {
     SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+  }
 
   report_current_position();
 }

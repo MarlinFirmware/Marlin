@@ -49,8 +49,8 @@
  * Průša Calculator:    https://blog.prusaprinters.org/calculator_3416/
  *
  * Calibration Guides:  https://reprap.org/wiki/Calibration
- *                      https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
- *                      https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ * https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
  *                      https://youtu.be/wAL9d7FgInk
  *
  * Calibration Objects: https://www.thingiverse.com/thing:5573
@@ -131,7 +131,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Ender 3v2 3D/BLTouch"
+#define CUSTOM_MACHINE_NAME "Ender 3V2 Manual Mesh"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -937,8 +937,8 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
-//#define MANUAL_PROBE_START_Z 0.2
+#define PROBE_MANUALLY            // DAE activo para mesh manual
+#define MANUAL_PROBE_START_Z 0.2 	// DAE activo para mesh manual
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -967,7 +967,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH   // M.A.R.C. Activate BLTouch
+//#define BLTOUCH
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -1034,7 +1034,7 @@
  *   to avoid collisions during probing.
  *
  * Tune and Adjust
- * -  Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
+ * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
  * -  PROBE_OFFSET_WIZARD (configuration_adv.h) can be used for setting the Z offset.
  *
  * Assuming the typical work area orientation:
@@ -1059,7 +1059,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -41.5, -7, 0 } // M.A.R.C. BLTouch offset for support: https://www.thingiverse.com/thing:4605354 (z-offset = -1.80 mm)
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 } //Dae pongo todo a cero para mesh manual
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1139,7 +1139,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 10
 
 // Enable the M48 repeatability test to test probe accuracy
-#define Z_MIN_PROBE_REPEATABILITY_TEST	// M.A.R.C. Enable M48 repeatability test
+//#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1391,9 +1391,9 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR    // M.A.R.C. BLTouch auto level
+//#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#define MESH_BED_LEVELING 		//DAE mesh manual activate
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
@@ -1408,7 +1408,7 @@
  */
 #define PREHEAT_BEFORE_LEVELING     // M.A.R.C. heatting to compensate thermal expansions
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP   0   // (°C) Only applies to E0 at this time  // M.A.R.C. no necessary for BLTouch
+  #define LEVELING_NOZZLE_TEMP 170   // (°C) Only applies to E0 at this time  // M.A.R.C. necessary for Manual Mesh
   #define LEVELING_BED_TEMP     50
 #endif
 
@@ -1582,7 +1582,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#define Z_SAFE_HOMING   // M.A.R.C. Z Homing on Center of bed
+//#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
@@ -2558,7 +2558,7 @@
   //#define TOUCH_CALIBRATION_Y -8981
   //#define TOUCH_OFFSET_X        -43
   //#define TOUCH_OFFSET_Y        257
-  //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+  //#define TOUCH_ORIENTATION   TOUCH_LANDSCAPE
 
   #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
     #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
