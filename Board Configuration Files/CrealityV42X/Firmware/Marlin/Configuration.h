@@ -25,6 +25,9 @@
 //#define ENDER3_V2_V422_BOARD //Ender 3 V2 with V4.2.2 Board
 //#define ENDER3_V2_V427_BOARD //Ender 3 V2 with V4.2.7 Board
 
+//#define ENDER3_MAX_V422_BOARD  //Ender 3 with V4.2.2 Board
+//#define ENDER3_MAX_V427_BOARD  //Ender 3 with V4.2.7 Board
+
 //#define ENDER5_V422_BOARD    //Ender 5 with V4.2.2 Board
 //#define ENDER5_V427_BOARD    //Ender 5 with V4.2.7 Board
 
@@ -270,10 +273,10 @@
  * Machine Configuration Settings
  */
  
- //Ender 3/5 V42X Board Settings
-#if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
+ //Ender 3/3 MAX/5 V42X Board Settings
+#if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(ENDER3_MAX_V422_BOARD) || ENABLED(ENDER3_MAX_V427_BOARD)
   //V42X with TMC Driver Sanity Checks
-  #if (ENABLED(V422_TMC220X_DRIVERS) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)) && ENABLED(LINEAR_ADVANCE)
+  #if (ENABLED(V422_TMC220X_DRIVERS) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(ENDER3_MAX_V427_BOARD)) && ENABLED(LINEAR_ADVANCE)
     #error "Linear Advance does NOT work on the V4.2.X boards with the TMC drivers due to how Creality has them setup. Disable Linear Advance to continue."
   #endif
 
@@ -288,7 +291,7 @@
     #define REVERSE_ENCODER_DIRECTION
   #endif
   
-  #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER3_V422_BOARD) || ENABLED(ENDER5_V422_BOARD) || ENABLED(ENDER3_MAX_V422_BOARD)
     #ifndef MOTHERBOARD
       #define MOTHERBOARD BOARD_CREALITY_V4
     #endif
@@ -334,6 +337,10 @@
     #define X_BED_SIZE 220
     #define Y_BED_SIZE 220
     #define Z_MAX_POS 300
+  #elif ENABLED(ENDER3_MAX_V422_BOARD) || ENABLED(ENDER3_MAX_V427_BOARD)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 340
   #else
     #if ENABLED(ENDER_XTENDER_400)
       #define X_BED_SIZE 400
@@ -449,11 +456,16 @@
     #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #endif
 
-  #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(V422_TMC220X_DRIVERS)
+  #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD) || ENABLED(V422_TMC220X_DRIVERS) || ENABLED(ENDER3_MAX_V427_BOARD) 
     #define X_DRIVER_TYPE TMC2208_STANDALONE
     #define Y_DRIVER_TYPE TMC2208_STANDALONE
     #define Z_DRIVER_TYPE TMC2208_STANDALONE
     #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #elif ENABLED(ENDER3_MAX_V422_BOARD) || ENABLED(ENDER3_MAX_V427_BOARD)
+    #define X_DRIVER_TYPE TMC2208_STANDALONE
+    #define Y_DRIVER_TYPE TMC2208_STANDALONE
+    #define Z_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE A4988  
   #else
     #define X_DRIVER_TYPE A4988
     #define Y_DRIVER_TYPE A4988
@@ -499,6 +511,10 @@
     #define SPEAKER_KILL
   #endif
 
+  #if ENABLED(ENDER3_MAX_V422_BOARD) || ENABLED(ENDER3_MAX_V427_BOARD)
+    #define FILAMENT_RUNOUT_SENSOR
+  #endif
+
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -524,7 +540,7 @@
   #endif
 
 #endif
-// End Ender 3/5 V42X Board Settings
+// End Ender 3/3 MAX/5 V42X Board Settings
  
 // Ender 3 V2 Settings
 #if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V427_BOARD)
