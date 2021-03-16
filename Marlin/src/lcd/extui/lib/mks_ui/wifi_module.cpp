@@ -1768,7 +1768,7 @@ int usartFifoAvailable(SZ_USART_FIFO *fifo) {
 
 constexpr bool str_match(const char * const string, const char * const pattern, const int index=0) {
   const char c = pattern[index];
-  return (string[index] == c) && (c == '\0' || str_match(index + 1));
+  return (string[index] == c) && (c == '\0' || str_match(string, pattern, index + 1));
 }
 
 void get_wifi_commands() {
