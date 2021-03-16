@@ -420,7 +420,7 @@ G29_TYPE GcodeSuite::G29() {
 
     // Deploy certain probes before starting probing
     #if HAS_BED_PROBE
-      if (ENABLED(BLTOUCH))
+      if (ANY(BLTOUCH,Z_SERVO_INTERMEDIATE_STOW))
         do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
       else if (probe.deploy()) {
         set_bed_leveling_enabled(abl_should_enable);

@@ -319,7 +319,17 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif HAS_Z_SERVO_PROBE
 
-    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    #ifdef Z_SERVO_MEASURE_ANGLE
+      if (deploy) {
+        //  First deploy, then move servo back to measure angle ...
+        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0]);
+        MOVE_SERVO(Z_PROBE_SERVO_NR, Z_SERVO_MEASURE_ANGLE);
+      } else {
+        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1]);
+      }
+    #else
+      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    #endif
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 
@@ -487,6 +497,9 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   #endif
 
   if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
+  #ifdef Z_SERVO_MEASURE_ANGLE
+    probe_specific_action(true);  //  Always re-deploy if we have a separate measure state
+  #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -527,6 +540,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 
   if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
     return true;
+
+  #if ENABLED(Z_SERVO_INTERMEDIATE_STOW)
+    probe_specific_action(false);  //  Always stow
+  #endif
 
   // Clear endstop flags
   endstops.hit_on_purpose();
