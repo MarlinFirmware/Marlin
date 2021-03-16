@@ -1817,7 +1817,7 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          switch(HASH(command)) {
+          switch (HASH(command)) {
             case "M108"_hash: {
               wait_for_heatup = false;
               TERN_(HAS_LCD_MENU, wait_for_user = false);
