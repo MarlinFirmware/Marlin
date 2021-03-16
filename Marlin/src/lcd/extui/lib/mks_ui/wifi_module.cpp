@@ -1817,15 +1817,12 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          switch (HASH(command)) {
-            case "M108"_hash: {
+          if (!strcmp(command, "M108")) {
               wait_for_heatup = false;
               TERN_(HAS_LCD_MENU, wait_for_user = false);
-              break;
-            }
-            case "M112"_hash: kill(M112_KILL_STR, nullptr, true); break;
-            case "M410"_hash: quickstop_stepper(); break;
-          }
+          } 
+          else if (!strcmp(command, "M112")) kill(M112_KILL_STR, nullptr, true);
+          else if (!strcmp(command, "M410")) quickstop_stepper(); 
         #endif
 
         // Add the command to the queue
