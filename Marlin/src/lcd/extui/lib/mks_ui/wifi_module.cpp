@@ -1818,11 +1818,11 @@ void get_wifi_commands() {
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
           if (!strcmp(command, "M108")) {
-              wait_for_heatup = false;
-              TERN_(HAS_LCD_MENU, wait_for_user = false);
+            wait_for_heatup = false;
+            TERN_(HAS_LCD_MENU, wait_for_user = false);
           } 
           else if (!strcmp(command, "M112")) kill(M112_KILL_STR, nullptr, true);
-          else if (!strcmp(command, "M410")) quickstop_stepper(); 
+          else if (!strcmp(command, "M410")) quickstop_stepper();
         #endif
 
         // Add the command to the queue
