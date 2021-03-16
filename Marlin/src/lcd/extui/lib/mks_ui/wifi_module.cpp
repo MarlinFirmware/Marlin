@@ -37,7 +37,6 @@
 #include "../../../../module/planner.h"
 #include "../../../../module/servo.h"
 #include "../../../../module/probe.h"
-#include "../../../../core/ctstring.h"
 
 #if DISABLED(EMERGENCY_PARSER)
   #include "../../../../module/motion.h"
@@ -1817,12 +1816,12 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          if (!strcmp(command, "M108")) {
+          if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
           } 
-          else if (!strcmp(command, "M112")) kill(M112_KILL_STR, nullptr, true);
-          else if (!strcmp(command, "M410")) quickstop_stepper();
+          else if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
+          else if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
         // Add the command to the queue
