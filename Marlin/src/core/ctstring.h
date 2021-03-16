@@ -56,11 +56,9 @@ namespace CompileTimeString {
   // the string storage size in flash. So it's worth it only if the string is larger than a machine word here (likely 4 bytes)
 
   // Compute the hash of a string at compile time
-  size_t constexpr constHash(char const * input) {
-    return *input ? static_cast<size_t>(*input) + 33 * constHash( input + 1 ) : 5381;
+  size_t constexpr constHash(const char const * input) {
+    return *input ? static_cast<size_t>(*input) + 33 * constHash(input + 1) : 5381;
   }
-
-
 
   // String searching
   //////////////////////////////////////////////////////////
@@ -70,30 +68,30 @@ namespace CompileTimeString {
   // When you need to extract a small portion of a string that's known at compile time (can be automatically generated)
   // Instead of doing runtime string operations, the compiler can deal with minimal string parsing at compile time
   // Simple compile-time parser to find the position of the end of a string
-  constexpr const char* findStringEnd(const char *str) {
+  constexpr const char* findStringEnd(const char * const str) {
     return *str ? findStringEnd(str + 1) : str;
   }
 
   // Check whether a string contains a slash
-  constexpr bool containsSlash(const char *str) {
+  constexpr bool containsSlash(const char * const str) {
     return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
   }
   // Find the last position of the slash
-  constexpr const char* findLastSlashPos(const char* str) {
+  constexpr const char* findLastSlashPos(const char * const str) {
     return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
   }
   // Compile-time evaluation of the last part of a file path
   // Typically used to shorten the path to file in compiled strings
   // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-  constexpr const char* baseName(const char* str) {
+  constexpr const char* baseName(const char * const str) {
     return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
   }
 }
 
 
 // Compute the hash of a string at compile time
-size_t constexpr operator "" _hash( const char* str, size_t len ) {
-    return CompileTimeString::constHash( str );
+size_t constexpr operator "" _hash(const char * const str, size_t len) {
+  return CompileTimeString::constHash( str );
 }
 
 #define HASH(X)       CompileTimeString::constHash(X)
