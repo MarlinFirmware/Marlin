@@ -21,17 +21,14 @@
  */
 #pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
-
 #include <HardwareSerial.h>
+
+#include "../shared/Marduino.h"
+#include "../../core/serial_hook.h"
 
 class FlushableHardwareSerial : public HardwareSerial {
 public:
-  FlushableHardwareSerial(int uart_nr);
-
-  inline void flushTX() { /* No need to flush the hardware serial, but defined here for compatibility. */ }
+  FlushableHardwareSerial(int uart_nr) : HardwareSerial(uart_nr) {}
 };
 
-extern FlushableHardwareSerial flushableSerial;
-
-#endif // ARDUINO_ARCH_ESP32
+extern Serial1Class<FlushableHardwareSerial> flushableSerial;

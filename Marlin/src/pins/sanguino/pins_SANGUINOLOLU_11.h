@@ -50,9 +50,8 @@
  * Once installed select the Sanguino board and then select the CPU.
  */
 
-#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
-  #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
-#endif
+#define ALLOW_MEGA644P
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Sanguinololu <1.2"
@@ -163,6 +162,8 @@
       #define LCD_PINS_RS                     17
       #define LCD_PINS_ENABLE                 16
       #define LCD_PINS_D4                     11
+      #define KILL_PIN                        10
+      #define BEEPER_PIN                      27
 
       #ifndef BOARD_ST7920_DELAY_1
         #define BOARD_ST7920_DELAY_1 DELAY_NS(0)

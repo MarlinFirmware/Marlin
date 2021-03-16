@@ -2,9 +2,7 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
-import subprocess
-import os
-import re
+import subprocess,os,re
 try:
 	import configparser
 except ImportError:
@@ -69,16 +67,23 @@ def add_to_feat_cnf(feature, flines):
 	except:
 		FEATURE_CONFIG[feature] = {}
 
+	# Get a reference to the FEATURE_CONFIG under construction
 	feat = FEATURE_CONFIG[feature]
-	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
-	for dep in atoms:
-		parts = dep.split('=')
+
+	# Split up passed lines on commas or newlines and iterate
+	# Add common options to the features config under construction
+	# For lib_deps replace a previous instance of the same library
+	atoms = re.sub(r',\\s*', '\n', flines).strip().split('\n')
+	for line in atoms:
+		parts = line.split('=')
 		name = parts.pop(0)
-		rest = '='.join(parts)
 		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
-			feat[name] = rest
+			feat[name] = '='.join(parts)
 		else:
-			feat['lib_deps'] += [dep]
+			for dep in line.split(','):
+				lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
+				lib_re = re.compile('(?!^' + lib_name + '\\b)')
+				feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
 
 def load_config():
 	config = configparser.ConfigParser()
@@ -185,8 +190,8 @@ def apply_features_config():
 			blab("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
-			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
-			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter)
+			my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
+			cur_srcs = re.findall(r'[+-](<.*?>)', src_filter)
 			for d in my_srcs:
 				if d in cur_srcs:
 					src_filter = re.sub(r'[+-]' + d, '', src_filter)
@@ -306,16 +311,6 @@ def MarlinFeatureIsEnabled(env, feature):
 	return some_on
 
 #
-# Check for Configfiles in two common incorrect places
-#
-def check_configfile_locations():
-	for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
-		for f in [ "Configuration.h", "Configuration_adv.h" ]:
-			if os.path.isfile(os.path.join(p, f)):
-				err = 'ERROR: Config files found in directory ' + str(p) + '. Please move them into the Marlin subdirectory.'
-				raise SystemExit(err)
-
-#
 # Add a method for other PIO scripts to query enabled features
 #
 env.AddMethod(MarlinFeatureIsEnabled)
@@ -323,6 +318,5 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
-check_configfile_locations()
 apply_features_config()
 force_ignore_unused_libs()

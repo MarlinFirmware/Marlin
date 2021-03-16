@@ -32,6 +32,8 @@
 #define AUTO_LEVELING_TEXT_IT         "AutoLevel"
 #define SET_TEXT_IT                   "Imposta"
 #define MORE_TEXT_IT                  "Di più"
+#define MORE_GCODE_IT                 "G-Code"
+#define MORE_ENTER_GCODE_IT           "Inserisci il G-Code"
 
 #define ADD_TEXT_IT                   "Aumentare"
 #define DEC_TEXT_IT                   "Ridurre"
@@ -261,4 +263,3 @@
 #define MORE_CUSTOM4_TEXT_IT  USER_DESC_4
 #define MORE_CUSTOM5_TEXT_IT  USER_DESC_5
 #define MORE_CUSTOM6_TEXT_IT  USER_DESC_6
-#define MORE_CUSTOM7_TEXT_IT  USER_DESC_7

@@ -66,8 +66,6 @@
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
-extern const char G28_STR[];
-
 #if HAS_LEVELING
   static bool leveling_was_active = false;
 #endif
@@ -176,12 +174,13 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_MESH), SS_INVERT); // "Probing Mesh" heading
 
-    uint8_t cy = LCD_HEIGHT - 1, y = LCD_ROW_Y(cy);
+    uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
-      SETCURSOR(0, cy);
+      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
@@ -192,8 +191,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
-      SETCURSOR(0, cy);
+      SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }
@@ -205,7 +205,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
       , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
-      , (const char*)nullptr, PSTR("")
+      , (const char*)nullptr, NUL_STR
     );
   }
 
@@ -224,7 +224,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   bool _lcd_level_bed_corners_probe(bool verify=false) {
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
-    do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_SPEED_SLOW)); // Move down to lower tolerance
+    do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))) { // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
@@ -269,12 +269,13 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                             // update screen with # of good points
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // clearance
+      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH_HS_MODE, 7)); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
       do_blocking_move_to_xy(current_position);           // Goto corner
 
+      TERN_(BLTOUCH_HS_MODE, bltouch.deploy());           // Deploy in HIGH SPEED MODE
       if (!_lcd_level_bed_corners_probe()) {              // Probe down to tolerance
         if (_lcd_level_bed_corners_raise()) {             // Prompt user to raise bed if needed
           #if ENABLED(LEVEL_CORNERS_VERIFY_RAISED)        // Verify
@@ -294,6 +295,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
       if (++bed_corner > 3) bed_corner = 0;
 
     } while (good_points < nr_edge_points); // loop until all points within tolerance
+
+    TERN_(BLTOUCH_HS_MODE, do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP)); // Do clearance in HIGH SPEED MODE at the very end
+    TERN_(BLTOUCH_HS_MODE, bltouch.stow()); // Stow in HIGH SPEED MODE at the very end
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling
     ui.set_selection(true);

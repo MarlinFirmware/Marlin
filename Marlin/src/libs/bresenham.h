@@ -120,7 +120,7 @@ public:
 
   static void report(const uint8_t index) {
     if (index < Cfg::SIZE) {
-      SERIAL_ECHOPAIR("bresenham ", int(index), " : (", dividend[index], "/", divisor, ") ");
+      SERIAL_ECHOPAIR("bresenham ", index, " : (", dividend[index], "/", divisor, ") ");
       if (counter[index] >= 0) SERIAL_CHAR(' ');
       if (labs(counter[index]) < 100) { SERIAL_CHAR(' '); if (labs(counter[index]) < 10) SERIAL_CHAR(' '); }
       SERIAL_ECHO(counter[index]);

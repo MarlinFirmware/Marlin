@@ -54,7 +54,7 @@
   #define UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE 1
   #define UHS_HOST_MAX_INTERFACE_DRIVERS 2
   #define MASS_MAX_SUPPORTED_LUN 1
-  #define USB_HOST_SERIAL MYSERIAL0
+  #define USB_HOST_SERIAL MYSERIAL1
 
   // Workaround for certain issues with UHS3
   #define SKIP_PAGE3F // Required for IOGEAR media adapter

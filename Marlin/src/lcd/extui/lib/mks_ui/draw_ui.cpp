@@ -179,7 +179,7 @@ void gCfgItems_init() {
 
 void ui_cfg_init() {
   uiCfg.curTempType         = 0;
-  uiCfg.curSprayerChoose    = 0;
+  uiCfg.extruderIndex       = 0;
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
@@ -889,7 +889,7 @@ void GUI_RefreshPage() {
               lv_draw_wifi_tips();
 
             }
-            if (tips_disp.timer_count >= 30 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(30)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
               lv_clear_wifi_tips();
@@ -898,7 +898,7 @@ void GUI_RefreshPage() {
             }
             break;
           case TIPS_TYPE_TAILED_JOIN:
-            if (tips_disp.timer_count >= 3 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(3)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
 
@@ -908,7 +908,7 @@ void GUI_RefreshPage() {
             }
             break;
           case TIPS_TYPE_WIFI_CONECTED:
-            if (tips_disp.timer_count >= 3 * 1000) {
+            if (tips_disp.timer_count >= SEC_TO_MS(3)) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
 
@@ -1077,6 +1077,7 @@ void draw_return_ui() {
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif
       case TOOL_UI:                     lv_draw_tool(); break;
+      case GCODE_UI:                    lv_draw_gcode(); break;
       case MESHLEVELING_UI:             break;
       case HARDWARE_TEST_UI:            break;
       #if ENABLED(MKS_WIFI_MODULE)

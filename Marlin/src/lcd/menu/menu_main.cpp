@@ -97,11 +97,13 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
+#if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
+  void menu_preheat_only();
+#endif
+
 #if HAS_MULTI_LANGUAGE
   void menu_language();
 #endif
-
-extern const char M21_STR[];
 
 void menu_main() {
   const bool busy = printingIsActive()
@@ -156,7 +158,7 @@ void menu_main() {
         if (!card_open) {
           SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
           #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
@@ -166,7 +168,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
         #endif
       }
 
@@ -177,6 +179,10 @@ void menu_main() {
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
       ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+    #endif
+
+    #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
+      SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
@@ -205,11 +211,13 @@ void menu_main() {
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
-    #ifdef CUSTOM_USER_MENU_TITLE
-      SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
-    #else
-      SUBMENU(MSG_USER_MENU, menu_user);
-    #endif
+    if (TERN1(CUSTOM_MENU_ONLY_IDLE, !busy)) {
+      #ifdef CUSTOM_USER_MENU_TITLE
+        SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+      #else
+        SUBMENU(MSG_USER_MENU, menu_user);
+      #endif
+    }
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -257,7 +265,7 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
@@ -268,7 +276,7 @@ void menu_main() {
         #if PIN_EXISTS(SD_DETECT)
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
         #endif
       }
     }

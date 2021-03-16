@@ -29,12 +29,6 @@
 
 #include HAL_PATH(.,HAL.h)
 
-#ifdef SERIAL_PORT_2
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
-#endif
-
 #define HAL_ADC_RANGE _BV(HAL_ADC_RESOLUTION)
 
 #ifndef I2C_ADDRESS
