@@ -1766,6 +1766,11 @@ int usartFifoAvailable(SZ_USART_FIFO *fifo) {
   return WIFISERIAL.available();
 }
 
+constexpr bool str_match(const char * const string, const char * const pattern, const int index=0) {
+  const char c = pattern[index];
+  return (string[index] == c) && (c == '\0' || str_match(index + 1));
+}
+
 void get_wifi_commands() {
   static char wifi_line_buffer[MAX_CMD_SIZE];
   static bool wifi_comment_mode = false;
@@ -1816,12 +1821,12 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          if (strcmp(command, "M108") == 0) {
+          if (str_match(command, "M108")) {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
-          } 
-          else if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
-          else if (strcmp(command, "M410") == 0) quickstop_stepper();
+          }
+          else if (str_match(command, "M112")) kill(M112_KILL_STR, nullptr, true);
+          else if (str_match(command, "M410")) quickstop_stepper();
         #endif
 
         // Add the command to the queue
