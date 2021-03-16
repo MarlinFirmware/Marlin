@@ -903,12 +903,13 @@ uint16_t CreateRgb(double h, double s, double v) {
 void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
   SERIAL_ECHOPAIR("X", x);
   SERIAL_ECHOPAIR(" Y", y);
-  SERIAL_ECHOPAIR_F_P(" Z", z);
-  SERIAL_ECHOLN("");
+  SERIAL_ECHO(" Z");
+  SERIAL_ECHO_F(z, 4);
 
   // Determine the screen X and Y value
   if (x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0) {
     // Skip this point
+    SERIAL_ECHOLN("");
     return;
   }
 
@@ -917,7 +918,26 @@ void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const fl
 
   // Each Y is a full edge of X values
   const uint16_t vpAddr = VP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_VP_SIZE) + (scrX * MESH_LEVEL_VP_EDGE_SIZE);
-  dgusdisplay.WriteVariable(vpAddr, z);
+
+  // ... DWIN is inconsistently truncating floats. Examples: 0.1811 becomes 0.181, 0.1810 becomes 0.180. But 0.1800 is not 0.179
+  //     so we need to calculate a good number here that will not overflow
+  float displayZ = z;
+  
+  {
+    constexpr float correctionFactor = 0.0001;
+
+    if (round(z * cpow(10,3)) == round((z + correctionFactor) * cpow(10,3))) {
+      // If we don't accidently overshoot to the next number, trick the display by upping the number 0.0001 💩
+      displayZ += correctionFactor;
+
+      SERIAL_ECHO(" displayZ: ");
+      SERIAL_ECHO_F(z, 4);
+    }
+  }
+
+  SERIAL_ECHOLN("");
+
+  dgusdisplay.WriteVariable(vpAddr, displayZ);
 
   // Set color
   const uint16_t spAddr = SP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_SP_SIZE) + (scrX * MESH_LEVEL_SP_EDGE_SIZE);
@@ -958,7 +978,8 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
 
   SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
   SERIAL_ECHOPAIR(" Y:", y);
-  SERIAL_ECHOPAIR_F(" Z:", z);
+  SERIAL_ECHO(" Z:");
+  SERIAL_ECHO_F(z, 4);
   SERIAL_ECHOPAIR(" [raw: ", rawZ);
   SERIAL_ECHOPAIR("] [point ", probe_point, "] ");
   SERIAL_ECHOPAIR(" [VP: ", var.VP);
