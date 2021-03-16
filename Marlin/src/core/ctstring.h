@@ -56,7 +56,7 @@ namespace CompileTimeString {
   // the string storage size in flash. So it's worth it only if the string is larger than a machine word here (likely 4 bytes)
 
   // Compute the hash of a string at compile time
-  size_t constexpr constHash(const char const * input) {
+  size_t constexpr constHash(const char * const input) {
     return *input ? static_cast<size_t>(*input) + 33 * constHash(input + 1) : 5381;
   }
 
