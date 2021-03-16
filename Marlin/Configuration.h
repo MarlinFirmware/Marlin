@@ -950,9 +950,16 @@
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
+ *
+ * The Z_SERVO_MEASURE_ANGLE is only useful if your servo needs to
+ * move to a "free" position to allow measuring.
+ * With Z_SERVO_INTERMEDIATE_STOW you can have the probe stowed
+ * between different points of a G29.
  */
-//#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.
-//#define Z_SERVO_ANGLES { 70, 0 } // Z Servo Deploy and Stow angles
+//#define Z_PROBE_SERVO_NR 0          // Defaults to SERVO 0 connector.
+//#define Z_SERVO_ANGLES { 70, 0 }    // Z Servo Deploy and Stow angles
+//#define Z_SERVO_MEASURE_ANGLE 45    // Z Servo Angle after deploy (to allow measuring)
+//#define Z_SERVO_INTERMEDIATE_STOW   // Stow the probe between points
 
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
