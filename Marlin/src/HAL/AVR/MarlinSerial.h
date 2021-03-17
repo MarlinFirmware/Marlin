@@ -252,13 +252,13 @@
   template <uint8_t serial>
   struct MMU2SerialCfg {
     static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 32;
+    static constexpr unsigned int TX_SIZE   = 32;
     static constexpr bool XONOFF            = false;
     static constexpr bool EMERGENCYPARSER   = false;
     static constexpr bool DROPPED_RX        = false;
     static constexpr bool RX_FRAMING_ERRORS = false;
     static constexpr bool MAX_RX_QUEUED     = false;
-    static constexpr unsigned int RX_SIZE   = 32;
-    static constexpr unsigned int TX_SIZE   = 32;
     static constexpr bool RX_OVERRUNS       = false;
   };
 
@@ -270,27 +270,16 @@
 
   template <uint8_t serial>
   struct LCDSerialCfg {
-    static constexpr int PORT                 = serial;
-    static constexpr bool XONOFF              = false;
-    static constexpr bool EMERGENCYPARSER     = ENABLED(EMERGENCY_PARSER);
-    static constexpr bool DROPPED_RX          = false;
-    static constexpr bool RX_FRAMING_ERRORS   = false;
-    static constexpr bool MAX_RX_QUEUED       = false;
-    #if HAS_DGUS_LCD
-      static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
-      static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
-      static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);
-    #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-      static constexpr unsigned int RX_SIZE   = 64;
-      static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false;
-    #else
-      static constexpr unsigned int RX_SIZE   = 64;
-      static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false
-    #endif
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_RX_BUFFER_SIZE,  64);
+    static constexpr unsigned int TX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_TX_BUFFER_SIZE, 128);
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER);
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
+    static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
   };
-
 
   typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialT4;
   extern MSerialT4 lcdSerial;

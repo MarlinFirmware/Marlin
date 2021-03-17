@@ -23,8 +23,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#define IFSD(A,B) TERN(SDSUPPORT,A,B)
-
 #if ENABLED(SDSUPPORT)
 
 extern const char M23_STR[], M24_STR[];

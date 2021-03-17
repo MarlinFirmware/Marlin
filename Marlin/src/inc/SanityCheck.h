@@ -2372,7 +2372,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(ULTIPANEL) \
   + ENABLED(ULTRA_LCD) \
   + ENABLED(YHCB2004) \
-  + ENABLED(ZONESTAR_LCD)
+  + ENABLED(ZONESTAR_LCD) \
+  + ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER) \
+  + ENABLED(K3D_242_OLED_CONTROLLER)
   #error "Please select only one LCD controller option."
 #endif
 
