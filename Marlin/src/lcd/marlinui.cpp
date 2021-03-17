@@ -44,9 +44,16 @@ MarlinUI ui;
   #include "../gcode/queue.h"
   #include "fontutils.h"
   #include "../sd/cardreader.h"
-  #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../module/printcounter.h"
+  #include "../MarlinCore.h"
+  #include "dwin/e3v2/dwin.h"
+#endif
+
+#if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
     #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-  #endif
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
@@ -66,7 +73,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
+#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, GLOBAL_STATUS_MESSAGE)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
@@ -1459,6 +1466,9 @@ void MarlinUI::update() {
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
+
+    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+ 
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1581,6 +1591,7 @@ void MarlinUI::update() {
 
 #else // !HAS_DISPLAY
 
+  #if !HAS_STATUS_MESSAGE
   //
   // Send the status line as a host notification
   //
@@ -1593,6 +1604,7 @@ void MarlinUI::update() {
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
+  #endif
 
 #endif // !HAS_DISPLAY
 

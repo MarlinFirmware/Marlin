@@ -122,6 +122,7 @@ void GcodeSuite::G29() {
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
+        TERN_(HAS_STATUS_MESSAGE, ui.set_status(GET_TEXT(MSG_MESH_DONE)));
         BUZZ(100, 659);
         BUZZ(100, 698);
 
@@ -180,8 +181,10 @@ void GcodeSuite::G29() {
 
   } // switch(state)
 
-  if (state == MeshNext)
+  if (state == MeshNext) {
     SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+  }
 
   report_current_position();
 }
