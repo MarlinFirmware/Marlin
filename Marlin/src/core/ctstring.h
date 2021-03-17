@@ -57,7 +57,7 @@ namespace CompileTimeString {
 
   // Compute the hash of a string at compile time
   size_t constexpr constHash(const char * const input) {
-    return *input ? static_cast<size_t>(*input) + 33 * constHash(input + 1) : 5381;
+    return *input ? static_cast<size_t>(*input) + 257 * constHash(input + 1) : 5381;
   }
 
   // String searching
