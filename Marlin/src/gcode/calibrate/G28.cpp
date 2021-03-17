@@ -80,38 +80,12 @@
                 mlratio = mlx > mly ? mly / mlx : mlx / mly,
                 fr_mm_s = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
-    #if ENABLED(SENSORLESS_HOMING)
-      sensorless_t stealth_states {
-          tmc_enable_stallguard(stepperX)
-        , tmc_enable_stallguard(stepperY)
-        , false
-        , false
-          #if AXIS_HAS_STALLGUARD(X2)
-            || tmc_enable_stallguard(stepperX2)
-          #endif
-        , false
-          #if AXIS_HAS_STALLGUARD(Y2)
-            || tmc_enable_stallguard(stepperY2)
-          #endif
-      };
-    #endif
-
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
     current_position.set(0.0, 0.0);
 
-    #if ENABLED(SENSORLESS_HOMING)
-      tmc_disable_stallguard(stepperX, stealth_states.x);
-      tmc_disable_stallguard(stepperY, stealth_states.y);
-      #if AXIS_HAS_STALLGUARD(X2)
-        tmc_disable_stallguard(stepperX2, stealth_states.x2);
-      #endif
-      #if AXIS_HAS_STALLGUARD(Y2)
-        tmc_disable_stallguard(stepperY2, stealth_states.y2);
-      #endif
-    #endif
   }
 
 #endif // QUICK_HOME
