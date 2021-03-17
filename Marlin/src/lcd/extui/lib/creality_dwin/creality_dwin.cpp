@@ -427,7 +427,7 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
   selection = select;
   Clear_Screen();
   Draw_Title(Get_Menu_Title(MainMenu));
-  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 72);
+  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 67);
   Main_Menu_Icons();
 }
 
