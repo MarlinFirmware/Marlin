@@ -62,6 +62,6 @@ FORCE_INLINE int16_t swap16(const int16_t value) {
   return endian.l; 
 }
 
-FORCE_INLINE uint32_t swap32(const uint32_t value) { return ((value>>24)&0xff) |  ((value<<8)&0xff0000) | ((value>>8)&0xff00) | ((value<<24)&0xff000000); }
+FORCE_INLINE uint32_t uInt32Value(const uint32_t value) { return ((value>>24)&0xff) |  ((value<<8)&0xff0000) | ((value>>8)&0xff00) | ((value<<24)&0xff000000); }
 
 FORCE_INLINE uint16_t uInt16Value(void *val_ptr) { return swap16(*static_cast<uint16_t*>(val_ptr)); }

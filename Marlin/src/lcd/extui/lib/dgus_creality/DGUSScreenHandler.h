@@ -292,7 +292,7 @@ public:
   template<unsigned int decimals>
   static void DGUSLCD_SetFloatAsLongFromDisplay(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
-      uint32_t value_raw = swap32(*(uint32_t*)val_ptr);
+      uint32_t value_raw = uInt32Value(*(uint32_t*)val_ptr);
 
       float value = static_cast<float>(static_cast<double>(value_raw) /cpow(10, decimals));
       *(float *)var.memadr = value;
@@ -312,7 +312,7 @@ public:
       // Round - truncated values look like skipped numbers
       uint32_t incomingValue = *(uint32_t *) val_ptr;
 
-      *(uint32_t*)var.memadr = swap32(incomingValue); 
+      *(uint32_t*)var.memadr = uInt32Value(incomingValue); 
     }
   }
 
