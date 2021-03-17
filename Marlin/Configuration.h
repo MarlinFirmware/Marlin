@@ -618,7 +618,7 @@
   // Make delta curves from many straight lines (linear interpolation).
   // This is a trade-off between visible corners (not enough segments)
   // and processor overload (too many expensive sqrt calls).
-  #define DELTA_SEGMENTS_PER_SECOND 200
+  #define DELTA_SEGMENTS_PER_SECOND 300
 
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
@@ -635,7 +635,7 @@
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7)
-    #define DELTA_CALIBRATION_DEFAULT_POINTS 5
+    #define DELTA_CALIBRATION_DEFAULT_POINTS 6
   #endif
 
   #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
@@ -647,24 +647,24 @@
   #define DELTA_PRINTABLE_RADIUS 80.0     // (mm)
 
   // Center-to-center distance of the holes in the diagonal push rods.
-  #define DELTA_DIAGONAL_ROD 216.81        // (mm)
+  #define DELTA_DIAGONAL_ROD 218.03        // (mm)
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 238.00             // (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 237.65             // (mm) Get this value from G33 auto calibrate
 
-  #define DELTA_ENDSTOP_ADJ { -0.62 , 0.0, -0.19 } // Get these values from G33 auto calibrate
+  #define DELTA_ENDSTOP_ADJ { -0.34 , 0.0, -0.22 } // Get these values from G33 auto calibrate
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS 101.46              // (mm) Get this value from G33 auto calibrate
+  #define DELTA_RADIUS 101.85              // (mm) Get this value from G33 auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
   // measured in degrees anticlockwise looking from above the printer
-  #define DELTA_TOWER_ANGLE_TRIM { -0.65, 0.63, 0.01 } // Get these values from G33 auto calibrate
+  #define DELTA_TOWER_ANGLE_TRIM { -0.65, 0.57, 0.07 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
   #define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 }
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, -1.06, 0.0 }
 
 #endif
 
@@ -1086,11 +1086,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 3, -31.0, -3.6 }
+#define NOZZLE_TO_PROBE_OFFSET { 3, -31.0, -3.5 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 5
+#define PROBING_MARGIN 0
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_SPEED (100*60)
@@ -1334,8 +1334,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
+//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
 /**
@@ -1421,7 +1421,7 @@
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
-  //#define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // When the nozzle is off the mesh, this value is used
+  //#define UBL_Z_RAISE_WHEN_OFF_MESH 0.0 // When the nozzle is off the mesh, this value is used
                                           // as the Z-Height correction value.
 
 #elif ENABLED(MESH_BED_LEVELING)
