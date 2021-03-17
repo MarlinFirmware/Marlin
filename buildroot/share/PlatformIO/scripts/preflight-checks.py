@@ -20,8 +20,8 @@ def get_envs_for_board(board, envregex):
 					return re.findall(re.compile("%s\w+" % envregex), line)
 	return []
 
-def check_envs(build_env, board_envs, config):
-	if build_env in board_envs:
+def check_envs(build_env, board_envs, config, envregex):
+	if any((match := re.compile("%s%s" % (envregex,build_env)).match(x)) for x in board_envs):
 		return True
 	ext = config.get(build_env, 'extends', default=None)
 	if ext:
@@ -56,7 +56,7 @@ build_env = env['PIOENV']
 motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
 board_envs = get_envs_for_board(motherboard, osregex)
 config = env.GetProjectConfig()
-result = check_envs(build_env, board_envs, config)
+result = check_envs(build_env, board_envs, config, osregex)
 
 if not result:
 	err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
