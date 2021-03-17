@@ -17,7 +17,7 @@ def get_envs_for_board(board, envregex):
 				line = file.readline()
 				found_envs = re.match(r"\s*#include .+" + envregex, line)
 				if found_envs:
-					return re.findall(re.compile("%s\w+" % osregex), line)
+					return re.findall(re.compile("%s\w+" % envregex), line)
 	return []
 
 def check_envs(build_env, board_envs, config):
