@@ -21,7 +21,7 @@ def get_envs_for_board(board, envregex):
 	return []
 
 def check_envs(build_env, board_envs, config, envregex):
-	if any((match := re.compile("%s%s" % (envregex,build_env)).match(x)) for x in board_envs):
+	if any((re.compile("%s%s" % (envregex,build_env)).match(x)) for x in board_envs):
 		return True
 	ext = config.get(build_env, 'extends', default=None)
 	if ext:
