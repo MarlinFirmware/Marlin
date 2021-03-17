@@ -55,6 +55,7 @@ enum processID : uint8_t {
   MMeshMoveZ,
   TemperatureID,
   Motion,
+  Reboot,
   Info,
   Tune,
   #if HAS_PREHEAT
@@ -168,8 +169,6 @@ void Draw_Popup_Window(uint8_t icon, const char *msg1, const char *msg2);
 #endif
 
 void Popup_Window_Resume();
-void Popup_Window_Home(const bool parking=false);
-void Popup_Window_Leveling();
 
 void Goto_PrintProcess();
 void Goto_Main_Menu();

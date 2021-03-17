@@ -99,7 +99,7 @@
 //#define USE_STRING_TITLES
 
 #define MENU_CHAR_LIMIT  24
-#define STATUS_Y 360
+#define STATUS_Y 354
 
 // Fan speed limit
 #define FANON           255
@@ -203,74 +203,63 @@ bool sdprint = false;
   float dwin_zoffset = 0, last_zoffset = 0;
 #endif
 
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-  if (value < 0) {
-    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F("-"));
-    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, -value);
-  }
-  else {
-    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F(" "));
-    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value);
-  }
-}
-
 void ICON_Print() {
   if (select_page.now == 0) {
-    DWIN_ICON_Show(ICON, ICON_Print_1, 17, 120);
-    DWIN_Draw_Rectangle(0, Color_White, 17, 120, 126, 219);
-    DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 191);
+    DWIN_ICON_Show(ICON, ICON_Print_1, 17, 110);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 110, 126, 209);
+    DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 181);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Print_0, 17, 120);
-    DWIN_Frame_AreaCopy(1, 1, 423, 31, 435, 57, 191);
+    DWIN_ICON_Show(ICON, ICON_Print_0, 17, 110);
+    DWIN_Frame_AreaCopy(1, 1, 423, 31, 435, 57, 181);
   }
 }
 
 void ICON_Prepare() {
   if (select_page.now == 1) {
-    DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 120);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 120, 254, 219);
-    DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 191);
+    DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 110);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 110, 254, 209);
+    DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 181);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 120);
-    DWIN_Frame_AreaCopy(1, 33, 423, 82, 438, 175, 191);
+    DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 110);
+    DWIN_Frame_AreaCopy(1, 33, 423, 82, 438, 175, 181);
   }
 }
 
 void ICON_Control() {
   if (select_page.now == 2) {
-    DWIN_ICON_Show(ICON, ICON_Control_1, 17, 236);
-    DWIN_Draw_Rectangle(0, Color_White, 17, 236, 126, 335);
-    DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 308);
+    DWIN_ICON_Show(ICON, ICON_Control_1, 17, 226);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 226, 126, 325);
+    DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 298);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Control_0, 17, 236);
-    DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 308);
+    DWIN_ICON_Show(ICON, ICON_Control_0, 17, 226);
+    DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 298);
   }
 }
 
 void ICON_StartInfo(bool show) {
   if (show) {
-    DWIN_ICON_Show(ICON, ICON_Info_1, 145, 236);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 236, 254, 335);
-    DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 308);
+    DWIN_ICON_Show(ICON, ICON_Info_1, 145, 226);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 226, 254, 325);
+    DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 298);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Info_0, 145, 236);
-    DWIN_Frame_AreaCopy(1, 132, 423, 159, 435, 186, 308);
+    DWIN_ICON_Show(ICON, ICON_Info_0, 145, 226);
+    DWIN_Frame_AreaCopy(1, 132, 423, 159, 435, 186, 298);
   }
 }
 
 void ICON_Leveling(bool show) {
   if (show) {
-    DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 236);
-    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 335);
-    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 308);
+    DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 226);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 226, 254, 325);
+    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 298);
   }
   else {
-    DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 236);
-    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 308);
+    DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 226);
+    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 298);
   }
 }
 
@@ -335,7 +324,7 @@ void Draw_Title(const __FlashStringHelper * title) {
 }
 
 void Clear_Menu_Area() {
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y-1);
 }
 
 void Clear_Main_Window() {
@@ -440,7 +429,8 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define CONTROL_CASE_SAVE  (CONTROL_CASE_MOVE + ENABLED(EEPROM_SETTINGS))
 #define CONTROL_CASE_LOAD  (CONTROL_CASE_SAVE + ENABLED(EEPROM_SETTINGS))
 #define CONTROL_CASE_RESET (CONTROL_CASE_LOAD + ENABLED(EEPROM_SETTINGS))
-#define CONTROL_CASE_INFO  (CONTROL_CASE_RESET + 1)
+#define CONTROL_CASE_REBOOT (CONTROL_CASE_RESET + 1) 
+#define CONTROL_CASE_INFO  (CONTROL_CASE_REBOOT + 1)
 #define CONTROL_CASE_TOTAL CONTROL_CASE_INFO
 
 #define TUNE_CASE_SPEED 1
@@ -678,29 +668,26 @@ void Draw_Control_Menu() {
     #endif
   #endif
 
+  if (CVISI(CONTROL_CASE_REBOOT)) DWIN_Draw_Label(CLINE(CONTROL_CASE_REBOOT), GET_TEXT_F(MSG_RESET_PRINTER));
   if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
 
-  if (select_control.now && CVISI(select_control.now))
+  if (select_control.now && CVISI(select_control.now))  // Draw selected indicator
     Draw_Menu_Cursor(CSCROL(select_control.now));
 
-  // Draw icons and lines
-  uint8_t i = 0;
-  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_Temperature + (N) - 1); }while(0)
-
-  _TEMP_ICON(CONTROL_CASE_TEMP);
-  if (CVISI(i)) Draw_More_Icon(CSCROL(i));
-
-  _TEMP_ICON(CONTROL_CASE_MOVE);
-  Draw_More_Icon(CSCROL(i));
+  if (CVISI(CONTROL_CASE_TEMP)) Draw_Menu_Line(CSCROL(CONTROL_CASE_TEMP), ICON_Temperature);
+  if (CVISI(CONTROL_CASE_TEMP)) Draw_More_Icon(CSCROL(CONTROL_CASE_TEMP));
+  if (CVISI(CONTROL_CASE_MOVE)) Draw_Menu_Line(CSCROL(CONTROL_CASE_MOVE), ICON_Motion);
+  if (CVISI(CONTROL_CASE_MOVE)) Draw_More_Icon(CSCROL(CONTROL_CASE_MOVE));
 
   #if ENABLED(EEPROM_SETTINGS)
-    _TEMP_ICON(CONTROL_CASE_SAVE);
-    _TEMP_ICON(CONTROL_CASE_LOAD);
-    _TEMP_ICON(CONTROL_CASE_RESET);
+    if (CVISI(CONTROL_CASE_SAVE)) Draw_Menu_Line(CSCROL(CONTROL_CASE_SAVE), ICON_WriteEEPROM);
+    if (CVISI(CONTROL_CASE_LOAD)) Draw_Menu_Line(CSCROL(CONTROL_CASE_LOAD), ICON_ReadEEPROM);
+    if (CVISI(CONTROL_CASE_RESET)) Draw_Menu_Line(CSCROL(CONTROL_CASE_RESET), ICON_StockConfiguraton);
   #endif
 
-  _TEMP_ICON(CONTROL_CASE_INFO);
-  if (CVISI(CONTROL_CASE_INFO)) Draw_More_Icon(CSCROL(i));
+  if (CVISI(CONTROL_CASE_REBOOT)) Draw_Menu_Line(CSCROL(CONTROL_CASE_REBOOT), ICON_ResumeEEPROM);
+  if (CVISI(CONTROL_CASE_INFO)) Draw_Menu_Line(CSCROL(CONTROL_CASE_INFO), ICON_Info);
+  if (CVISI(CONTROL_CASE_INFO)) Draw_More_Icon(CSCROL(CONTROL_CASE_INFO));
 }
 
 void Draw_Tune_Menu() {
@@ -780,32 +767,32 @@ void Draw_Tune_Menu() {
   #endif 
 }
 
-void draw_max_en(const uint16_t line) {
+inline void draw_max_en(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 245, 119, 270, 129, LBLX, line);   // "Max"  // M.A.R.C. Correct Label Max
 }
-void draw_max_accel_en(const uint16_t line) {
+inline void draw_max_accel_en(const uint16_t line) {
   draw_max_en(line);
   DWIN_Frame_AreaCopy(1, 1, 135, 79, 145, LBLX + 27, line); // "Acceleration"
 }
-void draw_speed_en(const uint16_t inset, const uint16_t line) {
+inline void draw_speed_en(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + inset, line); // "Speed"
 }
-void draw_jerk_en(const uint16_t line) {
+inline void draw_jerk_en(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 64, 119, 106, 129, LBLX + 27, line); // "Jerk"
 }
-void draw_steps_per_mm(const uint16_t line) {
+inline void draw_steps_per_mm(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 1, 151, 118, 161, LBLX, line);   // "Steps-per-mm" // M.A.R.C. Correct Label Transmission ratio
 }
-void say_x(const uint16_t inset, const uint16_t line) {
+inline void say_x(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 95, 104, 102, 114, LBLX + inset, line); // "X"
 }
-void say_y(const uint16_t inset, const uint16_t line) {
+inline void say_y(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 104, 104, 110, 114, LBLX + inset, line); // "Y"
 }
-void say_z(const uint16_t inset, const uint16_t line) {
+inline void say_z(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 112, 104, 120, 114, LBLX + inset, line); // "Z"
 }
-void say_e(const uint16_t inset, const uint16_t line) {
+inline void say_e(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 237, 119, 244, 129, LBLX + inset, line); // "E"
 }
 
@@ -867,10 +854,8 @@ void Draw_Popup_Window(uint8_t icon, const char *msg1, const char *msg2) {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
   DWIN_ICON_Show(ICON, icon, 101, 105);
-  const int8_t p = _MAX(0U, DWIN_WIDTH - strlen_P(msg1) * 8) / 2;
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, p, 210, F(msg1));
-  const int8_t q = _MAX(0U, DWIN_WIDTH - strlen_P(msg2) * 8) / 2;
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, q, 240, F(msg2));
+  DWIN_Draw_CenteredString(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 8, 210, F(msg1));
+  DWIN_Draw_CenteredString(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 8, 240, F(msg2));
 }
 
 void Draw_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2) {
@@ -897,24 +882,6 @@ void Popup_Window_Resume() {
   DWIN_ICON_Show(ICON, ICON_Continue_E, 146, 307);
 }
 
-void Popup_Window_Home(const bool parking/*=false*/) {
-  Clear_Main_Window();
-  Draw_Popup_Bkgd_60();
-  DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-  DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
-}
-
-#if HAS_ONESTEP_LEVELING
-  void Popup_Window_Leveling() {
-    Clear_Main_Window();
-    Draw_Popup_Bkgd_60();
-    DWIN_ICON_Show(ICON, ICON_AutoLeveling, 101, 105);
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
-  }
-#endif
-
 void Draw_Select_Highlight(const bool sel) {
   HMI_flag.select_flag = sel;
   const uint16_t c1 = sel ? Select_Color : Color_Bg_Window,
@@ -926,10 +893,7 @@ void Draw_Select_Highlight(const bool sel) {
 }
 
 void Popup_window_PauseOrStop() {
-  Clear_Main_Window();
-  Draw_Popup_Bkgd_60();
-       if (select_print.now == 1) DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
-  else if (select_print.now == 2) DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
+  Draw_Popup_Window(ICON_BLTouch, "Please confirm",(select_print.now == 1) ? GET_TEXT(MSG_PAUSE_PRINT) : GET_TEXT(MSG_STOP_PRINT));
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
   DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
   Draw_Select_Highlight(true);
@@ -990,13 +954,9 @@ void Goto_PrintProcess() {
 
   if (sdprint) {
     // Copy into filebuf string before entry
-    char * const name = card.longest_filename();
-    const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
-    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
+    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, card.longest_filename());
   } else {
-    char * const name = (char*)"Host Print";
-    const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
-    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
+    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, F("Host Print"));
   }
 
   DWIN_ICON_Show(ICON, ICON_PrintTime, 17, 193);
@@ -1407,7 +1367,6 @@ void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y,
 
   if (force || changed || draw_qmark || draw_empty) {
     if (blink && draw_qmark)
-//      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("???.?"));
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("- ? -"));
     else if (blink && draw_empty)
       DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
@@ -1522,14 +1481,7 @@ void update_variable() {
   static float _offset = 0;
   if (BABY_Z_VAR != _offset) {
     _offset = BABY_Z_VAR;
-    if (BABY_Z_VAR < 0) {
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, -_offset * 100);
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F("-"));
-    }
-    else {
-      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 2, 2, 207, 417, _offset * 100);
-      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, 205, 419, F(" "));
-    }
+    DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 210, 417, _offset * 100);
   }
 
   _draw_xyz_position(false);
@@ -2135,7 +2087,7 @@ void HMI_PauseOrStop() {
         #ifdef ACTION_ON_CANCEL
           host_action_cancel();
         #endif
-        Popup_Window_Home(true);
+        Draw_Popup_Window(ICON_BLTouch, "Parking" , "Please wait until done.");
       }
       else
         Goto_PrintProcess(); // cancel stop
@@ -2464,14 +2416,23 @@ void HMI_Control() {
     if (select_control.inc(1 + CONTROL_CASE_TOTAL)) {
       if (select_control.now > MROWS && select_control.now > index_control) {
         index_control = select_control.now;
+        
+        // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
-        Draw_Menu_Icon(MROWS, ICON_Temperature + index_control - 1);
-        Draw_More_Icon(CONTROL_CASE_TEMP + MROWS - index_control); // Temperature >
-        Draw_More_Icon(CONTROL_CASE_MOVE + MROWS - index_control); // Motion >
-        if (index_control > MROWS) {
-          Draw_More_Icon(CONTROL_CASE_INFO + MROWS - index_control); // Info >
-          Item_Control_Info(MBASE(CONTROL_CASE_INFO - 1));
+        
+        switch (index_control) {
+          case CONTROL_CASE_REBOOT:  // Reset Printer
+            Draw_Menu_Icon(MROWS, ICON_ResumeEEPROM);
+            DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(MROWS) - 1, GET_TEXT_F(MSG_RESET_PRINTER));
+            break;
+          case CONTROL_CASE_INFO:    // Info >
+            Draw_Menu_Icon(MROWS, ICON_Info);
+            Item_Control_Info(MBASE(MROWS));
+            Draw_More_Icon(MROWS);
+            break;
+          default: break;
         }
+        
       }
       else {
         Move_Highlight(1, select_control.now + MROWS - index_control);
@@ -2483,12 +2444,17 @@ void HMI_Control() {
       if (select_control.now < index_control - MROWS) {
         index_control--;
         Scroll_Menu(DWIN_SCROLL_DOWN);
-        if (index_control == MROWS)
-          Draw_Back_First();
-        else
-          Draw_Menu_Line(0, ICON_Temperature + select_control.now - 1);
-        Draw_More_Icon(0 + MROWS - index_control + 1); // Temperature >
-        Draw_More_Icon(1 + MROWS - index_control + 1); // Motion >
+
+        switch (index_control) {
+          case MROWS :
+            Draw_Back_First();
+            break;
+          case MROWS+CONTROL_CASE_TEMP:  // Reset Printer
+            Draw_Menu_Line(0,ICON_Temperature, GET_TEXT(MSG_TEMPERATURE));
+            Draw_More_Icon(0);
+            break;
+          default: break;
+        }
       }
       else {
         Move_Highlight(-1, select_control.now + MROWS - index_control);
@@ -2526,6 +2492,10 @@ void HMI_Control() {
           HMI_AudioFeedback();
           break;
       #endif
+      case CONTROL_CASE_REBOOT: // Reset Printer
+        checkkey = Reboot;
+        HMI_AudioFeedback();
+        break;
       case CONTROL_CASE_INFO: // Info
         checkkey = Info;
         Draw_Info_Menu();
@@ -3157,6 +3127,16 @@ void HMI_Motion() {
   DWIN_UpdateLCD();
 }
 
+/* Reset Printer */
+void HMI_Reboot() {
+  last_checkkey = MainMenu;
+  checkkey = Popup_Window;
+  Draw_Popup_Window(ICON_BLTouch, GET_TEXT(MSG_RESET_PRINTER), "Please wait until reboot.");
+  DWIN_UpdateLCD();  
+  delay(1000);
+  queue.inject_P(PSTR("M997"));       
+}
+
 /* Info */
 void HMI_Info() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -3565,7 +3545,7 @@ void EachMomentUpdate() {
       Draw_Print_ProgressBar();
 
       // show print done confirm
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 250, DWIN_WIDTH - 1, STATUS_Y-1);
       DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 283);
     }
     else if (HMI_flag.pause_flag != printingIsPaused()) {
@@ -3611,12 +3591,14 @@ void EachMomentUpdate() {
     }
 
     // Estimate remaining time every 20 seconds
-    static millis_t next_remain_time_update = 0;
-    if (_percentDone > 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) {
-      _remain_time = (elapsed.value - dwin_heat_time) / (_percentDone * 0.01f) - (elapsed.value - dwin_heat_time);
-      next_remain_time_update += DWIN_REMAIN_TIME_UPDATE_INTERVAL;
-      Draw_Print_ProgressRemain();
-    }
+    if (sdprint && card.isPrinting()) {
+      static millis_t next_remain_time_update = 0;
+      if (_percentDone > 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) {
+        _remain_time = (elapsed.value - dwin_heat_time) / (_percentDone * 0.01f) - (elapsed.value - dwin_heat_time);
+        next_remain_time_update += DWIN_REMAIN_TIME_UPDATE_INTERVAL;
+        Draw_Print_ProgressRemain();
+      }
+    } else Draw_Print_ProgressRemain();
   }
   else if (dwin_abort_flag && !HMI_flag.home_flag) { // Print Stop
     dwin_abort_flag = false;
@@ -3648,9 +3630,7 @@ void EachMomentUpdate() {
       // TODO: Get the name of the current file from someplace
       //
       //(void)recovery.interrupted_file_exists();
-      char * const name = card.longest_filename();
-      const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
-      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, npos, 252, name);
+      DWIN_Draw_CenteredString(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, MENU_CHR_W, 252, card.longest_filename());
       DWIN_UpdateLCD();
 
       while (recovery_flag) {
@@ -3700,6 +3680,7 @@ void DWIN_HandleScreen() {
     #endif
     case TemperatureID:   HMI_Temperature(); break;
     case Motion:          HMI_Motion(); break;
+    case Reboot:          HMI_Reboot(); break;
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
     #if HAS_PREHEAT
@@ -3744,7 +3725,7 @@ void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   last_checkkey=checkkey;
   checkkey=Homing;
-  Draw_Popup_Window(ICON_BLTouch, (last_checkkey == Back_Main) ? "Parking" : "Homing XYZ", "Please wait until done.");
+  Draw_Popup_Window(ICON_BLTouch, "Homing XYZ", "Please wait until done.");
 }
 
 void DWIN_CompletedHoming() {
@@ -3790,9 +3771,8 @@ void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zva
 #endif
 
 void DWIN_StatusChanged(const char *text) {
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, STATUS_Y, DWIN_WIDTH-8, STATUS_Y+20);
-  const int8_t p = _MAX(0U, DWIN_WIDTH - strlen_P(text) * MENU_CHR_W) / 2;
-  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, p, STATUS_Y, F(text));
+  DWIN_Draw_Rectangle(1, Color_Bg_LBlue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y+20);
+  DWIN_Draw_CenteredString(false, false, font8x16, Color_Yellow, Color_Bg_LBlue, MENU_CHR_W, STATUS_Y+2, F(text));
 }
 
 // Start a Print Job

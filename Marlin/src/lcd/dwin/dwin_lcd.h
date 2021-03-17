@@ -174,8 +174,10 @@
 // Color
 #define Color_White       0xFFFF
 #define Color_Yellow      0xFF0F
+#define Color_Green       0x0F0F
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
+#define Color_Bg_LBlue    0x2288  // Light blue color
 #define Color_Bg_Black    0x0841  // Black background color
 #define Color_Bg_Red      0xF00F  // Red background color
 #define Popup_Text_Color  0xD6BA  // Popup font background color
@@ -284,6 +286,14 @@ inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
 }
 
+// Draw a centered string using DWIN_WIDTH
+void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string);
+
+inline void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_CenteredString(widthAdjust, bShow, size, color, bColor, CHR_W, y, (char *)title);
+}
+
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -310,6 +320,15 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+
+// Draw a signed floating point number
+//  size: Font size
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 

@@ -265,6 +265,14 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_Send(i);
 }
 
+// Draw a Centered  String using DWIN_WIDTH
+void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string) {
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;  
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
+}
+
+
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -341,6 +349,24 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Byte(i, fvalue[0]);
   */
   DWIN_Send(i);
+}
+
+// Draw a signed floating point number
+//  size: Font size
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  if (value < 0) {
+    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, -value);
+    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F("-"));
+  }
+  else {
+    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F(" "));
+    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value);
+  }
 }
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
