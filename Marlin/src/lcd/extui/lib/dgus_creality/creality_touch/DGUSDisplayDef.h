@@ -90,7 +90,7 @@ enum DGUSLCD_Screens : uint8_t {
 
 // Version checks
 constexpr uint16_t VP_UI_VERSION_MAJOR = 0xFFFA;
-constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 6;
+constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 60;
 constexpr uint16_t VERSION_MISMATCH_BUZZ_AMOUNT = 5;
 constexpr uint16_t VERSION_MISMATCH_LED_FLASH_DELAY = 1000;
 
@@ -218,7 +218,7 @@ constexpr uint16_t VP_M117 = 0x3000 + (3 * 1);  // Text Variable Pointer. First 
 constexpr uint8_t VP_M117_LEN = 100;
 
 // ... And memory space for static (short) messages. Note this VPAddr is also the VP of the 5 beta and alpha 4 touch screens. 
-constexpr uint8_t M117_STATIC_DISPLAY_LEN = 26; // Fits "TFT flashed incorrectly v0" exactly
+constexpr uint8_t M117_STATIC_DISPLAY_LEN = 28; // Fits "TFT flashed incorrectly v0" exactly
 constexpr uint16_t VP_M117_STATIC = 0x21B3;
 constexpr uint8_t VP_M117_STATIC_LEN = 70;
 

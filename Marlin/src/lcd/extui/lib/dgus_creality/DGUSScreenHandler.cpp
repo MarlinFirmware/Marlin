@@ -231,22 +231,26 @@ void DGUSScreenHandler::HandleDevelopmentTestButton(DGUS_VP_Variable &var, void 
   }
 }
 
-void DGUSScreenHandler::setstatusmessage(const char *msg) {
-  const bool needs_scrolling = strlen_P(msg) > M117_STATIC_DISPLAY_LEN;
+void setStatusMessage(const char *msg, bool forceScrolling) {
+  const bool needs_scrolling = forceScrolling || strlen(msg) > M117_STATIC_DISPLAY_LEN;
 
   DGUS_VP_Variable ramcopy;
 
   // Update static message to either NULL or the value
   if (populate_VPVar(VP_M117_STATIC, &ramcopy)) {
     ramcopy.memadr = (void*) (needs_scrolling ? NUL_STR : msg);
-    DGUSLCD_SendStringToDisplay(ramcopy);
+    DGUSScreenHandler::DGUSLCD_SendStringToDisplay(ramcopy);
   }
 
   // Update scrolling message to either NULL or the value
   if (populate_VPVar(VP_M117, &ramcopy)) {
     ramcopy.memadr = (void*) (needs_scrolling ? msg : NUL_STR);
-    DGUSLCD_SendScrollingStringToDisplay(ramcopy);
+    DGUSScreenHandler::DGUSLCD_SendScrollingStringToDisplay(ramcopy);
   }
+}
+
+void DGUSScreenHandler::setstatusmessage(const char *msg) {
+  setStatusMessage(msg, false);
 }
 
 void DGUSScreenHandler::setstatusmessagePGM(PGM_P const msg) {
@@ -1190,9 +1194,16 @@ void DGUSScreenHandler::HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr
   HasScreenVersionMismatch = true;
 
   // Show on display if user has M117 message
-  char buffer[VP_M117_LEN] = {0};
-  sprintf_P(buffer, "TFT version mismatch: v%d", actualScreenVersion);
-  setstatusmessage(buffer);
+  if (actualScreenVersion >= 6) {
+    // We have a scrolling message so we can do something more complicated
+    char buffer[VP_M117_LEN] = {0};
+    sprintf_P(buffer, "Touch screen flashed incorrectly: version mismatch - build %d found but expected %d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
+    setStatusMessage(buffer, true);
+  } else {
+    char buffer[VP_M117_LEN] = {0};
+    sprintf_P(buffer, "TFT flash failed v%d<>v%d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
+    setstatusmessage(buffer);
+  }
 
   // Audio buzzer
   Buzzer(500, 500);
