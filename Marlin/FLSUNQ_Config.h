@@ -16,8 +16,8 @@
 /*_______________________1___________________________*/
 //==================== Hardware =====================//
 /*-------------Motherboard/Printer-(1 CHOICE)-------*/
-//#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
-#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
+#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
+//#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
                                      // click on the "Default" icon on the bottom edge of the window and 
                                      // choose "mks_robin_nano35").
 
@@ -83,10 +83,10 @@
  * ====== Default eStep (T=397/422)/(B=417)   ==============
  * =========================================================
  */
-#define INV_EXT                    // Uncommment to reverse direction for BMG.
+//#define INV_EXT                    // Uncommment to reverse direction for BMG.
 
 // BMG Extruder (B) Extruder step(417).
-#define BMG                       //(B) Uncommment for BMG Left/Right.
+//#define BMG                       //(B) Uncommment for BMG Left/Right.
 
 /*__________________________5______________________________*/
       /** =============================
