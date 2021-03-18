@@ -33,6 +33,7 @@
 // Ender Series -------------------------------------------------------------
 //#define ENDER2
 //#define ENDER3
+//#define ENDER3_MAX
 //#define ENDER5
 //#define ENDER5_PLUS
 
@@ -55,6 +56,7 @@
 //#define CR10_OEM                 //OEM Mount for Creality Machines (Ender3/Ender5/CR-10/CR-10S/CR-20)
 //#define ENDER2_OEM               //Ender 2 Specific OEM Mount
 //#define ENDER2_V6                //Ender 2 Specific V6 Mount
+//#define ENDER3_MAX_OEM           //Ender 3 MAX Specific OEM Mount
 //#define SV01_OEM_MOUNT           //Sovol SV01 OEM Mount
 //#define CR10_VOLCANO             //TH3D CR-10 Volcano Mount 
 //#define CR10_V6HEAVYDUTY         //V6 Heavy Duty Mount
@@ -329,7 +331,7 @@
  */
  
 //EZBoard based Machine Settings
-#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER2) || ENABLED(ENDER3) || ENABLED(ENDER5) || ENABLED(ENDER5_PLUS) || ENABLED(SOVOL_SV01) || ENABLED(CR20)
+#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER2) || ENABLED(ENDER3) || ENABLED(ENDER5) || ENABLED(ENDER5_PLUS) || ENABLED(SOVOL_SV01) || ENABLED(CR20) || ENABLED(ENDER3_MAX)
 
   #define SERIAL_PORT -1
   #define SERIAL_PORT_2 0
@@ -345,11 +347,13 @@
     #define REVERSE_ENCODER_DIRECTION
   #endif
   
-  #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
-    //S models assume that you have 2x motors, filament sensor, and are using the dual adapter.
+  #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01) || ENABLED(ENDER3_MAX)
+    //S models + SV01 assume that you have 2x motors, filament sensor, and are using the dual adapter.
     //So lets up the VREF on Z and reverse the Z axis when using the dual motor adapter and enable the filament sensor
 	
-    #define DUAL_Z_MOTORS
+    #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
+      #define DUAL_Z_MOTORS
+    #endif
 
     #if ENABLED(REVERSE_Z_MOTOR)
       #undef REVERSE_Z_MOTOR
@@ -357,7 +361,7 @@
       #define REVERSE_Z_MOTOR
     #endif
   
-    #if ENABLED(SOVOL_SV01)
+    #if ENABLED(SOVOL_SV01) || ENABLED(ENDER3_MAX) //Have sensors that use same logic as EZOUT Sensors
       #define EZOUTV2_ENABLE
     #endif
   
@@ -471,6 +475,13 @@
       #define Y_BED_SIZE 235
       #define Z_MAX_POS 250
     #endif
+    #define PRINTER_VOLTAGE_24
+  #endif
+
+  #if ENABLED(ENDER3_MAX)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 340
     #define PRINTER_VOLTAGE_24
   #endif
 
