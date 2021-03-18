@@ -1,1 +1,1 @@
-C:/Users/Daniele Aramu/workspaces/ender3v2-config/config/examples/Creality/Ender-3 V2/Configuration_adv.h
+/mnt/c/Users/Daniele Aramu/workspaces/ender3v2-config/config/examples/Creality/Ender-3 V2/Configuration_adv.h
