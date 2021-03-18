@@ -3029,7 +3029,7 @@ inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_n
  *
  * This hard limit is applied as a block is being added to the planner queue.
  */
-void Planner::set_max_acceleration(const uint8_t axis, const float &inMaxAccelMMS2) {
+void Planner::set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2) {
   #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
     #ifdef MAX_ACCEL_EDIT_VALUES
       constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
@@ -3052,7 +3052,7 @@ void Planner::set_max_acceleration(const uint8_t axis, const float &inMaxAccelMM
  *
  * This hard limit is applied as a block is being added to the planner queue.
  */
-void Planner::set_max_feedrate(const uint8_t axis, const float &inMaxFeedrateMMS) {
+void Planner::set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS) {
   #if ENABLED(LIMITED_MAX_FR_EDITING)
     #ifdef MAX_FEEDRATE_EDIT_VALUES
       constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
@@ -3074,7 +3074,7 @@ void Planner::set_max_feedrate(const uint8_t axis, const float &inMaxFeedrateMMS
    *
    * This hard limit is applied (to the block start speed) as the block is being added to the planner queue.
    */
-  void Planner::set_max_jerk(const AxisEnum axis, const float &targetValue) {
+  void Planner::set_max_jerk(const AxisEnum axis, float inMaxJerkMMS) {
     #if ENABLED(LIMITED_JERK_EDITING)
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
@@ -3084,9 +3084,9 @@ void Planner::set_max_feedrate(const uint8_t axis, const float &inMaxFeedrateMMS
             (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
         #endif
       ;
-      limit_and_warn(targetValue, axis, PSTR("Jerk"), max_jerk_edit);
+      limit_and_warn(inMaxJerkMMS, axis, PSTR("Jerk"), max_jerk_edit);
     #endif
-    max_jerk[axis] = targetValue;
+    max_jerk[axis] = inMaxJerkMMS;
   }
 
 #endif
