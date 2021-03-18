@@ -207,6 +207,7 @@
 // FAN Header Function Setting
 // The i3 Mini board has a fan output. By default this is assigned to a layer fan
 // If you want to use it to control the hotend/control box fan, uncomment the below line
+// This setting will turn the fan output on when the hotend is 50C+ and off when below 50C
 //#define WANHAO_I3MINI_E0_FAN
 
 //===========================================================================
