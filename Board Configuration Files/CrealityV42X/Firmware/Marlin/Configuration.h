@@ -43,6 +43,7 @@
 // EZABL Probe Mounts
 //#define ENDER3_OEM
 //#define ENDER3_V2_OEM
+//#define ENDER3_MAX_OEM
 //#define ENDER5_OEM
 //#define CUSTOM_PROBE
 
