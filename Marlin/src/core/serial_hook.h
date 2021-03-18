@@ -257,8 +257,8 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
 };
 
 // Build the actual serial object depending on current configuration
-#define Serial0Type TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, BaseSerial)
-#define ForwardSerial0Type TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, ForwardSerial)
+#define Serial1Class TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, BaseSerial)
+#define ForwardSerial1Class TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, ForwardSerial)
 #ifdef HAS_MULTI_SERIAL
-  #define Serial1Type ConditionalSerial
+  #define Serial2Class ConditionalSerial
 #endif

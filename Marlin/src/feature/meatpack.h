@@ -90,18 +90,18 @@ class MeatPack {
   static const uint8_t kSpaceCharIdx = 11;
   static const char kSpaceCharReplace = 'E';
 
-  static bool cmd_is_next;        // A command is pending
-  static uint8_t state;           // Configuration state
-  static uint8_t second_char;     // Buffers a character if dealing with out-of-sequence pairs
-  static uint8_t cmd_count,       // Counter of command bytes received (need 2)
-                 full_char_count, // Counter for full-width characters to be received
-                 char_out_count;  // Stores number of characters to be read out.
-  static uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
+  bool cmd_is_next;        // A command is pending
+  uint8_t state;           // Configuration state
+  uint8_t second_char;     // Buffers a character if dealing with out-of-sequence pairs
+  uint8_t cmd_count,       // Counter of command bytes received (need 2)
+          full_char_count, // Counter for full-width characters to be received
+          char_out_count;  // Stores number of characters to be read out.
+  uint8_t char_out_buf[2]; // Output buffer for caching up to 2 characters
 
 public:
   // Pass in a character rx'd by SD card or serial. Automatically parses command/ctrl sequences,
   // and will control state internally.
-  static void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
+  void handle_rx_char(const uint8_t c, const serial_index_t serial_ind);
 
   /**
    * After passing in rx'd char using above method, call this to get characters out.
@@ -109,17 +109,17 @@ public:
    * @param out [in] Output pointer for unpacked/processed data.
    * @return Number of characters returned. Range from 0 to 2.
    */
-  static uint8_t get_result_char(char* const __restrict out);
+  uint8_t get_result_char(char* const __restrict out);
 
-  static void reset_state();
-  static void report_state();
-  static uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
-  static void handle_command(const MeatPack_Command c);
-  static void handle_output_char(const uint8_t c);
-  static void handle_rx_char_inner(const uint8_t c);
+  void reset_state();
+  void report_state();
+  uint8_t unpack_chars(const uint8_t pk, uint8_t* __restrict const chars_out);
+  void handle_command(const MeatPack_Command c);
+  void handle_output_char(const uint8_t c);
+  void handle_rx_char_inner(const uint8_t c);
+
+  MeatPack() : cmd_is_next(false), state(0), second_char(0), cmd_count(0), full_char_count(0), char_out_count(0) {}
 };
-
-extern MeatPack meatpack;
 
 // Implement the MeatPack serial class so it's transparent to rest of the code
 template <typename SerialT>
@@ -127,6 +127,7 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   typedef SerialBase< MeatpackSerial<SerialT> > BaseClassT;
 
   SerialT & out;
+  MeatPack meatpack;
 
   char serialBuffer[2];
   uint8_t charCount;
@@ -143,10 +144,6 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   void flushTX()                      { CALL_IF_EXISTS(void, &out, flushTX); }
 
   int available(serial_index_t index) {
-    // There is a potential issue here with multiserial, since it'll return its decoded buffer whatever the serial index here.
-    // So, instead of doing MeatpackSerial<MultiSerial<...>> we should do MultiSerial<MeatpackSerial<...>, MeatpackSerial<...>>
-    // TODO, let's fix this later on
-
     if (charCount) return charCount;          // The buffer still has data
     if (out.available(index) <= 0) return 0;  // No data to read
 

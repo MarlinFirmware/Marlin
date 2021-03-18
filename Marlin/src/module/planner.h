@@ -460,12 +460,27 @@ class Planner {
      * Static (class) Methods
      */
 
+    // Recalculate steps/s^2 accelerations based on mm/s^2 settings
     static void reset_acceleration_rates();
-    static void refresh_positioning();
-    static void set_max_acceleration(const uint8_t axis, float targetValue);
-    static void set_max_feedrate(const uint8_t axis, float targetValue);
-    static void set_max_jerk(const AxisEnum axis, float targetValue);
 
+    /**
+     * Recalculate 'position' and 'steps_to_mm'.
+     * Must be called whenever settings.axis_steps_per_mm changes!
+     */
+    static void refresh_positioning();
+
+    // For an axis set the Maximum Acceleration in mm/s^2
+    static void set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2);
+
+    // For an axis set the Maximum Feedrate in mm/s
+    static void set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS);
+
+    // For an axis set the Maximum Jerk (instant change) in mm/s
+    #if HAS_CLASSIC_JERK
+      static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
+    #else
+      static inline void set_max_jerk(const AxisEnum, const float&) {}
+    #endif
 
     #if EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
@@ -883,9 +898,9 @@ class Planner {
     #if ENABLED(AUTOTEMP)
       static float autotemp_min, autotemp_max, autotemp_factor;
       static bool autotemp_enabled;
-      static void getHighESpeed();
-      static void autotemp_M104_M109();
       static void autotemp_update();
+      static void autotemp_M104_M109();
+      static void getHighESpeed();
     #endif
 
     #if HAS_LINEAR_E_JERK
@@ -897,6 +912,14 @@ class Planner {
     #endif
 
   private:
+
+    #if ENABLED(AUTOTEMP)
+      #if ENABLED(AUTOTEMP_PROPORTIONAL)
+        static void _autotemp_update_from_hotend();
+      #else
+        static inline void _autotemp_update_from_hotend() {}
+      #endif
+    #endif
 
     /**
      * Get the index of the next / previous block in the ring buffer

@@ -120,6 +120,9 @@ void GcodeSuite::M115() {
     // REPEAT (M808)
     cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
+    // SD_WRITE (M928, M28, M29)
+    cap_line(PSTR("SD_WRITE"), ENABLED(SDSUPPORT) && DISABLED(SDCARD_READONLY));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
 
@@ -144,8 +147,8 @@ void GcodeSuite::M115() {
     // COOLER_TEMPERATURE (M143, M193)
     cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
 
-    // MEATPACK Compresson
-    cap_line(PSTR("MEATPACK"), ENABLED(MEATPACK));
+    // MEATPACK Compression
+    cap_line(PSTR("MEATPACK"), ENABLED(HAS_MEATPACK));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

@@ -26,19 +26,19 @@
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
   #if ANY_SERIAL_IS(-1)
-    DefaultSerial MSerial(false, Serial);
+    DefaultSerial1 MSerial0(false, Serial);
   #endif
   #if ANY_SERIAL_IS(0)
-    DefaultSerial1 MSerial1(false, Serial1);
+    DefaultSerial2 MSerial1(false, Serial1);
   #endif
   #if ANY_SERIAL_IS(1)
-    DefaultSerial2 MSerial2(false, Serial2);
+    DefaultSerial3 MSerial2(false, Serial2);
   #endif
   #if ANY_SERIAL_IS(2)
-    DefaultSerial3 MSerial3(false, Serial3);
+    DefaultSerial4 MSerial3(false, Serial3);
   #endif
   #if ANY_SERIAL_IS(3)
-    DefaultSerial4 MSerial4(false, Serial4);
+    DefaultSerial5 MSerial4(false, Serial4);
   #endif
 #endif
 
