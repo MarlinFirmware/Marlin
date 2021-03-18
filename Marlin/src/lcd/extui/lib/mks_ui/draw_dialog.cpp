@@ -385,7 +385,9 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, DIALOG_UPDATE_NO_DEVICE_EN);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
+
   #if ENABLED(MKS_WIFI_MODULE)
+
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 1) {
         lv_label_set_text(labelDialog, DIALOG_UPLOAD_ING_EN);
@@ -430,7 +432,13 @@ void lv_draw_dialog(uint8_t type) {
       lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
       lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
     }
+    else if (DIALOG_IS(TYPE_UNBIND)) {
+      lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+    }
+
   #endif // MKS_WIFI_MODULE
+
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
@@ -463,12 +471,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
   }
-  #if ENABLED(MKS_WIFI_MODULE)
-    else if (DIALOG_IS(TYPE_UNBIND)) {
-      lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
-    }
-  #endif
+
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       if (btnOk) lv_group_add_obj(g, btnOk);
