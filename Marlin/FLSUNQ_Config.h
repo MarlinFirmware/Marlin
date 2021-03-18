@@ -16,8 +16,8 @@
 /*_______________________1___________________________*/
 //==================== Hardware =====================//
 /*-------------Motherboard/Printer-(1 CHOICE)-------*/
-#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
-//#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
+//#define QQSP                       // env = flsun_hispeedv1 (Default_QQS)
+#define Q5                         // env = mks_nano_robin35 (change in platformio.ini file or 
                                      // click on the "Default" icon on the bottom edge of the window and 
                                      // choose "mks_robin_nano35").
 
@@ -70,7 +70,7 @@
 
 /*__________________________4______________________________*/
                   /*----  Modules -----*/
-#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
+//#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
 //#define USES_MKS_WIFI_FUNCTION
 /*For LedStrip which need an external power source on Vcc pin.*/
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PC7)
@@ -83,10 +83,10 @@
  * ====== Default eStep (T=397/422)/(B=417)   ==============
  * =========================================================
  */
-//#define INV_EXT                    // Uncommment to reverse direction for BMG.
+#define INV_EXT                    // Uncommment to reverse direction for BMG.
 
 // BMG Extruder (B) Extruder step(417).
-//#define BMG                       //(B) Uncommment for BMG Left/Right.
+#define BMG                       //(B) Uncommment for BMG Left/Right.
 
 /*__________________________5______________________________*/
       /** =============================

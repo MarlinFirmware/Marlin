@@ -756,7 +756,7 @@
   #ifdef Q5
     #define DELTA_PRINTABLE_RADIUS 100
     #define DELTA_DIAGONAL_ROD 215.0
-    #define DELTA_HEIGHT 198.0
+    #define DELTA_HEIGHT 200.0
     #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 }      // Trim adjustments for individual towers
     #define DELTA_RADIUS 107.5
     #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0 , 0.0 }
