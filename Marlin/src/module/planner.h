@@ -470,14 +470,14 @@ class Planner {
     static void refresh_positioning();
 
     // For an axis set the Maximum Acceleration in mm/s^2
-    static void set_max_acceleration(const uint8_t axis, const float &inMaxAccelMMS2);
+    static void set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2);
 
     // For an axis set the Maximum Feedrate in mm/s
-    static void set_max_feedrate(const uint8_t axis, const float &inMaxFeedrateMMS);
+    static void set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS);
 
     // For an axis set the Maximum Jerk (instant change) in mm/s
     #if HAS_CLASSIC_JERK
-      static void set_max_jerk(const AxisEnum axis, const float &inMaxJerkMMS);
+      static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
       static inline void set_max_jerk(const AxisEnum, const float&) {}
     #endif
