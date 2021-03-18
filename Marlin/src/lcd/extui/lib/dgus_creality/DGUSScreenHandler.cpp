@@ -1056,7 +1056,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr) {
-  thermalManager.disable_all_heaters();
+  ExtUI::coolDown();
   ScreenHandler.ForceCompleteUpdate(); // hint to send all data.
 }
 
