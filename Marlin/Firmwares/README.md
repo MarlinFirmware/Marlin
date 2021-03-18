@@ -192,6 +192,9 @@
    # **VERY IMPORTANT:**
    First of all, you need to check that you have flashed the **correct firmware**.
    To do this, with a finger on the power switch :-), obtain a "HOME" from the menu (Motion/AutoHome) or a "G28" command from a terminal.
+
+     Note for Q5: 
+     After the flash, you may be asked to calibrate the screen: press the crosses on the screen to complete the calibration.
   
   Now YOU are ready to start a calibration of your printer!!
   
