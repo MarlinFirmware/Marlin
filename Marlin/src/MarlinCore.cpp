@@ -889,8 +889,8 @@ void stop() {
 
   print_job_timer.stop();
 
-  #if ENABLED(PROBING_FANS_OFF)
-    if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
+  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+    thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
   if (IsRunning()) {
