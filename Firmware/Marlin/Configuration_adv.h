@@ -518,6 +518,8 @@
   #define E0_AUTO_FAN_PIN 7
 #elif ENABLED(MKS_SGENL_V2_FAN2)
   #define E0_AUTO_FAN_PIN P1_04
+#elif (ENABLED(WANHAO_I3MINI) || ENABLED(WANHAO_I3MINI_V2)) && ENABLED(WANHAO_I3MINI_E0_FAN)
+  #define E0_AUTO_FAN_PIN 12
 #else
   #define E0_AUTO_FAN_PIN -1
 #endif
@@ -1126,7 +1128,7 @@
 
   // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if HAS_BED_PROBE
-    #define PROBE_OFFSET_WIZARD
+    //#define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
       #define PROBE_OFFSET_START -5.0   // Estimated nozzle-to-probe Z offset, plus a little extra
     #endif

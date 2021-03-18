@@ -33,6 +33,7 @@
 // Ender Series -------------------------------------------------------------
 //#define ENDER2
 //#define ENDER3
+//#define ENDER3_MAX
 //#define ENDER5
 //#define ENDER5_PLUS
 
@@ -55,6 +56,7 @@
 //#define CR10_OEM                 //OEM Mount for Creality Machines (Ender3/Ender5/CR-10/CR-10S/CR-20)
 //#define ENDER2_OEM               //Ender 2 Specific OEM Mount
 //#define ENDER2_V6                //Ender 2 Specific V6 Mount
+//#define ENDER3_MAX_OEM           //Ender 3 MAX Specific OEM Mount
 //#define SV01_OEM_MOUNT           //Sovol SV01 OEM Mount
 //#define CR10_VOLCANO             //TH3D CR-10 Volcano Mount 
 //#define CR10_V6HEAVYDUTY         //V6 Heavy Duty Mount
@@ -68,6 +70,10 @@
 // If you are using the stock BL Touch with a non-stock mount enable the CUSTOM_PROBE line above and enter the offsets below for the new mount.
 //#define ENDER5_PLUS_EZABL
 //#define ENDER5_PLUS_NOABL
+
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+//#define EZNEO_220
 
 // Advanced Settings --------------------------------------------------------
 // These settings do not typically need to be adjusted except for machines that do not follow stock configs
@@ -275,6 +281,10 @@
 // See the PID Bed setup guide here: https://support.th3dstudio.com/hc/guides/diy-guides/p-i-d-bed-calibration-guide/
 //#define ENABLE_PIDBED
 
+// Z PROBE OFFSET WIZARD ---------------------------
+// Marlin has a Z Probe Offset Wizard now. If you want to enable this, uncomment the below line.
+//#define PROBE_OFFSET_WIZARD
+
 // FINE BABYSTEPPING -------------------------------
 // Enabling the below line will set the babystep resolution from 0.025mm to 0.010mm for finer control.
 //#define FINE_BABYSTEPPING
@@ -321,7 +331,7 @@
  */
  
 //EZBoard based Machine Settings
-#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER2) || ENABLED(ENDER3) || ENABLED(ENDER5) || ENABLED(ENDER5_PLUS) || ENABLED(SOVOL_SV01) || ENABLED(CR20)
+#if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER2) || ENABLED(ENDER3) || ENABLED(ENDER5) || ENABLED(ENDER5_PLUS) || ENABLED(SOVOL_SV01) || ENABLED(CR20) || ENABLED(ENDER3_MAX)
 
   #define SERIAL_PORT -1
   #define SERIAL_PORT_2 0
@@ -337,11 +347,13 @@
     #define REVERSE_ENCODER_DIRECTION
   #endif
   
-  #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
-    //S models assume that you have 2x motors, filament sensor, and are using the dual adapter.
+  #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01) || ENABLED(ENDER3_MAX)
+    //S models + SV01 assume that you have 2x motors, filament sensor, and are using the dual adapter.
     //So lets up the VREF on Z and reverse the Z axis when using the dual motor adapter and enable the filament sensor
 	
-    #define DUAL_Z_MOTORS
+    #if ENABLED(CR10S) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(SOVOL_SV01)
+      #define DUAL_Z_MOTORS
+    #endif
 
     #if ENABLED(REVERSE_Z_MOTOR)
       #undef REVERSE_Z_MOTOR
@@ -349,7 +361,7 @@
       #define REVERSE_Z_MOTOR
     #endif
   
-    #if ENABLED(SOVOL_SV01)
+    #if ENABLED(SOVOL_SV01) || ENABLED(ENDER3_MAX) //Have sensors that use same logic as EZOUT Sensors
       #define EZOUTV2_ENABLE
     #endif
   
@@ -463,6 +475,13 @@
       #define Y_BED_SIZE 235
       #define Z_MAX_POS 250
     #endif
+    #define PRINTER_VOLTAGE_24
+  #endif
+
+  #if ENABLED(ENDER3_MAX)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 340
     #define PRINTER_VOLTAGE_24
   #endif
 
@@ -669,17 +688,68 @@
 
   #if ENABLED(EZOUTV2_ENABLE) || ENABLED(CR10S_STOCKFILAMENTSENSOR)
     #define FILAMENT_RUNOUT_SENSOR
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #if ENABLED(EZOUTV2_ENABLE)
-      #define FIL_RUNOUT_STATE LOW
-    #else
-      #define FIL_RUNOUT_STATE HIGH
-    #endif
-    #define NUM_RUNOUT_SENSORS   1
-    #define FIL_RUNOUT_PULLUP
-    #define FILAMENT_RUNOUT_SCRIPT "M600"
   #endif
-#endif
+  
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    
+    #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    
+    #if ENABLED(EZOUTV2_ENABLE)
+      #define FIL_RUNOUT_STATE LOW  // Pin state indicating that filament is NOT present.
+    #else
+      #define FIL_RUNOUT_STATE HIGH // Pin state indicating that filament is NOT present.
+    #endif
+    
+    #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+    //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+
+    // Set one or more commands to execute on filament runout.
+    // (After 'M412 H' Marlin will ask the host to handle the process.)
+    #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+    // After a runout is detected, continue printing this length of filament
+    // before executing the runout script. Useful for a sensor at the end of
+    // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+    //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      // Enable this option to use an encoder disc that toggles the runout pin
+      // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+      // large enough to avoid false positives.)
+      //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIN    P0_03    // LED driving pin
+      //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
+      //#define NEOPIXEL2_PIN    5
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
+    #endif
+  #endif
   
 #endif
 //End EZBoard based Machine Settings

@@ -208,6 +208,10 @@
 //#define DEFAULT_bedKi .023
 //#define DEFAULT_bedKd 305.4
 
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+//#define EZNEO_220
+
 // CoreXY Printer Setting ---------------------------------------------------
 // If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
 //#define COREXY
@@ -328,6 +332,10 @@
 // If you want PID Bed Temperature control enable the below line. You will need to tune it for your machine.
 // See the PID Bed setup guide here: https://support.th3dstudio.com/hc/guides/diy-guides/p-i-d-bed-calibration-guide/
 //#define ENABLE_PIDBED
+
+// Z PROBE OFFSET WIZARD ---------------------------
+// Marlin has a Z Probe Offset Wizard now. If you want to enable this, uncomment the below line.
+//#define PROBE_OFFSET_WIZARD
 
 // FINE BABYSTEPPING -------------------------------
 // Enabling the below line will set the babystep resolution from 0.025mm to 0.010mm for finer control.
@@ -525,17 +533,70 @@
 
 #if ENABLED(EZOUTV2_ENABLE) || ENABLED(CR10S_STOCKFILAMENTSENSOR)
   #define FILAMENT_RUNOUT_SENSOR
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #if ENABLED(EZOUTV2_ENABLE)
-      #define FIL_RUNOUT_STATE LOW
-    #else
-      #define FIL_RUNOUT_STATE HIGH
-    #endif
-    #define NUM_RUNOUT_SENSORS   1
-    #define FIL_RUNOUT_PULLUP
-    #define FILAMENT_RUNOUT_SCRIPT "M600"
+#endif
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  
+  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+  
+  #if ENABLED(EZOUTV2_ENABLE)
+    #define FIL_RUNOUT_STATE LOW  // Pin state indicating that filament is NOT present.
+  #else
+    #define FIL_RUNOUT_STATE HIGH // Pin state indicating that filament is NOT present.
+  #endif
+  
+  #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+  //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+
+  // Set one or more commands to execute on filament runout.
+  // (After 'M412 H' Marlin will ask the host to handle the process.)
+  #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+  // After a runout is detected, continue printing this length of filament
+  // before executing the runout script. Useful for a sensor at the end of
+  // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    // Enable this option to use an encoder disc that toggles the runout pin
+    // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+    // large enough to avoid false positives.)
+    //#define FILAMENT_MOTION_SENSOR
   #endif
 #endif
+
+
+#if ENABLED(EZNEO_220)
+  #define RGB_LIGHTS
+  #define NEOPIXEL_LED
+  #if ENABLED(NEOPIXEL_LED)
+    #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+    #define NEOPIXEL_PIN    P0_03    // LED driving pin
+    //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
+    //#define NEOPIXEL2_PIN    5
+    #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+    #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+    #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+    #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+  #endif
+
+  /**
+   * Printer Event LEDs
+   *
+   * During printing, the LEDs will reflect the printer status:
+   *
+   *  - Gradually change from blue to violet as the heated bed gets to target temp
+   *  - Gradually change from violet to red as the hotend gets to temperature
+   *  - Change to white to illuminate work surface
+   *  - Change to green once print has finished
+   *  - Turn off after the print has finished and the user has pushed a button
+   */
+  #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+    #define PRINTER_EVENT_LEDS
+  #endif
+#endif
+  
 //End EZBoard DIY Config
 
 /*

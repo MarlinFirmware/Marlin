@@ -31,6 +31,8 @@ This does not include machine configs or PlatformIO files.
 			- **lpc1769**
 				- `pins_MKS_SGEN_L_V2.h`
 				- `pins_TH3D_EZBOARD.h`
+			- **mega**
+				- `pins_WANHAO_ONEPLUS.h`
 			- **ramps**
 				- `pins_RAMPS.h`
 				- `pins_RAMPS_CREALITY.h`
