@@ -57,7 +57,8 @@ extern const char M23_STR[], M24_STR[];
 #if ENABLED(MULTI_VOLUME)
   #define SV_SD_ONBOARD      1
   #define SV_USB_FLASH_DRIVE 2
-  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == CAT(SV_,N))
+  #define _VOLUME_ID(N) _CAT(SV_, N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
   #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
     #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
   #endif
@@ -100,9 +101,7 @@ public:
 
   CardReader();
 
-  static void changeMedia(DiskIODriver* _driver = nullptr) {
-    sd2card = _driver;
-  }
+  static void changeMedia(DiskIODriver *_driver) { sd2card = _driver; }
 
   static SdFile getroot() { return root; }
 
