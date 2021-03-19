@@ -2,13 +2,13 @@
 # preflight-checks.py
 # Check for common issues prior to compiling
 #
-import os,re
+import os,re,sys
 Import("env")
 
 def get_envs_for_board(board):
 	if board.startswith("BOARD_"):
 		board = board[6:]
-	with open(os.path.join("Marlin", "src", "pins", "pins.h"),"r") as f:
+	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as f:
 		board_found = ""
 		r=re.compile(r"if\s+MB\((.+)\)")
 		for line in f.readlines():
@@ -19,16 +19,16 @@ def get_envs_for_board(board):
 				return re.findall(r"env:\w+", line)
 	return []
 
-def check_envs(build_env, base_envs, config):
-	if build_env in base_envs:
+def check_envs(build_env, board_envs, config):
+	if build_env in board_envs:
 		return True
 	ext = config.get(build_env, 'extends', default=None)
 	if ext:
 		if isinstance(ext, str):
-			return check_envs(ext, base_envs, config)
+			return check_envs(ext, board_envs, config)
 		elif isinstance(ext, list):
 			for ext_env in ext:
-				if check_envs(ext_env, base_envs, config):
+				if check_envs(ext_env, board_envs, config):
 					return True
 	return False
 
@@ -42,15 +42,24 @@ if 'MARLIN_FEATURES' not in env:
 if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
 	raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
 
+if sys.platform == 'win32':
+	osregex = r"(?:env|win):"
+elif sys.platform == 'darwin':
+	osregex = r"(?:env|mac|uni):"
+elif sys.platform == 'linux':
+	osregex = r"(?:env|lin|uni):"
+else:
+	osregex = r"(?:env):"
+
 build_env = env['PIOENV']
 motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
-base_envs = get_envs_for_board(motherboard)
+board_envs = get_envs_for_board(motherboard)
 config = env.GetProjectConfig()
-result = check_envs("env:"+build_env, base_envs, config)
+result = check_envs("env:"+build_env, board_envs, config)
 
 if not result:
 	err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
-		  (build_env, motherboard, ",".join([e[4:] for e in base_envs if e.startswith("env:")]))
+		  (build_env, motherboard, ",".join([e[4:] for e in board_envs if e.startswith("env:")]))
 	raise SystemExit(err)
 
 #
