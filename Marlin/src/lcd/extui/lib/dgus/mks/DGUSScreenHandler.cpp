@@ -1246,6 +1246,9 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
 
   uint16_t val_t = swap16(*(uint16_t*)val_ptr);
 
+  if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
+    return;
+
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
