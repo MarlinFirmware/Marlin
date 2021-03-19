@@ -273,19 +273,26 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
 
   #if ENABLED(EXTRA_FAN_SPEED)
-    uint8_t Temperature::old_fan_speed[FAN_COUNT], Temperature::new_fan_speed[FAN_COUNT];
 
-    void Temperature::set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp) {
-      switch (tmp_temp) {
+    Temperature::extra_fan_t Temperature::extra_fan_speed[FAN_COUNT];
+
+    /**
+     * Handle the M106 P<fan> T<speed> command:
+     *  T1       = Restore fan speed saved on the last T2
+     *  T2       = Save the fan speed, then set to the last T<3-255> value
+     *  T<3-255> = Set the "extra fan speed"
+     */
+    void Temperature::set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed) {
+      switch (command_or_speed) {
         case 1:
-          set_fan_speed(fan, old_fan_speed[fan]);
+          set_fan_speed(fan, extra_fan_speed[fan].saved);
           break;
         case 2:
-          old_fan_speed[fan] = fan_speed[fan];
-          set_fan_speed(fan, new_fan_speed[fan]);
+          extra_fan_speed[fan].saved = fan_speed[fan];
+          set_fan_speed(fan, extra_fan_speed[fan].speed);
           break;
         default:
-          new_fan_speed[fan] = _MIN(tmp_temp, 255U);
+          extra_fan_speed[fan].speed = _MIN(command_or_speed, 255U);
           break;
       }
     }

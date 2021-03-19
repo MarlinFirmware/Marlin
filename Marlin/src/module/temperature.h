@@ -561,8 +561,9 @@ class Temperature {
       }
 
       #if ENABLED(EXTRA_FAN_SPEED)
-        static uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
-        static void set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp);
+        typedef struct { uint8_t saved, speed; } extra_fan_t;
+        static extra_fan_t extra_fan_speed[FAN_COUNT];
+        static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
 
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
