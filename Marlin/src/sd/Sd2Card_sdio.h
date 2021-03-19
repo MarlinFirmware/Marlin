@@ -23,8 +23,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
-
 #include "SdInfo.h"
 #include "disk_io_driver.h"
 
@@ -47,5 +45,3 @@ class DiskIODriver_SDIO : public DiskIODriver {
     uint32_t cardSize() { return 0; };
     bool isReady() { return true; };
 };
-
-#endif // SDIO_SUPPORT

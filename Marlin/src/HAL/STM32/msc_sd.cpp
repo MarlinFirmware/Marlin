@@ -32,9 +32,9 @@ class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
   DiskIODriver* getDiskIODriver() {
     #if ENABLED(MULTI_VOLUME)
-      #if DEFAULT_SHARED_VOLUME == SD_ONBOARD
+      #if SHARED_VOLUME_IS(SD_ONBOARD)
         return &card.sd2card_sd_spi;
-      #elif DEFAULT_SHARED_VOLUME == USB_FLASH_DRIVE
+      #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
         return &card.sd2card_UsbFlashDrive;
       #endif
     #else

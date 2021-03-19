@@ -123,12 +123,10 @@ uint8_t CardReader::workDirDepth;
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   DiskIODriver_USBFlash CardReader::sd2card_UsbFlashDrive;
 #endif
-#if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
-  #if ENABLED(SDIO_SUPPORT)
-    DiskIODriver_SDIO CardReader::sd2card_sdio;
-  #else
-    DiskIODriver_SPI_SD CardReader::sd2card_sd_spi;
-  #endif
+#if NEED_SD2CARD_SDIO
+  DiskIODriver_SDIO CardReader::sd2card_sdio;
+#elif NEED_SD2CARD_SPI
+  DiskIODriver_SPI_SD CardReader::sd2card_sd_spi;
 #endif
 
 DiskIODriver* CardReader::sd2card = nullptr;
@@ -144,19 +142,22 @@ SdFile CardReader::file;
 uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
-  #if ENABLED(MULTI_VOLUME)
-    #if DEFAULT_SHARED_VOLUME == SD_ONBOARD
-      changeMedia(&sd2card_sd_spi);
-    #elif DEFAULT_SHARED_VOLUME == USB_FLASH_DRIVE
-      changeMedia(&sd2card_UsbFlashDrive);
+  changeMedia(&
+    #if ENABLED(MULTI_VOLUME)
+      #if SHARED_VOLUME_IS(SD_ONBOARD)
+        sd2card_sd_spi
+      #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+        sd2card_UsbFlashDrive
+      #endif
+    #elif ENABLED(USB_FLASH_DRIVE_SUPPORT)
+      sd2card_UsbFlashDrive
+    #elif ENABLED(SDIO_SUPPORT)
+      sd2card_sdio
+    #else
+      sd2card_sd_spi
     #endif
-  #elif ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    changeMedia(&sd2card_UsbFlashDrive);
-  #elif ENABLED(SDIO_SUPPORT)
-    changeMedia(&sd2card_sdio);
-  #else
-    changeMedia(&sd2card_sd_spi);
-  #endif
+  );
+
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)

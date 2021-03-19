@@ -30,7 +30,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT) && (NONE(USB_FLASH_DRIVE_SUPPORT, SDIO_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD))
+#if NEED_SD2CARD_SPI
 
 /* Enable FAST CRC computations - You can trade speed for FLASH space if
  * needed by disabling the following define */
@@ -670,4 +670,4 @@ bool DiskIODriver_SPI_SD::writeStop() {
   return success;
 }
 
-#endif // SDSUPPORT
+#endif // NEED_SD2CARD_SPI

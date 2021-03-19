@@ -48,18 +48,21 @@ extern const char M23_STR[], M24_STR[];
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
 
-#if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
-  #if ENABLED(SDIO_SUPPORT)
-    #include "Sd2Card_sdio.h"
-  #else
-    #include "Sd2Card.h"
-  #endif
+#if NEED_SD2CARD_SDIO
+  #include "Sd2Card_sdio.h"
+#elif NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
 #endif
 
 #if ENABLED(MULTI_VOLUME)
-  #define SD_ONBOARD      1
-  #define USB_FLASH_DRIVE 2
+  #define SV_SD_ONBOARD      1
+  #define SV_USB_FLASH_DRIVE 2
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == CAT(SV_,N))
+  #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+    #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+  #endif
 #endif
+
 typedef struct {
   bool saving:1,
        logging:1,
@@ -206,12 +209,10 @@ public:
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     static DiskIODriver_USBFlash sd2card_UsbFlashDrive;
   #endif
-  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
-    #if ENABLED(SDIO_SUPPORT)
-      static DiskIODriver_SDIO sd2card_sdio;
-    #else
-      static DiskIODriver_SPI_SD sd2card_sd_spi;
-    #endif
+  #if NEED_SD2CARD_SDIO
+    static DiskIODriver_SDIO sd2card_sdio;
+  #elif NEED_SD2CARD_SPI
+    static DiskIODriver_SPI_SD sd2card_sd_spi;
   #endif
 
 private:

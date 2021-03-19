@@ -38,12 +38,10 @@
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
 
-#if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
-  #if ENABLED(SDIO_SUPPORT)
-    #include "Sd2Card_sdio.h"
-  #else
-    #include "Sd2Card.h"
-  #endif
+#if NEED_SD2CARD_SDIO
+  #include "Sd2Card_sdio.h"
+#elif NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
 #endif
 
 #include "SdFatConfig.h"
@@ -51,6 +49,7 @@
 
 //==============================================================================
 // SdVolume class
+
 /**
  * \brief Cache for an SD data block
  */
