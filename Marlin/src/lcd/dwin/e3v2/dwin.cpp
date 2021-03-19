@@ -112,12 +112,6 @@
 #define MAX_PRINT_SPEED   999
 #define MIN_PRINT_SPEED   10
 
-// Temp limits
-#if HAS_HOTEND
-  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT))
-  #define MIN_E_TEMP    HEATER_0_MINTEMP
-#endif
-
 #if HAS_HEATED_BED
   #define MIN_BED_TEMP  BED_MINTEMP
 #endif
@@ -1357,7 +1351,7 @@ void HMI_Move_Z() {
         return;
       }
       // E_Temp limit
-      LIMIT(HMI_ValueStruct.E_Temp, MIN_E_TEMP, MAX_E_TEMP);
+      LIMIT(HMI_ValueStruct.E_Temp, HEATER_0_MINTEMP, thermalManager.hotend_max_target(0));
       // E_Temp value
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
     }
