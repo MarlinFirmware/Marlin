@@ -94,8 +94,8 @@ class SdVolume {
    * Reasons for failure include not finding a valid partition, not finding
    * a valid FAT file system or an I/O error.
    */
-  bool init(DiskIODriver* dev) { return init(dev, 1) ? true : init(dev, 0); }
-  bool init(DiskIODriver* dev, uint8_t part);
+  bool init(DiskIODriver *dev) { return init(dev, 1) || init(dev, 0); }
+  bool init(DiskIODriver *dev, uint8_t part);
 
   // inline functions that return volume info
   uint8_t blocksPerCluster() const { return blocksPerCluster_; } //> \return The volume's cluster size in blocks.
@@ -142,13 +142,13 @@ class SdVolume {
   #if USE_MULTIPLE_CARDS
     cache_t cacheBuffer_;        // 512 byte cache for device blocks
     uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    DiskIODriver* sdCard_;            // Sd2Card object for cache
+    DiskIODriver *sdCard_;       // Sd2Card object for cache
     bool cacheDirty_;            // cacheFlush() will write block if true
     uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #else
     static cache_t cacheBuffer_;        // 512 byte cache for device blocks
     static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    static DiskIODriver* sdCard_;             // Sd2Card object for cache
+    static DiskIODriver *sdCard_;       // Sd2Card object for cache
     static bool cacheDirty_;            // cacheFlush() will write block if true
     static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #endif

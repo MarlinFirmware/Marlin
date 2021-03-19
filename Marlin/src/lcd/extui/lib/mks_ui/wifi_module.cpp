@@ -1148,7 +1148,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   int8_t valid_name_num;
 
   if (msgLen <= 0) return;
-  if (disp_state == KEY_BOARD_UI) return;
+  if (disp_state == KEYBOARD_UI) return;
 
   wifi_list.getNameNum = msg[0];
 

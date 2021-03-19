@@ -41,10 +41,10 @@
   // raw block cache
   uint32_t SdVolume::cacheBlockNumber_;  // current block number
   cache_t  SdVolume::cacheBuffer_;       // 512 byte cache for Sd2Card
-  DiskIODriver*  SdVolume::sdCard_;            // pointer to SD card object
+  DiskIODriver *SdVolume::sdCard_;       // pointer to SD card object
   bool     SdVolume::cacheDirty_;        // cacheFlush() will write block if true
   uint32_t SdVolume::cacheMirrorBlock_;  // mirror  block for second FAT
-#endif  // USE_MULTIPLE_CARDS
+#endif
 
 // find a contiguous group of clusters
 bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
