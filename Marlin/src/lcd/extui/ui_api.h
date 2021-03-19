@@ -139,6 +139,17 @@ namespace ExtUI {
 
   uint32_t getProgress_seconds_elapsed();
 
+  #if PREHEAT_COUNT
+    uint16_t getMaterial_preset_E(const uint16_t);
+    #if HAS_HEATED_BED
+      uint16_t getMaterial_preset_B(const uint16_t);
+    #endif
+  #endif
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    uint8_t getIDEX_Mode();
+  #endif
+
   #if ENABLED(SHOW_REMAINING_TIME)
     inline uint32_t getProgress_seconds_remaining() { return ui.get_remaining_time(); }
   #endif
@@ -171,6 +182,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(PRINTCOUNTER)
+    char* getFailedPrints_str(char buffer[21]);
     char* getTotalPrints_str(char buffer[21]);
     char* getFinishedPrints_str(char buffer[21]);
     char* getTotalPrintTime_str(char buffer[21]);
