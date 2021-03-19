@@ -6,12 +6,13 @@ import os,re,sys
 Import("env")
 
 def get_envs_for_board(board):
-	if board.startswith("BOARD_"):
-		board = board[6:]
-	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as f:
+	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
+		r = re.compile(r"if\s+MB\((.+)\)")
+		if board.startswith("BOARD_"):
+			board = board[6:]
+
 		board_found = ""
-		r=re.compile(r"if\s+MB\((.+)\)")
-		for line in f.readlines():
+		for line in file:
 			mbs = r.findall(line)
 			if mbs:
 				board_found = board if board in re.split(r",\s*", mbs[0]) else ""
