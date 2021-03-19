@@ -5,19 +5,20 @@
 import os,re,sys
 Import("env")
 
-def get_envs_for_board(board):
+def get_envs_for_board(board, envregex):
 	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
 		r = re.compile(r"if\s+MB\((.+)\)")
 		if board.startswith("BOARD_"):
 			board = board[6:]
 
-		board_found = ""
 		for line in file:
 			mbs = r.findall(line)
-			if mbs:
-				board_found = board if board in re.split(r",\s*", mbs[0]) else ""
-			if board_found and "#include " in line and "env:" in line:
-				return re.findall(r"env:\w+", line)
+			if mbs and board in re.split(r",\s*", mbs[0]):
+				line = file.readline()
+				found_envs = re.match(r"\s*#include .+" + envregex, line)
+				if found_envs:
+					envlist = re.findall(envregex + r"(\w+)", line)
+					return [ "env:"+s for s in envlist ]
 	return []
 
 def check_envs(build_env, board_envs, config):
@@ -54,13 +55,13 @@ else:
 
 build_env = env['PIOENV']
 motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
-board_envs = get_envs_for_board(motherboard)
+board_envs = get_envs_for_board(motherboard, osregex)
 config = env.GetProjectConfig()
 result = check_envs("env:"+build_env, board_envs, config)
 
 if not result:
 	err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
-		  (build_env, motherboard, ",".join([e[4:] for e in board_envs if e.startswith("env:")]))
+		  ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
 	raise SystemExit(err)
 
 #
