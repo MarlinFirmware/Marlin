@@ -62,6 +62,8 @@ extern const char M23_STR[], M24_STR[];
   #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
     #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
   #endif
+#else
+  #define SHARED_VOLUME_IS(...) 0
 #endif
 
 typedef struct {
