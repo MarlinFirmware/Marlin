@@ -3386,10 +3386,10 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPAIR_P(
           PSTR("  M145 S"), i
           #if HAS_HOTEND
-            , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
+            , PSTR(" H"), parser.to_temp_units(ui.material_preset[i].hotend_temp)
           #endif
           #if HAS_HEATED_BED
-            , SP_B_STR, TEMP_UNIT(ui.material_preset[i].bed_temp)
+            , SP_B_STR, parser.to_temp_units(ui.material_preset[i].bed_temp)
           #endif
           #if HAS_FAN
             , PSTR(" F"), ui.material_preset[i].fan_speed
