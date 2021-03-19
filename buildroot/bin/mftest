@@ -30,7 +30,6 @@ OPTIONS
   -v --verbose     Extra output for debugging.
 
 env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
-
 "
 }
 
@@ -58,47 +57,48 @@ while getopts 'abhmruvyn:t:-:' OFLAG; do
     h) EXIT_USAGE=1 ;;
     m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
     n) case "$OPTARG" in
-         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=1 ;;
+         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=2 ;;
                 *) CHOICE="$OPTARG" ; bugout "Got a number: $CHOICE" ;;
        esac
        ;;
-    r) REBUILD=1         ; bugout "Rebuilding previous..."    ;;
+    r) REBUILD=1         ; bugout "Rebuilding previous..." ;;
     t) TESTENV="$OPTARG" ; bugout "Got a target: $TESTENV" ;;
-    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..."  ;;
+    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..." ;;
     v) DEBUG=1           ; bugout "Debug ON" ;;
-    y) BUILD_YES='Y'     ; bugout "Build will initiate..."    ;;
+    y) BUILD_YES='Y'     ; bugout "Build will initiate..." ;;
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
          help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
     autobuild) AUTO_BUILD=1 ; bugout "Auto-Build target..."  ;;
    autoupload) AUTO_BUILD=2 ; bugout "Auto-Upload target..." ;;
           env) case "$OVAL" in
-                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=2 ;;
                   *) TESTENV="$OVAL" ; bugout "Got a target: $TESTENV" ;;
                esac
                ;;
           num) case "$OVAL" in
                  [0-9]+) CHOICE="$OVAL" ; bugout "Got a number: $CHOICE" ;;
-                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=2 ;;
                esac
                ;;
-      rebuild) REBUILD=1      ; bugout "Rebuilding previous..."    ;;
-         make) USE_MAKE=1     ; bugout "Using make with Docker..." ;;
-debug|verbose) DEBUG=1        ; bugout "Debug ON" ;;
+      rebuild) REBUILD=1  ; bugout "Rebuilding previous..." ;;
+         make) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
+debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
         build) case "$OVAL" in
                  ''|y|yes) BUILD_YES='Y' ;;
                      n|no) BUILD_YES='N' ;;
-                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
+                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=2 ;;
                esac
                bugout "Build will initiate? ($BUILD_YES)"
                ;;
-            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
+            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=2 ;;
        esac
        ;;
+    *) EXIT_USAGE=2 ;;
   esac
 done
 
-((EXIT_USAGE)) && { usage ; exit 1 ; }
+((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
 
 if ((REBUILD)); then
   bugout "Rebuilding previous..."
