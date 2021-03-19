@@ -5,8 +5,18 @@
 import os,re,sys
 Import("env")
 
-def get_envs_for_board(board, envregex):
+def get_envs_for_board(board):
 	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
+
+		if sys.platform == 'win32':
+			envregex = r"(?:env|win):"
+		elif sys.platform == 'darwin':
+			envregex = r"(?:env|mac|uni):"
+		elif sys.platform == 'linux':
+			envregex = r"(?:env|lin|uni):"
+		else:
+			envregex = r"(?:env):"
+
 		r = re.compile(r"if\s+MB\((.+)\)")
 		if board.startswith("BOARD_"):
 			board = board[6:]
@@ -44,18 +54,9 @@ if 'MARLIN_FEATURES' not in env:
 if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
 	raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
 
-if sys.platform == 'win32':
-	osregex = r"(?:env|win):"
-elif sys.platform == 'darwin':
-	osregex = r"(?:env|mac|uni):"
-elif sys.platform == 'linux':
-	osregex = r"(?:env|lin|uni):"
-else:
-	osregex = r"(?:env):"
-
 build_env = env['PIOENV']
 motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
-board_envs = get_envs_for_board(motherboard, osregex)
+board_envs = get_envs_for_board(motherboard)
 config = env.GetProjectConfig()
 result = check_envs("env:"+build_env, board_envs, config)
 
