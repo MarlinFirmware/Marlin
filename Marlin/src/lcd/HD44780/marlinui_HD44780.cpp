@@ -571,9 +571,9 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
 #if ENABLED(LCD_PROGRESS_BAR)
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
-    const int16_t tix = (int16_t)(percent * (LCD_WIDTH) * 3) / 100,
-              cel = tix / 3,
-              rem = tix % 3;
+    const int16_t tix = int16_t(percent * (LCD_WIDTH) * 3) / 100,
+                  cel = tix / 3,
+                  rem = tix % 3;
     uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
     msg[LCD_WIDTH] = '\0';

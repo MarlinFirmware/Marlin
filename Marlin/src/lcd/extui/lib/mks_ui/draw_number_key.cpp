@@ -261,7 +261,7 @@ static void disp_key_value() {
       sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filamentchange_unload_speed);
       break;
     case filament_temp:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filament_limit_temper);
+      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filament_limit_temp);
       break;
     case x_sensitivity:
       #if X_SENSORLESS
@@ -505,7 +505,7 @@ static void set_value_confirm() {
       update_spi_flash();
       break;
     case filament_temp:
-      gCfgItems.filament_limit_temper = atoi(key_value);
+      gCfgItems.filament_limit_temp = atoi(key_value);
       update_spi_flash();
       break;
     case x_sensitivity:
