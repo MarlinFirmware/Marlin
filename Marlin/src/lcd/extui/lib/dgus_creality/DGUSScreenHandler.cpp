@@ -649,7 +649,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     top_file = 0;
     filelist.refresh();
     auto cs = ScreenHandler.getCurrentScreen();
-    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_CONTROL)
+    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_SETUP)
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
   }
 
