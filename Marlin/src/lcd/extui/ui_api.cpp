@@ -825,6 +825,26 @@ namespace ExtUI {
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
+      void moveToMeshPoint(const xy_uint8_t &pos, const float &z) {
+        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          const feedRate_t old_feedrate = feedrate_mm_s;
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination = current_position;
+          destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+          prepare_line_to_destination();
+          feedrate_mm_s = XY_PROBE_FEEDRATE;
+          destination[X_AXIS] = MESH_MIN_X + pos.x * MESH_X_DIST;
+          destination[Y_AXIS] = MESH_MIN_Y + pos.y * MESH_Y_DIST;
+          prepare_line_to_destination();
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination[Z_AXIS] = z;
+          prepare_line_to_destination();
+          feedrate_mm_s = old_feedrate;
+        #else
+          UNUSED(pos);
+          UNUSED(z);
+        #endif
+      }
     #endif
   #endif
 
