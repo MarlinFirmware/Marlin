@@ -764,8 +764,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, ScreenHandler.DGUSLCD_SD_ReallyAbort, nullptr),
     VPHELPER(VP_SD_Print_Setting, nullptr, ScreenHandler.DGUSLCD_SD_PrintTune, nullptr),
     #if ENABLED(BABYSTEPPING)
-      VPHELPER(VP_SD_Print_LiveAdjustZ,nullptr, ScreenHandler.HandleLiveAdjustZ, &ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
-      VPHELPER(VP_ZOffset_DE_DIS,&z_offset_add,nullptr, &ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, ScreenHandler.HandleLiveAdjustZ, &ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+      VPHELPER(VP_ZOffset_DE_DIS, &z_offset_add, nullptr, &ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
     #endif
     #if HAS_BED_PROBE
       VPHELPER(VP_OFFSET_X, &probe.offset.x, ScreenHandler.GetOffsetValue,ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),

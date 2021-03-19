@@ -184,29 +184,27 @@ extern char public_buf_m[100];
 extern char public_buf_l[30];
 
 typedef struct {
-  uint32_t spi_flash_flag;
-  uint8_t disp_rotation_180;
-  bool multiple_language;
-  uint8_t language;
-  uint8_t leveling_mode;
-  bool from_flash_pic;
-  bool finish_power_off;
-  bool pause_reprint;
-  uint8_t wifi_mode_sel;
-  uint8_t fileSysType;
-  uint8_t wifi_type;
-  bool  cloud_enable,
-        encoder_enable;
-  int   levelingPos[5][2];
-  int   filamentchange_load_length,
-        filamentchange_load_speed,
-        filamentchange_unload_length,
-        filamentchange_unload_speed,
-        filament_limit_temper;
-  float pausePosX,
-        pausePosY,
-        pausePosZ;
-  uint32_t curFilesize;
+  uint32_t  spi_flash_flag;
+  uint8_t   disp_rotation_180;
+  bool      multiple_language;
+  uint8_t   language;
+  uint8_t   leveling_mode;
+  bool      from_flash_pic;
+  bool      finish_power_off;
+  bool      pause_reprint;
+  uint8_t   wifi_mode_sel;
+  uint8_t   fileSysType;
+  uint8_t   wifi_type;
+  bool      cloud_enable,
+            encoder_enable;
+  int       levelingPos[5][2];
+  int       filamentchange_load_length,
+            filamentchange_load_speed,
+            filamentchange_unload_length,
+            filamentchange_unload_speed;
+  int16_t   filament_limit_temp;
+  float     pausePosX, pausePosY, pausePosZ;
+  uint32_t  curFilesize;
 } CFG_ITMES;
 
 typedef struct {

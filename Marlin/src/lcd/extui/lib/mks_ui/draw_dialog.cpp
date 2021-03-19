@@ -514,13 +514,13 @@ void filament_dialog_handle() {
     queue.inject(public_buf_m);
   }
 
-  if ( ((abs((int)((int)thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temper)) <= 1)
-        || ((int)thermalManager.degHotend(uiCfg.extruderIndex) > gCfgItems.filament_limit_temper))
-    && uiCfg.filament_load_heat_flg
-  ) {
-    uiCfg.filament_load_heat_flg = false;
-    lv_clear_dialog();
-    lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
+  if (uiCfg.filament_load_heat_flg) {
+    const int16_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    if (abs(diff) < 2 || diff > 0) {
+      uiCfg.filament_load_heat_flg = false;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
+    }
   }
 
   if (uiCfg.filament_loading_completed) {
@@ -529,13 +529,14 @@ void filament_dialog_handle() {
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_COMPLETED);
   }
-  if (((abs((int)((int)thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temper)) <= 1)
-     || ((int)thermalManager.degHotend(uiCfg.extruderIndex) > gCfgItems.filament_limit_temper))
-     && uiCfg.filament_unload_heat_flg
-  ) {
-    uiCfg.filament_unload_heat_flg = false;
-    lv_clear_dialog();
-    lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
+
+  if (uiCfg.filament_unload_heat_flg) {
+    const int16_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    if (abs(diff) < 2 || diff > 0) {
+      uiCfg.filament_unload_heat_flg = false;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
+    }
   }
 
   if (uiCfg.filament_unloading_completed) {
