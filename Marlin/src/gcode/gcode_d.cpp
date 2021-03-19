@@ -168,7 +168,7 @@
         break;
 
       case 7: // D7 dump the current serial port type (hence configuration)
-        SERIAL_ECHOLNPGM("Current serial configuration");
+        SERIAL_ECHOLNPAIR("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
         SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
         break;
 
