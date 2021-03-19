@@ -587,13 +587,11 @@ namespace ExtUI {
 
   void setAxisMaxAcceleration_mm_s2(const float &value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
-    planner.reset_acceleration_rates();
   }
 
   void setAxisMaxAcceleration_mm_s2(const float &value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
-    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -653,6 +651,17 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const float &value, const extruder_t) { planner.set_max_jerk(E_AXIS, value); }
   #endif
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
+  #endif
+
+  #if PREHEAT_COUNT
+      uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+    #if HAS_HEATED_BED
+      uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
+    #endif
+  #endif
+
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
   int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
@@ -665,8 +674,8 @@ namespace ExtUI {
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float &acc) { planner.settings.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float &acc)  { planner.settings.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float &acc)   { planner.settings.travel_acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const float &acc) { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const float &acc)  { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEPPING)
 

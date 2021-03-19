@@ -472,18 +472,10 @@ void DWIN_Draw_Label(const uint16_t y, const __FlashStringHelper *title) {
   DWIN_Draw_Label(y, (char*)title);
 }
 
-void draw_move_en(const uint16_t line) {
-  #ifdef USE_STRING_TITLES
-    DWIN_Draw_Label(line, F("Move"));
-  #else
-  DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, line); // "Move"
-  #endif
-}
-
 void DWIN_Frame_TitleCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) { DWIN_Frame_AreaCopy(id, x1, y1, x2, y2, 14, 8); }
 
 void Item_Prepare_Move(const uint8_t row) {
-  draw_move_en(MBASE(row)); // "Move"
+  DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, MBASE(row)); // "Move"
   Draw_Menu_Line(row, ICON_Axis);
   Draw_More_Icon(row);
 }
@@ -1267,19 +1259,21 @@ void HMI_PrintSpeed() {
   }
 }
 
+#define LAST_AXIS TERN(HAS_HOTEND, E_AXIS, Z_AXIS)
+
 void HMI_MaxFeedspeedXYZE() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Feedspeed)) {
       checkkey = MaxSpeed;
       EncoderRate.enabled = false;
-      if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, LAST_AXIS))
         planner.set_max_feedrate(HMI_flag.feedspeed_axis, HMI_ValueStruct.Max_Feedspeed);
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_item.now), HMI_ValueStruct.Max_Feedspeed);
       return;
     }
     // MaxFeedspeed limit
-    if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Feedspeed, default_max_feedrate[HMI_flag.feedspeed_axis] * 2);
     if (HMI_ValueStruct.Max_Feedspeed < MIN_MAXFEEDSPEED) HMI_ValueStruct.Max_Feedspeed = MIN_MAXFEEDSPEED;
     // MaxFeedspeed value
@@ -1293,17 +1287,13 @@ void HMI_MaxAccelerationXYZE() {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Acceleration)) {
       checkkey = MaxAcceleration;
       EncoderRate.enabled = false;
-      if (HMI_flag.acc_axis == X_AXIS) planner.set_max_acceleration(X_AXIS, HMI_ValueStruct.Max_Acceleration);
-      else if (HMI_flag.acc_axis == Y_AXIS) planner.set_max_acceleration(Y_AXIS, HMI_ValueStruct.Max_Acceleration);
-      else if (HMI_flag.acc_axis == Z_AXIS) planner.set_max_acceleration(Z_AXIS, HMI_ValueStruct.Max_Acceleration);
-      #if HAS_HOTEND
-        else if (HMI_flag.acc_axis == E_AXIS) planner.set_max_acceleration(E_AXIS, HMI_ValueStruct.Max_Acceleration);
-      #endif
+      if (WITHIN(HMI_flag.acc_axis, X_AXIS, LAST_AXIS))
+        planner.set_max_acceleration(HMI_flag.acc_axis, HMI_ValueStruct.Max_Acceleration);
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_item.now), HMI_ValueStruct.Max_Acceleration);
       return;
     }
     // MaxAcceleration limit
-    if (WITHIN(HMI_flag.acc_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.acc_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Acceleration, default_max_acceleration[HMI_flag.acc_axis] * 2);
     if (HMI_ValueStruct.Max_Acceleration < MIN_MAXACCELERATION) HMI_ValueStruct.Max_Acceleration = MIN_MAXACCELERATION;
     // MaxAcceleration value
@@ -1319,13 +1309,13 @@ void HMI_MaxAccelerationXYZE() {
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Jerk_scaled)) {
         checkkey = MaxJerk;
         EncoderRate.enabled = false;
-        if (WITHIN(HMI_flag.jerk_axis, X_AXIS, E_AXIS))
+        if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
           planner.set_max_jerk(HMI_flag.jerk_axis, HMI_ValueStruct.Max_Jerk_scaled / 10);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_item.now), HMI_ValueStruct.Max_Jerk_scaled);
         return;
       }
       // MaxJerk limit
-      if (WITHIN(HMI_flag.jerk_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
         NOMORE(HMI_ValueStruct.Max_Jerk_scaled, default_max_jerk[HMI_flag.jerk_axis] * 2 * MINUNITMULT);
       NOLESS(HMI_ValueStruct.Max_Jerk_scaled, (MIN_MAXJERK) * MINUNITMULT);
       // MaxJerk value
@@ -1341,13 +1331,13 @@ void HMI_StepXYZE() {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Step_scaled)) {
       checkkey = Step;
       EncoderRate.enabled = false;
-      if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
         planner.settings.axis_steps_per_mm[HMI_flag.step_axis] = HMI_ValueStruct.Max_Step_scaled / 10;
       DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_item.now), HMI_ValueStruct.Max_Step_scaled);
       return;
     }
     // Step limit
-    if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9 * MINUNITMULT);
     NOLESS(HMI_ValueStruct.Max_Step_scaled, MIN_STEP);
     // Step value
@@ -2131,14 +2121,21 @@ void Draw_Move_Menu() {
 
   #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
+  #else
+    DWIN_Frame_TitleCopy(1, 231, 2, 265, 12);                     // Move
+  #endif
+
+  #ifdef USE_STRING_TITLES
     DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MOVE_X));
     DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MOVE_Y));
     DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MOVE_Z));
   #else
-    DWIN_Frame_TitleCopy(1, 231, 2, 265, 12);                     // Move
-    draw_move_en(MBASE(1)); say_x(36, MBASE(1));                  // Move X
-    draw_move_en(MBASE(2)); say_y(36, MBASE(2));                  // Move Y
-    draw_move_en(MBASE(3)); say_z(36, MBASE(3));                  // Move Z
+    DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, MBASE(1)); // "Move"
+    DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, MBASE(2)); // "Move"
+    DWIN_Frame_AreaCopy(1, 69, 61, 102, 71, LBLX, MBASE(3)); // "Move"
+    say_x(36, MBASE(1));  // X
+    say_y(36, MBASE(2));  // Y
+    say_z(36, MBASE(3));  // Z
   #endif
   #if HAS_HOTEND
     DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4));   // Extruder
@@ -2816,46 +2813,35 @@ void HMI_ManualLev() {
     if (select_item.dec()) Move_Highlight(-1, select_item.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    char ls[40];
-    const char *fmt = "G0 X%6.1f Y%6.1f F3000\nG0 Z0 F300";
-   
-    if (select_item.now) {     // if not is back
-      queue.inject_P(PSTR("M420 S0\nG28O"));  // Disable Mesh and do homing
-      queue.inject_P(PSTR("G90\nG0 Z2"));  // Switch to absolute and move Z 2mm
-    }
 
     switch (select_item.now) {
       case 0: // Back
-        checkkey = Prepare;
-        select_prepare.set(1);
-        index_prepare = MROWS;
         DWIN_StatusChanged("");
+        queue.inject_P(PSTR("M420 S1\nG90\nG0 Z2"));
+        checkkey = Prepare;
+        select_prepare.set(3);
+        index_prepare = MROWS;
         Draw_Prepare_Menu();
         break;
       case 1: // move to front left
-        sprintf_P(ls, fmt, 30, 30);
         DWIN_StatusChanged("Level front left");
-        queue.inject_P(ls);
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
         break;
       case 2: // move to front right
-        sprintf_P(ls, fmt, 200, 30);
         DWIN_StatusChanged("Level front right");
-        queue.inject_P(ls);
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
         break;
       case 3: // move to back right
-        sprintf_P(ls, fmt, 200, 200);
         DWIN_StatusChanged("Level back right");
-        queue.inject_P(ls);
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
         break;
       case 4: // move to back left
-        sprintf_P(ls, fmt, 30, 200);
         DWIN_StatusChanged("Level back left");
-        queue.inject_P(ls);
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
         break;
       case 5: // move to center
-        sprintf_P(ls, fmt, 115, 115);
         DWIN_StatusChanged("Level center");
-        queue.inject_P(ls);
+        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
         break;
     }
   }
