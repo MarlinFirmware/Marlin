@@ -204,13 +204,13 @@ public:
   #endif
 
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    static UsbFlashDrive_DiskIODriver sd2card_UsbFlashDrive;
+    static DiskIODriver_USBFlash sd2card_UsbFlashDrive;
   #endif
   #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
     #if ENABLED(SDIO_SUPPORT)
-      static SDIO_DiskIODriver sd2card_sdio;
+      static DiskIODriver_SDIO sd2card_sdio;
     #else
-      static SD_SPI_DiskIODriver sd2card_sd_spi;
+      static DiskIODriver_SPI_SD sd2card_sd_spi;
     #endif
   #endif
 
@@ -308,7 +308,7 @@ private:
 };
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define IS_SD_INSERTED() UsbFlashDrive_DiskIODriver::isInserted()
+  #define IS_SD_INSERTED() DiskIODriver_USBFlash::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
   #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else

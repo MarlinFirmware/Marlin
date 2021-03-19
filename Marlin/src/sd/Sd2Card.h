@@ -96,10 +96,10 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
  * \class Sd2Card
  * \brief Raw access to SD and SDHC flash memory cards.
  */
-class SD_SPI_DiskIODriver : public DiskIODriver {
+class DiskIODriver_SPI_SD : public DiskIODriver {
 public:
 
-  SD_SPI_DiskIODriver() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
+  DiskIODriver_SPI_SD() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
 
   uint32_t cardSize();
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
@@ -159,7 +159,7 @@ public:
    * Return the card type: SD V1, SD V2 or SDHC
    * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
    */
-  int type() const {return type_;}
+  int type() const { return type_; }
   bool writeBlock(uint32_t blockNumber, const uint8_t* src);
   bool writeData(const uint8_t* src);
   bool writeStart(const uint32_t blockNumber, const uint32_t eraseCount);

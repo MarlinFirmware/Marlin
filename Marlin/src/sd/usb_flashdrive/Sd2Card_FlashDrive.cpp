@@ -121,7 +121,7 @@ static enum {
   uint32_t lun0_capacity;
 #endif
 
-bool UsbFlashDrive_DiskIODriver::usbStartup() {
+bool DiskIODriver_USBFlash::usbStartup() {
   if (state <= DO_STARTUP) {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
@@ -147,7 +147,7 @@ bool UsbFlashDrive_DiskIODriver::usbStartup() {
 // the USB library to monitor for such events. This function also takes care
 // of initializing the USB library for the first time.
 
-void UsbFlashDrive_DiskIODriver::idle() {
+void DiskIODriver_USBFlash::idle() {
   usb.Task();
 
   const uint8_t task_state = usb.getUsbTaskState();
@@ -258,16 +258,16 @@ void UsbFlashDrive_DiskIODriver::idle() {
 
 // Marlin calls this function to check whether an USB drive is inserted.
 // This is equivalent to polling the SD_DETECT when using SD cards.
-bool UsbFlashDrive_DiskIODriver::isInserted() {
+bool DiskIODriver_USBFlash::isInserted() {
   return state == MEDIA_READY;
 }
 
-bool UsbFlashDrive_DiskIODriver::isReady() {
+bool DiskIODriver_USBFlash::isReady() {
   return state > DO_STARTUP && usb.getUsbTaskState() == UHS_STATE(RUNNING);
 }
 
 // Marlin calls this to initialize an SD card once it is inserted.
-bool UsbFlashDrive_DiskIODriver::init(const uint8_t, const pin_t) {
+bool DiskIODriver_USBFlash::init(const uint8_t, const pin_t) {
   if (!isInserted()) return false;
 
   #if USB_DEBUG >= 1
@@ -286,7 +286,7 @@ bool UsbFlashDrive_DiskIODriver::init(const uint8_t, const pin_t) {
 }
 
 // Returns the capacity of the card in blocks.
-uint32_t UsbFlashDrive_DiskIODriver::cardSize() {
+uint32_t DiskIODriver_USBFlash::cardSize() {
   if (!isInserted()) return false;
   #if USB_DEBUG < 3
     const uint32_t
@@ -295,7 +295,7 @@ uint32_t UsbFlashDrive_DiskIODriver::cardSize() {
   return lun0_capacity;
 }
 
-bool UsbFlashDrive_DiskIODriver::readBlock(uint32_t block, uint8_t* dst) {
+bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t* dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
@@ -309,7 +309,7 @@ bool UsbFlashDrive_DiskIODriver::readBlock(uint32_t block, uint8_t* dst) {
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool UsbFlashDrive_DiskIODriver::writeBlock(uint32_t block, const uint8_t* src) {
+bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t* src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {

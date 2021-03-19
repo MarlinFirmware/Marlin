@@ -121,13 +121,13 @@ uint8_t CardReader::workDirDepth;
 #endif // SDCARD_SORT_ALPHA
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  UsbFlashDrive_DiskIODriver CardReader::sd2card_UsbFlashDrive;
+  DiskIODriver_USBFlash CardReader::sd2card_UsbFlashDrive;
 #endif
 #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
   #if ENABLED(SDIO_SUPPORT)
-    SDIO_DiskIODriver CardReader::sd2card_sdio;
+    DiskIODriver_SDIO CardReader::sd2card_sdio;
   #else
-    SD_SPI_DiskIODriver CardReader::sd2card_sd_spi;
+    DiskIODriver_SPI_SD CardReader::sd2card_sd_spi;
   #endif
 #endif
 

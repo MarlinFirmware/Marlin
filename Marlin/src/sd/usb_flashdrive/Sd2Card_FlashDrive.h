@@ -47,7 +47,7 @@
   #endif
 #endif
 
-class UsbFlashDrive_DiskIODriver: public DiskIODriver {
+class DiskIODriver_USBFlash: public DiskIODriver {
   private:
     uint32_t pos;
 
