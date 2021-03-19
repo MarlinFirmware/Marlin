@@ -36,7 +36,7 @@
 #include "../../../../marlinui.h"
 
 #if ENABLED(HAS_STEALTHCHOP)
-  #include "../../../../module/stepper/trinamic.h"
+  #include "../../../../../module/stepper/trinamic.h"
 #endif
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)

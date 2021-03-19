@@ -1497,7 +1497,7 @@ bool DGUSScreenHandler::loop() {
     static bool booted = false;
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
-      #if ANY_AXIS_HAS(STEALTHCHOP)
+      #if USE_SENSORLESS
         #if AXIS_HAS_STEALTHCHOP(X)
           tmc_x_step = stepperX.homing_threshold();
         #endif
