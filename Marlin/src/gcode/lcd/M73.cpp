@@ -40,7 +40,7 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 
   void GcodeSuite::M73() {
-    Host_Print_Update(parser.seen('P') ? parser.value_byte() : 0, parser.seen('R') ? parser.value_ulong() : 0);
+    DWIN_Progress_Update(parser.seen('P') ? parser.value_byte() : 0, parser.seen('R') ? parser.value_ulong() : 0);
   }
 
 #else

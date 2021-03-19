@@ -49,6 +49,7 @@ typedef struct {
        sdprinting:1,
        mounted:1,
        filenameIsDir:1,
+       filenameIsBin:1,
        workDirIsRoot:1,
        abort_sd_printing:1
        #if ENABLED(BINARY_FILE_TRANSFER)

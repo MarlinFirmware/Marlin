@@ -150,6 +150,26 @@
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
+// Extra Icons
+#define ICON_Error                ICON_TempTooHigh
+#define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_MeshNext             ICON_Axis
+#define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_AdvSet               ICON_Language
+#define ICON_Reboot               ICON_ResumeEEPROM
+#define ICON_FilMan               ICON_ResumeEEPROM
+#define ICON_FilLoad              ICON_WriteEEPROM
+#define ICON_FilUnload            ICON_ReadEEPROM
+#define ICON_HomeOff              ICON_AdvSet
+#define ICON_HomeOffX             ICON_StepX
+#define ICON_HomeOffY             ICON_StepY
+#define ICON_ProbeOff             ICON_AdvSet
+#define ICON_ProbeOffX            ICON_StepX
+#define ICON_ProbeOffY            ICON_StepY
+#define ICON_PIDNozzle            ICON_SetEndTemp
+#define ICON_PIDbed               ICON_SetBedTemp
+#define ICON_Binary               ICON_Contact
+
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
  * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28

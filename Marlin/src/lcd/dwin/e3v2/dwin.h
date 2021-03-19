@@ -53,6 +53,8 @@ enum processID : uint8_t {
   ManualLev,
   ManualMesh,
   MMeshMoveZ,
+  AdvSet,
+  PidRunning,
   TemperatureID,
   Motion,
   Reboot,
@@ -70,6 +72,12 @@ enum processID : uint8_t {
   MaxJerk_value,
   Step,
   Step_value,
+  HomeOff,
+  HomeOffX,
+  HomeOffY,
+  ProbeOff,
+  ProbeOffX,
+  ProbeOffY,
 
   // Back Process ID
   Back_Main,
@@ -83,7 +91,7 @@ enum processID : uint8_t {
     Extruder,
     ETemp,
   #endif
-  Homeoffset,
+  Zoffset,
   #if HAS_HEATED_BED
     BedTemp,
   #endif
@@ -120,6 +128,10 @@ typedef struct {
   #endif
   float offset_value      = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
+  float Home_OffX_scaled  = 0;
+  float Home_OffY_scaled  = 0;
+  float Probe_OffX_scaled = 0;
+  float Probe_OffY_scaled = 0;
 } HMI_value_t;
 
 #define DWIN_CHINESE 123
@@ -134,6 +146,7 @@ typedef struct {
   bool select_flag:1;
   bool home_flag:1;  // Homing
   bool heat_flag:1;  // 0: heating done  1: during heating
+  bool Pid_flag:1;   // 0: Pid done 1: Pid running
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
   #endif
@@ -146,6 +159,9 @@ typedef struct {
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
 
+enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+enum pidmode_t : uint8_t {PID_OFF, PID_HOTEND, PID_BED};
+
 // Show ICO
 void ICON_Print();
 void ICON_Prepare();
@@ -157,7 +173,8 @@ void ICON_Pause();
 void ICON_Continue();
 void ICON_Stop();
 
-void Draw_Popup_Window(uint8_t icon, const char *msg1, const char *msg2);
+void DWIN_Popup_Window(uint8_t icon, const char *msg1, const char *msg2);
+void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
@@ -247,9 +264,10 @@ void DWIN_CompletedHoming();
 void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
 #endif
 void DWIN_CompletedLeveling();
+void DWIN_PidTuning(pidresult_t result);
 void Start_Print(bool sd);
 void Stop_Print();
 
 // Aditional Host and MarlinUI Support
-void Host_Print_Update(uint8_t percent, uint32_t remaining);
+void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
 void Host_Print_Text(char * const text);
