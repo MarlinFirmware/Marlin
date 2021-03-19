@@ -40,7 +40,7 @@ void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     break;
 
                 case 3:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONTROL);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SETUP);
                     break;
 
                 case 4:
@@ -51,7 +51,7 @@ void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     }
 }
 
-void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+void SetupMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_PREPAREENTERKEY:
             switch(buttonValue) {
@@ -439,7 +439,7 @@ void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_MAIN, MainMenuHandler)
 
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SETUP, SetupMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_ZOFFSET_LEVEL, LevelingModeHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_LEVELING, LevelingHandler)

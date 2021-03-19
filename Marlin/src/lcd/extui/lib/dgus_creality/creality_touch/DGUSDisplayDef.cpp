@@ -408,7 +408,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_MOVE01MM, VPList_PrintScreen },
 
   { DGUSLCD_SCREEN_FEED, VPList_Feed },
-  { DGUSLCD_SCREEN_CONTROL, VPList_Control },
+  { DGUSLCD_SCREEN_SETUP, VPList_Control },
 
   { DGUSLCD_SCREEN_TEMP, VPList_Temp },
   { DGUSLCD_SCREEN_TEMP_PLA, VPList_PreheatPLASettings },

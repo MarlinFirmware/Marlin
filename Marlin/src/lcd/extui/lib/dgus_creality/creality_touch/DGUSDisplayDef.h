@@ -50,7 +50,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_MOVE01MM = 45,         // DWINTouchPage::MOVE_01MM
 
   DGUSLCD_SCREEN_FEED = 46,            // DWINTouchPage::FEED
-  DGUSLCD_SCREEN_CONTROL = 47,         // DWINTouchPage::MENU_CONTROL
+  DGUSLCD_SCREEN_SETUP = 47,         // DWINTouchPage::MENU_CONTROL
 
   DGUSLCD_SCREEN_TEMP = 48,            // DWINTouchPage::MENU_TEMP
   DGUSLCD_SCREEN_TEMP_PLA = 49,        // DWINTouchPage::MENU_PLA_TEMP
