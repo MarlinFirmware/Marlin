@@ -234,8 +234,8 @@ extern char print_filename[16];
 extern millis_t dwin_heat_time;
 
 typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
+  TERN_(HAS_HOTEND,     celsius_t E_Temp    = 0);
+  TERN_(HAS_HEATED_BED, celsius_t Bed_Temp  = 0);
   TERN_(HAS_FAN,        int16_t Fan_speed = 0);
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;

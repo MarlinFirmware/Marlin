@@ -179,7 +179,7 @@ enum ADCSensorState : char {
 typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
-  float celsius;
+  celsius_t celsius;
   inline void reset() { acc = 0; }
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
@@ -187,7 +187,7 @@ typedef struct TempInfo {
 
 // A PWM heater with temperature sensor
 typedef struct HeaterInfo : public TempInfo {
-  int16_t target;
+  celsius_t target;
   uint8_t soft_pwm_amount;
 } heater_info_t;
 
@@ -228,14 +228,14 @@ struct PIDHeaterInfo : public HeaterInfo {
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
 struct HeaterWatch {
-  uint16_t target;
+  celsius_t target;
   millis_t next_ms;
   inline bool elapsed(const millis_t &ms) { return next_ms && ELAPSED(ms, next_ms); }
   inline bool elapsed() { return elapsed(millis()); }
 
-  inline void restart(const int16_t curr, const int16_t tgt) {
+  inline void restart(const celsius_t curr, const celsius_t tgt) {
     if (tgt) {
-      const int16_t newtarget = curr + INCREASE;
+      const celsius_t newtarget = curr + INCREASE;
       if (newtarget < tgt - HYSTERESIS - 1) {
         target = newtarget;
         next_ms = millis() + SEC_TO_MS(PERIOD);
@@ -261,8 +261,8 @@ struct HeaterWatch {
 
 // Temperature sensor read value ranges
 typedef struct { int16_t raw_min, raw_max; } raw_range_t;
-typedef struct { int16_t mintemp, maxtemp; } celsius_range_t;
-typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
+typedef struct { celsius_t mintemp, maxtemp; } celsius_range_t;
+typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
 
 #define THERMISTOR_ABS_ZERO_C           -273.15f  // bbbbrrrrr cold !
 #define THERMISTOR_RESISTANCE_NOMINAL_C 25.0f     // mmmmm comfortable
@@ -323,8 +323,8 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-      static const uint16_t hotend_maxtemp[HOTENDS];
-      FORCE_INLINE static uint16_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
+      static const celsius_t hotend_maxtemp[HOTENDS];
+      FORCE_INLINE static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
@@ -342,8 +342,8 @@ class Temperature {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
-      static int16_t extrude_min_temp;
-      FORCE_INLINE static bool tooCold(const int16_t temp) { return allow_cold_extrude ? false : temp < extrude_min_temp - (TEMP_WINDOW); }
+      static celsius_t extrude_min_temp;
+      FORCE_INLINE static bool tooCold(const celsius_t temp) { return allow_cold_extrude ? false : temp < extrude_min_temp - (TEMP_WINDOW); }
       FORCE_INLINE static bool tooColdToExtrude(const uint8_t E_NAME) {
         return tooCold(degHotend(HOTEND_INDEX));
       }
@@ -359,7 +359,7 @@ class Temperature {
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
-      static uint16_t singlenozzle_temp[EXTRUDERS];
+      static celsius_t singlenozzle_temp[EXTRUDERS];
       #if HAS_FAN
         static uint8_t singlenozzle_fan_speed[EXTRUDERS];
       #endif
@@ -411,7 +411,7 @@ class Temperature {
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static uint16_t redundant_temperature_raw;
-      static float redundant_temperature;
+      static celsius_t redundant_temperature;
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
@@ -424,34 +424,19 @@ class Temperature {
     #if HAS_HEATED_BED
       TERN_(WATCH_BED, static bed_watch_t watch_bed);
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
-      #ifdef BED_MINTEMP
-        static int16_t mintemp_raw_BED;
-      #endif
-      #ifdef BED_MAXTEMP
-        static int16_t maxtemp_raw_BED;
-      #endif
+      static int16_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
       TERN_(WATCH_CHAMBER, static chamber_watch_t watch_chamber);
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
-      #ifdef CHAMBER_MINTEMP
-        static int16_t mintemp_raw_CHAMBER;
-      #endif
-      #ifdef CHAMBER_MAXTEMP
-        static int16_t maxtemp_raw_CHAMBER;
-      #endif
+      static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
       TERN_(WATCH_COOLER, static cooler_watch_t watch_cooler);
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
-      #ifdef COOLER_MINTEMP
-        static int16_t mintemp_raw_COOLER;
-      #endif
-      #ifdef COOLER_MAXTEMP
-        static int16_t maxtemp_raw_COOLER;
-      #endif
+      static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
@@ -488,7 +473,7 @@ class Temperature {
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
       static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
       static void reset_user_thermistors();
-      static float user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
+      static celsius_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
       static bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (!WITHIN(value, 1, 1000000)) return false;
@@ -516,19 +501,19 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-      static float analog_to_celsius_hotend(const int raw, const uint8_t e);
+      static celsius_t analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static float analog_to_celsius_bed(const int raw);
+      static celsius_t analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_PROBE
-      static float analog_to_celsius_probe(const int raw);
+      static celsius_t analog_to_celsius_probe(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static float analog_to_celsius_chamber(const int raw);
+      static celsius_t analog_to_celsius_chamber(const int raw);
     #endif
     #if HAS_TEMP_COOLER
-      static float analog_to_celsius_cooler(const int raw);
+      static celsius_t analog_to_celsius_cooler(const int raw);
     #endif
 
     #if HAS_FAN
@@ -620,7 +605,7 @@ class Temperature {
       }
     #endif
 
-    FORCE_INLINE static int16_t degTargetHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_t degTargetHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
     }
 
@@ -632,7 +617,7 @@ class Temperature {
 
     #if HAS_HOTEND
 
-      static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
+      static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #ifdef MILLISECONDS_PREHEAT_TIME
           if (celsius == 0)
@@ -678,12 +663,12 @@ class Temperature {
     #if HAS_HEATED_BED
 
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawBedTemp()  { return temp_bed.raw; }
+        FORCE_INLINE static int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static float degBed()          { return temp_bed.celsius; }
-      FORCE_INLINE static int16_t degTargetBed()  { return temp_bed.target; }
-      FORCE_INLINE static bool isHeatingBed()     { return temp_bed.target > temp_bed.celsius; }
-      FORCE_INLINE static bool isCoolingBed()     { return temp_bed.target < temp_bed.celsius; }
+      FORCE_INLINE static celsius_t degBed()        { return temp_bed.celsius; }
+      FORCE_INLINE static celsius_t degTargetBed()  { return temp_bed.target; }
+      FORCE_INLINE static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
+      FORCE_INLINE static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
 
       #if WATCH_BED
         static void start_watching_bed();
@@ -691,15 +676,9 @@ class Temperature {
         static inline void start_watching_bed() {}
       #endif
 
-      static void setTargetBed(const int16_t celsius) {
+      static void setTargetBed(const celsius_t celsius) {
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
-        temp_bed.target =
-          #ifdef BED_MAX_TARGET
-            _MIN(celsius, BED_MAX_TARGET)
-          #else
-            celsius
-          #endif
-        ;
+        temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
       }
 
@@ -735,14 +714,13 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawChamberTemp()    { return temp_chamber.raw; }
+        FORCE_INLINE static int16_t rawChamberTemp()      { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber()            { return temp_chamber.celsius; }
+      FORCE_INLINE static float degChamber()              { return temp_chamber.celsius; }
       #if HAS_HEATED_CHAMBER
-        FORCE_INLINE static int16_t degTargetChamber()  { return temp_chamber.target; }
-        FORCE_INLINE static bool isHeatingChamber()     { return temp_chamber.target > temp_chamber.celsius; }
-        FORCE_INLINE static bool isCoolingChamber()     { return temp_chamber.target < temp_chamber.celsius; }
-
+        FORCE_INLINE static celsius_t degTargetChamber()  { return temp_chamber.target; }
+        FORCE_INLINE static bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
+        FORCE_INLINE static bool isCoolingChamber()       { return temp_chamber.target < temp_chamber.celsius; }
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
       #endif
     #endif
@@ -754,27 +732,21 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_CHAMBER
-      static void setTargetChamber(const int16_t celsius) {
-        temp_chamber.target =
-          #ifdef CHAMBER_MAXTEMP
-            _MIN(celsius, CHAMBER_MAXTEMP - 10)
-          #else
-            celsius
-          #endif
-        ;
+      static void setTargetChamber(const celsius_t celsius) {
+        temp_chamber.target = _MIN(celsius, CHAMBER_MAX_TARGET);
         start_watching_chamber();
       }
     #endif
 
     #if HAS_TEMP_COOLER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        FORCE_INLINE static int16_t rawCoolerTemp()    { return temp_cooler.raw; }
+        FORCE_INLINE static int16_t rawCoolerTemp()     { return temp_cooler.raw; }
       #endif
-      FORCE_INLINE static float degCooler()            { return temp_cooler.celsius; }
+      FORCE_INLINE static float degCooler()             { return temp_cooler.celsius; }
       #if HAS_COOLER
-        FORCE_INLINE static int16_t degTargetCooler()  { return temp_cooler.target; }
-        FORCE_INLINE static bool isLaserHeating()     { return temp_cooler.target > temp_cooler.celsius; }
-        FORCE_INLINE static bool isLaserCooling()     { return temp_cooler.target < temp_cooler.celsius; }
+        FORCE_INLINE static celsius_t degTargetCooler() { return temp_cooler.target; }
+        FORCE_INLINE static bool isLaserHeating()       { return temp_cooler.target > temp_cooler.celsius; }
+        FORCE_INLINE static bool isLaserCooling()       { return temp_cooler.target < temp_cooler.celsius; }
         static bool wait_for_cooler(const bool no_wait_for_cooling=true);
       #endif
     #endif
@@ -786,7 +758,7 @@ class Temperature {
     #endif
 
     #if HAS_COOLER
-      static void setTargetCooler(const int16_t celsius) {
+      static void setTargetCooler(const celsius_t celsius) {
         temp_cooler.target = constrain(celsius, COOLER_MIN_TARGET, COOLER_MAX_TARGET);
         start_watching_cooler();
       }
@@ -945,7 +917,7 @@ class Temperature {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
-        void run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
+        void run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

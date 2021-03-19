@@ -66,8 +66,8 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-  TERN_(HAS_HOTEND,     int16_t target_temperature[HOTENDS]);
-  TERN_(HAS_HEATED_BED, int16_t target_temperature_bed);
+  TERN_(HAS_HOTEND,     celsius_t target_temperature[HOTENDS]);
+  TERN_(HAS_HEATED_BED, celsius_t target_temperature_bed);
   TERN_(HAS_FAN,        uint8_t fan_speed[FAN_COUNT]);
 
   TERN_(HAS_LEVELING, float fade);

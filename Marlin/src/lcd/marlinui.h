@@ -110,9 +110,9 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    TERN_(HAS_HOTEND,     uint16_t hotend_temp);
-    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
-    TERN_(HAS_FAN,        uint16_t fan_speed  );
+    TERN_(HAS_HOTEND,     celsius_t hotend_temp);
+    TERN_(HAS_HEATED_BED, celsius_t bed_temp   );
+    TERN_(HAS_FAN,        uint16_t  fan_speed  );
   } preheat_t;
 #endif
 
