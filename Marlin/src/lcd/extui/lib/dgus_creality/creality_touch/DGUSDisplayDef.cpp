@@ -377,6 +377,12 @@ const uint16_t VPList_MeshValidation[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_Calibrate[] PROGMEM = {
+  VPList_CommonWithStatus,
+
+  0x0000
+};
+
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
@@ -440,6 +446,8 @@ const struct VPMapping VPMap[] PROGMEM = {
 
   { DGUSLCD_SCREEN_MISC_SETTINGS, VPList_MiscSettings },
   { DGUSLCD_SCREEN_MESH_VALIDATION, VPList_MeshValidation },
+
+  { DGUSLCD_SCREEN_CALIBRATE, VPList_Calibrate },
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
@@ -611,6 +619,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_LEVELING_FADE_HEIGHT, &planner.z_fade_height, ScreenHandler.HandleFadeHeight, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
+  VPHELPER(VP_LEVELING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_CALIBRATE>), nullptr),
   VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_LEVELING_SETTINGS>), nullptr),
   #endif
 

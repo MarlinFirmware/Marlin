@@ -44,7 +44,7 @@ void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     break;
 
                 case 4:
-                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CALIBRATE);
                     break;
             }
             break;
