@@ -428,7 +428,18 @@ void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MOVE01MM, false);
             break;
         case 4:
+            // Temporary copy probe settings so we home without preheating, then restore setings afterward
+            auto prev_probe_settings = probe.settings;
+
+            probe.settings.preheat_bed_temp = 0;
+            probe.settings.preheat_hotend_temp = 0;
+            probe.settings.stabilize_temperatures_after_probing = false;
+
             ExtUI::injectCommands_P("G28");
+            while (queue.has_commands_queued()) queue.advance();
+
+            // ... Restore settings
+            probe.settings = prev_probe_settings;
             break;
         }
     }
