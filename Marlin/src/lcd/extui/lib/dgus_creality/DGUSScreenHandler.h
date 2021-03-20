@@ -319,6 +319,8 @@ public:
   // Toggle a boolean at the specified memory address
   static void DGUSLCD_ToggleBoolean(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
+      SERIAL_ECHOLNPAIR("Toggle boolean - ", var.VP);
+
       bool* val = (bool *)var.memadr;
       *val = !*val;
     }

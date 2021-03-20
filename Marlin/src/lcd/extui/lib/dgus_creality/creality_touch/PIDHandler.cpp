@@ -20,11 +20,14 @@
 // Storage init
 uint16_t PIDHandler::cycles = 0;
 uint16_t PIDHandler::calibration_temperature = 0;
+bool PIDHandler::fan_on = false;
 PGM_P PIDHandler::result_message = nullptr;
 
 void PIDHandler::Init() {
     // Reset
     cycles = 3;
+
+    fan_on = ExtUI::getTargetFan_percent(ExtUI::fan_t::FAN0) > 10;
 
     // Use configured PLA temps + 10 degrees
     calibration_temperature = ui.material_preset[0].hotend_temp + 15;
@@ -43,6 +46,11 @@ void PIDHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
         return;
     }
 
+    if (calibration_temperature > HEATER_0_MAXTEMP) {
+        SetStatusMessage(PSTR("Invalid temperature set"));
+        return;
+    }
+
     if (cycles < 1) {
         SetStatusMessage(PSTR("Invalid number of cycles"));
         return;
@@ -52,17 +60,23 @@ void PIDHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     DGUSSynchronousOperation syncOperation;
     syncOperation.start();
 
+    // Fan
+    const auto prev_fan_percentage = ExtUI::getActualFan_percent(ExtUI::fan_t::FAN0);
+    const uint8_t fan_speed = fan_on ? 255 : 0;
+
     // Set-up command
     SetStatusMessage(PSTR("PID tuning. Please wait..."));
 
-    char cmd[64];
-    sprintf_P(cmd, PSTR("M303 S%d C%d U1"), calibration_temperature, cycles);
+    char cmd[64]; // Add a G4 to allow the fan speed to take effect
+    sprintf_P(cmd, PSTR("M106 S%d\nG4 S2\nM303 S%d C%d U1"), fan_speed, calibration_temperature, cycles);
+    SERIAL_ECHOLNPAIR("Executing: ", cmd);
 
     ExtUI::injectCommands(cmd);
-    queue.advance();
-    planner.synchronize();
+    while (queue.has_commands_queued()) queue.advance();
 
     // Done
+    ExtUI::setTargetFan_percent(prev_fan_percentage, ExtUI::fan_t::FAN0);
+
     ScreenHandler.Buzzer(0, 250);
     settings.save();
     syncOperation.done();

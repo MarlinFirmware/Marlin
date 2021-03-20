@@ -452,6 +452,8 @@ constexpr uint16_t GENERIC_BACK_BUTTON_NEED_SAVE = 0x1;
 // PID tuning
 constexpr uint16_t VP_PIDTUNE_TARGET_TEMP = 0x2297;
 constexpr uint16_t VP_PIDTUNE_CYCLES = 0x2299;
+constexpr uint16_t VP_PIDTUNE_FAN_TOGGLE = 0x238C;
+constexpr uint16_t VP_PIDTUNE_FAN_TOGGLE_ICON = 0x238E;
 constexpr uint16_t VP_PIDTUNE_START_BUTTON = 0x229B;
 
 // FWRetract

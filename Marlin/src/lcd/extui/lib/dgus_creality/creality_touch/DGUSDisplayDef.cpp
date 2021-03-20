@@ -275,6 +275,7 @@ const uint16_t VPList_PidTune[] PROGMEM = {
   VPList_CommonWithHeatOnly,
 
   VP_PIDTUNE_TARGET_TEMP,
+  VP_PIDTUNE_FAN_TOGGLE_ICON,
   VP_PIDTUNE_CYCLES,
 
   0x0000
@@ -504,6 +505,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // ... PID
   VPHELPER(VP_PIDTUNE_TARGET_TEMP, &PIDHandler::calibration_temperature, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_PIDTUNE_CYCLES, &PIDHandler::cycles, ScreenHandler.DGUSLCD_SetValueDirectly<uint16_t>, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_PIDTUNE_FAN_TOGGLE, &PIDHandler::fan_on, ScreenHandler.DGUSLCD_ToggleBoolean, nullptr),
+  VPHELPER(VP_PIDTUNE_FAN_TOGGLE_ICON, &PIDHandler::fan_on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
+
   VPHELPER(VP_PIDTUNE_START_BUTTON, nullptr, PIDHandler::HandleStartButton, nullptr),
 
   VPHELPER(VP_PIDTUNE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_PIDTUNE_CALIBRATION, PIDHandler>), nullptr),
