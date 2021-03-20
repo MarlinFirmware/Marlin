@@ -619,7 +619,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_LEVELING_FADE_HEIGHT, &planner.z_fade_height, ScreenHandler.HandleFadeHeight, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
 
-  VPHELPER(VP_LEVELING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_CALIBRATE>), nullptr),
+  VPHELPER(VP_LEVELING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ZOFFSET_LEVEL>), nullptr),
   VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_LEVELING_SETTINGS>), nullptr),
   #endif
 
