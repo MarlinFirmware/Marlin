@@ -2353,6 +2353,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
   + ENABLED(MAKRPANEL) \
   + ENABLED(MALYAN_LCD) \
+  + ENABLED(NEXTION_TFT) \
   + ENABLED(MKS_LCD12864) \
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(OVERLORD_OLED) \
@@ -2372,7 +2373,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(ULTIPANEL) \
   + ENABLED(ULTRA_LCD) \
   + ENABLED(YHCB2004) \
-  + ENABLED(ZONESTAR_LCD)
+  + ENABLED(ZONESTAR_LCD) \
+  + ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER) \
+  + ENABLED(K3D_242_OLED_CONTROLLER)
   #error "Please select only one LCD controller option."
 #endif
 

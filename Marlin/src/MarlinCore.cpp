@@ -889,8 +889,8 @@ void stop() {
 
   print_job_timer.stop();
 
-  #if ENABLED(PROBING_FANS_OFF)
-    if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
+  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+    thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
   if (IsRunning()) {
@@ -953,23 +953,92 @@ inline void tmc_standby_setup() {
 }
 
 /**
- * Marlin entry-point: Set up before the program loop
- *  - Set up the kill pin, filament runout, power hold, custom user buttons
- *  - Start the serial port
+ * Marlin Firmware entry-point. Abandon Hope All Ye Who Enter Here.
+ * Setup before the program loop:
+ *
+ *  - Call any special pre-init set for the board
+ *  - Put TMC drivers into Low Power Standby mode
+ *  - Init the serial ports (so setup can be debugged)
+ *  - Set up the kill and suicide pins
+ *  - Prepare (disable) board JTAG and Debug ports
+ *  - Init serial for a connected MKS TFT with WiFi
+ *  - Install Marlin custom Exception Handlers, if set.
+ *  - Init Marlin's HAL interfaces (for SPI, i2c, etc.)
+ *  - Init some optional hardware and features:
+ *    • MAX Thermocouple pins
+ *    • Duet Smart Effector
+ *    • Filament Runout Sensor
+ *    • TMC220x Stepper Drivers (Serial)
+ *    • PSU control
+ *    • Power-loss Recovery
+ *    • L64XX Stepper Drivers (SPI)
+ *    • Stepper Driver Reset: DISABLE
+ *    • TMC Stepper Drivers (SPI)
+ *    • Run BOARD_INIT if defined
+ *    • ESP WiFi
+ *  - Get the Reset Reason and report it
  *  - Print startup messages and diagnostics
- *  - Get EEPROM or default settings
- *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
- *    • Max7219
+ *  - Calibrate the HAL DELAY for precise timing
+ *  - Init the buzzer, possibly a custom timer
+ *  - Init more optional hardware:
+ *    • Color LED illumination
+ *    • Neopixel illumination
+ *    • Controller Fan
+ *    • Creality DWIN LCD (show boot image)
+ *    • Tare the Probe if possible
+ *  - Mount the (most likely external) SD Card
+ *  - Load settings from EEPROM (or use defaults)
+ *  - Init the Ethernet Port
+ *  - Init Touch Buttons (for emulated DOGLCD)
+ *  - Adjust the (certainly wrong) current position by the home offset
+ *  - Init the Planner::position (steps) based on current (native) position
+ *  - Initialize more managers and peripherals:
+ *    • Temperatures
+ *    • Print Job Timer
+ *    • Endstops and Endstop Interrupts
+ *    • Stepper ISR - Kind of Important!
+ *    • Servos
+ *    • Servo-based Probe
+ *    • Photograph Pin
+ *    • Laser/Spindle tool Power / PWM
+ *    • Coolant Control
+ *    • Bed Probe
+ *    • Stepper Driver Reset: ENABLE
+ *    • Digipot I2C - Stepper driver current control
+ *    • Stepper DAC - Stepper driver current control
+ *    • Solenoid (probe, or for other use)
+ *    • Home Pin
+ *    • Custom User Buttons
+ *    • Red/Blue Status LEDs
+ *    • Case Light
+ *    • Prusa MMU filament changer
+ *    • Fan Multiplexer
+ *    • Mixing Extruder
+ *    • BLTouch Probe
+ *    • I2C Position Encoders
+ *    • Custom I2C Bus handlers
+ *    • Enhanced tools or extruders:
+ *      • Switching Extruder
+ *      • Switching Nozzle
+ *      • Parking Extruder
+ *      • Magnetic Parking Extruder
+ *      • Switching Toolhead
+ *      • Electromagnetic Switching Toolhead
+ *    • Watchdog Timer - Also Kind of Important!
+ *    • Closed Loop Controller
+ *  - Run Startup Commands, if defined
+ *  - Tell host to close Host Prompts
+ *  - Test Trinamic driver connections
+ *  - Init Prusa MMU2 filament changer
+ *  - Init and test BL24Cxx EEPROM
+ *  - Init Creality DWIN encoder, show faux progress bar
+ *  - Reset Status Message / Show Service Messages
+ *  - Init MAX7219 LED Matrix
+ *  - Init Direct Stepping (Klipper-style motion control)
+ *  - Init TFT LVGL UI (with 3D Graphics)
+ *  - Apply Password Lock - Hold for Authentication
+ *  - Open Touch Screen Calibration screen, if not calibrated
+ *  - Set Marlin to RUNNING State
  */
 void setup() {
   #ifdef BOARD_PREINIT
@@ -1311,7 +1380,6 @@ void setup() {
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
-
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
@@ -1364,19 +1432,13 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    SETUP_RUN(mpe_settings_init());
-  #endif
-
   #if ENABLED(PARKING_EXTRUDER)
     SETUP_RUN(pe_solenoid_init());
-  #endif
-
-  #if ENABLED(SWITCHING_TOOLHEAD)
+  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    SETUP_RUN(mpe_settings_init());
+  #elif ENABLED(SWITCHING_TOOLHEAD)
     SETUP_RUN(swt_init());
-  #endif
-
-  #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
   #endif
 
