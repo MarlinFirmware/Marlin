@@ -2573,7 +2573,7 @@ void HMI_Control() {
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
-    //queue.inject_P(PSTR("G28O\nG29"));
+    queue.inject_P(PSTR("G28O\nG29"));
     /*M140 S60 ; War
     M190 S60 ; Wait until bed is warm so we're more accurate.
     G28 ; Home XYZ.
@@ -2582,7 +2582,7 @@ void HMI_Control() {
     G29 S1 ; Save UBL mesh points to EEPROM in Slot 1.
     G29 F 10.0 ; Set Fade Height for correction at 10.0 mm.
     G29 A ; Activate the UBL System.*/
-    queue.inject_P(PSTR("M140 S60\nM190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 F10\nG29 A\nM140 S0\nM107"));.
+    //queue.inject_P(PSTR("M140 S60\nM190 S60\nG28\nG29 P1\nG29 P3\nG29 S1\nG29 F10\nG29 A\nM140 S0\nM107"));
 
   }
 
