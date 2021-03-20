@@ -158,13 +158,15 @@
 
 // If you are using different extruders on your E motors that require different steps/mm then set those below and uncomment DISTINCT_E_FACTORS
 // If you have matching extruders and they do not use the stock steps/mm use the CUSTOM_ESTEPS option instead below the printer configs
+// E0 is for your 1st hotend/extruder, E1 is for your 2nd hotend/extruder
 //#define DISTINCT_E_FACTORS
+#define DUAL_EXTRUDER_E0_STEPS 95
 #define DUAL_EXTRUDER_E1_STEPS 95
-#define DUAL_EXTRUDER_E2_STEPS 95
 
 // If you need to reverse one or both motors use the below REVERSE_E#_MOTOR_DIRECTION options.
+// E0 is for your 1st hotend/extruder, E1 is for your 2nd hotend/extruder
+//#define REVERSE_E0_MOTOR_DIRECTION
 //#define REVERSE_E1_MOTOR_DIRECTION
-//#define REVERSE_E2_MOTOR_DIRECTION
 
 //===========================================================================
 // ******************   SOVOL PRINTERS 2560 CPU BOARD   *********************
@@ -947,7 +949,7 @@
       #endif
     #endif
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, DUAL_EXTRUDER_E1_STEPS, DUAL_EXTRUDER_E2_STEPS }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, DUAL_EXTRUDER_E0_STEPS, DUAL_EXTRUDER_E1_STEPS }
   #endif
 
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
@@ -1185,22 +1187,22 @@
   #endif
 
   #if ENABLED(REVERSE_E2_MOTOR_DIRECTION)
-    #define INVERT_E0_DIR true
+    #define INVERT_E1_DIR true
   #else
-    #define INVERT_E0_DIR false
+    #define INVERT_E1_DIR false
   #endif
   
   #if ENABLED(CRX)
     #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
-      #define INVERT_E1_DIR false
+      #define INVERT_E0_DIR false
     #else
-      #define INVERT_E1_DIR true
+      #define INVERT_E0_DIR true
     #endif
   #else
     #if ENABLED(REVERSE_E1_MOTOR_DIRECTION)
-      #define INVERT_E1_DIR true
+      #define INVERT_E0_DIR true
     #else
-      #define INVERT_E1_DIR false
+      #define INVERT_E0_DIR false
     #endif
   #endif
 
