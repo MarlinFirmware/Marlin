@@ -1182,11 +1182,11 @@
     #define INVERT_Z_DIR true
   #endif
   
-  #if ENABLED(REVERSE_E1_MOTOR_DIRECTION)
+  #if ENABLED(REVERSE_E0_MOTOR_DIRECTION)
     #define REVERSE_E_MOTOR_DIRECTION
   #endif
 
-  #if ENABLED(REVERSE_E2_MOTOR_DIRECTION)
+  #if ENABLED(REVERSE_E1_MOTOR_DIRECTION)
     #define INVERT_E1_DIR true
   #else
     #define INVERT_E1_DIR false
@@ -1199,7 +1199,7 @@
       #define INVERT_E0_DIR true
     #endif
   #else
-    #if ENABLED(REVERSE_E1_MOTOR_DIRECTION)
+    #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
       #define INVERT_E0_DIR true
     #else
       #define INVERT_E0_DIR false
