@@ -193,7 +193,7 @@ bool hasPrintTimer = false;
       ScreenHandler.OnMeshLevelingStart();
     }
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float &zval) {
       ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, zval);
     }
 

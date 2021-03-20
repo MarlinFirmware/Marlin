@@ -42,7 +42,7 @@ protected:
   usart_rx_callback_t _rx_callback;
 };
 
-typedef Serial0Type<MarlinSerial> MSerialT;
+typedef Serial1Class<MarlinSerial> MSerialT;
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;

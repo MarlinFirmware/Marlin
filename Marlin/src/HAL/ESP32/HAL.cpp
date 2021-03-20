@@ -41,7 +41,7 @@
 #endif
 
 #if ENABLED(ESP3D_WIFISUPPORT)
-  DefaultSerial MSerial(false, Serial2Socket);
+  DefaultSerial1 MSerial0(false, Serial2Socket);
 #endif
 
 // ------------------------

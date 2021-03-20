@@ -46,7 +46,20 @@ void _lcd_user_gcode(PGM_P const cmd) {
 void menu_user() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
-  #define USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), []{ _lcd_user_gcode(PSTR(USER_GCODE_##N _DONE_SCRIPT)); });
+
+  #define GCODE_LAMBDA(N) []{ _lcd_user_gcode(PSTR(USER_GCODE_##N _DONE_SCRIPT)); }
+  #define _USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), GCODE_LAMBDA(N));
+  #define _USER_ITEM_CONFIRM(N)           \
+    SUBMENU_P(PSTR(USER_DESC_##N), []{    \
+        MenuItem_confirm::confirm_screen( \
+          GCODE_LAMBDA(N),                \
+          ui.goto_previous_screen,        \
+          PSTR(USER_DESC_##N "?")         \
+        );                                \
+      })
+
+  #define USER_ITEM(N) do{ if (ENABLED(USER_CONFIRM_##N)) _USER_ITEM_CONFIRM(N); else _USER_ITEM(N); }while(0)
+
   #if HAS_USER_ITEM(1)
     USER_ITEM(1);
   #endif
