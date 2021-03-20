@@ -75,16 +75,16 @@
   * MotherBoards QQS: 
     [HiSpeedv1_&_RobinMini](./HISPEED)
     
-    With integrated stepper drivers(A4988)=>(Sxxx-Robin_mini.bin)
+    With integrated stepper drivers(A4988)=>(**Sxxx-Robin_mini.bin**)
 
     ![First Version-A4988](../../docs/images/HiSpeed.jpg)
     
     With removable stepper drivers.
-    2&3_A4988(Green/Red)=>(Sxxx-Robin_mini.bin)
+    2&3_A4988(Green/Red)=>(**Sxxx-Robin_mini.bin**)
     
     ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg) ![Seconds Version-A4988](../../docs/images/HiSpeedv1-A4988red.jpg)
     
-    4xTMC2208 MKS =>(8xxx-Robin_mini.bin)
+    4xTMC2208 MKS =>(**8xxx-Robin_mini.bin**)
     
     ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
   
@@ -94,11 +94,11 @@
 
   * Other MotherBoards for Q5 and QQS:
 
-    [NANOv1.2](./NANO)
+    [NANOv1.2](./NANO)=>(**Q5_Header_robin_nano.bin**)
 
     ![Board_Nanov1.2](../../docs/images/Fam_Nano.png)
     
-    [SKR](./SKR)
+    [SKR](./SKR)=>(**Header-firmware.bin**)
     
     ![Board_SKRs](../../docs/images/Fam_SKR.png) 
     ![Cnx_SKRs](../../docs/images/SKR_EndStop.png)
