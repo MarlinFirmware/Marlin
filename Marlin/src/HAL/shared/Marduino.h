@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,9 +29,6 @@
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
 #undef sq             // Redefined by teensy3/wiring.h
-#undef SBI            // Redefined by arduino/const_functions.h
-#undef CBI            // Redefined by arduino/const_functions.h
-#undef UNUSED         // Redefined by stm32f4xx_hal_def.h
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
@@ -57,29 +54,4 @@
     inline const char* strchr_P(const char *s, int c) { return strchr(s,c); }
     //#define strchr_P(s,c) strchr(s,c)
   #endif
-
-  #ifndef snprintf_P
-    #define snprintf_P snprintf
-  #endif
-  #ifndef vsnprintf_P
-    #define vsnprintf_P vsnprintf
-  #endif
-#endif
-
-// Restart causes
-#define RST_POWER_ON    1
-#define RST_EXTERNAL    2
-#define RST_BROWN_OUT   4
-#define RST_WATCHDOG    8
-#define RST_JTAG       16
-#define RST_SOFTWARE   32
-#define RST_BACKUP     64
-
-#ifndef M_PI
-  #define M_PI 3.14159265358979323846f
-#endif
-
-// Remove compiler warning on an unused variable
-#ifndef UNUSED
-  #define UNUSED(x) ((void)(x))
 #endif

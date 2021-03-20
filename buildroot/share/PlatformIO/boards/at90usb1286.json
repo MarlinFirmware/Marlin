@@ -8,7 +8,6 @@
   "frameworks": [
     "arduino"
   ],
-  "platform": "teensy",
   "name": "Atmel AT90USB1286 based",
   "upload": {
     "maximum_ram_size": 8192,

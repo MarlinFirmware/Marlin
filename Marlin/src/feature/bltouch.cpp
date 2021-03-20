@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,8 +28,6 @@
 
 BLTouch bltouch;
 
-bool BLTouch::last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-
 #include "../module/servo.h"
 
 void stop();
@@ -40,45 +38,21 @@ void stop();
 bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
   if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
-  safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
+  safe_delay(MAX(ms, BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
   return triggered();
 }
 
-// Init the class and device. Call from setup().
-void BLTouch::init(const bool set_voltage/*=false*/) {
-  // Voltage Setting (if enabled). At every Marlin initialization:
-  // BLTOUCH < V3.0 and clones: This will be ignored by the probe
-  // BLTOUCH V3.0: SET_5V_MODE or SET_OD_MODE (if enabled).
-  //               OD_MODE is the default on power on, but setting it does not hurt
-  //               This mode will stay active until manual SET_OD_MODE or power cycle
-  // BLTOUCH V3.1: SET_5V_MODE or SET_OD_MODE (if enabled).
-  //               At power on, the probe will default to the eeprom settings configured by the user
+void BLTouch::init() {
+  // This is called by marlin.cpp on initialization
+  // SET_5V_MODE (if enabled). OD_MODE is the default on power on.
+  // This mode will stay active until manual SET_OD_MODE or power cycle
+  #if ENABLED(BLTOUCH_FORCE_5V_MODE)
+    _set_5V_mode();                          // Set 5V mode if explicitely demanded (V3 upwards)
+  #endif
   _reset();
   _stow();
-
-  #if ENABLED(BLTOUCH_FORCE_MODE_SET)
-
-    constexpr bool should_set = true;
-
-  #else
-
-    if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPAIR("last_written_mode - ", (int)last_written_mode);
-      DEBUG_ECHOLNPGM("config mode - "
-        #if ENABLED(BLTOUCH_SET_5V_MODE)
-          "BLTOUCH_SET_5V_MODE"
-        #else
-          "OD"
-        #endif
-      );
-    }
-
-    const bool should_set = last_written_mode != ENABLED(BLTOUCH_SET_5V_MODE);
-
-  #endif
-
-  if (should_set && set_voltage)
-    mode_conv_proc(ENABLED(BLTOUCH_SET_5V_MODE));
+  // There really should be no alarm outstanding now, and no triggered condition. But if there is,
+  // there is no need to worry people here on init right at the start of the printer.
 }
 
 void BLTouch::clear() {
@@ -102,42 +76,39 @@ bool BLTouch::triggered() {
 
 bool BLTouch::deploy_proc() {
   // Do a DEPLOY
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch DEPLOY requested");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch DEPLOY requested");
 
   // Attempt to DEPLOY, wait for DEPLOY_DELAY or ALARM
   if (_deploy_query_alarm()) {
     // The deploy might have failed or the probe is already triggered (nozzle too low?)
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch ALARM or TRIGGER after DEPLOY, recovering");
 
     clear();                               // Get the probe into start condition
 
     // Last attempt to DEPLOY
     if (_deploy_query_alarm()) {
       // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Recovery Failed");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch Recovery Failed");
 
-      SERIAL_ERROR_MSG(STR_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
+      SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
       stop();                              // but it's not too bad, no need to kill, allow restart
 
       return true;                         // Tell our caller we goofed in case he cares to know
     }
   }
 
-  // One of the recommended ANTClabs ways to probe, using SW MODE
-  TERN_(BLTOUCH_FORCE_SW_MODE, _set_SW_mode());
-
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse
   // is registered.
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("bltouch.deploy_proc() end");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("bltouch.deploy_proc() end");
 
   return false; // report success to caller
 }
 
 bool BLTouch::stow_proc() {
   // Do a STOW
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch STOW requested");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch STOW requested");
 
   // A STOW will clear a triggered condition in the probe (10ms pulse).
   // At the moment that we come in here, we might (pulse) or will (SW mode) see the trigger on the pin.
@@ -148,7 +119,7 @@ bool BLTouch::stow_proc() {
   // Attempt to STOW, wait for STOW_DELAY or ALARM
   if (_stow_query_alarm()) {
     // The stow might have failed
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch ALARM or TRIGGER after STOW, recovering");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch ALARM or TRIGGER after STOW, recovering");
 
     _reset();                              // This RESET will then also pull up the pin. If it doesn't
                                            // work and the pin is still down, there will no longer be
@@ -157,16 +128,16 @@ bool BLTouch::stow_proc() {
     // Last attempt to STOW
     if (_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
 
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Recovery Failed");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch Recovery Failed");
 
-      SERIAL_ERROR_MSG(STR_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
+      SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);  // Tell the user something is wrong, needs action
       stop();                              // but it's not too bad, no need to kill, allow restart
 
       return true;                         // Tell our caller we goofed in case he cares to know
     }
   }
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("bltouch.stow_proc() end");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("bltouch.stow_proc() end");
 
   return false; // report success to caller
 }
@@ -177,7 +148,7 @@ bool BLTouch::status_proc() {
    * This function will ensure switch state is reset after execution
    */
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch STATUS requested");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("BLTouch STATUS requested");
 
   _set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
   const bool tr = triggered(); // If triggered in SW mode, the pin is up, it is STOWED
@@ -186,21 +157,6 @@ bool BLTouch::status_proc() {
 
   if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
-}
-
-void BLTouch::mode_conv_proc(const bool M5V) {
-  /**
-   * BLTOUCH pre V3.0 and clones: No reaction at all to this sequence apart from a DEPLOY -> STOW
-   * BLTOUCH V3.0: This will set the mode (twice) and sadly, a STOW is needed at the end, because of the deploy
-   * BLTOUCH V3.1: This will set the mode and store it in the eeprom. The STOW is not needed but does not hurt
-   */
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch Set Mode - ", (int)M5V);
-  _deploy();
-  if (M5V) _set_5V_mode(); else _set_OD_mode();
-  _mode_store();
-  if (M5V) _set_5V_mode(); else _set_OD_mode();
-  _stow();
-  last_written_mode = M5V;
 }
 
 #endif // BLTOUCH

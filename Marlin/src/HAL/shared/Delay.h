@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,20 +30,20 @@
  */
 
 #include "../../core/macros.h"
+#include "../../core/millis_t.h"
 
 #if defined(__arm__) || defined(__thumb__)
 
   #if __CORTEX_M == 7
 
-    // Cortex-M3 through M7 can use the cycle counter of the DWT unit
-    // https://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
+    // Cortex-M7 can use the cycle counter of the DWT unit
+    // http://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
 
     FORCE_INLINE static void enableCycleCounter() {
       CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 
-      #if __CORTEX_M == 7
-        DWT->LAR = 0xC5ACCE55; // Unlock DWT on the M7
-      #endif
+      // Unlock DWT.
+      DWT->LAR = 0xC5ACCE55;
 
       DWT->CYCCNT = 0;
       DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -53,7 +53,7 @@
 
     FORCE_INLINE static void DELAY_CYCLES(const uint32_t x) {
       const uint32_t endCycles = getCycleCount() + x;
-      while (PENDING(getCycleCount(), endCycles)) {}
+      while (PENDING(getCycleCount(), endCycles)) { }
     }
 
   #else
@@ -144,7 +144,21 @@
   }
   #undef nop
 
-#elif defined(__PLAT_LINUX__) || defined(ESP32)
+#elif defined(ESP32)
+
+  FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
+    unsigned long ccount, stop;
+
+    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+
+    stop = ccount + x; // This can overflow
+
+    while (ccount < stop) { // This doesn't deal with overflows
+      __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    }
+  }
+
+#elif defined(__PLAT_LINUX__)
 
   // specified inside platform
 

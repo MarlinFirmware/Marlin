@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,613 +25,360 @@
  * Simplified Chinese
  *
  * LCD Menu Messages
- * See also https://marlinfw.org/docs/development/lcd_language.html
+ * See also http://marlinfw.org/docs/development/lcd_language.html
+ *
  */
-namespace Language_zh_CN {
-  using namespace Language_en;  // Inherit undefined strings from English
 
-  constexpr uint8_t    CHARSIZE                            = 3;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("ç®€ä½“ä¸­æ–‡");
+#define CHARSIZE 3
 
-  PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("å·²å°±ç»ª.");     //" ready."
-  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("é©¬æž—");
-  PROGMEM Language_Str MSG_YES                             = _UxGT("æ˜¯");
-  PROGMEM Language_Str MSG_NO                              = _UxGT("å¦");
-  PROGMEM Language_Str MSG_BACK                            = _UxGT("è¿”å›ž");     // â€Backâ€œ
-  PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("æ”¾å¼ƒä¸­...");
-  PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("å­˜å‚¨å¡å·²æ’å…¥");     //"Card inserted"
-  PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("å­˜å‚¨å¡è¢«æ‹”å‡º");     //"Card removed"
-  PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("ç­‰å¾…å­˜å‚¨å™¨");
-  PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("å­˜å‚¨å™¨è¯»å–é”™è¯¯");
-  PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USBè®¾å¤‡å·²å¼¹å‡º");
-  PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USBå¯åŠ¨é”™è¯¯");
-  PROGMEM Language_Str MSG_KILL_SUBCALL_OVERFLOW           = _UxGT("å­å“åº”æº¢å‡º");
-  PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("æŒ¡å—");     //"Endstops" // Max length 8 characters
-  PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("è½¯æŒ¡å—");
-  PROGMEM Language_Str MSG_MAIN                            = _UxGT("ä¸»èœå•");     //"Main"
-  PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("é«˜çº§è®¾ç½®");
-  PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("é…ç½®");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("è‡ªåŠ¨å¼€å§‹");     //"Autostart"
-  PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("å…³é—­æ­¥è¿›ç”µæœº");     //"Disable steppers"
-  PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("è°ƒè¯•èœå•");     // "Debug Menu"
-  PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("è¿›åº¦æ¡æµ‹è¯•");     // "Progress Bar Test"
-  PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("è‡ªåŠ¨å›žåŽŸç‚¹");     //"Auto home"
-  PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("å›žXåŽŸä½");     //"Home X"
-  PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("å›žYåŽŸä½");     //"Home Y"
-  PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("å›žZåŽŸä½");     //"Home Z"
-  PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("è‡ªåŠ¨Zå¯¹é½");
-  PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("å¹³å°è°ƒå¹³XYZå½’åŽŸä½");     //"Homing XYZ"
-  PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("å•å‡»å¼€å§‹çƒ­åºŠè°ƒå¹³");     //"Click to Begin"
-  PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("ä¸‹ä¸ªçƒ­åºŠè°ƒå¹³ç‚¹");     //"Next Point"
-  PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("å®Œæˆçƒ­åºŠè°ƒå¹³");     //"Leveling Done!"
-  PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("æ·¡å‡ºé«˜åº¦");     // "Fade Height"
-  PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("è®¾ç½®åŽŸç‚¹åç§»");     //"Set home offsets"
-  PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("åç§»å·²å¯ç”¨");     //"Offsets applied"
-  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("è®¾ç½®åŽŸç‚¹");     //"Set origin"
-  #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_2_LABEL"
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL _UxGT(" å–·å˜´");     //MSG_PREHEAT_1 " "
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL _UxGT(" å–·å˜´ ~");     //MSG_PREHEAT_1 " "
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL _UxGT(" å…¨éƒ¨");     //MSG_PREHEAT_1 " All"
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL _UxGT(" çƒ­åºŠ");     //MSG_PREHEAT_1 " Bed"
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("é¢„çƒ­ ") PREHEAT_1_LABEL _UxGT(" è®¾ç½®");     //MSG_PREHEAT_1 " conf"
+#define WELCOME_MSG                         MACHINE_NAME _UxGT("ÒÑ¾ÍÐ÷.")  //" ready."
+#define MSG_BACK                            _UxGT("·µ»Ø")         // ¡±Back¡°
+#define MSG_SD_INSERTED                     _UxGT("´æ´¢¿¨ÒÑ²åÈë")  //"Card inserted"
+#define MSG_SD_REMOVED                      _UxGT("´æ´¢¿¨±»°Î³ö")  //"Card removed"
+#define MSG_LCD_ENDSTOPS                    _UxGT("µ²¿é")  //"Endstops" // Max length 8 characters
+#define MSG_MAIN                            _UxGT("Ö÷²Ëµ¥")  //"Main"
+#define MSG_AUTOSTART                       _UxGT("×Ô¶¯¿ªÊ¼")  //"Autostart"
+#define MSG_DISABLE_STEPPERS                _UxGT("¹Ø±Õ²½½øµç»ú")  //"Disable steppers"
+#define MSG_DEBUG_MENU                      _UxGT("µ÷ÊÔ²Ëµ¥")    // "Debug Menu"
+#define MSG_PROGRESS_BAR_TEST               _UxGT("½ø¶ÈÌõ²âÊÔ")  // "Progress Bar Test"
+#define MSG_AUTO_HOME                       _UxGT("»ØÔ­µã")  //"Auto home"
+#define MSG_AUTO_HOME_X                     _UxGT("»ØXÔ­Î»")  //"Home X"
+#define MSG_AUTO_HOME_Y                     _UxGT("»ØYÔ­Î»")  //"Home Y"
+#define MSG_AUTO_HOME_Z                     _UxGT("»ØZÔ­Î»")  //"Home Z"
+#define MSG_LEVEL_BED_HOMING                _UxGT("Æ½Ì¨µ÷Æ½XYZ¹éÔ­Î»")  //"Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               _UxGT("µ¥»÷¿ªÊ¼ÈÈ´²µ÷Æ½")  //"Click to Begin"
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ÏÂ¸öÈÈ´²µ÷Æ½µã")  //"Next Point"
+#define MSG_LEVEL_BED_DONE                  _UxGT("Íê³ÉÈÈ´²µ÷Æ½")  //"Leveling Done!"
+#define MSG_Z_FADE_HEIGHT                   _UxGT("µ­³ö¸ß¶È")     // "Fade Height"
+#define MSG_SET_HOME_OFFSETS                _UxGT("ÉèÖÃÔ­µãÆ«ÒÆ")  //"Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            _UxGT("Æ«ÒÆÒÑÆôÓÃ")  //"Offsets applied"
+#define MSG_SET_ORIGIN                      _UxGT("ÉèÖÃÔ­µã")  //"Set origin"
+#define MSG_PREHEAT_1                       _UxGT("Ô¤ÈÈ" PREHEAT_1_LABEL)  //"Preheat PREHEAT_2_LABEL"
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")  //MSG_PREHEAT_1 " "
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" È«²¿")  //MSG_PREHEAT_1 " All"
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" ÈÈ´²")  //MSG_PREHEAT_1 " Bed"
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" ÉèÖÃ")  //MSG_PREHEAT_1 " conf"
+#define MSG_PREHEAT_2                       _UxGT("Ô¤ÈÈ" PREHEAT_2_LABEL)  //"Preheat PREHEAT_2_LABEL"
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")  //MSG_PREHEAT_2 " "
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" È«²¿")  //MSG_PREHEAT_2 " All"
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" ÈÈ´²")  //MSG_PREHEAT_2 " Bed"
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" ÉèÖÃ")  //MSG_PREHEAT_2 " conf"
+#define MSG_COOLDOWN                        _UxGT("½µÎÂ")  //"Cooldown"
+#define MSG_SWITCH_PS_ON                    _UxGT("µçÔ´´ò¿ª")  //"Switch power on"
+#define MSG_SWITCH_PS_OFF                   _UxGT("µçÔ´¹Ø±Õ")  //"Switch power off"
+#define MSG_EXTRUDE                         _UxGT("¼·³ö")  //"Extrude"
+#define MSG_RETRACT                         _UxGT("»Ø³é")  //"Retract"
+#define MSG_MOVE_AXIS                       _UxGT("ÒÆ¶¯Öá")  //"Move axis"
+#define MSG_BED_LEVELING                    _UxGT("µ÷Æ½ÈÈ´²")  //"Bed leveling"
+#define MSG_LEVEL_BED                       _UxGT("µ÷Æ½ÈÈ´²")  //"Level bed"
+#define MSG_LEVEL_CORNERS                   _UxGT("µ÷Æ½±ß½Ç") // "Level corners"
 
-    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("é¢„çƒ­ $");     //"Preheat PREHEAT_2_LABEL"
-    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("é¢„çƒ­ $ ~");     //"Preheat PREHEAT_2_LABEL"
-    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("é¢„çƒ­ $ å–·å˜´");     //MSG_PREHEAT_1 " "
-    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("é¢„çƒ­ $ å–·å˜´ ~");     //MSG_PREHEAT_1 " "
-    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("é¢„çƒ­ $ å…¨éƒ¨");     //MSG_PREHEAT_1 " All"
-    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("é¢„çƒ­ $ çƒ­åºŠ");     //MSG_PREHEAT_1 " Bed"
-    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("é¢„çƒ­ $ è®¾ç½®");     //MSG_PREHEAT_1 " conf"
-  #endif
-  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("é¢„çƒ­è‡ªå®šä¹‰");
-  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("é™æ¸©");     //"Cooldown"
-  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("åˆ‡å‰²é¢‘çŽ‡");
-  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("æ¿€å…‰æŽ§åˆ¶");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("æ¿€å…‰å…³");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("æ¿€å…‰å¼€");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("æ¿€å…‰ç”µæº");
-  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("ä¸»è½´æŽ§åˆ¶");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("ä¸»è½´å…³");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("ä¸»è½´å¼€");
-  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("ä¸»è½´ç”µæº");
-  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("ä¸»è½´åè½¬");
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("ç”µæºæ‰“å¼€");     //"Switch power on"
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("ç”µæºå…³é—­");     //"Switch power off"
-  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("æŒ¤å‡º");     //"Extrude"
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("å›žæŠ½");     //"Retract"
-  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("ç§»åŠ¨è½´");     //"Move axis"
-  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("è°ƒå¹³çƒ­åºŠ");     //"Bed leveling"
-  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("è°ƒå¹³çƒ­åºŠ");     //"Level bed"
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("è°ƒå¹³è¾¹è§’");     // "Level corners"
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("ä¸‹ä¸ªè¾¹è§’");     // "Next corner"
-  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("ç½‘æ ¼ç¼–è¾‘å™¨");
-  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("ç¼–è¾‘ç½‘æ ¼");     // "Edit Mesh"
-  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("ç½‘æ ¼ç¼–è¾‘å·²åœæ­¢");     // "Mesh Editing Stopped"
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("æŽ¢æµ‹ç‚¹");
-  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("ç´¢å¼•X");
-  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("ç´¢å¼•Y");
-  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z å€¼");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("å®šåˆ¶å‘½ä»¤");     // "Custom Commands"
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48æŽ¢æµ‹");
-  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48ç‚¹");
-  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("M48åå·®");
-  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEXæ¨¡å¼");
-  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("å·¥å…·åç§»é‡");
-  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("è‡ªåŠ¨åœé ");
-  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("å¤åˆ¶");
-  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("é•œåƒå¤åˆ¶");
-  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("å®Œå…¨æŽ§åˆ¶");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("ç¬¬äºŒå–·å¤´æ˜¯X");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("ç¬¬äºŒå–·å¤´æ˜¯Y");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("ç¬¬äºŒå–·å¤´æ˜¯Z");
-  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("æ‰§è¡ŒG29");     // "Doing G29"
-  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBLå·¥å…·");     // "UBL Tools"
-  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("ç»Ÿä¸€çƒ­åºŠè°ƒå¹³(UBL)");     // "Unified Bed Leveling"
-  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("å€¾æ–œé»ž");
-  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("æ‰‹å·¥åˆ›è®¾ç½‘æ ¼");     // "Manually Build Mesh"
-  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("æ”¾ç½®åž«ç‰‡å¹¶æµ‹é‡");     // "Place shim & measure"
-  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("æµ‹é‡");     // "Measure"
-  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("ç§»é™¤å¹¶æµ‹é‡çƒ­åºŠ");     // "Remove & measure bed"
-  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ª");     // "Moving to next"
-  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("æ¿€æ´»UBL");     // "Activate UBL"
-  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("å…³é—­UBL");     // "Deactivate UBL"
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("çƒ­åºŠæ¸©åº¦");     // "Bed Temp"
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("çƒ­åºŠæ¸©åº¦");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("çƒ­ç«¯æ¸©åº¦");     // "Hotend Temp"
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("çƒ­ç«¯æ¸©åº¦");
-  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("ç½‘æ ¼ç¼–è¾‘");     // "Mesh Edit"
-  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("ç¼–è¾‘å®¢æˆ·ç½‘æ ¼");     // "Edit Custom Mesh"
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("ç»†è°ƒç½‘æ ¼");     // "Fine Tuning Mesh"
-  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("å®Œæˆç¼–è¾‘ç½‘æ ¼");     // "Done Editing Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("åˆ›è®¾å®¢æˆ·ç½‘æ ¼");     // "Build Custom Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("åˆ›è®¾ç½‘æ ¼");     // "Build Mesh"
-  #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("åˆ›è®¾ $ ç½‘æ ¼");     // "Build PREHEAT_1_LABEL Mesh"
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("æ‰¹å‡† $ ç½‘æ ¼");     // "Validate PREHEAT_1_LABEL Mesh"
-  #endif
-  PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("åˆ›è®¾å†·ç½‘æ ¼");     // "Build Cold Mesh"
-  PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("è°ƒæ•´ç½‘æ ¼é«˜åº¦");     // "Adjust Mesh Height"
-  PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("é«˜åº¦åˆè®¡");     // "Height Amount"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("æ‰¹å‡†ç½‘æ ¼");     // "Validate Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("æ‰¹å‡†å®¢æˆ·ç½‘æ ¼");     // "Validate Custom Mesh"
-  PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26åŠ çƒ­çƒ­åºŠ");
-  PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26åŠ çƒ­å–·å˜´");
-  PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("æ‰‹åŠ¨å¡«è£…ä¸­...");
-  PROGMEM Language_Str MSG_G26_FIXED_LENGTH                = _UxGT("å›ºå®šè·ç¦»å¡«è£…");
-  PROGMEM Language_Str MSG_G26_PRIME_DONE                  = _UxGT("å¡«è£…å®Œæˆ");
-  PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26å·²å–æ¶ˆ");
-  PROGMEM Language_Str MSG_G26_LEAVING                     = _UxGT("ç¦»å¼€G26");
-  PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("ç»§ç»­çƒ­åºŠç½‘æ ¼");     // "Continue Bed Mesh"
-  PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("ç½‘æ ¼è°ƒå¹³");     // "Mesh Leveling"
-  PROGMEM Language_Str MSG_UBL_3POINT_MESH_LEVELING        = _UxGT("ä¸‰ç‚¹è°ƒå¹³");     // "3-Point Leveling"
-  PROGMEM Language_Str MSG_UBL_GRID_MESH_LEVELING          = _UxGT("æ ¼å­ç½‘æ ¼è°ƒå¹³");     // "Grid Mesh Leveling"
-  PROGMEM Language_Str MSG_UBL_MESH_LEVEL                  = _UxGT("è°ƒå¹³ç½‘æ ¼");     // "Level Mesh"
-  PROGMEM Language_Str MSG_UBL_SIDE_POINTS                 = _UxGT("è¾¹ç‚¹");     // "Side Points"
-  PROGMEM Language_Str MSG_UBL_MAP_TYPE                    = _UxGT("å›¾ç±»åž‹");     // "Map Type"
-  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP                  = _UxGT("è¾“å‡ºç½‘æ ¼å›¾");     // "Output Mesh Map"
-  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_HOST             = _UxGT("è¾“å‡ºåˆ°ä¸»æœº");     // "Output for Host"
-  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_CSV              = _UxGT("è¾“å‡ºåˆ°CSV");     // "Output for CSV"
-  PROGMEM Language_Str MSG_UBL_OUTPUT_MAP_BACKUP           = _UxGT("è¾“å‡ºåˆ°å¤‡ä»½");     // "Off Printer Backup"
-  PROGMEM Language_Str MSG_UBL_INFO_UBL                    = _UxGT("è¾“å‡ºUBLä¿¡æ¯");     // "Output UBL Info"
-  PROGMEM Language_Str MSG_UBL_FILLIN_AMOUNT               = _UxGT("å¡«å……åˆè®¡");     // "Fill-in Amount"
-  PROGMEM Language_Str MSG_UBL_MANUAL_FILLIN               = _UxGT("æ‰‹å·¥å¡«å……");     // "Manual Fill-in"
-  PROGMEM Language_Str MSG_UBL_SMART_FILLIN                = _UxGT("èªæ˜Žå¡«å……");     // "Smart Fill-in"
-  PROGMEM Language_Str MSG_UBL_FILLIN_MESH                 = _UxGT("å¡«å……ç½‘æ ¼");     // "Fill-in Mesh"
-  PROGMEM Language_Str MSG_UBL_INVALIDATE_ALL              = _UxGT("ä½œåºŸæ‰€æœ‰çš„");     // "Invalidate All"
-  PROGMEM Language_Str MSG_UBL_INVALIDATE_CLOSEST          = _UxGT("ä½œåºŸæœ€è¿‘çš„");     // "Invalidate Closest"
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_ALL               = _UxGT("ç»†è°ƒæ‰€æœ‰çš„");     // "Fine Tune All"
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_CLOSEST           = _UxGT("ç»†è°ƒæœ€è¿‘çš„");     // "Fine Tune Closest"
-  PROGMEM Language_Str MSG_UBL_STORAGE_MESH_MENU           = _UxGT("ç½‘æ ¼å­˜å‚¨");     // "Mesh Storage"
-  PROGMEM Language_Str MSG_UBL_STORAGE_SLOT                = _UxGT("å­˜å‚¨æ§½");     // "Memory Slot"
-  PROGMEM Language_Str MSG_UBL_LOAD_MESH                   = _UxGT("è£…è½½çƒ­åºŠç½‘æ ¼");     // "Load Bed Mesh"
-  PROGMEM Language_Str MSG_UBL_SAVE_MESH                   = _UxGT("ä¿å­˜çƒ­åºŠç½‘æ ¼");     // "Save Bed Mesh"
-  PROGMEM Language_Str MSG_MESH_LOADED                     = _UxGT("ç½‘æ ¼ %i å·²è£…è½½");     // "Mesh %i loaded"
-  PROGMEM Language_Str MSG_MESH_SAVED                      = _UxGT("ç½‘æ ¼ %i å·²ä¿å­˜");     // "Mesh %i saved"
-  PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("æ²¡æœ‰å­˜å‚¨");     // "No storage"
-  PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("é”™è¯¯: UBLä¿å­˜");     // "Err: UBL Save"
-  PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("é”™è¯¯: UBLè¿˜åŽŸ");     // "Err: UBL Restore"
-  PROGMEM Language_Str MSG_UBL_Z_OFFSET                    = _UxGT("Zåç§»é‡: ");
-  PROGMEM Language_Str MSG_UBL_Z_OFFSET_STOPPED            = _UxGT("Zåç§»å·²åœæ­¢");     // "Z-Offset Stopped"
-  PROGMEM Language_Str MSG_UBL_STEP_BY_STEP_MENU           = _UxGT("ä¸€æ­¥æ­¥UBL");     // "Step-By-Step UBL"
-  PROGMEM Language_Str MSG_UBL_1_BUILD_COLD_MESH           = _UxGT("1. åˆ›è®¾å†·ç½‘æ ¼");
-  PROGMEM Language_Str MSG_UBL_2_SMART_FILLIN              = _UxGT("2. èªæ˜Žå¡«å……");
-  PROGMEM Language_Str MSG_UBL_3_VALIDATE_MESH_MENU        = _UxGT("3. æ‰¹å‡†ç½‘æ ¼");
-  PROGMEM Language_Str MSG_UBL_4_FINE_TUNE_ALL             = _UxGT("4. ç»†è°ƒæ‰€æœ‰çš„");
-  PROGMEM Language_Str MSG_UBL_5_VALIDATE_MESH_MENU        = _UxGT("5. æ‰¹å‡†ç½‘æ ¼");
-  PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6. ç»†è°ƒæ‰€æœ‰çš„");
-  PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. ä¿å­˜çƒ­åºŠç½‘æ ¼");
+#define MSG_NEXT_CORNER                     _UxGT("ÏÂ¸ö±ß½Ç") // "Next corner"
+#define MSG_EDITING_STOPPED                 _UxGT("Íø¸ñ±à¼­ÒÑÍ£Ö¹") // "Mesh Editing Stopped"
+#define MSG_USER_MENU                       _UxGT("¶¨ÖÆÃüÁî") // "Custom Commands"
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("LEDæŽ§åˆ¶");     // "LED Control")
-  PROGMEM Language_Str MSG_LEDS                            = _UxGT("ç¯");     // "Lights")
-  PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("ç¯é¢„ç½®");     // "Light Presets")
-  PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("çº¢");     // "Red")
-  PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("æ©™");     // "Orange")
-  PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("é»„");     // "Yellow")
-  PROGMEM Language_Str MSG_SET_LEDS_GREEN                  = _UxGT("ç»¿");     // "Green")
-  PROGMEM Language_Str MSG_SET_LEDS_BLUE                   = _UxGT("è“");     // "Blue")
-  PROGMEM Language_Str MSG_SET_LEDS_INDIGO                 = _UxGT("é’");     // "Indigo")
-  PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("ç´«");     // "Violet")
-  PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("ç™½");     // "White")
-  PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("ç¼ºçœ");     // "Default")
-  PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("å®šåˆ¶ç¯");     // "Custom Lights")
-  PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("çº¢é¥±å’Œåº¦");     // "Red Intensity")
-  PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("ç»¿é¥±å’Œåº¦");     // "Green Intensity")
-  PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("è“é¥±å’Œåº¦");     // "Blue Intensity")
-  PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("ç™½é¥±å’Œåº¦");     // "White Intensity")
-  PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("äº®åº¦");     // "Brightness")
+#define MSG_UBL_DOING_G29                   _UxGT("Ö´ÐÐG29") // "Doing G29"
+#define MSG_UBL_UNHOMED                     _UxGT("ÏÈ»ØXYZÔ­µã") // "Home XYZ first"
+#define MSG_UBL_TOOLS                       _UxGT("UBL¹¤¾ß") // "UBL Tools"
+#define MSG_UBL_LEVEL_BED                   _UxGT("Í³Ò»ÈÈ´²µ÷Æ½(UBL)") // "Unified Bed Leveling"
+#define MSG_UBL_MANUAL_MESH                 _UxGT("ÊÖ¹¤´´ÉèÍø¸ñ") // "Manually Build Mesh"
 
-  PROGMEM Language_Str MSG_MOVING                          = _UxGT("ç§»åŠ¨...");     // "Moving...")
-  PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("é‡Šæ”¾ XY");     // "Free XY")
-  PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("ç§»åŠ¨X");     //"Move X"
-  PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("ç§»åŠ¨Y");     //"Move Y"
-  PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("ç§»åŠ¨Z");     //"Move Z"
-  PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("æŒ¤å‡ºæœº");     //"Extruder"
-  PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("æŒ¤å‡ºæœº *");     //"Extruder"
-  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("çƒ­ç«¯å¤ªå†·");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("ç§»åŠ¨ %s mm");     //"Move 0.025mm"
-  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("ç§»åŠ¨ 0.1 mm");     //"Move 0.1mm"
-  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("ç§»åŠ¨ 1 mm");     //"Move 1mm"
-  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("ç§»åŠ¨ 10 mm");     //"Move 10mm"
-  PROGMEM Language_Str MSG_SPEED                           = _UxGT("é€ŸçŽ‡");     //"Speed"
-  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("çƒ­åºŠZ");     //"Bed Z"
-  PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("å–·å˜´");     //"Nozzle" å™´å˜´
-  PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("å–·å˜´ ~");     //"Nozzle" å™´å˜´
-  PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("å–·å˜´å·²åœé ");
-  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("å–·å˜´å¾…å‘½ä¸­");
-  PROGMEM Language_Str MSG_BED                             = _UxGT("çƒ­åºŠ");     //"Bed"
-  PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("æœºç®±å£³");
-  PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("é£Žæ‰‡é€ŸçŽ‡");     //"Fan speed"
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("é£Žæ‰‡é€ŸçŽ‡ ~");     //"Fan speed"
-  PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("å­˜å‚¨çš„é£Žæ‰‡ ~");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("é¢å¤–é£Žæ‰‡é€ŸçŽ‡");     // "Extra fan speed"
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("é¢å¤–é£Žæ‰‡é€ŸçŽ‡ ~");     // "Extra fan speed"
-  PROGMEM Language_Str MSG_CONTROLLER_FAN                  = _UxGT("æŽ§åˆ¶å™¨é£Žæ‰‡");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_IDLE_SPEED       = _UxGT("ç©ºé—²é€Ÿåº¦");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_AUTO_ON          = _UxGT("è‡ªåŠ¨æ¨¡å¼");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_SPEED            = _UxGT("å·¥ä½œé€Ÿåº¦");
-  PROGMEM Language_Str MSG_CONTROLLER_FAN_DURATION         = _UxGT("ç©ºé—²å‘¨æœŸ");
-  PROGMEM Language_Str MSG_FLOW                            = _UxGT("æŒ¤å‡ºé€ŸçŽ‡");     //"Flow"
-  PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("æŒ¤å‡ºé€ŸçŽ‡ ~");     //"Flow"
-  PROGMEM Language_Str MSG_CONTROL                         = _UxGT("æŽ§åˆ¶");     //"Control"
-  PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" æœ€å°");     //" " LCD_STR_THERMOMETER " Min"
-  PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER _UxGT(" æœ€å¤§");     //" " LCD_STR_THERMOMETER " Max"
-  PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" å› æ•°");     //" " LCD_STR_THERMOMETER " Fact"
-  PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("è‡ªåŠ¨æŽ§æ¸©");     //"Autotemp"
-  PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("å¼€");     //"On"
-  PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("å…³");     //"Off"
-  PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("è‡ªåŠ¨PID");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("è‡ªåŠ¨PID *");
-  PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PIDè°ƒæ•´å®Œæˆ");
-  PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("è‡ªåŠ¨è°ƒå¤±è´¥. åçš„æŒ¤å‡ºæœº");
-  PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("è‡ªåŠ¨è°ƒå¤±è´¥. æ¸©åº¦å¤ªé«˜");
-  PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("è‡ªåŠ¨è°ƒå¤±è´¥! è¶…æ—¶");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
-  PROGMEM Language_Str MSG_SELECT                          = _UxGT("é€‰æ‹©");     //"Select"
-  PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("é€‰æ‹© *");
-  PROGMEM Language_Str MSG_ACC                             = _UxGT("åŠ é€Ÿåº¦");     //"Accel" acceleration
-  PROGMEM Language_Str MSG_JERK                            = _UxGT("æŠ–åŠ¨é€ŸçŽ‡");     // "Jerk"
-  PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("è½´æŠ–åŠ¨é€ŸçŽ‡") LCD_STR_A;     //"Va-jerk"
-  PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("è½´æŠ–åŠ¨é€ŸçŽ‡") LCD_STR_B;     //"Vb-jerk"
-  PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("è½´æŠ–åŠ¨é€ŸçŽ‡") LCD_STR_C;     //"Vc-jerk"
-  PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("æŒ¤å‡ºæœºæŠ–åŠ¨é€ŸçŽ‡");     //"Ve-jerk"
-  PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("æŽ¥ç‚¹å·®");
-  PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("é€Ÿåº¦");     // "Velocity"
-  PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("æœ€å¤§è¿›æ–™é€ŸçŽ‡") LCD_STR_A;     //"Vmax " max_feedrate_mm_s
-  PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("æœ€å¤§è¿›æ–™é€ŸçŽ‡") LCD_STR_B;     //"Vmax " max_feedrate_mm_s
-  PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("æœ€å¤§è¿›æ–™é€ŸçŽ‡") LCD_STR_C;     //"Vmax " max_feedrate_mm_s
-  PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("æœ€å¤§è¿›æ–™é€ŸçŽ‡") LCD_STR_E;     //"Vmax " max_feedrate_mm_s
-  PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("æœ€å¤§è¿›æ–™é€ŸçŽ‡ *");     //"Vmax " max_feedrate_mm_s
-  PROGMEM Language_Str MSG_VMIN                            = _UxGT("æœ€å°è¿›æ–™é€ŸçŽ‡");     //"Vmin"  min_feedrate_mm_s
-  PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("æœ€å°ç§»åŠ¨é€ŸçŽ‡");     //"VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
-  PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("åŠ é€Ÿåº¦");     // "Acceleration"
-  PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("æœ€å¤§æ‰“å°åŠ é€Ÿåº¦") LCD_STR_A;     //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("æœ€å¤§æ‰“å°åŠ é€Ÿåº¦") LCD_STR_B;     //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("æœ€å¤§æ‰“å°åŠ é€Ÿåº¦") LCD_STR_C;     //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("æœ€å¤§æ‰“å°åŠ é€Ÿåº¦") LCD_STR_E;     //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("æœ€å¤§æ‰“å°åŠ é€Ÿåº¦ *");     //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("æ”¶è¿›åŠ é€Ÿåº¦");     //"A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
-  PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("éžæ‰“å°ç§»åŠ¨åŠ é€Ÿåº¦");     //"A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
-  PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("é¢‘çŽ‡æœ€å¤§");
-  PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("è¿›ç»™é€Ÿåº¦");
-  PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("è½´æ­¥æ•°/mm");     //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
-  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("æ­¥æ•°/mm");     //"Asteps/mm"
-  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("æ­¥æ•°/mm");     //"Bsteps/mm"
-  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("æ­¥æ•°/mm");     //"Csteps/mm"
-  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E æ­¥æ•°/mm");     //"Esteps/mm"
-  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* æ­¥æ•°/mm");
-  PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("æ¸©åº¦");     //"Temperature"
-  PROGMEM Language_Str MSG_MOTION                          = _UxGT("è¿åŠ¨");     //"Motion"
-  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("æ–™ä¸");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E åœ¨ mmÂ³");     //"E in mm3" volumetric_enabled
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E é™åˆ¶ åœ¨ mmÂ³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E é™åˆ¶ *");
-  PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("ä¸æ–™ç›´å¾„");     //"Fil. Dia."
-  PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("ä¸æ–™ç›´å¾„ *");
-  PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("å¸è½½ mm");     // "Unload mm"
-  PROGMEM Language_Str MSG_FILAMENT_LOAD                   = _UxGT("è£…è½½ mm");     // "Load mm"
-  PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");
-  PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *");
-  PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCDå¯¹æ¯”åº¦");     //"LCD contrast"
-  PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("ä¿å­˜è®¾ç½®");     //"Store memory"
-  PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("è£…è½½è®¾ç½®");     //"Load memory"
-  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("æ¢å¤å®‰å…¨å€¼");     //"Restore Defaults"
-  PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("åˆå§‹åŒ–è®¾ç½®");     // "Initialize EEPROM"
-  PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("EEPROM CRC é”™è¯¯");
-  PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("EEPROM Index é”™è¯¯");
-  PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("EEPROM Version é”™è¯¯");
-  PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("è®¾ç½®å·²ä¿å­˜");
-  PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("å­˜å‚¨å™¨æ›´æ–°");
-  PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("å¤ä½æ‰“å°æœº");
-  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("åˆ·æ–°");
-  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("ä¿¡æ¯å±");     //"Info screen"
-  PROGMEM Language_Str MSG_PREPARE                         = _UxGT("å‡†å¤‡");     //"Prepare"
-  PROGMEM Language_Str MSG_TUNE                            = _UxGT("è°ƒæ•´");     //"Tune"
-  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("ç”µæºç›‘æŽ§");
-  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("ç”µæµ");
-  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("ç”µåŽ‹");
-  PROGMEM Language_Str MSG_POWER                           = _UxGT("åŠŸçŽ‡");
-  PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("å¼€å§‹æ‰“å°");
-  PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("ä¸‹ä¸€ä¸ª");
-  PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("åˆå§‹");
-  PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("åœæ­¢");
-  PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("æ‰“å°");
-  PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("å¤ä½");
-  PROGMEM Language_Str MSG_BUTTON_IGNORE                   = _UxGT("å¿½ç•¥");
-  PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("å–æ¶ˆ");
-  PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("å®Œæˆ");
-  PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("è¿”å›ž");
-  PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("ç»§ç»­");
-  PROGMEM Language_Str MSG_PAUSING                         = _UxGT("æš‚åœä¸­...");
-  PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("æš‚åœæ‰“å°");     //"Pause print"
-  PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("æ¢å¤æ‰“å°");     //"Resume print"
-  PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("åœæ­¢æ‰“å°");     //"Stop print"
-  PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("æ‰“å°ç‰©ä½“");
-  PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("å–æ¶ˆç‰©ä½“");
-  PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("å–æ¶ˆç‰©ä½“ =");
-  PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("ä¸­æ–­æ¢å¤");
-  PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("ä»Žå­˜å‚¨å¡ä¸Šæ‰“å°");     //"Print from SD"
-  PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("æ— å­˜å‚¨å¡");     //"No SD card"
-  PROGMEM Language_Str MSG_DWELL                           = _UxGT("ä¼‘çœ ä¸­ ...");     //"Sleep..."
-  PROGMEM Language_Str MSG_USERWAIT                        = _UxGT("ç‚¹å‡»ç»§ç»­ ...");     //"Click to resume..."
-  PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("æš«åœæ‰“å°");     // "Print paused"
-  PROGMEM Language_Str MSG_PRINTING                        = _UxGT("æ‰“å°ä¸­...");
-  PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("å·²å–æ¶ˆæ‰“å°");     //"Print aborted"
-  PROGMEM Language_Str MSG_PRINT_DONE                      = _UxGT("æ‰“å°å·²å®Œæˆ");
-  PROGMEM Language_Str MSG_NO_MOVE                         = _UxGT("æ— ç§»åŠ¨");     //"No move."
-  PROGMEM Language_Str MSG_KILLED                          = _UxGT("å·²æ€æŽ‰");     //"KILLED. "
-  PROGMEM Language_Str MSG_STOPPED                         = _UxGT("å·²åœæ­¢");     //"STOPPED. "
-  PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("å›žæŠ½é•¿åº¦mm");     //"Retract mm" retract_length, retract length (positive mm)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("æ¢æ‰‹å›žæŠ½é•¿åº¦mm");     //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("å›žæŠ½é€ŸçŽ‡mm/s");     //"Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");     //"Hop mm" retract_zraise, retract Z-lift
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("å›žæŠ½æ¢å¤é•¿åº¦mm");     //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("æ¢æ‰‹å›žæŠ½æ¢å¤é•¿åº¦mm");     //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("å›žæŠ½æ¢å¤åŽè¿›æ–™é€ŸçŽ‡mm/s");     //"Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");     // "S UnRet V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("è‡ªåŠ¨æŠ½å›ž");     //"Auto-Retract" autoretract_enabled,
-  PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("äº¤æ¢é•¿åº¦");
-  PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("é¢å¤–çš„äº¤æ¢");
-  PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("æ¸…æ´—é•¿åº¦");
-  PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("æ¢å·¥å…·");
-  PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("ZæŠ¬èµ·");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("è¿›ç»™é€Ÿåº¦");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("å›žæŠ½é€Ÿåº¦");
-  PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("åœé å¤´");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("æ¢å¤é€Ÿåº¦");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("é£Žæ‰‡é€Ÿåº¦");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("é£Žæ‰‡æ—¶é—´");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("è‡ªåŠ¨å¼€");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("è‡ªåŠ¨å…³");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("å·¥å…·è¿ç§»");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("è‡ªåŠ¨è¿ç§»");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("ä¸Šä¸€ä¸ªæŒ¤å‡ºæœº");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("è¿ç§»è‡³ *");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("æ›´æ¢ä¸æ–™");     //"Change filament"
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("æ›´æ¢ä¸æ–™ *");     //"Change filament"
-  PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("è£…è½½ä¸æ–™");     // "Load filament"
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("è£…è½½ä¸æ–™ *");     // "Load filament"
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("å¸è½½ä¸æ–™");     // "Unload filament"
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("å¸è½½ä¸æ–™ *");     // "Unload filament"
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("å¸è½½å…¨éƒ¨");     // "Unload All"
-  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("åˆå§‹åŒ–å­˜å‚¨å¡");     //"Init. SD card"
-  PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("æ›´æ¢å­˜å‚¨å¡");     //"Change SD card"
-  PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("é‡Šæ”¾å­˜å‚¨å¡");
-  PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("ZæŽ¢é’ˆåœ¨çƒ­åºŠä¹‹å¤–");     //"Z probe out. bed" Z probe is not within the physical limits
-  PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("åæ–œå› æ•°");     // "Skew Factor"
-  PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");     // "BLTouch"
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("è‡ªæ£€");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("é‡ç½®");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("è£…è½½");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("éƒ¨ç½²");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("SWæ¨¡å¼");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("5Væ¨¡å¼");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("ODæ¨¡å¼");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("æ¨¡å¼ä¿å­˜");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("è®¾ç½®BLTouchä¸º5V");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("è®¾ç½®BLTouchä¸ºOD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("æŠ¥å‘Šå¼€æ¼");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("å±é™©: é”™è¯¯çš„è®¾ç½®å°†å¼•èµ·æŸå! æ˜¯å¦ç»§ç»­?");
-  PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("åˆå§‹åŒ–TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Zåç§»é‡æµ‹è¯•");
-  PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("ä¿å­˜");
-  PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("éƒ¨ç½²TouchMI");
-  PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("éƒ¨ç½²ZæŽ¢é’ˆ");
-  PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("æ”¶å¥½ZæŽ¢é’ˆ");
-  PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("å½’ä½ %s%s%s å…ˆ");     //"Home ... first"
-  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("æŽ¢é’ˆåç§»é‡");
-  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("æŽ¢é’ˆXåç§»");
-  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("æŽ¢é’ˆYåç§»");
-  PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("æŽ¢é’ˆZåç§»");     //"Z Offset"
-  PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("å¾®é‡è°ƒæ•´Xè½´");     //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
-  PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("å¾®é‡è°ƒæ•´Yè½´");     //"Babystep Y"
-  PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("å¾®é‡è°ƒæ•´Zè½´");     //"Babystep Z"
-  PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("æ€»è®¡");
-  PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("æŒ¡å—ç»ˆæ­¢");     //"Endstop abort"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("åŠ çƒ­å¤±è´¥");     //"Heating failed"
-  PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("é”™è¯¯ï¼šå†—ä½™æ¸©åº¦");     //"Err: REDUNDANT TEMP"
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("æ¸©æŽ§å¤±æŽ§");     //"THERMAL RUNAWAY"
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("çƒ­åºŠçƒ­é‡å¤±æŽ§");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("æœºç®±çƒ­é‡å¤±æŽ§");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("é”™è¯¯ï¼šæœ€é«˜æ¸©åº¦");     //"Err: MAXTEMP"
-  PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("é”™è¯¯ï¼šæœ€ä½Žæ¸©åº¦");     //"Err: MINTEMP"
-  PROGMEM Language_Str MSG_HALTED                          = _UxGT("æ‰“å°åœæœº");     //"PRINTER HALTED"
-  PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("è¯·é‡ç½®");     //"Please reset"
-  PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("å¤©");     //"d" // One character only
-  PROGMEM Language_Str MSG_SHORT_HOUR                      = _UxGT("æ—¶");     //"h" // One character only
-  PROGMEM Language_Str MSG_SHORT_MINUTE                    = _UxGT("åˆ†");     //"m" // One character only
-  PROGMEM Language_Str MSG_HEATING                         = _UxGT("åŠ çƒ­ä¸­ ...");     //"Heating..."
-  PROGMEM Language_Str MSG_COOLING                         = _UxGT("å†·å´ä¸­ ...");
-  PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("åŠ çƒ­çƒ­åºŠä¸­ ...");     //"Bed Heating..."
-  PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("çƒ­åºŠå†·å´ä¸­ ...");
-  PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("æœºç®±åŠ çƒ­ä¸­ ...");
-  PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("æœºç®±å†·å´ä¸­ ...");
-  PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("âŠ¿æ ¡å‡†");     //"Delta Calibration"
-  PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("âŠ¿æ ¡å‡†X");     //"Calibrate X"
-  PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("âŠ¿æ ¡å‡†Y");     //"Calibrate Y"
-  PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("âŠ¿æ ¡å‡†Z");     //"Calibrate Z"
-  PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("âŠ¿æ ¡å‡†ä¸­å¿ƒ");     //"Calibrate Center"
-  PROGMEM Language_Str MSG_DELTA_SETTINGS                  = _UxGT("âŠ¿è®¾ç½®");     // "Delta Settings"
-  PROGMEM Language_Str MSG_DELTA_AUTO_CALIBRATE            = _UxGT("âŠ¿è‡ªåŠ¨æ ¡å‡†");     // "Auto Calibration"
-  PROGMEM Language_Str MSG_DELTA_HEIGHT_CALIBRATE          = _UxGT("è®¾ç½®âŠ¿é«˜åº¦");     // "Set Delta Height"
-  PROGMEM Language_Str MSG_DELTA_Z_OFFSET_CALIBRATE        = _UxGT("æŽ¢é’ˆZåç§»é‡");
-  PROGMEM Language_Str MSG_DELTA_DIAG_ROD                  = _UxGT("âŠ¿æ–œæŸ±");     // "Diag Rod"
-  PROGMEM Language_Str MSG_DELTA_HEIGHT                    = _UxGT("âŠ¿é«˜åº¦");     // "Height"
-  PROGMEM Language_Str MSG_DELTA_RADIUS                    = _UxGT("âŠ¿åŠå¾„");     // "Radius"
-  PROGMEM Language_Str MSG_INFO_MENU                       = _UxGT("å…³äºŽæ‰“å°æœº");     //"About Printer"
-  PROGMEM Language_Str MSG_INFO_PRINTER_MENU               = _UxGT("æ‰“å°æœºä¿¡æ¯");     //"Printer Info"
-  PROGMEM Language_Str MSG_3POINT_LEVELING                 = _UxGT("ä¸‰ç‚¹è°ƒå¹³");     // "3-Point Leveling"
-  PROGMEM Language_Str MSG_LINEAR_LEVELING                 = _UxGT("çº¿æ€§è°ƒå¹³");     // "Linear Leveling"
-  PROGMEM Language_Str MSG_BILINEAR_LEVELING               = _UxGT("åŒçº¿æ€§è°ƒå¹³");     // "Bilinear Leveling"
-  PROGMEM Language_Str MSG_UBL_LEVELING                    = _UxGT("ç»Ÿä¸€çƒ­åºŠè°ƒå¹³(UBL)");     // "Unified Bed Leveling"
-  PROGMEM Language_Str MSG_MESH_LEVELING                   = _UxGT("ç½‘æ ¼è°ƒå¹³");     // "Mesh Leveling"
-  PROGMEM Language_Str MSG_INFO_STATS_MENU                 = _UxGT("æ‰“å°æœºç»Ÿè®¡");     //"Printer Stats"
-  PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("ä¸»æ¿ä¿¡æ¯");     //"Board Info"
-  PROGMEM Language_Str MSG_INFO_THERMISTOR_MENU            = _UxGT("æ¸©åº¦è®¡");     //"Thermistors"
-  PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("æŒ¤å‡ºæœº");     //"Extruders"
-  PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("æ³¢ç‰¹çŽ‡");     //"Baud"
-  PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("åè®®");     //"Protocol"
-  PROGMEM Language_Str MSG_INFO_RUNAWAY_OFF                = _UxGT("ç›‘æŽ§æ¸©åº¦å¤±æŽ§:å…³");
-  PROGMEM Language_Str MSG_INFO_RUNAWAY_ON                 = _UxGT("ç›‘æŽ§æ¸©åº¦å¤±æŽ§:å¼€");
-  PROGMEM Language_Str MSG_HOTEND_IDLE_TIMEOUT             = _UxGT("çƒ­ç«¯ç©ºé—²è¶…æ—¶");
+#define MSG_UBL_BC_INSERT                   _UxGT("·ÅÖÃµæÆ¬²¢²âÁ¿") // "Place shim & measure"
+#define MSG_UBL_BC_INSERT2                  _UxGT("²âÁ¿") // "Measure"
+#define MSG_UBL_BC_REMOVE                   _UxGT("ÒÆ³ý²¢²âÁ¿ÈÈ´²") // "Remove & measure bed"
+#define MSG_UBL_MOVING_TO_NEXT              _UxGT("ÒÆ¶¯µ½ÏÂÒ»¸ö") // "Moving to next"
+#define MSG_UBL_ACTIVATE_MESH               _UxGT("¼¤»îUBL") // "Activate UBL"
+#define MSG_UBL_DEACTIVATE_MESH             _UxGT("¹Ø±ÕUBL") // "Deactivate UBL"
+#define MSG_UBL_SET_TEMP_BED                _UxGT("ÉèÖÃÈÈ´²ÎÂ¶È") // "Bed Temp"
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("ÈÈ¶ËÎÂ¶È") // "Hotend Temp"
+#define MSG_UBL_MESH_EDIT                   _UxGT("Íø¸ñ±à¼­") // "Mesh Edit"
+#define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("±à¼­¿Í»§Íø¸ñ") // "Edit Custom Mesh"
+#define MSG_UBL_FINE_TUNE_MESH              _UxGT("Ï¸µ÷Íø¸ñ") // "Fine Tuning Mesh"
+#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Íê³É±à¼­Íø¸ñ") // "Done Editing Mesh"
+#define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("´´Éè¿Í»§Íø¸ñ") // "Build Custom Mesh"
+#define MSG_UBL_BUILD_MESH_MENU             _UxGT("´´ÉèÍø¸ñ") // "Build Mesh"
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("´´Éè" PREHEAT_1_LABEL "Íø¸ñ") // "Build PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("´´Éè" PREHEAT_2_LABEL "Íø¸ñ") // "Build PREHEAT_2_LABEL Mesh"
+#define MSG_UBL_BUILD_COLD_MESH             _UxGT("´´ÉèÀäÍø¸ñ") // "Build Cold Mesh"
+#define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("µ÷ÕûÍø¸ñ¸ß¶È") // "Adjust Mesh Height"
+#define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("¸ß¶ÈºÏ¼Æ") // "Height Amount"
+#define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Åú×¼Íø¸ñ") // "Validate Mesh"
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("Åú×¼" PREHEAT_1_LABEL "Íø¸ñ") // "Validate PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("Åú×¼" PREHEAT_2_LABEL "Íø¸ñ") // "Validate PREHEAT_2_LABEL Mesh"
+#define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Åú×¼¿Í»§Íø¸ñ") // "Validate Custom Mesh"
+#define MSG_UBL_CONTINUE_MESH               _UxGT("¼ÌÐøÈÈ´²Íø¸ñ") // "Continue Bed Mesh"
+#define MSG_UBL_MESH_LEVELING               _UxGT("Íø¸ñµ÷Æ½") // "Mesh Leveling"
+#define MSG_UBL_3POINT_MESH_LEVELING        _UxGT("Èýµãµ÷Æ½") // "3-Point Leveling"
+#define MSG_UBL_GRID_MESH_LEVELING          _UxGT("¸ñ×ÓÍø¸ñµ÷Æ½") // "Grid Mesh Leveling"
+#define MSG_UBL_MESH_LEVEL                  _UxGT("µ÷Æ½Íø¸ñ") // "Level Mesh"
+#define MSG_UBL_SIDE_POINTS                 _UxGT("±ßµã") // "Side Points"
+#define MSG_UBL_MAP_TYPE                    _UxGT("Í¼ÀàÐÍ") // "Map Type"
+#define MSG_UBL_OUTPUT_MAP                  _UxGT("Êä³öÍø¸ñÍ¼") // "Output Mesh Map"
+#define MSG_UBL_OUTPUT_MAP_HOST             _UxGT("Êä³öµ½Ö÷»ú") // "Output for Host"
+#define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Êä³öµ½CSV") // "Output for CSV"
+#define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Êä³öµ½±¸·Ý") // "Off Printer Backup"
+#define MSG_UBL_INFO_UBL                    _UxGT("Êä³öUBLÐÅÏ¢") // "Output UBL Info"
+#define MSG_EDIT_MESH                       _UxGT("±à¼­Íø¸ñ") // "Edit Mesh"
+#define MSG_UBL_FILLIN_AMOUNT               _UxGT("Ìî³äºÏ¼Æ") // "Fill-in Amount"
+#define MSG_UBL_MANUAL_FILLIN               _UxGT("ÊÖ¹¤Ìî³ä") // "Manual Fill-in"
+#define MSG_UBL_SMART_FILLIN                _UxGT("´ÏÃ÷Ìî³ä") // "Smart Fill-in"
+#define MSG_UBL_FILLIN_MESH                 _UxGT("Ìî³äÍø¸ñ") // "Fill-in Mesh"
+#define MSG_UBL_INVALIDATE_ALL              _UxGT("×÷·ÏËùÓÐµÄ") // "Invalidate All"
+#define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("×÷·Ï×î½üµÄ") // "Invalidate Closest"
+#define MSG_UBL_FINE_TUNE_ALL               _UxGT("Ï¸µ÷ËùÓÐµÄ") // "Fine Tune All"
+#define MSG_UBL_FINE_TUNE_CLOSEST           _UxGT("Ï¸µ÷×î½üµÄ") // "Fine Tune Closest"
+#define MSG_UBL_STORAGE_MESH_MENU           _UxGT("Íø¸ñ´æ´¢") // "Mesh Storage"
+#define MSG_UBL_STORAGE_SLOT                _UxGT("´æ´¢²Û") // "Memory Slot"
+#define MSG_UBL_LOAD_MESH                   _UxGT("×°ÔØÈÈ´²Íø¸ñ") // "Load Bed Mesh"
+#define MSG_UBL_SAVE_MESH                   _UxGT("±£´æÈÈ´²Íø¸ñ") // "Save Bed Mesh"
+#define MSG_MESH_LOADED                     _UxGT("Íø¸ñ %i ÒÑ×°ÔØ") // "Mesh %i loaded"
+#define MSG_MESH_SAVED                      _UxGT("Íø¸ñ %i ÒÑ±£´æ") // "Mesh %i saved"
+#define MSG_NO_STORAGE                      _UxGT("Ã»ÓÐ´æ´¢") // "No storage"
+#define MSG_UBL_SAVE_ERROR                  _UxGT("´íÎó: UBL±£´æ") // "Err: UBL Save"
+#define MSG_UBL_RESTORE_ERROR               _UxGT("´íÎó: UBL»¹Ô­") // "Err: UBL Restore"
+#define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("ZÆ«ÒÆÒÑÍ£Ö¹") // "Z-Offset Stopped"
+#define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Ò»²½²½UBL") // "Step-By-Step UBL"
 
-  PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("å¤–å£³ç¯");     // "Case light"
-  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("ç¯äº®åº¦");     // "Light BRIGHTNESS"
+#define MSG_LED_CONTROL                     _UxGT("µÆ¹Ü¿ØÖÆ") // "LED Control")
+#define MSG_LEDS                            _UxGT("µÆ") // "Lights")
+#define MSG_LED_PRESETS                     _UxGT("µÆÔ¤ÖÃ") // "Light Presets")
+#define MSG_SET_LEDS_RED                    _UxGT("ºì") // "Red")
+#define MSG_SET_LEDS_ORANGE                 _UxGT("³È") // "Orange")
+#define MSG_SET_LEDS_YELLOW                 _UxGT("»Æ") // "Yellow")
+#define MSG_SET_LEDS_GREEN                  _UxGT("ÂÌ") // "Green")
+#define MSG_SET_LEDS_BLUE                   _UxGT("À¶") // "Blue")
+#define MSG_SET_LEDS_INDIGO                 _UxGT("Çà") // "Indigo")
+#define MSG_SET_LEDS_VIOLET                 _UxGT("×Ï") // "Violet")
+#define MSG_SET_LEDS_WHITE                  _UxGT("°×") // "White")
+#define MSG_SET_LEDS_DEFAULT                _UxGT("È±Ê¡") // "Default")
+#define MSG_CUSTOM_LEDS                     _UxGT("¶¨ÖÆµÆ") // "Custom Lights")
+#define MSG_INTENSITY_R                     _UxGT("ºì±¥ºÍ¶È") // "Red Intensity")
+#define MSG_INTENSITY_G                     _UxGT("ÂÌ±¥ºÍ¶È") // "Green Intensity")
+#define MSG_INTENSITY_B                     _UxGT("À¶±¥ºÍ¶È") // "Blue Intensity")
+#define MSG_INTENSITY_W                     _UxGT("°×±¥ºÍ¶È") // "White Intensity")
+#define MSG_LED_BRIGHTNESS                  _UxGT("ÁÁ¶È") // "Brightness")
 
-  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("æ‰“å°æœºä¸æ­£ç¡®");     // "The printer is incorrect"
-
-  #if LCD_WIDTH >= 20
-    PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("æ‰“å°è®¡æ•°");     //"Print Count"
-    PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("å®Œæˆäº†");     //"Completed"
-    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("æ€»æ‰“å°æ—¶é—´");     //"Total print time"
-    PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("æœ€é•¿å·¥ä½œæ—¶é—´");     //"Longest job time"
-    PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("æ€»è®¡æŒ¤å‡º");     //"Extruded total"
-  #else
-    PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("æ‰“å°æ•°");     //"Prints"
-    PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("å®Œæˆ");     //"Completed"
-    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("æ€»å…±");     //"Total"
-    PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("æœ€é•¿");     //"Longest"
-    PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("å·²æŒ¤å‡º");     //"Extruded"
-  #endif
-
-  PROGMEM Language_Str MSG_INFO_MIN_TEMP                   = _UxGT("æœ€ä½Žæ¸©åº¦");     //"Min Temp"
-  PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("æœ€é«˜æ¸©åº¦");     //"Max Temp"
-  PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("ç”µæºä¾›åº”");     //"Power Supply"
-  PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("é©±åŠ¨åŠ›åº¦");     // "Drive Strength"
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X é©±åŠ¨ %");     // "X Driver %"
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y é©±åŠ¨ %");     // "Y Driver %"
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z é©±åŠ¨ %");     // "Z Driver %"
-  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E é©±åŠ¨ %");     // "E Driver %"
-  PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC è¿žæŽ¥é”™è¯¯");
-  PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("ä¿å­˜é©±åŠ¨è®¾ç½®");     // "DAC EEPROM Write"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("æ›´æ¢æ–™");
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("æ‰“å°å·²æš‚åœ");     // "PRINT PAUSED"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("è£…è½½ä¸æ–™");     // "LOAD FILAMENT"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_UNLOAD   = _UxGT("å¸è½½ä¸æ–™");     // "UNLOAD FILAMENT"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_HEADER   = _UxGT("æ¢å¤é€‰é¡¹:");     // "RESUME OPTIONS:"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_PURGE    = _UxGT("æ¸…é™¤æ›´å¤š");     // "Purge more"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("æ¢å¤æ‰“å°");     //"Resume print"
-  PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  å–·å˜´: ");     // "  Nozzle: "
-  PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("æ–­æ–™ä¼ æ„Ÿå™¨");
-  PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("æ–­æ–™è·ç¦»mm");
-  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("å½’åŽŸä½å¤±è´¥");     // "Homing failed"
-  PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("æŽ¢é’ˆæŽ¢æµ‹å¤±è´¥");     // "Probing failed"
-
-  PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("é€‰æ‹©æ–™");
-  PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
-  PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("å‡çº§MMUå›ºä»¶!");
-  PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMUéœ€è¦ä¸“æ³¨.");
-  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("MMUæ¢å¤");
-  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("MMUæ¢å¤ä¸­...");
-  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("MMUåŠ è½½");
-  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("MMUåŠ è½½å…¨éƒ¨");
-  PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("MMUåŠ è½½åˆ°å–·å˜´");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("MMUå¼¹å‡º");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("MMUå¼¹å‡º ~");
-  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("MMUå¸è½½");
-  PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("åŠ è½½å¡«å……. %i...");
-  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("å¼¹å‡ºå¡«å……. ...");
-  PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("å¸è½½å¡«å……....");
-  PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("å…¨éƒ¨");
-  PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("æ–™ ~");
-  PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("å¤ä½MMU");
-  PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("MMUå¤ä½ä¸­...");
-  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("ç§»å‡º, æŒ‰ä¸‹");
-
-  PROGMEM Language_Str MSG_MIX                             = _UxGT("æ··åˆ");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("å™¨ä»¶  =");
-  PROGMEM Language_Str MSG_MIXER                           = _UxGT("æ··åˆå™¨");
-  PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("æ¢¯åº¦");
-  PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("å…¨æ¢¯åº¦");
-  PROGMEM Language_Str MSG_TOGGLE_MIX                      = _UxGT("å¼€å…³æ··åˆ");
-  PROGMEM Language_Str MSG_CYCLE_MIX                       = _UxGT("å¾ªçŽ¯æ··åˆ");
-  PROGMEM Language_Str MSG_GRADIENT_MIX                    = _UxGT("æ¢¯åº¦æ··åˆ");
-  PROGMEM Language_Str MSG_REVERSE_GRADIENT                = _UxGT("åå‘æ¢¯åº¦");
-  PROGMEM Language_Str MSG_ACTIVE_VTOOL                    = _UxGT("æ¿€æ´» V-tool");
-  PROGMEM Language_Str MSG_START_VTOOL                     = _UxGT("å¼€å§‹ V-tool");
-  PROGMEM Language_Str MSG_END_VTOOL                       = _UxGT("  ç»“æŸ V-tool");
-  PROGMEM Language_Str MSG_GRADIENT_ALIAS                  = _UxGT("åˆ«å V-tool");
-  PROGMEM Language_Str MSG_RESET_VTOOLS                    = _UxGT("å¤ä½ V-tools");
-  PROGMEM Language_Str MSG_COMMIT_VTOOL                    = _UxGT("æäº¤ V-tool Mix");
-  PROGMEM Language_Str MSG_VTOOLS_RESET                    = _UxGT("V-tools å·²å¤ä½");
-  PROGMEM Language_Str MSG_START_Z                         = _UxGT("å¼€å§‹ Z:");
-  PROGMEM Language_Str MSG_END_Z                           = _UxGT("  ç»“æŸ Z:");
-
-  PROGMEM Language_Str MSG_GAMES                           = _UxGT("æ¸¸æˆ");
-  PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("æ•²æ–¹å—");
-  PROGMEM Language_Str MSG_INVADERS                        = _UxGT("å…¥ä¾µè€…");
-  PROGMEM Language_Str MSG_SNAKE                           = _UxGT("è´ªåƒè›‡");
-  PROGMEM Language_Str MSG_MAZE                            = _UxGT("è¿·å®«");
-
-  PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("é”™è¯¯é¡µé¢ç´¢å¼•");
-  PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("é”™è¯¯é¡µé¢é€Ÿåº¦");
-
-  //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
-  //
-  #if LCD_HEIGHT >= 4
-    PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("æŒ‰ä¸‹æŒ‰é’®", "æ¢å¤æ‰“å°"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("åœé ä¸­..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("ç­‰å¾…å¼€å§‹", "ä¸æ–™", "å˜æ›´"));     // "Wait for start of the filament change"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("æ’å…¥æ–™", "å¹¶æŒ‰ä¸‹", "ä»¥ç»§ç»­"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("æŒ‰ä¸‹æŒ‰é’®æ¥", "åŠ çƒ­å–·å˜´."));     // "Press button to heat nozzle."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_2_LINE("åŠ çƒ­å–·å˜´", "è¯·ç­‰å¾… ..."));     // "Heating nozzle Please wait..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("ç­‰å¾…", "å¸ä¸‹ä¸æ–™"));     // "Wait for filament unload"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("ç­‰å¾…", "è¿›æ–™"));     // "Wait for filament load"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("ç­‰å¾…", "ä¸æ–™æ¸…é™¤"));     // "Wait for filament purge"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("æŒ‰ä¸‹å·²å®Œæˆ", "æ–™çš„æ¸…æ´—"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("ç­‰å¾…æ‰“å°", "æ¢å¤"));     // "Wait for print to resume"
-  #else
-    PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("æŒ‰ä¸‹ç»§ç»­"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("åœé ä¸­..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("è¯·ç­‰å¾… ..."));     //"Please wait..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("æ’å…¥å¹¶å•å‡»"));     //"Insert and Click"
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("æŒ‰ä¸‹åŠ çƒ­"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_1_LINE("åŠ çƒ­ä¸­ ..."));     // "Heating..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_1_LINE("é€€å‡ºä¸­ ..."));     //"Ejecting..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("è£…è½½ä¸­ ..."));     //"Loading..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_1_LINE("æ¸…é™¤ä¸­ ..."));     // "Purging..."
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("æŒ‰ä¸‹å®Œæˆ"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("æ¢å¤ä¸­ ..."));     //"Resuming..."
-  #endif
-  PROGMEM Language_Str MSG_TMC_DRIVERS                     = _UxGT("TMCé©±åŠ¨å™¨");
-  PROGMEM Language_Str MSG_TMC_CURRENT                     = _UxGT("é©±åŠ¨ç”µæµ");
-  PROGMEM Language_Str MSG_TMC_HYBRID_THRS                 = _UxGT("æ··åˆé˜ˆå€¼");
-  PROGMEM Language_Str MSG_TMC_HOMING_THRS                 = _UxGT("æ— æ„Ÿå›žé›¶");
-  PROGMEM Language_Str MSG_TMC_STEPPING_MODE               = _UxGT("æ­¥è¿›æ¨¡å¼");
-  PROGMEM Language_Str MSG_TMC_STEALTH_ENABLED             = _UxGT("StealthChopå·²ä½¿èƒ½");
-  PROGMEM Language_Str MSG_SERVICE_RESET                   = _UxGT("å¤ä½");
-  PROGMEM Language_Str MSG_SERVICE_IN                      = _UxGT(" åœ¨:");
-  PROGMEM Language_Str MSG_BACKLASH                        = _UxGT("å›žå·®");
-  PROGMEM Language_Str MSG_BACKLASH_A                      = LCD_STR_A;
-  PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
-  PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
-  PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("æ ¡æ­£");
-  PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("å¹³æ»‘çš„");
-
-  PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Xè½´è°ƒå¹³");
-  PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("è‡ªåŠ¨æ ¡å‡†");
-  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("åŠ çƒ­å™¨è¶…æ—¶");
-  PROGMEM Language_Str MSG_REHEAT                          = _UxGT("é‡æ–°åŠ çƒ­");
-  PROGMEM Language_Str MSG_REHEATING                       = _UxGT("é‡æ–°åŠ çƒ­ä¸­...");
-}
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+#define MSG_MOVING                          _UxGT("ÒÆ¶¯ ...") // "Moving...")
+#define MSG_FREE_XY                         _UxGT("ÊÍ·Å XY") // "Free XY")
+#define MSG_MOVE_X                          _UxGT("ÒÆ¶¯X")  //"Move X"
+#define MSG_MOVE_Y                          _UxGT("ÒÆ¶¯Y")  //"Move Y"
+#define MSG_MOVE_Z                          _UxGT("ÒÆ¶¯Z")  //"Move Z"
+#define MSG_MOVE_E                          _UxGT("¼·³ö»ú")  //"Extruder"
+#define MSG_MOVE_01MM                       _UxGT("ÒÆ¶¯ 0.1 mm")  //"Move 0.1mm"
+#define MSG_MOVE_1MM                        _UxGT("ÒÆ¶¯ 1 mm")  //"Move 1mm"
+#define MSG_MOVE_10MM                       _UxGT("ÒÆ¶¯ 10 mm")  //"Move 10mm"
+#define MSG_SPEED                           _UxGT("ËÙÂÊ")  //"Speed"
+#define MSG_BED_Z                           _UxGT("ÈÈ´²Z")  //"Bed Z"
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Åç×ì")  //"Nozzle" ‡Š×ì
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ÈÈ´²")  //"Bed"
+#define MSG_FAN_SPEED                       _UxGT("·çÉÈËÙÂÊ")  //"Fan speed"
+#define MSG_EXTRA_FAN_SPEED                 _UxGT("¶îÍâ·çÉÈËÙÂÊ") // "Extra fan speed"
+#define MSG_FLOW                            _UxGT("¼·³öËÙÂÊ")  //"Flow"
+#define MSG_CONTROL                         _UxGT("¿ØÖÆ")  //"Control"
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ×îÐ¡") //" " LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ×î´ó")  //" " LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ÒòÊý")  //" " LCD_STR_THERMOMETER " Fact"
+#define MSG_AUTOTEMP                        _UxGT("×Ô¶¯¿ØÎÂ")  //"Autotemp"
+#define MSG_LCD_ON                          _UxGT("¿ª")  //"On"
+#define MSG_LCD_OFF                         _UxGT("¹Ø")  //"Off"
+#define MSG_PID_P                           _UxGT("PID-P")  //"PID-P"
+#define MSG_PID_I                           _UxGT("PID-I")  //"PID-I"
+#define MSG_PID_D                           _UxGT("PID-D")  //"PID-D"
+#define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
+#define MSG_SELECT                          _UxGT("Ñ¡Ôñ")  //"Select"
+#define MSG_ACC                             _UxGT("¼ÓËÙ¶È")  //"Accel" acceleration
+#define MSG_JERK                            _UxGT("¶¶¶¯ËÙÂÊ")  // "Jerk"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("AÖá¶¶¶¯ËÙÂÊ")  //"Va-jerk"
+  #define MSG_VB_JERK                       _UxGT("BÖá¶¶¶¯ËÙÂÊ")  //"Vb-jerk"
+  #define MSG_VC_JERK                       _UxGT("CÖá¶¶¶¯ËÙÂÊ")  //"Vc-jerk"
 #else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_VA_JERK                       _UxGT("XÖá¶¶¶¯ËÙÂÊ")  //"Vx-jerk"
+  #define MSG_VB_JERK                       _UxGT("YÖá¶¶¶¯ËÙÂÊ")  //"Vy-jerk"
+  #define MSG_VC_JERK                       _UxGT("ZÖá¶¶¶¯ËÙÂÊ")  //"Vz-jerk"
 #endif
+#define MSG_VE_JERK                         _UxGT("¼·³ö»ú¶¶¶¯ËÙÂÊ")  //"Ve-jerk"
+#define MSG_VELOCITY                        _UxGT("ËÙ¶È")          // "Velocity"
+#define MSG_VMAX                            _UxGT("×î´ó½øÁÏËÙÂÊ")  //"Vmax " max_feedrate_mm_s
+#define MSG_VMIN                            _UxGT("×îÐ¡½øÁÏËÙÂÊ")  //"Vmin"  min_feedrate_mm_s
+#define MSG_VTRAV_MIN                       _UxGT("×îÐ¡ÒÆ¶¯ËÙÂÊ")  //"VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
+#define MSG_ACCELERATION                    _UxGT("¼ÓËÙ¶È")       // "Acceleration"
+#define MSG_AMAX                            _UxGT("×î´ó´òÓ¡¼ÓËÙ¶È")  //"Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
+#define MSG_A_RETRACT                       _UxGT("ÊÕ½ø¼ÓËÙ¶È")  //"A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
+#define MSG_A_TRAVEL                        _UxGT("·Ç´òÓ¡ÒÆ¶¯¼ÓËÙ¶È")  //"A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+#define MSG_STEPS_PER_MM                    _UxGT("Öá²½Êý/mm")  //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("AÖá²½Êý/mm")  //"Asteps/mm"
+  #define MSG_BSTEPS                        _UxGT("BÖá²½Êý/mm")  //"Bsteps/mm"
+  #define MSG_CSTEPS                        _UxGT("CÖá²½Êý/mm")  //"Csteps/mm"
+#else
+  #define MSG_ASTEPS                        _UxGT("XÖá²½Êý/mm")  //"Xsteps/mm"
+  #define MSG_BSTEPS                        _UxGT("YÖá²½Êý/mm")  //"Ysteps/mm"
+  #define MSG_CSTEPS                        _UxGT("ZÖá²½Êý/mm")  //"Zsteps/mm"
+#endif
+#define MSG_ESTEPS                          _UxGT("¼·³ö»ú²½Êý/mm")  //"Esteps/mm"
+#define MSG_E1STEPS                         _UxGT("¼·³ö»ú1²½Êý/mm") //"E1steps/mm"
+#define MSG_E2STEPS                         _UxGT("¼·³ö»ú2²½Êý/mm") //"E2steps/mm"
+#define MSG_E3STEPS                         _UxGT("¼·³ö»ú3²½Êý/mm") //"E3steps/mm"
+#define MSG_E4STEPS                         _UxGT("¼·³ö»ú4²½Êý/mm") //"E4steps/mm"
+#define MSG_E5STEPS                         _UxGT("¼·³ö»ú5²½Êý/mm") //"E5steps/mm"
+#define MSG_E6STEPS                         _UxGT("¼·³ö»ú6²½Êý/mm") //"E6steps/mm"
+#define MSG_TEMPERATURE                     _UxGT("ÎÂ¶È")  //"Temperature"
+#define MSG_MOTION                          _UxGT("ÔË¶¯")  //"Motion"
+#define MSG_FILAMENT                        _UxGT("Ë¿ÁÏ²âÈÝ")  //"Filament" menu_advanced_filament
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("²âÈÝ»ýmm?")  //"E in mm3" volumetric_enabled
+#define MSG_FILAMENT_DIAM                   _UxGT("Ë¿ÁÏÖ±¾¶")  //"Fil. Dia."
+#define MSG_FILAMENT_UNLOAD                 _UxGT("Ð¶ÔØ mm") // "Unload mm"
+#define MSG_FILAMENT_LOAD                   _UxGT("×°ÔØ mm")   // "Load mm"
+#define MSG_ADVANCE_K                       _UxGT("Advance K") // "Advance K"
+#define MSG_CONTRAST                        _UxGT("LCD¶Ô±È¶È")  //"LCD contrast"
+#define MSG_STORE_EEPROM                    _UxGT("±£´æÉèÖÃ")  //"Store memory"
+#define MSG_LOAD_EEPROM                     _UxGT("×°ÔØÉèÖÃ")  //"Load memory"
+#define MSG_RESTORE_FAILSAFE                _UxGT("»Ö¸´°²È«Öµ")  //"Restore failsafe"
+#define MSG_INIT_EEPROM                     _UxGT("³õÊ¼»¯ÉèÖÃ") // "Initialize EEPROM"
+#define MSG_REFRESH                         _UxGT("Ë¢ÐÂ")  //"Refresh"
+#define MSG_WATCH                           _UxGT("ÐÅÏ¢ÆÁ")  //"Info screen"
+#define MSG_PREPARE                         _UxGT("×¼±¸")  //"Prepare"
+#define MSG_TUNE                            _UxGT("µ÷Õû")  //"Tune"
+#define MSG_PAUSE_PRINT                     _UxGT("ÔÝÍ£´òÓ¡")  //"Pause print"
+#define MSG_RESUME_PRINT                    _UxGT("»Ö¸´´òÓ¡")  //"Resume print"
+#define MSG_STOP_PRINT                      _UxGT("Í£Ö¹´òÓ¡")  //"Stop print"
+#define MSG_CARD_MENU                       _UxGT("´Ó´æ´¢¿¨ÉÏ´òÓ¡")  //"Print from SD"
+#define MSG_NO_CARD                         _UxGT("ÎÞ´æ´¢¿¨")  //"No SD card"
+#define MSG_DWELL                           _UxGT("ÐÝÃßÖÐ ...")  //"Sleep..."
+#define MSG_USERWAIT                        _UxGT("µã»÷¼ÌÐø ...")  //"Click to resume..."
+#define MSG_PRINT_PAUSED                    _UxGT("•ºÍ£´òÓ¡") // "Print paused"
+#define MSG_PRINT_ABORTED                   _UxGT("ÒÑÈ¡Ïû´òÓ¡")  //"Print aborted"
+#define MSG_NO_MOVE                         _UxGT("ÎÞÒÆ¶¯")  //"No move."
+#define MSG_KILLED                          _UxGT("ÒÑÉ±µô")  //"KILLED. "
+#define MSG_STOPPED                         _UxGT("ÒÑÍ£Ö¹")  //"STOPPED. "
+#define MSG_CONTROL_RETRACT                 _UxGT("»Ø³é³¤¶Èmm")  //"Retract mm" retract_length, retract length (positive mm)
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("»»ÊÖ»Ø³é³¤¶Èmm")  //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
+#define MSG_CONTROL_RETRACTF                _UxGT("»Ø³éËÙÂÊmm/s")  //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")  //"Hop mm" retract_zraise, retract Z-lift
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("»Ø³é»Ö¸´³¤¶Èmm")  //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("»»ÊÖ»Ø³é»Ö¸´³¤¶Èmm")  //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
+#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("»Ø³é»Ö¸´ºó½øÁÏËÙÂÊmm/s")  //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+#define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V") // "S UnRet V"
+#define MSG_AUTORETRACT                     _UxGT("×Ô¶¯³é»Ø")  //"AutoRetr." autoretract_enabled,
+#define MSG_FILAMENTCHANGE                  _UxGT("¸ü»»Ë¿ÁÏ")  //"Change filament"
+#define MSG_FILAMENTLOAD                    _UxGT("×°ÔØË¿ÁÏ") // "Load filament"
+#define MSG_FILAMENTUNLOAD                  _UxGT("Ð¶ÔØË¿ÁÏ") // "Unload filament"
+#define MSG_FILAMENTUNLOAD_ALL              _UxGT("Ð¶ÔØÈ«²¿") // "Unload All"
+#define MSG_INIT_SDCARD                     _UxGT("³õÊ¼»¯´æ´¢¿¨")  //"Init. SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("¸ü»»´æ´¢¿¨")  //"Change SD card"
+#define MSG_ZPROBE_OUT                      _UxGT("ZÌ½ÕëÔÚÈÈ´²Ö®Íâ")  //"Z probe out. bed" Z probe is not within the physical limits
+#define MSG_SKEW_FACTOR                     _UxGT("Æ«Ð±ÒòÊý") // "Skew Factor"
+#define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"
+#define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ×Ô¼ì") // "BLTouch Self-Test"
+#define MSG_BLTOUCH_RESET                   _UxGT("ÖØÖÃBLTouch")  // "Reset BLTouch"
+#define MSG_BLTOUCH_DEPLOY                  _UxGT("²¿ÊðBLTouch") // "Deploy BLTouch"
+#define MSG_BLTOUCH_STOW                    _UxGT("×°ÔØBLTouch")   // "Stow BLTouch"
+#define MSG_HOME                            _UxGT("¹éÎ»")  //"Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           _UxGT("ÏÈ")  //"first"
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("ZÆ«ÒÆ")  //"Z Offset"
+#define MSG_BABYSTEP_X                      _UxGT("Î¢Á¿µ÷ÕûXÖá")  //"Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
+#define MSG_BABYSTEP_Y                      _UxGT("Î¢Á¿µ÷ÕûYÖá")  //"Babystep Y"
+#define MSG_BABYSTEP_Z                      _UxGT("Î¢Á¿µ÷ÕûZÖá")  //"Babystep Z"
+#define MSG_ENDSTOP_ABORT                   _UxGT("µ²¿éÖÕÖ¹")  //"Endstop abort"
+#define MSG_HEATING_FAILED_LCD              _UxGT("¼ÓÈÈÊ§°Ü")  //"Heating failed"
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("´íÎó£ºREDUNDANT TEMP")  //"Err: REDUNDANT TEMP"
+#define MSG_THERMAL_RUNAWAY                 _UxGT("ÎÂ¿ØÊ§¿Ø")  //"THERMAL RUNAWAY"
+#define MSG_ERR_MAXTEMP                     _UxGT("´íÎó£º×î¸ßÎÂ¶È")  //"Err: MAXTEMP"
+#define MSG_ERR_MINTEMP                     _UxGT("´íÎó£º×îµÍÎÂ¶È")  //"Err: MINTEMP"
+#define MSG_ERR_MAXTEMP_BED                 _UxGT("´íÎó£º×î¸ßÈÈ´²ÎÂ¶È")  //"Err: MAXTEMP BED"
+#define MSG_ERR_MINTEMP_BED                 _UxGT("´íÎó£º×îµÍÈÈ´²ÎÂ¶È")  //"Err: MINTEMP BED"
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
+#define MSG_HALTED                          _UxGT("´òÓ¡Í£»ú")  //"PRINTER HALTED"
+#define MSG_PLEASE_RESET                    _UxGT("ÇëÖØÖÃ")  //"Please reset"
+#define MSG_SHORT_DAY                       _UxGT("Ìì")  //"d" // One character only
+#define MSG_SHORT_HOUR                      _UxGT("Ê±")  //"h" // One character only
+#define MSG_SHORT_MINUTE                    _UxGT("·Ö")  //"m" // One character only
+#define MSG_HEATING                         _UxGT("¼ÓÈÈÖÐ ...")  //"Heating..."
+#define MSG_BED_HEATING                     _UxGT("¼ÓÈÈÈÈ´²ÖÐ ...")  //"Bed Heating..."
+#define MSG_DELTA_CALIBRATE                 _UxGT("¨SÐ£×¼")  //"Delta Calibration"
+#define MSG_DELTA_CALIBRATE_X               _UxGT("¨SÐ£×¼X")  //"Calibrate X"
+#define MSG_DELTA_CALIBRATE_Y               _UxGT("¨SÐ£×¼Y")  //"Calibrate Y"
+#define MSG_DELTA_CALIBRATE_Z               _UxGT("¨SÐ£×¼Z")  //"Calibrate Z"
+#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("¨SÐ£×¼ÖÐÐÄ")  //"Calibrate Center"
+#define MSG_DELTA_SETTINGS                  _UxGT("¨SÉèÖÃ") // "Delta Settings"
+#define MSG_DELTA_AUTO_CALIBRATE            _UxGT("¨S×Ô¶¯Ð£×¼") // "Auto Calibration"
+#define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("ÉèÖÃ¨S¸ß¶È") // "Set Delta Height"
+#define MSG_DELTA_DIAG_ROD                  _UxGT("¨SÐ±Öù") // "Diag Rod"
+#define MSG_DELTA_HEIGHT                    _UxGT("¨S¸ß¶È") // "Height"
+#define MSG_DELTA_RADIUS                    _UxGT("¨S°ë¾¶") // "Radius"
+#define MSG_INFO_MENU                       _UxGT("¹ØÓÚ´òÓ¡»ú")  //"About Printer"
+#define MSG_INFO_PRINTER_MENU               _UxGT("´òÓ¡»úÐÅÏ¢")  //"Printer Info"
+#define MSG_3POINT_LEVELING                 _UxGT("Èýµãµ÷Æ½") // "3-Point Leveling"
+#define MSG_LINEAR_LEVELING                 _UxGT("ÏßÐÔµ÷Æ½") // "Linear Leveling"
+#define MSG_BILINEAR_LEVELING               _UxGT("Ë«ÏßÐÔµ÷Æ½") // "Bilinear Leveling"
+#define MSG_UBL_LEVELING                    _UxGT("Í³Ò»ÈÈ´²µ÷Æ½(UBL)") // "Unified Bed Leveling"
+#define MSG_MESH_LEVELING                   _UxGT("Íø¸ñµ÷Æ½") // "Mesh Leveling"
+#define MSG_INFO_STATS_MENU                 _UxGT("´òÓ¡»úÍ³¼Æ")  //"Printer Stats"
+#define MSG_INFO_BOARD_MENU                 _UxGT("Ö÷°åÐÅÏ¢")  //"Board Info"
+#define MSG_INFO_THERMISTOR_MENU            _UxGT("ÎÂ¶È¼Æ")  //"Thermistors"
+#define MSG_INFO_EXTRUDERS                  _UxGT("¼·³ö»ú")  //"Extruders"
+#define MSG_INFO_BAUDRATE                   _UxGT("²¨ÌØÂÊ")  //"Baud"
+#define MSG_INFO_PROTOCOL                   _UxGT("Ð­Òé")  //"Protocol"
+#define MSG_CASE_LIGHT                      _UxGT("Íâ¿ÇµÆ") // "Case light"
+#define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("µÆÁÁ¶È") // "Light BRIGHTNESS"
+
+#if LCD_WIDTH >= 20
+  #define MSG_INFO_PRINT_COUNT              _UxGT("´òÓ¡¼ÆÊý")  //"Print Count"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Íê³ÉÁË")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("×Ü´òÓ¡Ê±¼ä")  //"Total print time"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("×î³¤¹¤×÷Ê±¼ä")  //"Longest job time"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("×Ü¼Æ¼·³ö")  //"Extruded total"
+#else
+  #define MSG_INFO_PRINT_COUNT              _UxGT("´òÓ¡Êý")  //"Prints"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Íê³É")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("×Ü¹²")  //"Total"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("×î³¤")  //"Longest"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("ÒÑ¼·³ö")  //"Extruded"
+#endif
+
+#define MSG_INFO_MIN_TEMP                   _UxGT("×îµÍÎÂ¶È")  //"Min Temp"
+#define MSG_INFO_MAX_TEMP                   _UxGT("×î¸ßÎÂ¶È")  //"Max Temp"
+#define MSG_INFO_PSU                        _UxGT("µçÔ´¹©Ó¦")  //"Power Supply"
+#define MSG_DRIVE_STRENGTH                  _UxGT("Çý¶¯Á¦¶È") // "Drive Strength"
+#define MSG_DAC_PERCENT                     _UxGT("Çý¶¯ %") // "Driver %"
+#define MSG_DAC_EEPROM_WRITE                _UxGT("±£´æÇý¶¯ÉèÖÃ") // "DAC EEPROM Write"
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("´òÓ¡ÒÑÔÝÍ£") // "PRINT PAUSED"
+#define MSG_FILAMENT_CHANGE_HEADER_LOAD     _UxGT("×°ÔØË¿ÁÏ") // "LOAD FILAMENT"
+#define MSG_FILAMENT_CHANGE_HEADER_UNLOAD   _UxGT("Ð¶ÔØË¿ÁÏ") // "UNLOAD FILAMENT"
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("»Ö¸´Ñ¡Ïî:") // "RESUME OPTIONS:"
+#define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Çå³ý¸ü¶à") // "Purge more"
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("»Ö¸´´òÓ¡")  //"Resume print"
+#define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Åç×ì: ") // "  Nozzle: "
+#define MSG_ERR_HOMING_FAILED               _UxGT("¹éÔ­Î»Ê§°Ü") // "Homing failed"
+#define MSG_ERR_PROBING_FAILED              _UxGT("Ì½ÕëÌ½²âÊ§°Ü") // "Probing failed"
+#define MSG_M600_TOO_COLD                   _UxGT("M600: Ì«Á¹") // "M600: Too cold"
+
+#if LCD_HEIGHT >= 4
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("µÈ´ý¿ªÊ¼")  //"Wait for start"
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("Ë¿ÁÏ")  //"of the filament"
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("±ä¸ü")  //"change"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("µÈ´ý")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("Ð¶ÏÂË¿ÁÏ")  //"filament unload"
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("²åÈëË¿ÁÏ")  //"Insert filament"
+  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("²¢°´¼ü")  //"and press button"
+  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("À´¼ÌÐø ...")  //"to continue..."
+  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("°´ÏÂ°´Å¥À´") // "Press button to"
+  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("¼ÓÈÈÅç×ì.") // "heat nozzle."
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("¼ÓÈÈÅç×ì") // "Heating nozzle"
+  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("ÇëµÈ´ý ...") // "Please wait..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("µÈ´ý")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("½øÁÏ")  //"filament load"
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("µÈ´ý") // "Wait for"
+  #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("Ë¿ÁÏÇå³ý") // "filament purge"
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("µÈ´ý´òÓ¡")  //"Wait for print"
+  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("»Ö¸´")  //"to resume"
+#else // LCD_HEIGHT < 4
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("ÇëµÈ´ý ...")  //"Please wait..."
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("ÍË³öÖÐ ...")  //"Ejecting..."
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("²åÈë²¢µ¥»÷")  //"Insert and Click"
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("¼ÓÈÈÖÐ ...") // "Heating..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("×°ÔØÖÐ ...")  //"Loading..."
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Çå³ýÖÐ ...") // "Purging..."
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("»Ö¸´ÖÐ ...")  //"Resuming..."
+#endif // LCD_HEIGHT < 4

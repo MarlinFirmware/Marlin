@@ -33,4 +33,4 @@ PlatformIO will find your libraries automatically, configure preprocessor's
 include paths and build them.
 
 More information about PlatformIO Library Dependency Finder
-- https://docs.platformio.org/page/librarymanager/ldf.html
+- http://docs.platformio.org/page/librarymanager/ldf.html

@@ -2,10 +2,10 @@
 """Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on:
-https://en.wikipedia.org/wiki/Steinhart-Hart_equation
+http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 
 The main use is for Arduino programs that read data from the circuit board described here:
-https://reprap.org/wiki/Temperature_Sensor_v2.0
+http://reprap.org/wiki/Temperature_Sensor_v2.0
 
 Usage: python createTemperatureLookupMarlin.py [options]
 

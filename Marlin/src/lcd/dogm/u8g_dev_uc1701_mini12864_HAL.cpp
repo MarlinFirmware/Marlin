@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,7 +55,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
+
+#include <U8glib.h>
 
 #include "HAL_LCD_com_defines.h"
 
@@ -73,8 +75,7 @@
 #define UC1701_V5_RATIO(N)       (0x20 | ((N) & 0x7))
 #define UC1701_CONTRAST(N)       (0x81), (N)
 
-#define UC1701_COLUMN_HI(N)      (0x10 | (((N) >> 4) & 0xF))
-#define UC1701_COLUMN_ADR(N)     UC1701_COLUMN_HI(N), ((N) & 0xF)
+#define UC1701_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
 #define UC1701_PAGE_ADR(N)       (0xB0 | (N))
 #define UC1701_START_LINE(N)     (0x40 | (N))
 #define UC1701_INDICATOR(N)      (0xAC), (N)
@@ -83,60 +84,43 @@
 #define UC1701_BOOST_RATIO(N)    (0xF8), (N)
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_RST(1),             // do reset low pulse with (1*16)+2 milliseconds
-  U8G_ESC_CS(1),              // enable chip
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_RST(1),             /* do reset low pulse with (1*16)+2 milliseconds */
+  U8G_ESC_CS(1),              /* enable chip */
 
-  UC1701_RESET(),             // soft reset
-  UC1701_START_LINE(0),       // set display start line to 0
-  UC1701_ADC_REVERSE(0),      // ADC set to reverse
-  UC1701_OUT_MODE(1),         // common output mode
-  UC1701_INVERTED(0),         // display normal, bit val 0: LCD pixel off
-  UC1701_BIAS_MODE(0),        // LCD bias 1/9
-  UC1701_POWER_CONTROL(0x7),  // all power control circuits on
-  UC1701_BOOST_RATIO(0x0),    // set booster ratio to 4x
-  UC1701_V5_RATIO(3),         // set V0 voltage resistor ratio to large
-  UC1701_CONTRAST(0x27),      // set contrast
-  UC1701_INDICATOR(0),        // indicator disable
-  UC1701_ON(1),               // display on
+  UC1701_RESET(),             /* soft reset */
+  UC1701_START_LINE(0),       /* set display start line to 0 */
+  UC1701_ADC_REVERSE(0),      /* ADC set to reverse */
+  UC1701_OUT_MODE(1),         /* common output mode */
+  UC1701_INVERTED(0),         /* display normal, bit val 0: LCD pixel off. */
+  UC1701_BIAS_MODE(0),        /* LCD bias 1/9 */
+  UC1701_POWER_CONTROL(0x7),  /* all power control circuits on */
+  UC1701_BOOST_RATIO(0x0),    /* set booster ratio to 4x */
+  UC1701_V5_RATIO(3),         /* set V0 voltage resistor ratio to large */
+  UC1701_CONTRAST(0x27),      /* set contrast */
+  UC1701_INDICATOR(0),        /* indicator */
+  UC1701_ON(1),               /* display on */
 
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_DLY(100),           // delay 100 ms
-  U8G_ESC_CS(1),              // enable chip
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
 
-  UC1701_ALL_PIX(1),          // display all points, ST7565
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_DLY(100),           // delay 100 ms
-  U8G_ESC_DLY(100),           // delay 100 ms
-  U8G_ESC_CS(1),              // enable chip
-  UC1701_ALL_PIX(0),          // normal display
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_DLY(150),           // delay 150 ms before sending any data
-  U8G_ESC_END                 // end of sequence
+  UC1701_ALL_PIX(1),          /* display all points, ST7565 */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_DLY(100),           /* delay 100 ms */
+  U8G_ESC_CS(1),              /* enable chip */
+  UC1701_ALL_PIX(0),          /* normal display */
+  U8G_ESC_CS(0),              /* disable chip */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_CS(1),              // enable chip
-  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, FYSETC_MINI_12864)
-    UC1701_START_LINE(0),     // set display start line to 0
-    UC1701_ADC_REVERSE(0),    // ADC set to reverse
-    UC1701_OUT_MODE(1),       // common output mode
-    UC1701_INVERTED(0),       // display normal, bit val 0: LCD pixel off
-    UC1701_BIAS_MODE(0),      // LCD bias 1/9
-    UC1701_POWER_CONTROL(0x7),// all power control circuits on
-    UC1701_BOOST_RATIO(0x0),  // set booster ratio to 4x
-    UC1701_V5_RATIO(3),       // set V0 voltage resistor ratio to large
-    UC1701_INDICATOR(0),      // indicator disable
-    UC1701_ON(1),             // display on
-    UC1701_COLUMN_HI(0),      // set upper 4 bit of the col adr to 0
-    U8G_ESC_END,              // end of sequence
-    U8G_ESC_DLY(5)            // delay 5 ms
-  #else
-    UC1701_COLUMN_ADR(0),     // address 0
-    U8G_ESC_END               // end of sequence
-  #endif
+  U8G_ESC_ADR(0),             /* instruction mode */
+  U8G_ESC_CS(1),              /* enable chip */
+  UC1701_COLUMN_ADR(0),       /* address 0 */
+  U8G_ESC_END                 /* end of sequence */
 };
 
 uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
@@ -179,21 +163,23 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
 
     case U8G_DEV_MSG_PAGE_NEXT: {
       u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
-      u8g_WriteByte(u8g, dev, 0x0B0 | (2 * pb->p.page)); /* select current page */
-      u8g_SetAddress(u8g, dev, 1); /* data mode */
+      u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page)); /* select current page */
+      u8g_SetAddress(u8g, dev, 1);           /* data mode */
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)pb->buf);
       u8g_SetChipSelect(u8g, dev, 0);
+
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
-      u8g_WriteByte(u8g, dev, 0x0B0 | (2 * pb->p.page + 1)); /* select current page */
-      u8g_SetAddress(u8g, dev, 1); /* data mode */
+      u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page+1)); /* select current page */
+      u8g_SetAddress(u8g, dev, 1);           /* data mode */
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
       u8g_SetChipSelect(u8g, dev, 0);
     } break;
 
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
-      u8g_SetAddress(u8g, dev, 0); /* instruction mode */
+      u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
       u8g_WriteByte(u8g, dev, 0x081);
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 2);
       u8g_SetChipSelect(u8g, dev, 0);
@@ -210,4 +196,4 @@ u8g_pb_t u8g_dev_uc1701_mini12864_HAL_2x_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_SW_SPI_FN };
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_hw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_HW_SPI_FN };
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // HAS_GRAPHICAL_LCD

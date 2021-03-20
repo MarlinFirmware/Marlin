@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#if __GNUC__ > 8
-  // The NXP platform updated GCC from 7.2.1 to 9.2.1
-  // and this new warning apparently can be ignored.
-  #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
-#endif
-
 /**
  * Arduino SdFat Library
- * Copyright (c) 2009 by William Greiman
+ * Copyright (C) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -39,7 +33,7 @@
 
 #include "SdBaseFile.h"
 
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 SdBaseFile* SdBaseFile::cwd_ = 0;   // Pointer to Current Working Directory
 
 // callback function for date/time
@@ -47,8 +41,6 @@ void (*SdBaseFile::dateTime_)(uint16_t* date, uint16_t* time) = 0;
 
 // add a cluster to a file
 bool SdBaseFile::addCluster() {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   if (!vol_->allocContiguous(1, &curCluster_)) return false;
 
   // if first cluster of file link to directory entry
@@ -62,8 +54,6 @@ bool SdBaseFile::addCluster() {
 // Add a cluster to a directory file and zero the cluster.
 // return with first block of cluster in the cache
 bool SdBaseFile::addDirCluster() {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t block;
   // max folder size
   if (fileSize_ / sizeof(dir_t) >= 0xFFFF) return false;
@@ -154,10 +144,9 @@ bool SdBaseFile::contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock) {
  * an invalid DOS 8.3 file name, the FAT volume has not been initialized,
  * a file is already open, the file already exists, the root
  * directory is full or an I/O error.
+ *
  */
 bool SdBaseFile::createContiguous(SdBaseFile* dirFile, const char* path, uint32_t size) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t count;
   // don't allow zero length file
   if (size == 0) return false;
@@ -209,7 +198,7 @@ bool SdBaseFile::dirEntry(dir_t* dir) {
  */
 void SdBaseFile::dirName(const dir_t& dir, char* name) {
   uint8_t j = 0;
-  LOOP_L_N(i, 11) {
+  for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) name[j++] = '.';
     name[j++] = dir.name[i];
@@ -284,7 +273,7 @@ int16_t SdBaseFile::fgets(char* str, int16_t num, char* delim) {
  *
  * \return true for success, false for failure.
  */
-bool SdBaseFile::getDosName(char * const name) {
+bool SdBaseFile::getFilename(char * const name) {
   if (!isOpen()) return false;
 
   if (isRoot()) {
@@ -350,10 +339,10 @@ int8_t SdBaseFile::lsPrintNext(uint8_t flags, uint8_t indent) {
         && DIR_IS_FILE_OR_SUBDIR(&dir)) break;
   }
   // indent for dir level
-  LOOP_L_N(i, indent) SERIAL_CHAR(' ');
+  for (uint8_t i = 0; i < indent; i++) SERIAL_CHAR(' ');
 
   // print name
-  LOOP_L_N(i, 11) {
+  for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) {
       SERIAL_CHAR('.');
@@ -424,8 +413,6 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
  * directory, \a path is invalid or already exists in \a parent.
  */
 bool SdBaseFile::mkdir(SdBaseFile* parent, const char* path, bool pFlag) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint8_t dname[11];
   SdBaseFile dir1, dir2;
   SdBaseFile* sub = &dir1;
@@ -456,8 +443,6 @@ bool SdBaseFile::mkdir(SdBaseFile* parent, const char* path, bool pFlag) {
 }
 
 bool SdBaseFile::mkdir(SdBaseFile* parent, const uint8_t dname[11]) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t block;
   dir_t d;
   dir_t* p;
@@ -487,7 +472,7 @@ bool SdBaseFile::mkdir(SdBaseFile* parent, const uint8_t dname[11]) {
   // make entry for '.'
   memcpy(&d, p, sizeof(d));
   d.name[0] = '.';
-  LOOP_S_L_N(i, 1, 11) d.name[i] = ' ';
+  for (uint8_t i = 1; i < 11; i++) d.name[i] = ' ';
 
   // cache block for '.'  and '..'
   block = vol_->clusterStartBlock(firstCluster_);
@@ -641,7 +626,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t ofla
   }
   else {
     // don't create unless O_CREAT and O_WRITE
-    if ((oflag & (O_CREAT | O_WRITE)) != (O_CREAT | O_WRITE)) return false;
+    if (!(oflag & O_CREAT) || !(oflag & O_WRITE)) return false;
     if (emptyFound) {
       index = dirIndex_;
       p = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
@@ -725,14 +710,8 @@ bool SdBaseFile::open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag) {
 
 // open a cached directory entry. Assumes vol_ is initialized
 bool SdBaseFile::openCachedEntry(uint8_t dirIndex, uint8_t oflag) {
-  dir_t* p;
-
-  #if ENABLED(SDCARD_READONLY)
-    if (oflag & (O_WRITE | O_CREAT | O_TRUNC)) goto FAIL;
-  #endif
-
   // location of entry in cache
-  p = &vol_->cache()->dir[dirIndex];
+  dir_t* p = &vol_->cache()->dir[dirIndex];
 
   // write or truncate is an error for a directory or read-only file
   if (p->attributes & (DIR_ATT_READ_ONLY | DIR_ATT_DIRECTORY)) {
@@ -978,7 +957,7 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
  */
 bool SdBaseFile::printName() {
   char name[FILENAME_LENGTH];
-  if (!getDosName(name)) return false;
+  if (!getFilename(name)) return false;
   SERIAL_ECHO(name);
   return true;
 }
@@ -1070,6 +1049,7 @@ int16_t SdBaseFile::read(void* buf, uint16_t nbyte) {
  * readDir() called before a directory has been opened, this is not
  * a directory file or an I/O error occurred.
  */
+#ifndef Chinese
 int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
   int16_t n;
   // if not a directory file or miss-positioned return an error
@@ -1103,7 +1083,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
         if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
           // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
           n = (seq - 1) * (FILENAME_LENGTH);
-          LOOP_L_N(i, FILENAME_LENGTH)
+          for (uint8_t i = 0; i < FILENAME_LENGTH; i++)
             longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
           // If this VFAT entry is the last one, add a NUL terminator at the end of the string
           if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';
@@ -1114,7 +1094,74 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     if (DIR_IS_FILE_OR_SUBDIR(dir)) return n;
   }
 }
+#else
+  #include "..\longer\unicode2gbk.h"
+  int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) 
+  {
+  int16_t n;
+  unsigned short wTemp[3 * 13 + 1] ={0};
 
+  // if not a directory file or miss-positioned return an error
+  if (!isDir() || (0x1F & curPosition_)) return -1;
+
+  // If we have a longFilename buffer, mark it as invalid.
+  // If a long filename is found it will be filled automatically.
+  if (longFilename) longFilename[0] = '\0';
+  while (1) {
+
+    n = read(dir, sizeof(dir_t));
+    if (n != sizeof(dir_t)) {return n? -1 : 0;}
+
+    // last entry if DIR_NAME_FREE
+    if (dir->name[0] == DIR_NAME_FREE) {return 0;}
+
+    // skip deleted entry and entry for .  and ..
+    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.') {
+      if (longFilename) longFilename[0] = '\0';     // Invalidate erased file long name, if any
+      continue;
+    }
+
+    // Fill the long filename if we have a long filename entry.
+    // Long filename entries are stored before the short filename.
+    if (longFilename && DIR_IS_LONG_NAME(dir)) {
+      vfat_t* VFAT = (vfat_t*)dir;
+      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      if (VFAT->firstClusterLow == 0) {
+        const uint8_t seq = VFAT->sequenceNumber & 0x1F;
+      #if 1
+        if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
+
+          // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
+          n = (seq - 1) * (FILENAME_LENGTH);
+          for (uint8_t i = 0; i < FILENAME_LENGTH; i++){
+            wTemp[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+            //MYSERIAL0.println(w);
+          }
+          // If this VFAT entry is the last one, add a NUL terminator at the end of the string
+          if (VFAT->sequenceNumber & 0x40) wTemp[n + FILENAME_LENGTH] = 0;
+        }
+      #endif
+      }
+    }
+    // Return if normal file or subdirectory
+    if (DIR_IS_FILE_OR_SUBDIR(dir)) {
+      unsigned short w, *lfn;
+      int i = 0;
+      lfn = wTemp;
+      while ((w = *lfn++) != 0) {			/* Get an LFN char */
+				w = ff_convert(w, 0);			/* Unicode -> OEM conversion */
+				if (!w) { i = 0; break; }		/* Could not convert, no LFN */
+				if (w >= 0x100)		/* Put 1st byte if it is a DBC (always false on SBCS cfg) */
+					longFilename[i++] = (unsigned char)(w >> 8);
+				if (i >= LONG_FILENAME_LENGTH - 1) { i = 0; break; }	/* Buffer overflow, no LFN */
+				longFilename[i++] = (unsigned char)w;
+			}
+      longFilename[i] = '\0';	/* Terminate the LFN str by a \0 */
+      return n;
+      }
+  }
+}
+#endif
 
 // Read next directory entry into the cache
 // Assumes file is correctly positioned
@@ -1150,8 +1197,6 @@ dir_t* SdBaseFile::readDirCache() {
  * or an I/O error occurred.
  */
 bool SdBaseFile::remove() {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   dir_t* d;
   // free any clusters - will fail if read-only or directory
   if (!truncate(0)) return false;
@@ -1189,8 +1234,6 @@ bool SdBaseFile::remove() {
  * or an I/O error occurred.
  */
 bool SdBaseFile::remove(SdBaseFile* dirFile, const char* path) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   SdBaseFile file;
   return file.open(dirFile, path, O_WRITE) ? file.remove() : false;
 }
@@ -1206,8 +1249,6 @@ bool SdBaseFile::remove(SdBaseFile* dirFile, const char* path) {
  * file, newPath is invalid or already exists, or an I/O error occurs.
  */
 bool SdBaseFile::rename(SdBaseFile* dirFile, const char* newPath) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   dir_t entry;
   uint32_t dirCluster = 0;
   SdBaseFile file;
@@ -1300,8 +1341,6 @@ restore:
  * directory, is not empty, or an I/O error occurred.
  */
 bool SdBaseFile::rmdir() {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   // must be open subdirectory
   if (!isSubDir()) return false;
 
@@ -1340,8 +1379,6 @@ bool SdBaseFile::rmdir() {
  * \return true for success, false for failure.
  */
 bool SdBaseFile::rmRfStar() {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t index;
   SdBaseFile f;
   rewind();
@@ -1449,7 +1486,7 @@ void SdBaseFile::setpos(filepos_t* pos) {
  */
 bool SdBaseFile::sync() {
   // only allow open files and directories
-  if (ENABLED(SDCARD_READONLY) || !isOpen()) goto FAIL;
+  if (!isOpen()) goto FAIL;
 
   if (flags_ & F_FILE_DIR_DIRTY) {
     dir_t* d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
@@ -1549,8 +1586,6 @@ bool SdBaseFile::timestamp(SdBaseFile* file) {
  */
 bool SdBaseFile::timestamp(uint8_t flags, uint16_t year, uint8_t month,
                            uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint16_t dirDate, dirTime;
   dir_t* d;
 
@@ -1602,8 +1637,6 @@ bool SdBaseFile::timestamp(uint8_t flags, uint16_t year, uint8_t month,
  * \a length is greater than the current file size or an I/O error occurs.
  */
 bool SdBaseFile::truncate(uint32_t length) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t newPos;
   // error if not a normal file or read-only
   if (!isFile() || !(flags_ & O_WRITE)) return false;
@@ -1662,12 +1695,9 @@ bool SdBaseFile::truncate(uint32_t length) {
  * \a nbyte.  If an error occurs, write() returns -1.  Possible errors
  * include write() is called before a file has been opened, write is called
  * for a read-only file, device is full, a corrupt file system or an I/O error.
+ *
  */
 int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
-  #if ENABLED(SDCARD_READONLY)
-    writeError = true; return -1;
-  #endif
-
   // convert void* to uint8_t*  -  must be before goto statements
   const uint8_t* src = reinterpret_cast<const uint8_t*>(buf);
 

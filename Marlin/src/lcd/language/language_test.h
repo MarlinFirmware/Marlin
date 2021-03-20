@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,8 @@
  * TEST
  *
  * LCD Menu Messages
- * See also https://marlinfw.org/docs/development/lcd_language.html
+ * See also http://marlinfw.org/docs/development/lcd_language.html
+ *
  */
 
 // Select ONE of the following Mappers.
@@ -113,124 +114,114 @@
 #define STRG_OKTAL_e "\340\341\342\343\344\345\346\347\350\351\352\353\354\355\356\357"
 #define STRG_OKTAL_f "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
 
-namespace Language_test {
-  using namespace Language_en; // Inherit undefined strings from English
+#if ENABLED(DISPLAYTEST)
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  constexpr uint8_t    CHARSIZE                              = 1;
+  #define MSG_WATCH                           _UxGT("Display test")
+  #define MSG_PREPARE                         STRG_OKTAL_b
+  #define MSG_CONTROL                         STRG_OKTAL_c
+#endif
 
-  #if ENABLED(DISPLAYTEST)
-    PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
+#if ENABLED(WEST)
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Display test");
-    PROGMEM Language_Str MSG_PREPARE                         = STRG_OKTAL_b;
-    PROGMEM Language_Str MSG_CONTROL                         = STRG_OKTAL_c;
-  #endif
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  #if ENABLED(WEST)
-    PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
+  //#define MSG_MAIN                            _UxGT("..")
+  #define MSG_DISABLE_STEPPERS                STRG_C2_8
+  #define MSG_AUTO_HOME                       STRG_C2_9
+  #define MSG_SET_HOME_OFFSETS                STRG_C2_a
+  #define MSG_PREHEAT_1                       STRG_C2_b
+  #define MSG_PREHEAT_2                       STRG_C3_8
+  #define MSG_COOLDOWN                        STRG_C3_9
+  #define MSG_SWITCH_PS_OFF                   STRG_C3_a
+  #define MSG_MOVE_AXIS                       STRG_C3_b
 
-    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
-    PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
-    PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
+  #define MSG_MAIN                            STRG_OKTAL_2
+  #define MSG_TEMPERATURE                     STRG_OKTAL_3
+  #define MSG_MOTION                          STRG_OKTAL_4
+  #define MSG_FILAMENT                        STRG_OKTAL_5
+  #define MSG_CONTRAST                        STRG_OKTAL_6
+  #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 
-    PROGMEM Language_Str MSG_MAIN                            = _UxGT("..");
-    PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_C2_8;
-    PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_C2_9;
-    PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_C2_a;
-    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_C2_b;
-    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_C3_8;
-    PROGMEM Language_Str MSG_COOLDOWN                        = STRG_C3_9;
-    PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_C3_a;
-    PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_C3_b;
+  #define MSG_NOZZLE                          STRG_OKTAL_8
+  #define MSG_FAN_SPEED                       STRG_OKTAL_9
+  #define MSG_AUTOTEMP                        STRG_OKTAL_a
+  #define MSG_MIN                             STRG_OKTAL_b
+  #define MSG_MAX                             STRG_OKTAL_c
+  #define MSG_FACTOR                          STRG_OKTAL_d
+  #define MSG_PID_P                           STRG_OKTAL_e
+  #define MSG_PID_I                           STRG_OKTAL_f
 
-    PROGMEM Language_Str MSG_MAIN                            = STRG_OKTAL_2;
-    PROGMEM Language_Str MSG_TEMPERATURE                     = STRG_OKTAL_3;
-    PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
-    PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
-    PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
+#endif
 
-    PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
-    PROGMEM Language_Str MSG_FAN_SPEED                       = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
-    PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
-    PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
-    PROGMEM Language_Str MSG_FACTOR                          = STRG_OKTAL_d;
-    PROGMEM Language_Str MSG_PID_P                           = STRG_OKTAL_e;
-    PROGMEM Language_Str MSG_PID_I                           = STRG_OKTAL_f;
+#if ENABLED(CYRIL)
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #endif
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  #if ENABLED(CYRIL)
-    PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
+  //#define MSG_MAIN                            _UxGT("..")
+  #define MSG_DISABLE_STEPPERS                STRG_D0_8
+  #define MSG_AUTO_HOME                       STRG_D0_9
+  #define MSG_SET_HOME_OFFSETS                STRG_D0_a
+  #define MSG_PREHEAT_1                       STRG_D0_b
+  #define MSG_PREHEAT_2                       STRG_D1_8
+  #define MSG_COOLDOWN                        STRG_D1_9
+  #define MSG_SWITCH_PS_OFF                   STRG_D1_a
+  #define MSG_MOVE_AXIS                       STRG_D1_b
 
-    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
-    PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
-    PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
+  #define MSG_MAIN                            STRG_OKTAL_2
+  #define MSG_TEMPERATURE                     STRG_OKTAL_3
+  #define MSG_MOTION                          STRG_OKTAL_4
+  #define MSG_FILAMENT                        STRG_OKTAL_5
+  #define MSG_CONTRAST                        STRG_OKTAL_6
+  #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 
-    PROGMEM Language_Str MSG_MAIN                            = _UxGT("..");
-    PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_D0_8;
-    PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_D0_9;
-    PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_D0_a;
-    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_D0_b;
-    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_D1_8;
-    PROGMEM Language_Str MSG_COOLDOWN                        = STRG_D1_9;
-    PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_D1_a;
-    PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_D1_b;
+  #define MSG_NOZZLE                          STRG_OKTAL_8
+  #define MSG_FAN_SPEED                       STRG_OKTAL_9
+  #define MSG_AUTOTEMP                        STRG_OKTAL_a
+  #define MSG_MIN                             STRG_OKTAL_b
+  #define MSG_MAX                             STRG_OKTAL_c
+  #define MSG_FACTOR                          STRG_OKTAL_d
+  #define MSG_PID_P                           STRG_OKTAL_e
+  #define MSG_PID_I                           STRG_OKTAL_f
 
-    PROGMEM Language_Str MSG_MAIN                            = STRG_OKTAL_2;
-    PROGMEM Language_Str MSG_TEMPERATURE                     = STRG_OKTAL_3;
-    PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
-    PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
-    PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
+#endif
 
-    PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
-    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
-    PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
-    PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
-    PROGMEM Language_Str MSG_FACTOR                          = STRG_OKTAL_d;
-    PROGMEM Language_Str MSG_PID_P                           = STRG_OKTAL_e;
-    PROGMEM Language_Str MSG_PID_I                           = STRG_OKTAL_f;
+#if ENABLED(KANA)
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #endif
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  #if ENABLED(KANA)
-    PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
+  //#define MSG_MAIN                            _UxGT("..")
+  #define MSG_DISABLE_STEPPERS                STRG_E382_8
+  #define MSG_AUTO_HOME                       STRG_E382_9
+  #define MSG_SET_HOME_OFFSETS                STRG_E382_a
+  #define MSG_PREHEAT_1                       STRG_E382_b
+  #define MSG_PREHEAT_2                       STRG_E383_8
+  #define MSG_COOLDOWN                        STRG_E383_9
+  #define MSG_SWITCH_PS_OFF                   STRG_E383_a
+  #define MSG_MOVE_AXIS                       STRG_E383_b
 
-    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
-    PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
-    PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
+  #define MSG_MAIN                            STRG_OKTAL_2
+  #define MSG_TEMPERATURE                     STRG_OKTAL_3
+  #define MSG_MOTION                          STRG_OKTAL_4
+  #define MSG_FILAMENT                        STRG_OKTAL_5
+  #define MSG_CONTRAST                        STRG_OKTAL_6
+  #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
 
-    PROGMEM Language_Str MSG_MAIN                            = _UxGT("..");
-    PROGMEM Language_Str MSG_DISABLE_STEPPERS                = STRG_E382_8;
-    PROGMEM Language_Str MSG_AUTO_HOME                       = STRG_E382_9;
-    PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = STRG_E382_a;
-    PROGMEM Language_Str MSG_PREHEAT_1                       = STRG_E382_b;
-    PROGMEM Language_Str MSG_PREHEAT_2                       = STRG_E383_8;
-    PROGMEM Language_Str MSG_COOLDOWN                        = STRG_E383_9;
-    PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = STRG_E383_a;
-    PROGMEM Language_Str MSG_MOVE_AXIS                       = STRG_E383_b;
-
-    PROGMEM Language_Str MSG_MAIN                            = STRG_OKTAL_2;
-    PROGMEM Language_Str MSG_TEMPERATURE                     = STRG_OKTAL_3;
-    PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
-    PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
-    PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
-
-    PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
-    PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
-    PROGMEM Language_Str MSG_FAN_SPEED_N                     = STRG_OKTAL_9;
-    PROGMEM Language_Str MSG_AUTOTEMP                        = STRG_OKTAL_a;
-    PROGMEM Language_Str MSG_MIN                             = STRG_OKTAL_b;
-    PROGMEM Language_Str MSG_MAX                             = STRG_OKTAL_c;
-    PROGMEM Language_Str MSG_FACTOR                          = STRG_OKTAL_d;
-    PROGMEM Language_Str MSG_PID_P                           = STRG_OKTAL_e;
-    PROGMEM Language_Str MSG_PID_I                           = STRG_OKTAL_f;
-  #endif
-}
+  #define MSG_NOZZLE                          STRG_OKTAL_8
+  #define MSG_FAN_SPEED                       STRG_OKTAL_9
+  #define MSG_AUTOTEMP                        STRG_OKTAL_a
+  #define MSG_MIN                             STRG_OKTAL_b
+  #define MSG_MAX                             STRG_OKTAL_c
+  #define MSG_FACTOR                          STRG_OKTAL_d
+  #define MSG_PID_P                           STRG_OKTAL_e
+  #define MSG_PID_I                           STRG_OKTAL_f
+#endif

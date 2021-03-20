@@ -14,6 +14,7 @@
         "0x3748"
       ]
     ],
+    "ldscript": "stm32f407xe.ld",
     "mcu": "stm32f407vet6",
     "variant": "MARLIN_F407VE"
   },
@@ -59,6 +60,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f407ve.html",
+  "url": "http://www.st.com/en/microcontrollers/stm32f407ve.html",
   "vendor": "Generic"
 }

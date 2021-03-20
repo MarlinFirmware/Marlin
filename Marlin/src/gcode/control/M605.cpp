@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -79,9 +79,9 @@
         }
         mirrored_duplication_mode = true;
         stepper.set_directions();
-        float x_jog = current_position.x - .1;
+        float x_jog = current_position[X_AXIS] - .1;
         for (uint8_t i = 2; --i;) {
-          planner.buffer_line(x_jog, current_position.y, current_position.z, current_position.e, feedrate_mm_s, 0);
+          planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
           x_jog += .1;
         }
         return;
@@ -92,10 +92,8 @@
         case DXC_AUTO_PARK_MODE:
           break;
         case DXC_DUPLICATION_MODE:
-          // Set the X offset, but no less than the safety gap
-          if (parser.seen('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
+          if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
           if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
-          // Always switch back to tool 0
           if (active_extruder != 0) tool_change(0);
           break;
         default:
@@ -124,7 +122,7 @@
         DEBUG_ECHOPAIR("\nActive Ext: ", int(active_extruder));
         if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
         DEBUG_ECHOPGM(" parked.");
-        DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position.x);
+        DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position[X_AXIS]);
         DEBUG_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
         DEBUG_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
         DEBUG_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
@@ -134,13 +132,13 @@
         DEBUG_ECHOPAIR("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", int(X2_MIN_POS), "\nX2_MAX_POS=", int(X2_MAX_POS));
         DEBUG_ECHOPAIR("\nX2_HOME_DIR=", int(X2_HOME_DIR), "\nX2_HOME_POS=", int(X2_HOME_POS));
         DEBUG_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
-        DEBUG_ECHOPAIR("\toolchange_settings.z_raise=", toolchange_settings.z_raise);
+        DEBUG_ECHOPAIR("\nTOOLCHANGE_ZRAISE=", float(TOOLCHANGE_ZRAISE));
         DEBUG_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", int(DEFAULT_DUPLICATION_X_OFFSET));
         DEBUG_EOL();
 
         HOTEND_LOOP() {
-          DEBUG_ECHOPAIR_P(SP_T_STR, int(e));
-          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", int(e), "].", XYZ_CHAR(a) | 0x20, "=", hotend_offset[e][a]);
+          DEBUG_ECHOPAIR(" nozzle:", int(e));
+          LOOP_XYZ(j) DEBUG_ECHOPAIR("  hotend_offset[", axis_codes[j], "_AXIS][", int(e), "]=", hotend_offset[j][e]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
@@ -160,16 +158,15 @@
    *             A value of 0 disables duplication.
    */
   void GcodeSuite::M605() {
-    bool ena = false;
     if (parser.seen("EPS")) {
       planner.synchronize();
       if (parser.seenval('P')) duplication_e_mask = parser.value_int();   // Set the mask directly
-      else if (parser.seenval('E')) duplication_e_mask = pow(2, parser.value_int() + 1) - 1; // Set the mask by E index
-      ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
+      else if (parser.seenval('E')) duplication_e_mask = pow(2, e + 1) - 1;    // Set the mask by E index
+      const bool ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
       extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
     }
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(STR_DUPLICATION_MODE);
+    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
     serialprint_onoff(extruder_duplication_enabled);
     if (ena) {
       SERIAL_ECHOPGM(" ( ");

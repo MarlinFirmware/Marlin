@@ -1,0 +1,101 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#ifdef __PLAT_LINUX__
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(EEPROM_SETTINGS)
+
+#include "../shared/persistent_store_api.h"
+#include <stdio.h>
+
+uint8_t buffer[E2END];
+char filename[] = "eeprom.dat";
+
+bool PersistentStore::access_start() {
+  const char eeprom_erase_value = 0xFF;
+  FILE * eeprom_file = fopen(filename, "rb");
+  if (eeprom_file == nullptr) return false;
+
+  fseek(eeprom_file, 0L, SEEK_END);
+  std::size_t file_size = ftell(eeprom_file);
+
+  if (file_size < E2END) {
+    memset(buffer + file_size, eeprom_erase_value, E2END - file_size);
+  }
+  else {
+    fseek(eeprom_file, 0L, SEEK_SET);
+    fread(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
+  }
+
+  fclose(eeprom_file);
+  return true;
+}
+
+bool PersistentStore::access_finish() {
+  FILE * eeprom_file = fopen(filename, "wb");
+  if (eeprom_file == nullptr) return false;
+  fwrite(buffer, sizeof(uint8_t), sizeof(buffer), eeprom_file);
+  fclose(eeprom_file);
+  return true;
+}
+
+bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+  std::size_t bytes_written = 0;
+
+  for (std::size_t i = 0; i < size; i++) {
+    buffer[pos+i] = value[i];
+    bytes_written ++;
+  }
+
+  crc16(crc, value, size);
+  pos = pos + size;
+  return (bytes_written != size);  // return true for any error
+}
+
+bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+  std::size_t bytes_read = 0;
+  if (writing) {
+    for (std::size_t i = 0; i < size; i++) {
+      value[i] = buffer[pos+i];
+      bytes_read ++;
+    }
+    crc16(crc, value, size);
+  }
+  else {
+    uint8_t temp[size];
+    for (std::size_t i = 0; i < size; i++) {
+      temp[i] = buffer[pos+i];
+      bytes_read ++;
+    }
+    crc16(crc, temp, size);
+  }
+
+  pos = pos + size;
+  return bytes_read != size;  // return true for any error
+}
+
+size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
+
+#endif // EEPROM_SETTINGS
+#endif // __PLAT_LINUX__

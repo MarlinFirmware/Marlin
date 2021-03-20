@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
  * Arduino Sd2Card Library
- * Copyright (c) 2009 by William Greiman
+ * Copyright (C) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
@@ -39,7 +39,7 @@
 // Version 3.01
 // May 18, 2010
 //
-// https://www.sdcard.org/downloads/pls/index.html
+// http://www.sdcard.org/developers/tech/sdcard/pls/simplified_specs
 
 // SD card commands
 uint8_t const CMD0 = 0x00,    // GO_IDLE_STATE - init card in spi mode if CS low

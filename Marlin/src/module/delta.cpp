@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -35,7 +35,7 @@
 #include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
-#include "../MarlinCore.h"
+#include "../Marlin.h"
 
 #if HAS_BED_PROBE
   #include "probe.h"
@@ -43,23 +43,24 @@
 
 #if ENABLED(SENSORLESS_HOMING)
   #include "../feature/tmc_util.h"
-  #include "stepper/indirection.h"
+  #include "stepper_indirection.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
 // Initialized by settings.load()
-float delta_height;
-abc_float_t delta_endstop_adj{0};
-float delta_radius,
+float delta_height,
+      delta_endstop_adj[ABC] = { 0 },
+      delta_radius,
       delta_diagonal_rod,
-      delta_segments_per_second;
-abc_float_t delta_tower_angle_trim;
-xy_float_t delta_tower[ABC];
-abc_float_t delta_diagonal_rod_2_tower;
-float delta_clip_start_height = Z_MAX_POS;
-abc_float_t delta_diagonal_rod_trim;
+      delta_segments_per_second,
+      delta_calibration_radius,
+      delta_tower_angle_trim[ABC];
+
+float delta_tower[ABC][2],
+      delta_diagonal_rod_2_tower[ABC],
+      delta_clip_start_height = Z_MAX_POS;
 
 float delta_safe_distance_from_top();
 
@@ -68,41 +69,20 @@ float delta_safe_distance_from_top();
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings() {
-  constexpr abc_float_t trt = DELTA_RADIUS_TRIM_TOWER;
-  delta_tower[A_AXIS].set(cos(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a), // front left tower
-                          sin(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a));
-  delta_tower[B_AXIS].set(cos(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b), // front right tower
-                          sin(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b));
-  delta_tower[C_AXIS].set(cos(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c), // back middle tower
-                          sin(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c));
-  delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + delta_diagonal_rod_trim.a),
-                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.b),
-                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.c));
+  const float trt[ABC] = DELTA_RADIUS_TRIM_TOWER,
+              drt[ABC] = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+  delta_tower[A_AXIS][X_AXIS] = cos(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]); // front left tower
+  delta_tower[A_AXIS][Y_AXIS] = sin(RADIANS(210 + delta_tower_angle_trim[A_AXIS])) * (delta_radius + trt[A_AXIS]);
+  delta_tower[B_AXIS][X_AXIS] = cos(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]); // front right tower
+  delta_tower[B_AXIS][Y_AXIS] = sin(RADIANS(330 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + trt[B_AXIS]);
+  delta_tower[C_AXIS][X_AXIS] = cos(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]); // back middle tower
+  delta_tower[C_AXIS][Y_AXIS] = sin(RADIANS( 90 + delta_tower_angle_trim[C_AXIS])) * (delta_radius + trt[C_AXIS]);
+  delta_diagonal_rod_2_tower[A_AXIS] = sq(delta_diagonal_rod + drt[A_AXIS]);
+  delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
+  delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
 }
-
-/**
- * Get a safe radius for calibration
- */
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
-    float calibration_radius_factor = 1;
-  #endif
-
-  float delta_calibration_radius() {
-    return calibration_radius_factor * (
-      #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
-      #else
-        DELTA_PRINTABLE_RADIUS
-      #endif
-    );
-  }
-
-#endif
 
 /**
  * Delta Inverse Kinematics
@@ -121,16 +101,22 @@ void recalc_delta_settings() {
  */
 
 #define DELTA_DEBUG(VAR) do { \
-    SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
-    SERIAL_ECHOLNPAIR_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
+    SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \
+    SERIAL_ECHOPAIR(" Y:", VAR[Y_AXIS]);          \
+    SERIAL_ECHOLNPAIR(" Z:", VAR[Z_AXIS]);        \
+    SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
+    SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
+    SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
   }while(0)
 
-void inverse_kinematics(const xyz_pos_t &raw) {
+void inverse_kinematics(const float (&raw)[XYZ]) {
   #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
-    xyz_pos_t pos = { raw.x - hotend_offset[active_extruder].x,
-                      raw.y - hotend_offset[active_extruder].y,
-                      raw.z };
+    const float pos[XYZ] = {
+      raw[X_AXIS] - hotend_offset[X_AXIS][active_extruder],
+      raw[Y_AXIS] - hotend_offset[Y_AXIS][active_extruder],
+      raw[Z_AXIS]
+    };
     DELTA_IK(pos);
     //DELTA_DEBUG(pos);
   #else
@@ -144,12 +130,12 @@ void inverse_kinematics(const xyz_pos_t &raw) {
  * effector has the full range of XY motion.
  */
 float delta_safe_distance_from_top() {
-  xyz_pos_t cartesian{0};
+  float cartesian[XYZ] = { 0, 0, 0 };
   inverse_kinematics(cartesian);
-  const float centered_extent = delta.a;
-  cartesian.y = DELTA_PRINTABLE_RADIUS;
+  float centered_extent = delta[A_AXIS];
+  cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
-  return ABS(centered_extent - delta.a);
+  return ABS(centered_extent - delta[A_AXIS]);
 }
 
 /**
@@ -179,7 +165,7 @@ float delta_safe_distance_from_top() {
  */
 void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3) {
   // Create a vector in old coordinates along x axis of new coordinate
-  const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
+  const float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 },
 
   // Get the reciprocal of Magnitude of vector.
   d2 = sq(p12[0]) + sq(p12[1]) + sq(p12[2]), inv_d = RSQRT(d2),
@@ -188,7 +174,7 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
   ex[3] = { p12[0] * inv_d, p12[1] * inv_d, p12[2] * inv_d },
 
   // Get the vector from the origin of the new system to the third point.
-  p13[3] = { delta_tower[C_AXIS].x - delta_tower[A_AXIS].x, delta_tower[C_AXIS].y - delta_tower[A_AXIS].y, z3 - z1 },
+  p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 },
 
   // Use the dot product to find the component of this vector on the X axis.
   i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2],
@@ -216,16 +202,16 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
 
   // We now have the d, i and j values defined in Wikipedia.
   // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
-  Xnew = (delta_diagonal_rod_2_tower.a - delta_diagonal_rod_2_tower.b + d2) * inv_d * 0.5,
-  Ynew = ((delta_diagonal_rod_2_tower.a - delta_diagonal_rod_2_tower.c + sq(i) + j2) * 0.5 - i * Xnew) * inv_j,
-  Znew = SQRT(delta_diagonal_rod_2_tower.a - HYPOT2(Xnew, Ynew));
+  Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + d2) * inv_d * 0.5,
+  Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + sq(i) + j2) * 0.5 - i * Xnew) * inv_j,
+  Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
 
   // Start from the origin of the old coordinates and add vectors in the
   // old coords that represent the Xnew, Ynew and Znew to find the point
   // in the old system.
-  cartes.set(delta_tower[A_AXIS].x + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew,
-             delta_tower[A_AXIS].y + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew,
-                                z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew);
+  cartes[X_AXIS] = delta_tower[A_AXIS][X_AXIS] + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew;
+  cartes[Y_AXIS] = delta_tower[A_AXIS][Y_AXIS] + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew;
+  cartes[Z_AXIS] =                          z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
 }
 
 /**
@@ -233,30 +219,34 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
  * This is like quick_home_xy() but for 3 towers.
  */
 void home_delta() {
-  DEBUG_SECTION(log_home_delta, "home_delta", DEBUGGING(LEVELING));
-
+  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
   // Init the current position of all carriages to 0,0,0
-  current_position.reset();
-  destination.reset();
+  ZERO(current_position);
+  ZERO(destination);
   sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-  TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-  TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-  TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+    sensorless_t stealth_states { false, false, false, false, false, false, false };
+    stealth_states.x = tmc_enable_stallguard(stepperX);
+    stealth_states.y = tmc_enable_stallguard(stepperY);
+    stealth_states.z = tmc_enable_stallguard(stepperZ);
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position.z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
-  line_to_current_position(homing_feedrate(Z_AXIS));
+  destination[Z_AXIS] = (delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset
+    #endif
+    + 10);
+  buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-  TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-  TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-  TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+    tmc_disable_stallguard(stepperX, stealth_states.x);
+    tmc_disable_stallguard(stepperY, stealth_states.y);
+    tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
   endstops.validate_homing_move();
@@ -275,13 +265,7 @@ void home_delta() {
 
   sync_plan_position();
 
-  #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_POST_MM)
-    constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
-    if (endstop_backoff.z) {
-      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
-      line_to_current_position(homing_feedrate(Z_AXIS));
-    }
-  #endif
+  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }
 
 #endif // DELTA

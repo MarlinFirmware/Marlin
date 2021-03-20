@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,17 +26,9 @@
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 
-#if ENABLED(CREALITY_TOUCH)
-  #define STOW_ALARM         false
-  #define BLTOUCH_DEPLOY       170
-  #define BLTOUCH_STOW          20
-#else
-  #define STOW_ALARM          true
-  #define BLTOUCH_DEPLOY        10
-  #define BLTOUCH_STOW          90
-#endif
-
+#define BLTOUCH_DEPLOY          10
 #define BLTOUCH_SW_MODE         60
+#define BLTOUCH_STOW            90
 #define BLTOUCH_SELFTEST       120
 #define BLTOUCH_MODE_STORE     130
 #define BLTOUCH_5V_MODE        140
@@ -44,22 +36,24 @@ typedef unsigned char BLTCommand;
 #define BLTOUCH_RESET          160
 
 /**
- * The following commands require different minimum delays.
+ * The following commands may require different delays.
  *
- * 500ms required for a reliable Reset.
+ * ANTClabs recommends 2000ms for 5V/OD commands. However it is
+ * not common for other commands to immediately follow these,
+ * and testing has shown that these complete in 500ms reliably.
  *
- * 750ms required for Deploy/Stow, otherwise the alarm state
- *       will not be seen until the following move command.
+ * AntClabs recommends 750ms for Deploy/Stow, otherwise you will
+ * not catch an alarm state until the following move command.
  */
 
 #ifndef BLTOUCH_SET5V_DELAY
-  #define BLTOUCH_SET5V_DELAY   150
+  #define BLTOUCH_SET5V_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_SETOD_DELAY
-  #define BLTOUCH_SETOD_DELAY   150
+  #define BLTOUCH_SETOD_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_MODE_STORE_DELAY
-  #define BLTOUCH_MODE_STORE_DELAY 150
+  #define BLTOUCH_MODE_STORE_DELAY   BLTOUCH_DELAY
 #endif
 #ifndef BLTOUCH_DEPLOY_DELAY
   #define BLTOUCH_DEPLOY_DELAY   750
@@ -68,13 +62,13 @@ typedef unsigned char BLTCommand;
   #define BLTOUCH_STOW_DELAY     750
 #endif
 #ifndef BLTOUCH_RESET_DELAY
-  #define BLTOUCH_RESET_DELAY    500
+  #define BLTOUCH_RESET_DELAY    BLTOUCH_DELAY
 #endif
 
 class BLTouch {
 public:
-  static void init(const bool set_voltage=false);
-  static bool last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+  static bool triggered();         // used by menu_advanced.cpp
+  static void init();              // used by main.cpp
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   FORCE_INLINE static bool deploy()              { return deploy_proc(); }
@@ -96,21 +90,18 @@ public:
   FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
   FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
-  FORCE_INLINE static void mode_conv_5V()        { mode_conv_proc(true); }
-  FORCE_INLINE static void mode_conv_OD()        { mode_conv_proc(false); }
-
-  static bool triggered();
-
 private:
   FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
+  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);
   static bool deploy_proc();
   static bool stow_proc();
   static bool status_proc();
-  static void mode_conv_proc(const bool M5V);
 };
+
+// Deploy/stow angles for use by servo.cpp / servo.h
+#define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
 extern BLTouch bltouch;

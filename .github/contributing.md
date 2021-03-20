@@ -34,15 +34,16 @@ This project and everyone participating in it is governed by the [Marlin Code of
 
 We have a Message Board and a Facebook group where our knowledgable user community can provide helpful advice if you have questions.
 
-* [Marlin RepRap forum](https://reprap.org/forum/list.php?415)
+* [Marlin RepRap forum](http://forums.reprap.org/list.php?415)
 * [MarlinFirmware on Facebook](https://www.facebook.com/groups/1049718498464482/)
 
-If chat is more your speed, you can join the MarlinFirmware Discord server:
+If chat is more your speed, you can join the MarlinFirmware Slack team:
 
-* Use the link https://discord.gg/n5NJ59y to join up as a General User.
-* Even though our Discord is pretty active, it may take a while for community members to respond &mdash; please be patient!
-* Use the `#general` channel for general questions or discussion about Marlin.
-* Other channels exist for certain topics or are limited to Patrons. Check the channel list.
+* Join the Marlin Slack Team
+  * To obtain group access, please [send a request](http://www.thinkyhead.com/contact/9) to @thinkyhead.
+  * Even though Slack is a chat service, sometimes it takes several hours for community members to respond &mdash; please be patient!
+  * Use the `#general` channel for general questions or discussion about Marlin.
+  * Other channels exist for certain topics. Check the channel list.
 
 ## How Can I Contribute?
 
@@ -92,7 +93,7 @@ Before creating a suggestion, please check [this list](#before-submitting-a-sugg
 
 #### Before Submitting a Feature Request
 
-* **Check the [Marlin website](https://marlinfw.org/)** for tips — you might discover that the feature is already included. Most importantly, check if you're using [the latest version of Marlin](https://github.com/MarlinFirmware/Marlin/releases) and if you can get the desired behavior by changing [Marlin's config settings](https://marlinfw.org/docs/configuration/configuration.html).
+* **Check the [Marlin website](http://marlinfw.org/)** for tips — you might discover that the feature is already included. Most importantly, check if you're using [the latest version of Marlin](https://github.com/MarlinFirmware/Marlin/releases) and if you can get the desired behavior by changing [Marlin's config settings](http://marlinfw.org/docs/configuration/configuration.html).
 * **Perform a [cursory search](https://github.com/MarlinFirmware/Marlin/issues?q=is%3Aissue)** to see if the enhancement has already been suggested. If it has, add a comment to the existing issue instead of opening a new one.
 
 #### How Do I Submit A (Good) Feature Request?
@@ -116,12 +117,12 @@ Unsure where to begin contributing to Marlin? You can start by looking through t
 
 ### Pull Requests
 
-Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x` and/or `bugfix-2.0.x`) and never to release branches (e.g., `1.1.x`). If this is your first Pull Request, please read our [Guide to Pull Requests](https://marlinfw.org/docs/development/getting_started_pull_requests.html) and Github's [Pull Request](https://help.github.com/articles/creating-a-pull-request/) documentation.
+Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x` and/or `bugfix-2.0.x`) and never to release branches (e.g., `1.1.x`). If this is your first Pull Request, please read our [Guide to Pull Requests](http://marlinfw.org/docs/development/getting_started_pull_requests.html) and Github's [Pull Request](https://help.github.com/articles/creating-a-pull-request/) documentation.
 
 * Fill in [the required template](pull_request_template.md).
 * Don't include issue numbers in the PR title.
 * Include pictures, diagrams, and links to videos in your Pull Request to demonstrate your changes, if needed.
-* Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) posted on our website.
+* Follow the [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) posted on our website.
 * Document new code with clear and concise comments.
 * End all files with a newline.
 
@@ -136,7 +137,7 @@ Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x
 
 ### C++ Coding Standards
 
-* Please read and follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) posted on our website. Failure to follow these guidelines will delay evaluation and acceptance of Pull Requests.
+* Please read and follow the [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) posted on our website. Failure to follow these guidelines will delay evaluation and acceptance of Pull Requests.
 
 ### Documentation
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -66,7 +66,7 @@
      * @return value read
      */
     FORCE_INLINE static bool fastDigitalRead(uint8_t pin) {
-      return digitalRead(pin);
+      return g_APinDescription[pin].pPort->PIO_PDSR & g_APinDescription[pin].ulPin;
     }
 
     /**
@@ -75,7 +75,10 @@
      * @param[in] level value to write
      */
     FORCE_INLINE static void fastDigitalWrite(uint8_t pin, bool value) {
-      digitalWrite(pin, value);
+      if (value)
+        g_APinDescription[pin].pPort->PIO_SODR = g_APinDescription[pin].ulPin;
+      else
+        g_APinDescription[pin].pPort->PIO_CODR = g_APinDescription[pin].ulPin;
     }
 
   #endif // !CORE_TEENSY
@@ -472,7 +475,7 @@
   static constexpr uint8_t digitalPinCount = sizeof(pinMap) / sizeof(pin_map_t);
 
   /** generate bad pin number error */
-  void badPinNumber()
+  void badPinNumber(void)
     __attribute__((error("Pin number is too large or not a constant")));
 
   /**

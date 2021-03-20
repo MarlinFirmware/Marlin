@@ -4,7 +4,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://www.mozilla.org/en-US/MPL/2.0/
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * This library was modified, some bugs fixed, stack address validated
  * and adapted to be used in Marlin 3D printer firmware as backtracer
@@ -23,9 +23,9 @@ extern "C" const UnwTabEntry __exidx_start[];
 extern "C" const UnwTabEntry __exidx_end[];
 
 /* This prevents the linking of libgcc unwinder code */
-void __aeabi_unwind_cpp_pr0() {};
-void __aeabi_unwind_cpp_pr1() {};
-void __aeabi_unwind_cpp_pr2() {};
+void __aeabi_unwind_cpp_pr0(void) {};
+void __aeabi_unwind_cpp_pr1(void) {};
+void __aeabi_unwind_cpp_pr2(void) {};
 
 static inline __attribute__((always_inline)) uint32_t prel31_to_addr(const uint32_t *prel31) {
   uint32_t offset = (((uint32_t)(*prel31)) << 1) >> 1;
@@ -285,7 +285,7 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
   return UNWIND_SUCCESS;
 }
 
-static inline __attribute__((always_inline)) uint32_t read_psp() {
+static inline __attribute__((always_inline)) uint32_t read_psp(void) {
 
   /* Read the current PSP and return its value as a pointer */
   uint32_t psp;

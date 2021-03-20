@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,7 +42,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // private:
 
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
   bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
 #endif
 
@@ -60,7 +60,9 @@ float FWRetract::current_retract[EXTRUDERS],          // Retract value used by p
       FWRetract::current_hop;
 
 void FWRetract::reset() {
-  TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    autoretract_enabled = false;
+  #endif
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zraise = RETRACT_ZRAISE;
@@ -71,9 +73,11 @@ void FWRetract::reset() {
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
-  LOOP_L_N(i, EXTRUDERS) {
+  for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
-    TERN_(HAS_MULTI_EXTRUDER, retracted_swap[i] = false);
+    #if EXTRUDERS > 1
+      retracted_swap[i] = false;
+    #endif
     current_retract[i] = 0.0;
   }
 }
@@ -90,15 +94,15 @@ void FWRetract::reset() {
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
 void FWRetract::retract(const bool retracting
-  #if HAS_MULTI_EXTRUDER
-    , bool swapping/*=false*/
+  #if EXTRUDERS > 1
+    , bool swapping /* =false */
   #endif
 ) {
   // Prevent two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
 
   // Prevent two swap-retract or recovers in a row
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     // Allow G10 S1 only after G11
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
@@ -113,72 +117,90 @@ void FWRetract::retract(const bool retracting
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
-    LOOP_L_N(i, EXTRUDERS) {
+    for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
-      #if HAS_MULTI_EXTRUDER
+      #if EXTRUDERS > 1
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPAIR("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
+    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
-  const float base_retract = TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
-                * (swapping ? settings.swap_retract_length : settings.retract_length);
+  const float old_feedrate_mm_s = feedrate_mm_s,
+              unscale_e = RECIPROCAL(planner.e_factor[active_extruder]),
+              unscale_fr = 100.0 / feedrate_percentage, // Disable feedrate scaling for retract moves
+              base_retract = (
+                (swapping ? settings.swap_retract_length : settings.retract_length)
+                #if ENABLED(RETRACT_SYNC_MIXING)
+                  * (MIXING_STEPPERS)
+                #endif
+              );
 
   // The current position will be the destination for E and Z moves
-  destination = current_position;
+  set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
-  const feedRate_t fr_max_z = planner.settings.max_feedrate_mm_s[Z_AXIS];
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
-    current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                 // set current to destination
-      settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
+    feedrate_mm_s = (
+      settings.retract_feedrate_mm_s * unscale_fr
+      #if ENABLED(RETRACT_SYNC_MIXING)
+        * (MIXING_STEPPERS)
+      #endif
     );
+    current_retract[active_extruder] = base_retract * unscale_e;
+    prepare_move_to_destination();                        // set_current_to_destination
+    planner.synchronize();                                // Wait for move to complete
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (!current_hop && settings.retract_zraise > 0.01f) {  // Apply hop only once
-      current_hop += settings.retract_zraise;               // Add to the hop total (again, only once)
-      // Raise up, set_current_to_destination. Maximum Z feedrate
-      prepare_internal_move_to_destination(fr_max_z);
+    if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
+      current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
+      prepare_move_to_destination();                      // Raise up, set_current_to_destination
+      planner.synchronize();                              // Wait for move to complete
     }
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
-      current_hop = 0;
-      // Lower Z, set_current_to_destination. Maximum Z feedrate
-      prepare_internal_move_to_destination(fr_max_z);
+      current_hop = 0.0;
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
+      prepare_move_to_destination();                      // Lower Z, set_current_to_destination
+      planner.synchronize();                              // Wait for move to complete
     }
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
-    if (extra_recover) {
-      current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
+    if (extra_recover != 0.0) {
+      current_position[E_AXIS] -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 
-    current_retract[active_extruder] = 0;
-
-    // Recover E, set_current_to_destination
-    prepare_internal_move_to_destination(
-      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
-      * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
+    current_retract[active_extruder] = 0.0;
+    feedrate_mm_s = (
+      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s) * unscale_fr
+      #if ENABLED(RETRACT_SYNC_MIXING)
+        * (MIXING_STEPPERS)
+      #endif
     );
+    prepare_move_to_destination();                        // Recover E, set_current_to_destination
+    planner.synchronize();                                // Wait for move to complete
   }
 
-  TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
+  #if ENABLED(RETRACT_SYNC_MIXING)
+    mixer.T(old_mixing_tool);                             // Restore original mixing tool
+  #endif
 
+  feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     if (swapping) retracted_swap[active_extruder] = retracting;
   #endif
 
@@ -186,14 +208,14 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("retracting ", retracting);
     SERIAL_ECHOLNPAIR("swapping ", swapping);
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
-    LOOP_L_N(i, EXTRUDERS) {
+    for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
-      #if HAS_MULTI_EXTRUDER
+      #if EXTRUDERS > 1
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPAIR("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
+    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 }

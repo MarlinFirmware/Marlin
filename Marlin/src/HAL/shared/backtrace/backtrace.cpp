@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#if defined(__arm__) || defined(__thumb__)
 
 #include "backtrace.h"
+
+#if defined(__arm__) || defined(__thumb__)
+
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
@@ -34,7 +36,7 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 
   (*p)++;
 
-  SERIAL_CHAR('#'); SERIAL_PRINT(*p, DEC); SERIAL_ECHOPGM(" : ");
+  SERIAL_CHAR('#'); SERIAL_PRINT(*p,DEC); SERIAL_ECHOPGM(" : ");
   SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, HEX);
   SERIAL_CHAR('+'); SERIAL_PRINT(bte->address - bte->function,DEC);
   SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address,HEX); SERIAL_CHAR('\n');
@@ -63,7 +65,7 @@ static const UnwindCallbacks UnwCallbacks = {
   #endif
 };
 
-void backtrace() {
+void backtrace(void) {
 
   UnwindFrame btf;
   uint32_t sp = 0, lr = 0, pc = 0;
@@ -93,6 +95,6 @@ void backtrace() {
 
 #else // !__arm__ && !__thumb__
 
-void backtrace() {}
+void backtrace(void) {}
 
 #endif

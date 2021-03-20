@@ -62,7 +62,7 @@ OLDWD=`pwd`
 #
 # By default loop through all languages
 #
-LANGS_DEFAULT="an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana ko_KR nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test"
+LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk zh_CN zh_TW test"
 
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
@@ -103,7 +103,10 @@ if [ 1 = 1 ]; then
   cat <<EOF >src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +119,7 @@ if [ 1 = 1 ]; then
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #include <U8glib.h>

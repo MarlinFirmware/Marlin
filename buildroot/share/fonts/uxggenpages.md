@@ -99,12 +99,12 @@ At this time, the font file `marlin-6x12-3.bdf` is used to generate the font dat
 
 - [WQY](http://wenq.org/)
 - [WQY 9pt bitmap font](http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz)
-- [unifont (16x8 or 16x16)](https://unifoundry.com/unifont.html)
+- [unifont (16x8 or 16x16)](http://unifoundry.com/unifont.html)
 
 Documents related to the old version of the language engine:
 
-- [Marlin Fonts Documentation](https://www.marlinfw.org/docs/development/fonts.html)
-- [Marlin LCD Language](https://marlinfw.org/docs/development/lcd_language.html)
+- [Marlin Fonts Documentation](http://www.marlinfw.org/docs/development/fonts.html)
+- [Marlin LCD Language](http://marlinfw.org/docs/development/lcd_language.html)
 - [U8GLIB](https://github.com/olikraus/u8glib.git)
 - [UTF-8 for U8GLIB](https://github.com/yhfudev/u8glib-fontutf8.git)
 - [Standalone test project for the Marlin UTF-8 language engine](https://github.com/yhfudev/marlin-fontutf8.git)

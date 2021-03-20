@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,20 +24,16 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  #include "../bedlevel.h"
-
+  #include "ubl.h"
   unified_bed_leveling ubl;
 
-  #include "../../../MarlinCore.h"
-  #include "../../../gcode/gcode.h"
-
-  #include "../../../module/settings.h"
+  #include "../../../module/configuration_store.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
-  #include "../../../module/probe.h"
+  #include "../../bedlevel/bedlevel.h"
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "../../../lcd/extui/ui_api.h"
+    #include "../../../lcd/extensible_ui/ui_api.h"
   #endif
 
   #include "math.h"
@@ -48,19 +44,21 @@
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG("  G29 I999");
-    GRID_LOOP(x, y)
-      if (!isnan(z_values[x][y])) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
-        SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
-        serial_delay(75); // Prevent Printrun from exploding
-      }
+    SERIAL_ECHO_MSG("  G29 I99");
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
+        if (!isnan(z_values[x][y])) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", x, " J", y);
+          SERIAL_ECHOPAIR_F(" Z", z_values[x][y], 2);
+          SERIAL_EOL();
+          serial_delay(75); // Prevent Printrun from exploding
+        }
   }
 
   void unified_bed_leveling::report_state() {
     echo_name();
-    SERIAL_ECHO_TERNARY(planner.leveling_active, " System v" UBL_VERSION " ", "", "in", "active\n");
+    serial_ternary(planner.leveling_active, PSTR(" System v" UBL_VERSION " "), PSTR(""), PSTR("in"), PSTR("active\n"));
     serial_delay(50);
   }
 
@@ -68,23 +66,16 @@
 
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
-  #define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
+  // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
+  // until determinism prevails
+  constexpr float unified_bed_leveling::_mesh_index_to_xpos[16],
+                  unified_bed_leveling::_mesh_index_to_ypos[16];
 
-  const float
-  unified_bed_leveling::_mesh_index_to_xpos[GRID_MAX_POINTS_X] PROGMEM = ARRAY_N(GRID_MAX_POINTS_X,
-    _GRIDPOS(X,  0), _GRIDPOS(X,  1), _GRIDPOS(X,  2), _GRIDPOS(X,  3),
-    _GRIDPOS(X,  4), _GRIDPOS(X,  5), _GRIDPOS(X,  6), _GRIDPOS(X,  7),
-    _GRIDPOS(X,  8), _GRIDPOS(X,  9), _GRIDPOS(X, 10), _GRIDPOS(X, 11),
-    _GRIDPOS(X, 12), _GRIDPOS(X, 13), _GRIDPOS(X, 14), _GRIDPOS(X, 15)
-  ),
-  unified_bed_leveling::_mesh_index_to_ypos[GRID_MAX_POINTS_Y] PROGMEM = ARRAY_N(GRID_MAX_POINTS_Y,
-    _GRIDPOS(Y,  0), _GRIDPOS(Y,  1), _GRIDPOS(Y,  2), _GRIDPOS(Y,  3),
-    _GRIDPOS(Y,  4), _GRIDPOS(Y,  5), _GRIDPOS(Y,  6), _GRIDPOS(Y,  7),
-    _GRIDPOS(Y,  8), _GRIDPOS(Y,  9), _GRIDPOS(Y, 10), _GRIDPOS(Y, 11),
-    _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
-  );
+  #if HAS_LCD_MENU
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
 
-  volatile int16_t unified_bed_leveling::encoder_diff;
+  volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
     reset();
@@ -94,9 +85,14 @@
     const bool was_enabled = planner.leveling_active;
     set_bed_leveling_enabled(false);
     storage_slot = -1;
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      planner.set_z_fade_height(10.0);
+    #endif
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          ExtUI::onMeshUpdate(x, y, 0);
     #endif
     if (was_enabled) report_current_position();
   }
@@ -107,9 +103,13 @@
   }
 
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
-    GRID_LOOP(x, y) {
-      z_values[x][y] = value;
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+        z_values[x][y] = value;
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, value);
+        #endif
+      }
     }
   }
 
@@ -143,7 +143,9 @@
    *   4: Compact Human-Readable
    */
   void unified_bed_leveling::display_map(const int map_type) {
-    const bool was = gcode.set_autoreport_paused(true);
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+      suspend_auto_report = true;
+    #endif
 
     constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
                       twixt = eachsp * (GRID_MAX_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
@@ -163,10 +165,11 @@
       serialprintPGM(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
     }
 
-    // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
-    // moving to the XY position to be measured. This ensures better agreement between
+    // Add XY_PROBE_OFFSET_FROM_EXTRUDER because probe_pt() subtracts these when
+    // moving to the xy position to be measured. This ensures better agreement between
     // the current Z position after G28 and the mesh values.
-    const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
+    const float current_xi = find_closest_x_index(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
+                current_yi = find_closest_y_index(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     if (!lcd) SERIAL_EOL();
     for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
@@ -179,10 +182,10 @@
       }
 
       // Row Values (I indexes)
-      LOOP_L_N(i, GRID_MAX_POINTS_X) {
+      for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
 
         // Opening Brace or Space
-        const bool is_current = i == curr.x && j == curr.y;
+        const bool is_current = i == current_xi && j == current_yi;
         if (human) SERIAL_CHAR(is_current ? '[' : ' ');
 
         // Z Value at current I, J
@@ -202,7 +205,7 @@
         if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         SERIAL_FLUSHTX();
-        idle_no_sleep();
+        idle();
       }
       if (!lcd) SERIAL_EOL();
 
@@ -219,7 +222,9 @@
       SERIAL_EOL();
     }
 
-    gcode.set_autoreport_paused(was);
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
+      suspend_auto_report = false;
+    #endif
   }
 
   bool unified_bed_leveling::sanity_check() {

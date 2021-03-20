@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if HAS_CASE_LIGHT
 
-#include "caselight.h"
-
-CaseLight caselight;
-
-uint8_t CaseLight::brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
-bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
+uint8_t case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+bool case_light_on = CASE_LIGHT_DEFAULT_ON;
 
 #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
-  LEDColor CaseLight::color =
+  #include "leds/leds.h"
+  LEDColor case_light_color =
     #ifdef CASE_LIGHT_NEOPIXEL_COLOR
       CASE_LIGHT_NEOPIXEL_COLOR
     #else
@@ -41,55 +38,45 @@ bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
   ;
 #endif
 
+/**
+ * The following are needed because ARM chips ignore a "WRITE(CASE_LIGHT_PIN,x)" command to the pins that
+ * are directly controlled by the PWM module. In order to turn them off the brightness level needs to be
+ * set to off.  Since we can't use the pwm register to save the last brightness level we need a variable
+ * to save it.
+ */
+uint8_t case_light_brightness_sav;   // saves brighness info so can restore when "M355 S1" received
+bool case_light_arg_flag;  // flag to notify if S or P argument type
+
 #ifndef INVERT_CASE_LIGHT
   #define INVERT_CASE_LIGHT false
 #endif
 
-void CaseLight::update(const bool sflag) {
-  /**
-   * The brightness_sav (and sflag) is needed because ARM chips ignore
-   * a "WRITE(CASE_LIGHT_PIN,x)" command to the pins that are directly
-   * controlled by the PWM module. In order to turn them off the brightness
-   * level needs to be set to OFF. Since we can't use the PWM register to
-   * save the last brightness level we need a variable to save it.
-   */
-  static uint8_t brightness_sav;  // Save brightness info for restore on "M355 S1"
+void update_case_light() {
 
-  if (on || !sflag)
-    brightness_sav = brightness;  // Save brightness except for M355 S0
-  if (sflag && on)
-    brightness = brightness_sav;  // Restore last brightness for M355 S1
+  if (!(case_light_arg_flag && !case_light_on))
+    case_light_brightness_sav = case_light_brightness;  // save brightness except if this is an S0 argument
+  if (case_light_arg_flag && case_light_on)
+    case_light_brightness = case_light_brightness_sav;  // restore last brightens if this is an S1 argument
 
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) || DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-    const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
-  #endif
+  const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
 
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
 
     leds.set_color(
-      MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),
+      MakeLEDColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
       false
     );
 
   #else // !CASE_LIGHT_USE_NEOPIXEL
 
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (PWM_PIN(CASE_LIGHT_PIN))
-        analogWrite(pin_t(CASE_LIGHT_PIN), (
-          #if CASE_LIGHT_MAX_PWM == 255
-            n10ct
-          #else
-            map(n10ct, 0, 255, 0, CASE_LIGHT_MAX_PWM)
-          #endif
-        ));
-      else
-    #endif
-      {
-        const bool s = on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
-        WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
-      }
+    if (PWM_PIN(CASE_LIGHT_PIN))
+      analogWrite(CASE_LIGHT_PIN, n10ct);
+    else {
+      const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
+      WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
+    }
 
   #endif // !CASE_LIGHT_USE_NEOPIXEL
 }
 
-#endif // CASE_LIGHT_ENABLE
+#endif // HAS_CASE_LIGHT

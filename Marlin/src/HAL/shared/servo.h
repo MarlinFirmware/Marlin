@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
@@ -41,6 +40,7 @@
  */
 
 /**
+ *
  * A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
  * The servos are pulsed in the background using the value most recently written using the write() method
  *
@@ -66,29 +66,27 @@
  *                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
+#pragma once
+
 #if IS_TEENSY32
-  #include "../TEENSY31_32/Servo.h"
+  #include "../HAL_TEENSY31_32/HAL_Servo_Teensy.h"
 #elif IS_TEENSY35 || IS_TEENSY36
-  #include "../TEENSY35_36/Servo.h"
-#elif IS_TEENSY40 || IS_TEENSY41
-  #include "../TEENSY40_41/Servo.h"
+  #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h"
 #elif defined(TARGET_LPC1768)
-  #include "../LPC1768/Servo.h"
+  #include "../HAL_LPC1768/MarlinServo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
-  #include "../STM32F1/Servo.h"
+  #include "../HAL_STM32F1/HAL_Servo_STM32F1.h"
 #elif defined(STM32GENERIC) && defined(STM32F4)
-  #include "../STM32_F4_F7/Servo.h"
+  #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
 #elif defined(ARDUINO_ARCH_STM32)
-  #include "../STM32/Servo.h"
-#elif defined(ARDUINO_ARCH_ESP32)
-  #include "../ESP32/Servo.h"
+  #include "../HAL_STM32/HAL_Servo_STM32.h"
 #else
   #include <stdint.h>
 
-  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM) || defined(__SAMD51__)
+  #if defined(__AVR__) || defined(ARDUINO_ARCH_SAM)
     // we're good to go
   #else
-    #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."
+    #error "This library only supports boards with an AVR or SAM3X processor."
   #endif
 
   #define Servo_VERSION           2     // software version of this library

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,8 +36,6 @@
   #define THERMISTOR_NAME "User Parameters"
 
 // Thermcouples
-#elif THERMISTOR_ID == -5
-  #define THERMISTOR_NAME "MAX31865"
 #elif THERMISTOR_ID == -4
   #define THERMISTOR_NAME "AD8495"
 #elif THERMISTOR_ID == -3
@@ -50,26 +48,14 @@
 // Standard thermistors
 #elif THERMISTOR_ID == 1
   #define THERMISTOR_NAME "EPCOS 100K"
-#elif THERMISTOR_ID == 331
-  #define THERMISTOR_NAME "3.3V EPCOS 100K (MEGA)"
-#elif THERMISTOR_ID == 332
-  #define THERMISTOR_NAME "3.3V EPCOS 100K (DUE)"
 #elif THERMISTOR_ID == 2
   #define THERMISTOR_NAME "ATC 204GT-2"
-#elif THERMISTOR_ID == 202
-  #define THERMISTOR_NAME "200k Copymaster 3D"
 #elif THERMISTOR_ID == 3
   #define THERMISTOR_NAME "Mendel-parts"
 #elif THERMISTOR_ID == 4
   #define THERMISTOR_NAME "Generic 10K"
 #elif THERMISTOR_ID == 5
   #define THERMISTOR_NAME "ATC 104GT-2"
-#elif THERMISTOR_ID == 501
-  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
-#elif THERMISTOR_ID == 502
-  #define THERMISTOR_NAME "Zonestar (P802M Hot Bed)"
-#elif THERMISTOR_ID == 512
-  #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6
   #define THERMISTOR_NAME "EPCOS (alt)"
 #elif THERMISTOR_ID == 7
@@ -88,28 +74,16 @@
   #define THERMISTOR_NAME "E3104FXT (alt)"
 #elif THERMISTOR_ID == 13
   #define THERMISTOR_NAME "Hisens 3950"
-#elif THERMISTOR_ID == 15
-  #define THERMISTOR_NAME "100k JGAurora A5"
-#elif THERMISTOR_ID == 18
-  #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
-  #define THERMISTOR_NAME "Pt100 UltiMB 5v"
-#elif THERMISTOR_ID == 21
-  #define THERMISTOR_NAME "Pt100 UltiMB 3.3v"
-#elif THERMISTOR_ID == 201
-  #define THERMISTOR_NAME "Pt100 OverLord"
+  #define THERMISTOR_NAME "PT100 UltiMB"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
 #elif THERMISTOR_ID == 70
   #define THERMISTOR_NAME "Hephestos 2"
 #elif THERMISTOR_ID == 75
   #define THERMISTOR_NAME "MGB18"
-#elif THERMISTOR_ID == 99
-  #define THERMISTOR_NAME "100k with 10k pull-up"
 
 // Modified thermistors
-#elif THERMISTOR_ID == 30
-  #define THERMISTOR_NAME "Kis3d EN AW NTC100K/3950"
 #elif THERMISTOR_ID == 51
   #define THERMISTOR_NAME "EPCOS 1K"
 #elif THERMISTOR_ID == 52
@@ -121,11 +95,13 @@
 #elif THERMISTOR_ID == 1010
   #define THERMISTOR_NAME "PT1000 1K"
 #elif THERMISTOR_ID == 147
-  #define THERMISTOR_NAME "Pt100 4K7"
+  #define THERMISTOR_NAME "PT100 4K7"
 #elif THERMISTOR_ID == 110
-  #define THERMISTOR_NAME "Pt100 1K"
+  #define THERMISTOR_NAME "PT100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 501
+  #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61

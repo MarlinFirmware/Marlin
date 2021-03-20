@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfig.h"
 
-#if USE_BEEPER
+#if ENABLED(LCD_USE_I2C_BUZZER)
+
+  #define BUZZ(d,f) ui.buzz(d,f)
+
+#elif PIN_EXISTS(BEEPER)
 
   #include "circularqueue.h"
 
@@ -84,9 +88,9 @@
 
     public:
       /**
-       * @brief Init Buzzer
+       * @brief Class constructor
        */
-      static inline void init() {
+      Buzzer() {
         SET_OUTPUT(BEEPER_PIN);
         reset();
       }
@@ -111,18 +115,10 @@
 
   // Provide a buzzer instance
   extern Buzzer buzzer;
-
-  // Buzz directly via the BEEPER pin tone queue
   #define BUZZ(d,f) buzzer.tone(d, f)
 
-#elif HAS_BUZZER
+#else // No buzz capability
 
-  // Buzz indirectly via the MarlinUI instance
-  #define BUZZ(d,f) ui.buzz(d,f)
-
-#else
-
-  // No buzz capability
   #define BUZZ(d,f) NOOP
 
 #endif

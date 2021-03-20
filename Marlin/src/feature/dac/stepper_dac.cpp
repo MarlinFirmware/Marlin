@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,84 +16,106 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 /**
  * stepper_dac.cpp - To set stepper current via DAC
+ *
+ * Part of Marlin
+ *
+ * Copyright (c) 2016 MarlinFirmware
+ *
+ * Marlin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Marlin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if ENABLED(DAC_STEPPER_CURRENT)
 
 #include "stepper_dac.h"
-#include "../../MarlinCore.h" // for SP_X_LBL...
 
 bool dac_present = false;
-constexpr xyze_uint8_t dac_order = DAC_STEPPER_ORDER;
-xyze_uint8_t dac_channel_pct = DAC_MOTOR_CURRENT_DEFAULT;
+const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
+uint8_t dac_channel_pct[XYZE] = DAC_MOTOR_CURRENT_DEFAULT;
 
-StepperDAC stepper_dac;
-
-int StepperDAC::init() {
+int dac_init() {
   #if PIN_EXISTS(DAC_DISABLE)
     OUT_WRITE(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
   #endif
 
-  mcp4728.init();
+  mcp4728_init();
 
-  if (mcp4728.simpleCommand(RESET)) return -1;
+  if (mcp4728_simpleCommand(RESET)) return -1;
 
   dac_present = true;
 
-  mcp4728.setVref_all(DAC_STEPPER_VREF);
-  mcp4728.setGain_all(DAC_STEPPER_GAIN);
+  mcp4728_setVref_all(DAC_STEPPER_VREF);
+  mcp4728_setGain_all(DAC_STEPPER_GAIN);
 
-  if (mcp4728.getDrvPct(0) < 1 || mcp4728.getDrvPct(1) < 1 || mcp4728.getDrvPct(2) < 1 || mcp4728.getDrvPct(3) < 1 ) {
-    mcp4728.setDrvPct(dac_channel_pct);
-    mcp4728.eepromWrite();
+  if (mcp4728_getDrvPct(0) < 1 || mcp4728_getDrvPct(1) < 1 || mcp4728_getDrvPct(2) < 1 || mcp4728_getDrvPct(3) < 1 ) {
+    mcp4728_setDrvPct(dac_channel_pct);
+    mcp4728_eepromWrite();
   }
 
   return 0;
 }
 
-void StepperDAC::set_current_value(const uint8_t channel, uint16_t val) {
+void dac_current_percent(uint8_t channel, float val) {
   if (!dac_present) return;
 
-  NOMORE(val, uint16_t(DAC_STEPPER_MAX));
+  NOMORE(val, 100);
 
-  mcp4728.analogWrite(dac_order[channel], val);
-  mcp4728.simpleCommand(UPDATE);
+  mcp4728_analogWrite(dac_order[channel], val * 0.01 * (DAC_STEPPER_MAX));
+  mcp4728_simpleCommand(UPDATE);
 }
 
-void StepperDAC::set_current_percent(const uint8_t channel, float val) {
-  set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) / 100.0f);
+void dac_current_raw(uint8_t channel, uint16_t val) {
+  if (!dac_present) return;
+
+  NOMORE(val, DAC_STEPPER_MAX);
+
+  mcp4728_analogWrite(dac_order[channel], val);
+  mcp4728_simpleCommand(UPDATE);
 }
 
-static float dac_perc(int8_t n) { return 100.0 * mcp4728.getValue(dac_order[n]) * RECIPROCAL(DAC_STEPPER_MAX); }
-static float dac_amps(int8_t n) { return mcp4728.getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE); }
+static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0f / (DAC_STEPPER_MAX)); }
+static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0f / (DAC_STEPPER_SENSE)); }
 
-uint8_t StepperDAC::get_current_percent(const AxisEnum axis) { return mcp4728.getDrvPct(dac_order[axis]); }
-void StepperDAC::set_current_percents(xyze_uint8_t &pct) {
+uint8_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
+void dac_current_set_percents(const uint8_t pct[XYZE]) {
   LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
-  mcp4728.setDrvPct(dac_channel_pct);
+  mcp4728_setDrvPct(dac_channel_pct);
 }
 
-void StepperDAC::print_values() {
+void dac_print_values() {
   if (!dac_present) return;
+
   SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR_P(  SP_X_LBL, dac_perc(X_AXIS), PSTR(" ("), dac_amps(X_AXIS), PSTR(")"));
-  SERIAL_ECHOPAIR_P(  SP_Y_LBL, dac_perc(Y_AXIS), PSTR(" ("), dac_amps(Y_AXIS), PSTR(")"));
-  SERIAL_ECHOPAIR_P(  SP_Z_LBL, dac_perc(Z_AXIS), PSTR(" ("), dac_amps(Z_AXIS), PSTR(")"));
-  SERIAL_ECHOLNPAIR_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
+  SERIAL_ECHOLNPAIR(
+    " X:", dac_perc(X_AXIS), " (", dac_amps(X_AXIS), ")"
+    " Y:", dac_perc(Y_AXIS), " (", dac_amps(Y_AXIS), ")"
+    " Z:", dac_perc(Z_AXIS), " (", dac_amps(Z_AXIS), ")"
+    " E:", dac_perc(E_AXIS), " (", dac_amps(E_AXIS), ")"
+  );
 }
 
-void StepperDAC::commit_eeprom() {
+void dac_commit_eeprom() {
   if (!dac_present) return;
-  mcp4728.eepromWrite();
+  mcp4728_eepromWrite();
 }
 
-#endif // HAS_MOTOR_CURRENT_DAC
+#endif // DAC_STEPPER_CURRENT

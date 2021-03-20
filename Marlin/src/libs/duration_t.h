@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -120,7 +120,7 @@ struct duration_t {
    *  59m 59s
    *  59s
    */
-  char* toString(char * const buffer) const {
+  void toString(char *buffer) const {
     int y = this->year(),
         d = this->day() % 365,
         h = this->hour() % 24,
@@ -132,7 +132,6 @@ struct duration_t {
     else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
     else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
     else sprintf_P(buffer, PSTR("%is"), s);
-    return buffer;
   }
 
   /**
@@ -151,15 +150,15 @@ struct duration_t {
              m = uint16_t(this->minute() % 60UL);
     if (with_days) {
       uint16_t d = this->day();
-      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);
+      sprintf_P(buffer, PSTR("%ud %02u:%02u"), d, h % 24, m);
       return d >= 10 ? 9 : 8;
     }
     else if (h < 100) {
-      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%02u:%02u"), h, m);
       return 5;
     }
     else {
-      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%u:%02u"), h, m);
       return 6;
     }
   }

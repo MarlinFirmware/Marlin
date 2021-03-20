@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,107 +16,90 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-/**
- * Release version. Leave the Marlin version or apply a custom scheme.
- */
-#ifndef SHORT_BUILD_VERSION
-  #define SHORT_BUILD_VERSION "2.0.7.2"
-#endif
+#include "../core/macros.h" // for ENABLED
 
 /**
- * Verbose version identifier containing a unique identifier, such as the
- * vendor name, download location, GitHub account, etc.
- */
-#ifndef DETAILED_BUILD_VERSION
-  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
-#endif
-
-/**
- * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
- * here we define this default string as the date where the latest release
- * version was tagged.
- */
-#ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2020-10-15"
-#endif
-
-/**
- * Minimum Configuration.h and Configuration_adv.h file versions.
- * Set based on the release version number. Used to catch an attempt to use
- * older configurations. Override these if using a custom versioning scheme
- * to alert users to major changes.
+ * This file is the standard Marlin version identifier file.
+ * Use -DUSE_AUTOMATIC_VERSIONING=1 and a custom _Version.h
+ * to override these values.
  */
 
-#define MARLIN_HEX_VERSION 020007
-#ifndef REQUIRED_CONFIGURATION_H_VERSION
-  #define REQUIRED_CONFIGURATION_H_VERSION MARLIN_HEX_VERSION
-#endif
-#ifndef REQUIRED_CONFIGURATION_ADV_H_VERSION
-  #define REQUIRED_CONFIGURATION_ADV_H_VERSION MARLIN_HEX_VERSION
-#endif
+#if ENABLED(USE_AUTOMATIC_VERSIONING)
 
-/**
- * The protocol for communication to the host. Protocol indicates communication
- * standards such as the use of ASCII, "echo:" and "error:" line prefixes, etc.
- * (Other behaviors are given by the firmware version and capabilities report.)
- */
-#ifndef PROTOCOL_VERSION
+  #include "_Version.h"
+
+#else
+
+  /**
+   * Marlin release version identifier
+   */
+  #define SHORT_BUILD_VERSION "bugfix-2.0.x"
+
+  /**
+   * Verbose version identifier which should contain a reference to the location
+   * from where the binary was downloaded or the source code was compiled.
+   */
+  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " + JMZ52 & Hobi code"
+
+  /**
+   * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
+   * here we define this default string as the date where the latest release
+   * version was tagged.
+   */
+  #define STRING_DISTRIBUTION_DATE "2019-05-17"
+
+  /**
+   * Required minimum Configuration.h and Configuration_adv.h file versions.
+   *
+   * You must increment this version number for every significant change such as,
+   * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option on
+   * the configuration files.
+   */
+  #define REQUIRED_CONFIGURATION_H_VERSION 020000
+  #define REQUIRED_CONFIGURATION_ADV_H_VERSION 020000
+
+  /**
+   * The protocol for communication to the host. Protocol indicates communication
+   * standards such as the use of ASCII, "echo:" and "error:" line prefixes, etc.
+   * (Other behaviors are given by the firmware version and capabilities report.)
+   */
   #define PROTOCOL_VERSION "1.0"
-#endif
 
-/**
- * Define a generic printer name to be output to the LCD after booting Marlin.
- */
-#ifndef MACHINE_NAME
+  /**
+   * Defines a generic printer name to be output to the LCD after booting Marlin.
+   */
+  #ifdef U20
+  #define MACHINE_NAME "Alfawise U20"
+  #elif defined(U30)
+  #define MACHINE_NAME "Alfawise U30"
+  #elif defined(U20_PLUS)
+  #define MACHINE_NAME "Alfawise U20+"
+  #else
   #define MACHINE_NAME "3D Printer"
-#endif
+  #endif
 
-/**
- * Website where users can find Marlin source code for the binary installed on the
- * device. Override this if you provide public source code download. (GPLv3 requires
- * providing the source code to your customers.)
- */
-#ifndef SOURCE_CODE_URL
+  /**
+   * The SOURCE_CODE_URL is the location where users will find the Marlin Source
+   * Code which is installed on the device. In most cases —unless the manufacturer
+   * has a distinct Github fork— the Source Code URL should just be the main
+   * Marlin repository.
+   */
   #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
-#endif
 
-/**
- * Default generic printer UUID.
- */
-#ifndef DEFAULT_MACHINE_UUID
+  /**
+   * Default generic printer UUID.
+   */
   #define DEFAULT_MACHINE_UUID "cede2a2f-41a2-4748-9b12-c55c62f367ff"
-#endif
 
   /**
    * The WEBSITE_URL is the location where users can get more information such as
-   * documentation about a specific Marlin release. Displayed in the Info Menu.
+   * documentation about a specific Marlin release.
    */
-#ifndef WEBSITE_URL
-  #define WEBSITE_URL "https://marlinfw.org"
-#endif
+  #define WEBSITE_URL "http://marlinfw.org"
 
-/**
- * Set the vendor info the serial USB interface, if changable
- * Currently only supported by DUE platform
- */
-#ifndef USB_DEVICE_VENDOR_ID
-  #define  USB_DEVICE_VENDOR_ID           0x03EB /* ATMEL VID */
-#endif
-#ifndef USB_DEVICE_PRODUCT_ID
-  #define  USB_DEVICE_PRODUCT_ID          0x2424 /* MSC / CDC */
-#endif
-//! USB Device string definitions (Optional)
-#ifndef USB_DEVICE_MANUFACTURE_NAME
-  #define  USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
-#endif
-#ifdef CUSTOM_MACHINE_NAME
-  #define  USB_DEVICE_PRODUCT_NAME        CUSTOM_MACHINE_NAME
-#else
-  #define  USB_DEVICE_PRODUCT_NAME        MACHINE_NAME
-#endif
-#define  USB_DEVICE_SERIAL_NAME           "123985739853"
+#endif // USE_AUTOMATIC_VERSIONING

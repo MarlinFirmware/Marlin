@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -44,7 +44,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
@@ -90,19 +90,21 @@ void Mixer::normalize(const uint8_t tool_index) {
     SERIAL_ECHOLNPGM("]");
   #endif
 
-  TERN_(GRADIENT_MIX, refresh_gradient());
+  #if ENABLED(GRADIENT_MIX)
+    refresh_gradient();
+  #endif
 }
 
 void Mixer::reset_vtools() {
   // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
   // Every virtual tool gets a pure filament
-  LOOP_L_N(t, _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS))
+  for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
     MIXER_STEPPER_LOOP(i)
       color[t][i] = (t == i) ? COLOR_A_MASK : 0;
 
   // Remaining virtual tools are 100% filament 1
   #if MIXING_VIRTUAL_TOOLS > MIXING_STEPPERS
-    LOOP_S_L_N(t, MIXING_STEPPERS, MIXING_VIRTUAL_TOOLS)
+    for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
       MIXER_STEPPER_LOOP(i)
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
@@ -113,7 +115,7 @@ void Mixer::init() {
 
   reset_vtools();
 
-  #if HAS_MIXER_SYNC_CHANNEL
+  #if ENABLED(RETRACT_SYNC_MIXING)
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i)
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
@@ -121,18 +123,20 @@ void Mixer::init() {
 
   ZERO(collector);
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
     update_mix_from_vtool();
   #endif
 
-  TERN_(GRADIENT_MIX, update_gradient_for_planner_z());
+  #if ENABLED(GRADIENT_MIX)
+    update_gradient_for_planner_z();
+  #endif
 }
 
 void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=selected_vtool*/, float (&c)[MIXING_STEPPERS]/*=collector*/) {
   float csum = 0, cmax = 0;
   MIXER_STEPPER_LOOP(i) {
     const float v = color[t][i];
-    cmax = _MAX(cmax, v);
+    cmax = MAX(cmax, v);
     csum += v;
   }
   //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", int(t), ") cmax=", cmax, "  csum=", csum, "  color");
@@ -180,12 +184,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   }
 
   void Mixer::update_gradient_for_planner_z() {
-    #if ENABLED(DELTA)
-      get_cartesian_from_steppers();
-      update_gradient_for_z(cartes.z);
-    #else
-      update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
-    #endif
+    update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
   }
 
 #endif // GRADIENT_MIX

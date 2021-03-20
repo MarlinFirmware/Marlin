@@ -12,10 +12,6 @@
 
 HERE=$(pwd)
 
-for CMD in curl unzip patch make; do
-  which $CMD >/dev/null || { echo "'$CMD' is required for this script." ; exit 1 ; }
-done
-
 [[ $HERE =~ 'buildroot/share/fonts'$ ]] || { echo "Change to buildroot/share/fonts to run $(basename $0)" ; exit 1; }
 
 # Download u8glib

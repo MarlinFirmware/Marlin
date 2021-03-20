@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if EITHER(HAS_MULTI_EXTRUDER, DEBUG_LEVELING_FEATURE)
+#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
   #include "../../module/motion.h"
 #endif
 
 #if ENABLED(PRUSA_MMU2)
-  #include "../../feature/mmu2/mmu2.h"
+  #include "../../feature/prusa_MMU2/mmu2.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -46,13 +46,12 @@
  *   Tx   Same as T?, but nozzle doesn't have to be preheated. Tc requires a preheated nozzle to finish filament load.
  *   Tc   Load to nozzle after filament was prepared by Tc and nozzle is already heated.
  */
-void GcodeSuite::T(const int8_t tool_index) {
+void GcodeSuite::T(const uint8_t tool_index) {
 
-  DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("...(", tool_index, ")");
-
-  // Count this command as movement / activity
-  reset_stepper_timeout();
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPAIR(">>> T(", tool_index, ")");
+    DEBUG_POS("BEFORE", current_position);
+  }
 
   #if ENABLED(PRUSA_MMU2)
     if (parser.string_arg) {
@@ -69,8 +68,14 @@ void GcodeSuite::T(const int8_t tool_index) {
 
     tool_change(
       tool_index,
+      MMM_TO_MMS(parser.linearval('F')),
       (tool_index == active_extruder) || parser.boolval('S')
     );
 
   #endif
+
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_POS("AFTER", current_position);
+    DEBUG_ECHOLNPGM("<<< T()");
+  }
 }

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * vector_3.cpp - Vector library for bed leveling
@@ -40,41 +39,31 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../core/types.h"
+#pragma once
 
 class matrix_3x3;
 
-struct vector_3 : xyz_float_t {
+struct vector_3 {
+  float x, y, z;
 
-  vector_3(const float &_x, const float &_y, const float &_z) { set(_x, _y, _z); }
-  vector_3(const xy_float_t   &in) { set(in.x, in.y); }
-  vector_3(const xyz_float_t  &in) { set(in.x, in.y, in.z); }
-  vector_3(const xyze_float_t &in) { set(in.x, in.y, in.z); }
-  vector_3() { reset(); }
+  vector_3();
+  vector_3(float x, float y, float z);
 
-  // Factory method
   static vector_3 cross(const vector_3 &a, const vector_3 &b);
 
-  // Modifiers
+  vector_3 operator+(const vector_3 &v);
+  vector_3 operator-(const vector_3 &v);
   void normalize();
-  void apply_rotation(const matrix_3x3 &matrix);
-
-  // Accessors
   float get_length() const;
   vector_3 get_normal() const;
 
-  // Operators
-  FORCE_INLINE vector_3 operator+(const vector_3 &v) const { vector_3 o = *this; o += v; return o; }
-  FORCE_INLINE vector_3 operator-(const vector_3 &v) const { vector_3 o = *this; o -= v; return o; }
-  FORCE_INLINE vector_3 operator*(const float    &v) const { vector_3 o = *this; o *= v; return o; }
-
   void debug(PGM_P const title);
+  void apply_rotation(const matrix_3x3 &matrix);
 };
 
 struct matrix_3x3 {
-  abc_float_t vectors[3];
+  float matrix[9];
 
-  // Factory methods
   static matrix_3x3 create_from_rows(const vector_3 &row_0, const vector_3 &row_1, const vector_3 &row_2);
   static matrix_3x3 create_look_at(const vector_3 &target);
   static matrix_3x3 transpose(const matrix_3x3 &original);
@@ -84,7 +73,5 @@ struct matrix_3x3 {
   void debug(PGM_P const title);
 };
 
+
 void apply_rotation_xyz(const matrix_3x3 &rotationMatrix, float &x, float &y, float &z);
-FORCE_INLINE void apply_rotation_xyz(const matrix_3x3 &rotationMatrix, xyz_pos_t &pos) {
-  apply_rotation_xyz(rotationMatrix, pos.x, pos.y, pos.z);
-}
