@@ -38,33 +38,32 @@
 
 #include "../../core/serial_hook.h"
 
-typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
-typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
-typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
-extern DefaultSerial MSerial;
-extern DefaultSerial1 MSerial1;
-extern DefaultSerial2 MSerial2;
-extern DefaultSerial3 MSerial3;
+typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
+typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
+typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial4;
+extern DefaultSerial1 MSerial0;
+extern DefaultSerial2 MSerial1;
+extern DefaultSerial3 MSerial2;
+extern DefaultSerial4 MSerial3;
 
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
-// Define MYSERIAL0/1 before MarlinSerial includes!
+// Define MYSERIAL1/2 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
-  #define MYSERIAL0 customizedSerial1
+  #define MYSERIAL1 customizedSerial1
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
-    #define MYSERIAL1 customizedSerial2
+    #define MYSERIAL2 customizedSerial2
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif

@@ -79,13 +79,13 @@ public:
 
     void commit_command(bool skip_ok
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
     bool enqueue(const char* cmd, bool skip_ok = true
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
@@ -93,7 +93,9 @@ public:
 
     inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
 
-    inline bool empty() const { return length == 0; }
+    inline bool occupied() const { return length != 0; }
+
+    inline bool empty() const { return !occupied(); }
 
     inline CommandLine& peek_next_command() { return commands[index_r]; }
 
@@ -163,6 +165,11 @@ public:
   static void advance();
 
   /**
+   * Run the entire queue in-place
+   */
+  static void exhaust();
+
+  /**
    * Add to the circular command queue the next command from:
    *  - The command-injection queue (injected_commands_P)
    *  - The active serial input (usually USB)
@@ -185,12 +192,12 @@ public:
    * Clear the serial line and request a resend of
    * the next expected line number.
    */
-  static void flush_and_request_resend();
+  static void flush_and_request_resend(const serial_index_t serial_ind);
 
   /**
    * (Re)Set the current line number for the last received command
    */
-  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port()].last_N = n; }
+  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
 private:
 

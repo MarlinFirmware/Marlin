@@ -38,7 +38,7 @@ void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  void set_z_fade_height(const float zfh, const bool do_report=true);
+  void set_z_fade_height(const float &zfh, const bool do_report=true);
 #endif
 
 #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)

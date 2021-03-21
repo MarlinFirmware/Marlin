@@ -26,8 +26,6 @@
  * Used by common-dependencies.py
  */
 
-#define NUM_SERIAL 1 // Normally provided by HAL/HAL.h
-
 #include "../../../../Marlin/src/inc/MarlinConfig.h"
 
 //

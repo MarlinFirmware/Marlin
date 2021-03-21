@@ -23,10 +23,10 @@
 
 #include "../DGUSDisplayDef.h"
 
-//#define USE_MKS_GREEN_UI
+#define USE_MKS_GREEN_UI
 //#define DGUS_MKS_RUNOUT_SENSOR
 
-#define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 5000, 1500)
+#define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
 
 #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
   #define MT_DET_1_PIN         1
@@ -178,7 +178,7 @@ enum DGUSLCD_Screens : uint8_t {
     MKSLCD_SCREEN_PRINT_CONFIG          =  72,
     MKSLCD_SCREEN_LEVEL_DATA            = 106,
     MKSLCD_PrintPause_SET               = 107,
-    //MKSLCD_FILAMENT_DATA                =  50,
+    MKSLCD_FILAMENT_DATA                =  50,
     MKSLCD_ABOUT                        =  83,
     MKSLCD_PID                          = 108,
     MKSLCD_PAUSE_SETTING_MOVE           =  98,
