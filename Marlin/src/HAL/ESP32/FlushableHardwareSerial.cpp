@@ -24,6 +24,6 @@
 
 #include "FlushableHardwareSerial.h"
 
-Serial0Type<FlushableHardwareSerial> flushableSerial(false, 0);
+Serial1Class<FlushableHardwareSerial> flushableSerial(false, 0);
 
 #endif

@@ -414,8 +414,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != MYSERIAL0.connected() || forceUpdate) {
-    last_usb_connected_status = MYSERIAL0.connected();
+  if (last_usb_connected_status != MYSERIAL1.connected() || forceUpdate) {
+    last_usb_connected_status = MYSERIAL1.connected();
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -528,7 +528,7 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshLevelingStart() {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float &zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif
 

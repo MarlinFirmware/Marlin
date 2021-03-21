@@ -272,7 +272,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
 }
 
-inline bool serial_data_available(serial_index_t index) {
+static bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
   #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
     if (a > RX_BUFFER_SIZE - 2) {
@@ -283,12 +283,15 @@ inline bool serial_data_available(serial_index_t index) {
   return a > 0;
 }
 
-// Multiserial already handles dispatch to/from multiple ports
-inline bool any_serial_data_available() {
-  LOOP_L_N(p, NUM_SERIAL)
-    if (serial_data_available(p))
-      return true;
-}
+#if NO_TIMEOUTS > 0
+  // Multiserial already handles dispatch to/from multiple ports
+  static bool any_serial_data_available() {
+    LOOP_L_N(p, NUM_SERIAL)
+      if (serial_data_available(p))
+        return true;
+    return false;
+  }
+#endif
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
@@ -392,7 +395,7 @@ void GCodeQueue::get_serial_commands() {
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
        * The receive buffer also limits the packet size for reliable transmission.
        */
-      binaryStream[card.transfer_port_index].receive(serial_state[card.transfer_port_index].line_buffer);
+      binaryStream[card.transfer_port_index.index].receive(serial_state[card.transfer_port_index.index].line_buffer);
       return;
     }
   #endif
@@ -564,13 +567,19 @@ void GCodeQueue::get_serial_commands() {
       const bool is_eol = ISEOL(sd_char);
       if (is_eol || card_eof) {
 
-
         // Reset stream state, terminate the buffer, and commit a non-empty command
         if (!is_eol && sd_count) ++sd_count;          // End of file with no newline
         if (!process_line_done(sd_input_state, command.buffer, sd_count)) {
 
           // M808 L saves the sdpos of the next line. M808 loops to a new sdpos.
           TERN_(GCODE_REPEAT_MARKERS, repeat.early_parse_M808(command.buffer));
+
+          #if DISABLED(PARK_HEAD_ON_PAUSE)
+            // When M25 is non-blocking it can still suspend SD commands
+            // Otherwise the M125 handler needs to know SD printing is active
+            if (command.buffer[0] == 'M' && command.buffer[1] == '2' && command.buffer[2] == '5' && !NUMERIC(command.buffer[3]))
+              card.pauseSDPrint();
+          #endif
 
           // Put the new command into the buffer (no "ok" sent)
           ring_buffer.commit_command(true);
@@ -632,10 +641,10 @@ void GCodeQueue::advance() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL0.dropped());
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL1.dropped());
           #endif
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
           #endif
         #endif
 

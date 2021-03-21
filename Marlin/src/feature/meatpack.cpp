@@ -39,24 +39,15 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(MEATPACK)
+#if HAS_MEATPACK
 
 #include "meatpack.h"
-MeatPack meatpack;
 
 #define MeatPack_ProtocolVersion "PV01"
 //#define MP_DEBUG
 
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
-
-bool MeatPack::cmd_is_next = false;       // A command is pending
-uint8_t MeatPack::state = 0;              // Configuration state OFF
-uint8_t MeatPack::second_char = 0;        // The unpacked 2nd character from an out-of-sequence packed pair
-uint8_t MeatPack::cmd_count = 0,          // Counts how many command bytes are received (need 2)
-        MeatPack::full_char_count = 0,    // Counts how many full-width characters are to be received
-        MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
-uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
 
 // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
 // Stored in SRAM for performance.
@@ -223,4 +214,4 @@ uint8_t MeatPack::get_result_char(char* const __restrict out) {
   return res;
 }
 
-#endif // MEATPACK
+#endif // HAS_MEATPACK

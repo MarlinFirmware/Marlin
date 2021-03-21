@@ -44,8 +44,8 @@ static void TXBegin() {
     #warning "Using POSTMORTEM_DEBUGGING requires a physical U(S)ART hardware in case of severe error."
     #warning "Disabling the severe error reporting feature currently because the used serial port is not a HW port."
   #else
-    // We use MYSERIAL0 here, so we need to figure out how to get the linked register
-    struct usart_dev* dev = MYSERIAL0.c_dev();
+    // We use MYSERIAL1 here, so we need to figure out how to get the linked register
+    struct usart_dev* dev = MYSERIAL1.c_dev();
 
     // Or use this if removing libmaple
     // int irq = dev->irq_num;
@@ -80,7 +80,7 @@ static void TXBegin() {
 #define sw_barrier() __asm__ volatile("": : :"memory");
 static void TX(char c) {
   #if WITHIN(SERIAL_PORT, 1, 6)
-    struct usart_dev* dev = MYSERIAL0.c_dev();
+    struct usart_dev* dev = MYSERIAL1.c_dev();
     while (!(dev->regs->SR & USART_SR_TXE)) {
       TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
       sw_barrier();
