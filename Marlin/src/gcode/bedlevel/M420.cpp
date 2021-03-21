@@ -63,6 +63,13 @@ void GcodeSuite::M420() {
              to_enable = seen_S ? parser.value_bool() : planner.leveling_active;
 
   #if ENABLED(MARLIN_DEV_MODE)
+    int x, y;
+
+    #define GRID_LOOP(x, y) { \
+      Z_VALUES(x, y) = 0.001 * random(-200, 200); \
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y))); \
+    }
+
     if (parser.intval('S') == 2) {
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
@@ -71,10 +78,6 @@ void GcodeSuite::M420() {
         bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_POINTS_X - 1),
                                   (y_max - y_min) / (GRID_MAX_POINTS_Y - 1));
       #endif
-      GRID_LOOP(x, y) {
-        Z_VALUES(x, y) = 0.001 * random(-200, 200);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
-      }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOPAIR(" (", x_min);
       SERIAL_CHAR(','); SERIAL_ECHO(y_min);
