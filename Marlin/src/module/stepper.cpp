@@ -347,6 +347,25 @@ xyze_int8_t Stepper::count_direction{0};
     A##4_STEP_WRITE(V);                           \
   }
 
+/**
+* Dual Extruder Stepper Driver
+*
+* EXPERIMENTAL code to drive a second extruder (E1) identically to the first (E0)
+* For setups with push-pull extruder motors and similar.
+* Thanks to Bo Herrmannsen & Marlin Discord 
+*
+* Pasted in by Alex Gibson (Edumaker) 20210321
+*/
+
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #define INVERT_E2_VS_E_DIR true   // Set 'true' if E motors should rotate in opposite directions
+  //#define E_DUAL_ENDSTOPS
+  #if ENABLED(E_DUAL_ENDSTOPS)
+    #define E2_USE_ENDSTOP _XMAX_
+    #define E2_ENDSTOP_ADJUSTMENT  0
+  #endif
+#endif
+
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
