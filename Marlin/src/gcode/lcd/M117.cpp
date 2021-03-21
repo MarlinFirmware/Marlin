@@ -34,9 +34,9 @@
   void GcodeSuite::M117() {
 
     if (parser.string_arg && parser.string_arg[0])
-      Host_Print_Text(parser.string_arg);
+      DWIN_StatusChanged(parser.string_arg);
     else
-      Host_Print_Text((char*)"");
+      DWIN_StatusChanged((char*)"");
 
   }
 

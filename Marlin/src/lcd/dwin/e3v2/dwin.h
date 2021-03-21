@@ -270,4 +270,4 @@ void Stop_Print();
 
 // Aditional Host and MarlinUI Support
 void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
-void Host_Print_Text(char * const text);
+void DWIN_Print_Header(const char *text);

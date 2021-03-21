@@ -954,13 +954,8 @@ void Goto_PrintProcess() {
   if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
   ICON_Stop();
 
-  if (sdprint) {
-    // Copy into filebuf string before entry
-    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, card.longest_filename());
-  } else {
-    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, F("Host Print"));
-  }
-
+  DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
+  
   DWIN_ICON_Show(ICON, ICON_PrintTime, 15, 173);
   DWIN_ICON_Show(ICON, ICON_RemainTime, 150, 171);
 
@@ -2781,7 +2776,7 @@ void HMI_FilamentMan(){
         checkkey = Prepare;
         select_prepare.set(1);
         index_prepare = MROWS;
-        DWIN_StatusChanged("");
+        DWIN_StatusChanged((char*)"");
         Draw_Prepare_Menu();
         break;
       case 1: // Filament Change
@@ -2816,31 +2811,31 @@ void HMI_ManualLev() {
 
     switch (select_item.now) {
       case 0: // Back
-        DWIN_StatusChanged("");
-        queue.inject_P(PSTR("M420 S1\nG90\nG0 Z2"));
+        DWIN_StatusChanged((char*)"");
+        //queue.inject_P(PSTR("M420 S1\nG90\nG0 Z2"));
         checkkey = Prepare;
         select_prepare.set(3);
         index_prepare = MROWS;
         Draw_Prepare_Menu();
         break;
       case 1: // move to front left
-        DWIN_StatusChanged("Level front left");
+        DWIN_StatusChanged((char*)"Level front left");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
         break;
       case 2: // move to front right
-        DWIN_StatusChanged("Level front right");
+        DWIN_StatusChanged((char*)"Level front right");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
         break;
       case 3: // move to back right
-        DWIN_StatusChanged("Level back right");
+        DWIN_StatusChanged((char*)"Level back right");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
         break;
       case 4: // move to back left
-        DWIN_StatusChanged("Level back left");
+        DWIN_StatusChanged((char*)"Level back left");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
         break;
       case 5: // move to center
-        DWIN_StatusChanged("Level center");
+        DWIN_StatusChanged((char*)"Level center");
         queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
         break;
     }
@@ -4088,6 +4083,17 @@ void DWIN_PidTuning(pidresult_t result){
   }
 }
 
+void DWIN_Print_Header(const char *text = nullptr) {
+  char headertxt[31] = "";
+  if (text!=nullptr) {
+    const int8_t size = _MIN((unsigned) 30, strlen_P(text));
+    LOOP_L_N(i, size) headertxt[i] = text[i];
+    headertxt[size+1] = '\0';
+  }    
+  if (checkkey == PrintProcess)
+    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, headertxt);
+}
+
 void DWIN_StatusChanged(const char *text) {
   DWIN_Draw_Rectangle(1, Color_Bg_LBlue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y+20);
   DWIN_Draw_CenteredString(false, false, font8x16, Color_Yellow, Color_Bg_LBlue, MENU_CHR_W, STATUS_Y+2, F(text));
@@ -4123,11 +4129,6 @@ void DWIN_Progress_Update(uint8_t percent, uint32_t remaining) {
     Draw_Print_ProgressRemain();
     Draw_Print_ProgressElapsed();
   }
-}
-
-//Print Text with G-code M117 (only basic ASCII)
-void Host_Print_Text(char * const text) {
-  DWIN_StatusChanged(text);
 }
 
 #endif // DWIN_CREALITY_LCD

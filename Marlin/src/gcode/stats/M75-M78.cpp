@@ -35,7 +35,9 @@
  */
 void GcodeSuite::M75() {
   startOrResumeJob();
+
   TERN_(DWIN_CREALITY_LCD, Start_Print(false));
+  TERN_(DWIN_CREALITY_LCD, DWIN_Print_Header((parser.string_arg && parser.string_arg[0]) ? parser.string_arg : (char*)"Host Print"));
 }
 
 /**
