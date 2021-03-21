@@ -720,7 +720,7 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
-      #if DISABLED(IS_RAMPS_SMART)
+      #if DISABLED(ALLOW_SAM3X8E)
         #error "No pins defined for RAMPS with AZSMZ_12864."
       #endif
 
