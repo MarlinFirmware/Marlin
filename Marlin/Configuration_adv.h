@@ -523,7 +523,8 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
+//?? #define HOTEND_FAN_PIN       PB0 // Hotend fan on Heater2
+#define E0_AUTO_FAN_PIN FAN1_PIN  // PC15 //E0_AUTO_FAN_PIN // HOTEND_FAN_PIN // -1
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
@@ -915,9 +916,9 @@
 #define DISABLE_INACTIVE_E true
 
 // Default Minimum Feedrates for printing and travel moves
-#define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s) Minimum feedrate. Set with M205 S.
-#define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
-
+#define DEFAULT_MINIMUMFEEDRATE       1 // 0.0     // (mm/s) Minimum feedrate. Set with M205 S.
+#define DEFAULT_MINTRAVELFEEDRATE     10 // 0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
+   
 // Minimum time that a segment needs to take as the buffer gets emptied
 #define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
 
@@ -1209,7 +1210,7 @@
   #endif
 
   // Scroll a longer status message into view
-  //#define STATUS_MESSAGE_SCROLLING
+  #define STATUS_MESSAGE_SCROLLING
 
   // On the Info Screen, display XY with one decimal place when possible
   //#define LCD_DECIMAL_SMALL_XY
@@ -1258,7 +1259,7 @@
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
-  //#define SD_DETECT_STATE HIGH
+  #define SD_DETECT_STATE HIGH
 
   //#define SD_IGNORE_AT_STARTUP            // Don't mount the SD card when starting up
   //#define SDCARD_READONLY                 // Read-only SD card (to save over 2K of flash)
@@ -1277,9 +1278,9 @@
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
   //#define NO_SD_AUTOSTART                 // Remove auto#.g file support completely to save some Flash, SRAM
-  //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
+  #define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
-  //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
+  #define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
 
   #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
@@ -1402,7 +1403,7 @@
    *
    * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
-  //#define USB_FLASH_DRIVE_SUPPORT
+  #define USB_FLASH_DRIVE_SUPPORT
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     /**
      * USB Host Shield Library
@@ -1414,19 +1415,40 @@
      *   is less tested and is known to interfere with Servos.
      *   [1] This requires USB_INTR_PIN to be interrupt-capable.
      */
-    //#define USE_UHS2_USB
-    //#define USE_UHS3_USB
-
+    #define USE_UHS2_USB  // Does not work
+    //#define USE_UHS3_USB // Does not compile
+    
+    // SWI_IRQ_NUM? LED_BUITLIN ?
+    #if EITHER(USE_UHS2_USB, USE_UHS3_USB) // Required by UHSx
+      #define SWI_IRQ_NUM 666 // because this board is totally evil.
+      #define LED_BUILTIN LED_PIN
+    #endif
     /**
      * Native USB Host supported by some boards (USB OTG)
      */
-    //#define USE_OTG_USB_HOST
-
+    #define USE_OTG_USB_HOST
     #if DISABLED(USE_OTG_USB_HOST)
       #define USB_CS_PIN    SDSS
       #define USB_INTR_PIN  SD_DETECT_PIN
     #endif
   #endif
+  
+  //  #define USBHOST
+  // https://github.com/stm32duino/Arduino_Core_STM32/issues/817
+  // https://github.com/rhapsodyv/Arduino_Core_STM32
+  /** USB_OTG_FS_CORE Enables the use of the full speed core.  12Mbps
+      USE_USB_OTG_FS
+      USB_OTG_HS_CORE Enables the use of the high speed core. 480Mbps
+      USE_USB_OTG_HS
+  **/
+  //#define USB_OTG_FS_CORE
+  //#define USE_USB_OTG_FS
+  //#define USE_OTG_USB_HOST
+  //#define SOFTWARE_SPI
+  // https://github.com/STMicroelectronics/stm32_mw_usb_host
+  // https://github.com/prusa3d/Prusa-Firmware-Buddy
+  // STM32 Cube ...
+  //https://github.com/STMicroelectronics/STM32CubeF4
 
   /**
    * When using a bootloader that supports SD-Firmware-Flashing,
@@ -1456,7 +1478,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  //#define SDCARD_CONNECTION LCD
+  //#define SDCARD_CONNECTION ONBOARD // LCD
 
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
@@ -1546,10 +1568,10 @@
   //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
 
   // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
-  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
+  #define MARLIN_BRICKOUT
+  #define MARLIN_INVADERS
+  #define MARLIN_SNAKE
+  #define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
 #endif // HAS_MARLINUI_U8GLIB
 
@@ -2129,23 +2151,24 @@
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  */
-//#define FWRETRACT
+/* Retract Length = 5.5 // Recover Length = 5.4 // Retract and Recover Speed = 80 // Z-Axis Lift = 0.2 */
+#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  #define FWRETRACT_AUTORETRACT             // Override slicer retractions
+  #define FWRETRACT_AUTORETRACT           // Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
-    #define MIN_AUTORETRACT             0.1 // (mm) Don't convert E moves under this length
-    #define MAX_AUTORETRACT            10.0 // (mm) Don't convert E moves over this length
+    #define MIN_AUTORETRACT 0.1           // (mm) Don't convert E moves under this length
+    #define MAX_AUTORETRACT 10.0          // (mm) Don't convert E moves over this length
   #endif
-  #define RETRACT_LENGTH                3   // (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP          13   // (mm) Default swap retract length (positive value)
-  #define RETRACT_FEEDRATE             45   // (mm/s) Default feedrate for retracting
-  #define RETRACT_ZRAISE                0   // (mm) Default retract Z-raise
-  #define RETRACT_RECOVER_LENGTH        0   // (mm) Default additional recover length (added to retract length on recover)
-  #define RETRACT_RECOVER_LENGTH_SWAP   0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
-  #define RETRACT_RECOVER_FEEDRATE      8   // (mm/s) Default feedrate for recovering from retraction
-  #define RETRACT_RECOVER_FEEDRATE_SWAP 8   // (mm/s) Default feedrate for recovering from swap retraction
+  #define RETRACT_LENGTH 5.5 // 3                // (mm) Default retract length (positive value)
+  #define RETRACT_LENGTH_SWAP 13          // (mm) Default swap retract length (positive value)
+  #define RETRACT_FEEDRATE 80 // 45             // (mm/s) Default feedrate for retracting
+  #define RETRACT_ZRAISE 0.2 // 0                // (mm) Default retract Z-raise
+  #define RETRACT_RECOVER_LENGTH -0.1 // 0        // (mm) Default additional recover length (added to retract length on recover)
+  #define RETRACT_RECOVER_LENGTH_SWAP 0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+  #define RETRACT_RECOVER_FEEDRATE 80 // 8      // (mm/s) Default feedrate for recovering from retraction
+  #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
-    //#define RETRACT_SYNC_MIXING           // Retract and restore all mixing steppers simultaneously
+    //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
   #endif
 #endif
 
@@ -3833,7 +3856,7 @@
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
