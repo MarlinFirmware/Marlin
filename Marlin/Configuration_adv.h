@@ -626,6 +626,7 @@
   #else
     #define E_APPLY_STEP(v,Q) do{ E_STEP_WRITE(v); E2_STEP_WRITE(v); }while(0)
   #endif
+#endif
 
 //#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
