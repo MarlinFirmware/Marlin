@@ -31,5 +31,4 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560 or 1280' in 'Tools > Board.'"
 #endif
 
-#undef ALLOW_SAM3X8E
 #undef REQUIRE_MEGA2560
