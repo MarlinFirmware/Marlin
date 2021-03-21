@@ -32,12 +32,12 @@ This is easily done via type definition of the feature.
 
 For example, to create a single serial interface with 2 serial outputs (one enabled at runtime and the other switchable):
 ```cpp
-typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial0Type;
+typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial1Class;
 ```
 
 To send the same output to 4 serial ports you could nest `MultiSerial` like this:
 ```cpp
-typedef MultiSerial< MultiSerial< BaseSerial<Serial>, BaseSerial<Serial1> >, MultiSerial< BaseSerial<Serial2>, BaseSerial<Serial3>, 2, 1>, 0, 2> Serial0Type;
+typedef MultiSerial< MultiSerial< BaseSerial<Serial>, BaseSerial<Serial1> >, MultiSerial< BaseSerial<Serial2>, BaseSerial<Serial3>, 2, 1>, 0, 2> Serial1Class;
 ```
 The magical numbers here are the step and offset for computing the serial port. Simplifying the above monster a bit:
 ```cpp

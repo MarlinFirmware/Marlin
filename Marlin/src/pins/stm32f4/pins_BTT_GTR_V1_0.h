@@ -21,9 +21,9 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 8 || E_STEPPERS > 8
+#include "env_validate.h"
+
+#if HOTENDS > 8 || E_STEPPERS > 8
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
 #elif HOTENDS > MAX_E_STEPPERS || E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."

@@ -26,7 +26,7 @@
 
 #if ANY_SERIAL_IS(0)
   MarlinSerial _MSerial(LPC_UART0);
-  MSerialT MSerial(true, _MSerial);
+  MSerialT MSerial0(true, _MSerial);
   extern "C" void UART0_IRQHandler() { _MSerial.IRQHandler(); }
 #endif
 #if ANY_SERIAL_IS(1)
@@ -51,7 +51,7 @@
     // Need to figure out which serial port we are and react in consequence (Marlin does not have CONTAINER_OF macro)
     if (false) {}
     #if ANY_SERIAL_IS(0)
-      else if (this == &_MSerial) emergency_parser.update(MSerial.emergency_state, c);
+      else if (this == &_MSerial) emergency_parser.update(MSerial0.emergency_state, c);
     #endif
     #if ANY_SERIAL_IS(1)
       else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);

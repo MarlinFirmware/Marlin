@@ -24,10 +24,7 @@
 /**
  * Azteeg X5 MINI pin assignments
  */
-
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Azteeg X5 MINI"

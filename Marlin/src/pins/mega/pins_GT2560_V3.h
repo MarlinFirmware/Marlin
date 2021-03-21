@@ -25,9 +25,8 @@
  * Geeetech GT2560 RevB + GT2560 3.0/3.1 + GT2560 4.0/4.1 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 RevB/3.x/4.x"

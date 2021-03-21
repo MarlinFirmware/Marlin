@@ -21,7 +21,7 @@ Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
 
 OPTIONS
   -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
-  -n --num         The index of the test to run. (In *-tests file order.)
+  -n --num         The index of the test to run. (In file order.)
   -m --make        Use the make / Docker method for the build.
   -y --build       Skip 'Do you want to build this test?' and assume YES.
   -h --help        Print this help.
@@ -30,7 +30,6 @@ OPTIONS
   -v --verbose     Extra output for debugging.
 
 env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
-
 "
 }
 
@@ -58,54 +57,55 @@ while getopts 'abhmruvyn:t:-:' OFLAG; do
     h) EXIT_USAGE=1 ;;
     m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
     n) case "$OPTARG" in
-         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=1 ;;
+         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=2 ;;
                 *) CHOICE="$OPTARG" ; bugout "Got a number: $CHOICE" ;;
        esac
        ;;
-    r) REBUILD=1         ; bugout "Rebuilding previous..."    ;;
+    r) REBUILD=1         ; bugout "Rebuilding previous..." ;;
     t) TESTENV="$OPTARG" ; bugout "Got a target: $TESTENV" ;;
-    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..."  ;;
+    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..." ;;
     v) DEBUG=1           ; bugout "Debug ON" ;;
-    y) BUILD_YES='Y'     ; bugout "Build will initiate..."    ;;
+    y) BUILD_YES='Y'     ; bugout "Build will initiate..." ;;
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
          help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
     autobuild) AUTO_BUILD=1 ; bugout "Auto-Build target..."  ;;
    autoupload) AUTO_BUILD=2 ; bugout "Auto-Upload target..." ;;
           env) case "$OVAL" in
-                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=2 ;;
                   *) TESTENV="$OVAL" ; bugout "Got a target: $TESTENV" ;;
                esac
                ;;
           num) case "$OVAL" in
                  [0-9]+) CHOICE="$OVAL" ; bugout "Got a number: $CHOICE" ;;
-                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=2 ;;
                esac
                ;;
-      rebuild) REBUILD=1      ; bugout "Rebuilding previous..."    ;;
-         make) USE_MAKE=1     ; bugout "Using make with Docker..." ;;
-debug|verbose) DEBUG=1        ; bugout "Debug ON" ;;
+      rebuild) REBUILD=1  ; bugout "Rebuilding previous..." ;;
+         make) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
+debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
         build) case "$OVAL" in
                  ''|y|yes) BUILD_YES='Y' ;;
                      n|no) BUILD_YES='N' ;;
-                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
+                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=2 ;;
                esac
                bugout "Build will initiate? ($BUILD_YES)"
                ;;
-            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
+            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=2 ;;
        esac
        ;;
+    *) EXIT_USAGE=2 ;;
   esac
 done
 
-((EXIT_USAGE)) && { usage ; exit 1 ; }
+((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
 
 if ((REBUILD)); then
   bugout "Rebuilding previous..."
   # Build with the last-built env
   [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
-  pio run -d . -e $TESTENV
+  pio run -s -d . -e $TESTENV
   exit
 fi
 
@@ -192,7 +192,7 @@ if ((AUTO_BUILD)); then
     pio run -t upload -e $TARGET
   else
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
-    pio run -e $TARGET
+    pio run -s -e $TARGET
   fi
   exit
 fi
@@ -204,11 +204,10 @@ fi
 if [[ $TESTENV == '-' ]]; then
   IND=0
   NAMES=()
-  for FILE in $( ls -1 $TESTPATH/*-tests )
+  for FILE in $( ls -1 $TESTPATH/* )
   do
     let IND++
-    TNAME=${FILE/-tests/}
-    TNAME=${TNAME/$TESTPATH\//}
+    TNAME=${FILE/$TESTPATH\//}
     NAMES+=($TNAME)
     (( IND < 10 )) && echo -n " "
     echo " $IND) $TNAME"
@@ -231,7 +230,7 @@ if [[ $TESTENV == '-' ]]; then
 fi
 
 # Get the contents of the test file
-OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
+OUT=$( cat $TESTPATH/$TESTENV 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
 
 # Count up the number of tests
 TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
@@ -297,7 +296,7 @@ echo "$OUT" | {
 echo -ne "\033[0m"
 
 # Make clear it's a TEST
-opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
+opt_set CUSTOM_MACHINE_NAME "\"Test $TESTENV ($CHOICE)\""
 
 # Build the test too?
 if [[ -z "$BUILD_YES" ]]; then
@@ -307,6 +306,6 @@ fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
   ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
-  ((USE_MAKE)) || pio run -d . -e $TESTENV
+  ((USE_MAKE)) || pio run -s -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }
