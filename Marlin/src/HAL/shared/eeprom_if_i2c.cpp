@@ -51,26 +51,19 @@ void eeprom_init() {
 
 static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRESS);
 
-void _beginTransmission(const uint16_t memoryAddress) {
-  if (MARLIN_EEPROM_SIZE > 0x4000) {  // Use two-byte addressing for EEPROMs >16kb
-    Wire.beginTransmission(eeprom_device_address);
-    Wire.write(memoryAddress >> 8);   // Address High Byte
-  }
-  else {
-    const uint8_t addr = eeprom_device_address | byte((memoryAddress >> 8) & 0x07);
-    Wire.beginTransmission(addr);
-  }
-  Wire.write(memoryAddress & 0xFF);   // Address Low Byte (or only byte for chips <= 16Kb like 24C02/04/08/16)
-}
-
 // ------------------------
 // Public functions
 // ------------------------
 
-void eeprom_write_byte(uint8_t *pos, unsigned char value) {
+static void _eeprom_begin(uint8_t * const pos) {
   const unsigned eeprom_address = (unsigned)pos;
+  Wire.beginTransmission(eeprom_device_address);
+  Wire.write(int(eeprom_address >> 8));   // Address High
+  Wire.write(int(eeprom_address & 0xFF)); // Address Low
+}
 
-  _beginTransmission(eeprom_address);
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
+  _eeprom_begin(pos);
   Wire.write(value);
   Wire.endTransmission();
 
@@ -80,14 +73,9 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
 }
 
 uint8_t eeprom_read_byte(uint8_t *pos) {
-  const unsigned eeprom_address = (unsigned)pos;
-
-  _beginTransmission(eeprom_address);
+  _eeprom_begin(pos);
   Wire.endTransmission();
-
-  // For EEPROMs <=16Kb the lower address bits are used for 2Kb page address
-  const int addr = eeprom_device_address | (MARLIN_EEPROM_SIZE <= 0x4000 ? byte((eeprom_address >> 8) & 0x07) : byte(0));
-  Wire.requestFrom(addr, byte(1));
+  Wire.requestFrom(eeprom_device_address, (byte)1);
   return Wire.available() ? Wire.read() : 0xFF;
 }
 
