@@ -555,6 +555,7 @@
       #define E2_SERIAL_RX_PIN _EPIN(E2_E_INDEX, SERIAL_RX)
     #endif
   #endif
+#endif
 
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
