@@ -45,7 +45,7 @@ inline int bs_read_serial(const serial_index_t index) {
 #else
   static uint8_t decode_buffer[512] = {};
 #endif // ARDUINO_ARCH_STM32F1
-#endif // ENABLED(BINARY_STREAM_COMPRESSION)
+#endif // BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
 
 class SDFileTransferProtocol  {
 private:
