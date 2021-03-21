@@ -550,6 +550,25 @@
  * in X2. Dual endstop offsets can be set at runtime with 'M666 X<offset> Y<offset> Z<offset>'.
  */
 
+/**
+* Dual Extruder Stepper Driver
+*
+* EXPERIMENTAL code to drive a second extruder (E1) identically to the first (E0)
+* For setups with push-pull extruder motors and similar.
+* Thanks to Bo Herrmannsen & Marlin Discord 
+*
+* Pasted in by Alex Gibson (Edumaker) 20210321
+*/
+
+//#define E_DUAL_STEPPER_DRIVERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #define E_APPLY_DIR(v,Q) do{ E_DIR_WRITE(v); E2_DIR_WRITE((v) != INVERT_E2_VS_E_DIR); }while(0)
+  #if ENABLED(E_DUAL_ENDSTOPS)
+    #define E_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(E,v)
+  #else
+    #define E_APPLY_STEP(v,Q) do{ E_STEP_WRITE(v); E2_STEP_WRITE(v); }while(0)
+  #endif
+
 //#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define INVERT_X2_VS_X_DIR true   // Set 'true' if X motors should rotate in opposite directions
