@@ -72,7 +72,7 @@
   #include "../../libs/least_squares_fit.h"
   #include "../../libs/vector_3.h"
 #endif
-#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, AUTO_BED_LEVELING_UBL)
+#if ENABLED(HAS_BED_PROBE)
   #include "../../module/probe.h"
 #endif
 
@@ -2503,7 +2503,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   Popup_Handler(Heating);
-                  probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+                  thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+                  thermalManager.setTargetBed(LEVELING_BED_TEMP);
+                  thermalManager.wait_for_hotend(0);
+                  thermalManager.wait_for_bed_heating();
                 #endif
                 Popup_Handler(Level);
                 gcode.process_subcommands_now_P(PSTR("G29 P0\nG29 P1"));
@@ -2525,7 +2528,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               #if ENABLED(PREHEAT_BEFORE_LEVELING)
                 Popup_Handler(Heating);
-                probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+                thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+                thermalManager.setTargetBed(LEVELING_BED_TEMP);
+                thermalManager.wait_for_hotend(0);
+                thermalManager.wait_for_bed_heating();
               #endif
               ubl_conf.mesh_step_warning = false;
               ubl_conf.manual_move();
