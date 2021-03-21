@@ -169,7 +169,7 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 
 void DGUSScreenHandler::SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
-  LIMIT(Settings.standby_time_seconds, 10, 1000); // Prevent a possible all-dark screen for standby
+  LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
   dgusdisplay.SetTouchScreenConfiguration(Settings.display_standby, Settings.display_sound, Settings.standby_screen_brightness, Settings.screen_brightness, Settings.standby_time_seconds);
 }
