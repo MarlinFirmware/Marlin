@@ -1303,32 +1303,29 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
 }
 
 #if ENABLED(UBL_HILBERT_CURVE)
-   void unified_bed_leveling::hilbert(mesh_index_pair &pt, float x, float y, float xi, float xj, float yi, float yj, int n) {
-      /* Hilbert space filling curve implementation
-       *
-       * x and y are the coordinates of the bottom left corner 
-       * xi & xj are the i & j components of the unit x vector of the frame 
-       * similarly yi and yj
-       *
-       * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
-       */
-      if (n <= 0) {
-        check_if_missing(pt, x + (xi + yi)/2, y + (xj + yj)/2);
-      } else {
-        hilbert(pt, x,           y,           yi/2,  yj/2,  xi/2,  xj/2, n-1);
-        hilbert(pt, x+xi/2,      y+xj/2,      xi/2,  xj/2,  yi/2,  yj/2, n-1);
-        hilbert(pt, x+xi/2+yi/2, y+xj/2+yj/2, xi/2,  xj/2,  yi/2,  yj/2, n-1);
-        hilbert(pt, x+xi/2+yi,   y+xj/2+yj,  -yi/2, -yj/2, -xi/2, -xj/2, n-1);
-      }
-   }
+  constexpr int8_t to_fix(int8_t v)  {return v << 1;}
+  constexpr int8_t to_int(int8_t v)  {return v >> 1;}
+  constexpr uint8_t log2(uint8_t n)  {return (n > 1) ? 1 + log2(n >> 1) : 0;}
+  constexpr uint8_t order(uint8_t n) {return uint8_t(log2(n - 1)) + 1;}
 
-   constexpr size_t log2(size_t n) {
-     return (n > 1) ? 1 + log2(n >> 1) : 0;
-   }
-
-   constexpr size_t order(size_t n) {
-     return size_t(log2(n-1))+1;
-   }
+  void unified_bed_leveling::hilbert(mesh_index_pair &pt, int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n) {
+    /* Hilbert space filling curve implementation
+     *
+     * x and y are the coordinates of the bottom left corner 
+     * xi & xj are the i & j components of the unit x vector of the frame 
+     * similarly yi and yj
+     *
+     * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
+     */
+    if (n <= 0)
+      check_if_missing(pt, to_int(x+(xi+yi)/2),to_int(y+(xj+yj)/2));
+    else {
+      hilbert(pt, x,           y,           yi/2,  yj/2,  xi/2,  xj/2, n-1);
+      hilbert(pt, x+xi/2,      y+xj/2,      xi/2,  xj/2,  yi/2,  yj/2, n-1);
+      hilbert(pt, x+xi/2+yi/2, y+xj/2+yj/2, xi/2,  xj/2,  yi/2,  yj/2, n-1);
+      hilbert(pt, x+xi/2+yi,   y+xj/2+yj,  -yi/2, -yj/2, -xi/2, -xj/2, n-1);
+    }
+  }
 
   void unified_bed_leveling::check_if_missing(mesh_index_pair &pt, int x, int y) {
       if (pt.distance < 0       &&
@@ -1341,12 +1338,13 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
       }
    }
 
-   mesh_index_pair unified_bed_leveling::next_point_in_grid() {
+   mesh_index_pair unified_bed_leveling::find_next_mesh_point() {
      mesh_index_pair pt;
      pt.invalidate();
      pt.distance = -99999.9f;
-     constexpr int n = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-     hilbert(pt, 0, 0, 1 << n, 0, 0, 1 << n, n);
+     constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+     constexpr uint8_t dim = 1 << ord; 
+     hilbert(pt, to_fix(0), to_fix(0),to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
      return pt;
    }
 #endif
