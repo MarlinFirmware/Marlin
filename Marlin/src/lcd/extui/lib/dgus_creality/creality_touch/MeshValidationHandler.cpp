@@ -28,6 +28,8 @@ void MeshValidationHandler::Init() {
     // Set to PLA pre-heat temps by default
     nozzle_temperature = ui.material_preset[0].hotend_temp;
     bed_temperature = ui.material_preset[0].bed_temp;
+
+    ValidateTemperatures();
 }
 
 void MeshValidationHandler::HandleTemperature(DGUS_VP_Variable &var, void *val_ptr) {
@@ -74,7 +76,6 @@ void MeshValidationHandler::Start() {
     // Set feedrate
     prev_feedrate = ExtUI::getFeedrate_mm_s();
     ExtUI::setFeedrate_mm_s(MESH_VALIDATION_PATTERN_FEEDRATE);
-
 
     SetStatusMessage("Starting...");
 }
@@ -139,7 +140,7 @@ void MeshValidationHandler::OnMeshValidationFinish() {
 
 void MeshValidationHandler::ValidateTemperatures() {
     LIMIT(nozzle_temperature, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP);
-    LIMIT(bed_temperature, BED_MINTEMP, BED_MAXTEMP);
+    LIMIT(bed_temperature, 40 /*Hardcoded minimum for G26, apparently*/, BED_MAXTEMP);
 }
 
 void MeshValidationHandler::SetStatusMessage(PGM_P statusMessage) {
