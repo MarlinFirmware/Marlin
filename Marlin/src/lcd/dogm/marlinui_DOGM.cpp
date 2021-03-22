@@ -216,6 +216,7 @@ bool MarlinUI::detected() { return true; }
     };
 
     auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
+      u8g.getU8g()->pin_list[U8G_PI_A0_STATE] = U8G_PIN_NONE;
       u8g.firstPage(); do { _draw_bootscreen_bmp(bitmap); } while (u8g.nextPage());
     };
 
