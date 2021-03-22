@@ -249,6 +249,7 @@
     #define Z_SERIAL_RX_PIN                   PC7   // IO1
     #define E0_SERIAL_TX_PIN                  PC13  // IO0
     #define E0_SERIAL_RX_PIN                  PC13  // IO0
+    #define TMC_BAUD_RATE                    19200
 #endif
 // Note:
 // HardwareSerial with one pins for four drivers
