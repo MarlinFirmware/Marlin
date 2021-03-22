@@ -378,7 +378,7 @@
       ![Internal Wiring for modules Temp, Fans](../../docs/images/ModuleTemp.png)
       
 ## 3.5. Mechanical & electronic precautions
-###  - Mechanical check.
+###  1. Mechanical check.
 
   To avoid destroying your belts after two weeks of use, inspect the bottom of your printer while removing the protective plate:
   If you find white blocks stuck with glue on your stepper motor, remove them because they are only used to hold your belts during transport and the first assembly of your printer. 
@@ -404,7 +404,7 @@
 
    ![Final_Support_Motor](../../docs/images/FinalSupportMotor.png)
 
-###  - Electronic check.
+###  2. Electronic check.
 
   - Check your power supply with a controler....
     
@@ -417,7 +417,7 @@
   ![Voltage](../../docs/images/AdjustVolt.png)
 
   
-  
+  ------------------------------------------------------
   
   - Check the Vref voltage of your stepper motor drivers with a controler.....
   
