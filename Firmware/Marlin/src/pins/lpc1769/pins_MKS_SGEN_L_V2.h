@@ -69,7 +69,7 @@
   #endif
 #else
   #define X_MIN_PIN                        P1_29  // X-
-  #if ENABLED(EZOUTV2_ENABLE)
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_PIN                   P1_28
     #define X_MAX_PIN                        -1  // X+
   #else
