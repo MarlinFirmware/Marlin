@@ -412,13 +412,14 @@
     
   ![PowerSupply](../../docs/images/PowerSupply.png)
 
-    You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
+  You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
     
   ![Voltage](../../docs/images/AdjustVolt.png)
 
   - Check the Vref voltage of your stepper motor drivers with a controler.....
   
   **WHY?**
+    
     Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
     Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
 
