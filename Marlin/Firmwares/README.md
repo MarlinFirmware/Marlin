@@ -345,12 +345,17 @@
     
     ![UART-TEST](../../docs/images/Uart_Test.png)
 
+**WARNING__!!** For the TMC2209s with two extra DIAG/VREF pins, you must isolate them before connecting them because these pins can touch the capacitor and destroy the stepper driver or the cpu of your board.
+
 ## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
     Caution!! 
     - Power off 
 
     ![Wiring 2209](../../docs/images/Wire2209.png)
+
+**WARNING__!!** For the TMC2209s with two extra DIAG/VREF pins, you must isolate them before connecting them because these pins can touch the capacitor and destroy the stepper driver or the cpu of your board.
+
 ## 3.3 Raspberry
   - Improve your Raspberry (Bauds, plugins, Network).
   
