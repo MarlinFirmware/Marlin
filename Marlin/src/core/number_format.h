@@ -50,8 +50,9 @@ struct EnsureDouble {
 template <typename Child>
 struct NumberFormatter
 {
-  // The only method you must implement in the child class
+  // The only methods you must implement in the child class
   size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
+  void writeDone()                  { static_cast<Child*>(this)->writeDone(); }
 
   // No default argument to avoid ambiguity
   NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
@@ -86,6 +87,8 @@ struct NumberFormatter
       while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
     }
     else write('0');
+
+    writeDone();
   }
   void printNumber(signed long n, const uint8_t base) {
     if (base == 10 && n < 0) {
@@ -127,5 +130,7 @@ struct NumberFormatter
         remainder -= toPrint;
       }
     }
+
+    writeDone();
   }
 };

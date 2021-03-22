@@ -63,6 +63,9 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
     SerialBase(const bool) {}
   #endif
 
+  // Used by NumberFormatter after each number formatting
+  void writeDone() {}
+
   // Static dispatch methods below:
   // The most important method here is where it all ends to:
   size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }

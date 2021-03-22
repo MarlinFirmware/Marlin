@@ -48,7 +48,9 @@ private:
     return *this;
   }
   // Not the most efficient here, but very simple
-  size_t write(uint8_t c) { if (checkItFits(len+1)) { buffer[len++] = c; buffer[len+1] = 0; return 1; } return 0; }
+  size_t write(uint8_t c) { if (checkItFits(len+1)) { buffer[len++] = c; return 1; } return 0; }
+  void writeDone()        { buffer[len] = 0; }
+
   friend BaseClass;
 
   // Operators
