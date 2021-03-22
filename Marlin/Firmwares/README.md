@@ -432,6 +432,7 @@
   These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
   
   [Formulas:](https://v6zmvq5nk5.codesandbox.io)
+   
    A4988=>VREF = Rated motor current x 8 x Rsense x 0.9 (10% safety margin)
    TMC220x=>VREF = Rated motor current x 0.8 (20% safety margin)
 ***
