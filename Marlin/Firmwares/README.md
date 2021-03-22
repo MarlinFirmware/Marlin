@@ -416,6 +416,9 @@
     
   ![Voltage](../../docs/images/AdjustVolt.png)
 
+  
+  
+  
   - Check the Vref voltage of your stepper motor drivers with a controler.....
   
   **WHY?**
