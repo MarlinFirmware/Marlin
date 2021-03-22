@@ -342,6 +342,8 @@
   - Control UART mode.
     - You can check their operation, use the M122 command through a terminal. 
     You will find out which one is malfunctioning or working well.
+    
+    ![UART-TEST](../../docs/images/Uart_Test.png)
 
 ## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
