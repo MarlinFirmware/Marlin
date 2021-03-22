@@ -420,17 +420,20 @@
   
   **WHY?**
     
-    Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
-    Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
+  Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
+  Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
 
-    For the A4988s, the Vref should be between 0.65 and 0.79v.
-    For TMC220xs, Vref should be between 0.8 and 1v.
-    Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
+  For the A4988s, the Vref should be between 0.65 and 0.79v.
+  For TMC220xs, Vref should be between 0.8 and 1v.
+  Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
 
   ![Vref_stepper](../../docs/images/AdjustVref.png)
   
-    These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
-
+  These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
+  
+  [Formulas:](https://v6zmvq5nk5.codesandbox.io)
+   A4988=>VREF = Rated motor current x 8 x Rsense x 0.9 (10% safety margin)
+   TMC220x=>VREF = Rated motor current x 0.8 (20% safety margin)
 ***
 # 4. SLICER PART
 ### **TIPS-SLICER** 
