@@ -406,30 +406,29 @@
 
 ###  - Electronic check.
 
-  Check your power supply with a controler....
+  - Check your power supply with a controler....
     
-    
-  When my printer arrived but you can still do it afterwards, I switched on and controlled the power output using a multimeter (channel higher than 30V DC). I noticed that the multimeter was measuring 23.6v DC output!! This is not enough to power all the electronics. 
+    When my printer arrived but you can still do it afterwards, I switched on and controlled the power output using a multimeter (channel higher than 30V DC). I noticed that the multimeter was measuring 23.6v DC output!! This is not enough to power all the electronics. 
     
   ![PowerSupply](../../docs/images/PowerSupply.png)
 
-  You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
+    You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
     
   ![Voltage](../../docs/images/AdjustVolt.png)
 
-  Check the Vref voltage of your stepper motor drivers with a controler.....
+  - Check the Vref voltage of your stepper motor drivers with a controler.....
   
-  WHY?
-  Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
-  Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
+  **WHY?**
+    Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
+    Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
 
-  For the A4988s, the Vref should be between 0.65 and 0.79v.
-  For TMC220xs, Vref should be between 0.8 and 1v.
-  Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
+    For the A4988s, the Vref should be between 0.65 and 0.79v.
+    For TMC220xs, Vref should be between 0.8 and 1v.
+    Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
 
   ![Vref_stepper](../../docs/images/AdjustVref.png)
   
-  These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
+    These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
 
 ***
 # 4. SLICER PART
