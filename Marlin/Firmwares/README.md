@@ -331,6 +331,9 @@
   - This chapter is being written ...............
 
 ## 3.1 TMC with UART mode
+
+**! WARNING !** For the **TMC2209s** with two extra **DIAG/VREF** pins, you must isolate them before connecting them because these pins can touch the capacitor and destroy the stepper driver or the cpu of your board.
+
   - Wiring for UART mode.
     - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1).
       Also remove only the M3 jumper under the stepper motors and set J11 (QQS) (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
@@ -345,16 +348,12 @@
     
     ![UART-TEST](../../docs/images/Uart_Test.png)
 
-**WARNING__!!** For the TMC2209s with two extra DIAG/VREF pins, you must isolate them before connecting them because these pins can touch the capacitor and destroy the stepper driver or the cpu of your board.
-
 ## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
     Caution!! 
     - Power off 
 
     ![Wiring 2209](../../docs/images/Wire2209.png)
-
-**WARNING__!!** For the TMC2209s with two extra DIAG/VREF pins, you must isolate them before connecting them because these pins can touch the capacitor and destroy the stepper driver or the cpu of your board.
 
 ## 3.3 Raspberry
   - Improve your Raspberry (Bauds, plugins, Network).
