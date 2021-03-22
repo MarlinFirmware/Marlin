@@ -332,12 +332,17 @@
 
 ## 3.1 TMC with UART mode
   - Wiring for UART mode.
-    - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1).
-      Also remove only the M3 jumper under the stepper motors and set J11 (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
+      Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1).
+      Also remove only the M3 jumper under the stepper motors and set J11 (QQS) (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
     
     ![UART-WIFI](../../docs/images/UART-WIFI.png)  
 
     ![Wiring UART](../../docs/images/WireUART.png) ![UART-M3](../../docs/images/Uart-Jumper_M3.png)
+    
+  - Control UART mode.
+    you can check their operation, use the M122 command through a terminal. 
+    You will find out which one is malfunctioning or working well.
+
 ## 3.2 TMC2209 Single wire
   - Wiring for UART mode.
     Caution!! 
@@ -409,6 +414,20 @@
   You can adjust this voltage to 24.1V DC by manipulating with an insulated or ceramic screwdriver, the small potientionmeter which is just next to the power supply outputs (Blue Circle on the picture). 
     
   ![Voltage](../../docs/images/AdjustVolt.png)
+
+  Check the Vref voltage of your stepper motor drivers with a controler.....
+  
+  WHY?
+  Underpowered, it will lose its torque and may even vibrate without being able to keep its stable position.
+  Supercharged, it will make a lot of noise by resonance and of course will overheat (the stepper motor driver also reacts).
+
+  For the A4988s, the Vref should be between 0.65 and 0.79v.
+  For TMC220xs, Vref should be between 0.8 and 1v.
+  Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
+
+  ![Vref_stepper](../../docs/images/AdjustVref.png)
+  
+  These Vref values depend on the properties of your stepper motors and are obtained by calculation. If you change your stepper motors, you must readjust these Vrefs!
 
 ***
 # 4. SLICER PART
