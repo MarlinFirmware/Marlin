@@ -432,7 +432,7 @@
 
   For the A4988s, the Vref should be between 0.65 and 0.79v.
   For TMC220xs, Vref should be between 0.8 and 1v.
-  Mine are 900mv for the XYZ axes and 850mv for the extruder(E).
+  Mine are 960mv for the XYZE axes but I set them in UART by the current (Irms) and currently I have 900mA on XYZ and 850mA on Ext.
 
   ![Vref_stepper](../../docs/images/AdjustVref.png)
   
