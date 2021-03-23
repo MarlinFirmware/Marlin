@@ -127,13 +127,13 @@ void menu_configuration();
     #endif
     #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(PSTR(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
-    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)    \
-      SUBMENU_P(PSTR(USER_DESC_##N), []{    \
-          MenuItem_confirm::confirm_screen( \
-            GCODE_LAMBDA_MAIN(N),           \
-            ui.goto_previous_screen,        \
-            PSTR(USER_DESC_##N "?")         \
-          );                                \
+    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
+      SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(          \
+            GCODE_LAMBDA_MAIN(N),                    \
+            ui.goto_previous_screen,                 \
+            PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
+          );                                         \
         })
 
     #define CUSTOM_ITEM_MAIN(N) do{ if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_MAIN_CONFIRM(N); else _CUSTOM_ITEM_MAIN(N); }while(0)

@@ -364,13 +364,13 @@ void menu_advanced_settings();
     #endif
     #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CONF_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONF_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
-    #define _CUSTOM_ITEM_CONF_CONFIRM(N)    \
-      SUBMENU_P(PSTR(USER_DESC_##N), []{    \
-          MenuItem_confirm::confirm_screen( \
-            GCODE_LAMBDA_CONF(N),           \
-            ui.goto_previous_screen,        \
-            PSTR(USER_DESC_##N "?")         \
-          );                                \
+    #define _CUSTOM_ITEM_CONF_CONFIRM(N)             \
+      SUBMENU_P(PSTR(CONF_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(          \
+            GCODE_LAMBDA_CONF(N),                    \
+            ui.goto_previous_screen,                 \
+            PSTR(CONF_MENU_ITEM_##N##_DESC "?")      \
+          );                                         \
         })
 
     #define CUSTOM_ITEM_CONF(N) do{ if (ENABLED(CONF_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_CONF_CONFIRM(N); else _CUSTOM_ITEM_CONF(N); }while(0)
