@@ -759,7 +759,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
       best = do_furthest  ? find_furthest_invalid_mesh_point()
                           : TERN(UBL_HILBERT_CURVE,
-                              next_point_in_grid(),
+                              find_next_mesh_point(),
                               find_closest_mesh_point_of_type(INVALID, nearby, true)
                             );
 
