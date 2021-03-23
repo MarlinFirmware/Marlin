@@ -57,7 +57,7 @@
 
 #define Serial0 Serial
 #define _DECLARE_SERIAL(X) \
-  typedef Serial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
   extern DefaultSerial##X MSerial##X
 #define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
 
