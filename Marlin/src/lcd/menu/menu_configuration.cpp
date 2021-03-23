@@ -338,7 +338,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if ENABLED(CUSTOM_MENUS_CONFIGURATION)
+#if ENABLED(CUSTOM_MENU_CONFIG)
 
   void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
     queue.inject_P(cmd);
@@ -350,11 +350,11 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_MAIN);
 
-    #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONF_MENU_ITEM_##N##_DESC) && defined(CONF_MENU_ITEM_##N##_GCODE))
+    #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
     #define CUSTOM_TEST_CONF(N) do{ \
-      constexpr char c = CONF_MENU_ITEM_##N##_GCODE[strlen(CONF_MENU_ITEM_##N##_GCODE) - 1]; \
-      static_assert(c != '\n' && c != '\r', "CONF_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+      constexpr char c = CONFIG_MENU_ITEM_##N##_GCODE[strlen(CONFIG_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "CONFIG_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
     }while(0)
 
     #ifdef CUSTOM_MENU_CONFIG_SCRIPT_DONE
@@ -362,18 +362,18 @@ void menu_advanced_settings();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CONF_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
-    #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONF_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
+    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
     #define _CUSTOM_ITEM_CONF_CONFIRM(N)             \
-      SUBMENU_P(PSTR(CONF_MENU_ITEM_##N##_DESC), []{ \
+      SUBMENU_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), []{ \
           MenuItem_confirm::confirm_screen(          \
             GCODE_LAMBDA_CONF(N),                    \
             ui.goto_previous_screen,                 \
-            PSTR(CONF_MENU_ITEM_##N##_DESC "?")      \
+            PSTR(CONFIG_MENU_ITEM_##N##_DESC "?")      \
           );                                         \
         })
 
-    #define CUSTOM_ITEM_CONF(N) do{ if (ENABLED(CONF_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_CONF_CONFIRM(N); else _CUSTOM_ITEM_CONF(N); }while(0)
+    #define CUSTOM_ITEM_CONF(N) do{ if (ENABLED(CONFIG_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_CONF_CONFIRM(N); else _CUSTOM_ITEM_CONF(N); }while(0)
 
     #if HAS_CUSTOM_ITEM_CONF(1)
       CUSTOM_TEST_CONF(1);
@@ -478,7 +478,7 @@ void menu_advanced_settings();
     END_MENU();
   }
 
-#endif // CUSTOM_MENUS_CONFIGURATION
+#endif // CUSTOM_MENU_CONFIG
 
 void menu_configuration() {
   const bool busy = printer_busy();
@@ -493,7 +493,7 @@ void menu_configuration() {
     SUBMENU(MSG_DEBUG_MENU, menu_debug);
   #endif
 
-  #if ENABLED(CUSTOM_MENUS_CONFIGURATION)
+  #if ENABLED(CUSTOM_MENU_CONFIG)
     if (TERN1(CUSTOM_MENU_CONFIG_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_CONFIG_TITLE
         SUBMENU_P(PSTR(CUSTOM_MENU_CONFIG_TITLE), custom_menus_configuration);

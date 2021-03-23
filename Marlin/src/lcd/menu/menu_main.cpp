@@ -101,7 +101,7 @@ void menu_configuration();
   void menu_language();
 #endif
 
-#if ENABLED(CUSTOM_MENUS_MAIN)
+#if ENABLED(CUSTOM_MENU_MAIN)
 
   void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
     queue.inject_P(cmd);
@@ -241,7 +241,7 @@ void menu_configuration();
     END_MENU();
   }
 
-#endif // CUSTOM_MENUS_MAIN
+#endif // CUSTOM_MENU_MAIN
 
 void menu_main() {
   const bool busy = printingIsActive()
@@ -348,7 +348,7 @@ void menu_main() {
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
-  #if ENABLED(CUSTOM_MENUS_MAIN)
+  #if ENABLED(CUSTOM_MENU_MAIN)
     if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
       #ifdef CUSTOM_MENU_MAIN_TITLE
         SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
