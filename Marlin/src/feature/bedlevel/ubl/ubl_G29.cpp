@@ -757,13 +757,13 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest
-        ? find_furthest_invalid_mesh_point()
-      #if ENABLED(UBL_HILBERT_CURVE)
-        : next_point_in_grid();
-      #else
-        : find_closest_mesh_point_of_type(INVALID, nearby, true);
-      #endif
+      best = do_furthest ? find_furthest_invalid_mesh_point() :
+        #if ENABLED(UBL_HILBERT_CURVE)
+          next_point_in_grid()
+        #else
+          find_closest_mesh_point_of_type(INVALID, nearby, true)
+        #endif
+      ;
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
@@ -1303,16 +1303,16 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
 }
 
 #if ENABLED(UBL_HILBERT_CURVE)
-  constexpr int8_t to_fix(int8_t v)  {return v << 1;}
-  constexpr int8_t to_int(int8_t v)  {return v >> 1;}
-  constexpr uint8_t log2(uint8_t n)  {return (n > 1) ? 1 + log2(n >> 1) : 0;}
-  constexpr uint8_t order(uint8_t n) {return uint8_t(log2(n - 1)) + 1;}
+  constexpr int8_t  to_fix(int8_t  v) { return v << 1; }
+  constexpr int8_t  to_int(int8_t  v) { return v >> 1; }
+  constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
+  constexpr uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
 
   void unified_bed_leveling::hilbert(mesh_index_pair &pt, int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n) {
     /* Hilbert space filling curve implementation
      *
-     * x and y are the coordinates of the bottom left corner 
-     * xi & xj are the i & j components of the unit x vector of the frame 
+     * x and y are the coordinates of the bottom left corner
+     * xi & xj are the i & j components of the unit x vector of the frame
      * similarly yi and yj
      *
      * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
@@ -1328,11 +1328,12 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
   }
 
   void unified_bed_leveling::check_if_missing(mesh_index_pair &pt, int x, int y) {
-      if (pt.distance < 0       &&
-          x < GRID_MAX_POINTS_X &&
-          y < GRID_MAX_POINTS_Y &&
-          isnan(z_values[x][y]) &&
-          probe.can_reach(mesh_index_to_xpos(x), mesh_index_to_ypos(y))) {
+      if (   pt.distance < 0
+          && x < GRID_MAX_POINTS_X
+          && y < GRID_MAX_POINTS_Y
+          && isnan(z_values[x][y])
+          && probe.can_reach(mesh_index_to_xpos(x), mesh_index_to_ypos(y))
+      ) {
         pt.pos.set(x, y);
         pt.distance = 1;
       }
@@ -1343,7 +1344,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
      pt.invalidate();
      pt.distance = -99999.9f;
      constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-     constexpr uint8_t dim = 1 << ord; 
+     constexpr uint8_t dim = 1 << ord;
      hilbert(pt, to_fix(0), to_fix(0),to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
      return pt;
    }
