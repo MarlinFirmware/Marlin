@@ -516,16 +516,6 @@
 // The X2 axis, if any, should be the next open extruder port
 #define X2_E_INDEX E_STEPPERS
 
-/**
-* Dual Extruder Stepper Driver
-*
-* EXPERIMENTAL code to drive a second extruder (E1) identically to the first (E0)
-* For setups with push-pull extruder motors and similar.
-* Thanks to Bo Herrmannsen & Marlin Discord 
-*
-* Pasted in by Alex Gibson (Edumaker) 20210321
-*/
-
 #if ENABLED(E_DUAL_STEPPER_DRIVERS)    
   #ifndef E2_STEP_PIN
     #define E2_STEP_PIN   _EPIN(E2_E_INDEX, STEP)
