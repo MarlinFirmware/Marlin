@@ -757,13 +757,11 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest ? find_furthest_invalid_mesh_point() :
-        #if ENABLED(UBL_HILBERT_CURVE)
-          next_point_in_grid()
-        #else
-          find_closest_mesh_point_of_type(INVALID, nearby, true)
-        #endif
-      ;
+      best = do_furthest  ? find_furthest_invalid_mesh_point()
+                          : TERN(UBL_HILBERT_CURVE,
+                              next_point_in_grid(),
+                              find_closest_mesh_point_of_type(INVALID, nearby, true)
+                            );
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
