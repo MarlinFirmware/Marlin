@@ -3,7 +3,7 @@
 # exit on first failure
 set -e
 
-SED=$(which gsed || which sed)
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
 
 ARGC=$#
 while [[ $# > 1 ]]; do
