@@ -39,7 +39,7 @@ using namespace Theme;
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(2,1)
   #define LEVEL_BED_POS      BTN_POS(1,3), BTN_SIZE(2,1)
-  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
+  #define EDIT_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
   #define BLTOUCH_TITLE_POS  BTN_POS(1,6), BTN_SIZE(2,1)
   #define BLTOUCH_RESET_POS  BTN_POS(1,7), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(2,7), BTN_SIZE(1,1)
@@ -50,7 +50,7 @@ using namespace Theme;
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(2,1)
   #define LEVEL_BED_POS      BTN_POS(1,3), BTN_SIZE(2,1)
-  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
+  #define EDIT_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
   #define BLTOUCH_TITLE_POS  BTN_POS(1,5), BTN_SIZE(2,1)
   #define BLTOUCH_RESET_POS  BTN_POS(1,6), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(2,6), BTN_SIZE(1,1)
@@ -79,7 +79,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
     #endif
        .tag(3).button(LEVEL_BED_POS, GET_TEXT_F(MSG_LEVEL_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(4).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
     #if ENABLED(BLTOUCH)
        .tag(5).button(BLTOUCH_RESET_POS, GET_TEXT_F(MSG_BLTOUCH_RESET))
        .tag(6).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
@@ -106,7 +106,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #endif
     break;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-    case 4: GOTO_SCREEN(BedMeshScreen); break;
+    case 4: BedMeshScreen::showMeshEditor(); break;
     #endif
     #if ENABLED(BLTOUCH)
     case 5: injectCommands_P(PSTR("M280 P0 S60")); break;
