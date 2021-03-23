@@ -139,7 +139,7 @@ if [[ $ACTION == "init" ]]; then
   ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset SCARA..." >/dev/null
 
   # Update the %VERSION% in the README.md file
-  SED=$(which gsed || which sed)
+  SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
   VERS=$( echo $EXPORT | $SED 's/release-//' )
   eval "${SED} -E -i~ -e 's/%VERSION%/$VERS/g' README.md"
   rm -f README.md~

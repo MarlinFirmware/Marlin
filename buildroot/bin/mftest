@@ -36,7 +36,7 @@ env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 tee
 TESTPATH=buildroot/tests
 
 STATE_FILE="./.pio/.mftestrc"
-SED=$(which gsed || which sed)
+SED=$(command -v gsed 2>/dev/null || command -v sed 2>/dev/null)
 
 shopt -s extglob nocasematch
 
