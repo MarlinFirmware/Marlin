@@ -22,20 +22,14 @@
 #pragma once
 
 /**
- * Hungarian
+ * Hungarian / Magyar
  *
  * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
- * English translation of Marlin 2.0.x bugfix. I am constantly improving and updating the translation.
- * The Hungarian translation was made by AntoszHUN
+ * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
  * Translation last updated: 21/03/2021 - 21:00
- * /
-
-/**
- * Magyar
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
- * Marlin 2.0.x bugfix Magyar fordítása. A fordítást folyamatosan javítom és frissítem.
- * A Magyar fordítást készítette: AntoszHUN
+ * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
  * A Fordítás utolsó frissítése: 2021.03.21. - 21:00
  */
 
