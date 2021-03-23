@@ -365,7 +365,7 @@ def compute_build_signature():
 
 	marlin_json = 'marlin_config.json'
 
-	Read existing config file
+	# Read existing config file
 	try:
 		with open(marlin_json, 'r') as infile:
 			conf = json.load(infile)
@@ -460,8 +460,8 @@ def compute_build_signature():
 	with open(marlin_json, 'w') as outfile:
 		json.dump(data, outfile, separators=(',', ':'))
 
-		# Now compress the JSON file to as much as we can
-		compress_file(marlin_json, '.pio/build/mc')
+	# Now compress the JSON file to as much as we can
+	compress_file(marlin_json, '.pio/build/mc')
 
 #
 # Return True if a matching feature is enabled
