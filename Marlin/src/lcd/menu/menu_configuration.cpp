@@ -342,8 +342,8 @@ void menu_advanced_settings();
 
   void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
     queue.inject_P(cmd);
-    TERN_(CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-    TERN_(CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN, ui.return_to_status());
+    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
   }
 
   void custom_menus_configuration() {
@@ -357,8 +357,8 @@ void menu_advanced_settings();
       static_assert(c != '\n' && c != '\r', "CONF_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
     }while(0)
 
-    #ifdef CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE
-      #define _DONE_SCRIPT "\n" CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE
+    #ifdef CUSTOM_MENU_CONFIG_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" CUSTOM_MENU_CONFIG_SCRIPT_DONE
     #else
       #define _DONE_SCRIPT ""
     #endif
@@ -494,9 +494,9 @@ void menu_configuration() {
   #endif
 
   #if ENABLED(CUSTOM_MENUS_CONFIGURATION)
-    if (TERN1(CUSTOM_MENU_CONFIGURATION_ONLY_IDLE, !busy)) {
-      #ifdef CUSTOM_MENUS_CONFIGURATION_TITLE
-        SUBMENU_P(PSTR(CUSTOM_MENUS_CONFIGURATION_TITLE), custom_menus_configuration);
+    if (TERN1(CUSTOM_MENU_CONFIG_ONLY_IDLE, !busy)) {
+      #ifdef CUSTOM_MENU_CONFIG_TITLE
+        SUBMENU_P(PSTR(CUSTOM_MENU_CONFIG_TITLE), custom_menus_configuration);
       #else
         SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_configuration);
       #endif

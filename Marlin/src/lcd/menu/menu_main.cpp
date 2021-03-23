@@ -350,8 +350,8 @@ void menu_main() {
 
   #if ENABLED(CUSTOM_MENUS_MAIN)
     if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
-      #ifdef CUSTOM_MENUS_MAIN_TITLE
-        SUBMENU_P(PSTR(CUSTOM_MENUS_MAIN_TITLE), custom_menus_main);
+      #ifdef CUSTOM_MENU_MAIN_TITLE
+        SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
       #else
         SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
       #endif

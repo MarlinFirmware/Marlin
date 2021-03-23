@@ -3423,11 +3423,11 @@
 // Custom Menus, Main Menu
 //#define CUSTOM_MENUS_MAIN
 #if ENABLED(CUSTOM_MENUS_MAIN)
-  //#define CUSTOM_MENUS_MAIN_TITLE "Custom Commands"
-  #define CUSTOM_MENUS_MAIN_SCRIPT_DONE "M117 User Script Done"
-  #define CUSTOM_MENUS_MAIN_SCRIPT_AUDIBLE_FEEDBACK
-  //#define CUSTOM_MENUS_MAIN_SCRIPT_RETURN   // Return to status screen after a script
-  #define CUSTOM_MENUS_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
+  //#define CUSTOM_MENU_MAIN_TITLE "Custom Commands"
+  #define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 User Script Done"
+  #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
+  //#define CUSTOM_MENU_MAIN_SCRIPT_RETURN   // Return to status screen after a script
+  #define CUSTOM_MENU_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
 
   #define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
   #define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"
@@ -3453,11 +3453,11 @@
 // Custom Menus, Configuration Menu
 //#define CUSTOM_MENUS_CONFIGURATION
 #if ENABLED(CUSTOM_MENUS_CONFIGURATION)
-  //#define CUSTOM_MENUS_CONFIGURATION_TITLE "Custom Commands"
-  #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE "M117 Wireless Script Done"
-  #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK
-  //#define CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN  // Return to status screen after a script
-  #define CUSTOM_MENUS_CONFIGURATION_ONLY_IDLE        // Only show custom menu when the machine is idle
+  //#define CUSTOM_MENU_CONFIG_TITLE "Custom Commands"
+  #define CUSTOM_MENU_CONFIG_SCRIPT_DONE "M117 Wireless Script Done"
+  #define CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK
+  //#define CUSTOM_MENU_CONFIG_SCRIPT_RETURN  // Return to status screen after a script
+  #define CUSTOM_MENU_CONFIG_ONLY_IDLE        // Only show custom menu when the machine is idle
 
   #define CONF_MENU_ITEM_1_DESC "Wifi ON"
   #define CONF_MENU_ITEM_1_GCODE "M118 [ESP110] WIFI-STA pwd=12345678"
