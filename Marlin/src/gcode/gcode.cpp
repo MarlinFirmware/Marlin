@@ -1049,8 +1049,8 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
     process_parsed_command(true);                     // Process it
-    if (delim) *delim = '\n';                         // Put back the newline
     if (!delim) break;                                // Last command?
+    *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
   parser.parse(saved_cmd);                            // Restore the parser state
