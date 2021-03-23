@@ -460,12 +460,27 @@ class Planner {
      * Static (class) Methods
      */
 
+    // Recalculate steps/s^2 accelerations based on mm/s^2 settings
     static void reset_acceleration_rates();
-    static void refresh_positioning();
-    static void set_max_acceleration(const uint8_t axis, float targetValue);
-    static void set_max_feedrate(const uint8_t axis, float targetValue);
-    static void set_max_jerk(const AxisEnum axis, float targetValue);
 
+    /**
+     * Recalculate 'position' and 'steps_to_mm'.
+     * Must be called whenever settings.axis_steps_per_mm changes!
+     */
+    static void refresh_positioning();
+
+    // For an axis set the Maximum Acceleration in mm/s^2
+    static void set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2);
+
+    // For an axis set the Maximum Feedrate in mm/s
+    static void set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS);
+
+    // For an axis set the Maximum Jerk (instant change) in mm/s
+    #if HAS_CLASSIC_JERK
+      static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
+    #else
+      static inline void set_max_jerk(const AxisEnum, const float&) {}
+    #endif
 
     #if EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
@@ -564,10 +579,10 @@ class Planner {
     #if ENABLED(SKEW_CORRECTION)
 
       FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
-        if (WITHIN(cx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
+        if (COORDINATE_OKAY(cx, X_MIN_POS + 1, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
           const float sx = cx - cy * skew_factor.xy - cz * (skew_factor.xz - (skew_factor.xy * skew_factor.yz)),
                       sy = cy - cz * skew_factor.yz;
-          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+          if (COORDINATE_OKAY(sx, X_MIN_POS, X_MAX_POS) && COORDINATE_OKAY(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
         }
@@ -575,10 +590,10 @@ class Planner {
       FORCE_INLINE static void skew(xyz_pos_t &raw) { skew(raw.x, raw.y, raw.z); }
 
       FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
-        if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
+        if (COORDINATE_OKAY(cx, X_MIN_POS, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS, Y_MAX_POS)) {
           const float sx = cx + cy * skew_factor.xy + cz * skew_factor.xz,
                       sy = cy + cz * skew_factor.yz;
-          if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
+          if (COORDINATE_OKAY(sx, X_MIN_POS, X_MAX_POS) && COORDINATE_OKAY(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
         }
@@ -883,9 +898,9 @@ class Planner {
     #if ENABLED(AUTOTEMP)
       static float autotemp_min, autotemp_max, autotemp_factor;
       static bool autotemp_enabled;
-      static void getHighESpeed();
-      static void autotemp_M104_M109();
       static void autotemp_update();
+      static void autotemp_M104_M109();
+      static void getHighESpeed();
     #endif
 
     #if HAS_LINEAR_E_JERK
@@ -897,6 +912,14 @@ class Planner {
     #endif
 
   private:
+
+    #if ENABLED(AUTOTEMP)
+      #if ENABLED(AUTOTEMP_PROPORTIONAL)
+        static void _autotemp_update_from_hotend();
+      #else
+        static inline void _autotemp_update_from_hotend() {}
+      #endif
+    #endif
 
     /**
      * Get the index of the next / previous block in the ring buffer

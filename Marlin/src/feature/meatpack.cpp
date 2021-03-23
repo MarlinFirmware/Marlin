@@ -39,24 +39,15 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(MEATPACK)
+#if HAS_MEATPACK
 
 #include "meatpack.h"
-MeatPack meatpack;
 
 #define MeatPack_ProtocolVersion "PV01"
 //#define MP_DEBUG
 
 #define DEBUG_OUT ENABLED(MP_DEBUG)
 #include "../core/debug_out.h"
-
-bool MeatPack::cmd_is_next = false;       // A command is pending
-uint8_t MeatPack::state = 0;              // Configuration state OFF
-uint8_t MeatPack::second_char = 0;        // The unpacked 2nd character from an out-of-sequence packed pair
-uint8_t MeatPack::cmd_count = 0,          // Counts how many command bytes are received (need 2)
-        MeatPack::full_char_count = 0,    // Counts how many full-width characters are to be received
-        MeatPack::char_out_count = 0;     // Stores number of characters to be read out.
-uint8_t MeatPack::char_out_buf[2];        // Output buffer for caching up to 2 characters
 
 // The 15 most-common characters used in G-code, ~90-95% of all G-code uses these characters
 // Stored in SRAM for performance.
@@ -110,7 +101,7 @@ void MeatPack::handle_rx_char_inner(const uint8_t c) {
   if (TEST(state, MPConfig_Bit_Active)) {                   // Is MeatPack active?
     if (!full_char_count) {                                 // No literal characters to fetch?
       uint8_t buf[2] = { 0, 0 };
-      register const uint8_t res = unpack_chars(c, buf);    // Decode the byte into one or two characters.
+      const uint8_t res = unpack_chars(c, buf);             // Decode the byte into one or two characters.
       if (res & kFirstCharIsLiteral) {                      // The 1st character couldn't be packed.
         ++full_char_count;                                  // So the next stream byte is a full character.
         if (res & kSecondCharIsLiteral) ++full_char_count;  // The 2nd character couldn't be packed. Another stream byte is a full character.
@@ -147,9 +138,7 @@ void MeatPack::handle_output_char(const uint8_t c) {
   #if ENABLED(MP_DEBUG)
     if (chars_decoded < 1024) {
       ++chars_decoded;
-      DEBUG_ECHOPGM("RB: ");
-      MYSERIAL.print((char)c);
-      DEBUG_EOL();
+      DEBUG_ECHOLNPAIR("RB: ", AS_CHAR(c));
     }
   #endif
 }
@@ -181,7 +170,7 @@ void MeatPack::report_state() {
   SERIAL_ECHOPGM("[MP] ");
   SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
-  serialprintPGM(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
+  SERIAL_ECHOPGM_P(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
 }
 
 /**
@@ -200,7 +189,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) 
   }
 
   if (cmd_is_next) {                      // Were two command bytes received?
-    PORT_REDIRECT(serial_ind);
+    PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));
     handle_command((MeatPack_Command)c);  // Then the byte is a MeatPack command
     cmd_is_next = false;
     return;
@@ -219,10 +208,10 @@ uint8_t MeatPack::get_result_char(char* const __restrict out) {
   if (char_out_count) {
     res = char_out_count;
     char_out_count = 0;
-    for (register uint8_t i = 0; i < res; ++i)
+    for (uint8_t i = 0; i < res; ++i)
       out[i] = (char)char_out_buf[i];
   }
   return res;
 }
 
-#endif // MEATPACK
+#endif // HAS_MEATPACK

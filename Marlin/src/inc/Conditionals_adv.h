@@ -114,6 +114,10 @@
   #undef THERMAL_PROTECTION_CHAMBER
 #endif
 
+#if TEMP_SENSOR_COOLER == 0
+  #undef THERMAL_PROTECTION_COOLER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -128,8 +132,14 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
@@ -506,6 +516,15 @@
   #define NEED_HEX_PRINT 1
 #endif
 
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
@@ -517,9 +536,16 @@
                          (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
                          (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
 
-#if ENABLED(CUSTOM_USER_MENUS)
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
   #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
   #define HAS_USER_ITEM(N) 0
+#endif
+
+#if !HAS_MULTI_SERIAL
+  #undef MEATPACK_ON_SERIAL_PORT_2
+#endif
+#if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
+  #define HAS_MEATPACK 1
 #endif

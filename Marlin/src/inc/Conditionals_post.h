@@ -143,7 +143,9 @@
  */
 #if IS_SCARA
   #undef SLOWDOWN
-  #define QUICK_HOME
+  #if DISABLED(AXEL_TPARA)
+    #define QUICK_HOME
+  #endif
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
 #endif
 
@@ -397,7 +399,7 @@
  * Temp Sensor defines
  */
 
-#define ANY_TEMP_SENSOR_IS(n) (TEMP_SENSOR_0 == (n) || TEMP_SENSOR_1 == (n) || TEMP_SENSOR_2 == (n) || TEMP_SENSOR_3 == (n) || TEMP_SENSOR_4 == (n) || TEMP_SENSOR_5 == (n) || TEMP_SENSOR_6 == (n) || TEMP_SENSOR_7 == (n) || TEMP_SENSOR_BED == (n) || TEMP_SENSOR_PROBE == (n) || TEMP_SENSOR_CHAMBER == (n))
+#define ANY_TEMP_SENSOR_IS(n) (TEMP_SENSOR_0 == (n) || TEMP_SENSOR_1 == (n) || TEMP_SENSOR_2 == (n) || TEMP_SENSOR_3 == (n) || TEMP_SENSOR_4 == (n) || TEMP_SENSOR_5 == (n) || TEMP_SENSOR_6 == (n) || TEMP_SENSOR_7 == (n) || TEMP_SENSOR_BED == (n) || TEMP_SENSOR_PROBE == (n) || TEMP_SENSOR_CHAMBER == (n) || TEMP_SENSOR_COOLER == (n))
 
 #if ANY_TEMP_SENSOR_IS(1000)
   #define HAS_USER_THERMISTORS 1
@@ -740,6 +742,27 @@
 #else
   #undef CHAMBER_MINTEMP
   #undef CHAMBER_MAXTEMP
+#endif
+
+#if TEMP_SENSOR_COOLER == -4
+  #define COOLER_USES_AD8495 1
+#elif TEMP_SENSOR_COOLER == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_COOLER."
+#elif TEMP_SENSOR_COOLER == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_COOLER."
+#elif TEMP_SENSOR_COOLER == -1
+  #define COOLER_USES_AD595 1
+#elif TEMP_SENSOR_COOLER > 0
+  #define TEMP_SENSOR_COOLER_THERMISTOR_ID TEMP_SENSOR_COOLER
+  #define TEMP_SENSOR_COOLER_IS_THERMISTOR 1
+  #if TEMP_SENSOR_COOLER == 1000
+    #define COOLER_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_COOLER == 998 || TEMP_SENSOR_COOLER == 999
+    #define COOLER_DUMMY_THERMISTOR 1
+  #endif
+#else
+  #undef COOLER_MINTEMP
+  #undef COOLER_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_PROBE == -4
@@ -1926,6 +1949,9 @@
 #if HAS_ADC_TEST(CHAMBER)
   #define HAS_TEMP_ADC_CHAMBER 1
 #endif
+#if HAS_ADC_TEST(COOLER)
+  #define HAS_TEMP_ADC_COOLER 1
+#endif
 
 #define HAS_TEMP(N) ANY(HAS_TEMP_ADC_##N, TEMP_SENSOR_##N##_IS_MAX_TC, TEMP_SENSOR_##N##_IS_DUMMY)
 #if HAS_HOTEND && HAS_TEMP(0)
@@ -1939,6 +1965,9 @@
 #endif
 #if HAS_TEMP(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
+#endif
+#if HAS_TEMP(COOLER)
+  #define HAS_TEMP_COOLER 1
 #endif
 
 #if ENABLED(JOYSTICK)
@@ -1992,26 +2021,33 @@
     #define BED_OVERSHOOT 10
   #endif
   #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
+#else
+  #undef PIDTEMPBED
 #endif
+
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
 #endif
-#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE
+#if HAS_TEMP_COOLER && PIN_EXISTS(COOLER)
+  #define HAS_COOLER 1
+#endif
+#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER
   #define HAS_TEMP_SENSOR 1
 #endif
+
 #if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
   #define HAS_HEATED_CHAMBER 1
+  #ifndef CHAMBER_OVERSHOOT
+    #define CHAMBER_OVERSHOOT 10
+  #endif
+  #define CHAMBER_MAX_TARGET (CHAMBER_MAXTEMP - (CHAMBER_OVERSHOOT))
+#else
+  #undef PIDTEMPCHAMBER
 #endif
 
 // PID heating
-#if !HAS_HEATED_BED
-  #undef PIDTEMPBED
-#endif
-#if EITHER(PIDTEMP, PIDTEMPBED)
+#if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #define HAS_PID_HEATING 1
-#endif
-#if BOTH(PIDTEMP, PIDTEMPBED)
-  #define HAS_PID_FOR_BOTH 1
 #endif
 
 // Thermal protection
@@ -2027,9 +2063,13 @@
 #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0
   #define WATCH_CHAMBER 1
 #endif
+#if BOTH(HAS_COOLER, THERMAL_PROTECTION_COOLER) && WATCH_COOLER_TEMP_PERIOD > 0
+  #define WATCH_COOLER 1
+#endif
 #if  (ENABLED(THERMAL_PROTECTION_HOTENDS) || !EXTRUDERS) \
   && (ENABLED(THERMAL_PROTECTION_BED)     || !HAS_HEATED_BED) \
-  && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER)
+  && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER) \
+  && (ENABLED(THERMAL_PROTECTION_COOLER) || !HAS_COOLER)
   #define THERMALLY_SAFE 1
 #endif
 
@@ -2061,8 +2101,11 @@
 #if HAS_TEMP_CHAMBER && PIN_EXISTS(CHAMBER_AUTO_FAN)
   #define HAS_AUTO_CHAMBER_FAN 1
 #endif
+#if HAS_TEMP_COOLER && PIN_EXISTS(COOLER_AUTO_FAN)
+  #define HAS_AUTO_COOLER_FAN 1
+#endif
 
-#if ANY(HAS_AUTO_FAN_0, HAS_AUTO_FAN_1, HAS_AUTO_FAN_2, HAS_AUTO_FAN_3, HAS_AUTO_FAN_4, HAS_AUTO_FAN_5, HAS_AUTO_FAN_6, HAS_AUTO_FAN_7, HAS_AUTO_CHAMBER_FAN)
+#if ANY(HAS_AUTO_FAN_0, HAS_AUTO_FAN_1, HAS_AUTO_FAN_2, HAS_AUTO_FAN_3, HAS_AUTO_FAN_4, HAS_AUTO_FAN_5, HAS_AUTO_FAN_6, HAS_AUTO_FAN_7, HAS_AUTO_CHAMBER_FAN, HAS_AUTO_COOLER_FAN)
   #define HAS_AUTO_FAN 1
 #endif
 #define _FANOVERLAP(A,B) (A##_AUTO_FAN_PIN == E##B##_AUTO_FAN_PIN)
@@ -2346,6 +2389,9 @@
  * Heated chamber requires settings
  */
 #if HAS_HEATED_CHAMBER
+  #ifndef MIN_CHAMBER_POWER
+    #define MIN_CHAMBER_POWER 0
+  #endif
   #ifndef MAX_CHAMBER_POWER
     #define MAX_CHAMBER_POWER 255
   #endif
@@ -2355,7 +2401,20 @@
   #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ HEATER_CHAMBER_INVERTING)
 #endif
 
-#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+/**
+ * Laser Cooling requires settings
+ */
+#if HAS_COOLER
+  #ifndef MAX_COOLER_POWER
+    #define MAX_COOLER_POWER 255
+  #endif
+  #ifndef COOLER_INVERTING
+    #define COOLER_INVERTING true
+  #endif
+  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ COOLER_INVERTING)
+#endif
+
+#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER || HAS_COOLER
   #define HAS_TEMPERATURE 1
 #endif
 
@@ -2371,6 +2430,10 @@
   #elif defined(PREHEAT_1_LABEL)
     #define PREHEAT_COUNT 1
   #endif
+#endif
+
+#if !PREHEAT_COUNT
+  #undef PREHEAT_SHORTCUT_MENU_ITEM
 #endif
 
 /**
@@ -2468,8 +2531,8 @@
   #ifndef Z_PROBE_OFFSET_RANGE_MAX
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
-  #ifndef XY_PROBE_SPEED
-    #define XY_PROBE_SPEED ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+  #ifndef XY_PROBE_FEEDRATE
+    #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
@@ -2758,7 +2821,7 @@
 
 // Add commands that need sub-codes to this list
 #if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
-  #define USE_GCODE_SUBCODES
+  #define USE_GCODE_SUBCODES 1
 #endif
 
 // Parking Extruder
@@ -2842,10 +2905,4 @@
 
 #if BUTTONS_EXIST(EN1, EN2, ENC)
   #define HAS_ROTARY_ENCODER 1
-#endif
-
-#if !NUM_SERIAL
-  #undef BAUD_RATE_GCODE
-#elif NUM_SERIAL > 1
-  #define HAS_MULTI_SERIAL 1
 #endif

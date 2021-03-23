@@ -1248,32 +1248,6 @@ void Planner::recalculate() {
   recalculate_trapezoids();
 }
 
-#if ENABLED(AUTOTEMP)
-
-  void Planner::getHighESpeed() {
-    static float oldt = 0;
-
-    if (!autotemp_enabled) return;
-    if (thermalManager.degTargetHotend(0) + 2 < autotemp_min) return; // probably temperature set to zero.
-
-    float high = 0.0;
-    for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block_t* block = &block_buffer[b];
-      if (block->steps.x || block->steps.y || block->steps.z) {
-        const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
-        NOLESS(high, se);
-      }
-    }
-
-    float t = autotemp_min + high * autotemp_factor;
-    LIMIT(t, autotemp_min, autotemp_max);
-    if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
-    oldt = t;
-    thermalManager.setTargetHotend(t, 0);
-  }
-
-#endif // AUTOTEMP
-
 /**
  * Maintain fans, paste extruder pressure,
  */
@@ -1397,6 +1371,72 @@ void Planner::check_axes_activity() {
     TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
+
+#if ENABLED(AUTOTEMP)
+
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    void Planner::_autotemp_update_from_hotend() {
+      const int16_t target = thermalManager.degTargetHotend(active_extruder);
+      autotemp_min = target + AUTOTEMP_MIN_P;
+      autotemp_max = target + AUTOTEMP_MAX_P;
+    }
+  #endif
+
+  /**
+   * Called after changing tools to:
+   *  - Reset or re-apply the default proportional autotemp factor.
+   *  - Enable autotemp if the factor is non-zero.
+   */
+  void Planner::autotemp_update() {
+    _autotemp_update_from_hotend();
+    autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp_enabled = autotemp_factor != 0;
+  }
+
+  /**
+   * Called by the M104/M109 commands after setting Hotend Temperature
+   *
+   */
+  void Planner::autotemp_M104_M109() {
+    _autotemp_update_from_hotend();
+
+    if (parser.seenval('S')) autotemp_min = parser.value_celsius();
+    if (parser.seenval('B')) autotemp_max = parser.value_celsius();
+
+    // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+    // Normally, leaving off F also disables autotemp.
+    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp_enabled = autotemp_factor != 0;
+  }
+
+  /**
+   * Called every so often to adjust the hotend target temperature
+   * based on the extrusion speed, which is calculated from the blocks
+   * currently in the planner.
+   */
+  void Planner::getHighESpeed() {
+    static float oldt = 0;
+
+    if (!autotemp_enabled) return;
+    if (thermalManager.degTargetHotend(active_extruder) < autotemp_min - 2) return; // Below the min?
+
+    float high = 0.0;
+    for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
+      block_t* block = &block_buffer[b];
+      if (block->steps.x || block->steps.y || block->steps.z) {
+        const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
+        NOLESS(high, se);
+      }
+    }
+
+    float t = autotemp_min + high * autotemp_factor;
+    LIMIT(t, autotemp_min, autotemp_max);
+    if (t < oldt) t *= (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+    oldt = t;
+    thermalManager.setTargetHotend(t, active_extruder);
+  }
+
+#endif
 
 #if DISABLED(NO_VOLUMETRICS)
 
@@ -2959,13 +2999,17 @@ void Planner::reset_acceleration_rates() {
   TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 
-// Recalculate position, steps_to_mm if settings.axis_steps_per_mm changes!
+/**
+ * Recalculate 'position' and 'steps_to_mm'.
+ * Must be called whenever settings.axis_steps_per_mm changes!
+ */
 void Planner::refresh_positioning() {
   LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
   reset_acceleration_rates();
 }
 
+// Apply limits to a variable and give a warning if the value was out of range
 inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_name, const xyze_float_t &max_limit) {
   const uint8_t lim_axis = axis > E_AXIS ? E_AXIS : axis;
   const float before = val;
@@ -2973,12 +3017,19 @@ inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_n
   if (before != val) {
     SERIAL_CHAR(axis_codes[lim_axis]);
     SERIAL_ECHOPGM(" Max ");
-    serialprintPGM(setting_name);
+    SERIAL_ECHOPGM_P(setting_name);
     SERIAL_ECHOLNPAIR(" limited to ", val);
   }
 }
 
-void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
+/**
+ * For the specified 'axis' set the Maximum Acceleration to the given value (mm/s^2)
+ * The value may be limited with warning feedback, if configured.
+ * Calls reset_acceleration_rates to precalculate planner terms in steps.
+ *
+ * This hard limit is applied as a block is being added to the planner queue.
+ */
+void Planner::set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2) {
   #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
     #ifdef MAX_ACCEL_EDIT_VALUES
       constexpr xyze_float_t max_accel_edit = MAX_ACCEL_EDIT_VALUES;
@@ -2987,15 +3038,21 @@ void Planner::set_max_acceleration(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_accel_edit = DEFAULT_MAX_ACCELERATION;
       const xyze_float_t max_acc_edit_scaled = max_accel_edit * 2;
     #endif
-    limit_and_warn(targetValue, axis, PSTR("Acceleration"), max_acc_edit_scaled);
+    limit_and_warn(inMaxAccelMMS2, axis, PSTR("Acceleration"), max_acc_edit_scaled);
   #endif
-  settings.max_acceleration_mm_per_s2[axis] = targetValue;
+  settings.max_acceleration_mm_per_s2[axis] = inMaxAccelMMS2;
 
   // Update steps per s2 to agree with the units per s2 (since they are used in the planner)
   reset_acceleration_rates();
 }
 
-void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
+/**
+ * For the specified 'axis' set the Maximum Feedrate to the given value (mm/s)
+ * The value may be limited with warning feedback, if configured.
+ *
+ * This hard limit is applied as a block is being added to the planner queue.
+ */
+void Planner::set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS) {
   #if ENABLED(LIMITED_MAX_FR_EDITING)
     #ifdef MAX_FEEDRATE_EDIT_VALUES
       constexpr xyze_float_t max_fr_edit = MAX_FEEDRATE_EDIT_VALUES;
@@ -3004,13 +3061,20 @@ void Planner::set_max_feedrate(const uint8_t axis, float targetValue) {
       constexpr xyze_float_t max_fr_edit = DEFAULT_MAX_FEEDRATE;
       const xyze_float_t max_fr_edit_scaled = max_fr_edit * 2;
     #endif
-    limit_and_warn(targetValue, axis, PSTR("Feedrate"), max_fr_edit_scaled);
+    limit_and_warn(inMaxFeedrateMMS, axis, PSTR("Feedrate"), max_fr_edit_scaled);
   #endif
-  settings.max_feedrate_mm_s[axis] = targetValue;
+  settings.max_feedrate_mm_s[axis] = inMaxFeedrateMMS;
 }
 
-void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
-  #if HAS_CLASSIC_JERK
+#if HAS_CLASSIC_JERK
+
+  /**
+   * For the specified 'axis' set the Maximum Jerk (instant change) to the given value (mm/s)
+   * The value may be limited with warning feedback, if configured.
+   *
+   * This hard limit is applied (to the block start speed) as the block is being added to the planner queue.
+   */
+  void Planner::set_max_jerk(const AxisEnum axis, float inMaxJerkMMS) {
     #if ENABLED(LIMITED_JERK_EDITING)
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
@@ -3020,13 +3084,12 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
             (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
         #endif
       ;
-      limit_and_warn(targetValue, axis, PSTR("Jerk"), max_jerk_edit);
+      limit_and_warn(inMaxJerkMMS, axis, PSTR("Jerk"), max_jerk_edit);
     #endif
-    max_jerk[axis] = targetValue;
-  #else
-    UNUSED(axis); UNUSED(targetValue);
-  #endif
-}
+    max_jerk[axis] = inMaxJerkMMS;
+  }
+
+#endif
 
 #if HAS_WIRED_LCD
 
@@ -3068,34 +3131,4 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
     #endif
   }
 
-#endif
-
-#if ENABLED(AUTOTEMP)
-
-void Planner::autotemp_update() {
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    const int16_t target = thermalManager.degTargetHotend(active_extruder);
-    autotemp_min = target + AUTOTEMP_MIN_P;
-    autotemp_max = target + AUTOTEMP_MAX_P;
-  #endif
-  autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-  autotemp_enabled = autotemp_factor != 0;
-}
-
-  void Planner::autotemp_M104_M109() {
-
-    #if ENABLED(AUTOTEMP_PROPORTIONAL)
-      const int16_t target = thermalManager.degTargetHotend(active_extruder);
-      autotemp_min = target + AUTOTEMP_MIN_P;
-      autotemp_max = target + AUTOTEMP_MAX_P;
-    #endif
-
-    if (parser.seenval('S')) autotemp_min = parser.value_celsius();
-    if (parser.seenval('B')) autotemp_max = parser.value_celsius();
-
-    // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
-    // Normally, leaving off F also disables autotemp.
-    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-    autotemp_enabled = autotemp_factor != 0;
-  }
 #endif

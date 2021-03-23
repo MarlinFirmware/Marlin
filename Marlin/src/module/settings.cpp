@@ -279,7 +279,7 @@ typedef struct SettingsDataStruct {
     abc_float_t delta_endstop_adj;                      // M666 X Y Z
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
-          delta_segments_per_second;                    // M665 S
+          segments_per_second;                          // M665 S
     abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
                 delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
@@ -317,6 +317,11 @@ typedef struct SettingsDataStruct {
   // PIDTEMPBED
   //
   PID_t bedPID;                                         // M304 PID / M303 E-1 U
+
+  //
+  // PIDTEMPCHAMBER
+  //
+  PID_t chamberPID;                                     // M309 PID / M303 E-2 U
 
   //
   // User-defined Thermistors
@@ -835,7 +840,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_endstop_adj);         // 3 floats
         EEPROM_WRITE(delta_radius);              // 1 float
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
-        EEPROM_WRITE(delta_segments_per_second); // 1 float
+        EEPROM_WRITE(segments_per_second);       // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
 
@@ -924,6 +929,25 @@ void MarlinSettings::postprocess() {
         #endif
       };
       EEPROM_WRITE(bed_pid);
+    }
+
+    //
+    // PIDTEMPCHAMBER
+    //
+    {
+      _FIELD_TEST(chamberPID);
+
+      const PID_t chamber_pid = {
+        #if DISABLED(PIDTEMPCHAMBER)
+          NAN, NAN, NAN
+        #else
+          // Store the unscaled PID values
+          thermalManager.temp_chamber.pid.Kp,
+          unscalePID_i(thermalManager.temp_chamber.pid.Ki),
+          unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+        #endif
+      };
+      EEPROM_WRITE(chamber_pid);
     }
 
     //
@@ -1697,7 +1721,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_endstop_adj);         // 3 floats
           EEPROM_READ(delta_radius);              // 1 float
           EEPROM_READ(delta_diagonal_rod);        // 1 float
-          EEPROM_READ(delta_segments_per_second); // 1 float
+          EEPROM_READ(segments_per_second);       // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
 
@@ -1783,6 +1807,22 @@ void MarlinSettings::postprocess() {
             thermalManager.temp_bed.pid.Kp = pid.Kp;
             thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
             thermalManager.temp_bed.pid.Kd = scalePID_d(pid.Kd);
+          }
+        #endif
+      }
+
+      //
+      // Heated Chamber PID
+      //
+      {
+        PID_t pid;
+        EEPROM_READ(pid);
+        #if ENABLED(PIDTEMPCHAMBER)
+          if (!validating && !isnan(pid.Kp)) {
+            // Scale PID values since EEPROM values are unscaled
+            thermalManager.temp_chamber.pid.Kp = pid.Kp;
+            thermalManager.temp_chamber.pid.Ki = scalePID_i(pid.Ki);
+            thermalManager.temp_chamber.pid.Kd = scalePID_d(pid.Kd);
           }
         #endif
       }
@@ -2671,7 +2711,7 @@ void MarlinSettings::reset() {
     delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-    delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
     delta_diagonal_rod_trim = ddr;
   #endif
@@ -2812,6 +2852,16 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Heated Chamber PID
+  //
+
+  #if ENABLED(PIDTEMPCHAMBER)
+    thermalManager.temp_chamber.pid.Kp = DEFAULT_chamberKp;
+    thermalManager.temp_chamber.pid.Ki = scalePID_i(DEFAULT_chamberKi);
+    thermalManager.temp_chamber.pid.Kd = scalePID_d(DEFAULT_chamberKd);
+  #endif
+
+  //
   // User-Defined Thermistors
   //
   TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
@@ -2940,7 +2990,7 @@ void MarlinSettings::reset() {
     if (!repl) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("; ");
-      serialprintPGM(pstr);
+      SERIAL_ECHOPGM_P(pstr);
       if (eol) SERIAL_EOL();
     }
   }
@@ -2957,7 +3007,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM("  M569 S1");
         if (etc) {
           SERIAL_CHAR(' ');
-          serialprintPGM(etc);
+          SERIAL_ECHOPGM_P(etc);
         }
         if (newLine) SERIAL_EOL();
       }
@@ -2975,7 +3025,7 @@ void MarlinSettings::reset() {
   #endif
 
   inline void say_units(const bool colon) {
-    serialprintPGM(
+    SERIAL_ECHOPGM_P(
       #if ENABLED(INCH_MODE_SUPPORT)
         parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :
       #endif
@@ -3016,7 +3066,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM("  M149 ");
         SERIAL_CHAR(parser.temp_units_code());
         SERIAL_ECHOPGM(" ; Units in ");
-        serialprintPGM(parser.temp_units_name());
+        SERIAL_ECHOPGM_P(parser.temp_units_name());
       #else
         SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
       #endif
@@ -3204,12 +3254,12 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR_P(PSTR("  G29 S3 I"), px, PSTR(" J"), py);
+              SERIAL_ECHOPAIR("  G29 S3 I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
           CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR_F_P(PSTR("  G29 S4 Z"), LINEAR_UNIT(mbl.z_offset), 5);
+          SERIAL_ECHOLNPAIR_F("  G29 S4 Z", LINEAR_UNIT(mbl.z_offset), 5);
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3270,7 +3320,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
-          PSTR("  M665 S"), delta_segments_per_second
+          PSTR("  M665 S"), segments_per_second
         , SP_P_STR, scara_home_offset.a
         , SP_T_STR, scara_home_offset.b
         , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
@@ -3292,7 +3342,7 @@ void MarlinSettings::reset() {
           PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
         , PSTR(" R"), LINEAR_UNIT(delta_radius)
         , PSTR(" H"), LINEAR_UNIT(delta_height)
-        , PSTR(" S"), delta_segments_per_second
+        , PSTR(" S"), segments_per_second
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
@@ -3386,7 +3436,16 @@ void MarlinSettings::reset() {
         );
       #endif
 
-    #endif // PIDTEMP || PIDTEMPBED
+      #if ENABLED(PIDTEMPCHAMBER)
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR(
+            "  M309 P", thermalManager.temp_chamber.pid.Kp
+          , " I", unscalePID_i(thermalManager.temp_chamber.pid.Ki)
+          , " D", unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+        );
+      #endif
+
+    #endif // PIDTEMP || PIDTEMPBED || PIDTEMPCHAMBER
 
     #if HAS_USER_THERMISTORS
       CONFIG_ECHO_HEADING("User thermistors:");
@@ -3407,29 +3466,10 @@ void MarlinSettings::reset() {
     #endif
 
     #if ENABLED(FWRETRACT)
-
-      CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M207 S"), LINEAR_UNIT(fwretract.settings.retract_length)
-        , PSTR(" W"), LINEAR_UNIT(fwretract.settings.swap_retract_length)
-        , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s))
-        , SP_Z_STR, LINEAR_UNIT(fwretract.settings.retract_zraise)
-      );
-
-      CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
-      CONFIG_ECHO_MSG(
-          "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_extra)
-        , " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_extra)
-        , " F", LINEAR_UNIT(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s))
-      );
-
-      #if ENABLED(FWRETRACT_AUTORETRACT)
-        CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        CONFIG_ECHO_MSG("  M209 S", fwretract.autoretract_enabled);
-      #endif
-
-    #endif // FWRETRACT
+      fwretract.M207_report(forReplay);
+      fwretract.M208_report(forReplay);
+      TERN_(FWRETRACT_AUTORETRACT, fwretract.M209_report(forReplay));
+    #endif
 
     /**
      * Probe Offset

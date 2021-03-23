@@ -26,8 +26,6 @@
  * Used by common-dependencies.py
  */
 
-#define NUM_SERIAL 1 // Normally provided by HAL/HAL.h
-
 #include "../../../../Marlin/src/inc/MarlinConfig.h"
 
 //
@@ -68,9 +66,6 @@
   #endif
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
-  #endif
-  #if ENABLED(CUSTOM_USER_MENUS)
-    #define HAS_MENU_CUSTOM
   #endif
   #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
     #define HAS_MENU_DELTA_CALIBRATE

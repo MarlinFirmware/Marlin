@@ -81,5 +81,5 @@ public:
   #endif
 };
 
-typedef Serial0Type<WebSocketSerial> MSerialT;
+typedef Serial1Class<WebSocketSerial> MSerialT;
 extern MSerialT webSocketSerial;

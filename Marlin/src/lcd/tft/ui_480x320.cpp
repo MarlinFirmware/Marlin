@@ -136,6 +136,12 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
       #endif
     }
   #endif
+  #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      currentTemperature = thermalManager.degCooler();
+      targetTemperature = TERN(HAS_COOLER, thermalManager.degTargetCooler(), ABSOLUTE_ZERO);
+    }
+  #endif
   else return;
 
   TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, 80, 120, Heater));

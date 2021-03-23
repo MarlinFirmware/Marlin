@@ -114,7 +114,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPAIR("Probing point ", i, " (");
-      DEBUG_PRINT_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
     }

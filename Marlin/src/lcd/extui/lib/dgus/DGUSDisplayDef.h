@@ -21,15 +21,16 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplayDef.h
+ * Defines the interaction between Marlin and the display firmware
+ */
 
 #include "DGUSVPVariable.h"
 
 #include <stdint.h>
 
-// This file defines the interaction between Marlin and the display firmware.
-
-// information on which screen which VP is displayed
+// Information on which screen which VP is displayed.
 // As this is a sparse table, two arrays are needed:
 // one to list the VPs of one screen and one to map screens to the lists.
 // (Strictly this would not be necessary, but allows to only send data the display needs and reducing load on Marlin)
@@ -47,6 +48,8 @@ extern const struct DGUS_VP_Variable ListOfVP[];
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSDisplayDef.h"
+#elif ENABLED(DGUS_LCD_UI_MKS)
+  #include "mks/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_FYSETC)
   #include "fysetc/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_HIPRECY)

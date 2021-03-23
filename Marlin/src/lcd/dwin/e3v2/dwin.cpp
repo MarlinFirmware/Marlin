@@ -1469,19 +1469,21 @@ void HMI_PrintSpeed() {
   }
 }
 
+#define LAST_AXIS TERN(HAS_HOTEND, E_AXIS, Z_AXIS)
+
 void HMI_MaxFeedspeedXYZE() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Feedspeed)) {
       checkkey = MaxSpeed;
       EncoderRate.enabled = false;
-      if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, LAST_AXIS))
         planner.set_max_feedrate(HMI_flag.feedspeed_axis, HMI_ValueStruct.Max_Feedspeed);
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
       return;
     }
     // MaxFeedspeed limit
-    if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Feedspeed, default_max_feedrate[HMI_flag.feedspeed_axis] * 2);
     if (HMI_ValueStruct.Max_Feedspeed < MIN_MAXFEEDSPEED) HMI_ValueStruct.Max_Feedspeed = MIN_MAXFEEDSPEED;
     // MaxFeedspeed value
@@ -1495,17 +1497,13 @@ void HMI_MaxAccelerationXYZE() {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Acceleration)) {
       checkkey = MaxAcceleration;
       EncoderRate.enabled = false;
-      if (HMI_flag.acc_axis == X_AXIS) planner.set_max_acceleration(X_AXIS, HMI_ValueStruct.Max_Acceleration);
-      else if (HMI_flag.acc_axis == Y_AXIS) planner.set_max_acceleration(Y_AXIS, HMI_ValueStruct.Max_Acceleration);
-      else if (HMI_flag.acc_axis == Z_AXIS) planner.set_max_acceleration(Z_AXIS, HMI_ValueStruct.Max_Acceleration);
-      #if HAS_HOTEND
-        else if (HMI_flag.acc_axis == E_AXIS) planner.set_max_acceleration(E_AXIS, HMI_ValueStruct.Max_Acceleration);
-      #endif
+      if (WITHIN(HMI_flag.acc_axis, X_AXIS, LAST_AXIS))
+        planner.set_max_acceleration(HMI_flag.acc_axis, HMI_ValueStruct.Max_Acceleration);
       DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
       return;
     }
     // MaxAcceleration limit
-    if (WITHIN(HMI_flag.acc_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.acc_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Acceleration, default_max_acceleration[HMI_flag.acc_axis] * 2);
     if (HMI_ValueStruct.Max_Acceleration < MIN_MAXACCELERATION) HMI_ValueStruct.Max_Acceleration = MIN_MAXACCELERATION;
     // MaxAcceleration value
@@ -1521,13 +1519,13 @@ void HMI_MaxAccelerationXYZE() {
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Jerk_scaled)) {
         checkkey = MaxJerk;
         EncoderRate.enabled = false;
-        if (WITHIN(HMI_flag.jerk_axis, X_AXIS, E_AXIS))
+        if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
           planner.set_max_jerk(HMI_flag.jerk_axis, HMI_ValueStruct.Max_Jerk_scaled / 10);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk_scaled);
         return;
       }
       // MaxJerk limit
-      if (WITHIN(HMI_flag.jerk_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.jerk_axis, X_AXIS, LAST_AXIS))
         NOMORE(HMI_ValueStruct.Max_Jerk_scaled, default_max_jerk[HMI_flag.jerk_axis] * 2 * MINUNITMULT);
       NOLESS(HMI_ValueStruct.Max_Jerk_scaled, (MIN_MAXJERK) * MINUNITMULT);
       // MaxJerk value
@@ -1543,13 +1541,13 @@ void HMI_StepXYZE() {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Step_scaled)) {
       checkkey = Step;
       EncoderRate.enabled = false;
-      if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
+      if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
         planner.settings.axis_steps_per_mm[HMI_flag.step_axis] = HMI_ValueStruct.Max_Step_scaled / 10;
       DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step_scaled);
       return;
     }
     // Step limit
-    if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
+    if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
       NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9 * MINUNITMULT);
     NOLESS(HMI_ValueStruct.Max_Step_scaled, MIN_STEP);
     // Step value

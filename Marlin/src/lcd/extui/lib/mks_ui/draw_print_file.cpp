@@ -66,8 +66,10 @@ uint8_t sel_id = 0;
     //root2.rewind();
     //SERIAL_ECHOLN(list_file.curDirPath);
 
-    if (curDirLever != 0) card.cd(list_file.curDirPath);
-    else card.cdroot(); // while(card.cdup());
+    if (curDirLever != 0)
+      card.cd(list_file.curDirPath);
+    else
+      card.cdroot();
 
     const uint16_t fileCnt = card.get_num_Files();
 
