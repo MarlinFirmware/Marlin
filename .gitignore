@@ -122,28 +122,12 @@ tags
 .gcc-flags.json
 /lib/
 
-# Workaround for Deviot+platformio quirks
+# Workaround Deviot+platformio quirks
 Marlin/lib
-Marlin/platformio.ini
-Marlin/*/platformio.ini
-Marlin/*/*/platformio.ini
-Marlin/*/*/*/platformio.ini
-Marlin/*/*/*/*/platformio.ini
-Marlin/.travis.yml
-Marlin/*/.travis.yml
-Marlin/*/*/.travis.yml
-Marlin/*/*/*/.travis.yml
-Marlin/*/*/*/*/.travis.yml
-Marlin/.gitignore
-Marlin/*/.gitignore
-Marlin/*/*/.gitignore
-Marlin/*/*/*/.gitignore
-Marlin/*/*/*/*/.gitignore
-Marlin/readme.txt
-Marlin/*/readme.txt
-Marlin/*/*/readme.txt
-Marlin/*/*/*/readme.txt
-Marlin/*/*/*/*/readme.txt
+**/platformio.ini
+**/.travis.yml
+**/.gitignore
+**/readme.txt
 
 # Secure Credentials
 Configuration_Secure.h
@@ -165,6 +149,7 @@ vc-fileutils.settings
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/*.db
+marlin_config.json
 
 # cmake
 CMakeLists.txt

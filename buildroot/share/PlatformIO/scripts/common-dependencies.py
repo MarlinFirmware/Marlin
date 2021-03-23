@@ -310,10 +310,10 @@ def load_marlin_features():
 
 #
 # The dumbest preprocessor in the world
-# Extract macro name from an header file and store them in an array 
-# No processing is done here, so they are raw values here and it does not match what actually enabled 
+# Extract macro name from an header file and store them in an array
+# No processing is done here, so they are raw values here and it does not match what actually enabled
 # in the file (since you can have #if SOMETHING_UNDEFINED / #define BOB / #endif)
-# But it's useful to filter the useful macro spit out by the preprocessor from noise from the system 
+# But it's useful to filter the useful macro spit out by the preprocessor from noise from the system
 # headers.
 #
 def extract_defines(filepath):
@@ -337,21 +337,12 @@ def get_file_sha256sum(filepath):
 	return sha256_hash.hexdigest()
 
 #
-# Compress a JSON file into a zip file 
+# Compress a JSON file into a zip file
 #
 import zipfile
-def compress_file(filepath, outputbase, dictionary = None):
-#	if dictionary is None:
-		# Create a zip archive here
-		with zipfile.ZipFile(outputbase + '.zip', 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
-			zipf.write(filepath, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
-		# Create a zstd archive here (best compression ratio)
-#	else:
-#		subprocess.check_output(['zstd', '-19', filepath, '-D', dictionary, '-o', outputpath])
-
-
-
-
+def compress_file(filepath, outputbase):
+	with zipfile.ZipFile(outputbase + '.zip', 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
+		zipf.write(filepath, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
 #
 # Compute the build signature. The idea is to extract all defines in the configuration headers
@@ -361,9 +352,9 @@ def compress_file(filepath, outputbase, dictionary = None):
 def compute_build_signature():
 	if 'BUILD_SIGNATURE' in env:
 		return
-	
+
 	# Definition from these files will be kept
-	files_to_keep = [ 'Marlin/Configuration.h', 
+	files_to_keep = [ 'Marlin/Configuration.h',
 					  'Marlin/Configuration_adv.h',
 	]
 
@@ -372,13 +363,15 @@ def compute_build_signature():
 	for header in files_to_keep:
 		hashes = hashes + get_file_sha256sum(header)
 
+	marlin_json = 'marlin_config.json'
 
-	# Read existing config file
+	Read existing config file
 	try:
-		with open('marlin_config.json', 'r') as infile:
+		with open(marlin_json, 'r') as infile:
 			conf = json.load(infile)
 			if conf['__INITIAL_HASH'] == hashes:
 				# Same configuration, skip recomputing the building signature
+				compress_file(marlin_json, '.pio/build/mc')
 				return
 	except:
 		pass
@@ -395,7 +388,7 @@ def compute_build_signature():
 		all_defines = all_defines + defines
 		# To remember from which file it cames from
 		real_defines[header.split('/')[-1]] = defines
-	
+
 
 	r = re.compile("\(+(\s*-*\s*_.*)\)+")
 
@@ -411,15 +404,15 @@ def compute_build_signature():
 		if len(key) > 2 and key[0:2] == "__" :
 			continue
 		# Ignore values containing a parenthesis (likely a function macro)
-		if '(' in key and ')' in key: 
+		if '(' in key and ')' in key:
 			continue
 
 		# Then filter dumb values
 		if r.match(value):
 			continue
 
-		defines[key] = value if len(value) else "" 
-		
+		defines[key] = value if len(value) else ""
+
 
 	# Second step is to filter useless macro
 	resolved_defines = {}
@@ -431,7 +424,7 @@ def compute_build_signature():
 		if key[-5:] == "_NAME" and key != "CUSTOM_MACHINE_NAME":
 			continue
 		# Remove all keys ending by "_T_DECLARED" as it's a copy of not important system stuff
-		if key[-11:] == "_T_DECLARED": 
+		if key[-11:] == "_T_DECLARED":
 			continue
 		# Remove keys that are not in the #define list in the Configuration list
 		if not(key in all_defines) and key != "DETAILED_BUILD_VERSION" and key != "STRING_DISTRIBUTION_DATE":
@@ -456,19 +449,19 @@ def compute_build_signature():
 
 	# Append the source code version and date
 	data['VERSION'] = {}
-	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION'] 
-	data['VERSION']['STRING_DISTRIBUTION_DATE'] = resolved_defines['STRING_DISTRIBUTION_DATE'] 
+	data['VERSION']['DETAILED_BUILD_VERSION'] = resolved_defines['DETAILED_BUILD_VERSION']
+	data['VERSION']['STRING_DISTRIBUTION_DATE'] = resolved_defines['STRING_DISTRIBUTION_DATE']
 	try:
 		curver = subprocess.check_output(["git", "describe", "--match=NeVeRmAtCh", "--always"]).strip()
 		data['VERSION']['GIT_REF'] = curver.decode()
 	except:
 		pass
 
-	with open('marlin_config.json', 'w') as outfile:
-	    json.dump(data, outfile, separators=(',', ':'))
+	with open(marlin_json, 'w') as outfile:
+		json.dump(data, outfile, separators=(',', ':'))
 
-	# Now compress the JSON file to as much as we can
-	compress_file('marlin_config.json', '.pio/build/mc', 'mcDictionary')
+		# Now compress the JSON file to as much as we can
+		compress_file(marlin_json, '.pio/build/mc')
 
 #
 # Return True if a matching feature is enabled

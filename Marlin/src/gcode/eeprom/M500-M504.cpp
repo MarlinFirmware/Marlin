@@ -30,8 +30,8 @@
 #endif
 
 #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
-  extern const uint8_t _binary_mc_zip_start[] PROGMEM;
-  extern const uint8_t _binary_mc_zip_end[] PROGMEM;
+  extern const void* _binary_mc_zip_start;
+  extern const void* _binary_mc_zip_end;
   __asm__(
   #ifdef __AVR__
     ".section .progmem\n"
