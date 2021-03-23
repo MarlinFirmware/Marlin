@@ -25,9 +25,9 @@
  * Common pin assignments for all RUMBA32 boards
  */
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
 #endif
 
@@ -126,9 +126,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions
@@ -180,7 +180,7 @@
       #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
     #endif
     #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
     #endif
   #endif
 

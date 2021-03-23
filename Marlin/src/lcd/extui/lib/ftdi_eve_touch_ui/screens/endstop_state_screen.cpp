@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_ENDSTOP_STATE_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -53,7 +52,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
   cmd.font(
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       font_large
     #else
       font_medium
@@ -149,4 +148,4 @@ void EndstopStatesScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_ENDSTOP_STATE_SCREEN

@@ -54,12 +54,27 @@
   void custom_menus_main() {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
+
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(CUSTOM_MENU_MAIN_DESC_##N) && defined(CUSTOM_MENU_MAIN_GCODE_##N))
+
     #define CUSTOM_TEST_MAIN(N) { \
       constexpr char c = CUSTOM_MENU_MAIN_GCODE_##N[strlen(CUSTOM_MENU_MAIN_GCODE_##N) - 1]; \
       static_assert(c != '\n' && c != '\r', "CUSTOM_MENU_MAIN_GCODE_" STRINGIFY(N) " cannot have a newline at the end. Please remove it."); \
     }
-    #define CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_MAIN_DESC_##N), []{ _lcd_custom_menu_main_gcode(PSTR(CUSTOM_MENU_MAIN_GCODE_##N _DONE_SCRIPT)); });
+
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(PSTR(CUSTOM_MENU_MAIN_GCODE_##N _DONE_SCRIPT)); }
+    #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_MAIN_DESC_##N), GCODE_LAMBDA_MAIN(N));
+    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)    \
+      SUBMENU_P(PSTR(USER_DESC_##N), []{    \
+          MenuItem_confirm::confirm_screen( \
+            GCODE_LAMBDA_MAIN(N),           \
+            ui.goto_previous_screen,        \
+            PSTR(USER_DESC_##N "?")         \
+          );                                \
+        })
+
+    #define CUSTOM_ITEM_MAIN(N) do{ if (ENABLED(CUSTOM_MENU_MAIN_CONFIRM_##N)) _CUSTOM_ITEM_MAIN_CONFIRM(N); else _CUSTOM_ITEM_MAIN(N); }while(0)
+
     #if HAS_CUSTOM_ITEM_MAIN(1)
       CUSTOM_TEST_MAIN(1);
       CUSTOM_ITEM_MAIN(1);
@@ -176,12 +191,27 @@
   void custom_menus_configuration() {
     START_MENU();
     BACK_ITEM(MSG_MAIN);
+
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CUSTOM_MENU_CONFIGURATION_DESC_##N) && defined(CUSTOM_MENU_CONFIGURATION_GCODE_##N))
+
     #define CUSTOM_TEST_CONF(N) { \
-      constexpr char chr = CUSTOM_MENU_CONFIGURATION_GCODE_##N[strlen(CUSTOM_MENU_CONFIGURATION_GCODE_##N) - 1]; \
-      static_assert(chr != '\n' && chr != '\r', "CUSTOM_MENU_CONFIGURATION_GCODE_" STRINGIFY(N) " cannot have a newline at the end. Please remove it.");
+      constexpr char c = CUSTOM_MENU_CONFIGURATION_GCODE_##N[strlen(CUSTOM_MENU_CONFIGURATION_GCODE_##N) - 1]; \
+      static_assert(c != '\n' && c != '\r', "CUSTOM_MENU_CONFIGURATION_GCODE_" STRINGIFY(N) " cannot have a newline at the end. Please remove it."); \
     }
-    #define CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_CONFIGURATION_DESC_##N), []{ _lcd_custom_menus_configuration_gcode(PSTR(CUSTOM_MENU_CONFIGURATION_GCODE_##N _DONE_SCRIPT)); }); // ***********************
+
+    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CUSTOM_MENU_CONFIGURATION_GCODE_##N _DONE_SCRIPT)); }
+    #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CUSTOM_MENU_CONFIGURATION_DESC_##N), GCODE_LAMBDA_CONF(N));
+    #define _CUSTOM_ITEM_CONF_CONFIRM(N)    \
+      SUBMENU_P(PSTR(USER_DESC_##N), []{    \
+          MenuItem_confirm::confirm_screen( \
+            GCODE_LAMBDA_CONF(N),           \
+            ui.goto_previous_screen,        \
+            PSTR(USER_DESC_##N "?")         \
+          );                                \
+        })
+
+    #define CUSTOM_ITEM_CONF(N) do{ if (ENABLED(CUSTOM_MENU_CONFIGURATION_CONFIRM_##N)) _CUSTOM_ITEM_CONF_CONFIRM(N); else _CUSTOM_ITEM_CONF(N); }while(0)
+
     #if HAS_CUSTOM_ITEM_CONF(1)
       CUSTOM_TEST_CONF(1);
       CUSTOM_ITEM_CONF(1);

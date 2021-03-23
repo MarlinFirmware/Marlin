@@ -21,6 +21,12 @@
  */
 #pragma once
 
-#if defined(USBD_USE_CDC_COMPOSITE) && DISABLED(NO_SD_HOST_DRIVE)
+#if defined(USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
   #define HAS_SD_HOST_DRIVE 1
+#endif
+
+// Fix F_CPU not being a compile-time constant in STSTM32 framework
+#ifdef BOARD_F_CPU
+  #undef F_CPU
+  #define F_CPU BOARD_F_CPU
 #endif

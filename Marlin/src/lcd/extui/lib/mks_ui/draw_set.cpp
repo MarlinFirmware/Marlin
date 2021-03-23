@@ -27,10 +27,6 @@
 #include "draw_set.h"
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "pic_manager.h"
 
@@ -58,36 +54,29 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  #if ENABLED(MKS_WIFI_MODULE)
-    char buf[6] = { 0 };
-  #endif
+  if (obj->mks_obj_id == ID_S_CONTINUE) return;
+  if (obj->mks_obj_id == ID_S_MOTOR_OFF) {
+    TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
+    return;
+  }
+  lv_clear_set();
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
-      lv_clear_set();
       lv_draw_fan();
       break;
     case ID_S_ABOUT:
-      lv_clear_set();
       lv_draw_about();
       break;
-    case ID_S_CONTINUE: break;
-    case ID_S_MOTOR_OFF:
-      TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
-      break;
     case ID_S_LANGUAGE:
-      lv_clear_set();
       lv_draw_language();
       break;
     case ID_S_MACHINE_PARA:
-      lv_clear_set();
       lv_draw_machine_para();
       break;
     case ID_S_EEPROM_SET:
-      lv_clear_set();
       lv_draw_eeprom_settings();
       break;
     case ID_S_RETURN:
-      lv_clear_set();
       lv_draw_ready_print();
       break;
 
@@ -96,32 +85,23 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         if (gCfgItems.wifi_mode_sel == STA_MODEL) {
           if (wifi_link_state == WIFI_CONNECTED) {
             last_disp_state = SET_UI;
-            lv_clear_set();
             lv_draw_wifi();
           }
           else {
-            if (uiCfg.command_send == 1) {
-              buf[0] = 0xA5;
-              buf[1] = 0x07;
-              buf[2] = 0x00;
-              buf[3] = 0x00;
-              buf[4] = 0xFC;
-              raw_send_to_wifi(buf, 5);
-
+            if (uiCfg.command_send) {
+              uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
+              raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
               last_disp_state = SET_UI;
-              lv_clear_set();
               lv_draw_wifi_list();
             }
             else {
               last_disp_state = SET_UI;
-              lv_clear_set();
               lv_draw_dialog(DIALOG_WIFI_ENABLE_TIPS);
             }
           }
         }
         else {
           last_disp_state = SET_UI;
-          lv_clear_set();
           lv_draw_wifi();
         }
         break;
@@ -129,7 +109,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_set(void) {
+void lv_draw_set() {
   scr = lv_screen_create(SET_UI);
   lv_big_button_create(scr, "F:/bmp_eeprom_settings.bin", set_menu.eepromSet, INTERVAL_V, titleHeight, event_handler, ID_S_EEPROM_SET);
   lv_big_button_create(scr, "F:/bmp_fan.bin", set_menu.fan, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_S_FAN);

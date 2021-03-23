@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && BOTH(HAS_LEVELING, HAS_BED_PROBE)
-
 #include "screens.h"
+
+#ifdef FTDI_Z_OFFSET_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -51,4 +50,4 @@ bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && HAS_BED_PROBE
+#endif // FTDI_Z_OFFSET_SCREEN

@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && NONE(TOUCH_UI_LULZBOT_BIO, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_ADVANCED_SETTINGS_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -37,7 +36,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
@@ -153,4 +152,4 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_ADVANCED_SETTINGS_MENU

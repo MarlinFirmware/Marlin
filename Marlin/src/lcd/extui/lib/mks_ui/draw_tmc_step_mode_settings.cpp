@@ -50,9 +50,7 @@ enum {
 
 static lv_obj_t *buttonXState = nullptr, *buttonYState = nullptr, *buttonZState = nullptr, *buttonE0State = nullptr;
 
-//#if AXIS_HAS_STEALTHCHOP(E1)
-  static lv_obj_t *buttonE1State = nullptr;
-//#endif
+static lv_obj_t *buttonE1State = nullptr;
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
@@ -65,7 +63,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_TMC_MODE_RETURN:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_tmc_step_mode_settings();
       draw_return_ui();
       break;
@@ -97,19 +95,19 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     #endif
 
     case ID_TMC_MODE_UP:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_tmc_step_mode_settings();
       lv_draw_tmc_step_mode_settings();
       break;
     case ID_TMC_MODE_DOWN:
-      uiCfg.para_ui_page = 1;
+      uiCfg.para_ui_page = true;
       lv_clear_tmc_step_mode_settings();
       lv_draw_tmc_step_mode_settings();
       break;
   }
 }
 
-void lv_draw_tmc_step_mode_settings(void) {
+void lv_draw_tmc_step_mode_settings() {
   buttonXState = buttonYState = buttonZState = buttonE0State = buttonE1State = nullptr;
 
   scr = lv_screen_create(TMC_MODE_UI, machine_menu.TmcStepModeConfTitle);
@@ -131,7 +129,7 @@ void lv_draw_tmc_step_mode_settings(void) {
     stealth_E1 = stepperE1.get_stealthChop();
   #endif
 
-  if (uiCfg.para_ui_page != 1) {
+  if (!uiCfg.para_ui_page) {
     buttonXState = lv_screen_menu_item_onoff(scr, machine_menu.X_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_MODE_X, 0, stealth_X);
     buttonYState = lv_screen_menu_item_onoff(scr, machine_menu.Y_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_MODE_Y, 1, stealth_Y);
     buttonZState = lv_screen_menu_item_onoff(scr, machine_menu.Z_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_MODE_Z, 2, stealth_Z);

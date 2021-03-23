@@ -22,22 +22,21 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_BOOT_SCREEN
 
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 #include "../archim2-flash/flash_storage.h"
 
-#ifdef SHOW_CUSTOM_BOOTSCREEN
-  #ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #include "../theme/bootscreen_logo_portrait.h"
   #else
     #include "../theme/_bootscreen_landscape.h"
   #endif
 #else
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #include "../theme/marlin_bootscreen_portrait.h"
   #else
     #include "../theme/marlin_bootscreen_landscape.h"
@@ -92,7 +91,7 @@ void BootScreen::onIdle() {
 
     StatusScreen::loadBitmaps();
 
-    #ifdef TOUCH_UI_LULZBOT_BIO
+    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
       GOTO_SCREEN(BioConfirmHomeXYZ);
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);
@@ -127,4 +126,4 @@ void BootScreen::showSplashScreen() {
   ExtUI::delay_ms(2500);
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BOOT_SCREEN

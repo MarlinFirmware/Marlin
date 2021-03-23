@@ -39,6 +39,9 @@
 
 #ifdef USBCON
   #include <USBSerial.h>
+  #include "../../core/serial_hook.h"
+  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
 #endif
 
 // ------------------------
@@ -48,26 +51,36 @@
 #define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL1 MSerial0
 #elif WITHIN(SERIAL_PORT, 1, 6)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #error "SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 SerialUSB
+    #define MYSERIAL2 MSerial0
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be -1 or from 1 to 6. Please update your configuration."
   #endif
 #endif
 
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL MSerial0
+  #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL SerialUSB
+    #define LCD_SERIAL MSerial0
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
@@ -96,14 +109,6 @@
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
-
 // ------------------------
 // Types
 // ------------------------
@@ -130,6 +135,8 @@ extern uint16_t HAL_adc_result;
 
 // Enable hooks into  setup for HAL
 void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 // Clear reset reason
 void HAL_clear_reset_source();
@@ -187,6 +194,7 @@ void flashFirmware(const int16_t);
 typedef void (*systickCallback_t)(void);
 void systick_attach_callback(systickCallback_t cb);
 void HAL_SYSTICK_Callback();
+
 extern volatile uint32_t systick_uptime_millis;
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment

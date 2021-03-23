@@ -1,6 +1,6 @@
-/*******************
- * boot_screen.cpp *
- *******************/
+/*********************************
+ * junction_deviation_screen.cpp *
+ *********************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_JUNCTION_DEVIATION)
-
 #include "screens.h"
+
+#ifdef FTDI_JUNCTION_DEVIATION_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -51,4 +50,4 @@ bool JunctionDeviationScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !CLASSIC_JERK
+#endif // FTDI_JUNCTION_DEVIATION_SCREEN

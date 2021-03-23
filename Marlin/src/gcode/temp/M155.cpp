@@ -33,7 +33,7 @@
 void GcodeSuite::M155() {
 
   if (parser.seenval('S'))
-    thermalManager.set_auto_report_interval(parser.value_byte());
+    thermalManager.auto_reporter.set_interval(parser.value_byte());
 
 }
 

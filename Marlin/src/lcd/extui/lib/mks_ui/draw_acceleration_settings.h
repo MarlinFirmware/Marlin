@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_acceleration_settings(void);
+extern void lv_draw_acceleration_settings();
 extern void lv_clear_acceleration_settings();
 
 #ifdef __cplusplus

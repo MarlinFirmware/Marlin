@@ -21,11 +21,11 @@
  ****************************************************************************/
 
 #include "../config.h"
-#include "../language/language.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && NUM_LANGUAGES > 1
-
 #include "screens.h"
+
+#ifdef FTDI_LANGUAGE_MENU
+
+#include "../language/language.h"
 
 using namespace FTDI;
 using namespace Theme;
@@ -63,4 +63,4 @@ bool LanguageMenu::onTouchEnd(uint8_t tag) {
   return false;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_LANGUAGE_MENU

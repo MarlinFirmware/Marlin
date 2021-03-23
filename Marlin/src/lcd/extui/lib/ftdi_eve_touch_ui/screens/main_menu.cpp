@@ -1,25 +1,3 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- */
-
 /*****************
  * main_menu.cpp *
  *****************/
@@ -44,10 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && NONE(TOUCH_UI_LULZBOT_BIO,TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
+
+#ifdef FTDI_MAIN_MENU
 
 using namespace FTDI;
 using namespace Theme;
@@ -59,7 +36,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     #define GRID_ROWS 8
     #define GRID_COLS 2
     #define ABOUT_PRINTER_POS     BTN_POS(1,1), BTN_SIZE(2,1)
@@ -129,15 +106,15 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
     case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
     #if ENABLED(NOZZLE_CLEAN_FEATURE)
-    case 3: injectCommands_P(PSTR("G12")); GOTO_SCREEN(StatusScreen); break;
+      case 3: injectCommands_P(PSTR("G12")); GOTO_SCREEN(StatusScreen); break;
     #endif
     case 4:  GOTO_SCREEN(MoveAxisScreen);                             break;
     case 5:  injectCommands_P(PSTR("M84"));                           break;
     case 6:  GOTO_SCREEN(TemperatureScreen);                          break;
     case 7:  GOTO_SCREEN(ChangeFilamentScreen);                       break;
     case 8:  GOTO_SCREEN(AdvancedSettingsMenu);                       break;
-    #ifdef HAS_LEVELING
-    case 9:  GOTO_SCREEN(LevelingMenu);                               break;
+    #if HAS_LEVELING
+      case 9:  GOTO_SCREEN(LevelingMenu);                             break;
     #endif
     case 10: GOTO_SCREEN(AboutScreen);                                break;
     #if ENABLED(CUSTOM_USER_MENUS)
@@ -150,4 +127,4 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_MAIN_MENU

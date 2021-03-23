@@ -35,18 +35,18 @@ static SPISettings spiConfig;
 
 // Initialize SPI bus
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+  #if !PIN_EXISTS(SD_SS)
+    #error "SD_SS_PIN not defined!"
   #endif
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
+  OUT_WRITE(SD_SS_PIN, HIGH);
+  SET_OUTPUT(SD_SCK_PIN);
+  SET_INPUT(SD_MISO_PIN);
+  SET_OUTPUT(SD_MOSI_PIN);
 
   #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
+      WRITE(SD_SS_PIN, HIGH);
     #endif
     // set a default rate
     spiInit(SPI_HALF_SPEED); // 1

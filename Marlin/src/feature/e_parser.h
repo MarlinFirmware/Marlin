@@ -33,7 +33,6 @@
 
 // External references
 extern bool wait_for_user, wait_for_heatup;
-void quickstop_stepper();
 
 class EmergencyParser {
 
@@ -76,7 +75,6 @@ public:
   FORCE_INLINE static void disable() { enabled = false; }
 
   FORCE_INLINE static void update(State &state, const uint8_t c) {
-    #define ISEOL(C) ((C) == '\n' || (C) == '\r')
     switch (state) {
       case EP_RESET:
         switch (c) {

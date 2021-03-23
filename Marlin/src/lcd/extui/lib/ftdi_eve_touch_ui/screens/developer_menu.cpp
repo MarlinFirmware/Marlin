@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_DEVELOPER_MENU)
-
 #include "screens.h"
+
+#ifdef FTDI_DEVELOPER_MENU
 
 #include "../archim2-flash/flash_storage.h"
 
@@ -52,7 +51,7 @@ void DeveloperMenu::onRedraw(draw_mode_t what) {
     #endif
 
     cmd.cmd(COLOR_RGB(bg_text_enabled));
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_ROWS 10
       #define GRID_COLS 1
       cmd.font(font_large)         .text  ( BTN_POS(1,1), BTN_SIZE(1,1), F("Developer Menu"))
@@ -147,4 +146,4 @@ bool DeveloperMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_DEVELOPER_MENU

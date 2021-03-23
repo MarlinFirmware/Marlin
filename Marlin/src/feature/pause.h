@@ -101,4 +101,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd=false, cons
   #endif
 );
 
-#endif // ADVANCED_PAUSE_FEATURE
+#else // !ADVANCED_PAUSE_FEATURE
+
+  constexpr uint8_t did_pause_print = 0;
+
+#endif // !ADVANCED_PAUSE_FEATURE

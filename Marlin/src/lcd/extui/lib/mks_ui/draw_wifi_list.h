@@ -27,7 +27,7 @@
 
 extern void lv_draw_wifi_list();
 extern void lv_clear_wifi_list();
-extern void disp_wifi_list(void);
+extern void disp_wifi_list();
 extern void cutWifiName(char *name, int len,char *outStr);
 extern void wifi_scan_handle();
 

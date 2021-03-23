@@ -34,14 +34,18 @@ char conv[8] = { 0 };
 #define INTFLOAT(V,N) (((V) * 10 * pow(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10?
 #define UINTFLOAT(V,N) INTFLOAT((V) < 0 ? -(V) : (V), N)
 
-// Convert a full-range unsigned 8bit int to a percentage
-const char* ui8tostr4pctrj(const uint8_t i) {
-  const uint8_t n = ui8_to_percent(i);
-  conv[3] = RJDIGIT(n, 100);
-  conv[4] = RJDIGIT(n, 10);
-  conv[5] = DIGIMOD(n, 1);
+// Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
+const char* pcttostrpctrj(const uint8_t i) {
+  conv[3] = RJDIGIT(i, 100);
+  conv[4] = RJDIGIT(i, 10);
+  conv[5] = DIGIMOD(i, 1);
   conv[6] = '%';
   return &conv[3];
+}
+
+// Convert uint8_t (0-255) to a percentage, format as above
+const char* ui8tostr4pctrj(const uint8_t i) {
+  return pcttostrpctrj(ui8_to_percent(i));
 }
 
 // Convert unsigned 8bit int to string 123 format

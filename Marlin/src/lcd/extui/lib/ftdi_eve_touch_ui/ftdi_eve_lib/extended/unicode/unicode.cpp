@@ -73,6 +73,13 @@
     return val;
   }
 
+  utf8_char_t FTDI::get_utf8_char_and_inc(char *&c) {
+    utf8_char_t val = *(uint8_t*)c++;
+    while ((*c & 0xC0) == 0x80)
+      val = (val << 8) | *(uint8_t*)c++;
+    return val;
+  }
+
   /**
    * Helper function to draw and/or measure a UTF8 string
    *
@@ -92,6 +99,9 @@
     const int start_x = x;
     while (*str) {
       const utf8_char_t c = get_utf8_char_and_inc(str);
+      #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
+        CyrillicCharSet::render_glyph(cmd, x, y, fs, c) ||
+      #endif
       #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
         WesternCharSet::render_glyph(cmd, x, y, fs, c) ||
       #endif
@@ -108,11 +118,14 @@
    *   addr  - Address in RAMG where the font data is written
    */
 
-  void FTDI::load_utf8_data(uint16_t addr) {
-    #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
-      WesternCharSet::load_data(addr);
+  void FTDI::load_utf8_data(uint32_t addr) {
+    #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
+      addr = CyrillicCharSet::load_data(addr);
     #endif
-    StandardCharSet::load_data(addr);
+    #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
+      addr = WesternCharSet::load_data(addr);
+    #endif
+    addr = StandardCharSet::load_data(addr);
   }
 
   /**
@@ -125,6 +138,9 @@
    */
 
   void FTDI::load_utf8_bitmaps(CommandProcessor &cmd) {
+    #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
+      CyrillicCharSet::load_bitmaps(cmd);
+    #endif
     #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
       WesternCharSet::load_bitmaps(cmd);
     #endif
@@ -145,6 +161,9 @@
 
   uint16_t FTDI::get_utf8_char_width(utf8_char_t c, font_size_t fs) {
     int x = 0, y = 0;
+    #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
+      CyrillicCharSet::render_glyph(nullptr, x, y, fs, c) ||
+    #endif
     #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
       WesternCharSet::render_glyph(nullptr, x, y, fs, c) ||
     #endif

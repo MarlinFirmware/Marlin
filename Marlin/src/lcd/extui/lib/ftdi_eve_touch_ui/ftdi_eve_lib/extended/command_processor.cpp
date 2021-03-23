@@ -21,7 +21,7 @@
 
 #include "ftdi_extended.h"
 
-#ifdef FTDI_EXTENDED
+#if ENABLED(FTDI_EXTENDED)
 
 CommandProcessor::btn_style_func_t  *CommandProcessor::_btn_style_callback = CommandProcessor::default_button_style_func;
 bool CommandProcessor::is_tracking = false;

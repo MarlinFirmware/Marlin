@@ -46,7 +46,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_FILAMENT_SET_RETURN:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_filament_settings();
       draw_return_ui();
       break;
@@ -76,22 +76,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_UP:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_filament_settings();
       lv_draw_filament_settings();
       break;
     case ID_FILAMENT_SET_DOWN:
-      uiCfg.para_ui_page = 1;
+      uiCfg.para_ui_page = true;
       lv_clear_filament_settings();
       lv_draw_filament_settings();
       break;
   }
 }
 
-void lv_draw_filament_settings(void) {
+void lv_draw_filament_settings() {
   scr = lv_screen_create(FILAMENT_SETTINGS_UI, machine_menu.FilamentConfTitle);
 
-  if (uiCfg.para_ui_page != 1) {
+  if (!uiCfg.para_ui_page) {
     sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_length);
     lv_screen_menu_item_1_edit(scr, machine_menu.InLength, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_IN_LENGTH, 0, public_buf_l);
 
