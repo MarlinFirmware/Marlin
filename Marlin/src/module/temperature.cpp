@@ -560,6 +560,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
+    TERN_(DWIN_CREALITY_LCD, DWIN_PidTuning(isbed ? PID_BED_START : PID_EXTR_START));
 
     disable_all_heaters();
     TERN_(AUTO_POWER_CONTROL, powerManager.power_on());

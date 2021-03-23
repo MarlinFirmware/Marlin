@@ -171,12 +171,14 @@ void DWIN_Frame_Clear(const uint16_t color) {
 }
 
 // Draw a point
+//  color: point color
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
-void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x02);
+  DWIN_Word(i, color);
   DWIN_Byte(i, width);
   DWIN_Byte(i, height);
   DWIN_Word(i, x);
@@ -460,6 +462,36 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   DWIN_Byte(i, 0x28);
   DWIN_Word(i, state);
   DWIN_Send(i);
+}
+
+//Draw a circle
+//Color: circle color
+//x: the abscissa of the center of the circle
+//y: ordinate of the center of the circle
+//r: circle radius
+void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
+  int a,b;
+  a=b=0;	  
+  while(a<=b) {
+    b=sqrt(r*r-a*a);
+    while(a==0){ b=b-1;break;}
+    DWIN_Draw_Point(color, 1,1,x+a,y+b);		               //Draw some sector 1
+    DWIN_Draw_Point(color, 1,1,x+b,y+a);		               //Draw some sector 2
+    DWIN_Draw_Point(color, 1,1,x+b,y-a);		               //Draw some sector 3
+    DWIN_Draw_Point(color, 1,1,x+a,y-b);		               //Draw some sector 4
+      
+    DWIN_Draw_Point(color, 1,1,x-a,y-b);		              //Draw some sector 5
+    DWIN_Draw_Point(color, 1,1,x-b,y-a);		              //Draw some sector 6
+    DWIN_Draw_Point(color, 1,1,x-b,y+a);		              //Draw some sector 7
+    DWIN_Draw_Point(color, 1,1,x-a,y+b);		              //Draw some sector 8
+    a++;
+  }
+}
+
+// GUI extension
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
+  DWIN_Draw_String(false,true,font8x16,Color_Blue,bcolor,x+4,y,F(mode ? "x" : " "));
+  DWIN_Draw_Rectangle(0,color,x+2,y+2,x+17,y+17);
 }
 
 /*---------------------------------------- Memory functions ----------------------------------------*/

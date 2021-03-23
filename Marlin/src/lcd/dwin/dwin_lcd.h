@@ -169,6 +169,9 @@
 #define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_Binary               ICON_Contact
+#define ICON_Flow                 ICON_StepE
+#define ICON_Runout               ICON_MaxAccE
+#define ICON_Pwrlossr             ICON_Motion
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -195,6 +198,7 @@
 #define Color_White       0xFFFF
 #define Color_Yellow      0xFF0F
 #define Color_Green       0x0F0F
+#define Color_Blue        0x44FF
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
 #define Color_Bg_LBlue    0x2288  // Light blue color
@@ -233,10 +237,11 @@ void DWIN_UpdateLCD(void);
 void DWIN_Frame_Clear(const uint16_t color);
 
 // Draw a point
+//  color: point color
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
-void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
 
 // Draw a line
 //  color: Line segment color
@@ -393,3 +398,9 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 // Animation Control
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
+
+//Draw a circle
+void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
+
+// GUI extension
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);

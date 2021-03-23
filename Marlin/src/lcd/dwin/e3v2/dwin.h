@@ -99,6 +99,7 @@ enum processID : uint8_t {
     FanSpeed,
   #endif
   PrintSpeed,
+  PrintFlow,
 
   // Window ID
   Print_window,
@@ -132,6 +133,7 @@ typedef struct {
   float Home_OffY_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
+  int16_t print_flow      = 100;
 } HMI_value_t;
 
 #define DWIN_CHINESE 123
@@ -146,7 +148,6 @@ typedef struct {
   bool select_flag:1;
   bool home_flag:1;  // Homing
   bool heat_flag:1;  // 0: heating done  1: during heating
-  bool Pid_flag:1;   // 0: Pid done 1: Pid running
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
   #endif
@@ -159,8 +160,7 @@ typedef struct {
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
 
-enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
-enum pidmode_t : uint8_t {PID_OFF, PID_HOTEND, PID_BED};
+enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
 // Show ICO
 void ICON_Print();
@@ -265,8 +265,9 @@ void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zva
 #endif
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
-void Start_Print(bool sd);
-void Stop_Print();
+void DWIN_Start_Print(bool sd);
+void DWIN_Stop_Print();
+void DWIN_FilamentRunout(const uint8_t extruder);
 
 // Aditional Host and MarlinUI Support
 void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);

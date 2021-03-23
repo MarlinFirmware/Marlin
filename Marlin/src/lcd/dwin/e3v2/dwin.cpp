@@ -62,6 +62,10 @@
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
+#endif
+
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../../module/settings.h"
 #endif
@@ -108,6 +112,10 @@
 // Print speed limit
 #define MAX_PRINT_SPEED   999
 #define MIN_PRINT_SPEED   10
+
+// Print flow limit
+#define MAX_PRINT_FLOW   299
+#define MIN_PRINT_FLOW   10
 
 // Temp limits
 #if HAS_HOTEND
@@ -172,8 +180,9 @@ select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
 uint8_t index_file     = MROWS,
         index_prepare  = MROWS,
         index_control  = MROWS,
-        index_leveling = MROWS,
-        index_tune     = MROWS;
+        index_tune     = MROWS,
+        index_advset   = MROWS,
+        index_leveling = MROWS;
 
 bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
 
@@ -188,10 +197,7 @@ static uint8_t _percentDone = 0;
 static uint16_t _remain_time = 0;
 
 // Aditional Aux Host Support
-bool sdprint = false;
-
-// Pid mode
-pidmode_t PidMode = PID_OFF; 
+static bool sdprint = false;
 
 #if ENABLED(PAUSE_HEAT)
   TERN_(HAS_HOTEND, uint16_t resume_hotend_temp = 0);
@@ -385,6 +391,10 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
   DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
 
+void Draw_Chkb_Line(const uint8_t line, bool mode){
+  DWIN_Draw_Checkbox(Color_White,Color_Bg_Black,220,MBASE(line),mode) ; 
+}
+
 // The "Back" label is always on the first line
 void Draw_Back_Label() {
   DWIN_Frame_AreaCopy(1, 226, 179, 256, 189, LBLX, MBASE(0));
@@ -413,7 +423,8 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_ACCEL  2
 #define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(HAS_CLASSIC_JERK))
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
-#define MOTION_CASE_TOTAL  MOTION_CASE_STEPS
+#define MOTION_CASE_FLOW   (MOTION_CASE_STEPS +1) 
+#define MOTION_CASE_TOTAL  MOTION_CASE_FLOW
 
 #define PREPARE_CASE_FMAN  1  // Filament management
 #define PREPARE_CASE_MOVE  2
@@ -463,7 +474,9 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define ADVSET_CASE_PROBEOFF  (ADVSET_CASE_HOMEOFF + ENABLED(HAS_ONESTEP_LEVELING))
 #define ADVSET_CASE_HEPID     (ADVSET_CASE_PROBEOFF + 1)
 #define ADVSET_CASE_BEDPID    (ADVSET_CASE_HEPID + 1)
-#define ADVSET_CASE_TOTAL     ADVSET_CASE_BEDPID
+#define ADVSET_CASE_RUNOUT    (ADVSET_CASE_BEDPID + ENABLED(HAS_FILAMENT_SENSOR))
+#define ADVSET_CASE_PWRLOSSR  (ADVSET_CASE_RUNOUT + 1)   
+#define ADVSET_CASE_TOTAL     ADVSET_CASE_PWRLOSSR
 
 void DWIN_Draw_Label(const uint16_t y, char *string) {
   DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, y, string);
@@ -833,6 +846,10 @@ void Draw_Motion_Menu() {
     _MOTION_ICON(MOTION_CASE_JERK); Draw_More_Icon(i);
   #endif
   _MOTION_ICON(MOTION_CASE_STEPS); Draw_More_Icon(i);
+
+  Draw_Menu_Line(MOTION_CASE_FLOW, ICON_Flow, GET_TEXT(MSG_FLOW),false);  // Flow rate
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(MOTION_CASE_FLOW),planner.flow_percentage[0]);
+
 }
 
 //
@@ -976,7 +993,7 @@ void Goto_Main_Menu() {
     DWIN_Frame_AreaCopy(1, 0, 2, 39, 12, 14, 9);
   #endif
 
-  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);
+  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);  // CREALIY logo
 
   ICON_Print();
   ICON_Prepare();
@@ -1960,7 +1977,7 @@ void HMI_SelectFile() {
 
       if (strcmp(strrchr(card.filename,'.'),".GCO")==0) {
         card.openAndPrintFile(card.filename);
-        Start_Print(true);
+        DWIN_Start_Print(true);
       } else {    
         DWIN_Popup_Confirm(ICON_Error,"Please, check filenames","Only gcode can be printed");
       }      
@@ -2145,15 +2162,32 @@ void Draw_Move_Menu() {
 
 void Draw_AdvSet_Menu() {
   Clear_Main_Window();
+  
+  #if ADVSET_CASE_TOTAL >= 6
+    const int16_t scroll = MROWS - index_advset; // Scrolled-up lines
+    #define ASCROL(L) (scroll + (L))
+  #else
+    #define ASCROL(L) (L)
+  #endif
+  
+  #define AVISI(L)  WITHIN(ASCROL(L), 0, MROWS)
+  
   Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
-  Draw_Back_First(select_advSet.now == 0);
-  Draw_Menu_Line(ADVSET_CASE_HOMEOFF, ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);  // Probe Offset
-#if HAS_ONESTEP_LEVELING
-  Draw_Menu_Line(ADVSET_CASE_PROBEOFF, ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);  // Probe Offset
-#endif
-  Draw_Menu_Line(ADVSET_CASE_HEPID, ICON_PIDNozzle, "Hotend PID", false);  // Nozzle PID
-  Draw_Menu_Line(ADVSET_CASE_BEDPID, ICON_PIDbed, "Bed PID", false);  // Bed PID
-  if (select_advSet.now) Draw_Menu_Cursor(select_advSet.now);
+
+  if (AVISI(0)) Draw_Back_First(select_advSet.now == 0);
+  if (AVISI(ADVSET_CASE_HOMEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HOMEOFF), ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);  // Home Offset
+  #if HAS_ONESTEP_LEVELING
+  if (AVISI(ADVSET_CASE_PROBEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PROBEOFF), ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);  // Probe Offset
+  #endif
+  if (AVISI(ADVSET_CASE_HEPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HEPID), ICON_PIDNozzle, "Hotend PID", false);  // Nozzle PID
+  if (AVISI(ADVSET_CASE_BEDPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_BEDPID), ICON_PIDbed, "Bed PID", false);  // Bed PID
+  #if HAS_FILAMENT_SENSOR
+  if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Menu_Line(ASCROL(ADVSET_CASE_RUNOUT), ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
+  if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_RUNOUT),runout.enabled);
+  #endif 
+  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
+  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_PWRLOSSR),recovery.enabled);
+  if (select_advSet.now  && AVISI(select_advSet.now)) Draw_Menu_Cursor(ASCROL(select_advSet.now));
 }
 
 void Draw_HomeOff_Menu() {
@@ -2577,7 +2611,7 @@ void HMI_Control() {
         // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
         
-        switch (index_control) {
+        switch (index_control) {  // Last menu items
           case CONTROL_CASE_REBOOT:  // Reset Printer
             Draw_Menu_Item(MROWS, ICON_Reboot, GET_TEXT(MSG_RESET_PRINTER));
             break;
@@ -2589,7 +2623,7 @@ void HMI_Control() {
             break;
           default: break;
         }
-        
+
       }
       else {
         Move_Highlight(1, select_control.now + MROWS - index_control);
@@ -2602,7 +2636,7 @@ void HMI_Control() {
         index_control--;
         Scroll_Menu(DWIN_SCROLL_DOWN);
 
-        switch (index_control) {
+        switch (index_control) {  // First menu items
           case MROWS :
             Draw_Back_First();
             break;
@@ -2714,7 +2748,7 @@ void HMI_AxisMove() {
     switch (select_item.now) {
       case 0: // Back
         checkkey = Prepare;
-        select_prepare.set(1);
+        select_prepare.set(PREPARE_CASE_MOVE);
         index_prepare = MROWS;
         Draw_Prepare_Menu();
         break;
@@ -3180,10 +3214,33 @@ void HMI_Motion() {
         select_item.reset();
         Draw_Steps_Menu();
         break;
+      case MOTION_CASE_FLOW: // Flow rate
+        checkkey = PrintFlow;
+        HMI_ValueStruct.print_flow = planner.flow_percentage[0];
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(MOTION_CASE_FLOW),planner.flow_percentage[0]);
+        EncoderRate.enabled = true;
+        break;
       default: break;
     }
   }
   DWIN_UpdateLCD();
+}
+
+void HMI_PrintFlow() {
+  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.print_flow)) {
+      checkkey = Motion;
+      EncoderRate.enabled = false;
+      planner.flow_percentage[0] = HMI_ValueStruct.print_flow;
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(MOTION_CASE_FLOW),planner.flow_percentage[0]);
+      return;
+    }
+    // print_flow limit
+    LIMIT(HMI_ValueStruct.print_flow, MIN_PRINT_FLOW, MAX_PRINT_FLOW);
+    // print_flow value
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(MOTION_CASE_FLOW),HMI_ValueStruct.print_flow);
+  }
 }
 
 /* Reset Printer */
@@ -3203,10 +3260,61 @@ void HMI_AdvSet() {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_advSet.inc(1 + ADVSET_CASE_TOTAL)) Move_Highlight(1, select_advSet.now);
+    if (select_advSet.inc(1 + ADVSET_CASE_TOTAL)) {
+      if (select_advSet.now > MROWS && select_advSet.now > index_advset) {
+        index_advset = select_advSet.now;
+
+        // Scroll up and draw a blank bottom line
+        Scroll_Menu(DWIN_SCROLL_UP);
+
+        switch (index_advset) {  // Last menu items
+          #if HAS_FILAMENT_SENSOR
+          case ADVSET_CASE_RUNOUT :   // Runout sersor
+            Draw_Menu_Line(MROWS, ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
+            Draw_Chkb_Line(MROWS,runout.enabled);
+            break;
+          #endif
+          case ADVSET_CASE_PWRLOSSR : // Power-lost recovery
+            Draw_Menu_Line(MROWS, ICON_Motion, "Power-loss recovery", false);  // Power-loss
+            Draw_Chkb_Line(MROWS,recovery.enabled);
+            break;  
+          default: break;
+        }
+
+      }
+      else {
+        Move_Highlight(1, select_advSet.now + MROWS - index_advset);
+      }
+    }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_advSet.dec()) Move_Highlight(-1, select_advSet.now);
+    if (select_advSet.dec()) {
+      if (select_advSet.now < index_advset - MROWS) {
+        index_advset--;
+        Scroll_Menu(DWIN_SCROLL_DOWN);
+
+        switch (index_advset) {  // First menu items
+          case MROWS :
+            Draw_Back_First();
+            break;
+          case MROWS+ADVSET_CASE_HOMEOFF :  // Home Offset >
+            Draw_Menu_Line(0, ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);
+            break;
+          #if HAS_ONESTEP_LEVELING
+          case MROWS+ADVSET_CASE_PROBEOFF : // Probe Offset >
+            Draw_Menu_Line(0, ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);
+            break;
+          #endif
+          case MROWS+ADVSET_CASE_HEPID :    // Nozzle PID
+            Draw_Menu_Line(0, ICON_PIDNozzle, "Hotend PID", false);
+            break;
+          default: break;
+        }
+      }
+      else {
+        Move_Highlight(-1, select_advSet.now + MROWS - index_advset);
+      }
+    }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_advSet.now) {
@@ -3233,48 +3341,28 @@ void HMI_AdvSet() {
         break;
 #endif
       case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
-        if (HMI_flag.Pid_flag) {
-          DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "Already is running");
-        } else {
-          checkkey = PidRunning;
-          PidMode = PID_HOTEND;
-          DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for Nozzle is running.");
-        }
+        thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
+        thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
         break;
       case ADVSET_CASE_BEDPID:   // Bed PID Autotune
-        if (HMI_flag.Pid_flag) {
-          DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "Already is running");
-        } else {
-          checkkey = PidRunning;
-          PidMode = PID_BED;
-          DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for BED is running.");
-        }
+        thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
+        thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
+        break;
+#if HAS_FILAMENT_SENSOR
+      case ADVSET_CASE_RUNOUT :  // Runout sensor
+        runout.reset();
+        runout.enabled = !runout.enabled;
+        Draw_Chkb_Line(ADVSET_CASE_RUNOUT + MROWS - index_advset,runout.enabled);
+        break;
+#endif
+      case ADVSET_CASE_PWRLOSSR :  // Power-loss recovery
+        recovery.enable(!recovery.enabled);
+        Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset,recovery.enabled);
         break;
       default: break;
     }
   }
   DWIN_UpdateLCD();
-}
-
-void HMI_PidRun() {
-  if (HMI_flag.Pid_flag) return;
-  switch (PidMode) {
-    case PID_HOTEND :
-      HMI_flag.Pid_flag = true;
-      thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
-      thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
-      break;  
-    case PID_BED :
-      HMI_flag.Pid_flag = true;
-      thermalManager.temp_bed.target = ui.material_preset[0].bed_temp;
-      thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
-      break;
-    case PID_OFF :
-      checkkey = AdvSet;
-      Draw_AdvSet_Menu();
-      break;
-    default : break;
-  }
 }
 
 /*Home Offset */
@@ -3770,7 +3858,6 @@ void HMI_Popup() {
       case Tune         : Draw_Tune_Menu(); break;
       case PrintProcess : Goto_PrintProcess(); break;
       case AdvSet       : Draw_AdvSet_Menu(); break;
-      case PidRunning   : break;
       default           : Goto_Main_Menu(); break;
     }
     return;
@@ -3972,7 +4059,7 @@ void DWIN_HandleScreen() {
     case ProbeOffX:       HMI_ProbeOffX(); break;
     case ProbeOffY:       HMI_ProbeOffY(); break;
 #endif
-    case PidRunning:      HMI_PidRun(); break;
+    case PidRunning:      break;
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
     #if HAS_PREHEAT
@@ -4002,6 +4089,7 @@ void DWIN_HandleScreen() {
       case FanSpeed:      HMI_FanSpeed(); break;
     #endif
     case PrintSpeed:      HMI_PrintSpeed(); break;
+    case PrintFlow:       HMI_PrintFlow(); break;
     case MaxSpeed_value:  HMI_MaxFeedspeedXYZE(); break;
     case MaxAcceleration_value: HMI_MaxAccelerationXYZE(); break;
     #if HAS_CLASSIC_JERK
@@ -4062,38 +4150,58 @@ void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zva
 }
 #endif
 
+// PID process
 void DWIN_PidTuning(pidresult_t result){
   switch (result) {
-    case PID_DONE :
-      PidMode = PID_OFF; 
-      HMI_flag.Pid_flag = false;
-      DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT(MSG_PID_AUTOTUNE), GET_TEXT(MSG_BUTTON_DONE));
+    case PID_BED_START :
+      last_checkkey = checkkey;
+      checkkey = PidRunning;
+      DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for BED is running.");
+      break;
+    case PID_EXTR_START :
+      last_checkkey = checkkey;
+      checkkey = PidRunning;
+      DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for Nozzle is running.");
+      break;
+    case PID_BAD_EXTRUDER_NUM :
+      checkkey = last_checkkey;
+      DWIN_Popup_Confirm(ICON_TempTooLow, "PID Autotune failed!", "Bad extruder");
       break;
     case PID_TUNING_TIMEOUT :
-      PidMode = PID_OFF; 
-      HMI_flag.Pid_flag = false;
+      checkkey = last_checkkey;
       DWIN_Popup_Confirm(ICON_TempTooHigh, "Error", GET_TEXT(MSG_PID_TIMEOUT));
       break;
     case PID_TEMP_TOO_HIGH :
-      PidMode = PID_OFF; 
-      HMI_flag.Pid_flag = false;
+      checkkey = last_checkkey;
       DWIN_Popup_Confirm(ICON_TempTooHigh,"PID Autotune failed!","Temperature too high");
       break;
-    default : break;
+    case PID_DONE :
+      checkkey = last_checkkey;
+      DWIN_Popup_Confirm(ICON_TempTooLow, GET_TEXT(MSG_PID_AUTOTUNE), GET_TEXT(MSG_BUTTON_DONE));
+      break;
+    default :
+      checkkey = last_checkkey;
+      break;
   }
 }
 
+// Update filename on print
 void DWIN_Print_Header(const char *text = nullptr) {
-  char headertxt[31] = "";
+
+static char headertxt[31] = "";  // Print header text
+
   if (text!=nullptr) {
     const int8_t size = _MIN((unsigned) 30, strlen_P(text));
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size+1] = '\0';
   }    
-  if (checkkey == PrintProcess)
+  if (checkkey == PrintProcess){
+    DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 60, DWIN_WIDTH, 60+16);
     DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Black, MENU_CHR_W, 60, headertxt);
+  }
 }
 
+// Update Status line
 void DWIN_StatusChanged(const char *text) {
   DWIN_Draw_Rectangle(1, Color_Bg_LBlue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y+20);
   DWIN_Draw_CenteredString(false, false, font8x16, Color_Yellow, Color_Bg_LBlue, MENU_CHR_W, STATUS_Y+2, F(text));
@@ -4101,7 +4209,7 @@ void DWIN_StatusChanged(const char *text) {
 }
 
 // Start a Print Job
-void Start_Print(bool sd) {
+void DWIN_Start_Print(bool sd) {
   if (card.isPrinting()) sdprint = true;
   else sdprint = sd;
   _percentDone = 0;
@@ -4110,7 +4218,7 @@ void Start_Print(bool sd) {
 }
 
 //End print job
-void Stop_Print() {
+void DWIN_Stop_Print() {
   if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
     thermalManager.disable_all_heaters();
     thermalManager.zero_fan_speeds();
@@ -4129,6 +4237,11 @@ void DWIN_Progress_Update(uint8_t percent, uint32_t remaining) {
     Draw_Print_ProgressRemain();
     Draw_Print_ProgressElapsed();
   }
+}
+
+// Filament Runout process
+void DWIN_FilamentRunout(const uint8_t extruder){
+  DWIN_StatusChanged(GET_TEXT(MSG_RUNOUT_SENSOR));
 }
 
 #endif // DWIN_CREALITY_LCD

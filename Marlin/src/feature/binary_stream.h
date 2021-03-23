@@ -39,7 +39,7 @@ inline int bs_read_serial(const serial_index_t index) {
 
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   static heatshrink_decoder hsd;
-  static uint8_t decode_buffer[MAX_CMD_SIZE] = {};
+  static uint8_t decode_buffer[256] = {};
 #endif
 
 class SDFileTransferProtocol  {
