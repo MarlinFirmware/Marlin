@@ -1246,6 +1246,9 @@ void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
 
   uint16_t val_t = swap16(*(uint16_t*)val_ptr);
 
+  if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
+    return;
+
   switch (val_t) {
     case 0:
       #if HOTENDS >= 1
@@ -1497,7 +1500,7 @@ bool DGUSScreenHandler::loop() {
     static bool booted = false;
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
-      #if ANY_AXIS_HAS(STEALTHCHOP)
+      #if USE_SENSORLESS
         #if AXIS_HAS_STEALTHCHOP(X)
           tmc_x_step = stepperX.homing_threshold();
         #endif
