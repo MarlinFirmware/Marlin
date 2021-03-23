@@ -536,7 +536,7 @@
                          (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
                          (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
 
-#if ENABLED(CUSTOM_MENUS_MAIN)
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENUS_MAIN)
   #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else

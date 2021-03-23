@@ -3416,20 +3416,22 @@
 #endif
 
 /**
- * Custom Main and Configuration Menu items that execute user-defined G-Code
+ * User-defined menu items to run custom G-code.
+ * Up to 25 may be defined, but the actual number is LCD-dependent.
  */
+
 // Custom Menus, Main Menu
 //#define CUSTOM_MENUS_MAIN
 #if ENABLED(CUSTOM_MENUS_MAIN)
   //#define CUSTOM_MENUS_MAIN_TITLE "Custom Commands"
   #define CUSTOM_MENUS_MAIN_SCRIPT_DONE "M117 User Script Done"
   #define CUSTOM_MENUS_MAIN_SCRIPT_AUDIBLE_FEEDBACK
-  //#define CUSTOM_MENUS_MAIN_SCRIPT_RETURN  // Return to status screen after a script
-  #define CUSTOM_MENUS_MAIN_ONLY_IDLE
+  //#define CUSTOM_MENUS_MAIN_SCRIPT_RETURN   // Return to status screen after a script
+  #define CUSTOM_MENUS_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
 
   #define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
   #define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"
-  //#define MAIN_MENU_ITEM_1_CONFIRM
+  //#define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
 
   #define MAIN_MENU_ITEM_2_DESC "Preheat for " PREHEAT_1_LABEL
   #define MAIN_MENU_ITEM_2_GCODE "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
@@ -3455,11 +3457,11 @@
   #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_DONE "M117 Wireless Script Done"
   #define CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK
   //#define CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN  // Return to status screen after a script
-  #define CUSTOM_MENUS_CONFIGURATION_ONLY_IDLE
+  #define CUSTOM_MENUS_CONFIGURATION_ONLY_IDLE        // Only show custom menu when the machine is idle
 
   #define CONF_MENU_ITEM_1_DESC "Wifi ON"
   #define CONF_MENU_ITEM_1_GCODE "M118 [ESP110] WIFI-STA pwd=12345678"
-  //#define CONF_MENU_ITEM_1_CONFIRM
+  //#define CONF_MENU_ITEM_1_CONFIRM                  // Show a confirmation dialog before this action
 
   #define CONF_MENU_ITEM_2_DESC "Bluetooth ON"
   #define CONF_MENU_ITEM_2_GCODE "M118 [ESP110] BT pwd=12345678"
@@ -3478,6 +3480,10 @@
   //#define CONF_MENU_ITEM_5_CONFIRM
 #endif
 
+/**
+ * User-defined buttons to run custom G-code.
+ * Up to 25 may be defined.
+ */
 //#define CUSTOM_USER_BUTTONS
 #if ENABLED(CUSTOM_USER_BUTTONS)
   //#define BUTTON1_PIN -1

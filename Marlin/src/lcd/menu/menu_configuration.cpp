@@ -478,14 +478,13 @@ void menu_advanced_settings();
     END_MENU();
   }
 
-#endif
+#endif // CUSTOM_MENUS_CONFIGURATION
 
 void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
   BACK_ITEM(MSG_MAIN);
-
 
   //
   // Debug Menu when certain options are enabled

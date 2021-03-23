@@ -553,6 +553,8 @@
   #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
 #elif defined(MEATPACK)
   #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
+#elif defined(CUSTOM_USER_MENUS)
+  #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENUS_MAIN and CUSTOM_MENUS_CONFIGURATION."
 #endif
 
 /**
