@@ -1301,6 +1301,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
 }
 
 #if ENABLED(UBL_HILBERT_CURVE)
+
   constexpr int8_t  to_fix(int8_t  v) { return v << 1; }
   constexpr int8_t  to_int(int8_t  v) { return v >> 1; }
   constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
@@ -1342,11 +1343,12 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
      pt.invalidate();
      pt.distance = -99999.9f;
      constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-     constexpr uint8_t dim = 1 << ord;
-     hilbert(pt, to_fix(0), to_fix(0),to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
+     constexpr uint8_t dim = _BV(ord);
+     hilbert(pt, to_fix(0), to_fix(0), to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
      return pt;
    }
-#endif
+
+#endif // UBL_HILBERT_CURVE
 
 /**
  * 'Smart Fill': Scan from the outward edges of the mesh towards the center.
