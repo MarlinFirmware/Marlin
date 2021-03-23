@@ -30,19 +30,9 @@
 #endif
 
 #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
-  extern const void* _binary_mc_zip_start;
-  extern const void* _binary_mc_zip_end;
-  __asm__(
-  #ifdef __AVR__
-    ".section .progmem\n"
-  #else
-    ".section .rodata\n"
-  #endif
-  "_binary_mc_zip_start:\n"
-  ".incbin \".pio/build/mc.zip\"\n"
-  "_binary_mc_zip_end:\n"
-  ".previous\n"
-  );
+  extern "C" {
+    #include "../../../../.pio/build/mc.c"
+  }
 #endif
 
 /**
@@ -79,9 +69,9 @@ void GcodeSuite::M502() {
       if (!writeSD) return;
 
       SdBaseFile file;
-      uint16_t size = (uint16_t)((int*)pgm_read_ptr(_binary_mc_zip_end) - (int*)pgm_read_ptr(_binary_mc_zip_start));
+      uint16_t size = COUNT(mc_zip);
       // Need to create the config size on the SD card
-      if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(_binary_mc_zip_start), size) != -1 && file.close())
+      if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
         SERIAL_ECHO_MSG("Configuration saved to mc.zip on SD card");
     #endif
   }

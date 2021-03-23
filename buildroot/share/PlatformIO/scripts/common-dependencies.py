@@ -463,6 +463,13 @@ def compute_build_signature():
 	# Now compress the JSON file to as much as we can
 	compress_file(marlin_json, '.pio/build/mc')
 
+	# And generate a C source file for storing this array
+	with open('.pio/build/mc.c','wb') as result_file:
+		result_file.write(b'const unsigned char mc_zip[] PROGMEM = {')
+		for b in open(marlin_json, 'rb').read():
+			result_file.write(b'0x%02X,' % b)
+		result_file.write(b'};')
+
 #
 # Return True if a matching feature is enabled
 #
