@@ -2019,9 +2019,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  #if ENABLED(MIXING_EXTRUDER)
-    MIXER_POPULATE_BLOCK();
-  #endif
+  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color))
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 

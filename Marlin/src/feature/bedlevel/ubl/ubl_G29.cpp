@@ -303,7 +303,9 @@ void unified_bed_leveling::G29() {
 
   const int8_t p_val = parser.intval('P', -1);
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J');
-  TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index = active_extruder);
+  #if ENABLED(HAS_MULTI_HOTEND)
+    const uint8_t old_tool_index = active_extruder;
+  #endif
 
   // Check for commands that require the printer to be homed
   if (may_move) {

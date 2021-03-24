@@ -105,9 +105,15 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    TERN_(HAS_HOTEND,     celsius_t hotend_temp);
-    TERN_(HAS_HEATED_BED, celsius_t bed_temp   );
-    TERN_(HAS_FAN,        uint16_t  fan_speed  );
+    #if ENABLED(HAS_HOTEND)
+      celsius_t hotend_temp;
+    #endif
+    #if ENABLED(HAS_HEATED_BED)
+      celsius_t bed_temp;
+    #endif
+    #if ENABLED(HAS_FAN)
+      uint16_t fan_speed;
+    #endif
   } preheat_t;
 #endif
 
@@ -123,10 +129,14 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
+    #if ENABLED(IS_KINEMATIC)
+      static xyze_pos_t all_axes_destination;
+    #endif
   public:
     static float menu_scale;
-    TERN_(IS_KINEMATIC, static float offset);
+    #if ENABLED(IS_KINEMATIC)
+      static float offset;
+    #endif
     template <typename T>
     void set_destination(const T& dest) {
       #if IS_KINEMATIC

@@ -109,9 +109,11 @@
 
 #endif
 
-TERN_(ELECTROMAGNETIC_SWITCHING_TOOLHEAD, void est_init());
-
-TERN_(SWITCHING_TOOLHEAD, void swt_init());
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  void est_init();
+#elif ENABLED(SWITCHING_TOOLHEAD)
+  void swt_init();
+#endif
 
 /**
  * Perform a tool-change, which may result in moving the
