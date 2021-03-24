@@ -255,12 +255,12 @@
 #define EEPROM_SETTINGS_READ_RU       "Чтение настроек из EEPROM"
 #define EEPROM_SETTINGS_REVERT_RU     "Bосстановить заводские настройки по умолчанию"
 
-#define MORE_CUSTOM1_TEXT_RU  USER_DESC_1
-#define MORE_CUSTOM2_TEXT_RU  USER_DESC_2
-#define MORE_CUSTOM3_TEXT_RU  USER_DESC_3
-#define MORE_CUSTOM4_TEXT_RU  USER_DESC_4
-#define MORE_CUSTOM5_TEXT_RU  USER_DESC_5
-#define MORE_CUSTOM6_TEXT_RU  USER_DESC_6
+#define MORE_CUSTOM1_TEXT_RU  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_RU  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_RU  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_RU  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_RU  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_RU  MAIN_MENU_ITEM_6_DESC
 
 #define EEPROM_STORE_TIPS_RU          "Cохранить настройки в EEPROM?"
 #define EEPROM_READ_TIPS_RU           "читать настройки из EEPROM?"
@@ -283,7 +283,7 @@
 
 #define LEVELING_CONF_TITLE_RU          "Hастройки принтера>Hастройки уровня"
 #define LEVELING_PARA_CONF_RU           "настройки уровня"
-#define LEVELING_MANUAL_POS_RU          "настройки координат для уровня"
+#define TRAMMING_POS_RU                 "настройки координат для уровня"
 #define LEVELING_AUTO_COMMAND_RU        "настройки комманд увтоуровня"
 #define LEVELING_AUTO_ZOFFSET_RU        "координаты смещения сопла"
 
