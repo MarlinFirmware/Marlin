@@ -22,6 +22,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../MarlinCore.h" // for printingIsPaused
+
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
 #endif
@@ -38,17 +40,22 @@
 #include "marlinui.h"
 MarlinUI ui;
 
-#if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD)
-  #include "../MarlinCore.h"
-#endif
-
 #if HAS_DISPLAY
   #include "../gcode/queue.h"
   #include "fontutils.h"
+  #include "../sd/cardreader.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "dwin/e3v2/dwin.h"
+#endif
+
+#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+  #define BASIC_PROGRESS_BAR 1
+#endif
+
+#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, BASIC_PROGRESS_BAR)
+  #include "../module/printcounter.h"
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
@@ -530,7 +537,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+#if BASIC_PROGRESS_BAR
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -541,7 +548,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+  #if BASIC_PROGRESS_BAR
 
     //
     // HD44780 implements the following message blinking and
@@ -581,7 +588,7 @@ void MarlinUI::status_screen() {
 
     #endif // PROGRESS_MSG_EXPIRE
 
-  #endif // LCD_PROGRESS_BAR
+  #endif // BASIC_PROGRESS_BAR
 
   #if HAS_LCD_MENU
     if (use_click()) {
@@ -1348,6 +1355,7 @@ void MarlinUI::update() {
   /**
    * Reset the status message
    */
+
   void MarlinUI::reset_status(const bool no_welcome) {
     #if SERVICE_INTERVAL_1 > 0
       static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
@@ -1433,9 +1441,9 @@ void MarlinUI::update() {
 
   void MarlinUI::finish_status(const bool persist) {
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
 
-      #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE) > 0)
+      #if !(BASIC_PROGRESS_BAR && (PROGRESS_MSG_EXPIRE) > 0)
         UNUSED(persist);
       #endif
 
@@ -1443,7 +1451,7 @@ void MarlinUI::update() {
         const millis_t ms = millis();
       #endif
 
-      #if ENABLED(LCD_PROGRESS_BAR)
+      #if BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
           expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
@@ -1457,7 +1465,7 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-    #else // HAS_SPI_LCD
+    #else // HAS_WIRED_LCD
       UNUSED(persist);
     #endif
 

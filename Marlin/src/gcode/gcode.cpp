@@ -772,19 +772,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
-      #if HAS_TOOLS
-        case 450: M450(); break;                                  // M450: Select / Report current tool
-        case 451: M451(); break;                                  // M451: Select tool Extruder
-        case 452: M452(); break;                                  // M452: Select tool Laser
-        case 453: M453(); break;                                  // M453: Select tool Spindle
-        //case 454: M454(); break;
-        //case 455: M455(); break;
-        //case 456: M456(); break;
-        //case 457: M457(); break;
-        //case 458: M458(); break;
-        //case 459: M459(); break;
-      #endif
-
       #if ENABLED(CANCEL_OBJECTS)
         case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif

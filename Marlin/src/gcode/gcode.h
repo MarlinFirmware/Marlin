@@ -223,8 +223,6 @@
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
- * M450 - Set or report current tool. (Requires LASER_SYNCHRONOUS_M106_M107)
- * M451-M459 - Set tool to Extruder, Laser, Spindle, etc. (Requires LASER_SYNCHRONOUS_M106_M107)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
@@ -894,19 +892,6 @@ private:
 
   #if ENABLED(HAS_POWER_MONITOR)
     static void M430();
-  #endif
-
-  #if HAS_TOOLS
-    static void M450();
-    static void M451(); // Extruder
-    static void M452(); // Laser
-    static void M453(); // Spindle
-    //static void M454();
-    //static void M455();
-    //static void M456();
-    //static void M457();
-    //static void M458();
-    //static void M459();
   #endif
 
   #if ENABLED(CANCEL_OBJECTS)

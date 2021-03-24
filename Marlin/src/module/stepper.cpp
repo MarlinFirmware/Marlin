@@ -1991,10 +1991,14 @@ uint32_t Stepper::block_phase_isr() {
       // Sync block? Sync the stepper counts or fan speeds and return
       while (current_block->flag & BLOCK_MASK_SYNC) {
 
-        if (TERN0(LASER_SYNCHRONOUS_M106_M107, TEST(current_block->flag, BLOCK_BIT_SYNC_FANS)))
-          planner.sync_fan_speeds(current_block->fan_speed);
-        else
-          _set_position(current_block->position);
+        #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+          const bool is_sync_fans = TEST(current_block->flag, BLOCK_BIT_SYNC_FANS);
+          if (is_sync_fans) planner.sync_fan_speeds(current_block->fan_speed);
+        #else
+          constexpr bool is_sync_fans = false;
+        #endif
+
+        if (!is_sync_fans) _set_position(current_block->position);
 
         discard_current_block();
 

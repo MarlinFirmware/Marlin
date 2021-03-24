@@ -253,10 +253,6 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-  #define HAS_TOOLS 1
-#endif
-
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
