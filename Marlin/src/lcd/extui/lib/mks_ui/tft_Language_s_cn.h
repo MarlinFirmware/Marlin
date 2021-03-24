@@ -84,7 +84,7 @@
 
 #define LEVELING_CONF_TITLE_CN        "机器参数>调平设置"
 #define LEVELING_PARA_CONF_CN         "调平设置"
-#define LEVELING_MANUAL_POS_CN        "手动调平坐标设置"
+#define TRAMMING_POS_CN               "手动调平坐标设置"
 #define LEVELING_AUTO_COMMAND_CN      "自动调平指令设置"
 #define LEVELING_AUTO_ZOFFSET_CN      "挤出头与调平开关偏移设置"
 

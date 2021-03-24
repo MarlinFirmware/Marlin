@@ -130,7 +130,9 @@ void GcodeSuite::G34() {
 
       // Disable the leveling matrix before auto-aligning
       #if HAS_LEVELING
-        TERN_(RESTORE_LEVELING_AFTER_G34, const bool leveling_was_active = planner.leveling_active);
+        #if ENABLED(RESTORE_LEVELING_AFTER_G34)
+          const bool leveling_was_active = planner.leveling_active;
+        #endif
         set_bed_leveling_enabled(false);
       #endif
 
