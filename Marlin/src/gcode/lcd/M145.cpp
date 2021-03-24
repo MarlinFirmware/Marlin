@@ -27,6 +27,10 @@
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 
+#if HAS_HOTEND
+  #include "../../module/temperature.h"
+#endif
+
 /**
  * M145: Set the heatup state for a material in the LCD menu
  *
@@ -43,7 +47,7 @@ void GcodeSuite::M145() {
     preheat_t &mat = ui.material_preset[material];
     #if HAS_HOTEND
       if (parser.seenval('H'))
-        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
+        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
     #endif
     #if HAS_HEATED_BED
       if (parser.seenval('B'))

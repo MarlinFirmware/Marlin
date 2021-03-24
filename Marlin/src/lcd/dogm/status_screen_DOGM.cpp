@@ -187,7 +187,7 @@
 #define PROGRESS_BAR_Y (EXTRAS_BASELINE + 1)
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
+FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   const char *str = i16tostr3rj(temp);
   const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
   lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
@@ -206,8 +206,8 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     const uint8_t tx = STATUS_HOTEND_TEXT_X(heater_id);
 
-    const float temp = thermalManager.degHotend(heater_id),
-              target = thermalManager.degTargetHotend(heater_id);
+    const celsius_t temp = thermalManager.degHotend(heater_id),
+                  target = thermalManager.degTargetHotend(heater_id);
 
     #if DISABLED(STATUS_HOTEND_ANIM)
       #define STATIC_HOTEND true
@@ -277,11 +277,11 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #else
         constexpr bool dodraw = true;
       #endif
-      if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
+      if (dodraw) _draw_centered_temp(target, tx, 7);
     }
 
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(temp + 0.5f, tx, 28);
+      _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_HOTEND && HOTEND_DOT && PAGE_CONTAINS(17, 19)) {
       u8g.setColorIndex(0); // set to white on black
@@ -303,8 +303,8 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     const uint8_t tx = STATUS_BED_TEXT_X;
 
-    const float temp = thermalManager.degBed(),
-              target = thermalManager.degTargetBed();
+    const celsius_t temp = thermalManager.degBed(),
+                  target = thermalManager.degTargetBed();
 
     #if ENABLED(STATUS_HEAT_PERCENT) || DISABLED(STATUS_BED_ANIM)
       const bool isHeat = BED_ALT();
@@ -350,11 +350,11 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #else
         constexpr bool dodraw = true;
       #endif
-      if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
+      if (dodraw) _draw_centered_temp(target, tx, 7);
     }
 
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(temp + 0.5f, tx, 28);
+      _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_BED && BED_DOT && PAGE_CONTAINS(17, 19)) {
       u8g.setColorIndex(0); // set to white on black
@@ -370,10 +370,10 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   FORCE_INLINE void _draw_chamber_status() {
     #if HAS_HEATED_CHAMBER
       if (PAGE_UNDER(7))
-        _draw_centered_temp(thermalManager.degTargetChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 7);
+        _draw_centered_temp(thermalManager.degTargetChamber(), STATUS_CHAMBER_TEXT_X, 7);
     #endif
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(thermalManager.degChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
+      _draw_centered_temp(thermalManager.degChamber(), STATUS_CHAMBER_TEXT_X, 28);
   }
 #endif
 

@@ -140,7 +140,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Hodnota Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Vlastné príkazy");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Vlastné príkazy");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Test sondy");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Bod");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonda mimo hraníc");
