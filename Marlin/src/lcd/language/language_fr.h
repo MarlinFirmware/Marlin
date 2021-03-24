@@ -113,7 +113,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valeur Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Commandes perso");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Commandes perso");
 
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Mesure point");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Ecart sonde Z M48");

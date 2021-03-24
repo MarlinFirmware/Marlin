@@ -36,7 +36,7 @@
 #include "../../../../marlinui.h"
 
 #if ENABLED(HAS_STEALTHCHOP)
-  #include "../../../../module/stepper/trinamic.h"
+  #include "../../../../../module/stepper/trinamic.h"
 #endif
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
@@ -746,9 +746,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
 
   // SDCard File listing
+  VPHELPER(VP_SD_FileSelected, nullptr, ScreenHandler.DGUSLCD_SD_FileSelected, nullptr),
   #if ENABLED(SDSUPPORT)
     VPHELPER(VP_SD_ScrollEvent, nullptr, ScreenHandler.DGUSLCD_SD_ScrollFilelist, nullptr),
-    VPHELPER(VP_SD_FileSelected, nullptr, ScreenHandler.DGUSLCD_SD_FileSelected, nullptr),
     VPHELPER(VP_SD_FileSelectConfirm, nullptr, ScreenHandler.DGUSLCD_SD_StartPrint, nullptr),
     VPHELPER_STR(VP_SD_FileName0, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
     VPHELPER_STR(VP_SD_FileName1, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
@@ -764,8 +764,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, ScreenHandler.DGUSLCD_SD_ReallyAbort, nullptr),
     VPHELPER(VP_SD_Print_Setting, nullptr, ScreenHandler.DGUSLCD_SD_PrintTune, nullptr),
     #if ENABLED(BABYSTEPPING)
-      VPHELPER(VP_SD_Print_LiveAdjustZ,nullptr, ScreenHandler.HandleLiveAdjustZ, &ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
-      VPHELPER(VP_ZOffset_DE_DIS,&z_offset_add,nullptr, &ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_SD_Print_LiveAdjustZ, nullptr, ScreenHandler.HandleLiveAdjustZ, &ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+      VPHELPER(VP_ZOffset_DE_DIS, &z_offset_add, nullptr, &ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
     #endif
     #if HAS_BED_PROBE
       VPHELPER(VP_OFFSET_X, &probe.offset.x, ScreenHandler.GetOffsetValue,ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),

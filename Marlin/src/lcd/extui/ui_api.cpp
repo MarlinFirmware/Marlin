@@ -587,13 +587,11 @@ namespace ExtUI {
 
   void setAxisMaxAcceleration_mm_s2(const float &value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
-    planner.reset_acceleration_rates();
   }
 
   void setAxisMaxAcceleration_mm_s2(const float &value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
-    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -653,6 +651,17 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const float &value, const extruder_t) { planner.set_max_jerk(E_AXIS, value); }
   #endif
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
+  #endif
+
+  #if PREHEAT_COUNT
+      uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+    #if HAS_HEATED_BED
+      uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
+    #endif
+  #endif
+
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
   int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
@@ -665,8 +674,8 @@ namespace ExtUI {
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float &acc) { planner.settings.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float &acc)  { planner.settings.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float &acc)   { planner.settings.travel_acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const float &acc) { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const float &acc)  { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEPPING)
 
@@ -816,6 +825,26 @@ namespace ExtUI {
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
+      void moveToMeshPoint(const xy_uint8_t &pos, const float &z) {
+        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          const feedRate_t old_feedrate = feedrate_mm_s;
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination = current_position;
+          destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+          prepare_line_to_destination();
+          feedrate_mm_s = XY_PROBE_FEEDRATE;
+          destination[X_AXIS] = MESH_MIN_X + pos.x * MESH_X_DIST;
+          destination[Y_AXIS] = MESH_MIN_Y + pos.y * MESH_Y_DIST;
+          prepare_line_to_destination();
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination[Z_AXIS] = z;
+          prepare_line_to_destination();
+          feedrate_mm_s = old_feedrate;
+        #else
+          UNUSED(pos);
+          UNUSED(z);
+        #endif
+      }
     #endif
   #endif
 
@@ -895,7 +924,7 @@ namespace ExtUI {
     enableHeater(heater);
     switch (heater) {
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10))); break;
+        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAX_TARGET))); break;
       #endif
       #if HAS_COOLER
         case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP))); break;
@@ -906,7 +935,7 @@ namespace ExtUI {
       default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
         #endif
       } break;
     }
@@ -920,7 +949,7 @@ namespace ExtUI {
     #if HAS_HOTEND
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
     #endif
   }
 
