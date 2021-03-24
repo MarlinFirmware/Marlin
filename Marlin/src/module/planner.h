@@ -102,6 +102,11 @@ enum BlockFlagBit : char {
   #if ENABLED(DIRECT_STEPPING)
     , BLOCK_BIT_IS_PAGE
   #endif
+
+  // Sync the fan speeds from the block
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+    , BLOCK_BIT_SYNC_FANS
+  #endif
 };
 
 enum BlockFlag : char {
@@ -112,7 +117,12 @@ enum BlockFlag : char {
   #if ENABLED(DIRECT_STEPPING)
     , BLOCK_FLAG_IS_PAGE            = _BV(BLOCK_BIT_IS_PAGE)
   #endif
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+    , BLOCK_FLAG_SYNC_FANS          = _BV(BLOCK_BIT_SYNC_FANS)
+  #endif
 };
+
+#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) )
 
 #if ENABLED(LASER_POWER_INLINE)
 
@@ -499,6 +509,16 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
+    // Apply fan speeds
+    #if HAS_FAN
+      static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
+      #if FAN_KICKSTART_TIME
+        static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
+      #else
+        FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}
+      #endif
+    #endif
+
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
@@ -721,9 +741,12 @@ class Planner {
 
     /**
      * Planner::buffer_sync_block
-     * Add a block to the buffer that just updates the position
+     * Add a block to the buffer that just updates the position or in
+     * case of LASER_SYNCHRONOUS_M106_M107 the fan pwm
      */
-    static void buffer_sync_block();
+    static void buffer_sync_block(
+      TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION)
+    );
 
   #if IS_KINEMATIC
     private:
