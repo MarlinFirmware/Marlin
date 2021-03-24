@@ -1578,20 +1578,22 @@ void _draw_xyz_position(const bool force) {
 
 void update_variable() {
   #if HAS_HOTEND
-    static float _hotendtemp = 0;
-    const bool _new_hotend_temp = _hotendtemp != thermalManager.temp_hotend[0].celsius;
-    if (_new_hotend_temp) _hotendtemp = thermalManager.temp_hotend[0].celsius;
-    static int16_t _hotendtarget = 0;
-    const bool _new_hotend_target = _hotendtarget != thermalManager.temp_hotend[0].target;
-    if (_new_hotend_target) _hotendtarget = thermalManager.temp_hotend[0].target;
+    static celsius_t _hotendtemp = 0, _hotendtarget = 0;
+    const celsius_t hc = thermalManager.degHotend(0),
+                    ht = thermalManager.degTargetHotend(0);
+    const bool _new_hotend_temp = _hotendtemp != hc,
+               _new_hotend_target = _hotendtarget != ht;
+    if (_new_hotend_temp) _hotendtemp = hc;
+    if (_new_hotend_target) _hotendtarget = ht;
   #endif
   #if HAS_HEATED_BED
-    static float _bedtemp = 0;
-    const bool _new_bed_temp = _bedtemp != thermalManager.temp_bed.celsius;
-    if (_new_bed_temp) _bedtemp = thermalManager.temp_bed.celsius;
-    static int16_t _bedtarget = 0;
-    const bool _new_bed_target = _bedtarget != thermalManager.temp_bed.target;
-    if (_new_bed_target) _bedtarget = thermalManager.temp_bed.target;
+    static celsius_t _bedtemp = 0, _bedtarget = 0;
+    const celsius_t bc = thermalManager.degBed(),
+                    bt = thermalManager.degTargetBed();
+    const bool _new_bed_temp = _bedtemp != bc,
+               _new_bed_target = _bedtarget != bt;
+    if (_new_bed_temp) _bedtemp = bc;
+    if (_new_bed_target) _bedtarget = bt;
   #endif
   #if HAS_FAN
     static uint8_t _fanspeed = 0;
