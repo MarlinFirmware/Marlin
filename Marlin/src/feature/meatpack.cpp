@@ -57,7 +57,9 @@ uint8_t meatPackLookupTable[16] = {
   '\0' // Unused. 0b1111 indicates a literal character
 };
 
-TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
+#if ENABLED(MP_DEBUG)
+  uint8_t chars_decoded = 0;  // Log the first 64 bytes after each reset
+#endif
 
 void MeatPack::reset_state() {
   state = 0;

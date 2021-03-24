@@ -49,7 +49,9 @@ static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
 static lv_obj_t *buttonPause, *buttonOperat, *buttonStop;
 
-TERN_(HAS_MULTI_EXTRUDER, static lv_obj_t *labelExt2);
+#if ENABLED(HAS_MULTI_EXTRUDER)
+  static lv_obj_t *labelExt2;
+#endif
 
 #if HAS_HEATED_BED
   static lv_obj_t* labelBed;
