@@ -30,6 +30,13 @@
  *
  * Translated by Michal Holeš, Farma MaM
  * https://www.facebook.com/farmamam
+ *
+ * Substitutions are applied for the following characters when used
+ * in menu items that call lcd_put_u8str_ind_P with an index:
+ *
+ *   = displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  */
 #define DISPLAY_CHARSET_ISO10646_SK
 
@@ -37,7 +44,7 @@ namespace Language_sk {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 2;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Slovak");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Slovenčina");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" pripravená.");
   PROGMEM Language_Str MSG_YES                             = _UxGT("ÁNO");
@@ -100,12 +107,19 @@ namespace Language_sk {
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Vlastná teplota");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Schladiť");
+
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Nastavenie lasera");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon lasera");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Nastavenie vretena");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon lasera");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Výkon vretena");
+  PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Prepnúť laser");
+  PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("Test. impulz ms");
+  PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Vystreliť impulz");
+  PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Prepnúť vreteno");
+  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Dopredný chod");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spätný chod");
+
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Zapnúť napájanie");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Vypnúť napájanie");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Vytlačiť (extr.)");
@@ -114,6 +128,10 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Vyrovnanie podložky");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Vyrovnať podložku");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Vyrovnať rohy");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Dobré body: ");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Posl. Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Ďalší roh");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sieťe bodov");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upraviť sieť bodov");
@@ -247,6 +265,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunúť o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunúť o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunúť o 10mm");
+  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Posunúť o 0,001in");
+  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Posunúť o 0,01in");
+  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Posunúť o 0,1in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Rýchlosť");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Výška podl.");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Tryska");
@@ -355,11 +376,13 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Hotovo");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Naspäť");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Pokračovať");
+  PROGMEM Language_Str MSG_BUTTON_SKIP                     = _UxGT("Preskočiť");
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pozastavujem...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pozastaviť tlač");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Obnoviť tlač");
   PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Spustiť z hosta");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Zastaviť tlač");
+  PROGMEM Language_Str MSG_END_LOOPS                       = _UxGT("Koniec opak. sluč.");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Tlačím objekt");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Zrušiť objekt");
   PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Zrušiť objekt =");
@@ -649,6 +672,8 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Zohrievanie...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Sprievodca sondy Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Referencia Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Presúvam na pozíciu");
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Zvuk");
 

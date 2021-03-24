@@ -271,7 +271,7 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
 
     // Draw the shadow and tags
-    cmd.cmd(COLOR_RGB(0x444444));
+    cmd.cmd(COLOR_RGB(Theme::bed_mesh_shadow_rgb));
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), nullptr, USE_POINTS | USE_TAGS);
     cmd.cmd(COLOR_RGB(bg_text_enabled));
   }
@@ -282,6 +282,8 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
     if (gotAllPoints) {
       drawHighlightedPointValue();
     }
+    CommandProcessor cmd;
+    cmd.cmd(COLOR_RGB(Theme::bed_mesh_lines_rgb));
     const float levelingProgress = sq(float(mydata.count) / GRID_MAX_POINTS);
     BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
       USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (gotAllPoints ? USE_COLORS : 0),

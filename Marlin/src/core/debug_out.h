@@ -59,7 +59,7 @@
   #include "debug_section.h"
   #define DEBUG_SECTION(N,S,D)    SectionLog N(PSTR(S),D)
 
-  #define DEBUG_PRINT_P(P)        serialprintPGM(P)
+  #define DEBUG_ECHOPGM_P(P)      SERIAL_ECHOPGM_P(P)
   #define DEBUG_ECHO_START        SERIAL_ECHO_START
   #define DEBUG_ERROR_START       SERIAL_ERROR_START
   #define DEBUG_CHAR              SERIAL_CHAR
@@ -89,7 +89,7 @@
 #else
 
   #define DEBUG_SECTION(...)        NOOP
-  #define DEBUG_PRINT_P(P)          NOOP
+  #define DEBUG_ECHOPGM_P(P)          NOOP
   #define DEBUG_ECHO_START()        NOOP
   #define DEBUG_ERROR_START()       NOOP
   #define DEBUG_CHAR(...)           NOOP

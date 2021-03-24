@@ -22,8 +22,7 @@
 #pragma once
 
 /**
- * 24 May 2018 - @chepo for STM32F103VET6
- * Schematic: https://github.com/chepo92/Smartto/blob/master/circuit_diagram/Rostock301/Hardware_GTM32_PRO_VB.pdf
+ * Geeetech GTM32 Mini A30 board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)

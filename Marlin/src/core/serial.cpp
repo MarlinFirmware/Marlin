@@ -52,6 +52,10 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
   #endif
 #endif
 
+#if ENABLED(MEATPACK)
+  MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial(false, _SERIAL_IMPL);
+#endif
+
 void serialprintPGM(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }

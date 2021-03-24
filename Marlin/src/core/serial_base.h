@@ -79,7 +79,7 @@ struct SerialBase {
   void end()                        { static_cast<Child*>(this)->end(); }
   /** Check for available data from the port
       @param index  The port index, usually 0 */
-  bool available(uint8_t index = 0) { return static_cast<Child*>(this)->available(index); }
+  int available(uint8_t index = 0)  { return static_cast<Child*>(this)->available(index); }
   /** Read a value from the port
       @param index  The port index, usually 0 */
   int  read(uint8_t index = 0)      { return static_cast<Child*>(this)->read(index); }

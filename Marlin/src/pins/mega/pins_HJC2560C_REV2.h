@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * HJC2560-C Rev2.x pin assignments
+ * Geeetech HJC2560-C Rev 2.x board pin assignments
  */
 
 #if NOT_TARGET(__AVR_ATmega2560__)

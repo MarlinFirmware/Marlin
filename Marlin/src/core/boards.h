@@ -126,6 +126,7 @@
 #define BOARD_EINSY_RAMBO             1203  // Einsy Rambo
 #define BOARD_EINSY_RETRO             1204  // Einsy Retro
 #define BOARD_SCOOVO_X9H              1205  // abee Scoovo X9H
+#define BOARD_RAMBO_THINKERV2         1206  // ThinkerV2
 
 //
 // Other ATmega1280, ATmega2560

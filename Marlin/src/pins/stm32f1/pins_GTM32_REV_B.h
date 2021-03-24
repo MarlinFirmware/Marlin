@@ -22,15 +22,14 @@
 #pragma once
 
 /**
- * 24 May 2018 - @chepo for STM32F103VET6
- * Schematic: https://github.com/chepo92/Smartto/blob/master/circuit_diagram/Rostock301/Hardware_GTM32_PRO_VB.pdf
+ * Geeetech GTM32 Rev. B board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME      "GTM32 Pro VB"
+#define BOARD_INFO_NAME      "GTM32 Rev B"
 #define DEFAULT_MACHINE_NAME "M201"
 
 #define BOARD_NO_NATIVE_USB

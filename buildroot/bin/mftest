@@ -6,7 +6,6 @@
 #  mftest [name] [index] [-y]         Set config options and optionally build a test
 #
 
-MFINFO=$(mfinfo) || exit 1
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
 
 perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
@@ -37,7 +36,7 @@ env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 tee
 
 TESTPATH=buildroot/tests
 
-STATE_FILE=$( echo ./.pio/.mftestrc )
+STATE_FILE="./.pio/.mftestrc"
 SED=$(which gsed || which sed)
 
 shopt -s extglob nocasematch
@@ -106,7 +105,7 @@ if ((REBUILD)); then
   # Build with the last-built env
   [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
-  pio run -d . -e $TESTENV
+  pio run -s -d . -e $TESTENV
   exit
 fi
 
@@ -193,7 +192,7 @@ if ((AUTO_BUILD)); then
     pio run -t upload -e $TARGET
   else
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
-    pio run -e $TARGET
+    pio run -s -e $TARGET
   fi
   exit
 fi
@@ -308,6 +307,6 @@ fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
   ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
-  ((USE_MAKE)) || pio run -d . -e $TESTENV
+  ((USE_MAKE)) || pio run -s -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }

@@ -24,6 +24,10 @@
 #include "../inc/MarlinConfig.h"
 #include "serial_hook.h"
 
+#if ENABLED(MEATPACK)
+  #include "../feature/meatpack.h"
+#endif
+
 // Commonly-used strings in serial output
 extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
@@ -58,7 +62,6 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-typedef int8_t serial_index_t;
 #define SERIAL_ALL 0x7F
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
@@ -70,12 +73,19 @@ typedef int8_t serial_index_t;
     typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
   #endif
   extern SerialOutputT          multiSerial;
-  #define SERIAL_IMPL           multiSerial
+  #define _SERIAL_IMPL          multiSerial
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
   #define SERIAL_ASSERT(P)      NOOP
-  #define SERIAL_IMPL           MYSERIAL0
+  #define _SERIAL_IMPL          MYSERIAL0
+#endif
+
+#if ENABLED(MEATPACK)
+  extern MeatpackSerial<decltype(_SERIAL_IMPL)> mpSerial;
+  #define SERIAL_IMPL          mpSerial
+#else
+  #define SERIAL_IMPL          _SERIAL_IMPL
 #endif
 
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
@@ -295,7 +305,7 @@ void serialprintPGM(PGM_P str);
 #endif
 
 #define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
-#define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
+#define SERIAL_ECHOLNPGM_P(P)       do{ serialprintPGM(P); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
 #define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))

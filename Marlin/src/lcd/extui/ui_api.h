@@ -215,6 +215,7 @@ namespace ExtUI {
     void setAxisMaxJerk_mm_s(const float, const extruder_t);
   #endif
 
+  extruder_t getTool(const uint8_t extruder);
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 

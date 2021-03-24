@@ -34,8 +34,8 @@
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
-    serialprintPGM(name);
-    SERIAL_CHAR(':', ena ? '1' : '0');
+    SERIAL_ECHOPGM_P(name);
+    SERIAL_CHAR(':', '0' + ena);
     SERIAL_EOL();
   }
 #endif
@@ -106,7 +106,7 @@ void GcodeSuite::M115() {
 
     // TOGGLE_LIGHTS (M355)
     cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN)))));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, caselight.has_brightness()));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));

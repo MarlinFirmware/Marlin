@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * GT2560 RevB + GT2560 V3.0 + GT2560 V3.1 + GT2560 V4.0 pin assignment
+ * Geeetech GT2560 RevB + GT2560 3.0/3.1 + GT2560 4.0/4.1 pin assignments
  */
 
 #if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
@@ -30,13 +30,13 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "GT2560 V3.0"
+  #define BOARD_INFO_NAME "GT2560 RevB/3.x/4.x"
 #endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                            11  //13 untested  3Dtouch
+#define SERVO0_PIN                            11  // 13 untested  3Dtouch
 
 //
 // Limit Switches
@@ -142,7 +142,10 @@
 #define SDSS                                  53
 #define LED_PIN                               13  // Use 6 (case light) for external LED. 13 is internal (yellow) LED.
 #define PS_ON_PIN                             12
-#define SUICIDE_PIN                           54  // This pin must be enabled at boot to keep power flowing
+
+#if NUM_RUNOUT_SENSORS < 3
+  #define SUICIDE_PIN                         54  // This pin must be enabled at boot to keep power flowing
+#endif
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                       6  // 21
@@ -153,26 +156,48 @@
 //
 #define BEEPER_PIN                            18
 
-#ifndef LCD_PINS_RS
-  #define LCD_PINS_RS                         20
-#endif
-#ifndef LCD_PINS_ENABLE
-  #define LCD_PINS_ENABLE                     17
-#endif
-#ifndef LCD_PINS_D4
-  #define LCD_PINS_D4                         16
-#endif
-#ifndef LCD_PINS_D5
-  #define LCD_PINS_D5                         21
-#endif
-#ifndef LCD_PINS_D6
-  #define LCD_PINS_D6                          5
-#endif
-#ifndef LCD_PINS_D7
-  #define LCD_PINS_D7                         36
+#if ENABLED(YHCB2004)
+  #ifndef YHCB2004_CLK
+    #define YHCB2004_CLK                      5
+  #endif
+  #ifndef YHCB2004_MOSI
+    #define YHCB2004_MOSI                     21
+  #endif
+  #ifndef YHCB2004_MISO
+    #define YHCB2004_MISO                     36
+  #endif
+#elif HAS_WIRED_LCD
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS                       20
+  #endif
+  #ifndef LCD_PINS_ENABLE
+    #define LCD_PINS_ENABLE                   17
+  #endif
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4                       16
+  #endif
+  #ifndef LCD_PINS_D5
+    #define LCD_PINS_D5                       21
+  #endif
+  #ifndef LCD_PINS_D6
+    #define LCD_PINS_D6                        5
+  #endif
+  #ifndef LCD_PINS_D7
+    #define LCD_PINS_D7                       36
+  #endif
 #endif
 
-#if IS_NEWPANEL
+#if ENABLED(YHCB2004)
+  #ifndef BTN_EN1
+    #define BTN_EN1                           16
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2                           17
+  #endif
+  #ifndef BTN_ENC
+    #define BTN_ENC                           19
+  #endif
+#elif IS_NEWPANEL
   #ifndef BTN_EN1
     #define BTN_EN1                           42
   #endif

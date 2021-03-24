@@ -49,7 +49,7 @@ void GcodeSuite::M111() {
     LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));
+        SERIAL_ECHOPGM_P((char*)pgm_read_ptr(&debug_strings[i]));
       }
     }
   }
