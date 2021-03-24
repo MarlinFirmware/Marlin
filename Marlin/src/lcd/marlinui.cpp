@@ -1505,7 +1505,9 @@ void MarlinUI::update() {
 
   void MarlinUI::flow_fault() {
     LCD_MESSAGEPGM(MSG_FLOWMETER_FAULT);
-    BUZZ(1000,440);
+    #if HAS_BUZZER
+      BUZZ(1000,440);
+    #endif  
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
