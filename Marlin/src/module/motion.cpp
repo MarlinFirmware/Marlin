@@ -51,7 +51,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if HAS_DISPLAY
+#if HAS_STATUS_MESSAGE
   #include "../lcd/marlinui.h"
 #endif
 
@@ -1144,7 +1144,7 @@ void prepare_line_to_destination() {
       );
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
-      TERN_(HAS_DISPLAY, ui.set_status(msg));
+      TERN_(HAS_STATUS_MESSAGE, ui.set_status(msg));
       return true;
     }
     return false;
