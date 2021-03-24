@@ -85,11 +85,6 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      void lcd_mesh_edit_setup(const float &initial);
-      float lcd_mesh_edit();
-    #endif
-
   #endif // HAS_LCD_MENU
 
 #endif // HAS_WIRED_LCD
@@ -486,6 +481,11 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      static void ubl_mesh_edit_start(const float &initial);
+      static float ubl_mesh_value();
     #endif
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
