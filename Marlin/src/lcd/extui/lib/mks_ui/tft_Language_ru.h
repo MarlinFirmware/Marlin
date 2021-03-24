@@ -283,7 +283,7 @@
 
 #define LEVELING_CONF_TITLE_RU          "Hастройки принтера>Hастройки уровня"
 #define LEVELING_PARA_CONF_RU           "настройки уровня"
-#define LEVELING_MANUAL_POS_RU          "настройки координат для уровня"
+#define TRAMMING_POS_RU                 "настройки координат для уровня"
 #define LEVELING_AUTO_COMMAND_RU        "настройки комманд увтоуровня"
 #define LEVELING_AUTO_ZOFFSET_RU        "координаты смещения сопла"
 

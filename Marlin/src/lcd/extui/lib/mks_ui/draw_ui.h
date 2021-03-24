@@ -69,7 +69,7 @@
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
 #include "draw_level_settings.h"
-#include "draw_manual_level_pos_settings.h"
+#include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
 #include "draw_filament_change.h"
 #include "draw_filament_settings.h"
@@ -197,7 +197,7 @@ typedef struct {
   uint8_t   wifi_type;
   bool      cloud_enable,
             encoder_enable;
-  int       levelingPos[5][2];
+  int       trammingPos[5][2]; // XY
   int       filamentchange_load_length,
             filamentchange_load_speed,
             filamentchange_unload_length,
