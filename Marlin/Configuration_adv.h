@@ -204,13 +204,16 @@
   #endif
 #endif
 //
-// Laser Flowmeter options
-//  
-//#define FLOWMETER_PIN           20  // Requires an external interupt enabled pin, e.g. RAMPS pins 2,3,18,19,20,21   
-//#define FLOWMETER_PPL         5880  // Flow meter pulses per liter.
-//#define FLOWMETER_SAFETY      true  // Prevents running the CO2 laser tube without a minimum water flow rate of FLOWMETER_MIN liters/min.
-//#define FLOWMETER_MIN          1.5  // Minimum flow required when FLOWMETER_SAFETY is true   
-//#define FLOWMETER_INTERVAL    1000  // Flow rate calculation interval in milliseconds
+// Laser flowmeter feature
+//
+#define FLOWMETER_FEATURE
+#if ENABLED(FLOWMETER_FEATURE)  
+  #define FLOWMETER_PIN           20  // Requires an external interupt enabled pin, e.g. RAMPS pins 2,3,18,19,20,21   
+  #define FLOWMETER_PPL         5880  // Flow meter pulses per liter.
+  #define FLOWMETER_SAFETY      true  // Prevents running the CO2 laser tube without a minimum water flow rate of FLOWMETER_MIN liters/min.
+  #define FLOWMETER_MIN          1.5  // Minimum flow required when FLOWMETER_SAFETY is true   
+  #define FLOWMETER_INTERVAL    1000  // Flow rate calculation interval in milliseconds
+#endif
 
 /**
  * Thermal Protection provides additional protection to your printer from damage
