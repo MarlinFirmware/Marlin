@@ -53,7 +53,7 @@ MarlinUI ui;
 #endif
 
 #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
+  #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
