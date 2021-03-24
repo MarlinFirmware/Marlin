@@ -38,12 +38,17 @@
 #include "marlinui.h"
 MarlinUI ui;
 
-#if HAS_DISPLAY
-  #include "../module/printcounter.h"
+#if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD)
   #include "../MarlinCore.h"
+#endif
+
+#if HAS_DISPLAY
   #include "../gcode/queue.h"
   #include "fontutils.h"
-  #include "../sd/cardreader.h"
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "dwin/e3v2/dwin.h"
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
@@ -52,25 +57,24 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if HAS_WIRED_LCD
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    uint8_t MarlinUI::status_scroll_offset; // = 0
-    constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
+#if HAS_STATUS_MESSAGE
+  #if HAS_WIRED_LCD
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      uint8_t MarlinUI::status_scroll_offset; // = 0
+      constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
+    #else
+      constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
+    #endif
   #else
-    constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
+    constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
   #endif
-#elif EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-  constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
-#endif
-
-#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
-  uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
+  uint8_t MarlinUI::alert_level; // = 0
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
   MarlinUI::progress_t MarlinUI::progress_override; // = 0
-  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+  #if ENABLED(USE_M73_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
   #endif
 #endif
@@ -1458,6 +1462,7 @@ void MarlinUI::update() {
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1578,7 +1583,7 @@ void MarlinUI::update() {
 
   #endif
 
-#else // !HAS_DISPLAY
+#elif !HAS_STATUS_MESSAGE // && !HAS_DISPLAY
 
   //
   // Send the status line as a host notification
@@ -1593,7 +1598,7 @@ void MarlinUI::update() {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
 
-#endif // !HAS_DISPLAY
+#endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
 
 #if ENABLED(SDSUPPORT)
 
