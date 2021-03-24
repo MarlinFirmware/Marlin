@@ -126,6 +126,7 @@
 #define BOARD_EINSY_RAMBO             1203  // Einsy Rambo
 #define BOARD_EINSY_RETRO             1204  // Einsy Retro
 #define BOARD_SCOOVO_X9H              1205  // abee Scoovo X9H
+#define BOARD_RAMBO_THINKERV2         1206  // ThinkerV2
 
 //
 // Other ATmega1280, ATmega2560
@@ -278,6 +279,7 @@
 #define BOARD_ARCHIM2                 3024  // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR               3025  // Alligator Board R2
 #define BOARD_CNCONTROLS_15D          3026  // Cartesio CN Controls V15 on DUE
+#define BOARD_KRATOS32                3027  // K.3D Kratos32 (Arduino Due Shield)
 
 //
 // SAM3X8C ARM Cortex M3

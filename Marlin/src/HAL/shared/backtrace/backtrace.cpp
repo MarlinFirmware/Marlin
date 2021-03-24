@@ -25,7 +25,7 @@
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
-#include "../../../core/serial.h"
+#include "../HAL_MinSerial.h"
 #include <stdarg.h>
 
 // Dump a backtrace entry
@@ -34,10 +34,12 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 
   (*p)++;
 
-  SERIAL_CHAR('#'); SERIAL_ECHO(*p); SERIAL_ECHOPGM(" : ");
-  SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, PrintBase::Hex);
-  SERIAL_CHAR('+'); SERIAL_ECHO(bte->address - bte->function);
-  SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address, PrintBase::Hex); SERIAL_CHAR('\n');
+  const uint32_t a = bte->address, f = bte->function;
+  MinSerial::TX('#');    MinSerial::TXDec(*p);    MinSerial::TX(" : ");
+  MinSerial::TX(bte->name?:"unknown");            MinSerial::TX('@');   MinSerial::TXHex(f);
+  MinSerial::TX('+');    MinSerial::TXDec(a - f);
+  MinSerial::TX(" PC:"); MinSerial::TXHex(a);
+  MinSerial::TX('\n');
   return true;
 }
 
@@ -48,7 +50,7 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
     va_start(argptr, format);
     vsprintf(dest, format, argptr);
     va_end(argptr);
-    TX(&dest[0]);
+    MinSerial::TX(&dest[0]);
   }
 #endif
 
@@ -63,10 +65,10 @@ static const UnwindCallbacks UnwCallbacks = {
   #endif
 };
 
+// Perform a backtrace to the serial port
 void backtrace() {
 
-  UnwindFrame btf;
-  uint32_t sp = 0, lr = 0, pc = 0;
+  unsigned long sp = 0, lr = 0, pc = 0;
 
   // Capture the values of the registers to perform the traceback
   __asm__ __volatile__ (
@@ -79,6 +81,12 @@ void backtrace() {
     ::
   );
 
+  backtrace_ex(sp, lr, pc);
+}
+
+void backtrace_ex(unsigned long sp, unsigned long lr, unsigned long pc) {
+  UnwindFrame btf;
+
   // Fill the traceback structure
   btf.sp = sp;
   btf.fp = btf.sp;
@@ -86,7 +94,7 @@ void backtrace() {
   btf.pc = pc | 1; // Force Thumb, as CORTEX only support it
 
   // Perform a backtrace
-  SERIAL_ERROR_MSG("Backtrace:");
+  MinSerial::TX("Backtrace:");
   int ctr = 0;
   UnwindStart(&btf, &UnwCallbacks, &ctr);
 }
@@ -95,4 +103,4 @@ void backtrace() {
 
 void backtrace() {}
 
-#endif
+#endif // __arm__ || __thumb__

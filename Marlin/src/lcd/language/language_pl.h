@@ -109,7 +109,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Indeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Wartość Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Własne Polecenia");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Własne Polecenia");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Test sondy");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punky");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Odchylenie");

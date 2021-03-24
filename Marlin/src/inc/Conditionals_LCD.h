@@ -229,14 +229,18 @@
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
-#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER)
+#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER, K3D_FULL_GRAPHIC_SMART_CONTROLLER)
 
   #define IS_RRD_FG_SC 1
 
 #elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-  // RepRapDiscount LCD or Graphical LCD with rotary click encoder
+  #define IS_RRD_SC 1   // RepRapDiscount LCD or Graphical LCD with rotary click encoder
+
+#elif ENABLED(K3D_242_OLED_CONTROLLER)
+
   #define IS_RRD_SC 1
+  #define U8GLIB_SSD1309
 
 #endif
 
@@ -451,12 +455,12 @@
 #endif
 
 // Aliases for LCD features
-#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY)
+#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS)
   #define HAS_DGUS_LCD 1
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT)
   #define IS_EXTUI 1
   #define EXTENSIBLE_UI
 #endif
@@ -513,7 +517,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= SMUFF_EMU_MMU2
+  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
     #define HAS_SMUFF 1
   #endif
 #endif
@@ -575,7 +579,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMuFF force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif
@@ -652,13 +656,6 @@
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
-#endif
-
-#if ENABLED(DWIN_CREALITY_LCD)
-  #define SERIAL_CATCHALL 0
-  #ifndef LCD_SERIAL_PORT
-    #define LCD_SERIAL_PORT 3 // Creality 4.x board
-  #endif
 #endif
 
 /**
@@ -924,7 +921,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ENABLED(MORGAN_SCARA)
+#if EITHER(MORGAN_SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ENABLED(DELTA)
@@ -950,11 +947,30 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 
+//
+// Serial Port Info
+//
+#ifdef SERIAL_PORT_2
+  #define NUM_SERIAL 2
+  #define HAS_MULTI_SERIAL 1
+#elif defined(SERIAL_PORT)
+  #define NUM_SERIAL 1
+#else
+  #define NUM_SERIAL 0
+  #undef BAUD_RATE_GCODE
+#endif
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
   #define HAS_USB_SERIAL 1
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+  #ifndef LCD_SERIAL_PORT
+    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+  #endif
 #endif
 
 // Fallback Stepper Driver types that don't depend on Configuration_adv.h
@@ -1194,4 +1210,11 @@
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
+#endif
+
+#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+  #define HAS_ENDSTOPS 1
+  #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
+#else
+  #define COORDINATE_OKAY(N,L,H) true
 #endif

@@ -24,7 +24,7 @@
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
-Serial0Type<USBCompositeSerial> MarlinCompositeSerial(true);
+Serial1Class<USBCompositeSerial> MarlinCompositeSerial(true);
 
 #include "../../inc/MarlinConfig.h"
 
@@ -43,26 +43,27 @@ Serial0Type<USBCompositeSerial> MarlinCompositeSerial(true);
 
 #if ENABLED(EMERGENCY_PARSER)
 
-// The original callback is not called (no way to retrieve address).
-// That callback detects a special STM32 reset sequence: this functionality is not essential
-// as M997 achieves the same.
-void my_rx_callback(unsigned int, void*) {
-  // max length of 16 is enough to contain all emergency commands
-  uint8 buf[16];
+  // The original callback is not called (no way to retrieve address).
+  // That callback detects a special STM32 reset sequence: this functionality is not essential
+  // as M997 achieves the same.
+  void my_rx_callback(unsigned int, void*) {
+    // max length of 16 is enough to contain all emergency commands
+    uint8 buf[16];
 
-  //rx is usbSerialPart.endpoints[2]
-  uint16 len = usb_get_ep_rx_count(usbSerialPart.endpoints[2].address);
-  uint32 total = composite_cdcacm_data_available();
+    //rx is usbSerialPart.endpoints[2]
+    uint16 len = usb_get_ep_rx_count(usbSerialPart.endpoints[2].address);
+    uint32 total = composite_cdcacm_data_available();
 
-  if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
-    return;
+    if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
+      return;
 
-  // cannot get character by character due to bug in composite_cdcacm_peek_ex
-  len = composite_cdcacm_peek(buf, total);
+    // cannot get character by character due to bug in composite_cdcacm_peek_ex
+    len = composite_cdcacm_peek(buf, total);
 
-  for (uint32 i = 0; i < len; i++)
-    emergency_parser.update(MarlinCompositeSerial.emergency_state, buf[i+total-len]);
-}
+    for (uint32 i = 0; i < len; i++)
+      emergency_parser.update(MarlinCompositeSerial.emergency_state, buf[i+total-len]);
+  }
+
 #endif
 
 void MSC_SD_init() {
@@ -87,7 +88,7 @@ void MSC_SD_init() {
   MarlinCompositeSerial.registerComponent();
   USBComposite.begin();
   #if ENABLED(EMERGENCY_PARSER)
-  	composite_cdcacm_set_hooks(USBHID_CDCACM_HOOK_RX, my_rx_callback);
+    composite_cdcacm_set_hooks(USBHID_CDCACM_HOOK_RX, my_rx_callback);
   #endif
 }
 

@@ -98,10 +98,10 @@ void disp_det_error() {
 lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
   char buf[30] = {0};
-  sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
+  sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.degHotend(0));
   lv_label_set_text(e1, buf);
   #if HAS_MULTI_HOTEND
-    sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
+    sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.degHotend(1));
     lv_label_set_text(e2, buf);
   #endif
   #if HAS_HEATED_BED
@@ -133,12 +133,12 @@ void lv_draw_ready_print() {
     #if 1
       e1 = lv_label_create_empty(scr);
       lv_obj_set_pos(e1, 20, 20);
-      sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[0].celsius);
+      sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.degHotend(0));
       lv_label_set_text(e1, buf);
       #if HAS_MULTI_HOTEND
         e2 = lv_label_create_empty(scr);
         lv_obj_set_pos(e2, 20, 45);
-        sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[1].celsius);
+        sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.degHotend(1));
         lv_label_set_text(e2, buf);
       #endif
 
@@ -152,9 +152,9 @@ void lv_draw_ready_print() {
       limit_info = lv_label_create_empty(scr);
 
       lv_style_copy(&limit_style, &lv_style_scr);
-      limit_style.body.main_color.full = 0X0000;
-      limit_style.body.grad_color.full = 0X0000;
-      limit_style.text.color.full      = 0Xffff;
+      limit_style.body.main_color.full = 0x0000;
+      limit_style.body.grad_color.full = 0x0000;
+      limit_style.text.color.full      = 0xffff;
       lv_obj_set_style(limit_info, &limit_style);
 
       lv_obj_set_pos(limit_info, 20, 120);
@@ -163,9 +163,9 @@ void lv_draw_ready_print() {
       det_info = lv_label_create_empty(scr);
 
       lv_style_copy(&det_style, &lv_style_scr);
-      det_style.body.main_color.full = 0X0000;
-      det_style.body.grad_color.full = 0X0000;
-      det_style.text.color.full      = 0Xffff;
+      det_style.body.main_color.full = 0x0000;
+      det_style.body.grad_color.full = 0x0000;
+      det_style.text.color.full      = 0xffff;
       lv_obj_set_style(det_info, &det_style);
 
       lv_obj_set_pos(det_info, 20, 145);

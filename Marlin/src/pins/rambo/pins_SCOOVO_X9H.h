@@ -25,9 +25,7 @@
  * Rambo pin assignments MODIFIED FOR Scoovo X9H
  ************************************************/
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_target.h"
 
 #define BOARD_INFO_NAME "Scoovo X9H"
 

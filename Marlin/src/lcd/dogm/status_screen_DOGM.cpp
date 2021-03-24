@@ -86,6 +86,7 @@
     HEATBIT_HOTEND,
     HEATBIT_BED = HOTENDS,
     HEATBIT_CHAMBER,
+    HEATBIT_COOLER,
     HEATBIT_CUTTER
   };
   IF<(HEATBIT_CUTTER > 7), uint16_t, uint8_t>::type heat_bits;
@@ -110,6 +111,11 @@
   #define CUTTER_ALT(N) TEST(heat_bits, HEATBIT_CUTTER)
 #else
   #define CUTTER_ALT() false
+#endif
+#if ANIM_COOLER
+  #define COOLER_ALT(N) TEST(heat_bits, HEATBIT_COOLER)
+#else
+  #define COOLER_ALT() false
 #endif
 
 #if DO_DRAW_HOTENDS
@@ -181,7 +187,7 @@
 #define PROGRESS_BAR_Y (EXTRAS_BASELINE + 1)
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
+FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   const char *str = i16tostr3rj(temp);
   const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
   lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
@@ -200,8 +206,8 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     const uint8_t tx = STATUS_HOTEND_TEXT_X(heater_id);
 
-    const float temp = thermalManager.degHotend(heater_id),
-              target = thermalManager.degTargetHotend(heater_id);
+    const celsius_t temp = thermalManager.degHotend(heater_id),
+                  target = thermalManager.degTargetHotend(heater_id);
 
     #if DISABLED(STATUS_HOTEND_ANIM)
       #define STATIC_HOTEND true
@@ -271,11 +277,11 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #else
         constexpr bool dodraw = true;
       #endif
-      if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
+      if (dodraw) _draw_centered_temp(target, tx, 7);
     }
 
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(temp + 0.5f, tx, 28);
+      _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_HOTEND && HOTEND_DOT && PAGE_CONTAINS(17, 19)) {
       u8g.setColorIndex(0); // set to white on black
@@ -297,8 +303,8 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     const uint8_t tx = STATUS_BED_TEXT_X;
 
-    const float temp = thermalManager.degBed(),
-              target = thermalManager.degTargetBed();
+    const celsius_t temp = thermalManager.degBed(),
+                  target = thermalManager.degTargetBed();
 
     #if ENABLED(STATUS_HEAT_PERCENT) || DISABLED(STATUS_BED_ANIM)
       const bool isHeat = BED_ALT();
@@ -344,11 +350,11 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
       #else
         constexpr bool dodraw = true;
       #endif
-      if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
+      if (dodraw) _draw_centered_temp(target, tx, 7);
     }
 
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(temp + 0.5f, tx, 28);
+      _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_BED && BED_DOT && PAGE_CONTAINS(17, 19)) {
       u8g.setColorIndex(0); // set to white on black
@@ -361,18 +367,22 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #endif // DO_DRAW_BED
 
 #if DO_DRAW_CHAMBER
-
   FORCE_INLINE void _draw_chamber_status() {
     #if HAS_HEATED_CHAMBER
       if (PAGE_UNDER(7))
-        _draw_centered_temp(thermalManager.degTargetChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 7);
+        _draw_centered_temp(thermalManager.degTargetChamber(), STATUS_CHAMBER_TEXT_X, 7);
     #endif
-
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(thermalManager.degChamber() + 0.5f, STATUS_CHAMBER_TEXT_X, 28);
+      _draw_centered_temp(thermalManager.degChamber(), STATUS_CHAMBER_TEXT_X, 28);
   }
+#endif
 
-#endif // DO_DRAW_CHAMBER
+#if DO_DRAW_COOLER
+  FORCE_INLINE void _draw_cooler_status() {
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_temp(thermalManager.degCooler(), STATUS_COOLER_TEXT_X, 28);
+  }
+#endif
 
 //
 // Before homing, blink '123' <-> '???'.
@@ -446,6 +456,9 @@ void MarlinUI::draw_status_screen() {
       if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
         if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
+      #endif
+      #if DO_DRAW_COOLER && HAS_COOLER
+        if (thermalManager.isLaserCooling()) SBI(new_bits, HEATBIT_COOLER);
       #endif
       if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, HEATBIT_CUTTER);
       heat_bits = new_bits;
@@ -631,11 +644,27 @@ void MarlinUI::draw_status_screen() {
       }
     #endif
 
+    // Laser Cooler
+    #if DO_DRAW_COOLER
+      #if ANIM_COOLER
+        #define COOLER_BITMAP(S) ((S) ? status_cooler_bmp : status_cooler_on_bmp)
+      #else
+        #define COOLER_BITMAP(S) status_cooler_bmp
+      #endif
+      const uint8_t coolery = STATUS_COOLER_Y(COOLER_ALT()),
+                    coolerh = STATUS_COOLER_HEIGHT(COOLER_ALT());
+      if (PAGE_CONTAINS(coolery, coolery + coolerh - 1))
+        u8g.drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, COOLER_BITMAP(COOLER_ALT()));
+    #endif
+
     // Heated Bed
     TERN_(DO_DRAW_BED, _draw_bed_status(blink));
 
     // Heated Chamber
     TERN_(DO_DRAW_CHAMBER, _draw_chamber_status());
+
+    // Cooler
+    TERN_(DO_DRAW_COOLER, _draw_cooler_status());
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN

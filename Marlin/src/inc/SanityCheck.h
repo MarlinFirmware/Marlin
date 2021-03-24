@@ -131,7 +131,13 @@
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+  #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(XY_PROBE_SPEED)
+  #error "XY_PROBE_SPEED is now XY_PROBE_FEEDRATE."
+#elif defined(Z_PROBE_SPEED_FAST)
+  #error "Z_PROBE_SPEED_FAST is now Z_PROBE_FEEDRATE_FAST."
+#elif defined(Z_PROBE_SPEED_SLOW)
+  #error "Z_PROBE_SPEED_SLOW is now Z_PROBE_FEEDRATE_SLOW."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
   #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
 #elif defined(SERVO_DEACTIVATION_DELAY)
@@ -431,6 +437,8 @@
   #error "DUAL_NOZZLE_DUPLICATION_MODE is now MULTI_NOZZLE_DUPLICATION."
 #elif defined(MENU_ITEM_CASE_LIGHT)
   #error "MENU_ITEM_CASE_LIGHT is now CASE_LIGHT_MENU."
+#elif defined(CASE_LIGHT_NEOPIXEL_COLOR)
+  #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #elif defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #error "ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED is now SD_ABORT_ON_ENDSTOP_HIT."
 #elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM_CABLE)
@@ -539,6 +547,14 @@
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
+#elif defined(UNKNOWN_Z_NO_RAISE)
+  #error "UNKNOWN_Z_NO_RAISE is replaced by setting Z_IDLE_HEIGHT to Z_MAX_POS."
+#elif defined(Z_AFTER_DEACTIVATE)
+  #error "Z_AFTER_DEACTIVATE is replaced by Z_IDLE_HEIGHT."
+#elif defined(MEATPACK)
+  #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
+#elif defined(CUSTOM_USER_MENUS)
+  #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
 #endif
 
 /**
@@ -811,26 +827,24 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif NUM_RUNOUT_SENSORS > E_STEPPERS
-    #if HAS_PRUSA_MMU2
+  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
       #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
-    #else
-      #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
-    #endif
-  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
-    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
-  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
-    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
-  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
-    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
-  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
-    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
-  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
-    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
-  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
-    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
+    #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
   #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
     #error "FIL_RUNOUT8_PIN is required with NUM_RUNOUT_SENSORS >= 8."
+  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
+    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
+  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
+    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
+  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
+    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
+  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
+    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
+  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
+    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
   #elif BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
     #error "You can't enable FIL_RUNOUT1_PULLUP and FIL_RUNOUT1_PULLDOWN at the same time."
   #elif BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
@@ -909,7 +923,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Multi-Material-Unit 2 / SMUFF requirements
+ * Multi-Material-Unit 2 / SMuFF requirements
  */
 #if HAS_PRUSA_MMU2
   #if EXTRUDERS != 5
@@ -1204,14 +1218,21 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Chamber Heating Options - PID vs Limit Switching
+ */
+#if BOTH(PIDTEMPCHAMBER, CHAMBER_LIMIT_SWITCHING)
+  #error "To use CHAMBER_LIMIT_SWITCHING you must disable PIDTEMPCHAMBER."
+#endif
+
+/**
  * Kinematics
  */
 
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
+#if MANY(DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
 #endif
 
 /**
@@ -1624,7 +1645,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Allen Key
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
-#if BOTH(Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && (Z_HOME_DIR < 0)
+#if BOTH(Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && Z_HOME_DIR < 0
   #error "You can't home to a Z min endstop with a Z_PROBE_ALLEN_KEY."
 #endif
 
@@ -1687,9 +1708,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN to be defined."
+    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
   #elif CASE_LIGHT_PIN == FAN_PIN
     #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
   #endif
@@ -1859,6 +1880,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
 #endif
 
+#if TEMP_SENSOR_COOLER && !(PIN_EXISTS(TEMP_COOLER) && ENABLED(LASER_FEATURE))
+  #error "TEMP_SENSOR_COOLER requires LASER_FEATURE and TEMP_COOLER_PIN."
+#endif
+
 #if ENABLED(CHAMBER_FAN) && !(defined(CHAMBER_FAN_MODE) && WITHIN(CHAMBER_FAN_MODE, 0, 2))
   #error "CHAMBER_FAN_MODE must be between 0 and 2."
 #endif
@@ -2009,39 +2034,41 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
 #define _AXIS_PLUG_UNUSED_TEST(A) (_PLUG_UNUSED_TEST(A,X) && _PLUG_UNUSED_TEST(A,Y) && _PLUG_UNUSED_TEST(A,Z))
 
-// At least 3 endstop plugs must be used
-#if _AXIS_PLUG_UNUSED_TEST(X)
-  #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Y)
-  #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-#endif
-#if _AXIS_PLUG_UNUSED_TEST(Z)
-  #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
-#endif
-
-// Delta and Cartesian use 3 homing endstops
-#if NONE(IS_SCARA, SPI_ENDSTOPS)
-  #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
-    #error "Enable USE_XMIN_PLUG when homing X to MIN."
-  #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
-    #error "Enable USE_XMAX_PLUG when homing X to MAX."
-  #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
-    #error "Enable USE_YMIN_PLUG when homing Y to MIN."
-  #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
-    #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+// A machine with endstops must have a minimum of 3
+#if HAS_ENDSTOPS
+  #if _AXIS_PLUG_UNUSED_TEST(X)
+    #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
   #endif
-#endif
+  #if _AXIS_PLUG_UNUSED_TEST(Y)
+    #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
+  #endif
+  #if _AXIS_PLUG_UNUSED_TEST(Z)
+    #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+  #endif
 
-// Z homing direction and plug usage flags
-#if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
-  #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-#elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #error "Z_HOME_DIR must be -1 when homing Z with the probe."
-#elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
-  #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
-#elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
-  #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  // Delta and Cartesian use 3 homing endstops
+  #if NONE(IS_SCARA, SPI_ENDSTOPS)
+    #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+      #error "Enable USE_XMIN_PLUG when homing X to MIN."
+    #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+      #error "Enable USE_XMAX_PLUG when homing X to MAX."
+    #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+      #error "Enable USE_YMIN_PLUG when homing Y to MIN."
+    #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+      #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+    #endif
+  #endif
+
+  // Z homing direction and plug usage flags
+  #if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
+    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+  #elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+    #error "Z_HOME_DIR must be -1 when homing Z with the probe."
+  #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
+    #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
+  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  #endif
 #endif
 
 #if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
@@ -2303,7 +2330,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
@@ -2328,6 +2355,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
   + ENABLED(MAKRPANEL) \
   + ENABLED(MALYAN_LCD) \
+  + ENABLED(NEXTION_TFT) \
   + ENABLED(MKS_LCD12864) \
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(OVERLORD_OLED) \
@@ -2347,7 +2375,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(ULTIPANEL) \
   + ENABLED(ULTRA_LCD) \
   + ENABLED(YHCB2004) \
-  + ENABLED(ZONESTAR_LCD)
+  + ENABLED(ZONESTAR_LCD) \
+  + ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER) \
+  + ENABLED(K3D_242_OLED_CONTROLLER)
   #error "Please select only one LCD controller option."
 #endif
 
@@ -2894,12 +2924,16 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
-  #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
-#endif
-
-#if BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
-  #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(BACKUP_POWER_SUPPLY) && !PIN_EXISTS(POWER_LOSS)
+    #error "BACKUP_POWER_SUPPLY requires a POWER_LOSS_PIN."
+  #elif BOTH(POWER_LOSS_RECOVER_ZHOME, Z_SAFE_HOMING)
+    #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
+  #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
+    #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+  #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR < 0 && !defined(POWER_LOSS_ZHOME_POS)
+    #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -2952,109 +2986,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 
 #if ENABLED(GCODE_MACROS) && !WITHIN(GCODE_MACROS_SLOTS, 1, 10)
   #error "GCODE_MACROS_SLOTS must be a number from 1 to 10."
-#endif
-
-#if ENABLED(CUSTOM_USER_MENUS)
-  #ifdef USER_GCODE_1
-    constexpr char _chr1 = USER_GCODE_1[strlen(USER_GCODE_1) - 1];
-    static_assert(_chr1 != '\n' && _chr1 != '\r', "USER_GCODE_1 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_2
-    constexpr char _chr2 = USER_GCODE_2[strlen(USER_GCODE_2) - 1];
-    static_assert(_chr2 != '\n' && _chr2 != '\r', "USER_GCODE_2 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_3
-    constexpr char _chr3 = USER_GCODE_3[strlen(USER_GCODE_3) - 1];
-    static_assert(_chr3 != '\n' && _chr3 != '\r', "USER_GCODE_3 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_4
-    constexpr char _chr4 = USER_GCODE_4[strlen(USER_GCODE_4) - 1];
-    static_assert(_chr4 != '\n' && _chr4 != '\r', "USER_GCODE_4 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_5
-    constexpr char _chr5 = USER_GCODE_5[strlen(USER_GCODE_5) - 1];
-    static_assert(_chr5 != '\n' && _chr5 != '\r', "USER_GCODE_5 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_6
-    constexpr char _chr6 = USER_GCODE_6[strlen(USER_GCODE_6) - 1];
-    static_assert(_chr6 != '\n' && _chr6 != '\r', "USER_GCODE_6 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_7
-    constexpr char _chr7 = USER_GCODE_7[strlen(USER_GCODE_7) - 1];
-    static_assert(_chr7 != '\n' && _chr7 != '\r', "USER_GCODE_7 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_8
-    constexpr char _chr8 = USER_GCODE_8[strlen(USER_GCODE_8) - 1];
-    static_assert(_chr8 != '\n' && _chr8 != '\r', "USER_GCODE_8 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_9
-    constexpr char _chr9 = USER_GCODE_9[strlen(USER_GCODE_9) - 1];
-    static_assert(_chr9 != '\n' && _chr9 != '\r', "USER_GCODE_9 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_10
-    constexpr char _chr10 = USER_GCODE_10[strlen(USER_GCODE_10) - 1];
-    static_assert(_chr10 != '\n' && _chr10 != '\r', "USER_GCODE_10 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_11
-    constexpr char _chr11 = USER_GCODE_11[strlen(USER_GCODE_11) - 1];
-    static_assert(_chr11 != '\n' && _chr11 != '\r', "USER_GCODE_11 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_12
-    constexpr char _chr12 = USER_GCODE_12[strlen(USER_GCODE_12) - 1];
-    static_assert(_chr12 != '\n' && _chr12 != '\r', "USER_GCODE_12 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_13
-    constexpr char _chr13 = USER_GCODE_13[strlen(USER_GCODE_13) - 1];
-    static_assert(_chr13 != '\n' && _chr13 != '\r', "USER_GCODE_13 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_14
-    constexpr char _chr14 = USER_GCODE_14[strlen(USER_GCODE_14) - 1];
-    static_assert(_chr14 != '\n' && _chr14 != '\r', "USER_GCODE_14 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_15
-    constexpr char _chr15 = USER_GCODE_15[strlen(USER_GCODE_15) - 1];
-    static_assert(_chr15 != '\n' && _chr15 != '\r', "USER_GCODE_15 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_16
-    constexpr char _chr16 = USER_GCODE_16[strlen(USER_GCODE_16) - 1];
-    static_assert(_chr16 != '\n' && _chr16 != '\r', "USER_GCODE_16 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_17
-    constexpr char _chr17 = USER_GCODE_17[strlen(USER_GCODE_17) - 1];
-    static_assert(_chr17 != '\n' && _chr17 != '\r', "USER_GCODE_17 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_18
-    constexpr char _chr18 = USER_GCODE_18[strlen(USER_GCODE_18) - 1];
-    static_assert(_chr18 != '\n' && _chr18 != '\r', "USER_GCODE_18 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_19
-    constexpr char _chr19 = USER_GCODE_19[strlen(USER_GCODE_19) - 1];
-    static_assert(_chr19 != '\n' && _chr19 != '\r', "USER_GCODE_19 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_20
-    constexpr char _chr20 = USER_GCODE_20[strlen(USER_GCODE_20) - 1];
-    static_assert(_chr20 != '\n' && _chr20 != '\r', "USER_GCODE_20 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_21
-    constexpr char _chr21 = USER_GCODE_21[strlen(USER_GCODE_21) - 1];
-    static_assert(_chr21 != '\n' && _chr21 != '\r', "USER_GCODE_21 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_22
-    constexpr char _chr22 = USER_GCODE_22[strlen(USER_GCODE_22) - 1];
-    static_assert(_chr22 != '\n' && _chr22 != '\r', "USER_GCODE_22 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_23
-    constexpr char _chr23 = USER_GCODE_23[strlen(USER_GCODE_23) - 1];
-    static_assert(_chr23 != '\n' && _chr23 != '\r', "USER_GCODE_23 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_24
-    constexpr char _chr24 = USER_GCODE_24[strlen(USER_GCODE_24) - 1];
-    static_assert(_chr24 != '\n' && _chr24 != '\r', "USER_GCODE_24 cannot have a newline at the end. Please remove it.");
-  #endif
-  #ifdef USER_GCODE_25
-    constexpr char _chr25 = USER_GCODE_25[strlen(USER_GCODE_25) - 1];
-    static_assert(_chr25 != '\n' && _chr25 != '\r', "USER_GCODE_25 cannot have a newline at the end. Please remove it.");
-  #endif
 #endif
 
 #if ENABLED(BACKLASH_COMPENSATION)
@@ -3310,12 +3241,26 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-
 /**
  * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
-#if BOTH(MEATPACK, BINARY_FILE_TRANSFER)
-  #error "Either enable MEATPACK or enable BINARY_FILE_TRANSFER."
+#if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
+  #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
+#endif
+
+/**
+ * Sanity check for unique start and stop values in NOZZLE_CLEAN_FEATURE
+ */
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  constexpr xyz_pos_t start_xyz[8] = NOZZLE_CLEAN_START_POINT,
+                        end_xyz[8] = NOZZLE_CLEAN_END_POINT;
+  #define _CLEAN_ASSERT(N) static_assert(N >= HOTENDS || end_xyz[N].x != start_xyz[N].x || TERN(NOZZLE_CLEAN_NO_Y, false, end_xyz[N].y != start_xyz[N].y), \
+                        "NOZZLE_CLEAN Start and End must be made different on HOTEND " STRINGIFY(N))
+  _CLEAN_ASSERT(0); _CLEAN_ASSERT(1);
+  _CLEAN_ASSERT(2); _CLEAN_ASSERT(3);
+  _CLEAN_ASSERT(4); _CLEAN_ASSERT(5);
+  _CLEAN_ASSERT(6); _CLEAN_ASSERT(7);
+  #undef _CLEAN_ASSERT
 #endif
 
 /**

@@ -21,9 +21,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 2 hotends / E-steppers."
 #elif HAS_FSMC_TFT
   #error "MKS Robin Nano V3 doesn't support FSMC-based TFT displays."
@@ -42,6 +43,8 @@
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB6
+#define I2C_SDA_PIN                         PB7
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
@@ -163,8 +166,8 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
-#define FAN1_PIN                            PC14  // FAN1
+#define FAN_PIN                             PC14  // FAN
+#define FAN1_PIN                            PB1   // FAN1
 
 //
 // Thermocouples

@@ -130,7 +130,9 @@ void GcodeSuite::G34() {
 
       // Disable the leveling matrix before auto-aligning
       #if HAS_LEVELING
-        TERN_(RESTORE_LEVELING_AFTER_G34, const bool leveling_was_active = planner.leveling_active);
+        #if ENABLED(RESTORE_LEVELING_AFTER_G34)
+          const bool leveling_was_active = planner.leveling_active;
+        #endif
         set_bed_leveling_enabled(false);
       #endif
 
@@ -410,9 +412,9 @@ void GcodeSuite::G34() {
         SERIAL_ECHOLNPAIR_F("Accuracy: ", z_maxdiff);
       }
 
-      // Stow the probe, as the last call to probe.probe_at_point(...) left
-      // the probe deployed if it was successful.
-      probe.stow();
+      // Stow the probe because the last call to probe.probe_at_point(...)
+      // leaves the probe deployed when it's successful.
+      IF_DISABLED(TOUCH_MI_PROBE, probe.stow());
 
       #if ENABLED(HOME_AFTER_G34)
         // After this operation the z position needs correction
