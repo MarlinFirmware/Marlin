@@ -98,7 +98,7 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        do_blocking_move_to_z(MANUAL_PROBE_HEIGHT);
+        do_blocking_move_to_z(0);
       }
       else {
         // Save Z for the previous mesh position
