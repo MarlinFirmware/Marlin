@@ -40,6 +40,10 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+#if HAS_FLOWMETER
+  #include "../feature/cooler.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "motion.h"
 #endif
@@ -50,6 +54,10 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
 #endif
 
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
@@ -1533,8 +1541,7 @@ void Temperature::manage_heater() {
           WRITE_HEATER_COOLER(LOW);
         }
       }
-    }
-    else {
+    } else {
       temp_cooler.soft_pwm_amount = 0;
       if (flag_cooler_state) {
         flag_cooler_state = false;
@@ -1547,6 +1554,23 @@ void Temperature::manage_heater() {
       tr_state_machine[RUNAWAY_IND_COOLER].run(temp_cooler.celsius, temp_cooler.target, H_COOLER, THERMAL_PROTECTION_COOLER_PERIOD, THERMAL_PROTECTION_COOLER_HYSTERESIS);
     #endif
   #endif // HAS_COOLER
+
+  #if HAS_FLOWMETER
+    if (cooler.flowmeter == false) {
+      cooler.flowmeter_enable();
+      cooler.flowmeter = true;
+    }
+    if (ELAPSED(ms, cooler.flow_calc_time)) cooler.calc_flowrate();
+    if (cooler.flowmeter_safety) {
+      if ((cooler.flowrate < FLOWMETER_MIN) && cutter.enabled()) {
+        cutter.disable();
+        ui.flow_fault();
+        cooler.fault = true;
+      }
+    } else {
+      LCD_MESSAGEPGM(WELCOME_MSG);
+    }
+  #endif
 
   UNUSED(ms);
 }

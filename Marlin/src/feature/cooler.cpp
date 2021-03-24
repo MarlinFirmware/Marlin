@@ -22,16 +22,20 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_COOLER
+#if HAS_COOLER || HAS_FLOWMETER
 
 #include "cooler.h"
 Cooler cooler;
 
-uint16_t Cooler::flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
-uint8_t Cooler::mode = 0;         // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
-uint16_t Cooler::capacity;        // Cooling capacity in watts
-uint16_t Cooler::load;            // Cooling load in watts
+float Cooler::flowrate;                 // Flow meter reading in liters per minute, if less than 1.5Lpm, laser will be shut off with saftey true
+volatile uint16_t Cooler::flowpulses;   // flowmeter irq pulse count
+millis_t Cooler::flow_calc_time = FLOWMETER_INTERVAL; 
+uint8_t Cooler::mode = 0;               // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
+uint16_t Cooler::capacity;              // Cooling capacity in watts
+uint16_t Cooler::load;                  // Cooling load in watts
 bool Cooler::flowmeter = false;
-bool Cooler::state = false;       // on = true, off = false
+bool Cooler::state = false;             // on = true, off = false
+bool Cooler::fault = false;             // Cooler is in a fault state On = True, Off = False
+bool Cooler::flowmeter_safety = true;   // on = true, off = false
 
 #endif

@@ -35,7 +35,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if HAS_COOLER
+#if HAS_COOLER || HAS_FLOWMETER
   #include "../../feature/cooler.h"
 #endif
 
@@ -196,7 +196,11 @@ void menu_temperature() {
     EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
     EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MINTEMP + 2, COOLER_MAXTEMP - 2, thermalManager.start_watching_cooler);
   #endif
-
+  #if HAS_FLOWMETER && FLOWMETER_SAFETY
+    editable.state = cooler.flowsaftey_is_enabled();
+    EDIT_ITEM(bool, MSG_FLOWMETER_SAFETY, &cooler.flowmeter_safety, []{ if (editable.state) cooler.flowsafety_disable(); else cooler.flowsafety_enable(); });
+  #endif
+   
   //
   // Fan Speed:
   //

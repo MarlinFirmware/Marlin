@@ -130,6 +130,7 @@
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
 #define STR_ERR_KILLED                      "Printer halted. kill() called!"
+#define STR_FLOWMETER_FAULT                 "Coolant flow fault, flowmeter safety is active, attention required."
 #define STR_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define STR_ERR_SERIAL_MISMATCH             "Serial status mismatch"
 #define STR_BUSY_PROCESSING                 "busy: processing"
@@ -320,6 +321,8 @@
   #define LCD_STR_FEEDRATE    "\x06"
   #define LCD_STR_CLOCK       "\x07"
   #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
+  #define LCD_STR_ASTERISK    "\x2A"
+  #define LCD_STR_TILDE       "\x7E"
 
 #else
   //
@@ -333,8 +336,9 @@
   #define LCD_STR_CLOCK       "\x05"
   #define LCD_STR_FEEDRATE    "\x06"
   #define LCD_STR_BEDTEMP     "\x07"
-  #define LCD_STR_THERMOMETER "\x08"
+  #define LCD_STR_THERMOMETER "\x08" 
   #define LCD_STR_DEGREE      "\x09"
+
 
   #define LCD_STR_SPECIAL_MAX '\x09'
   // Maximum here is 0x1F because 0x20 is ' ' (space) and the normal charsets begin.

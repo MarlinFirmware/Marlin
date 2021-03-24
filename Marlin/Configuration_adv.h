@@ -203,6 +203,14 @@
     #define COOLER_FAN_FACTOR     25  // PWM increase per °C above target
   #endif
 #endif
+//
+// Laser Flowmeter options
+//  
+//#define FLOWMETER_PIN           20  // Requires an external interupt enabled pin, e.g. RAMPS pins 2,3,18,19,20,21   
+//#define FLOWMETER_PPL         5880  // Flow meter pulses per liter.
+//#define FLOWMETER_SAFETY      true  // Prevents running the CO2 laser tube without a minimum water flow rate of FLOWMETER_MIN liters/min.
+//#define FLOWMETER_MIN          1.5  // Minimum flow required when FLOWMETER_SAFETY is true   
+//#define FLOWMETER_INTERVAL    1000  // Flow rate calculation interval in milliseconds
 
 /**
  * Thermal Protection provides additional protection to your printer from damage
@@ -1539,6 +1547,7 @@
   #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_COOLER_ANIM        // Use a second bitmap to indicate laser cooling
+  //#define STATUS_FLOWMETER_ANIM       // Use a multiple bitmaps to indicate coolant flow
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
@@ -3226,10 +3235,10 @@
  */
 //#define COOLANT_CONTROL
 #if ENABLED(COOLANT_CONTROL)
-  #define COOLANT_MIST                // Enable if mist coolant is present
-  #define COOLANT_FLOOD               // Enable if flood coolant is present
-  #define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
-  #define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
+  //#define COOLANT_MIST                // Enable if mist coolant is present
+  //#define COOLANT_FLOOD               // Enable if flood coolant is present
+  //#define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
+  //#define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
 #endif
 
 /**

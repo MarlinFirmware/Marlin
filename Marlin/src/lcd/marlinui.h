@@ -304,6 +304,7 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
+    static void flow_fault();
 
     #if HAS_WIRED_LCD
 
