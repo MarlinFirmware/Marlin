@@ -497,8 +497,8 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   #endif
 
   if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
-  #ifdef Z_SERVO_MEASURE_ANGLE
-    probe_specific_action(true);  //  Always re-deploy if we have a separate measure state
+  #if ANY(Z_SERVO_MEASURE_ANGLE, Z_SERVO_INTERMEDIATE_STOW)
+    probe_specific_action(true);  //  Always re-deploy in this case
   #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.

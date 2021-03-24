@@ -402,7 +402,7 @@ void Draw_Title(const __FlashStringHelper * title) {
 }
 
 void Clear_Menu_Area() {
-  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y - 1);
 }
 
 void Clear_Main_Window() {
@@ -2152,7 +2152,7 @@ void HMI_SelectFile() {
 
       card.openAndPrintFile(card.filename);
 
-      #if FAN_COUNT > 0
+      #if HAS_FAN
         // All fans on for Ender 3 v2 ?
         // The slicer should manage this for us.
         //for (uint8_t i = 0; i < FAN_COUNT; i++)
@@ -3792,6 +3792,13 @@ void DWIN_CompletedHoming() {
 
 void DWIN_CompletedLeveling() {
   if (checkkey == Leveling) Goto_MainMenu();
+}
+
+void DWIN_StatusChanged(const char *text) {
+  DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(text) * MENU_CHR_W) / 2;
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Blue, x, STATUS_Y + 2, F(text));
+  DWIN_UpdateLCD();
 }
 
 #endif // DWIN_CREALITY_LCD

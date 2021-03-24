@@ -760,7 +760,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif // HAS_HEATED_BED
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint16_t spd = thermalManager.fan_speed[0];
 
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -783,7 +783,7 @@ void MarlinUI::draw_status_screen() {
     else
       picBits &= ~ICON_FAN;
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   //
   // Line 9, 10 - icons

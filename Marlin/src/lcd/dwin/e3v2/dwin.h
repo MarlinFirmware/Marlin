@@ -377,6 +377,7 @@ void HMI_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+void DWIN_StatusChanged(const char *text);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
