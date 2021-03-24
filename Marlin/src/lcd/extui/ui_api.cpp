@@ -103,8 +103,12 @@
 namespace ExtUI {
   static struct {
     uint8_t printer_killed : 1;
-    TERN_(JOYSTICK, uint8_t jogging : 1);
-    TERN_(SDSUPPORT, uint8_t was_sd_printing : 1);
+    #if ENABLED(JOYSTICK)
+      uint8_t jogging : 1;
+    #endif
+    #if ENABLED(SDSUPPORT)
+      uint8_t was_sd_printing : 1;
+    #endif
   } flags;
 
   #ifdef __SAM3X8E__
@@ -175,8 +179,12 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
-        TERN_(HAS_COOLER, case COOLER: return); // Cooler has no idle timer
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if ENABLED(HAS_COOLER)
+          case COOLER: return;  // Cooler has no idle timer
+        #endif
         default:
           TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
@@ -234,8 +242,12 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
+        #if ENABLED(HAS_HEATED_BED)
+          case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
+        #endif
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return false; // Chamber has no idle timer
+        #endif
         default:
           return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
@@ -253,8 +265,12 @@ namespace ExtUI {
 
   float getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
@@ -265,8 +281,12 @@ namespace ExtUI {
 
   float getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
@@ -294,13 +314,13 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) current_position[axis];
+    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) current_position.e;
+    const float epos = TERN0(JOYSTICK, flags.jogging) ? destination.e : current_position.e;
     setActiveTool(old_tool, true);
     return epos;
   }
@@ -491,14 +511,30 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        TERN_(X_SENSORLESS,  case X:  return stepperX.homing_threshold());
-        TERN_(X2_SENSORLESS, case X2: return stepperX2.homing_threshold());
-        TERN_(Y_SENSORLESS,  case Y:  return stepperY.homing_threshold());
-        TERN_(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold());
-        TERN_(Z_SENSORLESS,  case Z:  return stepperZ.homing_threshold());
-        TERN_(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold());
-        TERN_(Z3_SENSORLESS, case Z3: return stepperZ3.homing_threshold());
-        TERN_(Z4_SENSORLESS, case Z4: return stepperZ4.homing_threshold());
+        #if ENABLED(X_SENSORLESS)
+          case X:  return stepperX.homing_threshold();
+        #endif
+        #if ENABLED(X2_SENSORLESS)
+          case X2: return stepperX2.homing_threshold();
+        #endif
+        #if ENABLED(Y_SENSORLESS)
+          case Y:  return stepperY.homing_threshold();
+        #endif
+        #if ENABLED(Y2_SENSORLESS)
+          case Y2: return stepperY2.homing_threshold();
+        #endif
+        #if ENABLED(Z_SENSORLESS)
+          case Z:  return stepperZ.homing_threshold();
+        #endif
+        #if ENABLED(Z2_SENSORLESS)
+          case Z2: return stepperZ2.homing_threshold();
+        #endif
+        #if ENABLED(Z3_SENSORLESS)
+          case Z3: return stepperZ3.homing_threshold();
+        #endif
+        #if ENABLED(Z4_SENSORLESS)
+          case Z4: return stepperZ4.homing_threshold();
+        #endif
         default: return 0;
       }
     }

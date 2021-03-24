@@ -40,9 +40,9 @@ public:
      * M110 N<int> sets the current line number.
      */
     long last_N;
-    int count;                        //!< Number of characters read in the current line of serial input
-    char line_buffer[MAX_CMD_SIZE];   //!< The current line accumulator
-    uint8_t input_state;              //!< The input state
+    int count;                      //!< Number of characters read in the current line of serial input
+    char line_buffer[MAX_CMD_SIZE]; //!< The current line accumulator
+    uint8_t input_state;            //!< The input state
   };
 
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
@@ -57,9 +57,11 @@ public:
    * command and hands off execution to individual handler functions.
    */
   struct CommandLine {
-    char buffer[MAX_CMD_SIZE];                    //!< The command buffer
-    bool skip_ok;                                 //!< Skip sending ok when command is processed?
-    TERN_(HAS_MULTI_SERIAL, serial_index_t port); //!< Serial port the command was received on
+    char buffer[MAX_CMD_SIZE];      //!< The command buffer
+    bool skip_ok;                   //!< Skip sending ok when command is processed?
+    #if ENABLED(HAS_MULTI_SERIAL)
+      serial_index_t port;          //!< Serial port the command was received on
+    #endif
   };
 
   /**
