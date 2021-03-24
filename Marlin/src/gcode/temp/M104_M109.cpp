@@ -69,7 +69,7 @@ void GcodeSuite::M104() {
   #endif
 
   bool got_temp = false;
-  int16_t temp = 0;
+  celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
@@ -145,7 +145,7 @@ void GcodeSuite::M109() {
   #endif
 
   bool got_temp = false;
-  int16_t temp = 0;
+  celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
@@ -161,7 +161,7 @@ void GcodeSuite::M109() {
   if (!got_temp) {
     no_wait_for_cooling = parser.seenval('S');
     got_temp = no_wait_for_cooling || parser.seenval('R');
-    if (got_temp) temp = int16_t(parser.value_celsius());
+    if (got_temp) temp = parser.value_celsius();
   }
 
   if (got_temp) {
@@ -185,7 +185,7 @@ void GcodeSuite::M109() {
       thermalManager.auto_job_check_timer(true, true);
     #endif
 
-    #if HAS_DISPLAY
+    #if HAS_STATUS_MESSAGE
       if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
         thermalManager.set_heating_message(target_extruder);
     #endif

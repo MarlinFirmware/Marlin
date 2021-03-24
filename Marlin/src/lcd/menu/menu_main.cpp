@@ -68,10 +68,6 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
-#if ENABLED(CUSTOM_USER_MENUS)
-  void menu_user();
-#endif
-
 #if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
@@ -104,6 +100,148 @@ void menu_configuration();
 #if HAS_MULTI_LANGUAGE
   void menu_language();
 #endif
+
+#if ENABLED(CUSTOM_MENU_MAIN)
+
+  void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
+    queue.inject_P(cmd);
+    TERN_(MAIN_MENU_ITEM_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    TERN_(MAIN_MENU_ITEM_SCRIPT_RETURN, ui.return_to_status());
+  }
+
+  void custom_menus_main() {
+    START_MENU();
+    BACK_ITEM(MSG_MAIN);
+
+    #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
+
+    #define CUSTOM_TEST_MAIN(N) do{ \
+      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+    }while(0)
+
+    #ifdef MAIN_MENU_ITEM_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" MAIN_MENU_ITEM_SCRIPT_DONE
+    #else
+      #define _DONE_SCRIPT ""
+    #endif
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(PSTR(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
+    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
+      SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(          \
+            GCODE_LAMBDA_MAIN(N),                    \
+            ui.goto_previous_screen,                 \
+            PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
+          );                                         \
+        })
+
+    #define CUSTOM_ITEM_MAIN(N) do{ if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_MAIN_CONFIRM(N); else _CUSTOM_ITEM_MAIN(N); }while(0)
+
+    #if HAS_CUSTOM_ITEM_MAIN(1)
+      CUSTOM_TEST_MAIN(1);
+      CUSTOM_ITEM_MAIN(1);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(2)
+      CUSTOM_TEST_MAIN(2);
+      CUSTOM_ITEM_MAIN(2);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(3)
+      CUSTOM_TEST_MAIN(3);
+      CUSTOM_ITEM_MAIN(3);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(4)
+      CUSTOM_TEST_MAIN(4);
+      CUSTOM_ITEM_MAIN(4);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(5)
+      CUSTOM_TEST_MAIN(5);
+      CUSTOM_ITEM_MAIN(5);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(6)
+      CUSTOM_TEST_MAIN(6);
+      CUSTOM_ITEM_MAIN(6);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(7)
+      CUSTOM_TEST_MAIN(7);
+      CUSTOM_ITEM_MAIN(7);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(8)
+      CUSTOM_TEST_MAIN(8);
+      CUSTOM_ITEM_MAIN(8);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(9)
+      CUSTOM_TEST_MAIN(9);
+      CUSTOM_ITEM_MAIN(9);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(10)
+      CUSTOM_TEST_MAIN(10);
+      CUSTOM_ITEM_MAIN(10);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(11)
+      CUSTOM_TEST_MAIN(11);
+      CUSTOM_ITEM_MAIN(11);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(12)
+      CUSTOM_TEST_MAIN(12);
+      CUSTOM_ITEM_MAIN(12);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(13)
+      CUSTOM_TEST_MAIN(13);
+      CUSTOM_ITEM_MAIN(13);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(14)
+      CUSTOM_TEST_MAIN(14);
+      CUSTOM_ITEM_MAIN(14);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(15)
+      CUSTOM_TEST_MAIN(15);
+      CUSTOM_ITEM_MAIN(15);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(16)
+      CUSTOM_TEST_MAIN(16);
+      CUSTOM_ITEM_MAIN(16);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(17)
+      CUSTOM_TEST_MAIN(17);
+      CUSTOM_ITEM_MAIN(17);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(18)
+      CUSTOM_TEST_MAIN(18);
+      CUSTOM_ITEM_MAIN(18);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(19)
+      CUSTOM_TEST_MAIN(19);
+      CUSTOM_ITEM_MAIN(19);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(20)
+      CUSTOM_TEST_MAIN(20);
+      CUSTOM_ITEM_MAIN(20);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(21)
+      CUSTOM_TEST_MAIN(21);
+      CUSTOM_ITEM_MAIN(21);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(22)
+      CUSTOM_TEST_MAIN(22);
+      CUSTOM_ITEM_MAIN(22);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(23)
+      CUSTOM_TEST_MAIN(23);
+      CUSTOM_ITEM_MAIN(23);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(24)
+      CUSTOM_TEST_MAIN(24);
+      CUSTOM_ITEM_MAIN(24);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(25)
+      CUSTOM_TEST_MAIN(25);
+      CUSTOM_ITEM_MAIN(25);
+    #endif
+    END_MENU();
+  }
+
+#endif // CUSTOM_MENU_MAIN
 
 void menu_main() {
   const bool busy = printingIsActive()
@@ -210,12 +348,12 @@ void menu_main() {
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
-  #if ENABLED(CUSTOM_USER_MENUS)
-    if (TERN1(CUSTOM_MENU_ONLY_IDLE, !busy)) {
-      #ifdef CUSTOM_USER_MENU_TITLE
-        SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+  #if ENABLED(CUSTOM_MENU_MAIN)
+    if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
+      #ifdef CUSTOM_MENU_MAIN_TITLE
+        SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
       #else
-        SUBMENU(MSG_USER_MENU, menu_user);
+        SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
       #endif
     }
   #endif

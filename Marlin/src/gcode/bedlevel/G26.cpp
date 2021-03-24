@@ -533,7 +533,7 @@ void GcodeSuite::G26() {
   #if HAS_HEATED_BED
 
     // Get a temperature from 'I' or 'B'
-    int16_t bedtemp = 0;
+    celsius_t bedtemp = 0;
 
     // Use the 'I' index if temperature presets are defined
     #if PREHEAT_COUNT
@@ -616,7 +616,7 @@ void GcodeSuite::G26() {
   g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
   // Get a temperature from 'I' or 'H'
-  int16_t noztemp = 0;
+  celsius_t noztemp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT

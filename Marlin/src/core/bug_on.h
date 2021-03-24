@@ -30,7 +30,8 @@
   #define BUG_ON(V...) do { SERIAL_ECHOPAIR(ONLY_FILENAME, __LINE__, ": "); SERIAL_ECHOLNPAIR(V); SERIAL_FLUSHTX(); *(char*)0 = 42; } while(0)
 #elif ENABLED(MARLIN_DEV_MODE)
   // Don't stop the CPU here, but at least dump the bug on the serial port
-  #define BUG_ON(V...) do { SERIAL_ECHOPAIR(ONLY_FILENAME, __LINE__, ": BUG!\n"); SERIAL_ECHOLNPAIR(V); SERIAL_FLUSHTX(); } while(0)
+  //#define BUG_ON(V...) do { SERIAL_ECHOPAIR(ONLY_FILENAME, __LINE__, ": BUG!\n"); SERIAL_ECHOLNPAIR(V); SERIAL_FLUSHTX(); } while(0)
+  #define BUG_ON(V...) NOOP
 #else
   // Release mode, let's ignore the bug
   #define BUG_ON(V...) NOOP
