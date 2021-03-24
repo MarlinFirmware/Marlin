@@ -54,6 +54,7 @@
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/printcounter.h"
+#include "../../MarlinCore.h"
 
 #if ENABLED(SDSUPPORT)
   #include "../../libs/duration_t.h"
@@ -117,12 +118,10 @@ bool MarlinUI::detected() { return true; }
       #endif
 
       #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED)
-        const void * const frame_ptr = pgm_read_ptr(&custom_bootscreen_animation[frame]);
-        #if ENABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
-          const boot_frame_t * const frame_info = (boot_frame_t*)frame_ptr;
-          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&frame_info->bitmap);
+        #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame].bitmap);
         #else
-          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)frame_ptr;
+          const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame]);
         #endif
       #else
         const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
@@ -149,16 +148,15 @@ bool MarlinUI::detected() { return true; }
         constexpr millis_t frame_time = 0;
         constexpr uint8_t f = 0;
       #else
-        #if DISABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+        #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
           constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
         LOOP_L_N(f, COUNT(custom_bootscreen_animation))
       #endif
         {
-          #if ENABLED(CUSTOM_BOOTSCREEN_TIME_PER_FRAME)
+          #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
             const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
-            const boot_frame_t * const frame_info = (boot_frame_t*)pgm_read_ptr(&custom_bootscreen_animation[fr]);
-            const millis_t frame_time = pgm_read_word(&frame_info->duration);
+            const millis_t frame_time = pgm_read_word(&custom_bootscreen_animation[fr].duration);
           #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
@@ -258,7 +256,7 @@ void MarlinUI::init_lcd() {
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
 
-  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED)
+  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
     SET_OUTPUT(LCD_PINS_DC);
     #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS
@@ -455,20 +453,22 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, PGM_P const pstr, const bool inv) {
     const u8g_uint_t len = utf8_strlen_P(pstr),
                       by = (y + 1) * (MENU_FONT_HEIGHT);
-    const pixel_len_t bw = len * (MENU_FONT_WIDTH), bx = x * (MENU_FONT_WIDTH);
+    const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
+    const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
       u8g.setColorIndex(1);
-      u8g.drawBox(bx - 1, by - (MENU_FONT_ASCENT) + 1, bw + 2, MENU_FONT_HEIGHT - 1);
+      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
       u8g.setColorIndex(0);
     }
-    lcd_put_u8str_P(bx, by, pstr);
+    lcd_put_u8str_P(bx / prop, by, pstr);
     if (inv) u8g.setColorIndex(1);
   }
 
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
     draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
-    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
+    const u8g_uint_t xpos = (LCD_WIDTH) / (USE_WIDE_GLYPH ? 2 : 1);
+    draw_boxed_string(xpos - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)
@@ -574,6 +574,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
+    //
+    // Draw knob rotation => Z motion key for:
+    //  - menu.cpp:lcd_babystep_zoffset
+    //  - menu_ubl.cpp:_lcd_mesh_fine_tune
+    //
+
     const unsigned char cw_bmp[] PROGMEM = {
       B00000000,B11111110,B00000000,
       B00000011,B11111111,B10000000,
@@ -672,28 +678,23 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         old_zvalue = zvalue;
       }
 
-      #if ENABLED(OVERLAY_GFX_REVERSE)
-        const unsigned char *rot_up = ccw_bmp, *rot_down = cw_bmp;
-      #else
-        const unsigned char *rot_up = cw_bmp, *rot_down = ccw_bmp;
-      #endif
+      const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),
+                        *rot_down = TERN(OVERLAY_GFX_REVERSE,  cw_bmp, ccw_bmp);
 
-      #if ENABLED(USE_BIG_EDIT_FONT)
-        const int left = 0, right = 45, nozzle = 95;
-      #else
-        const int left = 5, right = 90, nozzle = 60;
-      #endif
+      const int left = TERN(USE_BIG_EDIT_FONT,  0,  5),
+               right = TERN(USE_BIG_EDIT_FONT, 45, 90),
+              nozzle = TERN(USE_BIG_EDIT_FONT, 95, 60);
 
-      // Draw a representation of the nozzle
-      if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
-      if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
+      // Draw nozzle lowered or raised according to direction moved
+      if (PAGE_CONTAINS( 3, 16)) u8g.drawBitmapP(nozzle + 6,  4 - dir, 2, 12, nozzle_bmp);
+      if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20      , 3,  1, offset_bedline_bmp);
 
       // Draw cw/ccw indicator and up/down arrows.
       if (PAGE_CONTAINS(47, 62)) {
-        u8g.drawBitmapP(right + 0, 48 - dir, 2, 13, up_arrow_bmp);
-        u8g.drawBitmapP(left  + 0, 49 - dir, 2, 13, down_arrow_bmp);
-        u8g.drawBitmapP(left  + 13, 47, 3, 16, rot_down);
-        u8g.drawBitmapP(right + 13, 47, 3, 16, rot_up);
+        u8g.drawBitmapP(right +  0, 48 - dir, 2, 13, up_arrow_bmp);
+        u8g.drawBitmapP(left  +  0, 49 - dir, 2, 13, down_arrow_bmp);
+        u8g.drawBitmapP(left  + 13, 47      , 3, 16, rot_down);
+        u8g.drawBitmapP(right + 13, 47      , 3, 16, rot_up);
       }
     }
 

@@ -95,7 +95,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
       ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
-    EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT,
+    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
     _change_filament_with_custom
   );
   END_MENU();
@@ -106,6 +106,8 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
  * "Change Filament" submenu
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+
+  bool printingIsPaused();
 
   void menu_change_filament() {
     // Say "filament change" when no print is active
@@ -315,7 +317,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
   return nullptr;
 }
 
-void lcd_pause_show_message(
+void MarlinUI::pause_show_message(
   const PauseMessage message,
   const PauseMode mode/*=PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/

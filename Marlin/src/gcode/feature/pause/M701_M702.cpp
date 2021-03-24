@@ -29,13 +29,10 @@
 #include "../../../module/motion.h"
 #include "../../../module/temperature.h"
 #include "../../../feature/pause.h"
+#include "../../../lcd/marlinui.h"
 
 #if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
-#endif
-
-#if HAS_LCD_MENU
-  #include "../../../lcd/marlinui.h"
 #endif
 
 #if HAS_PRUSA_MMU2
@@ -82,7 +79,7 @@ void GcodeSuite::M701() {
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   // Show initial "wait for load" message
-  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_LOAD, PAUSE_MODE_LOAD_FILAMENT, target_extruder));
+  ui.pause_show_message(PAUSE_MESSAGE_LOAD, PAUSE_MODE_LOAD_FILAMENT, target_extruder);
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Change toolhead if specified
@@ -128,7 +125,7 @@ void GcodeSuite::M701() {
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 
   // Show status screen
-  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_STATUS));
+  ui.pause_show_message(PAUSE_MESSAGE_STATUS);
 }
 
 /**
@@ -180,7 +177,7 @@ void GcodeSuite::M702() {
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   // Show initial "wait for unload" message
-  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_UNLOAD, PAUSE_MODE_UNLOAD_FILAMENT, target_extruder));
+  ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, PAUSE_MODE_UNLOAD_FILAMENT, target_extruder);
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Change toolhead if specified
@@ -232,7 +229,7 @@ void GcodeSuite::M702() {
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 
   // Show status screen
-  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_STATUS));
+  ui.pause_show_message(PAUSE_MESSAGE_STATUS);
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

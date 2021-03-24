@@ -25,9 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGEN_L V2"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
@@ -337,7 +335,7 @@
         #define DOGLCD_CS                  P0_18
         #define DOGLCD_A0                  P0_16
         #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P1_20
+        #define DOGLCD_MOSI                P0_09
 
         #define LCD_BACKLIGHT_PIN          -1
 

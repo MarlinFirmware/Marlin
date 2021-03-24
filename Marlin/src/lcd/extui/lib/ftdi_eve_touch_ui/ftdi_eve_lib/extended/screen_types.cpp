@@ -26,7 +26,7 @@
 /********************** VIRTUAL DISPATCH DATA TYPE  ******************************/
 
 uint8_t ScreenRef::lookupScreen(onRedraw_func_t onRedraw_ptr) {
-  for (uint8_t type = 0; type < functionTableSize; type++) {
+  for (uint8_t type = 0; type < tableSize(); type++) {
     if (GET_METHOD(type, onRedraw) == onRedraw_ptr) {
       return type;
     }
@@ -43,14 +43,13 @@ void ScreenRef::setScreen(onRedraw_func_t onRedraw_ptr) {
   if (type != 0xFF) {
     setType(type);
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("New screen: ", type);
+      SERIAL_ECHO_MSG("New screen: ", type);
     #endif
   }
 }
 
 void ScreenRef::initializeAll() {
-  for (uint8_t type = 0; type < functionTableSize; type++)
+  for (uint8_t type = 0; type < tableSize(); type++)
     GET_METHOD(type, onStartup)();
 }
 

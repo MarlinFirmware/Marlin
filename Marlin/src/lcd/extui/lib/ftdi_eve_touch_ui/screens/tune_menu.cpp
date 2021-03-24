@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_TUNE_MENU
 
 #include "../../../../../feature/host_actions.h"
 
@@ -143,7 +142,9 @@ void TuneMenu::pausePrint() {
 
 void TuneMenu::resumePrint() {
   sound.play(twinkle, PLAY_ASYNCHRONOUS);
-  if (ExtUI::isPrintingFromMedia())
+  if (ExtUI::awaitingUserConfirm())
+    ExtUI::setUserConfirmed();
+  else if (ExtUI::isPrintingFromMedia())
     ExtUI::resumePrint();
   #ifdef ACTION_ON_RESUME
     else host_action_resume();
@@ -151,4 +152,4 @@ void TuneMenu::resumePrint() {
   GOTO_SCREEN(StatusScreen);
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_TUNE_MENU

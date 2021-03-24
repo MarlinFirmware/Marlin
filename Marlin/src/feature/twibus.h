@@ -31,6 +31,17 @@
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
+/**
+ * For a light i2c protocol that runs on two boards running Marlin see:
+ * See https://github.com/MarlinFirmware/Marlin/issues/4776#issuecomment-246262879
+ */
+#if I2C_SLAVE_ADDRESS > 0
+
+  void i2c_on_receive(int bytes); // Demo i2c onReceive handler
+  void i2c_on_request();          // Demo i2c onRequest handler
+
+#endif
+
 #define TWIBUS_BUFFER_SIZE 32
 
 /**
@@ -238,3 +249,5 @@ class TWIBus {
       static inline void debug(const char[], uint8_t) {}
     #endif
 };
+
+extern TWIBus i2c;

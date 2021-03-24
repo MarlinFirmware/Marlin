@@ -28,9 +28,7 @@
 #define DEFAULT_MACHINE_NAME "Creality3D"
 #define BOARD_INFO_NAME "BTT SKR CR-6"
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 //
 // Release PB4 (Z_STEP_PIN) from JTAG NRST role
@@ -177,4 +175,7 @@
 // Misc. Functions
 //
 #define LED_CONTROL_PIN                     PA13
-#define NEOPIXEL_PIN                        PA8
+
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA8
+#endif

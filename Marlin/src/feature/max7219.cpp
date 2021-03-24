@@ -127,7 +127,7 @@ uint8_t Max7219::suspended; // = 0;
 void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
     SERIAL_ECHOPGM("??? Max7219::");
-    serialprintPGM(func);
+    SERIAL_ECHOPGM_P(func);
     SERIAL_CHAR('(');
     SERIAL_ECHO(v1);
     if (v2 > 0) SERIAL_ECHOPAIR(", ", v2);

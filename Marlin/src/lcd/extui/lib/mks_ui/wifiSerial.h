@@ -58,8 +58,8 @@ class WifiSerial {
     void begin(uint32 baud);
     void begin(uint32 baud,uint8_t config);
     void end();
-    int available(void);
-    int read(void);
+    int available();
+    int read();
     int write(uint8_t);
     inline void wifi_usart_irq(usart_reg_map *regs) {
       /* Handling RXNEIE and TXEIE interrupts.
@@ -80,17 +80,17 @@ class WifiSerial {
       }
       /* TXE signifies readiness to send a byte to DR. */
       if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
-          if (!rb_is_empty(this->usart_device->wb))
-              regs->DR=rb_remove(this->usart_device->wb);
-          else
-              regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
+        if (!rb_is_empty(this->usart_device->wb))
+          regs->DR=rb_remove(this->usart_device->wb);
+        else
+          regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
       }
     }
 
-    int wifi_rb_is_full(void);
+    int wifi_rb_is_full();
 
-  private:
     struct usart_dev *usart_device;
+    private:
     uint8 tx_pin;
     uint8 rx_pin;
 };

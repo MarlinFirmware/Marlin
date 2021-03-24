@@ -88,7 +88,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             lv_draw_wifi();
           }
           else {
-            if (uiCfg.command_send == 1) {
+            if (uiCfg.command_send) {
               uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
               raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
               last_disp_state = SET_UI;
@@ -109,7 +109,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_set(void) {
+void lv_draw_set() {
   scr = lv_screen_create(SET_UI);
   lv_big_button_create(scr, "F:/bmp_eeprom_settings.bin", set_menu.eepromSet, INTERVAL_V, titleHeight, event_handler, ID_S_EEPROM_SET);
   lv_big_button_create(scr, "F:/bmp_fan.bin", set_menu.fan, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_S_FAN);

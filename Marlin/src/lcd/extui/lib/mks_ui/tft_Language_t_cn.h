@@ -84,7 +84,7 @@
 
 #define LEVELING_CONF_TITLE_T_CN        "機器參數>調平設置"
 #define LEVELING_PARA_CONF_T_CN         "調平設置"
-#define LEVELING_MANUAL_POS_T_CN        "手動調平坐標設置"
+#define TRAMMING_POS_T_CN               "手動調平坐標設置"
 #define LEVELING_AUTO_COMMAND_T_CN      "自動調平指令設置"
 #define LEVELING_AUTO_ZOFFSET_T_CN      "擠出頭與調平開關偏移設置"
 
@@ -99,6 +99,7 @@
 #define PROBE_Z_SPEED_T_CN              "探针Z方向移動速度"
 #define ENABLE_T_CN                     "是"
 #define DISABLE_T_CN                    "否"
+#define LOCKED_T_CN                     "否"
 #define Z_MIN_T_CN                      "ZMin"
 #define Z_MAX_T_CN                      "ZMax"
 
@@ -262,6 +263,8 @@
 #define AUTO_LEVELING_TEXT_T_CN         "自動調平"
 #define SET_TEXT_T_CN                   "設置"
 #define MORE_TEXT_T_CN                  "更多"
+#define MORE_GCODE_T_CN                 "G-Code"
+#define MORE_ENTER_GCODE_T_CN           "Enter G-Code"
 
 #define ADD_TEXT_T_CN                   "增加"
 #define DEC_TEXT_T_CN                   "減少"
@@ -489,3 +492,10 @@
 #define EEPROM_STORE_TIPS_T_CN        "是否保存參數到EEPROM?"
 #define EEPROM_READ_TIPS_T_CN         "是否使用EEPROM參數?"
 #define EEPROM_REVERT_TIPS_T_CN       "是否恢復默認參數?"
+
+#define MORE_CUSTOM1_TEXT_T_CN  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_T_CN  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_T_CN  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_T_CN  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_T_CN  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_T_CN  MAIN_MENU_ITEM_6_DESC

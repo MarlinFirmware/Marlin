@@ -99,7 +99,7 @@
 
 #define LEVELING_CONF_TITLE_EN          "Machine Settings>Leveling settings"
 #define LEVELING_PARA_CONF_EN           "Leveling settings"
-#define LEVELING_MANUAL_POS_EN          "Manual leveling coordinate settings"
+#define TRAMMING_POS_EN                 "Manual leveling coordinate settings"
 #define LEVELING_AUTO_COMMAND_EN        "AutoLeveling command settings"
 #define LEVELING_AUTO_ZOFFSET_EN        "Nozzle-to-probe offsets settings"
 
@@ -114,6 +114,7 @@
 #define PROBE_Z_SPEED_EN                "Probe Z-axis speed"
 #define ENABLE_EN                       "YES"
 #define DISABLE_EN                      "NO"
+#define LOCKED_EN                       "N/A"
 #define Z_MIN_EN                        "ZMin"
 #define Z_MAX_EN                        "ZMax"
 
@@ -278,6 +279,8 @@
 #define AUTO_LEVELING_TEXT_EN   "AutoLevel"
 #define SET_TEXT_EN             "Settings"
 #define MORE_TEXT_EN            "More"
+#define MORE_GCODE_EN           "G-Code"
+#define MORE_ENTER_GCODE_EN     "Enter G-Code"
 
 #define ADD_TEXT_EN             "Add"
 #define DEC_TEXT_EN             "Dec"
@@ -397,7 +400,6 @@
 #define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading,please wait!"
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
-
 
 #define PRE_HEAT_EXT_TEXT_EN            "E"
 #define PRE_HEAT_BED_TEXT_EN            "Bed"
@@ -725,3 +727,10 @@
 #define EEPROM_STORE_TIPS_EN  "Store settings to EEPROM?"
 #define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
 #define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_EN  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_EN  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_EN  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_EN  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_EN  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_EN  MAIN_MENU_ITEM_6_DESC

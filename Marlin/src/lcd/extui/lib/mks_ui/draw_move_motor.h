@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_move_motor(void);
+extern void lv_draw_move_motor();
 extern void lv_clear_move_motor();
 extern void disp_move_dist();
 

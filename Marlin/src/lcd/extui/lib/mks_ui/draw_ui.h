@@ -46,6 +46,8 @@
 #include "draw_preHeat.h"
 #include "draw_extrusion.h"
 #include "draw_home.h"
+#include "draw_gcode.h"
+#include "draw_more.h"
 #include "draw_move_motor.h"
 #include "draw_fan.h"
 #include "draw_about.h"
@@ -67,7 +69,7 @@
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
 #include "draw_level_settings.h"
-#include "draw_manual_level_pos_settings.h"
+#include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
 #include "draw_filament_change.h"
 #include "draw_filament_settings.h"
@@ -75,6 +77,8 @@
 #include "draw_baby_stepping.h"
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
+
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MKS_WIFI_MODULE)
   #include "wifiSerial.h"
@@ -84,11 +88,15 @@
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"
   #include "draw_wifi_tips.h"
+  #include "draw_cloud_bind.h"
 #endif
 
-#include "../../../../inc/MarlinConfigPre.h"
-#define FILE_SYS_USB  0
-#define FILE_SYS_SD 1
+#define ESP_WIFI          0x02
+#define AP_MODEL          0x01
+#define STA_MODEL         0x02
+
+#define FILE_SYS_USB      0
+#define FILE_SYS_SD       1
 
 #define TICK_CYCLE 1
 
@@ -157,6 +165,10 @@
   #define PARA_UI_BACK_BTN_X_SIZE   70
   #define PARA_UI_BACK_BTN_Y_SIZE   40
 
+  #define QRCODE_X                  20
+  #define QRCODE_Y                  40
+  #define QRCODE_WIDTH              160
+
 #else // ifdef TFT35
 
   #define TFT_WIDTH     320
@@ -172,48 +184,46 @@ extern char public_buf_m[100];
 extern char public_buf_l[30];
 
 typedef struct {
-  uint32_t spi_flash_flag;
-  uint8_t disp_rotation_180;
-  bool multiple_language;
-  uint8_t language;
-  uint8_t leveling_mode;
-  bool from_flash_pic;
-  bool finish_power_off;
-  bool pause_reprint;
-  uint8_t wifi_mode_sel;
-  uint8_t fileSysType;
-  uint8_t wifi_type;
-  bool  cloud_enable;
-  bool  encoder_enable;
-  int   levelingPos[5][2];
-  int   filamentchange_load_length;
-  int   filamentchange_load_speed;
-  int   filamentchange_unload_length;
-  int   filamentchange_unload_speed;
-  int   filament_limit_temper;
-  float pausePosX;
-  float pausePosY;
-  float pausePosZ;
-  uint32_t curFilesize;
+  uint32_t  spi_flash_flag;
+  uint8_t   disp_rotation_180;
+  bool      multiple_language;
+  uint8_t   language;
+  uint8_t   leveling_mode;
+  bool      from_flash_pic;
+  bool      finish_power_off;
+  bool      pause_reprint;
+  uint8_t   wifi_mode_sel;
+  uint8_t   fileSysType;
+  uint8_t   wifi_type;
+  bool      cloud_enable,
+            encoder_enable;
+  int       trammingPos[5][2]; // XY
+  int       filamentchange_load_length,
+            filamentchange_load_speed,
+            filamentchange_unload_length,
+            filamentchange_unload_speed;
+  celsius_t filament_limit_temp;
+  float     pausePosX, pausePosY, pausePosZ;
+  uint32_t  curFilesize;
 } CFG_ITMES;
 
 typedef struct {
   uint8_t curTempType:1,
-          curSprayerChoose:3,
-          stepHeat:4;
-  uint8_t leveling_first_time:1,
+          extruderIndex:3,
+          stepHeat:4,
+          extruderIndexBak:4;
+  bool    leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
           command_send:1,
           filament_load_heat_flg:1,
           filament_heat_completed_load:1,
           filament_unload_heat_flg:1,
-          filament_heat_completed_unload:1;
-  uint8_t filament_loading_completed:1,
+          filament_heat_completed_unload:1,
+          filament_loading_completed:1,
           filament_unloading_completed:1,
           filament_loading_time_flg:1,
-          filament_unloading_time_flg:1,
-          curSprayerChoose_bak:4;
+          filament_unloading_time_flg:1;
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
@@ -229,15 +239,16 @@ typedef struct {
   uint16_t cloud_port;
   uint16_t moveSpeed_bak;
   uint32_t totalSend;
-  uint32_t filament_loading_time;
-  uint32_t filament_unloading_time;
-  uint32_t filament_loading_time_cnt;
-  uint32_t filament_unloading_time_cnt;
+  uint32_t filament_loading_time,
+           filament_unloading_time,
+           filament_loading_time_cnt,
+           filament_unloading_time_cnt;
   float move_dist;
-  float desireSprayerTempBak;
-  float current_x_position_bak;
-  float current_y_position_bak;
-  float current_e_position_bak;
+  celsius_t hotendTargetTempBak;
+  float current_x_position_bak,
+        current_y_position_bak,
+        current_z_position_bak,
+        current_e_position_bak;
 } UI_CFG;
 
 typedef enum {
@@ -314,7 +325,8 @@ typedef enum {
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
   ENCODER_SETTINGS_UI,
-  TOUCH_CALIBRATION_UI
+  TOUCH_CALIBRATION_UI,
+  GCODE_UI,
 } DISP_STATE;
 
 typedef struct {
@@ -401,7 +413,8 @@ typedef enum {
   wifiName,
   wifiPassWord,
   wifiConfig,
-  gcodeCommand
+  autoLevelGcodeCommand,
+  GCodeCommand,
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
 
@@ -432,11 +445,13 @@ extern lv_point_t line_points[4][2];
 extern void gCfgItems_init();
 extern void ui_cfg_init();
 extern void tft_style_init();
-extern char *creat_title_text(void);
+extern char *creat_title_text();
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
 extern void update_gcode_command(int addr,uint8_t *s);
 extern void get_gcode_command(int addr,uint8_t *d);
+extern void lv_serial_capt_hook(void *, uint8_t);
+extern void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
   extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif

@@ -49,7 +49,9 @@ static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
 static lv_obj_t *buttonPause, *buttonOperat, *buttonStop;
 
-TERN_(HAS_MULTI_EXTRUDER, static lv_obj_t *labelExt2);
+#if ENABLED(HAS_MULTI_EXTRUDER)
+  static lv_obj_t *labelExt2;
+#endif
 
 #if HAS_HEATED_BED
   static lv_obj_t* labelBed;
@@ -110,7 +112,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_printing(void) {
+void lv_draw_printing() {
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINTING_UI);
@@ -203,11 +205,11 @@ void lv_draw_printing(void) {
 }
 
 void disp_ext_temp() {
-  sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target);
+  sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0));
   lv_label_set_text(labelExt1, public_buf_l);
 
   #if HAS_MULTI_EXTRUDER
-    sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target);
+    sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1));
     lv_label_set_text(labelExt2, public_buf_l);
   #endif
 }
@@ -235,7 +237,8 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  sprintf_P(public_buf_l, PSTR("%.3f"), current_position[Z_AXIS]);
+  char str_1[16];
+  sprintf_P(public_buf_l, PSTR("%s"), dtostrf(current_position[Z_AXIS], 1, 3, str_1));
   lv_label_set_text(labelZpos, public_buf_l);
 }
 

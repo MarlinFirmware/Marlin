@@ -112,6 +112,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potenza laser");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potenza mandrino");
   PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Alterna Laser");
+  PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("ms impulso di test");
+  PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Spara impulso");
   PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Alterna mandrino");
   PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Mandrino in avanti");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Inverti mandrino");
@@ -126,6 +128,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Calibra piano");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Punti buoni: ");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Ultimo Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo punto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifica Mesh");
@@ -134,7 +138,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Indice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valore di Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comandi personaliz.");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comandi personaliz.");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Test sonda M48");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("Punto M48");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonda oltre i limiti");

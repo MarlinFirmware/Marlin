@@ -130,6 +130,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Level Corners");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Raise Bed Until Probe Triggered");
   PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("All Corners Within Tolerance. Level Bed");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Good Points: ");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Last Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Next Corner");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edit Mesh");
@@ -138,7 +140,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Value");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Custom Commands");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Custom Commands");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Probe out of bounds");
@@ -274,6 +276,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozzle Standby");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Bed");
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
+  PROGMEM Language_Str MSG_COOLER                          = _UxGT("Laser Coolant");
+  PROGMEM Language_Str MSG_COOLER_TOGGLE                   = _UxGT("Toggle Cooler");
+  PROGMEM Language_Str MSG_LASER                           = _UxGT("Laser");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed ~");
   PROGMEM Language_Str MSG_STORED_FAN_N                    = _UxGT("Stored Fan ~");
@@ -480,6 +485,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("BED THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("CHAMBER T. RUNAWAY");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_COOLER          = _UxGT("Cooler Runaway");
+  PROGMEM Language_Str MSG_COOLING_FAILED                  = _UxGT("Cooling Failed");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: MINTEMP");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER HALTED");
@@ -495,6 +502,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Probe Cooling...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chamber Heating...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Chamber Cooling...");
+  PROGMEM Language_Str MSG_LASER_COOLING                   = _UxGT("Laser Cooling...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Calibration");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Calibrate X");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Calibrate Y");

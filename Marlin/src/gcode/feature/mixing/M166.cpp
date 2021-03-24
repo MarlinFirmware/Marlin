@@ -30,7 +30,7 @@
 #include "../../../feature/mixing.h"
 
 inline void echo_mix() {
-  SERIAL_ECHOPAIR(" (", int(mixer.mix[0]), "%|", int(mixer.mix[1]), "%)");
+  SERIAL_ECHOPAIR(" (", mixer.mix[0], "%|", mixer.mix[1], "%)");
 }
 
 inline void echo_zt(const int t, const float &z) {
@@ -74,7 +74,7 @@ void GcodeSuite::M166() {
 
     #if ENABLED(GRADIENT_VTOOL)
       if (mixer.gradient.vtool_index >= 0) {
-        SERIAL_ECHOPAIR(" (T", int(mixer.gradient.vtool_index));
+        SERIAL_ECHOPAIR(" (T", mixer.gradient.vtool_index);
         SERIAL_CHAR(')');
       }
     #endif

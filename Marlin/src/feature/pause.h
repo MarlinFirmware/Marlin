@@ -90,7 +90,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
 void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
 
 void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH,
-                    const int8_t max_beep_count=0, int16_t targetTemp=0 DXC_PARAMS);
+                    const int8_t max_beep_count=0, const celsius_t targetTemp=0 DXC_PARAMS);
 
 bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0,
                     const bool show_lcd=false, const bool pause_for_user=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT DXC_PARAMS);
@@ -101,4 +101,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd=false, cons
   #endif
 );
 
-#endif // ADVANCED_PAUSE_FEATURE
+#else // !ADVANCED_PAUSE_FEATURE
+
+  constexpr uint8_t did_pause_print = 0;
+
+#endif // !ADVANCED_PAUSE_FEATURE

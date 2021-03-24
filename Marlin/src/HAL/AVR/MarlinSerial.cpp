@@ -454,7 +454,7 @@ void MarlinSerial<Cfg>::flush() {
 }
 
 template<typename Cfg>
-void MarlinSerial<Cfg>::write(const uint8_t c) {
+size_t MarlinSerial<Cfg>::write(const uint8_t c) {
   if (Cfg::TX_SIZE == 0) {
 
     _written = true;
@@ -480,7 +480,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
       // location". This makes sure flush() won't return until the bytes
       // actually got written
       B_TXC = 1;
-      return;
+      return 1;
     }
 
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
@@ -510,6 +510,7 @@ void MarlinSerial<Cfg>::write(const uint8_t c) {
     // Enable TX ISR - Non atomic, but it will eventually enable TX ISR
     B_UDRIE = 1;
   }
+  return 1;
 }
 
 template<typename Cfg>
@@ -556,161 +557,6 @@ void MarlinSerial<Cfg>::flushTX() {
   }
 }
 
-/**
- * Imports from print.h
- */
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(char c, int base) {
-  print((long)c, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned char b, int base) {
-  print((unsigned long)b, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(int n, int base) {
-  print((long)n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned int n, int base) {
-  print((unsigned long)n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(long n, int base) {
-  if (base == 0) write(n);
-  else if (base == 10) {
-    if (n < 0) { print('-'); n = -n; }
-    printNumber(n, 10);
-  }
-  else
-    printNumber(n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(unsigned long n, int base) {
-  if (base == 0) write(n);
-  else printNumber(n, base);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::print(double n, int digits) {
-  printFloat(n, digits);
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println() {
-  print('\r');
-  print('\n');
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(const String& s) {
-  print(s);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(const char c[]) {
-  print(c);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(char c, int base) {
-  print(c, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned char b, int base) {
-  print(b, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(int n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned int n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(long n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(unsigned long n, int base) {
-  print(n, base);
-  println();
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::println(double n, int digits) {
-  print(n, digits);
-  println();
-}
-
-// Private Methods
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::printNumber(unsigned long n, uint8_t base) {
-  if (n) {
-    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
-    int8_t i = 0;
-    while (n) {
-      buf[i++] = n % base;
-      n /= base;
-    }
-    while (i--)
-      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
-  }
-  else
-    print('0');
-}
-
-template<typename Cfg>
-void MarlinSerial<Cfg>::printFloat(double number, uint8_t digits) {
-  // Handle negative numbers
-  if (number < 0.0) {
-    print('-');
-    number = -number;
-  }
-
-  // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
-  LOOP_L_N(i, digits) rounding *= 0.1;
-  number += rounding;
-
-  // Extract the integer part of the number and print it
-  unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
-  print(int_part);
-
-  // Print the decimal point, but only if there are digits beyond
-  if (digits) {
-    print('.');
-    // Extract digits from the remainder one at a time
-    while (digits--) {
-      remainder *= 10.0;
-      int toPrint = int(remainder);
-      print(toPrint);
-      remainder -= toPrint;
-    }
-  }
-}
-
 // Hookup ISR handlers
 ISR(SERIAL_REGNAME(USART, SERIAL_PORT, _RX_vect)) {
   MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>::store_rxd_char();
@@ -720,11 +566,9 @@ ISR(SERIAL_REGNAME(USART, SERIAL_PORT, _UDRE_vect)) {
   MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>::_tx_udr_empty_irq();
 }
 
-// Preinstantiate
-template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT>>;
-
-// Instantiate
-MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
+// Because of the template definition above, it's required to instantiate the template to have all methods generated
+template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
+MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
 #ifdef SERIAL_PORT_2
 
@@ -737,12 +581,8 @@ MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
     MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>::_tx_udr_empty_irq();
   }
 
-  // Preinstantiate
-  template class MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>>;
-
-  // Instantiate
-  MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> >;
+  MSerialT2 customizedSerial2(MSerialT2::HasEmergencyParser);
 #endif
 
 #ifdef MMU2_SERIAL_PORT
@@ -755,12 +595,8 @@ MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
     MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  // Preinstantiate
-  template class MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>;
-
-  // Instantiate
-  MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>> mmuSerial;
-
+  template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
+  MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
 #endif
 
 #ifdef LCD_SERIAL_PORT
@@ -773,11 +609,8 @@ MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
     MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  // Preinstantiate
-  template class MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>;
-
-  // Instantiate
-  MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>> lcdSerial;
+  template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
+  MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
 
   #if HAS_DGUS_LCD
     template<typename Cfg>
@@ -796,7 +629,7 @@ MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
 
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  HardwareSerial bluetoothSerial;
+  MSerialT5 bluetoothSerial(false);
 #endif
 
 #endif // __AVR__

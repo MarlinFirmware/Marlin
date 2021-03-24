@@ -160,15 +160,26 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     if (!do_draw_cal) draw_return_ui();
   }
   else if (DIALOG_IS(WIFI_CONFIG_TIPS)) {
-    uiCfg.configWifi = 1;
+    uiCfg.configWifi = true;
     clear_cur_ui();
     draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_LOAD_COMPLETED))
-    uiCfg.filament_heat_completed_load = 1;
+    uiCfg.filament_heat_completed_load = true;
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED))
-    uiCfg.filament_heat_completed_unload = 1;
+    uiCfg.filament_heat_completed_unload = true;
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  #if ENABLED(MKS_WIFI_MODULE)
+    else if (DIALOG_IS(TYPE_UNBIND)) {
+      cloud_unbind();
+      clear_cur_ui();
+      draw_return_ui();
+    }
+  #endif
+  else {
     clear_cur_ui();
     draw_return_ui();
   }
@@ -180,20 +191,20 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     TERN_(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
-    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target= uiCfg.desireSprayerTempBak;
+    thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
     clear_cur_ui();
     draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
     queue.enqueue_one_P(PSTR("M410"));
     uiCfg.filament_rate                = 0;
-    uiCfg.filament_loading_completed   = 0;
-    uiCfg.filament_unloading_completed = 0;
-    uiCfg.filament_loading_time_flg    = 0;
+    uiCfg.filament_loading_completed   = false;
+    uiCfg.filament_unloading_completed = false;
+    uiCfg.filament_loading_time_flg    = false;
     uiCfg.filament_loading_time_cnt    = 0;
-    uiCfg.filament_unloading_time_flg  = 0;
+    uiCfg.filament_unloading_time_flg  = false;
     uiCfg.filament_unloading_time_cnt  = 0;
-    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
+    thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
     clear_cur_ui();
     draw_return_ui();
   }
@@ -245,6 +256,9 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_t *labelOk = lv_label_create_empty(btnOk);
         lv_label_set_text(labelOk, print_file_dialog_menu.confirm);
       }
+    }
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
+      // nothing to do
     }
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
@@ -412,6 +426,10 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
       }
     }
+    else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
+      lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+    }
   #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
@@ -445,6 +463,12 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
   }
+  #if ENABLED(MKS_WIFI_MODULE)
+    else if (DIALOG_IS(TYPE_UNBIND)) {
+      lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+    }
+  #endif
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       if (btnOk) lv_group_add_obj(g, btnOk);
@@ -455,9 +479,9 @@ void lv_draw_dialog(uint8_t type) {
 
 void filament_sprayer_temp() {
   char buf[20] = {0};
-  sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
+  sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
 
-  strcpy(public_buf_l, uiCfg.curSprayerChoose < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
+  strcpy(public_buf_l, uiCfg.extruderIndex < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
   strcat_P(public_buf_l, PSTR(": "));
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText1, public_buf_l);
@@ -469,54 +493,55 @@ void filament_dialog_handle() {
     filament_sprayer_temp();
     temps_update_flag = false;
   }
-  if (uiCfg.filament_heat_completed_load == 1) {
-    uiCfg.filament_heat_completed_load = 0;
+  if (uiCfg.filament_heat_completed_load) {
+    uiCfg.filament_heat_completed_load = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOADING);
     planner.synchronize();
-    uiCfg.filament_loading_time_flg = 1;
+    uiCfg.filament_loading_time_flg = true;
     uiCfg.filament_loading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
     queue.inject(public_buf_m);
   }
-  if (uiCfg.filament_heat_completed_unload == 1) {
-    uiCfg.filament_heat_completed_unload = 0;
+  if (uiCfg.filament_heat_completed_unload) {
+    uiCfg.filament_heat_completed_unload = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOADING);
     planner.synchronize();
-    uiCfg.filament_unloading_time_flg = 1;
+    uiCfg.filament_unloading_time_flg = true;
     uiCfg.filament_unloading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
     queue.inject(public_buf_m);
   }
 
-  if (((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius - gCfgItems.filament_limit_temper)) <= 1)
-    || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius > gCfgItems.filament_limit_temper))
-    && (uiCfg.filament_load_heat_flg == 1)
-  ) {
-    uiCfg.filament_load_heat_flg = 0;
-    lv_clear_dialog();
-    lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
+  if (uiCfg.filament_load_heat_flg) {
+    const celsius_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    if (abs(diff) < 2 || diff > 0) {
+      uiCfg.filament_load_heat_flg = false;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
+    }
   }
 
-  if (uiCfg.filament_loading_completed == 1) {
+  if (uiCfg.filament_loading_completed) {
     uiCfg.filament_rate = 0;
-    uiCfg.filament_loading_completed = 0;
+    uiCfg.filament_loading_completed = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_COMPLETED);
   }
-  if (((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius - gCfgItems.filament_limit_temper)) <= 1)
-     || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius > gCfgItems.filament_limit_temper))
-     && (uiCfg.filament_unload_heat_flg == 1)
-  ) {
-    uiCfg.filament_unload_heat_flg = 0;
-    lv_clear_dialog();
-    lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
+
+  if (uiCfg.filament_unload_heat_flg) {
+    const celsius_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    if (abs(diff) < 2 || diff > 0) {
+      uiCfg.filament_unload_heat_flg = false;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
+    }
   }
 
-  if (uiCfg.filament_unloading_completed == 1) {
+  if (uiCfg.filament_unloading_completed) {
     uiCfg.filament_rate = 0;
-    uiCfg.filament_unloading_completed = 0;
+    uiCfg.filament_unloading_completed = false;
     lv_clear_dialog();
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOAD_COMPLETED);
   }

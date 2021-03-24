@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_homing_sensitivity_settings(void);
+extern void lv_draw_homing_sensitivity_settings();
 extern void lv_clear_homing_sensitivity_settings();
 
 #ifdef __cplusplus
