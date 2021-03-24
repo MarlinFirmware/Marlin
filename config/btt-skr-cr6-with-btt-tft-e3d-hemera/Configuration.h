@@ -1165,14 +1165,14 @@
 // @section machine
 
 // The size of the print bed
-#define LOST_PRINT_SIZE_Y 14 // We lose this in the Y direction
+#define LOST_PRINT_SIZE_Y 11 // We lose this in the Y direction
 #define LOST_PRINT_SIZE_Z 13 // We lose this in the Z direction
 
-#define X_BED_SIZE 240
+#define X_BED_SIZE 245
 #define Y_BED_SIZE (238 - LOST_PRINT_SIZE_Y)
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
+#define X_MIN_POS -21
 #define Y_MIN_POS (-1 * LOST_PRINT_SIZE_Y)
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
