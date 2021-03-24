@@ -42,7 +42,9 @@
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-TERN_(HAS_LEVELING, bool leveling_was_active);
+#if ENABLED(HAS_LEVELING)
+  bool leveling_was_active;
+#endif
 
 inline void z_clearance_move() {
   do_z_clearance(

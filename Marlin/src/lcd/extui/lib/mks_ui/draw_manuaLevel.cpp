@@ -54,7 +54,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           queue.inject_P(G28_STR);
         }
         const int ind = obj->mks_obj_id - ID_M_POINT1;
-        sprintf_P(public_buf_l, PSTR("G1 Z10\nG1 X%d Y%d\nG1 Z0"), (int)gCfgItems.levelingPos[ind][0], (int)gCfgItems.levelingPos[ind][1]);
+        sprintf_P(public_buf_l, PSTR("G1 Z10\nG1 X%d Y%d\nG1 Z0"), (int)gCfgItems.trammingPos[ind][X_AXIS], (int)gCfgItems.trammingPos[ind][Y_AXIS]);
         queue.inject(public_buf_l);
       }
       break;
