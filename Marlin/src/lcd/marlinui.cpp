@@ -52,10 +52,6 @@ MarlinUI ui;
   #include "dwin/e3v2/dwin.h"
 #endif
 
-#if HAS_STATUS_MESSAGE
-  #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-#endif
-
 #if LCD_HAS_WAIT_FOR_MOVE
   bool MarlinUI::wait_for_move; // = false
 #endif
