@@ -49,6 +49,7 @@ enum menuID : uint8_t {
       ChangeFilament,
     Control,
       TempMenu,
+        PID,
         Preheat1,
         Preheat2,
         Preheat3,
