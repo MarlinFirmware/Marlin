@@ -3235,10 +3235,10 @@
  */
 //#define COOLANT_CONTROL
 #if ENABLED(COOLANT_CONTROL)
-  //#define COOLANT_MIST                // Enable if mist coolant is present
-  //#define COOLANT_FLOOD               // Enable if flood coolant is present
-  //#define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
-  //#define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
+  #define COOLANT_MIST                // Enable if mist coolant is present
+  #define COOLANT_FLOOD               // Enable if flood coolant is present
+  #define COOLANT_MIST_INVERT  false  // Set "true" if the on/off function is reversed
+  #define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
 #endif
 
 /**
