@@ -73,7 +73,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, GLOBAL_STATUS_MESSAGE)
+#if HAS_STATUS_MESSAGE
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
