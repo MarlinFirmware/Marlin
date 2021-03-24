@@ -555,6 +555,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
   }
 }
 
+#if HAS_COOLER
 FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
   const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
 
@@ -581,12 +582,15 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
     if (t2 < 10) lcd_put_wchar(' ');
   }
 }
+#endif
 
-FORCE_INLINE void _draw_flowmeter_status() {
-  lcd_put_u8str("~ ");
-  lcd_put_u8str(ftostr11ns(cooler.flowrate));
-  lcd_put_wchar('L');
-}
+#if HAS_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd_put_u8str("~ ");
+    lcd_put_u8str(ftostr11ns(cooler.flowrate));
+    lcd_put_wchar('L');
+  }
+#endif  
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
