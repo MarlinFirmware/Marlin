@@ -206,7 +206,7 @@
 //
 // Laser flowmeter feature
 //
-#define FLOWMETER_FEATURE
+//#define FLOWMETER_FEATURE
 #if ENABLED(FLOWMETER_FEATURE)  
   #define FLOWMETER_PIN           20  // Requires an external interupt enabled pin, e.g. RAMPS pins 2,3,18,19,20,21   
   #define FLOWMETER_PPL         5880  // Flow meter pulses per liter.
