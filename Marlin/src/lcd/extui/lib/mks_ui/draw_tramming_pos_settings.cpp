@@ -53,7 +53,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_MANUAL_POS_RETURN:
       uiCfg.para_ui_page = false;
-      lv_clear_manual_level_pos_settings();
+      lv_clear_tramming_pos_settings();
       draw_return_ui();
       return;
     case ID_MANUAL_POS_X1:
@@ -88,46 +88,46 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_MANUAL_POS_UP:
       uiCfg.para_ui_page = false;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_manual_level_pos_settings();
+      lv_clear_tramming_pos_settings();
+      lv_draw_tramming_pos_settings();
       return;
     case ID_MANUAL_POS_DOWN:
       uiCfg.para_ui_page = true;
-      lv_clear_manual_level_pos_settings();
-      lv_draw_manual_level_pos_settings();
+      lv_clear_tramming_pos_settings();
+      lv_draw_tramming_pos_settings();
       return;
   }
-  lv_clear_manual_level_pos_settings();
+  lv_clear_tramming_pos_settings();
   lv_draw_number_key();
 }
 
-void lv_draw_manual_level_pos_settings() {
+void lv_draw_tramming_pos_settings() {
   char buf2[50];
 
   scr = lv_screen_create(MANUAL_LEVELING_POSIGION_UI, machine_menu.LevelingParaConfTitle);
 
   if (!uiCfg.para_ui_page) {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[0][1]);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[0][X_AXIS]);
+    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[0][Y_AXIS]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position1, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y1, 0, buf2, ID_MANUAL_POS_X1, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[1][0]);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[1][1]);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[1][X_AXIS]);
+    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[1][Y_AXIS]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position2, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_MANUAL_POS_Y2, 1, buf2, ID_MANUAL_POS_X2, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[2][0]);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[2][1]);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[2][X_AXIS]);
+    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[2][Y_AXIS]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position3, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_MANUAL_POS_Y3, 2, buf2, ID_MANUAL_POS_X3, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[3][0]);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[3][1]);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[3][X_AXIS]);
+    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[3][Y_AXIS]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position4, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_MANUAL_POS_Y4, 3, buf2, ID_MANUAL_POS_X4, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_MANUAL_POS_DOWN, true);
   }
   else {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[4][0]);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.levelingPos[4][1]);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[4][X_AXIS]);
+    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[4][Y_AXIS]);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position4, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y5, 0, buf2, ID_MANUAL_POS_X5, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_MANUAL_POS_UP, true);
@@ -136,7 +136,7 @@ void lv_draw_manual_level_pos_settings() {
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_MANUAL_POS_RETURN, true);
 }
 
-void lv_clear_manual_level_pos_settings() {
+void lv_clear_tramming_pos_settings() {
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
   #endif
