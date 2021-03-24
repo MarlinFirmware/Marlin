@@ -877,7 +877,7 @@ class Temperature {
       #endif
     #endif
 
-    #if ENABLED(HAS_DISPLAY)
+    #if HAS_STATUS_MESSAGE
       static void set_heating_message(const uint8_t e);
     #endif
 
