@@ -1468,9 +1468,7 @@ void MarlinUI::update() {
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
- 
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1591,9 +1589,8 @@ void MarlinUI::update() {
 
   #endif
 
-#else // !HAS_DISPLAY
+#elif !HAS_STATUS_MESSAGE // && !HAS_DISPLAY
 
-  #if !HAS_STATUS_MESSAGE
   //
   // Send the status line as a host notification
   //
@@ -1606,9 +1603,8 @@ void MarlinUI::update() {
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
-  #endif
 
-#endif // !HAS_DISPLAY
+#endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
 
 #if ENABLED(SDSUPPORT)
 
