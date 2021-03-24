@@ -26,6 +26,9 @@
 #define _MSG_COOLER(M)  MSG_COOLER_##M
 #define MSG_COOLER(M)   _MSG_COOLER(M)
 #define FLOW_RATE_MLPP   0.170068   // ml per pulse
+#ifndef FLOWMETER_INTERVAL
+  #define FLOWMETER_INTERVAL 1000   // Default interval if not define in configuration_adv.h 
+#endif
 
 // Cooling device
 
