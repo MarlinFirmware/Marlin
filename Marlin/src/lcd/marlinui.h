@@ -56,6 +56,8 @@
   #include "../module/motion.h" // for active_extruder
 #endif
 
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
+
 #if HAS_WIRED_LCD
 
   enum LCDViewAction : uint8_t {

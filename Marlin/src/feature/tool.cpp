@@ -67,7 +67,7 @@ void MarlinTool::select(const ToolType intype) {
     default: return;
   }
 
-  // Turn Timer 5 on or off depending on tool
+  // Set PWM Timer on or off depending on tool
   //set_pwm_frequency(FAN_PIN type == TOOL_TYPE_LASER ? 25000 : 0);
 
   // Kill heaters when changing tool modes

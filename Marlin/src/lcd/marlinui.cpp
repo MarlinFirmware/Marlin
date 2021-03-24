@@ -44,9 +44,6 @@ MarlinUI ui;
   #include "../gcode/queue.h"
   #include "fontutils.h"
   #include "../sd/cardreader.h"
-  #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-  #endif
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
