@@ -336,7 +336,7 @@
   #define LCD_STR_CLOCK       "\x05"
   #define LCD_STR_FEEDRATE    "\x06"
   #define LCD_STR_BEDTEMP     "\x07"
-  #define LCD_STR_THERMOMETER "\x08" 
+  #define LCD_STR_THERMOMETER "\x08"
   #define LCD_STR_DEGREE      "\x09"
 
 
