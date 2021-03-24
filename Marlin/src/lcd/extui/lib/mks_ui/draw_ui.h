@@ -202,7 +202,7 @@ typedef struct {
             filamentchange_load_speed,
             filamentchange_unload_length,
             filamentchange_unload_speed;
-  int16_t   filament_limit_temp;
+  celsius_t filament_limit_temp;
   float     pausePosX, pausePosY, pausePosZ;
   uint32_t  curFilesize;
 } CFG_ITMES;
@@ -244,7 +244,7 @@ typedef struct {
            filament_loading_time_cnt,
            filament_unloading_time_cnt;
   float move_dist;
-  float hotendTargetTempBak;
+  celsius_t hotendTargetTempBak;
   float current_x_position_bak,
         current_y_position_bak,
         current_z_position_bak,
