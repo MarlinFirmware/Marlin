@@ -52,6 +52,7 @@ bool PersistentStore::access_start() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+  size_t written = 0;
   while (size--) {
     uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
@@ -59,6 +60,8 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
+      // Avoid triggering watchdog during long EEPROM writes
+      if (++written & 0x7F) delay(2); else safe_delay(2);
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
