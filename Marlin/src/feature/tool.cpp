@@ -88,7 +88,7 @@ void MarlinTool::report() {
 
 bool MarlinTool::is_selected(const ToolType intype, const bool noerr/*=false*/) {
   if (type != intype) {
-    if (!noerr) SERIAL_ERROR_MSG(MSG_ERR_WRONG_TOOL);
+    if (!noerr) SERIAL_ERROR_MSG(STR_ERR_WRONG_TOOL);
     return true;
   }
   return false;

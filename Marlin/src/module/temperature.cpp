@@ -502,7 +502,7 @@ volatile bool Temperature::raw_temps_ready = false;
   void Temperature::PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
 
     // The extruder must be the current tool
-    if (!TERN1(HAS_TOOLS, tool.is_selected(TOOL_TYPE_EXTRUDER)))
+    if (TERN0(HAS_TOOLS, !tool.is_selected(TOOL_TYPE_EXTRUDER)))
       return;
 
     float current_temp = 0.0;
