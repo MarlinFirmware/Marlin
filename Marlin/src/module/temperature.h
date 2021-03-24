@@ -326,14 +326,28 @@ class Temperature {
       static const celsius_t hotend_maxtemp[HOTENDS];
       FORCE_INLINE static celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
-    TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
-    TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
-    TERN_(HAS_TEMP_CHAMBER, static chamber_info_t temp_chamber);
-    TERN_(HAS_TEMP_COOLER, static cooler_info_t temp_cooler);
+    #if ENABLED(HAS_HEATED_BED)
+      static bed_info_t temp_bed;
+    #endif
+    #if ENABLED(HAS_TEMP_PROBE)
+      static probe_info_t temp_probe;
+    #endif
+    #if ENABLED(HAS_TEMP_CHAMBER)
+      static chamber_info_t temp_chamber;
+    #endif
+    #if ENABLED(HAS_TEMP_COOLER)
+      static cooler_info_t temp_cooler;
+    #endif
 
-    TERN_(AUTO_POWER_E_FANS, static uint8_t autofan_speed[HOTENDS]);
-    TERN_(AUTO_POWER_CHAMBER_FAN, static uint8_t chamberfan_speed);
-    TERN_(AUTO_POWER_COOLER_FAN, static uint8_t coolerfan_speed);
+    #if ENABLED(AUTO_POWER_E_FANS)
+      static uint8_t autofan_speed[HOTENDS];
+    #endif
+    #if ENABLED(AUTO_POWER_CHAMBER_FAN)
+      static uint8_t chamberfan_speed;
+    #endif
+    #if ENABLED(AUTO_POWER_COOLER_FAN)
+      static uint8_t coolerfan_speed;
+    #endif
 
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
@@ -403,11 +417,15 @@ class Temperature {
 
   private:
 
-    TERN_(EARLY_WATCHDOG, static bool inited);   // If temperature controller is running
+    #if ENABLED(EARLY_WATCHDOG)
+      static bool inited;   // If temperature controller is running
+    #endif
 
     static volatile bool raw_temps_ready;
 
-    TERN_(WATCH_HOTENDS, static hotend_watch_t watch_hotend[HOTENDS]);
+    #if ENABLED(WATCH_HOTENDS)
+      static hotend_watch_t watch_hotend[HOTENDS];
+    #endif
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static uint16_t redundant_temperature_raw;
@@ -419,22 +437,30 @@ class Temperature {
       static lpq_ptr_t lpq_ptr;
     #endif
 
-    TERN_(HAS_HOTEND, static temp_range_t temp_range[HOTENDS]);
+    #if ENABLED(HAS_HOTEND)
+      static temp_range_t temp_range[HOTENDS];
+    #endif
 
     #if HAS_HEATED_BED
-      TERN_(WATCH_BED, static bed_watch_t watch_bed);
+      #if ENABLED(WATCH_BED)
+        static bed_watch_t watch_bed;
+      #endif
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       static int16_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
     #if HAS_HEATED_CHAMBER
-      TERN_(WATCH_CHAMBER, static chamber_watch_t watch_chamber);
+      #if ENABLED(WATCH_CHAMBER)
+        static chamber_watch_t watch_chamber;
+      #endif
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
     #if HAS_COOLER
-      TERN_(WATCH_COOLER, static cooler_watch_t watch_cooler);
+      #if ENABLED(WATCH_COOLER)
+        static cooler_watch_t watch_cooler;
+      #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
@@ -447,9 +473,13 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    TERN_(HAS_AUTO_FAN, static millis_t next_auto_fan_check_ms);
+    #if ENABLED(HAS_AUTO_FAN)
+      static millis_t next_auto_fan_check_ms;
+    #endif
 
-    TERN_(PROBING_HEATERS_OFF, static bool paused);
+    #if ENABLED(PROBING_HEATERS_OFF)
+      static bool paused;
+    #endif
 
   public:
     #if HAS_ADC_BUTTONS
@@ -457,7 +487,9 @@ class Temperature {
       static uint16_t ADCKey_count;
     #endif
 
-    TERN_(PID_EXTRUSION_SCALING, static int16_t lpq_len);
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
+    #endif
 
     /**
      * Instance Methods
@@ -534,7 +566,9 @@ class Temperature {
 
       static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
 
-      TERN_(ADAPTIVE_FAN_SLOWING, static uint8_t fan_speed_scaler[FAN_COUNT]);
+      #if ENABLED(ADAPTIVE_FAN_SLOWING)
+        static uint8_t fan_speed_scaler[FAN_COUNT];
+      #endif
 
       static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
         UNUSED(target); // Potentially unused!
@@ -843,7 +877,9 @@ class Temperature {
       #endif
     #endif
 
-    TERN_(HAS_DISPLAY, static void set_heating_message(const uint8_t e));
+    #if ENABLED(HAS_DISPLAY)
+      static void set_heating_message(const uint8_t e);
+    #endif
 
     #if HAS_LCD_MENU && HAS_TEMPERATURE
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
@@ -866,9 +902,15 @@ class Temperature {
 
     static void checkExtruderAutoFans();
 
-    TERN_(HAS_HOTEND,     static float get_pid_output_hotend(const uint8_t e));
-    TERN_(PIDTEMPBED,     static float get_pid_output_bed());
-    TERN_(PIDTEMPCHAMBER, static float get_pid_output_chamber());
+    #if ENABLED(HAS_HOTEND)
+      static float get_pid_output_hotend(const uint8_t e);
+    #endif
+    #if ENABLED(PIDTEMPBED)
+      static float get_pid_output_bed();
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      static float get_pid_output_chamber();
+    #endif
 
     static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
