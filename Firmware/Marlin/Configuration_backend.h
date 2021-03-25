@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.24a"
+#define UNIFIED_VERSION "TH3D UFW 2.24b"
 
 /**
  * TH3D Sanity Checks
@@ -14,6 +14,10 @@
 
 #if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
   #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+#endif
+
+#if ENABLED(BLTOUCH) && DISABLED(CUSTOM_PROBE)
+  #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
 #endif
 
 /**

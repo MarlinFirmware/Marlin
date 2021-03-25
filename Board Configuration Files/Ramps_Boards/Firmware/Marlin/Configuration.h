@@ -648,6 +648,8 @@
   #if ENABLED(SIDEWINDER_X1)
     #define MKS_MINI_12864
     
+    #define DEFAULT_LCD_CONTRAST 200
+    
     #if ENABLED(REVERSE_KNOB_DIRECTION)
       #define REVERSE_ENCODER_DIRECTION
     #endif
@@ -664,8 +666,6 @@
       #define REVERSE_ENCODER_DIRECTION
     #endif
   #endif
-
-  #define DEFAULT_LCD_CONTRAST 150
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_MKS_GEN_L
