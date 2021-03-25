@@ -22,13 +22,13 @@
  */
 #ifdef __IMXRT1062__
 
-#include "../../inc/MarlinConfig.h"
-
-#if USE_WIRED_EEPROM
-
 /**
  * HAL PersistentStore for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
+
+#include "../../inc/MarlinConfig.h"
+
+#if USE_WIRED_EEPROM
 
 #include "../shared/eeprom_api.h"
 #include <avr/eeprom.h>
@@ -42,6 +42,7 @@ bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+  uint16_t written = 0;
   while (size--) {
     uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
@@ -49,6 +50,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
+      if (++written & 0x7F) delay(2); else safe_delay(2); // Avoid triggering watchdog during long EEPROM writes
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;

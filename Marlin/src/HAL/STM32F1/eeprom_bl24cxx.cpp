@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifdef __STM32F1__
 
 /**
  * PersistentStore for Arduino-style EEPROM interface
  * with simple implementations supplied by Marlin.
  */
-
-#ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -48,7 +47,7 @@ bool PersistentStore::access_start()  { eeprom_init(); return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  size_t written = 0;
+  uint16_t written = 0;
   while (size--) {
     uint8_t v = *value;
     uint8_t * const p = (uint8_t * const)pos;
