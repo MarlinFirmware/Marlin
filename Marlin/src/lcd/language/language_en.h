@@ -278,7 +278,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Enclosure");
   PROGMEM Language_Str MSG_COOLER                          = _UxGT("Laser Coolant");
   PROGMEM Language_Str MSG_COOLER_TOGGLE                   = _UxGT("Toggle Cooler");
-  PROGMEM Language_Str MSG_FLOWMETER_SAFETY                = _UxGT("Flowmeter Safety");
+  PROGMEM Language_Str MSG_FLOWMETER_SAFETY                = _UxGT("Flow Safety");
   PROGMEM Language_Str MSG_LASER                           = _UxGT("Laser");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Fan Speed");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Fan Speed ~");
