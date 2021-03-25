@@ -102,7 +102,7 @@
 
     current_position.set(0.0, 0.0);
 
-    #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
       #if AXIS_HAS_STALLGUARD(X2)

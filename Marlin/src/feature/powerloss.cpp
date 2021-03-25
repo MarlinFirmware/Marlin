@@ -201,10 +201,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     #if EXTRUDERS
-      HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+      HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
-    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
+    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
 
     #if HAS_FAN
       COPY(info.fan_speed, thermalManager.fan_speed);
@@ -343,7 +343,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   #if HAS_HEATED_BED
-    const int16_t bt = info.target_temperature_bed;
+    const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
       sprintf_P(cmd, PSTR("M190 S%i"), bt);
@@ -354,7 +354,7 @@ void PrintJobRecovery::resume() {
   // Restore all hotend temperatures
   #if HAS_HOTEND
     HOTEND_LOOP() {
-      const int16_t et = info.target_temperature[e];
+      const celsius_t et = info.target_temperature[e];
       if (et) {
         #if HAS_MULTI_HOTEND
           sprintf_P(cmd, PSTR("T%i S"), e);

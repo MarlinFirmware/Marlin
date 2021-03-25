@@ -463,13 +463,13 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x,               // Used in mode 0 & 1
-               duplicate_extruder_x_offset;       // Used in mode 2 & 3
-  extern xyz_pos_t raised_parked_position;        // Used in mode 1
-  extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;              // Used in mode 1
-  extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
-  extern bool idex_mirrored_mode;                 // Used in mode 3
+  extern float inactive_extruder_x,                 // Used in mode 0 & 1
+               duplicate_extruder_x_offset;         // Used in mode 2 & 3
+  extern xyz_pos_t raised_parked_position;          // Used in mode 1
+  extern bool active_extruder_parked;               // Used in mode 1, 2 & 3
+  extern millis_t delayed_move_time;                // Used in mode 1
+  extern celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+  extern bool idex_mirrored_mode;                   // Used in mode 3
 
   FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
