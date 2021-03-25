@@ -520,15 +520,15 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
-    const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
-                t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
+    const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const float t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1 + 0.5));
+  lcd_put_u8str(i16tostr3rj(t1));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -541,7 +541,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     }
     else
   #endif
-      lcd_put_u8str(i16tostr3left(t2 + 0.5));
+      lcd_put_u8str(i16tostr3left(t2));
 
   if (prefix >= 0) {
     lcd_put_wchar(LCD_STR_DEGREE[0]);
@@ -571,9 +571,9 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
 #if ENABLED(LCD_PROGRESS_BAR)
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
-    const int16_t tix = (int16_t)(percent * (LCD_WIDTH) * 3) / 100,
-              cel = tix / 3,
-              rem = tix % 3;
+    const int16_t tix = int16_t(percent * (LCD_WIDTH) * 3) / 100,
+                  cel = tix / 3,
+                  rem = tix % 3;
     uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
     msg[LCD_WIDTH] = '\0';

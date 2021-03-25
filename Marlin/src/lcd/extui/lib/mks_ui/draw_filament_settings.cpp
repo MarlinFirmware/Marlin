@@ -107,7 +107,7 @@ void lv_draw_filament_settings() {
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_DOWN, true);
   }
   else {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filament_limit_temper);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filament_limit_temp);
     lv_screen_menu_item_1_edit(scr, machine_menu.FilamentTemperature, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_TEMP, 0, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_UP, true);
