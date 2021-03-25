@@ -21,6 +21,10 @@ For best results getting help with configuration and troubleshooting, please use
 - [TH3D Help Center](https://support.th3dstudio.com)
 - [TH3D Customer Facebook Group](http://fbgroup.th3dstudio.com/)
 
+## Versioning
+
+Any version number changes indicate a new printer addition and/or core feature change. Version numbers with letters appended (ex: 2.24a) are ones with bugfixes or additions that only affect some configurations. Read the [release notes on a release](https://github.com/th3dstudio/UnifiedFirmware/releases) for full details on what has changed between releases.
+
 ## Bug Reporting
 
 If you find bugs, report them to the TH3D Studio team here:  [Contact Us](https://contactus.th3dstudio.com).
