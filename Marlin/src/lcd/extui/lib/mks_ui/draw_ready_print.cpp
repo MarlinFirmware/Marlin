@@ -246,7 +246,7 @@ void lv_draw_ready_print() {
         sprintf_P(buf, PSTR("%d"), (int)thermalManager.degHotend(1));
         lv_label_set_text(labelExt2, buf);
         lv_obj_align(labelExt2, buttonExt2, LV_ALIGN_CENTER, 0, LABEL_MOD_Y);
-        sprintf_P(buf, PSTR("-> %d"), int)thermalManager.degTargetHotend(1));
+        sprintf_P(buf, PSTR("-> %d"), (int)thermalManager.degTargetHotend(1));
         lv_label_set_text(labelExt2Target, buf);
         lv_obj_align(labelExt2Target, buttonExt2, LV_ALIGN_CENTER, 0, TARGET_LABEL_MOD_Y);
       #endif
