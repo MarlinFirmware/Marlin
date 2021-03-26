@@ -816,7 +816,7 @@ void DGUSScreenHandler::InitMeshValues() {
       safe_delay(100);
     }
 
-    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + MESH_LEVEL_MAX_POINTS));
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + GRID_MAX_POINTS));
   } else {
     ResetMeshValues();
   }
