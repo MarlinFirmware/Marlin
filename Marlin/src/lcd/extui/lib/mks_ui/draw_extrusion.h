@@ -25,13 +25,13 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_extrusion();
-extern void lv_clear_extrusion();
-extern void disp_ext_type();
-extern void disp_ext_step();
-extern void disp_ext_speed();
-extern void disp_hotend_temp();
-extern void disp_extru_amount();
+void lv_draw_extrusion();
+void lv_clear_extrusion();
+void disp_ext_type();
+void disp_ext_step();
+void disp_ext_speed();
+void disp_hotend_temp();
+void disp_extru_amount();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
