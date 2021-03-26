@@ -3555,6 +3555,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
     case Resume:
       Draw_Popup((char*)"Resume Print?", (char*)"Looks Like the last", (char*)"print was interupted.", Popup);
       break;
+    case ConfLevel:
+      Draw_Popup((char*)"Confirm Leveling", (char*)"", (char*)"", Popup);
+      break;
     case SaveLevel:
       Draw_Popup((char*)"Leveling Complete", (char*)"Save to EEPROM?", (char*)"", Popup);
       break;
@@ -3660,10 +3663,7 @@ inline void CrealityDWINClass::Main_Menu_Control() {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           Draw_Menu(UBL);
         #elif HAS_ONESTEP_LEVELING
-          Popup_Handler(Level);
-          gcode.process_subcommands_now_P(PSTR("G28\nG29"));
-          planner.synchronize();
-          Popup_Handler(SaveLevel);
+          Popup_Handler(ConfLevel);
         #elif ENABLED(PROBE_MANUALLY)
           gridpoint = 1;
           if (axes_should_home()) {
@@ -3994,6 +3994,16 @@ inline void CrealityDWINClass::Popup_Control() {
         }
         else {
           Redraw_Menu();
+        }
+        break;
+      case ConfLevel:
+        if (selection==0) {
+          Popup_Handler(Level);
+          gcode.process_subcommands_now_P(PSTR("G28\nG29"));
+          planner.synchronize();
+          Popup_Handler(SaveLevel);
+        } else {
+          Draw_Main_Menu(3);
         }
         break;
       case SaveLevel:
