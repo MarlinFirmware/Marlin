@@ -2603,8 +2603,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   Popup_Handler(Heating);
-                  thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-                  thermalManager.setTargetBed(LEVELING_BED_TEMP);
+                  if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
+                    thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+                  if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
+                    thermalManager.setTargetBed(LEVELING_BED_TEMP);
                   thermalManager.wait_for_hotend(0);
                   thermalManager.wait_for_bed_heating();
                 #endif
@@ -2628,8 +2630,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               #if ENABLED(PREHEAT_BEFORE_LEVELING)
                 Popup_Handler(Heating);
-                thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-                thermalManager.setTargetBed(LEVELING_BED_TEMP);
+                if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
+                  thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
+                if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
+                  thermalManager.setTargetBed(LEVELING_BED_TEMP);
                 thermalManager.wait_for_hotend(0);
                 thermalManager.wait_for_bed_heating();
               #endif
