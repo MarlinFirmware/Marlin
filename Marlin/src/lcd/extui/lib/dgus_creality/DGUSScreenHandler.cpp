@@ -785,7 +785,7 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     if (GetPreviousScreen() == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
       // If the user is in the leveling workflow (not printing), get that hotend out of the way
       char gcodeBuffer[50] = {0};
-      sprintf_P(gcodeBuffer, PSTR("G0 F2500 X%d Y%d Z%d\nM84"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
+      sprintf_P(gcodeBuffer, PSTR("G0 F3500 X%d\nG0 Y%d\nG0 Z%d\nM84"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
       queue.inject(gcodeBuffer);
 
       // Change text at the top
