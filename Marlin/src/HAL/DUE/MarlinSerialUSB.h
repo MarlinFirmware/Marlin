@@ -39,7 +39,7 @@ struct MarlinSerialUSB {
   int peek();
   int read();
   void flush();
-  bool available();
+  int available();
   size_t write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
@@ -50,7 +50,7 @@ struct MarlinSerialUSB {
     FORCE_INLINE int rxMaxEnqueued() { return 0; }
   #endif
 };
-typedef Serial0Type<MarlinSerialUSB> MSerialT;
+typedef Serial1Class<MarlinSerialUSB> MSerialT;
 
 #if SERIAL_PORT == -1
   extern MSerialT customizedSerial1;

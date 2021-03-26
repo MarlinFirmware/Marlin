@@ -47,6 +47,25 @@
 
 #if ANY(HAS_DIGITAL_BUTTONS, DWIN_CREALITY_LCD, CREALITY_DWIN_EXTUI)
 
+  #define EN_KEYPAD_F1      _BV(BTN_OFFSET + BLEN_KEYPAD_F1)
+  #define EN_KEYPAD_F2      _BV(BTN_OFFSET + BLEN_KEYPAD_F2)
+  #define EN_KEYPAD_F3      _BV(BTN_OFFSET + BLEN_KEYPAD_F3)
+  #define EN_KEYPAD_DOWN    _BV(BTN_OFFSET + BLEN_KEYPAD_DOWN)
+  #define EN_KEYPAD_RIGHT   _BV(BTN_OFFSET + BLEN_KEYPAD_RIGHT)
+  #define EN_KEYPAD_MIDDLE  _BV(BTN_OFFSET + BLEN_KEYPAD_MIDDLE)
+  #define EN_KEYPAD_UP      _BV(BTN_OFFSET + BLEN_KEYPAD_UP)
+  #define EN_KEYPAD_LEFT    _BV(BTN_OFFSET + BLEN_KEYPAD_LEFT)
+
+  #define RRK(B) (keypad_buttons & (B))
+
+  #ifdef EN_C
+    #define BUTTON_CLICK() ((buttons & EN_C) || RRK(EN_KEYPAD_MIDDLE))
+  #else
+    #define BUTTON_CLICK() RRK(EN_KEYPAD_MIDDLE)
+  #endif
+#endif
+
+#if ANY(HAS_DIGITAL_BUTTONS, DWIN_CREALITY_LCD, CREALITY_DWIN_EXTUI)
   // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
   #define BLEN_A 0
   #define BLEN_B 1
@@ -62,9 +81,7 @@
   #endif
 
   #if ENABLED(LCD_I2C_VIKI)
-
     #include <LiquidTWI2.h>
-
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
@@ -84,21 +101,15 @@
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
-
     #if !BUTTON_EXISTS(ENC) // Use I2C if not directly connected to a pin
-
       #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
       #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
       #define BUTTON_CLICK() (buttons & B_MI)
-
     #endif
-
   #endif
-
 #else
-
   #undef BUTTON_EXISTS
   #define BUTTON_EXISTS(...) false
 
@@ -121,37 +132,6 @@
 
   #ifndef BUTTON_CLICK
     #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
-  #endif
-
-#endif
-
-#if IS_RRW_KEYPAD
-  #define BTN_OFFSET          0 // Bit offset into buttons for shift register values
-
-  #define BLEN_KEYPAD_F3      0
-  #define BLEN_KEYPAD_F2      1
-  #define BLEN_KEYPAD_F1      2
-  #define BLEN_KEYPAD_DOWN    3
-  #define BLEN_KEYPAD_RIGHT   4
-  #define BLEN_KEYPAD_MIDDLE  5
-  #define BLEN_KEYPAD_UP      6
-  #define BLEN_KEYPAD_LEFT    7
-
-  #define EN_KEYPAD_F1      _BV(BTN_OFFSET + BLEN_KEYPAD_F1)
-  #define EN_KEYPAD_F2      _BV(BTN_OFFSET + BLEN_KEYPAD_F2)
-  #define EN_KEYPAD_F3      _BV(BTN_OFFSET + BLEN_KEYPAD_F3)
-  #define EN_KEYPAD_DOWN    _BV(BTN_OFFSET + BLEN_KEYPAD_DOWN)
-  #define EN_KEYPAD_RIGHT   _BV(BTN_OFFSET + BLEN_KEYPAD_RIGHT)
-  #define EN_KEYPAD_MIDDLE  _BV(BTN_OFFSET + BLEN_KEYPAD_MIDDLE)
-  #define EN_KEYPAD_UP      _BV(BTN_OFFSET + BLEN_KEYPAD_UP)
-  #define EN_KEYPAD_LEFT    _BV(BTN_OFFSET + BLEN_KEYPAD_LEFT)
-
-  #define RRK(B) (keypad_buttons & (B))
-
-  #ifdef EN_C
-    #define BUTTON_CLICK() ((buttons & EN_C) || RRK(EN_KEYPAD_MIDDLE))
-  #else
-    #define BUTTON_CLICK() RRK(EN_KEYPAD_MIDDLE)
   #endif
 #endif
 

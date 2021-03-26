@@ -51,7 +51,7 @@
   // Use hardware cycle counter instead, it's much safer
   void delay_dwt(uint32_t count) {
     // Reuse the ASM_CYCLES_PER_ITERATION variable to avoid wasting another useless variable
-    register uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
+    uint32_t start = HW_REG(_DWT_CYCCNT) - ASM_CYCLES_PER_ITERATION, elapsed;
     do {
       elapsed = HW_REG(_DWT_CYCCNT) - start;
     } while (elapsed < count);
@@ -106,13 +106,15 @@
   }
 
   #if ENABLED(MARLIN_DEV_MODE)
-    void dump_delay_accuracy_check()
-    {
-      auto report_call_time = [](PGM_P const name, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
+    void dump_delay_accuracy_check() {
+      auto report_call_time = [](PGM_P const name, PGM_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
-        serialprintPGM(name);
-        SERIAL_ECHOLNPAIR(" for ", cycles, "cycles took: ", total, "cycles");
-        if (do_flush) SERIAL_FLUSH();
+        SERIAL_ECHOPGM_P(name);
+        SERIAL_ECHOLNPAIR(" for ", cycles);
+        SERIAL_ECHOPGM_P(unit);
+        SERIAL_ECHOLNPAIR(" took: ", total);
+        SERIAL_ECHOPGM_P(unit);
+        if (do_flush) SERIAL_FLUSHTX();
       };
 
       uint32_t s, e;
@@ -123,41 +125,41 @@
       constexpr uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };
       for (auto i : testValues) {
         s = micros(); DELAY_US(i); e = micros();
-        report_call_time(PSTR("delay"), i, e - s);
+        report_call_time(PSTR("delay"), PSTR("us"), i, e - s);
       }
 
       if (HW_REG(_DWT_CTRL)) {
         for (auto i : testValues) {
           s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(i); e = HW_REG(_DWT_CYCCNT);
-          report_call_time(PSTR("delay"), i, e - s);
+          report_call_time(PSTR("runtime delay"), PSTR("cycles"), i, e - s);
         }
 
         // Measure the delay to call a real function compared to a function pointer
         s = HW_REG(_DWT_CYCCNT); delay_dwt(1); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(PSTR("delay_dwt"), 1, e - s);
+        report_call_time(PSTR("delay_dwt"), PSTR("cycles"), 1, e - s);
 
         static PGMSTR(dcd, "DELAY_CYCLES directly ");
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 1); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd,  1, e - s, false);
+        report_call_time(dcd, PSTR("cycles"),  1, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 5); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd,  5, e - s, false);
+        report_call_time(dcd, PSTR("cycles"),  5, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(10); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, 10, e - s, false);
+        report_call_time(dcd, PSTR("cycles"), 10, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(20); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, 20, e - s, false);
+        report_call_time(dcd, PSTR("cycles"), 20, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(50); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, 50, e - s, false);
+        report_call_time(dcd, PSTR("cycles"), 50, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(100); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, 100, e - s, false);
+        report_call_time(dcd, PSTR("cycles"), 100, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(200); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, 200, e - s, false);
+        report_call_time(dcd, PSTR("cycles"), 200, e - s, false);
       }
     }
   #endif // MARLIN_DEV_MODE
@@ -167,10 +169,7 @@
 
   void calibrate_delay_loop() {}
   #if ENABLED(MARLIN_DEV_MODE)
-    void dump_delay_accuracy_check() {
-      static PGMSTR(none, "N/A on this platform");
-      serialprintPGM(none);
-    }
+    void dump_delay_accuracy_check() { SERIAL_ECHOPGM_P(PSTR("N/A on this platform")); }
   #endif
 
 #endif

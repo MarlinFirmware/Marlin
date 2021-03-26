@@ -104,6 +104,7 @@
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
@@ -348,6 +349,31 @@
     }
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
     static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a slash
+    constexpr bool containsSlash(const char *str) {
+      return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
+    }
+    // Find the last position of the slash
+    constexpr const char* findLastSlashPos(const char* str) {
+      return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char* str) {
+      return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
 
 #else
 
