@@ -75,8 +75,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #else
     constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
   #endif
-
-
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
 #endif
@@ -1598,7 +1596,6 @@ void MarlinUI::update() {
 
 #elif !HAS_STATUS_MESSAGE // && !HAS_DISPLAY
 
-//  #if !HAS_STATUS_MESSAGE
   //
   // Send the status line as a host notification
   //
@@ -1611,7 +1608,6 @@ void MarlinUI::update() {
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
-//  #endif
 
 #endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
 

@@ -105,10 +105,6 @@
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 354
 
-// Fan speed limit
-#define FANON           255
-#define FANOFF          0
-
 // Print speed limit
 #define MIN_PRINT_SPEED  10
 #define MAX_PRINT_SPEED  999
@@ -116,16 +112,6 @@
 // Print flow limit
 #define MIN_PRINT_FLOW   10
 #define MAX_PRINT_FLOW   299
-
-// Temp limits
-#if HAS_HOTEND
-  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT))
-  #define MIN_E_TEMP    HEATER_0_MINTEMP
-#endif
-
-#if HAS_HEATED_BED
-  #define MIN_BED_TEMP  BED_MINTEMP
-#endif
 
 // Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
 #define MIN_MAXFEEDSPEED      1
@@ -991,7 +977,6 @@ void Goto_Main_Menu() {
   Clear_Main_Window();
 
   #ifdef USE_STRING_HEADINGS
-//    Draw_Title(GET_TEXT_F(MSG_MAIN));
     Draw_Title(MACHINE_NAME);   // M.A.R.C. MachineName
   #else
     DWIN_Frame_AreaCopy(1, 0, 2, 39, 12, 14, 9);
@@ -1792,7 +1777,6 @@ void Draw_Info_Menu() {
 
   DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
   DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
-  // DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
 
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen("Build Datetime") * MENU_CHR_W) / 2, 248, (char*)("Build Datetime"));    // M.A.R.C. Display Firmware build date-time
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 268, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
@@ -2010,7 +1994,7 @@ void HMI_Printing() {
     if (encoder_diffState == ENCODER_DIFF_ENTER) {
       HMI_flag.done_confirm_flag = false;
       dwin_abort_flag = true; // Reset feedrate, return to Home
-      Goto_Main_Menu(); // M.A.R.C. review if it is necessary
+      Goto_Main_Menu(); // M.A.R.C. review if it is necessary here
     }
     return;
   }
@@ -4199,7 +4183,7 @@ static char headertxt[31] = "";  // Print header text
   if (text!=nullptr) {
     const int8_t size = _MIN((unsigned) 30, strlen_P(text));
     LOOP_L_N(i, size) headertxt[i] = text[i];
-    headertxt[size+1] = '\0';
+    headertxt[size] = '\0';
   }    
   if (checkkey == PrintProcess){
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 60, DWIN_WIDTH, 60+16);

@@ -948,12 +948,6 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
- * Use the nozzle as the probe, with the hotend
- * assembly attached to a sensitive strain gauge.
- */
-//#define STRAIN_GAUGE_PROBE
-
-/**
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
@@ -2557,7 +2551,6 @@
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 #define DWIN_CREALITY_LCD
-#define GLOBAL_STATUS_MESSAGE  // M.A.R.C. Enable status messages
 
 //
 // MarlinUI for Creality's DWIN display (and others)
