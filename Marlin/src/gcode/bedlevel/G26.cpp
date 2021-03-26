@@ -113,6 +113,10 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(UBL_HILBERT_CURVE)
+  #include "../../feature/bedlevel/hilbert_curve.h"
+#endif
+
 #define EXTRUSION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
 #define OOZE_AMOUNT 0.3
@@ -178,6 +182,7 @@ int8_t g26_prime_flag;
 
 #endif
 
+#if DISABLED(UBL_HILBERT_CURVE)
 mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
   float closest = 99999.99;
   mesh_index_pair out_point;
@@ -211,6 +216,24 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
   circle_flags.mark(out_point); // Mark this location as done.
   return out_point;
 }
+#else
+static bool test_func(uint8_t i, uint8_t j, void *data) {
+  if (!circle_flags.marked(i, j)) {
+    mesh_index_pair *out_point = (mesh_index_pair *) data;
+    out_point->pos.set(i, j);  // Save its data
+    return true;
+  }
+  return false;
+}
+
+mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
+  mesh_index_pair out_point;
+  out_point.pos = -1;
+  hilbert_curve::search_from_closest(pos, test_func, &out_point);
+  circle_flags.mark(out_point); // Mark this location as done.
+  return out_point;
+}
+#endif
 
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
   static float last_z = -999.99;
