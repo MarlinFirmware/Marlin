@@ -2526,7 +2526,6 @@
 
 #if ENABLED(TFT_LVGL_UI)
   //#define MKS_WIFI_MODULE  // MKS WiFi module
-  //#define SWAP_OK_CANCEL   // Swap the positions of the 'Confirm' and 'Cancel' buttons
 #endif
 
 /**

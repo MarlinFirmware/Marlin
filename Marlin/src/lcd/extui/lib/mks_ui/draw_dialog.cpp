@@ -65,8 +65,10 @@ extern uint32_t upload_time;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
-#define BTN_OK_X      TERN(SWAP_OK_CANCEL, 280, 100)
-#define BTN_CANCEL_X  TERN(SWAP_OK_CANCEL, 100, 280)
+//#define CANCEL_ON_RIGHT   // Put 'Cancel' on the right (as it was before)
+
+#define BTN_OK_X      TERN(CANCEL_ON_RIGHT, 100, 280)
+#define BTN_CANCEL_X  TERN(CANCEL_ON_RIGHT, 280, 100)
 #define BTN_OK_Y      180
 #define BTN_CANCEL_Y  180
 
