@@ -25,11 +25,6 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-#define ICON_POS_Y 38
-#define TARGET_LABEL_MOD_Y -36
-#define LABEL_MOD_Y 30
-#define SECOND_EXT_MOD_Y 100
-
 extern void lv_draw_ready_print();
 extern void mks_disp_test();
 extern void disp_Limit_ok();

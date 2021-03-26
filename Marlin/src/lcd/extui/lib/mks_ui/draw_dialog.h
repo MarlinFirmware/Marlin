@@ -73,15 +73,6 @@ enum {
   DIALOG_WIFI_CONFIG_TIPS,
   DIALOG_TRANSFER_NO_DEVICE
 };
-#ifdef SWAP_OK_CANCEL
-  #define BTN_OK_X      280
-  #define BTN_CANCEL_X  100
-#else 
-  #define BTN_OK_X      100
-  #define BTN_CANCEL_X  280
-#endif
-#define BTN_OK_Y      180
-#define BTN_CANCEL_Y  180
 
 extern void lv_draw_dialog(uint8_t type);
 extern void lv_clear_dialog();
