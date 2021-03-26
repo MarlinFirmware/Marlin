@@ -111,7 +111,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valoare Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comenzi Personalizate");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comenzi Personalizate");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");

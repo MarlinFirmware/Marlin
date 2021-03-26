@@ -261,8 +261,8 @@ void menu_backlash();
     //
     #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
       EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      EDIT_ITEM(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - HOTEND_OVERSHOOT);
-      EDIT_ITEM(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - HOTEND_OVERSHOOT);
+      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp_min, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp_max, 0, thermalManager.hotend_max_target(0));
       EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
     #endif
 
@@ -315,7 +315,7 @@ void menu_backlash();
     #if ENABLED(PID_AUTOTUNE_MENU)
       #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
         _HOTEND_PID_EDIT_MENU_ITEMS(N); \
-        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.heater_maxtemp[N] - HOTEND_OVERSHOOT, []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
+        EDIT_ITEM_FAST_N(int3, N, MSG_PID_AUTOTUNE_E, &autotune_temp[N], 150, thermalManager.hotend_max_target(N), []{ _lcd_autotune(heater_id_t(MenuItemBase::itemIndex)); });
     #else
       #define HOTEND_PID_EDIT_MENU_ITEMS(N) _HOTEND_PID_EDIT_MENU_ITEMS(N);
     #endif

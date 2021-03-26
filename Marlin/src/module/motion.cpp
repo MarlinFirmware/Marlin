@@ -51,7 +51,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if HAS_DISPLAY
+#if HAS_STATUS_MESSAGE
   #include "../lcd/marlinui.h"
 #endif
 
@@ -940,11 +940,11 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
   DualXMode dual_x_carriage_mode         = DEFAULT_DUAL_X_CARRIAGE_MODE;
   float inactive_extruder_x              = X2_MAX_POS,                    // Used in mode 0 & 1
-        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // Used in mode 2
+        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // Used in mode 2 & 3
   xyz_pos_t raised_parked_position;                                       // Used in mode 1
-  bool active_extruder_parked            = false;                         // Used in mode 1 & 2
+  bool active_extruder_parked            = false;                         // Used in mode 1, 2 & 3
   millis_t delayed_move_time             = 0;                             // Used in mode 1
-  int16_t duplicate_extruder_temp_offset = 0;                             // Used in mode 2
+  celsius_t duplicate_extruder_temp_offset = 0;                           // Used in mode 2 & 3
   bool idex_mirrored_mode                = false;                         // Used in mode 3
 
   float x_home_pos(const uint8_t extruder) {
@@ -1144,7 +1144,7 @@ void prepare_line_to_destination() {
       );
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
-      TERN_(HAS_DISPLAY, ui.set_status(msg));
+      TERN_(HAS_STATUS_MESSAGE, ui.set_status(msg));
       return true;
     }
     return false;
