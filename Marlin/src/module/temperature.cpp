@@ -35,13 +35,9 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER
+#if HAS_COOLER || HAS_FLOWMETER
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
-#endif
-
-#if HAS_FLOWMETER
-  #include "../feature/cooler.h"
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
