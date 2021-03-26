@@ -200,15 +200,12 @@ void lv_draw_ready_print() {
     lv_img_set_src(buttonFanstate, "F:/bmp_fan_state.bin");
 
     lv_obj_set_pos(buttonExt1, 55, ICON_POS_Y);
-
     #if HAS_MULTI_EXTRUDER
       lv_obj_set_pos(buttonExt2, 55, ICON_POS_Y + SECOND_EXT_MOD_Y);
     #endif
-
     #if HAS_HEATED_BED
       lv_obj_set_pos(buttonBedstate, 210, ICON_POS_Y);
     #endif
-
     lv_obj_set_pos(buttonFanstate, 380, ICON_POS_Y);
 
     labelExt1 = lv_label_create(scr, 55, LABEL_MOD_Y, nullptr);

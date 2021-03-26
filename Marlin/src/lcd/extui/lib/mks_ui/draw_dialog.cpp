@@ -65,8 +65,8 @@ extern uint32_t upload_time;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
-#define BTN_OK_X      TERN_(SWAP_OK_CANCEL, 280, 100)
-#define BTN_CANCEL_X  TERN_(SWAP_OK_CANCEL, 100, 280)
+#define BTN_OK_X      TERN(SWAP_OK_CANCEL, 280, 100)
+#define BTN_CANCEL_X  TERN(SWAP_OK_CANCEL, 100, 280)
 #define BTN_OK_Y      180
 #define BTN_CANCEL_Y  180
 
