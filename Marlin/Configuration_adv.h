@@ -114,8 +114,6 @@
   #define CHAMBER_BETA                 3950    // Beta value
 #endif
 
-<<<<<<< HEAD
-=======
 #if TEMP_SENSOR_COOLER == 1000
   #define COOLER_PULLUP_RESISTOR_OHMS 4700    // Pullup resistor
   #define COOLER_RESISTANCE_25C_OHMS  100000  // Resistance at 25C
@@ -128,7 +126,6 @@
   #define PROBE_BETA                   3950    // Beta value
 #endif
 
->>>>>>> c55d53daa649c93d71a314726fd287c056975a23
 //
 // Hephestos 2 24V heated bed upgrade kit.
 // https://store.bq.com/en/heated-bed-kit-hephestos2
@@ -3219,15 +3216,10 @@
 /**
  * Synchronous Laser Control with M106/M107
  *
-<<<<<<< HEAD
- * By default M106 / M107 applies the new fan speed immediately. This is fine
- * for fans, but unsuitable for a PWM/TTL laser attached to the fan header.
-=======
  * Marlin normally applies M106/M107 fan speeds at a time "soon after" processing
  * a planner block. This is too inaccurate for a PWM/TTL laser attached to the fan
  * header (as with some add-on laser kits). Enable this option to set fan/laser
  * speeds with much more exact timing for improved print fidelity.
->>>>>>> c55d53daa649c93d71a314726fd287c056975a23
  *
  * NOTE: This option sacrifices some cooling fan speed options.
  */
@@ -3389,13 +3381,10 @@
   //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
 #endif
 
-<<<<<<< HEAD
-=======
 // Support for MeatPack G-code compression (https://github.com/scottmudge/OctoPrint-MeatPack)
 //#define MEATPACK_ON_SERIAL_PORT_1
 //#define MEATPACK_ON_SERIAL_PORT_2
 
->>>>>>> c55d53daa649c93d71a314726fd287c056975a23
 //#define GCODE_CASE_INSENSITIVE  // Accept G-code sent to the firmware in lowercase
 
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
@@ -3438,10 +3427,6 @@
  * User-defined menu items that execute custom GCode
  */
 
-<<<<<<< HEAD
-  #define USER_DESC_1 "Home & UBL Info"
-  #define USER_GCODE_1 "G28\nG29 W"
-=======
 // Custom Menu: Main Menu
 //#define CUSTOM_MENU_MAIN
 #if ENABLED(CUSTOM_MENU_MAIN)
@@ -3484,7 +3469,6 @@
   #define CONFIG_MENU_ITEM_1_DESC "Wifi ON"
   #define CONFIG_MENU_ITEM_1_GCODE "M118 [ESP110] WIFI-STA pwd=12345678"
   //#define CONFIG_MENU_ITEM_1_CONFIRM        // Show a confirmation dialog before this action
->>>>>>> c55d53daa649c93d71a314726fd287c056975a23
 
   #define CONFIG_MENU_ITEM_2_DESC "Bluetooth ON"
   #define CONFIG_MENU_ITEM_2_GCODE "M118 [ESP110] BT pwd=12345678"
