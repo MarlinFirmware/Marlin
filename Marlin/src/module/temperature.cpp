@@ -205,7 +205,7 @@
 #endif
 
 #if HAS_SERVOS
-  #include "./servo.h"
+  #include "servo.h"
 #endif
 
 #if ANY(TEMP_SENSOR_0_IS_THERMISTOR, TEMP_SENSOR_1_IS_THERMISTOR, TEMP_SENSOR_2_IS_THERMISTOR, TEMP_SENSOR_3_IS_THERMISTOR, \
