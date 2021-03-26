@@ -25,19 +25,19 @@
 #include <wiring_private.h>
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
-  #if ANY_SERIAL_IS(-1)
+  #if USING_HW_SERIALUSB
     DefaultSerial1 MSerial0(false, Serial);
   #endif
-  #if ANY_SERIAL_IS(0)
+  #if USING_HW_SERIAL0
     DefaultSerial2 MSerial1(false, Serial1);
   #endif
-  #if ANY_SERIAL_IS(1)
+  #if USING_HW_SERIAL1
     DefaultSerial3 MSerial2(false, Serial2);
   #endif
-  #if ANY_SERIAL_IS(2)
+  #if USING_HW_SERIAL2
     DefaultSerial4 MSerial3(false, Serial3);
   #endif
-  #if ANY_SERIAL_IS(3)
+  #if USING_HW_SERIAL3
     DefaultSerial5 MSerial4(false, Serial4);
   #endif
 #endif
