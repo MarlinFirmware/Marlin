@@ -864,14 +864,20 @@ namespace ExtUI {
       void moveToMeshPoint(const xy_uint8_t &pos, const float &z) {
         #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           const feedRate_t old_feedrate = feedrate_mm_s;
-          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
-          destination = current_position;
-          destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
-          prepare_line_to_destination();
-          feedrate_mm_s = XY_PROBE_FEEDRATE;
-          destination[X_AXIS] = MESH_MIN_X + pos.x * MESH_X_DIST;
-          destination[Y_AXIS] = MESH_MIN_Y + pos.y * MESH_Y_DIST;
-          prepare_line_to_destination();
+          const float x_target = MESH_MIN_X + pos.x * MESH_X_DIST;
+          const float y_target = MESH_MIN_Y + pos.y * MESH_Y_DIST;
+          if (x_target != current_position[X_AXIS] ||
+              y_target != current_position[Y_AXIS]) {
+            // If moving across bed, raise nozzle to safe distance above bed
+            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            destination = current_position;
+            destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+            prepare_line_to_destination();
+            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            destination[X_AXIS] = x_target;
+            destination[Y_AXIS] = y_target;
+            prepare_line_to_destination();
+          }
           feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
           destination[Z_AXIS] = z;
           prepare_line_to_destination();
