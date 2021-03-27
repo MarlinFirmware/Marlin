@@ -1125,7 +1125,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define MLEVEL_TR (MLEVEL_TL + 1)
       #define MLEVEL_BR (MLEVEL_TR + 1)
       #define MLEVEL_C (MLEVEL_BR + 1)
-      #define MLEVEL_TOTAL MLEVEL_C
+      #define MLEVEL_ZPOS (MLEVEL_C + 1)
+      #define MLEVEL_TOTAL MLEVEL_ZPOS
+
+      static float mlev_z_pos = 0;
 
       switch (item) {
         case MLEVEL_BACK:
@@ -1145,7 +1148,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y32.5\nG0 F300 Z0"));
+            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y32.5"));
+            char buf[20];
+            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
           }
@@ -1156,7 +1162,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y197.5\nG0 F300 Z0"));
+            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y197.5"));
+            char buf[20];
+            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
           }
@@ -1167,7 +1176,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y197.5\nG0 F300 Z0"));
+            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y197.5"));
+            char buf[20];
+            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
           }
@@ -1178,7 +1190,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y32.5\nG0 F300 Z0"));
+            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y32.5"));
+            char buf[20];
+            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
           }
@@ -1189,9 +1204,21 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X117.5 Y117.5\nG0 F300 Z0"));
+            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X117.5 Y117.5"));
+            char buf[20];
+            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
+          }
+          break;
+        case MLEVEL_ZPOS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Z Position");
+            Draw_Float(mlev_z_pos, row, false, 100);
+          }
+          else {
+            Modify_Value(mlev_z_pos, 0, MAX_Z_OFFSET, 100);
           }
           break;
       }
