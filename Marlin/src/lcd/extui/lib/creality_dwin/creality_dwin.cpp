@@ -1214,7 +1214,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_ZPOS:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Z Position");
+            Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Z Position");
             Draw_Float(mlev_z_pos, row, false, 100);
           }
           else {
@@ -1687,7 +1687,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if (PREHEAT_COUNT >= 1)
           case TEMP_PREHEAT1:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_1_LABEL);
+              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_1_LABEL, NULL, true);
             }
             else {
               Draw_Menu(Preheat1);
@@ -1697,7 +1697,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if (PREHEAT_COUNT >= 2)
           case TEMP_PREHEAT2:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_2_LABEL);
+              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_2_LABEL, NULL, true);
             }
             else {
               Draw_Menu(Preheat2);
@@ -1707,7 +1707,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if (PREHEAT_COUNT >= 3)
           case TEMP_PREHEAT3:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_3_LABEL);
+              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_3_LABEL, NULL, true);
             }
             else {
               Draw_Menu(Preheat3);
@@ -1717,7 +1717,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if (PREHEAT_COUNT >= 4)
           case TEMP_PREHEAT4:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_4_LABEL);
+              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_4_LABEL, NULL, true);
             }
             else {
               Draw_Menu(Preheat4);
@@ -1727,7 +1727,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if (PREHEAT_COUNT >= 5)
           case TEMP_PREHEAT5:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_5_LABEL);
+              Draw_Menu_Item(row, ICON_Step, (char*)PREHEAT_5_LABEL, NULL, true);
             }
             else {
               Draw_Menu(Preheat5);
@@ -2109,7 +2109,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MOTION_SPEED:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Max Speed");
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Max Speed", NULL, true);
           }
           else {
             Draw_Menu(MaxSpeed);
@@ -2117,7 +2117,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MOTION_ACCEL:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccelerated, (char*)"Max Acceleration");
+            Draw_Menu_Item(row, ICON_MaxAccelerated, (char*)"Max Acceleration", NULL, true);
           }
           else {
             Draw_Menu(MaxAcceleration);
@@ -2126,7 +2126,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if HAS_CLASSIC_JERK
           case MOTION_JERK:
             if (draw) {
-              Draw_Menu_Item(row, ICON_MaxJerk, (char*)"Max Jerk");
+              Draw_Menu_Item(row, ICON_MaxJerk, (char*)"Max Jerk", NULL, true);
             }
             else {
               Draw_Menu(MaxJerk);
@@ -2135,7 +2135,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif
         case MOTION_STEPS:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Step, (char*)"Steps/mm");
+            Draw_Menu_Item(row, ICON_Step, (char*)"Steps/mm", NULL, true);
           }
           else {
             Draw_Menu(Steps);
