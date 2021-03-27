@@ -805,6 +805,10 @@ void GUI_RefreshPage() {
       }
       break;
     case PRINT_READY_UI:
+      if (temps_update_flag) {
+        temps_update_flag = false;
+        lv_temp_refr();
+        }
       break;
 
     case PRINT_FILE_UI: break;
