@@ -39,6 +39,8 @@
   #endif
 #endif
 
+static constexpr size_t eeprom_data_size = 48;
+
 enum processID : uint8_t {
   // Process ID
   MainMenu,
@@ -78,6 +80,7 @@ enum processID : uint8_t {
   ProbeOff,
   ProbeOffX,
   ProbeOffY,
+  RunOut,
 
   // Back Process ID
   Back_Main,
@@ -107,8 +110,6 @@ enum processID : uint8_t {
 };
 
 extern uint8_t checkkey;
-extern float zprobe_zoffset;
-extern char print_filename[16];
 
 extern millis_t dwin_heat_time;
 
@@ -142,6 +143,12 @@ typedef struct {
   int16_t print_flow      = 100;
 } HMI_value_t;
 
+typedef struct {
+#if HAS_FILAMENT_SENSOR
+  boolean Runout_active_state;
+#endif
+} HMI_data_t;
+
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
 
@@ -165,6 +172,7 @@ typedef struct {
 
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
+extern HMI_data_t HMI_data;
 
 enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
@@ -266,6 +274,7 @@ void HMI_Step();            // Transmission ratio
 void HMI_Init();
 void HMI_Popup();
 
+void DWIN_Startup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
@@ -279,8 +288,11 @@ void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
 void DWIN_Start_Print(bool sd);
 void DWIN_Stop_Print();
+#if HAS_FILAMENT_SENSOR
 void DWIN_FilamentRunout(const uint8_t extruder);
-
-// Aditional Host and MarlinUI Support
+#endif
 void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
 void DWIN_Print_Header(const char *text);
+void DWIN_StoreSettings(char *buff);
+void DWIN_LoadSettings(const char *buff);
+void DWIN_Setdatadefaults();

@@ -49,6 +49,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
   PROGMEM Language_Str MSG_YES                             = _UxGT("YES");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
+  PROGMEM Language_Str MSG_HIGH                            = _UxGT("HIGH");
+  PROGMEM Language_Str MSG_LOW                             = _UxGT("LOW");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Back");
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Aborting...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
@@ -582,6 +584,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
+  PROGMEM Language_Str MSG_RUNOUT_ENABLE                   = _UxGT("Enable Runout");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
 

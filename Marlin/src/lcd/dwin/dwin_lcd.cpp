@@ -122,7 +122,7 @@ bool DWIN_Handshake(void) {
         && databuf[3] == 'K' );
 }
 
-void DWIN_Startup(void) {
+void DWIN_Init(void) {
   DEBUG_ECHOPGM("\r\nDWIN handshake ");
   delay(750);   // Delay here or init later in the boot process
   const bool success = DWIN_Handshake();

@@ -143,6 +143,7 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,        // Total rows, and other
 /* Value Init */
 HMI_value_t HMI_ValueStruct;
 HMI_Flag_t HMI_flag{0};
+HMI_data_t HMI_data;
 
 millis_t dwin_heat_time = 0;
 
@@ -382,7 +383,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
 }
 
 void Draw_Chkb_Line(const uint8_t line, bool mode){
-  DWIN_Draw_Checkbox(Color_White,Color_Bg_Black,220,MBASE(line),mode) ; 
+  DWIN_Draw_Checkbox(Color_White, Color_Bg_Black, 225, MBASE(line) - 1, mode) ; 
 }
 
 // The "Back" label is always on the first line
@@ -2165,17 +2166,16 @@ void Draw_AdvSet_Menu() {
   Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
 
   if (AVISI(0)) Draw_Back_First(select_advSet.now == 0);
-  if (AVISI(ADVSET_CASE_HOMEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HOMEOFF), ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);  // Home Offset
+  if (AVISI(ADVSET_CASE_HOMEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HOMEOFF), ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);  // Home Offset >
   #if HAS_ONESTEP_LEVELING
-  if (AVISI(ADVSET_CASE_PROBEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PROBEOFF), ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);  // Probe Offset
+  if (AVISI(ADVSET_CASE_PROBEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PROBEOFF), ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);  // Probe Offset >
   #endif
   if (AVISI(ADVSET_CASE_HEPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HEPID), ICON_PIDNozzle, "Hotend PID", false);  // Nozzle PID
   if (AVISI(ADVSET_CASE_BEDPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_BEDPID), ICON_PIDbed, "Bed PID", false);  // Bed PID
   #if HAS_FILAMENT_SENSOR
-  if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Menu_Line(ASCROL(ADVSET_CASE_RUNOUT), ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
-  if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_RUNOUT),runout.enabled);
+  if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Menu_Line(ASCROL(ADVSET_CASE_RUNOUT), ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), true);  // Runout Sensor >
   #endif 
-  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
+  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, "Power-loss recovery", false);  // Power-loss recovery
   if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_PWRLOSSR),recovery.enabled);
   if (select_advSet.now  && AVISI(select_advSet.now)) Draw_Menu_Cursor(ASCROL(select_advSet.now));
 }
@@ -2201,6 +2201,19 @@ void Draw_ProbeOff_Menu() {
   DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
 }
+
+#if HAS_FILAMENT_SENSOR
+void Draw_Runout_Menu() {
+  Clear_Main_Window();
+  Draw_Title(GET_TEXT_F(MSG_RUNOUT_SENSOR));                 // Runout Sensor
+  Draw_Back_First(select_item.now == 0);
+  Draw_Menu_Line(1, ICON_Runout, GET_TEXT(MSG_RUNOUT_ENABLE), false);  // Enable Runout Sensor
+  Draw_Chkb_Line(1, runout.enabled);
+  Draw_Menu_Line(2, ICON_Runout, "Active State", false);  // Runout Sensor Active State
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
+  if (select_item.now) Draw_Menu_Cursor(select_item.now);
+}
+#endif
 
 void Draw_FilamentMan_Menu(){
   Clear_Main_Window();
@@ -3243,7 +3256,7 @@ void HMI_Reboot() {
   queue.inject_P(PSTR("M997"));
 }
 
-/* Motion */
+/* Advanced Settings */
 void HMI_AdvSet() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
@@ -3260,8 +3273,7 @@ void HMI_AdvSet() {
         switch (index_advset) {  // Last menu items
           #if HAS_FILAMENT_SENSOR
           case ADVSET_CASE_RUNOUT :   // Runout sersor
-            Draw_Menu_Line(MROWS, ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
-            Draw_Chkb_Line(MROWS,runout.enabled);
+            Draw_Menu_Line(MROWS, ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), true);  // Runout Sensor >
             break;
           #endif
           case ADVSET_CASE_PWRLOSSR : // Power-lost recovery
@@ -3340,9 +3352,9 @@ void HMI_AdvSet() {
         break;
 #if HAS_FILAMENT_SENSOR
       case ADVSET_CASE_RUNOUT :  // Runout sensor
-        runout.reset();
-        runout.enabled = !runout.enabled;
-        Draw_Chkb_Line(ADVSET_CASE_RUNOUT + MROWS - index_advset,runout.enabled);
+        checkkey = RunOut;
+        select_item.reset();
+        Draw_Runout_Menu();
         break;
 #endif
       case ADVSET_CASE_PWRLOSSR :  // Power-loss recovery
@@ -3486,6 +3498,45 @@ void HMI_ProbeOffY(){
     NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
   }
+}
+#endif
+
+#if HAS_FILAMENT_SENSOR
+/* Runout */
+void HMI_RunOut() {
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_item.dec()) Move_Highlight(-1, select_item.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    switch (select_item.now) {
+      case 0: // Back
+        checkkey = AdvSet;
+        select_advSet.set(ADVSET_CASE_PROBEOFF);
+        Draw_AdvSet_Menu();
+        break;
+      case 1: // Active Runout sensor
+        runout.reset();
+        runout.enabled = !runout.enabled;
+        Draw_Chkb_Line(1,runout.enabled);
+        break;
+      case 2: // 
+        runout.reset();
+        runout.enabled = false;
+        Draw_Chkb_Line(1,runout.enabled);
+        HMI_data.Runout_active_state = !HMI_data.Runout_active_state;
+        DWIN_Draw_Rectangle(1, Color_Bg_Black, 216, MBASE(2), 216 + 4 * MENU_CHR_W, MBASE(2)+20);
+        DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
+        break;
+    }
+  }
+  DWIN_UpdateLCD();
 }
 #endif
 
@@ -4049,6 +4100,9 @@ void DWIN_HandleScreen() {
     case ProbeOffX:       HMI_ProbeOffX(); break;
     case ProbeOffY:       HMI_ProbeOffY(); break;
 #endif
+#if HAS_FILAMENT_SENSOR
+    case RunOut:          HMI_RunOut(); break;
+#endif
     case PidRunning:      break;
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
@@ -4191,6 +4245,17 @@ static char headertxt[31] = "";  // Print header text
   }
 }
 
+void DWIN_Setdatadefaults() {
+#if HAS_FILAMENT_SENSOR
+  HMI_data.Runout_active_state = FIL_RUNOUT1_STATE;
+#endif
+}
+
+// Startup routines
+void DWIN_Startup() {
+  DWIN_Init();
+}
+
 // Update Status line
 void DWIN_StatusChanged(const char *text) {
   DWIN_Draw_Rectangle(1, Color_Bg_LBlue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y+20);
@@ -4229,9 +4294,19 @@ void DWIN_Progress_Update(uint8_t percent, uint32_t remaining) {
   }
 }
 
+#if HAS_FILAMENT_SENSOR
 // Filament Runout process
 void DWIN_FilamentRunout(const uint8_t extruder){
   DWIN_StatusChanged(GET_TEXT(MSG_RUNOUT_SENSOR));
+}
+#endif
+
+void DWIN_StoreSettings(char *buff) {
+  memcpy(buff, &HMI_data, min(sizeof(HMI_data), eeprom_data_size));
+}
+
+void DWIN_LoadSettings(const char *buff) {
+  memcpy(&HMI_data, buff, min(sizeof(HMI_data), eeprom_data_size));
 }
 
 #endif // DWIN_CREALITY_LCD

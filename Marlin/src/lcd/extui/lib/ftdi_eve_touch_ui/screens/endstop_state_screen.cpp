@@ -23,6 +23,10 @@
 #include "../config.h"
 #include "screens.h"
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
 #ifdef FTDI_ENDSTOP_STATE_SCREEN
 
 using namespace FTDI;
@@ -91,7 +95,11 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
     PIN_DISABLED(5, 3, PSTR(STR_Z_MIN), Z_MIN)
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT)
-    PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, FIL_RUNOUT1_STATE)
+    #if ENABLED(DWIN_CREALITY_LCD)
+      PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, HMI_data.Runout_active_state)
+    #else
+      PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, FIL_RUNOUT1_STATE)
+    #endif
   #else
     PIN_DISABLED(1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT)
   #endif

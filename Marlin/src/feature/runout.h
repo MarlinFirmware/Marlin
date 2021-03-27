@@ -38,6 +38,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
 #ifndef FILAMENT_RUNOUT_THRESHOLD
   #define FILAMENT_RUNOUT_THRESHOLD 5
@@ -215,7 +219,11 @@ class FilamentSensorBase {
     static inline uint8_t poll_runout_states() {
       return poll_runout_pins() ^ uint8_t(0
         #if NUM_RUNOUT_SENSORS >= 1
+          #if ENABLED(DWIN_CREALITY_LCD)
+          | (HMI_data.Runout_active_state ? 0 : _BV(1 - 1))
+          #else
           | (FIL_RUNOUT1_STATE ? 0 : _BV(1 - 1))
+          #endif      
         #endif
         #if NUM_RUNOUT_SENSORS >= 2
           | (FIL_RUNOUT2_STATE ? 0 : _BV(2 - 1))
