@@ -45,7 +45,7 @@
  * -- TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209. ---//
  * =============================================================//
  */
-//#define DRIVER_EXT LV8729
+//#define DRIVER_EXT A4988  //LV8729
 
 /*__________________________3________________________________*/
         /** =============================
@@ -240,7 +240,7 @@
     #endif
 #endif
 //Add definition for UART9 for Q5
-#if BOTH(Q5, Q_UART9)
+#if BOTH(Q5, Q_UART8)||BOTH(Q5, Q_UART9)
     #define X_SERIAL_TX_PIN                   PA10  // RXD1
     #define X_SERIAL_RX_PIN                   PA10  // RXD1
     #define Y_SERIAL_TX_PIN                   PA9   // TXD1
