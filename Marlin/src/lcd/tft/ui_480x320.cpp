@@ -610,7 +610,7 @@ static void drawAxisValue(AxisEnum axis) {
       probe.offset.z :
     #endif
     NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? destination[axis] : current_position[axis] TERNADD(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
   xy_int_t pos;

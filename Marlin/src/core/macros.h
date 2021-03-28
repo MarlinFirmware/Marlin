@@ -195,6 +195,9 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
+#define TERNSUB(O,A)        _TERN(_ENA_1(O),,-A)    // OPTION converted to -A or '<nul>'
+#define TERNADD(O,A)        _TERN(_ENA_1(O),,+A)    // OPTION converted to +A or '<nul>'
+
 #define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
 
