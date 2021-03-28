@@ -44,7 +44,7 @@ void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
 
   bool got_temp = false;
-  int16_t temp = 0;
+  celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
@@ -94,7 +94,7 @@ void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
   bool got_temp = false;
-  int16_t temp = 0;
+  celsius_t temp = 0;
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
@@ -110,7 +110,7 @@ void GcodeSuite::M190() {
   if (!got_temp) {
     no_wait_for_cooling = parser.seenval('S');
     got_temp = no_wait_for_cooling || parser.seenval('R');
-    if (got_temp) temp = int16_t(parser.value_celsius());
+    if (got_temp) temp = parser.value_celsius();
   }
 
   if (!got_temp) return;

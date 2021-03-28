@@ -41,12 +41,13 @@
   #include "../../../module/temperature.h"
 #endif
 
+
 #if ENABLED(PROBING_HEATERS_OFF)
   #include "../../../module/temperature.h"
   #include "../../../module/printcounter.h"
 #endif
 
-#if HAS_DISPLAY
+#if HAS_STATUS_MESSAGE
   #include "../../../lcd/marlinui.h"
 #endif
 
@@ -650,7 +651,7 @@ G29_TYPE GcodeSuite::G29() {
           if (TERN0(IS_KINEMATIC, !probe.can_reach(probePos))) continue;
 
           if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl_points, ".");
-          TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl_points)));
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl_points)));
 
           measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(probePos, raise_after, verbose_level);
 
@@ -695,7 +696,7 @@ G29_TYPE GcodeSuite::G29() {
 
       LOOP_L_N(i, 3) {
         if (verbose_level) SERIAL_ECHOLNPAIR("Probing point ", i + 1, "/3.");
-        TERN_(HAS_DISPLAY, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
 
         // Retain the last probe position
         probePos = points[i];
@@ -718,7 +719,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    TERN_(HAS_DISPLAY, ui.reset_status());
+    TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {

@@ -327,7 +327,8 @@
   //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
   #define LCD_PINS_ENABLE                   PD13
@@ -369,4 +370,5 @@
     #endif
 
   #endif // !MKS_MINI_12864
-#endif // HAS_SPI_LCD
+
+#endif // HAS_WIRED_LCD
