@@ -40,11 +40,12 @@ static inline bool eval_candidate(int8_t x, int8_t y, hilbert_curve::callback_pt
 }
 
 bool hilbert_curve::hilbert(int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n, hilbert_curve::callback_ptr func, void *data) {
-  /* Hilbert space filling curve implementation
+  /**
+   * Hilbert space-filling curve implementation
    *
-   * x and y are the coordinates of the bottom left corner 
-   * xi & xj are the i & j components of the unit x vector of the frame 
-   * similarly yi and yj
+   * x  and y  : coordinates of the bottom left corner
+   * xi and xj : i and j components of the unit x vector of the frame
+   * yi and yj : i and j components of the unit y vector of the frame
    *
    * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
    */
@@ -107,4 +108,5 @@ bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::call
   LIMIT(grid_y, 0, GRID_MAX_POINTS_Y);
   return search_from(grid_x, grid_y, func, data);
 }
+
 #endif // UBL_HILBERT_CURVE
