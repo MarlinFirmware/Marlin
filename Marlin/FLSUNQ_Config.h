@@ -45,7 +45,7 @@
  * -- TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209. ---//
  * =============================================================//
  */
-//#define DRIVER_EXT A4988  //LV8729
+//#define DRIVER_EXT TMC2209_STANDALONE //A4988  //LV8729
 
 /*__________________________3________________________________*/
         /** =============================
@@ -70,7 +70,7 @@
 
 /*__________________________4______________________________*/
                   /*----  Modules -----*/
-//#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
+#define ESP_WIFI                   //(W) Module ESP8266/ESP12 (Default_QQS)
 //#define USES_MKS_WIFI_FUNCTION
 /*For LedStrip which need an external power source on Vcc pin.*/
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PC7)
@@ -122,6 +122,7 @@
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
 #define LCD_INFO_MENU              // Informations printer (Default).
+#define PROBE_OFFSET_WIZARD        // add Menu to manage the Z_OffSet
 //#define PREHEAT_SHORTCUT_MENU_ITEM // add preheat/temperatur menu (first page)
 
 // For user who change their nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
