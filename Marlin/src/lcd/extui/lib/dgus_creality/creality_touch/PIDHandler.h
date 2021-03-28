@@ -10,7 +10,7 @@ class PIDHandler {
 
     public:
         static uint16_t cycles;
-        static uint16_t calibration_temperature;
+        static celsius_t calibration_temperature;
         static bool fan_on;
         static PGM_P result_message;
 

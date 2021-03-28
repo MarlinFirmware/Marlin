@@ -20,7 +20,7 @@ class EstepsHandler {
         static float remaining_filament;
 
         static float filament_to_extrude;
-        static uint16_t calibration_temperature;
+        static celsius_t calibration_temperature;
 
     private:
         static void SaveSettingsAndReturn(bool fullConfirm);

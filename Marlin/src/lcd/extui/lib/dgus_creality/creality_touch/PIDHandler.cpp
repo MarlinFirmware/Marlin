@@ -19,7 +19,7 @@
 
 // Storage init
 uint16_t PIDHandler::cycles = 0;
-uint16_t PIDHandler::calibration_temperature = 0;
+celsius_t PIDHandler::calibration_temperature = 0;
 bool PIDHandler::fan_on = false;
 PGM_P PIDHandler::result_message = nullptr;
 

@@ -12,8 +12,8 @@ class MeshValidationHandler {
         static void OnMeshValidationFinish();
 
     public:
-        static uint16_t nozzle_temperature;
-        static uint16_t bed_temperature;
+        static celsius_t nozzle_temperature;
+        static celsius_t bed_temperature;
 
         static feedRate_t prev_feedrate;
 

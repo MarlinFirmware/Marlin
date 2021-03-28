@@ -17,8 +17,8 @@
 #include "../../../../../module/planner.h"
 #include "../../../../../gcode/gcode.h"
 
-uint16_t MeshValidationHandler::nozzle_temperature;
-uint16_t MeshValidationHandler::bed_temperature;
+celsius_t MeshValidationHandler::nozzle_temperature;
+celsius_t MeshValidationHandler::bed_temperature;
 bool MeshValidationHandler::is_running;
 bool MeshValidationHandler::started_from_screen;
 bool MeshValidationHandler::is_cancelling;

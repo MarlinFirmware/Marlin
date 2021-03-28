@@ -23,7 +23,7 @@ float EstepsHandler::calculated_esteps = 0;
 float EstepsHandler::remaining_filament = 0;
 float EstepsHandler::mark_filament_mm = 0;
 float EstepsHandler::filament_to_extrude = 0;
-uint16_t EstepsHandler::calibration_temperature = 0;
+celsius_t EstepsHandler::calibration_temperature = 0;
 
 void EstepsHandler::Init() {
     // Use steps
