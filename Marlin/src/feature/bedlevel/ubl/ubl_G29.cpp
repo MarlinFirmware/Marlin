@@ -49,6 +49,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(UBL_HILBERT_CURVE)
+  #include "../hilbert_curve.h"
+#endif
+
 #include <math.h>
 
 #define UBL_G29_P31
@@ -747,11 +751,9 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest  ? find_furthest_invalid_mesh_point()
-                          : TERN(UBL_HILBERT_CURVE,
-                              find_next_mesh_point(),
-                              find_closest_mesh_point_of_type(INVALID, nearby, true)
-                            );
+      best = do_furthest
+        ? find_furthest_invalid_mesh_point()
+        : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
@@ -1269,97 +1271,93 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
   return farthest;
 }
 
-mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const xy_pos_t &pos, const bool probe_relative/*=false*/, MeshFlags *done_flags/*=nullptr*/) {
-  mesh_index_pair closest;
-  closest.invalidate();
-  closest.distance = -99999.9f;
+#if ENABLED(UBL_HILBERT_CURVE)
 
-  // Get the reference position, either nozzle or probe
-  const xy_pos_t ref = probe_relative ? pos + probe.offset_xy : pos;
+  typedef struct {
+    MeshPointType   type;
+    MeshFlags       *done_flags;
+    bool            probe_relative;
+    mesh_index_pair closest;
+  } find_closest_t;
 
-  float best_so_far = 99999.99f;
-
-  GRID_LOOP(i, j) {
-    if ( (type == (isnan(z_values[i][j]) ? INVALID : REAL))
-      || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
+  static bool test_func(uint8_t i, uint8_t j, void *data) {
+    find_closest_t *d = (find_closest_t*)data;
+    if ( (d->type == (isnan(ubl.z_values[i][j]) ? INVALID : REAL))
+      || (d->type == SET_IN_BITMAP && !d->done_flags->marked(i, j))
     ) {
       // Found a Mesh Point of the specified type!
-      const xy_pos_t mpos = { mesh_index_to_xpos(i), mesh_index_to_ypos(j) };
+      const xy_pos_t mpos = { ubl.mesh_index_to_xpos(i), ubl.mesh_index_to_ypos(j) };
 
       // If using the probe as the reference there are some unreachable locations.
       // Also for round beds, there are grid points outside the bed the nozzle can't reach.
       // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-      if (!(probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
-        continue;
-
-      // Reachable. Check if it's the best_so_far location to the nozzle.
-
-      const xy_pos_t diff = current_position - mpos;
-      const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
-
-      // factor in the distance from the current location for the normal case
-      // so the nozzle isn't running all over the bed.
-      if (distance < best_so_far) {
-        best_so_far = distance;   // Found a closer location with the desired value type.
-        closest.pos.set(i, j);
-        closest.distance = best_so_far;
-      }
+      if (!(d->probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
+        return false;
+      d->closest.pos.set(i, j);
+      return true;
     }
-  } // GRID_LOOP
-
-  return closest;
-}
-
-#if ENABLED(UBL_HILBERT_CURVE)
-
-  constexpr int8_t  to_fix(int8_t  v) { return v << 1; }
-  constexpr int8_t  to_int(int8_t  v) { return v >> 1; }
-  constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
-  constexpr uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
-
-  void unified_bed_leveling::hilbert(mesh_index_pair &pt, int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n) {
-    /* Hilbert space filling curve implementation
-     *
-     * x and y are the coordinates of the bottom left corner
-     * xi & xj are the i & j components of the unit x vector of the frame
-     * similarly yi and yj
-     *
-     * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
-     */
-    if (n <= 0)
-      check_if_missing(pt, to_int(x+(xi+yi)/2),to_int(y+(xj+yj)/2));
-    else {
-      hilbert(pt, x,           y,           yi/2,  yj/2,  xi/2,  xj/2, n-1);
-      hilbert(pt, x+xi/2,      y+xj/2,      xi/2,  xj/2,  yi/2,  yj/2, n-1);
-      hilbert(pt, x+xi/2+yi/2, y+xj/2+yj/2, xi/2,  xj/2,  yi/2,  yj/2, n-1);
-      hilbert(pt, x+xi/2+yi,   y+xj/2+yj,  -yi/2, -yj/2, -xi/2, -xj/2, n-1);
-    }
+    return false;
   }
 
-  void unified_bed_leveling::check_if_missing(mesh_index_pair &pt, int x, int y) {
-      if (   pt.distance < 0
-          && x < GRID_MAX_POINTS_X
-          && y < GRID_MAX_POINTS_Y
-          && isnan(z_values[x][y])
-          && probe.can_reach(mesh_index_to_xpos(x), mesh_index_to_ypos(y))
+#endif
+
+mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const xy_pos_t &pos, const bool probe_relative/*=false*/, MeshFlags *done_flags/*=nullptr*/) {
+
+  #if ENABLED(UBL_HILBERT_CURVE)
+
+    find_closest_t d;
+    d.type           = type;
+    d.done_flags     = done_flags;
+    d.probe_relative = probe_relative;
+    d.closest.invalidate();
+    hilbert_curve::search_from_closest(pos, test_func, &d);
+    return d.closest;
+
+  #else
+
+    mesh_index_pair closest;
+    closest.invalidate();
+    closest.distance = -99999.9f;
+
+    // Get the reference position, either nozzle or probe
+    const xy_pos_t ref = probe_relative ? pos + probe.offset_xy : pos;
+
+    float best_so_far = 99999.99f;
+
+    GRID_LOOP(i, j) {
+      if ( (type == (isnan(z_values[i][j]) ? INVALID : REAL))
+        || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
       ) {
-        pt.pos.set(x, y);
-        pt.distance = 1;
+        // Found a Mesh Point of the specified type!
+        const xy_pos_t mpos = { mesh_index_to_xpos(i), mesh_index_to_ypos(j) };
+
+        // If using the probe as the reference there are some unreachable locations.
+        // Also for round beds, there are grid points outside the bed the nozzle can't reach.
+        // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
+
+        if (!(probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
+          continue;
+
+        // Reachable. Check if it's the best_so_far location to the nozzle.
+
+        const xy_pos_t diff = current_position - mpos;
+        const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
+
+        // factor in the distance from the current location for the normal case
+        // so the nozzle isn't running all over the bed.
+        if (distance < best_so_far) {
+          best_so_far = distance;   // Found a closer location with the desired value type.
+          closest.pos.set(i, j);
+          closest.distance = best_so_far;
+        }
       }
-   }
+    } // GRID_LOOP
 
-   mesh_index_pair unified_bed_leveling::find_next_mesh_point() {
-     mesh_index_pair pt;
-     pt.invalidate();
-     pt.distance = -99999.9f;
-     constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-     constexpr uint8_t dim = _BV(ord);
-     hilbert(pt, to_fix(0), to_fix(0), to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
-     return pt;
-   }
+    return closest;
 
-#endif // UBL_HILBERT_CURVE
+  #endif
+}
 
 /**
  * 'Smart Fill': Scan from the outward edges of the mesh towards the center.
