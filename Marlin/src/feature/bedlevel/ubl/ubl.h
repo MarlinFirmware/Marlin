@@ -101,11 +101,6 @@ public:
   static void display_map(const int) _O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
-  #if ENABLED(UBL_HILBERT_CURVE)
-    static void check_if_missing(mesh_index_pair &pt, int x, int y);
-    static void hilbert(mesh_index_pair &pt, int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n);
-    static mesh_index_pair find_next_mesh_point();
-  #endif
   static void reset();
   static void invalidate();
   static void set_all_mesh_points_to_value(const float value);
