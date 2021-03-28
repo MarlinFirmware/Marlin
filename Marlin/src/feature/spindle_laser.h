@@ -244,7 +244,7 @@ public:
        * If not set defaults to 80% power
        */
       static inline void test_fire_pulse() {
-        TERN_(USE_BEEPER, buzzer.tone(30, 3000));  
+        TERN_(USE_BEEPER, buzzer.tone(30, 3000));
         enable_forward();                  // Turn Laser on (Spindle speak but same funct)
         delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
         disable();                         // Turn laser off

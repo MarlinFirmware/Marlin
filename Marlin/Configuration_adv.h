@@ -203,16 +203,19 @@
     #define COOLER_FAN_FACTOR     25  // PWM increase per °C above target
   #endif
 #endif
+
 //
-// Laser flowmeter feature
+// Laser Coolant Flow Meter
 //
-//#define FLOWMETER_FEATURE
-#if ENABLED(FLOWMETER_FEATURE)  
-  #define FLOWMETER_PIN           20  // Requires an external interupt enabled pin, e.g. RAMPS pins 2,3,18,19,20,21   
-  #define FLOWMETER_PPL         5880  // Flow meter pulses per liter.
-  #define FLOWMETER_SAFETY      true  // Prevents running the CO2 laser tube without a minimum water flow rate of FLOWMETER_MIN liters/min.
-  #define FLOWMETER_MIN          1.5  // Minimum flow required when FLOWMETER_SAFETY is true   
-  #define FLOWMETER_INTERVAL    1000  // Flow rate calculation interval in milliseconds
+//#define LASER_COOLANT_FLOW_METER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
+  #define FLOWMETER_PIN         20  // Requires an external interrupt-enabled pin (e.g., RAMPS 2,3,18,19,20,21)
+  #define FLOWMETER_PPL       5880  // (pulses/liter) Flow meter pulses-per-liter on the input pin
+  #define FLOWMETER_INTERVAL  1000  // (ms) Flow rate calculation interval in milliseconds
+  #define FLOWMETER_SAFETY          // Prevent running the laser without the minimum flow rate set below
+  #if ENABLED(FLOWMETER_SAFETY)
+    #define FLOWMETER_MIN_LITERS_PER_MINUTE 1.5 // (liters/min) Minimum flow required when enabled
+  #endif
 #endif
 
 /**
@@ -1550,7 +1553,7 @@
   #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_COOLER_ANIM        // Use a second bitmap to indicate laser cooling
-  //#define STATUS_FLOWMETER_ANIM       // Use a multiple bitmaps to indicate coolant flow
+  //#define STATUS_FLOWMETER_ANIM     // Use multiple bitmaps to indicate coolant flow
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames

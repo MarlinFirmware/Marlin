@@ -1510,7 +1510,7 @@ void Temperature::manage_heater() {
 
     static bool flag_cooler_state; // = false
 
-    if (cooler.is_enabled()) {
+    if (cooler.enabled) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
@@ -1533,7 +1533,8 @@ void Temperature::manage_heater() {
           WRITE_HEATER_COOLER(LOW);
         }
       }
-    } else {
+    }
+    else {
       temp_cooler.soft_pwm_amount = 0;
       if (flag_cooler_state) {
         flag_cooler_state = false;
@@ -1545,23 +1546,17 @@ void Temperature::manage_heater() {
     #if ENABLED(THERMAL_PROTECTION_COOLER)
       tr_state_machine[RUNAWAY_IND_COOLER].run(temp_cooler.celsius, temp_cooler.target, H_COOLER, THERMAL_PROTECTION_COOLER_PERIOD, THERMAL_PROTECTION_COOLER_HYSTERESIS);
     #endif
+
   #endif // HAS_COOLER
 
   #if HAS_FLOWMETER
-    if (cooler.flowmeter == false) {
-      cooler.flowmeter_enable();
-      cooler.flowmeter = true;
-    }
-    if (ELAPSED(ms, cooler.flow_calc_time)) cooler.calc_flowrate();
-    if (cooler.flowmeter_safety) {
-      if ((cooler.flowrate < FLOWMETER_MIN) && cutter.enabled()) {
+    cooler.flowmeter_task(ms);
+    #if ENABLED(FLOWMETER_SAFETY)
+      if (cutter.enabled() && cooler.check_flow_too_low()) {
         cutter.disable();
         ui.flow_fault();
-        cooler.fault = true;
       }
-    } else {
-      LCD_MESSAGEPGM(WELCOME_MSG);
-    }
+    #endif
   #endif
 
   UNUSED(ms);

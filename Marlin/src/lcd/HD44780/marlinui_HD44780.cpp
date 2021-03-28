@@ -590,7 +590,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_wchar('L');
   }
-#endif 
+#endif
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
@@ -825,7 +825,7 @@ void MarlinUI::draw_status_screen() {
       #endif
 
       #if HAS_COOLER
-        _draw_cooler_status(LCD_STR_ASTERISK[0], blink);
+        _draw_cooler_status('*', blink);
       #endif
       #if HAS_FLOWMETER
         _draw_flowmeter_status();

@@ -57,7 +57,7 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
-#if HAS_FLOWMETER && FLOWMETER_SAFETY
+#if ENABLED(FLOWMETER_SAFETY)
   #include "../feature/cooler.h"
 #endif
 
@@ -282,8 +282,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
   #endif
 
-  #if HAS_FLOWMETER && FLOWMETER_SAFETY
-    if (cooler.fault == true) {
+  #if ENABLED(FLOWMETER_SAFETY)
+    if (cooler.fault) {
       SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
       return;
     }

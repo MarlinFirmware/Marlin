@@ -53,7 +53,7 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
-#if HAS_COOLER || HAS_FLOWMETER 
+#if HAS_COOLER || HAS_FLOWMETER
   #include "../../feature/cooler.h"
 #endif
 
@@ -199,7 +199,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
     lcd_put_u8str("L");
   }
-#endif 
+#endif
 
 #if DO_DRAW_HOTENDS
 
@@ -384,22 +384,18 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   }
 #endif
 
-#if HAS_COOLER
-  #if DO_DRAW_COOLER
-    FORCE_INLINE void _draw_cooler_status() {
-      if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-        _draw_centered_temp(thermalManager.degCooler(), STATUS_COOLER_TEXT_X, 28);
-    }
-  #endif
+#if DO_DRAW_COOLER
+  FORCE_INLINE void _draw_cooler_status() {
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_temp(thermalManager.degCooler(), STATUS_COOLER_TEXT_X, 28);
+  }
 #endif
 
-#if HAS_FLOWMETER
-  #if DO_DRAW_FLOWMETER
-    FORCE_INLINE void _draw_flowmeter_status() {
-      if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-        _draw_centered_flowrate(cooler.flowrate , STATUS_FLOWMETER_TEXT_X, 28);
-    }
-  #endif
+#if DO_DRAW_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_flowrate(cooler.flowrate, STATUS_FLOWMETER_TEXT_X, 28);
+  }
 #endif
 
 //
@@ -664,7 +660,7 @@ void MarlinUI::draw_status_screen() {
       const uint8_t coolery = STATUS_COOLER_Y(status_cooler_bmp1),
                     coolerh = STATUS_COOLER_HEIGHT(status_cooler_bmp1);
       if (PAGE_CONTAINS(coolery, coolery + coolerh - 1))
-        u8g.drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, blink && cooler.is_enabled() ? status_cooler_bmp2 : status_cooler_bmp1);
+        u8g.drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, blink && cooler.enabled ? status_cooler_bmp2 : status_cooler_bmp1);
     #endif
 
     // Laser Cooler Flow Meter

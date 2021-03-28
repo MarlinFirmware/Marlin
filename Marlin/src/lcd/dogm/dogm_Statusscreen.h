@@ -531,7 +531,7 @@
 //
 // Cooler Bitmap Properties
 //
-#if HAS_COOLER  
+#if HAS_COOLER
   #if STATUS_COOLER_WIDTH
 
     #ifndef STATUS_COOLER_X
@@ -587,12 +587,12 @@
     #endif
 
     static_assert(
-      sizeof(status_flowmeter_bmp1) == (STATUS_FLOWMETER_BYTEWIDTH) * (STATUS_FLOWMETER_HEIGHT(0)),
+      sizeof(status_flowmeter_bmp1) == (STATUS_FLOWMETER_BYTEWIDTH) * STATUS_FLOWMETER_HEIGHT(0),
       "Status flowmeter bitmap (status_flowmeter_bmp1) dimensions don't match data."
     );
     #ifdef STATUS_COOLER_ANIM
       static_assert(
-        sizeof(status_flowmeter_bmp2) == (STATUS_FLOWMETER_BYTEWIDTH) * (STATUS_FLOWMETER_HEIGHT(1)),
+        sizeof(status_flowmeter_bmp2) == (STATUS_FLOWMETER_BYTEWIDTH) * STATUS_FLOWMETER_HEIGHT(1),
         "Status flowmeter bitmap (status_flowmeter_bmp2) dimensions don't match data."
       );
     #endif

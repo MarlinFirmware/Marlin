@@ -192,15 +192,19 @@ void menu_temperature() {
   // Cooler:
   //
   #if HAS_COOLER
-    editable.state = cooler.is_enabled();
-    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
+    bool cstate = cooler.enabled;
+    EDIT_ITEM(bool, MSG_COOLER_TOGGLE, &cstate, cooler.toggle);
     EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MIN_TARGET, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
   #endif
-  #if HAS_FLOWMETER && FLOWMETER_SAFETY
-    editable.state = cooler.flowsaftey_is_enabled();
-    EDIT_ITEM(bool, MSG_FLOWMETER_SAFETY, &cooler.flowmeter_safety, []{ if (editable.state) cooler.flowsafety_disable(); else cooler.flowsafety_enable(); });
+
+  //
+  // Flow Meter Safety Shutdown:
+  //
+  #if ENABLED(FLOWMETER_SAFETY)
+    bool fstate = cooler.flowsafety_enabled;
+    EDIT_ITEM(bool, MSG_FLOWMETER_SAFETY, &fstate, cooler.flowsafety_toggle);
   #endif
-   
+
   //
   // Fan Speed:
   //
