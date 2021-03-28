@@ -66,6 +66,7 @@ void SetupMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     ExtUI::injectCommands_P(PSTR("M300"));
 
                     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
+                    ScreenHandler.setstatusmessagePGM(PSTR("Restored default settings. Please turn your printer off and then on to complete the reset"));
                     break;
             }
             break;
