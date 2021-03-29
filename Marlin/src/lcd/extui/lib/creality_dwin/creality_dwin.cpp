@@ -64,7 +64,7 @@
   #define strcasecmp_P(a, b) strcasecmp((a), (b))
 #endif
 
-#if ANY(HAS_ONESTEP_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
