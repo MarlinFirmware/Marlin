@@ -185,6 +185,7 @@ CrealityDWINClass CrealityDWIN;
     bool goto_mesh_value = false;
     bool mesh_step_warning = false;
     bool mesh_goto_zhop = true;
+    bool drawing_mesh = false;
     uint8_t mesh_x = 0;
     uint8_t mesh_y = 0;
 
@@ -434,6 +435,7 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
   #define WIDE_VIEWER_TEXT (GRID_MAX_POINTS_X < 10)
 
   void CrealityDWINClass::Draw_Bed_Mesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=40 + 53 - 7*/) {
+    ubl_conf.drawing_mesh = true;
     const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
     const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
     const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
@@ -505,6 +507,7 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
       sprintf(msg, "Red %.3f..0..%.3f Green", -range, range);
     }
     Update_Status(msg);
+    ubl_conf.drawing_mesh = false;
   }
 #endif // AUTO_BED_LEVELING_UBL
 
@@ -2843,8 +2846,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Set_Mesh_Viewer_Status();
             }
             else {
-              Draw_Menu(UBLView, UBLVIEW_MESH);
-              Update_Status("");
+              if (!ubl_conf.drawing_mesh) {
+                Draw_Menu(UBLView, UBLVIEW_MESH);
+                Update_Status("");
+              }
             }
             break;
         }
