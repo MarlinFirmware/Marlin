@@ -131,18 +131,16 @@
   }
 
   void go_to_transfer_speed() {
-    SD_InitTypeDef Init;
-
     /* Default SDIO peripheral configuration for SD card initialization */
-    Init.ClockEdge           = hsd.Init.ClockEdge;
-    Init.ClockBypass         = hsd.Init.ClockBypass;
-    Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
-    Init.BusWide             = hsd.Init.BusWide;
-    Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
-    Init.ClockDiv            = clock_to_divider(SDIO_CLOCK);
+    hsd.Init.ClockEdge           = hsd.Init.ClockEdge;
+    hsd.Init.ClockBypass         = hsd.Init.ClockBypass;
+    hsd.Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
+    hsd.Init.BusWide             = hsd.Init.BusWide;
+    hsd.Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
+    hsd.Init.ClockDiv            = clock_to_divider(SDIO_CLOCK);
 
     /* Initialize SDIO peripheral interface with default configuration */
-    SDIO_Init(hsd.Instance, Init);
+    SDIO_Init(hsd.Instance, hsd.Init);
   }
 
   void SD_LowLevel_Init(void) {
@@ -267,6 +265,7 @@
           if (!status) break;
           if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
         }
+        go_to_transfer_speed();
       }
     #endif
 
