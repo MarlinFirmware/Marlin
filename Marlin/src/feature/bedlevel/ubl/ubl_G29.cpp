@@ -433,8 +433,7 @@ void unified_bed_leveling::G29() {
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
           }
-          const xy_pos_t near_probe_xy = param.XY_pos + probe.offset_xy;
-          probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          probe_entire_mesh(param.XY_pos, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
           report_current_position();
           probe_deployed = true;
