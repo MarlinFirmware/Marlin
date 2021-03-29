@@ -40,7 +40,7 @@ using namespace ExtUI;
 #include "../../../../core/debug_out.h"
 
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
-char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+SString<MAX_PATH_LEN> FileNavigator::currentfoldername;     // Current folder path
 uint16_t  FileNavigator::lastindex;
 uint8_t   FileNavigator::folderdepth;
 uint16_t  FileNavigator::currentindex;                      // override the panel request
@@ -50,7 +50,7 @@ FileNavigator filenavigator;
 FileNavigator::FileNavigator() { reset(); }
 
 void FileNavigator::reset() {
-  currentfoldername[0] = '\0';
+  currentfoldername.clear();
   folderdepth  = 0;
   currentindex = 0;
   lastindex    = 0;
@@ -140,8 +140,8 @@ void FileNavigator::changeDIR(char *folder) {
     DEBUG_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
   #endif
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-  strcat(currentfoldername, folder);
-  strcat(currentfoldername, "/");
+  currentfoldername += folder;
+  currentfoldername += '/';
   filelist.changeDir(folder);
   refresh();
   folderdepth++;
@@ -154,15 +154,10 @@ void FileNavigator::upDIR() {
   folderdepth--;
   currentindex = 0;
   // Remove the last child folder from the stored path
-  if (folderdepth == 0) {
-    currentfoldername[0] = '\0';
-    reset();
-  }
+  if (folderdepth == 0) reset();
   else {
-    char *pos = nullptr;
-    for (uint8_t f = 0; f < folderdepth; f++)
-      pos = strchr(currentfoldername, '/');
-    pos[1] = '\0';
+    ROString folder(currentfoldername);
+    currentfoldername[folder.reverseFind('/')] = 0;
   }
   #if NEXDEBUG(AC_FILE)
     DEBUG_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);

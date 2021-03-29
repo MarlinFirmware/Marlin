@@ -128,57 +128,57 @@ static void disp_language(uint8_t language, uint8_t state) {
   uint16_t id;
   lv_obj_t *obj;
 
-  public_buf_l[0] = '\0';
+  DString src(32);
 
   switch (language) {
     case LANG_SIMPLE_CHINESE:
       id = ID_CN;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_simplified_cn"));
+      src += F("F:/bmp_simplified_cn");
       obj = buttonCN;
       break;
     case LANG_COMPLEX_CHINESE:
       id = ID_T_CN;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_traditional_cn"));
+      src += F("F:/bmp_traditional_cn");
       obj = buttonT_CN;
       break;
     case LANG_ENGLISH:
       id = ID_EN;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_english"));
+      src += F("F:/bmp_english");
       obj = buttonEN;
       break;
     case LANG_RUSSIAN:
       id = ID_RU;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_russian"));
+      src += F("F:/bmp_russian");
       obj = buttonRU;
       break;
     case LANG_SPANISH:
       id = ID_ES;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_spanish"));
+      src += F("F:/bmp_spanish");
       obj = buttonES;
       break;
     case LANG_FRENCH:
       id = ID_FR;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_french"));
+      src += F("F:/bmp_french");
       obj = buttonFR;
       break;
     case LANG_ITALY:
       id = ID_IT;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_italy"));
+      src += F("F:/bmp_italy");
       obj = buttonIT;
       break;
     default:
       id = ID_CN;
-      strcpy_P(public_buf_l, PSTR("F:/bmp_simplified_cn"));
+      src += F("F:/bmp_simplified_cn");
       obj = buttonCN;
       break;
   }
 
-  if (state == SELECTED) strcat_P(public_buf_l, PSTR("_sel"));
+  if (state == SELECTED) src += F("_sel"));
 
-  strcat_P(public_buf_l, PSTR(".bin"));
+  src += F(".bin");
 
   lv_obj_set_event_cb_mks(obj, event_handler, id, "", 0);
-  lv_imgbtn_set_src_both(obj, public_buf_l);
+  lv_imgbtn_set_src_both(obj, src);
 
   if (state == UNSELECTED) lv_obj_refresh_ext_draw_pad(obj);
 }

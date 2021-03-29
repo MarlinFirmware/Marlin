@@ -21,6 +21,7 @@
 
 #include "../ftdi_eve_lib.h"
 #include "../extended/grid_layout.h"
+#include "../../../../../../core/string.h"
 
 #include "adjuster_widget.h"
 
@@ -31,18 +32,12 @@
 #define DEC_POS           SUB_POS(8,1), SUB_SIZE(2,1)
 
 void draw_adjuster_value(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, float value, progmem_str units, int8_t width, uint8_t precision) {
-  char str[width + precision + 10 + (units ? strlen_P((const char*) units) : 0)];
-  if (isnan(value))
-    strcpy_P(str, PSTR("-"));
-  else
-    dtostrf(value, width, precision, str);
-
-  if (units) {
-    strcat_P(str, PSTR(" "));
-    strcat_P(str, (const char*) units);
+  if (isnan(value)) {
+    cmd.text(VAL_POS, '-');
+    return;
   }
 
-  cmd.text(VAL_POS, str);
+  cmd.text(VAL_POS, DString::format(F("%*.*f%s%s"), width, precision, value, units ? " " : "", units ? units : ""));
 }
 
 void draw_adjuster(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t tag, float value, progmem_str units, int8_t width, uint8_t precision, draw_mode_t what) {

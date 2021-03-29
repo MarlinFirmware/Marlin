@@ -151,14 +151,13 @@ void disp_filament_type() {
 void disp_filament_temp() {
   char buf[20] = {0};
 
-  public_buf_l[0] = '\0';
+  DString filTemp(uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
+  filTemp += F(": ");
+  filTemp += thermalManager.degHotend(uiCfg.extruderIndex);
+  filTemp += '/';
+  filTemp +=thermalManager.degTargetHotend(uiCfg.extruderIndex);
 
-  strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-  sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
-
-  strcat_P(public_buf_l, PSTR(": "));
-  strcat(public_buf_l, buf);
-  lv_label_set_text(tempText1, public_buf_l);
+  lv_label_set_text(tempText1, filTemp);
   lv_obj_align(tempText1, nullptr, LV_ALIGN_CENTER, 0, -50);
 }
 

@@ -567,26 +567,19 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
 }
 
 uint8_t Explore_Disk(char* path , uint8_t recu_level) {
-  char tmp[200];
-  char Fstream[200];
-
   if (!path) return 0;
 
   const uint8_t fileCnt = card.get_num_Files();
 
   for (uint8_t i = 0; i < fileCnt; i++) {
     card.getfilename_sorted(SD_ORDER(i, fileCnt));
-    ZERO(tmp);
-    strcpy(tmp, card.filename);
-
-    ZERO(Fstream);
-    strcpy(Fstream, tmp);
+    SString<200> FStream(card.filename);
 
     if (card.flag.filenameIsDir && recu_level <= 10)
-      strcat_P(Fstream, PSTR(".DIR"));
+      Fstream += F(".DIR");
 
-    strcat_P(Fstream, PSTR("\r\n"));
-    send_to_wifi((uint8_t*)Fstream, strlen(Fstream));
+    Fstream += F("\r\n");
+    send_to_wifi((uint8_t*)(const char*)Fstream, Fstream.length());
   }
 
   return fileCnt;

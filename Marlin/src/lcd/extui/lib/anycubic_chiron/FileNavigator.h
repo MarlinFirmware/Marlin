@@ -31,6 +31,8 @@
 
 #include "chiron_tft_defs.h"
 #include "../../ui_api.h"
+#include "../../../../core/string.h"
+
 
 using namespace ExtUI;
 
@@ -46,11 +48,11 @@ namespace Anycubic {
       void   refresh();
       char * getCurrentFolderName();
     private:
-      static FileList  filelist;
-      static char      currentfoldername[MAX_PATH_LEN];
-      static uint16_t  lastindex;
-      static uint8_t   folderdepth;
-      static uint16_t  currentindex;
+      static FileList               filelist;
+      static SString<MAX_PATH_LEN>  currentfoldername;
+      static uint16_t               lastindex;
+      static uint8_t                folderdepth;
+      static uint16_t               currentindex;
   };
   extern FileNavigator filenavigator;
 }

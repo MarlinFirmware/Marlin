@@ -57,11 +57,6 @@
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
 
-// extern
-
-PGMSTR(M23_STR, "M23 %s");
-PGMSTR(M24_STR, "M24");
-
 // public:
 
 card_flags_t CardReader::flag;
@@ -164,15 +159,13 @@ CardReader::CardReader() {
 //
 // Get a DOS 8.3 filename in its useful form
 //
-char *createFilename(char * const buffer, const dir_t &p) {
-  char *pos = buffer;
+void createFilename(SString<FILENAME_LENGTH> & buffer, const dir_t &p) {
+  buffer.clear();
   LOOP_L_N(i, 11) {
     if (p.name[i] == ' ') continue;
-    if (i == 8) *pos++ = '.';
-    *pos++ = p.name[i];
+    if (i == 8) buffer += '.';
+    buffer += p.name[i];
   }
-  *pos++ = 0;
-  return buffer;
 }
 
 //
@@ -250,20 +243,20 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
     if (DIR_IS_SUBDIR(&p)) {
 
       // Get the short name for the item, which we know is a folder
-      char dosFilename[FILENAME_LENGTH];
+      SString<FILENAME_LENGTH> dosFilename;
       createFilename(dosFilename, p);
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
       const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
       const int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(dosFilename) + 1 + 1;
-      char path[len];
+      DString path(len);
 
       // Append the FOLDERNAME12/ to the passed string.
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
-      strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
-      strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
-      strcat(path, "/");                              // 1 character
+      path += prepend_is_empty ? "/" : prepend; // root slash if prepend is empty
+      path += dosFilename;                      // FILENAME_LENGTH characters maximum
+      path += '/';                              // 1 character
 
       // Serial.print(path);
 
@@ -484,10 +477,9 @@ void CardReader::release() {
  * Enqueues M23 and M24 commands to initiate a media print.
  */
 void CardReader::openAndPrintFile(const char *name) {
-  char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
-  sprintf_P(cmd, M23_STR, name);
-  for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  strcat_P(cmd, PSTR("\nM24"));
+  DString cmd(F("M23 "));
+  for (char *c = name; *c; c++) cmd += tolower(*c);
+  cmd += PSTR(F("\nM24"));
   queue.inject(cmd);
 }
 
@@ -802,8 +794,8 @@ void CardReader::closefile(const bool store_location/*=false*/) {
 void CardReader::selectFileByIndex(const uint16_t nr) {
   #if ENABLED(SDSORT_CACHE_NAMES)
     if (nr < sort_count) {
-      strcpy(filename, sortshort[nr]);
-      strcpy(longFilename, sortnames[nr]);
+      filename = sortshort[nr]);
+      longFilename = sortnames[nr]);
       flag.filenameIsDir = IS_DIR(nr);
       return;
     }
@@ -819,8 +811,8 @@ void CardReader::selectFileByName(const char * const match) {
   #if ENABLED(SDSORT_CACHE_NAMES)
     for (uint16_t nr = 0; nr < sort_count; nr++)
       if (strcasecmp(match, sortshort[nr]) == 0) {
-        strcpy(filename, sortshort[nr]);
-        strcpy(longFilename, sortnames[nr]);
+        filename = sortshort[nr]);
+        longFilename = sortnames[nr]);
         flag.filenameIsDir = IS_DIR(nr);
         return;
       }
@@ -1052,7 +1044,7 @@ void CardReader::cdroot() {
         // By default re-read the names from SD for every compare
         // retaining only two filenames at a time. This is very
         // slow but is safest and uses minimal RAM.
-        char name1[LONG_FILENAME_LENGTH];
+        DString name1(LONG_FILENAME_LENGTH);
 
       #endif
 
@@ -1083,7 +1075,7 @@ void CardReader::cdroot() {
           uint8_t o1 = sort_order[0];
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
-            strcpy(name1, longest_filename());  // so the loop only needs one fetch
+            name1 = longest_filename();  // so the loop only needs one fetch
             #if ENABLED(HAS_FOLDER_SORTING)
               bool dir1 = flag.filenameIsDir;
             #endif
@@ -1139,7 +1131,7 @@ void CardReader::cdroot() {
               o1 = o2;
               #if DISABLED(SDSORT_USES_RAM)
                 TERN_(HAS_FOLDER_SORTING, dir1 = dir2);
-                strcpy(name1, name2);
+                name1 = name2;
               #endif
             }
           }
@@ -1157,7 +1149,7 @@ void CardReader::cdroot() {
         sort_order[0] = 0;
         #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
-            sortnames = new char*[1];
+            sortnames = new char*[1]; // WTF??
             sortshort = new char*[1];
             isDir = new uint8_t[1];
           #endif

@@ -255,11 +255,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str l
   }
 
   if (_what & FOREGROUND) {
-    char b[32];
-    dtostrf(value, 5, _decimals, b);
-    strcat_P(b, PSTR(" "));
-    strcat_P(b, (const char*) _units);
-    adjuster_sram_val(tag, label, b, is_enabled);
+    adjuster_sram_val(tag, label, DString::format(F("%.*f %s"), _decimals, value, (const char*)_units), is_enabled);
   }
 }
 

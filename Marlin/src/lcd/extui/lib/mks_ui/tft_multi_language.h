@@ -338,8 +338,6 @@ typedef struct preheat_menu_disp {
   const char *step_10c;
   const char *back;
 
-  const char *value_state;
-
   const char *dialog_tips;
 
 } preheat_menu_def;

@@ -55,16 +55,14 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_E_ADD:
       if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
-        sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-        queue.inject(public_buf_l);
+        queue.inject(DString::format(F("G91\nG1 E%d F%d\nG90"), uiCfg.extruStep, 60 * uiCfg.extruSpeed));
         extrudeAmount += uiCfg.extruStep;
         disp_extru_amount();
       }
       break;
     case ID_E_DEC:
       if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
-        sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_one_now(DString::format(F("G91\nG1 E%d F%d\nG90"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed));
         extrudeAmount -= uiCfg.extruStep;
         disp_extru_amount();
       }
@@ -195,28 +193,29 @@ void disp_ext_speed() {
 
 void disp_hotend_temp() {
   char buf[20] = {0};
+  //XRYL The language changes the printf format here (either one or 2 parameters are used). This seems like an error to me. Correct this without a printf?
   sprintf(buf, extrude_menu.temp_value, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
-  strcpy(public_buf_l, extrude_menu.temper_text);
-  strcat(public_buf_l, buf);
-  lv_label_set_text(tempText, public_buf_l);
+  DString hotend(extrude_menu.temper_text);
+  hotend += buf;
+  lv_label_set_text(tempText, hotend);
   lv_obj_align(tempText, nullptr, LV_ALIGN_CENTER, 0, -50);
 }
 
 void disp_extru_amount() {
   char buf1[10] = {0};
 
-  public_buf_l[0] = '\0';
-
+  //XRYL Aren't the negative value wrong here ?
   if (extrudeAmount < 999 && extrudeAmount > -99)
     sprintf(buf1, extrude_menu.count_value_mm, extrudeAmount);
   else if (extrudeAmount < 9999 && extrudeAmount > -999)
     sprintf(buf1, extrude_menu.count_value_cm, extrudeAmount / 10);
   else
     sprintf(buf1, extrude_menu.count_value_m, extrudeAmount / 1000);
-  strcat(public_buf_l, uiCfg.extruderIndex == 0 ? extrude_menu.ext1 : extrude_menu.ext2);
-  strcat(public_buf_l, buf1);
 
-  lv_label_set_text(ExtruText, public_buf_l);
+  DString extrude(uiCfg.extruderIndex == 0 ? extrude_menu.ext1 : extrude_menu.ext2);
+  extrude += buf1;
+
+  lv_label_set_text(ExtruText, extrude);
   lv_obj_align(ExtruText, nullptr, LV_ALIGN_CENTER, 0, -75);
 }
 

@@ -97,13 +97,10 @@ void lv_draw_fan() {
 }
 
 void disp_fan_value() {
-  char buf1[10] = {0};
-  public_buf_l[0] = '\0';
-  strcat(public_buf_l, fan_menu.state);
-  strcat_P(public_buf_l, PSTR(": "));
-  sprintf_P(buf1, PSTR("%3d"), thermalManager.fan_speed[0]);
-  strcat(public_buf_l, buf1);
-  lv_label_set_text(fanText, public_buf_l);
+  DString fan(fan_menu.state);
+  fan += F(": ");
+  fan += (int)(uint8_t)thermalManager.fan_speed[0];
+  lv_label_set_text(fanText, fan);
   lv_obj_align(fanText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
 

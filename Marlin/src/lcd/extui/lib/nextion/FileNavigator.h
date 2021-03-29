@@ -30,6 +30,7 @@
 
 #include "nextion_tft_defs.h" // for MAX_PATH_LEN
 #include "../../ui_api.h"
+#include "../../../../core/string.h"
 
 using namespace ExtUI;
 
@@ -43,11 +44,11 @@ class FileNavigator {
     static void  refresh();
     static char* getCurrentFolderName();
   private:
-    static FileList filelist;
-    static char     currentfoldername[MAX_PATH_LEN];
-    static uint16_t lastindex;
-    static uint8_t  folderdepth;
-    static uint16_t currentindex;
+      static FileList               filelist;
+      static SString<MAX_PATH_LEN>  currentfoldername;
+      static uint16_t               lastindex;
+      static uint8_t                folderdepth;
+      static uint16_t               currentindex;
 };
 
 extern FileNavigator filenavigator;

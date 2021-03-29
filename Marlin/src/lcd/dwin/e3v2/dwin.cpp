@@ -1699,27 +1699,22 @@ void update_variable() {
   #define strcasecmp_P(a, b) strcasecmp((a), (b))
 #endif
 
-void make_name_without_ext(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) {
-  char * const name = card.longest_filename();
-  size_t pos        = strlen(name); // index of ending nul
+void make_name_without_ext(char *dst, char *src, size_t maxlen = MENU_CHAR_LIMIT) {
+  ROString name(card.longest_filename());
 
   // For files, remove the extension
   // which may be .gcode, .gco, or .g
-  if (!card.flag.filenameIsDir)
-    while (pos && src[pos] != '.') pos--; // find last '.' (stop at 0)
+  if (!card.flag.filenameIsDir) name = name.upToFirst('.');
 
-  size_t len = pos;   // nul or '.'
-  if (len > maxlen) { // Keep the name short
-    pos        = len = maxlen; // move nul down
-    dst[--pos] = '.'; // insert dots
-    dst[--pos] = '.';
-    dst[--pos] = '.';
+  int len = min(name.len(), maxlen);
+  memcpy(dst, name.buffer(), len);
+
+  if (name.len() >= maxlen) {
+    memcpy(&dst[maxlen - 3], "...", 3);
+    len = maxlen;
   }
 
-  dst[len] = '\0';    // end it
-
-  // Copy down to 0
-  while (pos--) dst[pos] = src[pos];
+  dst[len] = '\0';
 }
 
 void HMI_SDCardInit() { card.cdroot(); }
@@ -2223,17 +2218,16 @@ void HMI_Printing() {
         if (HMI_flag.pause_flag) {
           ICON_Pause();
 
-          char cmd[40];
-          cmd[0] = '\0';
+          DString cmd;
 
           #if BOTH(HAS_HEATED_BED, PAUSE_HEAT)
-            if (resume_bed_temp) sprintf_P(cmd, PSTR("M190 S%i\n"), resume_bed_temp);
+            if (resume_bed_temp) { cmd += F("M190 S"); cmd += resume_bed_temp; cmd += '\n'; }
           #endif
           #if BOTH(HAS_HOTEND, PAUSE_HEAT)
-            if (resume_hotend_temp) sprintf_P(&cmd[strlen(cmd)], PSTR("M109 S%i\n"), resume_hotend_temp);
+            if (resume_hotend_temp) { cmd += F("M109 S"); cmd += resume_hotend_temp; cmd += '\n'; }
           #endif
 
-          strcat_P(cmd, M24_STR);
+          cmd += F("M24");
           queue.inject(cmd);
         }
         else {

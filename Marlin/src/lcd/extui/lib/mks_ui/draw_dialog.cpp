@@ -403,31 +403,20 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
       }
       else if (upload_result == 3) {
-        char buf[200];
-        int _index = 0;
-
-        strcpy(buf, DIALOG_UPLOAD_FINISH_EN);
-        _index = strlen(buf);
-        buf[_index] = '\n';
-        _index++;
-        strcat(buf, DIALOG_UPLOAD_SIZE_EN);
-
-        _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes\n", (int)(upload_size / 1024));
-
-        strcat(buf, DIALOG_UPLOAD_TIME_EN);
-        _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d s\n", (int)upload_time);
-
-        strcat(buf, DIALOG_UPLOAD_SPEED_EN);
-        _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes/s\n", (int)(upload_size / upload_time / 1024));
+        DString label(DIALOG_UPLOAD_FINISH_EN);
+        label += '\n';
+        label += DIALOG_UPLOAD_SIZE_EN;
+        label += ": ";
+        label += (int)(upload_size / 1024);
+        label += " KBytes\n";
+        label += DIALOG_UPLOAD_TIME_EN;
+        label += ": ";
+        label += (int)upload_time;
+        label += " s\n";
+        label += DIALOG_UPLOAD_SPEED_EN;
+        label += ": ";
+        label += (int)(upload_size / upload_time / 1024);
+        label += " KBytes/s\n";
 
         lv_label_set_text(labelDialog, buf);
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
@@ -485,13 +474,12 @@ void lv_draw_dialog(uint8_t type) {
 }
 
 void filament_sprayer_temp() {
-  char buf[20] = {0};
-  sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
-
-  strcpy(public_buf_l, uiCfg.extruderIndex < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
-  strcat_P(public_buf_l, PSTR(": "));
-  strcat(public_buf_l, buf);
-  lv_label_set_text(tempText1, public_buf_l);
+  DString sprayer(uiCfg.extruderIndex < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
+  sprayer += ": ";
+  sprayer += thermalManager.degHotend(uiCfg.extruderIndex);
+  sprayer += '/';
+  sprayer += thermalManager.degTargetHotend(uiCfg.extruderIndex);
+  lv_label_set_text(tempText1, sprayer);
   lv_obj_align(tempText1, nullptr, LV_ALIGN_CENTER, 0, -50);
 }
 
@@ -507,8 +495,7 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_loading_time_flg = true;
     uiCfg.filament_loading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
-    queue.inject(public_buf_m);
+    queue.inject(DString::format(F("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed));
   }
   if (uiCfg.filament_heat_completed_unload) {
     uiCfg.filament_heat_completed_unload = false;
@@ -517,8 +504,7 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_unloading_time_flg = true;
     uiCfg.filament_unloading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
-    queue.inject(public_buf_m);
+    queue.inject(DString::format(F("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed));
   }
 
   if (uiCfg.filament_load_heat_flg) {

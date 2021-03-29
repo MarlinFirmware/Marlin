@@ -101,20 +101,20 @@ void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, progmem_st
     cmd.tag(0)
        .font(font_small);
     if (what & BACKGROUND) {
-        cmd.text(  SUB_POS(1,1), SUB_SIZE(9,1), label)
-           .button(SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
+      cmd.text(  SUB_POS(1,1), SUB_SIZE(9,1), label)
+          .button(SUB_POS(1,2), SUB_SIZE(5,1), F(""), OPT_FLAT);
     }
 
     if (what & FOREGROUND) {
-        char str[32];
-        dtostrf(value, 5, 1, str);
-        strcat_P(str, PSTR(" "));
-        strcat_P(str, (const char*) GET_TEXT_F(MSG_UNITS_C));
+      DString str(32);
+      str.print(value, 1);
+      str += ' ';
+      str += GET_TEXT_F(MSG_UNITS_C);
 
-        cmd.text(SUB_POS(1,2), SUB_SIZE(5,1), str)
-           .font(font_medium)
-           .tag(tag  ).button(SUB_POS(6,2), SUB_SIZE(2,1), F("-"))
-           .tag(tag+1).button(SUB_POS(8,2), SUB_SIZE(2,1), F("+"));
+      cmd.text(SUB_POS(1,2), SUB_SIZE(5,1), str)
+          .font(font_medium)
+          .tag(tag  ).button(SUB_POS(6,2), SUB_SIZE(2,1), F("-"))
+          .tag(tag+1).button(SUB_POS(8,2), SUB_SIZE(2,1), F("+"));
     }
 }
 

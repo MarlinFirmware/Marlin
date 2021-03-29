@@ -114,46 +114,33 @@ void lv_draw_wifi() {
 }
 
 void disp_wifi_state() {
-  strcpy(public_buf_m, wifi_menu.ip);
-  strcat(public_buf_m, ipPara.ip_addr);
-  lv_label_set_text(wifi_ip_text, public_buf_m);
+  DString ipAddr(wifi_menu.ip);
+  ipAddr += ipPara.ip_addr;
+  lv_label_set_text(wifi_ip_text, ipAddr);
   lv_obj_align(wifi_ip_text, nullptr, LV_ALIGN_CENTER, 0, -100);
 
-  strcpy(public_buf_m, wifi_menu.wifi);
-  strcat(public_buf_m, wifiPara.ap_name);
-  lv_label_set_text(wifi_name_text, public_buf_m);
+  DString apName(wifi_menu.wifi);
+  apName += wifiPara.ap_name;
+  lv_label_set_text(wifi_name_text, apName);
   lv_obj_align(wifi_name_text, nullptr, LV_ALIGN_CENTER, 0, -70);
 
   if (wifiPara.mode == AP_MODEL) {
-    strcpy(public_buf_m, wifi_menu.key);
-    strcat(public_buf_m, wifiPara.keyCode);
-    lv_label_set_text(wifi_key_text, public_buf_m);
-    lv_obj_align(wifi_key_text, nullptr, LV_ALIGN_CENTER, 0, -40);
+    DString apModel(wifi_menu.key);
+    apModel += wifiPara.keyCode;
+    lv_label_set_text(wifi_key_text, apModel);
+  } else lv_label_set_text(wifi_key_text, "");
 
-    strcpy(public_buf_m, wifi_menu.state_ap);
-    if (wifi_link_state == WIFI_CONNECTED)
-      strcat(public_buf_m, wifi_menu.connected);
-    else if (wifi_link_state == WIFI_NOT_CONFIG)
-      strcat(public_buf_m, wifi_menu.disconnected);
-    else
-      strcat(public_buf_m, wifi_menu.exception);
-    lv_label_set_text(wifi_state_text, public_buf_m);
-    lv_obj_align(wifi_state_text, nullptr, LV_ALIGN_CENTER, 0, -10);
-  }
-  else {
-    strcpy(public_buf_m, wifi_menu.state_sta);
-    if (wifi_link_state == WIFI_CONNECTED)
-      strcat(public_buf_m, wifi_menu.connected);
-    else if (wifi_link_state == WIFI_NOT_CONFIG)
-      strcat(public_buf_m, wifi_menu.disconnected);
-    else
-      strcat(public_buf_m, wifi_menu.exception);
-    lv_label_set_text(wifi_state_text, public_buf_m);
-    lv_obj_align(wifi_state_text, nullptr, LV_ALIGN_CENTER, 0, -40);
+  lv_obj_align(wifi_key_text, nullptr, LV_ALIGN_CENTER, 0, -40);
 
-    lv_label_set_text(wifi_key_text, "");
-    lv_obj_align(wifi_key_text, nullptr, LV_ALIGN_CENTER, 0, -10);
-  }
+  DString state(wifiPara.mode == AP_MODEL ? wifi_menu.state_ap : wifi_menu.state_sta);
+  if (wifi_link_state == WIFI_CONNECTED)
+    state += wifi_menu.connected;
+  else if (wifi_link_state == WIFI_NOT_CONFIG)
+    state += wifi_menu.disconnected;
+  else
+    state += wifi_menu.exception;
+  lv_label_set_text(wifi_state_text, state);
+  lv_obj_align(wifi_state_text, nullptr, LV_ALIGN_CENTER, 0, -10);
 }
 
 void lv_clear_wifi() {

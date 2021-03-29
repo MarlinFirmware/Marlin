@@ -47,7 +47,7 @@ namespace Anycubic {
   FileNavigator filenavigator;
 
   FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
-  char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+  SString<MAX_PATH_LEN> FileNavigator::currentfoldername;     // Current folder path
   uint16_t  FileNavigator::lastindex;
   uint8_t   FileNavigator::folderdepth;
   uint16_t  FileNavigator::currentindex;                      // override the panel request
@@ -128,8 +128,8 @@ namespace Anycubic {
       SERIAL_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
     #endif
     if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-    strcat(currentfoldername, folder);
-    strcat(currentfoldername, "/");
+    currentfoldername += folder;
+    currentfoldername += '/';
     filelist.changeDir(folder);
     refresh();
     folderdepth++;
@@ -147,11 +147,8 @@ namespace Anycubic {
       reset();
     }
     else {
-      char *pos = nullptr;
-      for (uint8_t f = 0; f < folderdepth; f++)
-        pos = strchr(currentfoldername, '/');
-
-      *(pos + 1) = '\0';
+      ROString folder(currentfoldername);
+      currentfoldername[folder.reverseFind('/')] = 0;
     }
     #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);

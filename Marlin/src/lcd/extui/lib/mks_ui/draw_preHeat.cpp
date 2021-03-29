@@ -211,23 +211,23 @@ void disp_temp_type() {
 }
 
 void disp_desire_temp() {
-  char buf[20] = {0};
-
-  public_buf_l[0] = '\0';
+  DString temp(uiCfg.curTempType == 0 ? (uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2)
+                                      : TERN(HAS_HEATED_BED, preheat_menu.hotbed, ""));
+  temp += F(": ");
 
   if (uiCfg.curTempType == 0) {
-    strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
+    temp += thermalManager.degHotend(uiCfg.extruderIndex);
+    temp += '/';
+    temp += thermalManager.degTargetHotend(uiCfg.extruderIndex);
   }
   #if HAS_HEATED_BED
     else {
-      strcat(public_buf_l, preheat_menu.hotbed);
-      sprintf(buf, preheat_menu.value_state, thermalManager.degBed(), thermalManager.degTargetBed());
+      temp += thermalManager.degBed();
+      temp += '/';
+      temp += thermalManager.degTargetBed();
     }
   #endif
-  strcat_P(public_buf_l, PSTR(": "));
-  strcat(public_buf_l, buf);
-  lv_label_set_text(tempText1, public_buf_l);
+  lv_label_set_text(tempText1, temp);
   lv_obj_align(tempText1, nullptr, LV_ALIGN_CENTER, 0, -50);
 }
 

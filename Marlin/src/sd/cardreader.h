@@ -25,8 +25,6 @@
 
 #if ENABLED(SDSUPPORT)
 
-extern const char M23_STR[], M24_STR[];
-
 #if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
   #define SD_RESORT 1
 #endif
@@ -64,8 +62,8 @@ typedef struct {
 class CardReader {
 public:
   static card_flags_t flag;                         // Flags (above)
-  static char filename[FILENAME_LENGTH],            // DOS 8.3 filename of the selected item
-              longFilename[LONG_FILENAME_LENGTH];   // Long name of the selected item
+  static SString<FILENAME_LENGTH> filename;            // DOS 8.3 filename of the selected item
+  static SString<LONG_FILENAME_LENGTH> longFilename;   // Long name of the selected item
 
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)

@@ -141,16 +141,16 @@ void lv_draw_wifi_settings() {
       lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
     }
-    strcpy(public_buf_m, machine_menu.wifiName);
-    strcat(public_buf_m, (const char *)uiCfg.wifi_name);
-    lv_label_set_text(labelNameText, public_buf_m);
+    DString name(machine_menu.wifiName);
+    name += (const char *)uiCfg.wifi_name;
+    lv_label_set_text(labelNameText, name);
 
     lv_label_set_text(labelNameValue, machine_menu.wifiEdit);
     lv_obj_align(labelNameValue, buttonNameValue, LV_ALIGN_CENTER, 0, 0);
 
-    strcpy(public_buf_m, machine_menu.wifiPassWord);
-    strcat(public_buf_m, (const char *)uiCfg.wifi_key);
-    lv_label_set_text(labelPassWordText, public_buf_m);
+    DString pw(machine_menu.wifiPassWord);
+    pw += (const char *)uiCfg.wifi_key);
+    lv_label_set_text(labelPassWordText, pw);
 
     lv_label_set_text(labelPassWordValue, machine_menu.wifiEdit);
     lv_obj_align(labelPassWordValue, buttonPassWordValue, LV_ALIGN_CENTER, 0, 0);

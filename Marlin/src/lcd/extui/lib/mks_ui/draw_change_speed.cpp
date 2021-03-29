@@ -180,8 +180,6 @@ void disp_speed_step() {
 void disp_print_speed() {
   char buf[30] = { 0 };
 
-  public_buf_l[0] = '\0';
-
   int16_t val;
   const char *lbl;
   if (editingFlowrate) {
@@ -192,11 +190,11 @@ void disp_print_speed() {
     lbl = speed_menu.move_speed;
     val = feedrate_percentage;
   }
-  strcpy(public_buf_l, lbl);
-  strcat_P(public_buf_l, PSTR(": "));
-  sprintf_P(buf, PSTR("%d%%"), val);
-  strcat(public_buf_l, buf);
-  lv_label_set_text(printSpeedText, public_buf_l);
+  DString speed(lbl);
+  speed += F(": ");
+  speed += val;
+  speed += '%';
+  lv_label_set_text(printSpeedText, speed);
   lv_obj_align(printSpeedText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
 
