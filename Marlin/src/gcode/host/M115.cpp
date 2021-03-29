@@ -31,8 +31,11 @@
   #include "../../feature/caselight.h"
 #endif
 
+//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
+    if (ENABLED(MINIMAL_CAP_LINES) && !ena) return;
     SERIAL_ECHOPGM("Cap:");
     SERIAL_ECHOPGM_P(name);
     SERIAL_CHAR(':', '0' + ena);
@@ -149,6 +152,9 @@ void GcodeSuite::M115() {
 
     // MEATPACK Compression
     cap_line(PSTR("MEATPACK"), ENABLED(HAS_MEATPACK));
+
+    // CONFIG_EXPORT
+    cap_line(PSTR("CONFIG_EXPORT"), ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

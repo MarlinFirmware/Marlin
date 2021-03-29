@@ -25,14 +25,12 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
+#if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
   #include "../../sd/SdBaseFile.h"
 #endif
 
-#if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
-  extern "C" {
-    #include "../../../../.pio/build/mc.c"
-  }
+#if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
+  #include "../../../../.pio/build/mc.cpp"
 #endif
 
 /**
@@ -60,19 +58,20 @@ void GcodeSuite::M502() {
 
   /**
    * M503: print settings currently in memory
+   *
+   *   C<flag> : Save "mc.zip" containing Marlin configuration options to the SD Card
    */
   void GcodeSuite::M503() {
     (void)settings.report(!parser.boolval('S', true));
 
-    #if ENABLED(SDSUPPORT) && DISABLED(SKIP_CONFIG_EMBEDDING)
-      const bool writeSD = parser.seenval('C');
-      if (!writeSD) return;
-
-      SdBaseFile file;
-      uint16_t size = COUNT(mc_zip);
-      // Need to create the config size on the SD card
-      if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
-        SERIAL_ECHO_MSG("Configuration saved to mc.zip on SD card");
+    #if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
+      if (parser.boolval('C')) {
+        SdBaseFile file;
+        const uint16_t size = sizeof(mc_zip);
+        // Need to create the config size on the SD card
+        if (file.open("mc.zip", O_WRITE|O_CREAT) && file.write(pgm_read_ptr(mc_zip), size) != -1 && file.close())
+          SERIAL_ECHO_MSG("Configuration saved to 'mc.zip' on SD card");
+      }
     #endif
   }
 
