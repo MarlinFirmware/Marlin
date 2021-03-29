@@ -248,18 +248,18 @@ void lv_draw_ready_print() {
 }
 
 void lv_temp_refr() {
-#if HAS_HEATED_BED
-  sprintf(public_buf_l, printing_menu.bed_temp, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
-  lv_label_set_text(labelBed, public_buf_l);
-#endif
+  #if HAS_HEATED_BED
+    sprintf(public_buf_l, printing_menu.bed_temp, thermalManager.degBed(), thermalManager.degTargetBed());
+    lv_label_set_text(labelBed, public_buf_l);
+  #endif
 
-  sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target);
+  sprintf(public_buf_l, printing_menu.temp1, thermalManager.degHotend(0), thermalManager.degTargetHotend(0));
   lv_label_set_text(labelExt1, public_buf_l);
 
-#if HAS_MULTI_EXTRUDER
-  sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target);
-  lv_label_set_text(labelExt2, public_buf_l);
-#endif
+  #if HAS_MULTI_EXTRUDER
+    sprintf(public_buf_l, printing_menu.temp1, thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
+    lv_label_set_text(labelExt2, public_buf_l);
+  #endif
 }
 
 void lv_clear_ready_print() {
