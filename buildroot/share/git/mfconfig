@@ -83,7 +83,7 @@ if [[ $ACTION == "init" ]]; then
   TEMP=$( mktemp -d ) ; cp -R config $TEMP
 
   # Make sure we're not on the 'BASE' branch...
-  git checkout master >/dev/null 2>&1 || exit
+  git checkout init-repo >/dev/null 2>&1 || exit
 
   # Create 'BASE' as a copy of 'init-repo' (README, LICENSE, etc.)
   git branch -D BASE 2>/dev/null

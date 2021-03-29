@@ -21,30 +21,91 @@
  */
 #pragma once
 
-#include <stdint.h>
+#include "../inc/MarlinConfigPre.h"
 
-#define _MSG_COOLER(M) MSG_COOLER_##M
-#define MSG_COOLER(M) _MSG_COOLER(M)
+#ifndef FLOWMETER_PPL
+  #define FLOWMETER_PPL      5880 // Pulses per liter
+#endif
+#ifndef FLOWMETER_INTERVAL
+  #define FLOWMETER_INTERVAL 1000 // milliseconds
+#endif
 
 // Cooling device
 
 class Cooler {
 public:
-  static uint16_t flowrate;        // Flow meter reading in liters, 0 will result in shutdown if equiped
-  static uint8_t mode;             // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
-  static uint16_t capacity;        // Cooling capacity in watts
-  static uint16_t load;            // Cooling load in watts
-  static bool flowmeter;
-  static bool state;               // on = true, off = false
+  static uint16_t capacity;   // Cooling capacity in watts
+  static uint16_t load;       // Cooling load in watts
 
-  static bool is_enabled()                    { return state; }
-  static void enable()                        { state = true; }
-  static void disable()                       { state = false; }
-  static void set_mode(const uint8_t m)       { mode = m; }
-  static void set_flowmeter(const bool sflag) { flowmeter = sflag; }
-  static uint16_t get_flowrate()              { return flowrate; }
-  static void update_flowrate(uint16_t flow)  { flowrate = flow; }
-  //static void init() { set_state(false); }
+  static bool enabled;
+  static void enable()  { enabled = true; }
+  static void disable() { enabled = false; }
+  static void toggle()  { enabled = !enabled; }
+
+  static uint8_t mode;                  // 0 = CO2 Liquid cooling, 1 = Laser Diode TEC Heatsink Cooling
+  static void set_mode(const uint8_t m) { mode = m; }
+
+  #if ENABLED(LASER_COOLANT_FLOW_METER)
+    static float flowrate;                // Flow meter reading in liters-per-minute.
+    static bool flowmeter;                // Flag to monitor the flow
+    static volatile uint16_t flowpulses;  // Flowmeter IRQ pulse count
+    static millis_t flowmeter_next_ms;    // Next time at which to calculate flow
+
+    static void set_flowmeter(const bool sflag) {
+      if (flowmeter != sflag) {
+        flowmeter = sflag;
+        if (sflag) {
+          flowpulses = 0;
+          flowmeter_next_ms = millis() + FLOWMETER_INTERVAL;
+        }
+      }
+    }
+
+    // To calculate flow we only need to count pulses
+    static void flowmeter_ISR() { flowpulses++; }
+
+    // Enable / Disable the flow meter interrupt
+    static void flowmeter_interrupt_enable() {
+      attachInterrupt(digitalPinToInterrupt(FLOWMETER_PIN), flowmeter_ISR, RISING);
+    }
+    static void flowmeter_interrupt_disable() {
+      detachInterrupt(digitalPinToInterrupt(FLOWMETER_PIN));
+    }
+
+    // Enable / Disable the flow meter interrupt
+    static void flowmeter_enable()  { set_flowmeter(true); flowpulses = 0; flowmeter_interrupt_enable(); }
+    static void flowmeter_disable() { set_flowmeter(false); flowmeter_interrupt_disable(); flowpulses = 0; }
+
+    // Get the total flow (in liters per minute) since the last reading
+    static void calc_flowrate() {
+      //flowmeter_interrupt_disable();
+      //  const uint16_t pulses = flowpulses;
+      //flowmeter_interrupt_enable();
+      flowrate = flowpulses * 60.0f * (1000.0f / (FLOWMETER_INTERVAL)) * (1000.0f / (FLOWMETER_PPL));
+      flowpulses = 0;
+    }
+
+    // Userland task to update the flow meter
+    static void flowmeter_task(const millis_t ms=millis()) {
+      if (!flowmeter)       // !! The flow meter must always be on !!
+        flowmeter_enable(); // Init and prime
+      if (ELAPSED(ms, flowmeter_next_ms)) {
+        calc_flowrate();
+        flowmeter_next_ms = ms + FLOWMETER_INTERVAL;
+      }
+    }
+
+    #if ENABLED(FLOWMETER_SAFETY)
+      static bool fault;                // Flag that the cooler is in a fault state
+      static bool flowsafety_enabled;   // Flag to disable the cutter if flow rate is too low
+      static void flowsafety_toggle()   { flowsafety_enabled = !flowsafety_enabled; }
+      static bool check_flow_too_low() {
+        const bool too_low = flowsafety_enabled && flowrate < (FLOWMETER_MIN_LITERS_PER_MINUTE);
+        if (too_low) fault = true;
+        return too_low;
+      }
+    #endif
+  #endif
 };
 
 extern Cooler cooler;

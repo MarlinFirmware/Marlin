@@ -1,9 +1,9 @@
-/*********************
- * adjuster_widget.h *
- *********************/
+/*******************
+ * hilbert_curve.h *
+ *******************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
+ *   Written By Marcio Teixeira 2021 - SynDaver Labs, Inc.                  *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -20,20 +20,13 @@
  ****************************************************************************/
 
 #pragma once
-#include "../extended/screen_types.h"
 
-void draw_adjuster_value(
-  CommandProcessor& cmd,
-  int16_t x, int16_t y, int16_t w, int16_t h,
-  float value, progmem_str units = nullptr,
-  int8_t width = 5, uint8_t precision = 1
-);
-
-void draw_adjuster(
-  CommandProcessor& cmd,
-  int16_t x, int16_t y, int16_t w, int16_t h,
-  uint8_t tag,
-  float value, progmem_str units = nullptr,
-  int8_t width = 5, uint8_t precision = 1,
-  draw_mode_t what = BOTH
-);
+class hilbert_curve {
+  public:
+    typedef bool (*callback_ptr)(uint8_t x, uint8_t y, void *data);
+    static bool search(callback_ptr func, void *data);
+    static bool search_from(uint8_t x, uint8_t y, callback_ptr func, void *data);
+    static bool search_from_closest(const xy_pos_t &pos, callback_ptr func, void *data);
+  private:
+    static bool hilbert(int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n, callback_ptr func, void *data);
+};

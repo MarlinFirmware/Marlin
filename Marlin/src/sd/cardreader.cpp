@@ -1084,7 +1084,9 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             strcpy(name1, longest_filename());  // so the loop only needs one fetch
-            TERN_(HAS_FOLDER_SORTING, bool dir1 = flag.filenameIsDir);
+            #if ENABLED(HAS_FOLDER_SORTING)
+              bool dir1 = flag.filenameIsDir;
+            #endif
           #endif
 
           for (uint16_t j = 0; j < i; ++j) {

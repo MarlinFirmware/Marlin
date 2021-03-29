@@ -225,6 +225,7 @@ bool BedMeshScreen::tagToPoint(uint8_t tag, xy_uint8_t &pt) {
 }
 
 void BedMeshScreen::onEntry() {
+  mydata.allowEditing = true;
   mydata.highlightedTag = 0;
   mydata.zAdjustment = 0;
   mydata.count = GRID_MAX_POINTS;
@@ -259,16 +260,16 @@ void BedMeshScreen::adjustHighlightedValue(float increment) {
 }
 
 void BedMeshScreen::saveAdjustedHighlightedValue() {
-  if(mydata.zAdjustment) {
+  if (mydata.zAdjustment) {
     BedMeshScreen::setHighlightedValue(BedMeshScreen::getHighlightedValue(true) + mydata.zAdjustment);
     mydata.zAdjustment = 0;
   }
 }
 
 void BedMeshScreen::changeHighlightedValue(uint8_t tag) {
-  saveAdjustedHighlightedValue();
+  if (mydata.allowEditing) saveAdjustedHighlightedValue();
   mydata.highlightedTag = tag;
-  moveToHighlightedValue();
+  if (mydata.allowEditing) moveToHighlightedValue();
 }
 
 void BedMeshScreen::drawHighlightedPointValue() {
@@ -277,7 +278,12 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .colors(normal_btn)
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
-  draw_adjuster(cmd, Z_VALUE_POS, 2, getHighlightedValue(true) + mydata.zAdjustment, GET_TEXT_F(MSG_UNITS_MM), 4, 3);
+
+  if (mydata.allowEditing)
+    draw_adjuster(cmd, Z_VALUE_POS, 2, getHighlightedValue(true) + mydata.zAdjustment, GET_TEXT_F(MSG_UNITS_MM), 4, 3);
+  else
+    draw_adjuster_value(cmd, Z_VALUE_POS, getHighlightedValue(true) + mydata.zAdjustment, GET_TEXT_F(MSG_UNITS_MM), 4, 3);
+
   cmd.colors(action_btn)
      .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
@@ -347,6 +353,7 @@ void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
   switch (state) {
     case ExtUI::MESH_START:
+      mydata.allowEditing = false;
       mydata.count = 0;
       mydata.message = mydata.MSG_NONE;
       break;
@@ -369,8 +376,14 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
 
 void BedMeshScreen::startMeshProbe() {
   GOTO_SCREEN(BedMeshScreen);
+  mydata.allowEditing = false;
   mydata.count = 0;
   injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
+}
+
+void BedMeshScreen::showMesh() {
+  GOTO_SCREEN(BedMeshScreen);
+  mydata.allowEditing = false;
 }
 
 void BedMeshScreen::showMeshEditor() {

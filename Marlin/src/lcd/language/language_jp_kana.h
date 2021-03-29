@@ -246,7 +246,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_BACK                            = _UxGT("モドリ");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("ソクド");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("ステップ/mm");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("ユーザーコマンド");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("ユーザーコマンド");
   PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("プリントガイチジテイシサレマシタ");
   PROGMEM Language_Str MSG_PRINTING                        = _UxGT("プリントチュウ...");
 }
