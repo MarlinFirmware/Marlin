@@ -808,7 +808,7 @@ void GUI_RefreshPage() {
       if (temps_update_flag) {
         temps_update_flag = false;
         lv_temp_refr();
-        }
+      }
       break;
 
     case PRINT_FILE_UI: break;
@@ -847,8 +847,8 @@ void GUI_RefreshPage() {
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
         if (temps_update_flag) {
-          disp_wifi_state();
           temps_update_flag = false;
+          disp_wifi_state();
         }
         break;
 
