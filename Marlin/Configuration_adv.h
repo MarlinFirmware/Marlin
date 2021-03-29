@@ -622,16 +622,6 @@
  * in X2. Dual endstop offsets can be set at runtime with 'M666 X<offset> Y<offset> Z<offset>'.
  */
 
-//#define E_DUAL_STEPPER_DRIVERS
-#if ENABLED(E_DUAL_STEPPER_DRIVERS)
-  #define E_APPLY_DIR(v,Q) do{ E_DIR_WRITE(v); E2_DIR_WRITE((v) != INVERT_E2_VS_E_DIR); }while(0)
-  #if ENABLED(E_DUAL_ENDSTOPS)
-    #define E_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(E,v)
-  #else
-    #define E_APPLY_STEP(v,Q) do{ E_STEP_WRITE(v); E2_STEP_WRITE(v); }while(0)
-  #endif
-#endif
-
 //#define X_DUAL_STEPPER_DRIVERS
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   //#define INVERT_X2_VS_X_DIR    // Enable if X2 direction signal is opposite to X
@@ -676,6 +666,12 @@
       #define Z4_ENDSTOP_ADJUSTMENT 0
     #endif
   #endif
+#endif
+
+// Drive the E axis with two synchronized steppers
+//#define E_DUAL_STEPPER_DRIVERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  //#define INVERT_E1_VS_E0_DIR   // Enable if the E motors need opposite DIR states
 #endif
 
 /**

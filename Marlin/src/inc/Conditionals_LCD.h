@@ -550,6 +550,10 @@
   #define HAS_MULTI_EXTRUDER 1
 #endif
 
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #define E_STEPPERS 2
+#endif
+
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3

@@ -1081,6 +1081,19 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Dual E Steppers requirements
+ */
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #if EXTRUDERS > 1
+    #error "E_DUAL_STEPPER_DRIVERS can only be used with EXTRUDERS set to 1."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "E_DUAL_STEPPER_DRIVERS is incompatible with MIXING_EXTRUDER."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "E_DUAL_STEPPER_DRIVERS is incompatible with SWITCHING_EXTRUDER."
+  #endif
+#endif
+
+/**
  * Linear Advance 1.5 - Check K value range
  */
 #if ENABLED(LIN_ADVANCE)
