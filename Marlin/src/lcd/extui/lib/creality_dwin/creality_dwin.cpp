@@ -896,6 +896,9 @@ void CrealityDWINClass::Update_Status_Bar() {
 
 void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
   uint8_t row = item - scrollpos;
+  #if HAS_LEVELING
+    static bool level_state;
+  #endif
   switch (menu) {
     case Prepare:
 
@@ -955,7 +958,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               gcode.home_all_axes(true);
             }
             #if HAS_LEVELING
-              gcode.process_subcommands_now_P(PSTR("M420 S0"));
+              level_state = planner.leveling_active;
+              set_bed_leveling_enabled(false);
             #endif
             Draw_Menu(ManualLevel);
           }
@@ -967,7 +971,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               #if HAS_LEVELING
-                gcode.process_subcommands_now_P(PSTR("M420 S0"));
+                level_state = planner.leveling_active;
+                set_bed_leveling_enabled(false);
               #endif
               Draw_Menu(ZOffset);
             }
@@ -1137,7 +1142,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             #if HAS_LEVELING
-              gcode.process_subcommands_now_P(PSTR("M420 S1"));
+              set_bed_leveling_enabled(level_state);
             #endif
             Draw_Menu(Prepare, PREPARE_MANUALLEVEL);
           }
@@ -1243,7 +1248,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else {
               liveadjust = false;
               #if HAS_LEVELING
-                gcode.process_subcommands_now_P(PSTR("M420 S1"));
+                set_bed_leveling_enabled(level_state);
               #endif
               Draw_Menu(Prepare, PREPARE_ZOFFSET);
             }
