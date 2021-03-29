@@ -572,13 +572,6 @@ void MarlinSettings::postprocess() {
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; } \
-                                  int eeprom_index = EEPROM_OFFSET
-  #define EEPROM_FINISH()         persistentStore.access_finish()
-  #define EEPROM_SKIP(VAR)        (eeprom_index += sizeof(VAR))
-  #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              }while(0)
-  #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  }while(0)
-  #define EEPROM_READ_ALWAYS(VAR) do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);               }while(0)
   #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
@@ -594,6 +587,8 @@ void MarlinSettings::postprocess() {
   const char version[4] = EEPROM_VERSION;
 
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
+  int MarlinSettings::eeprom_index;
+  uint16_t MarlinSettings::working_crc;
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
@@ -610,9 +605,7 @@ void MarlinSettings::postprocess() {
     float dummyf = 0;
     char ver[4] = "ERR";
 
-    uint16_t working_crc = 0;
-
-    EEPROM_START();
+    if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
     eeprom_error = false;
 
@@ -1456,9 +1449,7 @@ void MarlinSettings::postprocess() {
    * M501 - Retrieve Configuration
    */
   bool MarlinSettings::_load() {
-    uint16_t working_crc = 0;
-
-    EEPROM_START();
+    if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
@@ -1496,10 +1487,10 @@ void MarlinSettings::postprocess() {
         uint32_t tmp1[XYZ + esteppers];
         float tmp2[XYZ + esteppers];
         feedRate_t tmp3[XYZ + esteppers];
-        EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
+        EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
         EEPROM_READ(planner.settings.min_segment_time_us);
-        EEPROM_READ(tmp2);                         // axis_steps_per_mm
-        EEPROM_READ(tmp3);                         // max_feedrate_mm_s
+        EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
 
         if (!validating) LOOP_XYZE_N(i) {
           const bool in = (i < esteppers + XYZ);
@@ -3386,10 +3377,10 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPAIR_P(
           PSTR("  M145 S"), i
           #if HAS_HOTEND
-            , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
+            , PSTR(" H"), parser.to_temp_units(ui.material_preset[i].hotend_temp)
           #endif
           #if HAS_HEATED_BED
-            , SP_B_STR, TEMP_UNIT(ui.material_preset[i].bed_temp)
+            , SP_B_STR, parser.to_temp_units(ui.material_preset[i].bed_temp)
           #endif
           #if HAS_FAN
             , PSTR(" F"), ui.material_preset[i].fan_speed

@@ -125,16 +125,16 @@ void gCfgItems_init() {
   gCfgItems.pausePosX         = -1;
   gCfgItems.pausePosY         = -1;
   gCfgItems.pausePosZ         = 5;
-  gCfgItems.levelingPos[0][0] = X_MIN_POS + 30;
-  gCfgItems.levelingPos[0][1] = Y_MIN_POS + 30;
-  gCfgItems.levelingPos[1][0] = X_MAX_POS - 30;
-  gCfgItems.levelingPos[1][1] = Y_MIN_POS + 30;
-  gCfgItems.levelingPos[2][0] = X_MAX_POS - 30;
-  gCfgItems.levelingPos[2][1] = Y_MAX_POS - 30;
-  gCfgItems.levelingPos[3][0] = X_MIN_POS + 30;
-  gCfgItems.levelingPos[3][1] = Y_MAX_POS - 30;
-  gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
-  gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
+  gCfgItems.trammingPos[0][X_AXIS] = X_MIN_POS + 30;
+  gCfgItems.trammingPos[0][Y_AXIS] = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[1][X_AXIS] = X_MAX_POS - 30;
+  gCfgItems.trammingPos[1][Y_AXIS] = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[2][X_AXIS] = X_MAX_POS - 30;
+  gCfgItems.trammingPos[2][Y_AXIS] = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[3][X_AXIS] = X_MIN_POS + 30;
+  gCfgItems.trammingPos[3][Y_AXIS] = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[4][X_AXIS] = X_BED_SIZE / 2;
+  gCfgItems.trammingPos[4][Y_AXIS] = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
   gCfgItems.wifi_mode_sel = STA_MODEL;
   gCfgItems.fileSysType   = FILE_SYS_SD;
@@ -143,7 +143,7 @@ void gCfgItems_init() {
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;
   gCfgItems.filamentchange_unload_speed  = 1000;
-  gCfgItems.filament_limit_temper        = 200;
+  gCfgItems.filament_limit_temp          = 200;
 
   gCfgItems.encoder_enable = true;
 
@@ -226,8 +226,8 @@ void ui_cfg_init() {
     uiCfg.cloud_port = 10086;
   #endif
 
-  uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0 / gCfgItems.filamentchange_load_speed) + 0.5);
-  uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0 / gCfgItems.filamentchange_unload_speed) + 0.5);
+  uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0f / gCfgItems.filamentchange_load_speed) + 0.5f);
+  uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0f / gCfgItems.filamentchange_unload_speed) + 0.5f);
 }
 
 void update_spi_flash() {
@@ -994,7 +994,7 @@ void clear_cur_ui() {
     case LEVELING_SETTIGNS_UI:        break;
     case LEVELING_PARA_UI:            lv_clear_level_settings(); break;
     case DELTA_LEVELING_PARA_UI:      break;
-    case MANUAL_LEVELING_POSIGION_UI: lv_clear_manual_level_pos_settings(); break;
+    case MANUAL_LEVELING_POSIGION_UI: lv_clear_tramming_pos_settings(); break;
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
@@ -1099,7 +1099,7 @@ void draw_return_ui() {
       case LEVELING_SETTIGNS_UI:        break;
       case LEVELING_PARA_UI:            lv_draw_level_settings(); break;
       case DELTA_LEVELING_PARA_UI:      break;
-      case MANUAL_LEVELING_POSIGION_UI: lv_draw_manual_level_pos_settings(); break;
+      case MANUAL_LEVELING_POSIGION_UI: lv_draw_tramming_pos_settings(); break;
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
       case STEPS_UI:                    lv_draw_step_settings(); break;
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;

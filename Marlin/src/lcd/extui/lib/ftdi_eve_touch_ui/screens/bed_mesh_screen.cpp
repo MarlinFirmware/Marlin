@@ -25,21 +25,24 @@
 
 #ifdef FTDI_BED_MESH_SCREEN
 
+#include "../ftdi_eve_lib/extras/adjuster_widget.h"
+
 using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
 
 constexpr static BedMeshScreenData &mydata = screen_data.BedMeshScreen;
+constexpr static float gaugeThickness = 0.25;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
-  #define GRID_COLS 2
+  #define GRID_COLS 3
   #define GRID_ROWS 10
 
-  #define MESH_POS    BTN_POS(1, 2), BTN_SIZE(2,5)
-  #define MESSAGE_POS BTN_POS(1, 7), BTN_SIZE(2,1)
+  #define MESH_POS    BTN_POS(1, 2), BTN_SIZE(3,5)
+  #define MESSAGE_POS BTN_POS(1, 7), BTN_SIZE(3,1)
   #define Z_LABEL_POS BTN_POS(1, 8), BTN_SIZE(1,1)
-  #define Z_VALUE_POS BTN_POS(2, 8), BTN_SIZE(1,1)
-  #define OKAY_POS    BTN_POS(1,10), BTN_SIZE(2,1)
+  #define Z_VALUE_POS BTN_POS(2, 8), BTN_SIZE(2,1)
+  #define OKAY_POS    BTN_POS(1,10), BTN_SIZE(3,1)
 #else
   #define GRID_COLS 5
   #define GRID_ROWS 5
@@ -198,12 +201,12 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
 
   if (opts & USE_HIGHLIGHT) {
     const uint8_t tag = mydata.highlightedTag;
-    uint8_t x, y;
-    if (tagToPoint(tag, x, y)) {
+    xy_uint8_t pt;
+    if (tagToPoint(tag, pt)) {
       cmd.cmd(COLOR_A(128))
          .cmd(POINT_SIZE(basePointSize * 6))
          .cmd(BEGIN(POINTS))
-         .tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
+         .tag(tag).cmd(VERTEX2F(TRANSFORM(pt.x, pt.y, HEIGHT(pt.x, pt.y))));
     }
   }
   cmd.cmd(END());
@@ -214,43 +217,74 @@ uint8_t BedMeshScreen::pointToTag(uint8_t x, uint8_t y) {
   return y * (GRID_MAX_POINTS_X) + x + 10;
 }
 
-bool BedMeshScreen::tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y) {
+bool BedMeshScreen::tagToPoint(uint8_t tag, xy_uint8_t &pt) {
   if (tag < 10) return false;
-  x = (tag - 10) % (GRID_MAX_POINTS_X);
-  y = (tag - 10) / (GRID_MAX_POINTS_X);
+  pt.x = (tag - 10) % (GRID_MAX_POINTS_X);
+  pt.y = (tag - 10) / (GRID_MAX_POINTS_X);
   return true;
 }
 
 void BedMeshScreen::onEntry() {
+  mydata.allowEditing = true;
   mydata.highlightedTag = 0;
+  mydata.zAdjustment = 0;
   mydata.count = GRID_MAX_POINTS;
   mydata.message = mydata.MSG_NONE;
   BaseScreen::onEntry();
 }
 
-float BedMeshScreen::getHightlightedValue() {
-  if (mydata.highlightedTag) {
-    xy_uint8_t pt;
-    tagToPoint(mydata.highlightedTag, pt.x, pt.y);
-    return ExtUI::getMeshPoint(pt);
+float BedMeshScreen::getHighlightedValue(bool nanAsZero) {
+  xy_uint8_t pt;
+  if (tagToPoint(mydata.highlightedTag, pt)) {
+    const float val = ExtUI::getMeshPoint(pt);
+    return (isnan(val) && nanAsZero) ? 0 : val;
   }
   return NAN;
 }
 
-void BedMeshScreen::drawHighlightedPointValue() {
-  char str[16];
-  const float val = getHightlightedValue();
-  const bool isGood = !isnan(val);
-  if (isGood)
-    dtostrf(val, 5, 3, str);
-  else
-    strcpy_P(str, PSTR("-"));
+void BedMeshScreen::setHighlightedValue(float value) {
+  xy_uint8_t pt;
+  if (tagToPoint(mydata.highlightedTag, pt))
+    ExtUI::setMeshPoint(pt, value);
+}
 
+void BedMeshScreen::moveToHighlightedValue() {
+  xy_uint8_t pt;
+  if (tagToPoint(mydata.highlightedTag, pt))
+    ExtUI::moveToMeshPoint(pt, gaugeThickness + mydata.zAdjustment);
+}
+
+void BedMeshScreen::adjustHighlightedValue(float increment) {
+  mydata.zAdjustment += increment;
+  moveToHighlightedValue();
+}
+
+void BedMeshScreen::saveAdjustedHighlightedValue() {
+  if (mydata.zAdjustment) {
+    BedMeshScreen::setHighlightedValue(BedMeshScreen::getHighlightedValue(true) + mydata.zAdjustment);
+    mydata.zAdjustment = 0;
+  }
+}
+
+void BedMeshScreen::changeHighlightedValue(uint8_t tag) {
+  if (mydata.allowEditing) saveAdjustedHighlightedValue();
+  mydata.highlightedTag = tag;
+  if (mydata.allowEditing) moveToHighlightedValue();
+}
+
+void BedMeshScreen::drawHighlightedPointValue() {
   CommandProcessor cmd;
   cmd.font(Theme::font_medium)
+     .colors(normal_btn)
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
-     .text(Z_VALUE_POS, str)
-     .colors(action_btn)
+     .font(font_small);
+
+  if (mydata.allowEditing)
+    draw_adjuster(cmd, Z_VALUE_POS, 2, getHighlightedValue(true) + mydata.zAdjustment, GET_TEXT_F(MSG_UNITS_MM), 4, 3);
+  else
+    draw_adjuster_value(cmd, Z_VALUE_POS, getHighlightedValue(true) + mydata.zAdjustment, GET_TEXT_F(MSG_UNITS_MM), 4, 3);
+
+  cmd.colors(action_btn)
      .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
@@ -292,19 +326,23 @@ void BedMeshScreen::onRedraw(draw_mode_t what) {
   }
 }
 
-bool BedMeshScreen::onTouchStart(uint8_t tag) {
-  mydata.highlightedTag = tag;
-  return true;
-}
-
 bool BedMeshScreen::onTouchEnd(uint8_t tag) {
+  constexpr float increment = 0.01;
   switch (tag) {
     case 1:
+      saveAdjustedHighlightedValue();
+      injectCommands_P(PSTR("G29 S1"));
       GOTO_PREVIOUS();
       return true;
+    case 2: adjustHighlightedValue(-increment); break;
+    case 3: adjustHighlightedValue( increment); break;
     default:
-      return false;
+        if (tag >= 10)
+            changeHighlightedValue(tag);
+        else
+            return false;
   }
+  return true;
 }
 
 void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
@@ -315,6 +353,7 @@ void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
   switch (state) {
     case ExtUI::MESH_START:
+      mydata.allowEditing = false;
       mydata.count = 0;
       mydata.message = mydata.MSG_NONE;
       break;
@@ -337,8 +376,21 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
 
 void BedMeshScreen::startMeshProbe() {
   GOTO_SCREEN(BedMeshScreen);
+  mydata.allowEditing = false;
   mydata.count = 0;
   injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
+}
+
+void BedMeshScreen::showMesh() {
+  GOTO_SCREEN(BedMeshScreen);
+  mydata.allowEditing = false;
+}
+
+void BedMeshScreen::showMeshEditor() {
+  SpinnerDialogBox::enqueueAndWait_P(ExtUI::isMachineHomed() ? F("M420 S1") : F("G28\nM420 S1"));
+  // After the spinner, go to this screen.
+  current_screen.forget();
+  PUSH_SCREEN(BedMeshScreen);
 }
 
 #endif // FTDI_BED_MESH_SCREEN

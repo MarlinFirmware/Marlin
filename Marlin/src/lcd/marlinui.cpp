@@ -22,6 +22,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../MarlinCore.h" // for printingIsPaused
+
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
 #endif
@@ -39,14 +41,21 @@
 MarlinUI ui;
 
 #if HAS_DISPLAY
-  #include "../module/printcounter.h"
-  #include "../MarlinCore.h"
   #include "../gcode/queue.h"
   #include "fontutils.h"
   #include "../sd/cardreader.h"
-  #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
-  #endif
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "dwin/e3v2/dwin.h"
+#endif
+
+#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+  #define BASIC_PROGRESS_BAR 1
+#endif
+
+#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, BASIC_PROGRESS_BAR)
+  #include "../module/printcounter.h"
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
@@ -55,25 +64,24 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if HAS_WIRED_LCD
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    uint8_t MarlinUI::status_scroll_offset; // = 0
-    constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
+#if HAS_STATUS_MESSAGE
+  #if HAS_WIRED_LCD
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      uint8_t MarlinUI::status_scroll_offset; // = 0
+      constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
+    #else
+      constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
+    #endif
   #else
-    constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
+    constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
   #endif
-#elif EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-  constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
-#endif
-
-#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
-  uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
+  uint8_t MarlinUI::alert_level; // = 0
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
   MarlinUI::progress_t MarlinUI::progress_override; // = 0
-  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+  #if ENABLED(USE_M73_REMAINING_TIME)
     uint32_t MarlinUI::remaining_time;
   #endif
 #endif
@@ -529,7 +537,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+#if BASIC_PROGRESS_BAR
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -540,7 +548,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
+  #if BASIC_PROGRESS_BAR
 
     //
     // HD44780 implements the following message blinking and
@@ -580,7 +588,7 @@ void MarlinUI::status_screen() {
 
     #endif // PROGRESS_MSG_EXPIRE
 
-  #endif // LCD_PROGRESS_BAR
+  #endif // BASIC_PROGRESS_BAR
 
   #if HAS_LCD_MENU
     if (use_click()) {
@@ -688,7 +696,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     xyze_pos_t ManualMove::all_axes_destination = { 0 };
     bool ManualMove::processing = false;
   #endif
-  TERN_(MULTI_MANUAL, int8_t ManualMove::e_index = 0);
+  #if ENABLED(MULTI_MANUAL)
+    int8_t ManualMove::e_index = 0;
+  #endif
   AxisEnum ManualMove::axis = NO_AXIS;
 
   /**
@@ -1345,6 +1355,7 @@ void MarlinUI::update() {
   /**
    * Reset the status message
    */
+
   void MarlinUI::reset_status(const bool no_welcome) {
     #if SERVICE_INTERVAL_1 > 0
       static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
@@ -1430,9 +1441,9 @@ void MarlinUI::update() {
 
   void MarlinUI::finish_status(const bool persist) {
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
 
-      #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE) > 0)
+      #if !(BASIC_PROGRESS_BAR && (PROGRESS_MSG_EXPIRE) > 0)
         UNUSED(persist);
       #endif
 
@@ -1440,7 +1451,7 @@ void MarlinUI::update() {
         const millis_t ms = millis();
       #endif
 
-      #if ENABLED(LCD_PROGRESS_BAR)
+      #if BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
           expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
@@ -1454,11 +1465,12 @@ void MarlinUI::update() {
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         status_scroll_offset = 0;
       #endif
-    #else // HAS_SPI_LCD
+    #else // HAS_WIRED_LCD
       UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1498,6 +1510,12 @@ void MarlinUI::update() {
     IF_DISABLED(SDSUPPORT, print_job_timer.stop());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
+    TERN_(HAS_LCD_MENU, return_to_status());
+  }
+
+  void MarlinUI::flow_fault() {
+    LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
+    TERN_(HAS_BUZZER, buzz(1000, 440));
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
@@ -1579,7 +1597,7 @@ void MarlinUI::update() {
 
   #endif
 
-#else // !HAS_DISPLAY
+#elif !HAS_STATUS_MESSAGE // && !HAS_DISPLAY
 
   //
   // Send the status line as a host notification
@@ -1594,7 +1612,7 @@ void MarlinUI::update() {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
 
-#endif // !HAS_DISPLAY
+#endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
 
 #if ENABLED(SDSUPPORT)
 
