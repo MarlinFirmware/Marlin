@@ -1466,10 +1466,12 @@ void set_axis_never_homed(const AxisEnum axis) {
             effectorBackoutDir, // Direction in which the effector mm coordinates move away from endstop.
             stepperBackoutDir;  // Direction in which the TMC µstep count(phase) move away from endstop.
 
+    #define PHASE_PER_MICROSTEP(N) (256 / _MAX(1, N##_MICROSTEPS))
+
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
-          phasePerUStep = 256 / (X_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(X);
           phaseCurrent = stepperX.get_microstep_counter();
           effectorBackoutDir = -X_HOME_DIR;
           stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1477,7 +1479,7 @@ void set_axis_never_homed(const AxisEnum axis) {
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
-          phasePerUStep = 256 / (Y_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Y);
           phaseCurrent = stepperY.get_microstep_counter();
           effectorBackoutDir = -Y_HOME_DIR;
           stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1485,7 +1487,7 @@ void set_axis_never_homed(const AxisEnum axis) {
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
-          phasePerUStep = 256 / (Z_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Z);
           phaseCurrent = stepperZ.get_microstep_counter();
           effectorBackoutDir = -Z_HOME_DIR;
           stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;

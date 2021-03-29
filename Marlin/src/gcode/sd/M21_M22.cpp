@@ -35,6 +35,10 @@ void GcodeSuite::M21() { card.mount(); }
 /**
  * M22: Release SD Card
  */
-void GcodeSuite::M22() { card.release(); }
+void GcodeSuite::M22() {
+
+  if (!IS_SD_PRINTING()) card.release();
+
+}
 
 #endif // SDSUPPORT
