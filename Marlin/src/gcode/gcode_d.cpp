@@ -29,6 +29,7 @@
   #include "../libs/hex_print.h"
   #include "../HAL/shared/eeprom_if.h"
   #include "../HAL/shared/Delay.h"
+  #include "../sd/cardreader.h"
 
   extern void dump_delay_accuracy_check();
 
@@ -180,6 +181,56 @@
         ENABLE_ISRS();
         SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
       } break;
+
+      #if ENABLED(SDSUPPORT)
+        case 101: { //D101 Test SD Write
+          card.openFileWrite("test.gco");
+          if (!card.isFileOpen()) {
+            SERIAL_ECHOLNPAIR("Failed to open test.gco to write.");
+            return;
+          }
+          __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
+          uint16_t c;
+          for (c = 0; c < COUNT(buf); c++) {
+            buf[c] = 'A' + (c % ('Z' - 'A'));
+          }
+          c = 1024 * 4;
+          while (c--) {
+            TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+            card.write(buf, COUNT(buf));
+          }
+          SERIAL_ECHOLNPGM(" done");
+          card.closefile();
+        } break;
+
+        case 102: { //D102 Test SD Read
+          card.openFileRead("test.gco");
+          if (!card.isFileOpen()) {
+            SERIAL_ECHOLNPAIR("Failed to open test.gco to read.");
+            return;
+          }
+          __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
+          uint16_t c;
+          c = 1024 * 4;
+          while (c--) {
+            TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+            card.read(buf, COUNT(buf));
+            bool error = false;
+            for (uint16_t i = 0; i < COUNT(buf); i++) {
+              if (buf[i] != ('A' + (i % ('Z' - 'A')))) {
+                error = true;
+                break;
+              }
+            }
+            if (error) {
+              SERIAL_ECHOLNPGM(" Read error!");
+              break;
+            }
+          }
+          SERIAL_ECHOLNPGM(" done");
+          card.closefile();
+        } break;
+      #endif
 
       #if ENABLED(POSTMORTEM_DEBUGGING)
       case 451: { // Trigger all kind of faults to test exception catcher
