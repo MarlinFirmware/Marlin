@@ -241,7 +241,7 @@ public:
   // Construction and operators
 public:
   /** Default constructor */
-  ROString(const char * _data = 0, const int _length = -1) : data(_data), length(_length == -1 ? strlen(data) : _length) { }
+  ROString(const char * _data = 0, const int _length = -1) : data(_data), length(_length == -1 ? (_data ? strlen(_data) : 0) : _length) { }
   /** Convertion constructor, the given object must live after around this lifetime */
   ROString(const StringBase & other);
   /** The destructor */
@@ -367,6 +367,8 @@ public:
   FORCE_INLINE operator const char *() const { return buffer; }
   // Get the current length of the string
   FORCE_INLINE size_t length() const { return len; }
+  // Get access to the underlying buffer
+  FORCE_INLINE char * buf() { return buffer; }
 
   // Construct the string
   StringBase(char * buffer, uint16_t allocSize, uint16_t len = 0) : buffer(buffer), len(len), allocSize(allocSize) {}
@@ -449,7 +451,7 @@ public:
   // Construction with allocation
   DString(const uint16_t alloc = 0) : StringBase((char*)SLAlloc::instance().lease(alloc), alloc) {}
 
-  DString(DString && other) : StringBase(other.buffer, other.allocSize, other.len) { ZERO(&other); }
+  DString(DString && other) : StringBase(other.buffer, other.allocSize, other.len) { memset(&other, 0, sizeof(other)); }
   DString(const __FlashStringHelper * str) : StringBase(
         (char*)SLAlloc::instance().lease(strlen_P(reinterpret_cast<const char*>(str))+1),
         strlen_P(reinterpret_cast<const char*>(str))+1,

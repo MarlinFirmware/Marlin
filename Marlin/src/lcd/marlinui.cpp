@@ -1546,7 +1546,7 @@ void MarlinUI::update() {
   void MarlinUI::resume_print() {
     reset_status();
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
-    TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
+    TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(PSTR("M24")));
     #ifdef ACTION_ON_RESUME
       host_action_resume();
     #endif

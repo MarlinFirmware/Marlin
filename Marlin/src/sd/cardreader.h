@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+#include "../core/string.h"
 
 #if ENABLED(SDSUPPORT)
 
@@ -106,7 +107,7 @@ public:
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
-  static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
+  static inline const char* longest_filename() { return longFilename[0] ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     static void printLongPath(char * const path);   // Used by M33
   #endif
@@ -164,7 +165,7 @@ public:
   static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
   static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
-  static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
+  static inline const char* getWorkDirName() { workDir.getDosName(filename.buf()); return filename; }
   static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }

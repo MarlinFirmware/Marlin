@@ -60,7 +60,8 @@
 // public:
 
 card_flags_t CardReader::flag;
-char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
+SString<FILENAME_LENGTH> CardReader::filename;
+SString<LONG_FILENAME_LENGTH> CardReader::longFilename;
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
@@ -195,7 +196,7 @@ bool CardReader::is_dir_or_gcode(const dir_t &p) {
 int CardReader::countItems(SdFile dir) {
   dir_t p;
   int c = 0;
-  while (dir.readDir(&p, longFilename) > 0)
+  while (dir.readDir(&p, longFilename.buf()) > 0)
     c += is_dir_or_gcode(p);
 
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
@@ -210,7 +211,7 @@ int CardReader::countItems(SdFile dir) {
 //
 void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
   dir_t p;
-  for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0;) {
+  for (uint8_t cnt = 0; dir.readDir(&p, longFilename.buf()) > 0;) {
     if (is_dir_or_gcode(p)) {
       if (cnt == index) {
         createFilename(filename, p);
@@ -226,7 +227,7 @@ void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
 //
 void CardReader::selectByName(SdFile dir, const char * const match) {
   dir_t p;
-  for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0; cnt++) {
+  for (uint8_t cnt = 0; dir.readDir(&p, longFilename.buf()) > 0; cnt++) {
     if (is_dir_or_gcode(p)) {
       createFilename(filename, p);
       if (strcasecmp(match, filename) == 0) return;
@@ -239,7 +240,7 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
 //
 void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/) {
   dir_t p;
-  while (parent.readDir(&p, longFilename) > 0) {
+  while (parent.readDir(&p, longFilename.buf()) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
 
       // Get the short name for the item, which we know is a folder
@@ -478,8 +479,8 @@ void CardReader::release() {
  */
 void CardReader::openAndPrintFile(const char *name) {
   DString cmd(F("M23 "));
-  for (char *c = name; *c; c++) cmd += tolower(*c);
-  cmd += PSTR(F("\nM24"));
+  for (const char *c = name; *c; c++) cmd += tolower(*c);
+  cmd += F("\nM24");
   queue.inject(cmd);
 }
 
@@ -613,7 +614,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
     }
 
     selectFileByName(fname);
-    ui.set_status(longFilename[0] ? longFilename : fname);
+    ui.set_status(longFilename[0] ? (const char*)longFilename : (const char*)fname);
   }
   else
     openFailed(fname);
