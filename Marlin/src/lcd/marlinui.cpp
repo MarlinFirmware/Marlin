@@ -1513,6 +1513,12 @@ void MarlinUI::update() {
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
+  void MarlinUI::flow_fault() {
+    LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
+    TERN_(HAS_BUZZER, buzz(1000, 440));
+    TERN_(HAS_LCD_MENU, return_to_status());
+  }
+
   #if ANY(PARK_HEAD_ON_PAUSE, SDSUPPORT)
     #include "../gcode/queue.h"
   #endif
