@@ -19,6 +19,7 @@
  *
  */
 
+#include "types.h"
 #include "string.h"
 
 const unsigned int ROString::find(const ROString & needle, unsigned int pos) const {
@@ -48,24 +49,23 @@ const unsigned int ROString::reverseFind(const ROString & needle, unsigned int p
   return length;
 }
 
-const unsigned int ROString::Count(const ROString & needle) const {
+const unsigned int ROString::count(const ROString & needle) const {
   int pos = -1; unsigned int count = 0;
   while ((pos = find(needle, pos+1)) != -1) count++;
   return count;
 }
 
-const ROString ROString::splitFrom(const ROString & find, const bool includeFind) {
-  const unsigned int pos = find(find);
+const ROString ROString::splitFrom(const ROString & f, const bool includeFind) {
+  const unsigned int pos = find(f);
   if (pos == (unsigned int)length) {
-    if (includeFind)
-    {
+    if (includeFind) {
       ROString ret(*this);
       (void)mutate(data + length, 0);
       return ret;
     }
     return ROString("", 0);
   }
-  const int size = pos + find.length;
+  const int size = pos + f.length;
   ROString ret(data, includeFind ? size : pos);
   (void)mutate(data + size, length - size);
   return ret;
@@ -103,7 +103,7 @@ const ROString ROString::upToLast(const ROString & f, const bool includeFind) co
 const ROString ROString::fromLast(const ROString & f, const bool includeFind) const {
   const unsigned int pos = reverseFind(f);
   return ROString(pos == (unsigned int)length ? (includeFind ? data : "") : &data[includeFind ? pos : pos + (unsigned int)f.length],
-                                  pos == (unsigned int)length ? (includeFind ? (unsigned int)length : 0) : (includeFind ? (unsigned int)length - pos : (unsigned int)length - pos - (unsigned int)find.length));
+                                  pos == (unsigned int)length ? (includeFind ? (unsigned int)length : 0) : (includeFind ? (unsigned int)length - pos : (unsigned int)length - pos - (unsigned int)f.length));
 }
 // Get the string from the first occurrence of the given string
 const ROString ROString::fromFirst(const ROString & f, const bool includeFind) const {
@@ -140,6 +140,4 @@ const bool ROString::operator == (const StringBase & copy) const {
     return length == copy.len && memcmp(data, copy.buffer, length) == 0;
 }
 // Conversion
-ROString::ROString(const StringBase & other)
-    : data((const char*)other.buffer), length(other.len)
-{ }
+ROString::ROString(const StringBase & other) : data((const char*)other.buffer), length(other.len) {}
