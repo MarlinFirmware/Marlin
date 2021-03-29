@@ -177,14 +177,18 @@
     // Setup DMA
     __HAL_RCC_DMA2_CLK_ENABLE();
     #if defined(STM32F1xx)
+      hdma_sdio.Init.Mode = DMA_NORMAL;
       hdma_sdio.Instance = DMA2_Channel4;
       HAL_NVIC_EnableIRQ(DMA2_Channel4_5_IRQn);
       HAL_NVIC_EnableIRQ(SDIO_IRQn);
     #elif defined(STM32F4xx)
+      hdma_sdio.Init.Mode = DMA_PFCTRL;
       hdma_sdio.Instance = DMA2_Stream3;
       hdma_sdio.Init.Channel = DMA_CHANNEL_4;
       hdma_sdio.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
       hdma_sdio.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+      hdma_sdio.Init.MemBurst = DMA_MBURST_INC4;
+      hdma_sdio.Init.PeriphBurst = DMA_PBURST_INC4;
       HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
       HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
     #endif
@@ -192,7 +196,6 @@
     hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
     hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
     hdma_sdio.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sdio.Init.Mode = DMA_NORMAL;
     hdma_sdio.Init.Priority = DMA_PRIORITY_LOW;
     __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
     __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
