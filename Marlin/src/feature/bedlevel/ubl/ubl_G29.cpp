@@ -1139,8 +1139,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  // (for UBL_HILBERT_CURVE default to lower-left corner instead)
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
 
   if (err_flag) return UBL_ERR;
 
