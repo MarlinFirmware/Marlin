@@ -19,8 +19,11 @@
  *
  */
 
-#include "types.h"
+#include "types.h" // For size_t
+#include "macros.h" // For min
 #include "string.h"
+
+
 
 const unsigned int ROString::find(const ROString & needle, unsigned int pos) const {
   for (unsigned int j = 0; pos + j < (unsigned int)length;) {
@@ -36,7 +39,7 @@ const unsigned int ROString::find(const ROString & needle, unsigned int pos) con
 }
 const unsigned int ROString::reverseFind(const ROString & needle, unsigned int pos) const {
   if (needle.length > length) return length;
-  unsigned int i = min(pos, (unsigned int)(length - needle.length)); // If there is no space to find out the needle at the end, simply snap back
+  unsigned int i = _MIN(pos, (unsigned int)(length - needle.length)); // If there is no space to find out the needle at the end, simply snap back
   for (unsigned int j = 0;;) {
     if (needle.data[j] == data[i + j]) {
       j ++;
@@ -74,7 +77,7 @@ const ROString ROString::splitFrom(const ROString & f, const bool includeFind) {
 ROString ROString::splitAt(int pos, int stripFromRet) {
   if (stripFromRet > pos) stripFromRet = pos;
   if (pos < 0) return ROString();
-  ROString ret(data, min(pos - stripFromRet, length));
+  ROString ret(data, _MIN(pos - stripFromRet, length));
   if (pos > length) (void)mutate(data, 0);
   else (void)mutate(data + pos, length - pos);
   return ret;
@@ -137,7 +140,7 @@ const ROString ROString::splitUpTo(const ROString & f, const bool includeFind) {
 
 // Compare operator
 const bool ROString::operator == (const StringBase & copy) const {
-    return length == copy.len && memcmp(data, copy.buffer, length) == 0;
+    return (uint16_t)length == copy.len && memcmp(data, copy.buffer, length) == 0;
 }
 // Conversion
 ROString::ROString(const StringBase & other) : data((const char*)other.buffer), length(other.len) {}

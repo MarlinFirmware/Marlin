@@ -20,6 +20,7 @@
  */
 #pragma once
 
+#include <stdarg.h>
 #include "number_format.h"
 #include "allocator.h"
 
@@ -399,7 +400,7 @@ public:
   // For PSTR strings (use the F macro here)
   SString(const __FlashStringHelper * str) : StringBase(obj, N, strlen_P(reinterpret_cast<const char*>(str))) { memcpy_P(obj, str, len + 1); }
   // Simple copy construct
-  SString(const char * str) : StringBase(obj, N, min(strlen(str), N - 1)) { memcpy(obj, str, len + 1); }
+  SString(const char * str) : StringBase(obj, N, strlen(str) < N - 1 ? strlen(str) : N - 1) { memcpy(obj, str, len + 1); }
 
 
   ~SString() {
@@ -451,7 +452,7 @@ public:
   // Construction with allocation
   DString(const uint16_t alloc = 0) : StringBase((char*)SLAlloc::instance().lease(alloc), alloc) {}
 
-  DString(DString && other) : StringBase(other.buffer, other.allocSize, other.len) { memset(&other, 0, sizeof(other)); }
+  DString(DString && other) : StringBase(other.buffer, other.allocSize, other.len) { other.buffer = nullptr; other.len = other.allocSize = 0; }
   DString(const __FlashStringHelper * str) : StringBase(
         (char*)SLAlloc::instance().lease(strlen_P(reinterpret_cast<const char*>(str))+1),
         strlen_P(reinterpret_cast<const char*>(str))+1,
