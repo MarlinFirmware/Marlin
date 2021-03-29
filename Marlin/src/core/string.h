@@ -24,10 +24,9 @@
 #include "bug_on.h"
 
 /** Basic R/W string class that's not managing the memory it's using. Use one of the child class to provide the memory management you need */
-template <typename Child>
-class StringBase : public NumberFormatter< StringBase<Child> >
+class StringBase : public NumberFormatter< StringBase >
 {
-  typedef struct NumberFormatter< StringBase<Child> > BaseClass;
+  typedef struct NumberFormatter< StringBase > BaseClass;
 protected:
   char *    buffer;
   uint16_t  len;
@@ -36,7 +35,7 @@ protected:
   // Helpers
 private:
   // Depending on the implementation, will resize or dump an error if it does not fit
-  bool checkItFits(const uint16_t newSize) { return static_cast<Child*>(this)->checkItFits(newSize); }
+  virtual bool checkItFits(const uint16_t newSize) = 0;
 
   // Append a string here
   StringBase & append(const char * txt, size_t txtLen = 0) {
@@ -92,7 +91,7 @@ public:
 /** A stack based string. Mainly used to the build a complex string from simple operations.
     The maximum string size is preallocated upon construction on the stack, so you can't pass this object around. */
 template <size_t N>
-struct SString : public StringBase< SString<N> >
+struct SString : public StringBase
 {
   char obj[N];
   // StringBase interface
@@ -107,7 +106,7 @@ public:
   }
 
   // Construction with allocation
-  SString() : StringBase< SString<N> >(obj, N) {}
+  SString() : StringBase(obj, N) {}
   ~SString() {
     // Not absolutely required, but it'll crash instantly if used, it's easier to debug this way
     this->allocSize = this->len = 0; this->buffer = nullptr;
@@ -117,7 +116,7 @@ public:
 
 /** A dynamic allocation string class. Use very very sparsely and don't let any instance
     lingering around since it'll cause fragmentation on the allocator */
-struct DString : public StringBase<DString>
+struct DString : public StringBase
 {
   // StringBase interface
 public:
@@ -136,7 +135,7 @@ public:
   }
 
   // Construction with allocation
-  DString(const uint16_t alloc = 0) : StringBase<DString>((char*)malloc(alloc), alloc) {}
+  DString(const uint16_t alloc = 0) : StringBase((char*)malloc(alloc), alloc) {}
   ~DString() {
     free(buffer);
     // Not absolutely required, but it'll crash instantly if used, it's easier to debug this way
