@@ -148,7 +148,6 @@
   void SD_LowLevel_Init(void) {
     uint32_t tempreg;
 
-    __HAL_RCC_SDIO_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE(); //enable GPIO clocks
     __HAL_RCC_GPIOD_CLK_ENABLE(); //enable GPIO clocks
 
@@ -175,12 +174,10 @@
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     // Setup DMA
-    __HAL_RCC_DMA2_CLK_ENABLE();
     #if defined(STM32F1xx)
       hdma_sdio.Init.Mode = DMA_NORMAL;
       hdma_sdio.Instance = DMA2_Channel4;
       HAL_NVIC_EnableIRQ(DMA2_Channel4_5_IRQn);
-      HAL_NVIC_EnableIRQ(SDIO_IRQn);
     #elif defined(STM32F4xx)
       hdma_sdio.Init.Mode = DMA_PFCTRL;
       hdma_sdio.Instance = DMA2_Stream3;
@@ -190,8 +187,8 @@
       hdma_sdio.Init.MemBurst = DMA_MBURST_INC4;
       hdma_sdio.Init.PeriphBurst = DMA_PBURST_INC4;
       HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
-      HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
     #endif
+    HAL_NVIC_EnableIRQ(SDIO_IRQn);
     hdma_sdio.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
     hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
@@ -200,11 +197,21 @@
     __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
     __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
 
-    #if DISABLED(STM32F1xx)
-      // TODO: use __HAL_RCC_SDIO_RELEASE_RESET() and __HAL_RCC_SDIO_CLK_ENABLE();
-      RCC->APB2RSTR &= ~RCC_APB2RSTR_SDIORST_Msk;  // take SDIO out of reset
-      RCC->APB2ENR  |=  RCC_APB2RSTR_SDIORST_Msk;  // enable SDIO clock
-      // Enable the DMA2 Clock
+    #if defined(STM32F1xx)
+      __HAL_RCC_SDIO_CLK_ENABLE();
+      __HAL_RCC_DMA2_CLK_ENABLE();
+    #else
+      __HAL_RCC_SDIO_FORCE_RESET();
+      delay(2);
+      __HAL_RCC_SDIO_RELEASE_RESET();
+      delay(2);
+      __HAL_RCC_SDIO_CLK_ENABLE();
+
+      __HAL_RCC_DMA2_FORCE_RESET();
+      delay(2);
+      __HAL_RCC_DMA2_RELEASE_RESET();
+      delay(2);
+      __HAL_RCC_DMA2_CLK_ENABLE();
     #endif
 
     //Initialize the SDIO (with initial <400Khz Clock)
@@ -326,18 +333,14 @@
     return false;
   }
 
-  #if defined(STM32F1xx)
-    extern "C" void SDIO_IRQHandler(void) {
-  #elif defined(STM32F4xx)
-    extern "C" void SDMMC1_IRQHandler(void) {
-  #endif
-      HAL_SD_IRQHandler(&hsd);
-    }
+  extern "C" void SDIO_IRQHandler(void) {
+    HAL_SD_IRQHandler(&hsd);
+  }
 
   #if defined(STM32F1xx)
     extern "C" void DMA2_Channel4_5_IRQHandler(void) {
   #elif defined(STM32F4xx)
-    extern "C" void DMA2_Channel3_IRQHandler(void) {
+    extern "C" void DMA2_Stream3_IRQHandler(void) {
   #endif
       HAL_DMA_IRQHandler(&hdma_sdio);
     }
