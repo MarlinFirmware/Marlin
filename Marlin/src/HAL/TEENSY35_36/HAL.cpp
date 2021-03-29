@@ -31,7 +31,7 @@
 
 #include <Wire.h>
 
-#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false)
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
 #define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
 #if WITHIN(SERIAL_PORT, 0, 3)
   IMPLEMENT_SERIAL(SERIAL_PORT);

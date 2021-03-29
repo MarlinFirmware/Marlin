@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER
+#if HAS_COOLER || HAS_FLOWMETER
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -50,6 +50,10 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
 #endif
 
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
@@ -197,7 +201,7 @@
 #endif
 
 #if HAS_SERVOS
-  #include "./servo.h"
+  #include "servo.h"
 #endif
 
 #if ANY(TEMP_SENSOR_0_IS_THERMISTOR, TEMP_SENSOR_1_IS_THERMISTOR, TEMP_SENSOR_2_IS_THERMISTOR, TEMP_SENSOR_3_IS_THERMISTOR, \
@@ -253,7 +257,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTEND_TEMPS]; // = { 0 }
-  const uint16_t Temperature::heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
+  const celsius_t Temperature::hotend_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
 #endif
 
 #if ENABLED(AUTO_POWER_E_FANS)
@@ -267,24 +271,32 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #if ENABLED(AUTO_POWER_COOLER_FAN)
   uint8_t Temperature::coolerfan_speed; // = 0
 #endif
+
 #if HAS_FAN
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
 
   #if ENABLED(EXTRA_FAN_SPEED)
-    uint8_t Temperature::old_fan_speed[FAN_COUNT], Temperature::new_fan_speed[FAN_COUNT];
 
-    void Temperature::set_temp_fan_speed(const uint8_t fan, const uint16_t tmp_temp) {
-      switch (tmp_temp) {
+    Temperature::extra_fan_t Temperature::extra_fan_speed[FAN_COUNT];
+
+    /**
+     * Handle the M106 P<fan> T<speed> command:
+     *  T1       = Restore fan speed saved on the last T2
+     *  T2       = Save the fan speed, then set to the last T<3-255> value
+     *  T<3-255> = Set the "extra fan speed"
+     */
+    void Temperature::set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed) {
+      switch (command_or_speed) {
         case 1:
-          set_fan_speed(fan, old_fan_speed[fan]);
+          set_fan_speed(fan, extra_fan_speed[fan].saved);
           break;
         case 2:
-          old_fan_speed[fan] = fan_speed[fan];
-          set_fan_speed(fan, new_fan_speed[fan]);
+          extra_fan_speed[fan].saved = fan_speed[fan];
+          set_fan_speed(fan, extra_fan_speed[fan].speed);
           break;
         default:
-          new_fan_speed[fan] = _MIN(tmp_temp, 255U);
+          extra_fan_speed[fan].speed = _MIN(command_or_speed, 255U);
           break;
       }
     }
@@ -360,12 +372,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #if HAS_HEATED_BED
   bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
-  #ifdef BED_MINTEMP
-    int16_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP;
-  #endif
-  #ifdef BED_MAXTEMP
-    int16_t Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
-  #endif
+  int16_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP,
+          Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
 #endif
@@ -375,12 +383,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   #if HAS_HEATED_CHAMBER
     millis_t next_cool_check_ms_2 = 0;
     float old_temp = 9999;
-    #ifdef CHAMBER_MINTEMP
-      int16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP;
-    #endif
-    #ifdef CHAMBER_MAXTEMP
-      int16_t Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
-    #endif
+    int16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
+            Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
   #endif
@@ -392,12 +396,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
     float previous_temp = 9999;
-    #ifdef COOLER_MINTEMP
-      int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP;
-    #endif
-    #ifdef COOLER_MAXTEMP
-      int16_t Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
-    #endif
+    int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP,
+            Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
     #if WATCH_COOLER
       cooler_watch_t Temperature::watch_cooler{0};
     #endif
@@ -411,7 +411,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
-  int16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
+  celsius_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
 // private:
@@ -421,7 +421,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  uint16_t Temperature::redundant_temperature_raw = 0;
+  celsius_t Temperature::redundant_temperature_raw = 0;
   float Temperature::redundant_temperature = 0.0;
 #endif
 
@@ -466,7 +466,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
-  uint16_t Temperature::singlenozzle_temp[EXTRUDERS];
+  celsius_t Temperature::singlenozzle_temp[EXTRUDERS];
   #if HAS_FAN
     uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
   #endif
@@ -552,7 +552,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
 
-    if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - HOTEND_OVERSHOOT)) {
+    if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
       return;
@@ -1510,9 +1510,9 @@ void Temperature::manage_heater() {
 
     static bool flag_cooler_state; // = false
 
-    if (cooler.is_enabled()) {
+    if (cooler.enabled) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
-      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MINTEMP;
+      if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
         if (temp_cooler.celsius > temp_cooler.target) {
@@ -1546,7 +1546,18 @@ void Temperature::manage_heater() {
     #if ENABLED(THERMAL_PROTECTION_COOLER)
       tr_state_machine[RUNAWAY_IND_COOLER].run(temp_cooler.celsius, temp_cooler.target, H_COOLER, THERMAL_PROTECTION_COOLER_PERIOD, THERMAL_PROTECTION_COOLER_HYSTERESIS);
     #endif
+
   #endif // HAS_COOLER
+
+  #if HAS_FLOWMETER
+    cooler.flowmeter_task(ms);
+    #if ENABLED(FLOWMETER_SAFETY)
+      if (cutter.enabled() && cooler.check_flow_too_low()) {
+        cutter.disable();
+        ui.flow_fault();
+      }
+    #endif
+  #endif
 
   UNUSED(ms);
 }
@@ -1558,22 +1569,22 @@ void Temperature::manage_heater() {
  * Bisect search for the range of the 'raw' value, then interpolate
  * proportionally between the under and over values.
  */
-#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                            \
-  uint8_t l = 0, r = LEN, m;                                          \
-  for (;;) {                                                          \
-    m = (l + r) >> 1;                                                 \
-    if (!m) return int16_t(pgm_read_word(&TBL[0].celsius));           \
-    if (m == l || m == r) return int16_t(pgm_read_word(&TBL[LEN-1].celsius)); \
-    int16_t v00 = pgm_read_word(&TBL[m-1].value),                     \
-          v10 = pgm_read_word(&TBL[m-0].value);                       \
-         if (raw < v00) r = m;                                        \
-    else if (raw > v10) l = m;                                        \
-    else {                                                            \
-      const int16_t v01 = int16_t(pgm_read_word(&TBL[m-1].celsius)),  \
-                  v11 = int16_t(pgm_read_word(&TBL[m-0].celsius));    \
-      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00); \
-    }                                                                 \
-  }                                                                   \
+#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                                \
+  uint8_t l = 0, r = LEN, m;                                              \
+  for (;;) {                                                              \
+    m = (l + r) >> 1;                                                     \
+    if (!m) return celsius_t(pgm_read_word(&TBL[0].celsius));             \
+    if (m == l || m == r) return celsius_t(pgm_read_word(&TBL[LEN-1].celsius)); \
+    int16_t v00 = pgm_read_word(&TBL[m-1].value),                         \
+            v10 = pgm_read_word(&TBL[m-0].value);                         \
+         if (raw < v00) r = m;                                            \
+    else if (raw > v10) l = m;                                            \
+    else {                                                                \
+      const celsius_t v01 = celsius_t(pgm_read_word(&TBL[m-1].celsius)),  \
+                      v11 = celsius_t(pgm_read_word(&TBL[m-0].celsius));  \
+      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);     \
+    }                                                                     \
+  }                                                                       \
 }while(0)
 
 #if HAS_USER_THERMISTORS
@@ -1655,7 +1666,7 @@ void Temperature::manage_heater() {
     SERIAL_EOL();
   }
 
-  float Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int raw) {
+  celsius_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int raw) {
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
     //  static uint32_t clocks_total = 0;
     //  static uint32_t calls = 0;
@@ -1704,7 +1715,7 @@ void Temperature::manage_heater() {
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
-  float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
+  celsius_t Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
       if (e > HOTENDS - DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)) {
         SERIAL_ERROR_START();
         SERIAL_ECHO(e);
@@ -1813,7 +1824,7 @@ void Temperature::manage_heater() {
 
 #if HAS_HEATED_BED
   // For bed temperature measurement.
-  float Temperature::analog_to_celsius_bed(const int raw) {
+  celsius_t Temperature::analog_to_celsius_bed(const int raw) {
     #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
@@ -1831,7 +1842,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_CHAMBER
   // For chamber temperature measurement.
-  float Temperature::analog_to_celsius_chamber(const int raw) {
+  celsius_t Temperature::analog_to_celsius_chamber(const int raw) {
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_CHAMBER, raw);
     #elif TEMP_SENSOR_CHAMBER_IS_THERMISTOR
@@ -1849,7 +1860,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_COOLER
   // For cooler temperature measurement.
-  float Temperature::analog_to_celsius_cooler(const int raw) {
+  celsius_t Temperature::analog_to_celsius_cooler(const int raw) {
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_COOLER, raw);
     #elif TEMP_SENSOR_COOLER_IS_THERMISTOR
@@ -1867,7 +1878,7 @@ void Temperature::manage_heater() {
 
 #if HAS_TEMP_PROBE
   // For probe temperature measurement.
-  float Temperature::analog_to_celsius_probe(const int raw) {
+  celsius_t Temperature::analog_to_celsius_probe(const int raw) {
     #if TEMP_SENSOR_PROBE_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_PROBE, raw);
     #elif TEMP_SENSOR_PROBE_IS_THERMISTOR
@@ -2183,13 +2194,13 @@ void Temperature::init() {
   #if HAS_HOTEND
 
     #define _TEMP_MIN_E(NR) do{ \
-      const int16_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, (int16_t)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
+      const celsius_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
       temp_range[NR].mintemp = tmin; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
-      const int16_t tmax = _MIN(HEATER_##NR##_MAXTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 2000, (int16_t)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MAXTEMP_IND].celsius) - 1)); \
+      const celsius_t tmax = _MIN(HEATER_##NR##_MAXTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 2000, pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MAXTEMP_IND].celsius) - 1)); \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
@@ -2249,30 +2260,18 @@ void Temperature::init() {
   #endif // HAS_HOTEND
 
   #if HAS_HEATED_BED
-    #ifdef BED_MINTEMP
-      while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
-    #endif
-    #ifdef BED_MAXTEMP
-      while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
-    #endif
-  #endif // HAS_HEATED_BED
+    while (analog_to_celsius_bed(mintemp_raw_BED) < BED_MINTEMP) mintemp_raw_BED += TEMPDIR(BED) * (OVERSAMPLENR);
+    while (analog_to_celsius_bed(maxtemp_raw_BED) > BED_MAXTEMP) maxtemp_raw_BED -= TEMPDIR(BED) * (OVERSAMPLENR);
+  #endif
 
   #if HAS_HEATED_CHAMBER
-    #ifdef CHAMBER_MINTEMP
-      while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
-    #endif
-    #ifdef CHAMBER_MAXTEMP
-      while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
-    #endif
+    while (analog_to_celsius_chamber(mintemp_raw_CHAMBER) < CHAMBER_MINTEMP) mintemp_raw_CHAMBER += TEMPDIR(CHAMBER) * (OVERSAMPLENR);
+    while (analog_to_celsius_chamber(maxtemp_raw_CHAMBER) > CHAMBER_MAXTEMP) maxtemp_raw_CHAMBER -= TEMPDIR(CHAMBER) * (OVERSAMPLENR);
   #endif
 
   #if HAS_COOLER
-    #ifdef COOLER_MINTEMP
-      while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MINTEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
-    #endif
-    #ifdef COOLER_MAXTEMP
-      while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAXTEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
-    #endif
+    while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MINTEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
+    while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAXTEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
   #endif
 
   TERN_(PROBING_HEATERS_OFF, paused = false);
@@ -2337,7 +2336,7 @@ void Temperature::init() {
    *
    * TODO: Embed the last 3 parameters during init, if not less optimal
    */
-  void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
+  void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
@@ -2511,7 +2510,7 @@ void Temperature::disable_all_heaters() {
     if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
       setTargetHotend(singlenozzle_temp[new_tool], 0);
       TERN_(AUTOTEMP, planner.autotemp_update());
-      TERN_(HAS_DISPLAY, set_heating_message(0));
+      TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
       (void)wait_for_hotend(0, false);  // Wait for heating or cooling
     }
   }
@@ -2546,7 +2545,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MULTI_MAX_TC
       // Needed to return the correct temp when this is called between readings
-      static uint16_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
+      static celsius_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
       #define THERMO_SEL(A,B) (hindex ? (B) : (A))
       #define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
@@ -3508,7 +3507,7 @@ void Temperature::tick() {
     }
   #endif
 
-  #if HAS_HOTEND && HAS_DISPLAY
+  #if HAS_HOTEND && HAS_STATUS_MESSAGE
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,

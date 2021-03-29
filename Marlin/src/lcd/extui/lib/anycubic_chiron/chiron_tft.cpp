@@ -288,7 +288,7 @@ namespace Anycubic {
     SERIAL_ECHOLNPGM("Select SD file then press resume");
   }
 
-  void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEN string to the panel
+  void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEM string to the panel
     #if ACDEBUG(AC_SOME)
       SERIAL_ECHOPGM_P(str);
     #endif
@@ -880,6 +880,7 @@ namespace Anycubic {
       }  break;
     }
   }
-} // namespace
+
+} // Anycubic
 
 #endif // ANYCUBIC_LCD_CHIRON
