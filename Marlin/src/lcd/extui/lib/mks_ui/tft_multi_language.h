@@ -103,7 +103,7 @@ typedef struct machine_common_disp{
 
   const char *LevelingParaConfTitle;
   const char *LevelingParaConf;
-  const char *LevelingManuPosConf;
+  const char *TrammingPosConf;
   const char *LevelingAutoCommandConf;
   const char *LevelingAutoZoffsetConf;
 
@@ -748,6 +748,7 @@ extern eeprom_def eeprom_menu;
 /*****************************************/
 //
 #define TEXT_VALUE          "%d/%d"
+#define TEXT_VALUE_TARGET   "%d -> %d"
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"

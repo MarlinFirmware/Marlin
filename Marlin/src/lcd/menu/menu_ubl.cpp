@@ -56,12 +56,24 @@ inline float rounded_mesh_value() {
   return float(rounded - (rounded % 5L)) / 1000;
 }
 
-static void _lcd_mesh_fine_tune(PGM_P const msg) {
+/**
+ * This screen displays the temporary mesh value and updates it based on encoder
+ * movement. While this screen is active ubl.fine_tune_mesh sits in a loop getting
+ * the current value via ubl_mesh_value, moves the Z axis, and updates the mesh
+ * value until the encoder button is pressed.
+ *
+ * - Update the 'mesh_edit_accumulator' from encoder rotation
+ * - Draw the mesh value (with draw_edit_screen)
+ * - Draw the graphical overlay, if enabled.
+ * - Update the 'refresh' state according to the display type
+ */
+void _lcd_mesh_fine_tune(PGM_P const msg) {
+  constexpr float mesh_edit_step = 1.0f / 200.0f;
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
     mesh_edit_accumulator += TERN(IS_TFTGLCD_PANEL,
-      ubl.encoder_diff * 0.005f / ENCODER_PULSES_PER_STEP,
-      ubl.encoder_diff > 0 ? 0.005f : -0.005f
+      ubl.encoder_diff * mesh_edit_step / ENCODER_PULSES_PER_STEP,
+      ubl.encoder_diff > 0 ? mesh_edit_step : -mesh_edit_step
     );
     ubl.encoder_diff = 0;
     IF_DISABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
@@ -77,29 +89,19 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
 }
 
 //
-// Called external to the menu system to acquire the result of an edit.
+// Init mesh editing and go to the fine tuning screen (ubl.fine_tune_mesh)
+// To capture encoder events UBL will also call ui.capture and ui.release.
 //
-float lcd_mesh_edit() { return rounded_mesh_value(); }
-
-void lcd_mesh_edit_setup(const float &initial) {
-  TERN_(HAS_GRAPHICAL_TFT, ui.clear_lcd());
+void MarlinUI::ubl_mesh_edit_start(const float &initial) {
+  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
   mesh_edit_accumulator = initial;
-  ui.goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
+  goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
 }
 
-void _lcd_z_offset_edit() {
-  _lcd_mesh_fine_tune(GET_TEXT(MSG_UBL_Z_OFFSET));
-}
-
-float lcd_z_offset_edit() {
-  ui.goto_screen(_lcd_z_offset_edit);
-  return rounded_mesh_value();
-}
-
-void lcd_z_offset_edit_setup(const float &initial) {
-  mesh_edit_accumulator = initial;
-  ui.goto_screen(_lcd_z_offset_edit);
-}
+//
+// Get the mesh value within a Z adjustment loop (ubl.fine_tune_mesh)
+//
+float MarlinUI::ubl_mesh_value() { return rounded_mesh_value(); }
 
 /**
  * UBL Build Custom Mesh Command
@@ -126,7 +128,7 @@ void _lcd_ubl_custom_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_BUILD_MESH_MENU);
   #if HAS_HOTEND
-    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
   #endif
   #if HAS_HEATED_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);

@@ -103,8 +103,12 @@
 namespace ExtUI {
   static struct {
     uint8_t printer_killed : 1;
-    TERN_(JOYSTICK, uint8_t jogging : 1);
-    TERN_(SDSUPPORT, uint8_t was_sd_printing : 1);
+    #if ENABLED(JOYSTICK)
+      uint8_t jogging : 1;
+    #endif
+    #if ENABLED(SDSUPPORT)
+      uint8_t was_sd_printing : 1;
+    #endif
   } flags;
 
   #ifdef __SAM3X8E__
@@ -175,8 +179,12 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
-        TERN_(HAS_COOLER, case COOLER: return); // Cooler has no idle timer
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if ENABLED(HAS_COOLER)
+          case COOLER: return;  // Cooler has no idle timer
+        #endif
         default:
           TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
@@ -234,8 +242,12 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
+        #if ENABLED(HAS_HEATED_BED)
+          case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
+        #endif
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return false; // Chamber has no idle timer
+        #endif
         default:
           return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
@@ -253,8 +265,12 @@ namespace ExtUI {
 
   float getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
@@ -265,8 +281,12 @@ namespace ExtUI {
 
   float getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
@@ -294,13 +314,13 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) current_position[axis];
+    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) current_position.e;
+    const float epos = TERN0(JOYSTICK, flags.jogging) ? destination.e : current_position.e;
     setActiveTool(old_tool, true);
     return epos;
   }
@@ -491,14 +511,30 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        TERN_(X_SENSORLESS,  case X:  return stepperX.homing_threshold());
-        TERN_(X2_SENSORLESS, case X2: return stepperX2.homing_threshold());
-        TERN_(Y_SENSORLESS,  case Y:  return stepperY.homing_threshold());
-        TERN_(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold());
-        TERN_(Z_SENSORLESS,  case Z:  return stepperZ.homing_threshold());
-        TERN_(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold());
-        TERN_(Z3_SENSORLESS, case Z3: return stepperZ3.homing_threshold());
-        TERN_(Z4_SENSORLESS, case Z4: return stepperZ4.homing_threshold());
+        #if ENABLED(X_SENSORLESS)
+          case X:  return stepperX.homing_threshold();
+        #endif
+        #if ENABLED(X2_SENSORLESS)
+          case X2: return stepperX2.homing_threshold();
+        #endif
+        #if ENABLED(Y_SENSORLESS)
+          case Y:  return stepperY.homing_threshold();
+        #endif
+        #if ENABLED(Y2_SENSORLESS)
+          case Y2: return stepperY2.homing_threshold();
+        #endif
+        #if ENABLED(Z_SENSORLESS)
+          case Z:  return stepperZ.homing_threshold();
+        #endif
+        #if ENABLED(Z2_SENSORLESS)
+          case Z2: return stepperZ2.homing_threshold();
+        #endif
+        #if ENABLED(Z3_SENSORLESS)
+          case Z3: return stepperZ3.homing_threshold();
+        #endif
+        #if ENABLED(Z4_SENSORLESS)
+          case Z4: return stepperZ4.homing_threshold();
+        #endif
         default: return 0;
       }
     }
@@ -813,10 +849,13 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING
+
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     bool getMeshValid() { return leveling_is_valid(); }
+
     #if HAS_MESH
+
       bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
       float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
       void setMeshPoint(const xy_uint8_t &pos, const float &zoff) {
@@ -825,8 +864,36 @@ namespace ExtUI {
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
-    #endif
-  #endif
+
+      void moveToMeshPoint(const xy_uint8_t &pos, const float &z) {
+        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          const feedRate_t old_feedrate = feedrate_mm_s;
+          const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
+                      y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
+          if (x_target != current_position[X_AXIS] || y_target != current_position[Y_AXIS]) {
+            // If moving across bed, raise nozzle to safe height over bed
+            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            destination = current_position;
+            destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+            prepare_line_to_destination();
+            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            destination[X_AXIS] = x_target;
+            destination[Y_AXIS] = y_target;
+            prepare_line_to_destination();
+          }
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination[Z_AXIS] = z;
+          prepare_line_to_destination();
+          feedrate_mm_s = old_feedrate;
+        #else
+          UNUSED(pos);
+          UNUSED(z);
+        #endif
+      }
+
+    #endif // HAS_MESH
+
+  #endif // HAS_LEVELING
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
@@ -904,7 +971,7 @@ namespace ExtUI {
     enableHeater(heater);
     switch (heater) {
       #if HAS_HEATED_CHAMBER
-        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10))); break;
+        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAX_TARGET))); break;
       #endif
       #if HAS_COOLER
         case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP))); break;
@@ -915,7 +982,7 @@ namespace ExtUI {
       default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
         #endif
       } break;
     }
@@ -929,7 +996,7 @@ namespace ExtUI {
     #if HAS_HOTEND
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
     #endif
   }
 

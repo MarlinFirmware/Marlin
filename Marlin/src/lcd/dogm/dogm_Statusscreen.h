@@ -77,9 +77,12 @@
 #ifndef STATUS_CUTTER_WIDTH
   #define STATUS_CUTTER_WIDTH 0
 #endif
+  #ifndef STATUS_CUTTER_BYTEWIDTH
+    #define STATUS_CUTTER_BYTEWIDTH BW(STATUS_CUTTER_WIDTH)
+  #endif
 
 //
-// Laser Cooler
+// Laser cooler
 //
 #if !STATUS_COOLER_WIDTH && HAS_COOLER
   #include "status/cooler.h"
@@ -87,6 +90,24 @@
 #ifndef STATUS_COOLER_WIDTH
   #define STATUS_COOLER_WIDTH 0
 #endif
+#ifndef STATUS_COOLER_BYTEWIDTH
+  #define STATUS_COOLER_BYTEWIDTH BW(STATUS_COOLER_WIDTH)
+#endif
+
+//
+// Laser Flowmeter
+//
+#if !STATUS_FLOWMETER_WIDTH && HAS_FLOWMETER
+  #include "status/cooler.h"
+#endif
+#ifndef STATUS_FLOWMETER_WIDTH
+  #define STATUS_FLOWMETER_WIDTH 0
+#endif
+#ifndef STATUS_FLOWMETER_BYTEWIDTH
+  #define STATUS_FLOWMETER_BYTEWIDTH BW(STATUS_FLOWMETER_WIDTH)
+#endif
+
+
 
 //
 // Bed
@@ -425,46 +446,45 @@
 //
 // Cutter Bitmap Properties
 //
-#ifndef STATUS_CUTTER_BYTEWIDTH
-  #define STATUS_CUTTER_BYTEWIDTH BW(STATUS_CUTTER_WIDTH)
-#endif
-#if STATUS_CUTTER_WIDTH
+#if HAS_CUTTER
+  #if STATUS_CUTTER_WIDTH
 
-  #ifndef STATUS_CUTTER_X
-    #define STATUS_CUTTER_X (LCD_PIXEL_WIDTH - (STATUS_CUTTER_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH) * 8)
-  #endif
-
-  #ifndef STATUS_CUTTER_HEIGHT
-    #ifdef STATUS_CUTTER_ANIM
-      #define STATUS_CUTTER_HEIGHT(S) ((S) ? sizeof(status_cutter_on_bmp) / (STATUS_CUTTER_BYTEWIDTH) : sizeof(status_cutter_bmp) / (STATUS_CUTTER_BYTEWIDTH))
-    #else
-      #define STATUS_CUTTER_HEIGHT(S) (sizeof(status_cutter_bmp) / (STATUS_CUTTER_BYTEWIDTH))
+    #ifndef STATUS_CUTTER_X
+      #define STATUS_CUTTER_X (LCD_PIXEL_WIDTH - (STATUS_CUTTER_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH) * 8)
     #endif
-  #endif
 
-  #ifndef STATUS_CUTTER_Y
-    #define STATUS_CUTTER_Y(S) 4
-  #endif
+    #ifndef STATUS_CUTTER_HEIGHT
+      #ifdef STATUS_CUTTER_ANIM
+        #define STATUS_CUTTER_HEIGHT(S) ((S) ? sizeof(status_cutter_on_bmp) / (STATUS_CUTTER_BYTEWIDTH) : sizeof(status_cutter_bmp) / (STATUS_CUTTER_BYTEWIDTH))
+      #else
+        #define STATUS_CUTTER_HEIGHT(S) (sizeof(status_cutter_bmp) / (STATUS_CUTTER_BYTEWIDTH))
+      #endif
+    #endif
 
-  #ifndef STATUS_CUTTER_TEXT_X
-    #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X -1)
-  #endif
+    #ifndef STATUS_CUTTER_Y
+      #define STATUS_CUTTER_Y(S) 4
+    #endif
 
-  #ifndef STATUS_CUTTER_TEXT_Y
-    #define STATUS_CUTTER_TEXT_Y 28
-  #endif
+    #ifndef STATUS_CUTTER_TEXT_X
+      #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X -1)
+    #endif
 
-  static_assert(
-    sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(0)),
-    "Status cutter bitmap (status_cutter_bmp) dimensions don't match data."
-  );
-  #ifdef STATUS_CUTTER_ANIM
+    #ifndef STATUS_CUTTER_TEXT_Y
+      #define STATUS_CUTTER_TEXT_Y 28
+    #endif
+
     static_assert(
-      sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(1)),
-      "Status cutter bitmap (status_cutter_on_bmp) dimensions don't match data."
+      sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(0)),
+      "Status cutter bitmap (status_cutter_bmp) dimensions don't match data."
     );
-  #endif
+    #ifdef STATUS_CUTTER_ANIM
+      static_assert(
+        sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(1)),
+        "Status cutter bitmap (status_cutter_on_bmp) dimensions don't match data."
+      );
+    #endif
 
+  #endif
 #endif
 
 //
@@ -511,42 +531,72 @@
 //
 // Cooler Bitmap Properties
 //
-#ifndef STATUS_COOLER_BYTEWIDTH
-  #define STATUS_COOLER_BYTEWIDTH BW(STATUS_COOLER_WIDTH)
-#endif
-#if STATUS_COOLER_WIDTH
+#if HAS_COOLER
+  #if STATUS_COOLER_WIDTH
 
-  #ifndef STATUS_COOLER_X
-    #define STATUS_COOLER_X (LCD_PIXEL_WIDTH - (STATUS_COOLER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH) * 8)
-  #endif
+    #ifndef STATUS_COOLER_X
+      #define STATUS_COOLER_X (LCD_PIXEL_WIDTH - (STATUS_COOLER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH) * 8)
+    #endif
 
-  #ifndef STATUS_COOLER_HEIGHT
+    #ifndef STATUS_COOLER_HEIGHT
+      #define STATUS_COOLER_HEIGHT(S) (sizeof(status_cooler_bmp1) / (STATUS_COOLER_BYTEWIDTH))
+    #endif
+
+    #ifndef STATUS_COOLER_Y
+      #define STATUS_COOLER_Y(S) (18 - STATUS_COOLER_HEIGHT(S))
+    #endif
+
+    #ifndef STATUS_COOLER_TEXT_X
+      #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 8)
+    #endif
+
+    static_assert(
+      sizeof(status_cooler_bmp1) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(0)),
+      "Status cooler bitmap (status_cooler_bmp1) dimensions don't match data."
+    );
     #ifdef STATUS_COOLER_ANIM
-      #define STATUS_COOLER_HEIGHT(S) ((S) ? sizeof(status_cooler_on_bmp) / (STATUS_COOLER_BYTEWIDTH) : sizeof(status_cooler_bmp) / (STATUS_COOLER_BYTEWIDTH))
-    #else
-      #define STATUS_COOLER_HEIGHT(S) (sizeof(status_cooler_bmp) / (STATUS_COOLER_BYTEWIDTH))
+      static_assert(
+        sizeof(status_cooler_bmp2) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(1)),
+        "Status cooler bitmap (status_cooler_bmp2) dimensions don't match data."
+      );
+    #endif
+
+  #endif
+#endif
+
+//
+//  Flowmeter Bitmap Properties
+//
+#if HAS_FLOWMETER
+  #if STATUS_FLOWMETER_WIDTH
+
+    #ifndef STATUS_FLOWMETER_X
+      #define STATUS_FLOWMETER_X (LCD_PIXEL_WIDTH - (STATUS_FLOWMETER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH + STATUS_COOLER_BYTEWIDTH) * 8)
+    #endif
+
+    #ifndef STATUS_FLOWMETER_HEIGHT
+      #define STATUS_FLOWMETER_HEIGHT(S) (sizeof(status_flowmeter_bmp1) / (STATUS_FLOWMETER_BYTEWIDTH))
+    #endif
+
+    #ifndef STATUS_FLOWMETER_Y
+      #define STATUS_FLOWMETER_Y(S) (20 - STATUS_FLOWMETER_HEIGHT(S))
+    #endif
+
+    #ifndef STATUS_FLOWMETER_TEXT_X
+      #define STATUS_FLOWMETER_TEXT_X (STATUS_FLOWMETER_X + 8)
+    #endif
+
+    static_assert(
+      sizeof(status_flowmeter_bmp1) == (STATUS_FLOWMETER_BYTEWIDTH) * STATUS_FLOWMETER_HEIGHT(0),
+      "Status flowmeter bitmap (status_flowmeter_bmp1) dimensions don't match data."
+    );
+    #ifdef STATUS_COOLER_ANIM
+      static_assert(
+        sizeof(status_flowmeter_bmp2) == (STATUS_FLOWMETER_BYTEWIDTH) * STATUS_FLOWMETER_HEIGHT(1),
+        "Status flowmeter bitmap (status_flowmeter_bmp2) dimensions don't match data."
+      );
     #endif
   #endif
-
-  #ifndef STATUS_COOLER_Y
-    #define STATUS_COOLER_Y(S) (18 - STATUS_COOLER_HEIGHT(S))
-  #endif
-
-  #ifndef STATUS_COOLER_TEXT_X
-    #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 8)
-  #endif
-
-  static_assert(
-    sizeof(status_cooler_bmp) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(0)),
-    "Status cooler bitmap (status_cooler_bmp) dimensions don't match data."
-  );
-  #ifdef STATUS_COOLER_ANIM
-    static_assert(
-      sizeof(status_cooler_on_bmp) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(1)),
-      "Status cooler bitmap (status_cooler_on_bmp) dimensions don't match data."
-    );
-  #endif
-
 #endif
 
 //
@@ -639,6 +689,9 @@
 #if HAS_COOLER
   #define DO_DRAW_COOLER 1
 #endif
+#if HAS_FLOWMETER
+  #define DO_DRAW_FLOWMETER 1
+#endif
 
 #if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4
   #define DO_DRAW_CHAMBER 1
@@ -660,6 +713,9 @@
 #endif
 #if BOTH(DO_DRAW_COOLER, STATUS_COOLER_ANIM)
   #define ANIM_COOLER 1
+#endif
+#if BOTH(DO_DRAW_FLOWMETER, STATUS_FLOWMETER_ANIM)
+  #define ANIM_FLOWMETER 1
 #endif
 #if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER || ANIM_CUTTER
   #define ANIM_HBCC 1
