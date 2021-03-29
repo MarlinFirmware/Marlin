@@ -248,7 +248,8 @@
   
   By menu:
   - Put your bed at working temperature.
-  - Enter Motion/UnifiedBedLeveling/UBL Tools/Build Mesh/BuildColdMesh to run a levelling.
+  - Enter Motion/UnifiedBedLeveling/UBL_Tools/Build Mesh/BuildColdMesh to run a leveling.
+  - you have a preheating of the bed to 60°C and the beginning of the leveling.
 
 ###  **Perform a bed calibration ([**ABL**](https://marlinfw.org/docs/features/auto_bed_leveling.html))**
   
@@ -336,7 +337,7 @@
 
   - Wiring for UART mode.
     - Wire between Driver Stepper pins (UART/PDN) and pins Wifi socket (M1).
-      Also remove only the M3 jumper under the stepper motors and set J11 (QQS) (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
+      Also remove only the M3 for TMC2208 or all jumper for TMC2209 under the stepper motors and set J11 (QQS) (near the XY stepper motor socket) to 3v3 as the input pins on the Wifi socket are only on 3v3 and all TMCs are 5v/3v3 compatible.
     
     ![UART-WIFI](../../docs/images/UART-WIFI.png)  
 
