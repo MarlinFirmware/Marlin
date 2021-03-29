@@ -46,6 +46,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if HAS_COOLER || HAS_FLOWMETER
+  #include "../../feature/cooler.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -517,6 +521,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
+
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
@@ -549,6 +554,43 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     if (t2 < 10) lcd_put_wchar(' ');
   }
 }
+
+#if HAS_COOLER
+FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
+  const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
+
+  if (prefix >= 0) lcd_put_wchar(prefix);
+
+  lcd_put_u8str(i16tostr3rj(t1 + 0.5));
+  lcd_put_wchar('/');
+
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+      lcd_put_wchar(' ');
+      if (t2 >= 10) lcd_put_wchar(' ');
+      if (t2 >= 100) lcd_put_wchar(' ');
+    }
+    else
+  #endif
+      lcd_put_u8str(i16tostr3left(t2 + 0.5));
+
+  if (prefix >= 0) {
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
+    lcd_put_wchar(' ');
+    if (t2 < 10) lcd_put_wchar(' ');
+  }
+}
+#endif
+
+#if HAS_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd_put_u8str("~ ");
+    lcd_put_u8str(ftostr11ns(cooler.flowrate));
+    lcd_put_wchar('L');
+  }
+#endif
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
@@ -747,17 +789,19 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(H_E0, -1, blink);
+      #if HAS_HOTEND
+        _draw_heater_status(H_E0, -1, blink);
 
-      //
-      // Hotend 1 or Bed Temperature
-      //
-      #if HAS_MULTI_HOTEND
-        lcd_moveto(8, 0);
-        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_HEATED_BED
-        lcd_moveto(8, 0);
-        _draw_bed_status(blink);
+        //
+        // Hotend 1 or Bed Temperature
+        //
+        #if HAS_MULTI_HOTEND
+          lcd_moveto(8, 0);
+          _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
+        #elif HAS_HEATED_BED
+          lcd_moveto(8, 0);
+          _draw_bed_status(blink);
+        #endif
       #endif
 
     #else // LCD_WIDTH >= 20
@@ -765,17 +809,26 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
+      #if HAS_HOTEND
+        _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
 
-      //
-      // Hotend 1 or Bed Temperature
-      //
-      #if HAS_MULTI_HOTEND
-        lcd_moveto(10, 0);
-        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_HEATED_BED
-        lcd_moveto(10, 0);
-        _draw_bed_status(blink);
+        //
+        // Hotend 1 or Bed Temperature
+        //
+        #if HAS_MULTI_HOTEND
+          lcd_moveto(10, 0);
+          _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
+        #elif HAS_HEATED_BED
+          lcd_moveto(10, 0);
+          _draw_bed_status(blink);
+        #endif
+      #endif
+
+      #if HAS_COOLER
+        _draw_cooler_status('*', blink);
+      #endif
+      #if HAS_FLOWMETER
+        _draw_flowmeter_status();
       #endif
 
     #endif // LCD_WIDTH >= 20

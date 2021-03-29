@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER
+#if HAS_COOLER || HAS_FLOWMETER
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -50,6 +50,10 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
 #endif
 
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
@@ -1506,7 +1510,7 @@ void Temperature::manage_heater() {
 
     static bool flag_cooler_state; // = false
 
-    if (cooler.is_enabled()) {
+    if (cooler.enabled) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
@@ -1542,7 +1546,18 @@ void Temperature::manage_heater() {
     #if ENABLED(THERMAL_PROTECTION_COOLER)
       tr_state_machine[RUNAWAY_IND_COOLER].run(temp_cooler.celsius, temp_cooler.target, H_COOLER, THERMAL_PROTECTION_COOLER_PERIOD, THERMAL_PROTECTION_COOLER_HYSTERESIS);
     #endif
+
   #endif // HAS_COOLER
+
+  #if HAS_FLOWMETER
+    cooler.flowmeter_task(ms);
+    #if ENABLED(FLOWMETER_SAFETY)
+      if (cutter.enabled() && cooler.check_flow_too_low()) {
+        cutter.disable();
+        ui.flow_fault();
+      }
+    #endif
+  #endif
 
   UNUSED(ms);
 }
