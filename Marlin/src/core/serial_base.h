@@ -70,8 +70,8 @@ CALL_IF_EXISTS_IMPL(void, flushTX);
 CALL_IF_EXISTS_IMPL(bool, connected, true);
 CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
 
-// A simple forward struct that prevent the compiler to select print(double, int) as a default overload for
-// any type other than double/float. For double/float, a conversion exists so the call will be invisible.
+// A simple forward struct to prevent the compiler from selecting print(double, int) as a default overload
+// for any type other than double/float. For double/float, a conversion exists so the call will be invisible.
 struct EnsureDouble {
   double a;
   FORCE_INLINE operator double() { return a; }
@@ -96,30 +96,44 @@ struct SerialBase {
     SerialBase(const bool) {}
   #endif
 
+  #define SerialChild static_cast<Child*>(this)
+
   // Static dispatch methods below:
   // The most important method here is where it all ends to:
-  size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
+  size_t write(uint8_t c)           { return SerialChild->write(c); }
+
   // Called when the parser finished processing an instruction, usually build to nothing
-  void msgDone()                    { static_cast<Child*>(this)->msgDone(); }
-  // Called upon initialization
-  void begin(const long baudRate)   { static_cast<Child*>(this)->begin(baudRate); }
-  // Called upon destruction
-  void end()                        { static_cast<Child*>(this)->end(); }
+  void msgDone() const              { SerialChild->msgDone(); }
+
+  // Called on initialization
+  void begin(const long baudRate)   { SerialChild->begin(baudRate); }
+
+  // Called on destruction
+  void end()                        { SerialChild->end(); }
+
   /** Check for available data from the port
       @param index  The port index, usually 0 */
-  int available(serial_index_t index = 0)  { return static_cast<Child*>(this)->available(index); }
+  int available(serial_index_t index=0) const { return SerialChild->available(index); }
+
   /** Read a value from the port
       @param index  The port index, usually 0 */
-  int  read(serial_index_t index = 0)      { return static_cast<Child*>(this)->read(index); }
-  /** Combine the feature of this serial instance and returns it
+  int read(serial_index_t index=0)        { return SerialChild->read(index); }
+
+  /** Combine the features of this serial instance and return it
       @param index  The port index, usually 0 */
-  SerialFeature features(serial_index_t index = 0) const     { return static_cast<const Child*>(this)->features(index);  }
+  SerialFeature features(serial_index_t index=0) const { return static_cast<const Child*>(this)->features(index);  }
+
+  // Check if the serial port has a feature
+  bool has_feature(serial_index_t index, SerialFeature flag) const { (features(index) & flag) != SerialFeature::None; }
+
   // Check if the serial port is connected (usually bypassed)
-  bool connected()                  { return static_cast<Child*>(this)->connected(); }
+  bool connected() const            { return SerialChild->connected(); }
+
   // Redirect flush
-  void flush()                      { static_cast<Child*>(this)->flush(); }
+  void flush()                      { SerialChild->flush(); }
+
   // Not all implementation have a flushTX, so let's call them only if the child has the implementation
-  void flushTX()                    { CALL_IF_EXISTS(void, static_cast<Child*>(this), flushTX); }
+  void flushTX()                    { CALL_IF_EXISTS(void, SerialChild, flushTX); }
 
   // Glue code here
   FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }

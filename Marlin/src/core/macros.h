@@ -324,9 +324,9 @@
     FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
     FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x = x & y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x = x | y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x = x ^ y; }
+    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
@@ -388,7 +388,7 @@
     }
     // Compute the string length at compile time
     constexpr unsigned stringLen(const char * str) {
-      return *str == 0 ? 0 : 1 + stringLen(str+1);
+      return *str == 0 ? 0 : 1 + stringLen(str + 1);
     }
   }
 
