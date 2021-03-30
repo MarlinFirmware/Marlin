@@ -172,8 +172,8 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   const xy_pos_t dest = { rx, ry };
 
-  const bool has_xy_component = dest != current_position; // Check if X or Y is involved in the movement.
-  const bool has_e_component = e_delta != 0.0;
+  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement.
+             has_e_component = e_delta != 0.0;
 
   destination = current_position;
 
@@ -793,7 +793,7 @@ void GcodeSuite::G26() {
           if (!b) { e.x = circle.x; e.y += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
-        else if (r) {                             // right edge
+        else if (r) {                               // right edge
           if (b) s.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
           else   s.set(circle.x, circle.y + INTERSECTION_CIRCLE_RADIUS);
           if (f) e.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
@@ -827,11 +827,10 @@ void GcodeSuite::G26() {
 
         g26.recover_filament(destination);
 
-        const feedRate_t old_feedrate = feedrate_mm_s;
-        feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
-        plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
-        feedrate_mm_s = old_feedrate;
-        destination = current_position;
+        { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE() * 0.1f);
+          plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
+          destination = current_position;
+        }
 
         if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
