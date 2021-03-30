@@ -55,7 +55,7 @@ static void _eeprom_begin(uint8_t * const pos, const uint8_t cmd) {
                                   // Leave the Bus in-use
 }
 
-uint8_t eeprom_read_byte(uint8_t* pos) {
+uint8_t eeprom_read_byte(uint8_t *pos) {
   _eeprom_begin(pos, CMD_READ);   // Set read location and begin transmission
 
   const uint8_t v = spiRec(SPI_CHAN_EEPROM1); // After READ a value sits on the Bus
