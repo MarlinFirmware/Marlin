@@ -467,7 +467,7 @@ typedef struct {
           return true;
         }
         return false;
-      }
+      };
 
       hilbert_curve::search_from_closest(pos, test_func, &out_point);
 
