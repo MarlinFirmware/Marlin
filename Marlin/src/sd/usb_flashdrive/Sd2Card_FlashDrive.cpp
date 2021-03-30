@@ -295,7 +295,7 @@ uint32_t Sd2Card::cardSize() {
   return lun0_capacity;
 }
 
-bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
+bool Sd2Card::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
@@ -309,7 +309,7 @@ bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool Sd2Card::writeBlock(uint32_t block, const uint8_t* src) {
+bool Sd2Card::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {

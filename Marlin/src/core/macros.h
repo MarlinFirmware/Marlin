@@ -372,22 +372,22 @@
       return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
     }
     // Find the last position of the specific character (should be called with findStringEnd)
-    constexpr const char* findLastPos(const char* str, const char ch) {
+    constexpr const char* findLastPos(const char *str, const char ch) {
       return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
     }
     // Compile-time evaluation of the last part of a file path
     // Typically used to shorten the path to file in compiled strings
     // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-    constexpr const char* baseName(const char* str) {
+    constexpr const char* baseName(const char *str) {
       return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
     }
 
     // Find the first occurence of a character in a string (or return the last position in the string)
-    constexpr const char* findFirst(const char* str, const char ch) {
+    constexpr const char* findFirst(const char *str, const char ch) {
       return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
     }
     // Compute the string length at compile time
-    constexpr unsigned stringLen(const char * str) {
+    constexpr unsigned stringLen(const char *str) {
       return *str == 0 ? 0 : 1 + stringLen(str + 1);
     }
   }

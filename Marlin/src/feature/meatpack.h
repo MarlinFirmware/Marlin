@@ -109,7 +109,7 @@ public:
    * @param out [in] Output pointer for unpacked/processed data.
    * @return Number of characters returned. Range from 0 to 2.
    */
-  uint8_t get_result_char(char* const __restrict out);
+  uint8_t get_result_char(char * const __restrict out);
 
   void reset_state();
   void report_state();
