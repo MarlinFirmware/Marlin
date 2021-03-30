@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.24b"
+#define UNIFIED_VERSION "TH3D UFW 2.25"
 
 /**
  * TH3D Sanity Checks
@@ -121,6 +121,10 @@
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
 #endif
+#if ENABLED(ENDER6_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -40, -14, 0 }
+#endif
 #if ENABLED(ENDER3_MAX_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { 57, -9, 0 }
@@ -173,7 +177,27 @@
   #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM) || ENABLED(CR10S_OEM) || ENABLED(ENDER5_PLUS_OEM) || ENABLED(CR20_OEM)
+#if ENABLED(ENDER3_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+#if ENABLED(ENDER5_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+#if ENABLED(CR10_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+#if ENABLED(CR10S_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+#if ENABLED(ENDER5_PLUS_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+#if ENABLED(CR20_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
 #endif
@@ -185,11 +209,19 @@
   #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_VOLCANO) || ENABLED(TORNADO_VOLCANO)
+#if ENABLED(CR10_VOLCANO)
   #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_V6HEAVYDUTY) || ENABLED(TORNADO_V6HEAVYDUTY)
+#if ENABLED(TORNADO_VOLCANO)
+  #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10_V6HEAVYDUTY)
+  #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TORNADO_V6HEAVYDUTY)
   #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
   #define ABL_ENABLE
 #endif

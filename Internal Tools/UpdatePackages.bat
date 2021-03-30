@@ -1,17 +1,17 @@
 @echo off
-"C:\Program Files\7-Zip\7z.exe" d -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip"
+"C:\Program Files\7-Zip\7z.exe" d -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\Firmware"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\Firmware"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\STL Files"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\STL Files"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\LCD Firmware"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\LCD Firmware"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\TH3D Installation Guides"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\TH3D Installation Guides"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\README.md"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\README.md"
 ping localhost -n 1 >NUL
-"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV42X.zip" "D:\Work\GitHub\UnifiedFirmware\Board Configuration Files\CrealityV42X\Firmware"
+"C:\Program Files\7-Zip\7z.exe" a -tZip "D:\Work\Unified2Zips\TH3D_Unified2_CrealityV4X.zip" "D:\Work\GitHub\UnifiedFirmware\Board Configuration Files\CrealityV4X\Firmware"
 
 "C:\Program Files\7-Zip\7z.exe" d -tZip "D:\Work\Unified2Zips\TH3D_Unified2_SKR_E3_Mini.zip"
 ping localhost -n 1 >NUL
