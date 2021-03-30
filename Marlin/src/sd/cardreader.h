@@ -107,7 +107,7 @@ public:
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
-  static inline const char* longest_filename() { return longFilename[0] ? longFilename : filename; }
+  static inline const char* longest_filename() { return longFilename ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     static void printLongPath(char * const path);   // Used by M33
   #endif

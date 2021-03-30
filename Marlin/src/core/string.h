@@ -369,6 +369,8 @@ public:
 
   // Reset the string
   void clear()  { len = 0; buffer[0] = 0; }
+  // Non empty check
+  explicit operator bool() const { return len > 0; }
 
   // Interface
 public:

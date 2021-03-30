@@ -325,7 +325,7 @@ void CardReader::ls() {
 
       // Print /LongNamePart to serial output
       SERIAL_CHAR('/');
-      SERIAL_ECHO(longFilename[0] ? longFilename : "???");
+      SERIAL_ECHO(longFilename ? (const char*)longFilename : "???");
 
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
@@ -361,7 +361,7 @@ void CardReader::printFilename() {
     SERIAL_ECHO(dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       selectFileByName(dosFilename);
-      if (longFilename[0]) {
+      if (longFilename) {
         SERIAL_CHAR(' ');
         SERIAL_ECHO(longFilename);
       }
@@ -614,7 +614,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
     }
 
     selectFileByName(fname);
-    ui.set_status(longFilename[0] ? (const char*)longFilename : (const char*)fname);
+    ui.set_status(longFilename ? (const char*)longFilename : (const char*)fname);
   }
   else
     openFailed(fname);
