@@ -34,7 +34,7 @@ using namespace Theme;
 #define GRID_COLS 2
 #define GRID_ROWS 9
 
-void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char* message) {
+void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char *message) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
@@ -113,7 +113,7 @@ void BioPrintingDialogBox::setStatusMessage(progmem_str message) {
   setStatusMessage(buff);
 }
 
-void BioPrintingDialogBox::setStatusMessage(const char* message) {
+void BioPrintingDialogBox::setStatusMessage(const char *message) {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART)
      .cmd(CLEAR_COLOR_RGB(bg_color))

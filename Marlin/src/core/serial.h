@@ -146,7 +146,7 @@ inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
 #define AS_CHAR(C) serial_char_t(C)
 
 // SERIAL_ECHO_F prints a floating point value with optional precision
-inline void SERIAL_ECHO_F(EnsureDouble x, int digit = 2) { SERIAL_IMPL.print(x, digit); }
+inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, digit); }
 
 template <typename T>
 void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }

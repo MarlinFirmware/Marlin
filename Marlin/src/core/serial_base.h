@@ -44,12 +44,34 @@ struct serial_index_t {
   constexpr serial_index_t() : index(-1) {}
 };
 
+// A simple feature list enumeration
+enum class SerialFeature {
+  None                = 0x00,
+  MeatPack            = 0x01,   //!< Enabled when Meatpack is present
+  BinaryFileTransfer  = 0x02,   //!< Enabled for BinaryFile transfer support (in the future)
+  Virtual             = 0x04,   //!< Enabled for virtual serial port (like Telnet / Websocket / ...)
+  Hookable            = 0x08,   //!< Enabled if the serial class supports a setHook method
+};
+ENUM_FLAGS(SerialFeature);
+
 // flushTX is not implemented in all HAL, so use SFINAE to call the method where it is.
 CALL_IF_EXISTS_IMPL(void, flushTX);
 CALL_IF_EXISTS_IMPL(bool, connected, true);
+CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
 
+// A simple forward struct to prevent the compiler from selecting print(double, int) as a default overload
+// for any type other than double/float. For double/float, a conversion exists so the call will be invisible.
+struct EnsureDouble {
+  double a;
+  FORCE_INLINE operator double() { return a; }
+  // If the compiler breaks on ambiguity here, it's likely because you're calling print(X, base) with X not a double or a float, and a
+  // base that's not one of PrintBase's value. This exact code is made to detect such error, you NEED to set a base explicitely like this:
+  // SERIAL_PRINT(v, PrintBase::Hex)
+  FORCE_INLINE EnsureDouble(double a) : a(a) {}
+  FORCE_INLINE EnsureDouble(float a) : a(a) {}
+};
 
-// Using Curiously Recurring Template Pattern here to avoid virtual table cost when compiling.
+// Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in the compiler writing
 // a completely efficient code.
 template <class Child>
@@ -65,33 +87,51 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
 
   // Used by NumberFormatter after each number formatting
   void writeDone() {}
+  
+  FORCE_INLINE Child * SerialChild() { return static_cast<Child*>(this); }
+
 
   // Static dispatch methods below:
   // The most important method here is where it all ends to:
-  size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
+  size_t write(uint8_t c)           { return SerialChild()->write(c); }
+
   // Called when the parser finished processing an instruction, usually build to nothing
-  void msgDone()                    { static_cast<Child*>(this)->msgDone(); }
-  // Called upon initialization
-  void begin(const long baudRate)   { static_cast<Child*>(this)->begin(baudRate); }
-  // Called upon destruction
-  void end()                        { static_cast<Child*>(this)->end(); }
+  void msgDone() const              { SerialChild()->msgDone(); }
+
+  // Called on initialization
+  void begin(const long baudRate)   { SerialChild()->begin(baudRate); }
+
+  // Called on destruction
+  void end()                        { SerialChild()->end(); }
+
   /** Check for available data from the port
       @param index  The port index, usually 0 */
-  int available(serial_index_t index = 0)  { return static_cast<Child*>(this)->available(index); }
+  int available(serial_index_t index=0) const { return SerialChild()->available(index); }
+
   /** Read a value from the port
       @param index  The port index, usually 0 */
-  int  read(serial_index_t index = 0)      { return static_cast<Child*>(this)->read(index); }
+  int read(serial_index_t index=0)        { return SerialChild()->read(index); }
+
+  /** Combine the features of this serial instance and return it
+      @param index  The port index, usually 0 */
+  SerialFeature features(serial_index_t index=0) const { return SerialChild()->features(index);  }
+
+  // Check if the serial port has a feature
+  bool has_feature(serial_index_t index, SerialFeature flag) const { return (features(index) & flag) != SerialFeature::None; }
+
   // Check if the serial port is connected (usually bypassed)
-  bool connected()                  { return static_cast<Child*>(this)->connected(); }
+  bool connected() const            { return SerialChild()->connected(); }
+
   // Redirect flush
-  void flush()                      { static_cast<Child*>(this)->flush(); }
+  void flush()                      { SerialChild()->flush(); }
+
   // Not all implementation have a flushTX, so let's call them only if the child has the implementation
-  void flushTX()                    { CALL_IF_EXISTS(void, static_cast<Child*>(this), flushTX); }
+  void flushTX()                    { CALL_IF_EXISTS(void, SerialChild(), flushTX); }
 
   // Glue code here
-  FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }
-  FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE void print(const char* str)                    { write(str); }
+  FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
+  FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE void print(const char *str)                    { write(str); }
 
   FORCE_INLINE void println(const char s[])                  { print(s); println(); }
   FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }

@@ -56,7 +56,7 @@ void ConfirmUserRequestAlertBox::onIdle() {
   }
 }
 
-void ConfirmUserRequestAlertBox::show(const char* msg) {
+void ConfirmUserRequestAlertBox::show(const char *msg) {
   drawMessage(msg);
   storeBackground();
   screen_data.AlertDialogBox.isError = false;

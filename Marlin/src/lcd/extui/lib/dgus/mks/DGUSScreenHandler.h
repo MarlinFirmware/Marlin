@@ -37,18 +37,18 @@ public:
 
   // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
   // The bools specifing whether the strings are in RAM or FLASH.
-  static void sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  static void sendinfoscreen(const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
-  static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   #if 0
-  static void sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4);
-  static void sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) ;
+  static void sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
+  static void sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) ;
   static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
   #endif
 
   // "M117" Message -- msg is a RAM ptr.
-  static void setstatusmessage(const char* msg);
+  static void setstatusmessage(const char *msg);
   // The same for messages from Flash
   static void setstatusmessagePGM(PGM_P const msg);
   // Callback for VP "Display wants to change screen on idle printer"
