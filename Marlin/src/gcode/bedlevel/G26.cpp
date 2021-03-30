@@ -182,58 +182,58 @@ int8_t g26_prime_flag;
 
 #endif
 
-#if ENABLED(UBL_HILBERT_CURVE)
-static bool test_func(uint8_t i, uint8_t j, void *data) {
-  if (!circle_flags.marked(i, j)) {
-    mesh_index_pair *out_point = (mesh_index_pair *) data;
-    out_point->pos.set(i, j);  // Save its data
-    return true;
-  }
-  return false;
-}
-
 mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
+
   mesh_index_pair out_point;
   out_point.pos = -1;
-  hilbert_curve::search_from_closest(pos, test_func, &out_point);
-  circle_flags.mark(out_point); // Mark this location as done.
-  return out_point;
-}
-#else
-mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
-  float closest = 99999.99;
-  mesh_index_pair out_point;
 
-  out_point.pos = -1;
+  #if ENABLED(UBL_HILBERT_CURVE)
 
-  GRID_LOOP(i, j) {
-    if (!circle_flags.marked(i, j)) {
-      // We found a circle that needs to be printed
-      const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
+    auto test_func = [](uint8_t i, uint8_t j, void *data) {
+      if (!circle_flags.marked(i, j)) {
+        mesh_index_pair *out_point = (mesh_index_pair*)data;
+        out_point->pos.set(i, j);  // Save its data
+        return true;
+      }
+      return false;
+    }
 
-      // Get the distance to this intersection
-      float f = (pos - m).magnitude();
+    hilbert_curve::search_from_closest(pos, test_func, &out_point);
 
-      // It is possible that we are being called with the values
-      // to let us find the closest circle to the start position.
-      // But if this is not the case, add a small weighting to the
-      // distance calculation to help it choose a better place to continue.
-      f += (g26_xy_pos - m).magnitude() / 15.0f;
+  #else
 
-      // Add the specified amount of Random Noise to our search
-      if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
+    float closest = 99999.99;
 
-      if (f < closest) {
-        closest = f;          // Found a closer un-printed location
-        out_point.pos.set(i, j);  // Save its data
-        out_point.distance = closest;
+    GRID_LOOP(i, j) {
+      if (!circle_flags.marked(i, j)) {
+        // We found a circle that needs to be printed
+        const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
+
+        // Get the distance to this intersection
+        float f = (pos - m).magnitude();
+
+        // It is possible that we are being called with the values
+        // to let us find the closest circle to the start position.
+        // But if this is not the case, add a small weighting to the
+        // distance calculation to help it choose a better place to continue.
+        f += (g26_xy_pos - m).magnitude() / 15.0f;
+
+        // Add the specified amount of Random Noise to our search
+        if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
+
+        if (f < closest) {
+          closest = f;          // Found a closer un-printed location
+          out_point.pos.set(i, j);  // Save its data
+          out_point.distance = closest;
+        }
       }
     }
-  }
+
+  #endif
+
   circle_flags.mark(out_point); // Mark this location as done.
   return out_point;
 }
-#endif
 
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
   static float last_z = -999.99;
@@ -901,4 +901,3 @@ void GcodeSuite::G26() {
 }
 
 #endif // G26_MESH_VALIDATION
-
