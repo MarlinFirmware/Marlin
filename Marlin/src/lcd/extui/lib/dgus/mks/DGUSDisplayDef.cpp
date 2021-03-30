@@ -47,7 +47,7 @@ uint16_t distanceMove = 1;
 float distanceFilament = 10;
 uint16_t FilamentSpeed = 25;
 float ZOffset_distance = 0.1;
-float mesh_adj_distance = 0.1;
+float mesh_adj_distance = 0.01;
 float Z_distance = 0.1;
 
 int16_t level_1_x_point = 20;
@@ -87,13 +87,13 @@ uint16_t min_ex_temp = 0;
 float z_offset_add = 0;
 
 #if ENABLED(SENSORLESS_HOMING)
-  uint16_t tmc_x_step = 0;
-  uint16_t tmc_y_step = 0;
-  uint16_t tmc_z_step = 0;
+  int16_t tmc_x_step = 0;
+  int16_t tmc_y_step = 0;
+  int16_t tmc_z_step = 0;
 #else
-  uint16_t tmc_x_step = 0;
-  uint16_t tmc_y_step = 0;
-  uint16_t tmc_z_step = 0;
+  int16_t tmc_x_step = 0;
+  int16_t tmc_y_step = 0;
+  int16_t tmc_z_step = 0;
 #endif
 
 uint16_t lcd_default_light = 50;
@@ -567,13 +567,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
       VPHELPER(VP_LOAD_Filament, nullptr, &ScreenHandler.MKS_FilamentLoad, nullptr),
       VPHELPER(VP_UNLOAD_Filament, nullptr, &ScreenHandler.MKS_FilamentUnLoad, nullptr),
-      VPHELPER(VP_Filament_distance, &distanceFilament, &ScreenHandler.GetManualFilament, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+      VPHELPER(VP_Filament_distance, &distanceFilament, &ScreenHandler.GetManualFilament, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
       VPHELPER(VP_Filament_speed, &FilamentSpeed, &ScreenHandler.GetManualFilamentSpeed, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
   #endif
 
   #if HOTENDS >= 2
-    VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[ExtUI::extruder_t::E1], ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_MOVE_E1, nullptr, &ScreenHandler.HandleManualExtrude, nullptr),

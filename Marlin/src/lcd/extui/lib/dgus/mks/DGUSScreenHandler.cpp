@@ -55,8 +55,8 @@
 #endif
 
 bool DGUSAutoTurnOff = false;
-uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
-
+//uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
+uint8_t DGUSLanguageSwitch;
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
@@ -532,7 +532,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
 
       case 2:
-        if (mesh_point_count == GRID_MAX_POINTS) { // 第1个点
+        if (mesh_point_count == GRID_MAX_POINTS) { // The first point
+
+          queue.enqueue_now_P(PSTR("G28")); // homing first
+
           queue.enqueue_now_P(PSTR("G29S1"));
           mesh_point_count--;
 
@@ -1225,8 +1228,10 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
 void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+    char buf[40];
     uint8_t swap_tool = 0;
   #endif
+  
   #if HAS_HOTEND
     uint8_t hotend_too_cold = 0;
   #endif
@@ -1234,13 +1239,19 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
 
-  char buf[40];
   const uint16_t val_t = swap16(*(uint16_t*)val_ptr);
   switch (val_t) {
     default: break;
     case 0:
       #if HAS_HOTEND
-        if (thermalManager.tooColdToExtrude(0)) hotend_too_cold = 1; else swap_tool = 1;
+        if (thermalManager.tooColdToExtrude(0)) {
+          hotend_too_cold = 1;
+        } 
+        else {
+          #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+            swap_tool = 2;
+          #endif
+        }
       #endif
       break;
     case 1:
@@ -1705,10 +1716,10 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     const char Printing_buf_en[] = "Printing";
     dgusdisplay.WriteVariable(VP_Printing_Dis, Printing_buf_en, 32, true);
 
-    const char Info_EEPROM_1_buf_en[] = "Store setting？";
+    const char Info_EEPROM_1_buf_en[] = "Store setting?";
     dgusdisplay.WriteVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_en, 32, true);
 
-    const char Info_EEPROM_2_buf_en[] = "Revert setting？";
+    const char Info_EEPROM_2_buf_en[] = "Revert setting?";
     dgusdisplay.WriteVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_en, 32, true);
 
     const char Info_PrinfFinsh_1_buf_en[] = "Print Done";
@@ -1963,13 +1974,13 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     const uint16_t Info_EEPROM_1_buf_ch[] = { 0xC7CA, 0xF1B7, 0xA3B1, 0xE6B4, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
     dgusdisplay.WriteVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_ch, 32, true);
 
-    const uint16_t Info_EEPROM_2_buf_ch[] = { 0xC7CA, 0xF1B7, 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0x2000 };
+    const uint16_t Info_EEPROM_2_buf_ch[] = { 0xC7CA, 0xF1B7, 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
     dgusdisplay.WriteVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_ch, 32, true);
 
     const uint16_t TMC_X_Step_buf_ch[] = { 0x2058, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
     dgusdisplay.WriteVariable(VP_TMC_X_Step_Dis, TMC_X_Step_buf_ch, 16, true);
 
-    const uint16_t TMC_Y_Step_buf_ch[] = { 0x2059, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
+    const uint16_t TMC_Y_Step_buf_ch[] = { 0x2059, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 }; 
     dgusdisplay.WriteVariable(VP_TMC_Y_Step_Dis, TMC_Y_Step_buf_ch, 16, true);
 
     const uint16_t TMC_Z_Step_buf_ch[] = { 0x205A, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };

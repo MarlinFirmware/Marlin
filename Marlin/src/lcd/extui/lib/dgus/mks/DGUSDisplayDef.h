@@ -23,7 +23,7 @@
 
 #include "../DGUSDisplayDef.h"
 
-#define USE_MKS_GREEN_UI
+
 //#define DGUS_MKS_RUNOUT_SENSOR
 
 #define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
@@ -70,9 +70,9 @@ extern uint16_t min_ex_temp;
 
 extern float z_offset_add;
 
-extern uint16_t tmc_x_step;
-extern uint16_t tmc_y_step;
-extern uint16_t tmc_z_step;
+extern int16_t tmc_x_step;
+extern int16_t tmc_y_step;
+extern int16_t tmc_z_step;
 
 extern uint16_t lcd_default_light;
 

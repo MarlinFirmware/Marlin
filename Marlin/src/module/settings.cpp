@@ -153,6 +153,11 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "../lcd/extui/lib/dgus/DGUSScreenHandler.h"
+  #include "../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -460,6 +465,20 @@ typedef struct SettingsDataStruct {
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
   #endif
+
+  #if ENABLED(DGUS_LCD_UI_MKS)
+    uint8_t mks_language; //mks language setting
+    int16_t first_poit_x, first_poit_y;
+    int16_t second_poit_x, second_poit_y;
+    int16_t third_poit_x, third_poit_y;
+    int16_t fourth_poit_x, fourth_poit_y;
+    int16_t fifth_poit_x, fifth_poit_y;
+    uint16_t x_park;
+    uint16_t y_park;
+    uint16_t z_park;
+    uint16_t min_ex_temp_e;
+#endif
+
 
   #if HAS_MULTI_LANGUAGE
     uint8_t ui_language;                                // M414 S
@@ -1402,6 +1421,24 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ui.buzzer_enabled);
     #endif
 
+    #if ENABLED(DGUS_LCD_UI_MKS)
+      EEPROM_WRITE(DGUSLanguageSwitch);
+      EEPROM_WRITE(level_1_x_point);
+      EEPROM_WRITE(level_1_y_point);
+      EEPROM_WRITE(level_2_x_point);
+      EEPROM_WRITE(level_2_y_point);
+      EEPROM_WRITE(level_3_x_point);
+      EEPROM_WRITE(level_3_y_point);
+      EEPROM_WRITE(level_4_x_point);
+      EEPROM_WRITE(level_4_y_point);
+      EEPROM_WRITE(level_5_x_point);
+      EEPROM_WRITE(level_5_y_point);
+      EEPROM_WRITE(x_park_pos);
+      EEPROM_WRITE(y_park_pos);
+      EEPROM_WRITE(z_park_pos);
+      EEPROM_WRITE(min_ex_temp);
+    #endif
+
     //
     // Selected LCD language
     //
@@ -2300,6 +2337,31 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SOUND_MENU_ITEM)
         _FIELD_TEST(buzzer_enabled);
         EEPROM_READ(ui.buzzer_enabled);
+      #endif
+
+      #if ENABLED(DGUS_LCD_UI_MKS)
+        _FIELD_TEST(DGUSLanguageSwitch);
+        EEPROM_READ(DGUSLanguageSwitch);
+
+        _FIELD_TEST(level_1_x_point);
+        EEPROM_READ(level_1_x_point);
+        EEPROM_READ(level_1_y_point);
+        EEPROM_READ(level_2_x_point);
+        EEPROM_READ(level_2_y_point);
+        EEPROM_READ(level_3_x_point);
+        EEPROM_READ(level_3_y_point);
+        EEPROM_READ(level_4_x_point);
+        EEPROM_READ(level_4_y_point);
+        EEPROM_READ(level_5_x_point);
+        EEPROM_READ(level_5_y_point);
+
+        _FIELD_TEST(x_park_pos);
+        EEPROM_READ(x_park_pos);
+        EEPROM_READ(y_park_pos);
+        EEPROM_READ(z_park_pos);
+
+        _FIELD_TEST(min_ex_temp);
+        EEPROM_READ(min_ex_temp);
       #endif
 
       //
