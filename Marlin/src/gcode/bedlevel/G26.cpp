@@ -205,7 +205,14 @@ typedef struct {
   int16_t bed_temp            = MESH_TEST_BED_TEMP,
           hotend_temp         = MESH_TEST_HOTEND_TEMP;
 
-   xy_pos_t xy_pos; // = { 0, 0 }
+  float nozzle                = MESH_TEST_NOZZLE_SIZE,
+        filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA,
+        ooze_amount;            // 'O' ... OOZE_AMOUNT
+
+  bool continue_with_closest,   // 'C'
+       keep_heaters_on;         // 'K'
+
+  xy_pos_t xy_pos; // = { 0, 0 }
 
   int8_t prime_flag = 0;
 
@@ -506,7 +513,7 @@ typedef struct {
     return out_point;
   }
 
-} g26_state_t;
+} g26_helper_t;
 
 /**
  * G26: Mesh Validation Pattern generation.
@@ -543,14 +550,11 @@ void GcodeSuite::G26() {
   // Change the tool first, if specified
   if (parser.seenval('T')) tool_change(parser.value_int());
 
-  g26_state_t g26;
+  g26_helper_t g26;
 
-  float g26_nozzle            = MESH_TEST_NOZZLE_SIZE,
-        g26_filament_diameter = DEFAULT_NOMINAL_FILAMENT_DIA,
-        g26_ooze_amount       = parser.linearval('O', OOZE_AMOUNT);
-
-  bool g26_continue_with_closest = parser.boolval('C'),
-       g26_keep_heaters_on       = parser.boolval('K');
+  g26.ooze_amount           = parser.linearval('O', OOZE_AMOUNT);
+  g26.continue_with_closest = parser.boolval('C');
+  g26.keep_heaters_on       = parser.boolval('K');
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
@@ -603,8 +607,8 @@ void GcodeSuite::G26() {
   }
 
   if (parser.seenval('S')) {
-    g26_nozzle = parser.value_float();
-    if (!WITHIN(g26_nozzle, 0.1, 2.0)) {
+    g26.nozzle = parser.value_float();
+    if (!WITHIN(g26.nozzle, 0.1, 2.0)) {
       SERIAL_ECHOLNPGM("?Specified nozzle size not plausible.");
       return;
     }
@@ -630,17 +634,17 @@ void GcodeSuite::G26() {
   }
 
   if (parser.seenval('F')) {
-    g26_filament_diameter = parser.value_linear_units();
-    if (!WITHIN(g26_filament_diameter, 1.0, 4.0)) {
+    g26.filament_diameter = parser.value_linear_units();
+    if (!WITHIN(g26.filament_diameter, 1.0, 4.0)) {
       SERIAL_ECHOLNPGM("?Specified filament size not plausible.");
       return;
     }
   }
-  g26.extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
+  g26.extrusion_multiplier *= sq(1.75) / sq(g26.filament_diameter); // If we aren't using 1.75mm filament, we need to
                                                                     // scale up or down the length needed to get the
                                                                     // same volume of filament
 
-  g26.extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
+  g26.extrusion_multiplier *= g26.filament_diameter * sq(g26.nozzle) / sq(0.3); // Scale up by nozzle size
 
   // Get a temperature from 'I' or 'H'
   celsius_t noztemp = 0;
@@ -732,7 +736,7 @@ void GcodeSuite::G26() {
   destination = current_position;
   destination.z = g26.layer_height;
   move_to(destination, 0.0);
-  move_to(destination, g26_ooze_amount);
+  move_to(destination, g26.ooze_amount);
 
   TERN_(HAS_LCD_MENU, ui.capture());
 
@@ -759,7 +763,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
     // Find the nearest confluence
-    location = g26.find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
+    location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
 
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
@@ -896,7 +900,7 @@ void GcodeSuite::G26() {
 
   TERN_(HAS_LCD_MENU, ui.release()); // Give back control of the LCD
 
-  if (!g26_keep_heaters_on) {
+  if (!g26.keep_heaters_on) {
     TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
     thermalManager.setTargetHotend(active_extruder, 0);
   }
