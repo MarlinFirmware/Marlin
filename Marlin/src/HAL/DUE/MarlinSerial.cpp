@@ -476,7 +476,7 @@ void MarlinSerial<Cfg>::flushTX() {
 
 
 // If not using the USB port as serial port
-#if SERIAL_PORT >= 0
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
   template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT> >;
   MSerialT customizedSerial1(MarlinSerialCfg<SERIAL_PORT>::EMERGENCYPARSER);
 #endif

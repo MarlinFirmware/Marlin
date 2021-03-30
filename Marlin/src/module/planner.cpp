@@ -197,9 +197,9 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
-  float Planner::autotemp_max = 250,
-        Planner::autotemp_min = 210,
-        Planner::autotemp_factor = 0.1f;
+  celsius_t Planner::autotemp_max = 250,
+            Planner::autotemp_min = 210;
+  float Planner::autotemp_factor = 0.1f;
   bool Planner::autotemp_enabled = false;
 #endif
 
@@ -381,7 +381,7 @@ void Planner::init() {
               r9 = (d >> 8) & 0xFF,
               r10 = (d >> 16) & 0xFF,
               r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
-      const uint8_t* ptab = inv_tab;
+      const uint8_t *ptab = inv_tab;
 
       __asm__ __volatile__(
         // %8:%7:%6 = interval
@@ -775,7 +775,7 @@ block_t* Planner::get_current_block() {
  * is not and will not use the block while we modify it, so it is safe to
  * alter its values.
  */
-void Planner::calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const float &entry_factor, const float &exit_factor) {
 
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
@@ -942,7 +942,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* const current, const block_t * const next) {
+void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next) {
   if (current) {
     // If entry speed is already at the maximum entry speed, and there was no change of speed
     // in the next block, there is no need to recheck. Block is cruising and there is no need to
@@ -1015,8 +1015,8 @@ void Planner::reverse_pass() {
     // Perform the reverse pass
     block_t *current = &block_buffer[block_index];
 
-    // Only consider non sync and page blocks
-    if (!TEST(current->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(current)) {
+    // Only consider non sync-and-page blocks
+    if (!(current->flag & BLOCK_MASK_SYNC) && !IS_PAGE(current)) {
       reverse_pass_kernel(current, next);
       next = current;
     }
@@ -1039,7 +1039,7 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t* const previous, block_t* const current, const uint8_t block_index) {
+void Planner::forward_pass_kernel(const block_t * const previous, block_t * const current, const uint8_t block_index) {
   if (previous) {
     // If the previous block is an acceleration block, too short to complete the full speed
     // change, adjust the entry speed accordingly. Entry speeds have already been reset,
@@ -1111,7 +1111,7 @@ void Planner::forward_pass() {
     block = &block_buffer[block_index];
 
     // Skip SYNC and page blocks
-    if (!TEST(block->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(block)) {
+    if (!(block->flag & BLOCK_MASK_SYNC) && !IS_PAGE(block)) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
       // the previous block became BUSY, so assume the current block's
@@ -1147,7 +1147,7 @@ void Planner::recalculate_trapezoids() {
     block_t *prev = &block_buffer[prev_index];
 
     // If not dealing with a sync block, we are done. The last block is not a SYNC block
-    if (!TEST(prev->flag, BLOCK_BIT_SYNC_POSITION)) break;
+    if (!(prev->flag & BLOCK_MASK_SYNC)) break;
 
     // Examine the previous block. This and all following are SYNC blocks
     head_block_index = prev_index;
@@ -1161,7 +1161,7 @@ void Planner::recalculate_trapezoids() {
     next = &block_buffer[block_index];
 
     // Skip sync and page blocks
-    if (!TEST(next->flag, BLOCK_BIT_SYNC_POSITION) && !IS_PAGE(next)) {
+    if (!(next->flag & BLOCK_MASK_SYNC) && !IS_PAGE(next)) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
       if (block) {
@@ -1248,6 +1248,63 @@ void Planner::recalculate() {
   recalculate_trapezoids();
 }
 
+#if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
+  #define HAS_TAIL_FAN_SPEED 1
+#endif
+
+/**
+ * Apply fan speeds
+ */
+#if HAS_FAN
+
+  void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
+
+    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ? map(fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
+    #else
+      #define CALC_FAN_SPEED(f) (fan_speed[f] ?: FAN_OFF_PWM)
+    #endif
+
+    #if ENABLED(FAN_SOFT_PWM)
+      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
+    #elif ENABLED(FAST_PWM_FAN)
+      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
+    #else
+      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+    #endif
+    #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
+
+    const millis_t ms = millis();
+    TERN_(HAS_FAN0, FAN_SET(0));
+    TERN_(HAS_FAN1, FAN_SET(1));
+    TERN_(HAS_FAN2, FAN_SET(2));
+    TERN_(HAS_FAN3, FAN_SET(3));
+    TERN_(HAS_FAN4, FAN_SET(4));
+    TERN_(HAS_FAN5, FAN_SET(5));
+    TERN_(HAS_FAN6, FAN_SET(6));
+    TERN_(HAS_FAN7, FAN_SET(7));
+  }
+
+  #if FAN_KICKSTART_TIME
+
+    void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
+      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
+      if (fan_speed[f]) {
+        if (fan_kick_end[f] == 0) {
+          fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
+          fan_speed[f] = 255;
+        }
+        else if (PENDING(ms, fan_kick_end[f]))
+          fan_speed[f] = 255;
+      }
+      else
+        fan_kick_end[f] = 0;
+    }
+
+  #endif
+
+#endif // HAS_FAN
+
 /**
  * Maintain fans, paste extruder pressure,
  */
@@ -1257,7 +1314,7 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if HAS_FAN
+  #if HAS_TAIL_FAN_SPEED
     uint8_t tail_fan_speed[FAN_COUNT];
   #endif
 
@@ -1272,13 +1329,12 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
 
-    #if HAS_FAN || ENABLED(BARICUDA)
+    #if EITHER(HAS_TAIL_FAN_SPEED, BARICUDA)
       block_t *block = &block_buffer[block_buffer_tail];
     #endif
 
-    #if HAS_FAN
-      FANS_LOOP(i)
-        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+    #if HAS_TAIL_FAN_SPEED
+      FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1300,9 +1356,8 @@ void Planner::check_axes_activity() {
 
     TERN_(HAS_CUTTER, cutter.refresh());
 
-    #if HAS_FAN
-      FANS_LOOP(i)
-        tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
+    #if HAS_TAIL_FAN_SPEED
+      FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1321,48 +1376,11 @@ void Planner::check_axes_activity() {
 
   //
   // Update Fan speeds
+  // Only if synchronous M106/M107 is disabled
   //
-  #if HAS_FAN
-
-    #if FAN_KICKSTART_TIME > 0
-      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-      #define KICKSTART_FAN(f)                         \
-        if (tail_fan_speed[f]) {                       \
-          millis_t ms = millis();                      \
-          if (fan_kick_end[f] == 0) {                  \
-            fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
-            tail_fan_speed[f] = 255;                   \
-          } else if (PENDING(ms, fan_kick_end[f]))     \
-            tail_fan_speed[f] = 255;                   \
-        } else fan_kick_end[f] = 0
-    #else
-      #define KICKSTART_FAN(f) NOOP
-    #endif
-
-    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
-    #else
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ?: FAN_OFF_PWM)
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
-    #elif ENABLED(FAST_PWM_FAN)
-      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
-    #else
-      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
-    #endif
-    #define FAN_SET(F) do{ KICKSTART_FAN(F); _FAN_SET(F); }while(0)
-
-    TERN_(HAS_FAN0, FAN_SET(0));
-    TERN_(HAS_FAN1, FAN_SET(1));
-    TERN_(HAS_FAN2, FAN_SET(2));
-    TERN_(HAS_FAN3, FAN_SET(3));
-    TERN_(HAS_FAN4, FAN_SET(4));
-    TERN_(HAS_FAN5, FAN_SET(5));
-    TERN_(HAS_FAN6, FAN_SET(6));
-    TERN_(HAS_FAN7, FAN_SET(7));
-  #endif // HAS_FAN
+  #if HAS_TAIL_FAN_SPEED
+    sync_fan_speeds(tail_fan_speed);
+  #endif
 
   TERN_(AUTOTEMP, getHighESpeed());
 
@@ -1376,7 +1394,7 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
     void Planner::_autotemp_update_from_hotend() {
-      const int16_t target = thermalManager.degTargetHotend(active_extruder);
+      const celsius_t target = thermalManager.degTargetHotend(active_extruder);
       autotemp_min = target + AUTOTEMP_MIN_P;
       autotemp_max = target + AUTOTEMP_MAX_P;
     }
@@ -1422,7 +1440,7 @@ void Planner::check_axes_activity() {
 
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block_t* block = &block_buffer[b];
+      block_t *block = &block_buffer[b];
       if (block->steps.x || block->steps.y || block->steps.z) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
@@ -2019,9 +2037,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  #if ENABLED(MIXING_EXTRUDER)
-    MIXER_POPULATE_BLOCK();
-  #endif
+  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color))
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
@@ -2677,9 +2693,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
 /**
  * Planner::buffer_sync_block
- * Add a block to the buffer that just updates the position
+ * Add a block to the buffer that just updates the position,
+ * or in case of LASER_SYNCHRONOUS_M106_M107 the fan PWM
  */
-void Planner::buffer_sync_block() {
+void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_flag)) {
+  #if DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    constexpr uint8_t sync_flag = BLOCK_FLAG_SYNC_POSITION;
+  #endif
+
   // Wait for the next available block
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
@@ -2687,9 +2708,13 @@ void Planner::buffer_sync_block() {
   // Clear block
   memset(block, 0, sizeof(block_t));
 
-  block->flag = BLOCK_FLAG_SYNC_POSITION;
+  block->flag = sync_flag;
 
   block->position = position;
+
+  #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+  #endif
 
   // If this is the first added movement, reload the delay, otherwise, cancel it.
   if (block_buffer_head == block_buffer_tail) {
@@ -2878,7 +2903,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
 
     block->flag = BLOCK_FLAG_IS_PAGE;
 
-    #if FAN_COUNT > 0
+    #if HAS_FAN
       FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
     #endif
 

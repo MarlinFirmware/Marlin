@@ -44,7 +44,7 @@
 
 #define ANY_THERMISTOR_IS(n) (TEMP_SENSOR_0_THERMISTOR_ID == n || TEMP_SENSOR_1_THERMISTOR_ID == n || TEMP_SENSOR_2_THERMISTOR_ID == n || TEMP_SENSOR_3_THERMISTOR_ID == n || TEMP_SENSOR_4_THERMISTOR_ID == n || TEMP_SENSOR_5_THERMISTOR_ID == n || TEMP_SENSOR_6_THERMISTOR_ID == n || TEMP_SENSOR_7_THERMISTOR_ID == n || TEMP_SENSOR_BED_THERMISTOR_ID == n || TEMP_SENSOR_CHAMBER_THERMISTOR_ID == n || TEMP_SENSOR_COOLER_THERMISTOR_ID == n || TEMP_SENSOR_PROBE_THERMISTOR_ID == n)
 
-typedef struct { int16_t value, celsius; } temp_entry_t;
+typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //

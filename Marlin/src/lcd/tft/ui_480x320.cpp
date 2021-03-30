@@ -114,7 +114,7 @@ void MarlinUI::draw_kill_screen() {
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   MarlinImage image = imgHotEnd;
   uint16_t Color;
-  float currentTemperature, targetTemperature;
+  celsius_t currentTemperature, targetTemperature;
 
   if (Heater >= 0) { // HotEnd
     currentTemperature = thermalManager.degHotend(Heater);
@@ -168,13 +168,13 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
 
   tft.add_image(8, 28, image, Color);
 
-  tft_string.set((uint8_t *)i16tostr3rj(currentTemperature + 0.5));
+  tft_string.set((uint8_t *)i16tostr3rj(currentTemperature));
   tft_string.add(LCD_STR_DEGREE);
   tft_string.trim();
   tft.add_text(tft_string.center(80) + 2, 82, Color, tft_string);
 
   if (targetTemperature >= 0) {
-    tft_string.set((uint8_t *)i16tostr3rj(targetTemperature + 0.5));
+    tft_string.set((uint8_t *)i16tostr3rj(targetTemperature));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
     tft.add_text(tft_string.center(80) + 2, 8, Color, tft_string);
@@ -326,7 +326,7 @@ void MarlinUI::draw_status_screen() {
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
   TERN_(TOUCH_SCREEN, touch.clear());
 
@@ -779,7 +779,7 @@ static void disable_steppers() {
   queue.inject_P(PSTR("M84"));
 }
 
-static void drawBtn(int x, int y, const char* label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
+static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
 

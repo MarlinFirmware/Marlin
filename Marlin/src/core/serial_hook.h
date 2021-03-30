@@ -65,6 +65,8 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
   bool connected()              { return CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected);; }
   void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
 
+  SerialFeature features(serial_index_t index) const { return CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
+
   // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
@@ -98,10 +100,11 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   bool connected()          { return CALL_IF_EXISTS(bool, &out, connected); }
   void flushTX()            { CALL_IF_EXISTS(void, &out, flushTX); }
 
-  int available(serial_index_t )  { return (int)out.available(); }
-  int read(serial_index_t )       { return (int)out.read(); }
+  int available(serial_index_t)   { return (int)out.available(); }
+  int read(serial_index_t)        { return (int)out.read(); }
   int available()                 { return (int)out.available(); }
   int read()                      { return (int)out.read(); }
+  SerialFeature features(serial_index_t index) const  { return CALL_IF_EXISTS(SerialFeature, &out, features, index);  }
 
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
@@ -126,6 +129,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   int read(serial_index_t)      { return (int)out.read(); }
   int available()               { return (int)out.available(); }
   int read()                    { return (int)out.read(); }
+  SerialFeature features(serial_index_t index) const  { return CALL_IF_EXISTS(SerialFeature, &out, features, index);  }
 
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
@@ -163,9 +167,15 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 
   // Underlying implementation might use Arduino's bool operator
   bool connected() {
-    return Private::HasMember_connected<SerialT>::value ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected) : static_cast<SerialT*>(this)->operator bool();
+    return Private::HasMember_connected<SerialT>::value
+      ? CALL_IF_EXISTS(bool, static_cast<SerialT*>(this), connected)
+      : static_cast<SerialT*>(this)->operator bool();
   }
-  void flushTX()                { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
+
+  void flushTX() { CALL_IF_EXISTS(void, static_cast<SerialT*>(this), flushTX); }
+
+  // Append Hookable for this class
+  SerialFeature features(serial_index_t index) const  { return SerialFeature::Hookable | CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
   void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
     // Order is important here as serial code can be called inside interrupts
@@ -249,6 +259,15 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
   NO_INLINE void flushTX()    {
     if (portMask.enabled(FirstOutput))   CALL_IF_EXISTS(void, &serial0, flushTX);
     if (portMask.enabled(SecondOutput))  CALL_IF_EXISTS(void, &serial1, flushTX);
+  }
+
+  // Forward feature queries
+  SerialFeature features(serial_index_t index) const  {
+    if (index.within(0 + offset, step + offset - 1))
+      return serial0.features(index);
+    else if (index.within(step + offset, 2 * step + offset - 1))
+      return serial1.features(index);
+    return SerialFeature::None;
   }
 
   MultiSerial(Serial0T & serial0, Serial1T & serial1, const SerialMask mask = Both, const bool e = false) :
