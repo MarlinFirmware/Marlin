@@ -124,7 +124,7 @@ struct SerialBase {
   SerialFeature features(serial_index_t index=0) const { return static_cast<const Child*>(this)->features(index);  }
 
   // Check if the serial port has a feature
-  bool has_feature(serial_index_t index, SerialFeature flag) const { (features(index) & flag) != SerialFeature::None; }
+  bool has_feature(serial_index_t index, SerialFeature flag) const { return (features(index) & flag) != SerialFeature::None; }
 
   // Check if the serial port is connected (usually bypassed)
   bool connected() const            { return SerialChild->connected(); }
