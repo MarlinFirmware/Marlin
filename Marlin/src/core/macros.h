@@ -397,7 +397,7 @@
       WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
       The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
   template <typename T>
-  inline const char * gtn(T*) {
+  inline const char* gtn(T*) {
     // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
     constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
     static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
