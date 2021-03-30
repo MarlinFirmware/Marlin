@@ -332,17 +332,16 @@
     return false;
   }
 
-  extern "C" void SDIO_IRQHandler(void) {
-    HAL_SD_IRQHandler(&hsd);
-  }
-
   #if defined(STM32F1xx)
-    extern "C" void DMA2_Channel4_5_IRQHandler(void) {
+    #define DMA_IRQ_HANDLER DMA2_Channel4_5_IRQHandler
   #elif defined(STM32F4xx)
-    extern "C" void DMA2_Stream3_IRQHandler(void) {
+    #define DMA_IRQ_HANDLER DMA2_Stream3_IRQHandler
+  #else
+    #error "Unknown STM32 architecture."
   #endif
-      HAL_DMA_IRQHandler(&hdma_sdio);
-    }
+
+  extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
+  extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
 #endif // !USBD_USE_CDC_COMPOSITE
 #endif // SDIO_SUPPORT
