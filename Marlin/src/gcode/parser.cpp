@@ -41,9 +41,8 @@ bool GCodeParser::volumetric_enabled;
   TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif
 
-char *GCodeParser::command_ptr,
-     *GCodeParser::string_arg,
-     *GCodeParser::value_ptr;
+const char  *GCodeParser::command_ptr,  *GCodeParser::value_ptr;
+ROString GCodeParser::string_arg;
 char GCodeParser::command_letter;
 uint16_t GCodeParser::codenum;
 
@@ -76,7 +75,7 @@ GCodeParser parser;
  * this may be optimized by commenting out ZERO(param)
  */
 void GCodeParser::reset() {
-  string_arg = nullptr;                 // No whole line argument
+  string_arg.limitTo(0);                // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
   TERN_(USE_GCODE_SUBCODES, subcode = 0); // No command sub-code
@@ -89,26 +88,29 @@ void GCodeParser::reset() {
 #if ENABLED(GCODE_QUOTED_STRINGS)
 
   // Pass the address after the first quote (if any)
-  char* GCodeParser::unescape_string(char* &src) {
-    if (*src == '"') ++src;     // Skip the leading quote
-    char * const out = src;     // Start of the string
-    char *dst = src;            // Prepare to unescape and terminate
+  ROString GCodeParser::unescape_string(ROString & src) {
+    src.trimLeft('"'); // Skip the leading quote
+    // We'll const_cast the RO string here for each escaped char. It's not clean, but it's faster than
+    // copying
+    char * dst = const_cast<char*>(src.buffer());
+    unsigned int pos 0;
     for (;;) {
-      char c = *src++;          // Get the next char
+      char c = src[pos++];
       switch (c) {
-        case '\\': c = *src++; break; // Get the escaped char
-        case '"' : c = '\0'; break;   // Convert bare quote to nul
+        case '\\': c = src[pos++]; break; // Get the escaped char
+        case '"' : c = '\0'; break;       // Convert bare quote to nul
       }
       if (!(*dst++ = c)) break; // Copy and break on nul
     }
-    return out;
+    src.limitTo(dst - src.buffer());
+    return src;
   }
 
 #endif
 
 // Populate all fields by parsing a single line of GCode
 // 58 bytes of SRAM are used to speed up seen/value
-void GCodeParser::parse(char *p) {
+void GCodeParser::parse(ROString p) {
 
   reset(); // No codes to report
 
@@ -119,29 +121,22 @@ void GCodeParser::parse(char *p) {
   };
 
   // Skip spaces
-  while (*p == ' ') ++p;
+  p.trimLeft(' ');
 
   // Skip N[-0-9] if included in the command line
-  if (uppercase(*p) == 'N' && NUMERIC_SIGNED(p[1])) {
-    //TERN_(FASTER_GCODE_PARSER, set('N', p + 1)); // (optional) Set the 'N' parameter value
-    p += 2;                  // skip N[-0-9]
-    while (NUMERIC(*p)) ++p; // skip [0-9]*
-    while (*p == ' ')   ++p; // skip [ ]*
+  if (uppercase(p[0]) == 'N' && NUMERIC_SIGNED(p[1])) {
+    (void)p.splitFrom(" ");
+    p.trimLeft(' ');
   }
 
   // *p now points to the current command, which should be G, M, or T
-  command_ptr = p;
+  command_ptr = p.buffer();
 
   // Get the command letter, which must be G, M, or T
-  const char letter = uppercase(*p++);
+  const char letter = uppercase(p[0]);
 
   // Nullify asterisk and trailing whitespace
-  char *starpos = strchr(p, '*');
-  if (starpos) {
-    --starpos;                          // *
-    while (*starpos == ' ') --starpos;  // spaces...
-    starpos[1] = '\0';
-  }
+  p = p.splitUpTo("*");
 
   #if ANY(MARLIN_DEV_MODE, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     #define SIGNED_CODENUM 1
@@ -153,12 +148,12 @@ void GCodeParser::parse(char *p) {
 
     case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
       // Skip spaces to get the numeric part
-      while (*p == ' ') p++;
+      p.trimLeft(' ');
 
       #if HAS_PRUSA_MMU2
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
-          if (*p == '?' || *p == 'x' || *p == 'c') {
+          if (p[0] == '?' || p[0] == 'x' || p[0] == 'c') {
             command_letter = letter;
             string_arg = p;
             return;
@@ -167,38 +162,24 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(p[0]), NUMERIC(p[0]))) return;
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      {
-        #if ENABLED(SIGNED_CODENUM)
-          int sign = 1; // Allow for a negative code like D-1 or T-1
-          if (*p == '-') { sign = -1; ++p; }
-        #endif
-
-        // Get the code number - integer digits only
-        codenum = 0;
-
-        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
-
-        // Apply the sign, if any
-        TERN_(SIGNED_CODENUM, codenum *= sign);
-      }
+      codenum = p.extractInt(10);
 
       // Allow for decimal point in command
       #if USE_GCODE_SUBCODES
-        if (*p == '.') {
-          p++;
-          while (NUMERIC(*p))
-            subcode = subcode * 10 + *p++ - '0';
+        if (p[0] == '.') {
+          p.splitAt(1);
+          subcode = p.extractInt(10);
         }
       #endif
 
       // Skip all spaces to get to the first argument, or nul
-      while (*p == ' ') p++;
+      p.trimLeft(' ');
 
       #if ENABLED(GCODE_MOTION_MODES)
         if (letter == 'G'
@@ -223,7 +204,7 @@ void GCodeParser::parse(char *p) {
         command_letter = 'G';
         codenum = motion_mode_codenum;
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
-        p--; // Back up one character to use the current parameter
+        p.revert(1); // Back up one character to use the current parameter
       break;
     #endif // GCODE_MOTION_MODES
 
@@ -233,7 +214,7 @@ void GCodeParser::parse(char *p) {
   // The command parameters (if any) start here, for sure!
 
   #if DISABLED(FASTER_GCODE_PARSER)
-    command_args = p; // Scan for parameters in seen()
+    command_args = p.buffer(); // Scan for parameters in seen()
   #endif
 
   // Only use string_arg for these M codes
@@ -265,15 +246,16 @@ void GCodeParser::parse(char *p) {
   #if ENABLED(GCODE_QUOTED_STRINGS)
     bool quoted_string_arg = false;
   #endif
-  string_arg = nullptr;
-  while (const char param = uppercase(*p++)) {  // Get the next parameter. A NUL ends the loop
+  string_arg.limitTo(0);
+
+  while (true) {  // Get the next parameter. A NUL ends the loop
+    const char param = uppercase(p.splitAt(1)[0]);
+    if (!param) break;
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
     if (param == '!' && is_command('M', 32)) {
-      string_arg = p;                           // Name starts after '!'
-      char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
-      if (lb) *lb = '\0';                       // Safe to mark the end of the filename
+      string_arg = p.splitUpTo("#");            // Name starts after '!'
       return;
     }
 
@@ -293,46 +275,46 @@ void GCodeParser::parse(char *p) {
 
     if (PARAM_OK(param)) {
 
-      while (*p == ' ') p++;                    // Skip spaces between parameters & values
+      p.trimLeft(' ');                    // Skip spaces between parameters & values
 
       #if ENABLED(GCODE_QUOTED_STRINGS)
-        const bool is_str = (*p == '"'), has_val = is_str || valid_float(p);
-        char * const valptr = has_val ? is_str ? unescape_string(p) : p : nullptr;
+        const bool is_str = (p[0] == '"'), has_val = is_str || valid_float(p);
+        ROString val = has_val ? (is_str ? unescape_string(p) : p) : ROString();
       #else
         const bool has_val = valid_float(p);
         #if ENABLED(FASTER_GCODE_PARSER)
-          char * const valptr = has_val ? p : nullptr;
+          ROString val = has_val ? p : ROString();
         #endif
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got param ", param, " at index ", p - command_ptr - 1);
+          SERIAL_ECHOPAIR("Got param ", param, " at index ", p.buffer() - command_ptr - 1);
           if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif
 
       if (!has_val && !string_arg) {            // No value? First time, keep as string_arg
-        string_arg = p - 1;
+        string_arg = p.revert(1); p.splitAt(1);
         #if ENABLED(DEBUG_GCODE_PARSER)
-          if (debug) SERIAL_ECHOPAIR(" string_arg: ", hex_address((void*)string_arg)); // DEBUG
+          if (debug) SERIAL_ECHOPAIR(" string_arg: ", hex_address((void*)string_arg.buffer())); // DEBUG
         #endif
       }
 
       if (TERN0(DEBUG_GCODE_PARSER, debug)) SERIAL_EOL();
 
-      TERN_(FASTER_GCODE_PARSER, set(param, valptr)); // Set parameter exists and pointer (nullptr for no value)
+      TERN_(FASTER_GCODE_PARSER, set(param, val)); // Set parameter exists and pointer (nullptr for no value)
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
-      string_arg = p - 1;
+      string_arg = p.revert(1); p.splitAt(1);
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) SERIAL_ECHOPAIR(" string_arg: ", hex_address((void*)string_arg)); // DEBUG
+        if (debug) SERIAL_ECHOPAIR(" string_arg: ", hex_address((void*)string_arg.buffer())); // DEBUG
       #endif
     }
 
-    if (!WITHIN(*p, 'A', 'Z')) {                // Another parameter right away?
-      while (*p && DECIMAL_SIGNED(*p)) p++;     // Skip over the value section of a parameter
-      while (*p == ' ') p++;                    // Skip over all spaces
+    if (!WITHIN(p[0], 'A', 'Z')) {              // Another parameter right away?
+      p.splitWhenNoMore("0123456789.+-");
+      p.trimLeft(' ');
     }
   }
 }
@@ -342,14 +324,11 @@ void GCodeParser::parse(char *p) {
   // Parse the next parameter as a new command
   bool GCodeParser::chain() {
     #if ENABLED(FASTER_GCODE_PARSER)
-      char *next_command = command_ptr;
-      if (next_command) {
-        while (*next_command && *next_command != ' ') ++next_command;
-        while (*next_command == ' ') ++next_command;
-        if (!*next_command) next_command = nullptr;
-      }
+      ROString next_command(command_ptr); //TODO Make command_ptr a ROString too
+      next_command.splitFrom(" "); // Don't chain here, since next_command is modified
+      next_command.trimLeft(' ');
     #else
-      const char *next_command = command_args;
+      ROString next_command(command_args);
     #endif
     if (next_command) parse(next_command);
     return !!next_command;

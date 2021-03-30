@@ -39,11 +39,11 @@ void GcodeSuite::M28() {
   #if ENABLED(BINARY_FILE_TRANSFER)
 
     bool binary_mode = false;
-    char *p = parser.string_arg;
+    ROString p = parser.string_arg;
     if (p[0] == 'B' && NUMERIC(p[1])) {
       binary_mode = p[1] > '0';
-      p += 2;
-      while (*p == ' ') ++p;
+      p.splitAt(2);
+      p.trimLeft(' ');
     }
 
     // Binary transfer mode

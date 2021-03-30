@@ -77,7 +77,7 @@ void host_action(PGM_P const pstr, const bool eol) {
 
   PromptReason host_prompt_reason = PROMPT_NOT_DEFINED;
 
-  void host_action_notify(const char * const message) {
+  void host_action_notify(ROString & message) {
     PORT_REDIRECT(SerialMask::All);
     host_action(PSTR("notification "), false);
     SERIAL_ECHOLN(message);

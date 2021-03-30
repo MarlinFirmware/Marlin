@@ -90,8 +90,8 @@ public:
   static void manage_media();
 
   // SD Card Logging
-  static void openLogFile(char * const path);
-  static void write_command(char * const buf);
+  static void openLogFile(ROString path);
+  static void write_command(ROString buf);
 
   #if DISABLED(NO_SD_AUTOSTART)     // Auto-Start auto#.g file handling
     static uint8_t autofile_index;  // Next auto#.g index to run, plus one. Ignored by autofile_check when zero.
@@ -101,11 +101,11 @@ public:
   #endif
 
   // Basic file ops
-  static void openFileRead(char * const path, const uint8_t subcall=0);
-  static void openFileWrite(char * const path);
+  static void openFileRead(ROString path, const uint8_t subcall=0);
+  static void openFileWrite(ROString path);
   static void closefile(const bool store_location=false);
-  static bool fileExists(const char * const name);
-  static void removeFile(const char * const name);
+  static bool fileExists(ROString name);
+  static void removeFile(ROString name);
 
   static inline const char* longest_filename() { return longFilename ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -121,7 +121,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char * const match);
+  static void selectFileByName(const ROString & match);
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)
@@ -140,7 +140,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
+  static ROString diveToFile(const bool update_cwd, SdFile*& curDir, ROString & path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -265,7 +265,7 @@ private:
   static bool is_dir_or_gcode(const dir_t &p);
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
-  static void selectByName(SdFile dir, const char * const match);
+  static void selectByName(SdFile dir, const ROString & match);
   static void printListing(SdFile parent, const char * const prepend=nullptr);
 
   #if ENABLED(SDCARD_SORT_ALPHA)

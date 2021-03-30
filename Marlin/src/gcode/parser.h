@@ -28,6 +28,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../core/string.h"
 
 //#define DEBUG_GCODE_PARSER
 #if ENABLED(DEBUG_GCODE_PARSER)
@@ -57,13 +58,13 @@
 class GCodeParser {
 
 private:
-  static char *value_ptr;           // Set by seen, used to fetch the value
+  static const char *value_ptr;           // Set by seen, used to fetch the value
 
   #if ENABLED(FASTER_GCODE_PARSER)
     static uint32_t codebits;       // Parameters pre-scanned
     static uint8_t param[26];       // For A-Z, offsets into command args
   #else
-    static char *command_args;      // Args start here, for slow scan
+    static const char *command_args;      // Args start here, for slow scan
   #endif
 
 public:
@@ -81,9 +82,9 @@ public:
   #endif
 
   // Command line state
-  static char *command_ptr,               // The command, so it can be echoed
-              *string_arg,                // string of command line
-              command_letter;             // G, M, or T
+  static const char *command_ptr;               // The command, so it can be echoed
+  static ROString string_arg;                   // string of command line
+  static char command_letter;             // G, M, or T
   static uint16_t codenum;                // 123
   #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
@@ -106,31 +107,31 @@ public:
 
   #define LETTER_BIT(N) ((N) - 'A')
 
-  FORCE_INLINE static bool valid_signless(const char * const p) {
+  FORCE_INLINE static bool valid_signless(const ROString & p) {
     return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
   }
 
-  FORCE_INLINE static bool valid_float(const char * const p) {
-    return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
+  FORCE_INLINE static bool valid_float(const ROString & p) {
+    return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(p.midString(1, 2))); // [-+]?.?[0-9]
   }
 
-  FORCE_INLINE static bool valid_number(const char * const p) {
+  FORCE_INLINE static bool valid_number(const ROString & p) {
     // TODO: With MARLIN_DEV_MODE allow HEX values starting with "x"
     return valid_float(p);
   }
 
   #if ENABLED(FASTER_GCODE_PARSER)
 
-    FORCE_INLINE static bool valid_int(const char * const p) {
+    FORCE_INLINE static bool valid_int(const ROString & p) {
       return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
     }
 
     // Set the flag and pointer for a parameter
-    static inline void set(const char c, char * const ptr) {
+    static inline void set(const char c, ROString & ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI32(codebits, ind);                      // parameter exists
-      param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
+      param[ind] = ptr ? ptr.buffer() - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
           SERIAL_ECHOPAIR("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
@@ -148,7 +149,7 @@ public:
       const bool b = TEST32(codebits, ind);
       if (b) {
         if (param[ind]) {
-          char * const ptr = command_ptr + param[ind];
+          const char * const ptr = command_ptr + param[ind];
           value_ptr = valid_number(ptr) ? ptr : nullptr;
         }
         else
@@ -205,7 +206,7 @@ public:
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
     static inline bool seen(const char c) {
-      char *p = strgchr(command_args, c);
+      const char *p = strgchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = valid_number(&p[1]) ? &p[1] : nullptr;
       return b;
@@ -230,14 +231,14 @@ public:
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
-    static char* unescape_string(char* &src);
+    static ROString unescape_string(ROString & src);
   #else
-    FORCE_INLINE static char* unescape_string(char* &src) { return src; }
+    FORCE_INLINE static ROString unescape_string(ROString & src) { return src; }
   #endif
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
-  static void parse(char * p);
+  static void parse(ROString p);
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     // Parse the next parameter as a new command
@@ -254,24 +255,13 @@ public:
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
 
   // The value as a string
-  static inline char* value_string() { return value_ptr; }
+  static inline const char* value_string() { return value_ptr; }
 
   // Float removes 'E' to prevent scientific notation interpretation
   static inline float value_float() {
     if (value_ptr) {
-      char *e = value_ptr;
-      for (;;) {
-        const char c = *e;
-        if (c == '\0' || c == ' ') break;
-        if (c == 'E' || c == 'e') {
-          *e = '\0';
-          const float ret = strtof(value_ptr, nullptr);
-          *e = c;
-          return ret;
-        }
-        ++e;
-      }
-      return strtof(value_ptr, nullptr);
+      ROString e(value_ptr);
+      return strtof(DString(e.upToFirst("E", false, true)), nullptr);
     }
     return 0;
   }
@@ -399,16 +389,16 @@ public:
   void unknown_command_warning();
 
   // Provide simple value accessors with default option
-  static inline char*     stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
-  static inline float     floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  static inline bool      boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
-  static inline uint8_t   byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
-  static inline int16_t   intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
-  static inline uint16_t  ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
-  static inline int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
-  static inline uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
-  static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
-  static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
+  static inline const char*   stringval(const char c, char * const dval=nullptr)  { return seenval(c) ? value_string()       : dval; }
+  static inline float         floatval(const char c, const float dval=0.0)        { return seenval(c) ? value_float()        : dval; }
+  static inline bool          boolval(const char c, const bool dval=false)        { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
+  static inline uint8_t       byteval(const char c, const uint8_t dval=0)         { return seenval(c) ? value_byte()         : dval; }
+  static inline int16_t       intval(const char c, const int16_t dval=0)          { return seenval(c) ? value_int()          : dval; }
+  static inline uint16_t      ushortval(const char c, const uint16_t dval=0)      { return seenval(c) ? value_ushort()       : dval; }
+  static inline int32_t       longval(const char c, const int32_t dval=0)         { return seenval(c) ? value_long()         : dval; }
+  static inline uint32_t      ulongval(const char c, const uint32_t dval=0)       { return seenval(c) ? value_ulong()        : dval; }
+  static inline float         linearval(const char c, const float dval=0)         { return seenval(c) ? value_linear_units() : dval; }
+  static inline celsius_t     celsiusval(const char c, const float dval=0)        { return seenval(c) ? value_celsius()      : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)
 

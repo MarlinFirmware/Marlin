@@ -1038,32 +1038,20 @@ void GcodeSuite::process_next_command() {
  */
 
 void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
-  char * const saved_cmd = parser.command_ptr;        // Save the parser state
-  for (;;) {
-    PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
-    const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
-    char cmd[len + 1];                                // Allocate a stack buffer
-    strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
-    cmd[len] = '\0';                                  // End with a nul
-    parser.parse(cmd);                                // Parse the command
-    process_parsed_command(true);                     // Process it
-    if (!delim) break;                                // Last command?
-    pgcode = delim + 1;                               // Get the next command
-  }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  DString src_cmd((const __FlashStringHelper*)(pgcode));  // Convert to a real string not in flash
+  process_subcommands_now(src_cmd);
 }
 
-void GcodeSuite::process_subcommands_now(char * gcode) {
-  char * const saved_cmd = parser.command_ptr;        // Save the parser state
-  for (;;) {
-    char * const delim = strchr(gcode, '\n');         // Get address of next newline
-    if (delim) *delim = '\0';                         // Replace with nul
-    parser.parse(gcode);                              // Parse the current command
+void GcodeSuite::process_subcommands_now(const char * gcode) {
+  const char * const saved_cmd = parser.command_ptr;  // Save the parser state
+
+  ROString cmd(gcode);
+  do {
+    ROString lcmd = cmd.splitUpTo("\n");
+    parser.parse(lcmd);                                // Parse the command
     process_parsed_command(true);                     // Process it
-    if (!delim) break;                                // Last command?
-    *delim = '\n';                                    // Put back the newline
-    gcode = delim + 1;                                // Get the next command
-  }
+  } while(cmd);
+
   parser.parse(saved_cmd);                            // Restore the parser state
 }
 

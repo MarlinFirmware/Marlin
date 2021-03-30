@@ -46,7 +46,7 @@ class StackLikeAllocator
 public:
   bool grow(uint16_t amount) {
     if (amount + current >= AllocMax) {
-      BUG_ON("Overflowing allocator ", amount + current, " / ", AllocMax);
+      BUG_ON("Overflowing allocator ", amount + current, AllocMax);
       return false;
     }
     current += amount;
@@ -66,7 +66,7 @@ public:
   void release(uint16_t size) {
     size = roundUp(size);
     if (size > current) {
-      BUG_ON("Releasing more than expected ", size, " / ", current);
+      BUG_ON("Releasing more than expected ", size, current);
       current = 0;
     } else current -= size;
   }

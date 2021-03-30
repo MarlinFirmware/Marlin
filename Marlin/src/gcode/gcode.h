@@ -373,7 +373,7 @@ public:
 
   // Execute G-code in-place, preserving current G-code parameters
   static void process_subcommands_now_P(PGM_P pgcode);
-  static void process_subcommands_now(char * gcode);
+  static void process_subcommands_now(const char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
     process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));

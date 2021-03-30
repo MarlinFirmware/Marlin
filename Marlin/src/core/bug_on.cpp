@@ -1,9 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2021 X-Ryl669 [https://blog.cyril.by]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,18 +18,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "bug_on.h"
 
-#include "../gcode.h"
-#include "../../lcd/marlinui.h"
-
-/**
- * M117: Set LCD Status Message
- */
-void GcodeSuite::M117() {
-
-  if (parser.string_arg)
-    ui.set_status(parser.string_arg);
-  else
-    ui.reset_status();
-
-}
+#if EITHER(POSTMORTEM_DEBUGGING, MARLIN_DEV_MODE)
+  void _bugOnImpl(const char * filename, const int line, const char * str, const long * values, const int len, bool crash) {
+    SERIAL_ECHOLNPAIR(filename, "(", line, ") BUG: ", str);
+    for (int i = 0; i < len; i++) SERIAL_ECHO(values[i], PrintBase::Hex);
+    SERIAL_FLUSHTX();
+    if (crash) *(char*)0 = 42;
+  }
+#endif

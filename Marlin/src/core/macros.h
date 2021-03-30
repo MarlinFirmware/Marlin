@@ -316,6 +316,8 @@
 
     }
 
+    template <class T> static inline constexpr const T clamp(T V, T m, T M) { return _MAX(m, _MIN(V, M)); }
+
   #endif
 
   // Allow manipulating enumeration value like flags without ugly cast everywhere

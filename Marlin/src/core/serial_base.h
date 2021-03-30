@@ -21,6 +21,7 @@
 #pragma once
 
 #include "number_format.h"
+#include "string.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -122,8 +123,12 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
   FORCE_INLINE void print(const char *str)                    { write(str); }
+  FORCE_INLINE void print(const ROString & str)               { write((const uint8_t*)str.buffer(), str.len()); }
+  FORCE_INLINE void print(const StringBase & str)             { write((const uint8_t*)(const char*)str, str.length()); } // Don't remove the double cast here
 
   FORCE_INLINE void println(const char s[])                  { print(s); println(); }
+  FORCE_INLINE void println(const ROString & str)            { print(str); println(); }
+  FORCE_INLINE void println(const StringBase & str)          { print(str); println(); }
   FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }
   FORCE_INLINE void println(unsigned char c, PrintBase base) { print(c, base); println(); }
   FORCE_INLINE void println(int c, PrintBase base)           { print(c, base); println(); }

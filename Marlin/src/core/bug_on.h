@@ -20,20 +20,19 @@
  */
 #pragma once
 
-// We need SERIAL_ECHOPAIR and macros.h
-#include "serial.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
+  void _bugOnImpl(const char * filename, const int line, const char * str, const long * values, const int len, bool crash);
   // Useful macro for stopping the CPU on an unexpected condition
   // This is used like SERIAL_ECHOPAIR, that is: a key-value call of the local variables you want
   // to dump to the serial port before stopping the CPU.
-                          // \/ Don't replace by SERIAL_ECHOPAIR since ONLY_FILENAME cannot be transformed to a PGM string on Arduino and it breaks building
-  #define BUG_ON(V...) do { SERIAL_ECHO(ONLY_FILENAME); SERIAL_ECHO(__LINE__); SERIAL_ECHOLN(": "); SERIAL_ECHOLNPAIR(V); SERIAL_FLUSHTX(); *(char*)0 = 42; } while(0)
+  #define BUG_ON(TXT, ...) do { long v[] = { ##__VA_ARGS__ }; _bugOnImpl(ONLY_FILENAME, __LINE__, TXT, v, sizeof(v)/sizeof(v[0]), true); } while(0)
 #elif ENABLED(MARLIN_DEV_MODE)
+  void _bugOnImpl(const char * filename, const int line, const char * str, const long * values, const int len, bool crash);
   // Don't stop the CPU here, but at least dump the bug on the serial port
-                          // \/ Don't replace by SERIAL_ECHOPAIR since ONLY_FILENAME cannot be transformed to a PGM string on Arduino and it breaks building
-  #define BUG_ON(V...) do { SERIAL_ECHO(ONLY_FILENAME); SERIAL_ECHO(__LINE__); SERIAL_ECHOLN(": BUG!"); SERIAL_ECHOLNPAIR(V); SERIAL_FLUSHTX(); } while(0)
+  #define BUG_ON(TXT, ...) do { long v[] = { ##__VA_ARGS__ }; _bugOnImpl(ONLY_FILENAME, __LINE__, TXT, v, sizeof(v)/sizeof(v[0]), false); } while(0)
 #else
   // Release mode, let's ignore the bug
-  #define BUG_ON(V...) NOOP
+  #define BUG_ON(TXT, ...) NOOP
 #endif

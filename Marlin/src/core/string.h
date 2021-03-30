@@ -27,7 +27,10 @@
 
 class StringBase;
 
-PGMSTR(usualTrimSequence, " \t\v\f\r\n");
+#ifndef ARDUINO
+  // On non Arduino platform, __FlashStringHelper isn't defined. (And we don't care). So define it here
+  struct __FlashStringHelper {};
+#endif
 
 /** Simple R/O string used for parsing task.
     Makes the code easier to grasp because it's using a fluent interface and works on concept, not chars.
@@ -43,24 +46,29 @@ public:
   inline const char*  buffer() const     { return data; }
   /** Get the string length */
   inline const int    len() const   { return length; }
-  // Limit the string length to the given value
+  /** Limit the string length to the given value */
   inline bool limitTo(const int newLength) { if (newLength > length) return false; (void)mutate(data, newLength); return true; }
- /* Split at the given position.
-    For example, the following code gives:
-    @code
-      ROString text = "abcdefdef";
-      ROString ret = text.splitAt(3); // ret = "abc", text = "defdef"
-      ret = text.splitAt(3, 1);     // ret = "de", text = "def"
-      ret = text.splitAt(9);        // ret = "def", text = ""
-    @endcode
-    @param pos    The position to split this string.
-                  If the position is larger than the string's length, the complete string is returned,
-                  and this string is modified to be empty.
-                  If the position is negative, an empty string is returned, and this string is left
-                  unmodified.
-    @param stripFromRet   This is the amount of characters to strip from the right of the returned string.
-                          This is equivalent to .limitTo(len() - stripFromRet)
-    @return The part from the left to the given position. */
+  /** Revert a position that was globbed previously. Calling this method is unsafe, since there's no check that the pointers are still valid. */
+  inline ROString & revert(const int amount) { length += amount; data -= amount; return *this; }
+  /** Get the substring from this string */
+  ROString midString(int left, int len) const { return ROString(left < length ? &data[left] : "", clamp(len, 0, length - left)); }
+
+  /** Split at the given position.
+      For example, the following code gives:
+      @code
+        ROString text = "abcdefdef";
+        ROString ret = text.splitAt(3); // ret = "abc", text = "defdef"
+        ret = text.splitAt(3, 1);     // ret = "de", text = "def"
+        ret = text.splitAt(9);        // ret = "def", text = ""
+      @endcode
+      @param pos    The position to split this string.
+                    If the position is larger than the string's length, the complete string is returned,
+                    and this string is modified to be empty.
+                    If the position is negative, an empty string is returned, and this string is left
+                    unmodified.
+      @param stripFromRet   This is the amount of characters to strip from the right of the returned string.
+                            This is equivalent to .limitTo(len() - stripFromRet)
+      @return The part from the left to the given position. */
   ROString splitAt(int pos, int stripFromRet = 0);
   /** Trim the string from the given char (and direction) */
   ROString trimRight(const char ch) const { int len = length; while(len > 1 && data && data[len - 1] == ch) len--; return ROString(data, len); }
@@ -118,7 +126,7 @@ public:
   /** Find the specific needle in the string.
       This is a very simple O(n*m) search.
       @return the position of the needle, or len() if not found. */
-  const unsigned int find(const ROString & needle, unsigned int pos = 0) const;
+  const unsigned int find(const ROString & needle, unsigned int pos = 0, const bool caseless = false) const;
   /** Find any of the given set of chars
       @return the position of the needle, or len() if not found. */
   const unsigned int findAnyChar(const char * chars, unsigned int pos = 0, int nlen = 0) const { int len = pos; if (!nlen && chars) nlen = (int)strlen(chars); while(len < length && data && memchr(chars, data[len], nlen) == NULL) len++; return len; }
@@ -128,7 +136,7 @@ public:
   /** Find the specific needle in the string, starting from the end of the string.
       This is a very simple O(n*m) search.
       @return the position of the needle, or len() if not found. */
-  const unsigned int reverseFind(const ROString & needle, unsigned int pos = (unsigned int)-1) const;
+  const unsigned int reverseFind(const ROString & needle, unsigned int pos = (unsigned int)-1, const bool caseless = false) const;
   /** Count the number of times the given substring appears in the string */
   const unsigned int count(const ROString & needle) const;
 
@@ -143,7 +151,7 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString splitFrom(const ROString & find, const bool includeFind = false);
+  const ROString splitFrom(const ROString & find, const bool includeFind = false, const bool caseless = false);
 
   /** Get the substring from the given needle up to the given needle.
       For example, this code returns:
@@ -161,7 +169,7 @@ public:
       @param includeFind  If true, the text searched for is included in the result
       @return If "from" needle is not found, it returns an empty string, else if "to" needle is not found,
               it returns an empty string upon includeFind being false, or the string starting from "from" if true. */
-  const ROString fromTo(const ROString & from, const ROString & to, const bool includeFind = false) const;
+  const ROString fromTo(const ROString & from, const ROString & to, const bool includeFind = false, const bool caseless = false) const;
 
   /** Get the string up to the first occurrence of the given string
       If not found, it returns the whole string unless includeFind is true (empty string in that case).
@@ -172,7 +180,7 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString upToFirst(const ROString & find, const bool includeFind = false) const;
+  const ROString upToFirst(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
   /** Get the string up to the last occurrence of the given string
       If not found, it returns the whole string unless includeFind is true (empty string in that case).
       For example, this code returns:
@@ -182,7 +190,7 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString upToLast(const ROString & find, const bool includeFind = false) const;
+  const ROString upToLast(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
   /** Get the string from the last occurrence of the given string.
       If not found, it returns an empty string if includeFind is false, or the whole string if true
       For example, this code returns:
@@ -193,7 +201,7 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString fromLast(const ROString & find, const bool includeFind = false) const;
+  const ROString fromLast(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
   /** Get the string from the first occurrence of the given string
       If not found, it returns an empty string if includeFind is false, or the whole string if true
       For example, this code returns:
@@ -204,7 +212,7 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString fromFirst(const ROString & find, const bool includeFind = false) const;
+  const ROString fromFirst(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
   /** Get the substring from the given needle if found, or the whole string if not.
       For example, this code returns:
       @code
@@ -215,7 +223,7 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString dropUpTo(const ROString & find, const bool includeFind = false) const;
+  const ROString dropUpTo(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
   /** Get the substring up to the given needle if found, or the whole string if not, and split from here.
       For example, this code returns:
       @code
@@ -227,12 +235,22 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString splitUpTo(const ROString & find, const bool includeFind = false);
+  const ROString splitUpTo(const ROString & find, const bool includeFind = false, const bool caseless = false);
+  /** Eat the characters until the text is no more in the given set.
+      The string is split at this position.
+      @return The string made only from characters from the given set.
+      @sa letterSet, digitSet
+      For example, this code returns:
+      @code
+        ROString text = "_abs123 defgh";
+        ROString ret = text.splitWhenNoMore("abcdefghijklmnopqrstuvwxyz_0123456789"); // text = " defgh", ret = "_abs123"
+      @endcode */
+  const ROString splitWhenNoMore(const ROString & set);
 
   /** So you can check the string directly for emptiness */
   inline bool operator !() const { return length == 0; }
   /** So you can check the string directly for emptiness */
-  inline operator bool() const { return length > 0; }
+  inline explicit operator bool() const { return length > 0; }
   /** Operator [] to access a single char */
   char operator[] (int index) const { return index < length ? data[index] : 0; }
 
@@ -244,6 +262,23 @@ public:
     return 1;
   }
 
+  /** Get the integer out of this string.
+      This method support any usual encoding of the integer, and detect the integer format automatically.
+      This method is optimized for speed, and does no memory allocation on heap
+      Supported formats examples: "0x1234, 0700, -1234, 0b00010101"
+      @param base     If provided, only the given base is supported (default to 0 for auto-detection).
+      @param consumed If provided, will be filled with the number of consumed characters.
+      @return The largest possible integer that's parseable. */
+  int parseInt(const int base = 0, int * consumed = 0) const { char * end = 0; int out = strtol((const char*)data, &end, base); if (consumed) *consumed = (int)(end - (char*)data); return out; }
+  /** Extract an integer from this string. This is equivalent to:
+      @code
+        int pos = 0;
+        int ret = str.extractInt(base, &pos);
+        str.splitAt(pos);
+      @endcode
+      @param base     If provided, only the given base is supported (default to 0 for auto-detection).
+      @return The largest possible integer that's parseable. */
+  int extractInt(const int base = 0) { int pos = 0, ret = parseInt(base, &pos); (void)mutate(data + pos, length - pos); return ret; }
 
   // Construction and operators
 public:
@@ -254,7 +289,9 @@ public:
   /** The destructor */
   ~ROString() {}
   /** Copy constructor */
-  ROString(const ROString & copy) : data(copy.data), length(copy.length) {}
+  ROString(const ROString & copy) = default;
+  /** Move constructor */
+  ROString(ROString && copy) = default;
   /** Equal operator */
   inline ROString & operator = (const ROString & copy) { if (&copy != this) return mutate(copy.data, copy.length); return *this; }
   /** Compare operator */
@@ -470,6 +507,7 @@ public:
     memcpy_P(buffer, str, len+1);
   }
   DString(const char * str) : StringBase((char*)SLAlloc::instance().lease(strlen(str)), strlen(str+1), strlen(str)) { memcpy(buffer, str, len+1); }
+  DString(const ROString & s) : StringBase((char*)SLAlloc::instance().lease(s.len()+1), s.len()+1, s.len()) { memcpy(buffer, s.buffer(), len+1); }
 
   ~DString() {
     SLAlloc::instance().release(allocSize);

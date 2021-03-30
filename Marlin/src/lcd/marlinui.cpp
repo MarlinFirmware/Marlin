@@ -1325,7 +1325,7 @@ void MarlinUI::update() {
 
   bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
 
-  void MarlinUI::set_status(const char * const message, const bool persist) {
+  void MarlinUI::set_status(ROString message, const bool persist) {
     if (alert_level) return;
 
     TERN_(HOST_PROMPT_SUPPORT, host_action_notify(message));
@@ -1335,18 +1335,18 @@ void MarlinUI::update() {
     // that there is no cutting in the middle of a multibyte character!
 
     // Get a pointer to the null terminator
-    const char* pend = message + strlen(message);
+    const char* pend = message.buffer() + message.len();
 
     //  If length of supplied UTF8 string is greater than
     // our buffer size, start cutting whole UTF8 chars
-    while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    while ((pend - message.buffer()) > MAX_MESSAGE_LENGTH) {
       --pend;
       while (!START_OF_UTF8_CHAR(*pend)) --pend;
     };
 
     // At this point, we have the proper cut point. Use it
-    uint8_t maxLen = pend - message;
-    strncpy(status_message, message, maxLen);
+    uint8_t maxLen = pend - message.buffer();
+    strncpy(status_message, message.buffer(), maxLen); //TODO: Replace by a unicode string here
     status_message[maxLen] = '\0';
 
     finish_status(persist);
@@ -1602,7 +1602,7 @@ void MarlinUI::update() {
   //
   // Send the status line as a host notification
   //
-  void MarlinUI::set_status(const char * const message, const bool) {
+  void MarlinUI::set_status(ROString message, const bool) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
   }
   void MarlinUI::set_status_P(PGM_P message, const int8_t) {

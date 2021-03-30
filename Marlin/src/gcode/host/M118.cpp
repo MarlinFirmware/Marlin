@@ -37,7 +37,7 @@ void GcodeSuite::M118() {
   #if HAS_MULTI_SERIAL
     int8_t port = -1; // Assume no redirect
   #endif
-  char *p = parser.string_arg;
+  ROString p = parser.string_arg;
   for (uint8_t i = 3; i--;) {
     // A1, E1, and Pn are always parsed out
     if (!( ((p[0] == 'A' || p[0] == 'E') && p[1] == '1') || (p[0] == 'P' && NUMERIC(p[1])) )) break;
@@ -48,8 +48,8 @@ void GcodeSuite::M118() {
         case 'P': port = p[1] - '0'; break;
       #endif
     }
-    p += 2;
-    while (*p == ' ') ++p;
+    p.splitAt(2);
+    p.trimLeft(' ');
   }
 
   PORT_REDIRECT(WITHIN(port, 0, NUM_SERIAL) ? (port ? SERIAL_PORTMASK(port - 1) : SerialMask::All) : multiSerial.portMask);
