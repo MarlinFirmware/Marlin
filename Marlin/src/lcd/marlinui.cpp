@@ -228,7 +228,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
           outstr += TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(outstr, filename_scroll_pos), filename_scroll_pos);
         }
       #else
-        theCard.longFilename[
+        theCard.longFilename.buf()[
           TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen)
         ] = '\0'; // cutoff at screen edge
       #endif

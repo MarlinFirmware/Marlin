@@ -72,10 +72,8 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
         MenuItem_submenu::action(pstr, []{
-          char * const longest = card.longest_filename();
-          char buffer[strlen(longest) + 2];
-          buffer[0] = ' ';
-          strcpy(buffer + 1, longest);
+          DString buffer(" ");
+          buffer += card.longest_filename();
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
             sdcard_start_selected_file, ui.goto_previous_screen,

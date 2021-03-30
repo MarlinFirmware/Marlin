@@ -1039,14 +1039,6 @@ void CardReader::cdroot() {
             uint8_t isDir[(fileCnt + 7) >> 3];
           #endif
         #endif
-
-      #else // !SDSORT_USES_RAM
-
-        // By default re-read the names from SD for every compare
-        // retaining only two filenames at a time. This is very
-        // slow but is safest and uses minimal RAM.
-        DString name1(LONG_FILENAME_LENGTH);
-
       #endif
 
       if (fileCnt > 1) {
@@ -1076,7 +1068,7 @@ void CardReader::cdroot() {
           uint8_t o1 = sort_order[0];
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
-            name1 = longest_filename();  // so the loop only needs one fetch
+            ROString name1 = longest_filename();  // so the loop only needs one fetch
             #if ENABLED(HAS_FOLDER_SORTING)
               bool dir1 = flag.filenameIsDir;
             #endif
@@ -1089,7 +1081,7 @@ void CardReader::cdroot() {
             #if ENABLED(SDSORT_USES_RAM)
               #define _SORT_CMP_NODIR() (strcasecmp(sortnames[o1], sortnames[o2]) > 0)
             #else
-              #define _SORT_CMP_NODIR() (strcasecmp(name1, name2) > 0)
+              #define _SORT_CMP_NODIR() (name1.caselessCmp(name2) > 0)
             #endif
 
             #if HAS_FOLDER_SORTING
@@ -1106,7 +1098,7 @@ void CardReader::cdroot() {
             #if DISABLED(SDSORT_USES_RAM)
               selectFileByIndex(o2);
               const bool dir2 = flag.filenameIsDir;
-              char * const name2 = longest_filename(); // use the string in-place
+              ROString name2 = longest_filename(); // use the string in-place
             #endif // !SDSORT_USES_RAM
 
             // Sort the current pair according to settings.

@@ -108,9 +108,6 @@ public:
   }
   /** Trim the string from any char in the given array
       This is using fluent interface and modifies the internal object. */
-  ROString & Trim() { return Trim(usualTrimSequence, sizeof(usualTrimSequence)); }
-  /** Trim the string from any char in the given array
-      This is using fluent interface and modifies the internal object. */
   ROString & Trim(const ROString & t) {
     int llen = length, rlen = length;
     while(t.length && llen > 1 && data && memchr(t.data, data[length - llen], t.length) != NULL) llen--;
@@ -239,6 +236,15 @@ public:
   /** Operator [] to access a single char */
   char operator[] (int index) const { return index < length ? data[index] : 0; }
 
+  /** Caseless compare */
+  inline const int caselessCmp(const ROString & copy) const {
+    int ret = strncasecmp(data, copy.data, length < copy.length ? length : copy.length);
+    if (!ret && length == copy.length) return 0;
+    if (ret < 0 || (!ret && length < copy.length)) return -1;
+    return 1;
+  }
+
+
   // Construction and operators
 public:
   /** Default constructor */
@@ -253,6 +259,8 @@ public:
   inline ROString & operator = (const ROString & copy) { if (&copy != this) return mutate(copy.data, copy.length); return *this; }
   /** Compare operator */
   inline const bool operator == (const ROString & copy) const { return length == copy.length && memcmp(data, copy.data, length) == 0; }
+  /** Sort operator */
+  inline const bool operator < (const ROString & copy) const { int ret = memcmp(data, copy.data, length < copy.length ? length : copy.length); return (ret < 0 || (!ret && length < copy.length)); }
   /** Compare operator */
   inline const bool operator == (const char * copy) const { return length == (int)strlen(copy) && memcmp(data, copy, length) == 0; }
   /** Compare operator */
@@ -275,22 +283,22 @@ private:
     // Prevent unwanted conversion
     // If compiler stops here, it's because you're trying to compare a string with a type it doesn't understand.
     template <typename T> bool operator == (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
     template <typename T> bool operator < (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
     template <typename T> bool operator > (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
     template <typename T> bool operator <= (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
     template <typename T> bool operator >= (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
     template <typename T> bool operator != (const T & t) const {
-      static_assert(false); return false;
+      static_assert(sizeof(T) != sizeof(T)); return false;
     }
   #endif
 };
