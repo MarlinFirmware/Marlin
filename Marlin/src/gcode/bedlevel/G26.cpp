@@ -167,59 +167,6 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos, const xy_pos_t &command_pos) {
-
-  mesh_index_pair out_point;
-  out_point.pos = -1;
-
-  #if ENABLED(UBL_HILBERT_CURVE)
-
-    auto test_func = [](uint8_t i, uint8_t j, void *data) {
-      if (!circle_flags.marked(i, j)) {
-        mesh_index_pair *out_point = (mesh_index_pair*)data;
-        out_point->pos.set(i, j);  // Save its data
-        return true;
-      }
-      return false;
-    }
-
-    hilbert_curve::search_from_closest(pos, test_func, &out_point);
-
-  #else
-
-    float closest = 99999.99;
-
-    GRID_LOOP(i, j) {
-      if (!circle_flags.marked(i, j)) {
-        // We found a circle that needs to be printed
-        const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
-
-        // Get the distance to this intersection
-        float f = (pos - m).magnitude();
-
-        // It is possible that we are being called with the values
-        // to let us find the closest circle to the start position.
-        // But if this is not the case, add a small weighting to the
-        // distance calculation to help it choose a better place to continue.
-        f += (command_pos - m).magnitude() / 15.0f;
-
-        // Add the specified amount of Random Noise to our search
-        if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
-
-        if (f < closest) {
-          closest = f;          // Found a closer un-printed location
-          out_point.pos.set(i, j);  // Save its data
-          out_point.distance = closest;
-        }
-      }
-    }
-
-  #endif
-
-  circle_flags.mark(out_point); // Mark this location as done.
-  return out_point;
-}
-
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
   static float last_z = -999.99;
 
@@ -503,6 +450,62 @@ typedef struct {
     return G26_OK;
   }
 
+  /**
+   * Find the nearest point at which to print a circle
+   */
+  mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
+
+    mesh_index_pair out_point;
+    out_point.pos = -1;
+
+    #if ENABLED(UBL_HILBERT_CURVE)
+
+      auto test_func = [](uint8_t i, uint8_t j, void *data) {
+        if (!circle_flags.marked(i, j)) {
+          mesh_index_pair *out_point = (mesh_index_pair*)data;
+          out_point->pos.set(i, j);  // Save its data
+          return true;
+        }
+        return false;
+      }
+
+      hilbert_curve::search_from_closest(pos, test_func, &out_point);
+
+    #else
+
+      float closest = 99999.99;
+
+      GRID_LOOP(i, j) {
+        if (!circle_flags.marked(i, j)) {
+          // We found a circle that needs to be printed
+          const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
+
+          // Get the distance to this intersection
+          float f = (pos - m).magnitude();
+
+          // It is possible that we are being called with the values
+          // to let us find the closest circle to the start position.
+          // But if this is not the case, add a small weighting to the
+          // distance calculation to help it choose a better place to continue.
+          f += (xy_pos - m).magnitude() / 15.0f;
+
+          // Add the specified amount of Random Noise to our search
+          if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
+
+          if (f < closest) {
+            closest = f;          // Found a closer un-printed location
+            out_point.pos.set(i, j);  // Save its data
+            out_point.distance = closest;
+          }
+        }
+      }
+
+    #endif
+
+    circle_flags.mark(out_point); // Mark this location as done.
+    return out_point;
+  }
+
 } g26_state_t;
 
 /**
@@ -756,7 +759,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
     // Find the nearest confluence
-    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos, g26.xy_pos);
+    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
 
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
@@ -883,10 +886,8 @@ void GcodeSuite::G26() {
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
-  move_to(destination, 0);                                    // Raise the nozzle
-
-  destination = g26.xy_pos;                                   // Move back to the starting XY position
-  move_to(destination, 0);                                    // Move back to the starting position
+  move_to(destination, 0);                                   // Raise the nozzle
+  move_to(g26.xy_pos, 0);                                    // Move back to the starting position
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;
