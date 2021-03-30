@@ -71,7 +71,7 @@ namespace ExtUI {
     AlertDialogBox::showError(F("Unable to read media."));
   }
 
-  void onStatusChanged(const char* lcd_msg) {
+  void onStatusChanged(const char *lcd_msg) {
     StatusScreen::setStatusMessage(lcd_msg);
   }
 

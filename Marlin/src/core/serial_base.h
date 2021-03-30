@@ -108,9 +108,9 @@ struct SerialBase {
   void flushTX()                    { CALL_IF_EXISTS(void, static_cast<Child*>(this), flushTX); }
 
   // Glue code here
-  FORCE_INLINE void write(const char* str)                    { while (*str) write(*str++); }
-  FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE void print(const char* str)                    { write(str); }
+  FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
+  FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
   NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
   NO_INLINE void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }

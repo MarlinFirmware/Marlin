@@ -125,16 +125,16 @@ void gCfgItems_init() {
   gCfgItems.pausePosX         = -1;
   gCfgItems.pausePosY         = -1;
   gCfgItems.pausePosZ         = 5;
-  gCfgItems.levelingPos[0][0] = X_MIN_POS + 30;
-  gCfgItems.levelingPos[0][1] = Y_MIN_POS + 30;
-  gCfgItems.levelingPos[1][0] = X_MAX_POS - 30;
-  gCfgItems.levelingPos[1][1] = Y_MIN_POS + 30;
-  gCfgItems.levelingPos[2][0] = X_MAX_POS - 30;
-  gCfgItems.levelingPos[2][1] = Y_MAX_POS - 30;
-  gCfgItems.levelingPos[3][0] = X_MIN_POS + 30;
-  gCfgItems.levelingPos[3][1] = Y_MAX_POS - 30;
-  gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
-  gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
+  gCfgItems.trammingPos[0][X_AXIS] = X_MIN_POS + 30;
+  gCfgItems.trammingPos[0][Y_AXIS] = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[1][X_AXIS] = X_MAX_POS - 30;
+  gCfgItems.trammingPos[1][Y_AXIS] = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[2][X_AXIS] = X_MAX_POS - 30;
+  gCfgItems.trammingPos[2][Y_AXIS] = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[3][X_AXIS] = X_MIN_POS + 30;
+  gCfgItems.trammingPos[3][Y_AXIS] = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[4][X_AXIS] = X_BED_SIZE / 2;
+  gCfgItems.trammingPos[4][Y_AXIS] = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
   gCfgItems.wifi_mode_sel = STA_MODEL;
   gCfgItems.fileSysType   = FILE_SYS_SD;
@@ -143,7 +143,7 @@ void gCfgItems_init() {
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;
   gCfgItems.filamentchange_unload_speed  = 1000;
-  gCfgItems.filament_limit_temper        = 200;
+  gCfgItems.filament_limit_temp          = 200;
 
   gCfgItems.encoder_enable = true;
 
@@ -226,8 +226,8 @@ void ui_cfg_init() {
     uiCfg.cloud_port = 10086;
   #endif
 
-  uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0 / gCfgItems.filamentchange_load_speed) + 0.5);
-  uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0 / gCfgItems.filamentchange_unload_speed) + 0.5);
+  uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0f / gCfgItems.filamentchange_load_speed) + 0.5f);
+  uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0f / gCfgItems.filamentchange_unload_speed) + 0.5f);
 }
 
 void update_spi_flash() {
@@ -649,7 +649,7 @@ char *creat_title_text() {
       if (gPicturePreviewStart <= 0) {
         while (1) {
           uint32_t br  = card.read(public_buf, 400);
-          uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
+          uint32_t *p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
           if (p1) {
             gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
             break;
@@ -805,6 +805,10 @@ void GUI_RefreshPage() {
       }
       break;
     case PRINT_READY_UI:
+      if (temps_update_flag) {
+        temps_update_flag = false;
+        lv_temp_refr();
+      }
       break;
 
     case PRINT_FILE_UI: break;
@@ -843,8 +847,8 @@ void GUI_RefreshPage() {
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
         if (temps_update_flag) {
-          disp_wifi_state();
           temps_update_flag = false;
+          disp_wifi_state();
         }
         break;
 
@@ -994,7 +998,7 @@ void clear_cur_ui() {
     case LEVELING_SETTIGNS_UI:        break;
     case LEVELING_PARA_UI:            lv_clear_level_settings(); break;
     case DELTA_LEVELING_PARA_UI:      break;
-    case MANUAL_LEVELING_POSIGION_UI: lv_clear_manual_level_pos_settings(); break;
+    case MANUAL_LEVELING_POSIGION_UI: lv_clear_tramming_pos_settings(); break;
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
@@ -1099,7 +1103,7 @@ void draw_return_ui() {
       case LEVELING_SETTIGNS_UI:        break;
       case LEVELING_PARA_UI:            lv_draw_level_settings(); break;
       case DELTA_LEVELING_PARA_UI:      break;
-      case MANUAL_LEVELING_POSIGION_UI: lv_draw_manual_level_pos_settings(); break;
+      case MANUAL_LEVELING_POSIGION_UI: lv_draw_tramming_pos_settings(); break;
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
       case STEPS_UI:                    lv_draw_step_settings(); break;
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
@@ -1169,7 +1173,7 @@ void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
 }
 
 // Create a screen
-lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title) {
   lv_obj_t *scr = lv_obj_create(nullptr, nullptr);
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
@@ -1344,19 +1348,19 @@ lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_
 }
 
 lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue) {
-  lv_obj_t* btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
-  lv_obj_t* btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
-  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_obj_t *btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
+  lv_obj_t *btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
+  lv_obj_t *labelValue = lv_label_create_empty(btnValue);
   lv_label_set_text(labelValue, editValue);
   lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
   return btn;
 }
 
 lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const int idEdit2, const char *editValue2) {
-  lv_obj_t* btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
+  lv_obj_t *btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
 
-  lv_obj_t* btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X_2, y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, idEdit2);
-  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_obj_t *btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X_2, y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, idEdit2);
+  lv_obj_t *labelValue = lv_label_create_empty(btnValue);
   lv_label_set_text(labelValue, editValue2);
   lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
 
@@ -1370,8 +1374,8 @@ lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t
 
 lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue) {
   lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
-  lv_obj_t* btnValue = lv_imgbtn_create(par, curValue ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, y + PARA_UI_STATE_V, cb, id);
-  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_obj_t *btnValue = lv_imgbtn_create(par, curValue ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, y + PARA_UI_STATE_V, cb, id);
+  lv_obj_t *labelValue = lv_label_create_empty(btnValue);
   lv_label_set_text(labelValue, curValue ? machine_menu.enable : machine_menu.disable);
   lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
   return btnValue;

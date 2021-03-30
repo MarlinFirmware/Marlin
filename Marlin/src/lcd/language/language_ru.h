@@ -139,7 +139,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Индекс X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Индекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значение Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Свои команды");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Свои команды");
 
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест Z-зонда");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Отклонение");

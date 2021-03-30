@@ -46,6 +46,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if HAS_COOLER || HAS_FLOWMETER
+  #include "../../feature/cooler.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -517,14 +521,43 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
+
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
-    const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
-                t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
+    const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const float t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
+
+  if (prefix >= 0) lcd_put_wchar(prefix);
+
+  lcd_put_u8str(i16tostr3rj(t1));
+  lcd_put_wchar('/');
+
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+      lcd_put_wchar(' ');
+      if (t2 >= 10) lcd_put_wchar(' ');
+      if (t2 >= 100) lcd_put_wchar(' ');
+    }
+    else
+  #endif
+      lcd_put_u8str(i16tostr3left(t2));
+
+  if (prefix >= 0) {
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
+    lcd_put_wchar(' ');
+    if (t2 < 10) lcd_put_wchar(' ');
+  }
+}
+
+#if HAS_COOLER
+FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
+  const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
@@ -549,6 +582,15 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     if (t2 < 10) lcd_put_wchar(' ');
   }
 }
+#endif
+
+#if HAS_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd_put_u8str("~ ");
+    lcd_put_u8str(ftostr11ns(cooler.flowrate));
+    lcd_put_wchar('L');
+  }
+#endif
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
@@ -571,9 +613,9 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
 #if ENABLED(LCD_PROGRESS_BAR)
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
-    const int16_t tix = (int16_t)(percent * (LCD_WIDTH) * 3) / 100,
-              cel = tix / 3,
-              rem = tix % 3;
+    const int16_t tix = int16_t(percent * (LCD_WIDTH) * 3) / 100,
+                  cel = tix / 3,
+                  rem = tix % 3;
     uint8_t i = LCD_WIDTH;
     char msg[LCD_WIDTH + 1], b = ' ';
     msg[LCD_WIDTH] = '\0';
@@ -747,17 +789,19 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(H_E0, -1, blink);
+      #if HAS_HOTEND
+        _draw_heater_status(H_E0, -1, blink);
 
-      //
-      // Hotend 1 or Bed Temperature
-      //
-      #if HAS_MULTI_HOTEND
-        lcd_moveto(8, 0);
-        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_HEATED_BED
-        lcd_moveto(8, 0);
-        _draw_bed_status(blink);
+        //
+        // Hotend 1 or Bed Temperature
+        //
+        #if HAS_MULTI_HOTEND
+          lcd_moveto(8, 0);
+          _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
+        #elif HAS_HEATED_BED
+          lcd_moveto(8, 0);
+          _draw_bed_status(blink);
+        #endif
       #endif
 
     #else // LCD_WIDTH >= 20
@@ -765,17 +809,26 @@ void MarlinUI::draw_status_screen() {
       //
       // Hotend 0 Temperature
       //
-      _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
+      #if HAS_HOTEND
+        _draw_heater_status(H_E0, LCD_STR_THERMOMETER[0], blink);
 
-      //
-      // Hotend 1 or Bed Temperature
-      //
-      #if HAS_MULTI_HOTEND
-        lcd_moveto(10, 0);
-        _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
-      #elif HAS_HEATED_BED
-        lcd_moveto(10, 0);
-        _draw_bed_status(blink);
+        //
+        // Hotend 1 or Bed Temperature
+        //
+        #if HAS_MULTI_HOTEND
+          lcd_moveto(10, 0);
+          _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
+        #elif HAS_HEATED_BED
+          lcd_moveto(10, 0);
+          _draw_bed_status(blink);
+        #endif
+      #endif
+
+      #if HAS_COOLER
+        _draw_cooler_status('*', blink);
+      #endif
+      #if HAS_FLOWMETER
+        _draw_flowmeter_status();
       #endif
 
     #endif // LCD_WIDTH >= 20
@@ -1023,7 +1076,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm) {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
@@ -1035,7 +1088,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
     uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
     if (value) {

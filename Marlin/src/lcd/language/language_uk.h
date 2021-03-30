@@ -151,7 +151,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Індекс X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Індекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Власні команди");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Власні команди");
 
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 тест зонду");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 точка");
