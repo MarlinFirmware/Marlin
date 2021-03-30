@@ -59,18 +59,6 @@ CALL_IF_EXISTS_IMPL(void, flushTX);
 CALL_IF_EXISTS_IMPL(bool, connected, true);
 CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
 
-// A simple forward struct to prevent the compiler from selecting print(double, int) as a default overload
-// for any type other than double/float. For double/float, a conversion exists so the call will be invisible.
-struct EnsureDouble {
-  double a;
-  FORCE_INLINE operator double() { return a; }
-  // If the compiler breaks on ambiguity here, it's likely because you're calling print(X, base) with X not a double or a float, and a
-  // base that's not one of PrintBase's value. This exact code is made to detect such error, you NEED to set a base explicitely like this:
-  // SERIAL_PRINT(v, PrintBase::Hex)
-  FORCE_INLINE EnsureDouble(double a) : a(a) {}
-  FORCE_INLINE EnsureDouble(float a) : a(a) {}
-};
-
 // Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in the compiler writing
 // a completely efficient code.
@@ -87,8 +75,10 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
 
   // Used by NumberFormatter after each number formatting
   void writeDone() {}
-  
+
+  // Syntaxic sugar
   FORCE_INLINE Child * SerialChild() { return static_cast<Child*>(this); }
+  FORCE_INLINE const Child * SerialChild() const { return static_cast<const Child*>(this); }
 
 
   // Static dispatch methods below:
