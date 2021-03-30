@@ -677,7 +677,7 @@ void GcodeSuite::G26() {
   }
 
   // Set a position with 'X' and/or 'Y'. Default: current_position
-  xy_pos_t g26_xy_pos = {
+  const xy_pos_t g26_xy_pos = {
     parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
     parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
   };
