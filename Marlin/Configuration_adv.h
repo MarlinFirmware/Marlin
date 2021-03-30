@@ -1459,10 +1459,10 @@
   #endif
 
   /**
-   * If you have Flash space to spare, Marlin can store your customized
+   * If you are short of Flash space, this will prevent Marlin from storing your customized
    * settings and export them to the SD Card as mc.zip with 'M503 C'.
    */
-  //#define CONFIG_EMBED_AND_SAVE_TO_SD
+  //#define CONFIG_SKIP_EMBED_AND_SAVE_TO_SD
 
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER

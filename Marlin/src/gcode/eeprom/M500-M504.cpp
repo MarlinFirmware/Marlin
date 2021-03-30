@@ -25,11 +25,11 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
+#if DISABLED(CONFIG_SKIP_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
   #include "../../sd/SdBaseFile.h"
 #endif
 
-#if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
+#if DISABLED(CONFIG_SKIP_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
   #include "../../../../.pio/build/mc.cpp"
 #endif
 
@@ -64,7 +64,7 @@ void GcodeSuite::M502() {
   void GcodeSuite::M503() {
     (void)settings.report(!parser.boolval('S', true));
 
-    #if ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD)
+    #if DISABLED(CONFIG_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
       if (parser.boolval('C')) {
         SdBaseFile file;
         const uint16_t size = sizeof(mc_zip);
