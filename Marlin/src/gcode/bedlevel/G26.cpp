@@ -152,9 +152,6 @@ constexpr float g26_e_axis_feedrate = 0.025;
 static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
 float g26_random_deviation = 0.0;
 
-static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
-                                   // retracts/recovers won't result in a bad state.
-
 #if HAS_LCD_MENU
 
   /**
@@ -252,243 +249,261 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
 FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
 
-void retract_filament(const xyz_pos_t &where, const float &retraction_multiplier) {
-  if (!g26_retracted) { // Only retract if we are not already retracted!
-    g26_retracted = true;
-    move_to(where, -1.0f * retraction_multiplier);
+typedef struct {
+  float extrusion_multiplier  = EXTRUSION_MULTIPLIER,
+        retraction_multiplier = G26_RETRACT_MULTIPLIER,
+        layer_height          = MESH_TEST_LAYER_HEIGHT,
+        prime_length          = PRIME_LENGTH;
+
+  int16_t bed_temp            = MESH_TEST_BED_TEMP,
+          hotend_temp         = MESH_TEST_HOTEND_TEMP;
+
+   xy_pos_t xy_pos; // = { 0, 0 }
+
+  int8_t prime_flag = 0;
+
+  bool g26_retracted = false;  // Track the retracted state during G26 so mismatched
+                               // retracts/recovers don't result in a bad state.
+
+  void retract_filament(const xyz_pos_t &where) {
+    if (!g26_retracted) { // Only retract if we are not already retracted!
+      g26_retracted = true;
+      move_to(where, -1.0f * retraction_multiplier);
+    }
   }
-}
 
-// TODO: Parameterize the Z lift with a define
-void retract_lift_move(const xyz_pos_t &s, const float &retraction_multiplier) {
-  retract_filament(destination, retraction_multiplier);
-  move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
-  move_to(s.x, s.y, s.z + 0.5f, 0.0f);  // Get to the starting point with no extrusion while lifted
-}
-
-void recover_filament(const xyz_pos_t &where, const float &retraction_multiplier) {
-  if (g26_retracted) { // Only un-retract if we are retracted.
-    move_to(where, 1.2f * retraction_multiplier);
-    g26_retracted = false;
+  // TODO: Parameterize the Z lift with a define
+  void retract_lift_move(const xyz_pos_t &s) {
+    retract_filament(destination);
+    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
+    move_to(s.x, s.y, s.z + 0.5f, 0.0f);  // Get to the starting point with no extrusion while lifted
   }
-}
 
-/**
- * print_line_from_here_to_there() takes two cartesian coordinates and draws a line from one
- * to the other. But there are really three sets of coordinates involved. The first coordinate
- * is the present location of the nozzle. We don't necessarily want to print from this location.
- * We first need to move the nozzle to the start of line segment where we want to print. Once
- * there, we can use the two coordinates supplied to draw the line.
- *
- * Note:  Although we assume the first set of coordinates is the start of the line and the second
- * set of coordinates is the end of the line, it does not always work out that way. This function
- * optimizes the movement to minimize the travel distance before it can start printing. This saves
- * a lot of time and eliminates a lot of nonsensical movement of the nozzle. However, it does
- * cause a lot of very little short retracement of th nozzle when it draws the very first line
- * segment of a 'circle'. The time this requires is very short and is easily saved by the other
- * cases where the optimization comes into play.
- */
-void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e, const float &extrusion_multiplier, const float &retraction_multiplier) {
+  void recover_filament(const xyz_pos_t &where) {
+    if (g26_retracted) { // Only un-retract if we are retracted.
+      move_to(where, 1.2f * retraction_multiplier);
+      g26_retracted = false;
+    }
+  }
 
-  // Distances to the start / end of the line
-  xy_float_t svec = current_position - s, evec = current_position - e;
+  /**
+   * print_line_from_here_to_there() takes two cartesian coordinates and draws a line from one
+   * to the other. But there are really three sets of coordinates involved. The first coordinate
+   * is the present location of the nozzle. We don't necessarily want to print from this location.
+   * We first need to move the nozzle to the start of line segment where we want to print. Once
+   * there, we can use the two coordinates supplied to draw the line.
+   *
+   * Note:  Although we assume the first set of coordinates is the start of the line and the second
+   * set of coordinates is the end of the line, it does not always work out that way. This function
+   * optimizes the movement to minimize the travel distance before it can start printing. This saves
+   * a lot of time and eliminates a lot of nonsensical movement of the nozzle. However, it does
+   * cause a lot of very little short retracement of th nozzle when it draws the very first line
+   * segment of a 'circle'. The time this requires is very short and is easily saved by the other
+   * cases where the optimization comes into play.
+   */
+  void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
-  const float dist_start = HYPOT2(svec.x, svec.y),
-              dist_end = HYPOT2(evec.x, evec.y),
-              line_length = HYPOT(e.x - s.x, e.y - s.y);
+    // Distances to the start / end of the line
+    xy_float_t svec = current_position - s, evec = current_position - e;
 
-  // If the end point of the line is closer to the nozzle, flip the direction,
-  // moving from the end to the start. On very small lines the optimization isn't worth it.
-  if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
-    return print_line_from_here_to_there(e, s, extrusion_multiplier, retraction_multiplier);
+    const float dist_start = HYPOT2(svec.x, svec.y),
+                dist_end = HYPOT2(evec.x, evec.y),
+                line_length = HYPOT(e.x - s.x, e.y - s.y);
 
-  // Decide whether to retract & lift
-  if (dist_start > 2.0) retract_lift_move(s, retraction_multiplier);
+    // If the end point of the line is closer to the nozzle, flip the direction,
+    // moving from the end to the start. On very small lines the optimization isn't worth it.
+    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
+      return print_line_from_here_to_there(e, s);
 
-  move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
+    // Decide whether to retract & lift
+    if (dist_start > 2.0) retract_lift_move(s);
 
-  const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
+    move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
 
-  recover_filament(destination, retraction_multiplier);
-  move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
-}
+    const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
-inline bool look_for_lines_to_connect(const float &layer_height, const float &extrusion_multiplier, const float &retraction_multiplier) {
-  xyz_pos_t s, e;
-  s.z = e.z = layer_height;
+    recover_filament(destination);
+    move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
+  }
 
-  GRID_LOOP(i, j) {
+  inline bool look_for_lines_to_connect() {
+    xyz_pos_t s, e;
+    s.z = e.z = layer_height;
 
-    if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
+    GRID_LOOP(i, j) {
 
-    if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
-                                    // Already a half circle at the edge of the bed.
+      if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
 
-      if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
-        if (!horizontal_mesh_line_flags.marked(i, j)) {
-          // Two circles need a horizontal line to connect them
-          s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
-          e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
-
-          #if HAS_ENDSTOPS
-            LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-            s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-            LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
-          #else
-            s.y = e.y = _GET_MESH_Y(j);
-          #endif
-
-          if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-            print_line_from_here_to_there(s, e, extrusion_multiplier, retraction_multiplier);
-
-          horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-        }
-      }
-
-      if (j < (GRID_MAX_POINTS_Y)) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
+      if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
                                       // Already a half circle at the edge of the bed.
 
-        if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
-          if (!vertical_mesh_line_flags.marked(i, j)) {
-            // Two circles that need a vertical line to connect them
-            s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
-            e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
+        if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
+          if (!horizontal_mesh_line_flags.marked(i, j)) {
+            // Two circles need a horizontal line to connect them
+            s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
+            e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
             #if HAS_ENDSTOPS
-              s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-              LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-              LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+              s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+              LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
             #else
-              s.x = e.x = _GET_MESH_X(i);
+              s.y = e.y = _GET_MESH_Y(j);
             #endif
 
             if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-              print_line_from_here_to_there(s, e, extrusion_multiplier, retraction_multiplier);
+              print_line_from_here_to_there(s, e);
 
-            vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
+            horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
+          }
+        }
+
+        if (j < (GRID_MAX_POINTS_Y)) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
+                                        // Already a half circle at the edge of the bed.
+
+          if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
+            if (!vertical_mesh_line_flags.marked(i, j)) {
+              // Two circles that need a vertical line to connect them
+              s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
+              e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
+
+              #if HAS_ENDSTOPS
+                s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
+                LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+                LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              #else
+                s.x = e.x = _GET_MESH_X(i);
+              #endif
+
+              if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+                print_line_from_here_to_there(s, e);
+
+              vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
+            }
           }
         }
       }
     }
+    return false;
   }
-  return false;
-}
 
-/**
- * Turn on the bed and nozzle heat and
- * wait for them to get up to temperature.
- */
-inline bool turn_on_heaters(const celsius_t hotend_temp, const celsius_t bed_temp) {
+  /**
+   * Turn on the bed and nozzle heat and
+   * wait for them to get up to temperature.
+   */
+  bool turn_on_heaters() {
 
-  SERIAL_ECHOLNPGM("Waiting for heatup.");
+    SERIAL_ECHOLNPGM("Waiting for heatup.");
 
-  #if HAS_HEATED_BED
+    #if HAS_HEATED_BED
 
-    if (bed_temp > 25) {
-      #if HAS_WIRED_LCD
-        ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
-        ui.quick_feedback();
-        TERN_(HAS_LCD_MENU, ui.capture());
-      #endif
-      thermalManager.setTargetBed(bed_temp);
-
-      // Wait for the temperature to stabilize
-      if (!thermalManager.wait_for_bed(true
-          #if G26_CLICK_CAN_CANCEL
-            , true
-          #endif
-        )
-      ) return G26_ERR;
-    }
-
-  #else
-
-    UNUSED(bed_temp);
-
-  #endif // HAS_HEATED_BED
-
-  // Start heating the active nozzle
-  #if HAS_WIRED_LCD
-    ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
-    ui.quick_feedback();
-  #endif
-  thermalManager.setTargetHotend(hotend_temp, active_extruder);
-
-  // Wait for the temperature to stabilize
-  if (!thermalManager.wait_for_hotend(active_extruder, true
-    #if G26_CLICK_CAN_CANCEL
-      , true
-    #endif
-  )) return G26_ERR;
-
-  #if HAS_WIRED_LCD
-    ui.reset_status();
-    ui.quick_feedback();
-  #endif
-
-  return G26_OK;
-}
-
-/**
- * Prime the nozzle if needed. Return true on error.
- */
-inline bool prime_nozzle(const int8_t prime_flag, const float &prime_length, const float &retraction_multiplier) {
-
-  const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU && !HAS_TOUCH_BUTTONS // ui.button_pressed issue with touchscreen
-    #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      float Total_Prime = 0.0;
-    #endif
-
-    if (prime_flag == -1) {  // The user wants to control how much filament gets purged
-      ui.capture();
-      ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
-      ui.chirp();
-
-      destination = current_position;
-
-      recover_filament(destination, retraction_multiplier); // Make sure G26 doesn't think the filament is retracted().
-
-      while (!ui.button_pressed()) {
-        ui.chirp();
-        destination.e += 0.25;
-        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          Total_Prime += 0.25;
-          if (Total_Prime >= EXTRUDE_MAXLENGTH) {
-            ui.release();
-            return G26_ERR;
-          }
+      if (bed_temp > 25) {
+        #if HAS_WIRED_LCD
+          ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
+          ui.quick_feedback();
+          TERN_(HAS_LCD_MENU, ui.capture());
         #endif
-        prepare_internal_move_to_destination(fr_slow_e);
-        destination = current_position;
-        planner.synchronize();    // Without this synchronize, the purge is more consistent,
-                                  // but because the planner has a buffer, we won't be able
-                                  // to stop as quickly. So we put up with the less smooth
-                                  // action to give the user a more responsive 'Stop'.
+        thermalManager.setTargetBed(bed_temp);
+
+        // Wait for the temperature to stabilize
+        if (!thermalManager.wait_for_bed(true
+            #if G26_CLICK_CAN_CANCEL
+              , true
+            #endif
+          )
+        ) return G26_ERR;
       }
 
-      ui.wait_for_release();
+    #else
 
-      ui.set_status_P(GET_TEXT(MSG_G26_PRIME_DONE), 99);
-      ui.quick_feedback();
-      ui.release();
-    }
-    else
-  #endif
-  {
+      UNUSED(bed_temp);
+
+    #endif // HAS_HEATED_BED
+
+    // Start heating the active nozzle
     #if HAS_WIRED_LCD
-      ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
+      ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
       ui.quick_feedback();
     #endif
-    destination = current_position;
-    destination.e += prime_length;
-    prepare_internal_move_to_destination(fr_slow_e);
-    destination.e -= prime_length;
-    retract_filament(destination, retraction_multiplier);
+    thermalManager.setTargetHotend(hotend_temp, active_extruder);
+
+    // Wait for the temperature to stabilize
+    if (!thermalManager.wait_for_hotend(active_extruder, true
+      #if G26_CLICK_CAN_CANCEL
+        , true
+      #endif
+    )) return G26_ERR;
+
+    #if HAS_WIRED_LCD
+      ui.reset_status();
+      ui.quick_feedback();
+    #endif
+
+    return G26_OK;
   }
 
-  return G26_OK;
-}
+  /**
+   * Prime the nozzle if needed. Return true on error.
+   */
+  bool prime_nozzle() {
+
+    const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
+    #if HAS_LCD_MENU && !HAS_TOUCH_BUTTONS // ui.button_pressed issue with touchscreen
+      #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+        float Total_Prime = 0.0;
+      #endif
+
+      if (prime_flag == -1) {  // The user wants to control how much filament gets purged
+        ui.capture();
+        ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
+        ui.chirp();
+
+        destination = current_position;
+
+        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+
+        while (!ui.button_pressed()) {
+          ui.chirp();
+          destination.e += 0.25;
+          #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+            Total_Prime += 0.25;
+            if (Total_Prime >= EXTRUDE_MAXLENGTH) {
+              ui.release();
+              return G26_ERR;
+            }
+          #endif
+          prepare_internal_move_to_destination(fr_slow_e);
+          destination = current_position;
+          planner.synchronize();    // Without this synchronize, the purge is more consistent,
+                                    // but because the planner has a buffer, we won't be able
+                                    // to stop as quickly. So we put up with the less smooth
+                                    // action to give the user a more responsive 'Stop'.
+        }
+
+        ui.wait_for_release();
+
+        ui.set_status_P(GET_TEXT(MSG_G26_PRIME_DONE), 99);
+        ui.quick_feedback();
+        ui.release();
+      }
+      else
+    #endif
+    {
+      #if HAS_WIRED_LCD
+        ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
+        ui.quick_feedback();
+      #endif
+      destination = current_position;
+      destination.e += prime_length;
+      prepare_internal_move_to_destination(fr_slow_e);
+      destination.e -= prime_length;
+      retract_filament(destination);
+    }
+
+    return G26_OK;
+  }
+
+} g26_state_t;
 
 /**
  * G26: Mesh Validation Pattern generation.
@@ -525,15 +540,7 @@ void GcodeSuite::G26() {
   // Change the tool first, if specified
   if (parser.seenval('T')) tool_change(parser.value_int());
 
-  float g26_extrusion_multiplier  = EXTRUSION_MULTIPLIER,
-        g26_retraction_multiplier = G26_RETRACT_MULTIPLIER,
-        g26_layer_height          = MESH_TEST_LAYER_HEIGHT,
-        g26_prime_length          = PRIME_LENGTH;
-
-  int16_t g26_hotend_temp         = MESH_TEST_HOTEND_TEMP,
-          g26_bed_temp            = MESH_TEST_BED_TEMP;
-
-  int8_t g26_prime_flag = 0;
+  g26_state_t g26;
 
   float g26_nozzle            = MESH_TEST_NOZZLE_SIZE,
         g26_filament_diameter = DEFAULT_NOMINAL_FILAMENT_DIA,
@@ -565,14 +572,14 @@ void GcodeSuite::G26() {
         SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
         return;
       }
-      g26_bed_temp = bedtemp;
+      g26.bed_temp = bedtemp;
     }
 
   #endif // HAS_HEATED_BED
 
   if (parser.seenval('L')) {
-    g26_layer_height = parser.value_linear_units();
-    if (!WITHIN(g26_layer_height, 0.0, 2.0)) {
+    g26.layer_height = parser.value_linear_units();
+    if (!WITHIN(g26.layer_height, 0.0, 2.0)) {
       SERIAL_ECHOLNPGM("?Specified layer height not plausible.");
       return;
     }
@@ -580,8 +587,8 @@ void GcodeSuite::G26() {
 
   if (parser.seen('Q')) {
     if (parser.has_value()) {
-      g26_retraction_multiplier = parser.value_float();
-      if (!WITHIN(g26_retraction_multiplier, 0.05, 15.0)) {
+      g26.retraction_multiplier = parser.value_float();
+      if (!WITHIN(g26.retraction_multiplier, 0.05, 15.0)) {
         SERIAL_ECHOLNPGM("?Specified Retraction Multiplier not plausible.");
         return;
       }
@@ -603,16 +610,16 @@ void GcodeSuite::G26() {
   if (parser.seen('P')) {
     if (!parser.has_value()) {
       #if HAS_LCD_MENU
-        g26_prime_flag = -1;
+        g26.prime_flag = -1;
       #else
         SERIAL_ECHOLNPGM("?Prime length must be specified when not using an LCD.");
         return;
       #endif
     }
     else {
-      g26_prime_flag++;
-      g26_prime_length = parser.value_linear_units();
-      if (!WITHIN(g26_prime_length, 0.0, 25.0)) {
+      g26.prime_flag++;
+      g26.prime_length = parser.value_linear_units();
+      if (!WITHIN(g26.prime_length, 0.0, 25.0)) {
         SERIAL_ECHOLNPGM("?Specified prime length not plausible.");
         return;
       }
@@ -626,11 +633,11 @@ void GcodeSuite::G26() {
       return;
     }
   }
-  g26_extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
+  g26.extrusion_multiplier *= sq(1.75) / sq(g26_filament_diameter); // If we aren't using 1.75mm filament, we need to
                                                                     // scale up or down the length needed to get the
                                                                     // same volume of filament
 
-  g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
+  g26.extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
   // Get a temperature from 'I' or 'H'
   celsius_t noztemp = 0;
@@ -649,7 +656,7 @@ void GcodeSuite::G26() {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
-    g26_hotend_temp = noztemp;
+    g26.hotend_temp = noztemp;
   }
 
   // 'U' to Randomize and optionally set circle deviation
@@ -677,11 +684,11 @@ void GcodeSuite::G26() {
   }
 
   // Set a position with 'X' and/or 'Y'. Default: current_position
-  const xy_pos_t g26_xy_pos = {
+  g26.xy_pos = xy_pos_t({
     parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
     parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y
-  };
-  if (!position_is_reachable(g26_xy_pos)) {
+  });
+  if (!position_is_reachable(g26.xy_pos)) {
     SERIAL_ECHOLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
   }
@@ -699,12 +706,12 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
-  if (turn_on_heaters(g26_hotend_temp, g26_bed_temp) != G26_OK) goto LEAVE;
+  if (g26.turn_on_heaters() != G26_OK) goto LEAVE;
 
   current_position.e = 0.0;
   sync_plan_position_e();
 
-  if (g26_prime_flag && prime_nozzle(g26_prime_flag, g26_prime_length, g26_retraction_multiplier) != G26_OK) goto LEAVE;
+  if (g26.prime_flag && g26.prime_nozzle() != G26_OK) goto LEAVE;
 
   /**
    *  Bed is preheated
@@ -722,7 +729,7 @@ void GcodeSuite::G26() {
 
   // Move nozzle to the specified height for the first layer
   destination = current_position;
-  destination.z = g26_layer_height;
+  destination.z = g26.layer_height;
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
@@ -751,7 +758,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
     // Find the nearest confluence
-    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26_xy_pos, g26_xy_pos);
+    location = find_closest_circle_to_print(g26_continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos, g26.xy_pos);
 
     if (location.valid()) {
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
@@ -801,19 +808,19 @@ void GcodeSuite::G26() {
         const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
         const float dist_start = HYPOT2(dist.x, dist.y);
         const xyze_pos_t endpoint = {
-          e.x, e.y, g26_layer_height,
-          current_position.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+          e.x, e.y, g26.layer_height,
+          current_position.e + (arc_length * g26_e_axis_feedrate * g26.extrusion_multiplier)
         };
 
         if (dist_start > 2.0) {
-          s.z = g26_layer_height + 0.5f;
-          retract_lift_move(s, g26_retraction_multiplier);
+          s.z = g26.layer_height + 0.5f;
+          g26.retract_lift_move(s);
         }
 
-        s.z = g26_layer_height;
+        s.z = g26.layer_height;
         move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
 
-        recover_filament(destination, g26_retraction_multiplier);
+        g26.recover_filament(destination);
 
         const feedRate_t old_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
@@ -847,8 +854,8 @@ void GcodeSuite::G26() {
 
           if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
-          xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
-                      q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
+          xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26.layer_height },
+                      q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26.layer_height };
 
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
@@ -860,13 +867,13 @@ void GcodeSuite::G26() {
             LIMIT(q.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
-          print_line_from_here_to_there(p, q, g26_extrusion_multiplier, g26_retraction_multiplier);
+          g26.print_line_from_here_to_there(p, q);
           SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
         }
 
       #endif // !ARC_SUPPORT
 
-      if (look_for_lines_to_connect(g26_layer_height, g26_extrusion_multiplier, g26_retraction_multiplier)) goto LEAVE;
+      if (g26.look_for_lines_to_connect()) goto LEAVE;
     }
 
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
@@ -876,11 +883,11 @@ void GcodeSuite::G26() {
   LEAVE:
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
 
-  retract_filament(destination, g26_retraction_multiplier);
+  g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
   move_to(destination, 0);                                    // Raise the nozzle
 
-  destination = g26_xy_pos;                                   // Move back to the starting XY position
+  destination = g26.xy_pos;                                   // Move back to the starting XY position
   move_to(destination, 0);                                    // Move back to the starting position
 
   #if DISABLED(NO_VOLUMETRICS)
