@@ -60,7 +60,7 @@ void Marlin_NeoPixel::set_color(const uint32_t color) {
   else {
     for (uint16_t i = 0; i < pixels(); ++i) {
       #ifdef NEOPIXEL_BKGD_LED_INDEX
-        if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {
+        if (i == NEOPIXEL_BKGD_LED_INDEX && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
           set_color_background();
           continue;
         }

@@ -29,6 +29,8 @@
  * Applies to PICA, PICA_REVB
  */
 
+#include "env_validate.h"
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
 #endif
@@ -41,10 +43,6 @@
   AD8 = 62;   AD9 = 63;   AD10 = 64;  AD11 = 65;
   AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 */
-
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
-#endif
 
 //
 // Servos

@@ -134,11 +134,11 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 // If you encounter this error, replace SerialX with MSerialX, for example MSerial3.
 
 // Non-TMC ports were already validated in HAL.h, so do not require verbose error messages.
-#ifdef MYSERIAL0
-  CHECK_CFG_SERIAL(MYSERIAL0);
-#endif
 #ifdef MYSERIAL1
   CHECK_CFG_SERIAL(MYSERIAL1);
+#endif
+#ifdef MYSERIAL2
+  CHECK_CFG_SERIAL(MYSERIAL2);
 #endif
 #ifdef LCD_SERIAL
   CHECK_CFG_SERIAL(LCD_SERIAL);

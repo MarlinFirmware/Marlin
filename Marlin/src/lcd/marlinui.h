@@ -56,6 +56,8 @@
   #include "../module/motion.h" // for active_extruder
 #endif
 
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
+
 #if HAS_WIRED_LCD
 
   enum LCDViewAction : uint8_t {
@@ -85,11 +87,6 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      void lcd_mesh_edit_setup(const float &initial);
-      float lcd_mesh_edit();
-    #endif
-
   #endif // HAS_LCD_MENU
 
 #endif // HAS_WIRED_LCD
@@ -110,9 +107,15 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    TERN_(HAS_HOTEND,     uint16_t hotend_temp);
-    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
-    TERN_(HAS_FAN,        uint16_t fan_speed  );
+    #if ENABLED(HAS_HOTEND)
+      celsius_t hotend_temp;
+    #endif
+    #if ENABLED(HAS_HEATED_BED)
+      celsius_t bed_temp;
+    #endif
+    #if ENABLED(HAS_FAN)
+      uint16_t fan_speed;
+    #endif
   } preheat_t;
 #endif
 
@@ -128,10 +131,14 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    TERN_(IS_KINEMATIC, static xyze_pos_t all_axes_destination);
+    #if ENABLED(IS_KINEMATIC)
+      static xyze_pos_t all_axes_destination;
+    #endif
   public:
     static float menu_scale;
-    TERN_(IS_KINEMATIC, static float offset);
+    #if ENABLED(IS_KINEMATIC)
+      static float offset;
+    #endif
     template <typename T>
     void set_destination(const T& dest) {
       #if IS_KINEMATIC
@@ -248,7 +255,7 @@ public:
         static inline uint32_t _calculated_remaining_time() {
           const duration_t elapsed = print_job_timer.duration();
           const progress_t progress = _get_progress();
-          return elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+          return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
         }
         #if ENABLED(USE_M73_REMAINING_TIME)
           static uint32_t remaining_time;
@@ -486,6 +493,11 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      static void ubl_mesh_edit_start(const float &initial);
+      static float ubl_mesh_value();
     #endif
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);

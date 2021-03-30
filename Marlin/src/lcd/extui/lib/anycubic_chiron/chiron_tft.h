@@ -32,46 +32,49 @@
 #include "chiron_tft_defs.h"
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../ui_api.h"
+
 namespace Anycubic {
 
   class ChironTFT {
-    static printer_state_t  printer_state;
-    static paused_state_t   pause_state;
-    static heater_state_t   hotend_state;
-    static heater_state_t   hotbed_state;
-    static xy_uint8_t       selectedmeshpoint;
-    static char             panel_command[MAX_CMND_LEN];
-    static uint8_t          command_len;
-    static char             selectedfile[MAX_PATH_LEN];
-    static float            live_Zoffset;
-    static file_menu_t      file_menu;
+    private:
+      static printer_state_t  printer_state;
+      static paused_state_t   pause_state;
+      static heater_state_t   hotend_state;
+      static heater_state_t   hotbed_state;
+      static xy_uint8_t       selectedmeshpoint;
+      static char             panel_command[MAX_CMND_LEN];
+      static uint8_t          command_len;
+      static char             selectedfile[MAX_PATH_LEN];
+      static float            live_Zoffset;
+      static file_menu_t      file_menu;
+
     public:
       ChironTFT();
-      void Startup();
-      void IdleLoop();
-      void PrinterKilled(PGM_P,PGM_P);
-      void MediaEvent(media_event_t);
-      void TimerEvent(timer_event_t);
-      void FilamentRunout();
-      void ConfirmationRequest(const char * const );
-      void StatusChange(const char * const );
-      void PowerLossRecovery();
+      static void Startup();
+      static void IdleLoop();
+      static void PrinterKilled(PGM_P,PGM_P);
+      static void MediaEvent(media_event_t);
+      static void TimerEvent(timer_event_t);
+      static void FilamentRunout();
+      static void ConfirmationRequest(const char * const );
+      static void StatusChange(const char * const );
+      static void PowerLossRecovery();
 
     private:
-      void SendtoTFT(PGM_P);
-      void SendtoTFTLN(PGM_P);
-      bool ReadTFTCommand();
-      int8_t Findcmndpos(const char *, char);
-      void CheckHeaters();
-      void SendFileList(int8_t);
-      void SelectFile();
-      void InjectCommandandWait(PGM_P);
-      void ProcessPanelRequest();
-      void PanelInfo(uint8_t);
-      void PanelAction(uint8_t);
-      void PanelProcess(uint8_t);
+      static void SendtoTFT(PGM_P);
+      static void SendtoTFTLN(PGM_P);
+      static bool ReadTFTCommand();
+      static int8_t Findcmndpos(const char *, char);
+      static void CheckHeaters();
+      static void SendFileList(int8_t);
+      static void SelectFile();
+      static void InjectCommandandWait(PGM_P);
+      static void ProcessPanelRequest();
+      static void PanelInfo(uint8_t);
+      static void PanelAction(uint8_t);
+      static void PanelProcess(uint8_t);
   };
 
   extern ChironTFT Chiron;
 
-}
+} // Anycubic

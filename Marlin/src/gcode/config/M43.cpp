@@ -303,7 +303,7 @@ void GcodeSuite::M43() {
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
     SERIAL_ECHOPGM("endstop monitor ");
-    serialprintPGM(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
+    SERIAL_ECHOPGM_P(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
     SERIAL_ECHOLNPGM("abled");
     return;
   }

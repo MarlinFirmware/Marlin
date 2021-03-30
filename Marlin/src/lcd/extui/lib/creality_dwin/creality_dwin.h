@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout
+  Pause, Stop, Resume, SaveLevel, ETemp, ConfLevel, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout
 };
 
 enum menuID : uint8_t {
@@ -49,6 +49,7 @@ enum menuID : uint8_t {
       ChangeFilament,
     Control,
       TempMenu,
+        PID,
         Preheat1,
         Preheat2,
         Preheat3,

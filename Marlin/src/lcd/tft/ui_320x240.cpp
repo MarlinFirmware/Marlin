@@ -114,7 +114,7 @@ void MarlinUI::draw_kill_screen() {
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   MarlinImage image = imgHotEnd;
   uint16_t Color;
-  float currentTemperature, targetTemperature;
+  celsius_t currentTemperature, targetTemperature;
 
   if (Heater >= 0) { // HotEnd
     currentTemperature = thermalManager.degHotend(Heater);
@@ -134,6 +134,12 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
       #else
         targetTemperature = ABSOLUTE_ZERO;
       #endif
+    }
+  #endif
+  #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      currentTemperature = thermalManager.degCooler();
+      targetTemperature = TERN(HAS_COOLER, thermalManager.degTargetCooler(), ABSOLUTE_ZERO);
     }
   #endif
   else return;
@@ -159,16 +165,23 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
       image = targetTemperature > 0 ? imgChamberHeated : imgChamber;
     }
   #endif
+  #if HAS_TEMP_COOLER
+    else if (Heater == H_COOLER) {
+      if (currentTemperature <= 26) Color = COLOR_COLD;
+      if (currentTemperature > 26) Color = COLOR_RED;
+      image = targetTemperature > 26 ? imgCoolerHot : imgCooler;
+    }
+  #endif
 
   tft.add_image(0, 18, image, Color);
 
-  tft_string.set((uint8_t *)i16tostr3rj(currentTemperature + 0.5));
+  tft_string.set((uint8_t *)i16tostr3rj(currentTemperature));
   tft_string.add(LCD_STR_DEGREE);
   tft_string.trim();
   tft.add_text(tft_string.center(64) + 2, 72, Color, tft_string);
 
   if (targetTemperature >= 0) {
-    tft_string.set((uint8_t *)i16tostr3rj(targetTemperature + 0.5));
+    tft_string.set((uint8_t *)i16tostr3rj(targetTemperature));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.trim();
     tft.add_text(tft_string.center(64) + 2, 8, Color, tft_string);

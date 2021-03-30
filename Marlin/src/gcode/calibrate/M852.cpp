@@ -93,7 +93,7 @@ void GcodeSuite::M852() {
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_SKEW_FACTOR));
     SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
       SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);

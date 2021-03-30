@@ -1,3 +1,6 @@
+#
+# STM32F1_create_variant.py
+#
 import os,shutil
 from SCons.Script import DefaultEnvironment
 from platformio import util
