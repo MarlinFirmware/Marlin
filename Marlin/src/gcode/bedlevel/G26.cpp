@@ -684,7 +684,7 @@ void GcodeSuite::G26() {
   }
 
   // Set a position with 'X' and/or 'Y'. Default: current_position
-  g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
+  g26.xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
                  parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
   if (!position_is_reachable(g26.xy_pos)) {
     SERIAL_ECHOLNPGM("?Specified X,Y coordinate out of bounds.");
