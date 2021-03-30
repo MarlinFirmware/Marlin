@@ -22,8 +22,6 @@
 
 #pragma once
 
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 #include "../language/language.h"
 #include "../theme/theme.h"
@@ -107,7 +105,7 @@ enum {
   #if ENABLED(SDSUPPORT)
     FILES_SCREEN_CACHE,
   #endif
-  #if ENABLED(CUSTOM_USER_MENUS)
+  #if ENABLED(CUSTOM_MENU_MAIN)
     CUSTOM_USER_MENUS_SCREEN_CACHE,
   #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -248,7 +246,7 @@ enum {
   #include "files_screen.h"
 #endif
 
-#if ENABLED(CUSTOM_USER_MENUS)
+#if ENABLED(CUSTOM_MENU_MAIN)
   #include "custom_user_menus.h"
 #endif
 
@@ -262,5 +260,3 @@ enum {
 #if NUM_LANGUAGES > 1
   #include "language_menu.h"
 #endif
-
-#endif // TOUCH_UI_FTDI_EVE

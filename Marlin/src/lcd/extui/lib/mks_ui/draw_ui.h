@@ -69,7 +69,7 @@
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
 #include "draw_level_settings.h"
-#include "draw_manual_level_pos_settings.h"
+#include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
 #include "draw_filament_change.h"
 #include "draw_filament_settings.h"
@@ -184,29 +184,27 @@ extern char public_buf_m[100];
 extern char public_buf_l[30];
 
 typedef struct {
-  uint32_t spi_flash_flag;
-  uint8_t disp_rotation_180;
-  bool multiple_language;
-  uint8_t language;
-  uint8_t leveling_mode;
-  bool from_flash_pic;
-  bool finish_power_off;
-  bool pause_reprint;
-  uint8_t wifi_mode_sel;
-  uint8_t fileSysType;
-  uint8_t wifi_type;
-  bool  cloud_enable,
-        encoder_enable;
-  int   levelingPos[5][2];
-  int   filamentchange_load_length,
-        filamentchange_load_speed,
-        filamentchange_unload_length,
-        filamentchange_unload_speed,
-        filament_limit_temper;
-  float pausePosX,
-        pausePosY,
-        pausePosZ;
-  uint32_t curFilesize;
+  uint32_t  spi_flash_flag;
+  uint8_t   disp_rotation_180;
+  bool      multiple_language;
+  uint8_t   language;
+  uint8_t   leveling_mode;
+  bool      from_flash_pic;
+  bool      finish_power_off;
+  bool      pause_reprint;
+  uint8_t   wifi_mode_sel;
+  uint8_t   fileSysType;
+  uint8_t   wifi_type;
+  bool      cloud_enable,
+            encoder_enable;
+  int       trammingPos[5][2]; // XY
+  int       filamentchange_load_length,
+            filamentchange_load_speed,
+            filamentchange_unload_length,
+            filamentchange_unload_speed;
+  celsius_t filament_limit_temp;
+  float     pausePosX, pausePosY, pausePosZ;
+  uint32_t  curFilesize;
 } CFG_ITMES;
 
 typedef struct {
@@ -246,7 +244,7 @@ typedef struct {
            filament_loading_time_cnt,
            filament_unloading_time_cnt;
   float move_dist;
-  float hotendTargetTempBak;
+  celsius_t hotendTargetTempBak;
   float current_x_position_bak,
         current_y_position_bak,
         current_z_position_bak,
@@ -484,7 +482,7 @@ void lv_btn_use_label_style(lv_obj_t *btn);
 void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
 
 // Create a screen
-lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title = nullptr);
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par);

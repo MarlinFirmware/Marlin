@@ -560,32 +560,31 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
         switch (a_command) {
           case 0: { // A0 GET HOTEND TEMP
-            float hotendActualTemp = getActualTemp_celsius((extruder_t) (extruder_t) E0);
+            const float hotendActualTemp = getActualTemp_celsius(E0);
             SEND_PGM_VAL("A0V ", int(hotendActualTemp + 0.5));
           }
           break;
 
           case 1: { // A1  GET HOTEND TARGET TEMP
-            float hotendTargetTemp = getTargetTemp_celsius((extruder_t) (extruder_t) E0);
+            const float hotendTargetTemp = getTargetTemp_celsius(E0);
             SEND_PGM_VAL("A1V ", int(hotendTargetTemp + 0.5));
           }
           break;
 
           case 2: { // A2 GET HOTBED TEMP
-            float heatedBedActualTemp = getActualTemp_celsius((heater_t) BED);
+            const float heatedBedActualTemp = getActualTemp_celsius(BED);
             SEND_PGM_VAL("A2V ", int(heatedBedActualTemp + 0.5));
           }
           break;
 
           case 3: { // A3 GET HOTBED TARGET TEMP
-            float heatedBedTargetTemp = getTargetTemp_celsius((heater_t) BED);
+            const float heatedBedTargetTemp = getTargetTemp_celsius(BED);
             SEND_PGM_VAL("A3V ", int(heatedBedTargetTemp + 0.5));
           } break;
 
           case 4: { // A4 GET FAN SPEED
-            float fanPercent = getActualFan_percent(FAN0);
-            fanPercent = constrain(fanPercent, 0, 100);
-            SEND_PGM_VAL("A4V ", int(fanPercent));
+            const float fanPercent = getActualFan_percent(FAN0);
+            SEND_PGM_VAL("A4V ", int(LIMIT(fanPercent, 0, 100)));
           } break;
 
           case 5: { // A5 GET CURRENT COORDINATE

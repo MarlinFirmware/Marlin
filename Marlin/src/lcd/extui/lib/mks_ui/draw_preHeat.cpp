@@ -76,7 +76,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
     case ID_P_DEC:
       if (uiCfg.curTempType == 0) {
-        if ((int)thermalManager.degTargetHotend(uiCfg.extruderIndex) > uiCfg.stepHeat)
+        if (thermalManager.degTargetHotend(uiCfg.extruderIndex) > uiCfg.stepHeat)
           thermalManager.temp_hotend[uiCfg.extruderIndex].target -= uiCfg.stepHeat;
         else
           thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
@@ -84,7 +84,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       }
       #if HAS_HEATED_BED
         else {
-          if ((int)thermalManager.temp_bed.target > uiCfg.stepHeat)
+          if (thermalManager.degTargetBed() > uiCfg.stepHeat)
             thermalManager.temp_bed.target -= uiCfg.stepHeat;
           else
             thermalManager.setTargetBed(0);
@@ -217,12 +217,12 @@ void disp_desire_temp() {
 
   if (uiCfg.curTempType == 0) {
     strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
+    sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
   }
   #if HAS_HEATED_BED
     else {
       strcat(public_buf_l, preheat_menu.hotbed);
-      sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
+      sprintf(buf, preheat_menu.value_state, thermalManager.degBed(), thermalManager.degTargetBed());
     }
   #endif
   strcat_P(public_buf_l, PSTR(": "));

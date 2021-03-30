@@ -72,6 +72,12 @@ struct IF<true, L, R> { typedef L type; };
 //
 typedef float feedRate_t;
 
+//
+// celsius_t is the native unit of temperature. Signed to handle a disconnected thermistor value (-14).
+// For more resolition (e.g., for a chocolate printer) this may later be changed to Celsius x 100
+//
+typedef int16_t celsius_t;
+
 // Conversion macros
 #define MMM_TO_MMS(MM_M) feedRate_t(float(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (float(MM_S) * 60.0f)

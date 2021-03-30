@@ -99,7 +99,7 @@
 
 #define LEVELING_CONF_TITLE_EN          "Machine Settings>Leveling settings"
 #define LEVELING_PARA_CONF_EN           "Leveling settings"
-#define LEVELING_MANUAL_POS_EN          "Manual leveling coordinate settings"
+#define TRAMMING_POS_EN                 "Manual leveling coordinate settings"
 #define LEVELING_AUTO_COMMAND_EN        "AutoLeveling command settings"
 #define LEVELING_AUTO_ZOFFSET_EN        "Nozzle-to-probe offsets settings"
 
@@ -728,9 +728,9 @@
 #define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
 #define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"
 
-#define MORE_CUSTOM1_TEXT_EN  USER_DESC_1
-#define MORE_CUSTOM2_TEXT_EN  USER_DESC_2
-#define MORE_CUSTOM3_TEXT_EN  USER_DESC_3
-#define MORE_CUSTOM4_TEXT_EN  USER_DESC_4
-#define MORE_CUSTOM5_TEXT_EN  USER_DESC_5
-#define MORE_CUSTOM6_TEXT_EN  USER_DESC_6
+#define MORE_CUSTOM1_TEXT_EN  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_EN  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_EN  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_EN  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_EN  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_EN  MAIN_MENU_ITEM_6_DESC

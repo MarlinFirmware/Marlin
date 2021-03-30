@@ -24,7 +24,7 @@
 class SoundList {
   private:
     static PROGMEM const struct list_t {
-      const char *const PROGMEM name;
+      const char * const PROGMEM name;
       const FTDI::SoundPlayer::sound_t* data;
     } list[];
   public:

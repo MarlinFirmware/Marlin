@@ -215,8 +215,7 @@ public:
   static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
-
-    static inline void enable_with_dir(const bool reverse) {
+      static inline void enable_with_dir(const bool reverse) {
       isReady = true;
       const uint8_t ocr = TERN(SPINDLE_LASER_PWM, upower_to_ocr(menuPower), 255);
       if (menuPower)
@@ -245,8 +244,8 @@ public:
        * If not set defaults to 80% power
        */
       static inline void test_fire_pulse() {
-        enable_forward();                  // Turn Laser on (Spindle speak but same funct)
         TERN_(USE_BEEPER, buzzer.tone(30, 3000));
+        enable_forward();                  // Turn Laser on (Spindle speak but same funct)
         delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
         disable();                         // Turn laser off
       }

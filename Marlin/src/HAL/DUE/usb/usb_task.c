@@ -264,7 +264,7 @@ bool usb_task_extra_string(void) {
 ** Handle device requests that the ASF stack doesn't
 */
 bool usb_task_other_requests(void) {
-  uint8_t* ptr = 0;
+  uint8_t *ptr = 0;
   uint16_t size = 0;
 
   if (Udd_setup_type() == USB_REQ_TYPE_VENDOR) {

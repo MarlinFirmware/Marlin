@@ -481,7 +481,7 @@
   #endif
 #endif
 
-#if EITHER(HAS_DISPLAY, GLOBAL_STATUS_MESSAGE)
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD, GLOBAL_STATUS_MESSAGE)
   #define HAS_STATUS_MESSAGE 1
 #endif
 
@@ -501,11 +501,11 @@
 /**
  *  Multi-Material-Unit supported models
  */
-#define PRUSA_MMU1      1
-#define PRUSA_MMU2      2
-#define PRUSA_MMU2S     3
-#define SMUFF_EMU_MMU2  12
-#define SMUFF_EMU_MMU2S 13
+#define PRUSA_MMU1             1
+#define PRUSA_MMU2             2
+#define PRUSA_MMU2S            3
+#define EXTENDABLE_EMU_MMU2   12
+#define EXTENDABLE_EMU_MMU2S  13
 
 #ifdef MMU_MODEL
   #define HAS_MMU 1
@@ -517,16 +517,16 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
-    #define HAS_SMUFF 1
+  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+    #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
 
 #undef PRUSA_MMU1
 #undef PRUSA_MMU2
 #undef PRUSA_MMU2S
-#undef SMUFF_EMU_MMU2
-#undef SMUFF_EMU_MMU2S
+#undef EXTENDABLE_EMU_MMU2
+#undef EXTENDABLE_EMU_MMU2S
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -579,7 +579,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MMU1, MMU 2.0, MMUS 2.0 and SMuFF force SINGLENOZZLE
+// Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif

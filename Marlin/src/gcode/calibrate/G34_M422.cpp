@@ -130,7 +130,9 @@ void GcodeSuite::G34() {
 
       // Disable the leveling matrix before auto-aligning
       #if HAS_LEVELING
-        TERN_(RESTORE_LEVELING_AFTER_G34, const bool leveling_was_active = planner.leveling_active);
+        #if ENABLED(RESTORE_LEVELING_AFTER_G34)
+          const bool leveling_was_active = planner.leveling_active;
+        #endif
         set_bed_leveling_enabled(false);
       #endif
 
@@ -188,7 +190,7 @@ void GcodeSuite::G34() {
         bool adjustment_reverse = false;
       #endif
 
-      #if HAS_DISPLAY
+      #if HAS_STATUS_MESSAGE
         PGM_P const msg_iteration = GET_TEXT(MSG_ITERATION);
         const uint8_t iter_str_len = strlen_P(msg_iteration);
       #endif
@@ -202,7 +204,7 @@ void GcodeSuite::G34() {
 
         const int iter = iteration + 1;
         SERIAL_ECHOLNPAIR("\nG34 Iteration: ", iter);
-        #if HAS_DISPLAY
+        #if HAS_STATUS_MESSAGE
           char str[iter_str_len + 2 + 1];
           sprintf_P(str, msg_iteration, iter);
           ui.set_status(str);
@@ -288,7 +290,7 @@ void GcodeSuite::G34() {
             , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
           #endif
         );
-        #if HAS_DISPLAY
+        #if HAS_STATUS_MESSAGE
           char fstr1[10];
           #if NUM_Z_STEPPER_DRIVERS == 2
             char msg[6 + (6 + 5) * 1 + 1];

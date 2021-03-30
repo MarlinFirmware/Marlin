@@ -45,23 +45,26 @@ struct mesh_index_pair;
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
+typedef struct {
+  bool      C_seen;
+  int8_t    V_verbosity,
+            P_phase,
+            R_repetition,
+            KLS_storage_slot,
+            T_map_type;
+  float     B_shim_thickness,
+            C_constant;
+  xy_pos_t  XY_pos;
+  xy_bool_t XY_seen;
+  #if HAS_BED_PROBE
+    int     grid_size;
+  #endif
+} G29_parameters_t;
+
 class unified_bed_leveling {
 private:
 
-  static int    g29_verbose_level,
-                g29_phase_value,
-                g29_repetition_cnt,
-                g29_storage_slot,
-                g29_map_type;
-  static bool   g29_c_flag;
-  static float  g29_card_thickness,
-                g29_constant;
-  static xy_pos_t g29_pos;
-  static xy_bool_t xy_seen;
-
-  #if HAS_BED_PROBE
-    static int  g29_grid_size;
-  #endif
+  static G29_parameters_t param;
 
   #if IS_NEWPANEL
     static void move_z_with_encoder(const float &multiplier);
@@ -71,7 +74,7 @@ private:
     static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) _O0;
   #endif
 
-  static bool g29_parameter_parsing() _O0;
+  static bool G29_parse_parameters() _O0;
   static void shift_mesh_height();
   static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) _O0;
   static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
@@ -124,7 +127,7 @@ public:
     static inline void steppers_were_disabled() {}
   #endif
 
-  static volatile int16_t encoder_diff; // Volatile because buttons may changed it at interrupt time
+  static volatile int16_t encoder_diff; // Volatile because buttons may change it at interrupt time
 
   unified_bed_leveling();
 
