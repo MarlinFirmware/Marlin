@@ -103,12 +103,12 @@ namespace FTDI {
   #endif
 
   void SPI::spi_read_bulk(void *data, uint16_t len) {
-    uint8_t* p = (uint8_t *)data;
+    uint8_t *p = (uint8_t *)data;
     while (len--) *p++ = spi_recv();
   }
 
   bool SPI::spi_verify_bulk(const void *data, uint16_t len) {
-    const uint8_t* p = (const uint8_t *)data;
+    const uint8_t *p = (const uint8_t *)data;
     while (len--) if (*p++ != spi_recv()) return false;
     return true;
   }

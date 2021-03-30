@@ -381,7 +381,7 @@ void Planner::init() {
               r9 = (d >> 8) & 0xFF,
               r10 = (d >> 16) & 0xFF,
               r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
-      const uint8_t* ptab = inv_tab;
+      const uint8_t *ptab = inv_tab;
 
       __asm__ __volatile__(
         // %8:%7:%6 = interval
@@ -775,7 +775,7 @@ block_t* Planner::get_current_block() {
  * is not and will not use the block while we modify it, so it is safe to
  * alter its values.
  */
-void Planner::calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const float &entry_factor, const float &exit_factor) {
 
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
@@ -942,7 +942,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 */
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* const current, const block_t * const next) {
+void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next) {
   if (current) {
     // If entry speed is already at the maximum entry speed, and there was no change of speed
     // in the next block, there is no need to recheck. Block is cruising and there is no need to
@@ -1039,7 +1039,7 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t* const previous, block_t* const current, const uint8_t block_index) {
+void Planner::forward_pass_kernel(const block_t * const previous, block_t * const current, const uint8_t block_index) {
   if (previous) {
     // If the previous block is an acceleration block, too short to complete the full speed
     // change, adjust the entry speed accordingly. Entry speeds have already been reset,
@@ -1440,7 +1440,7 @@ void Planner::check_axes_activity() {
 
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-      block_t* block = &block_buffer[b];
+      block_t *block = &block_buffer[b];
       if (block->steps.x || block->steps.y || block->steps.z) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
