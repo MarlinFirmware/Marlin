@@ -81,6 +81,7 @@ enum processID : uint8_t {
   ProbeOffX,
   ProbeOffY,
   RunOut,
+  Brightness,
 
   // Back Process ID
   Back_Main,
@@ -144,6 +145,7 @@ typedef struct {
 } HMI_value_t;
 
 typedef struct {
+  uint8_t Brightness;
 #if HAS_FILAMENT_SENSOR
   boolean Runout_active_state;
 #endif
@@ -260,6 +262,7 @@ void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
+void HMI_ReturnScreen();// Return to previous menu
 
 #if HAS_PREHEAT
   void HMI_PLAPreheatSetting(); // PLA warm-up setting
@@ -284,6 +287,7 @@ void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)
 void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
 #endif
+void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
 void DWIN_Start_Print(bool sd);

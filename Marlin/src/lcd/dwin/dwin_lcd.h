@@ -172,6 +172,7 @@
 #define ICON_Flow                 ICON_StepE
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Pwrlossr             ICON_Motion
+#define ICON_Park                 ICON_Motion
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -404,3 +405,6 @@ void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
 
 // GUI extension
 void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
+
+// Set LCD Brightness 0x00-0x0F
+void DWIN_LCD_Brightness(const uint8_t brightness);
