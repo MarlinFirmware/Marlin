@@ -172,14 +172,14 @@ class MenuEditItemBase : public MenuItemBase {
   public:
     // Implemented for HD44780 and DOGM
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm=false);
 
     // Implemented for HD44780 and DOGM
     // This low-level method is good to draw from anywhere
-    static void draw_edit_screen(PGM_P const pstr, const char* const value);
+    static void draw_edit_screen(PGM_P const pstr, const char * const value);
 
     // This method is for the current menu item
-    static inline void draw_edit_screen(const char* const value) { draw_edit_screen(editLabel, value); }
+    static inline void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
 #if ENABLED(SDSUPPORT)

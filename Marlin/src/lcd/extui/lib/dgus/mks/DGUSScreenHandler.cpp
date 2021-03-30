@@ -61,14 +61,14 @@ uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
 #if 0
-void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
+void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) {
+void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);

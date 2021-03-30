@@ -362,13 +362,13 @@
       return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
     }
     // Find the last position of the slash
-    constexpr const char* findLastSlashPos(const char* str) {
+    constexpr const char* findLastSlashPos(const char *str) {
       return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
     }
     // Compile-time evaluation of the last part of a file path
     // Typically used to shorten the path to file in compiled strings
     // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-    constexpr const char* baseName(const char* str) {
+    constexpr const char* baseName(const char *str) {
       return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
     }
   }

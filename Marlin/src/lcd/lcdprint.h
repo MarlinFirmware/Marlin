@@ -161,7 +161,7 @@ inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row
   return lcd_put_u8str_ind_P(pstr, ind, inStr, maxlen);
 }
 
-inline int lcd_put_u8str(const char* str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
+inline int lcd_put_u8str(const char *str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
 inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, PGM_P const str) {
   lcd_moveto(col, row);
   return lcd_put_u8str(str);

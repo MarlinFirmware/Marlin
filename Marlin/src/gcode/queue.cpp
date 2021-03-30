@@ -99,7 +99,7 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return true if the command was successfully added.
  * Return false for a full buffer, or if the 'command' is a comment.
  */
-bool GCodeQueue::RingBuffer::enqueue(const char* cmd, bool skip_ok/*=true*/
+bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
   #if HAS_MULTI_SERIAL
     , serial_index_t serial_ind/*=-1*/
   #endif
@@ -118,7 +118,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char* cmd, bool skip_ok/*=true*/
  * Enqueue with Serial Echo
  * Return true if the command was consumed
  */
-bool GCodeQueue::enqueue_one(const char* cmd) {
+bool GCodeQueue::enqueue_one(const char *cmd) {
   //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
@@ -187,7 +187,7 @@ bool GCodeQueue::process_injected_command() {
  * Enqueue and return only when commands are actually enqueued.
  * Never call this from a G-code handler!
  */
-void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
+void GCodeQueue::enqueue_one_now(const char *cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
  * Attempt to enqueue a single G-code command
