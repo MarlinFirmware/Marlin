@@ -920,10 +920,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
 #elif ENABLED(PRUSA_MMU2_S_MODE)
   #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
+#elif ENABLED(SMUFF_EMU_MMU2)
+  #error "SMUFF_EMU_MMU2 is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2 instead."
+#elif ENABLED(SMUFF_EMU_MMU2S)
+  #error "SMUFF_EMU_MMU2S is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2S instead."
 #endif
 
 /**
- * Multi-Material-Unit 2 / SMuFF requirements
+ * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
 #if HAS_PRUSA_MMU2
   #if EXTRUDERS != 5
@@ -938,11 +942,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
     #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI to be enabled."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
-    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / SMUFF_EMU_MMU2(S).");
+    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / HAS_EXTENDABLE_MMU(S).");
   #endif
 #endif
-#if HAS_SMUFF && EXTRUDERS > 12
-  #error "Too many extruders for SMUFF_EMU_MMU2(S). (12 maximum)."
+#if HAS_EXTENDABLE_MMU && EXTRUDERS > 15
+  #error "Too many extruders for MMU(S) emulation mode. (15 maximum)."
 #endif
 
 /**
@@ -980,7 +984,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TOOLCHANGE_ZRAISE required for EXTRUDERS > 1."
   #endif
 
-#elif HAS_PRUSA_MMU1 || HAS_SMUFF
+#elif HAS_PRUSA_MMU1 || HAS_EXTENDABLE_MMU
 
   #error "Multi-Material-Unit requires 2 or more EXTRUDERS."
 
