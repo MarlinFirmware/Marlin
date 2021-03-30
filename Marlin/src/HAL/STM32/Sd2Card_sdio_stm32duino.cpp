@@ -36,9 +36,10 @@
 
   // use USB drivers
 
-  extern "C" { int8_t SD_MSC_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-               int8_t SD_MSC_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-               extern SD_HandleTypeDef hsd;
+  extern "C" {
+    int8_t SD_MSC_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+    int8_t SD_MSC_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+    extern SD_HandleTypeDef hsd;
   }
 
   bool SDIO_Init() {
@@ -76,12 +77,12 @@
   #endif
 
   // Fixed
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
+  #define SDIO_D0_PIN   PC8
+  #define SDIO_D1_PIN   PC9
+  #define SDIO_D2_PIN   PC10
+  #define SDIO_D3_PIN   PC11
+  #define SDIO_CK_PIN   PC12
+  #define SDIO_CMD_PIN  PD2
 
   SD_HandleTypeDef hsd;  // create SDIO structure
   // F4 support one dma for RX and another for TX.
@@ -107,12 +108,12 @@
 
   // Target Clock, configurable. Default is 18MHz, from STM32F1
   #ifndef SDIO_CLOCK
-    #define SDIO_CLOCK                         18000000       /* 18 MHz */
+    #define SDIO_CLOCK 18000000 // 18 MHz
   #endif
 
   // SDIO retries, configurable. Default is 3, from STM32F1
   #ifndef SDIO_READ_RETRIES
-    #define SDIO_READ_RETRIES                  3
+    #define SDIO_READ_RETRIES 3
   #endif
 
   // SDIO Max Clock (naming from STM Manual, don't change)
@@ -297,7 +298,7 @@
 
     uint32_t timeout = millis() + 500;
     // Wait the transfer
-    while(hsd.State != HAL_SD_STATE_READY) {
+    while (hsd.State != HAL_SD_STATE_READY) {
       if (millis() > timeout) {
         HAL_DMA_Abort_IT(&hdma_sdio);
         HAL_DMA_DeInit(&hdma_sdio);
@@ -305,17 +306,15 @@
       }
     }
 
-    while(__HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TC_FLAG_INDEX(&hdma_sdio)) != 0 || __HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TE_FLAG_INDEX(&hdma_sdio)) != 0) { /* nada */}
+    while (__HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TC_FLAG_INDEX(&hdma_sdio)) != 0
+        || __HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TE_FLAG_INDEX(&hdma_sdio)) != 0) { /* nada */ }
 
     HAL_DMA_Abort_IT(&hdma_sdio);
     HAL_DMA_DeInit(&hdma_sdio);
 
     timeout = millis() + 500;
-    while(HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) {
-      if (millis() > timeout) {
-        return false;
-      }
-    }
+    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
+      if (millis() > timeout) return false;
 
     return true;
   }
