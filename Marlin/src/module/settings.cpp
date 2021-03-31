@@ -467,7 +467,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   #if ENABLED(DGUS_LCD_UI_MKS)
-    uint8_t mks_language; //mks language setting
+    uint8_t DGUSLanguageSwitch;                         // MKS Language setting
     int16_t level_1_x_point, level_1_y_point;
     int16_t level_2_x_point, level_2_y_point;
     int16_t level_3_x_point, level_3_y_point;
@@ -476,7 +476,7 @@ typedef struct SettingsDataStruct {
     uint16_t x_park_pos;
     uint16_t y_park_pos;
     uint16_t z_park_pos;
-    uint16_t min_ex_temp_e;
+    uint16_t min_ex_temp;
   #endif
 
   #if HAS_MULTI_LANGUAGE
