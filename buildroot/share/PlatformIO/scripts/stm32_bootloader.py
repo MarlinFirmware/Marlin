@@ -20,13 +20,20 @@ def noencrypt(source, target, env):
 if 'offset' in board.get("build").keys():
   LD_FLASH_OFFSET = board.get("build.offset")
 
+  maximum_flash_size = int(board.get("upload.maximum_size") / 1024)
   # Remove an existing VECT_TAB_OFFSET from CPPDEFINES
   for define in env['CPPDEFINES']:
     if define[0] == "VECT_TAB_OFFSET":
       env['CPPDEFINES'].remove(define)
+    elif define[0] == "STM32_FLASH_SIZE":
+      maximum_flash_size = define[1]
+      env['CPPDEFINES'].remove(define)
 
   # Replace VECT_TAB_OFFSET with our LD_FLASH_OFFSET
   env['CPPDEFINES'].append(("VECT_TAB_OFFSET", LD_FLASH_OFFSET))
+
+  # Replace flash size
+  env['CPPDEFINES'].append(("STM32_FLASH_SIZE", maximum_flash_size))
 
   # Get upload.maximum_ram_size (defined by /buildroot/share/PlatformIO/boards/VARIOUS.json)
   maximum_ram_size = board.get("upload.maximum_ram_size")

@@ -37,15 +37,6 @@
 
 #include <stdint.h>
 
-// Maple compatibility for RC boards with 512kb build - Should be removed in favor of LD_MAX_DATA_SIZE when maple is out
-#ifndef STM32_FLASH_SIZE
-  #if EITHER(MCU_STM32F103RE, MCU_STM32F103VE)
-    #define STM32_FLASH_SIZE 512
-  #else
-    #define STM32_FLASH_SIZE 256
-  #endif
-#endif
-
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
