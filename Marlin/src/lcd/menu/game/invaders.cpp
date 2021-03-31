@@ -366,7 +366,7 @@ void InvadersGame::game_screen() {
 
   if (!idat.quit_count) exit_game();
 
-  u8g.setColorIndex(1);
+  u8g().setColorIndex(1);
 
   // Draw invaders
   if (PAGE_CONTAINS(idat.pos.y, idat.pos.y + idat.botmost * (INVADER_ROW_H) - 2 - 1)) {
@@ -377,7 +377,7 @@ void InvadersGame::game_screen() {
         int8_t xx = idat.pos.x;
         LOOP_L_N(x, INVADER_COLS) {
           if (TEST(idat.bugs[y], x))
-            u8g.drawBitmapP(xx, yy, 2, INVADER_H, invader[type][idat.game_blink]);
+            u8g().drawBitmapP(xx, yy, 2, INVADER_H, invader[type][idat.game_blink]);
           xx += INVADER_COL_W;
         }
       }
@@ -387,25 +387,25 @@ void InvadersGame::game_screen() {
 
   // Draw UFO
   if (idat.ufov && PAGE_UNDER(UFO_H + 2))
-    u8g.drawBitmapP(idat.ufox, 2, 2, UFO_H, ufo);
+    u8g().drawBitmapP(idat.ufox, 2, 2, UFO_H, ufo);
 
   // Draw cannon
   if (game_state && PAGE_CONTAINS(CANNON_Y, CANNON_Y + CANNON_H - 1) && (game_state < 2 || (game_state & 0x02)))
-    u8g.drawBitmapP(idat.cannon_x, CANNON_Y, 2, CANNON_H, cannon);
+    u8g().drawBitmapP(idat.cannon_x, CANNON_Y, 2, CANNON_H, cannon);
 
   // Draw laser
   if (idat.laser.v && PAGE_CONTAINS(idat.laser.y, idat.laser.y + LASER_H - 1))
-    u8g.drawVLine(idat.laser.x, idat.laser.y, LASER_H);
+    u8g().drawVLine(idat.laser.x, idat.laser.y, LASER_H);
 
   // Draw invader bullets
   LOOP_L_N (i, COUNT(idat.bullet)) {
     if (idat.bullet[i].v && PAGE_CONTAINS(idat.bullet[i].y - (SHOT_H - 1), idat.bullet[i].y))
-      u8g.drawVLine(idat.bullet[i].x, idat.bullet[i].y - (SHOT_H - 1), SHOT_H);
+      u8g().drawVLine(idat.bullet[i].x, idat.bullet[i].y - (SHOT_H - 1), SHOT_H);
   }
 
   // Draw explosion
   if (idat.explod.v && PAGE_CONTAINS(idat.explod.y, idat.explod.y + 7 - 1)) {
-    u8g.drawBitmapP(idat.explod.x, idat.explod.y, 2, 7, explosion);
+    u8g().drawBitmapP(idat.explod.x, idat.explod.y, 2, 7, explosion);
     --idat.explod.v;
   }
 
@@ -421,7 +421,7 @@ void InvadersGame::game_screen() {
     // Draw lives
     if (idat.cannons_left)
       for (uint8_t i = 1; i <= idat.cannons_left; ++i)
-        u8g.drawBitmapP(LCD_PIXEL_WIDTH - i * (LIFE_W), 6 - (LIFE_H), 1, LIFE_H, life);
+        u8g().drawBitmapP(LCD_PIXEL_WIDTH - i * (LIFE_W), 6 - (LIFE_H), 1, LIFE_H, life);
   }
 
 }

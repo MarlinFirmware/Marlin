@@ -522,7 +522,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     do {
       set_font(FONT_MENU);
       lcd_put_u8str(0, LCD_PIXEL_HEIGHT / 2, str);
-    } while (u8g.nextPage());
+    } while (u8g().nextPage());
     drawing_screen = false;
     safe_delay(250);
     if (calibration_stage == CALIBRATION_SUCCESS) {
