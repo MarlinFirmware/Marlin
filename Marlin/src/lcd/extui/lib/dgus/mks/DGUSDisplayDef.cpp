@@ -43,7 +43,7 @@
   uint16_t distanceToMove = 10;
 #endif
 
-uint16_t distanceMove = 1;
+uint16_t manualMoveStep = 1;
 float distanceFilament = 10;
 uint16_t FilamentSpeed = 25;
 float ZOffset_distance = 0.1;
@@ -57,9 +57,7 @@ xy_int_t dgus_level_offsets[5] = {
   { X_CENTER, Y_CENTER }
 }
 
-uint16_t tim_h;
-uint16_t tim_m;
-uint16_t tim_s;
+//struct { uint16_t h, m, s; } dgus_time;
 
 xyz_int_t dgus_park_pos = { 20, 20, 10 };
 
@@ -77,15 +75,7 @@ celsius_t dgus_min_extrusion_temp = 0;
 
 float z_offset_add = 0;
 
-#if ENABLED(SENSORLESS_HOMING)
-  int16_t tmc_x_step = 0;
-  int16_t tmc_y_step = 0;
-  int16_t tmc_z_step = 0;
-#else
-  int16_t tmc_x_step = 0;
-  int16_t tmc_y_step = 0;
-  int16_t tmc_z_step = 0;
-#endif
+xyz_int_t tmc_step; // = { 0, 0, 0 }
 
 uint16_t lcd_default_light = 50;
 
@@ -516,7 +506,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Y_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
   VPHELPER(VP_Z_HOME, nullptr, &ScreenHandler.HandleManualMove, nullptr),
 
-  VPHELPER(VP_MOVE_DISTANCE, &distanceMove, &ScreenHandler.GetManualMovestep, nullptr),
+  VPHELPER(VP_MOVE_DISTANCE, &manualMoveStep, &ScreenHandler.GetManualMovestep, nullptr),
 
   VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, &ScreenHandler.HandleManualMove, nullptr),
   VPHELPER(VP_LEVEL_POINT, nullptr, &ScreenHandler.ManualAssistLeveling, nullptr),
@@ -677,13 +667,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
     #if AXIS_HAS_STEALTHCHOP(X)
-      VPHELPER(VP_TMC_X_STEP, &tmc_x_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
+      VPHELPER(VP_TMC_X_STEP, &tmc_step.x, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      VPHELPER(VP_TMC_Y_STEP, &tmc_y_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
+      VPHELPER(VP_TMC_Y_STEP, &tmc_step.y, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      VPHELPER(VP_TMC_Z_STEP, &tmc_z_step, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
+      VPHELPER(VP_TMC_Z_STEP, &tmc_step.z, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
   #endif
 

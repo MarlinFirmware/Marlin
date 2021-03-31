@@ -138,15 +138,15 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variabl
 void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #if ENABLED(SENSORLESS_HOMING)
     #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_x_step = stepperX.homing_threshold();
+      tmc_step.x = stepperX.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_y_step = stepperY.homing_threshold();
+      tmc_step.y = stepperY.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_z_step = stepperZ.homing_threshold();
+      tmc_step.z = stepperZ.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
   #endif
@@ -693,7 +693,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(X)
           stepperX.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_x_step = stepperX.homing_threshold();
+          //tmc_step.x = stepperX.homing_threshold();
         #endif
       #endif
       break;
@@ -702,7 +702,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(Y)
           stepperY.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_y_step = stepperY.homing_threshold();
+          //tmc_step.y = stepperY.homing_threshold();
         #endif
       #endif
       break;
@@ -711,7 +711,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(Z)
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_z_step = stepperZ.homing_threshold();
+          //tmc_step.z = stepperZ.homing_threshold();
         #endif
       #endif
       break;
@@ -769,13 +769,13 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   }
   #if USE_SENSORLESS
     #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_x_step = stepperX.homing_threshold();
+      tmc_step.x = stepperX.homing_threshold();
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_y_step = stepperY.homing_threshold();
+      tmc_step.y = stepperY.homing_threshold();
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_z_step = stepperZ.homing_threshold();
+      tmc_step.z = stepperZ.homing_threshold();
     #endif
   #endif
 }
@@ -786,9 +786,9 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
 
   // Choose Move distance
-       if (distanceMove == 0x01) distanceMove =   10;
-  else if (distanceMove == 0x02) distanceMove =  100;
-  else if (distanceMove == 0x03) distanceMove = 1000;
+       if (manualMoveStep == 0x01) manualMoveStep =   10;
+  else if (manualMoveStep == 0x02) manualMoveStep =  100;
+  else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
@@ -855,8 +855,8 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOPAIR("movevalue = ", movevalue);
   if (movevalue != 0 && movevalue != 5) { // get move distance
     switch (movevalue) {
-      case 0x0001: movevalue =  distanceMove; break;
-      case 0x0002: movevalue = -distanceMove; break;
+      case 0x0001: movevalue =  manualMoveStep; break;
+      case 0x0002: movevalue = -manualMoveStep; break;
       default:     movevalue = 0; break;
     }
   }
@@ -1423,13 +1423,13 @@ bool DGUSScreenHandler::loop() {
       booted = true;
       #if USE_SENSORLESS
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_x_step = stepperX.homing_threshold();
+          tmc_step.x = stepperX.homing_threshold();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_y_step = stepperY.homing_threshold();
+          tmc_step.y = stepperY.homing_threshold();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_z_step = stepperZ.homing_threshold();
+          tmc_step.z = stepperZ.homing_threshold();
         #endif
       #endif
 
