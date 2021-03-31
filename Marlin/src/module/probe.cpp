@@ -319,16 +319,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif HAS_Z_SERVO_PROBE
 
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+
     #ifdef Z_SERVO_MEASURE_ANGLE
-      if (deploy) {
-        //  First deploy, then move servo back to measure angle ...
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0]);
-        MOVE_SERVO(Z_PROBE_SERVO_NR, Z_SERVO_MEASURE_ANGLE);
-      } else {
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1]);
-      }
-    #else
-      MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+      // After deploy move back to the measure angle...
+      if (deploy) MOVE_SERVO(Z_PROBE_SERVO_NR, Z_SERVO_MEASURE_ANGLE);
     #endif
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
