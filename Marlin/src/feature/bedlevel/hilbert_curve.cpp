@@ -102,10 +102,9 @@ bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_pt
  */
 bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::callback_ptr func, void *data) {
   // Find closest grid intersection
-  uint8_t grid_x = LROUND(float(pos.x - MESH_MIN_X) / MESH_X_DIST);
-  uint8_t grid_y = LROUND(float(pos.y - MESH_MIN_Y) / MESH_Y_DIST);
-  LIMIT(grid_x, 0, GRID_MAX_POINTS_X - 1);
-  LIMIT(grid_y, 0, GRID_MAX_POINTS_Y - 1);
+  #define CLAMP(VALUE,MIN,MAX) _MIN(_MAX(VALUE, MIN), MAX)
+  const uint8_t grid_x = LROUND(CLAMP(float(pos.x - MESH_MIN_X) / MESH_X_DIST, 0, GRID_MAX_POINTS_X - 1));
+  const uint8_t grid_y = LROUND(CLAMP(float(pos.y - MESH_MIN_Y) / MESH_Y_DIST, 0, GRID_MAX_POINTS_Y - 1));
   return search_from(grid_x, grid_y, func, data);
 }
 
