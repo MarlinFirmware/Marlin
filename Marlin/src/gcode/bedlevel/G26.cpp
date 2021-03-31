@@ -467,7 +467,7 @@ typedef struct {
 
     #if ENABLED(UBL_HILBERT_CURVE)
 
-      auto test_func = [](uint8_t i, uint8_t j, void *data) {
+      auto test_func = [](uint8_t i, uint8_t j, void *data) -> bool {
         if (!circle_flags.marked(i, j)) {
           mesh_index_pair *out_point = (mesh_index_pair*)data;
           out_point->pos.set(i, j);  // Save its data
