@@ -301,7 +301,7 @@ private:
 
 #define MKS_SimpleChinese     0
 #define MKS_English           1
-extern uint8_t DGUSLanguageSwitch;
+extern uint8_t mks_language_index;
 extern bool DGUSAutoTurnOff;
 
 #if ENABLED(POWER_LOSS_RECOVERY)

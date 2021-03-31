@@ -470,10 +470,10 @@ typedef struct SettingsDataStruct {
   // MKS UI controller
   //
   #if ENABLED(DGUS_LCD_UI_MKS)
-    uint8_t DGUSLanguageSwitch;                         // Display Language
-    xy_int_t dgus_level_offsets[5];                     // Bed Tramming
-    xyz_int_t dgus_park_pos;                            // Custom Parking (without NOZZLE_PARK)
-    celsius_t dgus_min_extrusion_temp;                  // Min E Temp (shadow M302 value)
+    uint8_t mks_language_index;                         // Display Language
+    xy_int_t mks_corner_offsets[5];                     // Bed Tramming
+    xyz_int_t mks_park_pos;                             // Custom Parking (without NOZZLE_PARK)
+    celsius_t mks_min_extrusion_temp;                   // Min E Temp (shadow M302 value)
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1421,10 +1421,10 @@ void MarlinSettings::postprocess() {
     // MKS UI controller
     //
     #if ENABLED(DGUS_LCD_UI_MKS)
-      EEPROM_WRITE(DGUSLanguageSwitch);
-      EEPROM_WRITE(dgus_level_offsets);
-      EEPROM_WRITE(dgus_park_pos);
-      EEPROM_WRITE(dgus_min_extrusion_temp);
+      EEPROM_WRITE(mks_language_index);
+      EEPROM_WRITE(mks_corner_offsets);
+      EEPROM_WRITE(mks_park_pos);
+      EEPROM_WRITE(mks_min_extrusion_temp);
     #endif
 
     //
@@ -2331,11 +2331,11 @@ void MarlinSettings::postprocess() {
       // MKS UI controller
       //
       #if ENABLED(DGUS_LCD_UI_MKS)
-        _FIELD_TEST(DGUSLanguageSwitch);
-        EEPROM_READ(DGUSLanguageSwitch);
-        EEPROM_READ(dgus_level_offsets);
-        EEPROM_READ(dgus_park_pos);
-        EEPROM_READ(dgus_min_extrusion_temp);
+        _FIELD_TEST(mks_language_index);
+        EEPROM_READ(mks_language_index);
+        EEPROM_READ(mks_corner_offsets);
+        EEPROM_READ(mks_park_pos);
+        EEPROM_READ(mks_min_extrusion_temp);
       #endif
 
       //

@@ -55,7 +55,7 @@
 #endif
 
 bool DGUSAutoTurnOff = false;
-uint8_t DGUSLanguageSwitch; // Initialized by settings.load()
+uint8_t mks_language_index; // Initialized by settings.load()
 
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
@@ -125,11 +125,11 @@ void DGUSScreenHandler::DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var) {
-  if (DGUSLanguageSwitch == MKS_English) {
+  if (mks_language_index == MKS_English) {
     char *tmp = (char*) var.memadr;
     dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
   }
-  else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+  else if (mks_language_index == MKS_SimpleChinese) {
     uint16_t *tmp = (uint16_t *)var.memadr;
     dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
   }
@@ -341,7 +341,7 @@ void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) 
   DEBUG_ECHOLNPGM("GetMinExtrudeTemp");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
   thermalManager.extrude_min_temp = value;
-  dgus_min_extrusion_temp = value;
+  mks_min_extrusion_temp = value;
   settings.save();
 }
 
@@ -414,14 +414,14 @@ void DGUSScreenHandler::LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr)
   switch (lag_flag) {
     case MKS_SimpleChinese:
       DGUS_LanguageDisplay(MKS_SimpleChinese);
-      DGUSLanguageSwitch = MKS_SimpleChinese;
+      mks_language_index = MKS_SimpleChinese;
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
       settings.save();
       break;
     case MKS_English:
       DGUS_LanguageDisplay(MKS_English);
-      DGUSLanguageSwitch = MKS_English;
+      mks_language_index = MKS_English;
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
       settings.save();
@@ -454,11 +454,11 @@ void DGUSScreenHandler::Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr) {
 
         mesh_point_count = GRID_MAX_POINTS;
 
-        if (DGUSLanguageSwitch == MKS_English) {
+        if (mks_language_index == MKS_English) {
           const char level_buf_en[] = "Start Level";
           dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en, 32, true);
         }
-        else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+        else if (mks_language_index == MKS_SimpleChinese) {
           const uint16_t level_buf_ch[] = {0xAABF, 0xBCCA, 0xF7B5, 0xBDC6, 0x2000};
           dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch, 32, true);
         }
@@ -538,11 +538,11 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           queue.enqueue_now_P(PSTR("G29S1"));
           mesh_point_count--;
 
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en1[] = "Next Point";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en1, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch1[] = {0xC2CF, 0xBBD2, 0xE3B5, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch1, 32, true);
           }
@@ -550,11 +550,11 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         else if (mesh_point_count > 1) {                              // 倒数第二个点
           queue.enqueue_now_P(PSTR("G29S2"));
           mesh_point_count--;
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Next Point";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en2, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch2[] = {0xC2CF, 0xBBD2, 0xE3B5, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch2, 32, true);
           }
@@ -562,11 +562,11 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         else if (mesh_point_count == 1) {
           queue.enqueue_now_P(PSTR("G29S2"));
           mesh_point_count--;
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Level Finsh";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en2, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch2[] = {0xF7B5, 0xBDC6, 0xEACD, 0xC9B3, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch2, 32, true);
           }
@@ -619,25 +619,25 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
 
   switch (point_value) {
     case 0x0001:
-      enqueue_corner_move(X_MIN_POS + abs(dgus_level_offsets[0].x),
-                          Y_MIN_POS + abs(dgus_level_offsets[0].y), level_speed);
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[0].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[0].y), level_speed);
       queue.enqueue_now_P(PSTR("G28Z"));
       break;
     case 0x0002:
-      enqueue_corner_move(X_MAX_POS - abs(dgus_level_offsets[1].x),
-                          Y_MIN_POS + abs(dgus_level_offsets[1].y), level_speed);
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[1].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[1].y), level_speed);
       break;
     case 0x0003:
-      enqueue_corner_move(X_MAX_POS - abs(dgus_level_offsets[2].x),
-                          Y_MAX_POS - abs(dgus_level_offsets[2].y), level_speed);
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[2].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[2].y), level_speed);
       break;
     case 0x0004:
-      enqueue_corner_move(X_MIN_POS + abs(dgus_level_offsets[3].x),
-                          Y_MAX_POS - abs(dgus_level_offsets[3].y), level_speed);
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[3].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[3].y), level_speed);
       break;
     case 0x0005:
-      enqueue_corner_move(abs(dgus_level_offsets[4].x),
-                          abs(dgus_level_offsets[4].y), level_speed);
+      enqueue_corner_move(abs(mks_corner_offsets[4].x),
+                          abs(mks_corner_offsets[4].y), level_speed);
       break;
   }
 
@@ -898,9 +898,9 @@ void DGUSScreenHandler::GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr) {
   const int16_t value_pos = swap16(*(int16_t*)val_ptr);
 
   switch (var.VP) {
-    case VP_X_PARK_POS: dgus_park_pos.x = value_pos; break;
-    case VP_Y_PARK_POS: dgus_park_pos.y = value_pos; break;
-    case VP_Z_PARK_POS: dgus_park_pos.z = value_pos; break;
+    case VP_X_PARK_POS: mks_park_pos.x = value_pos; break;
+    case VP_Y_PARK_POS: mks_park_pos.y = value_pos; break;
+    case VP_Z_PARK_POS: mks_park_pos.z = value_pos; break;
     default: break;
   }
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1380,7 +1380,7 @@ bool DGUSScreenHandler::loop() {
 
   if (language_times != 0) {
     LanguagePInit();
-    DGUS_LanguageDisplay(DGUSLanguageSwitch);
+    DGUS_LanguageDisplay(mks_language_index);
     language_times--;
   }
 
@@ -1400,8 +1400,8 @@ bool DGUSScreenHandler::loop() {
         #endif
       #endif
 
-      if (dgus_min_extrusion_temp != 0)
-        thermalManager.extrude_min_temp = dgus_min_extrusion_temp;
+      if (mks_min_extrusion_temp != 0)
+        thermalManager.extrude_min_temp = mks_min_extrusion_temp;
 
       DGUS_ExtrudeLoadInit();
 
@@ -1423,7 +1423,7 @@ bool DGUSScreenHandler::loop() {
 }
 
 void DGUSScreenHandler::LanguagePInit() {
-  switch (DGUSLanguageSwitch) {
+  switch (mks_language_index) {
     case MKS_SimpleChinese:
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
