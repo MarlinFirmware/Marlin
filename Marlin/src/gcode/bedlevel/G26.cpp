@@ -149,7 +149,7 @@
 
 constexpr float g26_e_axis_feedrate = 0.025;
 
-static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
+static MeshFlags circle_flags;
 float g26_random_deviation = 0.0;
 
 #if HAS_LCD_MENU
@@ -280,71 +280,32 @@ typedef struct {
     move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
   }
 
-  inline bool look_for_lines_to_connect() {
-    xyz_pos_t s, e;
-    s.z = e.z = layer_height;
+  void connect_neighbor_with_line(const xy_int8_t &p1, int8_t dx, int8_t dy) {
+    xy_int8_t p2;
+    p2.x = p1.x + dx;
+    p2.y = p1.y + dy;
 
-    GRID_LOOP(i, j) {
+    if (p2.x < 0 || p2.x >= GRID_MAX_POINTS_X) return;
+    if (p2.y < 0 || p2.y >= GRID_MAX_POINTS_Y) return;
 
-      if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
+    if(circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
+      xyz_pos_t s, e;
+      s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
+      e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
+      s.y = _GET_MESH_Y(p1.y) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
+      e.y = _GET_MESH_Y(p2.y) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
+      s.z = e.z = layer_height;
 
-      if (
-        // Can't connect to anything farther to the right than GRID_MAX_POINTS_X
-        // Already a half circle at the edge of the bed.
-        i < (GRID_MAX_POINTS_X - 1) &&
+      #if HAS_ENDSTOPS
+        LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+        LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+        LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+        LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+      #endif
 
-        // Test whether a leftward line can be done
-        circle_flags.marked(i, j) && circle_flags.marked(i + 1, j) &&
-
-        // Two circles need a horizontal line to connect them        
-        !horizontal_mesh_line_flags.marked(i, j)
-      ) {
-        s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
-        e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
-
-        #if HAS_ENDSTOPS
-          LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-          s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-          LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
-        #else
-          s.y = e.y = _GET_MESH_Y(j);
-        #endif
-
-        if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-          print_line_from_here_to_there(s, e);
-
-        horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-      }
-
-      if (
-        // Can't connect to anything further back than GRID_MAX_POINTS_Y
-        // Already a half circle at the edge of the bed.
-        j < (GRID_MAX_POINTS_Y - 1) && 
-
-        // Test whether a downward line can be done
-        circle_flags.marked(i, j) && circle_flags.marked(i, j + 1) &&
-
-        // Two circles that need a vertical line to connect them        
-        !vertical_mesh_line_flags.marked(i, j)
-      ) {
-        s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
-        e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
-
-        #if HAS_ENDSTOPS
-          s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-          LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-          LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-        #else
-          s.x = e.x = _GET_MESH_X(i);
-        #endif
-
-        if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-          print_line_from_here_to_there(s, e);
-
-        vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-      }
+      if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+        print_line_from_here_to_there(s, e);
     }
-    return false;
   }
 
   /**
@@ -735,8 +696,6 @@ void GcodeSuite::G26() {
    */
 
   circle_flags.reset();
-  horizontal_mesh_line_flags.reset();
-  vertical_mesh_line_flags.reset();
 
   // Move nozzle to the specified height for the first layer
   destination = current_position;
@@ -883,7 +842,11 @@ void GcodeSuite::G26() {
 
       #endif // !ARC_SUPPORT
 
-      if (g26.look_for_lines_to_connect()) goto LEAVE;
+      g26.connect_neighbor_with_line(location.pos, -1,  0);
+      g26.connect_neighbor_with_line(location.pos,  1,  0);
+      g26.connect_neighbor_with_line(location.pos,  0, -1);
+      g26.connect_neighbor_with_line(location.pos,  0,  1);
+      if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE;
     }
 
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
