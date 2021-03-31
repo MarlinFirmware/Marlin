@@ -145,11 +145,11 @@ float parse_float(const char *buf) {
   // early return for 0
   if (uval == 0) return 0;
 
-overflow:
+  overflow:
+
   // convert to float and apply sign
   float fval = uval;
-  if (is_negative)
-    fval *= -1;
+  if (is_negative) fval *= -1;
 
   // apply exponent (up to 1e-15 / 1e+15)
   if (exp < 0) {
