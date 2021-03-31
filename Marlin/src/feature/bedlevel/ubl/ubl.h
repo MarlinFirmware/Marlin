@@ -57,7 +57,7 @@ typedef struct {
   xy_pos_t  XY_pos;
   xy_bool_t XY_seen;
   #if HAS_BED_PROBE
-    int     grid_size;
+    uint8_t J_grid_size;
   #endif
 } G29_parameters_t;
 
