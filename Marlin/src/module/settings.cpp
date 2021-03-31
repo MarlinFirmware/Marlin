@@ -153,6 +153,11 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #include "../lcd/extui/lib/dgus/DGUSScreenHandler.h"
+  #include "../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -459,6 +464,16 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
+  #endif
+
+  //
+  // MKS UI controller
+  //
+  #if ENABLED(DGUS_LCD_UI_MKS)
+    uint8_t mks_language_index;                         // Display Language
+    xy_int_t mks_corner_offsets[5];                     // Bed Tramming
+    xyz_int_t mks_park_pos;                             // Custom Parking (without NOZZLE_PARK)
+    celsius_t mks_min_extrusion_temp;                   // Min E Temp (shadow M302 value)
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1403,6 +1418,16 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // MKS UI controller
+    //
+    #if ENABLED(DGUS_LCD_UI_MKS)
+      EEPROM_WRITE(mks_language_index);
+      EEPROM_WRITE(mks_corner_offsets);
+      EEPROM_WRITE(mks_park_pos);
+      EEPROM_WRITE(mks_min_extrusion_temp);
+    #endif
+
+    //
     // Selected LCD language
     //
     #if HAS_MULTI_LANGUAGE
@@ -2303,6 +2328,17 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // MKS UI controller
+      //
+      #if ENABLED(DGUS_LCD_UI_MKS)
+        _FIELD_TEST(mks_language_index);
+        EEPROM_READ(mks_language_index);
+        EEPROM_READ(mks_corner_offsets);
+        EEPROM_READ(mks_park_pos);
+        EEPROM_READ(mks_min_extrusion_temp);
+      #endif
+
+      //
       // Selected LCD language
       //
       #if HAS_MULTI_LANGUAGE
@@ -2966,6 +3002,11 @@ void MarlinSettings::reset() {
       password.is_set = false;
     #endif
   #endif
+
+  //
+  // MKS UI controller
+  //
+  TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
   postprocess();
 
