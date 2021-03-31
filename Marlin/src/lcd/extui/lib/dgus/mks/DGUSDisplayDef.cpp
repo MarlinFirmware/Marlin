@@ -52,9 +52,9 @@ float Z_distance = 0.1;
 
 //struct { uint16_t h, m, s; } dgus_time;
 
-xy_int_t dgus_level_offsets[5];           // Initialized by settings.load()
-xyz_int_t dgus_park_pos = { 20, 20, 10 }; // Initialized by settings.load()
-celsius_t dgus_min_extrusion_temp;        // Initialized by settings.load()
+xy_int_t dgus_level_offsets[5];     // Initialized by settings.load()
+xyz_int_t dgus_park_pos;            // Initialized by settings.load()
+celsius_t dgus_min_extrusion_temp;  // Initialized by settings.load()
 
 xyz_pos_t position_before_pause;
 
