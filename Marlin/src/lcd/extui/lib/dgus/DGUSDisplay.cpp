@@ -62,9 +62,11 @@ void DGUSDisplay::InitDisplay() {
     #define LCD_BAUDRATE 115200
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
-  #if BOTH(DGUS_LCD_UI_MKS, POWER_LOSS_RECOVERY)
-    if (!recovery.valid()) delay(LOGO_TIME_DELAY);
-  #endif
+
+  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {  // If no Power-Loss Recovery is needed...
+    TERN_(DGUS_LCD_UI_MKS, delay(LOGO_TIME_DELAY));     // Show the logo for a little while
+  }
+
   RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
 }
 

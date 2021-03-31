@@ -25,8 +25,6 @@
 
 #ifdef FTDI_BED_MESH_SCREEN
 
-#include "../ftdi_eve_lib/extras/adjuster_widget.h"
-
 using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;

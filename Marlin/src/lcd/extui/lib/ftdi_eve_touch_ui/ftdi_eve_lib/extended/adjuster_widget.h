@@ -1,10 +1,9 @@
-/*******************
- * ftdi_extended.h *
- *******************/
+/*********************
+ * adjuster_widget.h *
+ *********************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2019 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 201( - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,34 +21,20 @@
 
 #pragma once
 
-#include "../compat.h"
-#include "../basic/ftdi_basic.h"
+namespace FTDI {
+  void draw_adjuster_value(
+    CommandProcessor& cmd,
+    int16_t x, int16_t y, int16_t w, int16_t h,
+    float value, progmem_str units = nullptr,
+    int8_t width = 5, uint8_t precision = 1
+  );
 
-#ifndef __MARLIN_FIRMWARE__
-  #define FTDI_EXTENDED
-#endif
-
-#if ENABLED(FTDI_EXTENDED)
-  #include "unicode/font_size_t.h"
-  #include "unicode/unicode.h"
-  #include "unicode/standard_char_set.h"
-  #include "unicode/western_char_set.h"
-  #include "unicode/cyrillic_char_set.h"
-  #include "unicode/font_bitmaps.h"
-  #include "rgb_t.h"
-  #include "bitmap_info.h"
-  #include "tiny_timer.h"
-  #include "grid_layout.h"
-  #include "dl_cache.h"
-  #include "event_loop.h"
-  #include "command_processor.h"
-  #include "screen_types.h"
-  #include "sound_player.h"
-  #include "sound_list.h"
-  #include "polygon.h"
-  #include "poly_ui.h"
-  #include "text_box.h"
-  #include "text_ellipsis.h"
-  #include "adjuster_widget.h"
-  #include "circular_progress.h"
-#endif
+  void draw_adjuster(
+    CommandProcessor& cmd,
+    int16_t x, int16_t y, int16_t w, int16_t h,
+    uint8_t tag,
+    float value, progmem_str units = nullptr,
+    int8_t width = 5, uint8_t precision = 1,
+    draw_mode_t what = BOTH
+  );
+}
