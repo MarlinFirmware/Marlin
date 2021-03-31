@@ -288,54 +288,60 @@ typedef struct {
 
       if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
 
-      if (i < (GRID_MAX_POINTS_X - 1)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
-                                      // Already a half circle at the edge of the bed.
+      if (
+        // Can't connect to anything farther to the right than GRID_MAX_POINTS_X
+        // Already a half circle at the edge of the bed.
+        i < (GRID_MAX_POINTS_X - 1) &&
 
-        if (circle_flags.marked(i, j) && circle_flags.marked(i + 1, j)) {   // Test whether a leftward line can be done
-          if (!horizontal_mesh_line_flags.marked(i, j)) {
-            // Two circles need a horizontal line to connect them
-            s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
-            e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
+        // Test whether a leftward line can be done
+        circle_flags.marked(i, j) && circle_flags.marked(i + 1, j) &&
 
-            #if HAS_ENDSTOPS
-              LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-              s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
-              LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
-            #else
-              s.y = e.y = _GET_MESH_Y(j);
-            #endif
+        // Two circles need a horizontal line to connect them        
+        !horizontal_mesh_line_flags.marked(i, j)
+      ) {
+        s.x = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
+        e.x = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
-            if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-              print_line_from_here_to_there(s, e);
+        #if HAS_ENDSTOPS
+          LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
+          s.y = e.y = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
+          LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
+        #else
+          s.y = e.y = _GET_MESH_Y(j);
+        #endif
 
-            horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-          }
-        }
+        if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+          print_line_from_here_to_there(s, e);
 
-        if (j < (GRID_MAX_POINTS_Y - 1)) {  // Can't connect to anything further back than GRID_MAX_POINTS_Y.
-                                        // Already a half circle at the edge of the bed.
+        horizontal_mesh_line_flags.mark(i, j); // Mark done, even if skipped
+      }
 
-          if (circle_flags.marked(i, j) && circle_flags.marked(i, j + 1)) {   // Test whether a downward line can be done
-            if (!vertical_mesh_line_flags.marked(i, j)) {
-              // Two circles that need a vertical line to connect them
-              s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
-              e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
+      if (
+        // Can't connect to anything further back than GRID_MAX_POINTS_Y
+        // Already a half circle at the edge of the bed.
+        j < (GRID_MAX_POINTS_Y - 1) && 
 
-              #if HAS_ENDSTOPS
-                s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
-                LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-                LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-              #else
-                s.x = e.x = _GET_MESH_X(i);
-              #endif
+        // Test whether a downward line can be done
+        circle_flags.marked(i, j) && circle_flags.marked(i, j + 1) &&
 
-              if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-                print_line_from_here_to_there(s, e);
+        // Two circles that need a vertical line to connect them        
+        !vertical_mesh_line_flags.marked(i, j)
+      ) {
+        s.y = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
+        e.y = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
-              vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
-            }
-          }
-        }
+        #if HAS_ENDSTOPS
+          s.x = e.x = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
+          LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+          LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
+        #else
+          s.x = e.x = _GET_MESH_X(i);
+        #endif
+
+        if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
+          print_line_from_here_to_there(s, e);
+
+        vertical_mesh_line_flags.mark(i, j); // Mark done, even if skipped
       }
     }
     return false;
