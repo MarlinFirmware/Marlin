@@ -3436,7 +3436,8 @@
   //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
 #endif
 
-//#define MEATPACK                // Define on FLSUNQ_Config/ Support for MeatPack G-code compression (https://github.com/scottmudge/OctoPrint-MeatPack)
+// Define on FLSUNQ_Config
+// Support for MeatPack G-code compression (https://github.com/scottmudge/OctoPrint-MeatPack)
 //#define MEATPACK_ON_SERIAL_PORT_1
 //#define MEATPACK_ON_SERIAL_PORT_2
 
