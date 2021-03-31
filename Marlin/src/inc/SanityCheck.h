@@ -1262,7 +1262,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
   #elif ENABLED(DELTA_CALIBRATION_MENU) && !HAS_LCD_MENU
     #error "DELTA_CALIBRATION_MENU requires an LCD Controller."
-  #elif ABL_GRID
+  #elif ABL_USES_GRID
     #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
     #elif GRID_MAX_POINTS_X < 3

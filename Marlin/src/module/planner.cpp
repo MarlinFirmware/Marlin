@@ -1534,7 +1534,7 @@ void Planner::check_axes_activity() {
     #if ABL_PLANAR
 
       xy_pos_t d = raw - level_fulcrum;
-      apply_rotation_xyz(bed_level_matrix, d.x, d.y, raw.z);
+      bed_level_matrix.apply_rotation_xyz(d.x, d.y, raw.z);
       raw = d + level_fulcrum;
 
     #elif HAS_MESH
@@ -1571,7 +1571,7 @@ void Planner::check_axes_activity() {
         matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
         xy_pos_t d = raw - level_fulcrum;
-        apply_rotation_xyz(inverse, d.x, d.y, raw.z);
+        inverse.apply_rotation_xyz(d.x, d.y, raw.z);
         raw = d + level_fulcrum;
 
       #elif HAS_MESH

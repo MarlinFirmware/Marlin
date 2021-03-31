@@ -391,7 +391,7 @@ void unified_bed_leveling::G29() {
 
     if (parser.seen('J')) {
       save_ubl_active_state_and_disable();
-      tilt_mesh_based_on_probed_grid(param.grid_size == 0); // Zero size does 3-Point
+      tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
       restore_ubl_active_state_and_leave();
       #if ENABLED(UBL_G29_J_RECENTER)
         do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
@@ -1118,8 +1118,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   if (parser.seen('J')) {
     #if HAS_BED_PROBE
-      param.grid_size = parser.has_value() ? parser.value_int() : 0;
-      if (param.grid_size && !WITHIN(param.grid_size, 2, 9)) {
+      param.J_grid_size = parser.value_byte();
+      if (param.J_grid_size && !WITHIN(param.J_grid_size, 2, 9)) {
         SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
@@ -1420,8 +1420,8 @@ void unified_bed_leveling::smart_fill_mesh() {
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
     const float x_min = probe.min_x(), x_max = probe.max_x(),
                 y_min = probe.min_y(), y_max = probe.max_y(),
-                dx = (x_max - x_min) / (param.grid_size - 1),
-                dy = (y_max - y_min) / (param.grid_size - 1);
+                dx = (x_max - x_min) / (param.J_grid_size - 1),
+                dy = (y_max - y_min) / (param.J_grid_size - 1);
 
     xy_float_t points[3];
     probe.get_three_points(points);
@@ -1507,14 +1507,14 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       bool zig_zag = false;
 
-      const uint16_t total_points = sq(param.grid_size);
+      const uint16_t total_points = sq(param.J_grid_size);
       uint16_t point_num = 1;
 
       xy_pos_t rpos;
-      LOOP_L_N(ix, param.grid_size) {
+      LOOP_L_N(ix, param.J_grid_size) {
         rpos.x = x_min + ix * dx;
-        LOOP_L_N(iy, param.grid_size) {
-          rpos.y = y_min + dy * (zig_zag ? param.grid_size - 1 - iy : iy);
+        LOOP_L_N(iy, param.J_grid_size) {
+          rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           if (!abort_flag) {
             SERIAL_ECHOLNPAIR("Tilting mesh point ", point_num, "/", total_points, "\n");
@@ -1592,7 +1592,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         DEBUG_DELAY(20);
       }
 
-      apply_rotation_xyz(rotation, mx, my, mz);
+      rotation.apply_rotation_xyz(mx, my, mz);
 
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
