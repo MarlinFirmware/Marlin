@@ -599,85 +599,52 @@ void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
 void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr) {
   const int16_t point_value = swap16(*(uint16_t *)val_ptr);
 
-  int16_t level_x_pos, level_y_pos;
-  char buf_level[32] = {0};
-  unsigned int level_speed = 1500;
+  // Insist on leveling first time at this screen
   static bool first_level_flag = false;
-
-  if (!first_level_flag)
+  if (!first_level_flag || point_value == 0x0001) {
     queue.enqueue_now_P(G28_STR);
+    first_level_flag = true;
+  }
+
+  constexpr uint16_t level_speed = 1500;
+
+  auto enqueue_corner_move = [](int16_t lx, int16_t ly, uint16_t fr) {
+    char buf_level[32];
+    sprintf_P(buf_level, "G0X%dY%dF%d", lx, ly, fr);
+    queue.enqueue_one_now(buf_level);
+  };
+
+  if (WITHIN(point_value, 0x0001, 0x0005))
+    queue.enqueue_now_P(PSTR("G1Z10"));
 
   switch (point_value) {
     case 0x0001:
-      if (first_level_flag)
-        queue.enqueue_now_P(G28_STR);
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-      //level_x_pos = X_MIN_POS + 20;
-      //level_y_pos = Y_MIN_POS + 20;
-      level_x_pos = X_MIN_POS + abs(dgus_level_offsets[0].x);
-      level_y_pos = Y_MIN_POS + abs(dgus_level_offsets[0].y);
-
-      memset(buf_level, 0, sizeof(buf_level));
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      queue.enqueue_now_P(PSTR("G28 Z"));
+      enqueue_corner_move(X_MIN_POS + abs(dgus_level_offsets[0].x),
+                          Y_MIN_POS + abs(dgus_level_offsets[0].y), level_speed);
+      queue.enqueue_now_P(PSTR("G28Z"));
       break;
     case 0x0002:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MAX_POS - 20;
-      //level_y_pos = Y_MIN_POS + 20;
-
-      level_x_pos = X_MAX_POS - abs(dgus_level_offsets[1].x);
-      level_y_pos = Y_MIN_POS + abs(dgus_level_offsets[1].y);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //queue.enqueue_now_P(PSTR("G28Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MAX_POS - abs(dgus_level_offsets[1].x),
+                          Y_MIN_POS + abs(dgus_level_offsets[1].y), level_speed);
       break;
     case 0x0003:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MAX_POS - 20;
-      //level_y_pos = Y_MAX_POS - 20;
-
-      level_x_pos = X_MAX_POS - abs(dgus_level_offsets[2].x);
-      level_y_pos = Y_MAX_POS - abs(dgus_level_offsets[2].y);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //sprintf_P(buf_level, PSTR("G28 Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MAX_POS - abs(dgus_level_offsets[2].x),
+                          Y_MAX_POS - abs(dgus_level_offsets[2].y), level_speed);
       break;
     case 0x0004:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MIN_POS + 20;
-      //level_y_pos = Y_MAX_POS - 20;
-      level_x_pos = X_MIN_POS + abs(dgus_level_offsets[3].x);
-      level_y_pos = Y_MAX_POS - abs(dgus_level_offsets[3].y);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //sprintf_P(buf_level, PSTR("G28 Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MIN_POS + abs(dgus_level_offsets[3].x),
+                          Y_MAX_POS - abs(dgus_level_offsets[3].y), level_speed);
       break;
     case 0x0005:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-      //level_x_pos = (uint16_t)(X_MAX_POS / 2);
-      //level_y_pos = (uint16_t)(Y_MAX_POS / 2);
-      level_x_pos = abs(dgus_level_offsets[4].x);
-      level_y_pos = abs(dgus_level_offsets[4].y);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(abs(dgus_level_offsets[4].x),
+                          abs(dgus_level_offsets[4].y), level_speed);
       break;
   }
 
-  // Only once
-  first_level_flag = true;
+  if (WITHIN(point_value, 0x0002, 0x0005)) {
+    //queue.enqueue_now_P(PSTR("G28Z"));
+    queue.enqueue_now_P(PSTR("G1Z-10"));
+  }
 }
 
 #define mks_min(a, b) ((a) < (b)) ? (a) : (b)

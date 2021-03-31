@@ -466,11 +466,14 @@ typedef struct SettingsDataStruct {
     bool buzzer_enabled;
   #endif
 
+  //
+  // MKS UI controller
+  //
   #if ENABLED(DGUS_LCD_UI_MKS)
-    uint8_t DGUSLanguageSwitch;                         // MKS Language setting
-    xy_int_t dgus_level_offsets[5];
-    xyz_int_t dgus_park_pos;
-    uint16_t dgus_min_extrusion_temp;
+    uint8_t DGUSLanguageSwitch;                         // Display Language
+    xy_int_t dgus_level_offsets[5];                     // Bed Tramming
+    xyz_int_t dgus_park_pos;                            // Custom Parking (without NOZZLE_PARK)
+    celsius_t dgus_min_extrusion_temp;                  // Min E Temp (shadow M302 value)
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1414,6 +1417,9 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ui.buzzer_enabled);
     #endif
 
+    //
+    // MKS UI controller
+    //
     #if ENABLED(DGUS_LCD_UI_MKS)
       EEPROM_WRITE(DGUSLanguageSwitch);
       EEPROM_WRITE(dgus_level_offsets);
@@ -2321,6 +2327,9 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(ui.buzzer_enabled);
       #endif
 
+      //
+      // MKS UI controller
+      //
       #if ENABLED(DGUS_LCD_UI_MKS)
         _FIELD_TEST(DGUSLanguageSwitch);
         EEPROM_READ(DGUSLanguageSwitch);
