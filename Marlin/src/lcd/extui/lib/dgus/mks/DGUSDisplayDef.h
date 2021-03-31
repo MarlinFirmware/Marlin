@@ -48,6 +48,8 @@ extern xy_int_t dgus_level_offsets[5];
 extern xyz_int_t dgus_park_pos;
 extern celsius_t dgus_min_extrusion_temp;
 
+void MKS_reset_settings(); // Restore persistent settings to defaults
+
 void MKS_pause_print_move();
 void MKS_resume_print_move();
 

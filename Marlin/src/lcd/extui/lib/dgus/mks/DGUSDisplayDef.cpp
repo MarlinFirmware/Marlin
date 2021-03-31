@@ -52,18 +52,31 @@ float Z_distance = 0.1;
 
 //struct { uint16_t h, m, s; } dgus_time;
 
+//
+// Persistent settings
+//
 xy_int_t dgus_level_offsets[5];     // Initialized by settings.load()
 xyz_int_t dgus_park_pos;            // Initialized by settings.load()
 celsius_t dgus_min_extrusion_temp;  // Initialized by settings.load()
 
-xyz_pos_t position_before_pause;
+void MKS_reset_settings() {
+  constexpr xy_int_t init_dgus_level_offsets[5] = {
+    { 20, 20 }, { 20, 20 },
+    { 20, 20 }, { 20, 20 },
+    { X_CENTER, Y_CENTER }
+  };
+  DGUSLanguageSwitch = 0;
+  COPY(dgus_level_offsets, init_dgus_level_offsets);
+  dgus_park_pos.set(20, 20, 10);
+  dgus_min_extrusion_temp = 0;
+}
 
+xyz_pos_t position_before_pause;
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
   do_blocking_move_to(X_MIN_POS + dgus_park_pos.x, Y_MIN_POS + dgus_park_pos.y, current_position.z + dgus_park_pos.z);
 }
-
 void MKS_resume_print_move() { do_blocking_move_to(position_before_pause); }
 
 float z_offset_add = 0;
