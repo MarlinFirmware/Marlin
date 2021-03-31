@@ -28,43 +28,45 @@
 
 #include "../MarlinCore.h"
 
-#if defined(__AVR__)
-static FORCE_INLINE uint32_t mult10(uint32_t val)
-{
-  uint32_t tmp = val;
-  __asm__ __volatile__ (
-     "add %A[tmp], %A[tmp]\n"
-     "adc %B[tmp], %B[tmp]\n"
-     "adc %C[tmp], %C[tmp]\n"
-     "adc %D[tmp], %D[tmp]\n"
-     "add %A[tmp], %A[tmp]\n"
-     "adc %B[tmp], %B[tmp]\n"
-     "adc %C[tmp], %C[tmp]\n"
-     "adc %D[tmp], %D[tmp]\n"
-     "add %A[val], %A[tmp]\n"
-     "adc %B[val], %B[tmp]\n"
-     "adc %C[val], %C[tmp]\n"
-     "adc %D[val], %D[tmp]\n"
-     "add %A[val], %A[val]\n"
-     "adc %B[val], %B[val]\n"
-     "adc %C[val], %C[val]\n"
-     "adc %D[val], %D[val]\n"
-      : [val] "+&r" (val),
-        [tmp] "+&r" (tmp)
-  );
-  return val;
-}
+#ifdef __AVR__
+
+  static FORCE_INLINE uint32_t mult10(uint32_t val) {
+    uint32_t tmp = val;
+    __asm__ __volatile__ (
+       "add %A[tmp], %A[tmp]\n"
+       "adc %B[tmp], %B[tmp]\n"
+       "adc %C[tmp], %C[tmp]\n"
+       "adc %D[tmp], %D[tmp]\n"
+       "add %A[tmp], %A[tmp]\n"
+       "adc %B[tmp], %B[tmp]\n"
+       "adc %C[tmp], %C[tmp]\n"
+       "adc %D[tmp], %D[tmp]\n"
+       "add %A[val], %A[tmp]\n"
+       "adc %B[val], %B[tmp]\n"
+       "adc %C[val], %C[tmp]\n"
+       "adc %D[val], %D[tmp]\n"
+       "add %A[val], %A[val]\n"
+       "adc %B[val], %B[val]\n"
+       "adc %C[val], %C[val]\n"
+       "adc %D[val], %D[val]\n"
+        : [val] "+&r" (val),
+          [tmp] "+&r" (tmp)
+    );
+    return val;
+  }
+
 #else
-static FORCE_INLINE uint32_t mult10(uint32_t val) { return val * 10; }
+
+  static FORCE_INLINE uint32_t mult10(uint32_t val) { return val * 10; }
+
 #endif
 
 // cheap base-10 strto(u)l.
 // does not check for errors.
-int32_t parse_int32(const char *buf)
-{
+int32_t parse_int32(const char *buf) {
   char c;
 
-  // skip leading spaces
+  // Get a char, skipping leading spaces
   do { c = *buf++; } while (c == ' ');
 
   // check for sign
@@ -91,11 +93,10 @@ int32_t parse_int32(const char *buf)
 // cheap strtof.
 // does not support nan/infinity or exponent notation.
 // does not check for errors.
-float parse_float(const char *buf)
-{
+float parse_float(const char *buf) {
   char c;
 
-  // skip leading spaces
+  // Get a char, skipping leading spaces
   do { c = *buf++; } while (c == ' ');
 
   // check for sign
@@ -124,8 +125,7 @@ float parse_float(const char *buf)
     if (uc <= 9) {
       exp -= exp_dec;
       uval = mult10(uval) + uc;
-      if (uval >= (UINT32_MAX - 9) / 10)
-      {
+      if (uval >= (UINT32_MAX - 9) / 10) {
         // overflow. keep reading digits until decimal point.
         while (exp_dec == 0) {
           c = *buf++;
@@ -152,15 +152,13 @@ overflow:
     fval *= -1;
 
   // apply exponent (up to 1e-15 / 1e+15)
-  if (exp < 0)
-  {
+  if (exp < 0) {
     if (exp <= -8) { fval *= 1e-8; exp += 8; }
     if (exp <= -4) { fval *= 1e-4; exp += 4; }
     if (exp <= -2) { fval *= 1e-2; exp += 2; }
     if (exp <= -1) { fval *= 1e-1; exp += 1; }
   }
-  else if (exp > 0)
-  {
+  else if (exp > 0) {
     if (exp >= 8) { fval *= 1e+8; exp -= 8; }
     if (exp >= 4) { fval *= 1e+4; exp -= 4; }
     if (exp >= 2) { fval *= 1e+2; exp -= 2; }

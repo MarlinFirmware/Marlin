@@ -445,7 +445,7 @@ void GCodeQueue::get_serial_commands() {
         if (process_line_done(serial.input_state, serial.line_buffer, serial.count))
           continue;
 
-        char* command = serial.line_buffer;
+        char *command = serial.line_buffer;
 
         while (*command == ' ') command++;                   // Skip leading spaces
         char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
