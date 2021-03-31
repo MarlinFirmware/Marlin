@@ -341,7 +341,7 @@ void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) 
   DEBUG_ECHOLNPGM("MinExtrudeTempChange DistanceChange");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
   thermalManager.extrude_min_temp = value;
-  min_ex_temp = value;
+  dgus_min_extrusion_temp = value;
   settings.save();
 }
 
@@ -614,8 +614,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
       queue.enqueue_now_P(PSTR("G1 Z10"));
       //level_x_pos = X_MIN_POS + 20;
       //level_y_pos = Y_MIN_POS + 20;
-      level_x_pos = X_MIN_POS + abs(level_1_x_point);
-      level_y_pos = Y_MIN_POS + abs(level_1_y_point);
+      level_x_pos = X_MIN_POS + abs(dgus_level_offsets[0].x);
+      level_y_pos = Y_MIN_POS + abs(dgus_level_offsets[0].y);
 
       memset(buf_level, 0, sizeof(buf_level));
       sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
@@ -628,8 +628,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
       //level_x_pos = X_MAX_POS - 20;
       //level_y_pos = Y_MIN_POS + 20;
 
-      level_x_pos = X_MAX_POS - abs(level_2_x_point);
-      level_y_pos = Y_MIN_POS + abs(level_2_y_point);
+      level_x_pos = X_MAX_POS - abs(dgus_level_offsets[1].x);
+      level_y_pos = Y_MIN_POS + abs(dgus_level_offsets[1].y);
 
       sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
       queue.enqueue_one_now(buf_level);
@@ -642,8 +642,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
       //level_x_pos = X_MAX_POS - 20;
       //level_y_pos = Y_MAX_POS - 20;
 
-      level_x_pos = X_MAX_POS - abs(level_3_x_point);
-      level_y_pos = Y_MAX_POS - abs(level_3_y_point);
+      level_x_pos = X_MAX_POS - abs(dgus_level_offsets[2].x);
+      level_y_pos = Y_MAX_POS - abs(dgus_level_offsets[2].y);
 
       sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
       queue.enqueue_one_now(buf_level);
@@ -655,8 +655,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
 
       //level_x_pos = X_MIN_POS + 20;
       //level_y_pos = Y_MAX_POS - 20;
-      level_x_pos = X_MIN_POS + abs(level_4_x_point);
-      level_y_pos = Y_MAX_POS - abs(level_4_y_point);
+      level_x_pos = X_MIN_POS + abs(dgus_level_offsets[3].x);
+      level_y_pos = Y_MAX_POS - abs(dgus_level_offsets[3].y);
 
       sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
       queue.enqueue_one_now(buf_level);
@@ -667,8 +667,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
       queue.enqueue_now_P(PSTR("G1 Z10"));
       //level_x_pos = (uint16_t)(X_MAX_POS / 2);
       //level_y_pos = (uint16_t)(Y_MAX_POS / 2);
-      level_x_pos = abs(level_5_x_point);
-      level_y_pos = abs(level_5_y_point);
+      level_x_pos = abs(dgus_level_offsets[4].x);
+      level_y_pos = abs(dgus_level_offsets[4].y);
 
       sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
       queue.enqueue_one_now(buf_level);
@@ -931,9 +931,9 @@ void DGUSScreenHandler::GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr) {
   const int16_t value_pos = swap16(*(int16_t*)val_ptr);
 
   switch (var.VP) {
-    case VP_X_PARK_POS: x_park_pos = value_pos; break;
-    case VP_Y_PARK_POS: y_park_pos = value_pos; break;
-    case VP_Z_PARK_POS: z_park_pos = value_pos; break;
+    case VP_X_PARK_POS: dgus_park_pos.x = value_pos; break;
+    case VP_Y_PARK_POS: dgus_park_pos.y = value_pos; break;
+    case VP_Z_PARK_POS: dgus_park_pos.z = value_pos; break;
     default: break;
   }
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1433,8 +1433,8 @@ bool DGUSScreenHandler::loop() {
         #endif
       #endif
 
-      if (min_ex_temp != 0)
-        thermalManager.extrude_min_temp = min_ex_temp;
+      if (dgus_min_extrusion_temp != 0)
+        thermalManager.extrude_min_temp = dgus_min_extrusion_temp;
 
       DGUS_ExtrudeLoadInit();
 

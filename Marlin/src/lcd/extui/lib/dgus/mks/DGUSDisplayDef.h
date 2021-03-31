@@ -23,7 +23,6 @@
 
 #include "../DGUSDisplayDef.h"
 
-
 //#define DGUS_MKS_RUNOUT_SENSOR
 
 #define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
@@ -43,30 +42,19 @@ extern float    ZOffset_distance;
 extern float    mesh_adj_distance;
 extern float    Z_distance;
 
-extern int16_t level_1_x_point;
-extern int16_t level_1_y_point;
-extern int16_t level_2_x_point;
-extern int16_t level_2_y_point;
-extern int16_t level_3_x_point;
-extern int16_t level_3_y_point;
-extern int16_t level_4_x_point;
-extern int16_t level_4_y_point;
-extern int16_t level_5_x_point;
-extern int16_t level_5_y_point;
+extern xy_int_t dgus_level_offsets[5];
 
 extern uint16_t tim_h;
 extern uint16_t tim_m;
 extern uint16_t tim_s;
 
-extern uint16_t x_park_pos;
-extern uint16_t y_park_pos;
-extern uint16_t z_park_pos;
+extern xyz_int_t dgus_park_pos;
 
 extern xyz_pos_t position_before_pause;
 void MKS_pause_print_move();
 void MKS_resume_print_move();
 
-extern uint16_t min_ex_temp;
+extern celsius_t dgus_min_extrusion_temp;
 
 extern float z_offset_add;
 

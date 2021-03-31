@@ -50,39 +50,30 @@ float ZOffset_distance = 0.1;
 float mesh_adj_distance = 0.01;
 float Z_distance = 0.1;
 
-int16_t level_1_x_point = 20;
-int16_t level_1_y_point = 20;
-
-int16_t level_2_x_point = 20;
-int16_t level_2_y_point = 20;
-
-int16_t level_3_x_point = 20;
-int16_t level_3_y_point = 20;
-
-int16_t level_4_x_point = 20;
-int16_t level_4_y_point = 20;
-int16_t level_5_x_point = X_MAX_POS / 2;
-int16_t level_5_y_point = Y_MAX_POS / 2;
+// These points will be loaded from EEPROM
+xy_int_t dgus_level_offsets[5] = {
+  { 20, 20 }, { 20, 20 },
+  { 20, 20 }, { 20, 20 },
+  { X_CENTER, Y_CENTER }
+}
 
 uint16_t tim_h;
 uint16_t tim_m;
 uint16_t tim_s;
 
-uint16_t x_park_pos = 20;
-uint16_t y_park_pos = 20;
-uint16_t z_park_pos = 10;
+xyz_int_t dgus_park_pos = { 20, 20, 10 };
 
 xyz_pos_t position_before_pause;
 
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
-  do_blocking_move_to(X_MIN_POS + x_park_pos, Y_MIN_POS + y_park_pos, current_position.z + z_park_pos);
+  do_blocking_move_to(X_MIN_POS + dgus_park_pos.x, Y_MIN_POS + dgus_park_pos.y, current_position.z + dgus_park_pos.z);
 }
 
 void MKS_resume_print_move() { do_blocking_move_to(position_before_pause); }
 
-uint16_t min_ex_temp = 0;
+celsius_t dgus_min_extrusion_temp = 0;
 
 float z_offset_add = 0;
 
@@ -623,16 +614,16 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZPos, &current_position.z, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   // Level Point Set
-  VPHELPER(VP_Level_Point_One_X, &level_1_x_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_One_Y, &level_1_y_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Two_X, &level_2_x_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Two_Y, &level_2_y_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Three_X, &level_3_x_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Three_Y, &level_3_y_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Four_X, &level_4_x_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Four_Y, &level_4_y_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Five_X, &level_5_x_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Level_Point_Five_Y, &level_5_y_point, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_One_X, &dgus_level_offsets[0].x, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_One_Y, &dgus_level_offsets[0].y, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Two_X, &dgus_level_offsets[1].x, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Two_Y, &dgus_level_offsets[1].y, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Three_X, &dgus_level_offsets[2].x, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Three_Y, &dgus_level_offsets[2].y, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Four_X, &dgus_level_offsets[3].x, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Four_Y, &dgus_level_offsets[3].y, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Five_X, &dgus_level_offsets[4].x, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Level_Point_Five_Y, &dgus_level_offsets[4].y, ScreenHandler.HandleChangeLevelPoint_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
@@ -679,9 +670,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_T_F_SPEED, (uint16_t *)&planner.settings.min_travel_feedrate_mm_s, ScreenHandler.HandleMin_T_F_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_ACC_SPEED, (uint16_t *)&planner.settings.acceleration, ScreenHandler.HandleAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
-  VPHELPER(VP_X_PARK_POS, &x_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Y_PARK_POS, &y_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_Z_PARK_POS, &z_park_pos, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_X_PARK_POS, &dgus_park_pos.x, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Y_PARK_POS, &dgus_park_pos.y, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_Z_PARK_POS, &dgus_park_pos.z, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting

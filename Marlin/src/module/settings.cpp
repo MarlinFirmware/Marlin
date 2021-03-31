@@ -468,15 +468,9 @@ typedef struct SettingsDataStruct {
 
   #if ENABLED(DGUS_LCD_UI_MKS)
     uint8_t DGUSLanguageSwitch;                         // MKS Language setting
-    int16_t level_1_x_point, level_1_y_point;
-    int16_t level_2_x_point, level_2_y_point;
-    int16_t level_3_x_point, level_3_y_point;
-    int16_t level_4_x_point, level_4_y_point;
-    int16_t level_5_x_point, level_5_y_point;
-    uint16_t x_park_pos;
-    uint16_t y_park_pos;
-    uint16_t z_park_pos;
-    uint16_t min_ex_temp;
+    xy_int_t dgus_level_offsets[5];
+    xyz_int_t dgus_park_pos;
+    uint16_t dgus_min_extrusion_temp;
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1422,20 +1416,9 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(DGUS_LCD_UI_MKS)
       EEPROM_WRITE(DGUSLanguageSwitch);
-      EEPROM_WRITE(level_1_x_point);
-      EEPROM_WRITE(level_1_y_point);
-      EEPROM_WRITE(level_2_x_point);
-      EEPROM_WRITE(level_2_y_point);
-      EEPROM_WRITE(level_3_x_point);
-      EEPROM_WRITE(level_3_y_point);
-      EEPROM_WRITE(level_4_x_point);
-      EEPROM_WRITE(level_4_y_point);
-      EEPROM_WRITE(level_5_x_point);
-      EEPROM_WRITE(level_5_y_point);
-      EEPROM_WRITE(x_park_pos);
-      EEPROM_WRITE(y_park_pos);
-      EEPROM_WRITE(z_park_pos);
-      EEPROM_WRITE(min_ex_temp);
+      EEPROM_WRITE(dgus_level_offsets);
+      EEPROM_WRITE(dgus_park_pos);
+      EEPROM_WRITE(dgus_min_extrusion_temp);
     #endif
 
     //
@@ -2341,26 +2324,9 @@ void MarlinSettings::postprocess() {
       #if ENABLED(DGUS_LCD_UI_MKS)
         _FIELD_TEST(DGUSLanguageSwitch);
         EEPROM_READ(DGUSLanguageSwitch);
-
-        _FIELD_TEST(level_1_x_point);
-        EEPROM_READ(level_1_x_point);
-        EEPROM_READ(level_1_y_point);
-        EEPROM_READ(level_2_x_point);
-        EEPROM_READ(level_2_y_point);
-        EEPROM_READ(level_3_x_point);
-        EEPROM_READ(level_3_y_point);
-        EEPROM_READ(level_4_x_point);
-        EEPROM_READ(level_4_y_point);
-        EEPROM_READ(level_5_x_point);
-        EEPROM_READ(level_5_y_point);
-
-        _FIELD_TEST(x_park_pos);
-        EEPROM_READ(x_park_pos);
-        EEPROM_READ(y_park_pos);
-        EEPROM_READ(z_park_pos);
-
-        _FIELD_TEST(min_ex_temp);
-        EEPROM_READ(min_ex_temp);
+        EEPROM_READ(dgus_level_offsets);
+        EEPROM_READ(dgus_park_pos);
+        EEPROM_READ(dgus_min_extrusion_temp);
       #endif
 
       //
