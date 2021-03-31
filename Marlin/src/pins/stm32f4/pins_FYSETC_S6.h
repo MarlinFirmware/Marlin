@@ -171,13 +171,13 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PB3
 #endif
-#ifndef HEATER_0_PIN
+#ifndef HEATER_1_PIN
   #define HEATER_1_PIN                      PB4
 #endif
-#ifndef HEATER_0_PIN
+#ifndef HEATER_2_PIN
   #define HEATER_2_PIN                      PB15
 #endif
-#ifndef HEATER_0_PIN
+#ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PC8
 #endif
 
