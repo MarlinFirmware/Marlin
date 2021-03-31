@@ -1592,7 +1592,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         DEBUG_DELAY(20);
       }
 
-      apply_rotation_xyz(rotation, mx, my, mz);
+      rotation.apply_rotation_xyz(mx, my, mz);
 
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
