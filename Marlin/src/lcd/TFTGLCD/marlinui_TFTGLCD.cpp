@@ -760,7 +760,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif // HAS_HEATED_BED
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint16_t spd = thermalManager.fan_speed[0];
 
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -783,7 +783,7 @@ void MarlinUI::draw_status_screen() {
     else
       picBits &= ~ICON_FAN;
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   //
   // Line 9, 10 - icons
@@ -835,7 +835,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const data, const bool pgm) {
     if (!PanelDetected) return;
     const uint8_t vlen = data ? (pgm ? utf8_strlen_P(data) : utf8_strlen(data)) : 0;
     lcd.setCursor(0, row);
@@ -851,7 +851,7 @@ void MarlinUI::draw_status_screen() {
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   // This line moves to the last line of the screen for UBL plot screen on the panel side
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     if (!PanelDetected) return;
     ui.encoder_direction_normal();
     const uint8_t y = TERN0(AUTO_BED_LEVELING_UBL, ui.external_control) ? LCD_HEIGHT - 1 : MIDDLE_Y;

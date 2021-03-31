@@ -92,7 +92,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #define ANY_TX(N,V...) DO(IS_TX##N,||,V)
 #define ANY_RX(N,V...) DO(IS_RX##N,||,V)
 
-#if ANY_SERIAL_IS(0)
+#if USING_HW_SERIAL0
   #define IS_TX0(P) (P == P0_02)
   #define IS_RX0(P) (P == P0_03)
   #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
@@ -106,7 +106,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef IS_RX0
 #endif
 
-#if ANY_SERIAL_IS(1)
+#if USING_HW_SERIAL1
   #define IS_TX1(P) (P == P0_15)
   #define IS_RX1(P) (P == P0_16)
   #define _IS_TX1_1 IS_TX1
@@ -127,7 +127,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef _IS_RX1_1
 #endif
 
-#if ANY_SERIAL_IS(2)
+#if USING_HW_SERIAL2
   #define IS_TX2(P) (P == P0_10)
   #define IS_RX2(P) (P == P0_11)
   #define _IS_TX2_1 IS_TX2
@@ -161,7 +161,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef _IS_RX2_1
 #endif
 
-#if ANY_SERIAL_IS(3)
+#if USING_HW_SERIAL3
   #define PIN_IS_TX3(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
   #define PIN_IS_RX3(P) (P##_PIN == P0_01)
   #if PIN_IS_TX3(X_MIN) || PIN_IS_RX3(X_MAX)

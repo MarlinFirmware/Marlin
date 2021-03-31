@@ -43,6 +43,10 @@
   #define HAS_ENCODER_ACTION 1
 #endif
 
+#if HAS_STATUS_MESSAGE
+  #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
+#endif
+
 #if E_MANUAL > 1
   #define MULTI_MANUAL 1
 #endif
@@ -55,6 +59,8 @@
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
+
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 #if HAS_WIRED_LCD
 
@@ -286,7 +292,7 @@ public:
 
     static bool has_status();
     static void reset_status(const bool no_welcome=false);
-    static void set_status(const char* const message, const bool persist=false);
+    static void set_status(const char * const message, const bool persist=false);
     static void set_status_P(PGM_P const message, const int8_t level=0);
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
     static void set_alert_status_P(PGM_P const message);
@@ -294,7 +300,7 @@ public:
   #else
     static constexpr bool has_status() { return false; }
     static inline void reset_status(const bool=false) {}
-    static void set_status(const char* message, const bool=false);
+    static void set_status(const char *message, const bool=false);
     static void set_status_P(PGM_P message, const int8_t=0);
     static void status_printf_P(const uint8_t, PGM_P message, ...);
     static inline void set_alert_status_P(PGM_P const) {}
@@ -309,6 +315,7 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
+    static void flow_fault();
 
     #if HAS_WIRED_LCD
 

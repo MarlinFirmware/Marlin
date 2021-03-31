@@ -45,7 +45,7 @@ public:
   static void reset();
   static void mmu_loop();
   static void tool_change(const uint8_t index);
-  static void tool_change(const char* special);
+  static void tool_change(const char *special);
   static uint8_t get_current_tool();
   static void set_filament_type(const uint8_t index, const uint8_t type);
 
@@ -56,10 +56,10 @@ public:
   static bool eject_filament(const uint8_t index, const bool recover);
 
 private:
-  static bool rx_str_P(const char* str);
-  static void tx_str_P(const char* str);
-  static void tx_printf_P(const char* format, const int argument);
-  static void tx_printf_P(const char* format, const int argument1, const int argument2);
+  static bool rx_str_P(const char *str);
+  static void tx_str_P(const char *str);
+  static void tx_printf_P(const char *format, const int argument);
+  static void tx_printf_P(const char *format, const int argument1, const int argument2);
   static void clear_rx_buffer();
 
   static bool rx_ok();

@@ -22,6 +22,8 @@
 
 #pragma once
 
+#if ENABLED(TOUCH_UI_FTDI_EVE)
+
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 #include "../language/language.h"
 #include "../theme/theme.h"
@@ -260,3 +262,5 @@ enum {
 #if NUM_LANGUAGES > 1
   #include "language_menu.h"
 #endif
+
+#endif // TOUCH_UI_FTDI_EVE

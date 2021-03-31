@@ -20,10 +20,10 @@ def add_cpu_freq():
 
 # Useful for JTAG debugging
 #
-# It will separe release and debug build folders.
-# It useful when we need keep two live versions: one debug, for debugging,
-# other release, for flashing (when upload is not done automatically by jlink/stlink).
-# Without this, PIO will recompile everything twice for any small change.
+# It will separate release and debug build folders.
+# It useful to keep two live versions: a debug version for debugging and another for
+# release, for flashing when upload is not done automatically by jlink/stlink.
+# Without this, PIO needs to recompile everything twice for any small change.
 if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink']:
 	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 

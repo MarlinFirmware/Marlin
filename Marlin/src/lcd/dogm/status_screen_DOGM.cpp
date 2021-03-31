@@ -53,6 +53,10 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
+#if HAS_COOLER || HAS_FLOWMETER
+  #include "../../feature/cooler.h"
+#endif
+
 #if HAS_POWER_MONITOR
   #include "../../feature/power_monitor.h"
 #endif
@@ -83,39 +87,33 @@
 
 #if ANIM_HBCC
   enum HeatBits : uint8_t {
-    HEATBIT_HOTEND,
-    HEATBIT_BED = HOTENDS,
-    HEATBIT_CHAMBER,
-    HEATBIT_COOLER,
-    HEATBIT_CUTTER
+    DRAWBIT_HOTEND,
+    DRAWBIT_BED = HOTENDS,
+    DRAWBIT_CHAMBER,
+    DRAWBIT_CUTTER
   };
-  IF<(HEATBIT_CUTTER > 7), uint16_t, uint8_t>::type heat_bits;
+  IF<(DRAWBIT_CUTTER > 7), uint16_t, uint8_t>::type draw_bits;
 #endif
 
 #if ANIM_HOTEND
-  #define HOTEND_ALT(N) TEST(heat_bits, HEATBIT_HOTEND + N)
+  #define HOTEND_ALT(N) TEST(draw_bits, DRAWBIT_HOTEND + N)
 #else
   #define HOTEND_ALT(N) false
 #endif
 #if ANIM_BED
-  #define BED_ALT() TEST(heat_bits, HEATBIT_BED)
+  #define BED_ALT() TEST(draw_bits, DRAWBIT_BED)
 #else
   #define BED_ALT() false
 #endif
 #if ANIM_CHAMBER
-  #define CHAMBER_ALT() TEST(heat_bits, HEATBIT_CHAMBER)
+  #define CHAMBER_ALT() TEST(draw_bits, DRAWBIT_CHAMBER)
 #else
   #define CHAMBER_ALT() false
 #endif
 #if ANIM_CUTTER
-  #define CUTTER_ALT(N) TEST(heat_bits, HEATBIT_CUTTER)
+  #define CUTTER_ALT(N) TEST(draw_bits, DRAWBIT_CUTTER)
 #else
   #define CUTTER_ALT() false
-#endif
-#if ANIM_COOLER
-  #define COOLER_ALT(N) TEST(heat_bits, HEATBIT_COOLER)
-#else
-  #define COOLER_ALT() false
 #endif
 
 #if DO_DRAW_HOTENDS
@@ -193,6 +191,15 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
   lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
+
+#if DO_DRAW_FLOWMETER
+  FORCE_INLINE void _draw_centered_flowrate(const float flow, const uint8_t tx, const uint8_t ty) {
+    const char *str = ftostr11ns(flow);
+    const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
+    lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
+    lcd_put_u8str("L");
+  }
+#endif
 
 #if DO_DRAW_HOTENDS
 
@@ -384,6 +391,13 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   }
 #endif
 
+#if DO_DRAW_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_flowrate(cooler.flowrate, STATUS_FLOWMETER_TEXT_X, 28);
+  }
+#endif
+
 //
 // Before homing, blink '123' <-> '???'.
 // Homed but unknown... '123' <-> '   '.
@@ -451,17 +465,14 @@ void MarlinUI::draw_status_screen() {
     #if ANIM_HBCC
       uint8_t new_bits = 0;
       #if ANIM_HOTEND
-        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, HEATBIT_HOTEND + e);
+        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, DRAWBIT_HOTEND + e);
       #endif
-      if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, HEATBIT_BED);
+      if (TERN0(ANIM_BED, thermalManager.isHeatingBed())) SBI(new_bits, DRAWBIT_BED);
       #if DO_DRAW_CHAMBER && HAS_HEATED_CHAMBER
-        if (thermalManager.isHeatingChamber()) SBI(new_bits, HEATBIT_CHAMBER);
+        if (thermalManager.isHeatingChamber()) SBI(new_bits, DRAWBIT_CHAMBER);
       #endif
-      #if DO_DRAW_COOLER && HAS_COOLER
-        if (thermalManager.isLaserCooling()) SBI(new_bits, HEATBIT_COOLER);
-      #endif
-      if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, HEATBIT_CUTTER);
-      heat_bits = new_bits;
+      if (TERN0(ANIM_CUTTER, cutter.enabled())) SBI(new_bits, DRAWBIT_CUTTER);
+      draw_bits = new_bits;
     #endif
 
     const xyz_pos_t lpos = current_position.asLogical();
@@ -646,16 +657,20 @@ void MarlinUI::draw_status_screen() {
 
     // Laser Cooler
     #if DO_DRAW_COOLER
-      #if ANIM_COOLER
-        #define COOLER_BITMAP(S) ((S) ? status_cooler_bmp : status_cooler_on_bmp)
-      #else
-        #define COOLER_BITMAP(S) status_cooler_bmp
-      #endif
-      const uint8_t coolery = STATUS_COOLER_Y(COOLER_ALT()),
-                    coolerh = STATUS_COOLER_HEIGHT(COOLER_ALT());
+      const uint8_t coolery = STATUS_COOLER_Y(status_cooler_bmp1),
+                    coolerh = STATUS_COOLER_HEIGHT(status_cooler_bmp1);
       if (PAGE_CONTAINS(coolery, coolery + coolerh - 1))
-        u8g.drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, COOLER_BITMAP(COOLER_ALT()));
+        u8g.drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, blink && cooler.enabled ? status_cooler_bmp2 : status_cooler_bmp1);
     #endif
+
+    // Laser Cooler Flow Meter
+    #if DO_DRAW_FLOWMETER
+      const uint8_t flowmetery = STATUS_FLOWMETER_Y(status_flowmeter_bmp1),
+                    flowmeterh = STATUS_FLOWMETER_HEIGHT(status_flowmeter_bmp1);
+       if (PAGE_CONTAINS(flowmetery, flowmetery + flowmeterh - 1))
+        u8g.drawBitmapP(STATUS_FLOWMETER_X, flowmetery, STATUS_FLOWMETER_BYTEWIDTH, flowmeterh, blink && cooler.flowpulses ? status_flowmeter_bmp2 : status_flowmeter_bmp1);
+    #endif
+
 
     // Heated Bed
     TERN_(DO_DRAW_BED, _draw_bed_status(blink));
@@ -665,6 +680,9 @@ void MarlinUI::draw_status_screen() {
 
     // Cooler
     TERN_(DO_DRAW_COOLER, _draw_cooler_status());
+
+    // Flowmeter
+    TERN_(DO_DRAW_FLOWMETER, _draw_flowmeter_status());
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
