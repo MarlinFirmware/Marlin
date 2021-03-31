@@ -794,7 +794,7 @@ G29_TYPE GcodeSuite::G29() {
               const int ind = abl.indexIntoAB[xx][yy];
               xyz_float_t tmp = { abl.eqnAMatrix[ind + 0 * abl.abl_points],
                                   abl.eqnAMatrix[ind + 1 * abl.abl_points], 0 };
-              apply_rotation_xyz(planner.bed_level_matrix, tmp);
+              planner.bed_level_matrix.apply_rotation_xyz(tmp);
               if (get_min) NOMORE(min_diff, abl.eqnBVector[ind] - tmp.z);
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;
