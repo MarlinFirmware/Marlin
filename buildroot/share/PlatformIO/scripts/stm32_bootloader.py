@@ -48,5 +48,5 @@ if 'offset' in board.get("build").keys():
 # Only copy the file if there's no encrypt
 #
 board_keys = board.get("build").keys()
-if 'firmware' in board_keys and not 'encrypt' in board_keys:
+if 'firmware' in board_keys and ('encrypt' not in board_keys or board.get("build.encrypt") == 'No'):
   env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", noencrypt)
