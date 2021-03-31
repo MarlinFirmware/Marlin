@@ -50,16 +50,11 @@ float ZOffset_distance = 0.1;
 float mesh_adj_distance = 0.01;
 float Z_distance = 0.1;
 
-// These points will be loaded from EEPROM
-xy_int_t dgus_level_offsets[5] = {
-  { 20, 20 }, { 20, 20 },
-  { 20, 20 }, { 20, 20 },
-  { X_CENTER, Y_CENTER }
-}
-
 //struct { uint16_t h, m, s; } dgus_time;
 
-xyz_int_t dgus_park_pos = { 20, 20, 10 };
+xy_int_t dgus_level_offsets[5];           // Initialized by settings.load()
+xyz_int_t dgus_park_pos = { 20, 20, 10 }; // Initialized by settings.load()
+celsius_t dgus_min_extrusion_temp;        // Initialized by settings.load()
 
 xyz_pos_t position_before_pause;
 
@@ -70,8 +65,6 @@ void MKS_pause_print_move() {
 }
 
 void MKS_resume_print_move() { do_blocking_move_to(position_before_pause); }
-
-celsius_t dgus_min_extrusion_temp = 0;
 
 float z_offset_add = 0;
 

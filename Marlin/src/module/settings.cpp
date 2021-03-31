@@ -3003,6 +3003,21 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
+  //
+  // MKS UI controller
+  //
+  #if ENABLED(DGUS_LCD_UI_MKS)
+    constexpr xy_int_t init_dgus_level_offsets[5] = {
+      { 20, 20 }, { 20, 20 },
+      { 20, 20 }, { 20, 20 },
+      { X_CENTER, Y_CENTER }
+    };
+    DGUSLanguageSwitch = 0;
+    COPY(dgus_level_offsets, init_dgus_level_offsets);
+    dgus_park_pos.set(20, 20, 10);
+    dgus_min_extrusion_temp = 0;
+  #endif
+
   postprocess();
 
   DEBUG_ECHO_START();

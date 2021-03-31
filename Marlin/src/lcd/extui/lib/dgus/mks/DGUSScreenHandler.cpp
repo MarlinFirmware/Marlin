@@ -55,7 +55,7 @@
 #endif
 
 bool DGUSAutoTurnOff = false;
-uint8_t DGUSLanguageSwitch; // Switch language for MKS DGUS
+uint8_t DGUSLanguageSwitch; // Initialized by settings.load()
 
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }

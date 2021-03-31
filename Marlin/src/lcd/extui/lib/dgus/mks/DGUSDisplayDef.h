@@ -42,17 +42,14 @@ extern float    ZOffset_distance;
 extern float    mesh_adj_distance;
 extern float    Z_distance;
 
-extern xy_int_t dgus_level_offsets[5];
-
 //extern struct { uint16_t h, m, s; } dgus_time;
 
+extern xy_int_t dgus_level_offsets[5];
 extern xyz_int_t dgus_park_pos;
+extern celsius_t dgus_min_extrusion_temp;
 
-extern xyz_pos_t position_before_pause;
 void MKS_pause_print_move();
 void MKS_resume_print_move();
-
-extern celsius_t dgus_min_extrusion_temp;
 
 extern float z_offset_add;
 
