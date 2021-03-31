@@ -468,17 +468,16 @@ typedef struct SettingsDataStruct {
 
   #if ENABLED(DGUS_LCD_UI_MKS)
     uint8_t mks_language; //mks language setting
-    int16_t first_poit_x, first_poit_y;
-    int16_t second_poit_x, second_poit_y;
-    int16_t third_poit_x, third_poit_y;
-    int16_t fourth_poit_x, fourth_poit_y;
-    int16_t fifth_poit_x, fifth_poit_y;
-    uint16_t x_park;
-    uint16_t y_park;
-    uint16_t z_park;
+    int16_t level_1_x_point, level_1_y_point;
+    int16_t level_2_x_point, level_2_y_point;
+    int16_t level_3_x_point, level_3_y_point;
+    int16_t level_4_x_point, level_4_y_point;
+    int16_t level_5_x_point, level_5_y_point;
+    uint16_t x_park_pos;
+    uint16_t y_park_pos;
+    uint16_t z_park_pos;
     uint16_t min_ex_temp_e;
-#endif
-
+  #endif
 
   #if HAS_MULTI_LANGUAGE
     uint8_t ui_language;                                // M414 S

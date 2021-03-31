@@ -534,8 +534,7 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
       case 2:
         if (mesh_point_count == GRID_MAX_POINTS) { // The first point
 
-          queue.enqueue_now_P(PSTR("G28")); // homing first
-
+          queue.enqueue_now_P(PSTR("G28"));
           queue.enqueue_now_P(PSTR("G29S1"));
           mesh_point_count--;
 
@@ -1231,7 +1230,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
     char buf[40];
     uint8_t swap_tool = 0;
   #endif
-  
+
   #if HAS_HOTEND
     uint8_t hotend_too_cold = 0;
   #endif
@@ -1246,7 +1245,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       #if HAS_HOTEND
         if (thermalManager.tooColdToExtrude(0)) {
           hotend_too_cold = 1;
-        } 
+        }
         else {
           #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
             swap_tool = 2;
@@ -1980,7 +1979,7 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     const uint16_t TMC_X_Step_buf_ch[] = { 0x2058, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
     dgusdisplay.WriteVariable(VP_TMC_X_Step_Dis, TMC_X_Step_buf_ch, 16, true);
 
-    const uint16_t TMC_Y_Step_buf_ch[] = { 0x2059, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 }; 
+    const uint16_t TMC_Y_Step_buf_ch[] = { 0x2059, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
     dgusdisplay.WriteVariable(VP_TMC_Y_Step_Dis, TMC_Y_Step_buf_ch, 16, true);
 
     const uint16_t TMC_Z_Step_buf_ch[] = { 0x205A, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
