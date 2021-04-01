@@ -474,6 +474,8 @@
   #include "stm32f1/pins_STM3R_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VB)
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_PRO_VD)
+  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE  
 #elif MB(GTM32_MINI)
   #include "stm32f1/pins_GTM32_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI_A30)
