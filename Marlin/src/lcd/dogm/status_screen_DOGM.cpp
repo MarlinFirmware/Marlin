@@ -268,12 +268,12 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
         #if ENABLED(STATUS_HEAT_PERCENT)
           if (isHeat && tall <= BAR_TALL) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-            u8g().drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater_id, false));
-            u8g().drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater_id, true) + ph * bw);
+            u8g->drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater_id, false));
+            u8g->drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater_id, true) + ph * bw);
           }
           else
         #endif
-            u8g().drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater_id, isHeat));
+            u8g->drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater_id, isHeat));
       #endif
 
     } // PAGE_CONTAINS
@@ -291,9 +291,9 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_HOTEND && HOTEND_DOT && PAGE_CONTAINS(17, 19)) {
-      u8g().setColorIndex(0); // set to white on black
-      u8g().drawBox(tx, 20 - 3, 2, 2);
-      u8g().setColorIndex(1); // restore black on white
+      u8g->setColorIndex(0); // set to white on black
+      u8g->drawBox(tx, 20 - 3, 2, 2);
+      u8g->setColorIndex(1); // restore black on white
     }
 
   }
@@ -339,11 +339,11 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
         if (isHeat) {
           const uint8_t bx = STATUS_BED_X + STATUS_BED_WIDTH;
-          u8g().drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
+          u8g->drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
           if (tall) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
             if (PAGE_OVER(STATUS_HEATERS_Y + ph))
-              u8g().drawVLine(bx + 1, STATUS_HEATERS_Y + ph, tall);
+              u8g->drawVLine(bx + 1, STATUS_HEATERS_Y + ph, tall);
           }
         }
 
@@ -364,9 +364,9 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_BED && BED_DOT && PAGE_CONTAINS(17, 19)) {
-      u8g().setColorIndex(0); // set to white on black
-      u8g().drawBox(tx, 20 - 2, 2, 2);
-      u8g().setColorIndex(1); // restore black on white
+      u8g->setColorIndex(0); // set to white on black
+      u8g->drawBox(tx, 20 - 2, 2, 2);
+      u8g->setColorIndex(1); // restore black on white
     }
 
   }
@@ -562,13 +562,13 @@ void MarlinUI::draw_status_screen() {
 
   #if DO_DRAW_LOGO
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
-      u8g().drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
+      u8g->drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
   #endif
 
   #if STATUS_HEATERS_WIDTH
     // Draw all heaters (and maybe the bed) in one go
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1))
-      u8g().drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
+      u8g->drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
   #endif
 
   #if DO_DRAW_CUTTER && DISABLED(STATUS_COMBINE_HEATERS)
@@ -580,7 +580,7 @@ void MarlinUI::draw_status_screen() {
     const uint8_t cuttery = STATUS_CUTTER_Y(CUTTER_ALT()),
                   cutterh = STATUS_CUTTER_HEIGHT(CUTTER_ALT());
     if (PAGE_CONTAINS(cuttery, cuttery + cutterh - 1))
-      u8g().drawBitmapP(STATUS_CUTTER_X, cuttery, STATUS_CUTTER_BYTEWIDTH, cutterh, CUTTER_BITMAP(CUTTER_ALT()));
+      u8g->drawBitmapP(STATUS_CUTTER_X, cuttery, STATUS_CUTTER_BYTEWIDTH, cutterh, CUTTER_BITMAP(CUTTER_ALT()));
   #endif
 
   #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS)
@@ -592,7 +592,7 @@ void MarlinUI::draw_status_screen() {
     const uint8_t bedy = STATUS_BED_Y(BED_ALT()),
                   bedh = STATUS_BED_HEIGHT(BED_ALT());
     if (PAGE_CONTAINS(bedy, bedy + bedh - 1))
-      u8g().drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
+      u8g->drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
   #endif
 
   #if DO_DRAW_CHAMBER && DISABLED(STATUS_COMBINE_HEATERS)
@@ -604,7 +604,7 @@ void MarlinUI::draw_status_screen() {
     const uint8_t chambery = STATUS_CHAMBER_Y(CHAMBER_ALT()),
                   chamberh = STATUS_CHAMBER_HEIGHT(CHAMBER_ALT());
     if (PAGE_CONTAINS(chambery, chambery + chamberh - 1))
-      u8g().drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
+      u8g->drawBitmapP(STATUS_CHAMBER_X, chambery, STATUS_CHAMBER_BYTEWIDTH, chamberh, CHAMBER_BITMAP(CHAMBER_ALT()));
   #endif
 
   #if DO_DRAW_FAN
@@ -617,7 +617,7 @@ void MarlinUI::draw_status_screen() {
       }
     #endif
     if (PAGE_CONTAINS(STATUS_FAN_Y, STATUS_FAN_Y + STATUS_FAN_HEIGHT - 1))
-      u8g().drawBitmapP(STATUS_FAN_X, STATUS_FAN_Y, STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
+      u8g->drawBitmapP(STATUS_FAN_X, STATUS_FAN_Y, STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
         #if STATUS_FAN_FRAMES > 2
           fan_frame == 1 ? status_fan1_bmp :
           fan_frame == 2 ? status_fan2_bmp :
@@ -660,7 +660,7 @@ void MarlinUI::draw_status_screen() {
       const uint8_t coolery = STATUS_COOLER_Y(status_cooler_bmp1),
                     coolerh = STATUS_COOLER_HEIGHT(status_cooler_bmp1);
       if (PAGE_CONTAINS(coolery, coolery + coolerh - 1))
-        u8g().drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, blink && cooler.enabled ? status_cooler_bmp2 : status_cooler_bmp1);
+        u8g->drawBitmapP(STATUS_COOLER_X, coolery, STATUS_COOLER_BYTEWIDTH, coolerh, blink && cooler.enabled ? status_cooler_bmp2 : status_cooler_bmp1);
     #endif
 
     // Laser Cooler Flow Meter
@@ -668,7 +668,7 @@ void MarlinUI::draw_status_screen() {
       const uint8_t flowmetery = STATUS_FLOWMETER_Y(status_flowmeter_bmp1),
                     flowmeterh = STATUS_FLOWMETER_HEIGHT(status_flowmeter_bmp1);
        if (PAGE_CONTAINS(flowmetery, flowmetery + flowmeterh - 1))
-        u8g().drawBitmapP(STATUS_FLOWMETER_X, flowmetery, STATUS_FLOWMETER_BYTEWIDTH, flowmeterh, blink && cooler.flowpulses ? status_flowmeter_bmp2 : status_flowmeter_bmp1);
+        u8g->drawBitmapP(STATUS_FLOWMETER_X, flowmetery, STATUS_FLOWMETER_BYTEWIDTH, flowmeterh, blink && cooler.flowpulses ? status_flowmeter_bmp2 : status_flowmeter_bmp1);
     #endif
 
 
@@ -709,13 +709,13 @@ void MarlinUI::draw_status_screen() {
     //
     if (card.isFileOpen() && PAGE_CONTAINS(42, 51)) {
       // Upper box
-      u8g().drawBox(42, 42, 8, 7);     // 42-48 (or 41-47)
+      u8g->drawBox(42, 42, 8, 7);     // 42-48 (or 41-47)
       // Right edge
-      u8g().drawBox(50, 44, 2, 5);     // 44-48 (or 43-47)
+      u8g->drawBox(50, 44, 2, 5);     // 44-48 (or 43-47)
       // Bottom hollow box
-      u8g().drawFrame(42, 49, 10, 4);  // 49-52 (or 48-51)
+      u8g->drawFrame(42, 49, 10, 4);  // 49-52 (or 48-51)
       // Corner pixel
-      u8g().drawPixel(50, 43);         // 43 (or 42)
+      u8g->drawPixel(50, 43);         // 43 (or 42)
     }
   #endif // SDSUPPORT
 
@@ -725,14 +725,14 @@ void MarlinUI::draw_status_screen() {
     //
 
     if (PAGE_CONTAINS(PROGRESS_BAR_Y, PROGRESS_BAR_Y + 3))
-      u8g().drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
+      u8g->drawFrame(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_WIDTH, 4);
 
     //
     // Progress bar solid part
     //
 
     if (PAGE_CONTAINS(PROGRESS_BAR_Y + 1, PROGRESS_BAR_Y + 2))
-      u8g().drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
+      u8g->drawBox(PROGRESS_BAR_X + 1, PROGRESS_BAR_Y + 1, progress_bar_solid_width, 2);
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
@@ -805,16 +805,16 @@ void MarlinUI::draw_status_screen() {
 
     #if DISABLED(XYZ_NO_FRAME)
       #if ENABLED(XYZ_HOLLOW_FRAME)
-        u8g().drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
+        u8g->drawFrame(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT); // 8: 29-40  7: 29-39
       #else
-        u8g().drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
+        u8g->drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
       #endif
     #endif
 
     if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
-        u8g().setColorIndex(0); // white on black
+        u8g->setColorIndex(0); // white on black
       #endif
 
       #if HAS_DUAL_MIXING
@@ -859,7 +859,7 @@ void MarlinUI::draw_status_screen() {
       _draw_axis_value(Z_AXIS, zstring, blink);
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
-        u8g().setColorIndex(1); // black on white
+        u8g->setColorIndex(1); // black on white
       #endif
     }
   }

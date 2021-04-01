@@ -136,7 +136,7 @@ void BrickoutGame::game_screen() {
     } while (false);
   }
 
-  u8g().setColorIndex(1);
+  u8g->setColorIndex(1);
 
   // Draw bricks
   if (PAGE_CONTAINS(BRICK_TOP, BRICK_BOT)) {
@@ -148,7 +148,7 @@ void BrickoutGame::game_screen() {
             const uint8_t xx = x * BRICK_W;
             LOOP_L_N(v, BRICK_H - 1)
               if (PAGE_CONTAINS(yy + v, yy + v))
-                u8g().drawHLine(xx, yy + v, BRICK_W - 1);
+                u8g->drawHLine(xx, yy + v, BRICK_W - 1);
           }
         }
       }
@@ -157,11 +157,11 @@ void BrickoutGame::game_screen() {
 
   // Draw paddle
   if (PAGE_CONTAINS(PADDLE_Y-1, PADDLE_Y)) {
-    u8g().drawHLine(bdat.paddle_x, PADDLE_Y, PADDLE_W);
+    u8g->drawHLine(bdat.paddle_x, PADDLE_Y, PADDLE_W);
     #if PADDLE_H > 1
-      u8g().drawHLine(bdat.paddle_x, PADDLE_Y-1, PADDLE_W);
+      u8g->drawHLine(bdat.paddle_x, PADDLE_Y-1, PADDLE_W);
       #if PADDLE_H > 2
-        u8g().drawHLine(bdat.paddle_x, PADDLE_Y-2, PADDLE_W);
+        u8g->drawHLine(bdat.paddle_x, PADDLE_Y-2, PADDLE_W);
       #endif
     #endif
   }
@@ -170,7 +170,7 @@ void BrickoutGame::game_screen() {
   if (game_state) {
     const uint8_t by = FTOB(bdat.bally);
     if (PAGE_CONTAINS(by, by+1))
-      u8g().drawFrame(FTOB(bdat.ballx), by, 2, 2);
+      u8g->drawFrame(FTOB(bdat.ballx), by, 2, 2);
   }
   // Or draw GAME OVER
   else

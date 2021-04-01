@@ -227,9 +227,8 @@
 #endif
 
 // For selective rendering within a Y range
-#define PAGE_OVER(ya)         ((ya) <= u8g().getU8g()->current_page.y1) // Does the current page follow a region top?
-#define PAGE_UNDER(yb)        ((yb) >= u8g().getU8g()->current_page.y0) // Does the current page precede a region bottom?
-#define PAGE_CONTAINS(ya, yb) ((yb) >= u8g().getU8g()->current_page.y0 && (ya) <= u8g().getU8g()->current_page.y1) // Do two vertical regions overlap?
+#define PAGE_OVER(ya)         ((ya) <= u8g->getU8g()->current_page.y1) // Does the current page follow a region top?
+#define PAGE_UNDER(yb)        ((yb) >= u8g->getU8g()->current_page.y0) // Does the current page precede a region bottom?
+#define PAGE_CONTAINS(ya, yb) ((yb) >= u8g->getU8g()->current_page.y0 && (ya) <= u8g->getU8g()->current_page.y1) // Do two vertical regions overlap?
 
-// extern U8G_CLASS u8g;
-extern U8G_CLASS& u8g();
+extern U8G_CLASS* u8g;

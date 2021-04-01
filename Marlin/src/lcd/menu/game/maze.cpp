@@ -77,7 +77,7 @@ void MazeGame::game_screen() {
 
   } while(0);
 
-  u8g().setColorIndex(1);
+  u8g->setColorIndex(1);
 
   // Draw Score
   if (PAGE_UNDER(HEADER_H)) lcd_put_int(0, HEADER_H - 1, score);
@@ -88,11 +88,11 @@ void MazeGame::game_screen() {
   //   if (p.x == q.x) {
   //     const int8_t y1 = GAMEY(_MIN(p.y, q.y)), y2 = GAMEY(_MAX(p.y, q.y));
   //     if (PAGE_CONTAINS(y1, y2))
-  //       u8g().drawVLine(GAMEX(p.x), y1, y2 - y1 + 1);
+  //       u8g->drawVLine(GAMEX(p.x), y1, y2 - y1 + 1);
   //   }
   //   else if (PAGE_CONTAINS(GAMEY(p.y), GAMEY(p.y))) {
   //     const int8_t x1 = GAMEX(_MIN(p.x, q.x)), x2 = GAMEX(_MAX(p.x, q.x));
-  //     u8g().drawHLine(x1, GAMEY(p.y), x2 - x1 + 1);
+  //     u8g->drawHLine(x1, GAMEY(p.y), x2 - x1 + 1);
   //   }
   // }
 
@@ -100,22 +100,22 @@ void MazeGame::game_screen() {
   // const int8_t fy = GAMEY(foody);
   // if (PAGE_CONTAINS(fy, fy + FOOD_WH - 1)) {
   //   const int8_t fx = GAMEX(foodx);
-  //   u8g().drawFrame(fx, fy, FOOD_WH, FOOD_WH);
-  //   if (FOOD_WH == 5) u8g().drawPixel(fx + 2, fy + 2);
+  //   u8g->drawFrame(fx, fy, FOOD_WH, FOOD_WH);
+  //   if (FOOD_WH == 5) u8g->drawPixel(fx + 2, fy + 2);
   // }
 
   // Draw Ghosts
   // const int8_t fy = GAMEY(foody);
   // if (PAGE_CONTAINS(fy, fy + FOOD_WH - 1)) {
   //   const int8_t fx = GAMEX(foodx);
-  //   u8g().drawFrame(fx, fy, FOOD_WH, FOOD_WH);
-  //   if (FOOD_WH == 5) u8g().drawPixel(fx + 2, fy + 2);
+  //   u8g->drawFrame(fx, fy, FOOD_WH, FOOD_WH);
+  //   if (FOOD_WH == 5) u8g->drawPixel(fx + 2, fy + 2);
   // }
 
   // Draw Prize
   // if (PAGE_CONTAINS(prizey, prizey + PRIZE_WH - 1)) {
-  //   u8g().drawFrame(prizex, prizey, PRIZE_WH, PRIZE_WH);
-  //   if (PRIZE_WH == 5) u8g().drawPixel(prizex + 2, prizey + 2);
+  //   u8g->drawFrame(prizex, prizey, PRIZE_WH, PRIZE_WH);
+  //   if (PRIZE_WH == 5) u8g->drawPixel(prizex + 2, prizey + 2);
   // }
 
   // Draw GAME OVER

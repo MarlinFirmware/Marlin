@@ -76,11 +76,7 @@
   #define FONT_STATUSMENU_NAME MENU_FONT_NAME
 #endif
 
-U8G_CLASS& u8g()
-{
-  static U8G_CLASS _u8g(U8G_PARAM);
-  return _u8g;
-}
+U8G_CLASS* u8g = nullptr;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -90,7 +86,7 @@ U8G_CLASS& u8g()
 
   void MarlinUI::set_contrast(const int16_t value) {
     contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g().setContrast(contrast);
+    u8g->setContrast(contrast);
   }
 
 #endif
@@ -99,10 +95,10 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
   static char currentfont = 0;
   if (font_nr != currentfont) {
     switch ((currentfont = font_nr)) {
-      case FONT_STATUSMENU : u8g().setFont(FONT_STATUSMENU_NAME); break;
-      case FONT_EDIT       : u8g().setFont(EDIT_FONT_NAME);       break;
+      case FONT_STATUSMENU : u8g->setFont(FONT_STATUSMENU_NAME); break;
+      case FONT_EDIT       : u8g->setFont(EDIT_FONT_NAME);       break;
       default:
-      case FONT_MENU       : u8g().setFont(MENU_FONT_NAME);       break;
+      case FONT_MENU       : u8g->setFont(MENU_FONT_NAME);       break;
     }
   }
 }
@@ -133,15 +129,15 @@ bool MarlinUI::detected() { return true; }
 
       UNUSED(frame);
 
-      u8g().drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
+      u8g->drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
         if (frame == 0) {
-          u8g().setColorIndex(1);
-          if (top) u8g().drawBox(0, 0, LCD_PIXEL_WIDTH, top);
-          if (left) u8g().drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (right < LCD_PIXEL_WIDTH) u8g().drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (bottom < LCD_PIXEL_HEIGHT) u8g().drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+          u8g->setColorIndex(1);
+          if (top) u8g->drawBox(0, 0, LCD_PIXEL_WIDTH, top);
+          if (left) u8g->drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+          if (right < LCD_PIXEL_WIDTH) u8g->drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+          if (bottom < LCD_PIXEL_HEIGHT) u8g->drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
         }
       #endif
     }
@@ -162,8 +158,8 @@ bool MarlinUI::detected() { return true; }
             const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
             const millis_t frame_time = pgm_read_word(&custom_bootscreen_animation[fr].duration);
           #endif
-          u8g().firstPage();
-          do { draw_custom_bootscreen(f); } while (u8g().nextPage());
+          u8g->firstPage();
+          do { draw_custom_bootscreen(f); } while (u8g->nextPage());
           if (frame_time) safe_delay(frame_time);
         }
 
@@ -213,14 +209,14 @@ bool MarlinUI::detected() { return true; }
     NOLESS(offy, 0);
 
     auto _draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
-      u8g().drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
+      u8g->drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
       set_font(FONT_MENU);
       if (!two_part || !line2) lcd_put_u8str_P(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), PSTR(SHORT_BUILD_VERSION));
       if (!two_part || line2) lcd_put_u8str_P(txt_offx_2, txt_base, PSTR(MARLIN_WEBSITE_URL));
     };
 
     auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
-      u8g().firstPage(); do { _draw_bootscreen_bmp(bitmap); } while (u8g().nextPage());
+      u8g->firstPage(); do { _draw_bootscreen_bmp(bitmap); } while (u8g->nextPage());
     };
 
     #if DISABLED(BOOT_MARLIN_LOGO_ANIMATED)
@@ -273,7 +269,7 @@ void MarlinUI::init_lcd() {
     _delay_ms(5);
     WRITE(LCD_RESET_PIN, HIGH);
     _delay_ms(5);
-    u8g().begin();
+    u8g->begin();
   #endif
 
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
@@ -282,9 +278,9 @@ void MarlinUI::init_lcd() {
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
-  TERN_(LCD_SCREEN_ROT_90, u8g().setRot90());
-  TERN_(LCD_SCREEN_ROT_180, u8g().setRot180());
-  TERN_(LCD_SCREEN_ROT_270, u8g().setRot270());
+  TERN_(LCD_SCREEN_ROT_90, u8g->setRot90());
+  TERN_(LCD_SCREEN_ROT_180, u8g->setRot180());
+  TERN_(LCD_SCREEN_ROT_270, u8g->setRot270());
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
@@ -292,14 +288,14 @@ void MarlinUI::init_lcd() {
 // The kill screen is displayed for unrecoverable conditions
 void MarlinUI::draw_kill_screen() {
   TERN_(LIGHTWEIGHT_UI, ST7920_Lite_Status_Screen::clear_text_buffer());
-  const u8g_uint_t h4 = u8g().getHeight() / 4;
-  u8g().firstPage();
+  const u8g_uint_t h4 = u8g->getHeight() / 4;
+  u8g->firstPage();
   do {
     set_font(FONT_MENU);
     lcd_put_u8str(0, h4 * 1, status_message);
     lcd_put_u8str_P(0, h4 * 2, GET_TEXT(MSG_HALTED));
     lcd_put_u8str_P(0, h4 * 3, GET_TEXT(MSG_PLEASE_RESET));
-  } while (u8g().nextPage());
+  } while (u8g->nextPage());
 }
 
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
@@ -340,16 +336,16 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     if (sel) {
       #if ENABLED(MENU_HOLLOW_FRAME)
-        u8g().drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
-        u8g().drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
+        u8g->drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
+        u8g->drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
       #else
-        u8g().setColorIndex(1); // solid outline
-        u8g().drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
-        u8g().setColorIndex(0); // inverted text
+        u8g->setColorIndex(1); // solid outline
+        u8g->drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
+        u8g->setColorIndex(0); // inverted text
       #endif
     }
     #if DISABLED(MENU_HOLLOW_FRAME)
-      else u8g().setColorIndex(1); // solid text
+      else u8g->setColorIndex(1); // solid text
     #endif
 
     if (!PAGE_CONTAINS(row_y1, row_y2)) return false;
@@ -392,7 +388,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g().getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g().getU8g(), (char*)inStr));
+                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g->getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g->getU8g(), (char*)inStr));
 
       pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
       if (vallen) {
@@ -460,12 +456,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
     const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
-      u8g().setColorIndex(1);
-      u8g().drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
-      u8g().setColorIndex(0);
+      u8g->setColorIndex(1);
+      u8g->drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
+      u8g->setColorIndex(0);
     }
     lcd_put_u8str_P(bx / prop, by, pstr);
-    if (inv) u8g().setColorIndex(1);
+    if (inv) u8g->setColorIndex(1);
   }
 
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
@@ -513,23 +509,23 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Clear the Mesh Map
 
       if (PAGE_CONTAINS(y_offset - 2, y_offset + y_map_pixels + 4)) {
-        u8g().setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
-        u8g().drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
+        u8g->setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+        u8g->drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
         if (PAGE_CONTAINS(y_offset, y_offset + y_map_pixels)) {
-          u8g().setColorIndex(0);  // Now actually clear the mesh map box
-          u8g().drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
+          u8g->setColorIndex(0);  // Now actually clear the mesh map box
+          u8g->drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
         }
       }
 
       // Display Mesh Point Locations
 
-      u8g().setColorIndex(1);
+      u8g->setColorIndex(1);
       const u8g_uint_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             u8g_uint_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
         if (PAGE_CONTAINS(y, y))
           for (uint8_t i = 0, x = sx; i < GRID_MAX_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
-            u8g().drawBox(x, y, 1, 1);
+            u8g->drawBox(x, y, 1, 1);
 
       // Fill in the Specified Mesh Point
 
@@ -538,7 +534,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
       if (PAGE_CONTAINS(by, by + pixels_per_y_mesh_pnt))
-        u8g().drawBox(
+        u8g->drawBox(
           x_offset + x_plot * pixels_per_x_mesh_pnt, by,
           pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt
         );
@@ -546,7 +542,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Put Relevant Text on Display
 
       // Show X and Y positions at top of screen
-      u8g().setColorIndex(1);
+      u8g->setColorIndex(1);
       if (PAGE_UNDER(7)) {
         const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                        lpos = pos.asLogical();
@@ -559,9 +555,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Print plot position
       if (PAGE_CONTAINS(LCD_PIXEL_HEIGHT - (INFO_FONT_HEIGHT - 1), LCD_PIXEL_HEIGHT)) {
         lcd_put_wchar(5, LCD_PIXEL_HEIGHT, '(');
-        u8g().print(x_plot);
+        u8g->print(x_plot);
         lcd_put_wchar(',');
-        u8g().print(y_plot);
+        u8g->print(y_plot);
         lcd_put_wchar(')');
 
         // Show the location value
@@ -690,15 +686,15 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
               nozzle = TERN(USE_BIG_EDIT_FONT, 95, 60);
 
       // Draw nozzle lowered or raised according to direction moved
-      if (PAGE_CONTAINS( 3, 16)) u8g().drawBitmapP(nozzle + 6,  4 - dir, 2, 12, nozzle_bmp);
-      if (PAGE_CONTAINS(20, 20)) u8g().drawBitmapP(nozzle + 0, 20      , 3,  1, offset_bedline_bmp);
+      if (PAGE_CONTAINS( 3, 16)) u8g->drawBitmapP(nozzle + 6,  4 - dir, 2, 12, nozzle_bmp);
+      if (PAGE_CONTAINS(20, 20)) u8g->drawBitmapP(nozzle + 0, 20      , 3,  1, offset_bedline_bmp);
 
       // Draw cw/ccw indicator and up/down arrows.
       if (PAGE_CONTAINS(47, 62)) {
-        u8g().drawBitmapP(right +  0, 48 - dir, 2, 13, up_arrow_bmp);
-        u8g().drawBitmapP(left  +  0, 49 - dir, 2, 13, down_arrow_bmp);
-        u8g().drawBitmapP(left  + 13, 47      , 3, 16, rot_down);
-        u8g().drawBitmapP(right + 13, 47      , 3, 16, rot_up);
+        u8g->drawBitmapP(right +  0, 48 - dir, 2, 13, up_arrow_bmp);
+        u8g->drawBitmapP(left  +  0, 49 - dir, 2, 13, down_arrow_bmp);
+        u8g->drawBitmapP(left  + 13, 47      , 3, 16, rot_down);
+        u8g->drawBitmapP(right + 13, 47      , 3, 16, rot_up);
       }
     }
 
