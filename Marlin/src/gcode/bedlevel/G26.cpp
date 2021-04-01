@@ -167,7 +167,7 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
+void move_to(float rx, float ry, float z, float e_delta) {
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -859,7 +859,6 @@ void GcodeSuite::G26() {
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
   move_to(destination, 0);                                   // Raise the nozzle
-  move_to(g26.xy_pos, 0);                                    // Move back to the starting position
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;
