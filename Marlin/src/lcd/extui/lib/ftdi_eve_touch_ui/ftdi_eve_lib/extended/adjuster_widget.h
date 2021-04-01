@@ -1,9 +1,9 @@
-/****************
- * sound_list.h *
- ****************/
+/*********************
+ * adjuster_widget.h *
+ *********************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -21,18 +21,20 @@
 
 #pragma once
 
-class SoundList {
-  private:
-    static PROGMEM const struct list_t {
-      const char * const PROGMEM name;
-      const FTDI::SoundPlayer::sound_t* data;
-    } list[];
-  public:
-    static const uint8_t n;
-    static inline const char* name(uint8_t val) {
-      return (const char* ) pgm_read_ptr_far(&list[val].name);
-    }
-    static inline FTDI::SoundPlayer::sound_t* data(uint8_t val) {
-      return (FTDI::SoundPlayer::sound_t*) pgm_read_ptr_far(&list[val].data);
-    }
-};
+namespace FTDI {
+  void draw_adjuster_value(
+    CommandProcessor& cmd,
+    int16_t x, int16_t y, int16_t w, int16_t h,
+    float value, progmem_str units = nullptr,
+    int8_t width = 5, uint8_t precision = 1
+  );
+
+  void draw_adjuster(
+    CommandProcessor& cmd,
+    int16_t x, int16_t y, int16_t w, int16_t h,
+    uint8_t tag,
+    float value, progmem_str units = nullptr,
+    int8_t width = 5, uint8_t precision = 1,
+    draw_mode_t what = BOTH
+  );
+}

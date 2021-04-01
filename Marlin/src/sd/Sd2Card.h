@@ -124,7 +124,7 @@ public:
    */
   bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
 
-  bool readBlock(uint32_t block, uint8_t* dst);
+  bool readBlock(uint32_t block, uint8_t *dst);
 
   /**
    * Read a card's CID register. The CID contains card identification
@@ -135,7 +135,7 @@ public:
    *
    * \return true for success or false for failure.
    */
-  bool readCID(cid_t* cid) { return readRegister(CMD10, cid); }
+  bool readCID(cid_t *cid) { return readRegister(CMD10, cid); }
 
   /**
    * Read a card's CSD register. The CSD contains Card-Specific Data that
@@ -145,9 +145,9 @@ public:
    *
    * \return true for success or false for failure.
    */
-  inline bool readCSD(csd_t* csd) { return readRegister(CMD9, csd); }
+  inline bool readCSD(csd_t *csd) { return readRegister(CMD9, csd); }
 
-  bool readData(uint8_t* dst);
+  bool readData(uint8_t *dst);
   bool readStart(uint32_t blockNumber);
   bool readStop();
   bool setSckRate(const uint8_t sckRateID);
@@ -157,8 +157,8 @@ public:
    * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
    */
   int type() const {return type_;}
-  bool writeBlock(uint32_t blockNumber, const uint8_t* src);
-  bool writeData(const uint8_t* src);
+  bool writeBlock(uint32_t blockNumber, const uint8_t *src);
+  bool writeData(const uint8_t *src);
   bool writeStart(uint32_t blockNumber, const uint32_t eraseCount);
   bool writeStop();
 
@@ -176,11 +176,11 @@ private:
   }
   uint8_t cardCommand(const uint8_t cmd, const uint32_t arg);
 
-  bool readData(uint8_t* dst, const uint16_t count);
+  bool readData(uint8_t *dst, const uint16_t count);
   bool readRegister(const uint8_t cmd, void* buf);
   void chipDeselect();
   void chipSelect();
   inline void type(const uint8_t value) { type_ = value; }
   bool waitNotBusy(const millis_t timeout_ms);
-  bool writeData(const uint8_t token, const uint8_t* src);
+  bool writeData(const uint8_t token, const uint8_t *src);
 };

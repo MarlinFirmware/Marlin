@@ -118,7 +118,7 @@ void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
  *
  * the command portion begins after the :
  */
-void process_lcd_c_command(const char* command) {
+void process_lcd_c_command(const char *command) {
   const int target_val = command[1] ? atoi(command + 1) : -1;
   if (target_val < 0) {
     DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
@@ -153,7 +153,7 @@ void process_lcd_c_command(const char* command) {
  * time remaining (HH:MM:SS). The UI can't handle displaying a second hotend,
  * but the stock firmware always sends it, and it's always zero.
  */
-void process_lcd_eb_command(const char* command) {
+void process_lcd_eb_command(const char *command) {
   char elapsed_buffer[10];
   static uint8_t iteration = 0;
   duration_t elapsed;
@@ -203,12 +203,12 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 template<typename T>
-void j_move_axis(const char* command, const T axis) {
+void j_move_axis(const char *command, const T axis) {
   const float dist = atof(command + 1) / 10.0;
   ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
 };
 
-void process_lcd_j_command(const char* command) {
+void process_lcd_j_command(const char *command) {
   switch (command[0]) {
     case 'E': break;
     case 'A': j_move_axis<ExtUI::extruder_t>(command, ExtUI::extruder_t::E0); break;
@@ -241,7 +241,7 @@ void process_lcd_j_command(const char* command) {
  * T:-2537.4 E:0
  * Note only the curly brace stuff matters.
  */
-void process_lcd_p_command(const char* command) {
+void process_lcd_p_command(const char *command) {
 
   switch (command[0]) {
     case 'P':
@@ -301,7 +301,7 @@ void process_lcd_p_command(const char* command) {
  * {FILE:fcupdate.flg}
  * {SYS:OK}
  */
-void process_lcd_s_command(const char* command) {
+void process_lcd_s_command(const char *command) {
   switch (command[0]) {
     case 'I': {
       // temperature information
@@ -348,7 +348,7 @@ void process_lcd_s_command(const char* command) {
  * Currently {E:0} is not handled. Its function is unknown,
  * but it occurs during the temp window after a sys build.
  */
-void process_lcd_command(const char* command) {
+void process_lcd_command(const char *command) {
   const char *current = command;
 
   byte command_code = *current++;
