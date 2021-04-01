@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,17 +22,9 @@
 #pragma once
 
 /**
- * planner_bezier.h
- *
- * Compute and buffer movement commands for Bézier curves
+ * Geeetech GTM32 Pro VD board pin assignments
  */
 
-#include "../core/types.h"
+#define BOARD_INFO_NAME "GTM32 Pro VD"
 
-void cubic_b_spline(
-  const xyze_pos_t &position,       // current position
-  const xyze_pos_t &target,         // target position
-  const xy_pos_t (&offsets)[2],     // a pair of offsets
-  const_feedRate_t scaled_fr_mm_s,  // mm/s scaled by feedrate %
-  const uint8_t extruder
-);
+#include "pins_GTM32_PRO_VB.h"
