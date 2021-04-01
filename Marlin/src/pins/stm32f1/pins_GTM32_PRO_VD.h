@@ -26,7 +26,3 @@
  */
 
 #include "pins_GTM32_PRO_VB.h"
-
-
-
-
