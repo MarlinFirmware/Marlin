@@ -53,7 +53,7 @@
 #define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk (char* path , uint8_t recu_level);
+extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -566,7 +566,7 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(char* path , uint8_t recu_level) {
+uint8_t Explore_Disk(char *path , uint8_t recu_level) {
   char tmp[200];
   char Fstream[200];
 
@@ -1799,7 +1799,7 @@ void get_wifi_commands() {
           if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (strtol(gpos + 1, nullptr, 10)) {
+            switch (parse_int32(gpos + 1)) {
               case 0 ... 1:
               #if ENABLED(ARC_SUPPORT)
                 case 2 ... 3:
