@@ -176,6 +176,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 #if HAS_PID_HEATING
   void DGUSScreenHandler::DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var) {
     float value = *(float *)var.memadr;
+    value = value / 10;
     float valuesend = 0;
     switch (var.VP) {
       default: return;
@@ -344,6 +345,11 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     GotoScreen(DGUSLCD_SCREEN_POPUP);
   }
 
+#else
+  void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
+    uint16_t value = swap16(*(uint16_t*)val_ptr);
+    if(value == 0x0f) GotoScreen(DGUSLCD_SCREEN_MAIN);  
+  }
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {

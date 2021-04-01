@@ -1215,7 +1215,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
         }
         else {
           #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-            swap_tool = 2;
+            swap_tool = 1;
           #endif
         }
       #endif
