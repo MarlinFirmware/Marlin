@@ -1474,7 +1474,7 @@
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
-#define MAX_SOFTWARE_ENDSTOPS
+//#define MAX_SOFTWARE_ENDSTOPS
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
@@ -1920,13 +1920,13 @@
 //
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_BED     90
 #define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
@@ -1940,10 +1940,6 @@
 #define PREHEAT_4_TEMP_BED     80
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_5_LABEL       "UBL"
-#define PREHEAT_5_TEMP_HOTEND  60
-#define PREHEAT_5_TEMP_BED     60
-#define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
