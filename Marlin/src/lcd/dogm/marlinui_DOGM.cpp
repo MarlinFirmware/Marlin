@@ -669,7 +669,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const float zvalue) {
+    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;
