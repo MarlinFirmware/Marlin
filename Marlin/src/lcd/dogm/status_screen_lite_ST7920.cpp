@@ -2,7 +2,7 @@
  * Lightweight Status Screen for the RepRapDiscount Full
  * Graphics Smart Controller (ST7920-based 128x64 LCD)
  *
- * (c) 2017 Aleph Objects, Inc.
+ * © 2017 Aleph Objects, Inc.
  *
  * The code in this page is free software: you can
  * redistribute it and/or modify it under the terms of the GNU

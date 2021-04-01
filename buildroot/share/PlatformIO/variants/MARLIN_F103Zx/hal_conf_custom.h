@@ -409,4 +409,4 @@ void assert_failed(uint8_t *file, uint32_t line);
 #endif /* __STM32F1xx_HAL_CONF_DEFAULT_H */
 
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/************************ © COPYRIGHT STMicroelectronics *****END OF FILE****/
