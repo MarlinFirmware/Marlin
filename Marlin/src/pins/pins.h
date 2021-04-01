@@ -242,16 +242,16 @@
   #include "mega/pins_GT2560_REV_A.h"           // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(GT2560_REV_A_PLUS)
   #include "mega/pins_GT2560_REV_A_PLUS.h"      // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
-#elif MB(GT2560_REV_B)
-  #include "mega/pins_GT2560_REV_B.h"           // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3)
   #include "mega/pins_GT2560_V3.h"              // ATmega2560                             env:mega2560
+#elif MB(GT2560_REV_B)
+  #include "mega/pins_GT2560_REV_B.h"           // ATmega2560                             env:mega2560
+#elif MB(GT2560_V4)
+  #include "mega/pins_GT2560_V4.h"              // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"          // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_A20)
   #include "mega/pins_GT2560_V3_A20.h"          // ATmega2560                             env:mega2560
-#elif MB(GT2560_V4)
-  #include "mega/pins_GT2560_V4.h"              // ATmega2560                             env:mega2560  
 #elif MB(EINSTART_S)
   #include "mega/pins_EINSTART-S.h"             // ATmega2560, ATmega1280                 env:mega2560ext env:mega1280
 #elif MB(WANHAO_ONEPLUS)
@@ -475,7 +475,7 @@
 #elif MB(GTM32_PRO_VB)
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VD)
-  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE  
+  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI)
   #include "stm32f1/pins_GTM32_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI_A30)

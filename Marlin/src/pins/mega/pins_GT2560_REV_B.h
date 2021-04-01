@@ -25,5 +25,6 @@
  * Geeetech GT2560 Rev B Pins
  */
 
+#define BOARD_INFO_NAME "GT2560 Rev B"
 
 #include "pins_GT2560_V3.h"
