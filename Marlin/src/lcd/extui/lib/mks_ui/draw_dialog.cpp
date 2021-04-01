@@ -65,6 +65,13 @@ extern uint32_t upload_time;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
+//#define CANCEL_ON_RIGHT   // Put 'Cancel' on the right (as it was before)
+
+#define BTN_OK_X      TERN(CANCEL_ON_RIGHT, 100, 280)
+#define BTN_CANCEL_X  TERN(CANCEL_ON_RIGHT, 280, 100)
+#define BTN_OK_Y      180
+#define BTN_CANCEL_Y  180
+
 static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(TYPE_PRINT_FILE)) {
@@ -479,7 +486,7 @@ void lv_draw_dialog(uint8_t type) {
 
 void filament_sprayer_temp() {
   char buf[20] = {0};
-  sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
+  sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
 
   strcpy(public_buf_l, uiCfg.extruderIndex < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
   strcat_P(public_buf_l, PSTR(": "));

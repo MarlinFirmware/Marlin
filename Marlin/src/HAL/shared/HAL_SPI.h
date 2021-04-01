@@ -71,10 +71,10 @@ void spiSend(uint8_t b);
 uint8_t spiRec();
 
 // Read from SPI into buffer
-void spiRead(uint8_t* buf, uint16_t nbyte);
+void spiRead(uint8_t *buf, uint16_t nbyte);
 
 // Write token and then write from 512 byte buffer to SPI (for SD card)
-void spiSendBlock(uint8_t token, const uint8_t* buf);
+void spiSendBlock(uint8_t token, const uint8_t *buf);
 
 // Begin SPI transaction, set clock, bit order, data mode
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
@@ -87,7 +87,7 @@ void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode);
 void spiSend(uint32_t chan, byte b);
 
 // Write buffer to specified SPI channel
-void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
+void spiSend(uint32_t chan, const uint8_t *buf, size_t n);
 
 // Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);

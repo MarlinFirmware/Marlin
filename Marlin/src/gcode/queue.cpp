@@ -99,7 +99,7 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return true if the command was successfully added.
  * Return false for a full buffer, or if the 'command' is a comment.
  */
-bool GCodeQueue::RingBuffer::enqueue(const char* cmd, bool skip_ok/*=true*/
+bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
   #if HAS_MULTI_SERIAL
     , serial_index_t serial_ind/*=-1*/
   #endif
@@ -118,7 +118,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char* cmd, bool skip_ok/*=true*/
  * Enqueue with Serial Echo
  * Return true if the command was consumed
  */
-bool GCodeQueue::enqueue_one(const char* cmd) {
+bool GCodeQueue::enqueue_one(const char *cmd) {
   //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
@@ -187,7 +187,7 @@ bool GCodeQueue::process_injected_command() {
  * Enqueue and return only when commands are actually enqueued.
  * Never call this from a G-code handler!
  */
-void GCodeQueue::enqueue_one_now(const char* cmd) { while (!enqueue_one(cmd)) idle(); }
+void GCodeQueue::enqueue_one_now(const char *cmd) { while (!enqueue_one(cmd)) idle(); }
 
 /**
  * Attempt to enqueue a single G-code command
@@ -445,7 +445,7 @@ void GCodeQueue::get_serial_commands() {
         if (process_line_done(serial.input_state, serial.line_buffer, serial.count))
           continue;
 
-        char* command = serial.line_buffer;
+        char *command = serial.line_buffer;
 
         while (*command == ' ') command++;                   // Skip leading spaces
         char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
@@ -459,7 +459,7 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          const long gcode_N = strtol(npos + 1, nullptr, 10);
+          const long gcode_N = parse_int32(npos + 1);
 
           if (gcode_N != serial.last_N + 1 && !M110) {
             // In case of error on a serial port, don't prevent other serial port from making progress
@@ -471,7 +471,7 @@ void GCodeQueue::get_serial_commands() {
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
-            if (strtol(apos + 1, nullptr, 10) != checksum) {
+            if (parse_int32(apos + 1) != checksum) {
               // In case of error on a serial port, don't prevent other serial port from making progress
               gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
@@ -500,7 +500,7 @@ void GCodeQueue::get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (strtol(gpos + 1, nullptr, 10)) {
+            switch (parse_int32(gpos + 1)) {
               case 0: case 1:
               #if ENABLED(ARC_SUPPORT)
                 case 2: case 3:

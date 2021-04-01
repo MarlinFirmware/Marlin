@@ -177,6 +177,15 @@ const char* i16tostr4signrj(const int16_t i) {
   return &conv[3];
 }
 
+// Convert unsigned float to string with 1.1 format
+const char* ftostr11ns(const float &f) {
+  const long i = UINTFLOAT(f, 1);
+  conv[4] = DIGIMOD(i, 10);
+  conv[5] = '.';
+  conv[6] = DIGIMOD(i, 1);
+  return &conv[4];
+}
+
 // Convert unsigned float to string with 1.23 format
 const char* ftostr12ns(const float &f) {
   const long i = UINTFLOAT(f, 2);
