@@ -167,7 +167,7 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-void move_to(float rx, float ry, float z, float e_delta) {
+void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -175,10 +175,9 @@ void move_to(float rx, float ry, float z, float e_delta) {
   const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement.
              has_e_component = e_delta != 0.0;
 
-  destination = current_position;
-
   if (z != last_z) {
-    last_z = destination.z = z;
+    last_z = z;
+    destination.set(current_position.x, current_position.y, z, current_position.e);
     const feedRate_t fr_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
     prepare_internal_move_to_destination(fr_mm_s);
   }
