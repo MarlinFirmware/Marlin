@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
   TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
 }
 
-// This function is Copyright (c) 2006 Nicholas Zambetti.
+// This function is Copyright © 2006 Nicholas Zambetti.
 void MarlinSerial::_rx_complete_irq(serial_t *obj) {
   // No Parity error, read byte and store it in the buffer if there is room
   unsigned char c;

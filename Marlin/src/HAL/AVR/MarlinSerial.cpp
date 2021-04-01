@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright © 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 /**
  * MarlinSerial.cpp - Hardware serial library for Wiring
- * Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+ * Copyright © 2006 Nicholas Zambetti.  All right reserved.
  *
  * Modified 23 November 2006 by David A. Mellis
  * Modified 28 September 2010 by Mark Sproul

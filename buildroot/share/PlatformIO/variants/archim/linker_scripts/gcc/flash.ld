@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright © 2012, Atmel Corporation
  *
  * All rights reserved.
  *

@@ -1,6 +1,6 @@
-/* Copyright (C) 2015-2016 Andrew J. Kroll
+/* Copyright © 2015-2016 Andrew J. Kroll
    and
-Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
+Copyright © 2011 Circuits At Home, LTD. All rights reserved.
 
 This software may be distributed and modified under the terms of the GNU
 General Public License version 2 (GPL2) as publishe7d by the Free Software

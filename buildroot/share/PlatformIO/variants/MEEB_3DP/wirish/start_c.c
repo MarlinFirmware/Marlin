@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License
  *
- * Copyright (c) 2011 LeafLabs, LLC.
+ * Copyright © 2011 LeafLabs, LLC.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -29,7 +29,7 @@
  * CodeSourcery Inc. (now part of Mentor Graphics Corp.), in which the
  * following text appeared:
  *
- * Copyright (c) 2006, 2007 CodeSourcery Inc
+ * Copyright © 2006, 2007 CodeSourcery Inc
  *
  * The authors hereby grant permission to use, copy, modify, distribute,
  * and license this software and its documentation for any purpose, provided

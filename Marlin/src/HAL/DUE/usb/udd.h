@@ -3,7 +3,7 @@
  *
  * \brief Common API for USB Device Drivers (UDD)
  *
- * Copyright (c) 2009-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2009-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

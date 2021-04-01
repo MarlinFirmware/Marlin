@@ -4,7 +4,7 @@
  *
  * \brief CTRL_ACCESS interface for SD/MMC card.
  *
- * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2014-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

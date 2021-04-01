@@ -3,7 +3,7 @@
  *
  * \brief Preprocessor utils.
  *
- * Copyright (c) 2010-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2010-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

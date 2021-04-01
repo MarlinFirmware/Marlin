@@ -1,6 +1,6 @@
 /*
   Fontname: -Adobe-Helvetica-Medium-R-Normal--25-180-100-100-P-130-ISO10646-1
-  Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
+  Copyright: Copyright © 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright © 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
   Capital A Height: 19, '1' Height: 18
   Calculated Max Values w=22 h=24 x= 3 y=16 dx=25 dy= 0 ascent=24 len=69
   Font Bounding box     w=28 h=37 x=-3 y=-8

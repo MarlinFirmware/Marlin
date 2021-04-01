@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright © 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 /*
   Fontname: Helvetica
-  Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright (c) 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
+  Copyright: Copyright © 1984, 1987 Adobe Systems Incorporated. All Rights Reserved. Copyright © 1988, 1991 Digital Equipment Corporation. All Rights Reserved.
   Capital A Height: 12, '1' Height: 12
   Calculated Max Values w=14 h=17 x= 2 y=10 dx=16 dy= 0 ascent=14 len=32
   Font Bounding box     w=16 h=17 x= 0 y=-4

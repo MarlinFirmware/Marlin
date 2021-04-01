@@ -3,7 +3,7 @@
  *
  * \brief Default CDC configuration for a USB Device with a single interface
  *
- * Copyright (c) 2009-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2009-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

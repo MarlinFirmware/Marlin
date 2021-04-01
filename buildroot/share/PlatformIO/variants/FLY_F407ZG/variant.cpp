@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- * Copyright (c) 2017, STMicroelectronics
+ * Copyright © 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

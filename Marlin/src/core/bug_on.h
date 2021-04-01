@@ -1,8 +1,8 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2021 X-Ryl669 [https://blog.cyril.by]
+ * Copyright © 2021 X-Ryl669 [https://blog.cyril.by]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

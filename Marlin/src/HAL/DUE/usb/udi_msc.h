@@ -3,7 +3,7 @@
  *
  * \brief USB Device Mass Storage Class (MSC) interface definitions.
  *
- * Copyright (c) 2009-2016 Atmel Corporation. All rights reserved.
+ * Copyright © 2009-2016 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

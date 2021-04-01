@@ -3,7 +3,7 @@
  *
  * \brief Default descriptors for a USB Device with a single interface CDC
  *
- * Copyright (c) 2009-2016 Atmel Corporation. All rights reserved.
+ * Copyright © 2009-2016 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

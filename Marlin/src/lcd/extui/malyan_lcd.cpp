@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright © 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
  * other 5v/12v board, use a buck converter to power the LCD and
  * the 3.3v side of a logic level shifter. Aux1 on the RAMPS board
  * has Serial1 and 12v, making it perfect for this.
- * Copyright (c) 2017 Jason Nelson (xC0000005)
+ * Copyright © 2017 Jason Nelson (xC0000005)
  */
 
 #include "../../inc/MarlinConfigPre.h"

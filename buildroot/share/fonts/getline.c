@@ -2,7 +2,7 @@
  * getline.c --- Based on...
  *
  * getdelim.c --- Implementation of replacement getdelim function.
- * Copyright (C) 1994, 1996, 1997, 1998, 2001, 2003, 2005 Free
+ * Copyright © 1994, 1996, 1997, 1998, 2001, 2003, 2005 Free
  * Software Foundation, Inc.
  *
  * This program is free software; you can redistribute it and/or

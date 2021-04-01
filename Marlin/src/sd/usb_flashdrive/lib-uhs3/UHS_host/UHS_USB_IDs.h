@@ -7,14 +7,14 @@
  *
  * Copyright 2012, Michal Labedzki for Tieto Corporation
  * Other values imported from libghoto2/camlibs/ptp2/library.c, music-players.h
- * Copyright (C) 2001-2005 Mariusz Woloszyn <emsi@ipartners.pl>
- * Copyright (C) 2003-2013 Marcus Meissner <marcus@jet.franken.de>
- * Copyright (C) 2005 Hubert Figuiere <hfiguiere@teaser.fr>
- * Copyright (C) 2009 Axel Waggershauser <awagger@web.de>
- * Copyright (C) 2005-2007 Richard A. Low <richard@wentnet.com>
- * Copyright (C) 2005-2012 Linus Walleij <triad@df.lth.se>
- * Copyright (C) 2007 Ted Bullock
- * Copyright (C) 2012 Sony Mobile Communications AB
+ * Copyright © 2001-2005 Mariusz Woloszyn <emsi@ipartners.pl>
+ * Copyright © 2003-2013 Marcus Meissner <marcus@jet.franken.de>
+ * Copyright © 2005 Hubert Figuiere <hfiguiere@teaser.fr>
+ * Copyright © 2009 Axel Waggershauser <awagger@web.de>
+ * Copyright © 2005-2007 Richard A. Low <richard@wentnet.com>
+ * Copyright © 2005-2012 Linus Walleij <triad@df.lth.se>
+ * Copyright © 2007 Ted Bullock
+ * Copyright © 2012 Sony Mobile Communications AB
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

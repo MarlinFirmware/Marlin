@@ -3,7 +3,7 @@
  *
  * \brief USB OTG Driver for UOTGHS.
  *
- * Copyright (c) 2012-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2012-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

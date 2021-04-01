@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright © 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 /**
  * servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
- * Copyright (c) 2009 Michael Margolis.  All right reserved.
+ * Copyright © 2009 Michael Margolis.  All right reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,7 @@
 
 /**
  * Based on "servo.h - Interrupt driven Servo library for Arduino using 16 bit timers -
- *           Version 2 Copyright (c) 2009 Michael Margolis.  All right reserved.
+ *           Version 2 Copyright © 2009 Michael Margolis.  All right reserved.
  *
  * The only modification was to update/delete macros to match the LPC176x.
  */

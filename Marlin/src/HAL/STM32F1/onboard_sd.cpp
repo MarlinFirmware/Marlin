@@ -1,9 +1,9 @@
 /**
  * STM32F1: MMCv3/SDv1/SDv2 (SPI mode) control module
  *
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
- * Copyright (C) 2015, ChaN, all right reserved.
+ * Copyright © 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright © 2019 BigTreeTech [https://github.com/bigtreetech]
+ * Copyright © 2015, ChaN, all right reserved.
  *
  * This software is a free software and there is NO WARRANTY.
  * No restriction on use. You can use, modify and redistribute it for

@@ -3,7 +3,7 @@
  *
  * \brief SAM3X clock configuration.
  *
- * Copyright (c) 2011-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2011-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *

@@ -6,7 +6,7 @@
  * This file contains definitions of some of the commands found in the
  * SPC-2 standard.
  *
- * Copyright (c) 2009-2015 Atmel Corporation. All rights reserved.
+ * Copyright © 2009-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
