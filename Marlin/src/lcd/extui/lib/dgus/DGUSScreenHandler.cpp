@@ -344,12 +344,6 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     SetupConfirmAction(nullptr);
     GotoScreen(DGUSLCD_SCREEN_POPUP);
   }
-
-#else
-  void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
-    uint16_t value = swap16(*(uint16_t*)val_ptr);
-    if(value == 0x0f) GotoScreen(DGUSLCD_SCREEN_MAIN);  
-  }
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {

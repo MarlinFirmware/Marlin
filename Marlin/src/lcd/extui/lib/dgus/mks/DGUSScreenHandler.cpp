@@ -270,6 +270,11 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     GotoScreen(MKSLCD_SCREEN_PrintDone);
   }
 
+#else
+  void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
+    uint16_t value = swap16(*(uint16_t*)val_ptr);
+    if(value == 0x0f) GotoScreen(DGUSLCD_SCREEN_MAIN);  
+  }
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
