@@ -77,8 +77,8 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float scale(const float value)      { return NAME::scale(value);            }
-    static inline float unscale(const float value)    { return NAME::unscale(value);          }
+    static inline float scale(const_float_t value)    { return NAME::scale(value);            }
+    static inline float unscale(const_float_t value)  { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
@@ -114,9 +114,9 @@ class TMenuEditItem : MenuEditItemBase {
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, V...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static inline float scale(const float value)   { return value * (SCALE) + (V+0); } \
-    static inline float unscale(const float value) { return value / (SCALE) + (V+0); } \
-    static inline const char* strfunc(const float value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    static inline float scale(const_float_t value)   { return value * (SCALE) + (V+0); } \
+    static inline float unscale(const_float_t value) { return value / (SCALE) + (V+0); } \
+    static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 

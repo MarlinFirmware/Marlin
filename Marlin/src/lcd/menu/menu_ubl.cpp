@@ -92,7 +92,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
 // Init mesh editing and go to the fine tuning screen (ubl.fine_tune_mesh)
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
-void MarlinUI::ubl_mesh_edit_start(const float &initial) {
+void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
   TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
