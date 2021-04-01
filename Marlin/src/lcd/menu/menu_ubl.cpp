@@ -484,8 +484,8 @@ void ubl_map_screen() {
     #if IS_KINEMATIC
       n_edit_pts = 9; // TODO: Delta accessible edit points
     #else
-      const bool xc = WITHIN(x, 1, GRID_MAX_POINTS_X - 2),
-                 yc = WITHIN(y, 1, GRID_MAX_POINTS_Y - 2);
+      const bool xc = WITHIN(x, 1, (GRID_MAX_POINTS_X) - 2),
+                 yc = WITHIN(y, 1, (GRID_MAX_POINTS_Y) - 2);
       n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
     #endif
 
