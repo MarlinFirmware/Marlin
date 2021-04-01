@@ -32,8 +32,8 @@ enum MeshLevelingState : char {
   MeshReset       // G29 S5
 };
 
-#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
-#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
+#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
 #define _GET_MESH_X(I) mbl.index_to_xpos[I]
 #define _GET_MESH_Y(J) mbl.index_to_ypos[J]
 #define Z_VALUES_ARR mbl.z_values
@@ -61,7 +61,7 @@ public:
   static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
     px = index % (GRID_MAX_POINTS_X);
     py = index / (GRID_MAX_POINTS_X);
-    if (py & 1) px = (GRID_MAX_POINTS_X - 1) - px; // Zig zag
+    if (py & 1) px = (GRID_MAX_POINTS_X) - 1 - px; // Zig zag
   }
 
   static void set_zigzag_z(const int8_t index, const float &z) {
@@ -72,11 +72,11 @@ public:
 
   static int8_t cell_index_x(const float &x) {
     int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
-    return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);
+    return constrain(cx, 0, GRID_MAX_CELLS_X - 1);
   }
   static int8_t cell_index_y(const float &y) {
     int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
-    return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);
+    return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
   }
   static inline xy_int8_t cell_indexes(const float &x, const float &y) {
     return { cell_index_x(x), cell_index_y(y) };
@@ -85,11 +85,11 @@ public:
 
   static int8_t probe_index_x(const float &x) {
     int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
-    return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
+    return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
   static int8_t probe_index_y(const float &y) {
     int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
-    return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
+    return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
   static inline xy_int8_t probe_indexes(const float &x, const float &y) {
     return { probe_index_x(x), probe_index_y(y) };
