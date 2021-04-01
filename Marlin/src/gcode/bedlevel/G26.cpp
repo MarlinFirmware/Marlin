@@ -193,7 +193,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
+void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,
