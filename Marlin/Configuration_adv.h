@@ -3311,6 +3311,13 @@
 #endif
 
 /**
+ * Stepper Driver Anti-Reverse Protection
+ *
+ * Check driver orientation before supplying power to prevent damage.
+ */
+//#define DRIVER_SAFE_POWER_PROTECT
+
+/**
  * CNC Coordinate Systems
  *
  * Enables G53 and G54-G59.3 commands to select coordinate systems
