@@ -45,7 +45,7 @@
 class matrix_3x3;
 
 struct vector_3 : xyz_float_t {
-  vector_3(const float &_x, const float &_y, const float &_z) { set(_x, _y, _z); }
+  vector_3(const_float_t _x, const_float_t _y, const_float_t _z) { set(_x, _y, _z); }
   vector_3(const xy_float_t   &in) { set(in.x, in.y); }
   vector_3(const xyz_float_t  &in) { set(in.x, in.y, in.z); }
   vector_3(const xyze_float_t &in) { set(in.x, in.y, in.z); }

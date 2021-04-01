@@ -1820,7 +1820,7 @@ void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {
 
 }
 
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval)
+void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval)
 {
   if(waitway==3)
     if(isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED)-1)))

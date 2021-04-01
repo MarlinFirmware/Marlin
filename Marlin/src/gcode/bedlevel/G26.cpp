@@ -205,7 +205,7 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
   return out_point;
 }
 
-void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
+void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t e_delta) {
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -231,7 +231,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
+FORCE_INLINE void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,

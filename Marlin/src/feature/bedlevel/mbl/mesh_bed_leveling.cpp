@@ -61,7 +61,7 @@
      * Prepare a mesh-leveled linear move in a Cartesian setup,
      * splitting the move where it crosses mesh borders.
      */
-    void mesh_bed_leveling::line_to_destination(const feedRate_t &scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
+    void mesh_bed_leveling::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
       xy_int8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
       NOMORE(scel.x, GRID_MAX_CELLS_X - 1);

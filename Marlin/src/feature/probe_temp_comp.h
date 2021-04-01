@@ -121,10 +121,10 @@ class ProbeTempComp {
     }
     static bool set_offset(const TempSensorID tsi, const uint8_t idx, const int16_t offset);
     static void print_offsets();
-    static void prepare_new_calibration(const float &init_meas_z);
-    static void push_back_new_measurement(const TempSensorID tsi, const float &meas_z);
+    static void prepare_new_calibration(const_float_t init_meas_z);
+    static void push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z);
     static bool finish_calibration(const TempSensorID tsi);
-    static void compensate_measurement(const TempSensorID tsi, const float &temp, float &meas_z);
+    static void compensate_measurement(const TempSensorID tsi, const_float_t temp, float &meas_z);
 
   private:
     static uint8_t calib_idx;
@@ -135,7 +135,7 @@ class ProbeTempComp {
      */
     static float init_measurement;
 
-    static float get_offset_for_temperature(const TempSensorID tsi, const float &temp);
+    static float get_offset_for_temperature(const TempSensorID tsi, const_float_t temp);
 
     /**
      * Fit a linear function in measured temperature offsets
