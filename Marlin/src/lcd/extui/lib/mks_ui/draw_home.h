@@ -25,8 +25,8 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_home();
-extern void lv_clear_home();
+void lv_draw_home();
+void lv_clear_home();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
