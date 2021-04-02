@@ -35,4 +35,9 @@
 #define FAN_PIN                             PB15  // FAN
 #define PROBE_ACTIVATION_SWITCH_PIN         PB2   // Optoswitch to Enable Z Probe
 
+#define J1_PIN                              PA0
+#define J2_PIN                              PB2
+#define J3_PIN                              PA15
+#define J4_PIN                              PB12
+
 #include "pins_CREALITY_V45x.h"
