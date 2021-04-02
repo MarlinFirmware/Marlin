@@ -553,8 +553,14 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
     static constexpr celsius_t HotEndOvershoot = celsius_t((int)HOTEND_OVERSHOOT);
+    #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
+      static constexpr celsius_t ChamberMaxTarget = celsius_t((int)CHAMBER_MAX_TARGET);
+    #endif
+    #if BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+      static constexpr celsius_t BedMaxTarget = celsius_t((int)BED_MAX_TARGET);
+    #endif
 
-    if (desired_target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - HotEndOvershoot)) {
+    if (desired_target > GHV(ChamberMaxTarget, BedMaxTarget, celsius_t(temp_range[heater_id].maxtemp - HotEndOvershoot))) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
       return;
@@ -1082,10 +1088,12 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
+      float temp_bed_c = (float)temp_bed.celsius;
+      float temp_bed_target = (float)temp_bed.target;
       const float max_power_over_i_gain = float(MAX_BED_POWER) / temp_bed.pid.Ki - float(MIN_BED_POWER),
-                  pid_error = temp_bed.target - temp_bed.celsius;
+                  pid_error = temp_bed_target - temp_bed_c;
 
-      if (!temp_bed.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
+      if (!temp_bed_target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
         pid_output = 0;
         pid_reset = true;
       }
@@ -1104,16 +1112,16 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
         work_pid.Kp = temp_bed.pid.Kp * pid_error;
         work_pid.Ki = temp_bed.pid.Ki * temp_iState;
-        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed.celsius) - work_pid.Kd);
+        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_bed.pid.Kd * (temp_dState - temp_bed_c) - work_pid.Kd);
 
-        temp_dState = temp_bed.celsius;
+        temp_dState = temp_bed_c;
 
         pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_BED_POWER), 0, MAX_BED_POWER);
       }
 
     #else // PID_OPENLOOP
 
-      const float pid_output = constrain(temp_bed.target, 0, MAX_BED_POWER);
+      const float pid_output = constrain(temp_bed_target, 0, MAX_BED_POWER);
 
     #endif // PID_OPENLOOP
 
@@ -1145,10 +1153,12 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
+      float temp_ch_c = (float)temp_chamber.celsius;
+      float temp_ch_target = (float)temp_chamber.target;
       const float max_power_over_i_gain = float(MAX_CHAMBER_POWER) / temp_chamber.pid.Ki - float(MIN_CHAMBER_POWER),
-                  pid_error = temp_chamber.target - temp_chamber.celsius;
+                  pid_error = temp_ch_target - temp_ch_celsius;
 
-      if (!temp_chamber.target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
+      if (!temp_ch_target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
         pid_output = 0;
         pid_reset = true;
       }
@@ -1167,16 +1177,16 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
         work_pid.Kp = temp_chamber.pid.Kp * pid_error;
         work_pid.Ki = temp_chamber.pid.Ki * temp_iState;
-        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_chamber.pid.Kd * (temp_dState - temp_chamber.celsius) - work_pid.Kd);
+        work_pid.Kd = work_pid.Kd + PID_K2 * (temp_chamber.pid.Kd * (temp_dState - temp_ch_celsius) - work_pid.Kd);
 
-        temp_dState = temp_chamber.celsius;
+        temp_dState = temp_ch_celsius;
 
         pid_output = constrain(work_pid.Kp + work_pid.Ki + work_pid.Kd + float(MIN_CHAMBER_POWER), 0, MAX_CHAMBER_POWER);
       }
 
     #else // PID_OPENLOOP
 
-      const float pid_output = constrain(temp_chamber.target, 0, MAX_CHAMBER_POWER);
+      const float pid_output = constrain(temp_ch_target, 0, MAX_CHAMBER_POWER);
 
     #endif // PID_OPENLOOP
 
@@ -3711,12 +3721,12 @@ void Temperature::tick() {
       #endif
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        const float start_temp = degBed();
+        const celsius_t start_temp = degBed();
         printerEventLEDs.onBedHeatingStart();
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, old_temp = 9999;
+      celsius_t target_temp = -1.0f, old_temp = 9999.0f;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -3746,7 +3756,7 @@ void Temperature::tick() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float temp = degBed();
+        const celsius_t temp = degBed();
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from blue to violet as bed heats up
@@ -3755,14 +3765,16 @@ void Temperature::tick() {
 
         #if TEMP_BED_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
+          static constexpr celsius_t BedWindow = celsius_t((int)TEMP_BED_WINDOW);
+          static constexpr celsius_t BedHysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
 
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_BED_WINDOW)
+            if (temp_diff < BedWindow)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > TEMP_BED_HYSTERESIS) {
+          else if (temp_diff > BedHysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
@@ -3909,7 +3921,7 @@ void Temperature::tick() {
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, old_temp = 9999;
+      celsius_t target_temp = -1.0f, old_temp = 9999.0f;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -3939,18 +3951,20 @@ void Temperature::tick() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float temp = degChamber();
+        const celsius_t temp = degChamber();
 
         #if TEMP_CHAMBER_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
+          static constexpr celsius_t ChamberWindow = celsius_t((int)TEMP_CHAMBER_WINDOW);
+          static constexpr celsius_t ChamberHysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
 
           if (!residency_start_ms) {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_CHAMBER_WINDOW)
+            if (temp_diff < ChamberWindow)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {
+          else if (temp_diff > ChamberHysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
@@ -4007,7 +4021,7 @@ void Temperature::tick() {
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, previous_temp = 9999;
+      celsius_t target_temp = -1.0f, previous_temp = 9999.0f;
       millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -4037,18 +4051,21 @@ void Temperature::tick() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float current_temp = degCooler();
+        const celsius_t current_temp = degCooler();
 
         #if TEMP_COOLER_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
+          static constexpr celsius_t CoolerWindow = celsius_t((int)TEMP_COOLER_WINDOW);
+          static constexpr celsius_t CoolerHysteresis = celsius_t((int)TEMP_COOLER_HYSTERESIS);
+
 
           if (!residency_start_ms) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_COOLER_WINDOW)
+            if (temp_diff < CoolerWindow)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > TEMP_COOLER_HYSTERESIS) {
+          else if (temp_diff > CoolerHysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }

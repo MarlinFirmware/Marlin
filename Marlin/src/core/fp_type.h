@@ -80,10 +80,10 @@ protected:
   // Helpers functions
 private:
   // Convert any type to our fixed point value
-  constexpr inline support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr inline support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr inline support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
-  constexpr inline support_type from_unit(double && t) { return static_cast<support_type>(t * one); }
+  constexpr static inline support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
+  constexpr static inline support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
+  constexpr static inline support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
+  constexpr static inline support_type from_unit(double && t) { return static_cast<support_type>(t * one); }
   // Division using Egyptian algorithm, very slow, only used for large type or when DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
   void divide(fixp denom, fixp & quotient, fixp & remainder) {
     int sign = 0;
