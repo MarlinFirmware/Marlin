@@ -338,6 +338,16 @@
 
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
+
+    // Useful for r-value optimization
+    template <class T> struct remove_reference { typedef T type; };
+    template <class T> struct remove_reference<T&> { typedef T type; };
+    template <class T>  struct remove_reference<T&&> { typedef T type; };
+
+    template<typename T> constexpr typename remove_reference<T>::type&& move(T && t) noexcept { return static_cast<typename remove_reference<T>::type&&>(t); }
+    template<typename T> constexpr T&& forward(typename remove_reference<T>::type& t) noexcept { return static_cast<T&&>(t); }
+    template<typename T> constexpr T&& forward(typename remove_reference<T>::type&& t) noexcept { return static_cast<T&&>(t); }
+
   }
   // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
