@@ -225,18 +225,22 @@ struct PIDHeaterInfo : public HeaterInfo {
   typedef heater_info_t cooler_info_t;
 #endif
 
+
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
 struct HeaterWatch {
   celsius_t target;
   millis_t next_ms;
+  static constexpr celsius_t increase = (float)INCREASE;
+  static constexpr celsius_t hysteresis = (float)HYSTERESIS;
+
   inline bool elapsed(const millis_t &ms) { return next_ms && ELAPSED(ms, next_ms); }
   inline bool elapsed() { return elapsed(millis()); }
 
   inline void restart(const celsius_t curr, const celsius_t tgt) {
-    if (tgt) {
-      const celsius_t newtarget = curr + INCREASE;
-      if (newtarget < tgt - HYSTERESIS - 1) {
+    if (tgt != celsius_t(0)) {
+      const celsius_t newtarget = curr + increase;
+      if (newtarget < tgt - hysteresis - 1) {
         target = newtarget;
         next_ms = millis() + SEC_TO_MS(PERIOD);
         return;
@@ -439,6 +443,7 @@ class Temperature {
 
     #if ENABLED(HAS_HOTEND)
       static temp_range_t temp_range[HOTENDS];
+      static constexpr celsius_t HotEndHysteresis = celsius_t((int)TEMP_HYSTERESIS);
     #endif
 
     #if HAS_HEATED_BED
@@ -447,6 +452,7 @@ class Temperature {
       #endif
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       static int16_t mintemp_raw_BED, maxtemp_raw_BED;
+      static constexpr celsius_t BedHysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -455,6 +461,7 @@ class Temperature {
       #endif
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
+      static constexpr celsius_t ChamberHysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
     #endif
 
     #if HAS_COOLER
@@ -629,7 +636,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    FORCE_INLINE static float degHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -685,11 +692,11 @@ class Temperature {
       #endif
 
       FORCE_INLINE static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+        return degTargetHotend(e) > HotEndHysteresis && ABS(degHotend(e) - degTargetHotend(e)) > HotEndHysteresis;
       }
 
       FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
-        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+        return ABS(degHotend(e) - temp) < HotEndHysteresis;
       }
 
     #endif // HAS_HOTEND
@@ -825,7 +832,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const celsius_t &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -958,8 +965,8 @@ class Temperature {
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
-        float running_temp;
-        void run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        celsius_t running_temp;
+        void run(const celsius_t current, const celsius_t target, const heater_id_t heater_id, int type);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

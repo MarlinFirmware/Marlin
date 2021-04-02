@@ -27,6 +27,8 @@
   #include "../feature/e_parser.h"
 #endif
 
+#include "temp_types.h"
+
 // Used in multiple places
 // You can build it but not manipulate it.
 // There are only few places where it's required to access the underlying member: GCodeQueue, SerialMask and MultiSerial
@@ -80,6 +82,7 @@ struct EnsureDouble {
   // SERIAL_PRINT(v, PrintBase::Hex)
   FORCE_INLINE EnsureDouble(double a) : a(a) {}
   FORCE_INLINE EnsureDouble(float a) : a(a) {}
+  FORCE_INLINE EnsureDouble(celsius_t a) : a((float)a) {}
 };
 
 // Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.

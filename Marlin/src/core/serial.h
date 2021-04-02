@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -143,6 +143,7 @@ void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
 // Wrapper for ECHO commands to interpret a char
 typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
 inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+
 #define AS_CHAR(C) serial_char_t(C)
 
 // SERIAL_ECHO_F prints a floating point value with optional precision
@@ -375,6 +376,7 @@ void serial_echopair_PGM(PGM_P const s_P, double v);
 void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
 void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
+void serial_echopair_PGM(PGM_P const s_P, celsius_t v);
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 

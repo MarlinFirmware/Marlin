@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Copyright (c) 2021 X-Ryl669
  *
@@ -68,13 +68,13 @@ struct fixp {
   typedef typename size2type::next   next_type;
 
   // Mask required for multiply and divide
-  static constexpr const utype fractional_mask = ~((utype(-1)) << fractional);
-  static constexpr const utype integral_mask = ~fractional_mask;
+  static constexpr const utype fractional_mask = (utype)~((utype(-1)) << fractional);
+  static constexpr const utype integral_mask = (utype)~fractional_mask;
   // One in fixed point
   static constexpr const support_type one = static_cast<support_type>(utype(1) << fractional);
 
   // Member
-private:
+protected:
   support_type  data;
 
   // Helpers functions
@@ -126,11 +126,13 @@ public:
   constexpr fixp(const support_type & rhs, bool) : data(rhs) {}
   constexpr fixp(support_type && other, bool) : data(Private::move(other)) {}
 
-  constexpr inline fixp& operator = (const fixp & other) { data = other.data; return *this; }
+  inline fixp& operator = (const fixp & other) { data = other.data; return *this; }
 
   // Comparison operators
 public:
-#define FP_CMP_OP(op) constexpr inline bool operator op(const fixp &o) const { return data op o.data; }
+#define FP_CMP_OP(op) constexpr inline bool operator op(const fixp &o) const { return data op o.data; } \
+                      constexpr inline bool operator op(const int o) const   { return data op from_unit((int &&)o); } \
+                      constexpr inline bool operator op(const float o) const { return data op from_unit((float &&)o); }
     FP_CMP_OP(==)
     FP_CMP_OP(!=)
     FP_CMP_OP(<)
@@ -142,16 +144,19 @@ public:
   // Boolean testing operators
 public:
   constexpr inline bool operator ! () const { return !data; }
-  constexpr inline fixp operator ~ () const { return fixp(~data); } // Not sure this actually make sense
-  constexpr inline fixp &operator ++ () { data += one; return *this; }
-  constexpr inline fixp &operator -- () { data -= one; return *this; }
-  constexpr inline fixp &operator ++ (int) { constexpr const fixp t(*this); data += one; return t; }
-  constexpr inline fixp &operator -- (int) { constexpr const fixp t(*this); data -= one; return t; }
+  constexpr inline fixp operator ~ () const { return fixp(~data, true); } // Not sure this actually make sense
+  constexpr inline fixp operator - () const { return fixp(-data, true); }
+  inline fixp &operator ++ () { data += one; return *this; }
+  inline fixp &operator -- () { data -= one; return *this; }
+  inline fixp &operator ++ (int) { constexpr const fixp t(*this); data += one; return t; }
+  inline fixp &operator -- (int) { constexpr const fixp t(*this); data -= one; return t; }
 
   // Bitwise and addition/subtraction operators
 public:
-#define FP_BIN_OP(op) constexpr inline fixp &operator op##=(const fixp &n) { data op##= n.data; return *this; } \
-                      constexpr inline fixp operator op(const fixp &n) const { fixp x(*this); x op##= n; return x; }
+#define FP_BIN_OP(op) inline fixp &operator op##=(const fixp &n) { data op##= n.data; return *this; } \
+                      constexpr inline fixp operator op(const fixp &n) const { return fixp(data op n.data, true); } \
+                      constexpr inline fixp operator op(const int n)   const { return fixp(data op from_unit((int &&)n), true); } \
+                      constexpr inline fixp operator op(const float n) const { return fixp(data op from_unit((float&&)n), true); }
   FP_BIN_OP(+)
   FP_BIN_OP(-)
   // Not sure bit operator makes sense here too...
@@ -164,7 +169,7 @@ public:
 
   // Multiplication, division and modulo operators
 public:
-  constexpr inline fixp &operator *= (const fixp &n) {
+  inline fixp &operator *= (const fixp &n) {
     if (!size2type::has_next
       #ifdef DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
         || 1
@@ -188,9 +193,9 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr inline fixp operator *(const fixp &n) { fixp x(*this); x *= n; return x; }
+  constexpr inline fixp operator *(const fixp &n) { return fixp(*this) *= n; }
 
-  constexpr inline fixp &operator /=(const fixp &n) {
+  inline fixp &operator /=(const fixp &n) {
     if (!size2type::has_next
       #ifdef DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
         || 1
@@ -202,21 +207,21 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr inline fixp operator /(const fixp &n) { fixp x(*this); x /= n; return x; }
+  constexpr inline fixp operator /(const fixp &n) { return fixp(*this) /= n; }
 
   // Shift operators
 public:
-  constexpr inline fixp &operator >>=(const fixp &n) { data >>= (int)n; return *this; }
-  constexpr inline fixp &operator <<=(const fixp &n) { data <<= (int)n; return *this; }
+  inline fixp &operator >>=(const fixp &n) { data >>= (int)n; return *this; }
+  inline fixp &operator <<=(const fixp &n) { data <<= (int)n; return *this; }
 
-  constexpr inline fixp operator <<(const fixp &n) { fixp x(*this); x <<= n; return x; }
-  constexpr inline fixp operator >>(const fixp &n) { fixp x(*this); x >>= n; return x; }
+  constexpr inline fixp operator <<(const fixp &n) { return fixp(*this) <<= n; }
+  constexpr inline fixp operator >>(const fixp &n) { return fixp(*this) >>= n; }
 
 
   // Convertion operator
 public:
-  explicit inline operator int() const { return data >> fractional; }
-  explicit inline operator float() const { return static_cast<float>(data) / one; }
-  explicit inline operator double() const { return static_cast<double>(data) / one; }
-  inline support_type raw() const { return data; }
+  constexpr explicit inline operator int() const { return data >> fractional; }
+  constexpr explicit inline operator float() const { return static_cast<float>(data) / one; }
+  constexpr explicit inline operator double() const { return static_cast<double>(data) / one; }
+  constexpr inline support_type raw() const { return data; }
 };

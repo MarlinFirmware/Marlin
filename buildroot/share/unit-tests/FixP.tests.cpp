@@ -98,7 +98,7 @@ DeclareTest("FP1.31.32", []() -> bool {
   FP3232 tmp = one * two;
   if ((int)tmp != 2) return False;
   tmp = half + half;
-  if ((int)tmp != 1) return False;
+  if (tmp != one) return False;
   tmp = one - half;
   if ((float)tmp != 0.5f) return False;
   tmp = two / half;
