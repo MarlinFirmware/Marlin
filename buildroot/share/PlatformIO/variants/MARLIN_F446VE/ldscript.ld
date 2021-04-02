@@ -1,7 +1,6 @@
 /*
 *****************************************************************************
 **
-
 **  File        : lscript.ld
 **
 **  Abstract    : Linker script for STM32F446VE Device with
