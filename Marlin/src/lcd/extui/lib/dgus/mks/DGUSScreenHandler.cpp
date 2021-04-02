@@ -1199,9 +1199,9 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
 void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-    char buf[40];
     uint8_t swap_tool = 0;
   #endif
+  char buf[40];
 
   #if HAS_HOTEND
     uint8_t hotend_too_cold = 0;
@@ -1251,6 +1251,12 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       queue.enqueue_one_now(buf);
       queue.enqueue_now_P(PSTR("G90"));
     }
+  #else
+    queue.enqueue_now_P(PSTR("T1"));
+    queue.enqueue_now_P(PSTR("G91"));
+    snprintf_P(buf, 40, PSTR("G1 E%d F%d"), (int)distanceFilament * filamentDir, FilamentSpeed * 60);
+    queue.enqueue_one_now(buf);
+    queue.enqueue_now_P(PSTR("G90"));
   #endif
 }
 
