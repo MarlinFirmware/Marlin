@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -1553,7 +1553,7 @@ void Temperature::manage_heater() {
 
   #endif // HAS_COOLER
 
-  #if HAS_FLOWMETER
+  #if ENABLED(LASER_COOLANT_FLOW_METER)
     cooler.flowmeter_task(ms);
     #if ENABLED(FLOWMETER_SAFETY)
       if (cutter.enabled() && cooler.check_flow_too_low()) {
@@ -3822,7 +3822,7 @@ void Temperature::tick() {
       #define MIN_DELTA_SLOPE_TIME_PROBE 600
     #endif
 
-    bool Temperature::wait_for_probe(const float target_temp, bool no_wait_for_cooling/*=true*/) {
+    bool Temperature::wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling/*=true*/) {
 
       const bool wants_to_cool = isProbeAboveTemp(target_temp);
       const bool will_wait = !(wants_to_cool && no_wait_for_cooling);

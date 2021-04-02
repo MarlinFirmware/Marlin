@@ -695,7 +695,7 @@ class Temperature {
         return degTargetHotend(e) > HotEndHysteresis && ABS(degHotend(e) - degTargetHotend(e)) > HotEndHysteresis;
       }
 
-      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const_float_t temp) {
         return ABS(degHotend(e) - temp) < HotEndHysteresis;
       }
 
@@ -731,7 +731,7 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      FORCE_INLINE static bool degBedNear(const float &temp) {
+      FORCE_INLINE static bool degBedNear(const_float_t temp) {
         return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
@@ -742,9 +742,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
-      FORCE_INLINE static bool isProbeBelowTemp(const float target_temp) { return temp_probe.celsius < target_temp; }
-      FORCE_INLINE static bool isProbeAboveTemp(const float target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const float target_temp, bool no_wait_for_cooling=true);
+      FORCE_INLINE static bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE

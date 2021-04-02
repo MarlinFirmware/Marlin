@@ -46,7 +46,7 @@
   #include "../../gcode/parser.h"
 #endif
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -584,7 +584,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 }
 #endif
 
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
     lcd_put_u8str("~ ");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
@@ -827,7 +827,7 @@ void MarlinUI::draw_status_screen() {
       #if HAS_COOLER
         _draw_cooler_status('*', blink);
       #endif
-      #if HAS_FLOWMETER
+      #if ENABLED(LASER_COOLANT_FLOW_METER)
         _draw_flowmeter_status();
       #endif
 
@@ -1279,7 +1279,7 @@ void MarlinUI::draw_status_screen() {
                    pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
                    suppress_x_offset = 0, suppress_y_offset = 0;
 
-        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;

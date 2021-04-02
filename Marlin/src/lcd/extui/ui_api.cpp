@@ -325,7 +325,7 @@ namespace ExtUI {
     return epos;
   }
 
-  void setAxisPosition_mm(const float &position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
+  void setAxisPosition_mm(const_float_t position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
     // Get motion limit from software endstops, if any
     float min, max;
     soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
@@ -343,7 +343,7 @@ namespace ExtUI {
     line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
-  void setAxisPosition_mm(const float &position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
+  void setAxisPosition_mm(const_float_t position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
@@ -455,7 +455,7 @@ namespace ExtUI {
       };
     }
 
-    void setAxisCurrent_mA(const float &mA, const axis_t axis) {
+    void setAxisCurrent_mA(const_float_t mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
           case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
@@ -479,7 +479,7 @@ namespace ExtUI {
       };
     }
 
-    void setAxisCurrent_mA(const float &mA, const extruder_t extruder) {
+    void setAxisCurrent_mA(const_float_t mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
           case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
@@ -539,7 +539,7 @@ namespace ExtUI {
       }
     }
 
-    void setTMCBumpSensitivity(const float &value, const axis_t axis) {
+    void setTMCBumpSensitivity(const_float_t value, const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           #if X_SENSORLESS
@@ -583,12 +583,12 @@ namespace ExtUI {
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisSteps_per_mm(const float &value, const axis_t axis) {
+  void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
     planner.settings.axis_steps_per_mm[axis] = value;
     planner.refresh_positioning();
   }
 
-  void setAxisSteps_per_mm(const float &value, const extruder_t extruder) {
+  void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
     planner.refresh_positioning();
@@ -621,11 +621,11 @@ namespace ExtUI {
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisMaxAcceleration_mm_s2(const float &value, const axis_t axis) {
+  void setAxisMaxAcceleration_mm_s2(const_float_t value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
   }
 
-  void setAxisMaxAcceleration_mm_s2(const float &value, const extruder_t extruder) {
+  void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
@@ -638,7 +638,7 @@ namespace ExtUI {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
-      void setFilamentRunoutDistance_mm(const float &value) { runout.set_runout_distance(constrain(value, 0, 999)); }
+      void setFilamentRunoutDistance_mm(const_float_t value) { runout.set_runout_distance(constrain(value, 0, 999)); }
     #endif
   #endif
 
@@ -651,7 +651,7 @@ namespace ExtUI {
 
     #if CASELIGHT_USES_BRIGHTNESS
       float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
-      void setCaseLightBrightness_percent(const float &value) {
+      void setCaseLightBrightness_percent(const_float_t value) {
          caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
          caselight.update_brightness();
       }
@@ -663,7 +663,7 @@ namespace ExtUI {
       return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
     }
 
-    void setLinearAdvance_mm_mm_s(const float &value, const extruder_t extruder) {
+    void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
         planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 10);
     }
@@ -675,7 +675,7 @@ namespace ExtUI {
       return planner.junction_deviation_mm;
     }
 
-    void setJunctionDeviation_mm(const float &value) {
+    void setJunctionDeviation_mm(const_float_t value) {
       planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
       TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
     }
@@ -683,8 +683,8 @@ namespace ExtUI {
   #else
     float getAxisMaxJerk_mm_s(const axis_t axis) { return planner.max_jerk[axis]; }
     float getAxisMaxJerk_mm_s(const extruder_t) { return planner.max_jerk.e; }
-    void setAxisMaxJerk_mm_s(const float &value, const axis_t axis) { planner.set_max_jerk((AxisEnum)axis, value); }
-    void setAxisMaxJerk_mm_s(const float &value, const extruder_t) { planner.set_max_jerk(E_AXIS, value); }
+    void setAxisMaxJerk_mm_s(const_float_t value, const axis_t axis) { planner.set_max_jerk((AxisEnum)axis, value); }
+    void setAxisMaxJerk_mm_s(const_float_t value, const extruder_t) { planner.set_max_jerk(E_AXIS, value); }
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -709,9 +709,9 @@ namespace ExtUI {
   void setFlow_percent(const int16_t flow, const extruder_t extr) { planner.set_flow(extr, flow); }
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
-  void setPrintingAcceleration_mm_s2(const float &acc) { planner.settings.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float &acc) { planner.settings.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float &acc)  { planner.settings.travel_acceleration = acc; }
+  void setPrintingAcceleration_mm_s2(const_float_t acc) { planner.settings.acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const_float_t acc) { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const_float_t acc)  { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEPPING)
 
@@ -772,7 +772,7 @@ namespace ExtUI {
      * Converts a mm displacement to a number of whole number of
      * steps that is at least mm long.
      */
-    int16_t mmToWholeSteps(const float &mm, const axis_t axis) {
+    int16_t mmToWholeSteps(const_float_t mm, const axis_t axis) {
       const float steps = mm / planner.steps_to_mm[axis];
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
@@ -789,7 +789,7 @@ namespace ExtUI {
     );
   }
 
-  void setZOffset_mm(const float &value) {
+  void setZOffset_mm(const_float_t value) {
     #if HAS_BED_PROBE
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
@@ -807,7 +807,7 @@ namespace ExtUI {
       return hotend_offset[extruder - E0][axis];
     }
 
-    void setNozzleOffset_mm(const float &value, const axis_t axis, const extruder_t extruder) {
+    void setNozzleOffset_mm(const_float_t value, const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return;
       hotend_offset[extruder - E0][axis] = value;
     }
@@ -826,20 +826,20 @@ namespace ExtUI {
 
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
-    void setProbeOffset_mm(const float &val, const axis_t axis) { probe.offset.pos[axis] = val; }
+    void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
-    void setAxisBacklash_mm(const float &value, const axis_t axis)
+    void setAxisBacklash_mm(const_float_t value, const axis_t axis)
                                                       { backlash.distance_mm[axis] = constrain(value,0,5); }
 
     float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
-    void setBacklashCorrection_percent(const float &value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+    void setBacklashCorrection_percent(const_float_t value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
-      void setBacklashSmoothing_mm(const float &value) { backlash.smoothing_mm = constrain(value, 0, 999); }
+      void setBacklashSmoothing_mm(const_float_t value) { backlash.smoothing_mm = constrain(value, 0, 999); }
     #endif
   #endif
 
@@ -858,14 +858,14 @@ namespace ExtUI {
 
       bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
       float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
-      void setMeshPoint(const xy_uint8_t &pos, const float &zoff) {
-        if (WITHIN(pos.x, 0, GRID_MAX_POINTS_X) && WITHIN(pos.y, 0, GRID_MAX_POINTS_Y)) {
+      void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
+        if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           Z_VALUES(pos.x, pos.y) = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
 
-      void moveToMeshPoint(const xy_uint8_t &pos, const float &z) {
+      void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
         #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           const feedRate_t old_feedrate = feedrate_mm_s;
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
@@ -919,14 +919,14 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t tool) { return unscalePID_i(PID_PARAM(Ki, tool)); }
     float getPIDValues_Kd(const extruder_t tool) { return unscalePID_d(PID_PARAM(Kd, tool)); }
 
-    void setPIDValues(const float &p, const float &i, const float &d, extruder_t tool) {
+    void setPIDValues(const_float_t p, const_float_t i, const_float_t d, extruder_t tool) {
       thermalManager.temp_hotend[tool].pid.Kp = p;
       thermalManager.temp_hotend[tool].pid.Ki = scalePID_i(i);
       thermalManager.temp_hotend[tool].pid.Kd = scalePID_d(d);
       thermalManager.updatePID();
     }
 
-    void startPIDTune(const float &temp, extruder_t tool) {
+    void startPIDTune(const_float_t temp, extruder_t tool) {
       thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
@@ -936,14 +936,14 @@ namespace ExtUI {
     float getBedPIDValues_Ki() { return unscalePID_i(thermalManager.temp_bed.pid.Ki); }
     float getBedPIDValues_Kd() { return unscalePID_d(thermalManager.temp_bed.pid.Kd); }
 
-    void setBedPIDValues(const float &p, const float &i, const float &d) {
+    void setBedPIDValues(const_float_t p, const_float_t i, const_float_t d) {
       thermalManager.temp_bed.pid.Kp = p;
       thermalManager.temp_bed.pid.Ki = scalePID_i(i);
       thermalManager.temp_bed.pid.Kd = scalePID_d(d);
       thermalManager.updatePID();
     }
 
-    void startBedPIDTune(const float &temp) {
+    void startBedPIDTune(const_float_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
     }
   #endif
@@ -963,7 +963,7 @@ namespace ExtUI {
     return firmware_name;
   }
 
-  void setTargetTemp_celsius(const float &inval, const heater_t heater) {
+  void setTargetTemp_celsius(const_float_t inval, const heater_t heater) {
     float value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
@@ -988,7 +988,7 @@ namespace ExtUI {
     }
   }
 
-  void setTargetTemp_celsius(const float &inval, const extruder_t extruder) {
+  void setTargetTemp_celsius(const_float_t inval, const extruder_t extruder) {
     float value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
@@ -1000,7 +1000,7 @@ namespace ExtUI {
     #endif
   }
 
-  void setTargetFan_percent(const float &value, const fan_t fan) {
+  void setTargetFan_percent(const_float_t value, const fan_t fan) {
     #if HAS_FAN
       if (fan < FAN_COUNT)
         thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
@@ -1010,7 +1010,7 @@ namespace ExtUI {
     #endif
   }
 
-  void setFeedrate_percent(const float &value) { feedrate_percentage = constrain(value, 10, 500); }
+  void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
 
   void coolDown() {
     #if HAS_HOTEND
