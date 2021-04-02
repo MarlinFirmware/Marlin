@@ -981,9 +981,9 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         static float temp_iState[HOTENDS] = { 0 },
                      temp_dState[HOTENDS] = { 0 };
         static bool pid_reset[HOTENDS] = { false };
-        const float hotend_ee = temp_hotend[ee].celsius,
-                    hotend_target = temp_hotend[ee].target,
-                    pid_error = hotend_target - hotend_ee;
+        const celsius_t hotend_ee = temp_hotend[ee].celsius,
+                        hotend_target = temp_hotend[ee].target;
+        const float pid_error = (int)(hotend_target - hotend_ee);
 
         float pid_output;
 
@@ -1005,7 +1005,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
             pid_reset[ee] = false;
           }
 
-          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - hotend_ee) - work_pid[ee].Kd);
+          work_pid[ee].Kd = work_pid[ee].Kd + PID_K2 * (PID_PARAM(Kd, ee) * (temp_dState[ee] - float(hotend_ee)) - work_pid[ee].Kd);
           const float max_power_over_i_gain = float(PID_MAX) / PID_PARAM(Ki, ee) - float(MIN_POWER);
           temp_iState[ee] = constrain(temp_iState[ee] + pid_error, 0, max_power_over_i_gain);
           work_pid[ee].Kp = PID_PARAM(Kp, ee) * pid_error;
@@ -1044,11 +1044,12 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
           #endif // PID_FAN_SCALING
           LIMIT(pid_output, 0, PID_MAX);
         }
-        temp_dState[ee] = hotend_ee;
+        temp_dState[ee] = float(hotend_ee);
 
       #else // PID_OPENLOOP
 
-        const float pid_output = constrain(hotend_target, 0, PID_MAX);
+        float pid_output = hotend_target;
+        LIMIT(pid_output, 0, PID_MAX);
 
       #endif // PID_OPENLOOP
 
@@ -1089,8 +1090,8 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
       static float temp_iState = 0, temp_dState = 0;
       static bool pid_reset = true;
       float pid_output = 0;
-      float temp_bed_c = (float)temp_bed.celsius;
-      float temp_bed_target = (float)temp_bed.target;
+      const celsius_t temp_bed_c = temp_bed.celsius,
+                      temp_bed_target = temp_bed.target;
       const float max_power_over_i_gain = float(MAX_BED_POWER) / temp_bed.pid.Ki - float(MIN_BED_POWER),
                   pid_error = temp_bed_target - temp_bed_c;
 

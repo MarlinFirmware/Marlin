@@ -982,9 +982,8 @@ namespace ExtUI {
       default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
-          celsius_t target = thermalManager.hotend_max_target(e);
-          LIMIT(value, 0, target);
-          thermalManager.setTargetHotend(LROUND(value), e);
+          LIMIT(value, 0, thermalManager.hotend_max_target(e));
+          thermalManager.setTargetHotend(LROUND(float(value)), e);
         #endif
       } break;
     }
@@ -998,9 +997,8 @@ namespace ExtUI {
     #if HAS_HOTEND
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      celsius_t target = thermalManager.hotend_max_target(e);
-      LIMIT(value, 0, target);
-      thermalManager.setTargetHotend(LROUND(value), e);
+      LIMIT(value, 0, thermalManager.hotend_max_target(e));
+      thermalManager.setTargetHotend(LROUND(float(value)), e);
     #endif
   }
 
