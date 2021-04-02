@@ -234,6 +234,10 @@
   #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
+#if DRIVER_SAFE_POWER_PROTECT
+  #include "feature/driver_anti_reverse_protection.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -1218,6 +1222,10 @@ void setup() {
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
+  #if PIN_EXISTS(SAFE_POWER)
+    SETUP_RUN(TERN(DRIVER_SAFE_POWER_PROTECT, stepper_driver_anti_plug_detect(), OUT_WRITE(SAFE_POWER_PIN, HIGH)));
+  #endif
+
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
   #endif
@@ -1460,6 +1468,10 @@ void setup() {
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
     SETUP_RUN(test_tmc_connection(true, true, true, true));
+  #endif
+
+  #if DRIVER_SAFE_POWER_PROTECT
+    SETUP_RUN(test_anti_plug());
   #endif
 
   #if HAS_PRUSA_MMU2
