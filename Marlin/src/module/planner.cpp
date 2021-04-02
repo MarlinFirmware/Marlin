@@ -1447,7 +1447,7 @@ void Planner::check_axes_activity() {
       }
     }
 
-    float atMin = (float)autotemp_min, atMax = (float)autotemp_max;
+    const float atMin = (float)autotemp_min, atMax = (float)autotemp_max;
     float t = atMin + high * autotemp_factor; // Do we need float precision here (slower) ?
     LIMIT(t, atMin, atMax);
     if (t < oldt) t *= (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);

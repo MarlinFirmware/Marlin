@@ -69,4 +69,3 @@ DeclareTest("DECIMAL_SIGNED", []() -> bool {
   if (!DECIMAL_SIGNED('-')) return False;
   return true;
 });
-

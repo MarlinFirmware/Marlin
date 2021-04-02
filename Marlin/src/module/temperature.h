@@ -225,7 +225,6 @@ struct PIDHeaterInfo : public HeaterInfo {
   typedef heater_info_t cooler_info_t;
 #endif
 
-
 // Heater watch handling
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
 struct HeaterWatch {
@@ -443,7 +442,7 @@ class Temperature {
 
     #if ENABLED(HAS_HOTEND)
       static temp_range_t temp_range[HOTENDS];
-      static constexpr celsius_t HotEndHysteresis = celsius_t((int)TEMP_HYSTERESIS);
+      static constexpr celsius_t hotend_hysteresis = celsius_t((int)TEMP_HYSTERESIS);
     #endif
 
     #if HAS_HEATED_BED
@@ -452,7 +451,7 @@ class Temperature {
       #endif
       IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       static int16_t mintemp_raw_BED, maxtemp_raw_BED;
-      static constexpr celsius_t BedHysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
+      static constexpr celsius_t bed_hysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -461,7 +460,7 @@ class Temperature {
       #endif
       TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms);
       static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
-      static constexpr celsius_t ChamberHysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
+      static constexpr celsius_t chamber_hysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
     #endif
 
     #if HAS_COOLER
@@ -692,11 +691,11 @@ class Temperature {
       #endif
 
       FORCE_INLINE static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > HotEndHysteresis && ABS(degHotend(e) - degTargetHotend(e)) > HotEndHysteresis;
+        return degTargetHotend(e) > hotend_hysteresis && ABS(degHotend(e) - degTargetHotend(e)) > hotend_hysteresis;
       }
 
       FORCE_INLINE static bool degHotendNear(const uint8_t e, const_float_t temp) {
-        return ABS(degHotend(e) - temp) < HotEndHysteresis;
+        return ABS(degHotend(e) - temp) < hotend_hysteresis;
       }
 
     #endif // HAS_HOTEND
@@ -832,7 +831,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const celsius_t &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;

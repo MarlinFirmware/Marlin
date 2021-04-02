@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Copyright (c) 2021 X-Ryl669
  *
@@ -25,8 +25,7 @@
 struct celsius_t;
 
 // A Fahrenheit type
-struct fahrenheit_t
-{
+struct fahrenheit_t {
   float f;
   fahrenheit_t(float f = 0): f(f) {}
   fahrenheit_t(celsius_t c);
@@ -34,23 +33,19 @@ struct fahrenheit_t
 };
 
 // A Kelvin type
-struct kelvin_t
-{
+struct kelvin_t {
   float f;
   kelvin_t(float f = 0): f(f) {}
   kelvin_t(celsius_t c);
   operator float() const { return f; }
 };
 
-
-
 //
 // celsius_t is the native unit of temperature. Signed to handle a disconnected thermistor value (-14).
 // This is using fixed point arithmetic here with 1/64th precision. The range goes from [+511. 0.015625 -512].
 // For more resolution (e.g., for a chocolate printer) this may later be changed to Celsius x 100
 //
-struct celsius_t : public fixp<true, 10, 6>
-{
+struct celsius_t : public fixp<true, 10, 6> {
   // The minimum value that this object can contain
   constexpr static double minValue = -(double)(1ULL << (integral_bitwidth - 1));
   // The maximum value that this object can contain
@@ -60,7 +55,7 @@ struct celsius_t : public fixp<true, 10, 6>
 
   // Conversion must be explicit
   template <typename T>
-  explicit constexpr celsius_t(T n)             : fixp(Private::move(n)) {}
+  explicit constexpr celsius_t(T n) : fixp(Private::move(n)) {}
 
   constexpr celsius_t(int v) : fixp(Private::move(v)) {}
 
@@ -77,4 +72,3 @@ struct celsius_t : public fixp<true, 10, 6>
 
   inline celsius_t& operator = (const celsius_t & other) { data = other.data; return *this; }
 };
-

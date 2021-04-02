@@ -42,7 +42,7 @@ namespace Private
   template <typename From, typename To> inline To convert(const From v) { return static_cast<To>(v); }
 }
 
-/** A fixed point template class that should work like a floating point object.
+/** A fixed-point template class that should work like a floating-point object.
     @param Signed     If the value is signed. This uses the MSB bit of the value
     @param integral   The number of bits used for the integral value (including the sign bit)
     @param fractional The number of bits used for the fractional value */
@@ -70,7 +70,7 @@ struct fixp {
   // Mask required for multiply and divide
   static constexpr const utype fractional_mask = (utype)~((utype(-1)) << fractional);
   static constexpr const utype integral_mask = (utype)~fractional_mask;
-  // One in fixed point
+  // One in fixed-point
   static constexpr const support_type one = static_cast<support_type>(utype(1) << fractional);
 
   // Member
@@ -79,7 +79,7 @@ protected:
 
   // Helpers functions
 private:
-  // Convert any type to our fixed point value
+  // Convert any type to our fixed-point value
   constexpr static inline support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
   constexpr static inline support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
   constexpr static inline support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
@@ -90,8 +90,8 @@ private:
 
     // Adjust sign so the division is always positive
     support_type n, d, x = 1, answer = 0;
-    if(data < 0) { sign = !sign; n = -data; } else n = data;
-    if(denom.data < 0) { sign = !sign; denom.data = -denom.data; }
+    if (data < 0)       { sign = !sign; n = -data; } else n = data;
+    if (denom.data < 0) { sign = !sign; denom.data = -denom.data; }
     d = denom.data;
 
     int upshift = 32;
@@ -100,12 +100,12 @@ private:
     // Find the best possible shift for this division without loosing resolution
     // It's not the most efficient algorithm here (it computes many modulo), but it's small and simple
     while ((mod & mask) != 0) {
-        // If we left shifted from fractional bits, the remainder would overflow
-        d >>= 1;
-        mask <<= 1;
-        upshift--;
+      // If we left shifted from fractional bits, the remainder would overflow
+      d >>= 1;
+      mask <<= 1;
+      upshift--;
 
-        mod = n % d;
+      mod = n % d;
     }
     utype q = ((n / d) << upshift) + (mod << upshift) / d;
     quotient.data = sign ? -(support_type)q : (support_type)q;
@@ -133,12 +133,12 @@ public:
 #define FP_CMP_OP(op) constexpr inline bool operator op(const fixp &o) const { return data op o.data; } \
                       constexpr inline bool operator op(const int o) const   { return data op from_unit((int &&)o); } \
                       constexpr inline bool operator op(const float o) const { return data op from_unit((float &&)o); }
-    FP_CMP_OP(==)
-    FP_CMP_OP(!=)
-    FP_CMP_OP(<)
-    FP_CMP_OP(>)
-    FP_CMP_OP(>=)
-    FP_CMP_OP(<=)
+  FP_CMP_OP(==)
+  FP_CMP_OP(!=)
+  FP_CMP_OP(<)
+  FP_CMP_OP(>)
+  FP_CMP_OP(>=)
+  FP_CMP_OP(<=)
 #undef FP_CMP_OP
 
   // Boolean testing operators
@@ -146,14 +146,14 @@ public:
   constexpr inline bool operator ! () const { return !data; }
   constexpr inline fixp operator ~ () const { return fixp(~data, true); } // Not sure this actually make sense
   constexpr inline fixp operator - () const { return fixp(-data, true); }
-  inline fixp &operator ++ () { data += one; return *this; }
-  inline fixp &operator -- () { data -= one; return *this; }
-  inline fixp &operator ++ (int) { constexpr const fixp t(*this); data += one; return t; }
-  inline fixp &operator -- (int) { constexpr const fixp t(*this); data -= one; return t; }
+  inline fixp& operator ++ () { data += one; return *this; }
+  inline fixp& operator -- () { data -= one; return *this; }
+  inline fixp& operator ++ (int) { constexpr const fixp t(*this); data += one; return t; }
+  inline fixp& operator -- (int) { constexpr const fixp t(*this); data -= one; return t; }
 
   // Bitwise and addition/subtraction operators
 public:
-#define FP_BIN_OP(op) inline fixp &operator op##=(const fixp &n) { data op##= n.data; return *this; } \
+#define FP_BIN_OP(op) inline fixp& operator op##=(const fixp &n) { data op##= n.data; return *this; } \
                       constexpr inline fixp operator op(const fixp &n) const { return fixp(data op n.data, true); } \
                       constexpr inline fixp operator op(const int n)   const { return fixp(data op from_unit((int &&)n), true); } \
                       constexpr inline fixp operator op(const float n) const { return fixp(data op from_unit((float&&)n), true); }
@@ -167,27 +167,23 @@ public:
   FP_BIN_OP(%)
 #undef FP_BIN_OP
 
-  // Multiplication, division and modulo operators
+  // Multiplication, division, and modulo operators
 public:
-  inline fixp &operator *= (const fixp &n) {
-    if (!size2type::has_next
-      #ifdef DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
-        || 1
-      #endif
-      ) {
-        // Slower multiplication with 4 members
-        const support_type ah = (data & integral_mask) >> fractional;
-        const support_type bh = (n.data & integral_mask) >> fractional;
-        const support_type al = data & fractional_mask;
-        const support_type bl = n.data & fractional_mask;
+  inline fixp& operator *= (const fixp &n) {
+    if (ENABLED(DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION) || !size2type::has_next) {
+      // Slower multiplication with 4 members
+      const support_type ah = (data & integral_mask) >> fractional;
+      const support_type bh = (n.data & integral_mask) >> fractional;
+      const support_type al = data & fractional_mask;
+      const support_type bl = n.data & fractional_mask;
 
-        const support_type x1 = ah * bh;
-        const support_type x2 = ah * bl;
-        const support_type x3 = al * bh;
-        const support_type x4 = al * bl;
-        data = (x1 << fractional) + (x2 + x3) + (x4 >> fractional);
-        return *this;
-      }
+      const support_type x1 = ah * bh;
+      const support_type x2 = ah * bl;
+      const support_type x3 = al * bh;
+      const support_type x4 = al * bl;
+      data = (x1 << fractional) + (x2 + x3) + (x4 >> fractional);
+      return *this;
+    }
     next_type t(static_cast<next_type>(data) * static_cast<next_type>(n.data));
     t >>= fractional;
     data = Private::convert<next_type, support_type>(t);
@@ -195,12 +191,10 @@ public:
   }
   constexpr inline fixp operator *(const fixp &n) { return fixp(*this) *= n; }
 
-  inline fixp &operator /=(const fixp &n) {
-    if (!size2type::has_next
-      #ifdef DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
-        || 1
-      #endif
-      ) { fixp q, r; divide(n, q, r); data = q.data; return *this; }
+  inline fixp& operator /=(const fixp &n) {
+    if (ENABLED(DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION) || !size2type::has_next) {
+      fixp q, r; divide(n, q, r); data = q.data; return *this;
+    }
     next_type t(data);
     t <<= fractional;
     t /= n.data;
@@ -211,14 +205,13 @@ public:
 
   // Shift operators
 public:
-  inline fixp &operator >>=(const fixp &n) { data >>= (int)n; return *this; }
-  inline fixp &operator <<=(const fixp &n) { data <<= (int)n; return *this; }
+  inline fixp& operator >>=(const fixp &n) { data >>= (int)n; return *this; }
+  inline fixp& operator <<=(const fixp &n) { data <<= (int)n; return *this; }
 
   constexpr inline fixp operator <<(const fixp &n) { return fixp(*this) <<= n; }
   constexpr inline fixp operator >>(const fixp &n) { return fixp(*this) >>= n; }
 
-
-  // Convertion operator
+  // Conversion operators
 public:
   constexpr explicit inline operator int() const { return data >> fractional; }
   constexpr explicit inline operator float() const { return static_cast<float>(data) / one; }

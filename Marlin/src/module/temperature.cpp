@@ -499,7 +499,7 @@ volatile bool Temperature::raw_temps_ready = false;
    * Needs sufficient heater power to make some overshoot at target
    * temperature to succeed.
    */
-  void Temperature::PID_autotune(const celsius_t & desired_target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const celsius_t desired_target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
     float current_temp = 0.0;
     float target = (float)desired_target;
     int cycles = 0;
@@ -552,15 +552,16 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
-    static constexpr celsius_t HotEndOvershoot = celsius_t((int)HOTEND_OVERSHOOT);
-    #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
-      static constexpr celsius_t ChamberMaxTarget = celsius_t((int)CHAMBER_MAX_TARGET);
-    #endif
-    #if BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
-      static constexpr celsius_t BedMaxTarget = celsius_t((int)BED_MAX_TARGET);
-    #endif
+    static constexpr celsius_t hotend_overshoot = celsius_t((int)HOTEND_OVERSHOOT)
+      #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
+        , chamber_max_target = celsius_t((int)CHAMBER_MAX_TARGET)
+      #endif
+      #if BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
+        , bed_max_target = celsius_t((int)BED_MAX_TARGET)
+      #endif
+    ;
 
-    if (desired_target > GHV(ChamberMaxTarget, BedMaxTarget, celsius_t(temp_range[heater_id].maxtemp - HotEndOvershoot))) {
+    if (desired_target > GHV(chamber_max_target, bed_max_target, celsius_t(temp_range[heater_id].maxtemp - hotend_overshoot))) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
       return;
@@ -980,9 +981,9 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
         static float temp_iState[HOTENDS] = { 0 },
                      temp_dState[HOTENDS] = { 0 };
         static bool pid_reset[HOTENDS] = { false };
-        const float hotend_ee = (float)temp_hotend[ee].celsius;
-        const float hotend_target = (float)temp_hotend[ee].target;
-        const float pid_error = hotend_target - hotend_ee;
+        const float hotend_ee = temp_hotend[ee].celsius,
+                    hotend_target = temp_hotend[ee].target,
+                    pid_error = hotend_target - hotend_ee;
 
         float pid_output;
 
@@ -2348,7 +2349,7 @@ void Temperature::init() {
    * @param type             the protection type
    */
   void Temperature::tr_state_machine_t::run(const celsius_t current, const celsius_t target, const heater_id_t heater_id, int type) {
-    constexpr static celsius_t Hysteresis[] = {
+    constexpr static celsius_t hysteresis[] = {
       celsius_t((int)TERN0(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_HYSTERESIS)),
       celsius_t((int)TERN0(HAS_THERMALLY_PROTECTED_BED, THERMAL_PROTECTION_BED_HYSTERESIS)),
       celsius_t((int)TERN0(THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_CHAMBER_HYSTERESIS)),
@@ -2362,7 +2363,7 @@ void Temperature::init() {
     };
 
     const uint16_t period_seconds = Periods[type];
-    const celsius_t hysteresis_degc = Hysteresis[type];
+    const celsius_t hysteresis_degc = hysteresis[type];
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
@@ -3626,15 +3627,15 @@ void Temperature::tick() {
         #if TEMP_RESIDENCY_TIME > 0
 
           const celsius_t temp_diff = ABS(target_temp - temp);
-          static constexpr celsius_t Window = celsius_t((int)TEMP_WINDOW);
-          static constexpr celsius_t Hysteresis = celsius_t((int)TEMP_HYSTERESIS);
+          static constexpr celsius_t Window = celsius_t((int)TEMP_WINDOW),
+                                     hysteresis = celsius_t((int)TEMP_HYSTERESIS);
 
           if (!residency_start_ms) {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < Window)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > Hysteresis) {
+          else if (temp_diff > hysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
@@ -3766,15 +3767,15 @@ void Temperature::tick() {
         #if TEMP_BED_RESIDENCY_TIME > 0
 
           const celsius_t temp_diff = ABS(target_temp - temp);
-          static constexpr celsius_t BedWindow = celsius_t((int)TEMP_BED_WINDOW);
-          static constexpr celsius_t BedHysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
+          static constexpr celsius_t bed_window = celsius_t((int)TEMP_BED_WINDOW),
+                                     bed_hysteresis = celsius_t((int)TEMP_BED_HYSTERESIS);
 
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < BedWindow)
+            if (temp_diff < bed_window)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > BedHysteresis) {
+          else if (temp_diff > bed_hysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
@@ -3956,20 +3957,21 @@ void Temperature::tick() {
         #if TEMP_CHAMBER_RESIDENCY_TIME > 0
 
           const celsius_t temp_diff = ABS(target_temp - temp);
-          static constexpr celsius_t ChamberWindow = celsius_t((int)TEMP_CHAMBER_WINDOW);
-          static constexpr celsius_t ChamberHysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
+          static constexpr celsius_t chamber_window = celsius_t((int)TEMP_CHAMBER_WINDOW),
+                                     chamber_hysteresis = celsius_t((int)TEMP_CHAMBER_HYSTERESIS);
 
           if (!residency_start_ms) {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < ChamberWindow)
+            if (temp_diff < chamber_window)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > ChamberHysteresis) {
+          else if (temp_diff > chamber_hysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
 
           first_loop = false;
+
         #endif // TEMP_CHAMBER_RESIDENCY_TIME > 0
 
         // Prevent a wait-forever situation if R is misused i.e. M191 R0
@@ -4021,7 +4023,7 @@ void Temperature::tick() {
       #endif
 
       bool wants_to_cool = false;
-      celsius_t target_temp = -1.0f, previous_temp = 9999.0f;
+      celsius_t target_temp = -1, previous_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -4056,16 +4058,16 @@ void Temperature::tick() {
         #if TEMP_COOLER_RESIDENCY_TIME > 0
 
           const celsius_t temp_diff = ABS(target_temp - temp);
-          static constexpr celsius_t CoolerWindow = celsius_t((int)TEMP_COOLER_WINDOW);
-          static constexpr celsius_t CoolerHysteresis = celsius_t((int)TEMP_COOLER_HYSTERESIS);
+          static constexpr celsius_t cooler_window = celsius_t((int)TEMP_COOLER_WINDOW);
+          static constexpr celsius_t cooler_hysteresis = celsius_t((int)TEMP_COOLER_HYSTERESIS);
 
 
           if (!residency_start_ms) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < CoolerWindow)
+            if (temp_diff < cooler_window)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0);
           }
-          else if (temp_diff > CoolerHysteresis) {
+          else if (temp_diff > cooler_hysteresis) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
             residency_start_ms = now;
           }
