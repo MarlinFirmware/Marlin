@@ -160,12 +160,12 @@ public:
 
   
   #if ENABLED(SDSUPPORT)
-    // File touched.
-    static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
     // Scroll buttons on the file listing screen.
     static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &var, void *val_ptr);
+    // File touched.
+    static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
     // start print after confirmation received.
     static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr);
     // User hit the pause, resume or abort button.
