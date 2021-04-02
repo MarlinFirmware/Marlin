@@ -158,6 +158,7 @@ public:
     static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
+  
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
@@ -183,6 +184,8 @@ public:
     static void SDCardError();
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
+  #else 
+    static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   // OK Button the Confirm screen.
@@ -301,7 +304,7 @@ private:
 
 #define MKS_SimpleChinese     0
 #define MKS_English           1
-extern uint8_t DGUSLanguageSwitch;
+extern uint8_t mks_language_index;
 extern bool DGUSAutoTurnOff;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
