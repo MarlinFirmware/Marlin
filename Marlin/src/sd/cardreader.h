@@ -122,7 +122,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char* const match);
+  static void selectFileByName(const char * const match);
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)

@@ -748,6 +748,7 @@ extern eeprom_def eeprom_menu;
 /*****************************************/
 //
 #define TEXT_VALUE          "%d/%d"
+#define TEXT_VALUE_TARGET   "%d -> %d"
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"

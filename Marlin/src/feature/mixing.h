@@ -180,9 +180,9 @@ class Mixer {
     static float prev_z;
 
     // Update the current mix from the gradient for a given Z
-    static void update_gradient_for_z(const float z);
+    static void update_gradient_for_z(const_float_t z);
     static void update_gradient_for_planner_z();
-    static inline void gradient_control(const float z) {
+    static inline void gradient_control(const_float_t z) {
       if (gradient.enabled) {
         if (z >= gradient.end_z)
           T(gradient.end_vtool);

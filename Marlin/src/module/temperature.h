@@ -688,7 +688,7 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const_float_t temp) {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
@@ -724,7 +724,7 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      FORCE_INLINE static bool degBedNear(const float &temp) {
+      FORCE_INLINE static bool degBedNear(const_float_t temp) {
         return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
@@ -735,9 +735,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
-      FORCE_INLINE static bool isProbeBelowTemp(const float target_temp) { return temp_probe.celsius < target_temp; }
-      FORCE_INLINE static bool isProbeAboveTemp(const float target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const float target_temp, bool no_wait_for_cooling=true);
+      FORCE_INLINE static bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -825,7 +825,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -959,7 +959,7 @@ class Temperature {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
-        void run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

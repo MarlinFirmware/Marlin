@@ -71,7 +71,7 @@ namespace ExtUI {
     AlertDialogBox::showError(F("Unable to read media."));
   }
 
-  void onStatusChanged(const char* lcd_msg) {
+  void onStatusChanged(const char *lcd_msg) {
     StatusScreen::setStatusMessage(lcd_msg);
   }
 
@@ -140,7 +140,7 @@ namespace ExtUI {
   #if HAS_LEVELING && HAS_MESH
     void onMeshLevelingStart() {}
 
-    void onMeshUpdate(const int8_t x, const int8_t y, const float &val) {
+    void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) {
       BedMeshScreen::onMeshUpdate(x, y, val);
     }
 

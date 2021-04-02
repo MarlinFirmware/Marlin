@@ -149,7 +149,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 
 screenFunc_t _manual_move_func_ptr;
 
-void _goto_manual_move(const float scale) {
+void _goto_manual_move(const_float_t scale) {
   ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
