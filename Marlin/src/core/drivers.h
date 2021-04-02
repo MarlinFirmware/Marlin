@@ -134,6 +134,8 @@
 #define AXIS_HAS_HW_SERIAL(A) ( AXIS_HAS_UART(A) &&  defined(A##_HARDWARE_SERIAL) )
 #define AXIS_HAS_SW_SERIAL(A) ( AXIS_HAS_UART(A) && !defined(A##_HARDWARE_SERIAL) )
 
+#define AXIS_HAS_I_SCALE_ANALOG(A) ( AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) )
+
 #define AXIS_HAS_STALLGUARD(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
                                    || AXIS_DRIVER_TYPE(A,TMC2209) \
                                    || AXIS_DRIVER_TYPE(A,TMC2660) \
@@ -174,6 +176,9 @@
 #endif
 #if ANY_AXIS_HAS(SPI)
   #define HAS_TMC_SPI 1
+#endif
+#if ANY_AXIS_HAS(I_SCALE_ANALOG)
+  #define HAS_I_SCALE_ANALOG 1
 #endif
 
 //

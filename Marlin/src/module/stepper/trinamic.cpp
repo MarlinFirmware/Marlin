@@ -43,18 +43,25 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 //   L  = Label characters
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
-#if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+
+#if ENABLED(USE_VREF_FOR_SCALING) 
+  #define TMC_EFFECTIVE_RSENSE(ST) (2.5 / ST##_VREF) * (ST##_RSENSE + 0.02) - 0.02
 #else
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
+  #define TMC_EFFECTIVE_RSENSE(ST) ST##_RSENSE
+#endif
+
+#if ENABLED(TMC_USE_SW_SPI)
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(TMC_EFFECTIVE_RSENSE(ST)), TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK, ST##_CHAIN_POS)
+#else
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(TMC_EFFECTIVE_RSENSE(ST)), ST##_CHAIN_POS)
 #endif
 
 #if ENABLED(TMC_SERIAL_MULTIPLEXER)
-  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS, SERIAL_MUL_PIN1, SERIAL_MUL_PIN2)
+  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(TMC_EFFECTIVE_RSENSE(ST)), ST##_SLAVE_ADDRESS, SERIAL_MUL_PIN1, SERIAL_MUL_PIN2)
 #else
-  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
+  #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(TMC_EFFECTIVE_RSENSE(ST)), ST##_SLAVE_ADDRESS)
 #endif
-#define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
+#define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, float(TMC_EFFECTIVE_RSENSE(ST)), ST##_SLAVE_ADDRESS)
 
 #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
 #define TMC_SPI_DEFINE(ST, AI) _TMC_SPI_DEFINE(ST##_DRIVER_TYPE, ST, AI##_AXIS)
@@ -488,7 +495,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
-    gconf.i_scale_analog = false;
+    gconf.i_scale_analog = ENABLED(USE_VREF_FOR_SCALING);
     gconf.en_spreadcycle = !stealth;
     st.GCONF(gconf.sr);
     st.stored.stealthChop_enabled = stealth;
@@ -530,7 +537,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
-    gconf.i_scale_analog = false;
+    gconf.i_scale_analog = ENABLED(USE_VREF_FOR_SCALING);
     gconf.en_spreadcycle = !stealth;
     st.GCONF(gconf.sr);
     st.stored.stealthChop_enabled = stealth;

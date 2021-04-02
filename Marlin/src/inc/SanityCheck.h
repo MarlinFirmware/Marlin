@@ -2775,6 +2775,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
 #elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
+#elif ENABLED(USE_VREF_FOR_SCALING) && !HAS_I_SCALE_ANALOG
+  #error "I_SCALE_ANALOG requires TMC2208 or TMC2209 stepper drivers."
 #endif
 
 /**
