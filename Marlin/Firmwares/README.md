@@ -220,7 +220,7 @@
   
   By menu: 
 
-  - New procedure with the last firmware!!
+  - New procedure with the last firmware (02/04/21)!!
 
        "Motion/MoveAxis" deactived the endstops.
        "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
