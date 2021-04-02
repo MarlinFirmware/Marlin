@@ -155,8 +155,9 @@ void menu_configuration();
       CUSTOM_ITEM_MAIN(4);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(5)
-      CUSTOM_TEST_MAIN(5);
-      CUSTOM_ITEM_MAIN(5);
+      SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+      //CUSTOM_TEST_MAIN(5);
+      //CUSTOM_ITEM_MAIN(5);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(6)
       CUSTOM_TEST_MAIN(6);
