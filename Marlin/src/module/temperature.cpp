@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -1549,7 +1549,7 @@ void Temperature::manage_heater() {
 
   #endif // HAS_COOLER
 
-  #if HAS_FLOWMETER
+  #if ENABLED(LASER_COOLANT_FLOW_METER)
     cooler.flowmeter_task(ms);
     #if ENABLED(FLOWMETER_SAFETY)
       if (cutter.enabled() && cooler.check_flow_too_low()) {
