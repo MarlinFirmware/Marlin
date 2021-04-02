@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_pause_message(const PauseMessage msg);
+void lv_draw_pause_message(const PauseMessage msg);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
