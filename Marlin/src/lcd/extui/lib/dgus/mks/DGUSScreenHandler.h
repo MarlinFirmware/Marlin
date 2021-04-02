@@ -158,13 +158,14 @@ public:
     static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  // File touched.
-  static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
+  
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
     // Scroll buttons on the file listing screen.
     static void DGUSLCD_SD_ScrollFilelist(DGUS_VP_Variable &var, void *val_ptr);
+    // File touched.
+    static void DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr);
     // start print after confirmation received.
     static void DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr);
     // User hit the pause, resume or abort button.
@@ -183,6 +184,8 @@ public:
     static void SDCardError();
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
+  #else 
+    static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   // OK Button the Confirm screen.
