@@ -219,10 +219,13 @@
 ###  **Perform a Z offset:**
   
   By menu: 
-  - "Motion/MoveAxis" deactived the endstops.
-  - "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
-  - View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00)
-  - finally store the parameters "Configuration/StoreSettings".
+
+  - New procedure with the last firmware!!
+
+       "Motion/MoveAxis" deactived the endstops.
+       "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
+       View the value on the display and enter the value in the Configuration/ProbeZOffset" (Value between -17.00 and -13.00)
+       finally store the parameters "Configuration/StoreSettings".
   
   By terminal: 
   - deactivating the endstops with command M211 S0 =>read result in console.
