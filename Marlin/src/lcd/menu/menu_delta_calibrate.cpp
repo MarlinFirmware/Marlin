@@ -86,7 +86,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.goto_screen(_lcd_calibrate_homing);
   }
 
-  void _goto_tower_a(const float &a) {
+  void _goto_tower_a(const_float_t a) {
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
     _man_probe_pt(tower_vec * delta_calibration_radius());
   }

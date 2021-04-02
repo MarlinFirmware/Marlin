@@ -433,8 +433,7 @@ void unified_bed_leveling::G29() {
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
           }
-          const xy_pos_t near_probe_xy = param.XY_pos + probe.offset_xy;
-          probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          probe_entire_mesh(param.XY_pos, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
           report_current_position();
           probe_deployed = true;
@@ -672,7 +671,7 @@ void unified_bed_leveling::G29() {
  * G29 P5 C<value> : Adjust Mesh To Mean (and subtract the given offset).
  *                   Find the mean average and shift the mesh to center on that value.
  */
-void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float offset) {
+void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
   float sum = 0;
   int n = 0;
   GRID_LOOP(x, y)
@@ -821,7 +820,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
     return false;
   }
 
-  void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
+  void unified_bed_leveling::move_z_with_encoder(const_float_t multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
       idle();
@@ -883,7 +882,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
    *          Move to INVALID points and
    *          NOTE: Blocks the G-code queue and captures Marlin UI during use.
    */
-  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
+  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const_float_t z_clearance, const_float_t thick, const bool do_ubl_mesh_map) {
     ui.capture();
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
@@ -1140,8 +1139,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  // (for UBL_HILBERT_CURVE default to lower-left corner instead)
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
 
   if (err_flag) return UBL_ERR;
 
@@ -1633,10 +1633,10 @@ void unified_bed_leveling::smart_fill_mesh() {
        */
       #ifdef VALIDATE_MESH_TILT
         auto d_from = []{ DEBUG_ECHOPGM("D from "); };
-        auto normed = [&](const xy_pos_t &pos, const float &zadd) {
+        auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
+        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const_float_t zadd) {
           d_from(); SERIAL_ECHOPGM_P(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
@@ -1658,7 +1658,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // HAS_BED_PROBE
 
 #if ENABLED(UBL_G29_P31)
-  void unified_bed_leveling::smart_fill_wlsf(const float &weight_factor) {
+  void unified_bed_leveling::smart_fill_wlsf(const_float_t weight_factor) {
 
     // For each undefined mesh point, compute a distance-weighted least squares fit
     // from all the originally populated mesh points, weighted toward the point
