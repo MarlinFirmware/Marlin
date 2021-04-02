@@ -80,10 +80,10 @@ protected:
   // Helpers functions
 private:
   // Convert any type to our fixed-point value
-  constexpr static inline support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr static inline support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr static inline support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
-  constexpr static inline support_type from_unit(double && t) { return static_cast<support_type>(t * one); }
+  constexpr static support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
+  constexpr static support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
+  constexpr static support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
+  constexpr static support_type from_unit(double && t) { return static_cast<support_type>(t * one); }
   // Division using Egyptian algorithm, very slow, only used for large type or when DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
   void divide(fixp denom, fixp & quotient, fixp & remainder) {
     int sign = 0;
@@ -126,13 +126,13 @@ public:
   constexpr fixp(const support_type & rhs, bool) : data(rhs) {}
   constexpr fixp(support_type && other, bool) : data(Private::move(other)) {}
 
-  inline fixp& operator = (const fixp & other) { data = other.data; return *this; }
+  fixp& operator=(const fixp & other) { data = other.data; return *this; }
 
   // Comparison operators
 public:
-#define FP_CMP_OP(op) constexpr inline bool operator op(const fixp &o) const { return data op o.data; } \
-                      constexpr inline bool operator op(const int o) const   { return data op from_unit((int &&)o); } \
-                      constexpr inline bool operator op(const float o) const { return data op from_unit((float &&)o); }
+#define FP_CMP_OP(op) constexpr bool operator op(const fixp &o) const { return data op o.data; } \
+                      constexpr bool operator op(const int o) const   { return data op from_unit((int &&)o); } \
+                      constexpr bool operator op(const float o) const { return data op from_unit((float &&)o); }
   FP_CMP_OP(==)
   FP_CMP_OP(!=)
   FP_CMP_OP(<)
@@ -143,20 +143,20 @@ public:
 
   // Boolean testing operators
 public:
-  constexpr inline bool operator ! () const { return !data; }
-  constexpr inline fixp operator ~ () const { return fixp(~data, true); } // Not sure this actually make sense
-  constexpr inline fixp operator - () const { return fixp(-data, true); }
-  inline fixp& operator ++ () { data += one; return *this; }
-  inline fixp& operator -- () { data -= one; return *this; }
-  inline fixp& operator ++ (int) { constexpr const fixp t(*this); data += one; return t; }
-  inline fixp& operator -- (int) { constexpr const fixp t(*this); data -= one; return t; }
+  constexpr bool operator!() const { return !data; }
+  constexpr fixp operator~() const { return fixp(~data, true); } // Not sure this actually make sense
+  constexpr fixp operator-() const { return fixp(-data, true); }
+  fixp& operator++() { data += one; return *this; }
+  fixp& operator--() { data -= one; return *this; }
+  fixp& operator++(int) { constexpr const fixp t(*this); data += one; return t; }
+  fixp& operator--(int) { constexpr const fixp t(*this); data -= one; return t; }
 
   // Bitwise and addition/subtraction operators
 public:
-#define FP_BIN_OP(op) inline fixp& operator op##=(const fixp &n) { data op##= n.data; return *this; } \
-                      constexpr inline fixp operator op(const fixp &n) const { return fixp(data op n.data, true); } \
-                      constexpr inline fixp operator op(const int n)   const { return fixp(data op from_unit((int &&)n), true); } \
-                      constexpr inline fixp operator op(const float n) const { return fixp(data op from_unit((float&&)n), true); }
+#define FP_BIN_OP(op) fixp& operator op##=(const fixp &n) { data op##= n.data; return *this; } \
+                      constexpr fixp operator op(const fixp &n) const { return fixp(data op n.data, true); } \
+                      constexpr fixp operator op(const int n)   const { return fixp(data op from_unit((int &&)n), true); } \
+                      constexpr fixp operator op(const float n) const { return fixp(data op from_unit((float&&)n), true); }
   FP_BIN_OP(+)
   FP_BIN_OP(-)
   // Not sure bit operator makes sense here too...
@@ -169,7 +169,7 @@ public:
 
   // Multiplication, division, and modulo operators
 public:
-  inline fixp& operator *= (const fixp &n) {
+  fixp& operator*=(const fixp &n) {
     if (ENABLED(DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION) || !size2type::has_next) {
       // Slower multiplication with 4 members
       const support_type ah = (data & integral_mask) >> fractional;
@@ -189,9 +189,9 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr inline fixp operator *(const fixp &n) { return fixp(*this) *= n; }
+  constexpr fixp operator*(const fixp &n) { return fixp(*this) *= n; }
 
-  inline fixp& operator /=(const fixp &n) {
+  fixp& operator/=(const fixp &n) {
     if (ENABLED(DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION) || !size2type::has_next) {
       fixp q, r; divide(n, q, r); data = q.data; return *this;
     }
@@ -201,20 +201,20 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr inline fixp operator /(const fixp &n) { return fixp(*this) /= n; }
+  constexpr fixp operator/(const fixp &n) { return fixp(*this) /= n; }
 
   // Shift operators
 public:
-  inline fixp& operator >>=(const fixp &n) { data >>= (int)n; return *this; }
-  inline fixp& operator <<=(const fixp &n) { data <<= (int)n; return *this; }
+  fixp& operator>>=(const fixp &n) { data >>= (int)n; return *this; }
+  fixp& operator<<=(const fixp &n) { data <<= (int)n; return *this; }
 
-  constexpr inline fixp operator <<(const fixp &n) { return fixp(*this) <<= n; }
-  constexpr inline fixp operator >>(const fixp &n) { return fixp(*this) >>= n; }
+  constexpr fixp operator<<(const fixp &n) { return fixp(*this) <<= n; }
+  constexpr fixp operator>>(const fixp &n) { return fixp(*this) >>= n; }
 
   // Conversion operators
 public:
-  constexpr explicit inline operator int() const { return data >> fractional; }
-  constexpr explicit inline operator float() const { return static_cast<float>(data) / one; }
-  constexpr explicit inline operator double() const { return static_cast<double>(data) / one; }
-  constexpr inline support_type raw() const { return data; }
+  constexpr explicit operator int() const { return data >> fractional; }
+  constexpr explicit operator float() const { return static_cast<float>(data) / one; }
+  constexpr explicit operator double() const { return static_cast<double>(data) / one; }
+  constexpr support_type raw() const { return data; }
 };
