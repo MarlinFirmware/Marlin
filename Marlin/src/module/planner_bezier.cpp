@@ -43,7 +43,7 @@
 #define SIGMA 0.1f
 
 // Compute the linear interpolation between two real numbers.
-static inline float interp(const float &a, const float &b, const float &t) { return (1 - t) * a + t * b; }
+static inline float interp(const_float_t a, const_float_t b, const_float_t t) { return (1 - t) * a + t * b; }
 
 /**
  * Compute a Bézier curve using the De Casteljau's algorithm (see
@@ -51,7 +51,7 @@ static inline float interp(const float &a, const float &b, const float &t) { ret
  * easy to code and has good numerical stability (very important,
  * since Arudino works with limited precision real numbers).
  */
-static inline float eval_bezier(const float &a, const float &b, const float &c, const float &d, const float &t) {
+static inline float eval_bezier(const_float_t a, const_float_t b, const_float_t c, const_float_t d, const_float_t t) {
   const float iab = interp(a, b, t),
               ibc = interp(b, c, t),
               icd = interp(c, d, t),
@@ -64,7 +64,7 @@ static inline float eval_bezier(const float &a, const float &b, const float &c, 
  * We approximate Euclidean distance with the sum of the coordinates
  * offset (so-called "norm 1"), which is quicker to compute.
  */
-static inline float dist1(const float &x1, const float &y1, const float &x2, const float &y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
+static inline float dist1(const_float_t x1, const_float_t y1, const_float_t x2, const_float_t y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
 
 /**
  * The algorithm for computing the step is loosely based on the one in Kig
@@ -109,7 +109,7 @@ void cubic_b_spline(
   const xyze_pos_t &position,       // current position
   const xyze_pos_t &target,         // target position
   const xy_pos_t (&offsets)[2],     // a pair of offsets
-  const feedRate_t &scaled_fr_mm_s, // mm/s scaled by feedrate %
+  const_feedRate_t scaled_fr_mm_s,  // mm/s scaled by feedrate %
   const uint8_t extruder
 ) {
   // Absolute first and second control points are recovered.

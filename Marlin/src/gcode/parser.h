@@ -42,6 +42,10 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
+
+int32_t parse_int32(const char *buf);
+float parse_float(const char *buf);
+
 /**
  * GCode parser
  *
@@ -256,29 +260,12 @@ public:
   // The value as a string
   static inline char* value_string() { return value_ptr; }
 
-  // Float removes 'E' to prevent scientific notation interpretation
-  static inline float value_float() {
-    if (value_ptr) {
-      char *e = value_ptr;
-      for (;;) {
-        const char c = *e;
-        if (c == '\0' || c == ' ') break;
-        if (c == 'E' || c == 'e') {
-          *e = '\0';
-          const float ret = strtof(value_ptr, nullptr);
-          *e = c;
-          return ret;
-        }
-        ++e;
-      }
-      return strtof(value_ptr, nullptr);
-    }
-    return 0;
-  }
+  // Code value as float
+  static inline float value_float() { return value_ptr ? parse_float(value_ptr) : 0.0; }
 
   // Code value as a long or ulong
-  static inline int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
-  static inline uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, nullptr, 10) : 0UL; }
+  static inline int32_t value_long() { return value_ptr ? parse_int32(value_ptr) : 0L; }
+  static inline uint32_t value_ulong() { return value_ptr ? parse_int32(value_ptr) : 0UL; }
 
   // Code value for use as time
   static inline millis_t value_millis() { return value_ulong(); }
@@ -295,8 +282,8 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static inline float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
@@ -314,16 +301,16 @@ public:
       return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
     }
 
-    static inline float linear_value_to_mm(const float v)                    { return v * linear_unit_factor; }
+    static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
     static inline float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
     static inline float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
 
-    static inline float mm_to_linear_unit(const float mm)     { return mm; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm; }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float linear_value_to_mm(const_float_t v)             { return v; }
     static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
     static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 

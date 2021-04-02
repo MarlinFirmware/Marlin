@@ -106,7 +106,7 @@ void GcodeSuite::G29() {
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_MAX_POINTS) {
+      if (mbl_probe_index < (GRID_MAX_POINTS)) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);
@@ -142,8 +142,8 @@ void GcodeSuite::G29() {
     case MeshSet:
       if (parser.seenval('I')) {
         ix = parser.value_int();
-        if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_ECHOLNPAIR("I out of range (0-", GRID_MAX_POINTS_X - 1, ")");
+        if (!WITHIN(ix, 0, (GRID_MAX_POINTS_X) - 1)) {
+          SERIAL_ECHOLNPAIR("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
           return;
         }
       }
@@ -152,8 +152,8 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
-        if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_ECHOLNPAIR("J out of range (0-", GRID_MAX_POINTS_Y - 1, ")");
+        if (!WITHIN(iy, 0, (GRID_MAX_POINTS_Y) - 1)) {
+          SERIAL_ECHOLNPAIR("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
           return;
         }
       }
