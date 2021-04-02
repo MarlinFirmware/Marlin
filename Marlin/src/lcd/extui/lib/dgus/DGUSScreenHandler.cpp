@@ -176,7 +176,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 #if HAS_PID_HEATING
   void DGUSScreenHandler::DGUSLCD_SendTemperaturePID(DGUS_VP_Variable &var) {
     float value = *(float *)var.memadr;
-    value = value / 10;
+    value /= 10;
     float valuesend = 0;
     switch (var.VP) {
       default: return;
