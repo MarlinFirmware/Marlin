@@ -260,7 +260,7 @@ namespace ExtUI {
   #ifdef TOUCH_UI_LCD_TEMP_SCALING
     #define GET_TEMP_ADJUSTMENT(A) (float(A) / (TOUCH_UI_LCD_TEMP_SCALING))
   #else
-    #define GET_TEMP_ADJUSTMENT(A) A
+    #define GET_TEMP_ADJUSTMENT(A) float(A)
   #endif
 
   float getActualTemp_celsius(const heater_t heater) {
@@ -964,7 +964,7 @@ namespace ExtUI {
   }
 
   void setTargetTemp_celsius(const_float_t inval, const heater_t heater) {
-    float value = inval;
+    celsius_t value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
@@ -982,21 +982,25 @@ namespace ExtUI {
       default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
+          celsius_t target = thermalManager.hotend_max_target(e);
+          LIMIT(value, 0, target);
+          thermalManager.setTargetHotend(LROUND(value), e);
         #endif
       } break;
     }
   }
 
   void setTargetTemp_celsius(const_float_t inval, const extruder_t extruder) {
-    float value = inval;
+    celsius_t value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     #if HAS_HOTEND
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
+      celsius_t target = thermalManager.hotend_max_target(e);
+      LIMIT(value, 0, target);
+      thermalManager.setTargetHotend(LROUND(value), e);
     #endif
   }
 

@@ -70,5 +70,23 @@ struct celsius_t : public fixp<true, 10, 6> {
   explicit celsius_t(kelvin_t k) : fixp((float)k - 273.15f) {}
   explicit celsius_t(fahrenheit_t f) : fixp(((float)f - 32) * 0.5555555556f) {}
 
-  inline celsius_t& operator = (const celsius_t & other) { data = other.data; return *this; }
+  celsius_t& operator=(const celsius_t &other) { data = other.data; return *this; }
+  celsius_t& operator=(const int &val)         { data = val;        return *this; }
+  celsius_t& operator=(const float &val)       { data = val;        return *this; }
+  celsius_t& operator=(const double &val)      { data = val;        return *this; }
+
+  #define C_CMP_OP(op) constexpr bool operator op(const int   &o)     const { return data op o; } \
+                       constexpr bool operator op(const float &o)     const { return data op o; } \
+                       constexpr bool operator op(const celsius_t &o) const { return data op (int)o; }
+    C_CMP_OP(==)
+    C_CMP_OP(!=)
+    C_CMP_OP(<)
+    C_CMP_OP(>)
+    C_CMP_OP(>=)
+    C_CMP_OP(<=)
+  #undef C_CMP_OP
+
+  constexpr explicit operator int()    const { return (int)data; }
+  constexpr explicit operator float()  const { return (float)data; }
+  constexpr explicit operator double() const { return (double)data; }
 };
