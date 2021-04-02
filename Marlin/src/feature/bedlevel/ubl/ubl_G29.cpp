@@ -433,8 +433,7 @@ void unified_bed_leveling::G29() {
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
           }
-          const xy_pos_t near_probe_xy = param.XY_pos + probe.offset_xy;
-          probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          probe_entire_mesh(param.XY_pos, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
           report_current_position();
           probe_deployed = true;
@@ -1140,8 +1139,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  // (for UBL_HILBERT_CURVE default to lower-left corner instead)
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
 
   if (err_flag) return UBL_ERR;
 
