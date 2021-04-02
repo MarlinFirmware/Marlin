@@ -190,7 +190,7 @@ void unified_bed_leveling::display_map(const int map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
+  for (int8_t j = (GRID_MAX_POINTS_Y) - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -217,7 +217,7 @@ void unified_bed_leveling::display_map(const int map_type) {
         if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR('\t');
+      if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');

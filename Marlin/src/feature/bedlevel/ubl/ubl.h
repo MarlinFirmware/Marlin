@@ -38,8 +38,8 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 
 struct mesh_index_pair;
 
-#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
-#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
+#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -142,19 +142,19 @@ public:
   }
 
   static int8_t cell_index_x_valid(const_float_t x) {
-    return WITHIN(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X - 2));
+    return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
   static int8_t cell_index_y_valid(const_float_t y) {
-    return WITHIN(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y - 2));
+    return WITHIN(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
   static int8_t cell_index_x(const_float_t x) {
-    return constrain(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X) - 2);
+    return constrain(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
   static int8_t cell_index_y(const_float_t y) {
-    return constrain(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y) - 2);
+    return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
   static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
@@ -164,11 +164,11 @@ public:
 
   static int8_t closest_x_index(const_float_t x) {
     const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
-    return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
+    return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
   static int8_t closest_y_index(const_float_t y) {
     const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
-    return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
+    return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
   static inline xy_int8_t closest_indexes(const xy_pos_t &xy) {
     return { closest_x_index(xy.x), closest_y_index(xy.y) };
@@ -204,10 +204,10 @@ public:
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
   static inline float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const int x1_i, const int yi) {
-    if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+    if (!WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(yi, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
+        if (WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
         DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
       }
 
@@ -218,19 +218,19 @@ public:
     const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * RECIPROCAL(MESH_X_DIST),
                 z1 = z_values[x1_i][yi];
 
-    return z1 + xratio * (z_values[_MIN(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
-                                                                                    // If it is, it is clamped to the last element of the
-                                                                                    // z_values[][] array and no correction is applied.
+    return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+                                                                                        // If it is, it is clamped to the last element of the
+                                                                                        // z_values[][] array and no correction is applied.
   }
 
   //
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
   static inline float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
-    if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
+    if (!WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(y1_i, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(xi, 0, GRID_MAX_POINTS_X - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
+        if (WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
         DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 
@@ -241,9 +241,9 @@ public:
     const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * RECIPROCAL(MESH_Y_DIST),
                 z1 = z_values[xi][y1_i];
 
-    return z1 + yratio * (z_values[xi][_MIN(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
-                                                                                    // If it is, it is clamped to the last element of the
-                                                                                    // z_values[][] array and no correction is applied.
+    return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
+                                                                                        // If it is, it is clamped to the last element of the
+                                                                                        // z_values[][] array and no correction is applied.
   }
 
   /**
@@ -266,11 +266,11 @@ public:
 
     const float z1 = calc_z0(rx0,
                              mesh_index_to_xpos(cx), z_values[cx][cy],
-                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
+                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1][cy]);
 
     const float z2 = calc_z0(rx0,
-                             mesh_index_to_xpos(cx), z_values[cx][_MIN(cy, GRID_MAX_POINTS_Y - 2) + 1],
-                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, GRID_MAX_POINTS_X - 2) + 1][_MIN(cy, GRID_MAX_POINTS_Y - 2) + 1]);
+                             mesh_index_to_xpos(cx), z_values[cx][_MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1],
+                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1][_MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1]);
 
     float z0 = calc_z0(ry0,
                        mesh_index_to_ypos(cy), z1,
@@ -302,10 +302,10 @@ public:
   static inline float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
   static inline float mesh_index_to_xpos(const uint8_t i) {
-    return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
+    return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
   }
   static inline float mesh_index_to_ypos(const uint8_t i) {
-    return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
+    return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
   }
 
   #if UBL_SEGMENTED
