@@ -210,24 +210,17 @@
 #define FAN2_PIN                            PB5   // Fan2
 
 //
-// SD Connection
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
-#endif
-
-//
 // Software SPI pins for TMC2130 stepper drivers
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PA7
+    #define TMC_SW_MOSI                     PE14
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PA6
+    #define TMC_SW_MISO                     PA14
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PA5
+    #define TMC_SW_SCK                      PE15
   #endif
 #endif
 
@@ -272,6 +265,13 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
+//
+// SD Connection
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION LCD
+#endif
+
 /**
  *               -----                                             -----
  *           NC | 1 2 | GND                                    5V | 1 2 | GND
@@ -306,10 +306,18 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(ONBOARD)
+
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #define SDIO_D0_PIN                       PC8
+  #define SDIO_D1_PIN                       PC9
+  #define SDIO_D2_PIN                       PC10
+  #define SDIO_D3_PIN                       PC11
+  #define SDIO_CK_PIN                       PC12
+  #define SDIO_CMD_PIN                      PD2
   #define SD_DETECT_PIN                     PC14
+
 #elif SD_CONNECTION_IS(LCD)
-  
+
   #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
@@ -474,15 +482,14 @@
  *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
  * (ESP-IO0) PB10 | 12 |       | 5 | PB13 (ESP-CLK)
  * (ESP-IO4) PB11 | 13 |       | 4 | NC
- *             NC | 14 |       | 3 | PE15 (ESP-EN)
+ *             NC | 14 |       | 3 | 3.3V (ESP-EN)
  *  (ESP-RX)  PD8 | 15 |       | 2 | NC
- *  (ESP-TX)  PD9 | 16 |       | 1 | PE14 (ESP-RST)
+ *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
  * 
  *                       WIFI
  */
 #define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PE14
-#define ESP_WIFI_MODULE_ENABLE_PIN          PE15
+#define ESP_WIFI_MODULE_RESET_PIN           PC14
 #define ESP_WIFI_MODULE_GPIO0_PIN           PB10
 #define ESP_WIFI_MODULE_GPIO4_PIN           PB11

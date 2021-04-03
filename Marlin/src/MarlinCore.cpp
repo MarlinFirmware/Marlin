@@ -234,7 +234,7 @@
   #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
-#if ENABLED(DRIVER_SAFE_POWER_PROTECT)
+#if DRIVER_SAFE_POWER_PROTECT
   #include "feature/driver_anti_reverse_protection.h"
 #endif
 
@@ -1470,7 +1470,7 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
-  #if ENABLED(DRIVER_SAFE_POWER_PROTECT)
+  #if DRIVER_SAFE_POWER_PROTECT
     SETUP_RUN(test_anti_plug());
   #endif
 
