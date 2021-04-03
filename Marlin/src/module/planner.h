@@ -491,7 +491,7 @@ class Planner {
     #if HAS_CLASSIC_JERK
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
-      static inline void set_max_jerk(const AxisEnum, const float&) {}
+      static inline void set_max_jerk(const AxisEnum, const_float_t ) {}
     #endif
 
     #if EXTRUDERS
@@ -541,7 +541,7 @@ class Planner {
         static void calculate_volumetric_extruder_limits();
       #endif
 
-      FORCE_INLINE static void set_filament_size(const uint8_t e, const float &v) {
+      FORCE_INLINE static void set_filament_size(const uint8_t e, const_float_t v) {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
@@ -552,7 +552,7 @@ class Planner {
     #endif
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float &v) {
+      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const_float_t v) {
         volumetric_extruder_limit[e] = v;
         calculate_volumetric_extruder_limit(e);
       }
@@ -567,7 +567,7 @@ class Planner {
        *  Returns 1.0 if planner.z_fade_height is 0.0.
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
-      static inline float fade_scaling_factor_for_z(const float &rz) {
+      static inline float fade_scaling_factor_for_z(const_float_t rz) {
         static float z_fade_factor = 1;
         if (!z_fade_height) return 1;
         if (rz >= z_fade_height) return 0;
@@ -580,27 +580,27 @@ class Planner {
 
       FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999f; }
 
-      FORCE_INLINE static void set_z_fade_height(const float &zfh) {
+      FORCE_INLINE static void set_z_fade_height(const_float_t zfh) {
         z_fade_height = zfh > 0 ? zfh : 0;
         inverse_z_fade_height = RECIPROCAL(z_fade_height);
         force_fade_recalc();
       }
 
-      FORCE_INLINE static bool leveling_active_at_z(const float &rz) {
+      FORCE_INLINE static bool leveling_active_at_z(const_float_t rz) {
         return !z_fade_height || rz < z_fade_height;
       }
 
     #else
 
-      FORCE_INLINE static float fade_scaling_factor_for_z(const float&) { return 1; }
+      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t ) { return 1; }
 
-      FORCE_INLINE static bool leveling_active_at_z(const float&) { return true; }
+      FORCE_INLINE static bool leveling_active_at_z(const_float_t ) { return true; }
 
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
 
-      FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
+      FORCE_INLINE static void skew(float &cx, float &cy, const_float_t cz) {
         if (COORDINATE_OKAY(cx, X_MIN_POS + 1, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
           const float sx = cx - cy * skew_factor.xy - cz * (skew_factor.xz - (skew_factor.xy * skew_factor.yz)),
                       sy = cy - cz * skew_factor.yz;
@@ -611,7 +611,7 @@ class Planner {
       }
       FORCE_INLINE static void skew(xyz_pos_t &raw) { skew(raw.x, raw.y, raw.z); }
 
-      FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
+      FORCE_INLINE static void unskew(float &cx, float &cy, const_float_t cz) {
         if (COORDINATE_OKAY(cx, X_MIN_POS, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS, Y_MAX_POS)) {
           const float sx = cx + cy * skew_factor.xy + cz * skew_factor.xz,
                       sy = cy + cz * skew_factor.yz;
@@ -713,7 +713,7 @@ class Planner {
       #if HAS_DIST_MM_ARG
         , const xyze_float_t &cart_dist_mm
       #endif
-      , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     );
 
     /**
@@ -736,7 +736,7 @@ class Planner {
       #if HAS_DIST_MM_ARG
         , const xyze_float_t &cart_dist_mm
       #endif
-      , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     );
 
     /**
@@ -767,18 +767,18 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
+    static bool buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
       #if HAS_DIST_MM_ARG
         , const xyze_float_t &cart_dist_mm
       #endif
-      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     );
 
     FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
       #if HAS_DIST_MM_ARG
         , const xyze_float_t &cart_dist_mm
       #endif
-      , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     ) {
       return buffer_segment(abce.a, abce.b, abce.c, abce.e
         #if HAS_DIST_MM_ARG
@@ -800,15 +800,15 @@ class Planner {
      *  millimeters  - the length of the movement, if known
      *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
-    static bool buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+    static bool buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , const float &inv_duration=0.0
+        , const_float_t inv_duration=0.0
       #endif
     );
 
-    FORCE_INLINE static bool buffer_line(const xyze_pos_t &cart, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+    FORCE_INLINE static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , const float &inv_duration=0.0
+        , const_float_t inv_duration=0.0
       #endif
     ) {
       return buffer_line(cart.x, cart.y, cart.z, cart.e, fr_mm_s, extruder, millimeters
@@ -835,9 +835,9 @@ class Planner {
      *
      * Clears previous speed values.
      */
-    static void set_position_mm(const float &rx, const float &ry, const float &rz, const float &e);
+    static void set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e);
     FORCE_INLINE static void set_position_mm(const xyze_pos_t &cart) { set_position_mm(cart.x, cart.y, cart.z, cart.e); }
-    static void set_e_position_mm(const float &e);
+    static void set_e_position_mm(const_float_t e);
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -845,7 +845,7 @@ class Planner {
      * The supplied position is in machine space, and no additional
      * conversions are applied.
      */
-    static void set_machine_position_mm(const float &a, const float &b, const float &c, const float &e);
+    static void set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e);
     FORCE_INLINE static void set_machine_position_mm(const abce_pos_t &abce) { set_machine_position_mm(abce.a, abce.b, abce.c, abce.e); }
 
     /**
@@ -957,7 +957,7 @@ class Planner {
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    static float estimate_acceleration_distance(const float &initial_rate, const float &target_rate, const float &accel) {
+    static float estimate_acceleration_distance(const_float_t initial_rate, const_float_t target_rate, const_float_t accel) {
       if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
       return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
@@ -970,7 +970,7 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    static float intersection_distance(const float &initial_rate, const float &final_rate, const float &accel, const float &distance) {
+    static float intersection_distance(const_float_t initial_rate, const_float_t final_rate, const_float_t accel, const_float_t distance) {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
       return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
@@ -980,7 +980,7 @@ class Planner {
      * to reach 'target_velocity_sqr' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed_sqr(const float &accel, const float &target_velocity_sqr, const float &distance) {
+    static float max_allowable_speed_sqr(const_float_t accel, const_float_t target_velocity_sqr, const_float_t distance) {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
@@ -988,12 +988,12 @@ class Planner {
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */
-      static float final_speed(const float &initial_velocity, const float &accel, const float &distance) {
+      static float final_speed(const_float_t initial_velocity, const_float_t accel, const_float_t distance) {
         return SQRT(sq(initial_velocity) + 2 * accel * distance);
       }
     #endif
 
-    static void calculate_trapezoid_for_block(block_t * const block, const float &entry_factor, const float &exit_factor);
+    static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor);
 
     static void reverse_pass_kernel(block_t * const current, const block_t * const next);
     static void forward_pass_kernel(const block_t * const previous, block_t * const current, uint8_t block_index);
@@ -1013,7 +1013,7 @@ class Planner {
         vector *= RSQRT(magnitude_sq);
       }
 
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, xyze_float_t &unit_vec) {
+      FORCE_INLINE static float limit_value_by_axis_maximum(const_float_t max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
         LOOP_XYZE(idx) {
           if (unit_vec[idx]) {

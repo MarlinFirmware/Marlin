@@ -93,7 +93,7 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
-void print_signed_float(PGM_P const prefix, const float &f) {
+void print_signed_float(PGM_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
   SERIAL_ECHOPGM_P(prefix);
   SERIAL_CHAR(':');

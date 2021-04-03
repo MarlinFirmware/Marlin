@@ -72,7 +72,7 @@ extern bool once_flag;
 extern uint8_t sel_id;
 extern lv_group_t *g;
 
-extern void LCD_IO_WriteData(uint16_t RegValue);
+void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {
   "G29N\nM500",

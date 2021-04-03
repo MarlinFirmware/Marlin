@@ -282,8 +282,8 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static inline float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
@@ -301,16 +301,16 @@ public:
       return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
     }
 
-    static inline float linear_value_to_mm(const float v)                    { return v * linear_unit_factor; }
+    static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
     static inline float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
     static inline float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
 
-    static inline float mm_to_linear_unit(const float mm)     { return mm; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm; }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float linear_value_to_mm(const_float_t v)             { return v; }
     static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
     static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 

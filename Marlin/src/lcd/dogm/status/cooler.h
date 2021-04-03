@@ -64,7 +64,7 @@
   };
 #endif
 
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   #define STATUS_FLOWMETER_WIDTH 24
   const unsigned char status_flowmeter_bmp2[] PROGMEM = {
     B00000001,B11111000,B00000000,
