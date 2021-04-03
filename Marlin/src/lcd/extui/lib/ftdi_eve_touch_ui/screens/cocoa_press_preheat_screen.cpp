@@ -25,8 +25,6 @@
 
 #ifdef FTDI_COCOA_PREHEAT_SCREEN
 
-#include "../ftdi_eve_lib/extras/circular_progress.h"
-
 using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;

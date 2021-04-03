@@ -311,7 +311,7 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
 
 // Used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
-  uint16_t* wptr = (uint16_t*)ptr;
+  uint16_t *wptr = (uint16_t*)ptr;
   for (size_t i = 0; i < cnt; i += 2) { *wptr = fill; wptr++; }
 }
 
@@ -346,7 +346,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
   #if HAS_LCD_IO
     static uint16_t bufferA[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)], bufferB[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)];
-    uint16_t* buffer = &bufferA[0];
+    uint16_t *buffer = &bufferA[0];
   #else
     uint16_t buffer[WIDTH * GRAPHICAL_TFT_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
@@ -404,7 +404,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
           tftio.WriteSequence(buffer, COUNT(bufferA));
         #else
-          uint8_t* bufptr = (uint8_t*) buffer;
+          uint8_t *bufptr = (uint8_t*) buffer;
           for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
             LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);

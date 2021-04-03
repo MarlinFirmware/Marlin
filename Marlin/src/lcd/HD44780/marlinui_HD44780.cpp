@@ -46,7 +46,7 @@
   #include "../../gcode/parser.h"
 #endif
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -584,7 +584,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 }
 #endif
 
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
     lcd_put_u8str("~ ");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
@@ -827,7 +827,7 @@ void MarlinUI::draw_status_screen() {
       #if HAS_COOLER
         _draw_cooler_status('*', blink);
       #endif
-      #if HAS_FLOWMETER
+      #if ENABLED(LASER_COOLANT_FLOW_METER)
         _draw_flowmeter_status();
       #endif
 
@@ -1076,7 +1076,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm) {
     const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
@@ -1088,7 +1088,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
     uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
     if (value) {
@@ -1279,7 +1279,7 @@ void MarlinUI::draw_status_screen() {
                    pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
                    suppress_x_offset = 0, suppress_y_offset = 0;
 
-        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;

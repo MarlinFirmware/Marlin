@@ -391,7 +391,7 @@ void unified_bed_leveling::G29() {
 
     if (parser.seen('J')) {
       save_ubl_active_state_and_disable();
-      tilt_mesh_based_on_probed_grid(param.grid_size == 0); // Zero size does 3-Point
+      tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
       restore_ubl_active_state_and_leave();
       #if ENABLED(UBL_G29_J_RECENTER)
         do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
@@ -433,8 +433,7 @@ void unified_bed_leveling::G29() {
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
           }
-          const xy_pos_t near_probe_xy = param.XY_pos + probe.offset_xy;
-          probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          probe_entire_mesh(param.XY_pos, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
           report_current_position();
           probe_deployed = true;
@@ -672,7 +671,7 @@ void unified_bed_leveling::G29() {
  * G29 P5 C<value> : Adjust Mesh To Mean (and subtract the given offset).
  *                   Find the mean average and shift the mesh to center on that value.
  */
-void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float offset) {
+void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
   float sum = 0;
   int n = 0;
   GRID_LOOP(x, y)
@@ -821,7 +820,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
     return false;
   }
 
-  void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
+  void unified_bed_leveling::move_z_with_encoder(const_float_t multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
       idle();
@@ -883,7 +882,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
    *          Move to INVALID points and
    *          NOTE: Blocks the G-code queue and captures Marlin UI during use.
    */
-  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
+  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const_float_t z_clearance, const_float_t thick, const bool do_ubl_mesh_map) {
     ui.capture();
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
@@ -1118,8 +1117,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   if (parser.seen('J')) {
     #if HAS_BED_PROBE
-      param.grid_size = parser.has_value() ? parser.value_int() : 0;
-      if (param.grid_size && !WITHIN(param.grid_size, 2, 9)) {
+      param.J_grid_size = parser.value_byte();
+      if (param.J_grid_size && !WITHIN(param.J_grid_size, 2, 9)) {
         SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
@@ -1140,8 +1139,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  // (for UBL_HILBERT_CURVE default to lower-left corner instead)
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
 
   if (err_flag) return UBL_ERR;
 
@@ -1420,8 +1420,8 @@ void unified_bed_leveling::smart_fill_mesh() {
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
     const float x_min = probe.min_x(), x_max = probe.max_x(),
                 y_min = probe.min_y(), y_max = probe.max_y(),
-                dx = (x_max - x_min) / (param.grid_size - 1),
-                dy = (y_max - y_min) / (param.grid_size - 1);
+                dx = (x_max - x_min) / (param.J_grid_size - 1),
+                dy = (y_max - y_min) / (param.J_grid_size - 1);
 
     xy_float_t points[3];
     probe.get_three_points(points);
@@ -1507,14 +1507,14 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       bool zig_zag = false;
 
-      const uint16_t total_points = sq(param.grid_size);
+      const uint16_t total_points = sq(param.J_grid_size);
       uint16_t point_num = 1;
 
       xy_pos_t rpos;
-      LOOP_L_N(ix, param.grid_size) {
+      LOOP_L_N(ix, param.J_grid_size) {
         rpos.x = x_min + ix * dx;
-        LOOP_L_N(iy, param.grid_size) {
-          rpos.y = y_min + dy * (zig_zag ? param.grid_size - 1 - iy : iy);
+        LOOP_L_N(iy, param.J_grid_size) {
+          rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           if (!abort_flag) {
             SERIAL_ECHOLNPAIR("Tilting mesh point ", point_num, "/", total_points, "\n");
@@ -1592,7 +1592,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         DEBUG_DELAY(20);
       }
 
-      apply_rotation_xyz(rotation, mx, my, mz);
+      rotation.apply_rotation_xyz(mx, my, mz);
 
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
@@ -1633,10 +1633,10 @@ void unified_bed_leveling::smart_fill_mesh() {
        */
       #ifdef VALIDATE_MESH_TILT
         auto d_from = []{ DEBUG_ECHOPGM("D from "); };
-        auto normed = [&](const xy_pos_t &pos, const float &zadd) {
+        auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
+        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const_float_t zadd) {
           d_from(); SERIAL_ECHOPGM_P(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
@@ -1658,7 +1658,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // HAS_BED_PROBE
 
 #if ENABLED(UBL_G29_P31)
-  void unified_bed_leveling::smart_fill_wlsf(const float &weight_factor) {
+  void unified_bed_leveling::smart_fill_wlsf(const_float_t weight_factor) {
 
     // For each undefined mesh point, compute a distance-weighted least squares fit
     // from all the originally populated mesh points, weighted toward the point

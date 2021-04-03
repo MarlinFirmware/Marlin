@@ -38,7 +38,7 @@ class MediaFileReader {
     #endif
 
   public:
-    bool open(const char* filename);
+    bool open(const char *filename);
     int16_t read(void *buff, size_t bytes);
     uint32_t size();
     void rewind();

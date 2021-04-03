@@ -1,9 +1,9 @@
-/*********************
- * adjuster_widget.h *
- *********************/
+/***********************
+ * circular_progress.h *
+ ***********************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
+ *   Written By Marcio Teixeira 2019 - Aleph Objects, Inc.                  *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -20,20 +20,8 @@
  ****************************************************************************/
 
 #pragma once
-#include "../extended/screen_types.h"
 
-void draw_adjuster_value(
-  CommandProcessor& cmd,
-  int16_t x, int16_t y, int16_t w, int16_t h,
-  float value, progmem_str units = nullptr,
-  int8_t width = 5, uint8_t precision = 1
-);
-
-void draw_adjuster(
-  CommandProcessor& cmd,
-  int16_t x, int16_t y, int16_t w, int16_t h,
-  uint8_t tag,
-  float value, progmem_str units = nullptr,
-  int8_t width = 5, uint8_t precision = 1,
-  draw_mode_t what = BOTH
-);
+namespace FTDI {
+  void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, float percent, char *text, uint32_t bgcolor, uint32_t fgcolor);
+  void draw_circular_progress(CommandProcessor& cmd, int x, int y, int w, int h, float percent,             uint32_t bgcolor, uint32_t fgcolor);
+}

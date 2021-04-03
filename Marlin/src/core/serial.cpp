@@ -91,7 +91,7 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   if (prefix) serialprintPGM(prefix);
   SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
