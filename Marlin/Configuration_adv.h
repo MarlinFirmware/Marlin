@@ -951,7 +951,7 @@
  * See https://hydraraptor.blogspot.com/2010/12/frequency-limit.html
  * Use M201 F<freq> G<min%> to change limits at runtime.
  */
-//#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
+#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
 #ifdef XY_FREQUENCY_LIMIT
   #define XY_FREQUENCY_MIN_PERCENT 5 // (percent) Minimum FR percentage to apply. Set with M201 G<min%>.
 #endif
@@ -1816,7 +1816,7 @@
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
   #define LIN_ADVANCE_K 0 //.22    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
-  //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
 
 // @section leveling
@@ -2376,7 +2376,7 @@
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     #define E0_MAX_CURRENT    1000
     #define E0_SENSE_RESISTOR   91
-    #define E0_MICROSTEPS       16
+    #define E0_MICROSTEPS       E_MICROSTEPS
   #endif
 
   #if AXIS_DRIVER_TYPE_E1(TMC26X)
@@ -2537,7 +2537,7 @@
   #endif
 
   #if AXIS_IS_TMC(E1)
-    #define E1_CURRENT      800
+    #define E1_CURRENT      E_CURRENT
     #define E1_MICROSTEPS   E0_MICROSTEPS
     #define E1_RSENSE         0.11
     #define E1_CHAIN_POS     -1
@@ -2545,7 +2545,7 @@
   #endif
 
   #if AXIS_IS_TMC(E2)
-    #define E2_CURRENT      800
+    #define E2_CURRENT      E_CURRENT
     #define E2_MICROSTEPS   E0_MICROSTEPS
     #define E2_RSENSE         0.11
     #define E2_CHAIN_POS     -1
@@ -2827,6 +2827,7 @@
    *   stepperY.intpol(0); \
    * }
    */
+  // for disable 2208 #define TMC_ADV() { stepperE0.en_spreadCycle(true); }
   #define TMC_ADV() {  }
 
 #endif // HAS_TRINAMIC_CONFIG
@@ -3487,18 +3488,50 @@
 // Custom Menu: Main Menu
 //#define CUSTOM_MENU_MAIN
 #if ENABLED(CUSTOM_MENU_MAIN)
-  //#define CUSTOM_MENU_MAIN_TITLE "Custom Commands"
+  #define CUSTOM_MENU_MAIN_TITLE "Menu Special Delta & Levelings"
   #define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 User Script Done"
   #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
-  //#define CUSTOM_MENU_MAIN_SCRIPT_RETURN   // Return to status screen after a script
+  #define CUSTOM_MENU_MAIN_SCRIPT_RETURN   // Return to status screen after a script
   #define CUSTOM_MENU_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
 
-  #define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
-  #define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"
+  #define MAIN_MENU_ITEM_1_DESC "Reset All Settings"
+  #define MAIN_MENU_ITEM_1_GCODE "G28\nM502\nM500\nM503"
+  #define MAIN_MENU_ITEM_1_CONFIRM
+
+  #define MAIN_MENU_ITEM_2_DESC "Fast Calib. Delta"
+  #define MAIN_MENU_ITEM_2_GCODE "G33 P3 V3\nM500\nM140 S0"
+  #define MAIN_MENU_ITEM_2_CONFIRM
+
+  #define MAIN_MENU_ITEM_3_DESC "Fine Calib. Delta"
+  #define MAIN_MENU_ITEM_3_GCODE "G33 P5 V3\nM500\nM140 S0"  //P6ok
+  #define MAIN_MENU_ITEM_3_CONFIRM
+
+  #define MAIN_MENU_ITEM_4_DESC "Run PID Nozzle (PLA)"
+  #define MAIN_MENU_ITEM_4_GCODE "M106 S180\nM303 E0 C8 S210 U\nM500\nM107"
+  #define MAIN_MENU_ITEM_4_CONFIRM
+  
+  #define MAIN_MENU_ITEM_5_DESC "Wizard ZOffSet Menu"
+  #define MAIN_MENU_ITEM_5_GCODE "G28" //Modif menu_main.cpp(lig158)
+  #define MAIN_MENU_ITEM_5_CONFIRM
+
+  #define MAIN_MENU_ITEM_6_DESC "Leveling UBL for PLA"
+  #define MAIN_MENU_ITEM_6_GCODE "G28\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S0\nG29 A\nM500\nM140 S0"
+  #define MAIN_MENU_ITEM_6_CONFIRM
+
+  #define MAIN_MENU_ITEM_7_DESC "Leveling UBL for PETG"
+  #define MAIN_MENU_ITEM_7_GCODE "G28\nM190 S" STRINGIFY(PREHEAT_4_TEMP_BED) "\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S1\nG29 A\nM500\nM140 S0"
+  #define MAIN_MENU_ITEM_7_CONFIRM
+
+  #define MAIN_MENU_ITEM_8_DESC "Leveling UBL for ABS"
+  #define MAIN_MENU_ITEM_8_GCODE "G28\nM190 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S2\nG29 A\nM500\nM140 S0"
+  #define MAIN_MENU_ITEM_8_CONFIRM
+
+  //#define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
+  //#define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"
   //#define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
 
-  #define MAIN_MENU_ITEM_2_DESC "Preheat for " PREHEAT_1_LABEL
-  #define MAIN_MENU_ITEM_2_GCODE "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
+  //#define MAIN_MENU_ITEM_2_DESC "Preheat for " PREHEAT_1_LABEL
+  //#define MAIN_MENU_ITEM_2_GCODE "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
   //#define MAIN_MENU_ITEM_2_CONFIRM
 
   //#define MAIN_MENU_ITEM_3_DESC "Preheat for " PREHEAT_2_LABEL
