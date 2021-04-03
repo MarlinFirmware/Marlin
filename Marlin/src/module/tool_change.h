@@ -21,8 +21,7 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
-#include "../core/types.h"
+#include "../inc/MarlinConfig.h"
 
 //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
 
@@ -43,7 +42,7 @@
   extern toolchange_settings_t toolchange_settings;
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    extern void tool_change_prime();
+    void tool_change_prime();
   #endif
 
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
@@ -80,11 +79,7 @@
 
 #if ENABLED(PARKING_EXTRUDER)
 
-  #if ENABLED(PARKING_EXTRUDER_SOLENOIDS_INVERT)
-    #define PE_MAGNET_ON_STATE !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
-  #else
-    #define PE_MAGNET_ON_STATE PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
-  #endif
+  #define PE_MAGNET_ON_STATE TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, !)PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
 
   void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state);
 
@@ -114,9 +109,11 @@
 
 #endif
 
-TERN_(ELECTROMAGNETIC_SWITCHING_TOOLHEAD, void est_init());
-
-TERN_(SWITCHING_TOOLHEAD, void swt_init());
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  void est_init();
+#elif ENABLED(SWITCHING_TOOLHEAD)
+  void swt_init();
+#endif
 
 /**
  * Perform a tool-change, which may result in moving the

@@ -234,9 +234,15 @@ extern char print_filename[16];
 extern millis_t dwin_heat_time;
 
 typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
-  TERN_(HAS_FAN,        int16_t Fan_speed = 0);
+  #if ENABLED(HAS_HOTEND)
+    celsius_t E_Temp = 0;
+  #endif
+  #if ENABLED(HAS_HEATED_BED)
+    celsius_t Bed_Temp = 0;
+  #endif
+  #if ENABLED(HAS_FAN)
+    int16_t Fan_speed = 0;
+  #endif
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
   float Max_Acceleration  = 0;
@@ -312,9 +318,15 @@ void HMI_Move_E();
 
 void HMI_Zoffset();
 
-TERN_(HAS_HOTEND,     void HMI_ETemp());
-TERN_(HAS_HEATED_BED, void HMI_BedTemp());
-TERN_(HAS_FAN,        void HMI_FanSpeed());
+#if ENABLED(HAS_HOTEND)
+  void HMI_ETemp();
+#endif
+#if ENABLED(HAS_HEATED_BED)
+  void HMI_BedTemp();
+#endif
+#if ENABLED(HAS_FAN)
+  void HMI_FanSpeed();
+#endif
 
 void HMI_PrintSpeed();
 
@@ -365,6 +377,7 @@ void HMI_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+void DWIN_StatusChanged(const char *text);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 

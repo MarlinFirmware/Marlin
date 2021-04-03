@@ -84,7 +84,7 @@
 
 #if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
-  DefaultSerial MSerial(true, SerialUSB);
+  DefaultSerial1 MSerial0(true, SerialUSB);
 
   #if ENABLED(EMERGENCY_PARSER)
     #include "../libmaple/usb/stm32f1/usb_reg_map.h"
@@ -107,7 +107,7 @@
       len = usb_cdcacm_peek(buf, total);
 
       for (uint32 i = 0; i < len; i++)
-        emergency_parser.update(MSerial.emergency_state, buf[i + total - len]);
+        emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
     }
   #endif
 #endif
@@ -131,6 +131,9 @@ const uint8_t adc_pins[] = {
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER_PIN,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1_PIN,
@@ -188,6 +191,9 @@ enum TempPinIndex : char {
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -384,6 +390,9 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if HAS_TEMP_CHAMBER
       case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
+    #endif
+    #if HAS_TEMP_COOLER
+      case TEMP_COOLER_PIN: pin_index = TEMP_COOLER; break;
     #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;

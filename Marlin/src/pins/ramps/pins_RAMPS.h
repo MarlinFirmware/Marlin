@@ -45,15 +45,11 @@
  *         7 | 11
  */
 
-#ifdef TARGET_LPC1768
-  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
-#elif defined(__STM32F1__)
-  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+#if ENABLED(AZSMZ_12864) && DISABLED(ALLOW_SAM3X8E)
+  #error "No pins defined for RAMPS with AZSMZ_12864."
 #endif
 
-#if NOT_TARGET(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768, __AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' (or other appropriate target) in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // Custom flags and defines for the build
 //#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
@@ -728,9 +724,6 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
-      #if DISABLED(IS_RAMPS_SMART)
-        #error "No pins defined for RAMPS with AZSMZ_12864."
-      #endif
 
     #elif IS_TFTGLCD_PANEL
 

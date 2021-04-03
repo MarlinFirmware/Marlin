@@ -27,8 +27,6 @@
 
 #ifdef FTDI_COCOA_LOAD_CHOCOLATE_SCREEN
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
-
 #include "cocoa_press_ui.h"
 
 #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))
@@ -187,7 +185,7 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
       break;
     }
     case 3: {
-      if (get_chocolate_fill_level() > 0.9) {
+      if (get_chocolate_fill_level() > 0.75) {
         mydata.repeat_tag = 0;
         return false;
       }

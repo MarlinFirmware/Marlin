@@ -434,33 +434,32 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
   uint8_t pic_hot_bits;
   #if HAS_HEATED_BED
     const bool isBed = heater_id < 0;
-    const float t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater_id));
-    const float t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
+    const celsius_t t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater_id)),
+                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const float t1 = thermalManager.degHotend(heater_id);
-    const float t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   #if HOTENDS < 2
     if (heater_id == H_E0) {
       lcd.setCursor(2, 5);  lcd.print(prefix); //HE
-      lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
+      lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1));
       lcd.setCursor(1, 7);
     }
     else {
       lcd.setCursor(6, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
+      lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1));
       lcd.setCursor(6, 7);
     }
   #else
     if (heater_id > H_BED) {
-      lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); //HE1 or HE2 or HE3
-      lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
+      lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); // HE1 or HE2 or HE3
+      lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1));
       lcd.setCursor(heater_id * 4, 7);
     }
     else {
       lcd.setCursor(13, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
+      lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1));
       lcd.setCursor(13, 7);
     }
   #endif // HOTENDS <= 1
@@ -475,7 +474,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
     }
     else
   #endif // !HEATER_IDLE_HANDLER
-      lcd.print(i16tostr3rj(t2 + 0.5));
+      lcd.print(i16tostr3rj(t2));
 
   switch (heater_id) {
     case H_BED: pic_hot_bits = ICON_BED;   break;
@@ -761,7 +760,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif // HAS_HEATED_BED
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     uint16_t spd = thermalManager.fan_speed[0];
 
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -784,7 +783,7 @@ void MarlinUI::draw_status_screen() {
     else
       picBits &= ~ICON_FAN;
 
-  #endif // FAN_COUNT > 0
+  #endif // HAS_FAN
 
   //
   // Line 9, 10 - icons
@@ -836,7 +835,7 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const data, const bool pgm) {
     if (!PanelDetected) return;
     const uint8_t vlen = data ? (pgm ? utf8_strlen_P(data) : utf8_strlen(data)) : 0;
     lcd.setCursor(0, row);
@@ -852,7 +851,7 @@ void MarlinUI::draw_status_screen() {
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   // This line moves to the last line of the screen for UBL plot screen on the panel side
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     if (!PanelDetected) return;
     ui.encoder_direction_normal();
     const uint8_t y = TERN0(AUTO_BED_LEVELING_UBL, ui.external_control) ? LCD_HEIGHT - 1 : MIDDLE_Y;

@@ -21,13 +21,7 @@
  */
 #pragma once
 
-#if ENABLED(SKR_HAS_LPC1769)
-  #if NOT_TARGET(MCU_LPC1769)
-    #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-  #endif
-#elif NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 // If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT

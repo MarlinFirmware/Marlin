@@ -24,6 +24,10 @@
 #include "../inc/MarlinConfig.h"
 #include "serial_hook.h"
 
+#if HAS_MEATPACK
+  #include "../feature/meatpack.h"
+#endif
+
 // Commonly-used strings in serial output
 extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
@@ -58,31 +62,66 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-typedef int8_t serial_index_t;
-#define SERIAL_ALL 0x7F
-#if HAS_MULTI_SERIAL
-  #define _PORT_REDIRECT(n,p)   REMEMBER(n,multiSerial.portMask,p)
-  #define _PORT_RESTORE(n,p)    RESTORE(n)
-  #define SERIAL_ASSERT(P)      if(multiSerial.portMask!=(P)){ debugger(); }
-  #ifdef SERIAL_CATCHALL
-    typedef MultiSerial<decltype(MYSERIAL), decltype(SERIAL_CATCHALL), 0> SerialOutputT;
-  #else
-    typedef MultiSerial<decltype(MYSERIAL0), TERN(HAS_ETHERNET, ConditionalSerial<decltype(MYSERIAL1)>, decltype(MYSERIAL1)), 0>      SerialOutputT;
-  #endif
-  extern SerialOutputT          multiSerial;
-  #define SERIAL_IMPL           multiSerial
+// Step 1: Find what's the first serial leaf
+#if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
+  #define _SERIAL_LEAF_1  MYSERIAL
 #else
-  #define _PORT_REDIRECT(n,p)   NOOP
-  #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_ASSERT(P)      NOOP
-  #define SERIAL_IMPL           MYSERIAL0
+  #define _SERIAL_LEAF_1  MYSERIAL1
+#endif
+
+// Hook Meatpack if it's enabled on the first leaf
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
+  typedef MeatpackSerial<decltype(_SERIAL_LEAF_1)> SerialLeafT1;
+  extern SerialLeafT1 mpSerial1;
+  #define SERIAL_LEAF_1 mpSerial1
+#else
+  #define SERIAL_LEAF_1 _SERIAL_LEAF_1
+#endif
+
+// Step 2: For multiserial, handle the second serial port as well
+#if HAS_MULTI_SERIAL
+  #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
+  #define _PORT_RESTORE(n,p)  RESTORE(n)
+  #define SERIAL_ASSERT(P)    if(multiSerial.portMask!=(P)){ debugger(); }
+  // If we have a catchall, use that directly
+  #ifdef SERIAL_CATCHALL
+    #define _SERIAL_LEAF_2 SERIAL_CATCHALL
+  #else
+    #if HAS_ETHERNET
+      // We need to create an instance here
+      typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;
+      extern SerialLeafT2 msSerial2;
+      #define _SERIAL_LEAF_2 msSerial2
+    #else
+      // Don't create a useless instance here, directly use the existing instance
+      #define _SERIAL_LEAF_2 MYSERIAL2
+    #endif
+  #endif
+
+  // Hook Meatpack if it's enabled on the second leaf
+  #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
+    typedef MeatpackSerial<decltype(_SERIAL_LEAF_2)> SerialLeafT2;
+    extern SerialLeafT2 mpSerial2;
+    #define SERIAL_LEAF_2 mpSerial2
+  #else
+    #define SERIAL_LEAF_2 _SERIAL_LEAF_2
+  #endif
+
+  typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2), 0> SerialOutputT;
+  extern SerialOutputT        multiSerial;
+  #define SERIAL_IMPL         multiSerial
+#else
+  #define _PORT_REDIRECT(n,p) NOOP
+  #define _PORT_RESTORE(n)    NOOP
+  #define SERIAL_ASSERT(P)    NOOP
+  #define SERIAL_IMPL         SERIAL_LEAF_1
 #endif
 
 #define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
 
-#define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)
-#define PORT_RESTORE()          _PORT_RESTORE(1)
-#define SERIAL_PORTMASK(P)      _BV(P)
+#define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
+#define PORT_RESTORE()     _PORT_RESTORE(1)
+#define SERIAL_PORTMASK(P) SerialMask::from(P)
 
 //
 // SERIAL_CHAR - Print one or more individual chars
@@ -107,7 +146,7 @@ inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
 #define AS_CHAR(C) serial_char_t(C)
 
 // SERIAL_ECHO_F prints a floating point value with optional precision
-inline void SERIAL_ECHO_F(EnsureDouble x, int digit = 2) { SERIAL_IMPL.print(x, digit); }
+inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, digit); }
 
 template <typename T>
 void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
@@ -295,7 +334,7 @@ void serialprintPGM(PGM_P str);
 #endif
 
 #define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
-#define SERIAL_ECHOLNPGM_P(P)       (serialprintPGM(P "\n"))
+#define SERIAL_ECHOLNPGM_P(P)       do{ serialprintPGM(P); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
 #define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
@@ -348,7 +387,7 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
+void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
 inline void print_xyz(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
   print_xyz(xyz.x, xyz.y, xyz.z, prefix, suffix);
