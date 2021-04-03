@@ -54,7 +54,7 @@
   #define UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE 1
   #define UHS_HOST_MAX_INTERFACE_DRIVERS 2
   #define MASS_MAX_SUPPORTED_LUN 1
-  #define USB_HOST_SERIAL MYSERIAL0
+  #define USB_HOST_SERIAL MYSERIAL1
 
   // Workaround for certain issues with UHS3
   #define SKIP_PAGE3F // Required for IOGEAR media adapter
@@ -295,7 +295,7 @@ uint32_t Sd2Card::cardSize() {
   return lun0_capacity;
 }
 
-bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
+bool Sd2Card::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
@@ -309,7 +309,7 @@ bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool Sd2Card::writeBlock(uint32_t block, const uint8_t* src) {
+bool Sd2Card::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {

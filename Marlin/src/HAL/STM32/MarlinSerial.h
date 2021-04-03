@@ -36,13 +36,13 @@ struct MarlinSerial : public HardwareSerial {
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
-  void _rx_complete_irq(serial_t* obj);
+  void _rx_complete_irq(serial_t *obj);
 
 protected:
   usart_rx_callback_t _rx_callback;
 };
 
-typedef Serial0Type<MarlinSerial> MSerialT;
+typedef Serial1Class<MarlinSerial> MSerialT;
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;

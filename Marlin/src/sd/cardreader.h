@@ -23,8 +23,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#define IFSD(A,B) TERN(SDSUPPORT,A,B)
-
 #if ENABLED(SDSUPPORT)
 
 extern const char M23_STR[], M24_STR[];
@@ -72,9 +70,9 @@ public:
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
     #if HAS_MULTI_SERIAL
-      static int8_t transfer_port_index;
+      static serial_index_t transfer_port_index;
     #else
-      static constexpr int8_t transfer_port_index = 0;
+      static constexpr serial_index_t transfer_port_index = 0;
     #endif
   #endif
 
@@ -124,7 +122,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char* const match);
+  static void selectFileByName(const char * const match);
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)

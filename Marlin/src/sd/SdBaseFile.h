@@ -163,7 +163,7 @@ uint16_t const FAT_DEFAULT_TIME = (1 << 11);
 class SdBaseFile {
  public:
   SdBaseFile() : writeError(false), type_(FAT_FILE_TYPE_CLOSED) {}
-  SdBaseFile(const char* path, uint8_t oflag);
+  SdBaseFile(const char *path, uint8_t oflag);
   ~SdBaseFile() { if (isOpen()) close(); }
 
   /**
@@ -179,18 +179,18 @@ class SdBaseFile {
    * get position for streams
    * \param[out] pos struct to receive position
    */
-  void getpos(filepos_t* pos);
+  void getpos(filepos_t *pos);
 
   /**
    * set position for streams
    * \param[out] pos struct with value for new position
    */
-  void setpos(filepos_t* pos);
+  void setpos(filepos_t *pos);
 
   bool close();
-  bool contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock);
+  bool contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock);
   bool createContiguous(SdBaseFile* dirFile,
-                        const char* path, uint32_t size);
+                        const char *path, uint32_t size);
   /**
    * \return The current cluster number for a file or directory.
    */
@@ -213,7 +213,7 @@ class SdBaseFile {
    * function is of the form:
    *
    * \code
-   * void dateTime(uint16_t* date, uint16_t* time) {
+   * void dateTime(uint16_t *date, uint16_t *time) {
    *   uint16_t year;
    *   uint8_t month, day, hour, minute, second;
    *
@@ -235,7 +235,7 @@ class SdBaseFile {
    * See the timestamp() function.
    */
   static void dateTimeCallback(
-    void (*dateTime)(uint16_t* date, uint16_t* time)) {
+    void (*dateTime)(uint16_t *date, uint16_t *time)) {
     dateTime_ = dateTime;
   }
 
@@ -243,10 +243,10 @@ class SdBaseFile {
    * Cancel the date/time callback function.
    */
   static void dateTimeCallbackCancel() { dateTime_ = 0; }
-  bool dirEntry(dir_t* dir);
-  static void dirName(const dir_t& dir, char* name);
-  bool exists(const char* name);
-  int16_t fgets(char* str, int16_t num, char* delim = 0);
+  bool dirEntry(dir_t *dir);
+  static void dirName(const dir_t& dir, char *name);
+  bool exists(const char *name);
+  int16_t fgets(char *str, int16_t num, char *delim = 0);
 
   /**
    * \return The total number of bytes in a file or directory.
@@ -286,10 +286,10 @@ class SdBaseFile {
   bool getDosName(char * const name);
   void ls(uint8_t flags = 0, uint8_t indent = 0);
 
-  bool mkdir(SdBaseFile* dir, const char* path, bool pFlag = true);
+  bool mkdir(SdBaseFile* dir, const char *path, bool pFlag = true);
   bool open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag);
-  bool open(SdBaseFile* dirFile, const char* path, uint8_t oflag);
-  bool open(const char* path, uint8_t oflag = O_READ);
+  bool open(SdBaseFile* dirFile, const char *path, uint8_t oflag);
+  bool open(const char *path, uint8_t oflag = O_READ);
   bool openNext(SdBaseFile* dirFile, uint8_t oflag);
   bool openRoot(SdVolume* vol);
   int peek();
@@ -298,15 +298,15 @@ class SdBaseFile {
   bool printName();
   int16_t read();
   int16_t read(void* buf, uint16_t nbyte);
-  int8_t readDir(dir_t* dir, char* longFilename);
-  static bool remove(SdBaseFile* dirFile, const char* path);
+  int8_t readDir(dir_t *dir, char *longFilename);
+  static bool remove(SdBaseFile* dirFile, const char *path);
   bool remove();
 
   /**
    * Set the file's current position to zero.
    */
   void rewind() { seekSet(0); }
-  bool rename(SdBaseFile* dirFile, const char* newPath);
+  bool rename(SdBaseFile* dirFile, const char *newPath);
   bool rmdir();
   bool rmRfStar();
 
@@ -348,7 +348,7 @@ class SdBaseFile {
   static SdBaseFile* cwd_;      // global pointer to cwd dir
 
   // data time callback function
-  static void (*dateTime_)(uint16_t* date, uint16_t* time);
+  static void (*dateTime_)(uint16_t *date, uint16_t *time);
 
   // bits defined in flags_
   static uint8_t const F_OFLAG = (O_ACCMODE | O_APPEND | O_SYNC),   // should be 0x0F
@@ -376,7 +376,7 @@ class SdBaseFile {
   bool addDirCluster();
   dir_t* cacheDirEntry(uint8_t action);
   int8_t lsPrintNext(uint8_t flags, uint8_t indent);
-  static bool make83Name(const char* str, uint8_t* name, const char** ptr);
+  static bool make83Name(const char *str, uint8_t *name, const char** ptr);
   bool mkdir(SdBaseFile* parent, const uint8_t dname[11]);
   bool open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t oflag);
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);

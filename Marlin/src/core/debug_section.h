@@ -38,10 +38,10 @@ private:
   bool debug;
 
   void echo_msg(PGM_P const pre) {
-    serialprintPGM(pre);
+    SERIAL_ECHOPGM_P(pre);
     if (the_msg) {
       SERIAL_CHAR(' ');
-      serialprintPGM(the_msg);
+      SERIAL_ECHOPGM_P(the_msg);
     }
     SERIAL_CHAR(' ');
     print_xyz(current_position);

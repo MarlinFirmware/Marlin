@@ -77,7 +77,7 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
 }
 
 void vector_3::debug(PGM_P const title) {
-  serialprintPGM(title);
+  SERIAL_ECHOPGM_P(title);
   SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
   SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
   SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
@@ -87,8 +87,8 @@ void vector_3::debug(PGM_P const title) {
  *  matrix_3x3
  */
 
-void apply_rotation_xyz(const matrix_3x3 &matrix, float &_x, float &_y, float &_z) {
-  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(matrix);
+void matrix_3x3::apply_rotation_xyz(float &_x, float &_y, float &_z) {
+  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(*this);
   _x = vec.x; _y = vec.y; _z = vec.z;
 }
 
@@ -139,10 +139,7 @@ matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
 }
 
 void matrix_3x3::debug(PGM_P const title) {
-  if (title) {
-    serialprintPGM(title);
-    SERIAL_EOL();
-  }
+  if (title) SERIAL_ECHOLNPGM_P(title);
   LOOP_L_N(i, 3) {
     LOOP_L_N(j, 3) {
       if (vectors[i][j] >= 0.0) SERIAL_CHAR('+');

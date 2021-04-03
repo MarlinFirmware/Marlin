@@ -104,6 +104,7 @@
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
@@ -317,6 +318,16 @@
 
   #endif
 
+  // Allow manipulating enumeration value like flags without ugly cast everywhere
+  #define ENUM_FLAGS(T) \
+    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
+    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
@@ -348,6 +359,51 @@
     }
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
     static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a specific character
+    constexpr bool contains(const char *str, const char ch) {
+      return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
+    }
+    // Find the last position of the specific character (should be called with findStringEnd)
+    constexpr const char* findLastPos(const char *str, const char ch) {
+      return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char *str) {
+      return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
+    }
+
+    // Find the first occurence of a character in a string (or return the last position in the string)
+    constexpr const char* findFirst(const char *str, const char ch) {
+      return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
+    }
+    // Compute the string length at compile time
+    constexpr unsigned stringLen(const char *str) {
+      return *str == 0 ? 0 : 1 + stringLen(str + 1);
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
+  /** Get the templated type name. This does not depends on RTTI, but on the preprocessor, so it should be quite safe to use even on old compilers.
+      WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
+      The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
+  template <typename T>
+  inline const char* gtn(T*) {
+    // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
+    constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
+    static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
+    __builtin_memcpy(templateType, __PRETTY_FUNCTION__ + verboseChatLen, sizeof(__PRETTY_FUNCTION__) - verboseChatLen - 2);
+    return templateType;
+  }
 
 #else
 

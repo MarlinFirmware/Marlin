@@ -69,7 +69,7 @@
  */
 
 #if NOT_TARGET(__AVR_AT90USB646__)
-  #error "Oops! Select 'AT90USB646_TEENSYPP' in 'Tools > Board.'"
+  #error "Oops! Select 'Brainwave' in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME "Brainwave"

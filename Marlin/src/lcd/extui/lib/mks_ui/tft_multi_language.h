@@ -29,7 +29,7 @@
 #include "tft_Language_sp.h"
 #include "tft_Language_it.h"
 
-extern void disp_language_init();
+void disp_language_init();
 
 #define LANG_SIMPLE_CHINESE    1
 #define LANG_COMPLEX_CHINESE   2
@@ -103,7 +103,7 @@ typedef struct machine_common_disp{
 
   const char *LevelingParaConfTitle;
   const char *LevelingParaConf;
-  const char *LevelingManuPosConf;
+  const char *TrammingPosConf;
   const char *LevelingAutoCommandConf;
   const char *LevelingAutoZoffsetConf;
 
@@ -748,6 +748,7 @@ extern eeprom_def eeprom_menu;
 /*****************************************/
 //
 #define TEXT_VALUE          "%d/%d"
+#define TEXT_VALUE_TARGET   "%d -> %d"
 
 #define TEXT_VALUE_T        ": %d℃"
 #define TEXT_VALUE_mm       ": %dmm"
