@@ -1799,7 +1799,7 @@ void get_wifi_commands() {
           if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (parse_int32(gpos + 1)) {
+            switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
               #if ENABLED(ARC_SUPPORT)
                 case 2 ... 3:
