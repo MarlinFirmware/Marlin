@@ -112,9 +112,12 @@ extern "C" {
 #define PIN_WIRE_SCL            PB6
 
 // Timer Definitions
-#define TIMER_TONE              TIM3
-#define TIMER_SERVO             TIM2
-
+#ifndef TIMER_TONE
+  #define TIMER_TONE            TIM3
+#endif
+#ifndef TIMER_SERVO
+  #define TIMER_SERVO           TIM2
+#endif
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
 #define SERIAL_UART_INSTANCE    1
