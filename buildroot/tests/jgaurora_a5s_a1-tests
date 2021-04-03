@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 use_example_configs JGAurora/A5S
-exec_test $1 $2 "JGAurora/A5S Configuration"
+exec_test $1 $2 "JGAurora/A5S Configuration" "$3"
 
 # clean up
 restore_configs

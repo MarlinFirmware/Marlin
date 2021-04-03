@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -55,7 +54,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menú principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Axustes avanzados");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuración");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autoarranque");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autoarranque");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Apagar motores");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menú depuración");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barra progreso");
@@ -93,12 +92,8 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefriar");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Láser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Láser Apagado");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Láser Aceso");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potencia Láser");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Control Fuso");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Fuso Apagado");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Fuso Aceso");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potencia Fuso");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Inverter xiro");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Acender");
@@ -234,7 +229,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrusor *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Bico moi frío");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
@@ -271,16 +266,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Auto-Sint. fallida. Extrusor danado.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Auto-Sint. fallida. Temperatura moi alta.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Auto-Sint. fallida. Tempo excedido.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Escolla");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Escolla *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Acel");
@@ -317,7 +302,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movemento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Descarga mm");
@@ -443,10 +428,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("FUGA TÉRMICA CÁMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Erro:TEMP MÁX");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Erro:TEMP MÍN");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Erro:TEMP MÁX CAMA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:TEMP MÍN CAMA");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:TEMP MÁX CÁMARA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:TEMP MÍN CÁMARA");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESORA DETIDA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Debe reiniciar!");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -526,7 +507,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm Sensor Fil");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Fallo ao ir á Orixe");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Fallo ao Sondar");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Moi Frío");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ESCOLLE FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

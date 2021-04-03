@@ -22,14 +22,13 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_fan(void);
+extern void lv_draw_fan();
 extern void lv_clear_fan();
 extern void disp_fan_value();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

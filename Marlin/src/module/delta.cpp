@@ -34,7 +34,7 @@
 // For homing:
 #include "planner.h"
 #include "endstops.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../MarlinCore.h"
 
 #if HAS_BED_PROBE

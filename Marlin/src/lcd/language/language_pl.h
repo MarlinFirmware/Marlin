@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_PL
@@ -53,7 +52,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu główne");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Ustawienie zaawansowane");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfiguracja");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Wyłącz silniki");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu Debugowania");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Testowy pasek postępu");
@@ -90,12 +89,8 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Rozgrzej własne ust.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Chłodzenie");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Sterowanie Lasera");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Wyłącz Laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Włącz Laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Zasilanie Lasera");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Sterowanie wrzeciona");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Wyłącz wrzeciono");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Włącz wrzeciono");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Zasilanie wrzeciona");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Rewers wrzeciona");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Włącz zasilacz");
@@ -231,7 +226,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Ekstruzja (os E)");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Ekstruzja (os E) *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Dysza za zimna");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Przesuń co %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Przesuń co %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Przesuń co .1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Przesuń co 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Przesuń co 10mm");
@@ -290,7 +285,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Ruch");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E w mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E w mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Śr. fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Śr. fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Wysuń mm");
@@ -391,10 +386,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ZANIK TEMP.KOMORY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Błąd: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Błąd: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Błąd: MAXTEMP STÓŁ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Błąd: MINTEMP STÓŁ");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Błąd: MAXTEMP KOMORA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Błąd: MINTEMP KOMORA");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("Drukarka zatrzym.");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Proszę zresetować");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -474,7 +465,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dystans do czujnika mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Zerowanie nieudane");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondowanie nieudane");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: za zimne");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("WYBIERZ FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

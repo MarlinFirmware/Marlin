@@ -31,8 +31,8 @@
 
 #define MACHINE_PARA_TITLE_CN         "机器参数"
 #define MACHINE_TYPE_CNOFIG_CN        "机器设置"
-#define TEMPERATURE_CONFIG_CN         "温度设置"
 #define MOTOR_CONFIG_CN               "电机设置"
+#define MACHINE_LEVELING_CONFIG_CN    "调平设置"
 #define ADVANCE_CONFIG_CN             "高级设置"
 
 #define MACHINE_CONFIG_TITLE_CN       "机器参数>机器配置"
@@ -41,7 +41,6 @@
 #define MACHINE_HOMEDIR_CN            "归零方向"
 #define MACHINE_ENDSTOP_TYPE_CN       "限位开关类型"
 #define MACHINE_FILAMENT_CONFIG_CN    "换料设置"
-#define MACHINE_LEVELING_CONFIG_CN    "调平设置"
 
 #define MACHINE_TYPE_CONFIG_TITLE_CN  "机器参数>机型选择"
 #define MACHINE_TYPE_XYZ_CN           "XYZ机型"
@@ -77,17 +76,17 @@
 #define ENDSTOP_CLOSED_CN             "常闭"
 
 #define FILAMENT_CONF_TITLE_CN        "换料设置"
-#define FILAMENT_IN_TEMPERATURE_CN    "进料温度"
 #define FILAMENT_IN_LENGTH_CN         "进料长度"
 #define FILAMENT_IN_SPEED_CN          "进料速度"
-#define FILAMENT_OUT_TEMPERATURE_CN   "退料温度"
+#define FILAMENT_TEMPERATURE_CN       "换料温度"
 #define FILAMENT_OUT_LENGTH_CN        "退料长度"
 #define FILAMENT_OUT_SPEED_CN         "退料速度"
 
-#define LEVELING_CONF_TITLE_CN        "调平设置"
+#define LEVELING_CONF_TITLE_CN        "机器参数>调平设置"
 #define LEVELING_PARA_CONF_CN         "调平设置"
-#define LEVELING_DELTA_CN             "delta机型设置"
-#define LEVELING_XYZ_CN               "手动调平坐标设置"
+#define LEVELING_MANUAL_POS_CN        "手动调平坐标设置"
+#define LEVELING_AUTO_COMMAND_CN      "自动调平指令设置"
+#define LEVELING_AUTO_ZOFFSET_CN      "挤出头与调平开关偏移设置"
 
 #define LEVELING_PARA_CONF_TITLE_CN   "调平参数"
 #define AUTO_LEVELING_ENABLE_CN       "自动调平"
@@ -100,6 +99,7 @@
 #define PROBE_Z_SPEED_CN              "探针Z方向移动速度"
 #define ENABLE_CN                     "是"
 #define DISABLE_CN                    "否"
+#define LOCKED_CN                     "否"
 #define Z_MIN_CN                      "ZMin"
 #define Z_MAX_CN                      "ZMax"
 
@@ -146,6 +146,7 @@
 #define TMC_STEP_MODE_CN              "TMC 驱动模式设置"
 #define MOTORDIRCONF_CN               "电机方向设置"
 #define HOMEFEEDRATECONF_CN           "归零速度设置"
+#define HOMING_SENSITIVITY_CONF_CN    "无限位回零灵敏度调节"
 
 #define MAXFEEDRATE_CONF_TITLE_CN     "机器参数>最大速度"
 #define X_MAXFEEDRATE_CN              "X轴最大速度"
@@ -177,40 +178,42 @@
 #define E0_STEPS_CN                   "E0轴脉冲"
 #define E1_STEPS_CN                   "E1轴脉冲"
 
-#define TMC_CURRENT_CONF_TITLE_CN   "机器参数>TMC电流设置"
-#define X_TMC_CURRENT_CN            "X轴电流(毫安)"
-#define Y_TMC_CURRENT_CN            "Y轴电流(毫安)"
-#define Z_TMC_CURRENT_CN            "Z轴电流(毫安)"
-#define E0_TMC_CURRENT_CN           "E0轴电流(毫安)"
-#define E1_TMC_CURRENT_CN           "E1轴电流(毫安)"
+#define TMC_CURRENT_CONF_TITLE_CN     "机器参数>TMC电流设置"
+#define X_TMC_CURRENT_CN              "X轴电流(毫安)"
+#define Y_TMC_CURRENT_CN              "Y轴电流(毫安)"
+#define Z_TMC_CURRENT_CN              "Z轴电流(毫安)"
+#define E0_TMC_CURRENT_CN             "E0轴电流(毫安)"
+#define E1_TMC_CURRENT_CN             "E1轴电流(毫安)"
 
-#define TMC_MODE_CONF_TITLE_CN  "机器参数>TMC模式设置"
-#define X_TMC_MODE_CN           "X轴是否使能静音模式"
-#define Y_TMC_MODE_CN           "Y轴是否使能静音模式"
-#define Z_TMC_MODE_CN           "Z轴是否使能静音模式"
-#define E0_TMC_MODE_CN          "E0轴是否使能静音模式"
-#define E1_TMC_MODE_CN          "E1轴是否使能静音模式"
+#define TMC_MODE_CONF_TITLE_CN        "机器参数>TMC模式设置"
+#define X_TMC_MODE_CN                 "X轴是否使能静音模式"
+#define Y_TMC_MODE_CN                 "Y轴是否使能静音模式"
+#define Z_TMC_MODE_CN                 "Z轴是否使能静音模式"
+#define E0_TMC_MODE_CN                "E0轴是否使能静音模式"
+#define E1_TMC_MODE_CN                "E1轴是否使能静音模式"
 
-#define MOTORDIR_CONF_TITLE_CN          "机器参数>电机方向"
-#define X_MOTORDIR_CN                   "X轴电机方向"
-#define Y_MOTORDIR_CN                   "Y轴电机方向"
-#define Z_MOTORDIR_CN                   "Z轴电机方向"
-#define E0_MOTORDIR_CN                  "E0轴电机方向"
-#define E1_MOTORDIR_CN                  "E1轴电机方向"
-#define INVERT_P_CN                     "正向"
-#define INVERT_N_CN                     "反向"
+#define MOTORDIR_CONF_TITLE_CN        "机器参数>电机方向"
+#define X_MOTORDIR_CN                 "X轴电机方向"
+#define Y_MOTORDIR_CN                 "Y轴电机方向"
+#define Z_MOTORDIR_CN                 "Z轴电机方向"
+#define E0_MOTORDIR_CN                "E0轴电机方向"
+#define E1_MOTORDIR_CN                "E1轴电机方向"
+#define INVERT_P_CN                   "正向"
+#define INVERT_N_CN                   "反向"
 
-#define HOMEFEEDRATE_CONF_TITLE_CN      "机器参数>归零速度"
-#define X_HOMESPEED_CN                  "XY轴归零速度"
-#define Y_HOMESPEED_CN                  "Y轴归零速度"
-#define Z_HOMESPEED_CN                  "Z轴归零速度"
+#define HOMEFEEDRATE_CONF_TITLE_CN    "机器参数>归零速度"
+#define X_HOMESPEED_CN                "XY轴归零速度"
+#define Y_HOMESPEED_CN                "Y轴归零速度"
+#define Z_HOMESPEED_CN                "Z轴归零速度"
 
-#define ADVANCED_CONF_TITLE_CN          "机器参数>高级设置"
-#define PWROFF_DECTION_CN               "断电检测模块"
-#define PWROFF_AFTER_PRINT_CN           "启动打完关机功能"
-#define HAVE_UPS_CN                     "机器配备UPS电源"
-#define Z2_AND_Z2ENDSTOP_CONF_CN        "双Z轴双限位功能设置"
-#define ENABLE_PINS_CONF_CN             "电机使能脚电平设置"
+#define ADVANCED_CONF_TITLE_CN        "机器参数>高级设置"
+#define PWROFF_DECTION_CN             "断电检测模块"
+#define PWROFF_AFTER_PRINT_CN         "启动打完关机功能"
+#define HAVE_UPS_CN                   "机器配备UPS电源"
+#define Z2_AND_Z2ENDSTOP_CONF_CN      "双Z轴双限位功能设置"
+#define ENABLE_PINS_CONF_CN           "电机使能脚电平设置"
+#define WIFI_SETTINGS_CN              "Wi-Fi参数设置"
+#define ENCODER_SETTINGS_CN           "旋钮设置"
 
 #define Z2_AND_Z2ENDSTOP_CONF_TITLE_CN  "双z双限位设置"
 #define Z2_ENABLE_CN                    "启用Z2轴"
@@ -223,10 +226,33 @@
 #define Z_ENABLE_PINS_INVERT_CN         "Z轴电机使能电平"
 #define E_ENABLE_PINS_INVERT_CN         "E轴电机使能电平"
 
-#define PAUSE_POSITION_CN    "打印暂停位置设置"
-#define PAUSE_POSITION_X_CN  "X轴暂停位置(绝对位置,-1无效)"
-#define PAUSE_POSITION_Y_CN  "Y轴暂停位置(绝对位置,-1无效)"
-#define PAUSE_POSITION_Z_CN  "Z轴暂停位置(相对位置,-1无效)"
+#define PAUSE_POSITION_CN               "打印暂停位置设置"
+#define PAUSE_POSITION_X_CN             "X轴暂停位置(绝对位置,-1无效)"
+#define PAUSE_POSITION_Y_CN             "Y轴暂停位置(绝对位置,-1无效)"
+#define PAUSE_POSITION_Z_CN             "Z轴暂停位置(相对位置,-1无效)"
+#define WIFI_SETTINGS_TITLE_CN          "机器参数>Wi-Fi设置"
+#define WIFI_SETTINGS_MODE_CN           "Wi-Fi 模式"
+#define WIFI_SETTINGS_NAME_CN           "Wi-Fi 名称: "
+#define WIFI_SETTINGS_PASSWORD_CN       "Wi-Fi 密码: "
+#define WIFI_SETTINGS_CLOUD_CN          "是否使用云服务?"
+#define WIFI_SETTINGS_CONFIG_CN         "配置"
+#define WIFI_SETTINGS_EDIT_CN           "编辑"
+#define WIFI_CONFIG_TIPS_CN             "进行Wi-Fi配置?"
+
+#define OFFSET_TITLE_CN                 "机器参数>偏移设置"
+#define OFFSET_X_CN                     "X轴与调平开关偏移"
+#define OFFSET_Y_CN                     "Y轴与调平开关偏移"
+#define OFFSET_Z_CN                     "Z轴与调平开关偏移"
+
+#define HOMING_SENSITIVITY_CONF_TITLE_CN      "机器参数>灵敏度调节"
+#define X_SENSITIVITY_CN                      "X轴灵敏度"
+#define Y_SENSITIVITY_CN                      "Y轴灵敏度"
+#define Z_SENSITIVITY_CN                      "Z轴灵敏度"
+#define Z2_SENSITIVITY_CN                     "Z2轴灵敏度"
+
+#define ENCODER_CONF_TITLE_CN                 "机器参数>旋钮设置"
+#define ENCODER_CONF_TEXT_CN                  "是否使用旋钮功能?"
+
 #define TOOL_TEXT_CN                "工具"
 #define PREHEAT_TEXT_CN             "预热"
 #define MOVE_TEXT_CN                "移动"
@@ -237,6 +263,8 @@
 #define AUTO_LEVELING_TEXT_CN       "自动调平"
 #define SET_TEXT_CN                 "设置"
 #define MORE_TEXT_CN                "更多"
+#define MORE_GCODE_CN               "G-Code"
+#define MORE_ENTER_GCODE_CN         "Enter G-Code"
 
 #define ADD_TEXT_CN                 "增加"
 #define DEC_TEXT_CN                 "减少"
@@ -339,12 +367,7 @@
 #define FILAMENT_EXT1_TEXT_CN     "喷头2"
 #define FILAMENT_HEAT_TEXT_CN     "预热"
 #define FILAMENT_STOP_TEXT_CN     "停止"
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_CN "请按<进料>或<退料>进行换料!"
-  #define FILAMENT_CHANGE_TEXT_CN   "待打印机暂停后,请按<进料>或<退料>进行换料!"
-#else
-  #define FILAMENT_CHANGE_TEXT_CN   "待打印机暂停后,\n请按<进料>或<退料>"
-#endif
+#define FILAMENT_CHANGE_TEXT_CN   "待打印机暂停后,\n请按<进料>或<退料>"
 
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_CN       "准备进料,正在加热,请稍等!"
 #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_CN     "准备退料,正在加热,请稍等!"
@@ -395,10 +418,6 @@
 #define STEP_5PERCENT_CN            "5%"
 #define STEP_10PERCENT_CN           "10%"
 
-#define ZOFFSET_CN                  "Z Offset"
-#define ZOFFSET_INC_CN              "增加"
-#define ZOFFSET_DEC_CN              "减少"
-
 #define TITLE_READYPRINT_CN         "准备打印"
 #define TITLE_PREHEAT_CN            "预热"
 #define TITLE_MOVE_CN               "移动"
@@ -421,7 +440,6 @@
 #define TITLE_CLOUD_TEXT_CN         "云服务"
 #define TITLE_DIALOG_CONFIRM_CN     "确认"
 #define TITLE_FILESYS_CN            "文件系统"
-#define TITLE_ZOFFSET_CN            "Z Offset"
 
 #define AUTO_SHUTDOWN_CN            "自动关机"
 #define MANUAL_SHUTDOWN_CN          "手动关机"
@@ -436,7 +454,6 @@
 #define DIALOG_RETRY_CN             "重试"
 #define DIALOG_STOP_CN              "停止"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_CN   "从断点续打?"
-//#define DIALOG_UNBIND_PRINTER_CN  "解除绑定 ?"
 #define DIALOG_ERROR_TIPS1_CN       "错误:找不到文件,请插入sd卡/u盘!"
 #define DIALOG_ERROR_TIPS2_CN       "错误:通信失败,请检查波特率或主板硬件!"
 #define DIALOG_ERROR_TIPS3_CN       "错误:文件名或文件路径太长 !"
@@ -477,3 +494,10 @@
 #define EEPROM_STORE_TIPS_CN  "是否保存参数到EEPROM?"
 #define EEPROM_READ_TIPS_CN   "是否使用EEPROM参数?"
 #define EEPROM_REVERT_TIPS_CN "是否恢复默认参数?"
+
+#define MORE_CUSTOM1_TEXT_CN  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_CN  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_CN  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_CN  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_CN  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_CN  USER_DESC_6

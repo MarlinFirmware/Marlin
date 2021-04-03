@@ -139,9 +139,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOPGM(" ] to Color [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(tcolor[0]), int(tcolor[1]), int(tcolor[2]), int(tcolor[3]), int(tcolor[4]), int(tcolor[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }
@@ -153,10 +153,10 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPAIR("V-tool ", int(j), " [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(color[j][0]), int(color[j][1]), int(color[j][2]), int(color[j][3]), int(color[j][4]), int(color[j][5]));
+        SERIAL_ECHOPAIR("V-tool ", j, " [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]);
         SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }
@@ -199,9 +199,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("Gradient [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(gradient.color[0]), int(gradient.color[1]), int(gradient.color[2]), int(gradient.color[3]), int(gradient.color[4]), int(gradient.color[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]);
         SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }

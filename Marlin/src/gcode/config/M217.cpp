@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
@@ -32,8 +32,6 @@
 #endif
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
-
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
 void M217_report(const bool eeprom=false) {
 
@@ -49,7 +47,7 @@ void M217_report(const bool eeprom=false) {
                     " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" A", int(migration.automode));
+      SERIAL_ECHOPAIR(" A", migration.automode);
       SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration.last));
     #endif
 
@@ -170,4 +168,4 @@ void GcodeSuite::M217() {
   M217_report();
 }
 
-#endif // EXTRUDERS > 1
+#endif // HAS_MULTI_EXTRUDER

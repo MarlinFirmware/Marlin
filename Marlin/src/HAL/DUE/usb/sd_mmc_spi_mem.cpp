@@ -68,7 +68,7 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDRD: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif
@@ -84,7 +84,7 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
     card.getSd2Card().readData(sector_buf);
 
     // RAM -> USB
-    if (!udi_msc_trans_block(true, sector_buf, SD_MMC_BLOCK_SIZE, NULL)) {
+    if (!udi_msc_trans_block(true, sector_buf, SD_MMC_BLOCK_SIZE, nullptr)) {
       card.getSd2Card().readStop();
       return CTRL_FAIL;
     }
@@ -108,7 +108,7 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDWR: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif
@@ -120,7 +120,7 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
   while (nb_sector--) {
 
     // USB -> RAM
-    if (!udi_msc_trans_block(false, sector_buf, SD_MMC_BLOCK_SIZE, NULL)) {
+    if (!udi_msc_trans_block(false, sector_buf, SD_MMC_BLOCK_SIZE, nullptr)) {
       card.getSd2Card().writeStop();
       return CTRL_FAIL;
     }

@@ -30,7 +30,6 @@
  * it saves roughly 10K of program memory.   And even better...  the data
  * fed into the algorithm does not need to all be present at the same time.
  * A point can be probed and its values fed into the algorithm and then discarded.
- *
  */
 
 #include "../inc/MarlinConfig.h"

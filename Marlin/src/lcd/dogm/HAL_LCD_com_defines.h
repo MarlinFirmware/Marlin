@@ -52,7 +52,9 @@
 
   #elif defined(ARDUINO_ARCH_STM32)
 
+    uint8_t u8g_com_std_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
     uint8_t u8g_com_stm32duino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+    #define U8G_COM_HAL_SW_SPI_FN     u8g_com_std_sw_spi_fn
     #define U8G_COM_HAL_HW_SPI_FN     u8g_com_stm32duino_hw_spi_fn
 
   #elif defined(__AVR__)
@@ -112,7 +114,7 @@
 #ifndef U8G_COM_SSD_I2C_HAL
   #define U8G_COM_SSD_I2C_HAL       u8g_com_null_fn
 #endif
-#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
+#if HAS_FSMC_GRAPHICAL_TFT || HAS_SPI_GRAPHICAL_TFT
   uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
   #define U8G_COM_HAL_TFT_FN       u8g_com_hal_tft_fn
 #else

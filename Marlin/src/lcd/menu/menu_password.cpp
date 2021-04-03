@@ -49,7 +49,7 @@ void Password::menu_password_entry() {
   // "Login" or "New Code"
   STATIC_ITEM_P(authenticating ? GET_TEXT(MSG_LOGIN_REQUIRED) : GET_TEXT(MSG_EDIT_PASSWORD), SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_P(PSTR(""), SS_CENTER|SS_INVERT, string);
+  STATIC_ITEM_P(NUL_STR, SS_CENTER|SS_INVERT, string);
 
   // Make the digit edit item look like a sub-menu
   PGM_P const label = GET_TEXT(MSG_ENTER_DIGIT);
@@ -152,19 +152,17 @@ void Password::menu_password_report() {
   END_SCREEN();
 }
 
-void Password::set_password_done() {
-  is_set = true;
+void Password::set_password_done(const bool with_set/*=true*/) {
+  is_set = with_set;
   value = value_entry;
   ui.completion_feedback(true);
   ui.goto_screen(menu_password_report);
 }
 
 void Password::remove_password() {
-  is_set = false;
   string[0] = '0';
   string[1] = '\0';
-  ui.completion_feedback(true);
-  ui.goto_screen(menu_password_report);
+  set_password_done(false);
 }
 
 //

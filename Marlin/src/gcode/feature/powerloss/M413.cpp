@@ -27,7 +27,7 @@
 #include "../../gcode.h"
 #include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
-#include "../../../lcd/ultralcd.h"
+#include "../../../lcd/marlinui.h"
 
 /**
  * M413: Enable / Disable power-loss recovery
@@ -50,6 +50,7 @@ void GcodeSuite::M413() {
     if (parser.seen("RL")) recovery.load();
     if (parser.seen('W')) recovery.save(true);
     if (parser.seen('P')) recovery.purge();
+    if (parser.seen('D')) recovery.debug(PSTR("M413"));
     #if PIN_EXISTS(POWER_LOSS)
       if (parser.seen('O')) recovery._outage();
     #endif

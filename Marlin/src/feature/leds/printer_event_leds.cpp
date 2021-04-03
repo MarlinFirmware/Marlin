@@ -41,6 +41,7 @@ PrinterEventLEDs printerEventLEDs;
   uint8_t PrinterEventLEDs::old_intensity = 0;
 
   inline uint8_t pel_intensity(const float &start, const float &current, const float &target) {
+    if (uint16_t(start) == uint16_t(target)) return 255;
     return (uint8_t)map(constrain(current, start, target), start, target, 0.f, 255.f);
   }
 

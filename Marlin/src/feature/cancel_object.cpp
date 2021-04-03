@@ -25,7 +25,7 @@
 
 #include "cancel_object.h"
 #include "../gcode/gcode.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 CancelObject cancelable;
 
@@ -66,10 +66,8 @@ void CancelObject::uncancel_object(const int8_t obj) {
 }
 
 void CancelObject::report() {
-  if (active_object >= 0) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("Active Object: ", int(active_object));
-  }
+  if (active_object >= 0)
+    SERIAL_ECHO_MSG("Active Object: ", active_object);
 
   if (canceled) {
     SERIAL_ECHO_START();

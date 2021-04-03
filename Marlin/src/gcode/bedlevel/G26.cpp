@@ -111,7 +111,7 @@
 #include "../../module/motion.h"
 #include "../../module/tool_change.h"
 #include "../../module/temperature.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #define EXTRUSION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
@@ -128,6 +128,10 @@
   #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
 #endif
 
+#ifndef G26_XY_FEEDRATE_TRAVEL
+  #define G26_XY_FEEDRATE_TRAVEL (PLANNER_XY_FEEDRATE() / 1.5)
+#endif
+
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
   #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
 #endif
@@ -136,7 +140,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
+  void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
 #endif
 
 constexpr float g26_e_axis_feedrate = 0.025;
@@ -214,22 +218,25 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   const xy_pos_t dest = { rx, ry };
 
   const bool has_xy_component = dest != current_position; // Check if X or Y is involved in the movement.
+  const bool has_e_component = e_delta != 0.0;
 
   destination = current_position;
 
   if (z != last_z) {
     last_z = destination.z = z;
-    const feedRate_t feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
-    prepare_internal_move_to_destination(feed_value);
-    destination = current_position;
+    const feedRate_t fr_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
+    prepare_internal_move_to_destination(fr_mm_s);
   }
 
-  // If X or Y is involved do a 'normal' move. Otherwise retract/recover/hop.
+  // If X or Y in combination with E is involved do a 'normal' move.
+  // If X or Y with no E is involved do a 'fast' move
+  // Otherwise retract/recover/hop.
   destination = dest;
   destination.e += e_delta;
-  const feedRate_t feed_value = has_xy_component ? feedRate_t(G26_XY_FEEDRATE) : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
-  prepare_internal_move_to_destination(feed_value);
-  destination = current_position;
+  const feedRate_t fr_mm_s = has_xy_component
+    ? (has_e_component ? feedRate_t(G26_XY_FEEDRATE) : feedRate_t(G26_XY_FEEDRATE_TRAVEL))
+    : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
+  prepare_internal_move_to_destination(fr_mm_s);
 }
 
 FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
@@ -359,7 +366,7 @@ inline bool turn_on_heaters() {
   #if HAS_HEATED_BED
 
     if (g26_bed_temp > 25) {
-      #if HAS_SPI_LCD
+      #if HAS_WIRED_LCD
         ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
         ui.quick_feedback();
         TERN_(HAS_LCD_MENU, ui.capture());
@@ -378,7 +385,7 @@ inline bool turn_on_heaters() {
   #endif // HAS_HEATED_BED
 
   // Start heating the active nozzle
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
     ui.quick_feedback();
   #endif
@@ -391,7 +398,7 @@ inline bool turn_on_heaters() {
     #endif
   )) return G26_ERR;
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     ui.reset_status();
     ui.quick_feedback();
   #endif
@@ -405,7 +412,7 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU && !HAS_TOUCH_XPT2046 // ui.button_pressed issue with touchscreen
+  #if HAS_LCD_MENU && !HAS_TOUCH_BUTTONS // ui.button_pressed issue with touchscreen
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       float Total_Prime = 0.0;
     #endif
@@ -446,7 +453,7 @@ inline bool prime_nozzle() {
     else
   #endif
   {
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
@@ -511,11 +518,9 @@ void GcodeSuite::G26() {
        g26_keep_heaters_on       = parser.boolval('K');
 
   // Accept 'I' if temperature presets are defined
-  const uint8_t preset_index = (0
-    #if PREHEAT_COUNT
-      + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0)
-    #endif
-  );
+  #if PREHEAT_COUNT
+    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0;
+  #endif
 
   #if HAS_HEATED_BED
 
@@ -532,7 +537,7 @@ void GcodeSuite::G26() {
 
     if (bedtemp) {
       if (!WITHIN(bedtemp, 40, BED_MAX_TARGET)) {
-        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAX_TARGET), "C).");
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
         return;
       }
       g26_bed_temp = bedtemp;
@@ -785,7 +790,7 @@ void GcodeSuite::G26() {
 
         const feedRate_t old_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
-        plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
+        plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 

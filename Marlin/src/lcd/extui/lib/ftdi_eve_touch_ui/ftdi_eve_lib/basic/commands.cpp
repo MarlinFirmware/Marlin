@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_basic.h"
@@ -208,6 +208,14 @@ void CLCD::mem_write_32(uint32_t reg_address, uint32_t data) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
   spi_write_32(data);
+  spi_ftdi_deselect();
+}
+
+// Fill area of len size with repeated data bytes
+void CLCD::mem_write_fill(uint32_t reg_address, uint8_t data, uint16_t len) {
+  spi_ftdi_select();
+  spi_write_addr(reg_address);
+  while (len--) spi_write_8(data);
   spi_ftdi_deselect();
 }
 
@@ -1060,13 +1068,13 @@ void CLCD::init() {
 
   delay(40); // FTDI/BRT recommendation: no SPI traffic during startup. EVE needs at the very least 45ms to start, so leave her alone for a little while.
 
-  /* read the device-id until it returns 0x7c or times out, should take less than 150ms */
+  /* read the device-id until it returns 0x7C or times out, should take less than 150ms */
   uint8_t counter;
   for (counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
-   if (device_id == 0x7c) {
+   if (device_id == 0x7C) {
      #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_MSG("FTDI chip initialized ");
+       SERIAL_ECHO_MSG("FTDI chip initialized");
      #endif
      break;
    }
@@ -1074,11 +1082,10 @@ void CLCD::init() {
      delay(1);
 
    if (counter == 249) {
-     #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
-     #endif
-   }
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("Timeout waiting for device ID, should be 124, got ", device_id);
+      #endif
+    }
   }
 
   /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
@@ -1093,10 +1100,8 @@ void CLCD::init() {
     else
       delay(1);
 
-    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
-    }
+    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99)
+      SERIAL_ECHO_MSG("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default

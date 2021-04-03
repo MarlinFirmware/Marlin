@@ -8,7 +8,7 @@ set -e
 
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY31_32
-exec_test $1 $2 "Teensy3.1 with default config"
+exec_test $1 $2 "Teensy3.1 with default config" "$3"
 
 #
 # Test many features together
@@ -27,4 +27,4 @@ opt_enable EEPROM_SETTINGS FILAMENT_WIDTH_SENSOR CALIBRATION_GCODE BAUD_RATE_GCO
            HOST_ACTION_COMMANDS HOST_PROMPT_SUPPORT
 opt_set I2C_SLAVE_ADDRESS 63
 opt_set GRID_MAX_POINTS_X 16
-exec_test $1 $2 "Teensy3.1 with many features"
+exec_test $1 $2 "Teensy3.1 with many features" "$3"

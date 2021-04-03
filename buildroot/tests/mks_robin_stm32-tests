@@ -7,7 +7,7 @@
 set -e
 
 use_example_configs Mks/Robin
-exec_test $1 $2 "MKS Robin base configuration"
+exec_test $1 $2 "MKS Robin base configuration" "$3"
 
 # cleanup
 restore_configs

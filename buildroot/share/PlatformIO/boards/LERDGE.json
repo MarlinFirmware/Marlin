@@ -15,7 +15,8 @@
       ]
     ],
     "mcu": "stm32f407zgt6",
-    "variant": "LERDGE"
+    "variant": "LERDGE",
+    "ldscript": "LERDGE.ld"
   },
   "debug": {
     "jlink_device": "STM32F407ZG",

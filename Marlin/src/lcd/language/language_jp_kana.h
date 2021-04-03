@@ -27,7 +27,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 //#define DISPLAY_CHARSET_ISO10646_KANA
@@ -48,7 +47,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("メディアノトリダシ");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("メイン");                       // "Main"
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("ジドウカイシ");                   // "Autostart"
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("ジドウカイシ");                   // "Autostart"
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("モーターデンゲン オフ");            // "Disable steppers"
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("デバッグメニュー");                // "Debug Menu"
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("プログレスバー テスト");            // "Progress Bar Test"
@@ -95,7 +94,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Yジク イドウ");                  // "Move Y"
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Zジク イドウ");                  // "Move Z"
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("エクストルーダー");                // "Extruder"
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("%smm イドウ");                  // "Move 0.025mm"
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("%smm イドウ");                  // "Move 0.025mm"
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm イドウ");                 // "Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("  1mm イドウ");                 // "Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT(" 10mm イドウ");                 // "Move 10mm"
@@ -114,7 +113,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("オフ");                         // "Off"
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("センタク");                     // "Select"
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("センタク *");
-  PROGMEM Language_Str MSG_ACC                             = _UxGT("カソクド mm/s²");               // "Accel"
+  PROGMEM Language_Str MSG_ACC                             = _UxGT("カソクド mm/s") SUPERSCRIPT_TWO;               // "Accel"
   PROGMEM Language_Str MSG_JERK                            = _UxGT("ヤクドウ mm/s");                  // "Jerk"
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("ジク ヤクドウ mm/s") LCD_STR_A;             // "Va-jerk"
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("ジク ヤクドウ mm/s") LCD_STR_B;             // "Vb-jerk"
@@ -130,14 +129,14 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("サイダイオクリソクド *");  // "Vmax E1"
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("サイショウオクリソクド");           // "Vmin"
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("サイショウイドウソクド");           // "VTrav min"
-  PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("カソクド mm/s²");               // "Accel"
+  PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("カソクド mm/s") SUPERSCRIPT_TWO;               // "Accel"
   PROGMEM Language_Str MSG_AMAX                            = _UxGT("サイダイカソクド ");              // "Amax "
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("ヒキコミカソクド");               // "A-retract"
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("イドウカソクド");                // "A-travel"
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("オンド");                      // "Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("ウゴキセッテイ");                // "Motion"
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("フィラメント");                   // "Filament"
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("フィラメントチョッケイ");            // "Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("フィラメントチョッケイ *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCDコントラスト");               // "LCD contrast"
@@ -161,12 +160,12 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("テイシシマシタ");                  // "STOPPED. "
   PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("ヒキコミリョウ mm");                // "Retract mm"
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("ヒキコミリョウS mm");               // "Swap Re.mm"
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("ヒキコミソクド mm/s");             // "Retract  V"
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("ヒキコミソクド mm/s");             // "Retract V"
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("ノズルタイヒ mm");                // "Hop mm"
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("ホショウリョウ mm");               // "UnRet mm"
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("ホショウリョウS mm");              // "S UnRet mm"
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("ホショウソクド mm/s");            // "UnRet  V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("ジドウヒキコミ");                 // "AutoRetr."
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("ホショウリョウ mm");               // "Unretr. mm"
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("ホショウリョウS mm");              // "S Unretr. mm"
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("ホショウソクド mm/s");            // "Unretract V"
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("ジドウヒキコミ");                 // "Auto-Retract"
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("フィラメントコウカン");              // "Change filament"
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("メディアサイヨミコミ");             // "Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("メディアコウカン");               // "Change SD card"
@@ -184,8 +183,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ネツボウソウ");                   // "THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("エラー:サイコウオンチョウカ");         // "Err: MAXTEMP"
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("エラー:サイテイオンミマン");          // "Err: MINTEMP"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("エラー:ベッド サイコウオンチョウカ");    // "Err: MAXTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("エラー:ベッド サイテイオンミマン");     // "Err: MINTEMP BED"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("プリンターハテイシシマシタ");         // "PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("リセットシテクダサイ");              // "Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");                          // One character only

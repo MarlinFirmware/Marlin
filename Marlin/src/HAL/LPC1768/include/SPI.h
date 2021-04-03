@@ -37,13 +37,14 @@
 #define DATA_SIZE_8BIT SSP_DATABIT_8
 #define DATA_SIZE_16BIT SSP_DATABIT_16
 
-#define SPI_CLOCK_DIV2   8333333 //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
-#define SPI_CLOCK_DIV4   4166667 //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
-#define SPI_CLOCK_DIV8   2083333 //(SCR: 11)  desired: 2,000,000  actual: 2,083,333  +4.2%  SPI_QUARTER_SPEED
-#define SPI_CLOCK_DIV16  1000000 //(SCR: 24)  desired: 1,000,000  actual: 1,000,000         SPI_EIGHTH_SPEED
-#define SPI_CLOCK_DIV32   500000 //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
-#define SPI_CLOCK_DIV64   250000 //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
-#define SPI_CLOCK_DIV128  125000 //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
+#define SPI_CLOCK_MAX_TFT  30000000UL
+#define SPI_CLOCK_DIV2     8333333 //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
+#define SPI_CLOCK_DIV4     4166667 //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
+#define SPI_CLOCK_DIV8     2083333 //(SCR: 11)  desired: 2,000,000  actual: 2,083,333  +4.2%  SPI_QUARTER_SPEED
+#define SPI_CLOCK_DIV16    1000000 //(SCR: 24)  desired: 1,000,000  actual: 1,000,000         SPI_EIGHTH_SPEED
+#define SPI_CLOCK_DIV32     500000 //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
+#define SPI_CLOCK_DIV64     250000 //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
+#define SPI_CLOCK_DIV128    125000 //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
 
 #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
 
@@ -61,7 +62,9 @@
 
 class SPISettings {
 public:
-  SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
+  SPISettings(uint32_t spiRate, int inBitOrder, int inDataMode) {
+    init_AlwaysInline(spiRate2Clock(spiRate), inBitOrder, inDataMode, DATA_SIZE_8BIT);
+  }
   SPISettings(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
     if (__builtin_constant_p(inClock))
       init_AlwaysInline(inClock, inBitOrder, inDataMode, inDataSize);
@@ -72,7 +75,19 @@ public:
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
   }
 
-  uint32_t spiRate() const { return spi_speed; }
+  //uint32_t spiRate() const { return spi_speed; }
+
+  static inline uint32_t spiRate2Clock(uint32_t spiRate) {
+    uint32_t Marlin_speed[7]; // CPSR is always 2
+    Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
+    Marlin_speed[1] = 4166667; //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
+    Marlin_speed[2] = 2083333; //(SCR: 11)  desired: 2,000,000  actual: 2,083,333  +4.2%  SPI_QUARTER_SPEED
+    Marlin_speed[3] = 1000000; //(SCR: 24)  desired: 1,000,000  actual: 1,000,000         SPI_EIGHTH_SPEED
+    Marlin_speed[4] =  500000; //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
+    Marlin_speed[5] =  250000; //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
+    Marlin_speed[6] =  125000; //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
+    return Marlin_speed[spiRate > 6 ? 6 : spiRate];
+  }
 
 private:
   void init_MightInline(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
@@ -85,7 +100,7 @@ private:
     dataSize = inDataSize;
   }
 
-  uint32_t spi_speed;
+  //uint32_t spi_speed;
   uint32_t clock;
   uint32_t dataSize;
   //uint32_t clockDivider;
@@ -112,6 +127,11 @@ public:
   SPIClass(uint8_t spiPortNumber);
 
   /**
+   * Init using pins
+   */
+  SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel = (pin_t)-1);
+
+  /**
    * Select and configure the current selected SPI device to use
    */
   void begin();
@@ -122,7 +142,7 @@ public:
   void end();
 
   void beginTransaction(const SPISettings&);
-  void endTransaction() {};
+  void endTransaction() {}
 
   // Transfer using 1 "Data Size"
   uint8_t transfer(uint16_t data);

@@ -40,8 +40,9 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
   #include "../module/tool_change.h"
+  #define DEBUG_OUT ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../core/debug_out.h"
 #endif
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
@@ -58,6 +59,7 @@ bool FilamentMonitorBase::enabled = true,
 // Filament Runout event handler
 //
 #include "../MarlinCore.h"
+#include "../feature/pause.h"
 #include "../gcode/queue.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -70,19 +72,15 @@ bool FilamentMonitorBase::enabled = true,
 
 void event_filament_runout() {
 
-  if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
+  if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     if (migration.in_progress) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration Already In Progress");
-      #endif
+      DEBUG_ECHOLNPGM("Migration Already In Progress");
       return;  // Action already in progress. Purge triggered repeated runout.
     }
     if (migration.automode) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration Starting");
-      #endif
+      DEBUG_ECHOLNPGM("Migration Starting");
       if (extruder_migration()) return;
     }
   #endif
@@ -109,9 +107,7 @@ void event_filament_runout() {
     if (run_runout_script
       && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
         || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          || strstr(FILAMENT_RUNOUT_SCRIPT, "M25")
-        #endif
+        || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
       )
     ) {
       host_action_paused(false);

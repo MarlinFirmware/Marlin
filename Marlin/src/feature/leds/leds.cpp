@@ -147,11 +147,13 @@ void LEDLights::set_color(const LEDColor &incol
   millis_t LEDLights::led_off_time; // = 0
 
   void LEDLights::update_timeout(const bool power_on) {
-    const millis_t ms = millis();
-    if (power_on)
-      reset_timeout(ms);
-    else if (ELAPSED(ms, led_off_time))
-      set_off();
+    if (lights_on) {
+      const millis_t ms = millis();
+      if (power_on)
+        reset_timeout(ms);
+      else if (ELAPSED(ms, led_off_time))
+        set_off();
+    }
   }
 
 #endif
@@ -183,7 +185,17 @@ void LEDLights::set_color(const LEDColor &incol
                             : neo2.Color(incol.r, incol.g, incol.b, incol.w);
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
+
+    #if ENABLED(LED_CONTROL_MENU)
+      // Don't update the color when OFF
+      lights_on = !incol.is_off();
+      if (lights_on) color = incol;
+    #endif
   }
+
+  #if ENABLED(LED_CONTROL_MENU)
+    void LEDLights2::toggle() { if (lights_on) set_off(); else update(); }
+  #endif
 
 #endif  // NEOPIXEL2_SEPARATE
 

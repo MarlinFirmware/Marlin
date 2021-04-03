@@ -12,7 +12,7 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
 opt_set SERIAL_PORT 1
-exec_test $1 $2 "BigTreeTech SKR Pro Default Configuration"
+exec_test $1 $2 "BigTreeTech SKR Pro Default Configuration" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
@@ -25,8 +25,17 @@ opt_set E1_AUTO_FAN_PIN PC11
 opt_set E2_AUTO_FAN_PIN PC12
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130
-opt_enable BLTOUCH EEPROM_SETTINGS AUTO_BED_LEVELING_3POINT Z_SAFE_HOMING
-exec_test $1 $2 "BigTreeTech SKR Pro 3 Extruders, Auto-Fan, BLTOUCH, mixed TMC drivers"
+opt_enable BLTOUCH EEPROM_SETTINGS AUTO_BED_LEVELING_3POINT Z_SAFE_HOMING PINS_DEBUGGING
+exec_test $1 $2 "BigTreeTech SKR Pro 3 Extruders, Auto-Fan, BLTOUCH, mixed TMC drivers" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
+opt_set SERIAL_PORT -1
+opt_enable LASER_FEATURE REPRAP_DISCOUNT_SMART_CONTROLLER
+opt_set CUTTER_POWER_UNIT PERCENT
+opt_add SPINDLE_LASER_PWM_PIN HEATER_1_PIN
+opt_add SPINDLE_LASER_ENA_PIN HEATER_2_PIN
+exec_test $1 $2 "Laser, LCD, PERCENT power unit" "$3"
 
 # clean up
 restore_configs

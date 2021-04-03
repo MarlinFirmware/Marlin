@@ -60,7 +60,7 @@
 
 #define TEST_BYTE ((char) 0xE5)
 
-#if defined(__AVR__) || IS_32BIT_TEENSY
+#if EITHER(__AVR__, IS_32BIT_TEENSY)
 
   extern char __bss_end;
   char *end_bss = &__bss_end,
