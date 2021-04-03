@@ -141,20 +141,20 @@ public:
     return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
   }
 
-  static int8_t cell_index_x_valid(const_float_t x) {
-    return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
+  static int8_t cell_index_x_valid(const float &x) {
+    return WITHIN(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X - 2));
   }
 
-  static int8_t cell_index_y_valid(const_float_t y) {
-    return WITHIN(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
+  static int8_t cell_index_y_valid(const float &y) {
+    return WITHIN(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y - 2));
   }
 
-  static int8_t cell_index_x(const_float_t x) {
-    return constrain(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
+  static int8_t cell_index_x(const float &x) {
+    return constrain(cell_index_x_raw(x), 0, (GRID_MAX_POINTS_X) - 2);
   }
 
-  static int8_t cell_index_y(const_float_t y) {
-    return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
+  static int8_t cell_index_y(const float &y) {
+    return constrain(cell_index_y_raw(y), 0, (GRID_MAX_POINTS_Y) - 2);
   }
 
   static inline xy_int8_t cell_indexes(const float &x, const float &y) {
@@ -203,8 +203,8 @@ public:
    * z_correction_for_x_on_horizontal_mesh_line is an optimization for
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
-  static inline float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const int x1_i, const int yi) {
-    if (!WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(yi, 0, (GRID_MAX_POINTS_Y) - 1)) {
+  static inline float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
+    if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
 
       if (DEBUGGING(LEVELING)) {
         if (WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
@@ -226,8 +226,8 @@ public:
   //
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
-  static inline float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
-    if (!WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(y1_i, 0, (GRID_MAX_POINTS_Y) - 1)) {
+  static inline float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
+    if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
 
       if (DEBUGGING(LEVELING)) {
         if (WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");

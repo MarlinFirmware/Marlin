@@ -858,13 +858,8 @@ namespace ExtUI {
 
       bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
       float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
-<<<<<<< HEAD
-      void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
-        if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
-=======
       void setMeshPoint(const xy_uint8_t &pos, const float &zoff) {
         if (WITHIN(pos.x, 0, GRID_MAX_POINTS_X) && WITHIN(pos.y, 0, GRID_MAX_POINTS_Y)) {
->>>>>>> parent of 62f37669dc (Replace 'const float &' with 'const_float_t' (#21505))
           Z_VALUES(pos.x, pos.y) = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }

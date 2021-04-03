@@ -164,7 +164,7 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const float &zval);
       void moveToMeshPoint(const xy_uint8_t &pos, const float &z);
       void onMeshLevelingStart();
-      void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float &zval);
+      void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float &zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
       typedef enum : uint8_t {

@@ -167,9 +167,6 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-<<<<<<< HEAD
-void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t e_delta) {
-=======
 mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
   float closest = 99999.99;
   mesh_index_pair out_point;
@@ -188,7 +185,7 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
       // to let us find the closest circle to the start position.
       // But if this is not the case, add a small weighting to the
       // distance calculation to help it choose a better place to continue.
-      f += (g26_xy_pos - m).magnitude() / 15.0f;
+      //f += (g26_xy_pos - m).magnitude() / 15.0f;
 
       // Add the specified amount of Random Noise to our search
       if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
@@ -205,7 +202,6 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
 }
 
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
->>>>>>> parent of 62f37669dc (Replace 'const float &' with 'const_float_t' (#21505))
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -231,11 +227,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-<<<<<<< HEAD
-void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
-=======
 FORCE_INLINE void move_to(const xyz_pos_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
->>>>>>> parent of 62f37669dc (Replace 'const float &' with 'const_float_t' (#21505))
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,
