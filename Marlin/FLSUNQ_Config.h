@@ -45,7 +45,7 @@
  * -- TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209. ---//
  * =============================================================//
  */
-//#define DRIVER_EXT TMC2209_STANDALONE //A4988  //LV8729
+//#define DRIVER_EXT A4988  //LV8729
 
 /*__________________________3________________________________*/
         /** =============================
@@ -100,6 +100,7 @@
 #define PREHEAT_BEFORE_PROBING     //(P) Run a PreHeat bed at 60°C (Default)
 //#define PREHEAT_BEFORE_LEVELING    
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
+#define UBL_HILBERT_CURVE
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 
 /*__________________________6__________________________*/
@@ -119,11 +120,12 @@
  * ====== Choice add menu on TFT: (OPT) =================
  */
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (Default).
+#define CUSTOM_MENU_MAIN           // Main Menu: "Menu Special Delta" (Default).
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
 #define LCD_INFO_MENU              // Informations printer (Default).
-#define PROBE_OFFSET_WIZARD        // add Menu to manage the Z_OffSet
-//#define PREHEAT_SHORTCUT_MENU_ITEM // add preheat/temperatur menu (first page)
+#define PROBE_OFFSET_WIZARD        // add Menu to manage the Z_OffSet (Default).
+//#define PREHEAT_SHORTCUT_MENU_ITEM // add preheat/temperature menu (first page)
 
 // For user who change their nozzle thermistor by another one ex: "ATC Semitec 104GT-2" = 5 
 //#define TEMP_SENSOR_0 5             // uncomment with a good number/type.
@@ -136,12 +138,12 @@
 * == Option for Host (OCTOPRINT,REPETIER,PRONTERFACE,ESP3D, etc)
 * ======================================================
 */
-//#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
+//#define HOST_ACTION_COMMANDS        // Action Command Prompt support Message on Octoprint
 //------ Support for MeatPack G-code compression (OCTOPRINT)--------//
 //#define MEATPACK_ON_SERIAL_PORT_1   // With connection USB
 //#define MEATPACK_ON_SERIAL_PORT_2   // With other connection like Tx/Rx Wifi socket.
-//#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
-//#define CANCEL_OBJECTS             // Add menu "Cancel Objet"
+//#define BINARY_FILE_TRANSFER        // Bin transfert for host like ESP3D or others.
+//#define CANCEL_OBJECTS              // Add menu "Cancel Objet"
 
 
 // Options for Modules Hardware
