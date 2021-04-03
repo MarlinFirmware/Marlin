@@ -37,7 +37,7 @@
 
 #if !UBL_SEGMENTED
 
-  void unified_bed_leveling::line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
+  void unified_bed_leveling::line_to_destination_cartesian(const feedRate_t &scaled_fr_mm_s, const uint8_t extruder) {
     /**
      * Much of the nozzle movement will be within the same cell. So we will do as little computation
      * as possible to determine if this is the case. If this move is within the same cell, we will
@@ -323,7 +323,7 @@
    * Returns true if did NOT move, false if moved (requires current_position update).
    */
 
-  bool _O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
+  bool _O2 unified_bed_leveling::line_to_destination_segmented(const feedRate_t &scaled_fr_mm_s) {
 
     if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
       return true;                            // did not move, so current_position still accurate
