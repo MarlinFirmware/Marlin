@@ -25,9 +25,9 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_fan();
-extern void lv_clear_fan();
-extern void disp_fan_value();
+void lv_draw_fan();
+void lv_clear_fan();
+void disp_fan_value();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

@@ -48,7 +48,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
-  void forward_kinematics(const float &a, const float &b) {
+  void forward_kinematics(const_float_t a, const_float_t b) {
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
                 b_sin = sin(RADIANS(b + TERN0(MP_SCARA, a))) * L2,
@@ -197,7 +197,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
   }
 
   // Convert ABC inputs in degrees to XYZ outputs in mm
-  void forward_kinematics(const float &a, const float &b, const float &c) {
+  void forward_kinematics(const_float_t a, const_float_t b, const_float_t c) {
     const float w = c - b,
                 r = L1 * cos(RADIANS(b)) + L2 * sin(RADIANS(w - (90 - b))),
                 x = r  * cos(RADIANS(a)),

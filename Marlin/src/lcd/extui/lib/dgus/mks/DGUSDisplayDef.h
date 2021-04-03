@@ -36,7 +36,7 @@
 #define MKS_FINSH
 
 extern uint16_t manualMoveStep;
-extern float    distanceFilament;
+extern uint16_t distanceFilament;
 extern uint16_t FilamentSpeed;
 extern float    ZOffset_distance;
 extern float    mesh_adj_distance;
@@ -55,7 +55,7 @@ void MKS_resume_print_move();
 
 extern float z_offset_add;
 
-xyz_int_t tmc_step;
+extern xyz_int_t tmc_step;
 
 extern uint16_t lcd_default_light;
 
