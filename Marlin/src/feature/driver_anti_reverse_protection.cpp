@@ -22,7 +22,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../lcd/marlinui.h"
 
-#if ENABLED(DRIVER_SAFE_POWER_PROTECT)
+#if DRIVER_SAFE_POWER_PROTECT
 
 #include "driver_anti_reverse_protection.h"
 

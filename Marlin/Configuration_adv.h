@@ -3311,11 +3311,13 @@
 #endif
 
 /**
- * Stepper Driver Anti-Reverse Protection
+ * Disable Stepper Driver Anti-Reverse Protection
  *
- * Check driver orientation before supplying power to prevent damage.
+ * Check driver orientation before supplying power to prevent damage if "SAFE_POWER_PIN" is defined.
+ * However, some new stepper drivers may not support similar detection in the future
+ * So a disable option is provided. The driver will be powered directly without detection during initialization if disable
  */
-//#define DRIVER_SAFE_POWER_PROTECT
+//#define DISABLE_DRIVER_SAFE_POWER_PROTECT
 
 /**
  * CNC Coordinate Systems
