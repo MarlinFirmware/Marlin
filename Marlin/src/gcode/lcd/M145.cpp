@@ -46,8 +46,10 @@ void GcodeSuite::M145() {
   else {
     preheat_t &mat = ui.material_preset[material];
     #if HAS_HOTEND
-      if (parser.seenval('H'))
-        mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+      if (parser.seenval('H')) {
+        mat.hotend_temp = parser.value_int();
+        LIMIT(mat.hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+      }
     #endif
     #if HAS_HEATED_BED
       if (parser.seenval('B'))
