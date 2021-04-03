@@ -74,11 +74,11 @@ enum {
   DIALOG_TRANSFER_NO_DEVICE
 };
 
-extern void lv_draw_dialog(uint8_t type);
-extern void lv_clear_dialog();
-extern void filament_sprayer_temp();
-extern void filament_dialog_handle();
-extern void lv_filament_setbar();
+void lv_draw_dialog(uint8_t type);
+void lv_clear_dialog();
+void filament_sprayer_temp();
+void filament_dialog_handle();
+void lv_filament_setbar();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
