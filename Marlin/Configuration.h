@@ -73,6 +73,8 @@
  //#define CrealityTitan
  //#define DDXExtruderKit
 
+//Stepper09Deg // 0.9 degree per step motor on the extruder - doubles ESteps
+
  //#define MicroswissDirectDrive
  //#define DirectDrive // Any direct drive extruder, reduces filament change lengths
 
@@ -104,7 +106,7 @@
  */
 
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
-//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X or CR10SPro
+//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, or CR10SPro
 //#define Big_UI // Lightweight status screen, saves CPU cycles
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
@@ -125,6 +127,9 @@
 //#define ConfigurableThermistors
 
 //#define CrealityViewerKit // Reduces baud to 115200 for Creality viewer kit
+
+// use only if you have converted a 12 volt printer to use 24 volts AND you are using Trinamic drivers in UART
+//#define Convert12to24
 
 /*
    Choose bed leveling type here
@@ -158,6 +163,8 @@
 //#define SKR14
 //#define SKR14Turbo
 //#define SKRPRO11
+//#define SKRE3Turbo
+//#define SKR_Switch_Extruder_1 // Switch pins in PINS file for SKRE3Turbo
 
 // This board is NOT recommended and is HIGHLY advised against utilizing the expanded builds for.
 // The MCU is rated for 256kb and stability problems, including hangs with heaters on, have been reported.
@@ -325,6 +332,12 @@
   #define OrigLCD
 #endif
 
+#if ENABLED(SKRE3Turbo)
+  #define SKR_2209
+  #define SKR_UART
+  #define OrigLCD
+#endif
+
 #if ENABLED(CrealityTitan)
   #define E3DTitan
 #endif
@@ -372,7 +385,7 @@
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, SKRMiniE3V2)
     #define Y_STOP_PIN 14
     #define X_STOP_PIN 3
   #endif
@@ -435,7 +448,9 @@
 #endif
 
 #if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max )
-  #define Force10SProDisplay
+  #if NONE(GraphicLCD, OrigLCD)
+    #define Force10SProDisplay
+  #endif
 #endif
 
 #if ENABLED(MachineCRX)
@@ -533,7 +548,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo)
   #define SERIAL_PORT -1
  #elif ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427)
   #define SERIAL_PORT 1
@@ -547,11 +562,11 @@
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
-#elif ANY(SKR13, SKR14, SKR14Turbo)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo)
   #define LCD_SERIAL_PORT 0
 #elif ANY(MachineEnder3Pro422, MachineEnder3Pro427)&& DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
@@ -587,6 +602,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
   #elif ENABLED(SKRMiniE3V2)
     #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
+  #elif ENABLED(SKRE3Turbo)
+    #define MOTHERBOARD BOARD_BTT_SKR_E3_TURBO   
   #elif ANY(MachineEnder3Pro427, Creality427)
     #define MOTHERBOARD BOARD_CREALITY_V427
   #elif ANY(MachineEnder3V2, MachineEnder3Pro422, Creality422)
@@ -1308,7 +1325,7 @@
       #define E1_DRIVER_TYPE TMC2208_STANDALONE
     #endif
   #endif
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2) && ENABLED(SKR_UART)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo) && ENABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209
     #define Y_DRIVER_TYPE  TMC2209
@@ -1438,7 +1455,13 @@
   #define ZStepsmm 400
 #endif
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, ZStepsmm, EStepsmm }
+#if ENABLED(Stepper09Deg)
+  #define EstepMultiplier 2
+#else
+  #define EstepMultiplier 1
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, ZStepsmm, (EStepsmm*EstepMultiplier) }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1669,7 +1692,7 @@
     #define PROBING_FANS_OFF          // Turn fans off when probing
   #endif
 
-  #if ENABLED(MachineEnder4) && NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if ENABLED(MachineEnder4) && NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo)
     #define SOLENOID_PROBE PIN_15
   #endif
 #endif
@@ -1868,7 +1891,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 9
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI) && NONE(MachineCR10Orig, SKRMiniE3V2)
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI) && NONE(MachineCR10Orig, SKRMiniE3V2, SKRE3Turbo)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1939,7 +1962,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2) && DISABLED(SKR_ReverseSteppers)
+#elif ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2, SKRE3Turbo) && DISABLED(SKR_ReverseSteppers)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR false
@@ -2192,7 +2215,7 @@
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #if ENABLED(DualFilSensors)
-    #if DISABLED(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+    #if DISABLED(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo)
       #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
     #endif
     #define FIL_RUNOUT2_PIN 15
@@ -3114,7 +3137,7 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, SKRMiniE3V2) && DISABLED(GraphicLCD)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
