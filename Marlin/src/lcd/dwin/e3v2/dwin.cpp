@@ -467,8 +467,8 @@ void Erase_Menu_Text(const uint8_t line) {
 void Draw_Menu_Item(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
   if (label) DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(line) - 1, (char*)label);
   if (icon) Draw_Menu_Icon(line, icon);
-  if (more) Draw_More_Icon(line); 
-}  
+  if (more) Draw_More_Icon(line);
+}
 
 void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
   Draw_Menu_Item(line, icon, label, more);
@@ -806,7 +806,7 @@ void Draw_Control_Menu() {
   if (CVISI(CONTROL_CASE_ADVSET)) DWIN_Draw_Label(CLINE(CONTROL_CASE_ADVSET), GET_TEXT_F(MSG_ADVANCED_SETTINGS));  // Advanced Settings
   if (CVISI(CONTROL_CASE_ADVSET)) Draw_More_Icon(CSCROL(CONTROL_CASE_ADVSET));
   if (CVISI(CONTROL_CASE_ADVSET)) Draw_Menu_Line(CSCROL(CONTROL_CASE_ADVSET), ICON_AdvSet);
-  
+
   if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
 
   if (select_control.now && CVISI(select_control.now))
@@ -2350,16 +2350,16 @@ void Draw_Move_Menu() {
 
 void Draw_AdvSet_Menu() {
   Clear_Main_Window();
-  
+
   #if ADVSET_CASE_TOTAL >= 6
     const int16_t scroll = MROWS - index_advset; // Scrolled-up lines
     #define ASCROL(L) (scroll + (L))
   #else
     #define ASCROL(L) (L)
   #endif
-  
+
   #define AVISI(L)  WITHIN(ASCROL(L), 0, MROWS)
-  
+
   Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
 
   if (AVISI(0)) Draw_Back_First(select_advSet.now == 0);
@@ -2373,6 +2373,7 @@ void Draw_AdvSet_Menu() {
 }
 
 #if HAS_ONESTEP_LEVELING
+
   void Draw_ProbeOff_Menu() {
     Clear_Main_Window();
     Draw_Title(GET_TEXT_F(MSG_ZPROBE_OFFSETS));   // Probe Offsets
@@ -2383,6 +2384,7 @@ void Draw_AdvSet_Menu() {
     DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
     if (select_item.now) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #include "../../../libs/buzzer.h"
@@ -2620,7 +2622,7 @@ void HMI_Control() {
     if (select_control.inc(1 + CONTROL_CASE_TOTAL)) {
       if (select_control.now > MROWS && select_control.now > index_control) {
         index_control = select_control.now;
-        
+
         // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
 
@@ -3344,15 +3346,15 @@ void HMI_AdvSet() {
         index_control = CONTROL_CASE_ADVSET;
         Draw_Control_Menu();
         break;
-#if HAS_ONESTEP_LEVELING
-      case ADVSET_CASE_PROBEOFF:   // Probe Offsets
-        checkkey = ProbeOff;
-        select_item.reset();
-        HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
-        HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
-        Draw_ProbeOff_Menu();
-        break;
-#endif
+      #if HAS_ONESTEP_LEVELING
+        case ADVSET_CASE_PROBEOFF:   // Probe Offsets
+          checkkey = ProbeOff;
+          select_item.reset();
+          HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
+          HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
+          Draw_ProbeOff_Menu();
+          break;
+      #endif
       case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
         thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
         thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
@@ -3368,72 +3370,75 @@ void HMI_AdvSet() {
 }
 
 #if HAS_ONESTEP_LEVELING
-/*Probe Offset */
-void HMI_ProbeOff() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+  /*Probe Offset */
+  void HMI_ProbeOff() {
+    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_item.dec()) Move_Highlight(-1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      switch (select_item.now) {
+        case 0: // Back
+          checkkey = AdvSet;
+          select_advSet.set(ADVSET_CASE_PROBEOFF);
+          Draw_AdvSet_Menu();
+          break;
+        case 1: // Probe Offset X
+          checkkey = ProbeOffX;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
+          EncoderRate.enabled = true;
+          break;
+        case 2: // Probe Offset X
+          checkkey = ProbeOffY;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
+          EncoderRate.enabled = true;
+          break;
+      }
+    }
+    DWIN_UpdateLCD();
   }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_item.dec()) Move_Highlight(-1, select_item.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    switch (select_item.now) {
-      case 0: // Back
-        checkkey = AdvSet;
-        select_advSet.set(ADVSET_CASE_PROBEOFF);
-        Draw_AdvSet_Menu();
-        break;
-      case 1: // Probe Offset X
-        checkkey = ProbeOffX;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
-        EncoderRate.enabled = true;
-        break;
-      case 2: // Probe Offset X
-        checkkey = ProbeOffY;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
-        EncoderRate.enabled = true;
-        break;
+
+  void HMI_ProbeOffX(){
+    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    if (encoder_diffState != ENCODER_DIFF_NO) {
+      if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffX_scaled)) {
+        checkkey = ProbeOff;
+        EncoderRate.enabled = false;
+        probe.offset.x = HMI_ValueStruct.Probe_OffX_scaled / 10;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
+        return;
+      }
+      NOMORE(HMI_ValueStruct.Probe_OffX_scaled, 500);
+      NOLESS(HMI_ValueStruct.Probe_OffX_scaled, -500);
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
     }
   }
-  DWIN_UpdateLCD();
-}
 
-void HMI_ProbeOffX(){
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffX_scaled)) {
-      checkkey = ProbeOff;
-      EncoderRate.enabled = false;
-      probe.offset.x = HMI_ValueStruct.Probe_OffX_scaled / 10;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
-      return;
+  void HMI_ProbeOffY(){
+    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    if (encoder_diffState != ENCODER_DIFF_NO) {
+      if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffY_scaled)) {
+        checkkey = ProbeOff;
+        EncoderRate.enabled = false;
+        probe.offset.y = HMI_ValueStruct.Probe_OffY_scaled / 10;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
+        return;
+      }
+      NOMORE(HMI_ValueStruct.Probe_OffY_scaled, 500);
+      NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
     }
-    NOMORE(HMI_ValueStruct.Probe_OffX_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffX_scaled, -500);
-    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
   }
-}
 
-void HMI_ProbeOffY(){
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffY_scaled)) {
-      checkkey = ProbeOff;
-      EncoderRate.enabled = false;
-      probe.offset.y = HMI_ValueStruct.Probe_OffY_scaled / 10;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
-      return;
-    }
-    NOMORE(HMI_ValueStruct.Probe_OffY_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
-    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
-  }
-}
 #endif
+
 /* Info */
 void HMI_Info() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
