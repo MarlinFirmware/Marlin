@@ -158,7 +158,6 @@ public:
     static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
@@ -184,7 +183,7 @@ public:
     static void SDCardError();
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
-  #else 
+  #else
     static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
