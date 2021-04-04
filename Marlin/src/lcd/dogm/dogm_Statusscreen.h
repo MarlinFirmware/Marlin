@@ -97,7 +97,7 @@
 //
 // Laser Flowmeter
 //
-#if !STATUS_FLOWMETER_WIDTH && HAS_FLOWMETER
+#if !STATUS_FLOWMETER_WIDTH && ENABLED(LASER_COOLANT_FLOW_METER)
   #include "status/cooler.h"
 #endif
 #ifndef STATUS_FLOWMETER_WIDTH
@@ -567,7 +567,7 @@
 //
 //  Flowmeter Bitmap Properties
 //
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   #if STATUS_FLOWMETER_WIDTH
 
     #ifndef STATUS_FLOWMETER_X
@@ -689,7 +689,7 @@
 #if HAS_COOLER
   #define DO_DRAW_COOLER 1
 #endif
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   #define DO_DRAW_FLOWMETER 1
 #endif
 

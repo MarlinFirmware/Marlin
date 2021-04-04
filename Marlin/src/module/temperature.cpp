@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -499,7 +499,7 @@ volatile bool Temperature::raw_temps_ready = false;
    * Needs sufficient heater power to make some overshoot at target
    * temperature to succeed.
    */
-  void Temperature::PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
     float current_temp = 0.0;
     int cycles = 0;
     bool heating = true;
@@ -1549,7 +1549,7 @@ void Temperature::manage_heater() {
 
   #endif // HAS_COOLER
 
-  #if HAS_FLOWMETER
+  #if ENABLED(LASER_COOLANT_FLOW_METER)
     cooler.flowmeter_task(ms);
     #if ENABLED(FLOWMETER_SAFETY)
       if (cutter.enabled() && cooler.check_flow_too_low()) {
@@ -2336,7 +2336,7 @@ void Temperature::init() {
    *
    * TODO: Embed the last 3 parameters during init, if not less optimal
    */
-  void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
+  void Temperature::tr_state_machine_t::run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
@@ -3371,7 +3371,7 @@ void Temperature::tick() {
 
   #include "../gcode/gcode.h"
 
-  static void print_heater_state(const float &c, const float &t
+  static void print_heater_state(const_float_t c, const_float_t t
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
     #endif
@@ -3804,7 +3804,7 @@ void Temperature::tick() {
       #define MIN_DELTA_SLOPE_TIME_PROBE 600
     #endif
 
-    bool Temperature::wait_for_probe(const float target_temp, bool no_wait_for_cooling/*=true*/) {
+    bool Temperature::wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling/*=true*/) {
 
       const bool wants_to_cool = isProbeAboveTemp(target_temp);
       const bool will_wait = !(wants_to_cool && no_wait_for_cooling);

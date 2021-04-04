@@ -176,14 +176,6 @@
 
 #if HAS_LTDC_TFT  
 
-  /*
-  //   lcdltdc.hsw=20;
-  //   lcdltdc.vsw=3;
-  //   lcdltdc.hbp=140;
-  //   lcdltdc.vbp=20;
-  //   lcdltdc.hfp=160;
-  //   lcdltdc.vfp=12;
-  */
   // LTDC_LCD Timing
   #define LTDC_LCD_CLK                      50   // LTDC clock frequency = 50Mhz
   #define LTDC_LCD_HSYNC                    30   // Horizontal synchronization

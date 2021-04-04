@@ -36,7 +36,7 @@ constexpr uint8_t dim = _BV(ord);
 static inline bool eval_candidate(int8_t x, int8_t y, hilbert_curve::callback_ptr func, void *data) {
   // The print bed likely has fewer points than the full Hilbert
   // curve, so cull unecessary points
-  return x < GRID_MAX_POINTS_X && y < GRID_MAX_POINTS_Y ? func(x, y, data) : false;
+  return x < (GRID_MAX_POINTS_X) && y < (GRID_MAX_POINTS_Y) ? func(x, y, data) : false;
 }
 
 bool hilbert_curve::hilbert(int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n, hilbert_curve::callback_ptr func, void *data) {
@@ -102,10 +102,8 @@ bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_pt
  */
 bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::callback_ptr func, void *data) {
   // Find closest grid intersection
-  uint8_t grid_x = LROUND(float(pos.x - MESH_MIN_X) / MESH_X_DIST);
-  uint8_t grid_y = LROUND(float(pos.y - MESH_MIN_Y) / MESH_Y_DIST);
-  LIMIT(grid_x, 0, GRID_MAX_POINTS_X);
-  LIMIT(grid_y, 0, GRID_MAX_POINTS_Y);
+  const uint8_t grid_x = LROUND(constrain(float(pos.x - (MESH_MIN_X)) / (MESH_X_DIST), 0, (GRID_MAX_POINTS_X) - 1));
+  const uint8_t grid_y = LROUND(constrain(float(pos.y - (MESH_MIN_Y)) / (MESH_Y_DIST), 0, (GRID_MAX_POINTS_Y) - 1));
   return search_from(grid_x, grid_y, func, data);
 }
 
