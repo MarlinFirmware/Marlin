@@ -68,8 +68,8 @@ void GcodeSuite::M420() {
                   y_min = probe.min_y(), y_max = probe.max_y();
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         bilinear_start.set(x_min, y_min);
-        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_POINTS_X - 1),
-                                  (y_max - y_min) / (GRID_MAX_POINTS_Y - 1));
+        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+                                  (y_max - y_min) / (GRID_MAX_CELLS_Y));
       #endif
       GRID_LOOP(x, y) {
         Z_VALUES(x, y) = 0.001 * random(-200, 200);

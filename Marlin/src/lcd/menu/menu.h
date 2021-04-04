@@ -40,7 +40,7 @@ typedef void (*selectFunc_t)();
 #define SS_DEFAULT SS_CENTER
 
 #if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-  void _lcd_zoffset_overlay_gfx(const float zvalue);
+  void _lcd_zoffset_overlay_gfx(const_float_t zvalue);
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
@@ -212,11 +212,7 @@ void _lcd_draw_homing();
 #define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LEVEL_BED_CORNERS)
 
 #if HAS_LINE_TO_Z
-  void line_to_z(const float &z);
-#endif
-
-#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-  void _lcd_zoffset_overlay_gfx(const float zvalue);
+  void line_to_z(const_float_t z);
 #endif
 
 #if ENABLED(PROBE_OFFSET_WIZARD)

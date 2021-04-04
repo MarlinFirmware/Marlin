@@ -53,12 +53,12 @@ constexpr static float gaugeThickness = 0.25;
 #endif
 
 void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max) {
-  constexpr uint8_t rows       = GRID_MAX_POINTS_Y;
-  constexpr uint8_t cols       = GRID_MAX_POINTS_X;
+  constexpr uint8_t rows = GRID_MAX_POINTS_Y;
+  constexpr uint8_t cols = GRID_MAX_POINTS_X;
 
-  #define VALUE(X,Y)         (data ? data[X][Y] : 0)
-  #define ISVAL(X,Y)         (data ? !isnan(VALUE(X,Y)) : true)
-  #define HEIGHT(X,Y)        (ISVAL(X,Y) ? (VALUE(X,Y) - val_min) * scale_z : 0)
+  #define VALUE(X,Y)  (data ? data[X][Y] : 0)
+  #define ISVAL(X,Y)  (data ? !isnan(VALUE(X,Y)) : true)
+  #define HEIGHT(X,Y) (ISVAL(X,Y) ? (VALUE(X,Y) - val_min) * scale_z : 0)
 
   // Compute the mean, min and max for the points
 

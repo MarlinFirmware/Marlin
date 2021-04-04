@@ -127,7 +127,7 @@ template<typename T>
 constexpr T cpow(const T x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
-extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
+const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
 
 /// Helper to populate a DGUS_VP_Variable for a given VP. Return false if not found.
-extern bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);
+bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);

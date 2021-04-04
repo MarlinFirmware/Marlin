@@ -102,7 +102,7 @@ void unified_bed_leveling::invalidate() {
   set_all_mesh_points_to_value(NAN);
 }
 
-void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
+void unified_bed_leveling::set_all_mesh_points_to_value(const_float_t value) {
   GRID_LOOP(x, y) {
     z_values[x][y] = value;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
@@ -115,7 +115,7 @@ void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
   constexpr int16_t Z_STEPS_NAN = INT16_MAX;
 
   void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
-    auto z_to_store = [](const float &z) {
+    auto z_to_store = [](const_float_t z) {
       if (isnan(z)) return Z_STEPS_NAN;
       const int32_t z_scaled = TRUNC(z * mesh_store_scaling);
       if (z_scaled == Z_STEPS_NAN || !WITHIN(z_scaled, INT16_MIN, INT16_MAX))
@@ -190,7 +190,7 @@ void unified_bed_leveling::display_map(const int map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
+  for (int8_t j = (GRID_MAX_POINTS_Y) - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -217,7 +217,7 @@ void unified_bed_leveling::display_map(const int map_type) {
         if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR('\t');
+      if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');

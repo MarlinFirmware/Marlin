@@ -93,7 +93,7 @@ namespace ExtUI {
 
     void onMeshLevelingStart() {}
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float &zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
   #endif
