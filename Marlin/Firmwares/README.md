@@ -42,12 +42,14 @@
 - [6. Version History.](#6-Version-History)
 ***
 ## 1.1. Last news Marlin 2 Bugfix Branch
-  Update Marlin-BugFix 20210228
-  - Last fix by Marlin (Serial coms, latency MCU, Preheat leveling, fix Host pause(M876), Improve GCode queue, Preheat menu option, Wifi, etc)
-  - New release (binaries and source)
+  Update Marlin-BugFix 20210404
+  - New bootscreen ;-)
+  - New special menu to set its Delta and leveling.
+  - Update ReadMe.
+  - Last fix by Marlin.
+  - New release (binaries and source) v1.2.0
   - Support QQSP/Q5 Stock, TMC and UART mode.
   - **All QQSP features on Q5 and SKR**
-  - Update ReadMe.
 
 ## 1.2. Validate and Actived parts
 ### Validate:
@@ -57,12 +59,15 @@
 
   * [PID_EDIT_MENU]
   * [NATIVE LANGUAGE]
+  * [PROBE_OFFSET_WIZARD]
   * [DELTA_CALIBRATION_MENU]
-  * [PREHEAT LEVELING]
+  * [AUTO_BED_LEVELING_UBL]
   * [MULTI_BUILD_MESH]
+  * [UBL_HILBERT_CURVE]
+  * [PREHEAT LEVELING]
   * [POWER_LOSS_RECOVERY]
   * [FILAMENT_RUNOUT_SENSOR]
-  * [AUTO_BED_LEVELING_UBL]
+  * [XY_FREQUENCY_LIMIT]
   * [BABYSTEPPING]
   * [PAUSE_BEFORE_DEPLOY_STOW]
   * [LIN_ADVANCE]
@@ -72,7 +77,7 @@
 
 ## 1.3. **Hardware for the FLSunQ printers**
   
-  * MotherBoards QQS: 
+  * MotherBoards QQS(P): 
     [HiSpeedv1_&_RobinMini](./HISPEED)
     
     With integrated stepper drivers(A4988)=>(**Sxxx-Robin_mini.bin**)
@@ -123,6 +128,7 @@
 
   No validate:
   -TMC5121
+  -TMC2224/5
 
 ## 1.4. CAPTION Firmwares
 
@@ -138,16 +144,16 @@
   - (S) A4988 (green/red)
   - (8) TMC2208 Standalone
   - (9) TMC2209 Standalone
-  - (U8) TMC2208_UART with no module ESP12.
-  - (U9) TMC2209_UART with no module ESP12.
-  - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
-  - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
-  - **(UH) TMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
+  - (U8) 4xTMC2208_UART with no module ESP12.
+  - (U9) 4xTMC2209_UART with no module ESP12.
+  - (U8+) 3xTMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
+  - (U9+) 3xTMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
+  - **(UH) 4xTMC2209_UART with one wire (option modules Wifi/Rpi/Neopixel)**
 
   **/*-------Options UI TFT--------*/**
   - (F) UI STANDARD (Emulation LCD screen on TFT)
   - (C) UI MARLIN (TFT Color screen)
-  - (r) UI STANDARD (Marlin Mode on TFT)
+  - (r) UI STANDARD (Marlin Mode on TFT FOR SKR/NANOv2-3)
 
   **/*------Modules--------*/**
   - (N) NeoPixel (management of led strips)
@@ -165,7 +171,7 @@
   
   **/*-------Others options for advanced users who build their firmware----*/**
   - HOST_ACTION_COMMANDS (Action Command Prompt support Message on OctoPrint) 
-  - MEATPACK (Improve dialogue/communication with OctoPrint)
+  - (M) MEATPACK (Improve dialogue/communication with OctoPrint)
   - BINARY_FILE_TRANSFER
   - TEMP_SENSOR_0 (After changed the thermitor nozzle)
   - LCD_LANGUAGE (Change to the native language)
@@ -197,11 +203,19 @@
      After the flash, you may be asked to calibrate the screen: press the crosses on the screen to complete the calibration.
   
   Now YOU are ready to start a calibration of your printer!!
+
+   # **NEW SINCE APRIL 2021 :**
+   NOW YOU HAVE A DEDICATED MENU TO DO THE DIFFERENT STEPS OF THE PREPARATION OF YOUR PRINTER! THEY ARE POSITIONED IN THE ORDER OF THE OPERATIONS TO BE CARRIED OUT.
+
+   ![SpecialMenu](../../docs/images/SpecialMenu.png)
+
+   ![SpecialMenu2](../../docs/images/SpecialMenu2.png)
   
 ## 2.1. Delta Calibration
 ###  **Perform a Delta Calibration:**
   
-  By menu: 
+  By menu:
+  - Use the menu "Special Delta" to do a Fast or Fine calibration. 
   - "Configuration/Delta_Calibration/AutoCalibration"(5/8 iterations).
   
   By terminal:
@@ -220,7 +234,10 @@
   
   By menu: 
 
-  - New procedure with the last firmware (02/04/21)!!
+  - New procedure with the last firmware (Since April 2021)!!
+    Use the menu "Special Delta" to launch the wizard.
+
+   ![SpecialWizard](../../docs/images/SpecialWizard.png)
 
        "Motion/MoveAxis" deactived the endstops.
        "Motion/MovesAxis/Move ZThen lower the nozzle slowly to adjust to a sheet of paper.
@@ -236,6 +253,11 @@
 ## 2.3. Bed Levelling
 ###  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
 
+  - New procedure with the last firmware (Since April 2021)!!
+    Use the menu "Special Delta" to run your prefer leveling (PLA, PETG, ABS) with auto-save.
+
+  ![SpecialMenu3](../../docs/images/SpecialMenu3.png)
+  
   By terminal with the commands:
   - M190 S60 (temp bed at 60° or other)
   - G28 (autohome)
@@ -293,6 +315,9 @@
 
   ### **Perform a nozzle PID:**
   
+  - New procedure with the last firmware (Since April 2021)!!
+    Use the menu "Special Delta" to run a PID Nozzle for PLA.
+
   By the menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
   
@@ -498,6 +523,13 @@ Enjoy and support my work ....🙃
 ***
 # 6. Version history
   ## Marlin 2.0 Bugfix Branch
+  Update Marlin-BugFix 20210228
+  - Last fix by Marlin (Serial coms, latency MCU, Preheat leveling, fix Host pause(M876), Improve GCode queue, Preheat menu option, Wifi, etc)
+  - New release (binaries and source)
+  - Support QQSP/Q5 Stock, TMC and UART mode.
+  - **All QQSP features on Q5 and SKR**
+  - Update ReadMe.
+
   Update Marlin-BugFix 20210129
   - Last fix by Marlin,
   - New QQS_Config rename FLSUNQ_Config (QQSP & Q5)
