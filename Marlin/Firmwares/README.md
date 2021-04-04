@@ -205,7 +205,7 @@
   Now YOU are ready to start a calibration of your printer!!
 
    # **NEW SINCE APRIL 2021 :**
-   NOW YOU HAVE A DEDICATED MENU TO DO THE DIFFERENT STEPS OF THE PREPARATION OF YOUR PRINTER! THEY ARE POSITIONED IN THE ORDER OF THE OPERATIONS TO BE CARRIED OUT.
+   NOW YOU HAVE A **DEDICATED MENU** TO DO THE DIFFERENT STEPS OF THE PREPARATION OF YOUR PRINTER! THEY ARE POSITIONED IN THE ORDER OF THE OPERATIONS TO BE CARRIED OUT.
 
    ![SpecialMenu](../../docs/images/SpecialMenu.png)
 
@@ -215,7 +215,7 @@
 ###  **Perform a Delta Calibration:**
   
   By menu:
-  - Use the menu "Special Delta" to do a Fast or Fine calibration. 
+  - Use the menu **"Special Delta"** to do a Fast or Fine calibration. 
   - "Configuration/Delta_Calibration/AutoCalibration"(5/8 iterations).
   
   By terminal:
@@ -235,7 +235,7 @@
   By menu: 
 
   - New procedure with the last firmware (Since April 2021)!!
-    Use the menu "Special Delta" to launch the wizard.
+    Use the menu **"Special Delta"** to launch the wizard.
 
    ![SpecialWizard](../../docs/images/SpecialWizard.png)
 
@@ -254,7 +254,8 @@
 ###  **Perform a bed calibration ([**UBL**](https://marlinfw.org/docs/features/unified_bed_leveling.html))**
 
   - New procedure with the last firmware (Since April 2021)!!
-    Use the menu "Special Delta" to run your prefer leveling (PLA, PETG, ABS) with auto-save.
+
+    Use the menu **"Special Delta"** to run your prefer leveling (PLA, PETG, ABS) with auto-save.
 
   ![SpecialMenu3](../../docs/images/SpecialMenu3.png)
   
