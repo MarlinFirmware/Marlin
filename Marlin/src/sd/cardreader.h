@@ -103,7 +103,7 @@ public:
 
   CardReader();
 
-  static void changeMedia(DiskIODriver *_driver) { sd2card = _driver; }
+  static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
 
   static SdFile getroot() { return root; }
 
@@ -196,8 +196,8 @@ public:
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
-  // TODO: rename to getDiskIODriver()
-  static DiskIODriver* getSd2Card() { return sd2card; }
+  // TODO: rename to diskIODriver()
+  static DiskIODriver* diskIODriver() { return driver; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     //
@@ -208,12 +208,12 @@ public:
   #endif
 
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    static DiskIODriver_USBFlash sd2card_UsbFlashDrive;
+    static DiskIODriver_USBFlash media_UsbFlashDrive;
   #endif
   #if NEED_SD2CARD_SDIO
-    static DiskIODriver_SDIO sd2card_sdio;
+    static DiskIODriver_SDIO media_sdio;
   #elif NEED_SD2CARD_SPI
-    static DiskIODriver_SPI_SD sd2card_sd_spi;
+    static DiskIODriver_SPI_SD media_sd_spi;
   #endif
 
 private:
@@ -271,7 +271,7 @@ private:
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static uint8_t *isDir;
         #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-          static uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+          static uint8_t isDir[(SDSORT_LIMIT + 7) >> 3];
         #endif
       #endif
 
@@ -279,7 +279,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static DiskIODriver* sd2card;
+  static DiskIODriver *driver;
   static SdVolume volume;
   static SdFile file;
 

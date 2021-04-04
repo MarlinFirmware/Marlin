@@ -30,26 +30,26 @@
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
-  DiskIODriver* getDiskIODriver() {
+  DiskIODriver* diskIODriver() {
     #if ENABLED(MULTI_VOLUME)
       #if SHARED_VOLUME_IS(SD_ONBOARD)
-        return &card.sd2card_sd_spi;
+        return &card.media_sd_spi;
       #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
-        return &card.sd2card_UsbFlashDrive;
+        return &card.media_usbFlashDrive;
       #endif
     #else
-      return getDiskIODriver();
+      return diskIODriver();
     #endif
   }
 
   bool GetCapacity(uint32_t *pBlockNum, uint16_t *pBlockSize) {
-    *pBlockNum = getDiskIODriver()->cardSize();
+    *pBlockNum = diskIODriver()->cardSize();
     *pBlockSize = BLOCK_SIZE;
     return true;
   }
 
   bool Write(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = getDiskIODriver();
+    auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
       watchdog_refresh();
@@ -69,7 +69,7 @@ public:
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = getDiskIODriver();
+    auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
       watchdog_refresh();
@@ -89,7 +89,7 @@ public:
   }
 
   bool IsReady() {
-    return getDiskIODriver()->isReady();
+    return diskIODriver()->isReady();
   }
 };
 
