@@ -44,7 +44,7 @@
 ## 1.1. Last news Marlin 2 Bugfix Branch
   Update Marlin-BugFix 20210404
   - New bootscreen ;-)
-  - New special menu to set its Delta and leveling.
+  - New **Special Menu** to set its Delta and leveling.
   - Update ReadMe.
   - Last fix by Marlin.
   - New release (binaries and source) v1.2.0

@@ -698,8 +698,8 @@
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
-#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
+//#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
+//#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -785,7 +785,7 @@
 
     // Delta radius and diagonal rod adjustments (mm)
     //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OCTO
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 }
   #endif
 #endif
 
@@ -1016,7 +1016,7 @@
  */
 #if DISABLED(CLASSIC_JERK)
   #define JUNCTION_DEVIATION_MM 0.013 // (mm) Distance from real junction edge
-  #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
+  //#define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
 
@@ -1231,11 +1231,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#ifdef XP
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -14.0 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
-#else
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, Z_OFFSET }  //OPT (QQS -16.2) (Q5 -18)
-#endif
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, Z_OFFSET }  //OPT (QQS -16.2) (Q5 -18)
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1312,7 +1308,7 @@
 #define Z_PROBE_LOW_POINT          -4 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -20  //For some users with high probe
+#define Z_PROBE_OFFSET_RANGE_MIN -25  //For some users with high probe
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
@@ -1939,7 +1935,6 @@
 #define PREHEAT_4_TEMP_HOTEND 240
 #define PREHEAT_4_TEMP_BED     80
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
-
 
 /**
  * Nozzle Park

@@ -940,6 +940,7 @@
 
 // Slow down the machine if the lookahead buffer is (by default) half full.
 // Increase the slowdown divisor for larger buffer sizes.
+//(don't use SLOWDOWN with DELTA because DELTA generates hundreds of segments per second)
 //#define SLOWDOWN
 #if ENABLED(SLOWDOWN)
   #define SLOWDOWN_DIVISOR 2
@@ -1140,7 +1141,7 @@
   #else
     #define MANUAL_FEEDRATE_XYZ 50*60
   #endif
-  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
   #if IS_ULTIPANEL
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
@@ -1248,7 +1249,6 @@
 #endif
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY) && ANY(HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, EXTENSIBLE_UI)
-  //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
   #define SHOW_REMAINING_TIME       // Display estimated time to completion
   #if ENABLED(SHOW_REMAINING_TIME)
     //#define USE_M73_REMAINING_TIME  // Use remaining time from M73 command instead of estimation
@@ -1567,8 +1567,8 @@
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_COOLER_ANIM        // Use a second bitmap to indicate laser cooling
   //#define STATUS_FLOWMETER_ANIM     // Use multiple bitmaps to indicate coolant flow
-  //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
-  //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
+  #define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
+  #define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   #define STATUS_FAN_FRAMES 4       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
@@ -2267,7 +2267,7 @@
     #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      550  //FE250 (mm) The length of filament for a complete unload.
   #else                                                // This short retract is done immediately, before parking the nozzle.
-    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     10  // (mm/s) Unload filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     20//10  // (mm/s) Unload filament feedrate. This can be pretty fast.
     #define FILAMENT_CHANGE_UNLOAD_ACCEL        30  // (mm/s^2) Lower acceleration may allow a faster feedrate.
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      850  // (mm) The length of filament for a complete unload.
                                                   //   For Bowden, the full length of the tube and nozzle.
@@ -2283,7 +2283,7 @@
     #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
     #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   600  // (mm) Load length of filament, from extruder gear to nozzle.
   #else                                             // 0 to disable start loading and skip to fast load only
-    #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE   6  //40  // (mm/s) Load filament feedrate. This can be pretty fast.
+    #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  20// 6  //40  // (mm/s) Load filament feedrate. This can be pretty fast.
     #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     30  // (mm/s^2) Lower acceleration may allow a faster feedrate.
     #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   730  // (mm) Load length of filament, from extruder gear to nozzle.
                                                   //   For Bowden, the full length of the tube and nozzle.
@@ -2827,7 +2827,6 @@
    *   stepperY.intpol(0); \
    * }
    */
-  // for disable 2208 #define TMC_ADV() { stepperE0.en_spreadCycle(true); }
   #define TMC_ADV() {  }
 
 #endif // HAS_TRINAMIC_CONFIG
@@ -3488,14 +3487,14 @@
 // Custom Menu: Main Menu
 //#define CUSTOM_MENU_MAIN
 #if ENABLED(CUSTOM_MENU_MAIN)
-  #define CUSTOM_MENU_MAIN_TITLE "Menu Special Delta & Levelings"
+  #define CUSTOM_MENU_MAIN_TITLE "Special Menu Delta & Leveling"
   #define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 User Script Done"
   #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
   #define CUSTOM_MENU_MAIN_SCRIPT_RETURN   // Return to status screen after a script
-  #define CUSTOM_MENU_MAIN_ONLY_IDLE         // Only show custom menu when the machine is idle
+  //#define CUSTOM_MENU_MAIN_ONLY_IDLE       // Only show custom menu when the machine is idle
 
-  #define MAIN_MENU_ITEM_1_DESC "Reset All Settings"
-  #define MAIN_MENU_ITEM_1_GCODE "G28\nM502\nM500\nM503"
+  #define MAIN_MENU_ITEM_1_DESC "Initialize EEPROM"
+  #define MAIN_MENU_ITEM_1_GCODE "G28\nM502\nM500\nM997"
   #define MAIN_MENU_ITEM_1_CONFIRM
 
   #define MAIN_MENU_ITEM_2_DESC "Fast Calib. Delta"
@@ -3506,25 +3505,29 @@
   #define MAIN_MENU_ITEM_3_GCODE "G33 P5 V3\nM500\nM140 S0"  //P6ok
   #define MAIN_MENU_ITEM_3_CONFIRM
 
-  #define MAIN_MENU_ITEM_4_DESC "Run PID Nozzle (PLA)"
-  #define MAIN_MENU_ITEM_4_GCODE "M106 S180\nM303 E0 C8 S210 U\nM500\nM107"
+  #define MAIN_MENU_ITEM_4_DESC "Wizard ZOffSet Menu"
+  #define MAIN_MENU_ITEM_4_GCODE "G28" //Modif menu_main.cpp(lig158)
   #define MAIN_MENU_ITEM_4_CONFIRM
-  
-  #define MAIN_MENU_ITEM_5_DESC "Wizard ZOffSet Menu"
-  #define MAIN_MENU_ITEM_5_GCODE "G28" //Modif menu_main.cpp(lig158)
+
+  #define MAIN_MENU_ITEM_5_DESC "Run PID Nozzle for " PREHEAT_1_LABEL
+  #define MAIN_MENU_ITEM_5_GCODE "M106 S180\nM303 E0 C8 S210 U\nM500\nG28\nM107"
   #define MAIN_MENU_ITEM_5_CONFIRM
 
-  #define MAIN_MENU_ITEM_6_DESC "Leveling UBL for PLA"
+  #define MAIN_MENU_ITEM_6_DESC "Bed Leveling UBL for " PREHEAT_1_LABEL
   #define MAIN_MENU_ITEM_6_GCODE "G28\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S0\nG29 A\nM500\nM140 S0"
   #define MAIN_MENU_ITEM_6_CONFIRM
 
-  #define MAIN_MENU_ITEM_7_DESC "Leveling UBL for PETG"
+  #define MAIN_MENU_ITEM_7_DESC "Bed Leveling UBL for " PREHEAT_4_LABEL
   #define MAIN_MENU_ITEM_7_GCODE "G28\nM190 S" STRINGIFY(PREHEAT_4_TEMP_BED) "\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S1\nG29 A\nM500\nM140 S0"
   #define MAIN_MENU_ITEM_7_CONFIRM
 
-  #define MAIN_MENU_ITEM_8_DESC "Leveling UBL for ABS"
+  #define MAIN_MENU_ITEM_8_DESC "Bed Leveling UBL for " PREHEAT_2_LABEL
   #define MAIN_MENU_ITEM_8_GCODE "G28\nM190 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG29 P1 T\nG29 P3 T\nG29 P3\nG29 S2\nG29 A\nM500\nM140 S0"
   #define MAIN_MENU_ITEM_8_CONFIRM
+
+  #define MAIN_MENU_ITEM_9_DESC "Reset Printer"
+  #define MAIN_MENU_ITEM_9_GCODE "M997"
+  #define MAIN_MENU_ITEM_9_CONFIRM
 
   //#define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
   //#define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"

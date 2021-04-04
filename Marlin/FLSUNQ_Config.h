@@ -46,6 +46,8 @@
  * =============================================================//
  */
 //#define DRIVER_EXT A4988  //LV8729
+//Only WITH Q5 older stepper(A4988/DRV8825/LV8729)
+//#define INV_EXT
 
 /*__________________________3________________________________*/
         /** =============================
@@ -100,8 +102,10 @@
 #define PREHEAT_BEFORE_PROBING     //(P) Run a PreHeat bed at 60°C (Default)
 //#define PREHEAT_BEFORE_LEVELING    
 #define AUTO_BED_LEVELING_UBL      //(U) (Default)
-#define UBL_HILBERT_CURVE
+
+//--------IF YOUR USED ABL, DISABLE "SPECIAL MENU"= #define CUSTOM_MENU_MAIN
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
+#define UBL_HILBERT_CURVE          // (Default)
 
 /*__________________________6__________________________*/
     //======Many options for Modules: ===========//
@@ -120,7 +124,7 @@
  * ====== Choice add menu on TFT: (OPT) =================
  */
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (Default).
-#define CUSTOM_MENU_MAIN           // Main Menu: "Menu Special Delta" (Default).
+#define CUSTOM_MENU_MAIN           // Main Menu UBL: "Menu Special Delta" (Default).
 #define PID_EDIT_MENU              // tune PID Bed and Nozzle (Default).
 #define PID_AUTOTUNE_MENU          // tune auto PID (Default).
 #define LCD_INFO_MENU              // Informations printer (Default).
