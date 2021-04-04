@@ -2623,9 +2623,6 @@ void HMI_Control() {
         
         // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
-        Draw_Menu_Icon(MROWS, ICON_Temperature + index_control - 1);
-        Draw_More_Icon(CONTROL_CASE_TEMP + MROWS - index_control); // Temperature >
-        Draw_More_Icon(CONTROL_CASE_MOVE + MROWS - index_control); // Motion >
 
         switch (index_control) {  // Last menu items
           case CONTROL_CASE_ADVSET:  // Advance Settings >
