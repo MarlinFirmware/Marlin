@@ -3311,18 +3311,6 @@
 #endif
 
 /**
- * Disable stepper driver anti reverse protection
- * "Stepper driver anti reverse protection" means Detect whether the driver is anti reverse pluged when power on
- * If it is anti reverse pluged, then supply power to the driver
- * Otherwise, Do not supply power to the driver to prevent the driver and motherboard from burning down
- *
- * The protection function will be enabled automatically if "SAFE_POWER_PIN" is defined
- * However, some new stepper drivers may not support similar detection in the future
- * So a disable option is provided. The driver will be powered directly without detection during initialization if disable
- */
-//#define DISABLE_DRIVER_SAFE_POWER_PROTECT
-
-/**
  * CNC Coordinate Systems
  *
  * Enables G53 and G54-G59.3 commands to select coordinate systems
