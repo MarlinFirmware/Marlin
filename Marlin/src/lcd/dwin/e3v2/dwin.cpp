@@ -3943,11 +3943,11 @@ void DWIN_HandleScreen() {
     case TemperatureID:   HMI_Temperature(); break;
     case Motion:          HMI_Motion(); break;
     case AdvSet:          HMI_AdvSet(); break;
-#if HAS_ONESTEP_LEVELING
-    case ProbeOff:        HMI_ProbeOff(); break;
-    case ProbeOffX:       HMI_ProbeOffX(); break;
-    case ProbeOffY:       HMI_ProbeOffY(); break;
-#endif
+    #if HAS_ONESTEP_LEVELING
+      case ProbeOff:      HMI_ProbeOff(); break;
+      case ProbeOffX:     HMI_ProbeOffX(); break;
+      case ProbeOffY:     HMI_ProbeOffY(); break;
+    #endif
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
     #if HAS_PREHEAT
