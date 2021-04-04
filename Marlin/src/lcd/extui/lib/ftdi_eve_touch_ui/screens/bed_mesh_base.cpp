@@ -142,10 +142,11 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
           if (opts & USE_COLORS) {
             const float val_dev = sq(VALUE(x, y) - val_mean);
             uint8_t r = 0, b = 0;
+            //*(VALUE(x, y) < 0 ? &r : &b) = val_dev / sq_min * 0xFF;
             if (VALUE(x, y) < 0)
-                r = val_dev / sq_min * 0xFF;
+              r = val_dev / sq_min * 0xFF;
             else
-                b = val_dev / sq_max * 0xFF;
+              b = val_dev / sq_max * 0xFF;
             cmd.cmd(COLOR_RGB(0xFF - b, 0xFF - b - r, 0xFF - r));
           }
           cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
