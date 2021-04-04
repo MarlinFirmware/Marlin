@@ -2373,16 +2373,16 @@ void Draw_AdvSet_Menu() {
 }
 
 #if HAS_ONESTEP_LEVELING
-void Draw_ProbeOff_Menu() {
-  Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_ZPROBE_OFFSETS));                 // Probe Offsets
-  Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, ICON_ProbeOffX, GET_TEXT(MSG_ZPROBE_XOFFSET));  // Probe X Offset
-  DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
-  Draw_Menu_Line(2, ICON_ProbeOffY, GET_TEXT(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
-  DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
-  if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+  void Draw_ProbeOff_Menu() {
+    Clear_Main_Window();
+    Draw_Title(GET_TEXT_F(MSG_ZPROBE_OFFSETS));   // Probe Offsets
+    Draw_Back_First(select_item.now == 0);
+    Draw_Menu_Line(1, ICON_ProbeOffX, GET_TEXT(MSG_ZPROBE_XOFFSET));  // Probe X Offset
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
+    Draw_Menu_Line(2, ICON_ProbeOffY, GET_TEXT(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
+    if (select_item.now) Draw_Menu_Cursor(select_item.now);
+  }
 #endif
 
 #include "../../../libs/buzzer.h"
