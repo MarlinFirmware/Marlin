@@ -149,7 +149,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     // Wrap all the CommandFifo routines to allow method chaining
 
     inline CommandProcessor& cmd      (uint32_t cmd32)            {CLCD::CommandFifo::cmd(cmd32); return *this;}
-    inline CommandProcessor& cmd      (void* data, uint16_t len)  {CLCD::CommandFifo::cmd(data, len); return *this;}
+    inline CommandProcessor& cmd      (void *data, uint16_t len)  {CLCD::CommandFifo::cmd(data, len); return *this;}
     inline CommandProcessor& execute()                            {CLCD::CommandFifo::execute(); return *this;}
 
     inline CommandProcessor& fgcolor  (uint32_t rgb)              {CLCD::CommandFifo::fgcolor(rgb); return *this;}

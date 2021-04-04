@@ -56,8 +56,8 @@ public:
   static void InitDisplay();
 
   // Variable access.
-  static void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
-  static void WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
+  static void WriteVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
+  static void WriteVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
   static void WriteVariable(uint16_t adr, int16_t value);
   static void WriteVariable(uint16_t adr, uint16_t value);
   static void WriteVariable(uint16_t adr, uint8_t value);
