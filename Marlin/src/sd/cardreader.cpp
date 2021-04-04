@@ -120,7 +120,7 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+#if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
   DiskIODriver_USBFlash CardReader::media_usbFlashDrive;
 #endif
 #if NEED_SD2CARD_SDIO

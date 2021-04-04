@@ -32,16 +32,24 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
 class DiskIODriver_SDIO : public DiskIODriver {
   public:
-    bool init(const uint8_t sckRateID = 0, const pin_t chipSelectPin = 0) { return SDIO_Init(); }
-    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
-    bool writeBlock(uint32_t block, const uint8_t *src) { return SDIO_WriteBlock(block, src); }
-    bool readStart(const uint32_t block) { return false; }
-    bool readData(uint8_t* dst) { return false; }
-    bool readStop() { return false; }
-    bool writeStart(const uint32_t block, const uint32_t) { return false; }
-    bool writeData(const uint8_t* src) { return false; }
-    bool writeStop() { return false; }
-    bool readCSD(csd_t* csd) { return false; }
-    uint32_t cardSize() { return 0; };
-    bool isReady() { return true; };
+    bool init(const uint8_t sckRateID=0, const pin_t chipSelectPin=0) override { return SDIO_Init(); }
+
+    bool readCSD(csd_t *csd)                              override { return false; }
+
+    bool readStart(const uint32_t block)                  override { return false; }
+    bool readData(uint8_t *dst)                           override { return false; }
+    bool readStop()                                       override { return false; }
+
+    bool writeStart(const uint32_t block, const uint32_t) override { return false; }
+    bool writeData(const uint8_t *src)                    override { return false; }
+    bool writeStop()                                      override { return false; }
+
+    bool readBlock(uint32_t block, uint8_t *dst)          override { return SDIO_ReadBlock(block, dst); }
+    bool writeBlock(uint32_t block, const uint8_t *src)   override { return SDIO_WriteBlock(block, src); }
+
+    uint32_t cardSize()                                   override { return 0; }
+
+    bool isReady()                                        override { return true; }
+
+    void idle()                                           override {}
 };

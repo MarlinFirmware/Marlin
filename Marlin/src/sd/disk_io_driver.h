@@ -38,6 +38,16 @@ public:
    */
   virtual bool init(const uint8_t sckRateID, const pin_t chipSelectPin) = 0; //TODO: only for SPI
 
+  /**
+   * Read a card's CSD register. The CSD contains Card-Specific Data that
+   * provides information regarding access to the card's contents.
+   *
+   * \param[out] csd pointer to area for returned data.
+   *
+   * \return true for success or false for failure.
+   */
+  virtual bool readCSD(csd_t* csd) = 0;
+
   virtual bool readStart(const uint32_t block) = 0;
   virtual bool readData(uint8_t* dst) = 0;
   virtual bool readStop() = 0;
@@ -49,17 +59,9 @@ public:
   virtual bool readBlock(uint32_t block, uint8_t* dst) = 0;
   virtual bool writeBlock(uint32_t blockNumber, const uint8_t* src) = 0;
 
-  /**
-   * Read a card's CSD register. The CSD contains Card-Specific Data that
-   * provides information regarding access to the card's contents.
-   *
-   * \param[out] csd pointer to area for returned data.
-   *
-   * \return true for success or false for failure.
-   */
-  virtual bool readCSD(csd_t* csd) = 0;
-
   virtual uint32_t cardSize() = 0;
 
   virtual bool isReady() = 0;
+
+  virtual void idle() = 0;
 };

@@ -101,7 +101,6 @@ public:
 
   DiskIODriver_SPI_SD() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
 
-  uint32_t cardSize();
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
   bool eraseSingleBlockEnable();
 
@@ -125,9 +124,15 @@ public:
    *
    * \return true for success or false for failure.
    */
-  bool init(const uint8_t sckRateID, const pin_t chipSelectPin);
+  bool init(const uint8_t sckRateID, const pin_t chipSelectPin) override;
 
-  bool readBlock(uint32_t block, uint8_t *dst);
+  bool setSckRate(const uint8_t sckRateID);
+
+  /**
+   * Return the card type: SD V1, SD V2 or SDHC
+   * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
+   */
+  int type() const { return type_; }
 
   /**
    * Read a card's CID register. The CID contains card identification
@@ -148,24 +153,24 @@ public:
    *
    * \return true for success or false for failure.
    */
-  inline bool readCSD(csd_t *csd) { return readRegister(CMD9, csd); }
+  inline bool readCSD(csd_t *csd) override { return readRegister(CMD9, csd); }
 
-  bool readData(uint8_t *dst);
-  bool readStart(uint32_t blockNumber);
-  bool readStop();
-  bool setSckRate(const uint8_t sckRateID);
+  bool readData(uint8_t *dst) override;
+  bool readStart(uint32_t blockNumber) override;
+  bool readStop() override;
 
-  /**
-   * Return the card type: SD V1, SD V2 or SDHC
-   * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
-   */
-  int type() const { return type_; }
-  bool writeBlock(uint32_t blockNumber, const uint8_t *src);
-  bool writeData(const uint8_t *src);
-  bool writeStart(const uint32_t blockNumber, const uint32_t eraseCount);
-  bool writeStop();
+  bool writeData(const uint8_t *src) override;
+  bool writeStart(const uint32_t blockNumber, const uint32_t eraseCount) override;
+  bool writeStop() override;
 
-  bool isReady() { return ready; };
+  bool readBlock(uint32_t block, uint8_t *dst) override;
+  bool writeBlock(uint32_t blockNumber, const uint8_t *src) override;
+
+  uint32_t cardSize() override;
+
+  bool isReady() override { return ready; };
+
+  void idle() override {}
 
 private:
   bool ready = false;

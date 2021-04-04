@@ -207,8 +207,8 @@ public:
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    static DiskIODriver_USBFlash media_UsbFlashDrive;
+  #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    static DiskIODriver_USBFlash media_usbFlashDrive;
   #endif
   #if NEED_SD2CARD_SDIO
     static DiskIODriver_SDIO media_sdio;
