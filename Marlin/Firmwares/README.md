@@ -317,7 +317,8 @@
   ### **Perform a nozzle PID:**
   
   - New procedure with the last firmware (Since April 2021)!!
-    Use the menu "Special Delta" to run a PID Nozzle for PLA.
+
+  - Use the **"Special Delta "** menu to run a nozzle PID for PLA or other by the other method.
 
   By the menu: 
   - "Configuration/Advanced Settings/Temperature/PID Autotune E1" and choose your current working temperature (ie: PLA 210, PETG 230, ABS 250) 
