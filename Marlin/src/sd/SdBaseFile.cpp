@@ -1050,11 +1050,11 @@ int16_t SdBaseFile::read(void *buf, uint16_t nbyte) {
 }
 
 /**
- * Calculating checksum
- * @param name
- *  8.3 file name
- * @return
- *  checksum
+ * Calculate a checksum for an 8.3 filename
+ *
+ * \param name The 8.3 file name to calculate
+ *
+ * \return The checksum byte
  */
 uint8_t lfn_checksum(const uint8_t *name) {
   uint8_t sum = 0;
