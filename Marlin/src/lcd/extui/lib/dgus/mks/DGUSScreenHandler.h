@@ -44,7 +44,7 @@ public:
   #if 0
   static void sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
   static void sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) ;
-  static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
+  static void sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language);
   #endif
 
   // "M117" Message -- msg is a RAM ptr.
@@ -158,7 +158,6 @@ public:
     static void GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  
   #if ENABLED(SDSUPPORT)
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
@@ -184,7 +183,7 @@ public:
     static void SDCardError();
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
-  #else 
+  #else
     static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
