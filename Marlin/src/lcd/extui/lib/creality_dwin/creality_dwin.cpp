@@ -1776,11 +1776,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HOTEND
             case PID_HOTEND:
               if (draw) {
-                Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
+                Draw_Menu_Item(row, ICON_HotendTemp, (char*)"Hotend");
               }
               else {
                 char buf[30];
-                sprintf(buf, "M303 E0 C%i S%i", PID_cycles, PID_e_temp);
+                sprintf(buf, "M303 E0 C%i S%i U1", PID_cycles, PID_e_temp);
                 gcode.process_subcommands_now_P(buf);
               }
               break;
@@ -1788,11 +1788,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HEATED_BED
             case PID_BED:
               if (draw) {
-                Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
+                Draw_Menu_Item(row, ICON_BedTemp, (char*)"Bed");
               }
               else {
                 char buf[30];
-                sprintf(buf, "M303 E-1 C%i S%i", PID_cycles, PID_bed_temp);
+                sprintf(buf, "M303 E-1 C%i S%i U1", PID_cycles, PID_bed_temp);
                 gcode.process_subcommands_now_P(buf);
               }
               break;
@@ -1800,7 +1800,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HOTEND
             case PID_E_TEMP:
               if (draw) {
-                Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Hotend Temp");
+                Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend Temp");
                 Draw_Float(PID_e_temp, row, false, 1);
               }
               else {
@@ -1811,7 +1811,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HEATED_BED
             case PID_BED_TEMP:
               if (draw) {
-                Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Bed Temp");
+                Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed Temp");
                 Draw_Float(PID_bed_temp, row, false, 1);
               }
               else {
