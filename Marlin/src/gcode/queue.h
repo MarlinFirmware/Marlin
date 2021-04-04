@@ -40,9 +40,9 @@ public:
      * M110 N<int> sets the current line number.
      */
     long last_N;
-    int count;                        //!< Number of characters read in the current line of serial input
-    char line_buffer[MAX_CMD_SIZE];   //!< The current line accumulator
-    uint8_t input_state;              //!< The input state
+    int count;                      //!< Number of characters read in the current line of serial input
+    char line_buffer[MAX_CMD_SIZE]; //!< The current line accumulator
+    uint8_t input_state;            //!< The input state
   };
 
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
@@ -57,9 +57,11 @@ public:
    * command and hands off execution to individual handler functions.
    */
   struct CommandLine {
-    char buffer[MAX_CMD_SIZE];                    //!< The command buffer
-    bool skip_ok;                                 //!< Skip sending ok when command is processed?
-    TERN_(HAS_MULTI_SERIAL, serial_index_t port); //!< Serial port the command was received on
+    char buffer[MAX_CMD_SIZE];      //!< The command buffer
+    bool skip_ok;                   //!< Skip sending ok when command is processed?
+    #if ENABLED(HAS_MULTI_SERIAL)
+      serial_index_t port;          //!< Serial port the command was received on
+    #endif
   };
 
   /**
@@ -83,7 +85,7 @@ public:
       #endif
     );
 
-    bool enqueue(const char* cmd, bool skip_ok = true
+    bool enqueue(const char *cmd, bool skip_ok = true
       #if HAS_MULTI_SERIAL
         , serial_index_t serial_ind = serial_index_t()
       #endif
@@ -141,7 +143,7 @@ public:
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char* cmd);
+  static void enqueue_one_now(const char *cmd);
 
   /**
    * Attempt to enqueue a single G-code command
@@ -217,7 +219,7 @@ private:
    * Enqueue with Serial Echo
    * Return true on success
    */
-  static bool enqueue_one(const char* cmd);
+  static bool enqueue_one(const char *cmd);
 
   static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 

@@ -120,7 +120,7 @@ void machine_setting_disp() {
 
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_CN;
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_CN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_CN;
+    machine_menu.TrammingPosConf         = TRAMMING_POS_CN;
     machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_CN;
     machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_CN;
 
@@ -348,7 +348,7 @@ void machine_setting_disp() {
 
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_T_CN;
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_T_CN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_T_CN;
+    machine_menu.TrammingPosConf         = TRAMMING_POS_T_CN;
     machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_T_CN;
     machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_T_CN;
 
@@ -577,7 +577,7 @@ void machine_setting_disp() {
 
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_EN;
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_EN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_EN;
+    machine_menu.TrammingPosConf         = TRAMMING_POS_EN;
     machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_EN;
     machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_EN;
 
@@ -816,9 +816,9 @@ void disp_language_init() {
   wifi_menu.disconnected = WIFI_DISCONNECTED_TEXT;
   wifi_menu.exception    = WIFI_EXCEPTION_TEXT;
 
-  printing_menu.temp1    = TEXT_VALUE;
-  printing_menu.temp2    = TEXT_VALUE;
-  printing_menu.bed_temp = TEXT_VALUE;
+  printing_menu.temp1    = TEXT_VALUE_TARGET;
+  printing_menu.temp2    = TEXT_VALUE_TARGET;
+  printing_menu.bed_temp = TEXT_VALUE_TARGET;
 
   filament_menu.stat_temp = TEXT_VALUE;
 
@@ -1713,7 +1713,7 @@ void disp_language_init() {
 
             machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_RU;
             machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_RU;
-            machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_RU;
+            machine_menu.TrammingPosConf         = TRAMMING_POS_RU;
             machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_RU;
             machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_RU;
 

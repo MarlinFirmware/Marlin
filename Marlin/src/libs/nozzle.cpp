@@ -46,7 +46,9 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    */
   void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t &strokes) {
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t oldpos = current_position;
+    #endif
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
@@ -86,7 +88,9 @@ Nozzle nozzle;
     const xy_pos_t diff = end - start;
     if (!diff.x || !diff.y) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t back = current_position;
+    #endif
 
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start);
@@ -126,10 +130,12 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    * @param radius radius of circle
    */
-  void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const float &radius) {
+  void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const_float_t radius) {
     if (strokes == 0) return;
 
-    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    #if ENABLED(NOZZLE_CLEAN_GOBACK)
+      const xyz_pos_t back = current_position;
+    #endif
     TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
 
     LOOP_L_N(s, strokes)
@@ -152,7 +158,7 @@ Nozzle nozzle;
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
+  void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const_float_t radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
     const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;

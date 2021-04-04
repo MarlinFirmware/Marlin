@@ -51,7 +51,7 @@ void MAX3421e::regWr(uint8_t reg, uint8_t data) {
 
 // multiple-byte write
 // return a pointer to memory position after last written
-uint8_t* MAX3421e::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* MAX3421e::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   cs();
   spiSend(reg | 0x02);
   while (nbytes--) spiSend(*data_p++);
@@ -79,7 +79,7 @@ uint8_t MAX3421e::regRd(uint8_t reg) {
 // multiple-byte register read
 
 // return a pointer to a memory position after last read
-uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
   cs();
   spiSend(reg);
   while (nbytes--) *data_p++ = spiRec();

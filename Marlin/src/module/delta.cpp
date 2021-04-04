@@ -177,7 +177,7 @@ float delta_safe_distance_from_top() {
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics(const float &z1, const float &z2, const float &z3) {
+void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3) {
   // Create a vector in old coordinates along x axis of new coordinate
   const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
 
@@ -253,7 +253,7 @@ void home_delta() {
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
+  #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
     TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
     TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
     TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));

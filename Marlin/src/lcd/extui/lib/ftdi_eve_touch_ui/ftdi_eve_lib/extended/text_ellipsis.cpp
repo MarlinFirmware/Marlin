@@ -47,7 +47,7 @@ namespace FTDI {
           break;
       }
     #else
-      for (char* c = str; *c; c++) {
+      for (char *c = str; *c; c++) {
         lineWidth += fm.get_char_width(*c);
         if (lineWidth + ellipsisWidth < w)
           breakPoint = c;

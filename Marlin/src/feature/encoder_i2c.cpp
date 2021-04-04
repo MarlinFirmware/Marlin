@@ -209,8 +209,7 @@ void I2CPositionEncoder::set_homed() {
     delay(10);
 
     zeroOffset = get_raw_count();
-    homed = true;
-    trusted = true;
+    homed = trusted = true;
 
     #ifdef I2CPE_DEBUG
       SERIAL_CHAR(axis_codes[encoderAxis]);

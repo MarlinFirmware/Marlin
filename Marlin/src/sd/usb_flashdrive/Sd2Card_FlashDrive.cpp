@@ -295,7 +295,7 @@ uint32_t DiskIODriver_USBFlash::cardSize() {
   return lun0_capacity;
 }
 
-bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t* dst) {
+bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
@@ -309,7 +309,7 @@ bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t* dst) {
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t* src) {
+bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {

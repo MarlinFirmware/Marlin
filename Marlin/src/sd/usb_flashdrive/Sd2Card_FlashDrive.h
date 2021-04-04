@@ -61,15 +61,15 @@ class DiskIODriver_USBFlash: public DiskIODriver {
     static void idle();
 
     inline bool readStart(const uint32_t block)                  { pos = block; return isReady(); }
-    inline bool readData(uint8_t* dst)                           { return readBlock(pos++, dst); }
-    inline bool readStop()                                       { return true; }
+    inline bool readData(uint8_t *dst)                           { return readBlock(pos++, dst); }
+    inline bool readStop() const                                 { return true; }
 
     inline bool writeStart(const uint32_t block, const uint32_t) { pos = block; return isReady(); }
-    inline bool writeData(const uint8_t* src)                    { return writeBlock(pos++, src); }
-    inline bool writeStop()                                      { return true; }
+    inline bool writeData(const uint8_t *src)                    { return writeBlock(pos++, src); }
+    inline bool writeStop() const                                { return true; }
 
-    bool readBlock(uint32_t block, uint8_t* dst);
-    bool writeBlock(uint32_t blockNumber, const uint8_t* src);
+    bool readBlock(uint32_t block, uint8_t *dst);
+    bool writeBlock(uint32_t blockNumber, const uint8_t *src);
 
     bool readCSD(csd_t*)                                         { return true; }
 

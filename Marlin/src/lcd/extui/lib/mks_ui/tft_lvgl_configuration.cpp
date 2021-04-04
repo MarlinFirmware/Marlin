@@ -64,13 +64,13 @@ XPT2046 touch;
 #endif
 
 #if HAS_SPI_FLASH_FONT
-  extern void init_gb2312_font();
+  void init_gb2312_font();
 #endif
 
 static lv_disp_buf_t disp_buf;
 lv_group_t*  g;
 #if ENABLED(SDSUPPORT)
-  extern void UpdateAssets();
+  void UpdateAssets();
 #endif
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
@@ -190,9 +190,7 @@ void tft_lvgl_init() {
   #endif
 
   tft_style_init();
-
   filament_pin_setup();
-
   lv_encoder_pin_init();
 
   TERN_(MKS_WIFI_MODULE, mks_wifi_firmware_update());
@@ -211,7 +209,7 @@ void tft_lvgl_init() {
 
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
-      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
+      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
       lv_draw_printing();
     }
   #endif

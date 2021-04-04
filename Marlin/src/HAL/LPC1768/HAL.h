@@ -102,6 +102,9 @@ extern DefaultSerial1 USBSerial;
   #else
     #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
+  #endif
 #endif
 
 //

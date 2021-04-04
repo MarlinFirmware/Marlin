@@ -63,7 +63,9 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index = active_extruder);
+#if ENABLED(HAS_MULTI_HOTEND)
+  const uint8_t old_tool_index = active_extruder;
+#endif
 
 float lcd_probe_pt(const xy_pos_t &xy);
 
@@ -91,7 +93,7 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
-void print_signed_float(PGM_P const prefix, const float &f) {
+void print_signed_float(PGM_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
   SERIAL_ECHOPGM_P(prefix);
   SERIAL_CHAR(':');
