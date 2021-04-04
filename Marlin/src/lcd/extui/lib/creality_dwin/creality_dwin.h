@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, ConfLevel, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout
+  Pause, Stop, Resume, SaveLevel, ETemp, ConfLevel, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout, BacklightOff
 };
 
 enum menuID : uint8_t {
@@ -185,10 +185,12 @@ enum menuID : uint8_t {
   #define ICON_Fade                 202
   #define ICON_Mesh                 203
   #define ICON_Tilt                 204
+  #define ICON_Brightness           205
 #else
   #define ICON_Fade                 ICON_Version
   #define ICON_Mesh                 ICON_Version
   #define ICON_Tilt                 ICON_Version
+  #define ICON_Brightness           ICON_Version
 #endif
 
 

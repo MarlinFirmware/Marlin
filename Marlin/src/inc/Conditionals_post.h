@@ -319,6 +319,13 @@
   #endif
 #endif
 
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  #define HAS_LCD_BRIGHTNESS 1
+  #define MAX_LCD_BRIGHTNESS  255
+  #define MIN_LCD_BRIGHTNESS  0
+  #define DEFAULT_LCD_BRIGHTNESS 255
+#endif
+
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
  * and enable sharing of onboard SD host drives (all platforms but AGCM4)

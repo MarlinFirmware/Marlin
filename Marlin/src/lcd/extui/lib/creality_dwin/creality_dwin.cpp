@@ -364,7 +364,12 @@ inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uin
 }
 
 inline void CrealityDWINClass::Redraw_Menu() {
-  Draw_Menu(active_menu, selection, scrollpos);
+  if (active_menu == MainMenu) {
+    Draw_Main_Menu(selection);
+  }
+  else {
+    Draw_Menu(active_menu, selection, scrollpos);
+  }
 }
 
 /* Primary Menus and Screen Elements */
@@ -2399,7 +2404,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case Advanced:
 
       #define ADVANCED_BACK 0
-      #define ADVANCED_XOFFSET (ADVANCED_BACK + ENABLED(HAS_BED_PROBE))
+      #define ADVANCED_BRIGHTNESS (ADVANCED_BACK + 1)
+      #define ADVANCED_XOFFSET (ADVANCED_BRIGHTNESS + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
@@ -2417,6 +2423,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Control, CONTROL_ADVANCED);
+          }
+          break;
+        case ADVANCED_BRIGHTNESS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
+            Draw_Float(ui.brightness, row, false, 1);
+          }
+          else {
+            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1);
           }
           break;
         #if ENABLED(HAS_BED_PROBE)
@@ -3140,7 +3155,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define TUNE_ZDOWN (TUNE_ZUP + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_CHANGEFIL (TUNE_ZDOWN + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
       #define TUNE_FILSENSORENABLED (TUNE_CHANGEFIL + ENABLED(FILAMENT_RUNOUT_SENSOR))
-      #define TUNE_TOTAL TUNE_FILSENSORENABLED
+      #define TUNE_BACKLIGHT (TUNE_FILSENSORENABLED + 1)
+      #define TUNE_TOTAL TUNE_BACKLIGHT
 
       switch (item) {
         case TUNE_BACK:
@@ -3264,6 +3280,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+        case TUNE_BACKLIGHT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
+            Draw_Float(ui.brightness, row, false, 1);
+          }
+          else {
+            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1);
+          }
+          break;
       }
       break;
     case PreheatHotend:
@@ -3605,6 +3630,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
     case ETemp:
       Draw_Popup((char*)"Nozzle is too cold", (char*)"Open Preheat Menu?", (char*)"", Popup);
       break;
+    case BacklightOff:
+      Draw_Popup((char*)"Backlight is off" , (char*)"Click to turn on", (char*)"", Confirm);
+      break;
     case Level:
       Draw_Popup((char*)"Auto Bed Leveling", (char*)"Please wait until done.", (char*)"", Wait, ICON_AutoLeveling);
       break;
@@ -3799,6 +3827,9 @@ inline void CrealityDWINClass::Value_Control() {
           ubl_conf.manual_move();
           break;
       #endif
+    }
+    if (valuepointer == &ui.brightness) {
+      ui.refresh_brightness();
     }
     return;
   }
@@ -4064,6 +4095,9 @@ inline void CrealityDWINClass::Confirm_Control() {
     switch(popup) {
       case Complete:
         Draw_Main_Menu();
+        break;
+      case BacklightOff:
+        ui.set_brightness(1);
         break;
       case UI:
         switch(last_process) {
@@ -4360,3 +4394,16 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 void CrealityDWINClass::SDCardInsert() { card.cdroot(); }
 
 #endif
+
+uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+
+void MarlinUI::set_brightness(const uint8_t value) {
+  if (value == 0) {
+    CrealityDWIN.Popup_Handler(BacklightOff);
+  }
+  else if (brightness == 0 and value != 0) {
+    CrealityDWIN.Redraw_Menu();
+  }
+  brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
+  DWIN_Backlight_SetLuminance(brightness);
+}
