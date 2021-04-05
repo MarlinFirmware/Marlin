@@ -189,7 +189,7 @@ class SdBaseFile {
 
   bool close();
   bool contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock);
-  bool createContiguous(SdBaseFile* dirFile,
+  bool createContiguous(SdBaseFile *dirFile,
                         const char *path, uint32_t size);
   /**
    * \return The current cluster number for a file or directory.
@@ -204,7 +204,7 @@ class SdBaseFile {
   /**
    * \return Current working directory
    */
-  static SdBaseFile* cwd() { return cwd_; }
+  static SdBaseFile *cwd() { return cwd_; }
 
   /**
    * Set the date/time callback function
@@ -286,27 +286,27 @@ class SdBaseFile {
   bool getDosName(char * const name);
   void ls(uint8_t flags = 0, uint8_t indent = 0);
 
-  bool mkdir(SdBaseFile* dir, const char *path, bool pFlag = true);
-  bool open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag);
-  bool open(SdBaseFile* dirFile, const char *path, uint8_t oflag);
+  bool mkdir(SdBaseFile *dir, const char *path, bool pFlag = true);
+  bool open(SdBaseFile *dirFile, uint16_t index, uint8_t oflag);
+  bool open(SdBaseFile *dirFile, const char *path, uint8_t oflag);
   bool open(const char *path, uint8_t oflag = O_READ);
-  bool openNext(SdBaseFile* dirFile, uint8_t oflag);
-  bool openRoot(SdVolume* vol);
+  bool openNext(SdBaseFile *dirFile, uint8_t oflag);
+  bool openRoot(SdVolume *vol);
   int peek();
   static void printFatDate(uint16_t fatDate);
   static void printFatTime(uint16_t fatTime);
   bool printName();
   int16_t read();
-  int16_t read(void* buf, uint16_t nbyte);
+  int16_t read(void *buf, uint16_t nbyte);
   int8_t readDir(dir_t *dir, char *longFilename);
-  static bool remove(SdBaseFile* dirFile, const char *path);
+  static bool remove(SdBaseFile *dirFile, const char *path);
   bool remove();
 
   /**
    * Set the file's current position to zero.
    */
   void rewind() { seekSet(0); }
-  bool rename(SdBaseFile* dirFile, const char *newPath);
+  bool rename(SdBaseFile *dirFile, const char *newPath);
   bool rmdir();
   bool rmRfStar();
 
@@ -325,7 +325,7 @@ class SdBaseFile {
   bool seekEnd(const int32_t offset = 0) { return seekSet(fileSize_ + offset); }
   bool seekSet(const uint32_t pos);
   bool sync();
-  bool timestamp(SdBaseFile* file);
+  bool timestamp(SdBaseFile *file);
   bool timestamp(uint8_t flag, uint16_t year, uint8_t month, uint8_t day,
                  uint8_t hour, uint8_t minute, uint8_t second);
 
@@ -341,11 +341,11 @@ class SdBaseFile {
    * \return SdVolume that contains this file.
    */
   SdVolume* volume() const { return vol_; }
-  int16_t write(const void* buf, uint16_t nbyte);
+  int16_t write(const void *buf, uint16_t nbyte);
 
  private:
   friend class SdFat;           // allow SdFat to set cwd_
-  static SdBaseFile* cwd_;      // global pointer to cwd dir
+  static SdBaseFile *cwd_;      // global pointer to cwd dir
 
   // data time callback function
   static void (*dateTime_)(uint16_t *date, uint16_t *time);
@@ -364,21 +364,21 @@ class SdBaseFile {
   uint8_t   dirIndex_;      // index of directory entry in dirBlock
   uint32_t  fileSize_;      // file size in bytes
   uint32_t  firstCluster_;  // first cluster of file
-  SdVolume* vol_;           // volume where file is located
+  SdVolume  *vol_;          // volume where file is located
 
   /**
    * EXPERIMENTAL - Don't use!
    */
-  //bool openParent(SdBaseFile* dir);
+  //bool openParent(SdBaseFile *dir);
 
   // private functions
   bool addCluster();
   bool addDirCluster();
   dir_t* cacheDirEntry(uint8_t action);
   int8_t lsPrintNext(uint8_t flags, uint8_t indent);
-  static bool make83Name(const char *str, uint8_t *name, const char** ptr);
-  bool mkdir(SdBaseFile* parent, const uint8_t dname[11]);
-  bool open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t oflag);
+  static bool make83Name(const char *str, uint8_t *name, const char **ptr);
+  bool mkdir(SdBaseFile *parent, const uint8_t dname[11]);
+  bool open(SdBaseFile *dirFile, const uint8_t dname[11], uint8_t oflag);
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
 };
