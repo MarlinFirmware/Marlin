@@ -281,11 +281,6 @@ void GcodeSuite::G28() {
       stepperY2.rms_current(Y2_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
-    #if HAS_CURRENT_HOME(Z)
-      const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
-      stepperZ.rms_current(Z_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
-    #endif
   #endif
 
   TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
@@ -471,9 +466,6 @@ void GcodeSuite::G28() {
     #endif
     #if HAS_CURRENT_HOME(Y2)
       stepperY2.rms_current(tmc_save_current_Y2);
-    #endif
-    #if HAS_CURRENT_HOME(Z)
-      stepperZ.rms_current(tmc_save_current_Z);
     #endif
   #endif
 
