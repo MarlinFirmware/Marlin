@@ -51,10 +51,10 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_F_ADD:
-      if (fanSpeed < 254) fanSpeed++;
+      if (fanSpeed < 252) fanSpeed += 2.55;
       break;
     case ID_F_DEC:
-      if (fanSpeed > 0) fanSpeed--;
+      if (fanSpeed > 0) fanSpeed-=2.55;
       break;
     case ID_F_HIGH:
       fanSpeed = 255;
@@ -64,6 +64,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_F_OFF:
       gcode.process_subcommands_now_P(PSTR("M107"));
+      fanSpeed = 0;
       return;
     case ID_F_RETURN:
       clear_cur_ui();
@@ -101,7 +102,7 @@ void disp_fan_value() {
   public_buf_l[0] = '\0';
   strcat(public_buf_l, fan_menu.state);
   strcat_P(public_buf_l, PSTR(": "));
-  sprintf_P(buf1, PSTR("%3d"), thermalManager.fan_speed[0]);
+  sprintf_P(buf1, PSTR("%3d%%"),thermalManager.fanPercent(fanSpeed));
   strcat(public_buf_l, buf1);
   lv_label_set_text(fanText, public_buf_l);
   lv_obj_align(fanText, nullptr, LV_ALIGN_CENTER, 0, -65);
