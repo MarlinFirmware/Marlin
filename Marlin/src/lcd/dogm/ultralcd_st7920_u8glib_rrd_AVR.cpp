@@ -60,7 +60,7 @@
 #elif F_CPU == 16000000
   #define CPU_ST7920_DELAY_1 DELAY_NS(125)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(125)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(188)
 #else
   #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd_AVR.h'"
 #endif
@@ -95,6 +95,7 @@
 #else
   #define ST7920_DAT(V) ((V) & 0x80)
 #endif
+
 #define ST7920_SND_BIT do{ \
   WRITE(ST7920_CLK_PIN, LOW);             ST7920_DELAY_1; \
   WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); ST7920_DELAY_2; \
