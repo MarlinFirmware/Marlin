@@ -178,9 +178,9 @@ void calibrate_delay_loop();
 #endif
 
 #if ENABLED(DELAY_NS_ROUND_DOWN)
-  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)                  // floor
+  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)          // floor
 #elif ENABLED(DELAY_NS_ROUND_CLOSEST)
-  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL)          // round
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL)  // round
 #else
-  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL)          // "ceil"
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL)  // "ceil"
 #endif
