@@ -2499,7 +2499,7 @@
 //
 // 1024x600, 7", RGB Stock Display from BIQU-BX
 //
-#define BIQU_BX_TFT70
+//#define BIQU_BX_TFT70
 
 //
 // Generic TFT with detailed options
