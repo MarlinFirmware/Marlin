@@ -151,26 +151,27 @@ void calibrate_delay_loop();
 #endif
 
 /**************************************************************
- *  Delay in nanoseconds AVR
- *  Requires math.h and Macro F_CPU
+ *  Delay in nanoseconds. Requires the F_CPU macro.
+ *  These macros follow avr-libc delay conventions.
  *
- *  There are 3 modes of calculation.
- *  Default mode:
- *    Provides a safe round up delay of the available CPU instruction resolution
- *    e.g. If F_CPU = 16000000 the resolution is 62.5ns, with an input value of 100
- *    the delay will be rouded up to 2 cycles giving 125ns of delay.
- *  Round down:
- *    Directive DELAY_NS_ROUND_DOWN
- *    Provide the nearest lower integer cycle value when the input is greater
- *    than the resolution.
- *    e.g. 100 will result in 1 cycle giving a delay of 62.5ns
- *  Nearest:
- *    Directive DELAY_NS_ROUND_CLOSEST
- *    Round to the nearest integer cycle for the input value.
- *    e.g. 165 will round to 3 delay cycles giving a delay of 187.5ns
+ * For AVR there are three possible operation modes, due to its
+ * slower clock speeds and thus coarser delay resolution. For
+ * example, when F_CPU = 16000000 the resolution is 62.5ns.
  *
- *  This code follows avr-libc delay conventions.
+ *  Round up (default)
+ *    Round up the delay according to the CPU clock resolution.
+ *    e.g., 100 will give a delay of 2 cycles (125ns).
+ *
+ *  Round down (DELAY_NS_ROUND_DOWN)
+ *    Round down the delay according to the CPU clock resolution.
+ *    e.g., 100 will be rounded down to 1 cycle (62.5ns).
+ *
+ *  Nearest (DELAY_NS_ROUND_CLOSEST)
+ *    Round the delay to the nearest number of clock cycles.
+ *    e.g., 165 will be rounded up to 3 cycles (187.5ns) because
+ *          it's closer to the requested delay than 2 cycle (125ns).
  */
+
 #ifndef __AVR__
   #undef DELAY_NS_ROUND_DOWN
   #undef DELAY_NS_ROUND_CLOSEST
