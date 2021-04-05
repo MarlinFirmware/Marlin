@@ -150,8 +150,35 @@ void calibrate_delay_loop();
 
 #endif
 
-// Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
+	/**************************************************************
+ *  Delay in nanoseconds
+ *  Requires math.h and Macro F_CPU
+ *  
+ *  There are 3 modes of calculation.
+ *  Default mode:
+ *    Provides a safe round up delay of the available CPU instruction resolution
+ *    e.g. If F_CPU = 16000000 the resolution is 62.5ns, with an input value of 100
+ *    the delay will be rouded up to 2 cycles giving 125ns of delay.
+ *  Round down:
+ *    Directive DELAY_NS_ROUND_DOWN
+ *    Provide the nearest lower integer cycle value when the input is greater
+ *    than the resolution.
+ *    e.g. 100 will result in 1 cycle giving a delay of 62.5ns
+ *  Nearest:
+ *    Directive DELAY_NS_ROUND_CLOSEST
+ *    Round to the nearest integer cycle for the input value.
+ *    e.g. 165 will round to 3 delay cycles giving a delay of 187.5ns
+ * 
+ *  This code follows avr-libc delay conventions. 
+ */
+            
+#if defined(DELAY_NS_ROUND_DOWN) 
+  #define DELAY_NS(x) DELAY_CYCLES(floor((x) * ((F_CPU) / 1000000UL) / 1000UL))
+#elif defined(DELAY_NS_ROUND_CLOSEST)
+  #define DELAY_NS(x) DELAY_CYCLES(fabs((x) * ((F_CPU) / 1000000UL) / 1000UL)+0.5)
+#else
+  #define DELAY_NS(x) DELAY_CYCLES(ceil((x) * ((F_CPU) / 1000000UL) / 1000UL))
+#endif
 
 
 
