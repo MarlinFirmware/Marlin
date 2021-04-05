@@ -97,6 +97,8 @@ I recommend performing a home on all axes directly after installing the firmware
 
 If you are not using a BX then you can skip this part and find the sub-heading that covers the printer that you are using.
 
+In addition to the section below, make sure that you read the points in this gist. They explain how to get the most of this firmware: https://gist.github.com/looxonline/94510f433c0f40ddcacbbecc384e844f
+
 By this point you should have the TFT graphics and the Marlin firmware downloaded. Before installing it, make sure that you have read any gists linked to that firmware and take note of the following points:
 
 1. All versions of this firmware use the ABL probe in place of the z-endstop switch. There is no need for you to change any wiring but you will need to physically remove the z-endstop switch from the right upright and unplug it. **Unplugging it alone is not enough.** Don't be afraid when you see your nozzle heading towards the bed. As long as you were able to successfully perform ABL probing before the upgrade your nozzle will not hit the bed. Why do I say that it is better to use the machine without a z-endstop? Well, imagine that you home your z-axis and the nozzle is just a touch too high for the first layer so you decide that you will babystep it down. The problem is that when you homed the z-axis it was already at its minimum and hitting against the endstop switch. Babystepping it down will just ram it hard against the switch and cause strain to your z-axis. It's better to remove the switch and use the probe as the z limit since babystepping will work just fine thereafter.
