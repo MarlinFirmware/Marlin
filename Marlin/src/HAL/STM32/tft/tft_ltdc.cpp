@@ -316,13 +316,13 @@ void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uin
 
   DMA2D->CR &= ~(1 << 0);
   DMA2D->CR = 0 << 16;
-	DMA2D->FGPFCCR = 0X02;
-	DMA2D->FGOR = 0;
-	DMA2D->OOR = offline;				
-	DMA2D->FGMAR = (uint32_t)colors;		
-	DMA2D->OMAR = addr;				
-	DMA2D->NLR = (ey - sy) | ((ex - sx) << 16);	
-	DMA2D->CR |= 1<<0;
+  DMA2D->FGPFCCR = 0X02;
+  DMA2D->FGOR = 0;
+  DMA2D->OOR = offline;				
+  DMA2D->FGMAR = (uint32_t)colors;		
+  DMA2D->OMAR = addr;				
+  DMA2D->NLR = (ey - sy) | ((ex - sx) << 16);	
+  DMA2D->CR |= 1<<0;
 
   uint32_t timeout = 0; 
   while((DMA2D->ISR & (1<<1)) == 0)
