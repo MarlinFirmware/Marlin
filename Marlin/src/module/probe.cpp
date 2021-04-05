@@ -521,9 +521,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #if ENABLED(DELTA)
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
-      tmc_disable_stallguard(stepperZ, stealth_states.z);
     #endif
-    //tmc_disable_stallguard(stepperZ, stealth_states.z);
+    tmc_disable_stallguard(stepperZ, stealth_states.z);
   #endif
 
   if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
