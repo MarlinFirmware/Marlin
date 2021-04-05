@@ -150,8 +150,37 @@ void calibrate_delay_loop();
 
 #endif
 
-// Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
+/**************************************************************
+ *  Delay in nanoseconds. Requires the F_CPU macro.
+ *  These macros follow avr-libc delay conventions.
+ *
+ * For AVR there are three possible operation modes, due to its
+ * slower clock speeds and thus coarser delay resolution. For
+ * example, when F_CPU = 16000000 the resolution is 62.5ns.
+ *
+ *  Round up (default)
+ *    Round up the delay according to the CPU clock resolution.
+ *    e.g., 100 will give a delay of 2 cycles (125ns).
+ *
+ *  Round down (DELAY_NS_ROUND_DOWN)
+ *    Round down the delay according to the CPU clock resolution.
+ *    e.g., 100 will be rounded down to 1 cycle (62.5ns).
+ *
+ *  Nearest (DELAY_NS_ROUND_CLOSEST)
+ *    Round the delay to the nearest number of clock cycles.
+ *    e.g., 165 will be rounded up to 3 cycles (187.5ns) because
+ *          it's closer to the requested delay than 2 cycle (125ns).
+ */
 
+#ifndef __AVR__
+  #undef DELAY_NS_ROUND_DOWN
+  #undef DELAY_NS_ROUND_CLOSEST
+#endif
 
-
+#if ENABLED(DELAY_NS_ROUND_DOWN)
+  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)          // floor
+#elif ENABLED(DELAY_NS_ROUND_CLOSEST)
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL)  // round
+#else
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL)  // "ceil"
+#endif
