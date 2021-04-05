@@ -722,10 +722,10 @@ void CardReader::report_status() {
     SERIAL_ECHOLNPGM(STR_SD_NOT_PRINTING);
 }
 
-void CardReader::write_command(const char * const buf) {
-  char *begin = buf;
-  char *npos = nullptr;
-  char *end = buf + strlen(buf) - 1;
+void CardReader::write_command(char * const buf) {
+  char *begin = buf,
+       *npos = nullptr,
+       *end = buf + strlen(buf) - 1;
 
   file.writeError = false;
   if ((npos = strchr(buf, 'N'))) {
