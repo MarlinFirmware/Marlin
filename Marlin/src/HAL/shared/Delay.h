@@ -151,7 +151,7 @@ void calibrate_delay_loop();
 #endif
 
 	/**************************************************************
- *  Delay in nanoseconds
+ *  Delay in nanoseconds AVR 
  *  Requires math.h and Macro F_CPU
  *  
  *  There are 3 modes of calculation.
@@ -171,13 +171,17 @@ void calibrate_delay_loop();
  * 
  *  This code follows avr-libc delay conventions. 
  */
-            
-#if defined(DELAY_NS_ROUND_DOWN) 
-  #define DELAY_NS(x) DELAY_CYCLES(floor((x) * ((F_CPU) / 1000000UL) / 1000UL))
-#elif defined(DELAY_NS_ROUND_CLOSEST)
-  #define DELAY_NS(x) DELAY_CYCLES(fabs((x) * ((F_CPU) / 1000000UL) / 1000UL)+0.5)
+
+#if defined(__AVR__) 
+  #if defined(DELAY_NS_ROUND_DOWN) 
+    #define DELAY_NS(x) DELAY_CYCLES(floor((float)(x) * ((F_CPU) / 1000000UL) / 1000UL))
+  #elif defined(DELAY_NS_ROUND_CLOSEST)
+    #define DELAY_NS(x) DELAY_CYCLES(fabs((float)(x) * ((F_CPU) / 1000000UL) / 1000UL)+0.5)
+  #else
+    #define DELAY_NS(x) DELAY_CYCLES(ceil((float)(x) * ((F_CPU) / 1000000UL) / 1000UL))
+  #endif
 #else
-  #define DELAY_NS(x) DELAY_CYCLES(ceil((x) * ((F_CPU) / 1000000UL) / 1000UL))
+  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
 #endif
 
 
