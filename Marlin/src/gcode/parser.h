@@ -42,10 +42,6 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
-
-int32_t parse_int32(const char *buf);
-float parse_float(const char *buf);
-
 /**
  * GCode parser
  *
@@ -260,12 +256,29 @@ public:
   // The value as a string
   static inline char* value_string() { return value_ptr; }
 
-  // Code value as float
-  static inline float value_float() { return value_ptr ? parse_float(value_ptr) : 0.0; }
+  // Float removes 'E' to prevent scientific notation interpretation
+  static inline float value_float() {
+    if (value_ptr) {
+      char *e = value_ptr;
+      for (;;) {
+        const char c = *e;
+        if (c == '\0' || c == ' ') break;
+        if (c == 'E' || c == 'e') {
+          *e = '\0';
+          const float ret = strtof(value_ptr, nullptr);
+          *e = c;
+          return ret;
+        }
+        ++e;
+      }
+      return strtof(value_ptr, nullptr);
+    }
+    return 0;
+  }
 
   // Code value as a long or ulong
-  static inline int32_t value_long() { return value_ptr ? parse_int32(value_ptr) : 0L; }
-  static inline uint32_t value_ulong() { return value_ptr ? parse_int32(value_ptr) : 0UL; }
+  static inline int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
+  static inline uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, nullptr, 10) : 0UL; }
 
   // Code value for use as time
   static inline millis_t value_millis() { return value_ulong(); }

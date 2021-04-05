@@ -113,6 +113,10 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #if ENABLED(UBL_HILBERT_CURVE)
   #include "../../feature/bedlevel/hilbert_curve.h"
 #endif
@@ -725,11 +729,13 @@ void GcodeSuite::G26() {
   #endif // !ARC_SUPPORT
 
   mesh_index_pair location;
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_START));
   do {
     // Find the nearest confluence
     location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
 
     if (location.valid()) {
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
       // If this mesh location is outside the printable radius, skip it.
@@ -845,6 +851,8 @@ void GcodeSuite::G26() {
       g26.connect_neighbor_with_line(location.pos,  1,  0);
       g26.connect_neighbor_with_line(location.pos,  0, -1);
       g26.connect_neighbor_with_line(location.pos,  0,  1);
+      planner.synchronize();
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_FINISH));
       if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE;
     }
 
@@ -854,6 +862,7 @@ void GcodeSuite::G26() {
 
   LEAVE:
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
