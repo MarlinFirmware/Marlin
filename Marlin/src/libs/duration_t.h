@@ -131,12 +131,19 @@ struct duration_t {
         h = this->hour() % 24,
         m = this->minute() % 60,
         s = this->second() % 60;
+    char *p = buffer;
+    bool out_y = y,
+         out_d = out_y || d,
+         out_h = out_d || h,
+         out_m = out_h || m,
+         out_s = true;
 
-         if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
-    else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
-    else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
-    else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
-    else sprintf_P(buffer, PSTR("%is"), s);
+    if (out_y) { p = print_i(p, y); p = print_str_P(p, PSTR("y ")); }
+    if (out_d) { p = print_i(p, d); p = print_str_P(p, PSTR("d ")); }
+    if (out_h) { p = print_i(p, h); p = print_str_P(p, PSTR("h ")); }
+    if (out_m) { p = print_i(p, m); p = print_str_P(p, PSTR("m ")); }
+    if (out_s) { p = print_i(p, s); p = print_char (p, 's'); }
+
     return buffer;
   }
 
@@ -154,17 +161,26 @@ struct duration_t {
   uint8_t toDigital(char *buffer, bool with_days=false) const {
     uint16_t h = uint16_t(this->hour()),
              m = uint16_t(this->minute() % 60UL);
+    char *p = buffer;
     if (with_days) {
       uint16_t d = this->day();
-      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);
+      p = print_hu   (p, d);
+      p = print_str_P(p, PSTR("d "));
+      p = print_02hu (p, h % 24);
+      p = print_char (p, ':');
+      p = print_02hu (p, m);
       return d >= 10 ? 9 : 8;
     }
     else if (h < 100) {
-      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);
+      p = print_02hu(p, h);
+      p = print_char(p, ':');
+      p = print_02hu(p, m);
       return 5;
     }
     else {
-      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);
+      p = print_hu  (p, h);
+      p = print_char(p, ':');
+      p = print_02hu(p, m);
       return 6;
     }
   }

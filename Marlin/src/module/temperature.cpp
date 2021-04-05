@@ -3510,14 +3510,16 @@ void Temperature::tick() {
   #if HAS_HOTEND && HAS_STATUS_MESSAGE
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
-      ui.status_printf_P(0,
+      if (ui.alert_level == 0) {
+        char *p = ui.status_message;
+        p = print_char (p, 'E');
         #if HAS_MULTI_HOTEND
-          PSTR("E%c " S_FMT), '1' + e
-        #else
-          PSTR("E " S_FMT)
+          p = print_char (p, '1' + e);
         #endif
-        , heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
-      );
+        p = print_char (p, ' ');
+        p = print_str_P(p, heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING));
+        ui.finish_status(false);
+      }
     }
   #endif
 

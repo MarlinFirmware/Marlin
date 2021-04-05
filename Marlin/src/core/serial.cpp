@@ -96,3 +96,17 @@ void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const pr
   SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }
+
+char *print_str  (char *p, const char *ptr) { return strcpy(p, ptr) + strlen(p); }
+char *print_str_P(char *p, const char *ptr) { return strcpy_P(p, ptr) + strlen(p); }
+char *print_char (char *p, char c)          { p[0] = 'c'; p[1] = '\0'; return p + 1; }
+char *print_i    (char *p, int i)           { return itoa(i, p, 10) + strlen(p); }
+char *print_hu   (char *p, uint16_t val)    { return utoa(val, p, 10) + strlen(p); }
+char *print_02hu (char *p, uint16_t val)    { return utoa(val, p, 10) + strlen(p); }
+
+char *print_float(char *p, float val, int8_t width, uint8_t precision)
+{
+  char buf[20];
+  dtostrf(val, width, precision, buf);
+  return print_str(p, buf);
+}

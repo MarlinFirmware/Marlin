@@ -261,9 +261,10 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       // Append the FOLDERNAME12/ to the passed string.
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
-      strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
-      strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
-      strcat(path, "/");                              // 1 character
+      char *p = path;
+      p = print_str (p, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+      p = print_str (p, dosFilename);                      // FILENAME_LENGTH characters maximum
+      p = print_char(p, '/');                              // 1 character
 
       // Serial.print(path);
 
@@ -485,9 +486,10 @@ void CardReader::release() {
  */
 void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
-  sprintf_P(cmd, M23_STR, name);
+  char *p = print_str_P(cmd, M23_STR);
+  p = print_str(p, name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  strcat_P(cmd, PSTR("\nM24"));
+  p = print_str_P(p, PSTR("\nM24"));
   queue.inject(cmd);
 }
 
@@ -770,7 +772,9 @@ void CardReader::write_command(char * const buf) {
     // Don't run auto#.g when a PLR file exists
     if (isMounted() && TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {
       char autoname[10];
-      sprintf_P(autoname, PSTR("/auto%c.g"), '0' + autofile_index - 1);
+      char *p = print_str_P(autoname, PSTR("/auto"));
+      p = print_char(p, '0' + autofile_index - 1);
+      p = print_str_P(p, PSTR(".g"));
       if (fileExists(autoname)) {
         cdroot();
         openAndPrintFile(autoname);

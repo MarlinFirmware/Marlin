@@ -645,7 +645,14 @@ void MarlinUI::status_screen() {
 
 void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   init();
-  status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
+  if (alert_level == 0) {
+    alert_level = 1;
+    char *p = status_message;
+    p = print_str_P(p, lcd_error);
+    p = print_str_P(p, PSTR(": "));
+    p = print_str_P(p, lcd_component);
+    finish_status(true);
+  }
   TERN_(HAS_LCD_MENU, return_to_status());
 
   // RED ALERT. RED ALERT.
@@ -1427,18 +1434,6 @@ void MarlinUI::update() {
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
-  #include <stdarg.h>
-
-  void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
-    if (level < alert_level) return;
-    alert_level = level;
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
-    va_end(args);
-    finish_status(level > 0);
-  }
-
   void MarlinUI::finish_status(const bool persist) {
 
     #if HAS_WIRED_LCD
@@ -1606,9 +1601,6 @@ void MarlinUI::update() {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
   }
   void MarlinUI::set_status_P(PGM_P message, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
-  }
-  void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
 

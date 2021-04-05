@@ -1137,11 +1137,10 @@ void prepare_line_to_destination() {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
       char msg[strlen_P(home_first)+1];
-      sprintf_P(msg, home_first,
-        TEST(axis_bits, X_AXIS) ? "X" : "",
-        TEST(axis_bits, Y_AXIS) ? "Y" : "",
-        TEST(axis_bits, Z_AXIS) ? "Z" : ""
-      );
+      char *p = print_str_P(msg, home_first);
+      if (TEST(axis_bits, X_AXIS)) p = print_char(p, 'X');
+      if (TEST(axis_bits, Y_AXIS)) p = print_char(p, 'Y');
+      if (TEST(axis_bits, Z_AXIS)) p = print_char(p, 'Z');
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
       TERN_(HAS_STATUS_MESSAGE, ui.set_status(msg));

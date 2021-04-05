@@ -391,7 +391,21 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP));
+    #if HAS_STATUS_MESSAGE
+      if (ui.alert_level == 0) {
+        char *p = ui.status_message;
+        p = print_str_P(p, GET_TEXT(MSG_LCD_ENDSTOPS));
+        p = print_char (p, ' ');
+        p = print_char (p, chrX);
+        p = print_char (p, ' ');
+        p = print_char (p, chrY);
+        p = print_char (p, ' ');
+        p = print_char (p, chrZ);
+        p = print_char (p, ' ');
+        p = print_char (p, chrP);
+        ui.finish_status(false);
+      }
+    #endif
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
