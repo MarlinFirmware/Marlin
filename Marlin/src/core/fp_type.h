@@ -112,7 +112,6 @@ private:
     remainder.data = q - (quotient * denom).data;
   }
 
-
   // Construction
 public:
   // Conversion must be explicit
