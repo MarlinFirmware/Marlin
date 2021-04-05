@@ -75,7 +75,7 @@ void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *lin
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4, uint16_t language) {
+void DGUSScreenHandler::sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language) {
   if (language == MKS_English)
     DGUSScreenHandler::sendinfoscreen_en_mks((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
@@ -270,6 +270,11 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     GotoScreen(MKSLCD_SCREEN_PrintDone);
   }
 
+#else
+  void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
+    uint16_t value = swap16(*(uint16_t*)val_ptr);
+    if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
+  }
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1215,7 +1220,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
         }
         else {
           #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-            swap_tool = 2;
+            swap_tool = 1;
           #endif
         }
       #endif
