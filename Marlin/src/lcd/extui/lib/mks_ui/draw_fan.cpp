@@ -43,22 +43,30 @@ enum {
   ID_F_RETURN
 };
 
+static uint8_t fanSpeed;
+
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  uint8_t fanPercent = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
-  switch (obj->mks_obj_id) {
-    case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
-    case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
-    case ID_F_HIGH: fanPercent = 100; break;
-    case ID_F_MID:  fanPercent =  50; break;
-    case ID_F_OFF:  fanPercent =   0; break;
+    switch (obj->mks_obj_id) {
+    case ID_F_ADD: if (fanSpeed < 254) fanSpeed+=3; break;
+    case ID_F_DEC: if (fanSpeed >  0) fanSpeed-=3; break;
+    case ID_F_HIGH: fanSpeed = 255; break;
+    case ID_F_MID:  fanSpeed =  127; break;
+    case ID_F_OFF:  fanSpeed =   0; break;
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
-  thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
+  sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
+  gcode.process_subcommands_now(public_buf_l);
 }
 
 void lv_draw_fan() {
   lv_obj_t *buttonAdd;
+
+  #if HAS_FAN
+    fanSpeed = thermalManager.fan_speed[0];
+  #else
+    sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
+  #endif
 
   scr = lv_screen_create(FAN_UI);
   // Create an Image button
@@ -76,11 +84,13 @@ void lv_draw_fan() {
 }
 
 void disp_fan_value() {
-  #if HAS_FAN
-    sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, (int)map(thermalManager.fan_speed[0], 0, 255, 0, 100));
-  #else
-    sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
-  #endif
+  char buf1[10] = {0};
+  public_buf_l[0] = '\0';
+  strcat(public_buf_l, fan_menu.state);
+  strcat_P(public_buf_l, PSTR(": "));
+  sprintf_P(buf1, PSTR("%3d%%"),thermalManager.fanPercent(fanSpeed));
+
+  strcat(public_buf_l, buf1);
   lv_label_set_text(fanText, public_buf_l);
   lv_obj_align(fanText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
