@@ -154,7 +154,7 @@ void disp_filament_temp() {
   public_buf_l[0] = '\0';
 
   strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-  sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
+  sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
 
   strcat_P(public_buf_l, PSTR(": "));
   strcat(public_buf_l, buf);
