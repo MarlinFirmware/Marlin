@@ -62,15 +62,15 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           thermalManager.setTargetHotend(max_target, uiCfg.extruderIndex);
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
-      #if HAS_HEATED_BED
-        else {
+      else {
+        #if HAS_HEATED_BED
           constexpr int16_t max_target = BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1);
           thermalManager.temp_bed.target += uiCfg.stepHeat;
           if (thermalManager.degTargetBed() > max_target)
             thermalManager.setTargetBed(max_target);
           thermalManager.start_watching_bed();
-        }
-      #endif
+        #endif
+      }
       disp_desire_temp();
     } break;
 
@@ -211,20 +211,19 @@ void disp_temp_type() {
 }
 
 void disp_desire_temp() {
-  char buf[20] = {0};
-
+  char buf[20] = { 0 };
   public_buf_l[0] = '\0';
 
   if (uiCfg.curTempType == 0) {
     strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
+    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
   }
-  #if HAS_HEATED_BED
-    else {
+  else {
+    #if HAS_HEATED_BED
       strcat(public_buf_l, preheat_menu.hotbed);
-      sprintf(buf, preheat_menu.value_state, thermalManager.degBed(), thermalManager.degTargetBed());
-    }
-  #endif
+      sprintf(buf, preheat_menu.value_state, (int)thermalManager.degBed(), (int)thermalManager.degTargetBed());
+    #endif
+  }
   strcat_P(public_buf_l, PSTR(": "));
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText1, public_buf_l);
