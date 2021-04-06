@@ -70,7 +70,7 @@
   #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 #if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "You are using a Configuration.h file that is newer than this version of Marlin expexts, update it before building Marlin."
+  #error "You are using a Configuration.h file that is newer than this version of Marlin expects, update it before building Marlin."
 #endif
 
 #if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
