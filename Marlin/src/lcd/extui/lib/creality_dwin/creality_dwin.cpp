@@ -3847,6 +3847,9 @@ inline void CrealityDWINClass::Value_Control() {
     if (valuepointer == &ui.brightness) {
       ui.refresh_brightness();
     }
+    else if (valuepointer == &planner.flow_percentage[0]) {
+      planner.refresh_e_factor(0);
+    }
     return;
   }
   NOLESS(tempvalue, (valuemin * valueunit));
