@@ -45,7 +45,7 @@
  * -- TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209. ---//
  * =============================================================//
  */
-//#define DRIVER_EXT A4988  //LV8729
+//#define DRIVER_EXT A4988  //TMC2209_STANDALONE //LV8729
 //Only WITH Q5 older stepper(A4988/DRV8825/LV8729)
 //#define INV_EXT
 
@@ -90,7 +90,7 @@
 // BMG Extruder (B) Extruder step(417).
 //#define BMG                       //(B) Uncommment for BMG Left/Right.
 
-/*__________________________5______________________________*/
+/*__________________________5_____________________________*/
       /** =============================
       * ======= MODE LEVELING==========
       * == type Calibration UBL or ABL=
@@ -144,7 +144,7 @@
 */
 //#define HOST_ACTION_COMMANDS        // Action Command Prompt support Message on Octoprint
 //------ Support for MeatPack G-code compression (OCTOPRINT)--------//
-//#define MEATPACK_ON_SERIAL_PORT_1   // With connection USB
+//#define MEATPACK_ON_SERIAL_PORT_1   // (M) With connection USB
 //#define MEATPACK_ON_SERIAL_PORT_2   // With other connection like Tx/Rx Wifi socket.
 //#define BINARY_FILE_TRANSFER        // Bin transfert for host like ESP3D or others.
 //#define CANCEL_OBJECTS              // Add menu "Cancel Objet"
