@@ -52,10 +52,10 @@ typedef enum : int8_t {
 } heater_id_t;
 
 // PID storage
-typedef struct { float Kp, Ki, Kd;     } PID_t;
-typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
-typedef struct { float Kp, Ki, Kd, Kf; } PIDF_t;
-typedef struct { float Kp, Ki, Kd, Kc, Kf; } PIDCF_t;
+typedef struct { float Kp, Ki, Kd;     }      PID_t;
+typedef struct { float Kp, Ki, Kd, Kc; }      PIDC_t;
+typedef struct { float Kp, Ki, Kd, Kf; }      PIDF_t;
+typedef struct { float Kp, Ki, Kd, Kc, Kf; }  PIDCF_t;
 
 typedef
   #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
