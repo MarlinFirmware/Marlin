@@ -87,8 +87,8 @@ void vector_3::debug(PGM_P const title) {
  *  matrix_3x3
  */
 
-void apply_rotation_xyz(const matrix_3x3 &matrix, float &_x, float &_y, float &_z) {
-  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(matrix);
+void matrix_3x3::apply_rotation_xyz(float &_x, float &_y, float &_z) {
+  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(*this);
   _x = vec.x; _y = vec.y; _z = vec.z;
 }
 

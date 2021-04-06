@@ -114,7 +114,7 @@ typedef struct {
  * report function maybe called again in future.  If false is returned,
  * unwinding will stop with UnwindStart() returning UNWIND_TRUNCATED.
  */
-typedef bool (*UnwindReportFunc)(void* data, const UnwReport* bte);
+typedef bool (*UnwindReportFunc)(void *data, const UnwReport *bte);
 
 /** Structure that holds memory callback function pointers.
  */

@@ -1262,10 +1262,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
   #elif ENABLED(DELTA_CALIBRATION_MENU) && !HAS_LCD_MENU
     #error "DELTA_CALIBRATION_MENU requires an LCD Controller."
-  #elif ABL_GRID
-    #if (GRID_MAX_POINTS_X & 1) == 0 || (GRID_MAX_POINTS_Y & 1) == 0
+  #elif ABL_USES_GRID
+    #if ((GRID_MAX_POINTS_X) & 1) == 0 || ((GRID_MAX_POINTS_Y) & 1) == 0
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be odd numbers."
-    #elif GRID_MAX_POINTS_X < 3
+    #elif (GRID_MAX_POINTS_X) < 3
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
@@ -1518,7 +1518,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   // Mesh Bed Leveling
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING is not compatible with DELTA printers."
-  #elif GRID_MAX_POINTS_X > 9 || GRID_MAX_POINTS_Y > 9
+  #elif (GRID_MAX_POINTS_X) > 9 || (GRID_MAX_POINTS_Y) > 9
     #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
   #endif
 

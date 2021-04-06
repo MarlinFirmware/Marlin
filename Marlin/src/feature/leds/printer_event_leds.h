@@ -47,17 +47,17 @@ private:
 public:
   #if HAS_TEMP_HOTEND
     static inline LEDColor onHotendHeatingStart() { old_intensity = 0; return leds.get_color(); }
-    static void onHotendHeating(const float &start, const float &current, const float &target);
+    static void onHotendHeating(const_float_t start, const_float_t current, const_float_t target);
   #endif
 
   #if HAS_HEATED_BED
     static inline LEDColor onBedHeatingStart() { old_intensity = 127; return leds.get_color(); }
-    static void onBedHeating(const float &start, const float &current, const float &target);
+    static void onBedHeating(const_float_t start, const_float_t current, const_float_t target);
   #endif
 
   #if HAS_HEATED_CHAMBER
     static inline LEDColor onChamberHeatingStart() { old_intensity = 127; return leds.get_color(); }
-    static void onChamberHeating(const float &start, const float &current, const float &target);
+    static void onChamberHeating(const_float_t start, const_float_t current, const_float_t target);
   #endif
 
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER

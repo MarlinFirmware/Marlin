@@ -775,7 +775,7 @@ block_t* Planner::get_current_block() {
  * is not and will not use the block while we modify it, so it is safe to
  * alter its values.
  */
-void Planner::calculate_trapezoid_for_block(block_t * const block, const float &entry_factor, const float &exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
@@ -1463,7 +1463,7 @@ void Planner::check_axes_activity() {
    * This is the reciprocal of the circular cross-section area.
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
-  inline float calculate_volumetric_multiplier(const float &diameter) {
+  inline float calculate_volumetric_multiplier(const_float_t diameter) {
     return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5f) : 1;
   }
 
@@ -1534,7 +1534,7 @@ void Planner::check_axes_activity() {
     #if ABL_PLANAR
 
       xy_pos_t d = raw - level_fulcrum;
-      apply_rotation_xyz(bed_level_matrix, d.x, d.y, raw.z);
+      bed_level_matrix.apply_rotation_xyz(d.x, d.y, raw.z);
       raw = d + level_fulcrum;
 
     #elif HAS_MESH
@@ -1571,7 +1571,7 @@ void Planner::check_axes_activity() {
         matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
         xy_pos_t d = raw - level_fulcrum;
-        apply_rotation_xyz(inverse, d.x, d.y, raw.z);
+        inverse.apply_rotation_xyz(d.x, d.y, raw.z);
         raw = d + level_fulcrum;
 
       #elif HAS_MESH
@@ -1745,7 +1745,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
+  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
 ) {
 
   // Wait for the next available block
@@ -1811,7 +1811,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
   const int32_t da = target.a - position.a,
@@ -2745,11 +2745,11 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
  *
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
-bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e
+bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -2839,9 +2839,9 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
  *  millimeters  - the length of the movement, if known
  *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
-bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters
+bool Planner::buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    , const float &inv_duration
+    , const_float_t inv_duration
   #endif
 ) {
   xyze_pos_t machine = { rx, ry, rz, e };
@@ -2960,7 +2960,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
  * The provided ABC position is in machine units.
  */
 
-void Planner::set_machine_position_mm(const float &a, const float &b, const float &c, const float &e) {
+void Planner::set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e) {
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float.set(a, b, c, e));
   position.set(LROUND(a * settings.axis_steps_per_mm[A_AXIS]),
@@ -2976,7 +2976,7 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
     stepper.set_position(position);
 }
 
-void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
+void Planner::set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e) {
   xyze_pos_t machine = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
     apply_modifiers(machine, true);
@@ -2993,7 +2993,7 @@ void Planner::set_position_mm(const float &rx, const float &ry, const float &rz,
 /**
  * Setters for planner position (also setting stepper position).
  */
-void Planner::set_e_position_mm(const float &e) {
+void Planner::set_e_position_mm(const_float_t e) {
   const uint8_t axis_index = E_AXIS_N(active_extruder);
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 

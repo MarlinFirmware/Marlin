@@ -44,7 +44,7 @@ public:
   #if 0
   static void sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
   static void sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) ;
-  static void sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4,uint16_t language);
+  static void sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language);
   #endif
 
   // "M117" Message -- msg is a RAM ptr.
@@ -183,6 +183,8 @@ public:
     static void SDCardError();
     // Marlin informed us about SD print completion.
     static void SDPrintingFinished();
+  #else
+    static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
   // OK Button the Confirm screen.
@@ -301,7 +303,7 @@ private:
 
 #define MKS_SimpleChinese     0
 #define MKS_English           1
-extern uint8_t DGUSLanguageSwitch;
+extern uint8_t mks_language_index;
 extern bool DGUSAutoTurnOff;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
