@@ -45,16 +45,16 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  uint8_t fanSpeed = thermalManager.fan_speed[0], pct = map(fanSpeed, 0, 255, 0, 100);
+  uint8_t fanPercent = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
   switch (obj->mks_obj_id) {
-    case ID_F_ADD: if (pct < 100) fanSpeed = map(pct + 1, 0, 100, 0, 255); break;
-    case ID_F_DEC: if (pct !=  0) fanSpeed = map(pct - 1, 0, 100, 0, 255); break;
-    case ID_F_HIGH: fanSpeed = 255; break;
-    case ID_F_MID:  fanSpeed = 128; break;
-    case ID_F_OFF:  fanSpeed =   0; break;
+    case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
+    case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
+    case ID_F_HIGH: fanPercent = 100; break;
+    case ID_F_MID:  fanPercent =  50; break;
+    case ID_F_OFF:  fanPercent =   0; break;
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
-  thermalManager.set_fan_speed(0, fanSpeed);
+  thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
 }
 
 void lv_draw_fan() {
