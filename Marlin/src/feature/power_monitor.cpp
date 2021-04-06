@@ -26,8 +26,11 @@
 
 #include "power_monitor.h"
 
-#include "../lcd/marlinui.h"
-#include "../lcd/lcdprint.h"
+#if HAS_LCD_MENU
+  #include "../lcd/marlinui.h"
+  #include "../lcd/lcdprint.h"
+#endif
+
 #include "../libs/numtostr.h"
 
 uint8_t PowerMonitor::flags; // = 0
