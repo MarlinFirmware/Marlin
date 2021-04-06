@@ -62,12 +62,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_fan() {
   lv_obj_t *buttonAdd;
 
-  #if HAS_FAN
-    fanSpeed = thermalManager.fan_speed[0];
-  #else
-    sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
-  #endif
-
   scr = lv_screen_create(FAN_UI);
   // Create an Image button
   buttonAdd  = lv_big_button_create(scr, "F:/bmp_Add.bin", fan_menu.add, INTERVAL_V, titleHeight, event_handler, ID_F_ADD);
@@ -84,13 +78,18 @@ void lv_draw_fan() {
 }
 
 void disp_fan_value() {
-  char buf1[10] = {0};
-  public_buf_l[0] = '\0';
-  strcat(public_buf_l, fan_menu.state);
-  strcat_P(public_buf_l, PSTR(": "));
-  sprintf_P(buf1, PSTR("%3d%%"),thermalManager.fanPercent(fanSpeed));
+  #if HAS_FAN
+    fanSpeed = thermalManager.fan_speed[0];
+    char buf1[10] = {0};
+    public_buf_l[0] = '\0';
+    strcat(public_buf_l, fan_menu.state);
+    strcat_P(public_buf_l, PSTR(": "));
+    sprintf_P(buf1, PSTR("%3d%%"),thermalManager.fanPercent(fanSpeed));
+    strcat(public_buf_l, buf1);
+  #else
+    sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
+  #endif
 
-  strcat(public_buf_l, buf1);
   lv_label_set_text(fanText, public_buf_l);
   lv_obj_align(fanText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
