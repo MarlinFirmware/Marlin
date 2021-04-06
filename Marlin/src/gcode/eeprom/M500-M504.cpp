@@ -61,7 +61,7 @@ void GcodeSuite::M502() {
   void GcodeSuite::M503() {
     (void)settings.report(!parser.boolval('S', true));
 
-    #if DISABLED(CONFIG_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
+    #if DISABLED(CONFIG_SKIP_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
       if (parser.boolval('C')) {
         SdBaseFile file;
         const uint16_t size = sizeof(mc_zip);
