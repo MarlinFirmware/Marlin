@@ -27,9 +27,6 @@
 
 #if DISABLED(CONFIG_SKIP_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
   #include "../../sd/SdBaseFile.h"
-#endif
-
-#if DISABLED(CONFIG_SKIP_EMBED_AND_SAVE_TO_SD) && ENABLED(SDSUPPORT)
   #include "../../../../.pio/build/mc.cpp"
 #endif
 
