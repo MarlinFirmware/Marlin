@@ -93,7 +93,7 @@ void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_Comman
 
   /* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
-  HAL_SDRAM_ProgramRefreshRate(hsdram, REFRESH_COUNT); 
+  HAL_SDRAM_ProgramRefreshRate(hsdram, REFRESH_COUNT);
 }
 
 void SDRAM_Config() {
@@ -106,7 +106,7 @@ void SDRAM_Config() {
   FMC_SDRAM_CommandTypeDef command;
 
   /* Configure the SDRAM device */
-  hsdram.Instance = FMC_SDRAM_DEVICE;  
+  hsdram.Instance = FMC_SDRAM_DEVICE;
   hsdram.Init.SDBank             = FMC_SDRAM_BANK1;
   hsdram.Init.ColumnBitsNumber   = FMC_SDRAM_COLUMN_BITS_NUM_9;
   hsdram.Init.RowBitsNumber      = FMC_SDRAM_ROW_BITS_NUM_13;
@@ -134,7 +134,7 @@ void SDRAM_Config() {
   }
 
   /* Program the SDRAM external device */
-  SDRAM_Initialization_Sequence(&hsdram, &command);	
+  SDRAM_Initialization_Sequence(&hsdram, &command);
 }
 
 void LTDC_Config() {
@@ -144,11 +144,11 @@ void LTDC_Config() {
 
   RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
 
-  /* The PLL3R is configured to provide the LTDC PCLK clock */ 
+  /* The PLL3R is configured to provide the LTDC PCLK clock */
   /* PLL3_VCO Input = HSE_VALUE / PLL3M = 25Mhz / 5 = 5 Mhz */
   /* PLL3_VCO Output = PLL3_VCO Input * PLL3N = 5Mhz * 160 = 800 Mhz */
   /* PLLLCDCLK = PLL3_VCO Output/PLL3R = 800Mhz / 16 = 50Mhz */
-  /* LTDC clock frequency = PLLLCDCLK = 50 Mhz */    
+  /* LTDC clock frequency = PLLLCDCLK = 50 Mhz */
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
   PeriphClkInitStruct.PLL3.PLL3M = 5;
   PeriphClkInitStruct.PLL3.PLL3N = 160;
@@ -168,22 +168,22 @@ void LTDC_Config() {
   /* Polarity configuration */
   /* Initialize the horizontal synchronization polarity as active low */
   hltdc_F.Init.HSPolarity = LTDC_HSPOLARITY_AL;
-  /* Initialize the vertical synchronization polarity as active low */ 
-  hltdc_F.Init.VSPolarity = LTDC_VSPOLARITY_AL; 
-  /* Initialize the data enable polarity as active low */ 
-  hltdc_F.Init.DEPolarity = LTDC_DEPOLARITY_AL; 
-  /* Initialize the pixel clock polarity as input pixel clock */  
+  /* Initialize the vertical synchronization polarity as active low */
+  hltdc_F.Init.VSPolarity = LTDC_VSPOLARITY_AL;
+  /* Initialize the data enable polarity as active low */
+  hltdc_F.Init.DEPolarity = LTDC_DEPOLARITY_AL;
+  /* Initialize the pixel clock polarity as input pixel clock */
   hltdc_F.Init.PCPolarity = LTDC_PCPOLARITY_IPC;
 
   /* Timing configuration */
   hltdc_F.Init.HorizontalSync = (LTDC_LCD_HSYNC - 1);
   hltdc_F.Init.VerticalSync = (LTDC_LCD_VSYNC - 1);
   hltdc_F.Init.AccumulatedHBP = (LTDC_LCD_HSYNC + LTDC_LCD_HBP - 1);
-  hltdc_F.Init.AccumulatedVBP = (LTDC_LCD_VSYNC + LTDC_LCD_VBP - 1);  
+  hltdc_F.Init.AccumulatedVBP = (LTDC_LCD_VSYNC + LTDC_LCD_VBP - 1);
   hltdc_F.Init.AccumulatedActiveH = (TFT_HEIGHT + LTDC_LCD_VSYNC + LTDC_LCD_VBP - 1);
   hltdc_F.Init.AccumulatedActiveW = (TFT_WIDTH + LTDC_LCD_HSYNC + LTDC_LCD_HBP - 1);
   hltdc_F.Init.TotalHeigh = (TFT_HEIGHT + LTDC_LCD_VSYNC + LTDC_LCD_VBP + LTDC_LCD_VFP - 1);
-  hltdc_F.Init.TotalWidth = (TFT_WIDTH + LTDC_LCD_HSYNC + LTDC_LCD_HBP + LTDC_LCD_HFP - 1); 
+  hltdc_F.Init.TotalWidth = (TFT_WIDTH + LTDC_LCD_HSYNC + LTDC_LCD_HBP + LTDC_LCD_HFP - 1);
 
   /* Configure R,G,B component values for LCD background color : all black background */
   hltdc_F.Init.Backcolor.Blue = 0;
@@ -194,13 +194,13 @@ void LTDC_Config() {
 
 /* Layer0 Configuration ------------------------------------------------------*/
 
-  /* Windowing configuration */ 
+  /* Windowing configuration */
   pLayerCfg.WindowX0 = 0;
   pLayerCfg.WindowX1 = TFT_WIDTH;
   pLayerCfg.WindowY0 = 0;
   pLayerCfg.WindowY1 = TFT_HEIGHT;
 
-  /* Pixel Format configuration*/ 
+  /* Pixel Format configuration*/
   pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
 
   /* Start Address configuration : frame buffer is located at SDRAM memory */
@@ -223,7 +223,7 @@ void LTDC_Config() {
   pLayerCfg.ImageWidth  = TFT_WIDTH;
   pLayerCfg.ImageHeight = TFT_HEIGHT;
 
-  /* Configure the LTDC */  
+  /* Configure the LTDC */
   if (HAL_LTDC_Init(&hltdc_F) != HAL_OK)
   {
     /* Initialization Error */
@@ -241,7 +241,7 @@ uint16_t TFT_LTDC::x_max = 0;
 uint16_t TFT_LTDC::y_min = 0;
 uint16_t TFT_LTDC::y_max = 0;
 uint16_t TFT_LTDC::x_cur = 0;
-uint16_t TFT_LTDC::y_cur = 0; 
+uint16_t TFT_LTDC::y_cur = 0;
 uint8_t TFT_LTDC::reg = 0;
 volatile uint16_t* TFT_LTDC::framebuffer = (volatile uint16_t* )FRAME_BUFFER_ADDRESS;
 
@@ -298,12 +298,12 @@ void TFT_LTDC::DrawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint
   DMA2D->OCOLR = color;
   DMA2D->CR |= 1<<0;
 
-  uint32_t timeout = 0; 
+  uint32_t timeout = 0;
   while((DMA2D->ISR & (1<<1)) == 0)
   {
     timeout++;
     if(timeout>0X1FFFFF)break;
-  }  
+  }
   DMA2D->IFCR |= 1<<1;
 }
 
@@ -318,29 +318,29 @@ void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uin
   DMA2D->CR = 0 << 16;
   DMA2D->FGPFCCR = 0X02;
   DMA2D->FGOR = 0;
-  DMA2D->OOR = offline;				
-  DMA2D->FGMAR = (uint32_t)colors;		
-  DMA2D->OMAR = addr;				
-  DMA2D->NLR = (ey - sy) | ((ex - sx) << 16);	
+  DMA2D->OOR = offline;
+  DMA2D->FGMAR = (uint32_t)colors;
+  DMA2D->OMAR = addr;
+  DMA2D->NLR = (ey - sy) | ((ex - sx) << 16);
   DMA2D->CR |= 1<<0;
 
-  uint32_t timeout = 0; 
+  uint32_t timeout = 0;
   while((DMA2D->ISR & (1<<1)) == 0)
   {
     timeout++;
     if(timeout>0X1FFFFF)break;
-  }  
+  }
   DMA2D->IFCR |= 1<<1;
 }
 
-void TFT_LTDC::WriteData(uint16_t data) {  
+void TFT_LTDC::WriteData(uint16_t data) {
   switch (reg) {
     case 0x01: x_cur = x_min = data; return;
     case 0x02: x_max = data; return;
     case 0x03: y_cur = y_min = data; return;
     case 0x04: y_max = data; return;
   }
-  Transmit(data); 
+  Transmit(data);
 }
 
 void TFT_LTDC::Transmit(tft_data_t Data) {

@@ -39,7 +39,7 @@ typedef uint16_t tft_data_t;
 class TFT_LTDC {
   private:
     static volatile uint16_t *framebuffer;
-    static uint16_t x_min, x_max, y_min, y_max, x_cur, y_cur; 
+    static uint16_t x_min, x_max, y_min, y_max, x_cur, y_cur;
     static uint8_t reg;
 
     static uint32_t ReadID(tft_data_t Reg);

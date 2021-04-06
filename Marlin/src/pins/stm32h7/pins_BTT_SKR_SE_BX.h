@@ -63,7 +63,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PH2  // Probe
+  #define Z_MIN_PROBE_PIN                   PH2   // Probe
 #endif
 
 //
@@ -150,15 +150,15 @@
   #define E1_SERIAL_RX_PIN                  PC8
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                     19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PH4  // TH0
-#define TEMP_1_PIN                          PA3  // TH1
-#define TEMP_BED_PIN                        PH5  // TB
+#define TEMP_0_PIN                          PH4   // TH0
+#define TEMP_1_PIN                          PA3   // TH1
+#define TEMP_BED_PIN                        PH5   // TB
 
 //
 // Heaters / Fans
@@ -167,41 +167,41 @@
 #define HEATER_1_PIN                        PC5
 #define HEATER_BED_PIN                      PA4
 
-#define FAN_PIN                             PA5  // "FAN0"
-#define FAN1_PIN                            PA6  // "FAN1"
-#define FAN2_PIN                            PA7  // "FAN2"
+#define FAN_PIN                             PA5   // "FAN0"
+#define FAN1_PIN                            PA6   // "FAN1"
+#define FAN2_PIN                            PA7   // "FAN2"
 
 #define NEOPIXEL_PIN                        PH3
 #define NEOPIXEL2_PIN                       PB1
 
-#if HAS_LTDC_TFT  
+#if HAS_LTDC_TFT
 
   // LTDC_LCD Timing
-  #define LTDC_LCD_CLK                      50   // LTDC clock frequency = 50Mhz
-  #define LTDC_LCD_HSYNC                    30   // Horizontal synchronization
-  #define LTDC_LCD_HBP                      114  // Horizontal back porch
-  #define LTDC_LCD_HFP                      16   // Horizontal front porch
-  #define LTDC_LCD_VSYNC                    3    // Vertical synchronization
-  #define LTDC_LCD_VBP                      32   // Vertical back porch
-  #define LTDC_LCD_VFP                      10   // Vertical front porch
+  #define LTDC_LCD_CLK                        50  // LTDC clock frequency = 50Mhz
+  #define LTDC_LCD_HSYNC                      30  // Horizontal synchronization
+  #define LTDC_LCD_HBP                       114  // Horizontal back porch
+  #define LTDC_LCD_HFP                        16  // Horizontal front porch
+  #define LTDC_LCD_VSYNC                       3  // Vertical synchronization
+  #define LTDC_LCD_VBP                        32  // Vertical back porch
+  #define LTDC_LCD_VFP                        10  // Vertical front porch
 
   #define TFT_BACKLIGHT_PIN                 PB5
   #define LCD_DE_PIN                        PF10
   #define LCD_CLK_PIN                       PG7
   #define LCD_VSYNC_PIN                     PI9
   #define LCD_HSYNC_PIN                     PI10
-  #define LCD_R7_PIN                        PG6  // R5
+  #define LCD_R7_PIN                        PG6   // R5
   #define LCD_R6_PIN                        PH12
   #define LCD_R5_PIN                        PH11
   #define LCD_R4_PIN                        PH10
   #define LCD_R3_PIN                        PH9
-  #define LCD_G7_PIN                        PI2  // G6
+  #define LCD_G7_PIN                        PI2   // G6
   #define LCD_G6_PIN                        PI1
   #define LCD_G5_PIN                        PI0
   #define LCD_G4_PIN                        PH15
   #define LCD_G3_PIN                        PH14
   #define LCD_G2_PIN                        PH13
-  #define LCD_B7_PIN                        PI7  // B5
+  #define LCD_B7_PIN                        PI7   // B5
   #define LCD_B6_PIN                        PI6
   #define LCD_B5_PIN                        PI5
   #define LCD_B4_PIN                        PI4
@@ -214,7 +214,7 @@
 #define BTN_ENC                             PH8
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SOFTWARE_SPI
