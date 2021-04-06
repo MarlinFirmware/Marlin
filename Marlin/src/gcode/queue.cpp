@@ -445,7 +445,7 @@ void GCodeQueue::get_serial_commands() {
         if (process_line_done(serial.input_state, serial.line_buffer, serial.count))
           continue;
 
-        char *command = serial.line_buffer;
+        char* command = serial.line_buffer;
 
         while (*command == ' ') command++;                   // Skip leading spaces
         char *npos = (*command == 'N') ? command : nullptr;  // Require the N parameter to start the line
@@ -459,7 +459,7 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          const long gcode_N = parse_int32(npos + 1);
+          const long gcode_N = strtol(npos + 1, nullptr, 10);
 
           if (gcode_N != serial.last_N + 1 && !M110) {
             // In case of error on a serial port, don't prevent other serial port from making progress
@@ -471,7 +471,7 @@ void GCodeQueue::get_serial_commands() {
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
-            if (parse_int32(apos + 1) != checksum) {
+            if (strtol(apos + 1, nullptr, 10) != checksum) {
               // In case of error on a serial port, don't prevent other serial port from making progress
               gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
@@ -500,7 +500,7 @@ void GCodeQueue::get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (parse_int32(gpos + 1)) {
+            switch (strtol(gpos + 1, nullptr, 10)) {
               case 0: case 1:
               #if ENABLED(ARC_SUPPORT)
                 case 2: case 3:
