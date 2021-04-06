@@ -1190,9 +1190,9 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("FilamentSpeed value:", value_len);
+  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
 
-  FilamentSpeed = value_len;
+  filamentSpeed_mm_s = value_len;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1251,7 +1251,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       #else
         , PSTR("M1002E%dF%d")
       #endif
-      , (int)distanceFilament * filamentDir, FilamentSpeed * 60
+      , (int)distanceFilament * filamentDir, filamentSpeed_mm_s * 60
     );
     queue.inject(buf);
   }
@@ -1471,7 +1471,7 @@ void DGUSScreenHandler::LanguagePInit() {
 void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
-  ex_filament.ex_need_time        = FilamentSpeed;
+  ex_filament.ex_need_time        = filamentSpeed_mm_s;
   ex_filament.ex_speed            = 0;
   ex_filament.ex_status           = EX_NONE;
   ex_filament.ex_tick_end         = 0;
