@@ -55,14 +55,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT)
+#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT)
 
 #include "HAL_LCD_com_defines.h"
 #include "marlinui_DOGM.h"
 
 #include <string.h>
 
-#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+#if ANY(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI, HAS_LTDC_GRAPHICAL_TFT)
   #define HAS_LCD_IO 1
 #endif
 

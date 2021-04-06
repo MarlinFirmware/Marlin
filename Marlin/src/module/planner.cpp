@@ -1382,7 +1382,7 @@ void Planner::check_axes_activity() {
     sync_fan_speeds(tail_fan_speed);
   #endif
 
-  TERN_(AUTOTEMP, getHighESpeed());
+  TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
     TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
@@ -1432,7 +1432,7 @@ void Planner::check_axes_activity() {
    * based on the extrusion speed, which is calculated from the blocks
    * currently in the planner.
    */
-  void Planner::getHighESpeed() {
+  void Planner::autotemp_task() {
     static float oldt = 0;
 
     if (!autotemp_enabled) return;
