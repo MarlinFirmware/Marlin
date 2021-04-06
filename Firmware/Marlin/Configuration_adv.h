@@ -1688,7 +1688,7 @@
  */
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define INTEGRATED_BABYSTEPPING           // EXPERIMENTAL integration of babystepping into the Stepper ISR - Enabling fixes Z Stalling on TMC drivers
+  #define INTEGRATED_BABYSTEPPING           // EXPERIMENTAL integration of babystepping into the Stepper ISR - Enabling fixes Z Stalling on some TMC drivers
   #define BABYSTEP_WITHOUT_HOMING
   #define BABYSTEP_ALWAYS_AVAILABLE         // Allow babystepping at all times (not just during movement).
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
