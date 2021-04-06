@@ -141,13 +141,13 @@ class SdVolume {
   #if USE_MULTIPLE_CARDS
     cache_t cacheBuffer_;        // 512 byte cache for device blocks
     uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    DiskIODriver *sdCard_;       // Sd2Card object for cache
+    DiskIODriver *sdCard_;       // DiskIODriver object for cache
     bool cacheDirty_;            // cacheFlush() will write block if true
     uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #else
     static cache_t cacheBuffer_;        // 512 byte cache for device blocks
     static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    static DiskIODriver *sdCard_;       // Sd2Card object for cache
+    static DiskIODriver *sdCard_;       // DiskIODriver object for cache
     static bool cacheDirty_;            // cacheFlush() will write block if true
     static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #endif
