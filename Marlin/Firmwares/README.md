@@ -178,9 +178,9 @@
   - etc 
   
   **/*-------Others Firmwares for Q5 nanov1.2 or QQS with SKR family or Mks_Nano Family----*/**
-  - (Q5_8+SCWTULR-Robin_nano)   Q5 Stock(3xTMC2208+1xA4988). 
-  - (Q5_9CWTULR-Robin_nano)     Q5 with 4xTMC2209.
-  - (QQS)U9rTULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
+  - (Q5_8+SCTPULR-Robin_nano)   Q5 Stock(3xTMC2208+1xA4988) with TITAN extruder. 
+  - (Q5_9CBPULR-Robin_nano)     Q5 with 4xTMC2209 with BMG extruder.
+  - (QQS)U9rTPULR16-SKR14_firmware QQS with SKRv1.4 Board with emulation LCD (Marlin Mode)
 ***
 # 2. SETTINGS THE PRINTER 
   
