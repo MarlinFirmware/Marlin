@@ -622,7 +622,7 @@ void restore_feedrate_and_scaling() {
     #endif
 
     if (DEBUGGING(LEVELING))
-      SERIAL_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
+      SERIAL_ECHOLNPAIR("Axis ", AS_CHAR(XYZ_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
   /**
@@ -1392,12 +1392,12 @@ void prepare_line_to_destination() {
    * "trusted" position).
    */
   void set_axis_never_homed(const AxisEnum axis) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", axis_codes[axis], ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", AS_CHAR(axis_codes[axis]), ")");
 
     set_axis_untrusted(axis);
     set_axis_unhomed(axis);
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", axis_codes[axis], ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", AS_CHAR(axis_codes[axis]), ")");
 
     TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
   }
@@ -1458,7 +1458,7 @@ void prepare_line_to_destination() {
       if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
         SERIAL_ECHOLNPAIR("Selected home phase ", home_phase[axis],
                          " too close to endstop trigger phase ", phaseCurrent,
-                         ". Pick a different phase for ", axis_codes[axis]);
+                         ". Pick a different phase for ", AS_CHAR(axis_codes[axis]));
 
       // Skip to next if target position is behind current. So it only moves away from endstop.
       if (phaseDelta < 0) phaseDelta += 1024;
@@ -1469,7 +1469,7 @@ void prepare_line_to_destination() {
       // Optional debug messages
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOLNPAIR(
-          "Endstop ", axis_codes[axis], " hit at Phase:", phaseCurrent,
+          "Endstop ", AS_CHAR(axis_codes[axis]), " hit at Phase:", phaseCurrent,
           " Delta:", phaseDelta, " Distance:", mmDelta
         );
       }
@@ -1507,7 +1507,7 @@ void prepare_line_to_destination() {
       if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", AS_CHAR(axis_codes[axis]), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? x_home_dir(active_extruder) : home_dir(axis);
@@ -1585,7 +1585,7 @@ void prepare_line_to_destination() {
           case Z_AXIS: es = Z_ENDSTOP; break;
         }
         if (TEST(endstops.state(), es)) {
-          SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
+          SERIAL_ECHO_MSG("Bad ", AS_CHAR(axis_codes[axis]), " Endstop?");
           kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
         }
       #endif
@@ -1807,7 +1807,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< homeaxis(", axis_codes[axis], ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< homeaxis(", AS_CHAR(axis_codes[axis]), ")");
 
   } // homeaxis()
 
@@ -1885,14 +1885,14 @@ void set_axis_is_at_home(const AxisEnum axis) {
       DEBUG_ECHOLNPAIR("> home_offset[", AS_CHAR(axis_codes[axis]), "] = ", home_offset[axis]);
     #endif
     DEBUG_POS("", current_position);
-    DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", axis_codes[axis], ")");
+    DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", AS_CHAR(axis_codes[axis]), ")");
   }
 }
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
     workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", AS_CHAR(XYZ_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
   }
 #endif
 

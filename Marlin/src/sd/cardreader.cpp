@@ -723,9 +723,9 @@ void CardReader::report_status() {
 }
 
 void CardReader::write_command(char * const buf) {
-  char *begin = buf;
-  char *npos = nullptr;
-  char *end = buf + strlen(buf) - 1;
+  char *begin = buf,
+       *npos = nullptr,
+       *end = buf + strlen(buf) - 1;
 
   file.writeError = false;
   if ((npos = strchr(buf, 'N'))) {
