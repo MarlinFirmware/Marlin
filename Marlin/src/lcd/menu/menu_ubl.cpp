@@ -610,11 +610,11 @@ void _menu_ubl_tools() {
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[128];
   #if HAS_BED_PROBE && HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S60\nM109 S200\nG29 P1\nG29 P3\nG29 P3\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved in Slot 0"));
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM104 S200\nM190 S60\nG29 P1\nG29 P3\nG29 P3\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved in Slot 0"));
   #elif HAS_BED_PROBE && !HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S200\nG29 P1\nG29 P3\nG29 P3\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM104 S0\nM0 Mesh Saved in Slot 0"));
   #elif !HAS_BED_PROBE && HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S60\nM109 S200\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved Slot 0"));
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM104 S200\n M190 S60\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved Slot 0"));
   #elif !HAS_BED_PROBE && !HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S200\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM104 S0\nM0 Mesh Saved Slot 0"));
   #endif
