@@ -641,6 +641,7 @@ void _lcd_ubl_level_bed() {
 /**
  * UBL Mesh Wizard - simple 1 click mesh creation with or without a probe.
  */
+
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[128];
   #if HAS_BED_PROBE && HAS_HEATED_BED
@@ -651,10 +652,15 @@ void _lcd_ubl_mesh_wizard() {
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nM109 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved Slot 0"), custom_bed_temp, custom_hotend_temp);
   #elif !HAS_BED_PROBE && !HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM104 S0\nM0 Mesh Saved Slot 0"), custom_hotend_temp);
-  #else
-    sprintf_P(ubl_lcd_gcode, PSTR("M0 Mesh Wizard Error"));
   #endif
   queue.inject(ubl_lcd_gcode);
+}
+
+void _lcd_mesh_wizard() {
+  START_MENU();
+    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    SUBMENU(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
+  END_MENU();
 }
 
 #endif // HAS_LCD_MENU && AUTO_BED_LEVELING_UBL
