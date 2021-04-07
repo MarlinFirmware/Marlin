@@ -121,8 +121,12 @@
   inline void home_z_safely() {
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
-    // Disallow Z homing if X or Y homing is needed
-    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+    // Ensure X and Y homed before Z homing
+    homeaxis(X_AXIS);
+    
+    if (homing_needed_error(_BV(Y_AXIS))) {
+      homeaxis(Y_AXIS);
+    }
 
     sync_plan_position();
 
