@@ -357,7 +357,10 @@ void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
     if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > THERMAL_PROTECTION_HYSTERESIS) {
         ScreenHandler.setstatusmessagePGM(PSTR("Heating up..."));
 
-        thermalManager.setTargetHotend(celsius, ExtUI::H0);
+        uint16_t target_celsius = celsius;
+        NOMORE(target_celsius, thermalManager.hotend_max_target(0));
+
+        thermalManager.setTargetHotend(target_celsius, ExtUI::H0);
         thermalManager.wait_for_hotend(ExtUI::H0, false);
     }
 

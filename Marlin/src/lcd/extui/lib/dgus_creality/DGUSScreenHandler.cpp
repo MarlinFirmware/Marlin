@@ -1061,34 +1061,30 @@ void DGUSScreenHandler::HandleAllHeatersOff(DGUS_VP_Variable &var, void *val_ptr
 }
 
 void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
-  uint16_t acceptedvalue;
+  celsius_t newvalue = swap16(*(uint16_t*)val_ptr);
+  celsius_t acceptedvalue;
 
   switch (var.VP) {
     default: return;
     #if HOTENDS >= 1
       case VP_T_E0_Set:
+        NOMORE(newvalue, thermalManager.hotend_max_target(0));
         thermalManager.setTargetHotend(newvalue, 0);
-        acceptedvalue = thermalManager.temp_hotend[0].target;
+        acceptedvalue = thermalManager.degTargetHotend(0);
         break;
-    #endif
-    #if HOTENDS >= 2
-      case VP_T_E1_Set:
-        thermalManager.setTargetHotend(newvalue, 1);
-        acceptedvalue = thermalManager.temp_hotend[1].target;
-      break;
     #endif
     #if HAS_HEATED_BED
       case VP_T_Bed_Set:
+        NOMORE(newvalue, BED_MAXTEMP);
         thermalManager.setTargetBed(newvalue);
-        acceptedvalue = thermalManager.temp_bed.target;
+        acceptedvalue = thermalManager.degTargetBed();
         break;
     #endif
   }
 
   // reply to display the new value to update the view if the new value was rejected by the Thermal Manager.
   if (newvalue != acceptedvalue && var.send_to_display_handler) var.send_to_display_handler(var);
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::HandleFanSpeedChanged(DGUS_VP_Variable &var, void *val_ptr) {
