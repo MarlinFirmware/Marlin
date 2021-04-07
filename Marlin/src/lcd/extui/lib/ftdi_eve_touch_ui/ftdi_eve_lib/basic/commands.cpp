@@ -229,7 +229,7 @@ void CLCD::CommandFifo::cmd(uint32_t cmd32) {
   write((void*)&cmd32, sizeof(uint32_t));
 }
 
-void CLCD::CommandFifo::cmd(void* data, uint16_t len) {
+void CLCD::CommandFifo::cmd(void *data, uint16_t len) {
   write(data, len);
 }
 

@@ -926,7 +926,7 @@ class Planner {
       static bool autotemp_enabled;
       static void autotemp_update();
       static void autotemp_M104_M109();
-      static void getHighESpeed();
+      static void autotemp_task();
     #endif
 
     #if HAS_LINEAR_E_JERK
