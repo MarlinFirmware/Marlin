@@ -609,16 +609,23 @@ void _menu_ubl_tools() {
 
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[128];
-  #if HAS_BED_PROBE && HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM104 S200\nM190 S60\nG29 P1\nG29 P3\nG29 P3\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved in Slot 0"));
-  #elif HAS_BED_PROBE && !HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S200\nG29 P1\nG29 P3\nG29 P3\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM104 S0\nM0 Mesh Saved in Slot 0"));
-  #elif !HAS_BED_PROBE && HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM104 S200\n M190 S60\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM104 S0\nM0 Mesh Saved Slot 0"));
-  #elif !HAS_BED_PROBE && !HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S200\nG29 P4 R255\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM104 S0\nM0 Mesh Saved Slot 0"));
+  #if HAS_BED_PROBE
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
+  #elif !HAS_BED_PROBE
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
   #endif
   queue.inject(ubl_lcd_gcode);
+}
+
+void _lcd_mesh_wizard () {
+  START_MENU();
+  BACK_ITEM(MSG_UBL_LEVEL_BED);
+    #if HAS_HEATED_BED
+    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+    #endif
+  ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
+  ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
+  END_MENU();
 }
 
 /**
@@ -644,12 +651,12 @@ void _lcd_ubl_level_bed() {
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
+  SUBMENU(MSG_UBL_MESH_WIZARD, _lcd_mesh_wizard);
   ACTION_ITEM(MSG_UBL_MESH_EDIT, _ubl_goto_map_screen);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29W"));
-  ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;
     EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
