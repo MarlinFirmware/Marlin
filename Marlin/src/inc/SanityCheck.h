@@ -60,18 +60,23 @@
 #undef TEST4
 
 /**
- * We try our best to include sanity checks for all changed configuration
- * directives because users have a tendency to use outdated config files with
- * the bleeding-edge source code, but sometimes this is not enough. This check
- * forces a minimum config file revision. Otherwise Marlin will not build.
+ * This is to alert you about non-matching versions of config files.
+ *
+ * You can edit the version tag in your old config files and try the build again.
+ * The checks below will alert you about options that need to be changed, but they won't
+ * tell you about new options that you might find useful. So it's recommended to transfer
+ * your settings to new Configuration files matching your Marlin version as soon as possible.
  */
 #define HEXIFY(H) _CAT(0x,H)
 #if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "You are using an old Configuration.h file, update it before building Marlin."
+  #error "Your Configuration.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration.h."
+#elif HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
+  #error "Your Configuration.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration.h."
 #endif
-
 #if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
-  #error "You are using an old Configuration_adv.h file, update it before building Marlin."
+  #error "Your Configuration_adv.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration_adv.h."
+#elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
+  #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
 #endif
 #undef HEXIFY
 
