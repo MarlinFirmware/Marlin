@@ -55,8 +55,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_OFF:  fanSpeed =   0; break;
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
-  sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
-  gcode.process_subcommands_now(public_buf_l);
+  thermalManager.set_fan_speed(0, fanSpeed);
 }
 
 void lv_draw_fan() {
@@ -80,12 +79,7 @@ void lv_draw_fan() {
 void disp_fan_value() {
   #if HAS_FAN
     fanSpeed = thermalManager.fan_speed[0];
-    char buf1[10] = {0};
-    public_buf_l[0] = '\0';
-    strcat(public_buf_l, fan_menu.state);
-    strcat_P(public_buf_l, PSTR(": "));
-    sprintf_P(buf1, PSTR("%3d%%"),thermalManager.fanPercent(fanSpeed));
-    strcat(public_buf_l, buf1);
+    sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, (int)thermalManager.fanPercent(fanSpeed));
   #else
     sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
   #endif
