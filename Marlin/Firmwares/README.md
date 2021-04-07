@@ -99,7 +99,7 @@
 
   * Other MotherBoards for Q5 and QQS:
 
-    [NANOv1.2](./NANO)=>(**Q5_Header_robin_nano.bin**)
+    [NANOv1.2](./Q5)=>(**Q5_Header_robin_nano.bin**)
 
     ![Board_Nanov1.2](../../docs/images/Fam_Nano.png)
     
