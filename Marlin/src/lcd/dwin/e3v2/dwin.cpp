@@ -2644,7 +2644,11 @@ void HMI_Control() {
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
-    queue.inject_P(PSTR("G28O\nG29"));
+    #if DEFINED(MAIN_MENU_ITEM_1_GCODE)
+      queue_inject_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
+    #else
+      queue.inject_P(PSTR("G28O\nG29\nG28\nG1Z0"));
+    #endif
   }
 
 #endif
