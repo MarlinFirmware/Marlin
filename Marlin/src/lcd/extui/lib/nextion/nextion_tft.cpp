@@ -144,10 +144,10 @@ bool NextionTFT::ReadTFTCommand() {
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
-        DEBUG_ECHOLNPAIR(  "> ", nextion_command[0],
-                         "\n> ", nextion_command[1],
-                         "\n> ", nextion_command[2],
-                         "\n> ", nextion_command[3],
+        DEBUG_ECHOLNPAIR(  "> ", AS_CHAR(nextion_command[0]),
+                         "\n> ", AS_CHAR(nextion_command[1]),
+                         "\n> ", AS_CHAR(nextion_command[2]),
+                         "\n> ", AS_CHAR(nextion_command[3]),
                          "\nprinter_state:", printer_state);
     #endif
   }
