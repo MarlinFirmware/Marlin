@@ -171,40 +171,6 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
-  float closest = 99999.99;
-  mesh_index_pair out_point;
-
-  out_point.pos = -1;
-
-  GRID_LOOP(i, j) {
-    if (!circle_flags.marked(i, j)) {
-      // We found a circle that needs to be printed
-      const xy_pos_t m = { _GET_MESH_X(i), _GET_MESH_Y(j) };
-
-      // Get the distance to this intersection
-      float f = (pos - m).magnitude();
-
-      // It is possible that we are being called with the values
-      // to let us find the closest circle to the start position.
-      // But if this is not the case, add a small weighting to the
-      // distance calculation to help it choose a better place to continue.
-      //f += (g26_xy_pos - m).magnitude() / 15.0f;
-
-      // Add the specified amount of Random Noise to our search
-      if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
-
-      if (f < closest) {
-        closest = f;          // Found a closer un-printed location
-        out_point.pos.set(i, j);  // Save its data
-        out_point.distance = closest;
-      }
-    }
-  }
-  circle_flags.mark(out_point); // Mark this location as done.
-  return out_point;
-}
-
 void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t e_delta) {
   static float last_z = -999.99;
 
@@ -231,7 +197,7 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-FORCE_INLINE void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
+void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,

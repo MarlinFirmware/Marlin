@@ -1230,7 +1230,7 @@ void HMI_Move_X() {
   }
 }
 
-void HMI_Move_Y(void) {
+void HMI_Move_Y() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Y_scaled))
@@ -1243,7 +1243,7 @@ void HMI_Move_Y(void) {
   }
 }
 
-void HMI_Move_Z(void) {
+void HMI_Move_Z() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Z_scaled))
@@ -1258,7 +1258,7 @@ void HMI_Move_Z(void) {
 
 #if HAS_HOTEND
 
-  void HMI_Move_E(void) {
+  void HMI_Move_E() {
     static float last_E_scaled = 0;
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
@@ -1275,6 +1275,7 @@ void HMI_Move_Z(void) {
   }
 
 #endif
+
 #if HAS_ZOFFSET_ITEM
 
   bool printer_busy() { return planner.movesplanned() || printingIsActive(); }
@@ -2333,6 +2334,7 @@ void Draw_Move_Menu() {
 #include "../../../libs/buzzer.h"
 
 void HMI_AudioFeedback(const bool success=true) {
+  #if USE_BEEPER
   if (success) {
     buzzer.tone(100, 659);
     buzzer.tone(10, 0);
@@ -2340,6 +2342,7 @@ void HMI_AudioFeedback(const bool success=true) {
   }
   else
     buzzer.tone(40, 440);
+  #endif
 }
 
 /* Prepare */
@@ -2644,8 +2647,8 @@ void HMI_Control() {
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
-    #if DEFINED(MAIN_MENU_ITEM_1_GCODE)
-      queue_inject_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
+    #if defined(MAIN_MENU_ITEM_1_GCODE)
+      queue.inject_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
     #else
       queue.inject_P(PSTR("G28O\nG29\nG28\nG1Z0"));
     #endif

@@ -952,7 +952,7 @@
 //
 #ifdef SERIAL_PORT_2
   #define NUM_SERIAL 2
-  #define HAS_MULTI_SERIAL 1
+  //#define HAS_MULTI_SERIAL 1
 #elif defined(SERIAL_PORT)
   #define NUM_SERIAL 1
 #else
@@ -967,7 +967,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #define SERIAL_CATCHALL 0
+  #define SERIAL_CATCHALL -1
   #ifndef LCD_SERIAL_PORT
     #define LCD_SERIAL_PORT 3 // Creality 4.x board
   #endif

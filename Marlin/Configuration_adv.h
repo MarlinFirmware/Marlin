@@ -1331,7 +1331,7 @@
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
-  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, SKR14Turbo, SKR14)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, SKR14Turbo, SKR14, , Creality422, Creality427)
     #define SD_DETECT_STATE HIGH
   #endif
 
@@ -3609,11 +3609,11 @@
 #endif
 
 #if ENABLED(CUSTOM_MENU_MAIN)
-  #define CUSTOM_MENU_CONFIG_TITLE "Leveling Tools"
-  //#define CUSTOM_MENU_CONFIG_SCRIPT_DONE "M117 Wireless Script Done"
-  #define CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK
-  #define CUSTOM_MENU_CONFIG_SCRIPT_RETURN  // Return to status screen after a script
-  #define CUSTOM_MENU_CONFIG_ONLY_IDLE        // Only show custom menu when the machine is idle
+  #define CUSTOM_MENU_MAIN_TITLE "Leveling Tools"
+  //#define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 Wireless Script Done"
+  #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
+  #define CUSTOM_MENU_MAIN_SCRIPT_RETURN  // Return to status screen after a script
+  #define CUSTOM_MENU_MAIN_ONLY_IDLE        // Only show custom menu when the machine is idle
 
   #if ENABLED(BedDC)
     #define CommBedTmp "55"

@@ -63,7 +63,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find what's the first serial leaf
-#if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
+#if ENABLED(HAS_MULTI_SERIAL) && defined(SERIAL_CATCHALL)
   #define _SERIAL_LEAF_1  MYSERIAL
 #else
   #define _SERIAL_LEAF_1  MYSERIAL1

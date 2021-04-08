@@ -380,7 +380,7 @@
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, SKRMiniE3V2)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, SKRMiniE3V2, Creality422, Creality427)
     #define Y_STOP_PIN 14
     #define X_STOP_PIN 3
   #endif
@@ -545,7 +545,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427)
+ #elif ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -557,10 +557,12 @@
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
+#elif BOTH(MachineEnder3V2, SKRE3Turbo)
+  #define LCD_SERIAL_PORT 1
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo)
   #define LCD_SERIAL_PORT 0
 #elif ANY(MachineEnder3Pro422, MachineEnder3Pro427)&& DISABLED(MachineEnder3V2)
@@ -1436,7 +1438,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-#if ENABLED(MachineEnder3V2)
+#if ENABLED(MachineEnder3V2) && NONE(SKRE3Turbo, SKR14Turbo, SKR14, SKR13)
   #define ENDSTOP_INTERRUPTS_FEATURE
 #endif
 
@@ -3019,9 +3021,6 @@
  */
 #if DISABLED(MelziHostOnly)
   #define SDSUPPORT
-#endif
-#if ENABLED(MachineEnder3V2)
-  #define SDIO_SUPPORT
 #endif
 
 /**
