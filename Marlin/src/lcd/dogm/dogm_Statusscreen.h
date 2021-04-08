@@ -547,7 +547,7 @@
     #endif
 
     #ifndef STATUS_COOLER_TEXT_X
-      #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 8)
+      #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 9)
     #endif
 
     static_assert(
