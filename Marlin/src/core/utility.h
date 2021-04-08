@@ -34,7 +34,7 @@ void safe_delay(millis_t ms);
   inline void serial_delay(const millis_t) {}
 #endif
 
-#if GRID_MAX_POINTS_X && GRID_MAX_POINTS_Y
+#if (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y)
 
   // 16x16 bit arrays
   template <int W, int H>

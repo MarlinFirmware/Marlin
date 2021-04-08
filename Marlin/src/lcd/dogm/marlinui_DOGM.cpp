@@ -529,7 +529,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;  // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;  // The origin is typically in the lower right corner.  We need to
                                                                     // invert the Y to get it to plot in the right location.
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
@@ -669,7 +669,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const float zvalue) {
+    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;

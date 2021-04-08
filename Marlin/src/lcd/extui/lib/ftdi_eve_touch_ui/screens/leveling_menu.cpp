@@ -111,20 +111,17 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
       #define BED_LEVELING_COMMANDS "G29"
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      BedMeshScreen::startMeshProbe();
+      BedMeshViewScreen::doProbe();
     #else
       SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
     #endif
     break;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-    case 4: BedMeshScreen::showMesh(); break;
-    case 5: BedMeshScreen::showMeshEditor(); break;
+    case 4: BedMeshViewScreen::show(); break;
+    case 5: BedMeshEditScreen::show(); break;
     #endif
     #if ENABLED(G26_MESH_VALIDATION)
-    case 6:
-      GOTO_SCREEN(StatusScreen);
-      injectCommands_P(PSTR("M117 Printing Test Pattern\nG28 O\nG26 R"));
-      break;
+    case 6: BedMeshViewScreen::doMeshValidation(); break;
     #endif
     #if ENABLED(BLTOUCH)
     case 7: injectCommands_P(PSTR("M280 P0 S60")); break;

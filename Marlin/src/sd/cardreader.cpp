@@ -515,7 +515,7 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(SD_RESORT, if (re_sort) presort());
 }
 
-void CardReader::openLogFile(char * const path) {
+void CardReader::openLogFile(const char * const path) {
   flag.logging = DISABLED(SDCARD_READONLY);
   IF_DISABLED(SDCARD_READONLY, openFileWrite(path));
 }
@@ -634,7 +634,7 @@ inline void echo_write_to_file(const char * const fname) {
 //
 // Open a file by DOS path for write
 //
-void CardReader::openFileWrite(char * const path) {
+void CardReader::openFileWrite(const char * const path) {
   if (!isMounted()) return;
 
   announceOpen(2, path);
@@ -723,9 +723,9 @@ void CardReader::report_status() {
 }
 
 void CardReader::write_command(char * const buf) {
-  char* begin = buf;
-  char* npos = nullptr;
-  char* end = buf + strlen(buf) - 1;
+  char *begin = buf,
+       *npos = nullptr,
+       *end = buf + strlen(buf) - 1;
 
   file.writeError = false;
   if ((npos = strchr(buf, 'N'))) {
@@ -845,7 +845,7 @@ uint16_t CardReader::countFilesInWorkDir() {
  *
  * A nullptr result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, const char * const path, const bool echo/*=false*/) {
+const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, const char * const path, const bool echo/*=false*/) {
   // Track both parent and subfolder
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;
