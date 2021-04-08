@@ -174,6 +174,7 @@ bool MarlinUI::detected() { return true; }
 
   // Two-part needed to display all info
   constexpr bool two_part = ((LCD_PIXEL_HEIGHT) - (START_BMPHEIGHT)) < ((MENU_FONT_ASCENT) * 2);
+  constexpr uint8_t bootscreen_pages = 1 + two_part;
 
   // Draw the static Marlin bootscreen from a u8g loop
   // or the animated boot screen within its own u8g loop
@@ -232,16 +233,19 @@ bool MarlinUI::detected() { return true; }
 
   // Show the Marlin bootscreen, with the u8g loop and delays
   void MarlinUI::show_marlin_bootscreen() {
-    constexpr uint8_t pages = two_part ? 2 : 1;
-    for (uint8_t q = pages; q--;) {
+    for (uint8_t q = bootscreen_pages; q--;) {
       draw_marlin_bootscreen(q == 0);
-      safe_delay((BOOTSCREEN_TIMEOUT) / pages);
+      if (q) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages);
     }
   }
 
   void MarlinUI::show_bootscreen() {
     TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
     show_marlin_bootscreen();
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) / bootscreen_pages > sofar) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages - sofar);
   }
 
 #endif // SHOW_BOOTSCREEN
