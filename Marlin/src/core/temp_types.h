@@ -70,6 +70,8 @@ struct celsius_t : public fixp<true, 10, 6> {
   explicit celsius_t(kelvin_t k) : fixp((float)k - 273.15f) {}
   explicit celsius_t(fahrenheit_t f) : fixp(((float)f - 32) * 0.5555555556f) {}
 
+  celsius_t& operator=(const celsius_t &other) { data = other.data; return *this; }
+
   constexpr explicit operator int()    const { return (int)data; }
   constexpr explicit operator float()  const { return (float)data; }
   constexpr explicit operator double() const { return (double)data; }
