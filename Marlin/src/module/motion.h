@@ -235,6 +235,13 @@ void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
 #endif
 
+
+/**
+ * Plans non-blocking linear movement in Z axis.
+ * This uses prepare_line_to_destination() that counts with UBL
+ */
+void plan_line_to_z(const float z, const feedRate_t fr);
+
 void prepare_line_to_destination();
 
 void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f

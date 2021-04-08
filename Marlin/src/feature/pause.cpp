@@ -601,7 +601,8 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
     // Move Z_AXIS to saved position
-    do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+    plan_line_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+    planner.synchronize();
   }
 
   // Unretract
