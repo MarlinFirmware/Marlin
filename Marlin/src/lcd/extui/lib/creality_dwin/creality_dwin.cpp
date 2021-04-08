@@ -4207,6 +4207,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
       strcpy_P(filename, (char*)"Host Print");
     Draw_Print_Screen();
   }
+  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Stop_Print() {
@@ -4220,6 +4221,7 @@ void CrealityDWINClass::Stop_Print() {
     Draw_Print_Screen();
     Draw_Print_confirm();
   }
+  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Update() {
