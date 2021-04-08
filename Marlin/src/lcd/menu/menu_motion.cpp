@@ -93,7 +93,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
     const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], ui.manual_move.offset),
       axis
     );
     if (parser.using_inch_units()) {
