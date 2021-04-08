@@ -2835,12 +2835,12 @@ void Temperature::readings_ready() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
- *  - Call planner.tick to count down its "ignore" time
+ *  - Call planner.isr to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
-  Temperature::tick();
+  Temperature::isr();
 
   HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
@@ -2879,7 +2879,7 @@ public:
  *  - Endstop polling
  *  - Planner clean buffer
  */
-void Temperature::tick() {
+void Temperature::isr() {
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
@@ -3363,8 +3363,8 @@ void Temperature::tick() {
   // Poll endstops state, if required
   endstops.poll();
 
-  // Periodically call the planner timer
-  planner.tick();
+  // Periodically call the planner timer service routine
+  planner.isr();
 }
 
 #if HAS_TEMP_SENSOR
