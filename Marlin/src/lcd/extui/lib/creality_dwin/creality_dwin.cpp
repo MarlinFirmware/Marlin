@@ -646,6 +646,7 @@ void CrealityDWINClass::Draw_Print_ProgressElapsed() {
 }
 
 void CrealityDWINClass::Draw_Print_confirm() {
+  Draw_Print_Screen();
   process = Confirm;
   popup = Complete;
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 252, 263, 351);
@@ -4201,6 +4202,8 @@ void CrealityDWINClass::Start_Print(bool sd) {
       strcpy_P(filename, card.longest_filename());
     else
       strcpy_P(filename, (char*)"Host Print");
+    ui.set_progress(0);
+    ui.set_remaining_time(0);
     Draw_Print_Screen();
   }
 }
@@ -4209,13 +4212,9 @@ void CrealityDWINClass::Stop_Print() {
   printing = false;
   thermalManager.zero_fan_speeds();
   thermalManager.disable_all_heaters();
-  if (process == Print) {
-    Draw_Print_confirm();
-  }
-  else {
-    Draw_Print_Screen();
-    Draw_Print_confirm();
-  }
+  ui.set_progress(100);
+  ui.set_remaining_time(0);
+  Draw_Print_confirm();
 }
 
 void CrealityDWINClass::Update() {
