@@ -112,6 +112,9 @@
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
+#define MFNAN 999999.0f
+#define ISNAN(V) ((V) == MFNAN)
+
 // Macros to constrain values
 #ifdef __cplusplus
 
@@ -614,6 +617,3 @@
 #define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
 #define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
 #define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))
-
-#define MFNAN 9999999999.0f
-#define ISNAN(V) ((V) == MFNAN)
