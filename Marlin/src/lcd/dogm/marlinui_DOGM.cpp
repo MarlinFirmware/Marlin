@@ -76,7 +76,7 @@
   #define FONT_STATUSMENU_NAME MENU_FONT_NAME
 #endif
 
-U8G_CLASS u8g(U8G_PARAM);
+U8G_CLASS u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -252,6 +252,13 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
+
+  static bool did_init_u8g = false;
+  if (!did_init_u8g) {
+    u8g.init(U8G_PARAM);
+    did_init_u8g = true;
+  }
+
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
