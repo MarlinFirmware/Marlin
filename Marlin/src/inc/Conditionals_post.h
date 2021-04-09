@@ -2419,6 +2419,11 @@
  * Heater signal inversion defaults
  */
 
+struct HeaterPin {
+  pin_t pin;
+  bool  inverting;
+};
+
 #if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
   #define HEATER_0_INVERTING false
 #endif
