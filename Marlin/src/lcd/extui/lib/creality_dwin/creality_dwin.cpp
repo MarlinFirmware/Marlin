@@ -4408,11 +4408,15 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 void CrealityDWINClass::SDCardInsert() { card.cdroot(); }
 
 void CrealityDWINClass::Save_Settings() {
-  eeprom_settings.tilt_grid_size = ubl_conf.tilt_grid-1;
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    eeprom_settings.tilt_grid_size = ubl_conf.tilt_grid-1;
+  #endif
 }
 
 void CrealityDWINClass::Load_Settings() {
-  ubl_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    ubl_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
+  #endif
 }
 
 
