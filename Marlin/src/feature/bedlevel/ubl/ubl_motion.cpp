@@ -85,7 +85,7 @@
 
       // Undefined parts of the Mesh in z_values[][] are NAN.
       // Replace NAN corrections with 0.0 to prevent NAN propagation.
-      if (!ISNAN(z0)) end.z += z0;
+      if (!isnan(z0)) end.z += z0;
       planner.buffer_segment(end, scaled_fr_mm_s, extruder);
       current_position = destination;
       return;
@@ -150,7 +150,7 @@
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
-        if (ISNAN(z0)) z0 = 0.0;
+        if (isnan(z0)) z0 = 0.0;
 
         const float ry = mesh_index_to_ypos(icell.y);
 
@@ -198,7 +198,7 @@
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
-        if (ISNAN(z0)) z0 = 0.0;
+        if (isnan(z0)) z0 = 0.0;
 
         /**
          * Without this check, it's possible to generate a zero length move, as in the case where
@@ -253,7 +253,7 @@
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
-        if (ISNAN(z0)) z0 = 0.0;
+        if (isnan(z0)) z0 = 0.0;
 
         if (!inf_normalized_flag) {
           on_axis_distance = use_x_dist ? rx - start.x : next_mesh_line_y - start.y;
@@ -276,7 +276,7 @@
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
-        if (ISNAN(z0)) z0 = 0.0;
+        if (isnan(z0)) z0 = 0.0;
 
         if (!inf_normalized_flag) {
           on_axis_distance = use_x_dist ? next_mesh_line_x - start.x : ry - start.y;
@@ -405,10 +405,10 @@
             z_x0y1 = z_values[icell.x  ][icell.y+1],  // z at lower right corner
             z_x1y1 = z_values[icell.x+1][icell.y+1];  // z at upper right corner
 
-      if (ISNAN(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
-      if (ISNAN(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
-      if (ISNAN(z_x0y1)) z_x0y1 = 0;              //   in order to avoid ISNAN tests per cell,
-      if (ISNAN(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
+      if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
+      if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
+      if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
+      if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
 
       const xy_pos_t pos = { mesh_index_to_xpos(icell.x), mesh_index_to_ypos(icell.y) };
       xy_pos_t cell = raw - pos;
