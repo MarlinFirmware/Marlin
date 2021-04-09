@@ -73,3 +73,12 @@ for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
 		if os.path.isfile(os.path.join(p, f)):
 			err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
 			raise SystemExit(err)
+
+#
+# Check for old files indicating a tangled marlin (mix of old and new code)
+#
+for p in [ os.path.join(env['PROJECT_DIR'], "Marlin/src/lcd/dogm") ]:
+	for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
+		if os.path.isfile(os.path.join(p, f)):
+			err = "ERROR: Tangled Marlin detected. You have files from old and new Marlin in the same directory tree. Please remove all Marlin files and try again."
+			raise SystemExit(err)
