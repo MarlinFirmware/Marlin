@@ -45,7 +45,7 @@
 
 uint16_t manualMoveStep = 1;
 uint16_t distanceFilament = 10;
-uint16_t FilamentSpeed = 25;
+uint16_t filamentSpeed_mm_s = 25;
 float ZOffset_distance = 0.1;
 float mesh_adj_distance = 0.01;
 float Z_distance = 0.1;
@@ -555,7 +555,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_LOAD_Filament, nullptr, &ScreenHandler.MKS_FilamentLoad, nullptr),
       VPHELPER(VP_UNLOAD_Filament, nullptr, &ScreenHandler.MKS_FilamentUnLoad, nullptr),
       VPHELPER(VP_Filament_distance, &distanceFilament, &ScreenHandler.GetManualFilament, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-      VPHELPER(VP_Filament_speed, &FilamentSpeed, &ScreenHandler.GetManualFilamentSpeed, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+      VPHELPER(VP_Filament_speed, &filamentSpeed_mm_s, &ScreenHandler.GetManualFilamentSpeed, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
   #endif
 
@@ -569,7 +569,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
     #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
       VPHELPER(VP_Filament_distance, &distanceFilament, &ScreenHandler.GetManualFilament, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
-      VPHELPER(VP_Filament_speed, &FilamentSpeed, &ScreenHandler.GetManualFilamentSpeed, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+      VPHELPER(VP_Filament_speed, &filamentSpeed_mm_s, &ScreenHandler.GetManualFilamentSpeed, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     #endif
 
     #if ENABLED(PIDTEMP)
