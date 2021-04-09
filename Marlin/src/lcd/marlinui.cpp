@@ -643,7 +643,7 @@ void MarlinUI::status_screen() {
   draw_status_screen();
 }
 
-void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
+void MarlinUI::kill_screen(PGM_P const lcd_error, PGM_P const lcd_component) {
   init();
   if (alert_level == 0) {
     alert_level = 1;

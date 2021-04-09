@@ -398,7 +398,7 @@ inline void print_xyz(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P co
 #define SERIAL_XYZ(PREFIX,V...) do { print_xyz(V, PSTR(PREFIX), nullptr); }while(0)
 
 char *print_str  (char *p, const char *ptr);
-char *print_str_P(char *p, const char *ptr);
+char *print_str_P(char *p, PGM_P const ptr);
 char *print_char (char *p, char c);
 char *print_i    (char *p, int i);
 char *print_float(char *p, float val, int8_t width, uint8_t precision);

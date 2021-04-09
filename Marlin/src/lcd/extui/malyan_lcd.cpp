@@ -104,7 +104,6 @@ void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
   write_to_lcd_P(PSTR("}"));
 }
 
-
 /**
  * Process an LCD 'C' command.
  * These are currently all temperature commands
