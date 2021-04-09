@@ -477,7 +477,7 @@ bool Sd2Card::readData(uint8_t *dst, const uint16_t count) {
 }
 
 /** read CID or CSR register */
-bool Sd2Card::readRegister(const uint8_t cmd, void* buf) {
+bool Sd2Card::readRegister(const uint8_t cmd, void *buf) {
   uint8_t *dst = reinterpret_cast<uint8_t*>(buf);
   if (cardCommand(cmd, 0)) {
     error(SD_CARD_ERROR_READ_REG);

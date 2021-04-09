@@ -39,6 +39,10 @@
   #include "ui_320x240.h"
 #elif HAS_UI_480x320 || HAS_UI_480x272
   #include "ui_480x320.h"
+#elif HAS_UI_1024x600
+  #include "ui_1024x600.h"
+#else
+  #error "Unsupported display resolution!"
 #endif
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater);
