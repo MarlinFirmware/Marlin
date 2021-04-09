@@ -2813,9 +2813,9 @@ void Temperature::readings_ready() {
   // Filament Sensor - can be read any time since IIR filtering is used
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.reading_ready());
 
-  for (int i = 0; i < COUNT(hasADC); i++) {
-    if (TERN_(HAS_HOTEND, i == 0 || ) hasADC[i]) heaters[i].info.reset();
-  }
+  for (int i = 0; i < COUNT(heaters); i++)
+    heaters[i].info.reset();
+
   #if HAS_HOTEND
     TERN_(TEMP_SENSOR_1_AS_REDUNDANT, heaters[1].info.reset());
   #endif
