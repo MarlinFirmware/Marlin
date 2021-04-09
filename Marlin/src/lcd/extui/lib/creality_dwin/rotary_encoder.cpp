@@ -36,6 +36,7 @@
 #include "../../../buttons.h"
 
 #include "../../MarlinCore.h"
+#include "../../../marlinui.h"
 #include "../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER
@@ -93,7 +94,12 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      return ENCODER_DIFF_ENTER;
+      if (!ui.backlight) {
+        ui.refresh_brightness();
+      }
+      else {
+        return ENCODER_DIFF_ENTER;
+      }
     }
     else return ENCODER_DIFF_NO;
   }

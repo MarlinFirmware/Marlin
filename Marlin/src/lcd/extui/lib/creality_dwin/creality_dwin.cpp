@@ -833,7 +833,6 @@ void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const ch
   else if (mode == Confirm) {
     DWIN_ICON_Show(ICON, ICON_Continue_E, 87, 283);
   }
-  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Popup_Select() {
@@ -4115,9 +4114,6 @@ inline void CrealityDWINClass::Confirm_Control() {
       case Complete:
         Draw_Main_Menu();
         break;
-      case BacklightOff:
-        ui.refresh_brightness();
-        break;
       case UI:
         switch(last_process) {
           case Menu:
@@ -4207,7 +4203,6 @@ void CrealityDWINClass::Start_Print(bool sd) {
       strcpy_P(filename, (char*)"Host Print");
     Draw_Print_Screen();
   }
-  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Stop_Print() {
@@ -4221,7 +4216,6 @@ void CrealityDWINClass::Stop_Print() {
     Draw_Print_Screen();
     Draw_Print_confirm();
   }
-  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Update() {
@@ -4424,16 +4418,15 @@ void CrealityDWINClass::Load_Settings() {
 
 
 uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+bool MarlinUI::backlight = true;
 
 void MarlinUI::set_brightness(const uint8_t value) {
-  if (value == 0 && process != Confirm && process != Popup) {
-    last_process = process;
-    process = Confirm;
-    popup = BacklightOff;
+  if (value == 0) {
+    backlight = false;
     DWIN_Backlight_SetLuminance(0);
   }
   else {
-    if (process == Confirm && popup == BacklightOff) process = last_process;
+    backlight = true;
     brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     DWIN_Backlight_SetLuminance(brightness);
   }

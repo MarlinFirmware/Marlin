@@ -230,6 +230,7 @@ public:
 
   #if HAS_LCD_BRIGHTNESS
     static uint8_t brightness;
+    static bool backlight;
     static void set_brightness(const uint8_t value);
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
