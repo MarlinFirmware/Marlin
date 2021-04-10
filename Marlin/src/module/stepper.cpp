@@ -1697,12 +1697,13 @@ void Stepper::pulse_phase_isr() {
       #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
         delta_error.e += advance_dividend.e;
         if (delta_error.e >= 0) {
-          count_position.e += count_direction.e;
+          // count_position.e += count_direction.e; // When enabled 'LIN_ADVANCE', 'count_position.e' should change in 'advance_isr()' not here
           #if ENABLED(LIN_ADVANCE)
             delta_error.e -= advance_divisor;
             // Don't step E here - But remember the number of steps to perform
             motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
           #else
+            count_position.e += count_direction.e;
             step_needed.e = true;
           #endif
         }
@@ -2304,6 +2305,8 @@ uint32_t Stepper::block_phase_isr() {
       USING_TIMED_PULSE();
     #endif
 
+    count_direction.e = LA_steps > 0 ? 1 : -1;
+
     while (LA_steps) {
       #if ISR_MULTI_STEPS
         if (firstStep)
@@ -2336,6 +2339,8 @@ uint32_t Stepper::block_phase_isr() {
       #else
         E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
       #endif
+
+      count_position.e += count_direction.e;
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
