@@ -639,7 +639,7 @@ namespace Anycubic {
           float newposition = atof(&panel_command[6]);
 
           #if ACDEBUG(AC_ACTION)
-            SERIAL_ECHOLNPAIR("Nudge ", panel_command[4], " axis ", newposition);
+            SERIAL_ECHOLNPAIR("Nudge ", AS_CHAR(panel_command[4]), " axis ", newposition);
           #endif
 
           switch (panel_command[4]) {
