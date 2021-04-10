@@ -75,7 +75,7 @@ void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *lin
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4, uint16_t language) {
+void DGUSScreenHandler::sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language) {
   if (language == MKS_English)
     DGUSScreenHandler::sendinfoscreen_en_mks((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
@@ -835,12 +835,12 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPAIR(" homing ", axiscode);
+    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
     char buf[6];
-    sprintf(buf,"G28 %c",axiscode);
+    sprintf(buf, "G28 %c", axiscode);
     //DEBUG_ECHOPAIR(" ", buf);
     queue.enqueue_one_now(buf);
     //DEBUG_ECHOLNPGM(" ✓");
@@ -850,14 +850,14 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (movevalue == 5) {
     DEBUG_ECHOPAIR("send M84");
     char buf[6];
-    snprintf_P(buf,6,PSTR("M84 %c"),axiscode);
+    snprintf_P(buf,6,PSTR("M84 %c"), axiscode);
     queue.enqueue_one_now(buf);
     ForceCompleteUpdate();
     return;
   }
   else {
     // movement
-    DEBUG_ECHOPAIR(" move ", axiscode);
+    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -895,7 +895,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPAIR(" cannot move ", axiscode);
+    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 
@@ -1190,17 +1190,18 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("FilamentSpeed value:", value_len);
+  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
 
-  FilamentSpeed = value_len;
+  filamentSpeed_mm_s = value_len;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-    char buf[40];
     uint8_t swap_tool = 0;
+  #else
+    constexpr uint8_t swap_tool = 1; // T0 (or none at all)
   #endif
 
   #if HAS_HOTEND
@@ -1215,9 +1216,8 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
     default: break;
     case 0:
       #if HAS_HOTEND
-        if (thermalManager.tooColdToExtrude(0)) {
+        if (thermalManager.tooColdToExtrude(0))
           hotend_too_cold = 1;
-        }
         else {
           #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
             swap_tool = 1;
@@ -1243,15 +1243,41 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
     }
   #endif
 
+  if (swap_tool) {
+    char buf[30];
+    snprintf_P(buf, 30
+      #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+        , PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
+      #else
+        , PSTR("M1002E%dF%d")
+      #endif
+      , (int)distanceFilament * filamentDir, filamentSpeed_mm_s * 60
+    );
+    queue.inject(buf);
+  }
+}
+
+/**
+ * M1002: Do a tool-change and relative move for MKS_FilamentLoadUnload
+ *        within the G-code execution window for best concurrency.
+ */
+void GcodeSuite::M1002() {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-    if (swap_tool) {
-      queue.enqueue_now_P(swap_tool == 2 ? PSTR("T1") : PSTR("T0"));
-      queue.enqueue_now_P(PSTR("G91"));
-      snprintf_P(buf, 40, PSTR("G1 E%d F%d"), (int)distanceFilament * filamentDir, FilamentSpeed * 60);
-      queue.enqueue_one_now(buf);
-      queue.enqueue_now_P(PSTR("G90"));
-    }
+  {
+    char buf[3];
+    sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));
+    process_subcommands_now(buf);
+  }
   #endif
+
+  const uint8_t old_axis_relative = axis_relative;
+  set_e_relative(true); // M83
+  {
+    char buf[20];
+    snprintf_P(buf, 20, PSTR("G1E%dF%d"), parser.intval('E'), parser.intval('F'));
+    process_subcommands_now(buf);
+  }
+  axis_relative = old_axis_relative;
 }
 
 void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1445,7 +1471,7 @@ void DGUSScreenHandler::LanguagePInit() {
 void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
-  ex_filament.ex_need_time        = FilamentSpeed;
+  ex_filament.ex_need_time        = filamentSpeed_mm_s;
   ex_filament.ex_speed            = 0;
   ex_filament.ex_status           = EX_NONE;
   ex_filament.ex_tick_end         = 0;
