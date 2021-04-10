@@ -103,8 +103,8 @@
   #endif
 #endif
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "FYSETC SPIDER supports up to 3 hotends / E-steppers."
+#if HOTENDS > 5 || E_STEPPERS > 5
+  #error "FYSETC SPIDER supports up to 5 hotends / E-steppers."
 #else
   #include "pins_FYSETC_S6.h"
 #endif
