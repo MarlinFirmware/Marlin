@@ -1697,7 +1697,6 @@ void Stepper::pulse_phase_isr() {
       #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
         delta_error.e += advance_dividend.e;
         if (delta_error.e >= 0) {
-          // count_position.e += count_direction.e; // When enabled 'LIN_ADVANCE', 'count_position.e' should change in 'advance_isr()' not here
           #if ENABLED(LIN_ADVANCE)
             delta_error.e -= advance_divisor;
             // Don't step E here - But remember the number of steps to perform
@@ -2284,24 +2283,20 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
-      if (LA_steps > 0)
-      {
+      if (LA_steps > 0) {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
         count_direction.e = 1;
       }
-      else if (LA_steps < 0)
-      {
+      else if (LA_steps < 0) {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
         count_direction.e = -1;
       }
     #else
-      if (LA_steps > 0)
-      {
+      if (LA_steps > 0) {
         NORM_E_DIR(stepper_extruder);
         count_direction.e = 1;
       }
-      else if (LA_steps < 0)
-      {
+      else if (LA_steps < 0) {
         REV_E_DIR(stepper_extruder);
         count_direction.e = -1;
       }
