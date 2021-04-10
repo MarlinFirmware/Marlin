@@ -42,7 +42,6 @@
 //===========================================================================
 
 /**
-/**
  * Here are some useful links to help get your machine configured and calibrated:
  * Here are some standard links for getting your machine calibrated:
  *
