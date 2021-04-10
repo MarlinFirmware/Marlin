@@ -2285,14 +2285,26 @@ uint32_t Stepper::block_phase_isr() {
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
       if (LA_steps > 0)
+      {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+        count_direction.e = 1;
+      }
       else if (LA_steps < 0)
+      {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+        count_direction.e = -1;
+      }
     #else
       if (LA_steps > 0)
+      {
         NORM_E_DIR(stepper_extruder);
+        count_direction.e = 1;
+      }
       else if (LA_steps < 0)
+      {
         REV_E_DIR(stepper_extruder);
+        count_direction.e = -1;
+      }
     #endif
 
     DIR_WAIT_AFTER();
@@ -2305,8 +2317,6 @@ uint32_t Stepper::block_phase_isr() {
       USING_TIMED_PULSE();
     #endif
 
-    count_direction.e = LA_steps > 0 ? 1 : -1;
-
     while (LA_steps) {
       #if ISR_MULTI_STEPS
         if (firstStep)
@@ -2314,6 +2324,8 @@ uint32_t Stepper::block_phase_isr() {
         else
           AWAIT_LOW_PULSE();
       #endif
+
+      count_position.e += count_direction.e;
 
       // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)
@@ -2339,8 +2351,6 @@ uint32_t Stepper::block_phase_isr() {
       #else
         E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
       #endif
-
-      count_position.e += count_direction.e;
 
       // For minimum pulse time wait before looping
       // Just wait for the requested pulse duration
