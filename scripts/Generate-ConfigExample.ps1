@@ -82,11 +82,11 @@ foreach ($FilePath in $FilesPathsToDiff) {
             Write-Host "... applying $ExampleDiffFilePath"
             git apply --verbose --ignore-space-change --ignore-whitespace --3way $ExampleDiffFilePath
 
-            if ($InteractiveResolve -and $LASTEXITCODE -eq 0) {
+            if ($InteractiveResolve -and $LASTEXITCODE -ne 0) {
                 Write-Warning "Failed to apply diff file for $FilePath"
                 Write-Host "... opening merge tool"
                 
-                git mergetool
+                & "git" @("mergetool")
             }
 
             if ($LASTEXITCODE -ne 0) {
