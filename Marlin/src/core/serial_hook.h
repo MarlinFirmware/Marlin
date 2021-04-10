@@ -209,11 +209,9 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
   static constexpr uint8_t SecondOutput  = (Usage << (offset + step));
   static constexpr uint8_t Both          = FirstOutput | SecondOutput;
 
-  NO_INLINE size_t write(uint8_t c) {
-    size_t ret = 0;
-    if (portMask.enabled(FirstOutput))   ret = serial0.write(c);
-    if (portMask.enabled(SecondOutput))  ret = serial1.write(c) | ret;
-    return ret;
+  NO_INLINE void write(uint8_t c) {
+    if (portMask.enabled(FirstOutput))   serial0.write(c);
+    if (portMask.enabled(SecondOutput))  serial1.write(c);
   }
   NO_INLINE void msgDone() {
     if (portMask.enabled(FirstOutput))   serial0.msgDone();
