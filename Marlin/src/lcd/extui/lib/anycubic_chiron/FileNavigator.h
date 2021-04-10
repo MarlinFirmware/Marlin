@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * lcd/extui/lib/FileNavigator.h
  *
  * Extensible_UI implementation for Anycubic Chiron
- * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
+ * Written By Nick Wells, 2021 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
 
@@ -39,18 +39,20 @@ namespace Anycubic {
     public:
       FileNavigator();
       void   reset();
-      void   getFiles(uint16_t);
+      uint8_t getFiles(uint16_t, panel_type_t, uint8_t files_needed = 4);
       void   upDIR();
-      void   changeDIR(char *);
-      void   sendFile();
+      void   changeDIR(const char *);
+      void   sendFile(panel_type_t);
       void   refresh();
-      char * getCurrentFolderName();
-    private:
+      uint16_t skiptofileindex(uint16_t);
+
       static FileList  filelist;
-      static char      currentfoldername[MAX_PATH_LEN];
-      static uint16_t  lastindex;
-      static uint8_t   folderdepth;
+    private:
+      static uint16_t  lastpanelindex;
       static uint16_t  currentindex;
+      static uint8_t   currentfolderdepth;
+      static uint16_t  currentfolderindex[MAX_FOLDER_DEPTH];
+      static char      currentfoldername[MAX_PATH_LEN];
   };
   extern FileNavigator filenavigator;
 }
