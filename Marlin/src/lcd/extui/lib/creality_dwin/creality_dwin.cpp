@@ -119,13 +119,13 @@
   #define MAX_FLOW_RATE   200
   #define MIN_FLOW_RATE   10
 
-  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT))
-  #define MIN_E_TEMP    HEATER_0_MINTEMP
+  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+  #define MIN_E_TEMP    0
 #endif
 
 #if HAS_HEATED_BED
   #define MAX_BED_TEMP  BED_MAXTEMP
-  #define MIN_BED_TEMP  BED_MINTEMP
+  #define MIN_BED_TEMP  0
 #endif
 
 constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,
