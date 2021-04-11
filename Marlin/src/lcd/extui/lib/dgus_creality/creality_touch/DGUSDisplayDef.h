@@ -501,6 +501,10 @@ constexpr uint16_t VP_ESTEPS_CALIBRATESTART_BUTTON = 0x22a7;
 constexpr uint16_t VP_ESTEPS_APPLY_BUTTON = 0x22a9;
 constexpr uint16_t VP_ESTEPS_BACK_BUTTON = 0x22D7;
 
+// RGB
+constexpr uint16_t VP_RGB_NAV_BUTTON = 0x2390;
+
+
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;
 constexpr uint16_t ICON_TOGGLE_OFF = 2;

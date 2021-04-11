@@ -695,6 +695,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_SCREEN_BACKLIGHT, &ScreenHandler.Settings.screen_brightness, ScreenHandler.HandleTouchScreenBrightnessSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_SCREEN_STANDBY_TIME, &ScreenHandler.Settings.standby_time_seconds, ScreenHandler.HandleTouchScreenStandbyTimeSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
+  // RGB
+  VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
+
   // Icons
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_LED_TOGGLE_ON, ICON_LED_TOGGLE_OFF>)),
   VPHELPER(VP_STANDBY_BACKLIGHT_ICON, &ScreenHandler.Settings.display_standby, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON, ICON_TOGGLE_OFF>)),
