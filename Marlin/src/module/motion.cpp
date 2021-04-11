@@ -1049,17 +1049,6 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
 #endif // DUAL_X_CARRIAGE
 
-void plan_line_to_z(const float z, const feedRate_t fr) {
-  /// save default value
-  feedRate_t dfr = feedrate_mm_s;
-  destination = current_position;
-  destination.z += z;
-  feedrate_mm_s = fr;
-  prepare_line_to_destination();
-  /// restore the default
-  feedrate_mm_s = dfr;
-}
-
 /**
  * Prepare a single move and get ready for the next one
  *
