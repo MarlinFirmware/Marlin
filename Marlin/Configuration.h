@@ -565,7 +565,7 @@
   #define LCD_SERIAL_PORT 1
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo)
   #define LCD_SERIAL_PORT 0
-#elif ANY(MachineEnder3Pro422, MachineEnder3Pro427)&& DISABLED(MachineEnder3V2)
+#elif ANY(MachineEnder3Pro422, MachineEnder3Pro427) && DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
 #endif
 
@@ -1866,10 +1866,10 @@
 #endif
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_FEEDRATE (175*60)
+#define XY_PROBE_FEEDRATE (200*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (4*60)
+#define Z_PROBE_FEEDRATE_FAST (12*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
