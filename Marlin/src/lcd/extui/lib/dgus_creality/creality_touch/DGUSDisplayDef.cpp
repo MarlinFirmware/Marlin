@@ -384,6 +384,13 @@ const uint16_t VPList_Calibrate[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_RGB[] PROGMEM = {
+  VPList_CommonWithHeatOnly,
+
+  0x0000
+};
+
+
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_BOOT, VPList_None },
@@ -449,6 +456,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_MESH_VALIDATION, VPList_MeshValidation },
 
   { DGUSLCD_SCREEN_CALIBRATE, VPList_Calibrate },
+  { DGUSLCD_SCREEN_RGB, VPList_RGB},
 
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
