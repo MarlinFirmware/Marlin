@@ -81,12 +81,11 @@ namespace Anycubic {
     // Filament runout is handled by Marlin settings in Configuration.h
     // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
     // opt_enable FIL_RUNOUT_PULLUP
-    
     TFTSer.begin(115200);
-
+    
     // wait for the TFT panel to initialise and finish the animation
-    delay_ms(500);
-  
+    delay_ms(250);
+
     // There are different panels for the Chiron with slightly different commands
     // So we need to know what we are working with.
 
@@ -105,14 +104,14 @@ namespace Anycubic {
     // Enable leveling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands_P(AC_cmnd_enable_leveling);
-
+    
     // Startup tunes are defined in Tunes.h
     #if ENABLED(AC_DEFAULT_STARTUP_TUNE)
       PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
     #else
       PlayTune(BEEPER_PIN, GB_PowerOn, 1);
     #endif
-
+    
     #if ACDEBUGLEVEL
       SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
     #endif
@@ -304,8 +303,7 @@ namespace Anycubic {
     printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
     last_error = AC_error_powerloss;
     PlayTune(BEEPER_PIN, SOS, 1);
-    SERIAL_ECHOLNPGM("Resuming from power outage...");
-    SERIAL_ECHOLNPGM("Select SD file then press resume");
+    SERIAL_ECHOLNPGM_P(AC_msg_powerloss_recovery);
   }
   void ChironTFT::PrintComplete() {
     SendtoTFT(AC_msg_print_complete);
@@ -420,7 +418,7 @@ namespace Anycubic {
       SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
     #endif
     SendtoTFTLN(PSTR("FN "));
-    filenavigator.getFiles(startindex, panel_type);
+    filenavigator.getFiles(startindex, panel_type, 4);
     SendtoTFTLN(PSTR("END"));
   }
   void ChironTFT::SelectFile() {
@@ -432,9 +430,9 @@ namespace Anycubic {
       strncpy(selectedfile, panel_command + 4, command_len - 4);
       selectedfile[command_len - 5] = '\0';
     }
-    //#if ACDEBUG(AC_FILE)
+    #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR(" Selected File: ",selectedfile);
-    //#endif
+    #endif
     switch (selectedfile[0]) {
       case '/':   // Valid file selected
         SendtoTFTLN(AC_msg_sd_file_open_success);
@@ -479,7 +477,7 @@ namespace Anycubic {
       if(tpos != -1) {
         if(panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
           panel_type = AC_panel_standard;
-          SERIAL_ECHOLN(AC_msg_old_panel_detected);
+          SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
         }
       }
       else {
@@ -487,7 +485,7 @@ namespace Anycubic {
         if(tpos != -1) {
           if(panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
             panel_type = AC_panel_new;
-            SERIAL_ECHOLN(AC_msg_new_panel_detected);
+            SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
           }
         }
       }
@@ -811,7 +809,7 @@ namespace Anycubic {
           if (!isPrinting()) {
             injectCommands_P(PSTR("M501\nM420 S1"));
             selectedmeshpoint.x = selectedmeshpoint.y = 99;
-            SERIAL_ECHOLN(PSTR("Mesh changes abandoned, previous mesh restored."));
+            SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_abandoned);
           }
         }
         
@@ -819,7 +817,7 @@ namespace Anycubic {
           if (!isPrinting()) {
             setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
             injectCommands_P(PSTR("M500"));
-            SERIAL_ECHOLN(PSTR("Mesh changes saved."));
+            SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_saved);
             selectedmeshpoint.x = selectedmeshpoint.y = 99;
           }
         }

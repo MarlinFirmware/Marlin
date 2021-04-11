@@ -85,8 +85,11 @@
 #define  AC_msg_probing_complete       PSTR("J25")
 #define  AC_msg_start_probing          PSTR("J26")
 #define  AC_msg_version                PSTR("J27")
+#define  AC_msg_mesh_changes_abandoned PSTR("Mesh changes abandoned, previous mesh restored.")
+#define  AC_msg_mesh_changes_saved     PSTR("Mesh changes saved.")
 #define  AC_msg_old_panel_detected     PSTR("Standard TFT panel detected!")
 #define  AC_msg_new_panel_detected     PSTR("New TFT panel detected!")
+#define  AC_msg_powerloss_recovery     PSTR("Resuming from power outage! select the same SD file then press resume")
 // Error messages must not contain spaces
 #define  AC_msg_error_bed_temp         PSTR("Abnormal_bed_temp")
 #define  AC_msg_error_hotend_temp      PSTR("Abnormal_hotend_temp")

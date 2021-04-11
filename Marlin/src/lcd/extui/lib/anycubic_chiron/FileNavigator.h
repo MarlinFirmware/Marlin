@@ -39,12 +39,12 @@ namespace Anycubic {
     public:
       FileNavigator();
       void   reset();
-      uint8_t getFiles(uint16_t, panel_type_t, uint8_t files_needed = 4);
+      void   getFiles(uint16_t, panel_type_t, uint8_t filesneeded = 4);
       void   upDIR();
       void   changeDIR(const char *);
       void   sendFile(panel_type_t);
       void   refresh();
-      uint16_t skiptofileindex(uint16_t);
+      void   skiptofileindex(uint16_t);
 
       static FileList  filelist;
     private:
