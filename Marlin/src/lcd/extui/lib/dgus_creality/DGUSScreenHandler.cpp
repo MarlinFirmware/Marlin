@@ -47,6 +47,10 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
+#if HAS_COLOR_LEDS
+  #include "../../../../feature/leds/leds.h"
+#endif
+
 uint16_t DGUSScreenHandler::ConfirmVP;
 
 #if ENABLED(SDSUPPORT)
@@ -994,6 +998,36 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
 
   RequestSaveSettings();
 }
+
+#if HAS_COLOR_LEDS
+void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
+  // The display returns a 16-bit integer
+  uint16_t newValue = swap16(*(uint16_t*)val_ptr);
+  
+  NOLESS(newValue, 0);
+  NOMORE(newValue, 255);
+
+  (*(uint8_t*)var.memadr) = static_cast<uint8_t>(newValue);
+  leds.set_color(leds.color);
+
+  SERIAL_ECHOLNPAIR("HandleLED ", newValue);
+
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+}
+
+void DGUSScreenHandler::SendLEDToDisplay(DGUS_VP_Variable &var) {
+  DGUS_VP_Variable rcpy;
+  if (!populate_VPVar(var.VP, &rcpy)) {
+    return;
+  }
+
+  // The display wants a 16-bit integer
+  uint16_t val = *(uint8_t*)var.memadr;
+  rcpy.memadr = &val;
+
+  DGUSLCD_SendWordValueToDisplay(rcpy);
+}
+#endif
 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;

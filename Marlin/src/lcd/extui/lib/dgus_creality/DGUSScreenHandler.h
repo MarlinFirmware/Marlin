@@ -139,6 +139,12 @@ public:
     static void HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
+  // LED
+  #if HAS_COLOR_LEDS
+    static void HandleLED(DGUS_VP_Variable &var, void *val_ptr);
+    static void SendLEDToDisplay(DGUS_VP_Variable &var);
+  #endif
+
   // Hook for live z adjust action
   static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
 

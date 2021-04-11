@@ -504,6 +504,11 @@ constexpr uint16_t VP_ESTEPS_BACK_BUTTON = 0x22D7;
 // RGB
 constexpr uint16_t VP_RGB_NAV_BUTTON = 0x2390;
 
+constexpr uint16_t VP_RGB_CONTROL_R = 0x2392;
+constexpr uint16_t VP_RGB_CONTROL_B = 0x2394;
+constexpr uint16_t VP_RGB_CONTROL_G = 0x2396;
+constexpr uint16_t VP_RGB_CONTROL_W = 0x2398;
+constexpr uint16_t VP_RGB_CONTROL_I = 0x239a; // brightness
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;

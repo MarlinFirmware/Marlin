@@ -44,6 +44,10 @@
   #include "../../../../../feature/fwretract.h"
 #endif
 
+#if HAS_COLOR_LEDS
+  #include "../../../../../feature/leds/leds.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../../feature/powerloss.h"
 #endif
@@ -387,6 +391,12 @@ const uint16_t VPList_Calibrate[] PROGMEM = {
 const uint16_t VPList_RGB[] PROGMEM = {
   VPList_CommonWithHeatOnly,
 
+  VP_RGB_CONTROL_R,
+  VP_RGB_CONTROL_G,
+  VP_RGB_CONTROL_B,
+  VP_RGB_CONTROL_W,
+  VP_RGB_CONTROL_I,
+
   0x0000
 };
 
@@ -696,7 +706,23 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_SCREEN_STANDBY_TIME, &ScreenHandler.Settings.standby_time_seconds, ScreenHandler.HandleTouchScreenStandbyTimeSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   // RGB
-  VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
+  #if HAS_COLOR_LEDS
+    VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
+    
+    VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
+
+    VPHELPER(VP_RGB_CONTROL_R, &leds.color.r, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
+    VPHELPER(VP_RGB_CONTROL_G, &leds.color.g, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
+    VPHELPER(VP_RGB_CONTROL_B, &leds.color.b, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
+
+    #if EITHER(RGBW_LED, NEOPIXEL_LED)
+      VPHELPER(VP_RGB_CONTROL_W, &leds.color.w, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
+
+      #if ENABLED(NEOPIXEL_LED)
+        VPHELPER(VP_RGB_CONTROL_I, &leds.color.i, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
+      #endif
+    #endif
+  #endif
 
   // Icons
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_LED_TOGGLE_ON, ICON_LED_TOGGLE_OFF>)),
