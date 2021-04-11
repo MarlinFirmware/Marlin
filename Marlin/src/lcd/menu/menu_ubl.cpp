@@ -92,7 +92,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
 // Init mesh editing and go to the fine tuning screen (ubl.fine_tune_mesh)
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
-void MarlinUI::ubl_mesh_edit_start(const float &initial) {
+void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
   TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
@@ -484,8 +484,8 @@ void ubl_map_screen() {
     #if IS_KINEMATIC
       n_edit_pts = 9; // TODO: Delta accessible edit points
     #else
-      const bool xc = WITHIN(x, 1, GRID_MAX_POINTS_X - 2),
-                 yc = WITHIN(y, 1, GRID_MAX_POINTS_Y - 2);
+      const bool xc = WITHIN(x, 1, (GRID_MAX_POINTS_X) - 2),
+                 yc = WITHIN(y, 1, (GRID_MAX_POINTS_Y) - 2);
       n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
     #endif
 

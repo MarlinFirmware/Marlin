@@ -295,10 +295,10 @@ G29_TYPE GcodeSuite::G29() {
           // Get nearest i / j from rx / ry
           i = (rx - bilinear_start.x + 0.5 * abl.gridSpacing.x) / abl.gridSpacing.x;
           j = (ry - bilinear_start.y + 0.5 * abl.gridSpacing.y) / abl.gridSpacing.y;
-          LIMIT(i, 0, GRID_MAX_POINTS_X - 1);
-          LIMIT(j, 0, GRID_MAX_POINTS_Y - 1);
+          LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
+          LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
         }
-        if (WITHIN(i, 0, GRID_MAX_POINTS_X - 1) && WITHIN(j, 0, GRID_MAX_POINTS_Y)) {
+        if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
           z_values[i][j] = rz;
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());

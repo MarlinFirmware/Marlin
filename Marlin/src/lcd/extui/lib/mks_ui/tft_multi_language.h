@@ -29,7 +29,7 @@
 #include "tft_Language_sp.h"
 #include "tft_Language_it.h"
 
-extern void disp_language_init();
+void disp_language_init();
 
 #define LANG_SIMPLE_CHINESE    1
 #define LANG_COMPLEX_CHINESE   2

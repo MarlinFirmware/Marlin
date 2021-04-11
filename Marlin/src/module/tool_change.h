@@ -42,7 +42,7 @@
   extern toolchange_settings_t toolchange_settings;
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    extern void tool_change_prime();
+    void tool_change_prime();
   #endif
 
   #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
