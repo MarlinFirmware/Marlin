@@ -10,9 +10,9 @@ Please find official releases in the [Releases section](https://github.com/CR6Co
 
 Ensure you take the right assets: the `firmware[suffix].bin`. You should not download the `Source code` archive if you are downloading with the purpose of directly flashing your printer.
 
-*Support for the [BTT SKR board](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) is also available.*
+*Support for the [BTT SKR board](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) is available.*
 
-*Support for the obscure Creality v1.1-ERA board is _not_ verified.  If it is electrically compatible with the Creality 4.5.3, then the 4.5.3 firmware may work.  Please leave us a comment if you have tried that.*
+*At least one CF Release 6 user has confirmed that the v4.5.3 firmware configuration also supports the Creality v1.1.03 (ERA) board.*
 
 ### Development and compile-it-yourself
 
