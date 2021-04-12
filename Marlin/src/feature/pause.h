@@ -85,19 +85,19 @@ extern uint8_t did_pause_print;
   #define DXC_SAY
 #endif
 
-bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
+bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float_t unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
 void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
 
-void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH,
+void resume_print(const_float_t slow_load_length=0, const_float_t fast_load_length=0, const_float_t extrude_length=ADVANCED_PAUSE_PURGE_LENGTH,
                     const int8_t max_beep_count=0, const celsius_t targetTemp=0 DXC_PARAMS);
 
-bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0,
+bool load_filament(const_float_t slow_load_length=0, const_float_t fast_load_length=0, const_float_t extrude_length=0, const int8_t max_beep_count=0,
                     const bool show_lcd=false, const bool pause_for_user=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT DXC_PARAMS);
 
-bool unload_filament(const float &unload_length, const bool show_lcd=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT
+bool unload_filament(const_float_t unload_length, const bool show_lcd=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT
   #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-    , const float &mix_multiplier=1.0
+    , const_float_t mix_multiplier=1.0
   #endif
 );
 

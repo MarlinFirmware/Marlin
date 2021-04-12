@@ -90,8 +90,8 @@ class SdVolume {
    * Reasons for failure include not finding a valid partition, not finding
    * a valid FAT file system or an I/O error.
    */
-  bool init(Sd2Card* dev) { return init(dev, 1) ? true : init(dev, 0); }
-  bool init(Sd2Card* dev, uint8_t part);
+  bool init(Sd2Card *dev) { return init(dev, 1) ? true : init(dev, 0); }
+  bool init(Sd2Card *dev, uint8_t part);
 
   // inline functions that return volume info
   uint8_t blocksPerCluster() const { return blocksPerCluster_; } //> \return The volume's cluster size in blocks.
@@ -124,7 +124,7 @@ class SdVolume {
    * \param[out] v value of entry
    * \return true for success or false for failure
    */
-  bool dbgFat(uint32_t n, uint32_t* v) { return fatGet(n, v); }
+  bool dbgFat(uint32_t n, uint32_t *v) { return fatGet(n, v); }
 
  private:
   // Allow SdBaseFile access to SdVolume private data.
@@ -138,13 +138,13 @@ class SdVolume {
   #if USE_MULTIPLE_CARDS
     cache_t cacheBuffer_;        // 512 byte cache for device blocks
     uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    Sd2Card* sdCard_;            // Sd2Card object for cache
+    Sd2Card *sdCard_;            // Sd2Card object for cache
     bool cacheDirty_;            // cacheFlush() will write block if true
     uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #else
     static cache_t cacheBuffer_;        // 512 byte cache for device blocks
     static uint32_t cacheBlockNumber_;  // Logical number of block in the cache
-    static Sd2Card* sdCard_;            // Sd2Card object for cache
+    static Sd2Card *sdCard_;            // Sd2Card object for cache
     static bool cacheDirty_;            // cacheFlush() will write block if true
     static uint32_t cacheMirrorBlock_;  // block number for mirror FAT
   #endif
@@ -161,7 +161,7 @@ class SdVolume {
   uint16_t rootDirEntryCount_;  // number of entries in FAT16 root dir
   uint32_t rootDirStart_;       // root start block for FAT16, cluster for FAT32
 
-  bool allocContiguous(uint32_t count, uint32_t* curCluster);
+  bool allocContiguous(uint32_t count, uint32_t *curCluster);
   uint8_t blockOfCluster(uint32_t position) const { return (position >> 9) & (blocksPerCluster_ - 1); }
   uint32_t clusterStartBlock(uint32_t cluster) const { return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_); }
   uint32_t blockNumber(uint32_t cluster, uint32_t position) const { return clusterStartBlock(cluster) + blockOfCluster(position); }
@@ -183,8 +183,8 @@ class SdVolume {
     cacheBlockNumber_  = blockNumber;
   }
   void cacheSetDirty() { cacheDirty_ |= CACHE_FOR_WRITE; }
-  bool chainSize(uint32_t beginCluster, uint32_t* size);
-  bool fatGet(uint32_t cluster, uint32_t* value);
+  bool chainSize(uint32_t beginCluster, uint32_t *size);
+  bool fatGet(uint32_t cluster, uint32_t *value);
   bool fatPut(uint32_t cluster, uint32_t value);
   bool fatPutEOC(uint32_t cluster) { return fatPut(cluster, 0x0FFFFFFF); }
   bool freeChain(uint32_t cluster);
@@ -193,6 +193,6 @@ class SdVolume {
     if (fatType_ == 16) return cluster >= FAT16EOC_MIN;
     return  cluster >= FAT32EOC_MIN;
   }
-  bool readBlock(uint32_t block, uint8_t* dst) { return sdCard_->readBlock(block, dst); }
-  bool writeBlock(uint32_t block, const uint8_t* dst) { return sdCard_->writeBlock(block, dst); }
+  bool readBlock(uint32_t block, uint8_t *dst) { return sdCard_->readBlock(block, dst); }
+  bool writeBlock(uint32_t block, const uint8_t *dst) { return sdCard_->writeBlock(block, dst); }
 };

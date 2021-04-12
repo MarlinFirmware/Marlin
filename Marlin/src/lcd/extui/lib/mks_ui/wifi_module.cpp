@@ -53,7 +53,7 @@
 #define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk (char* path , uint8_t recu_level);
+extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -566,7 +566,7 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(char* path , uint8_t recu_level) {
+uint8_t Explore_Disk(char *path , uint8_t recu_level) {
   char tmp[200];
   char Fstream[200];
 
@@ -885,9 +885,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             char *outBuf = (char *)tempBuf;
             char str_1[16], tbuf[34];
 
-            dtostrf(thermalManager.degHotend(0), 1, 1, tbuf);
-            strcat_P(tbuf, PSTR(" /"));
-            strcat(tbuf, dtostrf(thermalManager.degTargetHotend(0), 1, 1, str_1));
+            sprintf_P(tbuf, PSTR("%d /%d"), (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0));
 
             const int tlen = strlen(tbuf);
 
@@ -897,9 +895,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcpy_P(outBuf, PSTR(" B:"));
             outBuf += 3;
             #if HAS_HEATED_BED
-              strcpy(outBuf, dtostrf(thermalManager.temp_bed.celsius, 1, 1, str_1));
-              strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.temp_bed.target, 1, 1, str_1));
+              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degBed(), (int)thermalManager.degTargetBed());
             #else
               strcpy_P(outBuf, PSTR("0 /0"));
             #endif
@@ -912,9 +908,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
             #if HAS_MULTI_HOTEND
-              strcat(outBuf, dtostrf(thermalManager.degHotend(1), 1, 1, str_1));
-              strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.degTargetHotend(1), 1, 1, str_1));
+              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1));
             #else
               strcat_P(outBuf, PSTR("0 /0"));
             #endif
@@ -924,15 +918,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
-                (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target,
+                thermalManager.degBed(), thermalManager.degTargetBed(),
               #else
                 0, 0,
               #endif
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
+                thermalManager.degHotend(1), thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif

@@ -35,7 +35,7 @@
 #include "endstops.h"
 #include "planner.h"
 
-#if HAS_COOLER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
 #endif
@@ -50,6 +50,10 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
 #endif
 
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
@@ -495,7 +499,7 @@ volatile bool Temperature::raw_temps_ready = false;
    * Needs sufficient heater power to make some overshoot at target
    * temperature to succeed.
    */
-  void Temperature::PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
     float current_temp = 0.0;
     int cycles = 0;
     bool heating = true;
@@ -1511,7 +1515,7 @@ void Temperature::manage_heater() {
 
     static bool flag_cooler_state; // = false
 
-    if (cooler.is_enabled()) {
+    if (cooler.enabled) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
@@ -1547,7 +1551,18 @@ void Temperature::manage_heater() {
     #if ENABLED(THERMAL_PROTECTION_COOLER)
       tr_state_machine[RUNAWAY_IND_COOLER].run(temp_cooler.celsius, temp_cooler.target, H_COOLER, THERMAL_PROTECTION_COOLER_PERIOD, THERMAL_PROTECTION_COOLER_HYSTERESIS);
     #endif
+
   #endif // HAS_COOLER
+
+  #if ENABLED(LASER_COOLANT_FLOW_METER)
+    cooler.flowmeter_task(ms);
+    #if ENABLED(FLOWMETER_SAFETY)
+      if (cutter.enabled() && cooler.check_flow_too_low()) {
+        cutter.disable();
+        ui.flow_fault();
+      }
+    #endif
+  #endif
 
   UNUSED(ms);
 }
@@ -2326,7 +2341,7 @@ void Temperature::init() {
    *
    * TODO: Embed the last 3 parameters during init, if not less optimal
    */
-  void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
+  void Temperature::tr_state_machine_t::run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc) {
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
@@ -2825,12 +2840,12 @@ void Temperature::readings_ready() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
- *  - Call planner.tick to count down its "ignore" time
+ *  - Call planner.isr to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
-  Temperature::tick();
+  Temperature::isr();
 
   HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
@@ -2869,7 +2884,7 @@ public:
  *  - Endstop polling
  *  - Planner clean buffer
  */
-void Temperature::tick() {
+void Temperature::isr() {
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
@@ -3353,15 +3368,15 @@ void Temperature::tick() {
   // Poll endstops state, if required
   endstops.poll();
 
-  // Periodically call the planner timer
-  planner.tick();
+  // Periodically call the planner timer service routine
+  planner.isr();
 }
 
 #if HAS_TEMP_SENSOR
 
   #include "../gcode/gcode.h"
 
-  static void print_heater_state(const float &c, const float &t
+  static void print_heater_state(const_float_t c, const_float_t t
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
     #endif
@@ -3794,7 +3809,7 @@ void Temperature::tick() {
       #define MIN_DELTA_SLOPE_TIME_PROBE 600
     #endif
 
-    bool Temperature::wait_for_probe(const float target_temp, bool no_wait_for_cooling/*=true*/) {
+    bool Temperature::wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling/*=true*/) {
 
       const bool wants_to_cool = isProbeAboveTemp(target_temp);
       const bool will_wait = !(wants_to_cool && no_wait_for_cooling);

@@ -815,9 +815,9 @@ void disp_language_init() {
   wifi_menu.disconnected = WIFI_DISCONNECTED_TEXT;
   wifi_menu.exception    = WIFI_EXCEPTION_TEXT;
 
-  printing_menu.temp1    = TEXT_VALUE;
-  printing_menu.temp2    = TEXT_VALUE;
-  printing_menu.bed_temp = TEXT_VALUE;
+  printing_menu.temp1    = TEXT_VALUE_TARGET;
+  printing_menu.temp2    = TEXT_VALUE_TARGET;
+  printing_menu.bed_temp = TEXT_VALUE_TARGET;
 
   filament_menu.stat_temp = TEXT_VALUE;
 

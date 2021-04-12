@@ -35,8 +35,8 @@
  *    These numbers are the same in any pin mapping.
  */
 
-#if HAS_SMUFF
-  #define MAX_EXTRUDERS 12
+#if HAS_EXTENDABLE_MMU
+  #define MAX_EXTRUDERS 15
 #else
   #define MAX_EXTRUDERS 8
 #endif
@@ -244,6 +244,10 @@
   #include "mega/pins_GT2560_REV_A_PLUS.h"      // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(GT2560_V3)
   #include "mega/pins_GT2560_V3.h"              // ATmega2560                             env:mega2560
+#elif MB(GT2560_REV_B)
+  #include "mega/pins_GT2560_REV_B.h"           // ATmega2560                             env:mega2560
+#elif MB(GT2560_V4)
+  #include "mega/pins_GT2560_V4.h"              // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"          // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_A20)
@@ -470,6 +474,8 @@
   #include "stm32f1/pins_STM3R_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VB)
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_PRO_VD)
+  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI)
   #include "stm32f1/pins_GTM32_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI_A30)
@@ -600,6 +606,8 @@
   #include "stm32f4/pins_FYSETC_S6.h"           // STM32F4                                env:FYSETC_S6
 #elif MB(FYSETC_S6_V2_0)
   #include "stm32f4/pins_FYSETC_S6_V2_0.h"      // STM32F4                                env:FYSETC_S6
+#elif MB(FYSETC_SPIDER)
+  #include "stm32f4/pins_FYSETC_SPIDER.h"       // STM32F4                                env:FYSETC_S6
 #elif MB(FLYF407ZG)
   #include "stm32f4/pins_FLYF407ZG.h"           // STM32F4                                env:FLYF407ZG
 #elif MB(MKS_ROBIN2)
@@ -623,6 +631,8 @@
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)
   #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
+#elif MB(BTT_SKR_SE_BX)
+  #include "stm32h7/pins_BTT_SKR_SE_BX.h"       // STM32H7                                env:BTT_SKR_SE_BX
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)

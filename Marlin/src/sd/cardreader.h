@@ -92,7 +92,7 @@ public:
   static void manage_media();
 
   // SD Card Logging
-  static void openLogFile(char * const path);
+  static void openLogFile(const char * const path);
   static void write_command(char * const buf);
 
   #if DISABLED(NO_SD_AUTOSTART)     // Auto-Start auto#.g file handling
@@ -104,7 +104,7 @@ public:
 
   // Basic file ops
   static void openFileRead(char * const path, const uint8_t subcall=0);
-  static void openFileWrite(char * const path);
+  static void openFileWrite(const char * const path);
   static void closefile(const bool store_location=false);
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
@@ -123,7 +123,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char* const match);
+  static void selectFileByName(const char * const match);
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)
@@ -142,7 +142,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, SdFile* &curDir, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -169,8 +169,8 @@ public:
   static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
   static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
-  static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  static inline int16_t read(void *buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
   static Sd2Card& getSd2Card() { return sd2card; }
 

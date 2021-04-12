@@ -49,6 +49,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(UBL_HILBERT_CURVE)
+  #include "../hilbert_curve.h"
+#endif
+
 #include <math.h>
 
 #define UBL_G29_P31
@@ -387,7 +391,7 @@ void unified_bed_leveling::G29() {
 
     if (parser.seen('J')) {
       save_ubl_active_state_and_disable();
-      tilt_mesh_based_on_probed_grid(param.grid_size == 0); // Zero size does 3-Point
+      tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
       restore_ubl_active_state_and_leave();
       #if ENABLED(UBL_G29_J_RECENTER)
         do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
@@ -429,8 +433,7 @@ void unified_bed_leveling::G29() {
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
           }
-          const xy_pos_t near_probe_xy = param.XY_pos + probe.offset_xy;
-          probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
+          probe_entire_mesh(param.XY_pos, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
           report_current_position();
           probe_deployed = true;
@@ -668,7 +671,7 @@ void unified_bed_leveling::G29() {
  * G29 P5 C<value> : Adjust Mesh To Mean (and subtract the given offset).
  *                   Find the mean average and shift the mesh to center on that value.
  */
-void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float offset) {
+void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
   float sum = 0;
   int n = 0;
   GRID_LOOP(x, y)
@@ -727,7 +730,7 @@ void unified_bed_leveling::shift_mesh_height() {
     uint8_t count = GRID_MAX_POINTS;
 
     mesh_index_pair best;
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_START));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
@@ -747,21 +750,19 @@ void unified_bed_leveling::shift_mesh_height() {
         }
       #endif
 
-      best = do_furthest  ? find_furthest_invalid_mesh_point()
-                          : TERN(UBL_HILBERT_CURVE,
-                              find_next_mesh_point(),
-                              find_closest_mesh_point_of_type(INVALID, nearby, true)
-                            );
+      best = do_furthest
+        ? find_furthest_invalid_mesh_point()
+        : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_START));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
         const float measured_z = probe.probe_at_point(
                       best.meshpos(),
                       stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity
                     );
         z_values[best.pos.x][best.pos.y] = measured_z;
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(best.pos, ExtUI::PROBE_FINISH);
+          ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
         #endif
       }
@@ -769,7 +770,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
     } while (best.pos.x >= 0 && --count);
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_FINISH));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
 
     // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
     TERN_(HAS_LCD_MENU, ui.release());
@@ -819,7 +820,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
     return false;
   }
 
-  void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
+  void unified_bed_leveling::move_z_with_encoder(const_float_t multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
       idle();
@@ -881,7 +882,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
    *          Move to INVALID points and
    *          NOTE: Blocks the G-code queue and captures Marlin UI during use.
    */
-  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
+  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const_float_t z_clearance, const_float_t thick, const bool do_ubl_mesh_map) {
     ui.capture();
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
@@ -1116,8 +1117,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   if (parser.seen('J')) {
     #if HAS_BED_PROBE
-      param.grid_size = parser.has_value() ? parser.value_int() : 0;
-      if (param.grid_size && !WITHIN(param.grid_size, 2, 9)) {
+      param.J_grid_size = parser.value_byte();
+      if (param.J_grid_size && !WITHIN(param.J_grid_size, 2, 9)) {
         SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
         err_flag = true;
       }
@@ -1138,8 +1139,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   // If X or Y are not valid, use center of the bed values
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = X_CENTER;
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = Y_CENTER;
+  // (for UBL_HILBERT_CURVE default to lower-left corner instead)
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
 
   if (err_flag) return UBL_ERR;
 
@@ -1269,97 +1271,93 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
   return farthest;
 }
 
-mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const xy_pos_t &pos, const bool probe_relative/*=false*/, MeshFlags *done_flags/*=nullptr*/) {
-  mesh_index_pair closest;
-  closest.invalidate();
-  closest.distance = -99999.9f;
+#if ENABLED(UBL_HILBERT_CURVE)
 
-  // Get the reference position, either nozzle or probe
-  const xy_pos_t ref = probe_relative ? pos + probe.offset_xy : pos;
+  typedef struct {
+    MeshPointType   type;
+    MeshFlags       *done_flags;
+    bool            probe_relative;
+    mesh_index_pair closest;
+  } find_closest_t;
 
-  float best_so_far = 99999.99f;
-
-  GRID_LOOP(i, j) {
-    if ( (type == (isnan(z_values[i][j]) ? INVALID : REAL))
-      || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
+  static bool test_func(uint8_t i, uint8_t j, void *data) {
+    find_closest_t *d = (find_closest_t*)data;
+    if ( (d->type == (isnan(ubl.z_values[i][j]) ? INVALID : REAL))
+      || (d->type == SET_IN_BITMAP && !d->done_flags->marked(i, j))
     ) {
       // Found a Mesh Point of the specified type!
-      const xy_pos_t mpos = { mesh_index_to_xpos(i), mesh_index_to_ypos(j) };
+      const xy_pos_t mpos = { ubl.mesh_index_to_xpos(i), ubl.mesh_index_to_ypos(j) };
 
       // If using the probe as the reference there are some unreachable locations.
       // Also for round beds, there are grid points outside the bed the nozzle can't reach.
       // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
-      if (!(probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
-        continue;
-
-      // Reachable. Check if it's the best_so_far location to the nozzle.
-
-      const xy_pos_t diff = current_position - mpos;
-      const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
-
-      // factor in the distance from the current location for the normal case
-      // so the nozzle isn't running all over the bed.
-      if (distance < best_so_far) {
-        best_so_far = distance;   // Found a closer location with the desired value type.
-        closest.pos.set(i, j);
-        closest.distance = best_so_far;
-      }
+      if (!(d->probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
+        return false;
+      d->closest.pos.set(i, j);
+      return true;
     }
-  } // GRID_LOOP
-
-  return closest;
-}
-
-#if ENABLED(UBL_HILBERT_CURVE)
-
-  constexpr int8_t  to_fix(int8_t  v) { return v << 1; }
-  constexpr int8_t  to_int(int8_t  v) { return v >> 1; }
-  constexpr uint8_t   log2(uint8_t n) { return (n > 1) ? 1 + log2(n >> 1) : 0; }
-  constexpr uint8_t  order(uint8_t n) { return uint8_t(log2(n - 1)) + 1; }
-
-  void unified_bed_leveling::hilbert(mesh_index_pair &pt, int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n) {
-    /* Hilbert space filling curve implementation
-     *
-     * x and y are the coordinates of the bottom left corner
-     * xi & xj are the i & j components of the unit x vector of the frame
-     * similarly yi and yj
-     *
-     * From: http://www.fundza.com/algorithmic/space_filling/hilbert/basics/index.html
-     */
-    if (n <= 0)
-      check_if_missing(pt, to_int(x+(xi+yi)/2),to_int(y+(xj+yj)/2));
-    else {
-      hilbert(pt, x,           y,           yi/2,  yj/2,  xi/2,  xj/2, n-1);
-      hilbert(pt, x+xi/2,      y+xj/2,      xi/2,  xj/2,  yi/2,  yj/2, n-1);
-      hilbert(pt, x+xi/2+yi/2, y+xj/2+yj/2, xi/2,  xj/2,  yi/2,  yj/2, n-1);
-      hilbert(pt, x+xi/2+yi,   y+xj/2+yj,  -yi/2, -yj/2, -xi/2, -xj/2, n-1);
-    }
+    return false;
   }
 
-  void unified_bed_leveling::check_if_missing(mesh_index_pair &pt, int x, int y) {
-      if (   pt.distance < 0
-          && x < GRID_MAX_POINTS_X
-          && y < GRID_MAX_POINTS_Y
-          && isnan(z_values[x][y])
-          && probe.can_reach(mesh_index_to_xpos(x), mesh_index_to_ypos(y))
+#endif
+
+mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const xy_pos_t &pos, const bool probe_relative/*=false*/, MeshFlags *done_flags/*=nullptr*/) {
+
+  #if ENABLED(UBL_HILBERT_CURVE)
+
+    find_closest_t d;
+    d.type           = type;
+    d.done_flags     = done_flags;
+    d.probe_relative = probe_relative;
+    d.closest.invalidate();
+    hilbert_curve::search_from_closest(pos, test_func, &d);
+    return d.closest;
+
+  #else
+
+    mesh_index_pair closest;
+    closest.invalidate();
+    closest.distance = -99999.9f;
+
+    // Get the reference position, either nozzle or probe
+    const xy_pos_t ref = probe_relative ? pos + probe.offset_xy : pos;
+
+    float best_so_far = 99999.99f;
+
+    GRID_LOOP(i, j) {
+      if ( (type == (isnan(z_values[i][j]) ? INVALID : REAL))
+        || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
       ) {
-        pt.pos.set(x, y);
-        pt.distance = 1;
+        // Found a Mesh Point of the specified type!
+        const xy_pos_t mpos = { mesh_index_to_xpos(i), mesh_index_to_ypos(j) };
+
+        // If using the probe as the reference there are some unreachable locations.
+        // Also for round beds, there are grid points outside the bed the nozzle can't reach.
+        // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
+
+        if (!(probe_relative ? probe.can_reach(mpos) : position_is_reachable(mpos)))
+          continue;
+
+        // Reachable. Check if it's the best_so_far location to the nozzle.
+
+        const xy_pos_t diff = current_position - mpos;
+        const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
+
+        // factor in the distance from the current location for the normal case
+        // so the nozzle isn't running all over the bed.
+        if (distance < best_so_far) {
+          best_so_far = distance;   // Found a closer location with the desired value type.
+          closest.pos.set(i, j);
+          closest.distance = best_so_far;
+        }
       }
-   }
+    } // GRID_LOOP
 
-   mesh_index_pair unified_bed_leveling::find_next_mesh_point() {
-     mesh_index_pair pt;
-     pt.invalidate();
-     pt.distance = -99999.9f;
-     constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
-     constexpr uint8_t dim = _BV(ord);
-     hilbert(pt, to_fix(0), to_fix(0), to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord);
-     return pt;
-   }
+    return closest;
 
-#endif // UBL_HILBERT_CURVE
+  #endif
+}
 
 /**
  * 'Smart Fill': Scan from the outward edges of the mesh towards the center.
@@ -1422,8 +1420,8 @@ void unified_bed_leveling::smart_fill_mesh() {
   void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
     const float x_min = probe.min_x(), x_max = probe.max_x(),
                 y_min = probe.min_y(), y_max = probe.max_y(),
-                dx = (x_max - x_min) / (param.grid_size - 1),
-                dy = (y_max - y_min) / (param.grid_size - 1);
+                dx = (x_max - x_min) / (param.J_grid_size - 1),
+                dy = (y_max - y_min) / (param.J_grid_size - 1);
 
     xy_float_t points[3];
     probe.get_three_points(points);
@@ -1509,14 +1507,14 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       bool zig_zag = false;
 
-      const uint16_t total_points = sq(param.grid_size);
+      const uint16_t total_points = sq(param.J_grid_size);
       uint16_t point_num = 1;
 
       xy_pos_t rpos;
-      LOOP_L_N(ix, param.grid_size) {
+      LOOP_L_N(ix, param.J_grid_size) {
         rpos.x = x_min + ix * dx;
-        LOOP_L_N(iy, param.grid_size) {
-          rpos.y = y_min + dy * (zig_zag ? param.grid_size - 1 - iy : iy);
+        LOOP_L_N(iy, param.J_grid_size) {
+          rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           if (!abort_flag) {
             SERIAL_ECHOLNPAIR("Tilting mesh point ", point_num, "/", total_points, "\n");
@@ -1594,7 +1592,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         DEBUG_DELAY(20);
       }
 
-      apply_rotation_xyz(rotation, mx, my, mz);
+      rotation.apply_rotation_xyz(mx, my, mz);
 
       if (DEBUGGING(LEVELING)) {
         DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
@@ -1635,10 +1633,10 @@ void unified_bed_leveling::smart_fill_mesh() {
        */
       #ifdef VALIDATE_MESH_TILT
         auto d_from = []{ DEBUG_ECHOPGM("D from "); };
-        auto normed = [&](const xy_pos_t &pos, const float &zadd) {
+        auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const float &zadd) {
+        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const_float_t zadd) {
           d_from(); SERIAL_ECHOPGM_P(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
@@ -1660,7 +1658,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // HAS_BED_PROBE
 
 #if ENABLED(UBL_G29_P31)
-  void unified_bed_leveling::smart_fill_wlsf(const float &weight_factor) {
+  void unified_bed_leveling::smart_fill_wlsf(const_float_t weight_factor) {
 
     // For each undefined mesh point, compute a distance-weighted least squares fit
     // from all the originally populated mesh points, weighted toward the point

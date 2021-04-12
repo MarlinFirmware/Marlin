@@ -359,7 +359,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
       // STEP 6
 
-      current_position.x = midpos - TERN0(HAS_HOTEND_OFFSET, hotend_offset[new_tool].x);
+      current_position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, hotend_offset[new_tool].x);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("(6) Move midway between hotends", current_position);
@@ -1112,7 +1112,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
           // If the original position is within tool store area, go to X origin at once
           if (destination.y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
-            current_position.x = 0;
+            current_position.x = X_MIN_POS;
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
           }
