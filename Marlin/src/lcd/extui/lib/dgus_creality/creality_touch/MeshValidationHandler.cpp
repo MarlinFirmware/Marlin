@@ -139,8 +139,8 @@ void MeshValidationHandler::OnMeshValidationFinish() {
 }
 
 void MeshValidationHandler::ValidateTemperatures() {
-    LIMIT(nozzle_temperature, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP);
-    LIMIT(bed_temperature, 40 /*Hardcoded minimum for G26, apparently*/, BED_MAXTEMP);
+    LIMIT(nozzle_temperature, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+    LIMIT(bed_temperature, 40 /*Hardcoded minimum for G26, apparently*/, BED_MAXTEMP - BED_OVERSHOOT);
 }
 
 void MeshValidationHandler::SetStatusMessage(PGM_P statusMessage) {
