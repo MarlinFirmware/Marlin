@@ -93,7 +93,7 @@ enum DGUSLCD_Screens : uint8_t {
 
 // Version checks
 constexpr uint16_t VP_UI_VERSION_MAJOR = 0xFFFA;
-constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 60;
+constexpr uint16_t EXPECTED_UI_VERSION_MAJOR = 61;
 constexpr uint16_t VERSION_MISMATCH_BUZZ_AMOUNT = 5;
 constexpr uint16_t VERSION_MISMATCH_LED_FLASH_DELAY = 1000;
 
