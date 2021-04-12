@@ -325,6 +325,26 @@
   #endif
 #endif
 
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) && HAS_COLOR_LEDS
+  #define LED_USER_PRESET_STARTUP
+  #define LED_COLOR_PRESETS
+  #ifndef LED_USER_PRESET_GREEN
+    #define LED_USER_PRESET_GREEN      100
+  #endif
+  #ifndef LED_USER_PRESET_BLUE
+    #define LED_USER_PRESET_BLUE       100
+  #endif
+  #ifndef LED_USER_PRESET_RED
+    #define LED_USER_PRESET_RED        100
+  #endif
+   #ifndef LED_USER_PRESET_WHITE
+    #define LED_USER_PRESET_WHITE      100
+  #endif
+  #ifndef LED_USER_PRESET_BRIGHTNESS
+    #define LED_USER_PRESET_BRIGHTNESS 100
+  #endif
+#endif
+
 // Set defaults for unspecified LED user colors
 #if ENABLED(LED_CONTROL_MENU)
   #ifndef LED_USER_PRESET_RED

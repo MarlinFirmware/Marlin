@@ -1715,6 +1715,10 @@ bool DGUSScreenHandler::loop() {
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
       
+      #if HAS_COLOR_LEDS
+      leds.set_default();
+      #endif
+      
       // Ensure to pick up the settings
       SetTouchScreenConfiguration();
 
