@@ -335,7 +335,8 @@ static_assert(
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
 
-#define _TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
+#define __TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
+#define _TT_REV(N)     __TT_REV(N)
 #define TT_REV(N)     _TT_REV(TEMP_SENSOR_##N##_THERMISTOR_ID)
 #define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
 #define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
