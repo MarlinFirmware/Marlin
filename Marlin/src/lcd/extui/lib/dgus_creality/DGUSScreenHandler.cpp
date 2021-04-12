@@ -1036,11 +1036,6 @@ void DGUSScreenHandler::SendLEDToDisplay(DGUS_VP_Variable &var) {
 
   // The display wants a 16-bit integer
   uint16_t val = *(uint8_t*)var.memadr;
-
-  if (!leds.lights_on) {
-    val = 0;
-  }
-
   rcpy.memadr = &val;
 
   DGUSLCD_SendWordValueToDisplay(rcpy);
