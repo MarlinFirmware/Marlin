@@ -237,6 +237,7 @@ const uint16_t VPList_TuneExtraScreen[] PROGMEM = {
   VPList_CommonWithStatus,
 
   VP_LINEAR_ADVANCE_FACTOR,
+  VP_RGB_NAV_BUTTON_ICON,
 
   0x0000
 };
@@ -367,6 +368,7 @@ const uint16_t VPList_MiscSettings[] PROGMEM = {
   VP_SCREEN_BACKLIGHT_STANDBY,
   VP_SCREEN_BACKLIGHT,
   VP_SCREEN_STANDBY_TIME,
+  VP_RGB_NAV_BUTTON_ICON,
 
   0x0000
 };
@@ -706,6 +708,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_SCREEN_STANDBY_TIME, &ScreenHandler.Settings.standby_time_seconds, ScreenHandler.HandleTouchScreenStandbyTimeSetting, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   // RGB
+  VPHELPER(VP_RGB_NAV_BUTTON_ICON, &ScreenHandler.HasRGBSettings, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_RGB_SETTINGS_AVAILABLE, ICON_RGB_SETTINGS_UNAVAILABLE>)),
+
   #if HAS_COLOR_LEDS
     VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
     

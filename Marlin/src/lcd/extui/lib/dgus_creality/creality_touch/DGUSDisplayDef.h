@@ -508,7 +508,12 @@ constexpr uint16_t VP_RGB_CONTROL_R = 0x2392;
 constexpr uint16_t VP_RGB_CONTROL_G = 0x2394;
 constexpr uint16_t VP_RGB_CONTROL_B = 0x2396;
 constexpr uint16_t VP_RGB_CONTROL_W = 0x2398;
-constexpr uint16_t VP_RGB_CONTROL_I = 0x239a; // brightness
+constexpr uint16_t VP_RGB_CONTROL_I = 0x239A; // brightness
+
+constexpr uint16_t VP_RGB_NAV_BUTTON_ICON = 0x239E;
+constexpr uint16_t ICON_RGB_SETTINGS_AVAILABLE = 28;
+constexpr uint16_t ICON_RGB_SETTINGS_UNAVAILABLE = 29;
+
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;
