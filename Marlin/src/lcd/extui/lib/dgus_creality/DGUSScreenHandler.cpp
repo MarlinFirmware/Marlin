@@ -120,6 +120,10 @@ void DGUSScreenHandler::DefaultSettings() {
   Settings.standby_screen_brightness = 10;
   Settings.screen_brightness = 100;
   Settings.standby_time_seconds = 60;
+  
+  #if ENABLED(LED_COLOR_PRESETS)
+  Settings.LastLEDColor = LEDLights::defaultLEDColor;
+  #endif
 }
 
 void DGUSScreenHandler::LoadSettings(const char* buff) {
@@ -154,6 +158,10 @@ void DGUSScreenHandler::LoadSettings(const char* buff) {
   caselight.on = Settings.led_state;
   caselight.update(Settings.led_state);
 
+  #if HAS_COLOR_LEDS_PREFERENCES
+  leds.set_color(Settings.LastLEDColor);
+  #endif
+
   ScreenHandler.SetTouchScreenConfiguration();
 }
 
@@ -165,6 +173,10 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
 
   // Update settings from Marlin state, if necessary
   Settings.led_state = caselight.on;
+
+  #if HAS_COLOR_LEDS_PREFERENCES
+  Settings.LastLEDColor = leds.color;
+  #endif
 
   // Write to buffer
   SERIAL_ECHOLNPGM("Saving DWIN LCD setting from EEPROM");
@@ -1011,6 +1023,7 @@ void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
   leds.set_color(leds.color);
 
   SERIAL_ECHOLNPAIR("HandleLED ", newValue);
+  RequestSaveSettings();
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1715,7 +1728,7 @@ bool DGUSScreenHandler::loop() {
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
       
-      #if HAS_COLOR_LEDS
+      #if HAS_COLOR_LEDS && !HAS_COLOR_LEDS_PREFERENCES
       leds.set_default();
       #endif
       

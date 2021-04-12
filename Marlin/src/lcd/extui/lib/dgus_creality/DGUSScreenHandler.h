@@ -26,6 +26,14 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
+#if HAS_COLOR_LEDS
+  #include "../../../../feature/leds/leds.h"
+
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    #define HAS_COLOR_LEDS_PREFERENCES 1
+  #endif
+#endif
+
 enum DGUSLCD_Screens : uint8_t;
 
 struct creality_dwin_settings_t {
@@ -38,6 +46,10 @@ struct creality_dwin_settings_t {
   int16_t standby_screen_brightness;
   int16_t screen_brightness;
   int16_t standby_time_seconds;
+
+  #if HAS_COLOR_LEDS_PREFERENCES
+  LEDColor LastLEDColor;
+  #endif
 };
 
 class DGUSScreenHandler {
