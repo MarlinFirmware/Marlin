@@ -86,6 +86,8 @@ enum processID : uint8_t {
   ParkPosZ,
   RunOut,
   Brightness,
+  LoadLength,
+  UnloadLength,
 
   // Back Process ID
   Back_Main,
@@ -150,6 +152,10 @@ typedef struct {
   float Park_PosZ_scaled  = 0;
   int16_t print_flow      = 100;
   int16_t Brightness      = 127;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  int16_t LoadLength      = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+  int16_t UnloadLength    = FILAMENT_CHANGE_UNLOAD_LENGTH;
+#endif
 } HMI_value_t;
 
 typedef struct {
@@ -159,7 +165,7 @@ typedef struct {
 #endif
 #if ENABLED(NOZZLE_PARK_FEATURE)
   xyz_pos_t Park_point = NOZZLE_PARK_POINT;
-#endif  
+#endif
 } HMI_data_t;
 
 #define DWIN_CHINESE 123

@@ -577,6 +577,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // PID Tuning loop
     wait_for_heatup = true; // Can be interrupted with M108
+    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT), "Wait for heat up..."));   
     while (wait_for_heatup) {
 
       const millis_t ms = millis();
@@ -638,6 +639,7 @@ volatile bool Temperature::raw_temps_ready = false;
             }
           }
           SHV((bias + d) >> 1);
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PID_CYCLE), cycles, ncycles));
           cycles++;
           minT = target;
         }

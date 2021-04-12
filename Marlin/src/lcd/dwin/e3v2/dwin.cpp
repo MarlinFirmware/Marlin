@@ -386,7 +386,7 @@ void Draw_Chkb_Line(const uint8_t line, bool mode){
   DWIN_Draw_Checkbox(Color_White, Color_Bg_Black, 225, MBASE(line) - 1, mode) ; 
 }
 
-void Draw_Menu_IntValue(uint16_t color, uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint8_t value=0) {
+void Draw_Menu_IntValue(uint16_t color, uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint16_t value=0) {
   DWIN_Draw_IntValue(true, true, 0, font8x16, color, bcolor, iNum , 216, MBASE(line) - 1, value);
 }
 
@@ -593,7 +593,7 @@ void Draw_Prepare_Menu() {
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
   #if ENABLED(MESH_BED_LEVELING)
-    if (PVISI(PREPARE_CASE_MMESH)) Item_Prepare_ManualMesh(PSCROL(PREPARE_CASE_MMESH));// Manual Mesh >
+    if (PVISI(PREPARE_CASE_MMESH)) Draw_Menu_Line(PSCROL(PREPARE_CASE_MMESH), ICON_PrintSize, GET_TEXT(MSG_MANUAL_MESH), true);  // Manual Mesh >
   #endif
   #if HAS_ZOFFSET_ITEM
     if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
@@ -2215,12 +2215,18 @@ void Draw_ParkPos_Menu() {
 #if HAS_FILAMENT_SENSOR
 void Draw_Runout_Menu() {
   Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_RUNOUT_SENSOR));                 // Runout Sensor
+  Draw_Title(GET_TEXT_F(MSG_RUNOUT_SENSOR));                                 // Runout Sensor
   Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, ICON_Runout, GET_TEXT(MSG_RUNOUT_ENABLE), false);  // Enable Runout Sensor
+  Draw_Menu_Line(1, ICON_Runout, GET_TEXT(MSG_RUNOUT_ENABLE), false);        // Enable Runout Sensor
   Draw_Chkb_Line(1, runout.enabled);
-  Draw_Menu_Line(2, ICON_Runout, "Active State", false);  // Runout Sensor Active State
+  Draw_Menu_Line(2, ICON_Runout, "Active State", false);                     // Runout Sensor Active State
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)  
+  Draw_Menu_Line(3, ICON_FilLoad, GET_TEXT(MSG_FILAMENT_LOAD), false);       // Load mm
+  Draw_Menu_IntValue(Color_White, Color_Bg_Black, 3, 3, fc_settings[0].load_length);
+  Draw_Menu_Line(4, ICON_FilUnload, GET_TEXT(MSG_FILAMENT_UNLOAD), false);   // Unload mm
+  Draw_Menu_IntValue(Color_White, Color_Bg_Black, 4, 3, fc_settings[0].unload_length);
+  #endif
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
 }
 #endif
@@ -2357,8 +2363,8 @@ void HMI_Prepare() {
             Item_Prepare_Home(0);
             break;
           #if ENABLED(MESH_BED_LEVELING)
-          case MROWS + PREPARE_CASE_MMESH :   // Manual Mesh
-            Item_Prepare_ManualMesh(0);
+          case MROWS + PREPARE_CASE_MMESH :   // Manual Mesh >
+            Draw_Menu_Line(0, ICON_PrintSize, GET_TEXT(MSG_MANUAL_MESH), true);
             break;
           #endif              
           default: break;
@@ -3495,8 +3501,7 @@ void HMI_HomeOffX(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Home_OffX_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Home_OffX_scaled, 500);
-    NOLESS(HMI_ValueStruct.Home_OffX_scaled, -500);
+    LIMIT(HMI_ValueStruct.Home_OffX_scaled, -500, 500);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Home_OffX_scaled);
   }
 }
@@ -3511,8 +3516,7 @@ void HMI_HomeOffY(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Home_OffY_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Home_OffY_scaled, 500);
-    NOLESS(HMI_ValueStruct.Home_OffY_scaled, -500);
+    LIMIT(HMI_ValueStruct.Home_OffY_scaled, -500, 500);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Home_OffY_scaled);
   }
 }
@@ -3562,8 +3566,8 @@ void HMI_ProbeOffX(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Probe_OffX_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffX_scaled, -500);
+
+    LIMIT(HMI_ValueStruct.Probe_OffX_scaled, -500, 500);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
   }
 }
@@ -3578,8 +3582,7 @@ void HMI_ProbeOffY(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Probe_OffY_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
+    LIMIT(HMI_ValueStruct.Probe_OffY_scaled, -500, 500);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
   }
 }
@@ -3635,8 +3638,7 @@ void HMI_ParkPosX(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosX_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Park_PosX_scaled, X_MAX_POS * 10);
-    NOLESS(HMI_ValueStruct.Park_PosX_scaled, 0);
+    LIMIT(HMI_ValueStruct.Park_PosX_scaled, 0, X_MAX_POS * 10);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosX_scaled);
   }
 }
@@ -3651,8 +3653,7 @@ void HMI_ParkPosY(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosY_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Park_PosY_scaled, Y_MAX_POS * 10);
-    NOLESS(HMI_ValueStruct.Park_PosY_scaled, 0);
+    LIMIT(HMI_ValueStruct.Park_PosY_scaled, 0, Y_MAX_POS * 10);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosY_scaled);
   }
 }
@@ -3667,8 +3668,7 @@ void HMI_ParkPosZ(){
       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosZ_scaled);
       return;
     }
-    NOMORE(HMI_ValueStruct.Park_PosZ_scaled, 50 * 10);
-    NOLESS(HMI_ValueStruct.Park_PosZ_scaled, 0);
+    LIMIT(HMI_ValueStruct.Park_PosZ_scaled, 0, 50 * 10);
     DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Park_PosZ_scaled);
   }
 }
@@ -3682,7 +3682,7 @@ void HMI_RunOut() {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+    if (select_item.inc(1 + 2 + 2 * ENABLED(ADVANCED_PAUSE_FEATURE))) Move_Highlight(1, select_item.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_item.dec()) Move_Highlight(-1, select_item.now);
@@ -3699,7 +3699,7 @@ void HMI_RunOut() {
         runout.enabled = !runout.enabled;
         Draw_Chkb_Line(1,runout.enabled);
         break;
-      case 2: // 
+      case 2: // Runout active State
         runout.reset();
         runout.enabled = false;
         Draw_Chkb_Line(1,runout.enabled);
@@ -3707,9 +3707,53 @@ void HMI_RunOut() {
         DWIN_Draw_Rectangle(1, Color_Bg_Black, 216, MBASE(2), 216 + 4 * MENU_CHR_W, MBASE(2)+20);
         DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
         break;
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      case 3: // Filament Load length
+        checkkey = LoadLength;
+        Draw_Menu_IntValue(Color_White, Select_Color, 3, 3, HMI_ValueStruct.LoadLength);
+        EncoderRate.enabled = true;
+        break;
+      case 4: // Filament Unload length
+        checkkey = UnloadLength;
+        Draw_Menu_IntValue(Color_White, Select_Color, 4, 3, HMI_ValueStruct.UnloadLength);
+        EncoderRate.enabled = true;
+        break;
+      #endif
     }
   }
   DWIN_UpdateLCD();
+}
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+void HMI_LoadLength() {
+  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.LoadLength)) {
+      checkkey = RunOut;
+      fc_settings[0].load_length = HMI_ValueStruct.LoadLength;
+      EncoderRate.enabled = false;
+      Draw_Menu_IntValue(Color_White, Color_Bg_Black, 3, 3, HMI_ValueStruct.LoadLength);
+      return;
+    }
+    LIMIT(HMI_ValueStruct.LoadLength, 0, 400);
+    Draw_Menu_IntValue(Color_White, Select_Color, 3, 3, HMI_ValueStruct.LoadLength);
+  }
+}
+
+void HMI_UnloadLength() {
+  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.UnloadLength)) {
+      checkkey = RunOut;
+      fc_settings[0].unload_length = HMI_ValueStruct.UnloadLength;
+      EncoderRate.enabled = false;
+      Draw_Menu_IntValue(Color_White, Color_Bg_Black, 4, 3, HMI_ValueStruct.UnloadLength);
+      return;
+    }
+    LIMIT(HMI_ValueStruct.UnloadLength, 0, 400);
+    Draw_Menu_IntValue(Color_White, Select_Color, 4, 3, HMI_ValueStruct.UnloadLength);
+  }
 }
 #endif
 
@@ -4284,6 +4328,10 @@ void DWIN_HandleScreen() {
 #endif
 #if HAS_FILAMENT_SENSOR
     case RunOut:          HMI_RunOut(); break;
+#endif
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+    case LoadLength:      HMI_LoadLength(); break;
+    case UnloadLength:    HMI_UnloadLength(); break;
 #endif
     case Brightness:      HMI_Brightness(); break;
     case PidRunning:      break;
