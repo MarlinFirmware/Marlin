@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Copyright (c) 2021 X-Ryl669
  *
@@ -133,8 +133,7 @@ namespace Test {
   #define False ::Test::_False(__FILE__, __LINE__)
 
   /** A unit test.
-      You are unlikely to manipulate the Unit class directly, but instead you'll use the MakeUnitTest macro that's building the right Unit child class depending on the provided arguments
-      @sa Test::MakeUnitTest */
+      You are unlikely to manipulate the Unit class directly, but instead you'll use the DeclareTest macro */
   struct Unit {
     std::string testName;
     std::function<bool()> execute;
