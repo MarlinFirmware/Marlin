@@ -315,6 +315,11 @@ enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL
 
 extern const char G28_STR[];
 
+#if ENABLED(HANDLE_UNKNOWN_GCODE)
+typedef uint8_t (*f_unknown_gcode_handler)(const char * gcode);
+extern f_unknown_gcode_handler unknownGcodeHandler;
+#endif
+
 class GcodeSuite {
 public:
 
@@ -417,6 +422,7 @@ public:
   static void dwell(millis_t time);
 
 private:
+  static void handle_unknown_gcode();
 
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);

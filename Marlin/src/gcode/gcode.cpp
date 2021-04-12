@@ -981,7 +981,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
-      default: parser.unknown_command_warning(); break;
+      default: handle_unknown_gcode(); break;
     }
     break;
 
@@ -992,10 +992,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     #endif
 
     default:
+      //todo: please, replace custom WIFI_CUSTOM_COMMAND with wide HANDLE_UNKNOWN_GCODE
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      handle_unknown_gcode();
   }
 
   if (!no_ok) queue.ok_to_send();
@@ -1097,4 +1098,16 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
   }
 
+
 #endif // HOST_KEEPALIVE_FEATURE
+
+#if ENABLED(HANDLE_UNKNOWN_GCODE)
+f_unknown_gcode_handler unknownGcodeHandler=nullptr;
+#endif
+
+void GcodeSuite::handle_unknown_gcode() {
+#if ENABLED(HANDLE_UNKNOWN_GCODE)
+    if ((!unknownGcodeHandler) || !unknownGcodeHandler(parser.command_ptr))
+#endif
+    parser.unknown_command_warning();
+}
