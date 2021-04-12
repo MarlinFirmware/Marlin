@@ -1259,6 +1259,14 @@ void DGUSScreenHandler::HandleScreenVersionMismatchLEDFlash() {
 
     caselight.on = !caselight.on;
     caselight.update(caselight.on);
+
+    #if HAS_COLOR_LEDS
+    if (caselight.on) {
+      leds.set_color(LEDColorRed());
+    } else {
+      leds.set_color(LEDColorOff());
+    }
+    #endif
   }
 }
 
