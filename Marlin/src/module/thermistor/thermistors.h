@@ -523,6 +523,7 @@ static_assert(
   #endif
 #endif
 
+#undef __TT_REV
 #undef _TT_REV
 #undef TT_REV
 #undef _TT_REVRAW
