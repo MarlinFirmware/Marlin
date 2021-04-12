@@ -3174,6 +3174,11 @@ void Temperature::tick() {
   static bool do_buttons;
   if ((do_buttons ^= true)) ui.update_buttons();
 
+
+  ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
+  static uint8_t heater_index = 0;
+  static bool    sampling = false;
+
   /**
    * One sensor is sampled on every other call of the ISR.
    * Each sensor is read 16 (OVERSAMPLENR) times, taking the average.
@@ -3183,13 +3188,6 @@ void Temperature::tick() {
    *
    * This gives each ADC 0.9765ms to charge up.
    */
-  #define ACCUMULATE_ADC(obj) do{ \
-    if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
-    else obj.sample(HAL_READ_ADC()); \
-  }while(0)
-
-  ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
-
   switch (adc_sensor_state) {
 
     case SensorsReady: {
@@ -3214,69 +3212,19 @@ void Temperature::tick() {
         temp_count = 0;
         readings_ready();
       }
+      heater_index = 0; sampling = true;
       break;
 
-    // TODO: Make an array of those, by merging them to
-    // a single state instead of so many different state
-    #if HAS_TEMP_ADC_0
-      case PrepareTemp_0: HAL_START_ADC(TEMP_0_PIN); break;
-      case MeasureTemp_0: ACCUMULATE_ADC(heaters[HotEndPos0].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_BED
-      case PrepareTemp_BED: HAL_START_ADC(TEMP_BED_PIN); break;
-      case MeasureTemp_BED: ACCUMULATE_ADC(heaters[HeatedBedPos].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_CHAMBER
-      case PrepareTemp_CHAMBER: HAL_START_ADC(TEMP_CHAMBER_PIN); break;
-      case MeasureTemp_CHAMBER: ACCUMULATE_ADC(heaters[HeatedChamberPos].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_COOLER
-      case PrepareTemp_COOLER: HAL_START_ADC(TEMP_COOLER_PIN); break;
-      case MeasureTemp_COOLER: ACCUMULATE_ADC(heaters[CoolerPos].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_PROBE
-      case PrepareTemp_PROBE: HAL_START_ADC(TEMP_PROBE_PIN); break;
-      case MeasureTemp_PROBE: ACCUMULATE_ADC(heaters[TempProbePos].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_1
-      case PrepareTemp_1: HAL_START_ADC(TEMP_1_PIN); break;
-      case MeasureTemp_1: ACCUMULATE_ADC(heaters[HotEndPos1].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_2
-      case PrepareTemp_2: HAL_START_ADC(TEMP_2_PIN); break;
-      case MeasureTemp_2: ACCUMULATE_ADC(heaters[HotEndPos2].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_3
-      case PrepareTemp_3: HAL_START_ADC(TEMP_3_PIN); break;
-      case MeasureTemp_3: ACCUMULATE_ADC(heaters[HotEndPos3].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_4
-      case PrepareTemp_4: HAL_START_ADC(TEMP_4_PIN); break;
-      case MeasureTemp_4: ACCUMULATE_ADC(heaters[HotEndPos4].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_5
-      case PrepareTemp_5: HAL_START_ADC(TEMP_5_PIN); break;
-      case MeasureTemp_5: ACCUMULATE_ADC(heaters[HotEndPos5].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_6
-      case PrepareTemp_6: HAL_START_ADC(TEMP_6_PIN); break;
-      case MeasureTemp_6: ACCUMULATE_ADC(heaters[HotEndPos6].info); break;
-    #endif
-
-    #if HAS_TEMP_ADC_7
-      case PrepareTemp_7: HAL_START_ADC(TEMP_7_PIN); break;
-      case MeasureTemp_7: ACCUMULATE_ADC(heaters[HotEndPos7].info); break;
-    #endif
+    case HeatersSampling:
+      if (heater_index < COUNT(heaters)) next_sensor_state = adc_sensor_state; // Each heater is sampled in sequence
+      if (sampling) {                                   // and it alternates between sampling
+        HAL_START_ADC(heaters[heater_index].pin);
+      } else {                                          // and reading each call of the loop until all heaters are done
+        if (HAL_ADC_READY()) break;
+        heaters[heater_index++].info.sample(HAL_READ_ADC());
+      }
+      sampling = !sampling;
+      break;
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case Prepare_FILWIDTH: HAL_START_ADC(FILWIDTH_PIN); break;

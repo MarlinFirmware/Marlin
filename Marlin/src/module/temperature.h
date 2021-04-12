@@ -86,42 +86,7 @@ hotend_pid_t;
  */
 enum ADCSensorState : char {
   StartSampling,
-  #if HAS_TEMP_ADC_0
-    PrepareTemp_0, MeasureTemp_0,
-  #endif
-  #if HAS_TEMP_ADC_BED
-    PrepareTemp_BED, MeasureTemp_BED,
-  #endif
-  #if HAS_TEMP_ADC_CHAMBER
-    PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
-  #endif
-  #if HAS_TEMP_ADC_COOLER
-    PrepareTemp_COOLER, MeasureTemp_COOLER,
-  #endif
-  #if HAS_TEMP_ADC_PROBE
-    PrepareTemp_PROBE, MeasureTemp_PROBE,
-  #endif
-  #if HAS_TEMP_ADC_1
-    PrepareTemp_1, MeasureTemp_1,
-  #endif
-  #if HAS_TEMP_ADC_2
-    PrepareTemp_2, MeasureTemp_2,
-  #endif
-  #if HAS_TEMP_ADC_3
-    PrepareTemp_3, MeasureTemp_3,
-  #endif
-  #if HAS_TEMP_ADC_4
-    PrepareTemp_4, MeasureTemp_4,
-  #endif
-  #if HAS_TEMP_ADC_5
-    PrepareTemp_5, MeasureTemp_5,
-  #endif
-  #if HAS_TEMP_ADC_6
-    PrepareTemp_6, MeasureTemp_6,
-  #endif
-  #if HAS_TEMP_ADC_7
-    PrepareTemp_7, MeasureTemp_7,
-  #endif
+  HeatersSampling,
   #if HAS_JOY_ADC_X
     PrepareJoy_X, MeasureJoy_X,
   #endif
