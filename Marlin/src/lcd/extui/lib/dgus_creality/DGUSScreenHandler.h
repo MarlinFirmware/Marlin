@@ -110,7 +110,6 @@ public:
   // Hook for settings
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleFadeHeight(DGUS_VP_Variable &var, void *val_ptr);
 
   // Hook for move to position
@@ -392,7 +391,6 @@ public:
 
   static void SetViewMeshLevelState();
 
-  static float feed_amount;
   static bool fwretract_available;
 
 private:

@@ -352,73 +352,6 @@ void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonVa
     }
 }
 
-void change_filament_with_temp(PGM_P command, const uint16_t celsius) {
-    // Heat if necessary
-    if (ExtUI::getActualTemp_celsius(ExtUI::E0) < celsius && abs(ExtUI::getActualTemp_celsius(ExtUI::E0) - celsius) > THERMAL_PROTECTION_HYSTERESIS) {
-        ScreenHandler.setstatusmessagePGM(PSTR("Heating up..."));
-
-        uint16_t target_celsius = celsius;
-        NOMORE(target_celsius, thermalManager.hotend_max_target(0));
-
-        thermalManager.setTargetHotend(target_celsius, ExtUI::H0);
-        thermalManager.wait_for_hotend(ExtUI::H0, false);
-    }
-
-    // Inject load filament command
-    ScreenHandler.setstatusmessagePGM(PSTR("Filament load/unload..."));
-
-    char cmd[64];
-    sprintf_P(cmd, command, ScreenHandler.feed_amount);
-    
-    SERIAL_ECHOPAIR("Injecting command: ", cmd);
-    ExtUI::injectCommands(cmd);
-
-    // Handle commands
-    SERIAL_ECHOPGM_P("- waiting for queue");
-    queue.advance();
-    planner.synchronize();
-
-    SERIAL_ECHOPGM_P("- done");
-
-    if (ScreenHandler.Settings.display_sound) ScreenHandler.Buzzer(500, 100);
-    ScreenHandler.setstatusmessagePGM(PSTR("Filament load/unload complete"));
-}
-
-void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    if (var.VP != VP_BUTTON_HEATLOADSTARTKEY) return;
-
-    // Common for load/unload -> determine minimum temperature
-    uint16_t celsius = static_cast<uint16_t>(ExtUI::getTargetTemp_celsius(ExtUI::H0));
-    if (celsius < PREHEAT_1_TEMP_HOTEND) {
-        celsius = PREHEAT_1_TEMP_HOTEND;
-    }
-
-    DGUSSynchronousOperation syncOperation;
-    switch (buttonValue) {
-        case 1:
-            syncOperation.start();
-            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
-
-            change_filament_with_temp(PSTR("M701 L%f P0"), celsius);
-
-            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
-            syncOperation.done();
-        break;
-
-        case 2:
-            syncOperation.start();
-            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
-
-            change_filament_with_temp(PSTR("M702 U%f"), celsius);
-
-            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
-            syncOperation.done();
-        break;
-    }
-
-    ScreenHandler.ForceCompleteUpdate();
-}
-
 void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     if (var.VP == VP_BUTTON_MOVEKEY) {
         switch (buttonValue) {
@@ -464,7 +397,6 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP_ABS, PreheatSettingsScreenHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_FEED, FeedHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_MOVE01MM, MoveHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_MOVE1MM, MoveHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_MOVE10MM, MoveHandler)

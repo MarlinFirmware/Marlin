@@ -309,10 +309,6 @@ constexpr uint16_t VP_BUTTON_HEATLOADSTARTKEY = 0x1056;
 constexpr uint16_t VP_FAN_TOGGLE = 0x101E;
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
 
-// Feed / retract
-constexpr uint16_t VP_FEED_AMOUNT = 0x1054;
-constexpr uint16_t VP_FEED_PROGRESS = 0x108e;
-
 // Axis settings
 constexpr uint16_t VP_AXIS_SETTINGS_NAV_BUTTON = 0x22D9;
 constexpr uint16_t AXIS_SETTINGS_NAV_BUTTON_VAL_X = 1;
@@ -514,6 +510,15 @@ constexpr uint16_t VP_RGB_NAV_BUTTON_ICON = 0x239E;
 constexpr uint16_t ICON_RGB_SETTINGS_AVAILABLE = 28;
 constexpr uint16_t ICON_RGB_SETTINGS_UNAVAILABLE = 29;
 
+// Filament load/unload
+constexpr uint16_t VP_FILCHANGE_NAV_BUTTON = 0x23a6;
+
+constexpr uint16_t VP_FILCHANGE_NOZZLE_TEMP = 0x23a0;
+constexpr uint16_t VP_FILCHANGE_LENGTH = 0x23a2;
+
+constexpr uint16_t VP_FILCHANGE_ACTION_BUTTON = 0x23a4;
+constexpr uint16_t FILCHANGE_ACTION_UNLOAD_BUTTON = 1;
+constexpr uint16_t FILCHANGE_ACTION_LOAD_BUTTON = 2;
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;

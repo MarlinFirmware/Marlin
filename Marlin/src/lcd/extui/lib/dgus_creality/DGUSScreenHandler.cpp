@@ -72,7 +72,6 @@ bool DGUSScreenHandler::HasSynchronousOperation;
 bool DGUSScreenHandler::HasScreenVersionMismatch;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 uint8_t DGUSScreenHandler::MeshLevelIconIndex = -1;
-float DGUSScreenHandler::feed_amount = 100;
 bool DGUSScreenHandler::fwretract_available = TERN(FWRETRACT,  true, false);
 bool DGUSScreenHandler::HasRGBSettings = TERN(HAS_COLOR_LEDS, true, false);
 
@@ -1393,18 +1392,6 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     #endif
   }
 #endif
-
-void DGUSScreenHandler::HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr) {
-    int16_t movevalue = swap16(*(uint16_t*)val_ptr);
-    float target = movevalue * 0.1f;
-
-    DEBUG_ECHOLNPAIR("HandleFeedAmountChanged ", target);
-
-    *(float *)var.memadr = target;
-
-    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-    return;
-}
 
 void DGUSScreenHandler::HandleFadeHeight(DGUS_VP_Variable &var, void *val_ptr) {
     DGUSLCD_SetFloatAsIntFromDisplay<1>(var, val_ptr);

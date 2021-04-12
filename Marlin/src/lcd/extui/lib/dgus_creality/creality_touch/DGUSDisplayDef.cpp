@@ -31,6 +31,7 @@
 #include "../DGUSScreenHandler.h"
 #include "../creality_touch/AxisSettingsHandler.h"
 #include "../creality_touch/EstepsHandler.h"
+#include "../creality_touch/FilamentLoadUnloadHandler.h"
 #include "../creality_touch/PIDHandler.h"
 #include "../creality_touch/MeshValidationHandler.h"
 
@@ -130,7 +131,8 @@ const uint16_t VPList_Control[] PROGMEM = {
 const uint16_t VPList_Feed[] PROGMEM = {
   VPList_CommonWithStatus,
 
-  VP_FEED_AMOUNT,
+  VP_FILCHANGE_NOZZLE_TEMP,
+  VP_FILCHANGE_LENGTH,
 
   0x0000
 };
@@ -647,9 +649,6 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_LEVELING_SETTINGS>), nullptr),
   #endif
 
-  // Feed
-  VPHELPER(VP_FEED_AMOUNT, &ScreenHandler.feed_amount, ScreenHandler.HandleFeedAmountChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-
   // Creality has the same button ID mapped all over the place, so let the generic handler figure it out
   VPHELPER(VP_BUTTON_MAINENTERKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_ADJUSTENTERKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
@@ -712,8 +711,6 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   #if HAS_COLOR_LEDS
     VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
-    
-    VPHELPER(VP_RGB_NAV_BUTTON, nullptr, ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_RGB>, nullptr),
 
     VPHELPER(VP_RGB_CONTROL_R, &leds.color.r, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
     VPHELPER(VP_RGB_CONTROL_G, &leds.color.g, ScreenHandler.HandleLED, ScreenHandler.SendLEDToDisplay),
@@ -727,6 +724,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       #endif
     #endif
   #endif
+
+  // Filament load/unload
+  VPHELPER(VP_FILCHANGE_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_FEED, FilamentLoadUnloadHandler>), nullptr),
+
+  VPHELPER(VP_FILCHANGE_LENGTH, &FilamentLoadUnloadHandler::length, ScreenHandler.DGUSLCD_SetFloatAsIntFromDisplay<1>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_FILCHANGE_NOZZLE_TEMP, &FilamentLoadUnloadHandler::nozzle_temperature, FilamentLoadUnloadHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_FILCHANGE_ACTION_BUTTON, nullptr, FilamentLoadUnloadHandler::HandleLoadUnloadButton, nullptr),
 
   // Icons
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_LED_TOGGLE_ON, ICON_LED_TOGGLE_OFF>)),
