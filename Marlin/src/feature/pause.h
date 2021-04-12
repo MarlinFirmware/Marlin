@@ -34,8 +34,6 @@ typedef struct {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-#include "../libs/nozzle.h"
-
 enum PauseMode : char {
   PAUSE_MODE_SAME,
   PAUSE_MODE_PAUSE_PRINT,
@@ -58,6 +56,8 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_HEAT,
   PAUSE_MESSAGE_HEATING
 };
+
+#include "../libs/nozzle.h"
 
 #if HAS_LCD_MENU
   enum PauseMenuResponse : char {

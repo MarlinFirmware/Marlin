@@ -43,6 +43,10 @@
   #include "../../../feature/mixing.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 /**
  * M701: Load filament
  *
@@ -54,7 +58,11 @@
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M701() {
-  xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #if ENABLED(DWIN_CREALITY_LCD)
+    xyz_pos_t park_point = HMI_data.Park_point;
+  #else
+    xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #endif
 
   // Don't raise Z if the machine isn't homed
   if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
@@ -140,7 +148,11 @@ void GcodeSuite::M701() {
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M702() {
-  xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #if ENABLED(DWIN_CREALITY_LCD)
+    xyz_pos_t park_point = HMI_data.Park_point;
+  #else
+    xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #endif
 
   // Don't raise Z if the machine isn't homed
   if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;

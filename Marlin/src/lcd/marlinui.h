@@ -56,6 +56,10 @@
   #include "../module/motion.h" // for active_extruder
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../feature/pause.h"
+#endif
+
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 #if HAS_WIRED_LCD
@@ -518,6 +522,10 @@ public:
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+  #elif ENABLED(DWIN_CREALITY_LCD)
+    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder) {
+      DWIN_PauseShow(message);
+    }
   #else
     static inline void _pause_show_message() {}
     #define pause_show_message(...) _pause_show_message()

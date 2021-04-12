@@ -36,6 +36,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 /**
  * M125: Store current position and move to parking position.
  *       Called on pause (by M25) to prevent material leaking onto the
@@ -58,7 +62,11 @@ void GcodeSuite::M125() {
   // Initial retract before move to filament change position
   const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
 
-  xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #if ENABLED(DWIN_CREALITY_LCD)
+    xyz_pos_t park_point = HMI_data.Park_point;
+  #else
+    xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #endif
 
   // Move XY axes to filament change position or given position
   if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));

@@ -80,6 +80,10 @@ enum processID : uint8_t {
   ProbeOff,
   ProbeOffX,
   ProbeOffY,
+  ParkPos,
+  ParkPosX,
+  ParkPosY,
+  ParkPosZ,
   RunOut,
   Brightness,
 
@@ -141,14 +145,21 @@ typedef struct {
   float Home_OffY_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
+  float Park_PosX_scaled  = 0;
+  float Park_PosY_scaled  = 0;
+  float Park_PosZ_scaled  = 0;
   int16_t print_flow      = 100;
+  int16_t Brightness      = 127;
 } HMI_value_t;
 
 typedef struct {
-  uint8_t Brightness;
+  uint8_t Brightness = 127;
 #if HAS_FILAMENT_SENSOR
-  boolean Runout_active_state;
+  boolean Runout_active_state = LOW;
 #endif
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  xyz_pos_t Park_point = NOZZLE_PARK_POINT;
+#endif  
 } HMI_data_t;
 
 #define DWIN_CHINESE 123
@@ -300,3 +311,9 @@ void DWIN_Print_Header(const char *text);
 void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
 void DWIN_Setdatadefaults();
+void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component);
+
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  #include "../../../feature/pause.h"
+  void DWIN_PauseShow(const PauseMessage message);
+#endif

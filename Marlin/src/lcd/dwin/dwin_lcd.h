@@ -152,6 +152,7 @@
 
 // Extra Icons
 #define ICON_Error                ICON_TempTooHigh
+#define ICON_ManualLev            ICON_SetEndTemp
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
@@ -166,6 +167,10 @@
 #define ICON_ProbeOff             ICON_AdvSet
 #define ICON_ProbeOffX            ICON_StepX
 #define ICON_ProbeOffY            ICON_StepY
+#define ICON_ParkPos              ICON_AdvSet
+#define ICON_ParkPosX             ICON_StepX
+#define ICON_ParkPosY             ICON_StepY
+#define ICON_ParkPosZ             ICON_StepZ
 #define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_Binary               ICON_Contact

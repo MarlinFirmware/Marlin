@@ -441,6 +441,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prime Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Retract Speed");
   PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Park Head");
+  PROGMEM Language_Str MSG_PARK_XPOSITION                  = _UxGT("Park X Position");
+  PROGMEM Language_Str MSG_PARK_YPOSITION                  = _UxGT("Park Y Position");
+  PROGMEM Language_Str MSG_PARK_ZRAISE                     = _UxGT("Park Z Raise");
   PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Recover Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("Fan Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Fan Time");
@@ -701,6 +704,7 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+  PROGMEM Language_Str MSG_REHEATDONE                      = _UxGT("Reheat Done");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
   PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");
