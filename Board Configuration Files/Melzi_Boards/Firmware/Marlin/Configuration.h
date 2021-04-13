@@ -302,6 +302,7 @@
 // Continue after Power-Loss feature will store the current state to the SD Card at the start of each layer
 // during SD printing. If this is found at bootup it will ask you if you want to resume the print.
 // Due to space constraints on these boards, enabling the POWER_LOSS_RECOVERY will also disable ARC_SUPPORT automatically
+// You also cannot use LINEAR_ADVANCE or PROBE_OFFSET_WIZARD with this enabled as well due to space restrictions on the board.
 //
 // NOTE: This feature causes excessive wear on your SD card.
 //#define POWER_LOSS_RECOVERY
@@ -332,17 +333,25 @@
   #define DISABLE_ARC_SUPPORT
 #endif
 
+// Sanity Checks for melzi boards
+#if ENABLED(EZOUT_ENABLE) && ENABLED(BLTOUCH)
+  #error "You cannot use the BL Touch and EZOut Filament sensor together on this board."
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY) && ENABLED(LINEAR_ADVANCE)
+  #error "Due to space restrictions on this board you cannot use POWER_LOSS_RECOVERY and LINEAR_ADVANCE together."
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY) && ENABLED(PROBE_OFFSET_WIZARD)
+  #error "Due to space restrictions on this board you cannot use POWER_LOSS_RECOVERY and PROBE_OFFSET_WIZARD together."
+#endif
+
 /**
  * Machine Configuration Settings
  */
 
 // Anet Printer Settings
 #if ENABLED(ANET_A2) || ENABLED(ANET_A6) || ENABLED(ANET_A8) || ENABLED(ANET_E10) || ENABLED(ANET_E12) || ENABLED(ANET_E16) || ENABLED(ANET_A8_PLUS)
-  // Sanity Checks for melzi boards
-  #if ENABLED(EZOUT_ENABLE) && ENABLED(BLTOUCH)
-    #error "You cannot use the BL Touch and EZOut Filament sensor together on this board."
-  #endif
-
   #define SERIAL_PORT 0
 
   #define SPACE_SAVER
@@ -669,11 +678,6 @@
 
 // AnyCubic Printer Settings
 #if ENABLED(AC_MEGA_ZERO) || ENABLED(AC_MEGA_ZERO_V2)
-  // Sanity Checks for melzi boards
-  #if ENABLED(EZOUT_ENABLE) && ENABLED(BLTOUCH)
-    #error "You cannot use the BL Touch and EZOut Filament sensor together on this board."
-  #endif
-
   #define SERIAL_PORT 0
 
   #define SPACE_SAVER
@@ -854,11 +858,6 @@
 
 // Creality Printer Settings
 #if ENABLED(CR10) || ENABLED(CR10_MINI) || ENABLED(CR10_S4) || ENABLED(CR10_S5) || ENABLED(ENDER2)  || ENABLED(ENDER3) || ENABLED(ENDER5)
-  // Sanity Checks for V11X boards
-  #if ENABLED(EZOUT_ENABLE) && ENABLED(BLTOUCH)
-    #error "You cannot use the BL Touch and EZOut Filament sensor together on this board."
-  #endif
-
   #if ENABLED(ENDER5_NEW_LEADSCREW)
     #define CREALITY_Z_STEPS 800
   #else
