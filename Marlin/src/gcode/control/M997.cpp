@@ -24,10 +24,23 @@
 
 #if ENABLED(PLATFORM_M997_SUPPORT)
 
+#if ENABLED(DWIN_CREALITY_LCD)
+#include "../../lcd/dwin/e3v2/dwin.h"
+#endif
+
+
 /**
  * M997: Perform in-application firmware update
  */
 void GcodeSuite::M997() {
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+  DWIN_Frame_Clear(Color_Bg_Black);
+  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 150);  // CREALITY logo
+  DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, "Please wait until reboot.");
+  DWIN_UpdateLCD();
+  delay(500);  
+  #endif
 
   flashFirmware(parser.intval('S'));
 

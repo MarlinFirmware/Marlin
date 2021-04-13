@@ -113,6 +113,9 @@
 #define MIN_PRINT_FLOW   10
 #define MAX_PRINT_FLOW   299
 
+// Load and Unload limits
+#define MAX_LOAD_UNLOAD  500
+
 // Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
 #define MIN_MAXFEEDSPEED      1
 #define MIN_MAXACCELERATION   1
@@ -971,7 +974,7 @@ void Goto_Main_Menu() {
     DWIN_Frame_AreaCopy(1, 0, 2, 39, 12, 14, 9);
   #endif
 
-  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);  // CREALIY logo
+  DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);  // CREALITY logo
 
   ICON_Print();
   ICON_Prepare();
@@ -3315,9 +3318,6 @@ void HMI_PrintFlow() {
 void HMI_Reboot() {
   last_checkkey = MainMenu;
   checkkey = Popup_Window;
-  DWIN_Popup_Window(ICON_BLTouch, GET_TEXT(MSG_RESET_PRINTER), "Please wait until reboot.");
-  DWIN_UpdateLCD();  
-  delay(1000);
   queue.inject_P(PSTR("M997"));
 }
 
@@ -3736,7 +3736,7 @@ void HMI_LoadLength() {
       Draw_Menu_IntValue(Color_White, Color_Bg_Black, 3, 3, HMI_ValueStruct.LoadLength);
       return;
     }
-    LIMIT(HMI_ValueStruct.LoadLength, 0, 400);
+    LIMIT(HMI_ValueStruct.LoadLength, 0, MAX_LOAD_UNLOAD);
     Draw_Menu_IntValue(Color_White, Select_Color, 3, 3, HMI_ValueStruct.LoadLength);
   }
 }
@@ -3751,7 +3751,7 @@ void HMI_UnloadLength() {
       Draw_Menu_IntValue(Color_White, Color_Bg_Black, 4, 3, HMI_ValueStruct.UnloadLength);
       return;
     }
-    LIMIT(HMI_ValueStruct.UnloadLength, 0, 400);
+    LIMIT(HMI_ValueStruct.UnloadLength, 0, MAX_LOAD_UNLOAD);
     Draw_Menu_IntValue(Color_White, Select_Color, 4, 3, HMI_ValueStruct.UnloadLength);
   }
 }
@@ -4128,7 +4128,7 @@ void HMI_Popup() {
 void HMI_Init() {
   HMI_SDCardInit();
 
-  for (uint16_t t = 0; t <= 100; t += 2) {
+  for (uint16_t t = 0; t <= 100; t += 4) {
     DWIN_ICON_Show(ICON, ICON_Bar, 15, 260);
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();

@@ -494,7 +494,7 @@ void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y,
   DWIN_Draw_Rectangle(0,color,x+2,y+2,x+17,y+17);
 }
 
-// Set LCD Brightness 0x00-0x0F
+// Set LCD Brightness 0x00-0xFF
 void DWIN_LCD_Brightness(const uint8_t brightness) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);
