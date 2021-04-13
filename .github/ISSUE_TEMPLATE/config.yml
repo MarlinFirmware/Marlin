@@ -1,0 +1,26 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Community Firmware documentation
+    url: https://cr6community.github.io/
+    about: CR-6 documentation
+  - name: 🎉 Community Firmware release notes
+    url: https://github.com/CR6Community/Marlin/releases
+    about: Release notes of previous releases, also contains instructions on various features
+  - name: 👤 CR-6 SE / CR-6 MAX Users Facebook group
+    url: https://www.facebook.com/groups/cr6community
+    about: Please ask and answer questions here.
+  - name: 👤 CR-6 subreddit /r/cr6
+    url: https://www.reddit.com/r/CR6/
+    about: Please ask and answer questions here.
+  - name: 🕹 CR6 Community Firmware on on Discord
+    url: https://discord.gg/PfMufwZTCX
+    about: Join the Discord server for support and discussion.
+  - name: 📺 CR6 Community Firmware Videos on YouTube
+    url: https://www.youtube.com/results?search_query=cr6+community+firmware
+    about: Tutorials and more from Marlin users all around the world. Great for new users!
+  - name: 💸 Want to donate to the Community Firmware?
+    url: https://github.com/CR6Community/Marlin/#credits
+    about: Please take a look at the various options to support the CR-6 Commumity Firmware's development financially!
+  - name: 💸 Want to donate to the upstream project - Marlin?
+    url: https://www.thinkyhead.com/donate-to-marlin
+    about: Please take a look at the various options to support Marlin Firmware's development financially!
