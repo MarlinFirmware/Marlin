@@ -505,7 +505,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(Z_LBL);
     tft.add_text(0, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
-    tft_string.set(isnan(ubl.z_values[x_plot][y_plot]) ? "-----" : ftostr43sign(ubl.z_values[x_plot][y_plot]));
+    tft_string.set(ISNAN(ubl.z_values[x_plot][y_plot]) ? "-----" : ftostr43sign(ubl.z_values[x_plot][y_plot]));
     tft_string.trim();
     tft.add_text(120 - tft_string.width(), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
 

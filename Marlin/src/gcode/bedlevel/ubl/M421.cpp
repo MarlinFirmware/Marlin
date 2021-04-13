@@ -62,7 +62,7 @@ void GcodeSuite::M421() {
     SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else {
     float &zval = ubl.z_values[ij.x][ij.y];
-    zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);
+    zval = hasN ? MFNAN : parser.value_linear_units() + (hasQ ? zval : 0);
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));
   }
 }

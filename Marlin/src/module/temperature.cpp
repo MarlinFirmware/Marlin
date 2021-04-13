@@ -1406,6 +1406,8 @@ void Temperature::manage_heater() {
             fan_chamber_pwm = (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * ABS(temp_chamber.celsius - temp_chamber.target);
             if (temp_chamber.soft_pwm_amount)
               fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
+          #elif CHAMBER_FAN_MODE == 3
+            fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
           NOMORE(fan_chamber_pwm, 225);
           set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
@@ -2835,12 +2837,12 @@ void Temperature::readings_ready() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
- *  - Call planner.tick to count down its "ignore" time
+ *  - Call planner.isr to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
-  Temperature::tick();
+  Temperature::isr();
 
   HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
@@ -2879,7 +2881,7 @@ public:
  *  - Endstop polling
  *  - Planner clean buffer
  */
-void Temperature::tick() {
+void Temperature::isr() {
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
@@ -3363,8 +3365,8 @@ void Temperature::tick() {
   // Poll endstops state, if required
   endstops.poll();
 
-  // Periodically call the planner timer
-  planner.tick();
+  // Periodically call the planner timer service routine
+  planner.isr();
 }
 
 #if HAS_TEMP_SENSOR
