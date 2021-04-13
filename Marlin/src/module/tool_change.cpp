@@ -846,9 +846,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       // Cutting recover
       unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
 
-      planner.synchronize();
+      // Resume at the old E position
       current_position.e = destination.e;
-      sync_plan_position_e(); // Resume at the old E position
+      sync_plan_position_e();
     }
   }
 
