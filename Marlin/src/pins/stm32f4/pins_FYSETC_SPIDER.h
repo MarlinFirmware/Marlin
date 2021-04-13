@@ -21,12 +21,22 @@
  */
 #pragma once
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "FYSETC SPIDER"
+#define BOARD_INFO_NAME "FYSETC SPIDER"
+
+//
+// Ports are labeled X2 and Z2 but they could be used for Extruders
+//
+#if NUM_Z_STEPPER_DRIVERS > 1
+  #define _DUALZ 1
 #endif
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
+#if   (HOTENDS > 5 || E_STEPPERS > 5) && NONE(X_DUAL_STEPPER_DRIVERS, _DUALZ)
+  #error "FYSETC SPIDER supports up to 5 hotends / E-steppers."
+#elif (HOTENDS > 4 || E_STEPPERS > 4) && COUNT_ENABLED(X_DUAL_STEPPER_DRIVERS, _DUALZ) == 1
+  #error "FYSETC SPIDER supports up to 4 hotends / E-steppers."
+#elif (HOTENDS > 3 || E_STEPPERS > 3) && BOTH(X_DUAL_STEPPER_DRIVERS, _DUALZ)
+  #error "FYSETC SPIDER supports up to 3 hotends / E-steppers."
 #endif
+#undef _DUALZ
 
 //
 // EEPROM Emulation
@@ -45,15 +55,19 @@
 //
 // Steppers
 //
-#define X2_STEP_PIN                         PD12
-#define X2_DIR_PIN                          PC4
-#define X2_ENABLE_PIN                       PE8
-#define X2_CS_PIN                           PA15
+#if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  #define X2_STEP_PIN                       PD12
+  #define X2_DIR_PIN                        PC4
+  #define X2_ENABLE_PIN                     PE8
+  #define X2_CS_PIN                         PA15
+#endif
 
-#define Z2_STEP_PIN                         PE1
-#define Z2_DIR_PIN                          PE0
-#define Z2_ENABLE_PIN                       PC5
-#define Z2_CS_PIN                           PD11
+#if NUM_Z_STEPPER_DRIVERS > 1
+  #define Z2_STEP_PIN                       PE1
+  #define Z2_DIR_PIN                        PE0
+  #define Z2_ENABLE_PIN                     PC5
+  #define Z2_CS_PIN                         PD11
+#endif
 
 //
 // Heaters / Fans
@@ -103,8 +117,4 @@
   #endif
 #endif
 
-#if HOTENDS > 5 || E_STEPPERS > 5
-  #error "FYSETC SPIDER supports up to 5 hotends / E-steppers."
-#else
-  #include "pins_FYSETC_S6.h"
-#endif
+#include "pins_FYSETC_common.h"
