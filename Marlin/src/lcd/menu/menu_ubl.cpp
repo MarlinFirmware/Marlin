@@ -609,14 +609,24 @@ void _menu_ubl_tools() {
 
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[128];
-  #if HAS_BED_PROBE && HAS_HEATED_BED
+  #if HAS_BED_PROBE && HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nM190 S%i\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
+  #elif !HAS_BED_PROBE && HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nM190 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
+  #elif HAS_BED_PROBE && !HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"));
+  #elif !HAS_BED_PROBE && !HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500")); 
+
+  #elif HAS_BED_PROBE && HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
   #elif !HAS_BED_PROBE && HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
   #elif HAS_BED_PROBE && !HAS_HEATED_BED
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"));
   #elif !HAS_BED_PROBE && !HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"));  
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"));
+      
   #endif
   queue.inject(ubl_lcd_gcode);
 }
@@ -628,6 +638,9 @@ void _lcd_mesh_wizard () {
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
     #endif
   ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
+    #if ENABLED(G26_MESH_VALIDATION)
+      SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+    #endif
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
   END_MENU();
 }
