@@ -36,7 +36,6 @@
 #elif (HOTENDS > 3 || E_STEPPERS > 3) && BOTH(X_DUAL_STEPPER_DRIVERS, _DUALZ)
   #error "FYSETC SPIDER supports up to 3 hotends / E-steppers."
 #endif
-#undef _DUALZ
 
 //
 // EEPROM Emulation
@@ -60,14 +59,26 @@
   #define X2_DIR_PIN                        PC4
   #define X2_ENABLE_PIN                     PE8
   #define X2_CS_PIN                         PA15
+#else
+  #define E3_STEP_PIN                       PD12
+  #define E3_DIR_PIN                        PC4
+  #define E3_ENABLE_PIN                     PE8
+  #define E3_CS_PIN                         PA15
 #endif
 
-#if NUM_Z_STEPPER_DRIVERS > 1
+#if _DUALZ
   #define Z2_STEP_PIN                       PE1
   #define Z2_DIR_PIN                        PE0
   #define Z2_ENABLE_PIN                     PC5
   #define Z2_CS_PIN                         PD11
+#else
+  #define E4_STEP_PIN                       PE1
+  #define E4_DIR_PIN                        PE0
+  #define E4_ENABLE_PIN                     PC5
+  #define E4_CS_PIN                         PD11
 #endif
+
+#undef _DUALZ
 
 //
 // Heaters / Fans
