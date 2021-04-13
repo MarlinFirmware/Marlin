@@ -69,21 +69,19 @@ public:
   };
 
   #if ENABLED(POWER_MONITOR_CURRENT)
-    FORCE_INLINE static float getAmps() { return ( amps.value + POWER_MONITOR_CURRENT_OFFSET ) ; }
+    FORCE_INLINE static float getAmps() { return amps.value + (POWER_MONITOR_CURRENT_OFFSET); }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
   #if ENABLED(POWER_MONITOR_VOLTAGE)
-    FORCE_INLINE static float getVolts() { return ( volts.value + POWER_MONITOR_VOLTAGE_OFFSET ) ; }
+    FORCE_INLINE static float getVolts() { return volts.value + (POWER_MONITOR_VOLTAGE_OFFSET); }
     void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
+  #else
+    FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }
   #endif
 
   #if HAS_POWER_MONITOR_WATTS
-    #if ENABLED(POWER_MONITOR_VOLTAGE)
-      FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
-    #else
-      FORCE_INLINE static float getPower() { return getAmps() * POWER_MONITOR_FIXED_VOLTAGE; }
-    #endif
+    FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
   #endif
 
   #if HAS_WIRED_LCD
