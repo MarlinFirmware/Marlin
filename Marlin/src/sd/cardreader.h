@@ -42,6 +42,29 @@ extern const char M23_STR[], M24_STR[];
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
 
 #include "SdFile.h"
+#include "disk_io_driver.h"
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#endif
+
+#if NEED_SD2CARD_SDIO
+  #include "Sd2Card_sdio.h"
+#elif NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+#endif
+
+#if ENABLED(MULTI_VOLUME)
+  #define SV_SD_ONBOARD      1
+  #define SV_USB_FLASH_DRIVE 2
+  #define _VOLUME_ID(N) _CAT(SV_, N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
+  #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+    #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+  #endif
+#else
+  #define SHARED_VOLUME_IS(...) 0
+#endif
 
 typedef struct {
   bool saving:1,
@@ -79,6 +102,8 @@ public:
   // // // Methods // // //
 
   CardReader();
+
+  static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
 
   static SdFile getroot() { return root; }
 
@@ -171,7 +196,8 @@ public:
   static inline int16_t read(void *buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
-  static Sd2Card& getSd2Card() { return sd2card; }
+  // TODO: rename to diskIODriver()
+  static DiskIODriver* diskIODriver() { return driver; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     //
@@ -179,6 +205,15 @@ public:
     //
     struct AutoReportSD { static void report() { report_status(); } };
     static AutoReporter<AutoReportSD> auto_reporter;
+  #endif
+
+  #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    static DiskIODriver_USBFlash media_usbFlashDrive;
+  #endif
+  #if NEED_SD2CARD_SDIO
+    static DiskIODriver_SDIO media_sdio;
+  #elif NEED_SD2CARD_SPI
+    static DiskIODriver_SPI_SD media_sd_spi;
   #endif
 
 private:
@@ -236,7 +271,7 @@ private:
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static uint8_t *isDir;
         #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-          static uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+          static uint8_t isDir[(SDSORT_LIMIT + 7) >> 3];
         #endif
       #endif
 
@@ -244,7 +279,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static Sd2Card sd2card;
+  static DiskIODriver *driver;
   static SdVolume volume;
   static SdFile file;
 
@@ -275,7 +310,7 @@ private:
 };
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define IS_SD_INSERTED() Sd2Card::isInserted()
+  #define IS_SD_INSERTED() DiskIODriver_USBFlash::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
   #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else
