@@ -137,7 +137,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 
             gCfgItems.wifi_mode_sel = STA_MODEL;
 
-            package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
+            package_to_wifi(WIFI_PARA_SET, nullptr, 0);
 
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
