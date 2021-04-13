@@ -201,34 +201,34 @@ static void disp_key_value() {
       dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_m);
       break;
     case level_pos_x1:
-      itoa(gCfgItems.trammingPos[0][X_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[0].x, public_buf_m, 10);
       break;
     case level_pos_y1:
-      itoa(gCfgItems.trammingPos[0][Y_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[0].y, public_buf_m, 10);
       break;
     case level_pos_x2:
-      itoa(gCfgItems.trammingPos[1][X_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[1].x, public_buf_m, 10);
       break;
     case level_pos_y2:
-      itoa(gCfgItems.trammingPos[1][Y_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[1].y, public_buf_m, 10);
       break;
     case level_pos_x3:
-      itoa(gCfgItems.trammingPos[2][X_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[2].x, public_buf_m, 10);
       break;
     case level_pos_y3:
-      itoa(gCfgItems.trammingPos[2][Y_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[2].y, public_buf_m, 10);
       break;
     case level_pos_x4:
-      itoa(gCfgItems.trammingPos[3][X_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[3].x, public_buf_m, 10);
       break;
     case level_pos_y4:
-      itoa(gCfgItems.trammingPos[3][Y_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[3].y, public_buf_m, 10);
       break;
     case level_pos_x5:
-      itoa(gCfgItems.trammingPos[4][X_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[4].x, public_buf_m, 10);
       break;
     case level_pos_y5:
-      itoa(gCfgItems.trammingPos[4][Y_AXIS], public_buf_m, 10);
+      itoa(gCfgItems.trammingPos[4].y, public_buf_m, 10);
       break;
     #if HAS_BED_PROBE
       case x_offset:
@@ -343,16 +343,16 @@ static void set_value_confirm() {
     case pause_pos_x: gCfgItems.pausePosX = atof(key_value); update_spi_flash(); break;
     case pause_pos_y: gCfgItems.pausePosY = atof(key_value); update_spi_flash(); break;
     case pause_pos_z: gCfgItems.pausePosZ = atof(key_value); update_spi_flash(); break;
-    case level_pos_x1: gCfgItems.trammingPos[0][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y1: gCfgItems.trammingPos[0][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x2: gCfgItems.trammingPos[1][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y2: gCfgItems.trammingPos[1][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x3: gCfgItems.trammingPos[2][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y3: gCfgItems.trammingPos[2][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x4: gCfgItems.trammingPos[3][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y4: gCfgItems.trammingPos[3][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x5: gCfgItems.trammingPos[4][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y5: gCfgItems.trammingPos[4][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x1: gCfgItems.trammingPos[0].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y1: gCfgItems.trammingPos[0].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x2: gCfgItems.trammingPos[1].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y2: gCfgItems.trammingPos[1].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x3: gCfgItems.trammingPos[2].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y3: gCfgItems.trammingPos[2].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x4: gCfgItems.trammingPos[3].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y4: gCfgItems.trammingPos[3].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x5: gCfgItems.trammingPos[4].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y5: gCfgItems.trammingPos[4].y = atoi(key_value); update_spi_flash(); break;
     #if HAS_BED_PROBE
       case x_offset: {
         #if HAS_PROBE_XY_OFFSET
