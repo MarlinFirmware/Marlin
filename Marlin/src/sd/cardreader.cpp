@@ -281,8 +281,8 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
       char *p = path;
-      p = sprint_str (p, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
-      p = sprint_str (p, dosFilename);                      // FILENAME_LENGTH characters maximum
+      p = sprint_str(p, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+      p = sprint_str(p, dosFilename);                      // FILENAME_LENGTH characters maximum
       p = sprint_char(p, '/');                              // 1 character
 
       // Serial.print(path);

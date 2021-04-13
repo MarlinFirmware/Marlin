@@ -142,7 +142,7 @@ struct duration_t {
     if (out_d) { p = sprint_i(p, d); p = sprint_str_P(p, PSTR("d ")); }
     if (out_h) { p = sprint_i(p, h); p = sprint_str_P(p, PSTR("h ")); }
     if (out_m) { p = sprint_i(p, m); p = sprint_str_P(p, PSTR("m ")); }
-    if (out_s) { p = sprint_i(p, s); p = sprint_char (p, 's'); }
+    if (out_s) { p = sprint_i(p, s); p = sprint_char(p, 's'); }
 
     return buffer;
   }
@@ -167,7 +167,7 @@ struct duration_t {
       p = sprint_hu   (p, d);
       p = sprint_str_P(p, PSTR("d "));
       p = sprint_02hu (p, h % 24);
-      p = sprint_char (p, ':');
+      p = sprint_char(p, ':');
       p = sprint_02hu (p, m);
       return d >= 10 ? 9 : 8;
     }

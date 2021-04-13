@@ -3514,11 +3514,11 @@ void Temperature::isr() {
       const bool heating = isHeatingHotend(e);
       if (ui.alert_level == 0) {
         char *p = ui.status_message;
-        p = sprint_char (p, 'E');
+        p = sprint_char(p, 'E');
         #if HAS_MULTI_HOTEND
-          p = sprint_char (p, '1' + e);
+          p = sprint_char(p, '1' + e);
         #endif
-        p = sprint_char (p, ' ');
+        p = sprint_char(p, ' ');
         p = sprint_str_P(p, heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING));
         ui.finish_status(false);
       }
