@@ -73,214 +73,211 @@ enum {
 
 static void disp_key_value() {
   char *temp;
-  char str_1[16];
-  #if HAS_TRINAMIC_CONFIG
-    float milliamps;
-  #endif
+  TERN_(HAS_TRINAMIC_CONFIG, float milliamps);
 
   switch (value) {
     case PrintAcceleration:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.acceleration, 1, 1, str_1));
+      dtostrf(planner.settings.acceleration, 1, 1, public_buf_m);
       break;
     case RetractAcceleration:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.retract_acceleration, 1, 1, str_1));
+      dtostrf(planner.settings.retract_acceleration, 1, 1, public_buf_m);
       break;
     case TravelAcceleration:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.travel_acceleration, 1, 1, str_1));
+      dtostrf(planner.settings.travel_acceleration, 1, 1, public_buf_m);
       break;
     case XAcceleration:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
+      itoa(planner.settings.max_acceleration_mm_per_s2[X_AXIS], public_buf_m, 10);
       break;
     case YAcceleration:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+      itoa(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], public_buf_m, 10);
       break;
     case ZAcceleration:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
+      itoa(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], public_buf_m, 10);
       break;
     case E0Acceleration:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+      itoa(planner.settings.max_acceleration_mm_per_s2[E_AXIS], public_buf_m, 10);
       break;
     case E1Acceleration:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
+      itoa(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)], public_buf_m, 10);
       break;
     case XMaxFeedRate:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.max_feedrate_mm_s[X_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.max_feedrate_mm_s[X_AXIS], 1, 1, public_buf_m);
       break;
     case YMaxFeedRate:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.max_feedrate_mm_s[Y_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.max_feedrate_mm_s[Y_AXIS], 1, 1, public_buf_m);
       break;
     case ZMaxFeedRate:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.max_feedrate_mm_s[Z_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.max_feedrate_mm_s[Z_AXIS], 1, 1, public_buf_m);
       break;
     case E0MaxFeedRate:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS], 1, 1, public_buf_m);
       break;
     case E1MaxFeedRate:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], 1, 1, str_1));
+      dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], 1, 1, public_buf_m);
       break;
 
     case XJerk:
       #if HAS_CLASSIC_JERK
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.max_jerk[X_AXIS], 1, 1, str_1));
+        dtostrf(planner.max_jerk[X_AXIS], 1, 1, public_buf_m);
       #endif
       break;
     case YJerk:
       #if HAS_CLASSIC_JERK
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.max_jerk[Y_AXIS], 1, 1, str_1));
+        dtostrf(planner.max_jerk[Y_AXIS], 1, 1, public_buf_m);
       #endif
       break;
     case ZJerk:
       #if HAS_CLASSIC_JERK
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.max_jerk[Z_AXIS], 1, 1, str_1));
+        dtostrf(planner.max_jerk[Z_AXIS], 1, 1, public_buf_m);
       #endif
       break;
     case EJerk:
       #if HAS_CLASSIC_JERK
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.max_jerk[E_AXIS], 1, 1, str_1));
+        dtostrf(planner.max_jerk[E_AXIS], 1, 1, public_buf_m);
       #endif
       break;
 
     case Xstep:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, public_buf_m);
       break;
     case Ystep:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, public_buf_m);
 
       break;
     case Zstep:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, public_buf_m);
 
       break;
     case E0step:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.axis_steps_per_mm[E_AXIS], 1, 1, str_1));
+      dtostrf(planner.settings.axis_steps_per_mm[E_AXIS], 1, 1, public_buf_m);
 
       break;
     case E1step:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(planner.settings.axis_steps_per_mm[E_AXIS_N(1)], 1, 1, str_1));
+      dtostrf(planner.settings.axis_steps_per_mm[E_AXIS_N(1)], 1, 1, public_buf_m);
       break;
 
     case Xcurrent:
       #if AXIS_IS_TMC(X)
         milliamps = stepperX.getMilliamps();
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(milliamps, 1, 1, str_1));
+        dtostrf(milliamps, 1, 1, public_buf_m);
       #endif
       break;
 
     case Ycurrent:
       #if AXIS_IS_TMC(Y)
         milliamps = stepperY.getMilliamps();
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(milliamps, 1, 1, str_1));
+        dtostrf(milliamps, 1, 1, public_buf_m);
       #endif
       break;
 
     case Zcurrent:
       #if AXIS_IS_TMC(Z)
         milliamps = stepperZ.getMilliamps();
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(milliamps, 1, 1, str_1));
+        dtostrf(milliamps, 1, 1, public_buf_m);
       #endif
       break;
 
     case E0current:
       #if AXIS_IS_TMC(E0)
         milliamps = stepperE0.getMilliamps();
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(milliamps, 1, 1, str_1));
+        dtostrf(milliamps, 1, 1, public_buf_m);
       #endif
       break;
 
     case E1current:
       #if AXIS_IS_TMC(E1)
         milliamps = stepperE1.getMilliamps();
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(milliamps, 1, 1, str_1));
+        dtostrf(milliamps, 1, 1, public_buf_m);
       #endif
       break;
 
     case pause_pos_x:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1));
+      dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_m);
       break;
     case pause_pos_y:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(gCfgItems.pausePosY, 1, 1, str_1));
+      dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_m);
       break;
     case pause_pos_z:
-      sprintf_P(public_buf_m, PSTR("%s"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_1));
+      dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_m);
       break;
     case level_pos_x1:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[0][X_AXIS]);
+      itoa(gCfgItems.trammingPos[0].x, public_buf_m, 10);
       break;
     case level_pos_y1:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[0][Y_AXIS]);
+      itoa(gCfgItems.trammingPos[0].y, public_buf_m, 10);
       break;
     case level_pos_x2:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[1][X_AXIS]);
+      itoa(gCfgItems.trammingPos[1].x, public_buf_m, 10);
       break;
     case level_pos_y2:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[1][Y_AXIS]);
+      itoa(gCfgItems.trammingPos[1].y, public_buf_m, 10);
       break;
     case level_pos_x3:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[2][X_AXIS]);
+      itoa(gCfgItems.trammingPos[2].x, public_buf_m, 10);
       break;
     case level_pos_y3:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[2][Y_AXIS]);
+      itoa(gCfgItems.trammingPos[2].y, public_buf_m, 10);
       break;
     case level_pos_x4:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[3][X_AXIS]);
+      itoa(gCfgItems.trammingPos[3].x, public_buf_m, 10);
       break;
     case level_pos_y4:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[3][Y_AXIS]);
+      itoa(gCfgItems.trammingPos[3].y, public_buf_m, 10);
       break;
     case level_pos_x5:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[4][X_AXIS]);
+      itoa(gCfgItems.trammingPos[4].x, public_buf_m, 10);
       break;
     case level_pos_y5:
-      sprintf_P(public_buf_m, PSTR("%d"), (int)gCfgItems.trammingPos[4][Y_AXIS]);
+      itoa(gCfgItems.trammingPos[4].y, public_buf_m, 10);
       break;
     #if HAS_BED_PROBE
       case x_offset:
         #if HAS_PROBE_XY_OFFSET
-          sprintf_P(public_buf_m, PSTR("%s"), dtostrf(probe.offset.x, 1, 3, str_1));
+          dtostrf(probe.offset.x, 1, 3, public_buf_m);
         #endif
         break;
       case y_offset:
         #if HAS_PROBE_XY_OFFSET
-          sprintf_P(public_buf_m, PSTR("%s"), dtostrf(probe.offset.y, 1, 3, str_1));
+          dtostrf(probe.offset.y, 1, 3, public_buf_m);
         #endif
         break;
       case z_offset:
-        sprintf_P(public_buf_m, PSTR("%s"), dtostrf(probe.offset.z, 1, 3, str_1));
+        dtostrf(probe.offset.z, 1, 3, public_buf_m);
         break;
     #endif
     case load_length:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filamentchange_load_length);
+      itoa(gCfgItems.filamentchange_load_length, public_buf_m, 10);
       break;
     case load_speed:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filamentchange_load_speed);
+      itoa(gCfgItems.filamentchange_load_speed, public_buf_m, 10);
       break;
     case unload_length:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filamentchange_unload_length);
+      itoa(gCfgItems.filamentchange_unload_length, public_buf_m, 10);
       break;
     case unload_speed:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filamentchange_unload_speed);
+      itoa(gCfgItems.filamentchange_unload_speed, public_buf_m, 10);
       break;
     case filament_temp:
-      sprintf_P(public_buf_m, PSTR("%d"), gCfgItems.filament_limit_temp);
+      itoa(gCfgItems.filament_limit_temp, public_buf_m, 10);
       break;
     case x_sensitivity:
       #if X_SENSORLESS
-        sprintf_P(public_buf_m, PSTR("%d"), TERN(X_SENSORLESS, stepperX.homing_threshold(), 0));
+        itoa(TERN(X_SENSORLESS, stepperX.homing_threshold(), 0), public_buf_m, 10);
       #endif
       break;
     case y_sensitivity:
       #if Y_SENSORLESS
-        sprintf_P(public_buf_m, PSTR("%d"), TERN(Y_SENSORLESS, stepperY.homing_threshold(), 0));
+        itoa(TERN(Y_SENSORLESS, stepperY.homing_threshold(), 0), public_buf_m, 10);
       #endif
       break;
     case z_sensitivity:
       #if Z_SENSORLESS
-        sprintf_P(public_buf_m, PSTR("%d"), TERN(Z_SENSORLESS, stepperZ.homing_threshold(), 0));
+        itoa(TERN(Z_SENSORLESS, stepperZ.homing_threshold(), 0), public_buf_m, 10);
       #endif
       break;
     case z2_sensitivity:
       #if Z2_SENSORLESS
-        sprintf_P(public_buf_m, PSTR("%d"), TERN(Z2_SENSORLESS, stepperZ2.homing_threshold(), 0));
+        itoa(TERN(Z2_SENSORLESS, stepperZ2.homing_threshold(), 0), public_buf_m, 10);
       #endif
       break;
   }
@@ -346,16 +343,16 @@ static void set_value_confirm() {
     case pause_pos_x: gCfgItems.pausePosX = atof(key_value); update_spi_flash(); break;
     case pause_pos_y: gCfgItems.pausePosY = atof(key_value); update_spi_flash(); break;
     case pause_pos_z: gCfgItems.pausePosZ = atof(key_value); update_spi_flash(); break;
-    case level_pos_x1: gCfgItems.trammingPos[0][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y1: gCfgItems.trammingPos[0][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x2: gCfgItems.trammingPos[1][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y2: gCfgItems.trammingPos[1][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x3: gCfgItems.trammingPos[2][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y3: gCfgItems.trammingPos[2][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x4: gCfgItems.trammingPos[3][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y4: gCfgItems.trammingPos[3][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_x5: gCfgItems.trammingPos[4][X_AXIS] = atoi(key_value); update_spi_flash(); break;
-    case level_pos_y5: gCfgItems.trammingPos[4][Y_AXIS] = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x1: gCfgItems.trammingPos[0].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y1: gCfgItems.trammingPos[0].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x2: gCfgItems.trammingPos[1].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y2: gCfgItems.trammingPos[1].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x3: gCfgItems.trammingPos[2].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y3: gCfgItems.trammingPos[2].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x4: gCfgItems.trammingPos[3].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y4: gCfgItems.trammingPos[3].y = atoi(key_value); update_spi_flash(); break;
+    case level_pos_x5: gCfgItems.trammingPos[4].x = atoi(key_value); update_spi_flash(); break;
+    case level_pos_y5: gCfgItems.trammingPos[4].y = atoi(key_value); update_spi_flash(); break;
     #if HAS_BED_PROBE
       case x_offset: {
         #if HAS_PROBE_XY_OFFSET

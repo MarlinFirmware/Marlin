@@ -885,11 +885,9 @@ class Planner {
     // Wait for moves to finish and disable all steppers
     static void finish_and_disable();
 
-    // Periodic tick to handle cleaning timeouts
+    // Periodic handler to manage the cleaning buffer counter
     // Called from the Temperature ISR at ~1kHz
-    static void tick() {
-      if (cleaning_buffer_counter) --cleaning_buffer_counter;
-    }
+    static void isr() { if (cleaning_buffer_counter) --cleaning_buffer_counter; }
 
     /**
      * Does the buffer have any blocks queued?
@@ -926,7 +924,7 @@ class Planner {
       static bool autotemp_enabled;
       static void autotemp_update();
       static void autotemp_M104_M109();
-      static void getHighESpeed();
+      static void autotemp_task();
     #endif
 
     #if HAS_LINEAR_E_JERK

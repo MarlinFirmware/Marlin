@@ -1382,7 +1382,7 @@ void Planner::check_axes_activity() {
     sync_fan_speeds(tail_fan_speed);
   #endif
 
-  TERN_(AUTOTEMP, getHighESpeed());
+  TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
     TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
@@ -1432,7 +1432,7 @@ void Planner::check_axes_activity() {
    * based on the extrusion speed, which is calculated from the blocks
    * currently in the planner.
    */
-  void Planner::getHighESpeed() {
+  void Planner::autotemp_task() {
     static float oldt = 0;
 
     if (!autotemp_enabled) return;
@@ -2997,7 +2997,7 @@ void Planner::set_e_position_mm(const_float_t e) {
   const uint8_t axis_index = E_AXIS_N(active_extruder);
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
-  const float e_new = e - TERN0(FWRETRACT, fwretract.current_retract[active_extruder]);
+  const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
   position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
   TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
   TERN_(IS_KINEMATIC, position_cart.e = e);

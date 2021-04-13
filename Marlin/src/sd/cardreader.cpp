@@ -565,7 +565,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
 //   - 1 : (no file open) Opening a macro (M98).
 //   - 2 : Resuming from a sub-procedure
 //
-void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*/) {
+void CardReader::openFileRead(const char * const path, const uint8_t subcall_type/*=0*/) {
   if (!isMounted()) return;
 
   switch (subcall_type) {
@@ -722,10 +722,10 @@ void CardReader::report_status() {
     SERIAL_ECHOLNPGM(STR_SD_NOT_PRINTING);
 }
 
-void CardReader::write_command(const char * const buf) {
-  char *begin = buf;
-  char *npos = nullptr;
-  char *end = buf + strlen(buf) - 1;
+void CardReader::write_command(char * const buf) {
+  char *begin = buf,
+       *npos = nullptr,
+       *end = buf + strlen(buf) - 1;
 
   file.writeError = false;
   if ((npos = strchr(buf, 'N'))) {

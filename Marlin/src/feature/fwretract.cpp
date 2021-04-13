@@ -111,14 +111,14 @@ void FWRetract::retract(const bool retracting
 
   /* // debugging
     SERIAL_ECHOLNPAIR(
-      "retracting ", retracting,
+      "retracting ", AS_DIGIT(retracting),
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
@@ -185,13 +185,13 @@ void FWRetract::retract(const bool retracting
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR("retracting ", retracting);
-    SERIAL_ECHOLNPAIR("swapping ", swapping);
+    SERIAL_ECHOLNPAIR("retracting ", AS_DIGIT(retracting));
+    SERIAL_ECHOLNPAIR("swapping ", AS_DIGIT(swapping));
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
@@ -268,7 +268,7 @@ void FWRetract::M208_report(const bool forReplay/*=false*/) {
 
   void FWRetract::M209_report(const bool forReplay/*=false*/) {
     if (!forReplay) { SERIAL_ECHO_MSG("; Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover"); SERIAL_ECHO_START(); }
-    SERIAL_ECHOLNPAIR("  M209 S", autoretract_enabled);
+    SERIAL_ECHOLNPAIR("  M209 S", AS_DIGIT(autoretract_enabled));
   }
 
 #endif // FWRETRACT_AUTORETRACT

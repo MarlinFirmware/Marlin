@@ -55,7 +55,7 @@ constexpr static float gaugeThickness = 0.25;
 static float meshGetter(uint8_t x, uint8_t y, void*) {
   xy_uint8_t pos;
   pos.x = x;
-  pos.y = y;  
+  pos.y = y;
   return ExtUI::getMeshPoint(pos);
 }
 
