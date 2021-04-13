@@ -53,7 +53,7 @@ void ZOffsetScreen::move(float inc) {
   // We can't store state after the call to the AlertBox, so
   // check whether the current position equal mydata.z in order
   // to know whether the user started the wizard.
-  if(getAxisPosition_mm(Z) == mydata.z) {
+  if (getAxisPosition_mm(Z) == mydata.z) {
     mydata.z += inc;
     setAxisPosition_mm(mydata.z, Z);
   }
