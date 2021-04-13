@@ -944,7 +944,7 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.fanPercent(spd);
+              per = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
