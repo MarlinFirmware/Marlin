@@ -367,11 +367,8 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
     planner.e_factor[active_extruder] = 1.0f;
   #endif
 
-  #if !IS_KINEMATIC
-    constexpr bool is_fast = false;
-  #endif
-  if (is_fast)
-    prepare_fast_move_to_destination();
+  if (TERN0(IS_KINEMATIC, is_fast))
+    TERN(IS_KINEMATIC, NOOP, prepare_line_to_destination());
   else
     prepare_line_to_destination();
 
