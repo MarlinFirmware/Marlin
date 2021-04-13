@@ -900,8 +900,8 @@ void MarlinSettings::postprocess() {
       HOTEND_LOOP() {
         PIDCF_t pidcf = {
           #if DISABLED(PIDTEMP)
-            NAN, NAN, NAN,
-            NAN, NAN
+            MFNAN, MFNAN, MFNAN,
+            MFNAN, MFNAN
           #else
                          PID_PARAM(Kp, e),
             unscalePID_i(PID_PARAM(Ki, e)),
@@ -928,7 +928,7 @@ void MarlinSettings::postprocess() {
 
       const PID_t bed_pid = {
         #if DISABLED(PIDTEMPBED)
-          NAN, NAN, NAN
+          MFNAN, MFNAN, MFNAN
         #else
           // Store the unscaled PID values
           thermalManager.temp_bed.pid.Kp,
@@ -947,7 +947,7 @@ void MarlinSettings::postprocess() {
 
       const PID_t chamber_pid = {
         #if DISABLED(PIDTEMPCHAMBER)
-          NAN, NAN, NAN
+          MFNAN, MFNAN, MFNAN
         #else
           // Store the unscaled PID values
           thermalManager.temp_chamber.pid.Kp,
@@ -1786,7 +1786,7 @@ void MarlinSettings::postprocess() {
           PIDCF_t pidcf;
           EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && !isnan(pidcf.Kp)) {
+            if (!validating && !ISNAN(pidcf.Kp)) {
               // Scale PID values since EEPROM values are unscaled
               PID_PARAM(Kp, e) = pidcf.Kp;
               PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
@@ -1818,7 +1818,7 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && !ISNAN(pid.Kp)) {
             // Scale PID values since EEPROM values are unscaled
             thermalManager.temp_bed.pid.Kp = pid.Kp;
             thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
@@ -1834,7 +1834,7 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPCHAMBER)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && !ISNAN(pid.Kp)) {
             // Scale PID values since EEPROM values are unscaled
             thermalManager.temp_chamber.pid.Kp = pid.Kp;
             thermalManager.temp_chamber.pid.Ki = scalePID_i(pid.Ki);

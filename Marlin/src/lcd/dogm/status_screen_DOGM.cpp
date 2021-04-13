@@ -835,13 +835,17 @@ void MarlinUI::draw_status_screen() {
             mix_label = PSTR("Mx");
           }
 
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wformat-overflow"
+        #if GCC_VERSION <= 50000
+          #pragma GCC diagnostic push
+          #pragma GCC diagnostic ignored "-Wformat-overflow"
+        #endif
 
         sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
         lcd_put_u8str(X_LABEL_POS, XYZ_BASELINE, mixer_messages);
 
-        #pragma GCC diagnostic pop
+        #if GCC_VERSION <= 50000
+          #pragma GCC diagnostic pop
+        #endif
 
       #else
 

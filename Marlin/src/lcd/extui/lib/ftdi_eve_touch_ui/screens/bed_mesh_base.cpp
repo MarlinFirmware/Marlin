@@ -31,7 +31,7 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
   constexpr uint8_t cols = GRID_MAX_POINTS_X;
 
   #define VALUE(X,Y)  (func ? func(X,Y,data) : 0)
-  #define ISVAL(X,Y)  (func ? !isnan(VALUE(X,Y)) : true)
+  #define ISVAL(X,Y)  (func ? !ISNAN(VALUE(X,Y)) : true)
   #define HEIGHT(X,Y) (ISVAL(X,Y) ? (VALUE(X,Y) - val_min) * scale_z : 0)
 
   // Compute the mean, min and max for the points
