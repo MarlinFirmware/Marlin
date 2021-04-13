@@ -88,11 +88,11 @@ void GcodeSuite::M701() {
       tool_change(target_extruder, false);
   #endif
 
-  // Lift Z axis
-  if (park_point.z > 0) {
+  // Raise the Z axis (with max limit)
+  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
+  if (park_raise > 0) {
     destination = current_position;
-    destination.z += park_point.z;
-    NOMORE(destination.z, Z_MAX_POS);
+    destination.z += park_raise;
     prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
   }
 
@@ -117,9 +117,9 @@ void GcodeSuite::M701() {
   #endif
 
   // Restore Z axis
-  if (park_point.z > 0) {
+  if (park_raise > 0) {
     destination = current_position;
-    destination.z -= park_point.z;
+    destination.z -= park_raise;
     NOLESS(destination.z, 0);
     prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
   }
