@@ -297,7 +297,7 @@ namespace ExtUI {
 
   float getTargetFan_percent(const fan_t fan) {
     #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
+      return thermalManager.fanSpeedPercent(fan - FAN0);
     #else
       UNUSED(fan);
       return 0;
@@ -306,7 +306,7 @@ namespace ExtUI {
 
   float getActualFan_percent(const fan_t fan) {
     #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
+      return thermalManager.scaledFanSpeedPercent(fan - FAN0);
     #else
       UNUSED(fan);
       return 0;

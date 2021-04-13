@@ -750,7 +750,7 @@ void MarlinUI::draw_status_screen() {
     #if HOTENDS > 2
       _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
     #endif
-  #endif // HOTENDS <= 1
+  #endif
 
   #if HAS_HEATED_BED
     #if HAS_LEVELING
@@ -758,16 +758,15 @@ void MarlinUI::draw_status_screen() {
     #else
       _draw_heater_status(H_BED, "BED", blink);
     #endif
-  #endif // HAS_HEATED_BED
+  #endif
 
   #if HAS_FAN
     uint16_t spd = thermalManager.fan_speed[0];
-
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
+    uint16_t per = thermalManager.pwmToPercent(spd);
 
-    uint16_t per = thermalManager.fanPercent(spd);
     #if HOTENDS < 2
       #define FANX 11
     #else
