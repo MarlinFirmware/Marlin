@@ -668,9 +668,9 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
+  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -941,7 +941,7 @@ void MarlinUI::draw_status_screen() {
       // Show the location value
       lcd.setCursor(_LCD_W_POS, 3); lcd_put_u8str_P(PSTR("Z:"));
 
-      if (!isnan(ubl.z_values[x_plot][y_plot]))
+      if (!ISNAN(ubl.z_values[x_plot][y_plot]))
         lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
       else
         lcd_put_u8str_P(PSTR(" -----"));

@@ -70,7 +70,7 @@ void BedMeshEditScreen::onEntry() {
 
 float BedMeshEditScreen::getHighlightedValue() {
   const float val = ExtUI::getMeshPoint(mydata.highlight);
-  return (isnan(val) ? 0 : val) + mydata.zAdjustment;
+  return (ISNAN(val) ? 0 : val) + mydata.zAdjustment;
 }
 
 void BedMeshEditScreen::setHighlightedValue(float value) {

@@ -251,7 +251,7 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  dtostrf(current_position[Z_AXIS], 1, 3, public_buf_l);
+  dtostrf(current_position.z, 1, 3, public_buf_l);
   lv_label_set_text(labelZpos, public_buf_l);
 }
 
