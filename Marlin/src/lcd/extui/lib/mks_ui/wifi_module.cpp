@@ -185,7 +185,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
-      strcat_P((char *)dosName, PSTR(".GCO"));
+      strcat_P(dosName, PSTR(".GCO"));
       break;
     }
     else {
@@ -196,7 +196,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
       dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
     }
     if (i >= 5) {
-      strcat_P((char *)dosName, PSTR("~1.GCO"));
+      strcat_P(dosName, PSTR("~1.GCO"));
       break;
     }
   }
@@ -529,13 +529,13 @@ int write_to_file(char *buf, int len) {
   return 0;
 }
 
-#define ESP_PROTOC_HEAD (uint8_t)0xA5
-#define ESP_PROTOC_TAIL   (uint8_t)0xFC
+#define ESP_PROTOC_HEAD        (uint8_t)0xA5
+#define ESP_PROTOC_TAIL        (uint8_t)0xFC
 
-#define ESP_TYPE_NET        (uint8_t)0x0
-#define ESP_TYPE_GCODE        (uint8_t)0x1
-#define ESP_TYPE_FILE_FIRST     (uint8_t)0x2
-#define ESP_TYPE_FILE_FRAGMENT    (uint8_t)0x3
+#define ESP_TYPE_NET           (uint8_t)0x0
+#define ESP_TYPE_GCODE         (uint8_t)0x1
+#define ESP_TYPE_FILE_FIRST    (uint8_t)0x2
+#define ESP_TYPE_FILE_FRAGMENT (uint8_t)0x3
 
 #define ESP_TYPE_WIFI_LIST    (uint8_t)0x4
 
@@ -592,25 +592,25 @@ uint8_t Explore_Disk(char *path , uint8_t recu_level) {
   return fileCnt;
 }
 
-static void wifi_gcode_exec(uint8_t *cmd_line) {
+static void wifi_gcode_exec(char *cmd_line) {
   char tempBuf[100] = { 0 };
-  uint8_t *tmpStr = 0;
+  char *tmpStr = 0;
   int  cmd_value;
   volatile int print_rate;
-  if (strchr((char *)cmd_line, '\n') && (strchr((char *)cmd_line, 'G') || strchr((char *)cmd_line, 'M') || strchr((char *)cmd_line, 'T'))) {
-    tmpStr = (uint8_t *)strchr((char *)cmd_line, '\n');
+  if (strchr(cmd_line, '\n') && (strchr(cmd_line, 'G') || strchr(cmd_line, 'M') || strchr(cmd_line, 'T'))) {
+    tmpStr = strchr(cmd_line, '\n');
     if (tmpStr) *tmpStr = '\0';
 
-    tmpStr = (uint8_t *)strchr((char *)cmd_line, '\r');
+    tmpStr = strchr(cmd_line, '\r');
     if (tmpStr) *tmpStr = '\0';
 
-    tmpStr = (uint8_t *)strchr((char *)cmd_line, '*');
+    tmpStr = strchr(cmd_line, '*');
     if (tmpStr) *tmpStr = '\0';
 
-    tmpStr = (uint8_t *)strchr((char *)cmd_line, 'M');
+    tmpStr = strchr(cmd_line, 'M');
     if (tmpStr) {
-      cmd_value = atoi((char *)(tmpStr + 1));
-      tmpStr = (uint8_t *)strchr((char *)tmpStr, ' ');
+      cmd_value = atoi(tmpStr + 1);
+      tmpStr = strchr(tmpStr, ' ');
 
       switch (cmd_value) {
 
@@ -622,7 +622,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             if (tmpStr == 0) {
               gCfgItems.fileSysType = FILE_SYS_SD;
               send_to_wifi((uint8_t *)"Begin file list\r\n", strlen("Begin file list\r\n"));
-              get_file_list((char *)"0:/");
+              get_file_list("0:/");
               send_to_wifi((uint8_t *)"End file list\r\n", strlen("End file list\r\n"));
               SEND_OK_TO_WIFI;
               break;
@@ -633,15 +633,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             if (gCfgItems.wifi_type == ESP_WIFI) {
               char *path = tempBuf;
 
-              if (strlen((char *)&tmpStr[index]) < 80) {
+              if (strlen(&tmpStr[index]) < 80) {
                 send_to_wifi((uint8_t *)"Begin file list\r\n", strlen("Begin file list\r\n"));
 
-                if (strncmp((char *)&tmpStr[index], "1:", 2) == 0)
+                if (strncmp(&tmpStr[index], "1:", 2) == 0)
                   gCfgItems.fileSysType = FILE_SYS_SD;
-                else if (strncmp((char *)&tmpStr[index], "0:", 2) == 0)
+                else if (strncmp(&tmpStr[index], "0:", 2) == 0)
                   gCfgItems.fileSysType = FILE_SYS_USB;
 
-                strcpy((char *)path, (char *)&tmpStr[index]);
+                strcpy(path, &tmpStr[index]);
                 get_file_list(path);
                 send_to_wifi((uint8_t *)"End file list\r\n", strlen("End file list\r\n"));
               }
@@ -661,18 +661,18 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             int index = 0;
             while (tmpStr[index] == ' ') index++;
 
-            if (strstr_P((char *)&tmpStr[index], PSTR(".g")) || strstr_P((char *)&tmpStr[index], PSTR(".G"))) {
-              if (strlen((char *)&tmpStr[index]) < 80) {
+            if (strstr_P(&tmpStr[index], PSTR(".g")) || strstr_P(&tmpStr[index], PSTR(".G"))) {
+              if (strlen(&tmpStr[index]) < 80) {
                 ZERO(list_file.file_name[sel_id]);
                 ZERO(list_file.long_name[sel_id]);
                 uint8_t has_path_selected = 0;
 
                 if (gCfgItems.wifi_type == ESP_WIFI) {
-                  if (strncmp_P((char *)&tmpStr[index], PSTR("1:"), 2) == 0) {
+                  if (strncmp_P(&tmpStr[index], PSTR("1:"), 2) == 0) {
                     gCfgItems.fileSysType = FILE_SYS_SD;
                     has_path_selected = 1;
                   }
-                  else if (strncmp_P((char *)&tmpStr[index], PSTR("0:"), 2) == 0) {
+                  else if (strncmp_P(&tmpStr[index], PSTR("0:"), 2) == 0) {
                     gCfgItems.fileSysType = FILE_SYS_USB;
                     has_path_selected = 1;
                   }
@@ -684,23 +684,23 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                     char fileName[sizeof(list_file.file_name[sel_id])];
                     fileName[0] = '\0';
                     if (has_path_selected == 1) {
-                      strcat(fileName, (char *)&tmpStr[index + 3]);
+                      strcat(fileName, &tmpStr[index + 3]);
                       strcat_P(list_file.file_name[sel_id], PSTR("/"));
                     }
-                    else strcat(fileName, (char *)&tmpStr[index]);
+                    else strcat(fileName, &tmpStr[index]);
                     if (!longName2DosName(fileName, dosName))
                       strcpy_P(list_file.file_name[sel_id], PSTR("notValid"));
-                    strcat(list_file.file_name[sel_id], (char *)dosName);
-                    strcat((char *)list_file.long_name[sel_id], (char *)dosName);
+                    strcat(list_file.file_name[sel_id], dosName);
+                    strcat(list_file.long_name[sel_id], dosName);
                   }
                   else {
-                    strcat(list_file.file_name[sel_id], (char *)&tmpStr[index]);
-                    strcat((char *)list_file.long_name[sel_id], (char *)&tmpStr[index]);
+                    strcat(list_file.file_name[sel_id], &tmpStr[index]);
+                    strcat(list_file.long_name[sel_id], &tmpStr[index]);
                   }
 
                 }
                 else
-                  strcpy(list_file.file_name[sel_id], (char *)&tmpStr[index]);
+                  strcpy(list_file.file_name[sel_id], &tmpStr[index]);
 
                 char *cur_name=strrchr(list_file.file_name[sel_id],'/');
 
@@ -840,8 +840,8 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             int index = 0;
             while (tmpStr[index] == ' ') index++;
 
-            if (strstr_P((char *)&tmpStr[index], PSTR(".g")) || strstr_P((char *)&tmpStr[index], PSTR(".G"))) {
-              strcpy(file_writer.saveFileName, (char *)&tmpStr[index]);
+            if (strstr_P(&tmpStr[index], PSTR(".g")) || strstr_P(&tmpStr[index], PSTR(".G"))) {
+              strcpy(file_writer.saveFileName, &tmpStr[index]);
 
               if (gCfgItems.fileSysType == FILE_SYS_SD) {
                 ZERO(tempBuf);
@@ -858,7 +858,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 card.openFileWrite(cur_name);
                 if (card.isFileOpen()) {
                   ZERO(file_writer.saveFileName);
-                  strcpy(file_writer.saveFileName, (char *)&tmpStr[index]);
+                  strcpy(file_writer.saveFileName, &tmpStr[index]);
                   ZERO(tempBuf);
                   sprintf_P(tempBuf, PSTR("Writing to file: %s\r\n"), file_writer.saveFileName);
                   wifi_ret_ack();
@@ -978,7 +978,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
         case 998:
           if (uiCfg.print_state == IDLE) {
-            int v = atoi((char *)tmpStr);
+            int v = atoi(tmpStr);
             if (v == 0)
               set_cur_file_sys(0);
             else if (v == 1)
@@ -994,7 +994,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           break;
 
         default:
-          strcat_P((char *)cmd_line, PSTR("\n"));
+          strcat_P(cmd_line, PSTR("\n"));
 
           if (espGcodeFifo.wait_tick > 5) {
             uint32_t left;
@@ -1020,7 +1020,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
       }
     }
     else {
-      strcat_P((char *)cmd_line, PSTR("\n"));
+      strcat_P(cmd_line, PSTR("\n"));
 
       if (espGcodeFifo.wait_tick > 5) {
         uint32_t left_g;
@@ -1192,27 +1192,27 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   }
 }
 
-static void gcode_msg_handle(uint8_t * msg, uint16_t msgLen) {
-  uint8_t gcodeBuf[100] = { 0 };
+static void gcode_msg_handle(char *msg, uint16_t msgLen) {
+  char gcodeBuf[100] = { 0 };
   char *index_s, *index_e;
 
   if (msgLen <= 0) return;
 
-  index_s = (char *)msg;
-  index_e = (char *)strchr((char *)msg, '\n');
+  index_s = msg;
+  index_e = strchr(msg, '\n');
   if (*msg == 'N') {
-    index_s = (char *)strchr((char *)msg, ' ');
+    index_s = strchr(msg, ' ');
     while (*index_s == ' ') index_s++;
   }
-  while ((index_e != 0) && ((int)index_s < (int)index_e)) {
-    if ((int)(index_e - index_s) < (int)sizeof(gcodeBuf)) {
+  while ((index_e != 0) && ((uintptr_t)index_s < (uintptr_t)index_e)) {
+    if ((uintptr_t)(index_e - index_s) < sizeof(gcodeBuf)) {
       ZERO(gcodeBuf);
       memcpy(gcodeBuf, index_s, index_e - index_s + 1);
       wifi_gcode_exec(gcodeBuf);
     }
     while ((*index_e == '\r') || (*index_e == '\n')) index_e++;
     index_s = index_e;
-    index_e = (char *)strchr(index_s, '\n');
+    index_e = strchr(index_s, '\n');
   }
 }
 
@@ -1486,7 +1486,7 @@ void esp_data_parser(char *cmdRxBuf, int len) {
         net_msg_handle(esp_frame.data, esp_frame.dataLen);
         break;
       case ESP_TYPE_GCODE:
-        gcode_msg_handle(esp_frame.data, esp_frame.dataLen);
+        gcode_msg_handle((char *)esp_frame.data, esp_frame.dataLen);
         break;
       case ESP_TYPE_FILE_FIRST:
         file_first_msg_handle(esp_frame.data, esp_frame.dataLen);
