@@ -883,7 +883,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             SEND_OK_TO_WIFI;
 
             char *outBuf = (char *)tempBuf;
-            char str_1[16], tbuf[34];
+            char tbuf[34];
 
             sprintf_P(tbuf, PSTR("%d /%d"), (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0));
 
@@ -1313,7 +1313,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
       lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
       return;
     }
-    sprintf_P((char *)saveFilePath, PSTR("%s"), dosName);
+    strcpy(saveFilePath, dosName);
 
     card.cdroot();
     upload_file.close();
