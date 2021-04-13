@@ -182,7 +182,7 @@ uint32_t getWifiTick();
 uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick);
 
 void mks_esp_wifi_init();
-int cfg_cloud_flag;
+extern int cfg_cloud_flag;
 int send_to_wifi(uint8_t *buf, int len);
 void wifi_looping();
 int raw_send_to_wifi(uint8_t *buf, int len);
