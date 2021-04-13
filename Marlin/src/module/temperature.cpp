@@ -1406,6 +1406,8 @@ void Temperature::manage_heater() {
             fan_chamber_pwm = (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * ABS(temp_chamber.celsius - temp_chamber.target);
             if (temp_chamber.soft_pwm_amount)
               fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
+          #elif CHAMBER_FAN_MODE == 3
+            fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
           NOMORE(fan_chamber_pwm, 225);
           set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
