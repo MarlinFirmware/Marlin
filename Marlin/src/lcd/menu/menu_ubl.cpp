@@ -609,13 +609,13 @@ void _menu_ubl_tools() {
 
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[128];
-  #if HAS_BED_PROBE && HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+  #if HAS_BED_PROBE && HAS_HEATED_BED && ENABLED(Z_STEPPER_AUTO_ALIGN)
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nM190 S%i\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
-  #elif !HAS_BED_PROBE && HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+  #elif !HAS_BED_PROBE && HAS_HEATED_BED && ENABLED(Z_STEPPER_AUTO_ALIGN)
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nM190 S%i\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"), custom_bed_temp);
-  #elif HAS_BED_PROBE && !HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+  #elif HAS_BED_PROBE && !HAS_HEATED_BED && ENABLED(Z_STEPPER_AUTO_ALIGN)
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500"));
-  #elif !HAS_BED_PROBE && !HAS_HEATED_BED && Z_STEPPER_AUTO_ALIGN
+  #elif !HAS_BED_PROBE && !HAS_HEATED_BED && ENABLED(Z_STEPPER_AUTO_ALIGN)
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG34\nG29 P4 R255\nG29 S0\nG29 A\nG29 F10\nM140 S0\nM500")); 
 
   #elif HAS_BED_PROBE && HAS_HEATED_BED
