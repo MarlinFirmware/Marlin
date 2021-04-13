@@ -45,7 +45,6 @@
 #define ICON_POS_Y          38
 #define TARGET_LABEL_MOD_Y -36
 #define LABEL_MOD_Y         30
-#define SECOND_EXT_MOD_Y   100
 
 extern lv_group_t*  g;
 static lv_obj_t *scr;
@@ -186,24 +185,33 @@ void lv_draw_ready_print() {
     // Monitoring
     lv_obj_t *buttonExt1 = lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 55, ICON_POS_Y, event_handler, ID_INFO_EXT);
     #if HAS_MULTI_EXTRUDER
-        lv_obj_t *buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 55, ICON_POS_Y + SECOND_EXT_MOD_Y, event_handler, ID_INFO_EXT);
-    #endif
-    #if HAS_HEATED_BED
+      lv_obj_t *buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 163, ICON_POS_Y, event_handler, ID_INFO_EXT);
+      #if HAS_HEATED_BED
+        lv_obj_t *buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", 271, ICON_POS_Y, event_handler, ID_INFO_BED);
+      #endif
+    #else
+      #if HAS_HEATED_BED
         lv_obj_t *buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", 210, ICON_POS_Y, event_handler, ID_INFO_BED);
+      #endif
     #endif
+
     lv_obj_t *buttonFanstate = lv_big_button_create(scr, "F:/bmp_fan_state.bin", " ", 380, ICON_POS_Y, event_handler, ID_INFO_FAN);
 
     labelExt1 = lv_label_create(scr, 55, LABEL_MOD_Y, nullptr);
     labelExt1Target = lv_label_create(scr, 55, LABEL_MOD_Y, nullptr);
 
     #if HAS_MULTI_EXTRUDER
-      labelExt2 = lv_label_create(scr, 55, LABEL_MOD_Y + SECOND_EXT_MOD_Y, nullptr);
-      labelExt2Target = lv_label_create(scr, 55, LABEL_MOD_Y + SECOND_EXT_MOD_Y, nullptr);
-    #endif
-
-    #if HAS_HEATED_BED
-      labelBed = lv_label_create(scr, 210, LABEL_MOD_Y, nullptr);
-      labelBedTarget = lv_label_create(scr, 210, LABEL_MOD_Y, nullptr);
+      labelExt2 = lv_label_create(scr, 163, LABEL_MOD_Y, nullptr);
+      labelExt2Target = lv_label_create(scr, 163, LABEL_MOD_Y, nullptr);
+      #if HAS_HEATED_BED
+        labelBed = lv_label_create(scr, 271, LABEL_MOD_Y, nullptr);
+        labelBedTarget = lv_label_create(scr, 271, LABEL_MOD_Y, nullptr);
+      #endif
+    #else
+      #if HAS_HEATED_BED
+        labelBed = lv_label_create(scr, 210, LABEL_MOD_Y, nullptr);
+        labelBedTarget = lv_label_create(scr, 210, LABEL_MOD_Y, nullptr);
+      #endif
     #endif
 
     labelFan = lv_label_create(scr, 380, 80, nullptr);

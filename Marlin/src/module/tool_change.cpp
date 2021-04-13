@@ -359,7 +359,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
       // STEP 6
 
-      current_position.x = midpos - TERN0(HAS_HOTEND_OFFSET, hotend_offset[new_tool].x);
+      current_position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, hotend_offset[new_tool].x);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("(6) Move midway between hotends", current_position);
