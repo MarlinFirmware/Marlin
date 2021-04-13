@@ -75,11 +75,12 @@ xyz_pos_t position_before_pause;
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
-  destination.z = current_position.z + mks_park_pos.z;
+  destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
   prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
   destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
   prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
 }
+
 void MKS_resume_print_move() {
   destination.set(position_before_pause.x, position_before_pause.y);
   prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
