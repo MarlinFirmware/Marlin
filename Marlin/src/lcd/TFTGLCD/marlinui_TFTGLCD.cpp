@@ -668,9 +668,9 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
+  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -750,7 +750,7 @@ void MarlinUI::draw_status_screen() {
     #if HOTENDS > 2
       _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
     #endif
-  #endif // HOTENDS <= 1
+  #endif
 
   #if HAS_HEATED_BED
     #if HAS_LEVELING
@@ -758,16 +758,15 @@ void MarlinUI::draw_status_screen() {
     #else
       _draw_heater_status(H_BED, "BED", blink);
     #endif
-  #endif // HAS_HEATED_BED
+  #endif
 
   #if HAS_FAN
     uint16_t spd = thermalManager.fan_speed[0];
-
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
+    uint16_t per = thermalManager.pwmToPercent(spd);
 
-    uint16_t per = thermalManager.fanPercent(spd);
     #if HOTENDS < 2
       #define FANX 11
     #else

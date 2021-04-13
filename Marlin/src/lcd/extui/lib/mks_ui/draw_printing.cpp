@@ -236,7 +236,7 @@ void disp_bed_temp() {
 }
 
 void disp_fan_speed() {
-  sprintf_P(public_buf_l, PSTR("%d%%"), thermalManager.fanPercent(thermalManager.fan_speed[0]));
+  sprintf_P(public_buf_l, PSTR("%d%%"), thermalManager.fanSpeedPercent(0));
   lv_label_set_text(labelFan, public_buf_l);
 }
 
@@ -251,8 +251,7 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  char str_1[16];
-  sprintf_P(public_buf_l, PSTR("%s"), dtostrf(current_position[Z_AXIS], 1, 3, str_1));
+  dtostrf(current_position.z, 1, 3, public_buf_l);
   lv_label_set_text(labelZpos, public_buf_l);
 }
 
