@@ -1697,12 +1697,12 @@ void Stepper::pulse_phase_isr() {
       #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
         delta_error.e += advance_dividend.e;
         if (delta_error.e >= 0) {
-          count_position.e += count_direction.e;
           #if ENABLED(LIN_ADVANCE)
             delta_error.e -= advance_divisor;
             // Don't step E here - But remember the number of steps to perform
             motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
           #else
+            count_position.e += count_direction.e;
             step_needed.e = true;
           #endif
         }
@@ -2283,15 +2283,23 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
-      if (LA_steps > 0)
+      if (LA_steps > 0) {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-      else if (LA_steps < 0)
+        count_direction.e = 1;
+      }
+      else if (LA_steps < 0) {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+        count_direction.e = -1;
+      }
     #else
-      if (LA_steps > 0)
+      if (LA_steps > 0) {
         NORM_E_DIR(stepper_extruder);
-      else if (LA_steps < 0)
+        count_direction.e = 1;
+      }
+      else if (LA_steps < 0) {
         REV_E_DIR(stepper_extruder);
+        count_direction.e = -1;
+      }
     #endif
 
     DIR_WAIT_AFTER();
@@ -2311,6 +2319,8 @@ uint32_t Stepper::block_phase_isr() {
         else
           AWAIT_LOW_PULSE();
       #endif
+
+      count_position.e += count_direction.e;
 
       // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)

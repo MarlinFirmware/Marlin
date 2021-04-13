@@ -269,7 +269,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                             // update screen with # of good points
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH_HS_MODE, 7)); // clearance
+      do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, current_position.z + LEVEL_CORNERS_Z_HOP, 7)); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
