@@ -291,7 +291,7 @@ void disp_gcode_icon(uint8_t file_num) {
         lv_obj_align(labelPageUp[i], buttonGcode[i], LV_ALIGN_IN_BOTTOM_MID, 0, -5);
       }
       else {
-        if (have_pre_pic(list_file.file_name[i])) {
+        if (have_pre_pic((char *)list_file.file_name[i])) {
 
           //lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), list_file.file_name[i], 1);
 
