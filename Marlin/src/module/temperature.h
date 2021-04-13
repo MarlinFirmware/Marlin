@@ -578,8 +578,8 @@ class Temperature {
       }
 
       static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-      static inline uint8_t fanSpeedPercent(const uint8_t fan)          { return pwmToPercent(fan_speed[fan]); }
-      static inline uint8_t scaledFanSpeedPercent(const uint8_t fan) { return pwmToPercent(scaledFanSpeed(fan)); }
+      static inline uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
+      static inline uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
 
       #if ENABLED(EXTRA_FAN_SPEED)
         typedef struct { uint8_t saved, speed; } extra_fan_t;
