@@ -615,7 +615,8 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
-#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++) if (Heater & heater = Temperature::get_heater(HotEndPos0 + e))
+#define HEATER_LOOP() for (uint8_t e = 0; e < HeatersCount; e++) if (Heater & heater = Temperature::get_heater(e))
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1, v1, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)

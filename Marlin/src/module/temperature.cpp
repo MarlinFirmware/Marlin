@@ -336,7 +336,7 @@ static Heater heaters[] = {
 // Useful shortcut in the code below
 TERN_(HAS_HEATED_BED, static Heater & bed = heaters[HeatedBedPos]);
 TERN_(HAS_HEATED_CHAMBER, static Heater & chamber = heaters[HeatedChamberPos]);
-TERN_(EITHER(HAS_COOLER, HAS_TEMP_COOLER), static Heater & cooler = heaters[CoolerPos]);
+TERN_(HAS_COOLER || HAS_TEMP_COOLER, static Heater & cooler = heaters[CoolerPos]);
 
 
 Heater & Temperature::get_heater(const int pos) { return heaters[(heater_pos_t)pos]; }
@@ -476,7 +476,7 @@ float Heater::get_pid_output(const float minPower, const float maxPower, const f
 
   // PID is computed as float to get the maximum possible resolution even if it's slower
   #if DISABLED(PID_OPENLOOP)
-    static TERN(ANY(PID_EXTRUSION_SCALING, PID_FAN_SCALING), PIDCF_t, PID_t) work_pid; // At worst, can have 2 floats wasted here, but that's the price to pay for smaller code
+    static TERN(PID_EXTRUSION_SCALING || PID_FAN_SCALING, PIDCF_t, PID_t) work_pid; // At worst, can have 2 floats wasted here, but that's the price to pay for smaller code
     static float temp_iState = 0, temp_dState = 0;
     static bool pid_reset = true;
     float pid_output = 0;
@@ -701,7 +701,7 @@ bool Heater::wait_for_temperature(const uint8_t extruder, const bool no_wait_for
     ret = true;
   }
 
-  TERN_(ENABLED(AUTOTEMP), if (id >= 0) planner.autotemp_enabled = plannerATE);
+  TERN_(AUTOTEMP, if (id >= 0) planner.autotemp_enabled = plannerATE);
   return ret;
 }
 
@@ -1543,7 +1543,6 @@ void Temperature::manage_heater() {
   #if HAS_HOTEND
 
     HOTEND_LOOP() {
-      Heater & heater = heaters[HotEndPos0 + e];
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         if (heater.deg() > temp_range[e].maxtemp) max_temp_error((heater_id_t)e);
       #endif
@@ -1998,7 +1997,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(TEMP_SENSOR_0_IS_MAX_TC, heaters[HotEndPos0].info.raw = READ_MAX_TC(0));
   TERN_(TEMP_SENSOR_1_IS_MAX_TC, heaters[HotEndPos1].info.raw = READ_MAX_TC(1));
 
-  for (int i = 0; i < COUNT(heaters); i++)
+  for (int i = 0; i < HeatersCount; i++)
     heaters[i].celsius = heaters[i].analog_to_celsius(heaters[i].info.raw);
 
   TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
@@ -2525,7 +2524,7 @@ void Temperature::disable_all_heaters() {
   // Unpause and reset everything
   TERN_(PROBING_HEATERS_OFF, pause(false));
 
-  for (int i = 0; i < COUNT(heaters); i++) {
+  for (int i = 0; i < HeatersCount; i++) {
     heaters[i].set_target(0);
     heaters[i].info.soft_pwm_amount = 0;
     heaters[i].write(LOW);
@@ -2537,11 +2536,10 @@ void Temperature::disable_all_heaters() {
   #include "printcounter.h"
 
   bool Temperature::auto_job_over_threshold() {
-    #if HAS_HOTEND
-      HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
-    #endif
-    return TERN0(HAS_HEATED_BED, degTargetBed() > BED_MINTEMP)
-        || TERN0(HAS_HEATED_CHAMBER, degTargetChamber() > CHAMBER_MINTEMP);
+    for (Heater & heater : heaters) {
+      celsius_t minTemp = (heater.id >= 0 ? celsius_t(EXTRUDE_MINTEMP / 2) : heater.minTemp;
+      if (heater.degTarget() > minTemp) return true;
+    }
   }
 
   void Temperature::auto_job_check_timer(const bool can_start, const bool can_stop) {
@@ -2562,12 +2560,10 @@ void Temperature::disable_all_heaters() {
     if (p != paused) {
       paused = p;
       if (p) {
-        HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
+        HEATER_LOOP() { heater.expire(); } // Timeout immediately
       }
       else {
-        HOTEND_LOOP() reset_hotend_idle_timer(e);
-        TERN_(HAS_HEATED_BED, reset_bed_idle_timer());
+        HEATER_LOOP() { heater.reset(); heater.start_watching(); }
       }
     }
   }
@@ -2813,7 +2809,7 @@ void Temperature::readings_ready() {
   // Filament Sensor - can be read any time since IIR filtering is used
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.reading_ready());
 
-  for (int i = 0; i < COUNT(heaters); i++)
+  for (int i = 0; i < HeatersCount; i++)
     heaters[i].info.reset();
 
   #if HAS_HOTEND
@@ -2984,7 +2980,7 @@ void Temperature::tick() {
     if (pwm_count_tmp >= 127) {
       pwm_count_tmp -= 127;
 
-      for (int i = 0; i < COUNT(heaters); i++) {
+      for (int i = 0; i < HeatersCount; i++) {
         constexpr uint8_t pwm_mask = TERN0(SOFT_PWM_DITHER, _BV(SOFT_PWM_SCALE) - 1);
         heaters[i].write(soft_pwms[i].add(pwm_mask, heaters[i].info.soft_pwm_amount));
       }
@@ -3023,7 +3019,7 @@ void Temperature::tick() {
       #endif
     }
     else {
-      for (int i = 0; i < COUNT(heaters); i++)
+      for (int i = 0; i < HeatersCount; i++)
         if (soft_pwms[i].count <= pwm_count_tmp)
           heaters[i].write(LOW);
       }
@@ -3076,14 +3072,14 @@ void Temperature::tick() {
     static uint8_t slow_pwm_count = 0;
 
     if (slow_pwm_count == 0) {
-      for (int i = 0; i < COUNT(heaters); i++) {
+      for (int i = 0; i < HeatersCount; i++) {
         soft_pwms[i].count = heaters[i].info.soft_pwm_amount;
         const bool on = soft_pwms[i].count > 0;
         if (soft_pwms[i].ready(on)) heaters[i].write(on);
       }
     } // slow_pwm_count == 0
 
-    for (int i = 0; i < COUNT(heaters); i++)
+    for (int i = 0; i < HeatersCount; i++)
       if (soft_pwms[i].count < slow_pwm_count && soft_pwms[i].ready(false))
         heaters[i].write(false);
 
@@ -3162,7 +3158,7 @@ void Temperature::tick() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      for(int i = 0; i < COUNT(heaters); i++)
+      for(int i = 0; i < HeatersCount; i++)
         soft_pwms[i].dec();
     }
 
@@ -3216,7 +3212,7 @@ void Temperature::tick() {
       break;
 
     case HeatersSampling:
-      if (heater_index < COUNT(heaters)) next_sensor_state = adc_sensor_state; // Each heater is sampled in sequence
+      if (heater_index < HeatersCount) next_sensor_state = adc_sensor_state; // Each heater is sampled in sequence
       if (sampling) {                                   // and it alternates between sampling
         HAL_START_ADC(heaters[heater_index].pin);
       } else {                                          // and reading each call of the loop until all heaters are done
@@ -3375,61 +3371,34 @@ void Temperature::tick() {
       , const bool include_r/*=false*/
     #endif
   ) {
-    #if HAS_TEMP_HOTEND
-      print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawHotendTemp(target_extruder)
-        #endif
-      );
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        if (include_r) print_heater_state(redundant_temperature, degTargetHotend(target_extruder)
+    {
+      #if HAS_TEMP_HOTEND
+        Heater & heater = heaters[HotEndPos0 + target_extruder];
+        print_heater_state(heater.deg(), heater.degTarget()
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
-            , redundant_temperature_raw
+            , heater.raw()
           #endif
-          , H_REDUNDANT
-        );
+          , heater.id);
+
+        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+          if (include_r) print_heater_state(redundant_temperature, heater.degTarget()
+            #if ENABLED(SHOW_TEMP_ADC_VALUES)
+              , redundant_temperature_raw
+            #endif
+            , H_REDUNDANT
+          );
+        #endif
       #endif
-    #endif
-    #if HAS_HEATED_BED
-      print_heater_state(degBed(), degTargetBed()
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawBedTemp()
-        #endif
-        , H_BED
-      );
-    #endif
-    #if HAS_TEMP_CHAMBER
-      print_heater_state(degChamber(), TERN0(HAS_HEATED_CHAMBER, degTargetChamber())
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawChamberTemp()
-        #endif
-        , H_CHAMBER
-      );
-    #endif // HAS_TEMP_CHAMBER
-    #if HAS_TEMP_COOLER
-      print_heater_state(degCooler(), TERN0(HAS_COOLER, degTargetCooler())
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawCoolerTemp()
-        #endif
-        , H_COOLER
-      );
-    #endif // HAS_TEMP_COOLER
-    #if HAS_TEMP_PROBE
-      print_heater_state(degProbe(), 0
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawProbeTemp()
-        #endif
-        , H_PROBE
-      );
-    #endif
-    #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
-        #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawHotendTemp(e)
-        #endif
-        , (heater_id_t)e
-      );
-    #endif
+    }
+    // Yes, target extruder is output twice
+    HEATER_LOOP() {
+      print_heater_state(heater.deg(), heater.degTarget()
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        , heater.raw()
+      #endif
+      , heater.id);
+    }
+
     SERIAL_ECHOPAIR(" @:", getHeaterPower((heater_id_t)target_extruder));
     #if HAS_HEATED_BED
       SERIAL_ECHOPAIR(" B@:", getHeaterPower(H_BED));

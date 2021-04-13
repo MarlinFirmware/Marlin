@@ -52,18 +52,19 @@ void GcodeSuite::M301() {
   const uint8_t e = parser.byteval('E'); // extruder being updated
 
   if (e < HOTENDS) { // catch bad input value
-    if (parser.seen('P')) PID_PARAM(Kp, e) = parser.value_float();
-    if (parser.seen('I')) PID_PARAM(Ki, e) = scalePID_i(parser.value_float());
-    if (parser.seen('D')) PID_PARAM(Kd, e) = scalePID_d(parser.value_float());
+    Heater & heater = Temperature::get_heater(HotEndPos0 + e);
+    if (parser.seen('P')) heater.pid.setKp(parser.value_float());
+    if (parser.seen('I')) heater.pid.setKi(scalePID_i(parser.value_float()));
+    if (parser.seen('D')) heater.pid.setKd(scalePID_d(parser.value_float()));
     #if ENABLED(PID_EXTRUSION_SCALING)
-      if (parser.seen('C')) PID_PARAM(Kc, e) = parser.value_float();
+      if (parser.seen('C')) heater.pid.setKc(parser.value_float());
       if (parser.seenval('L')) thermalManager.lpq_len = parser.value_int();
       NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
       NOLESS(thermalManager.lpq_len, 0);
     #endif
 
     #if ENABLED(PID_FAN_SCALING)
-      if (parser.seen('F')) PID_PARAM(Kf, e) = parser.value_float();
+      if (parser.seen('F')) heater.pid.setKf(parser.value_float());
     #endif
 
     thermalManager.updatePID();
@@ -72,14 +73,14 @@ void GcodeSuite::M301() {
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
     #endif
-    SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
-                    " i:", unscalePID_i(PID_PARAM(Ki, e)),
-                    " d:", unscalePID_d(PID_PARAM(Kd, e)));
+    SERIAL_ECHOPAIR(" p:", heater.pid.getKp(),
+                    " i:", unscalePID_i(heater.pid.getKi()),
+                    " d:", unscalePID_d(heater.pid.getKd()));
     #if ENABLED(PID_EXTRUSION_SCALING)
-      SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));
+      SERIAL_ECHOPAIR(" c:", heater.pid.getKc());
     #endif
     #if ENABLED(PID_FAN_SCALING)
-      SERIAL_ECHOPAIR(" f:", PID_PARAM(Kf, e));
+      SERIAL_ECHOPAIR(" f:", heater.pid.getKf());
     #endif
 
     SERIAL_EOL();

@@ -51,36 +51,6 @@ enum heater_id_t : int8_t {
   H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 };
 
-// PID storage
-struct NoPID {
-  virtual float getKp() { return 0; }
-  virtual float getKi() { return 0; }
-  virtual float getKd() { return 0; }
-  virtual float getKc() { return 0; }
-  virtual float getKf() { return 0; }
-  virtual ~NoPID() {}
-};
-struct PID_t    : public NoPID   { float Kp = 0, Ki = 0, Kd = 0;  float getKp() { return Kp; } float getKi() { return Ki; } float getKd() { return Kd; } };
-struct PIDC_t   : public PID_t   { float Kc = 1.0f;               float getKc() { return Kc; } };
-struct PIDF_t   : public PID_t   { float Kf = 0;                  float getKf() { return Kf; } };
-struct PIDCF_t  : public PIDF_t  { float Kc = 1.0f;               float getKc() { return Kc; } };
-
-typedef
-  #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-    PIDCF_t
-  #elif ENABLED(PID_EXTRUSION_SCALING)
-    PIDC_t
-  #elif ENABLED(PID_FAN_SCALING)
-    PIDF_t
-  #else
-    PID_t
-  #endif
-hotend_pid_t;
-
-#if ENABLED(PID_EXTRUSION_SCALING)
-  typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
-#endif
-
 /**
  * States for ADC reading in the ISR
  */
@@ -114,6 +84,7 @@ enum ADCSensorState : char {
   StartupDelay  // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
+
 // Minimum number of Temperature::ISR loops between sensor readings.
 // Multiplied by 16 (OVERSAMPLENR) to obtain the total time to
 // get all oversampled sensor readings
@@ -130,6 +101,49 @@ enum ADCSensorState : char {
   #define unscalePID_i(i) ( float(i) / PID_dT )
   #define scalePID_d(d)   ( float(d) / PID_dT )
   #define unscalePID_d(d) ( float(d) * PID_dT )
+#endif
+
+
+// PID storage
+namespace Serialization {
+  // Used for serialization in settings.cpp only
+  struct PIDSS { float Kp, Ki, Kd; };
+  struct PIDSSL : public PIDSS { float Kc, Kf; };
+}
+
+struct NoPID {
+  virtual float getKp() const { return 0; } virtual void setKp(float) {}
+  virtual float getKi() const { return 0; } virtual void setKi(float) {}
+  virtual float getKd() const { return 0; } virtual void setKd(float) {}
+  virtual float getKc() const { return 0; } virtual void setKc(float) {}
+  virtual float getKf() const { return 0; } virtual void setKf(float) {}
+  void unscaleTo(Serialization::PIDSS & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
+  void unscaleTo(Serialization::PIDSSL & o) const { unscaleTo((Serialization::PIDSS&)o); o.Kc = getKc(); o.Kf = getKf(); }
+  void scaleFrom(Serialization::PIDSS & o)        { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
+  void scaleFrom(Serialization::PIDSSL & o)       { scaleFrom((Serialization::PIDSS&)o); setKc(o.Kc); setKf(o.Kf); }
+  virtual ~NoPID() {}
+};
+#define ACCESSOR(X) float get##X() const { return X; } void set##X(float v) { X = v; }
+struct PID_t    : public NoPID   { float Kp = 0, Ki = 0, Kd = 0;  ACCESSOR(Kp); ACCESSOR(Ki); ACCESSOR(Kd); };
+struct PIDC_t   : public PID_t   { float Kc = 1.0f;               ACCESSOR(Kc); };
+struct PIDF_t   : public PID_t   { float Kf = 0;                  ACCESSOR(Kf); };
+struct PIDCF_t  : public PIDF_t  { float Kc = 1.0f;               ACCESSOR(Kc); };
+#undef ACCESSOR
+
+typedef
+  #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
+    PIDCF_t
+  #elif ENABLED(PID_EXTRUSION_SCALING)
+    PIDC_t
+  #elif ENABLED(PID_FAN_SCALING)
+    PIDF_t
+  #else
+    PID_t
+  #endif
+hotend_pid_t;
+
+#if ENABLED(PID_EXTRUSION_SCALING)
+  typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
 #if BOTH(HAS_LCD_MENU, G26_MESH_VALIDATION)
@@ -150,12 +164,6 @@ struct temp_info_t {
 struct heater_info_t : public temp_info_t {
   celsius_t target;
   uint8_t soft_pwm_amount;
-};
-
-// A heater with PID stabilization
-template<typename T>
-struct PIDHeaterInfo : public heater_info_t {
-  T pid;  // Initialized by settings.load()
 };
 
 #define LIST_BY_HOTENDS(V...) LIST_N(HOTENDS, V)
@@ -184,6 +192,8 @@ enum heater_pos_t : uint8_t {
   #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
     CoolerPos,
   #endif
+
+  HeatersCount
 };
 
 // A generic common class for heaters
@@ -291,7 +301,7 @@ struct Heater {
     inline void expire() { start(0); }
   #endif
 
-  Heater(heater_pos_t pos, heater_id_t id, pin_t pin, bool inverting, NoPID & pid, const celsius_t hysteresis, const celsius_t window, const celsius_t minCoolingSlope, const uint16_t minCoolingPeriod, const celsius_t minTemp = celsius_t::minValue, const celsius_t maxTemp = celsius_t::maxValue, int residencyTime = 0
+  Heater(heater_pos_t pos, heater_id_t id, pin_t pin, bool inverting, NoPID & pid, const celsius_t hysteresis, const celsius_t window, const celsius_t minCoolingSlope, const uint16_t minCoolingPeriod, const celsius_t minTemp = minCValue, const celsius_t maxTemp = maxCValue, int residencyTime = 0
   #if HAS_WATCH_HEATER
     , const celsius_t increase = 0, int period = 0
   #endif
@@ -304,6 +314,9 @@ struct Heater {
     , timeout_ms(0), timed_out(false)
   #endif
   {}
+
+  // Required for HOTEND_LOOP macro
+  explicit operator bool() const { return true; }
 };
 
 template <unsigned Pin, bool Inverting, unsigned Hysteresis, unsigned Window, unsigned MinCoolingSlope, unsigned MinCoolingPeriod, unsigned ResidencyTime, typename PIDType

@@ -898,18 +898,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        PIDCF_t pidcf = {
-          #if DISABLED(PIDTEMP)
-            NAN, NAN, NAN,
-            NAN, NAN
-          #else
-                         PID_PARAM(Kp, e),
-            unscalePID_i(PID_PARAM(Ki, e)),
-            unscalePID_d(PID_PARAM(Kd, e)),
-                         PID_PARAM(Kc, e),
-                         PID_PARAM(Kf, e)
-          #endif
-        };
+        Serialization::PIDSSL pidcf; heater.pid.unscaleTo(pidcf);
         EEPROM_WRITE(pidcf);
       }
 
@@ -925,17 +914,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(bedPID);
-
-      const PID_t bed_pid = {
-        #if DISABLED(PIDTEMPBED)
-          NAN, NAN, NAN
-        #else
-          // Store the unscaled PID values
-          thermalManager.temp_bed.pid.Kp,
-          unscalePID_i(thermalManager.temp_bed.pid.Ki),
-          unscalePID_d(thermalManager.temp_bed.pid.Kd)
-        #endif
-      };
+      Serialization::PIDSS bed_pid; thermalManager.get_heater(HeatedBedPos).pid.unscaleTo(bed_pid);
       EEPROM_WRITE(bed_pid);
     }
 
@@ -944,17 +923,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(chamberPID);
-
-      const PID_t chamber_pid = {
-        #if DISABLED(PIDTEMPCHAMBER)
-          NAN, NAN, NAN
-        #else
-          // Store the unscaled PID values
-          thermalManager.temp_chamber.pid.Kp,
-          unscalePID_i(thermalManager.temp_chamber.pid.Ki),
-          unscalePID_d(thermalManager.temp_chamber.pid.Kd)
-        #endif
-      };
+      Serialization::PIDSS chambed_pid; thermalManager.get_heater(HeatedChamberPos).pid.unscaleTo(chamber_pid);
       EEPROM_WRITE(chamber_pid);
     }
 
@@ -1783,17 +1752,12 @@ void MarlinSettings::postprocess() {
       //
       {
         HOTEND_LOOP() {
-          PIDCF_t pidcf;
+          Serialization::PIDSSL pidcf;
           EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && !isnan(pidcf.Kp)) {
+            if (!validating && pidcf.Kp != 0)
               // Scale PID values since EEPROM values are unscaled
-              PID_PARAM(Kp, e) = pidcf.Kp;
-              PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
-              PID_PARAM(Kd, e) = scalePID_d(pidcf.Kd);
-              TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = pidcf.Kc);
-              TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = pidcf.Kf);
-            }
+              heater.pid.scaleFrom(pidcf);
           #endif
         }
       }
@@ -1815,14 +1779,12 @@ void MarlinSettings::postprocess() {
       // Heated Bed PID
       //
       {
-        PID_t pid;
+        Serialization::PIDSS pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && pid.Kp != 0)
             // Scale PID values since EEPROM values are unscaled
-            thermalManager.temp_bed.pid.Kp = pid.Kp;
-            thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
-            thermalManager.temp_bed.pid.Kd = scalePID_d(pid.Kd);
+            thermalManager.get_heater(HeatedBedPos).scaleFrom(pid);
           }
         #endif
       }
@@ -1831,15 +1793,12 @@ void MarlinSettings::postprocess() {
       // Heated Chamber PID
       //
       {
-        PID_t pid;
+        Serialization::PIDSS pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPCHAMBER)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && pid.Kp != 0)
             // Scale PID values since EEPROM values are unscaled
-            thermalManager.temp_chamber.pid.Kp = pid.Kp;
-            thermalManager.temp_chamber.pid.Ki = scalePID_i(pid.Ki);
-            thermalManager.temp_chamber.pid.Kd = scalePID_d(pid.Kd);
-          }
+            thermalManager.get_heater(HeatedChamberPos).scaleFrom(pid);
         #endif
       }
 
@@ -2855,11 +2814,11 @@ void MarlinSettings::reset() {
       #define PID_DEFAULT(N,E) DEFAULT_##N
     #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
-      PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
-      PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
-      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
-      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
+      heater.pid.setKp(float(PID_DEFAULT(Kp, ALIM(e, defKp))));
+      heater.pid.setKi(scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi))));
+      heater.pid.setKd(scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd))));
+      TERN_(PID_EXTRUSION_SCALING, heater.pid.setKc(float(PID_DEFAULT(Kc, ALIM(e, defKc)))));
+      TERN_(PID_FAN_SCALING, heater.pid.setKf(float(PID_DEFAULT(Kf, ALIM(e, defKf)))));
     }
   #endif
 
@@ -3445,35 +3404,37 @@ void MarlinSettings::reset() {
             #else
               PSTR("  M301 P")
             #endif
-                        , PID_PARAM(Kp, e)
-            , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
-            , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
+                        , heater.pid.getKp()
+            , PSTR(" I"), unscalePID_i(heater.pid.getKi())
+            , PSTR(" D"), unscalePID_d(heater.pid.getKd())
           );
           #if ENABLED(PID_EXTRUSION_SCALING)
-            SERIAL_ECHOPAIR_P(SP_C_STR, PID_PARAM(Kc, e));
+            SERIAL_ECHOPAIR_P(SP_C_STR, heater.pid.getKc());
             if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
           #endif
           #if ENABLED(PID_FAN_SCALING)
-            SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
+            SERIAL_ECHOPAIR(" F", heater.pid.getKf());
           #endif
           SERIAL_EOL();
         }
       #endif // PIDTEMP
 
       #if ENABLED(PIDTEMPBED)
+        Heater & bed = thermalManager.get_heater(HeatedBedPos);
         CONFIG_ECHO_MSG(
-            "  M304 P", thermalManager.temp_bed.pid.Kp
-          , " I", unscalePID_i(thermalManager.temp_bed.pid.Ki)
-          , " D", unscalePID_d(thermalManager.temp_bed.pid.Kd)
+            "  M304 P", bed.pid.getKp()
+          , " I", unscalePID_i(bed.pid.getKi())
+          , " D", unscalePID_d(bed.pid.getKd())
         );
       #endif
 
       #if ENABLED(PIDTEMPCHAMBER)
+        Heater & chamber = thermalManager.get_heater(HeatedChamberPos);
         CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR(
-            "  M309 P", thermalManager.temp_chamber.pid.Kp
-          , " I", unscalePID_i(thermalManager.temp_chamber.pid.Ki)
-          , " D", unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+            "  M309 P", chamber.pid.getKp()
+          , " I", unscalePID_i(chamber.pid.getKi())
+          , " D", unscalePID_d(chamber.pid.getKd())
         );
       #endif
 
