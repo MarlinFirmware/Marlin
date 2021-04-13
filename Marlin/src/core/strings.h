@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,17 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-#include "../core/types.h"
+
+class __FlashStringHelper;
+typedef const __FlashStringHelper *progmem_str;
+
+char *sprint_str  (char *p, const char *ptr);
+char *sprint_str_P(char *p, PGM_P const ptr);
+char *sprint_char (char *p, char c);
+char *sprint_i    (char *p, int i);
+char *sprint_float(char *p, float val, int8_t width, uint8_t precision);
+char *sprint_hu   (char *p, uint16_t val);
+char *sprint_02hu (char *p, uint16_t val);
 
 // Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
 const char* pcttostrpctrj(const uint8_t i);

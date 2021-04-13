@@ -34,7 +34,6 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../feature/pause.h"
 #include "../../../../gcode/queue.h"
-#include "../../../../libs/numtostr.h"
 #include "../../../../sd/cardreader.h"
 #include "FileNavigator.h"
 #include "nextion_tft.h"

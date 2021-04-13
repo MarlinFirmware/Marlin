@@ -38,7 +38,6 @@
 
 #include "../../../../gcode/queue.h"
 #include "../../../../sd/cardreader.h"
-#include "../../../../libs/numtostr.h"
 #include "../../../../MarlinCore.h"
 
 namespace Anycubic {

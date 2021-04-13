@@ -50,6 +50,7 @@
   #include HAL_PATH(../HAL, inc/SanityCheck.h)
 
   // Include all core headers
+  #include "../core/strings.h"
   #include "../core/language.h"
   #include "../core/utility.h"
   #include "../core/serial.h"

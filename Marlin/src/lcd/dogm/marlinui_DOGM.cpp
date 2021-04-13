@@ -48,7 +48,6 @@
 
 #include "../lcdprint.h"
 #include "../fontutils.h"
-#include "../../libs/numtostr.h"
 #include "../marlinui.h"
 
 #include "../../sd/cardreader.h"

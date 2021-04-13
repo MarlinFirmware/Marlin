@@ -28,7 +28,6 @@
 
 #include "../marlinui.h"
 #include "../menu/menu.h"
-#include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"

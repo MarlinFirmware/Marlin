@@ -394,15 +394,15 @@ void Endstops::event_handler() {
     #if HAS_STATUS_MESSAGE
       if (ui.alert_level == 0) {
         char *p = ui.status_message;
-        p = print_str_P(p, GET_TEXT(MSG_LCD_ENDSTOPS));
-        p = print_char (p, ' ');
-        p = print_char (p, chrX);
-        p = print_char (p, ' ');
-        p = print_char (p, chrY);
-        p = print_char (p, ' ');
-        p = print_char (p, chrZ);
-        p = print_char (p, ' ');
-        p = print_char (p, chrP);
+        p = sprint_str_P(p, GET_TEXT(MSG_LCD_ENDSTOPS));
+        p = sprint_char (p, ' ');
+        p = sprint_char (p, chrX);
+        p = sprint_char (p, ' ');
+        p = sprint_char (p, chrY);
+        p = sprint_char (p, ' ');
+        p = sprint_char (p, chrZ);
+        p = sprint_char (p, ' ');
+        p = sprint_char (p, chrP);
         ui.finish_status(false);
       }
     #endif

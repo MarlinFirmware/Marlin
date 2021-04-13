@@ -138,11 +138,11 @@ struct duration_t {
          out_m = out_h || m,
          out_s = true;
 
-    if (out_y) { p = print_i(p, y); p = print_str_P(p, PSTR("y ")); }
-    if (out_d) { p = print_i(p, d); p = print_str_P(p, PSTR("d ")); }
-    if (out_h) { p = print_i(p, h); p = print_str_P(p, PSTR("h ")); }
-    if (out_m) { p = print_i(p, m); p = print_str_P(p, PSTR("m ")); }
-    if (out_s) { p = print_i(p, s); p = print_char (p, 's'); }
+    if (out_y) { p = sprint_i(p, y); p = sprint_str_P(p, PSTR("y ")); }
+    if (out_d) { p = sprint_i(p, d); p = sprint_str_P(p, PSTR("d ")); }
+    if (out_h) { p = sprint_i(p, h); p = sprint_str_P(p, PSTR("h ")); }
+    if (out_m) { p = sprint_i(p, m); p = sprint_str_P(p, PSTR("m ")); }
+    if (out_s) { p = sprint_i(p, s); p = sprint_char (p, 's'); }
 
     return buffer;
   }
@@ -164,23 +164,23 @@ struct duration_t {
     char *p = buffer;
     if (with_days) {
       uint16_t d = this->day();
-      p = print_hu   (p, d);
-      p = print_str_P(p, PSTR("d "));
-      p = print_02hu (p, h % 24);
-      p = print_char (p, ':');
-      p = print_02hu (p, m);
+      p = sprint_hu   (p, d);
+      p = sprint_str_P(p, PSTR("d "));
+      p = sprint_02hu (p, h % 24);
+      p = sprint_char (p, ':');
+      p = sprint_02hu (p, m);
       return d >= 10 ? 9 : 8;
     }
     else if (h < 100) {
-      p = print_02hu(p, h);
-      p = print_char(p, ':');
-      p = print_02hu(p, m);
+      p = sprint_02hu(p, h);
+      p = sprint_char(p, ':');
+      p = sprint_02hu(p, m);
       return 5;
     }
     else {
-      p = print_hu  (p, h);
-      p = print_char(p, ':');
-      p = print_02hu(p, m);
+      p = sprint_hu  (p, h);
+      p = sprint_char(p, ':');
+      p = sprint_02hu(p, m);
       return 6;
     }
   }

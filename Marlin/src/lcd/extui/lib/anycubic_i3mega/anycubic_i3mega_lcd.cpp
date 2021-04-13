@@ -26,7 +26,6 @@
 #include "anycubic_i3mega_lcd.h"
 #include "../../ui_api.h"
 
-#include "../../../../libs/numtostr.h"
 #include "../../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
 #include "../../../../MarlinCore.h"     // for disable_steppers
 #include "../../../../inc/MarlinConfig.h"

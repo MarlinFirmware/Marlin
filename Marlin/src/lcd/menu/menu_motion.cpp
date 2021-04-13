@@ -186,8 +186,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
                                !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
       PGM_P const label = GET_TEXT(MSG_MOVE_N_MM);
       char tmp[strlen_P(label) + 10 + 1];
-      char *ptr = print_str_P(tmp, label);
-      ptr = print_float(ptr, FINE_MANUAL_MOVE, 1, digs);
+      char *ptr = sprint_str_P(tmp, label);
+      ptr = sprint_float(ptr, FINE_MANUAL_MOVE, 1, digs);
 
       #if DISABLED(HAS_GRAPHICAL_TFT)
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });

@@ -58,7 +58,6 @@
 
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
-  #include "../../libs/numtostr.h"
 #endif
 
 #if HAS_MULTI_EXTRUDER

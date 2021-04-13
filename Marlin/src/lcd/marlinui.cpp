@@ -648,9 +648,9 @@ void MarlinUI::kill_screen(PGM_P const lcd_error, PGM_P const lcd_component) {
   if (alert_level == 0) {
     alert_level = 1;
     char *p = status_message;
-    p = print_str_P(p, lcd_error);
-    p = print_str_P(p, PSTR(": "));
-    p = print_str_P(p, lcd_component);
+    p = sprint_str_P(p, lcd_error);
+    p = sprint_str_P(p, PSTR(": "));
+    p = sprint_str_P(p, lcd_component);
     finish_status(true);
   }
   TERN_(HAS_LCD_MENU, return_to_status());

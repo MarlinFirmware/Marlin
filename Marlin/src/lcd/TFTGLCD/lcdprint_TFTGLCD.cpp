@@ -39,7 +39,6 @@
 
 #include "../marlinui.h"
 #include "../../MarlinCore.h"
-#include "../../libs/numtostr.h"
 
 #include "marlinui_TFTGLCD.h"
 

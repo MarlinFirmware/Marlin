@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../marlinui.h"
-#include "../../libs/numtostr.h"
 #include "../../inc/MarlinConfig.h"
 
 #include "limits.h"

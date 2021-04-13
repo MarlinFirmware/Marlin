@@ -44,7 +44,6 @@
 
 #include "marlinui_TFTGLCD.h"
 #include "../marlinui.h"
-#include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"

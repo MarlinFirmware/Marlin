@@ -28,7 +28,6 @@
 
 #include "../lcd/marlinui.h"
 #include "../lcd/lcdprint.h"
-#include "../libs/numtostr.h"
 
 uint8_t PowerMonitor::flags; // = 0
 
