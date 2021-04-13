@@ -553,10 +553,10 @@ class Temperature {
       static uint8_t fan_speed[FAN_COUNT];
       #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
 
-      static void set_fan_speed(const uint8_t target, const uint16_t speed);
+      static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 
       #if ENABLED(REPORT_FAN_CHANGE)
-        static void report_fan_speed(const uint8_t target);
+        static void report_fan_speed(const uint8_t fan);
       #endif
 
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
@@ -564,20 +564,22 @@ class Temperature {
         static uint8_t saved_fan_speed[FAN_COUNT];
       #endif
 
-      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
       #endif
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
-        UNUSED(target); // Potentially unused!
-        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[target], 128))) >> 7;
+      static inline uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
+        UNUSED(fan); // Potentially unused!
+        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[fan], 128))) >> 7;
       }
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target) {
-        return scaledFanSpeed(target, fan_speed[target]);
+      static inline uint8_t scaledFanSpeed(const uint8_t fan) {
+        return scaledFanSpeed(fan, fan_speed[fan]);
       }
+
+      static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
+      static inline uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
+      static inline uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
 
       #if ENABLED(EXTRA_FAN_SPEED)
         typedef struct { uint8_t saved, speed; } extra_fan_t;
