@@ -315,34 +315,34 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   /**
    * Set the print fan speed for a target extruder
    */
-  void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
+  void Temperature::set_fan_speed(uint8_t fan, uint16_t speed) {
 
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
-      if (target != active_extruder) {
-        if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
+      if (fan != active_extruder) {
+        if (fan < EXTRUDERS) singlenozzle_fan_speed[fan] = speed;
         return;
       }
     #endif
 
-    TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
+    TERN_(SINGLENOZZLE, fan = 0); // Always use fan index 0 with SINGLENOZZLE
 
-    if (target >= FAN_COUNT) return;
+    if (fan >= FAN_COUNT) return;
 
-    fan_speed[target] = speed;
+    fan_speed[fan] = speed;
 
-    TERN_(REPORT_FAN_CHANGE, report_fan_speed(target));
+    TERN_(REPORT_FAN_CHANGE, report_fan_speed(fan));
   }
 
   #if ENABLED(REPORT_FAN_CHANGE)
     /**
      * Report print fan speed for a target extruder
      */
-    void Temperature::report_fan_speed(const uint8_t target) {
-      if (target >= FAN_COUNT) return;
+    void Temperature::report_fan_speed(const uint8_t fan) {
+      if (fan >= FAN_COUNT) return;
       PORT_REDIRECT(SerialMask::All);
-      SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
+      SERIAL_ECHOLNPAIR("M106 P", fan, " S", fan_speed[fan]);
     }
   #endif
 
