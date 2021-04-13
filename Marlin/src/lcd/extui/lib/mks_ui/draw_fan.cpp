@@ -45,7 +45,7 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  uint8_t fanPercent = (int)thermalManager.fanPercent(thermalManager.fan_speed[0]);
+  uint8_t fanPercent = thermalManager.fanPercent(thermalManager.fan_speed[0]);
   switch (obj->mks_obj_id) {
     case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
     case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
