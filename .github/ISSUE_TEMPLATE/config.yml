@@ -1,4 +1,4 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: 📖 Community Firmware documentation
     url: https://cr6community.github.io/
@@ -20,7 +20,7 @@ contact_links:
     about: Tutorials and more from Marlin users all around the world. Great for new users!
   - name: 💸 Want to donate to the Community Firmware?
     url: https://github.com/CR6Community/Marlin/#credits
-    about: Please take a look at the various options to support the CR-6 Commumity Firmware's development financially!
+    about: Would like to buy a beer/coffee for the developers? We appreciate it!
   - name: 💸 Want to donate to the upstream project - Marlin?
     url: https://www.thinkyhead.com/donate-to-marlin
     about: Please take a look at the various options to support Marlin Firmware's development financially!
