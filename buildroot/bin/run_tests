@@ -23,6 +23,7 @@ exec_test () {
   else
     silent="-v"
   fi
+  cp -f config/default-config/Configuration.* Marlin/Configuration.*
   if platformio run --project-dir $1 -e $2 $silent; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0
