@@ -125,16 +125,16 @@ void gCfgItems_init() {
   gCfgItems.pausePosX         = -1;
   gCfgItems.pausePosY         = -1;
   gCfgItems.pausePosZ         = 5;
-  gCfgItems.trammingPos[0][X_AXIS] = X_MIN_POS + 30;
-  gCfgItems.trammingPos[0][Y_AXIS] = Y_MIN_POS + 30;
-  gCfgItems.trammingPos[1][X_AXIS] = X_MAX_POS - 30;
-  gCfgItems.trammingPos[1][Y_AXIS] = Y_MIN_POS + 30;
-  gCfgItems.trammingPos[2][X_AXIS] = X_MAX_POS - 30;
-  gCfgItems.trammingPos[2][Y_AXIS] = Y_MAX_POS - 30;
-  gCfgItems.trammingPos[3][X_AXIS] = X_MIN_POS + 30;
-  gCfgItems.trammingPos[3][Y_AXIS] = Y_MAX_POS - 30;
-  gCfgItems.trammingPos[4][X_AXIS] = X_BED_SIZE / 2;
-  gCfgItems.trammingPos[4][Y_AXIS] = Y_BED_SIZE / 2;
+  gCfgItems.trammingPos[0].x  = X_MIN_POS + 30;
+  gCfgItems.trammingPos[0].y  = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[1].x  = X_MAX_POS - 30;
+  gCfgItems.trammingPos[1].y  = Y_MIN_POS + 30;
+  gCfgItems.trammingPos[2].x  = X_MAX_POS - 30;
+  gCfgItems.trammingPos[2].y  = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[3].x  = X_MIN_POS + 30;
+  gCfgItems.trammingPos[3].y  = Y_MAX_POS - 30;
+  gCfgItems.trammingPos[4].x  = X_BED_SIZE / 2;
+  gCfgItems.trammingPos[4].y  = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
   gCfgItems.wifi_mode_sel = STA_MODEL;
   gCfgItems.fileSysType   = FILE_SYS_SD;
@@ -447,111 +447,63 @@ char *getDispText(int index) {
   ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
-    case PRINT_READY_UI:
-      strcpy(public_buf_l, main_menu.title);
-      break;
-    case PRINT_FILE_UI:
-      strcpy(public_buf_l, file_menu.title);
-      break;
+    case PRINT_READY_UI:      strcpy(public_buf_l, main_menu.title); break;
+    case PRINT_FILE_UI:       strcpy(public_buf_l, file_menu.title); break;
     case PRINTING_UI:
-      if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        #ifndef TFT35
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-        #endif
-      )    strcpy(public_buf_l, common_menu.print_special_title);
-      else strcpy(public_buf_l, printing_menu.title);
+      switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
+        IF_DISABLED(TFT35, case OPERATE_UI: case PAUSE_UI:)
+        case PRINTING_UI:     strcpy(public_buf_l, common_menu.print_special_title); break;
+        default:              strcpy(public_buf_l, printing_menu.title); break;
+      }
       break;
-    case MOVE_MOTOR_UI:
-      strcpy(public_buf_l, move_menu.title);
-      break;
+    case MOVE_MOTOR_UI:       strcpy(public_buf_l, move_menu.title); break;
     case OPERATE_UI:
-      if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        #ifndef TFT35
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-        #endif
-      )    strcpy(public_buf_l, common_menu.operate_special_title);
-      else strcpy(public_buf_l, operation_menu.title);
+      switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
+        IF_DISABLED(TFT35, case OPERATE_UI: case PAUSE_UI:)
+        case PRINTING_UI:     strcpy(public_buf_l, common_menu.operate_special_title); break;
+        default:              strcpy(public_buf_l, operation_menu.title); break;
+      }
       break;
 
     case PAUSE_UI:
-      if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-        || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-        || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-      )    strcpy(public_buf_l, common_menu.pause_special_title);
-      else strcpy(public_buf_l, pause_menu.title);
+      switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
+        case OPERATE_UI:
+        case PAUSE_UI:
+        case PRINTING_UI:     strcpy(public_buf_l, common_menu.pause_special_title); break;
+        default:              strcpy(public_buf_l, pause_menu.title); break;
+      }
       break;
-
-    case EXTRUSION_UI:
-      strcpy(public_buf_l, extrude_menu.title);
-      break;
-    case CHANGE_SPEED_UI:
-      strcpy(public_buf_l, speed_menu.title);
-      break;
-    case FAN_UI:
-      strcpy(public_buf_l, fan_menu.title);
-      break;
+    case EXTRUSION_UI:        strcpy(public_buf_l, extrude_menu.title); break;
+    case CHANGE_SPEED_UI:     strcpy(public_buf_l, speed_menu.title); break;
+    case FAN_UI:              strcpy(public_buf_l, fan_menu.title); break;
     case PRE_HEAT_UI:
-      if ((disp_state_stack._disp_state[disp_state_stack._disp_index - 1] == OPERATE_UI))
-           strcpy(public_buf_l, preheat_menu.adjust_title);
-      else strcpy(public_buf_l, preheat_menu.title);
+      switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
+        case OPERATE_UI:      strcpy(public_buf_l, preheat_menu.adjust_title);
+        default:              strcpy(public_buf_l, preheat_menu.title); break;
+      }
       break;
-    case SET_UI:
-      strcpy(public_buf_l, set_menu.title);
-      break;
-    case ZERO_UI:
-      strcpy(public_buf_l, home_menu.title);
-      break;
-    case SPRAYER_UI: break;
-    case MACHINE_UI: break;
-    case LANGUAGE_UI:
-      strcpy(public_buf_l, language_menu.title);
-      break;
-    case ABOUT_UI:
-      strcpy(public_buf_l, about_menu.title);
-      break;
-    case LOG_UI: break;
-    case DISK_UI:
-      strcpy(public_buf_l, filesys_menu.title);
-      break;
-    case DIALOG_UI:
-      strcpy(public_buf_l, common_menu.dialog_confirm_title);
-      break;
-    case WIFI_UI:
-      strcpy(public_buf_l, wifi_menu.title);
-      break;
+    case SET_UI:              strcpy(public_buf_l, set_menu.title); break;
+    case ZERO_UI:             strcpy(public_buf_l, home_menu.title); break;
+    case SPRAYER_UI:          break;
+    case MACHINE_UI:          break;
+    case LANGUAGE_UI:         strcpy(public_buf_l, language_menu.title); break;
+    case ABOUT_UI:            strcpy(public_buf_l, about_menu.title); break;
+    case LOG_UI:              break;
+    case DISK_UI:             strcpy(public_buf_l, filesys_menu.title); break;
+    case DIALOG_UI:           strcpy(public_buf_l, common_menu.dialog_confirm_title); break;
+    case WIFI_UI:             strcpy(public_buf_l, wifi_menu.title); break;
     case MORE_UI:
-    case PRINT_MORE_UI:
-      strcpy(public_buf_l, more_menu.title);
-      break;
-    case FILAMENTCHANGE_UI:
-      strcpy(public_buf_l, filament_menu.title);
-      break;
+    case PRINT_MORE_UI:       strcpy(public_buf_l, more_menu.title); break;
+    case FILAMENTCHANGE_UI:   strcpy(public_buf_l, filament_menu.title); break;
     case LEVELING_UI:
-    case MESHLEVELING_UI:
-      strcpy(public_buf_l, leveling_menu.title);
-      break;
-    case BIND_UI:
-      strcpy(public_buf_l, cloud_menu.title);
-      break;
-    case TOOL_UI:
-      strcpy(public_buf_l, tool_menu.title);
-      break;
-    case WIFI_LIST_UI:
-      #if ENABLED(MKS_WIFI_MODULE)
-        strcpy(public_buf_l, list_menu.title);
-        break;
-      #endif
-    case MACHINE_PARA_UI:
-      strcpy(public_buf_l, MachinePara_menu.title);
-      break;
-    case BABY_STEP_UI:
-      strcpy(public_buf_l, operation_menu.babystep);
-      break;
-    case EEPROM_SETTINGS_UI:
-      strcpy(public_buf_l, eeprom_menu.title);
-      break;
+    case MESHLEVELING_UI:     strcpy(public_buf_l, leveling_menu.title); break;
+    case BIND_UI:             strcpy(public_buf_l, cloud_menu.title); break;
+    case TOOL_UI:             strcpy(public_buf_l, tool_menu.title); break;
+    case WIFI_LIST_UI:        TERN_(MKS_WIFI_MODULE, strcpy(public_buf_l, list_menu.title)); break;
+    case MACHINE_PARA_UI:     strcpy(public_buf_l, MachinePara_menu.title); break;
+    case BABY_STEP_UI:        strcpy(public_buf_l, operation_menu.babystep); break;
+    case EEPROM_SETTINGS_UI:  strcpy(public_buf_l, eeprom_menu.title); break;
+    case MEDIA_SELECT_UI:     strcpy(public_buf_l, media_select_menu.title); break;
     default: break;
   }
 
@@ -828,11 +780,9 @@ void GUI_RefreshPage() {
       }
       break;
 
-    case OPERATE_UI:
-      break;
+    case OPERATE_UI: break;
 
-    case PAUSE_UI:
-      break;
+    case PAUSE_UI: break;
 
     case FAN_UI:
       if (temps_update_flag) {
@@ -841,8 +791,7 @@ void GUI_RefreshPage() {
       }
       break;
 
-    case MOVE_MOTOR_UI:
-      break;
+    case MOVE_MOTOR_UI: break;
 
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
@@ -852,10 +801,9 @@ void GUI_RefreshPage() {
         }
         break;
 
-      case BIND_UI:
-        refresh_bind_ui();
-        break;
+      case BIND_UI: refresh_bind_ui(); break;
     #endif
+
     case FILAMENTCHANGE_UI:
       if (temps_update_flag) {
         temps_update_flag = false;
@@ -866,10 +814,8 @@ void GUI_RefreshPage() {
       filament_dialog_handle();
       TERN_(MKS_WIFI_MODULE, wifi_scan_handle());
       break;
-    case MESHLEVELING_UI:
-      break;
-    case HARDWARE_TEST_UI:
-      break;
+    case MESHLEVELING_UI: break;
+    case HARDWARE_TEST_UI: break;
     case WIFI_LIST_UI:
       #if ENABLED(MKS_WIFI_MODULE)
         if (printing_rate_update_flag) {
@@ -878,8 +824,8 @@ void GUI_RefreshPage() {
         }
       #endif
       break;
-    case KEY_BOARD_UI:
-      break;
+    case KEYBOARD_UI: break;
+
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_TIPS_UI:
         switch (wifi_tips_type) {
@@ -932,6 +878,7 @@ void GUI_RefreshPage() {
         disp_z_offset_value();
       }
       break;
+
     default: break;
   }
 
@@ -982,7 +929,7 @@ void clear_cur_ui() {
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_LIST_UI:              lv_clear_wifi_list(); break;
     #endif
-    case KEY_BOARD_UI:                lv_clear_keyboard(); break;
+    case KEYBOARD_UI:                 lv_clear_keyboard(); break;
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_TIPS_UI:              lv_clear_wifi_tips(); break;
     #endif
@@ -1013,9 +960,9 @@ void clear_cur_ui() {
     case NUMBER_KEY_UI:               lv_clear_number_key(); break;
     case BABY_STEP_UI:                lv_clear_baby_stepping(); break;
     case PAUSE_POS_UI:                lv_clear_pause_position(); break;
-      #if HAS_TRINAMIC_CONFIG
-        case TMC_CURRENT_UI:          lv_clear_tmc_current_settings(); break;
-      #endif
+    #if HAS_TRINAMIC_CONFIG
+      case TMC_CURRENT_UI:            lv_clear_tmc_current_settings(); break;
+    #endif
     case EEPROM_SETTINGS_UI:          lv_clear_eeprom_settings(); break;
     #if HAS_STEALTHCHOP
       case TMC_MODE_UI:               lv_clear_tmc_step_mode_settings(); break;
@@ -1031,6 +978,9 @@ void clear_cur_ui() {
     #endif
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
+    #endif
+    #if ENABLED(MULTI_VOLUME)
+      case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
     #endif
     default: break;
   }
@@ -1087,7 +1037,7 @@ void draw_return_ui() {
       #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_LIST_UI:              lv_draw_wifi_list(); break;
       #endif
-      case KEY_BOARD_UI:                lv_draw_keyboard(); break;
+      case KEYBOARD_UI:                 lv_draw_keyboard(); break;
       #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_TIPS_UI:              lv_draw_wifi_tips(); break;
       #endif

@@ -66,6 +66,9 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
       w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), mydata.e_rel[3], canMove(E3));
     #endif
   #endif
+  #if Z_HOME_DIR < 0
+    w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
+  #endif
   w.increments();
 }
 
@@ -98,13 +101,19 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
     case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28X")); break;
     case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28Y")); break;
     case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
-    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28"));   break;
+    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28")); break;
+    case 24: raiseZtoTop(); break;
     default:
       return false;
   }
   #undef UI_DECREMENT_AXIS
   #undef UI_INCREMENT_AXIS
   return true;
+}
+
+void BaseMoveAxisScreen::raiseZtoTop() {
+  constexpr xyze_feedrate_t homing_feedrate = HOMING_FEEDRATE_MM_M;
+  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate[Z_AXIS]);
 }
 
 float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
