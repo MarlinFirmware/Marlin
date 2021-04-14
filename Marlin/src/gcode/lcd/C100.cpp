@@ -1,6 +1,6 @@
-#if HAS_PROBE_SETTINGS && ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
-
 #include "../../inc/MarlinConfig.h"
+
+#if HAS_PROBE_SETTINGS && ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "../gcode.h"
 #include "../../lcd/extui/lib/dgus_creality/DGUSDisplay.h"
