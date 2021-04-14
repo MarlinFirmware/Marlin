@@ -28,13 +28,13 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "CR6Comm-Rel6.1-Pre1"
+#define SHORT_BUILD_VERSION "CR6Comm-Rel6.1-Mightly"
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - prerelease 1"
+#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - nightly"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
