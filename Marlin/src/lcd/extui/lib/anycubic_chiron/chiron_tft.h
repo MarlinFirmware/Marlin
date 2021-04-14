@@ -25,7 +25,7 @@
  * lcd/extui/lib/chiron_tft.h
  *
  * Extensible_UI implementation for Anycubic Chiron
- * Written By Nick Wells, 2021 [https://github.com/SwiftNick]
+ * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
 
