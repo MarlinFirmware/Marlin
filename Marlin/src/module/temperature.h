@@ -209,6 +209,7 @@ struct Heater {
   // Inverting pin
   bool         inverting;
 
+  // HEATER SPECIFIC PARAMETERS BELOW
   // This heater defined hysteresis and window (set in the child class)
   const celsius_t hysteresis, window;
   // The minimum temperature (if applicable)
@@ -221,6 +222,8 @@ struct Heater {
   const celsius_t minCoolingSlope;
   // The minimum cooling period (in milliseconds)
   const uint16_t  minCoolingPeriod;
+  // Max PID power
+  const uint8_t   maxPower;
   // The PID used
   NoPID &   pid;
 
@@ -263,9 +266,9 @@ struct Heater {
 
 
   #if ENABLED(PRINTER_EVENT_LEDS)
-    void pe_heating_start();
-    void pe_heating(float start, float current, float target);
-    void pe_heating_done();
+    LEDColor  pe_heating_start();
+    void      pe_heating(float start, float current, float target);
+    void      pe_heating_done();
   #endif
 
   #if HAS_WATCH_HEATER
@@ -301,12 +304,12 @@ struct Heater {
     inline void expire() { start(0); }
   #endif
 
-  Heater(heater_pos_t pos, heater_id_t id, pin_t pin, bool inverting, NoPID & pid, const celsius_t hysteresis, const celsius_t window, const celsius_t minCoolingSlope, const uint16_t minCoolingPeriod, const celsius_t minTemp = minCValue, const celsius_t maxTemp = maxCValue, int residencyTime = 0
+  Heater(heater_pos_t pos, heater_id_t id, pin_t pin, bool inverting, NoPID & pid, const celsius_t hysteresis, const celsius_t window, const celsius_t minCoolingSlope, const uint16_t minCoolingPeriod, const celsius_t minTemp = minCValue, const celsius_t maxTemp = maxCValue, int residencyTime = 0, uint8_t maxPower = 255
   #if HAS_WATCH_HEATER
     , const celsius_t increase = 0, int period = 0
   #endif
   ) :
-    heaterPos(pos), id(id), pin(pin), inverting(inverting), hysteresis(hysteresis), window(window), minTemp(minTemp), maxTemp(maxTemp), residencyTime(residencyTime), minCoolingSlope(minCoolingSlope), minCoolingPeriod(minCoolingPeriod), pid(pid)
+    heaterPos(pos), id(id), pin(pin), inverting(inverting), hysteresis(hysteresis), window(window), minTemp(minTemp), maxTemp(maxTemp), residencyTime(residencyTime), minCoolingSlope(minCoolingSlope), minCoolingPeriod(minCoolingPeriod), maxPower(maxPower), pid(pid)
   #if HAS_WATCH_HEATER
     , target(0), next_ms(0), increase(increase), period_ms(SEC_TO_MS(period))
   #endif
@@ -319,7 +322,7 @@ struct Heater {
   explicit operator bool() const { return true; }
 };
 
-template <unsigned Pin, bool Inverting, unsigned Hysteresis, unsigned Window, unsigned MinCoolingSlope, unsigned MinCoolingPeriod, unsigned ResidencyTime, typename PIDType
+template <unsigned Pin, bool Inverting, unsigned Hysteresis, unsigned Window, unsigned MinCoolingSlope, unsigned MinCoolingPeriod, unsigned ResidencyTime, unsigned MaxPower, typename PIDType
 #if HAS_WATCH_HEATER
   , unsigned Increase, unsigned Period
 #endif
@@ -329,7 +332,7 @@ struct HeaterImpl : public Heater
   PIDType _pid;
   // Here we use the special celsius_t constructor that's not converting to fixed point, since the value will arrive already converted from
   // the TEMP_ macros below
-  HeaterImpl(heater_pos_t pos, heater_id_t id, const celsius_t minTemp, const celsius_t maxTemp) : Heater(pos, id, Pin, Inverting, _pid, celsius_t(Hysteresis, true), celsius_t(Window, true), celsius_t(MinCoolingSlope, true), minCoolingPeriod, minTemp, maxTemp, ResidencyTime
+  HeaterImpl(heater_pos_t pos, heater_id_t id, const celsius_t minTemp, const celsius_t maxTemp) : Heater(pos, id, Pin, Inverting, _pid, celsius_t(Hysteresis, true), celsius_t(Window, true), celsius_t(MinCoolingSlope, true), minCoolingPeriod, minTemp, maxTemp, ResidencyTime, MaxPower
   #if HAS_WATCH_HEATER
     , celsius_t(Increase, true), Period
   #endif
