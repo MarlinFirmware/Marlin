@@ -320,8 +320,8 @@ void hook_cpu_exceptions() {
     // So we'll simply mask the top 8 bits of the first handler as an hint of being in the flash or not -that's poor and will
     // probably break if the flash happens to be more than 128MB, but in this case, we are not magician, we need help from outside.
 
-    unsigned long * vecAddr = (unsigned long*)get_vtor();
-    SERIAL_ECHO("Vector table addr: ");
+    unsigned long *vecAddr = (unsigned long*)get_vtor();
+    SERIAL_ECHOPGM("Vector table addr: ");
     SERIAL_PRINTLN(get_vtor(), HEX);
 
     #ifdef VECTOR_TABLE_SIZE
@@ -348,7 +348,7 @@ void hook_cpu_exceptions() {
       // 128 bytes alignement is required for writing the VTOR register
       alignas(128) static unsigned long vectable[VECTOR_TABLE_SENTINEL];
 
-      SERIAL_ECHO("Detected vector table size: ");
+      SERIAL_ECHOPGM("Detected vector table size: ");
       SERIAL_PRINTLN(vec_size, HEX);
     #endif
 
@@ -372,7 +372,7 @@ void hook_cpu_exceptions() {
 
     HW_REG(0xE000ED08) = (unsigned long)vectable | _BV32(29); // 29th bit is for telling the CPU the table is now in SRAM (should be present already)
 
-    SERIAL_ECHOLN("Installed fault handlers");
+    SERIAL_ECHOLNPGM("Installed fault handlers");
   #endif
 }
 

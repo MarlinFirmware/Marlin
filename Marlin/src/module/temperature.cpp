@@ -315,34 +315,34 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   /**
    * Set the print fan speed for a target extruder
    */
-  void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
+  void Temperature::set_fan_speed(uint8_t fan, uint16_t speed) {
 
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
-      if (target != active_extruder) {
-        if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
+      if (fan != active_extruder) {
+        if (fan < EXTRUDERS) singlenozzle_fan_speed[fan] = speed;
         return;
       }
     #endif
 
-    TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
+    TERN_(SINGLENOZZLE, fan = 0); // Always use fan index 0 with SINGLENOZZLE
 
-    if (target >= FAN_COUNT) return;
+    if (fan >= FAN_COUNT) return;
 
-    fan_speed[target] = speed;
+    fan_speed[fan] = speed;
 
-    TERN_(REPORT_FAN_CHANGE, report_fan_speed(target));
+    TERN_(REPORT_FAN_CHANGE, report_fan_speed(fan));
   }
 
   #if ENABLED(REPORT_FAN_CHANGE)
     /**
      * Report print fan speed for a target extruder
      */
-    void Temperature::report_fan_speed(const uint8_t target) {
-      if (target >= FAN_COUNT) return;
+    void Temperature::report_fan_speed(const uint8_t fan) {
+      if (fan >= FAN_COUNT) return;
       PORT_REDIRECT(SerialMask::All);
-      SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
+      SERIAL_ECHOLNPAIR("M106 P", fan, " S", fan_speed[fan]);
     }
   #endif
 
@@ -1406,6 +1406,8 @@ void Temperature::manage_heater() {
             fan_chamber_pwm = (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * ABS(temp_chamber.celsius - temp_chamber.target);
             if (temp_chamber.soft_pwm_amount)
               fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
+          #elif CHAMBER_FAN_MODE == 3
+            fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
           NOMORE(fan_chamber_pwm, 225);
           set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
@@ -2194,19 +2196,19 @@ void Temperature::init() {
   #if HAS_HOTEND
 
     #define _TEMP_MIN_E(NR) do{ \
-      const celsius_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
+      const celsius_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, (int)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
       temp_range[NR].mintemp = tmin; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
-      const celsius_t tmax = _MIN(HEATER_##NR##_MAXTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 2000, pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MAXTEMP_IND].celsius) - 1)); \
+      const celsius_t tmax = _MIN(HEATER_##NR##_MAXTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 2000, (int)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MAXTEMP_IND].celsius) - 1)); \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
-    #define _MINMAX_TEST(N,M) (HOTENDS > N && TEMP_SENSOR_ ##N## THERMISTOR_ID && TEMP_SENSOR_ ##N## THERMISTOR_ID != 998 && TEMP_SENSOR_ ##N## THERMISTOR_ID != 999 && defined(HEATER_##N##_##M##TEMP))
+    #define _MINMAX_TEST(N,M) (HOTENDS > N && TEMP_SENSOR_ ##N## _THERMISTOR_ID && TEMP_SENSOR_ ##N## _THERMISTOR_ID != 998 && TEMP_SENSOR_ ##N## _THERMISTOR_ID != 999 && defined(HEATER_##N##_##M##TEMP))
 
     #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
