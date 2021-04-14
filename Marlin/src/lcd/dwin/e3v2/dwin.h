@@ -88,6 +88,9 @@ enum processID : uint8_t {
   Brightness,
   LoadLength,
   UnloadLength,
+  SelColor,
+  GetColor,
+  GetColor_value,
 
   // Back Process ID
   Back_Main,
@@ -155,6 +158,7 @@ typedef struct {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   int16_t LoadLength      = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
   int16_t UnloadLength    = FILAMENT_CHANGE_UNLOAD_LENGTH;
+  int8_t Color[3];
 #endif
 } HMI_value_t;
 
@@ -166,6 +170,22 @@ typedef struct {
 #if ENABLED(NOZZLE_PARK_FEATURE)
   xyz_pos_t Park_point = NOZZLE_PARK_POINT;
 #endif
+  uint16_t Background_Color = Color_Bg_Black;
+  uint16_t Cursor_color = Rectangle_Color;
+  uint16_t TitleBg_color = Color_Bg_Blue;
+  uint16_t TitleTxt_color = Color_White;
+  uint16_t Text_Color = Color_White;
+  uint16_t Selected_Color = Select_Color;
+  uint16_t SplitLine_Color = Line_Color;
+  uint16_t Highlight_Color = Color_White;
+  uint16_t StatusBg_Color = Color_Bg_LBlue;
+  uint16_t StatusTxt_Color = Color_Yellow;
+  uint16_t PopupBg_color = Color_Bg_Window;
+  uint16_t PopupTxt_Color = Popup_Text_Color;
+  uint16_t AlertBg_Color = Color_Bg_Red;
+  uint16_t AlertTxt_Color = Color_Yellow;
+  uint16_t PercentTxt_Color = Percent_Color;
+  uint16_t Barfill_Color = BarFill_Color;  
 } HMI_data_t;
 
 #define DWIN_CHINESE 123

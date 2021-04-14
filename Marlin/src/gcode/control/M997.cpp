@@ -37,7 +37,7 @@ void GcodeSuite::M997() {
   #if ENABLED(DWIN_CREALITY_LCD)
   DWIN_Frame_Clear(Color_Bg_Black);
   DWIN_ICON_Show(ICON, ICON_LOGO, 71, 150);  // CREALITY logo
-  DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, "Please wait until reboot.");
+  DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, F("Please wait until reboot."));
   DWIN_UpdateLCD();
   delay(500);  
   #endif

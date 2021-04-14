@@ -178,6 +178,7 @@
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Park                 ICON_Motion
+#define ICON_Scolor               ICON_MaxSpeed
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -359,7 +360,7 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
 //  value: Float value
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
