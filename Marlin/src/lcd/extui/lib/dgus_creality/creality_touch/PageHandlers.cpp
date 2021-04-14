@@ -1,5 +1,7 @@
 #include "../../../../../inc/MarlinConfigPre.h"
 
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
@@ -21,7 +23,6 @@
 
 #include "PageHandlers.h"
 
-#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 // Definitions of page handlers
 
