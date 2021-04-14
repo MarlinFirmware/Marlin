@@ -540,6 +540,7 @@
 #define USB_DRIVE_BACK_EN                 "< Back"
 #define FILE_PAGES_EN                     "%d/%d"
 #define FILE_NEXT_PAGE_EN                 "Next Page"
+#define MEDIA_SELECT_TITLE_EN             "Select Media"
 
 //BUILD PLATE
 #define PLATE_TITLE_EN                    "Build Plate"

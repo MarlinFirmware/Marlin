@@ -37,7 +37,7 @@
 
 extern uint16_t manualMoveStep;
 extern uint16_t distanceFilament;
-extern uint16_t FilamentSpeed;
+extern uint16_t filamentSpeed_mm_s;
 extern float    ZOffset_distance;
 extern float    mesh_adj_distance;
 extern float    Z_distance;

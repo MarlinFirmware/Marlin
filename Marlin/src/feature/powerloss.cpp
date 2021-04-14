@@ -612,7 +612,7 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
-        DEBUG_ECHOLNPAIR("dryrun: ", info.flag.dryrun);
+        DEBUG_ECHOLNPAIR("dryrun: ", AS_DIGIT(info.flag.dryrun));
         DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", info.flag.allow_cold_extrusion);
       }
       else

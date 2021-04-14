@@ -2997,7 +2997,7 @@ void Planner::set_e_position_mm(const_float_t e) {
   const uint8_t axis_index = E_AXIS_N(active_extruder);
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
-  const float e_new = e - TERN0(FWRETRACT, fwretract.current_retract[active_extruder]);
+  const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
   position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
   TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
   TERN_(IS_KINEMATIC, position_cart.e = e);
