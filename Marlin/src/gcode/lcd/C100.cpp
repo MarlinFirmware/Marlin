@@ -1,10 +1,11 @@
+#if HAS_PROBE_SETTINGS && ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+
 #include "../../inc/MarlinConfig.h"
 
 #include "../gcode.h"
 #include "../../lcd/extui/lib/dgus_creality/DGUSDisplay.h"
 #include "../../lcd/extui/lib/dgus_creality/DGUSScreenHandler.h"
 
-#if HAS_PROBE_SETTINGS && ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 void GcodeSuite::C100() {
     // C100 R1 (reset display)
