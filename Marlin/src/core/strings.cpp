@@ -22,8 +22,6 @@
 
 #include "strings.h"
 
-#include "../inc/MarlinConfig.h"
-
 char *sprint_str  (char *p, const char *ptr) { return strcpy(p, ptr) + strlen(p); }
 char *sprint_str_P(char *p, PGM_P const ptr) { return strcpy_P(p, ptr) + strlen(p); }
 char *sprint_char (char *p, char c)          { p[0] = 'c'; p[1] = '\0'; return p + 1; }

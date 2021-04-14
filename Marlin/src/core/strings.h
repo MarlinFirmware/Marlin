@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
