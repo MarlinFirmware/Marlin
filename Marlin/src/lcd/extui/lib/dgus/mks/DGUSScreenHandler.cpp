@@ -89,7 +89,7 @@ void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
     //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
     //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
     uint16_t tmp = *(uint8_t *) var.memadr; // +1 -> avoid rounding issues for the display.
-    // tmp = map(tmp, 0, 255, 0, 100);
+    //tmp = pwm_to_percent(tmp);
     dgusdisplay.WriteVariable(var.VP, tmp);
   }
 }
@@ -113,7 +113,7 @@ void DGUSScreenHandler::DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     const uint16_t value = swap16(*(uint16_t*)val_ptr);
     DEBUG_ECHOLNPAIR("FAN value get:", value);
-    *(uint8_t*)var.memadr = map(constrain(value, 0, 255), 0, 255, 0, 255);
+    *(uint8_t*)var.memadr = constrain(value, 0, 255);
     DEBUG_ECHOLNPAIR("FAN value change:", *(uint8_t*)var.memadr);
   }
 }

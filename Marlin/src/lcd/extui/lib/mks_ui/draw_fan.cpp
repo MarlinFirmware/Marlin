@@ -54,7 +54,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_OFF:  fanPercent =   0; break;
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
-  thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
+  thermalManager.set_fan_speed(0, percent_to_pwm(fanPercent));
 }
 
 void lv_draw_fan() {

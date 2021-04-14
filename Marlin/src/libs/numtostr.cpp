@@ -45,7 +45,7 @@ const char* pcttostrpctrj(const uint8_t i) {
 
 // Convert uint8_t (0-255) to a percentage, format as above
 const char* ui8tostr4pctrj(const uint8_t i) {
-  return pcttostrpctrj(ui8_to_percent(i));
+  return pcttostrpctrj(pwm_to_percent(i));
 }
 
 // Convert unsigned 8bit int to string 123 format

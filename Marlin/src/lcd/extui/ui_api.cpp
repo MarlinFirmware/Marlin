@@ -650,9 +650,9 @@ namespace ExtUI {
     }
 
     #if CASELIGHT_USES_BRIGHTNESS
-      float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
+      float getCaseLightBrightness_percent()                 { return pwm_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const_float_t value) {
-         caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         caselight.brightness = percent_to_pwm(value);
          caselight.update_brightness();
       }
     #endif
@@ -834,8 +834,8 @@ namespace ExtUI {
     void setAxisBacklash_mm(const_float_t value, const axis_t axis)
                                                       { backlash.distance_mm[axis] = constrain(value,0,5); }
 
-    float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
-    void setBacklashCorrection_percent(const_float_t value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+    float getBacklashCorrection_percent()             { return pwm_to_percent(backlash.correction); }
+    void setBacklashCorrection_percent(const_float_t value) { backlash.correction = percent_to_pwm(value); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
@@ -1003,7 +1003,7 @@ namespace ExtUI {
   void setTargetFan_percent(const_float_t value, const fan_t fan) {
     #if HAS_FAN
       if (fan < FAN_COUNT)
-        thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
+        thermalManager.set_fan_speed(fan - FAN0, percent_to_pwm(value));
     #else
       UNUSED(value);
       UNUSED(fan);

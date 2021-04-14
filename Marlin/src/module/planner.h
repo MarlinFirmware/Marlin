@@ -420,7 +420,7 @@ class Planner {
           xy_freq_min_interval_us = LROUND(1000000.0f / xy_freq_limit_hz);
       }
       static inline void set_min_speed_factor_u8(const uint8_t v255) {
-        xy_freq_min_speed_factor = float(ui8_to_percent(v255)) / 100;
+        xy_freq_min_speed_factor = float(pwm_to_percent(v255)) / 100;
       }
       static inline void set_frequency_limit(const uint8_t hz) {
         xy_freq_limit_hz = constrain(hz, 0, 100);
