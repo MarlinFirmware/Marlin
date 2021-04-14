@@ -3396,6 +3396,9 @@
  */
 #define FASTER_GCODE_PARSER
 
+// Provide a hook to add custom G-code parsing in arbitrary locations
+//#define HANDLE_UNKNOWN_GCODE
+
 #if ENABLED(FASTER_GCODE_PARSER)
   //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
 #endif

@@ -981,7 +981,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
-      default: handle_unknown_gcode(); break;
+      default: handle_unknown_gcode(parser.command_ptr); break;
     }
     break;
 
@@ -991,18 +991,31 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 'D': D(parser.codenum); break;                         // Dn: Debug codes
     #endif
 
-    default:
-      //todo: please, replace custom WIFI_CUSTOM_COMMAND with wide HANDLE_UNKNOWN_GCODE
-      #if ENABLED(WIFI_CUSTOM_COMMAND)
-        if (wifi_custom_command(parser.command_ptr)) break;
-      #endif
-      handle_unknown_gcode();
+    default: handle_unknown_gcode(parser.command_ptr); break;
   }
 
   if (!no_ok) queue.ok_to_send();
 
   SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
 }
+
+void GcodeSuite::handle_unknown_gcode(const char * gcode) {
+  if ( !TERN0(WIFI_CUSTOM_COMMAND, wifi_custom_command(gcode))
+    && !TERN0(HANDLE_UNKNOWN_GCODE, unknown_gcode_handler(gcode))
+  ) parser.unknown_command_warning();
+}
+
+#if ENABLED(HANDLE_UNKNOWN_GCODE)
+
+  bool GcodeSuite::unknown_gcode_handler(const char * gcode) {
+
+    // Add your custom handling (or calls to custom handlers) here.
+    // Return 'true' if the G-code was handled.
+
+    return false;
+  }
+
+#endif
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
   void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
@@ -1098,16 +1111,4 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
   }
 
-
 #endif // HOST_KEEPALIVE_FEATURE
-
-#if ENABLED(HANDLE_UNKNOWN_GCODE)
-f_unknown_gcode_handler unknownGcodeHandler=nullptr;
-#endif
-
-void GcodeSuite::handle_unknown_gcode() {
-#if ENABLED(HANDLE_UNKNOWN_GCODE)
-    if ((!unknownGcodeHandler) || !unknownGcodeHandler(parser.command_ptr))
-#endif
-    parser.unknown_command_warning();
-}
