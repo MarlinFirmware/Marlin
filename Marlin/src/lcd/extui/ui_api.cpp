@@ -1154,8 +1154,10 @@ void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
   }
 }
 
+#if HAS_BUZZER
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   ExtUI::onPlayTone(duration, freq);
 }
+#endif // HAS_BUZZER
 
 #endif // EXTENSIBLE_UI
