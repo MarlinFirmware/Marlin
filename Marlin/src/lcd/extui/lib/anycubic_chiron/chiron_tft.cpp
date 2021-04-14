@@ -82,7 +82,7 @@ namespace Anycubic {
     // opt_set    FIL_RUNOUT_STATE HIGH  // Pin state indicating that filament is NOT present.
     // opt_enable FIL_RUNOUT_PULLUP
     TFTSer.begin(115200);
-    
+
     // wait for the TFT panel to initialise and finish the animation
     delay_ms(250);
 
@@ -96,7 +96,7 @@ namespace Anycubic {
       panel_type = AC_panel_new;
     #endif
     // Panel type can be defined otherwise detect it automatically
-    if(panel_type == AC_panel_unknown) DetectPanelType();
+    if (panel_type == AC_panel_unknown) DetectPanelType();
 
     // Signal Board has reset
     SendtoTFTLN(AC_msg_main_board_has_reset);
@@ -104,14 +104,14 @@ namespace Anycubic {
     // Enable leveling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands_P(AC_cmnd_enable_leveling);
-    
+
     // Startup tunes are defined in Tunes.h
     #if ENABLED(AC_DEFAULT_STARTUP_TUNE)
       PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
     #else
       PlayTune(BEEPER_PIN, GB_PowerOn, 1);
     #endif
-    
+
     #if ACDEBUGLEVEL
       SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
     #endif
@@ -330,7 +330,7 @@ namespace Anycubic {
   }
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
-    while(TFTSer.available() > 0 && command_len < MAX_CMND_LEN-1) {
+    while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN-1) {
       panel_command[command_len] = TFTSer.read();
       if (panel_command[command_len] == '\n') {
         command_ready = true;
@@ -353,13 +353,13 @@ namespace Anycubic {
     do {
       if (panel_command[pos] == c) {
         #if ACDEBUG(AC_INFO)
-          SERIAL_ECHOLNPAIR("Tpos:", pos, " ",c);  
+          SERIAL_ECHOLNPAIR("Tpos:", pos, " ",c);
         #endif
         return pos;
-      } 
+      }
     } while(++pos < command_len);
     #if ACDEBUG(AC_INFO)
-      SERIAL_ECHOLNPAIR("Not found: ",c);  
+      SERIAL_ECHOLNPAIR("Not found: ",c);
     #endif
     return -1;
   }
@@ -422,7 +422,7 @@ namespace Anycubic {
     SendtoTFTLN(PSTR("END"));
   }
   void ChironTFT::SelectFile() {
-    if(panel_type == AC_panel_new) {
+    if (panel_type == AC_panel_new) {
       strncpy(selectedfile, panel_command + 4, command_len - 3);
       selectedfile[command_len - 4] = '\0';
     }
@@ -445,9 +445,9 @@ namespace Anycubic {
         break;
       default:   // enter sub folder
         // for new panel remove the '.GCO' tag that was added to the end of the path
-        if(panel_type == AC_panel_new) {
+        if (panel_type == AC_panel_new) {
           selectedfile[strlen(selectedfile)-4] = '\0';
-        }  
+        }
         filenavigator.changeDIR(selectedfile);
         SendtoTFTLN(AC_msg_sd_file_open_failed);
         SendFileList( 0 );
@@ -458,7 +458,7 @@ namespace Anycubic {
     // Break these up into logical blocks // as its easier to navigate than one huge switch case!
     int8_t tpos = FindToken('A');
     // Panel request are 'A0' - 'A36'
-    if(tpos != -1) {
+    if (tpos != -1) {
       int8_t req = atoi(&panel_command[tpos+1]);
 
       // Information requests A0 - A8 and A33
@@ -474,22 +474,22 @@ namespace Anycubic {
     // This may be a response to a panel type detection query
     else if(panel_type == AC_panel_unknown) {
       tpos = FindToken('S'); // old panel will respond to 'SIZE' with 'SXY 480 320'
-      if(tpos != -1) {
-        if(panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
+      if (tpos != -1) {
+        if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
           panel_type = AC_panel_standard;
           SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
         }
       }
       else {
         tpos = FindToken('['); // new panel will respond to 'J200' with '[0]=0'
-        if(tpos != -1) {
-          if(panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
+        if (tpos != -1) {
+          if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
             panel_type = AC_panel_new;
             SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
           }
         }
       }
-    } 
+    }
     else SendtoTFTLN(); // Unknown so ignore it
   }
   void ChironTFT::PanelInfo(uint8_t req) {
@@ -561,7 +561,7 @@ namespace Anycubic {
       case 33:   // A33 Get firmware info
         SendtoTFT(PSTR("J33 "));
         // If there is an error recorded, show that instead of the FW version
-        if(GetLastError() == false) {
+        if (GetLastError() == false) {
           SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
         }
         break;
@@ -676,14 +676,14 @@ namespace Anycubic {
         }
         break;
 
-      case 22: {   // A22 Move Axis  
-        // The commands have changed on the new panel 
+      case 22: {   // A22 Move Axis
+        // The commands have changed on the new panel
         // Old TFT A22 X -1F1500      A22 X +1F1500
         // New TFT A22 X-1.0 F1500    A22 X1.0 F1500
-        
+
         // lets just wrap this in a gcode relative nonprint move and let the controller deal with it
         // G91 G0 <panel command> G90
-   
+
         if (!isPrinting()) { // Ignore request if printing
           char MoveCmnd[30];
           sprintf_P(MoveCmnd, PSTR("G91\nG0 %s \nG90"), panel_command+3);
@@ -730,7 +730,7 @@ namespace Anycubic {
         break;
 
       case 26:   // A26 Refresh SD
-        if(card.isMounted())card.release();
+        if (card.isMounted())card.release();
         card.mount();
         safe_delay(500);
         filenavigator.reset();
@@ -785,13 +785,13 @@ namespace Anycubic {
       } break;
 
       case 30: {   // A30 Auto leveling
-        if (FindToken('S') != -1) { // Start probing New panel adds spaces.. 
+        if (FindToken('S') != -1) { // Start probing New panel adds spaces..
           // Ignore request if printing
           if (isPrinting())
             SendtoTFTLN(AC_msg_probing_not_allowed); // forbid auto leveling
           else {
-												
-											   
+
+
             SendtoTFTLN(AC_msg_start_probing);
             injectCommands_P(PSTR("G28\nG29"));
             printer_state = AC_printer_probing;
@@ -805,14 +805,14 @@ namespace Anycubic {
       case 31: { // A31 Adjust all Probe Points
         // The tokens can occur in different places on the new panel so we need to find it.
 
-        if(FindToken('C') != -1) { // Restore and apply original offsets
+        if (FindToken('C') != -1) { // Restore and apply original offsets
           if (!isPrinting()) {
             injectCommands_P(PSTR("M501\nM420 S1"));
             selectedmeshpoint.x = selectedmeshpoint.y = 99;
             SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_abandoned);
           }
         }
-        
+
         else if(FindToken('D') != -1) { // Save Z Offset tables and restore leveling state
           if (!isPrinting()) {
             setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
@@ -821,7 +821,7 @@ namespace Anycubic {
             selectedmeshpoint.x = selectedmeshpoint.y = 99;
           }
         }
-        
+
         else if(FindToken('G') != -1) { // Get current offset
           SendtoTFT(PSTR("A31V "));
           // When printing use the live z Offset position
@@ -836,7 +836,7 @@ namespace Anycubic {
 
         else {
           int8_t tokenpos = FindToken('S');
-          if(tokenpos != -1) { // Set offset (adjusts all points by value)
+          if (tokenpos != -1) { // Set offset (adjusts all points by value)
             float Zshift = atof(&panel_command[tokenpos+1]);
             setSoftEndstopState(false);  // disable endstops
             // Allow temporary Z position nudging during print
@@ -934,14 +934,14 @@ namespace Anycubic {
           }
         }
       }  break;
-	  
+
       case 36: {  // A36 Auto leveling for new TFT bet that was a typo in the panel code!
         SendtoTFTLN(AC_msg_start_probing);
-      } break;												  
+      } break;
     }
   }
   bool ChironTFT::GetLastError() {
-    switch(last_error)
+    switch (last_error)
     {
       case AC_error_abnormal_temp_bed:
         SendtoTFTLN(AC_msg_error_bed_temp);
@@ -961,7 +961,7 @@ namespace Anycubic {
       case AC_error_filament_runout:
         SendtoTFTLN(AC_msg_filament_out);
       break;
-      default:      
+      default:
       return false;
     }
     last_error = AC_error_none;

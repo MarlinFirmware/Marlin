@@ -27,23 +27,23 @@
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  *
- * The AC panel wants files in block of 4 and can only display a flat list 
- * This library allows full folder traversal or flat file display and supports both standerd and new style panels.                              
- * 
+ * The AC panel wants files in block of 4 and can only display a flat list
+ * This library allows full folder traversal or flat file display and supports both standerd and new style panels.
+ *
  * ## Old Style TFT panel
- * Supported chars	{}[]-+=_"$%^&*()~<>|	
+ * Supported chars	{}[]-+=_"$%^&*()~<>|
  * Max display length 22 chars
  * Max path len 29 chars
- * FN<CR><LF> 
- * (DOS 8.3 filepath max 29chars)<CR><LF> 
+ * FN<CR><LF>
+ * (DOS 8.3 filepath max 29chars)<CR><LF>
  * (long filepath Max 22)<CR><LF>
  * END<CR><LF>
  *
  * ## New TFT Panel Format file display format
- * Supported chars	{}[]-+=_!"$%^&*()~<>\|	
+ * Supported chars	{}[]-+=_!"$%^&*()~<>\|
  * Max display length 26 chars
  * Max path len 29 chars
- * FN<CR><LF> 
+ * FN<CR><LF>
  * (DOS 8.3 filepath must end '.GCO')<CR><LF>
  * (long filepath must end '.gcode')<CR><LF>
  * END<CR><LF>
@@ -76,10 +76,10 @@ namespace Anycubic {
     currentfolderdepth   = 0;
     currentindex    = 0;
     lastpanelindex  = 0;
-    for(uint8_t p = 0; p < MAX_FOLDER_DEPTH; p++) {
+    for (uint8_t p = 0; p < MAX_FOLDER_DEPTH; p++) {
       currentfolderindex[p] = 0;
     }
-    
+
     // Start at root folder
     while (!filelist.isAtRootDir()) filelist.upDir();
     refresh();
@@ -102,7 +102,7 @@ namespace Anycubic {
     #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR("upDIR() from d:", currentfolderdepth, " n:", currentfoldername);
     #endif
-    if(!filelist.isAtRootDir()) {
+    if (!filelist.isAtRootDir()) {
       filelist.upDir();
       currentfolderdepth--;
       currentindex = currentfolderindex[currentfolderdepth]; // restore last position in the folder
@@ -121,25 +121,25 @@ namespace Anycubic {
     }
   }
   void FileNavigator::skiptofileindex(uint16_t skip) {
-    if(skip == 0) return;
-    while(skip > 0) {
-      if(filelist.seek(currentindex)) {
+    if (skip == 0) return;
+    while (skip > 0) {
+      if (filelist.seek(currentindex)) {
         #if ACDEBUG(AC_FILE)
           SERIAL_ECHOLNPAIR("ci:", currentindex, " fd:", currentfolderdepth, " n:",skip, " ", filelist.longFilename());
         #endif
-        if(!filelist.isDir()) {
+        if (!filelist.isDir()) {
           skip--;
           currentindex++;
         }
         else {
           changeDIR(filelist.shortFilename());
-        } 
+        }
       } // valid file
-      if(currentindex == filelist.count()) {
-        if(currentfolderdepth > 0) {
+      if (currentindex == filelist.count()) {
+        if (currentfolderdepth > 0) {
           upDIR();
           currentindex++;
-        } 
+        }
         else break; // end of root folder
       } // end of folder
     } // files needed
@@ -167,9 +167,9 @@ namespace Anycubic {
 
       if (currentindex == 0 && currentfolderdepth > 0) { // Add a link to go up a folder
         // The new panel ignores entries that dont end in .GCO or .gcode so add and pad them.
-        if(paneltype == AC_panel_new) {
+        if (paneltype == AC_panel_new) {
           TFTSer.println("<<.GCO");
-          Chiron.SendtoTFTLN(PSTR("..                  .gcode")); 
+          Chiron.SendtoTFTLN(PSTR("..                  .gcode"));
         }
         else {
           TFTSer.println("<<");
@@ -191,13 +191,13 @@ namespace Anycubic {
     void FileNavigator::sendFile(panel_type_t paneltype) {
       if (filelist.isDir()) {
         // Add mandatory tags for new panel otherwise lines are ignored.
-        if(paneltype == AC_panel_new) {
+        if (paneltype == AC_panel_new) {
           TFTSer.print(filelist.shortFilename());
           TFTSer.println(".GCO");
           TFTSer.print(filelist.shortFilename());
           TFTSer.write('/');
           // Make sure we fill all 29 chars of the display line to clear the text buffer otherwise the last line is still visible
-          for(int8_t i = strlen(filelist.shortFilename()); i<19 ;i++ ) {
+          for (int8_t i = strlen(filelist.shortFilename()); i<19 ;i++ ) {
             TFTSer.write(' ');
           }
           TFTSer.println(".gcode");
@@ -216,8 +216,8 @@ namespace Anycubic {
         TFTSer.print(filelist.longFilename());
 
         // Make sure we fill all 29 chars of the display line to clear the text buffer otherwise the last line is still visible
-        if(paneltype == AC_panel_new) {
-          for(int8_t i = strlen(filelist.longFilename()); i<26 ;i++ ) {
+        if (paneltype == AC_panel_new) {
+          for (int8_t i = strlen(filelist.longFilename()); i<26 ;i++ ) {
             TFTSer.write(' ');
           }
         }
@@ -229,45 +229,45 @@ namespace Anycubic {
       #if ACDEBUG(AC_FILE)
         SERIAL_ECHOLNPAIR("getFiles() i:", index," l:", lastpanelindex);
       #endif
-      // if we're searching backwards, jump back to start and search forward 
-      if(index < lastpanelindex)
+      // if we're searching backwards, jump back to start and search forward
+      if (index < lastpanelindex)
       {
         reset();
         skiptofileindex(index);
       }
       lastpanelindex = index;
-      while(filesneeded > 0) {
-        if(filelist.seek(currentindex)) {
-          if(!filelist.isDir()) {
-            sendFile(paneltype); 
+      while (filesneeded > 0) {
+        if (filelist.seek(currentindex)) {
+          if (!filelist.isDir()) {
+            sendFile(paneltype);
             filesneeded--;
             currentindex++;
           }
           else {
             changeDIR(filelist.shortFilename());
-          } 
+          }
         } // valid file
-        if(currentindex == filelist.count()) {
-          if(currentfolderdepth > 0) {
+        if (currentindex == filelist.count()) {
+          if (currentfolderdepth > 0) {
             upDIR();
             currentindex++;
-          } 
+          }
           else break; // end of root folder
         } // end of folder
       } // files needed
       return; // No more files available.
-    } 
+    }
     void FileNavigator::sendFile(panel_type_t paneltype) {
         TFTSer.write('/');
-        if(currentfolderdepth > 0) TFTSer.print(currentfoldername);
+        if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
         TFTSer.println(filelist.shortFilename());
-        if(currentfolderdepth > 0) TFTSer.print(currentfoldername);
+        if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
         TFTSer.println(filelist.longFilename());
-        
+
         #if ACDEBUG(AC_FILE)
           SERIAL_ECHOLNPAIR("/", currentfoldername, "", filelist.shortFilename(), " ", filelist.longFilename());
         #endif
-    } 
+    }
   #endif  // Flat file list
 }  //Anycubic namespace
 #endif // ANYCUBIC_LCD_CHIRON

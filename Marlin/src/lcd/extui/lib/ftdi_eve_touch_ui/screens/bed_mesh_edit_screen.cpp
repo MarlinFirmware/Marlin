@@ -85,7 +85,7 @@ void BedMeshEditScreen::moveToHighlightedValue() {
 }
 
 void BedMeshEditScreen::adjustHighlightedValue(float increment) {
-  if(mydata.highlight.x != -1) {
+  if (mydata.highlight.x != -1) {
     mydata.zAdjustment += increment;
     moveToHighlightedValue();
     mydata.needSave = true;
@@ -114,7 +114,7 @@ void BedMeshEditScreen::drawHighlightedPointValue() {
      .colors(normal_btn)
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
-  if(mydata.highlight.x != -1)
+  if (mydata.highlight.x != -1)
     draw_adjuster(cmd, Z_VALUE_POS, 3, getHighlightedValue(), GET_TEXT_F(MSG_UNITS_MM), 4, 3);
   cmd.colors(mydata.needSave ? normal_btn : action_btn)
      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_BACK))
