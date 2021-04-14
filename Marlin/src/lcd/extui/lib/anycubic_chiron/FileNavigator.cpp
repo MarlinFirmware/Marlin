@@ -70,7 +70,7 @@ namespace Anycubic {
   FileNavigator::FileNavigator() { reset(); }
   void FileNavigator::reset() {
     #if ACDEBUG(AC_FILE)
-      SERIAL_ECHOLN("reset()");
+      SERIAL_ECHOLNPGM("reset()");
     #endif
     currentfoldername[0] = '\0';
     currentfolderdepth   = 0;
