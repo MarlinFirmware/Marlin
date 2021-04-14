@@ -210,7 +210,7 @@
     static int read();
     static void flush();
     static ring_buffer_pos_t available();
-    static size_t write(const uint8_t c);
+    static void write(const uint8_t c);
     static void flushTX();
     #if HAS_DGUS_LCD
       static ring_buffer_pos_t get_tx_buffer_free();

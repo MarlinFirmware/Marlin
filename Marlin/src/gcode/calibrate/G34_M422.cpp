@@ -229,7 +229,7 @@ void GcodeSuite::G34() {
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
-          if (isnan(z_probed_height)) {
+          if (ISNAN(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
             err_break = true;
@@ -312,7 +312,7 @@ void GcodeSuite::G34() {
           ui.set_status(msg);
         #endif
 
-        auto decreasing_accuracy = [](const float &v1, const float &v2){
+        auto decreasing_accuracy = [](const_float_t v1, const_float_t v2){
           if (v1 < v2 * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
             LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);

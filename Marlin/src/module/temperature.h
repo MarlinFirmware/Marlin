@@ -74,9 +74,9 @@ hotend_pid_t;
 #endif
 
 #define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
-#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
-#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
-#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
+#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, MFNAN)
+#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, MFNAN)
+#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, MFNAN)
 #if ENABLED(PIDTEMP)
   #define _PID_Kc(H) TERN(PID_EXTRUSION_SCALING, Temperature::temp_hotend[H].pid.Kc, 1)
   #define _PID_Kf(H) TERN(PID_FAN_SCALING,       Temperature::temp_hotend[H].pid.Kf, 0)
@@ -553,10 +553,10 @@ class Temperature {
       static uint8_t fan_speed[FAN_COUNT];
       #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
 
-      static void set_fan_speed(const uint8_t target, const uint16_t speed);
+      static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 
       #if ENABLED(REPORT_FAN_CHANGE)
-        static void report_fan_speed(const uint8_t target);
+        static void report_fan_speed(const uint8_t fan);
       #endif
 
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
@@ -564,20 +564,22 @@ class Temperature {
         static uint8_t saved_fan_speed[FAN_COUNT];
       #endif
 
-      static constexpr inline uint8_t fanPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         static uint8_t fan_speed_scaler[FAN_COUNT];
       #endif
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
-        UNUSED(target); // Potentially unused!
-        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[target], 128))) >> 7;
+      static inline uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
+        UNUSED(fan); // Potentially unused!
+        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[fan], 128))) >> 7;
       }
 
-      static inline uint8_t scaledFanSpeed(const uint8_t target) {
-        return scaledFanSpeed(target, fan_speed[target]);
+      static inline uint8_t scaledFanSpeed(const uint8_t fan) {
+        return scaledFanSpeed(fan, fan_speed[fan]);
       }
+
+      static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
+      static inline uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
+      static inline uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
 
       #if ENABLED(EXTRA_FAN_SPEED)
         typedef struct { uint8_t saved, speed; } extra_fan_t;
@@ -600,8 +602,8 @@ class Temperature {
     /**
      * Called from the Temperature ISR
      */
+    static void isr();
     static void readings_ready();
-    static void tick();
 
     /**
      * Call periodically to manage heaters
@@ -688,7 +690,7 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const_float_t temp) {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
@@ -724,7 +726,7 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      FORCE_INLINE static bool degBedNear(const float &temp) {
+      FORCE_INLINE static bool degBedNear(const_float_t temp) {
         return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
@@ -735,9 +737,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
-      FORCE_INLINE static bool isProbeBelowTemp(const float target_temp) { return temp_probe.celsius < target_temp; }
-      FORCE_INLINE static bool isProbeAboveTemp(const float target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const float target_temp, bool no_wait_for_cooling=true);
+      FORCE_INLINE static bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -825,7 +827,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -959,7 +961,7 @@ class Temperature {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
-        void run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

@@ -46,7 +46,7 @@
   #include "../../gcode/parser.h"
 #endif
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -584,7 +584,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 }
 #endif
 
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
     lcd_put_u8str("~ ");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
@@ -830,7 +830,7 @@ void MarlinUI::draw_status_screen() {
       #if HAS_COOLER
         _draw_cooler_status('*', blink);
       #endif
-      #if HAS_FLOWMETER
+      #if ENABLED(LASER_COOLANT_FLOW_METER)
         _draw_flowmeter_status();
       #endif
 
@@ -947,7 +947,7 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.fanPercent(spd);
+              per = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
@@ -1282,7 +1282,7 @@ void MarlinUI::draw_status_screen() {
                    pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
                    suppress_x_offset = 0, suppress_y_offset = 0;
 
-        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;
@@ -1460,7 +1460,7 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
+        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
@@ -1479,7 +1479,7 @@ void MarlinUI::draw_status_screen() {
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
+        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));

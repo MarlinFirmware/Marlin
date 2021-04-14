@@ -900,8 +900,8 @@ void MarlinSettings::postprocess() {
       HOTEND_LOOP() {
         PIDCF_t pidcf = {
           #if DISABLED(PIDTEMP)
-            NAN, NAN, NAN,
-            NAN, NAN
+            MFNAN, MFNAN, MFNAN,
+            MFNAN, MFNAN
           #else
                          PID_PARAM(Kp, e),
             unscalePID_i(PID_PARAM(Ki, e)),
@@ -928,7 +928,7 @@ void MarlinSettings::postprocess() {
 
       const PID_t bed_pid = {
         #if DISABLED(PIDTEMPBED)
-          NAN, NAN, NAN
+          MFNAN, MFNAN, MFNAN
         #else
           // Store the unscaled PID values
           thermalManager.temp_bed.pid.Kp,
@@ -947,7 +947,7 @@ void MarlinSettings::postprocess() {
 
       const PID_t chamber_pid = {
         #if DISABLED(PIDTEMPCHAMBER)
-          NAN, NAN, NAN
+          MFNAN, MFNAN, MFNAN
         #else
           // Store the unscaled PID values
           thermalManager.temp_chamber.pid.Kp,
@@ -1605,7 +1605,7 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(MESH_BED_LEVELING)
           if (!validating) mbl.z_offset = dummyf;
-          if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
+          if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
             EEPROM_READ(mbl.z_values);
           }
@@ -1652,7 +1652,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ_ALWAYS(grid_max_x);                // 1 byte
         EEPROM_READ_ALWAYS(grid_max_y);                // 1 byte
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
+          if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
@@ -1786,7 +1786,7 @@ void MarlinSettings::postprocess() {
           PIDCF_t pidcf;
           EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
-            if (!validating && !isnan(pidcf.Kp)) {
+            if (!validating && !ISNAN(pidcf.Kp)) {
               // Scale PID values since EEPROM values are unscaled
               PID_PARAM(Kp, e) = pidcf.Kp;
               PID_PARAM(Ki, e) = scalePID_i(pidcf.Ki);
@@ -1818,7 +1818,7 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && !ISNAN(pid.Kp)) {
             // Scale PID values since EEPROM values are unscaled
             thermalManager.temp_bed.pid.Kp = pid.Kp;
             thermalManager.temp_bed.pid.Ki = scalePID_i(pid.Ki);
@@ -1834,7 +1834,7 @@ void MarlinSettings::postprocess() {
         PID_t pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPCHAMBER)
-          if (!validating && !isnan(pid.Kp)) {
+          if (!validating && !ISNAN(pid.Kp)) {
             // Scale PID values since EEPROM values are unscaled
             thermalManager.temp_chamber.pid.Kp = pid.Kp;
             thermalManager.temp_chamber.pid.Ki = scalePID_i(pid.Ki);

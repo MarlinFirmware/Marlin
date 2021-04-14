@@ -207,7 +207,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 xyze_long_t Planner::position{0};
 
-uint32_t Planner::cutoff_long;
+uint32_t Planner::acceleration_long_cutoff;
 
 xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed_sqr;
@@ -775,7 +775,7 @@ block_t* Planner::get_current_block() {
  * is not and will not use the block while we modify it, so it is safe to
  * alter its values.
  */
-void Planner::calculate_trapezoid_for_block(block_t * const block, const float &entry_factor, const float &exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
@@ -1382,7 +1382,7 @@ void Planner::check_axes_activity() {
     sync_fan_speeds(tail_fan_speed);
   #endif
 
-  TERN_(AUTOTEMP, getHighESpeed());
+  TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
     TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
@@ -1432,7 +1432,7 @@ void Planner::check_axes_activity() {
    * based on the extrusion speed, which is calculated from the blocks
    * currently in the planner.
    */
-  void Planner::getHighESpeed() {
+  void Planner::autotemp_task() {
     static float oldt = 0;
 
     if (!autotemp_enabled) return;
@@ -1463,7 +1463,7 @@ void Planner::check_axes_activity() {
    * This is the reciprocal of the circular cross-section area.
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
-  inline float calculate_volumetric_multiplier(const float &diameter) {
+  inline float calculate_volumetric_multiplier(const_float_t diameter) {
     return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5f) : 1;
   }
 
@@ -1745,7 +1745,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters
+  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
 ) {
 
   // Wait for the next available block
@@ -1811,7 +1811,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , feedRate_t fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
   const int32_t da = target.a - position.a,
@@ -2271,23 +2271,22 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
-  if (!block->steps.a && !block->steps.b && !block->steps.c) {
-    // convert to: acceleration steps/sec^2
-    accel = CEIL(settings.retract_acceleration * steps_per_mm);
-    TERN_(LIN_ADVANCE, block->use_advance_lead = false);
+  if (!block->steps.a && !block->steps.b && !block->steps.c) {    // Is this a retract / recover move?
+    accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
+    TERN_(LIN_ADVANCE, block->use_advance_lead = false);          // No linear advance for simple retract/recover
   }
   else {
     #define LIMIT_ACCEL_LONG(AXIS,INDX) do{ \
       if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS+INDX] < accel) { \
-        const uint32_t comp = max_acceleration_steps_per_s2[AXIS+INDX] * block->step_event_count; \
-        if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+        const uint32_t max_possible = max_acceleration_steps_per_s2[AXIS+INDX] * block->step_event_count / block->steps[AXIS]; \
+        NOMORE(accel, max_possible); \
       } \
     }while(0)
 
     #define LIMIT_ACCEL_FLOAT(AXIS,INDX) do{ \
       if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS+INDX] < accel) { \
-        const float comp = (float)max_acceleration_steps_per_s2[AXIS+INDX] * (float)block->step_event_count; \
-        if ((float)accel * (float)block->steps[AXIS] > comp) accel = comp / (float)block->steps[AXIS]; \
+        const float max_possible = float(max_acceleration_steps_per_s2[AXIS+INDX]) * float(block->step_event_count) / float(block->steps[AXIS]); \
+        NOMORE(accel, max_possible); \
       } \
     }while(0)
 
@@ -2336,7 +2335,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
 
     // Limit acceleration per axis
-    if (block->step_event_count <= cutoff_long) {
+    if (block->step_event_count <= acceleration_long_cutoff) {
       LIMIT_ACCEL_LONG(A_AXIS, 0);
       LIMIT_ACCEL_LONG(B_AXIS, 0);
       LIMIT_ACCEL_LONG(C_AXIS, 0);
@@ -2352,7 +2351,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (4096.0f * 4096.0f / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (sq(4096.0f) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
@@ -2745,11 +2744,11 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
  *
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
-bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e
+bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
   #if HAS_DIST_MM_ARG
     , const xyze_float_t &cart_dist_mm
   #endif
-  , const feedRate_t &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
+  , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -2839,9 +2838,9 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
  *  millimeters  - the length of the movement, if known
  *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
-bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const feedRate_t &fr_mm_s, const uint8_t extruder, const float millimeters
+bool Planner::buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    , const float &inv_duration
+    , const_float_t inv_duration
   #endif
 ) {
   xyze_pos_t machine = { rx, ry, rz, e };
@@ -2960,7 +2959,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
  * The provided ABC position is in machine units.
  */
 
-void Planner::set_machine_position_mm(const float &a, const float &b, const float &c, const float &e) {
+void Planner::set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e) {
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float.set(a, b, c, e));
   position.set(LROUND(a * settings.axis_steps_per_mm[A_AXIS]),
@@ -2976,7 +2975,7 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
     stepper.set_position(position);
 }
 
-void Planner::set_position_mm(const float &rx, const float &ry, const float &rz, const float &e) {
+void Planner::set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e) {
   xyze_pos_t machine = { rx, ry, rz, e };
   #if HAS_POSITION_MODIFIERS
     apply_modifiers(machine, true);
@@ -2993,11 +2992,11 @@ void Planner::set_position_mm(const float &rx, const float &ry, const float &rz,
 /**
  * Setters for planner position (also setting stepper position).
  */
-void Planner::set_e_position_mm(const float &e) {
+void Planner::set_e_position_mm(const_float_t e) {
   const uint8_t axis_index = E_AXIS_N(active_extruder);
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
-  const float e_new = e - TERN0(FWRETRACT, fwretract.current_retract[active_extruder]);
+  const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
   position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
   TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
   TERN_(IS_KINEMATIC, position_cart.e = e);
@@ -3020,7 +3019,7 @@ void Planner::reset_acceleration_rates() {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
-  cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
+  acceleration_long_cutoff = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
   TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 

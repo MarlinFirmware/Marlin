@@ -146,17 +146,19 @@
 #define BOARD_ELEFU_3                 1311  // Elefu Ra Board (v3)
 #define BOARD_LEAPFROG                1312  // Leapfrog
 #define BOARD_MEGACONTROLLER          1313  // Mega controller
-#define BOARD_GT2560_REV_A            1314  // Geeetech GT2560 Rev. A
-#define BOARD_GT2560_REV_A_PLUS       1315  // Geeetech GT2560 Rev. A+ (with auto level probe)
-#define BOARD_GT2560_V3               1316  // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V3_MC2           1317  // Geeetech GT2560 Rev B for Mecreator2
-#define BOARD_GT2560_V3_A20           1318  // Geeetech GT2560 Rev B for A20(M/D)
-#define BOARD_EINSTART_S              1319  // Einstart retrofit
-#define BOARD_WANHAO_ONEPLUS          1320  // Wanhao 0ne+ i3 Mini
-#define BOARD_LEAPFROG_XEED2015       1321  // Leapfrog Xeed 2015
-#define BOARD_PICA_REVB               1322  // PICA Shield (original version)
-#define BOARD_PICA                    1323  // PICA Shield (rev C or later)
-#define BOARD_INTAMSYS40              1324  // Intamsys 4.0 (Funmat HT)
+#define BOARD_GT2560_REV_A            1314  // Geeetech GT2560 Rev A
+#define BOARD_GT2560_REV_A_PLUS       1315  // Geeetech GT2560 Rev A+ (with auto level probe)
+#define BOARD_GT2560_REV_B            1316  // Geeetech GT2560 Rev B
+#define BOARD_GT2560_V3               1317  // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V4               1318  // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3_MC2           1319  // Geeetech GT2560 Rev B for Mecreator2
+#define BOARD_GT2560_V3_A20           1320  // Geeetech GT2560 Rev B for A20(M/D)
+#define BOARD_EINSTART_S              1321  // Einstart retrofit
+#define BOARD_WANHAO_ONEPLUS          1322  // Wanhao 0ne+ i3 Mini
+#define BOARD_LEAPFROG_XEED2015       1323  // Leapfrog Xeed 2015
+#define BOARD_PICA_REVB               1324  // PICA Shield (original version)
+#define BOARD_PICA                    1325  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
 
 //
 // ATmega1281, ATmega2561
@@ -341,6 +343,7 @@
 #define BOARD_FLSUN_HISPEED           4046  // FLSUN HiSpeedV1 (STM32F103VET6)
 #define BOARD_BEAST                   4047  // STM32F103RET6 Libmaple-based controller
 #define BOARD_MINGDA_MPX_ARM_MINI     4048  // STM32F103ZET6 Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4049  // STM32F103VET6 controller
 
 //
 // ARM Cortex-M4F
@@ -387,6 +390,7 @@
 #define BOARD_TEENSY41                5001  // Teensy 4.1
 #define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
 #define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
+#define BOARD_BTT_SKR_SE_BX           5004  // BigTreeTech SKR SE BX (STM32H743II)
 
 //
 // Espressif ESP32 WiFi
