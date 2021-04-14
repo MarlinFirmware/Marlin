@@ -33,19 +33,27 @@
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../ui_api.h"
 
+#if NONE(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
+  #define AUTO_DETECT_CHIRON_TFT 1
+#endif
+
 namespace Anycubic {
 
 class ChironTFT {
-  static last_error_t     last_error;
-  static panel_type_t     panel_type;
+  #if AUTO_DETECT_CHIRON_TFT
+    static panel_type_t panel_type;
+  #else
+    static constexpr panel_type_t panel_type = TERN(CHIRON_TFT_NEW, AC_panel_new, AC_panel_standard);
+  #endif
+  static last_error_t last_error;
   static printer_state_t  printer_state;
   static paused_state_t   pause_state;
   static heater_state_t   hotend_state;
   static heater_state_t   hotbed_state;
   static xy_uint8_t       selectedmeshpoint;
-  static char             panel_command[MAX_CMND_LEN];
+  static char             panel_command[MAX_CMND_LEN + 1];
   static uint8_t          command_len;
-  static char             selectedfile[MAX_PATH_LEN];
+  static char             selectedfile[MAX_PATH_LEN + 1];
   static float            live_Zoffset;
   static file_menu_t      file_menu;
   public:

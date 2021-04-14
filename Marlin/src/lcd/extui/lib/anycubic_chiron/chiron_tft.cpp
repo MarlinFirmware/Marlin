@@ -44,15 +44,17 @@
 namespace Anycubic {
 
 ChironTFT Chiron;
+#if AUTO_DETECT_CHIRON_TFT
+  panel_type_t   ChironTFT::panel_type = AC_panel_unknown;
+#endif
 last_error_t     ChironTFT::last_error;
-panel_type_t     ChironTFT::panel_type;
 printer_state_t  ChironTFT::printer_state;
 paused_state_t   ChironTFT::pause_state;
 heater_state_t   ChironTFT::hotend_state;
 heater_state_t   ChironTFT::hotbed_state;
 xy_uint8_t       ChironTFT::selectedmeshpoint;
-char             ChironTFT::selectedfile[MAX_PATH_LEN];
-char             ChironTFT::panel_command[MAX_CMND_LEN];
+char             ChironTFT::selectedfile[MAX_PATH_LEN + 1];
+char             ChironTFT::panel_command[MAX_CMND_LEN + 1];
 uint8_t          ChironTFT::command_len;
 float            ChironTFT::live_Zoffset;
 file_menu_t      ChironTFT::file_menu;
@@ -62,7 +64,6 @@ void ChironTFT::Startup() {
   panel_command[0]  = '\0';
   command_len       = 0;
   last_error        = AC_error_none;
-  panel_type        = AC_panel_unknown;
   printer_state     = AC_printer_idle;
   pause_state       = AC_paused_idle;
   hotend_state      = AC_heater_off;
@@ -89,12 +90,6 @@ void ChironTFT::Startup() {
   // There are different panels for the Chiron with slightly different commands
   // So we need to know what we are working with.
 
-  #ifdef CHIRON_TFT_STANDARD
-    panel_type = AC_panel_standard;
-  #endif
-  #ifdef CHIRON_TFT_NEW
-    panel_type = AC_panel_new;
-  #endif
   // Panel type can be defined otherwise detect it automatically
   if (panel_type == AC_panel_unknown) DetectPanelType();
 
@@ -106,11 +101,7 @@ void ChironTFT::Startup() {
   injectCommands_P(AC_cmnd_enable_leveling);
 
   // Startup tunes are defined in Tunes.h
-  #if ENABLED(AC_DEFAULT_STARTUP_TUNE)
-    PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
-  #else
-    PlayTune(BEEPER_PIN, GB_PowerOn, 1);
-  #endif
+  PlayTune(BEEPER_PIN, TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn), 1);
 
   #if ACDEBUGLEVEL
     SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
@@ -119,9 +110,11 @@ void ChironTFT::Startup() {
 }
 
 void ChironTFT::DetectPanelType() {
-  // Send a query to the TFT
-  SendtoTFTLN(AC_Test_for_OldPanel); // The panel will respond with 'SXY 480 320'
-  SendtoTFTLN(AC_Test_for_NewPanel); // the panel will respond with '[0]=0   ' to '[19]=0   '
+  #if AUTO_DETECT_CHIRON_TFT
+    // Send a query to the TFT
+    SendtoTFTLN(AC_Test_for_OldPanel); // The panel will respond with 'SXY 480 320'
+    SendtoTFTLN(AC_Test_for_NewPanel); // the panel will respond with '[0]=0   ' to '[19]=0   '
+  #endif
 }
 
 void ChironTFT::IdleLoop()  {
@@ -146,16 +139,16 @@ void ChironTFT::MediaEvent(media_event_t event)  {
   switch (event) {
     case AC_media_inserted:
       SendtoTFTLN(AC_msg_sd_card_inserted);
-    break;
+      break;
 
     case AC_media_removed:
       SendtoTFTLN(AC_msg_sd_card_removed);
-    break;
+      break;
 
     case AC_media_error:
-    last_error = AC_error_noSD;
+      last_error = AC_error_noSD;
       SendtoTFTLN(AC_msg_no_sd_card);
-    break;
+      break;
   }
 }
 
@@ -323,7 +316,7 @@ void ChironTFT::PrintComplete() {
 
 void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEM string to the panel
   #if ACDEBUG(AC_SOME)
-    serialprintPGM(str);
+    SERIAL_ECHOPGM_P(str);
   #endif
   while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
 }
@@ -343,7 +336,7 @@ void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
 
 bool ChironTFT::ReadTFTCommand() {
   bool command_ready = false;
-  while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN-1) {
+  while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
     panel_command[command_len] = TFTSer.read();
     if (panel_command[command_len] == '\n') {
       command_ready = true;
@@ -352,8 +345,8 @@ bool ChironTFT::ReadTFTCommand() {
     command_len++;
   }
 
-  if (command_ready || command_len == MAX_CMND_LEN-1) {
-    panel_command[command_len] = 0x00;
+  if (command_ready || command_len == MAX_CMND_LEN) {
+    panel_command[command_len] = '\0';
     #if ACDEBUG(AC_ALL)
       SERIAL_ECHOLNPAIR("len(",command_len,") < ", panel_command);
     #endif
@@ -367,13 +360,13 @@ int8_t ChironTFT::FindToken(char c) {
   do {
     if (panel_command[pos] == c) {
       #if ACDEBUG(AC_INFO)
-        SERIAL_ECHOLNPAIR("Tpos:", pos, " ",c);
+        SERIAL_ECHOLNPAIR("Tpos:", pos, " ", c);
       #endif
       return pos;
     }
   } while(++pos < command_len);
   #if ACDEBUG(AC_INFO)
-    SERIAL_ECHOLNPAIR("Not found: ",c);
+    SERIAL_ECHOLNPAIR("Not found: ", c);
   #endif
   return -1;
 }
@@ -462,9 +455,8 @@ void ChironTFT::SelectFile() {
       break;
     default:   // enter sub folder
       // for new panel remove the '.GCO' tag that was added to the end of the path
-      if (panel_type == AC_panel_new) {
-        selectedfile[strlen(selectedfile)-4] = '\0';
-      }
+      if (panel_type == AC_panel_new)
+        selectedfile[strlen(selectedfile) - 4] = '\0';
       filenavigator.changeDIR(selectedfile);
       SendtoTFTLN(AC_msg_sd_file_open_failed);
       SendFileList( 0 );
@@ -474,41 +466,46 @@ void ChironTFT::SelectFile() {
 
 void ChironTFT::ProcessPanelRequest() {
   // Break these up into logical blocks // as its easier to navigate than one huge switch case!
-  int8_t tpos = FindToken('A');
+  const int8_t tpos = FindToken('A');
   // Panel request are 'A0' - 'A36'
   if (tpos != -1) {
-    int8_t req = atoi(&panel_command[tpos+1]);
+    const int8_t req = atoi(&panel_command[tpos+1]);
 
     // Information requests A0 - A8 and A33
     if (req <= 8 || req == 33) PanelInfo(req);
 
     // Simple Actions A9 - A28
-    else if ( req <= 28) PanelAction(req);
+    else if (req <= 28) PanelAction(req);
 
     // Process Initiation
     else if (req <= 36) PanelProcess(req);
   }
-
-  // This may be a response to a panel type detection query
-  else if(panel_type == AC_panel_unknown) {
-    tpos = FindToken('S'); // old panel will respond to 'SIZE' with 'SXY 480 320'
-    if (tpos != -1) {
-      if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
-        panel_type = AC_panel_standard;
-        SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
-      }
-    }
-    else {
-      tpos = FindToken('['); // new panel will respond to 'J200' with '[0]=0'
-      if (tpos != -1) {
-        if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
-          panel_type = AC_panel_new;
-          SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
+  else {
+    #if AUTO_DETECT_CHIRON_TFT
+      // This may be a response to a panel type detection query
+      if (panel_type == AC_panel_unknown) {
+        tpos = FindToken('S'); // old panel will respond to 'SIZE' with 'SXY 480 320'
+        if (tpos != -1) {
+          if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
+            panel_type = AC_panel_standard;
+            SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
+          }
         }
+        else {
+          tpos = FindToken('['); // new panel will respond to 'J200' with '[0]=0'
+          if (tpos != -1) {
+            if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
+              panel_type = AC_panel_new;
+              SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
+            }
+          }
+        }
+        return;
       }
-    }
+    #endif
+
+    SendtoTFTLN(); // Ignore unknown requests
   }
-  else SendtoTFTLN(); // Unknown so ignore it
 }
 
 void ChironTFT::PanelInfo(uint8_t req) {
@@ -580,9 +577,7 @@ void ChironTFT::PanelInfo(uint8_t req) {
     case 33:   // A33 Get firmware info
       SendtoTFT(PSTR("J33 "));
       // If there is an error recorded, show that instead of the FW version
-      if (GetLastError() == false) {
-        SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
-      }
+      if (!GetLastError()) SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
       break;
   }
 }
@@ -834,7 +829,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         }
       }
 
-      else if(FindToken('D') != -1) { // Save Z Offset tables and restore leveling state
+      else if (FindToken('D') != -1) { // Save Z Offset tables and restore leveling state
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands_P(PSTR("M500"));
@@ -843,7 +838,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         }
       }
 
-      else if(FindToken('G') != -1) { // Get current offset
+      else if (FindToken('G') != -1) { // Get current offset
         SendtoTFT(PSTR("A31V "));
         // When printing use the live z Offset position
         // we will use babystepping to move the print head
@@ -956,39 +951,26 @@ void ChironTFT::PanelProcess(uint8_t req) {
       }
     }  break;
 
-    case 36: {  // A36 Auto leveling for new TFT bet that was a typo in the panel code!
+    case 36:    // A36 Auto leveling for new TFT bet that was a typo in the panel code!
       SendtoTFTLN(AC_msg_start_probing);
-    } break;
+      break;
   }
 }
 
 bool ChironTFT::GetLastError() {
   switch (last_error) {
-    case AC_error_abnormal_temp_bed:
-      SendtoTFTLN(AC_msg_error_bed_temp);
-    break;
-    case AC_error_abnormal_temp_t0:
-      SendtoTFTLN(AC_msg_error_hotend_temp);
-    break;
-    case AC_error_noSD:
-      SendtoTFTLN(AC_msg_error_sd_card);
-    break;
-    case AC_error_powerloss:
-      SendtoTFTLN(AC_msg_power_loss);
-    break;
-    case AC_error_EEPROM:
-      SendtoTFTLN(AC_msg_eeprom_version);
-    break;
-    case AC_error_filament_runout:
-      SendtoTFTLN(AC_msg_filament_out);
-    break;
-    default:
-    return false;
+    case AC_error_abnormal_temp_bed: SendtoTFTLN(AC_msg_error_bed_temp);    break;
+    case AC_error_abnormal_temp_t0:  SendtoTFTLN(AC_msg_error_hotend_temp); break;
+    case AC_error_noSD:              SendtoTFTLN(AC_msg_error_sd_card);     break;
+    case AC_error_powerloss:         SendtoTFTLN(AC_msg_power_loss);        break;
+    case AC_error_EEPROM:            SendtoTFTLN(AC_msg_eeprom_version);    break;
+    case AC_error_filament_runout:   SendtoTFTLN(AC_msg_filament_out);      break;
+    default: return false;
   }
   last_error = AC_error_none;
   return true;
 }
 
-} // Anyccubic namespace
+} // Anycubic namespace
 
 #endif // ANYCUBIC_LCD_CHIRON
