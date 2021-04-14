@@ -1000,6 +1000,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 void GcodeSuite::handle_unknown_gcode(const char * gcode) {
+  UNUSED(gcode);
   if ( !TERN0(WIFI_CUSTOM_COMMAND, wifi_custom_command(gcode))
     && !TERN0(HANDLE_UNKNOWN_GCODE, unknown_gcode_handler(gcode))
   ) parser.unknown_command_warning();
@@ -1008,6 +1009,7 @@ void GcodeSuite::handle_unknown_gcode(const char * gcode) {
 #if ENABLED(HANDLE_UNKNOWN_GCODE)
 
   bool GcodeSuite::unknown_gcode_handler(const char * gcode) {
+    UNUSED(gcode);
 
     // Add your custom handling (or calls to custom handlers) here.
     // Return 'true' if the G-code was handled.
