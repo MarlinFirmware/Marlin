@@ -832,8 +832,8 @@ namespace Anycubic {
                 setAxisPosition_mm(currZpos+constrain(Zshift,-0.05,0.05),Z);
               }
             }
-          } break;
-        } // end switch
+          }
+        }
       } break;
 
       case 32: { // A32 clean leveling beep flag
@@ -843,7 +843,7 @@ namespace Anycubic {
         //TFTSer.println();
       } break;
 
-      // A33 firmware info request seet PanelInfo()
+      // A33 firmware info request see PanelInfo()
 
       case 34: {  // A34 Adjust single mesh point A34 C/S X1 Y1 V123
         if (panel_command[3] == 'C') { // Restore original offsets
