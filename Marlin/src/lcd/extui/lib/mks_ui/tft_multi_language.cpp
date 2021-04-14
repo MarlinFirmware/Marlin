@@ -56,6 +56,7 @@ tool_menu_def                tool_menu;
 MachinePara_menu_def         MachinePara_menu;
 pause_msg_def                pause_msg_menu;
 eeprom_def                   eeprom_menu;
+media_select_menu_def        media_select_menu;
 
 machine_common_def machine_menu;
 void machine_setting_disp() {
@@ -820,6 +821,10 @@ void disp_language_init() {
   printing_menu.bed_temp = TEXT_VALUE_TARGET;
 
   filament_menu.stat_temp = TEXT_VALUE;
+
+  media_select_menu.title    = MEDIA_SELECT_TITLE_EN;
+  media_select_menu.sd_disk  = SD_CARD_TITLE_EN;
+  media_select_menu.usb_disk = USB_DRIVE_TITLE_EN;
 
   machine_menu.key_0     = KEYBOARD_KEY0_EN;
   machine_menu.key_1     = KEYBOARD_KEY1_EN;

@@ -136,7 +136,7 @@
     #if ENABLED(POWER_MONITOR_CURRENT)
       const bool iflag = power_monitor.current_display_enabled();
     #endif
-    #if HAS_POWER_MONITOR_VREF
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
       const bool vflag = power_monitor.voltage_display_enabled();
     #endif
 
@@ -148,7 +148,7 @@
       }
     #elif ENABLED(POWER_MONITOR_CURRENT)
       power_monitor.display_item = 0;
-    #elif HAS_POWER_MONITOR_VREF
+    #elif ENABLED(POWER_MONITOR_VOLTAGE)
       power_monitor.display_item = 1;
     #endif
 
@@ -157,7 +157,7 @@
       #if ENABLED(POWER_MONITOR_CURRENT)
         if (power_monitor.display_item == 0 && !iflag) ++power_monitor.display_item;
       #endif
-      #if HAS_POWER_MONITOR_VREF
+      #if ENABLED(POWER_MONITOR_VOLTAGE)
         if (power_monitor.display_item == 1 && !vflag) ++power_monitor.display_item;
       #endif
       #if HAS_POWER_MONITOR_WATTS
@@ -170,7 +170,7 @@
       #if ENABLED(POWER_MONITOR_CURRENT)                // Current
         case 0: if (iflag) power_monitor.draw_current(); break;
       #endif
-      #if HAS_POWER_MONITOR_VREF                        // Voltage
+      #if ENABLED(POWER_MONITOR_VOLTAGE)                        // Voltage
         case 1: if (vflag) power_monitor.draw_voltage(); break;
       #endif
       #if HAS_POWER_MONITOR_WATTS                       // Power
@@ -959,13 +959,16 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < lcd_width) {
-        lcd_put_wchar('.');                     // Always at 1+ spaces left, draw a dot
         uint8_t chars = lcd_width - rlen;       // Amount of space left in characters
-        if (--chars) {                          // Draw a second dot if there's space
-          lcd_put_wchar('.');
-          if (--chars) {                        // Print a second copy of the message
-            lcd_put_u8str_max(status_message, pixel_width - (rlen + 2) * (MENU_FONT_WIDTH));
+        lcd_put_wchar(' ');                     // Always at 1+ spaces left, draw a space
+        if (--chars) {                          // Draw a second space if there's room
+          lcd_put_wchar(' ');
+          if (--chars) {                        // Draw a third space if there's room
             lcd_put_wchar(' ');
+            if (--chars) {                      // Print a second copy of the message
+              lcd_put_u8str_max(status_message, pixel_width - (rlen + 2) * (MENU_FONT_WIDTH));
+              lcd_put_wchar(' ');
+            }
           }
         }
       }

@@ -581,12 +581,15 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < LCD_WIDTH) {
-        lcd.write('.');                       // Always at 1+ spaces left, draw a dot
         uint8_t chars = LCD_WIDTH - rlen;     // Amount of space left in characters
-        if (--chars) {                        // Draw a second dot if there's space
-          lcd.write('.');
-          if (--chars)
-            lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+        lcd.write(' ');                       // Always at 1+ spaces left, draw a space
+        if (--chars) {                        // Draw a second space if there's room
+          lcd.write(' ');
+          if (--chars) {                      // Draw a third space if there's room
+            lcd.write(' ');
+            if (--chars)
+              lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+          }
         }
       }
       if (last_blink != blink) {

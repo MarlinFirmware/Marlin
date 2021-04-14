@@ -137,7 +137,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 
             gCfgItems.wifi_mode_sel = STA_MODEL;
 
-            package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
+            package_to_wifi(WIFI_PARA_SET, nullptr, 0);
 
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
@@ -148,7 +148,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             public_buf_l[6] = 0x00;
             raw_send_to_wifi((uint8_t*)public_buf_l, 6);
 
-            last_disp_state = KEY_BOARD_UI;
+            last_disp_state = KEYBOARD_UI;
             lv_clear_keyboard();
             wifi_tips_type = TIPS_TYPE_JOINING;
             lv_draw_wifi_tips();
@@ -216,7 +216,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  scr = lv_screen_create(KEY_BOARD_UI, "");
+  scr = lv_screen_create(KEYBOARD_UI, "");
 
   // Create styles for the keyboard
   static lv_style_t rel_style, pr_style;
