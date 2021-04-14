@@ -6,6 +6,13 @@ Generates or updates a configuration example file
 .PARAMETER  Name
 Name of the configuration example. Must be a valid path name.
 
+.PARAMETER  InteractiveResolve
+Interactively resolve merge conflicts in the configuration files.
+
+.PARAMETER  GitRevision
+The first revision to compare against. For instance: after a merge, 
+pass in the first revision of the current repository before the merge.
+
 #>
 [CmdletBinding()]
 Param(
@@ -13,7 +20,10 @@ Param(
     $Name,
 
     [Switch]
-    $InteractiveResolve
+    $InteractiveResolve, 
+
+    [String]
+    $GitRevision
 )
 
 # Include common scripts
@@ -55,7 +65,13 @@ foreach ($FilePath in $FilesPathsToDiff) {
 
     # Generate diff of Configuration changes
     Remove-Item -Path $ExampleDiffFilePath -Verbose -ErrorAction SilentlyContinue
-    git diff --unified=5 --output=$ExampleDiffFilePath $FilePath
+    
+    if ($GitRevision) {
+        $RevisionArg = "$($GitRevision)..HEAD"
+        git diff --unified=5 --output=$ExampleDiffFilePath $RevisionArg -- $FilePath
+    } else {
+        git diff --unified=5 --output=$ExampleDiffFilePath $FilePath
+    }
 
     if ($LASTEXITCODE -ne 0) {
         Write-FatalError "Unable to diff file $FilePath"
