@@ -23,9 +23,7 @@
 
 #include "env_validate.h"
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BTT SKR V2.0"
-#endif
+#define BOARD_INFO_NAME "BTT SKR V2.0"
 
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
@@ -476,7 +474,7 @@
 //
 
 /**
- *
+ *                      -------
  *            GND | 9  |       | 8 | 3.3V
  *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
  *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
@@ -485,7 +483,7 @@
  *             NC | 14 |       | 3 | 3.3V (ESP-EN)
  *  (ESP-RX)  PD8 | 15 |       | 2 | NC
  *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
- * 
+ *                      -------
  *                       WIFI
  */
 #define ESP_WIFI_MODULE_COM                    3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this

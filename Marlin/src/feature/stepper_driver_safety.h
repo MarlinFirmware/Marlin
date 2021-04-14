@@ -24,5 +24,5 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-void stepper_driver_anti_plug_detect();
-void test_anti_plug();
+void stepper_driver_backward_check();
+void stepper_driver_backward_report();

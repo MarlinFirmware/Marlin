@@ -3328,11 +3328,11 @@
 #endif
 
 /**
- * Disable Stepper Driver Anti-Reverse Protection
+ * Stepper Driver Anti-SNAFU Protection
  *
- * Check driver orientation before supplying power to prevent damage if "SAFE_POWER_PIN" is defined.
- * However, some new stepper drivers may not support similar detection in the future
- * So a disable option is provided. The driver will be powered directly without detection during initialization if disable
+ * If the SAFE_POWER_PIN is defined for your board, Marlin will check
+ * that stepper drivers are properly plugged in before applying power.
+ * Disable protection if your stepper drivers don't support the feature.
  */
 //#define DISABLE_DRIVER_SAFE_POWER_PROTECT
 

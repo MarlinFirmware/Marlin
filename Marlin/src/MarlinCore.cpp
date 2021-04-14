@@ -234,8 +234,8 @@
   #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
-#if DRIVER_SAFE_POWER_PROTECT
-  #include "feature/driver_anti_reverse_protection.h"
+#if HAS_DRIVER_SAFE_POWER_PROTECT
+  #include "feature/stepper_driver_safety.h"
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
@@ -1223,7 +1223,12 @@ void setup() {
   #endif
 
   #if PIN_EXISTS(SAFE_POWER)
-    SETUP_RUN(TERN(DRIVER_SAFE_POWER_PROTECT, stepper_driver_anti_plug_detect(), OUT_WRITE(SAFE_POWER_PIN, HIGH)));
+    #if ENABLED(HAS_DRIVER_SAFE_POWER_PROTECT)
+      SETUP_RUN(stepper_driver_backward_check());
+    #else
+      SETUP_LOG("SAFE_POWER");
+      OUT_WRITE(SAFE_POWER_PIN, HIGH);
+    #endif
   #endif
 
   #if ENABLED(PROBE_TARE)
@@ -1470,8 +1475,8 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
-  #if DRIVER_SAFE_POWER_PROTECT
-    SETUP_RUN(test_anti_plug());
+  #if HAS_DRIVER_SAFE_POWER_PROTECT
+    SETUP_RUN(stepper_driver_backward_report());
   #endif
 
   #if HAS_PRUSA_MMU2
