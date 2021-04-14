@@ -114,13 +114,11 @@ namespace Anycubic {
     AC_heater_temp_set,
     AC_heater_temp_reached
   };
-
   enum paused_state_t : uint8_t {
     AC_paused_heater_timed_out,
     AC_paused_purging_filament,
     AC_paused_idle
   };
-
   enum printer_state_t : uint8_t {
     AC_printer_idle,
     AC_printer_probing,
@@ -130,13 +128,11 @@ namespace Anycubic {
     AC_printer_stopping,
     AC_printer_resuming_from_power_outage
   };
-
   enum timer_event_t : uint8_t {
     AC_timer_started,
     AC_timer_paused,
     AC_timer_stopped
   };
-
   enum media_event_t : uint8_t {
     AC_media_inserted,
     AC_media_removed,
@@ -148,4 +144,4 @@ namespace Anycubic {
     AC_menu_change_to_file,
     AC_menu_change_to_command
   };
-}
+} // Anycubic

@@ -57,6 +57,10 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(FLOWMETER_SAFETY)
+  #include "../feature/cooler.h"
+#endif
+
 #if ENABLED(PASSWORD_FEATURE)
   #include "../feature/password/password.h"
 #endif
@@ -278,7 +282,18 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
   #endif
 
+
   // Handle a known command or reply "unknown command"
+
+  #if ENABLED(FLOWMETER_SAFETY)
+    if (cooler.fault) {
+      SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
+      return;
+    }
+  #endif
+
+  // Handle a known G, M, or T
+
   switch (parser.command_letter) {
 
     case 'G': switch (parser.codenum) {
@@ -365,6 +380,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           break;
       #endif
 
+      #if HAS_MESH
+        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
+      #endif
+
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
         case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
         case 54: G54(); break;                                    // G54: Switch to Workspace 1
@@ -392,10 +411,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
-
-      #if HAS_MESH
-        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
-      #endif
 
       #if ENABLED(CALIBRATION_GCODE)
         case 425: G425(); break;                                  // G425: Perform calibration with calibration cube
@@ -538,6 +553,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
+      #endif
+
+      #if HAS_COOLER
+        case 143: M143(); break;                                  // M143: Set cooler temperature
+        case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
       #endif
 
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
@@ -962,6 +982,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
+      #if ENABLED(DGUS_LCD_UI_MKS)
+        case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
+      #endif
+
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
@@ -1048,9 +1072,9 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
-    if (delim) *delim = '\n';                         // Put back the newline
     process_parsed_command(true);                     // Process it
     if (!delim) break;                                // Last command?
+    *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
   parser.parse(saved_cmd);                            // Restore the parser state
@@ -1067,6 +1091,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     static millis_t next_busy_signal_ms = 0;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
+      PORT_REDIRECT(SerialMask::All);
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:

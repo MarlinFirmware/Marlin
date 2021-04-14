@@ -63,7 +63,9 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index = active_extruder);
+#if ENABLED(HAS_MULTI_HOTEND)
+  const uint8_t old_tool_index = active_extruder;
+#endif
 
 float lcd_probe_pt(const xy_pos_t &xy);
 
@@ -91,9 +93,9 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
-void print_signed_float(PGM_P const prefix, const float &f) {
+void print_signed_float(PGM_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
-  serialprintPGM(prefix);
+  SERIAL_ECHOPGM_P(prefix);
   SERIAL_CHAR(':');
   if (f >= 0) SERIAL_CHAR('+');
   SERIAL_ECHO_F(f, 2);
@@ -210,7 +212,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
       const xy_pos_t center{0};
       z_pt[CEN] += calibration_probe(center, stow_after_each);
-      if (isnan(z_pt[CEN])) return false;
+      if (ISNAN(z_pt[CEN])) return false;
     }
 
     if (_7p_calibration) { // probe extra center points
@@ -221,7 +223,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                     r = dcr * 0.1;
         const xy_pos_t vec = { cos(a), sin(a) };
         z_pt[CEN] += calibration_probe(vec * r, stow_after_each);
-        if (isnan(z_pt[CEN])) return false;
+        if (ISNAN(z_pt[CEN])) return false;
      }
       z_pt[CEN] /= float(_7p_2_intermediates ? 7 : probe_points);
     }
@@ -246,7 +248,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                       interpol = FMOD(rad, 1);
           const xy_pos_t vec = { cos(a), sin(a) };
           const float z_temp = calibration_probe(vec * r, stow_after_each);
-          if (isnan(z_temp)) return false;
+          if (ISNAN(z_temp)) return false;
           // split probe point to neighbouring calibration points
           z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
           z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
@@ -451,7 +453,7 @@ void GcodeSuite::G33() {
 
   // Report settings
   PGM_P const checkingac = PSTR("Checking... AC");
-  serialprintPGM(checkingac);
+  SERIAL_ECHOPGM_P(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status_P(checkingac);
@@ -627,7 +629,7 @@ void GcodeSuite::G33() {
     }
     else { // dry run
       PGM_P const enddryrun = PSTR("End DRY-RUN");
-      serialprintPGM(enddryrun);
+      SERIAL_ECHOPGM_P(enddryrun);
       SERIAL_ECHO_SP(35);
       SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
 

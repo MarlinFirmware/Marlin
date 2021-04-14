@@ -40,9 +40,9 @@ public:
      * M110 N<int> sets the current line number.
      */
     long last_N;
-    int count;                        //!< Number of characters read in the current line of serial input
-    char line_buffer[MAX_CMD_SIZE];   //!< The current line accumulator
-    uint8_t input_state;              //!< The input state
+    int count;                      //!< Number of characters read in the current line of serial input
+    char line_buffer[MAX_CMD_SIZE]; //!< The current line accumulator
+    uint8_t input_state;            //!< The input state
   };
 
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
@@ -57,9 +57,11 @@ public:
    * command and hands off execution to individual handler functions.
    */
   struct CommandLine {
-    char buffer[MAX_CMD_SIZE];                    //!< The command buffer
-    bool skip_ok;                                 //!< Skip sending ok when command is processed?
-    TERN_(HAS_MULTI_SERIAL, serial_index_t port); //!< Serial port the command was received on
+    char buffer[MAX_CMD_SIZE];      //!< The command buffer
+    bool skip_ok;                   //!< Skip sending ok when command is processed?
+    #if ENABLED(HAS_MULTI_SERIAL)
+      serial_index_t port;          //!< Serial port the command was received on
+    #endif
   };
 
   /**
@@ -79,13 +81,13 @@ public:
 
     void commit_command(bool skip_ok
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
-    bool enqueue(const char* cmd, bool skip_ok = true
+    bool enqueue(const char *cmd, bool skip_ok = true
       #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind=-1
+        , serial_index_t serial_ind = serial_index_t()
       #endif
     );
 
@@ -93,7 +95,9 @@ public:
 
     inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
 
-    inline bool empty() const { return length == 0; }
+    inline bool occupied() const { return length != 0; }
+
+    inline bool empty() const { return !occupied(); }
 
     inline CommandLine& peek_next_command() { return commands[index_r]; }
 
@@ -139,7 +143,7 @@ public:
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char* cmd);
+  static void enqueue_one_now(const char *cmd);
 
   /**
    * Attempt to enqueue a single G-code command
@@ -161,6 +165,11 @@ public:
    * Get the next command in the queue, optionally log it to SD, then dispatch it
    */
   static void advance();
+
+  /**
+   * Run the entire queue in-place
+   */
+  static void exhaust();
 
   /**
    * Add to the circular command queue the next command from:
@@ -185,12 +194,12 @@ public:
    * Clear the serial line and request a resend of
    * the next expected line number.
    */
-  static void flush_and_request_resend();
+  static void flush_and_request_resend(const serial_index_t serial_ind);
 
   /**
    * (Re)Set the current line number for the last received command
    */
-  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port()].last_N = n; }
+  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
 private:
 
@@ -210,7 +219,7 @@ private:
    * Enqueue with Serial Echo
    * Return true on success
    */
-  static bool enqueue_one(const char* cmd);
+  static bool enqueue_one(const char *cmd);
 
   static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 

@@ -93,7 +93,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
     const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], ui.manual_move.offset),
       axis
     );
     if (parser.using_inch_units()) {
@@ -130,8 +130,8 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
-          + TERN0(IS_KINEMATIC, ui.manual_move.offset)
-          - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
+          PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
+          MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
         )
       );
     } // should_draw
@@ -149,7 +149,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 
 screenFunc_t _manual_move_func_ptr;
 
-void _goto_manual_move(const float scale) {
+void _goto_manual_move(const_float_t scale) {
   ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);

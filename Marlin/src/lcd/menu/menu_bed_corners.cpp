@@ -269,7 +269,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                             // update screen with # of good points
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH_HS_MODE, 7)); // clearance
+      do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, current_position.z + LEVEL_CORNERS_Z_HOP, 7)); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
@@ -296,8 +296,11 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
     } while (good_points < nr_edge_points); // loop until all points within tolerance
 
-    TERN_(BLTOUCH_HS_MODE, do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP)); // Do clearance in HIGH SPEED MODE at the very end
-    TERN_(BLTOUCH_HS_MODE, bltouch.stow()); // Stow in HIGH SPEED MODE at the very end
+    #if ENABLED(BLTOUCH_HS_MODE)
+      // In HIGH SPEED MODE do clearance and stow at the very end
+      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP);
+      bltouch.stow();
+    #endif
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling
     ui.set_selection(true);

@@ -238,20 +238,32 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_QUIET_PROBING
 
-  void Probe::set_probing_paused(const bool p) {
-    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(p));
-    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(p));
+  #ifndef DELAY_BEFORE_PROBING
+    #define DELAY_BEFORE_PROBING 25
+  #endif
+
+  void Probe::set_probing_paused(const bool dopause) {
+    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(dopause));
+    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     #if ENABLED(PROBING_STEPPERS_OFF)
-      disable_e_steppers();
-      #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
-        DISABLE_AXIS_X(); DISABLE_AXIS_Y();
-      #endif
+      IF_DISABLED(DELTA, static uint8_t old_trusted);
+      if (dopause) {
+        #if DISABLED(DELTA)
+          old_trusted = axis_trusted;
+          DISABLE_AXIS_X();
+          DISABLE_AXIS_Y();
+        #endif
+        disable_e_steppers();
+      }
+      else {
+        #if DISABLED(DELTA)
+          if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
+          if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+        #endif
+        axis_trusted = old_trusted;
+      }
     #endif
-    if (p) safe_delay(25
-      #if DELAY_BEFORE_PROBING > 25
-        - 25 + DELAY_BEFORE_PROBING
-      #endif
-    );
+    if (dopause) safe_delay(_MAX(DELAY_BEFORE_PROBING, 25));
   }
 
 #endif // HAS_QUIET_PROBING
@@ -279,8 +291,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
       ui.set_status_P(ds_str, 99);
-      serialprintPGM(ds_str);
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(ds_str);
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
@@ -341,7 +352,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    *  - If a preheat input is higher than the current target, raise the target temperature.
    *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
-  void Probe::preheat_for_probing(const uint16_t hotend_temp, const uint16_t bed_temp) {
+  void Probe::preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp) {
     #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
@@ -352,17 +363,17 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_ECHOPGM("Preheating ");
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
-      const uint16_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
+      const int16_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
       if (hotendPreheat) {
         DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
         thermalManager.setTargetHotend(hotendPreheat, 0);
       }
     #elif ENABLED(WAIT_FOR_BED_HEAT)
-      constexpr uint16_t hotendPreheat = 0;
+      constexpr int16_t hotendPreheat = 0;
     #endif
 
     #if ENABLED(WAIT_FOR_BED_HEAT)
-      const uint16_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
+      const int16_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
       if (bedPreheat) {
         if (hotendPreheat) DEBUG_ECHOPGM(" and ");
         DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
@@ -464,7 +475,7 @@ bool Probe::set_deployed(const bool deploy) {
  *
  * @return TRUE if the probe failed to trigger.
  */
-bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
+bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   DEBUG_SECTION(log_probe, "Probe::probe_down_to_z", DEBUGGING(LEVELING));
 
   #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
@@ -572,12 +583,12 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  * @details Used by probe_at_point to get the bed Z height at the current XY.
  *          Leaves current_position.z at the height where the probe triggered.
  *
- * @return The Z position of the bed at the current XY or NAN on error.
+ * @return The Z position of the bed at the current XY or MFNAN on error.
  */
 float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
+  auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Tare the probe, if supported
     if (TERN0(PROBE_TARE, tare())) return true;
 
@@ -586,7 +597,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
                early_fail = (scheck && current_position.z > -offset.z + clearance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
-        DEBUG_PRINT_P(plbl);
+        DEBUG_ECHOPGM_P(plbl);
         DEBUG_ECHOPGM(" Probe fail! -");
         if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
         if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
@@ -606,11 +617,11 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Attempt to tare the probe
-    if (TERN0(PROBE_TARE, tare())) return NAN;
+    if (TERN0(PROBE_TARE, tare())) return MFNAN;
 
     // Do a first probe at the fast speed
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
-                     sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
+                     sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return MFNAN;
 
     const float first_probe_z = current_position.z;
 
@@ -651,7 +662,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
       // Probe downward slowly to find the bed
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW),
-                       sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return NAN;
+                       sanity_check, Z_CLEARANCE_MULTI_PROBE) ) return MFNAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
@@ -732,7 +743,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
  *   - Raise to the BETWEEN height
  * - Return the probed Z position
  */
-float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
+float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
   if (DEBUGGING(LEVELING)) {
@@ -754,29 +765,29 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
-      return NAN;
+      return MFNAN;
     }
     npos -= offset_xy;                                      // Get the nozzle position
   }
-  else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
+  else if (!position_is_reachable(npos)) return MFNAN;      // The given position is in terms of the nozzle
 
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
-  float measured_z = NAN;
+  float measured_z = MFNAN;
   if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
-  if (!isnan(measured_z)) {
+  if (!ISNAN(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
       do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), z_probe_fast_mm_s);
     else if (raise_after == PROBE_PT_STOW)
-      if (stow()) measured_z = NAN;   // Error on stow?
+      if (stow()) measured_z = MFNAN;   // Error on stow?
 
     if (verbose_level > 2)
       SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
 
-  if (isnan(measured_z)) {
+  if (ISNAN(measured_z)) {
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)

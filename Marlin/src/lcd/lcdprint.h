@@ -105,7 +105,6 @@
 #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_COL_X_RJ(len), LCD_ROW_Y(row))
 #define SETCURSOR_X(col)       SETCURSOR(col, _lcdLineNr)
 #define SETCURSOR_X_RJ(len)    SETCURSOR_RJ(len, _lcdLineNr)
-#define START_OF_UTF8_CHAR(C)  (((C) & 0xC0u) != 0x80U)
 
 int lcd_glyph_height();
 
@@ -162,7 +161,7 @@ inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row
   return lcd_put_u8str_ind_P(pstr, ind, inStr, maxlen);
 }
 
-inline int lcd_put_u8str(const char* str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
+inline int lcd_put_u8str(const char *str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }
 inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, PGM_P const str) {
   lcd_moveto(col, row);
   return lcd_put_u8str(str);

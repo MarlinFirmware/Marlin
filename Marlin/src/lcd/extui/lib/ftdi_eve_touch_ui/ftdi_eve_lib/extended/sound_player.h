@@ -55,7 +55,7 @@ namespace FTDI {
       static void play(effect_t effect, note_t note = NOTE_C4);
       static bool is_sound_playing();
 
-      void play(const sound_t* seq, play_mode_t mode = PLAY_SYNCHRONOUS);
+      void play(const sound_t *seq, play_mode_t mode = PLAY_SYNCHRONOUS);
       void play_tone(const uint16_t frequency_hz, const uint16_t duration_ms);
       bool has_more_notes() {return sequence != 0;};
 

@@ -66,7 +66,7 @@
 void spiBegin();
 void spiInit(uint8_t spiRate);
 void spiSend(uint8_t b);
-void spiSend(const uint8_t* buf, size_t n);
+void spiSend(const uint8_t *buf, size_t n);
 
 static uint8_t rs_last_state = 255;
 

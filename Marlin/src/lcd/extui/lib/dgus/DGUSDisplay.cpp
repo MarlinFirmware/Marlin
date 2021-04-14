@@ -62,13 +62,15 @@ void DGUSDisplay::InitDisplay() {
     #define LCD_BAUDRATE 115200
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
-  #if BOTH(DGUS_LCD_UI_MKS, POWER_LOSS_RECOVERY)
-    if (!recovery.valid()) delay(LOGO_TIME_DELAY);
-  #endif
+
+  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {  // If no Power-Loss Recovery is needed...
+    TERN_(DGUS_LCD_UI_MKS, delay(LOGO_TIME_DELAY));     // Show the logo for a little while
+  }
+
   RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
 }
 
-void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -118,7 +120,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
   WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
-void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);

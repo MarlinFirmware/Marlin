@@ -98,7 +98,7 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+  void set_z_fade_height(const_float_t zfh, const bool do_report/*=true*/) {
 
     if (planner.z_fade_height == zfh) return;
 
@@ -132,7 +132,7 @@ void reset_bed_level() {
       bilinear_start.reset();
       bilinear_grid_spacing.reset();
       GRID_LOOP(x, y) {
-        z_values[x][y] = NAN;
+        z_values[x][y] = MFNAN;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
       }
     #elif ABL_PLANAR
@@ -177,7 +177,7 @@ void reset_bed_level() {
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
         const float offset = fn(x, y);
-        if (!isnan(offset)) {
+        if (!ISNAN(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO_F(offset, int(precision));
         }
