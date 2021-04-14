@@ -59,3 +59,10 @@ jobs:
         chmod +x scripts/*
         git clone https://github.com/CR6Community/CR-6-touchscreen.git ../CR-6-Touchscreen
         pwsh scripts/Run-ExampleConfigBuilds.ps1 -ReleaseName CFNightly
+
+    - name: Upload built firmware
+      uses: actions/upload-artifact@v2
+      continue-on-error: true
+      with:
+          name: Firmware (nightly)
+          path: .pio/build-output/*.zip
