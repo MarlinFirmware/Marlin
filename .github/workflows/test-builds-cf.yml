@@ -3,7 +3,7 @@
 # Do test builds to catch compile errors (Community Firmware)
 #
 
-name: CI
+name: CF Compilation CI
 
 on:
   pull_request:
