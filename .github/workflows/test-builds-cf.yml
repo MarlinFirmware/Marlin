@@ -58,4 +58,4 @@ jobs:
         # Inline tests script
         chmod +x scripts/*
         git clone https://github.com/CR6Community/CR-6-touchscreen.git ../CR-6-Touchscreen
-        pwsh scripts/Run-ExampleConfigBuilds.ps1 -ReleaseName TestCF
+        pwsh scripts/Run-ExampleConfigBuilds.ps1 -ReleaseName CFNightly
