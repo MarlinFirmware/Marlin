@@ -15,6 +15,15 @@
 // UNCOMMENT MEANS REMOVING THE // IN FRONT OF A #define XXXXXX LINE.
 
 //===========================================================================
+// *******************  ADIM PRINTERS 2560 CPU BOARD   *********************
+//===========================================================================
+#define ADIM_GANTRY_I3_PLUS
+
+// EZABL Probe Mounts
+//#define ADIM_I3P_OEM
+//#define CUSTOM_PROBE
+
+//===========================================================================
 // *****************  ALFAWISE PRINTERS 2560 CPU BOARD   *******************
 //===========================================================================
 //#define ALFAWISE_U10
@@ -1816,6 +1825,180 @@
 
 #endif
 // End Alfawise Printer Settings
+
+// ADIM Printer Settings
+#if ENABLED(ADIM_GANTRY_I3_PLUS)
+  #define SERIAL_PORT 0
+  #define SPACE_SAVER_2560
+
+  #define BAUDRATE 250000
+  
+  #define HJC_LCD_SMART_CONTROLLER
+  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    
+  #if ENABLED(REVERSE_KNOB_DIRECTION)
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+  
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_HJC2560C_REV2
+  #endif
+
+  #if ENABLED(CUSTOM_ESTEPS)
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+  #else
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+  #endif
+
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
+  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 1000, 5000 }
+
+  #define DEFAULT_ACCELERATION          1000
+  #define DEFAULT_RETRACT_ACCELERATION  1000
+  #define DEFAULT_TRAVEL_ACCELERATION   1000
+
+  #define CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
+    #define DEFAULT_XJERK  7.0
+    #define DEFAULT_YJERK  7.0
+    #define DEFAULT_ZJERK  0.3
+  #endif
+
+  #define DEFAULT_EJERK    5.0
+
+  #define EXTRUDERS 1
+
+  #define X_BED_SIZE 310
+  #define Y_BED_SIZE 310
+  #define Z_MAX_POS 410
+  
+  #if ENABLED(HOME_ADJUST)
+    #define X_MIN_POS X_HOME_LOCATION
+    #define Y_MIN_POS Y_HOME_LOCATION
+  #else
+    #define X_MIN_POS 0
+    #define Y_MIN_POS 0
+  #endif
+
+  #define USE_XMIN_PLUG
+  #define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
+
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
+  
+  #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
+    #define TEMP_SENSOR_0 1
+  #else
+    #if ENABLED(EZBOARD_PT100)
+      #define TEMP_SENSOR_0 20
+    #elif ENABLED(V6_HOTEND)
+      #define TEMP_SENSOR_0 5
+    #elif ENABLED(KNOWN_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 KNOWN_HOTEND_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 1
+    #endif
+  #endif
+  
+  #define TEMP_SENSOR_1 0 
+  #define TEMP_SENSOR_2 0
+  #define TEMP_SENSOR_3 0
+  #define TEMP_SENSOR_4 0
+  #define TEMP_SENSOR_5 0
+  #define TEMP_SENSOR_6 0
+  #define TEMP_SENSOR_7 0
+  
+  #if NONE(TH3D_BED_THERMISTOR, KEENOVO_TEMPSENSOR, KNOWN_BED_THERMISTOR, AC_BED)
+    #define TEMP_SENSOR_BED 1
+  #else
+    #if ENABLED(AC_BED)
+      #define TEMP_SENSOR_BED 0
+    #elif ENABLED(KNOWN_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED KNOWN_BED_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED 1
+    #elif ENABLED(KEENOVO_TEMPSENSOR)
+      #define TEMP_SENSOR_BED 11
+    #endif
+  #endif
+  
+  #define TEMP_SENSOR_PROBE 0
+  #define TEMP_SENSOR_CHAMBER 0
+
+  #define ENDSTOPPULLUPS
+
+  #define X_MIN_ENDSTOP_INVERTING true
+  #define Y_MIN_ENDSTOP_INVERTING true
+  #define Z_MIN_ENDSTOP_INVERTING true
+  #define X_MAX_ENDSTOP_INVERTING true
+  #define Y_MAX_ENDSTOP_INVERTING true
+  #define Z_MAX_ENDSTOP_INVERTING true
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+  #define X_DRIVER_TYPE A4988
+  #define Y_DRIVER_TYPE A4988
+  #define Z_DRIVER_TYPE A4988
+  #define E0_DRIVER_TYPE A4988
+    
+  //#define ENDSTOP_INTERRUPTS_FEATURE - doesnt work on this board
+
+  #define X_ENABLE_ON 0
+  #define Y_ENABLE_ON 0
+  #define Z_ENABLE_ON 0
+  #define E_ENABLE_ON 0
+
+  #define INVERT_X_DIR true
+  #define INVERT_Y_DIR true
+  #define INVERT_Z_DIR false
+  
+  #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+    #define INVERT_E0_DIR true
+  #else
+    #define INVERT_E0_DIR false
+  #endif
+  
+  #define INVERT_E1_DIR false
+  #define INVERT_E2_DIR false
+  #define INVERT_E3_DIR false
+  #define INVERT_E4_DIR false
+  #define INVERT_E5_DIR false
+  #define INVERT_E6_DIR false
+  #define INVERT_E7_DIR false
+
+  #define FILAMENT_RUNOUT_SENSOR
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_RUNOUT_STATE     LOW       // Pin state indicating that filament is NOT present.
+    #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+    //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+
+    // Set one or more commands to execute on filament runout.
+    // (After 'M412 H' Marlin will ask the host to handle the process.)
+    #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+    // After a runout is detected, continue printing this length of filament
+    // before executing the runout script. Useful for a sensor at the end of
+    // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+    //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      // Enable this option to use an encoder disc that toggles the runout pin
+      // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+      // large enough to avoid false positives.)
+      //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+
+#endif
+// End ADIM Printer Settings
 
 /*
  * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
