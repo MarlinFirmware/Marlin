@@ -1629,13 +1629,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Stepper Driver Anti-Reverse Protection
- */
-#if ENABLED(DRIVER_SAFE_POWER_PROTECT) &&  !PIN_EXISTS(SAFE_POWER)
-  #error "DRIVER_SAFE_POWER_PROTECT requires a valid SAFE_POWER_PIN."
-#endif
-
-/**
  * Volumetric Extruder Limit
  */
 #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
