@@ -1,0 +1,61 @@
+#
+# test-builds-cf.yml
+# Do test builds to catch compile errors (Community Firmware)
+#
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+    - extui
+    paths-ignore:
+    - data/**
+    - docs/**
+    - '**/*.md'
+  push:
+    branches:
+    - extui
+    paths-ignore:
+    - data/**
+    - docs/**
+    - '**/*.md'
+
+jobs:
+  test_builds:
+    name: Run All Community Firmware Tests
+    if: github.repository == 'CR6Community/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Select Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
+        architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
+    - name: Install PlatformIO
+      run: |
+        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+        platformio update
+    
+    - name: Install pwsh
+      run: |
+      sudo apt-get update
+      sudo apt-get install -y curl apt-transport-https
+      curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+      sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-jessie-prod jessie main" > /etc/apt/sources.list.d/microsoft.list'
+      sudo apt-get update
+      sudo apt-get install -y powershell
+
+    - name: Check out the PR
+      uses: actions/checkout@v2
+
+    - name: Run CF compilation Tests
+      run: |
+        # Inline tests script
+        chmod +x scripts/*
+        git clone https://github.com/CR6Community/CR-6-touchscreen.git ../CR-6-Touchscreen
+        pwsh scripts/Run-ExampleConfigBuilds.ps1 -ReleaseName TestCF
