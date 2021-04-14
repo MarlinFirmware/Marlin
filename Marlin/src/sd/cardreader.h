@@ -116,7 +116,7 @@ public:
   static void manage_media();
 
   // SD Card Logging
-  static void openLogFile(char * const path);
+  static void openLogFile(const char * const path);
   static void write_command(char * const buf);
 
   #if DISABLED(NO_SD_AUTOSTART)     // Auto-Start auto#.g file handling

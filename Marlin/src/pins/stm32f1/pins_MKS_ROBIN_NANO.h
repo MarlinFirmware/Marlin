@@ -187,7 +187,7 @@
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
 
-  //#define TFT_RESET_PIN                     PC6   // FSMC_RST
+  #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
