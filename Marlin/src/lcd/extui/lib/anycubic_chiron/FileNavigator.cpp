@@ -65,9 +65,10 @@ uint16_t  FileNavigator::lastpanelindex;
 uint16_t  FileNavigator::currentindex;                      // override the panel request
 uint8_t   FileNavigator::currentfolderdepth;
 uint16_t  FileNavigator::currentfolderindex[MAX_FOLDER_DEPTH];   // track folder pos for iteration
-char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+char      FileNavigator::currentfoldername[MAX_PATH_LEN + 1];   // Current folder path
 
 FileNavigator::FileNavigator() { reset(); }
+
 void FileNavigator::reset() {
   DEBUG_ECHOLNPGM("reset()");
   currentfoldername[0] = '\0';
