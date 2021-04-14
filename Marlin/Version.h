@@ -34,14 +34,14 @@
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - final"
+#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - prerelease 1"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-04-13"
+#define STRING_DISTRIBUTION_DATE "2021-04-14"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
