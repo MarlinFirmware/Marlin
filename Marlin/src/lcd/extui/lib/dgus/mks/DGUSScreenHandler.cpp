@@ -835,7 +835,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPAIR(" homing ", axiscode);
+    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
@@ -850,14 +850,14 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (movevalue == 5) {
     DEBUG_ECHOPAIR("send M84");
     char buf[6];
-    snprintf_P(buf,6,PSTR("M84 %c"),axiscode);
+    snprintf_P(buf,6,PSTR("M84 %c"), axiscode);
     queue.enqueue_one_now(buf);
     ForceCompleteUpdate();
     return;
   }
   else {
     // movement
-    DEBUG_ECHOPAIR(" move ", axiscode);
+    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -895,7 +895,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPAIR(" cannot move ", axiscode);
+    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 

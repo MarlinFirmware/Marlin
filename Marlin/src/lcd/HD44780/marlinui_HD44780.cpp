@@ -684,12 +684,15 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < LCD_WIDTH) {
-        lcd_put_wchar('.');                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = LCD_WIDTH - rlen;     // Amount of space left in characters
-        if (--chars) {                        // Draw a second dot if there's space
-          lcd_put_wchar('.');
-          if (--chars)
-            lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+        lcd_put_wchar(' ');                   // Always at 1+ spaces left, draw a space
+        if (--chars) {                        // Draw a second space if there's room
+          lcd_put_wchar(' ');
+          if (--chars) {                      // Draw a third space if there's room
+            lcd_put_wchar(' ');
+            if (--chars)
+              lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+          }
         }
       }
       if (last_blink != blink) {
@@ -944,7 +947,7 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.fanPercent(spd);
+              per = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
@@ -1457,7 +1460,7 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
+        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
@@ -1476,7 +1479,7 @@ void MarlinUI::draw_status_screen() {
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
+        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
