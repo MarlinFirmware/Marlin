@@ -2315,7 +2315,7 @@ void Draw_GetColor(uint16_t color) {
   Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 2, 2, HMI_ValueStruct.Color[1]);  
   Draw_Color_Item(3, "Red", RGB(31,0,0));
   Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, HMI_ValueStruct.Color[2]);  
-  Draw_Menu_Line(4, 0, GET_TEXT(MSG_RESTORE_DEFAULTS));
+  Draw_Menu_Line(4, ICON_StockConfiguraton, GET_TEXT(MSG_RESTORE_DEFAULTS));
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
   DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
@@ -3955,7 +3955,7 @@ void HMI_SelColor() {
             Draw_Back_First();
             break;
           case MROWS+SCOLOR_CASE_LOADDEF :
-            Draw_Menu_Item(0, ICON_StockConfiguraton, "Load default colors");
+            Draw_Menu_Item(0, ICON_StockConfiguraton, GET_TEXT(MSG_RESTORE_DEFAULTS));
             break;
           case MROWS+SCOLOR_CASE_BACKG :
             Draw_Color_Item(0, "Screen Background", HMI_data.Background_Color);

@@ -218,7 +218,7 @@
 #define Select_Color      0x33BB  // Selected color
 
 // Default UI Colors
-#define RGB(R,G,B)  (R << 11) | (G << 5) | (B)
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
 #define Def_Background_Color  Color_Bg_Black
 #define Def_Cursor_color      Rectangle_Color
 #define Def_TitleBg_color     Color_Bg_Blue
@@ -227,7 +227,7 @@
 #define Def_Selected_Color    Select_Color
 #define Def_SplitLine_Color   Line_Color
 #define Def_Highlight_Color   Color_White
-#define Def_StatusBg_Color    RGB(20,20,0)
+#define Def_StatusBg_Color    RGB(0,20,20)
 #define Def_StatusTxt_Color   Color_Yellow
 #define Def_PopupBg_color     Color_Bg_Window
 #define Def_PopupTxt_Color    Popup_Text_Color
