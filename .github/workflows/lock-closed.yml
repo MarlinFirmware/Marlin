@@ -1,0 +1,32 @@
+#
+# lock-closed.yml
+# Lock closed issues after a period of inactivity
+#
+
+name: Lock Closed Issues
+
+on:
+  schedule:
+    - cron: '0 1/13 * * *'
+
+jobs:
+  lock:
+    name: Lock Closed Issues
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: dessant/lock-threads@v2
+      with:
+        github-token: ${{ github.token }}
+        process-only: 'issues'
+        issue-lock-inactive-days: '60'
+        issue-exclude-created-before: '2017-07-01T00:00:00Z'
+        issue-exclude-labels: 'no-locking'
+        issue-lock-labels: ''
+        issue-lock-comment: >
+          This issue has been automatically locked since there
+          has not been any recent activity after it was closed.
+          Please open a new issue for related bugs.
+        issue-lock-reason: ''

@@ -1,0 +1,28 @@
+#
+# close-stale.yml
+# Close open issues after a period of inactivity
+#
+
+name: Close Stale Issues
+
+on:
+  schedule:
+  - cron: "22 1 * * *"
+
+jobs:
+  stale:
+    name: Close Stale Issues
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: 'This issue has had no activity in the last 60 days. Please add a reply if you want to keep this issue active, otherwise it will be automatically closed within 10 days.'
+        days-before-stale: 60
+        days-before-close: 10
+        stale-issue-label: 'stale-closing-soon'
+        exempt-all-assignees: true
+        exempt-issue-labels: 'Bug: Confirmed !,T: Feature Request,Needs: Discussion,Needs: Documentation,Needs: More Data,Needs: Patch,Needs: Work,Needs: Testing,help wanted,no-locking'
