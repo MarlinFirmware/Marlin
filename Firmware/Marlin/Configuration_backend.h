@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.25"
+#define UNIFIED_VERSION "TH3D UFW 2.26"
 
 /**
  * TH3D Sanity Checks
@@ -98,9 +98,9 @@
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
     #ifndef DEFAULT_bedKp
-      #define DEFAULT_bedKp 10.00 // Define Marlin default bed PID if no machine specific PID is defined.
-      #define DEFAULT_bedKi .023
-      #define DEFAULT_bedKd 305.4
+      #define  DEFAULT_bedKp 113.36
+      #define  DEFAULT_bedKi 21.62
+      #define  DEFAULT_bedKd 148.59
     #endif
   #endif
 #endif
@@ -305,7 +305,7 @@
   #define NOZZLE_TO_PROBE_OFFSET { -48, -2, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(ENDER4_OEM_LEFT)
+#if ENABLED(ENDER4_OEM)
   #define NOZZLE_TO_PROBE_OFFSET { -53, -19, 0 }
   #define ABL_ENABLE
 #endif
@@ -361,6 +361,7 @@
   
   #define MULTIPLE_PROBING 2
   #define AUTO_BED_LEVELING_BILINEAR
+  #define ENABLE_LEVELING_FADE_HEIGHT
   #define GRID_MAX_POINTS_X EZABL_POINTS
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #define Z_SAFE_HOMING
@@ -452,22 +453,24 @@
 #endif
 
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
 #if ENABLED(BLTOUCH)
   #define Z_CLEARANCE_DEPLOY_PROBE   8
   #define Z_CLEARANCE_BETWEEN_PROBES 5
   #define Z_CLEARANCE_MULTI_PROBE    5
+  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
 #elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE)
-  #define Z_CLEARANCE_DEPLOY_PROBE   1
+  #define Z_CLEARANCE_DEPLOY_PROBE   2
   #define Z_CLEARANCE_BETWEEN_PROBES 2
-  #define Z_CLEARANCE_MULTI_PROBE    1
+  #define Z_CLEARANCE_MULTI_PROBE    2
+  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 1.5)
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE   5
   #define Z_CLEARANCE_BETWEEN_PROBES 3
   #define Z_CLEARANCE_MULTI_PROBE    3
+  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 #endif
 
 #define HOST_KEEPALIVE_FEATURE

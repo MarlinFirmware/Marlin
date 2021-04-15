@@ -16,7 +16,6 @@ This GitHub repository is for tracking code changes. We have a local script that
 
 For best results getting help with configuration and troubleshooting, please use the following resources:
 
-- [TH3D MeWe](https://mewe.com/join/th3dcommunity3dprintinggroup)
 - [TH3D Discord](http://Discord.TH3DStudio.com)
 - [TH3D Help Center](https://support.th3dstudio.com)
 - [TH3D Customer Facebook Group](http://fbgroup.th3dstudio.com/)

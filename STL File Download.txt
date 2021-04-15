@@ -1,0 +1,1 @@
+To make the firmware packages smaller, we have moved the STL files to a separate download. You can download them here: https://support.th3dstudio.com/hc/downloads/unified-2-firmware/information/unified-2-stl-pack-mounts-leveling-guides-more/
