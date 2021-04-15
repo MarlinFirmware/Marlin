@@ -170,22 +170,22 @@ typedef struct {
 #if ENABLED(NOZZLE_PARK_FEATURE)
   xyz_pos_t Park_point = NOZZLE_PARK_POINT;
 #endif
-  uint16_t Background_Color = Color_Bg_Black;
-  uint16_t Cursor_color = Rectangle_Color;
-  uint16_t TitleBg_color = Color_Bg_Blue;
-  uint16_t TitleTxt_color = Color_White;
-  uint16_t Text_Color = Color_White;
-  uint16_t Selected_Color = Select_Color;
-  uint16_t SplitLine_Color = Line_Color;
-  uint16_t Highlight_Color = Color_White;
-  uint16_t StatusBg_Color = Color_Bg_LBlue;
-  uint16_t StatusTxt_Color = Color_Yellow;
-  uint16_t PopupBg_color = Color_Bg_Window;
-  uint16_t PopupTxt_Color = Popup_Text_Color;
-  uint16_t AlertBg_Color = Color_Bg_Red;
-  uint16_t AlertTxt_Color = Color_Yellow;
-  uint16_t PercentTxt_Color = Percent_Color;
-  uint16_t Barfill_Color = BarFill_Color;  
+  uint16_t Background_Color = Def_Background_Color;
+  uint16_t Cursor_color = Def_Cursor_color;
+  uint16_t TitleBg_color = Def_TitleBg_color;
+  uint16_t TitleTxt_color = Def_TitleTxt_color;
+  uint16_t Text_Color = Def_Text_Color;
+  uint16_t Selected_Color = Def_Selected_Color;
+  uint16_t SplitLine_Color = Def_SplitLine_Color;
+  uint16_t Highlight_Color = Def_Highlight_Color;
+  uint16_t StatusBg_Color = Def_StatusBg_Color;
+  uint16_t StatusTxt_Color = Def_StatusTxt_Color;
+  uint16_t PopupBg_color = Def_PopupBg_color;
+  uint16_t PopupTxt_Color = Def_PopupTxt_Color;
+  uint16_t AlertBg_Color = Def_AlertBg_Color;
+  uint16_t AlertTxt_Color = Def_AlertTxt_Color;
+  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
+  uint16_t Barfill_Color = Def_Barfill_Color;
 } HMI_data_t;
 
 #define DWIN_CHINESE 123
@@ -334,6 +334,7 @@ void DWIN_FilamentRunout(const uint8_t extruder);
 #endif
 void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
 void DWIN_Print_Header(const char *text);
+void DWIN_SetColorDefaults();
 void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
 void DWIN_Setdatadefaults();

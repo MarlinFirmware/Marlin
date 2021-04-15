@@ -208,7 +208,6 @@
 #define Color_Blue        0x44FF
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
-#define Color_Bg_LBlue    0x2288  // Light blue color
 #define Color_Bg_Black    0x0841  // Black background color
 #define Color_Bg_Red      0xF00F  // Red background color
 #define Popup_Text_Color  0xD6BA  // Popup font background color
@@ -217,6 +216,25 @@
 #define Percent_Color     0xFE29  // Percentage color
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
+
+// Default UI Colors
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B)
+#define Def_Background_Color  Color_Bg_Black
+#define Def_Cursor_color      Rectangle_Color
+#define Def_TitleBg_color     Color_Bg_Blue
+#define Def_TitleTxt_color    Color_White
+#define Def_Text_Color        Color_White
+#define Def_Selected_Color    Select_Color
+#define Def_SplitLine_Color   Line_Color
+#define Def_Highlight_Color   Color_White
+#define Def_StatusBg_Color    RGB(20,20,0)
+#define Def_StatusTxt_Color   Color_Yellow
+#define Def_PopupBg_color     Color_Bg_Window
+#define Def_PopupTxt_Color    Popup_Text_Color
+#define Def_AlertBg_Color     Color_Bg_Red
+#define Def_AlertTxt_Color    Color_Yellow
+#define Def_PercentTxt_Color  Percent_Color
+#define Def_Barfill_Color     BarFill_Color
 
 /*-------------------------------------- System variable function --------------------------------------*/
 

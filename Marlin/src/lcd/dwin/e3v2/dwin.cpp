@@ -467,7 +467,8 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define ADVSET_CASE_SCOLOR    (ADVSET_CASE_BRIGHTNESS + 1)   
 #define ADVSET_CASE_TOTAL     ADVSET_CASE_SCOLOR
 
-#define SCOLOR_CASE_BACKG     1
+#define SCOLOR_CASE_LOADDEF   1
+#define SCOLOR_CASE_BACKG     (SCOLOR_CASE_LOADDEF + 1)
 #define SCOLOR_CASE_CURSOR    (SCOLOR_CASE_BACKG + 1)
 #define SCOLOR_CASE_TITLEGB   (SCOLOR_CASE_CURSOR +1)
 #define SCOLOR_CASE_TITLETXT  (SCOLOR_CASE_TITLEGB +1)
@@ -2279,7 +2280,8 @@ void Draw_SelColor_Menu() {
   
   Draw_Title(F("Select Color"));
 
-  if (SVISI(0)) Draw_Back_First(select_item.now == 0);
+  if (SVISI(0)) Draw_Back_First(select_scolor.now == 0);
+  if (SVISI(SCOLOR_CASE_LOADDEF)) Draw_Menu_Item(SSCROL(SCOLOR_CASE_LOADDEF), ICON_StockConfiguraton, GET_TEXT(MSG_RESTORE_DEFAULTS));
   if (SVISI(SCOLOR_CASE_BACKG)) Draw_Color_Item(SSCROL(SCOLOR_CASE_BACKG), "Screen Background", HMI_data.Background_Color);
   if (SVISI(SCOLOR_CASE_CURSOR)) Draw_Color_Item(SSCROL(SCOLOR_CASE_CURSOR), "Cursor",  HMI_data.Cursor_color);
   if (SVISI(SCOLOR_CASE_TITLEGB)) Draw_Color_Item(SSCROL(SCOLOR_CASE_TITLEGB), "Title Background", HMI_data.TitleBg_color);
@@ -2301,20 +2303,21 @@ void Draw_SelColor_Menu() {
 }
 
 void Draw_GetColor(uint16_t color) {
-  HMI_ValueStruct.Color[2] = (color >> 10) & 0x1F;  // Red
+  HMI_ValueStruct.Color[2] = (color >> 11) & 0x1F;  // Red
   HMI_ValueStruct.Color[1] = (color >>  5) & 0x3F;  // Green
   HMI_ValueStruct.Color[0] = (color >>  0) & 0x1F;  // Blue
   Clear_Main_Window();
   Draw_Title(F("Get Color"));
   Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, 0, "Blue");
+  Draw_Color_Item(1, "Blue", RGB(0,0,31));
   Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 1, 2, HMI_ValueStruct.Color[0]);  
-  Draw_Menu_Line(2, 0, "Green");
+  Draw_Color_Item(2, "Green", RGB(0,63,0));
   Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 2, 2, HMI_ValueStruct.Color[1]);  
-  Draw_Menu_Line(3, 0, "Red");
+  Draw_Color_Item(3, "Red", RGB(31,0,0));
   Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, HMI_ValueStruct.Color[2]);  
+  Draw_Menu_Line(4, 0, GET_TEXT(MSG_RESTORE_DEFAULTS));
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
-  DWIN_Draw_Rectangle(1, color, 20, 280, DWIN_WIDTH - 20, 305);
+  DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -2814,10 +2817,14 @@ void HMI_Control() {
         } break;
         case CONTROL_CASE_LOAD: { // Read EEPROM
           const bool success = settings.load();
+          Draw_Control_Menu();
+          Draw_Status_Area(false);
           HMI_AudioFeedback(success);
         } break;
         case CONTROL_CASE_RESET: // Reset EEPROM
           settings.reset();
+          Draw_Control_Menu();
+          Draw_Status_Area(false);
           HMI_AudioFeedback();
           break;
       #endif
@@ -3892,6 +3899,9 @@ void HMI_SelColor() {
         Scroll_Menu(DWIN_SCROLL_UP);
 
         switch (index_selcolor) {  // Last menu items
+          case SCOLOR_CASE_TEXT :
+            Draw_Color_Item(MROWS, "Text", HMI_data.Text_Color);
+            break;
           case SCOLOR_CASE_SELECT :
             Draw_Color_Item(MROWS, "Selected", HMI_data.Selected_Color);
             break;
@@ -3944,6 +3954,9 @@ void HMI_SelColor() {
           case MROWS :
             Draw_Back_First();
             break;
+          case MROWS+SCOLOR_CASE_LOADDEF :
+            Draw_Menu_Item(0, ICON_StockConfiguraton, "Load default colors");
+            break;
           case MROWS+SCOLOR_CASE_BACKG :
             Draw_Color_Item(0, "Screen Background", HMI_data.Background_Color);
             break;
@@ -3993,6 +4006,11 @@ void HMI_SelColor() {
         select_advset.set(ADVSET_CASE_SCOLOR);
         index_advset = ADVSET_CASE_SCOLOR;
         Draw_AdvSet_Menu();
+        break;
+      case SCOLOR_CASE_LOADDEF :
+        DWIN_SetColorDefaults();
+        Draw_SelColor_Menu();
+        Draw_Status_Area(false);
         break;
       case SCOLOR_CASE_BACKG :
         color = HMI_data.Background_Color;
@@ -4045,7 +4063,7 @@ void HMI_SelColor() {
       default:
         break;      
     }
-    if (select_scolor.now) {
+    if (select_scolor.now > SCOLOR_CASE_LOADDEF) {
         checkkey = GetColor;
         select_item.reset();
         Draw_GetColor(color);
@@ -4055,56 +4073,56 @@ void HMI_SelColor() {
 }
 
 /* Apply changet color */
-void HMI_ApplyColor() {
+void HMI_ApplyColor(bool ldef = false) {
   uint16_t color = HMI_ValueStruct.Color[2]*0x0800 + HMI_ValueStruct.Color[1]*0x0020 + HMI_ValueStruct.Color[0];
   switch (select_scolor.now) {
     case SCOLOR_CASE_BACKG :
-      HMI_data.Background_Color = color;
+      HMI_data.Background_Color = ldef ? Def_Background_Color : color;
       break;
     case SCOLOR_CASE_CURSOR :
-      HMI_data.Cursor_color = color;
+      HMI_data.Cursor_color = ldef ? Def_Cursor_color : color;
       break;
     case SCOLOR_CASE_TITLEGB :
-      HMI_data.TitleBg_color = color;
+      HMI_data.TitleBg_color = ldef ? Def_TitleBg_color : color;
       break;
     case SCOLOR_CASE_TITLETXT :
-      HMI_data.TitleTxt_color = color;
+      HMI_data.TitleTxt_color = ldef ? Def_TitleTxt_color : color;
       break;
     case SCOLOR_CASE_TEXT :
-      HMI_data.Text_Color = color;
+      HMI_data.Text_Color = ldef ? Def_Text_Color : color;
       break;
     case SCOLOR_CASE_SELECT :
-      HMI_data.Selected_Color = color;
+      HMI_data.Selected_Color = ldef ? Def_Selected_Color : color;
       break;
     case SCOLOR_CASE_SLINE :
-      HMI_data.SplitLine_Color = color;
+      HMI_data.SplitLine_Color = ldef ? Def_SplitLine_Color : color;
       break;
     case SCOLOR_CASE_HIGHLIGHT :
-      color = HMI_data.Highlight_Color;
+      HMI_data.Highlight_Color =  ldef ? Def_Highlight_Color : color;
       break;
     case SCOLOR_CASE_STATUSBG :
-      HMI_data.StatusBg_Color = color;
+      HMI_data.StatusBg_Color = ldef ? Def_StatusBg_Color : color;
       break;
     case SCOLOR_CASE_STATUSTXT :
-      HMI_data.StatusTxt_Color = color;
+      HMI_data.StatusTxt_Color = ldef ? Def_StatusTxt_Color : color;
       break;
     case SCOLOR_CASE_POPUPBG :
-      HMI_data.PopupBg_color = color;
+      HMI_data.PopupBg_color = ldef ? Def_PopupBg_color : color;
       break;
     case SCOLOR_CASE_POPUPTXT :
-      HMI_data.PopupTxt_Color = color;
+      HMI_data.PopupTxt_Color = ldef ? Def_PopupTxt_Color : color;
       break;
     case SCOLOR_CASE_ALERTBG :
-      HMI_data.AlertBg_Color = color;
+      HMI_data.AlertBg_Color = ldef ? Def_AlertBg_Color : color;
       break;
     case SCOLOR_CASE_ALERTTXT :
-      HMI_data.AlertTxt_Color = color;
+      HMI_data.AlertTxt_Color = ldef ? Def_AlertTxt_Color : color;
       break;
     case SCOLOR_CASE_PERCNTTXT :
-      HMI_data.PercentTxt_Color = color;
+      HMI_data.PercentTxt_Color = ldef ? Def_PercentTxt_Color : color;
       break;
     case SCOLOR_CASE_BARFILL :
-      HMI_data.Barfill_Color = color;
+      HMI_data.Barfill_Color = ldef ? Def_Barfill_Color : color;
       break;
     default:
       break;
@@ -4121,20 +4139,28 @@ void HMI_GetColor() {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 3)) Move_Highlight(1, select_item.now);
+    if (select_item.inc(1 + 4)) Move_Highlight(1, select_item.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_item.dec()) Move_Highlight(-1, select_item.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_item.now) {
-      case 0: // Back
+      case 0 : // Back
         HMI_ApplyColor();
         checkkey = SelColor;
         Draw_SelColor_Menu();
         break;
-      default: // C0-C2
+      case 1 ... 3 :  // C0-C2;
         checkkey = GetColor_value;
+        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[select_item.now - 1]);
+        break;
+      case 4 :  // Restore default color
+        HMI_ApplyColor(true);
+        checkkey = SelColor;
+        Draw_SelColor_Menu();
+        break;
+      default :
         break;
     }
   }
@@ -4154,7 +4180,7 @@ void HMI_GetColorValue() {
     LIMIT(HMI_ValueStruct.Color[line], 0, (line == 1) ? 63 : 31);
     uint16_t color = HMI_ValueStruct.Color[2]*0x0800 + HMI_ValueStruct.Color[1]*0x0020 + HMI_ValueStruct.Color[0];
     Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[line]);
-    DWIN_Draw_Rectangle(1, color, 20, 280, DWIN_WIDTH - 20, 305);
+    DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
   } 
 }
 
@@ -4911,22 +4937,22 @@ void DWIN_FilamentRunout(const uint8_t extruder){
 #endif
 
 void DWIN_SetColorDefaults() {
-  HMI_data.Background_Color = Color_Bg_Black;
-  HMI_data.Cursor_color = Rectangle_Color;
-  HMI_data.TitleBg_color = Color_Bg_Blue;
-  HMI_data.TitleTxt_color = Color_White;
-  HMI_data.PopupBg_color = Color_Bg_Window;
-  HMI_data.SplitLine_Color = Line_Color;
-  HMI_data.Highlight_Color = Color_White;
-  HMI_data.Text_Color = Color_White;
-  HMI_data.PopupTxt_Color = Popup_Text_Color;
-  HMI_data.Selected_Color = Select_Color;
-  HMI_data.AlertBg_Color = Color_Bg_Red;
-  HMI_data.AlertTxt_Color = Color_Yellow;
-  HMI_data.StatusBg_Color = Color_Bg_LBlue;
-  HMI_data.StatusTxt_Color = Color_Yellow;
-  HMI_data.PercentTxt_Color = Percent_Color;
-  HMI_data.Barfill_Color = BarFill_Color;
+  HMI_data.Background_Color = Def_Background_Color;
+  HMI_data.Cursor_color = Def_Cursor_color;
+  HMI_data.TitleBg_color = Def_TitleBg_color;
+  HMI_data.TitleTxt_color = Def_TitleTxt_color;
+  HMI_data.Text_Color = Def_Text_Color;
+  HMI_data.Selected_Color = Def_Selected_Color;
+  HMI_data.SplitLine_Color = Def_SplitLine_Color;
+  HMI_data.Highlight_Color = Def_Highlight_Color;
+  HMI_data.StatusBg_Color = Def_StatusBg_Color;
+  HMI_data.StatusTxt_Color = Def_StatusTxt_Color;
+  HMI_data.PopupBg_color = Def_PopupBg_color;
+  HMI_data.PopupTxt_Color = Def_PopupTxt_Color;
+  HMI_data.AlertBg_Color = Def_AlertBg_Color;
+  HMI_data.AlertTxt_Color = Def_AlertTxt_Color;
+  HMI_data.PercentTxt_Color = Def_PercentTxt_Color;
+  HMI_data.Barfill_Color = Def_Barfill_Color;
 }
 
 void DWIN_Setdatadefaults() {
