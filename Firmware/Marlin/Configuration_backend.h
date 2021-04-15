@@ -305,7 +305,7 @@
   #define NOZZLE_TO_PROBE_OFFSET { -48, -2, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(ENDER4_OEM_LEFT)
+#if ENABLED(ENDER4_OEM)
   #define NOZZLE_TO_PROBE_OFFSET { -53, -19, 0 }
   #define ABL_ENABLE
 #endif
