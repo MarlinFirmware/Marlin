@@ -40,6 +40,10 @@ unified_bed_leveling ubl;
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if HAS_HEATED_BED
+  static int16_t custom_bed_temp = 50;
+#endif
+
 #include "math.h"
 
 void unified_bed_leveling::echo_name() { SERIAL_ECHOPGM("Unified Bed Leveling"); }
