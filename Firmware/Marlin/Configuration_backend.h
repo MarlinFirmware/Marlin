@@ -98,9 +98,9 @@
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
     #ifndef DEFAULT_bedKp
-      #define DEFAULT_bedKp 10.00 // Define Marlin default bed PID if no machine specific PID is defined.
-      #define DEFAULT_bedKi .023
-      #define DEFAULT_bedKd 305.4
+      #define  DEFAULT_bedKp 113.36
+      #define  DEFAULT_bedKi 21.62
+      #define  DEFAULT_bedKd 148.59
     #endif
   #endif
 #endif
