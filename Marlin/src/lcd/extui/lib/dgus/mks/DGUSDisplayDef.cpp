@@ -72,13 +72,8 @@ void MKS_reset_settings() {
 }
 
 xyz_pos_t position_before_pause;
-#if ENABLED(NOZZLE_PARK_FEATURE)
-  const_feedRate_t park_speed_xy = NOZZLE_PARK_XY_FEEDRATE; 
-  const_feedRate_t park_speed_z = NOZZLE_PARK_Z_FEEDRATE; 
-#else 
-  const_feedRate_t park_speed_xy = 100; 
-  const_feedRate_t park_speed_z = 5; // defult 
-#endif
+const feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FEEDRATE, 100),
+                 park_speed_z  = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_Z_FEEDRATE,    5);
 
 void MKS_pause_print_move() {
   queue.exhaust();
