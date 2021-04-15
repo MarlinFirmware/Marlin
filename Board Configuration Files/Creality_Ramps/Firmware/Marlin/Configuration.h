@@ -355,6 +355,7 @@
       #define BLTOUCH
       #define SERVO0_PIN 11
       #if DISABLED(CUSTOM_PROBE)
+        #define CUSTOM_PROBE
         #define NOZZLE_TO_PROBE_OFFSET { -44, -9, 0 }
       #endif
     #endif  
