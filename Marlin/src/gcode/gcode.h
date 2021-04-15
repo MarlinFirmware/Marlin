@@ -1073,6 +1073,10 @@ private:
     static void M1002();
   #endif
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    static void M1004();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
   #endif

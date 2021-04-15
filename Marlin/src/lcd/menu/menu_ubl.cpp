@@ -606,19 +606,6 @@ void _menu_ubl_tools() {
 /**
  * UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
-
-void _lcd_ubl_mesh_wizard() {
-  #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
-  #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
-  #if HAS_HEATED_BED
-    char ubl_lcd_gcode[75];
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\n" ALIGN_GCODE "M190S%i\n" PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"), custom_bed_temp);
-    queue.inject(ubl_lcd_gcode);
-  #else
-    queue.inject_P(PSTR("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
-  #endif
-}
-
 void _menu_ubl_mesh_wizard() {
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
@@ -627,7 +614,7 @@ void _menu_ubl_mesh_wizard() {
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
   #endif
 
-  ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
+  GCODES_ITEM(MSG_UBL_MESH_WIZARD, PSTR("M1004"));
 
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
