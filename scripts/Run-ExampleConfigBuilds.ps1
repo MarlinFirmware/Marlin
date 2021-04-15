@@ -134,8 +134,14 @@ foreach ($ConfigName in $Configs) {
     $DatedBuildName = "$ReleaseName-$ConfigName-$(Get-Date -Format 'yyyy-MM-dd-HH-mm')"
     $DatedBuildZipFilePath = Join-Path -Path $OutputDirectory -ChildPath $($DatedBuildName + ".zip")
     $TmpBuildDirectory = Join-Path -Path $OutputDirectory -ChildPath $DatedBuildName
+    $FirmwareImmediateDirectory = Join-Path -Path $TmpBuildDirectory -ChildPath "Firmware"
+    $MotherboardFirmwareDirectory = Join-Path -Path $FirmwareImmediateDirectory -ChildPath "Motherboard firmware"
+    $ScreenFirmwareDirectory = Join-Path -Path $FirmwareImmediateDirectory -ChildPath "Touch screen firmware"
 
     New-Item -Path $TmpBuildDirectory -ItemType Directory -Verbose | Out-Null
+    New-Item -Path $FirmwareImmediateDirectory -ItemType Directory -Verbose | Out-Null
+    New-Item -Path $MotherboardFirmwareDirectory -ItemType Directory -Verbose | Out-Null
+    New-Item -Path $ScreenFirmwareDirectory -ItemType Directory -Verbose | Out-Null
 
     # Now execute the actual build
     function Invoke-PlatformIO($Target) {
@@ -216,7 +222,7 @@ foreach ($ConfigName in $Configs) {
         }
 
         try {
-            $FirmwareBinFiles | Copy-Item -Destination $TmpBuildDirectory -Verbose
+            $FirmwareBinFiles | Copy-Item -Destination $MotherboardFirmwareDirectory -Verbose
         } catch {
             Write-Error $_
             Write-FatalError "Unable to consolide files of build: $ConfigName"
@@ -225,7 +231,7 @@ foreach ($ConfigName in $Configs) {
 
     ### Copy touch screen files
     if ($HasTouchscreen) {
-        Copy-Item -Path $TouchscreenZipFile -Destination $TmpBuildDirectory -Verbose
+        Copy-Item -Path $TouchscreenZipFile -Destination $ScreenFirmwareDirectory -Verbose
     }
 
     ### Copy configuration files
@@ -239,6 +245,7 @@ foreach ($ConfigName in $Configs) {
 
     ### Copy description txt file
     Copy-Item -Path $(Join-Path $ConfigDirName "description.txt") -Destination $TmpBuildDirectory -Verbose
+    Copy-Item -Path $(Join-Path $ConfigDirName "description.txt") -Destination $FirmwareImmediateDirectory -Verbose
 
     ### Zip it!
     Get-ChildItem -Path $TmpBuildDirectory | Compress-Archive -CompressionLevel Optimal -DestinationPath $DatedBuildZipFilePath -Verbose
