@@ -443,7 +443,7 @@ class Planner {
     /**
      * Limit where 64bit math is necessary for acceleration calculation
      */
-    static uint32_t cutoff_long;
+    static uint32_t acceleration_long_cutoff;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       static float last_fade_z;

@@ -1271,7 +1271,7 @@ void GcodeSuite::M1002() {
   #endif
 
   const uint8_t old_axis_relative = axis_relative;
-  set_e_relative(true); // M83
+  set_e_relative(); // M83
   {
     char buf[20];
     snprintf_P(buf, 20, PSTR("G1E%dF%d"), parser.intval('E'), parser.intval('F'));
