@@ -1240,11 +1240,11 @@ void DGUSScreenHandler::HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr
   if (actualScreenVersion >= 6) {
     // We have a scrolling message so we can do something more complicated
     char buffer[VP_M117_LEN] = {0};
-    sprintf_P(buffer, "Touch screen flashed incorrectly: version mismatch - build %d found but expected %d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
+    sprintf_P(buffer, "Please flash your TFT screen: version mismatch - build %d found but expected %d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
     setStatusMessage(buffer, true);
   } else {
     char buffer[VP_M117_LEN] = {0};
-    sprintf_P(buffer, "TFT flash failed v%d<>v%d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
+    sprintf_P(buffer, "Flash TFT please v%d<>v%d", actualScreenVersion, EXPECTED_UI_VERSION_MAJOR);
     setstatusmessage(buffer);
   }
 
