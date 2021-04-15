@@ -118,10 +118,10 @@
  */
 
 // Steps per MM -------------------------------------------------------------
-#define X_STEPS_MM 80
-#define Y_STEPS_MM 80
-#define Z_STEPS_MM 400
-#define E_STEPS_MM 95
+#define X_STEPS_MM  80
+#define Y_STEPS_MM  80
+#define Z_STEPS_MM  400
+#define E0_STEPS_MM 95
 
 // Acceleration Settings ----------------------------------------------------
 #define DEFAULT_ACCELERATION          500
@@ -234,12 +234,25 @@
 
 // Extra Fan Outputs --------------------------------------------------------
 // If you want to use the 2nd hotend output (HE1) for your controller fan, uncomment the below line
-// This fan will turn on based on if your stepper drivers are enabled or not
+// This fan will turn on based on if your stepper drivers are enabled or not - not available if using 2 hotends
 #define MKS_SGENL_V2_HE1_FAN
 
 // If you want to use the FAN2 output for your hotend fan, uncomment the below line.
 // This fan will turn on when your hotend temperature is at 50C or higher
 #define MKS_SGENL_V2_FAN2
+
+// Dual Extrusion Settings --------------------------------------------------
+// Set your 2nd E Motor steps and uncommend the below line
+//#define E1_STEPS_MM 95
+
+// For Cyclops or any "multi-extruder" that shares a single nozzle.
+//#define SINGLENOZZLE
+
+// 2nd Hotend Nozzle Offset
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotend it is the distance from the extruder 0 hotend.
+//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
+//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -441,7 +454,19 @@
 
 #define DIY_TMCBOARD
   
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E_STEPS_MM }
+#ifdef E1_STEPS_MM
+  #define Z_PROBE_LOW_POINT -10
+  #define DISTINCT_E_FACTORS
+  #define EXTRUDERS 2
+#else
+  #define EXTRUDERS 1
+#endif
+  
+#ifdef E1_STEPS_MM
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E0_STEPS_MM, E1_STEPS_MM }
+#else
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E0_STEPS_MM }
+#endif
   
 #define DEFAULT_MAX_FEEDRATE          { 200, 200, 15, 50 }
 #define DEFAULT_MAX_ACCELERATION      { MAX_X_ACCEL, MAX_Y_ACCEL, 500, 5000 }
@@ -449,8 +474,6 @@
 #define CLASSIC_JERK
 
 #define SHOW_BOOTSCREEN
-  
-#define EXTRUDERS 1
   
 #if ENABLED(HOME_ADJUST)
   #define X_MIN_POS X_HOME_LOCATION
@@ -476,7 +499,15 @@
   #endif
 #endif
   
-#define TEMP_SENSOR_1 0 
+#ifdef E1_STEPS_MM
+  #if DISABLED(SINGLENOZZLE)
+    #define TEMP_SENSOR_1 TEMP_SENSOR_0
+  #else
+    #define TEMP_SENSOR_1 0
+  #endif
+#else
+  #define TEMP_SENSOR_1 0 
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0

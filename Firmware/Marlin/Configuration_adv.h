@@ -427,6 +427,19 @@
 #endif
 
 #if ENABLED(MKS_SGENL_V2_HE1_FAN)
+  #ifdef E1_STEPS_MM
+    #if ENABLED(SINGLENOZZLE)
+      #define USE_CONTROLLER_FAN
+      #define CONTROLLER_FAN_PIN       P2_06
+      #define CONTROLLERFAN_IDLE_TIME     60
+      #define CONTROLLERFAN_SPEED_MIN      0
+      #define CONTROLLERFAN_SPEED_ACTIVE 255
+      #define CONTROLLER_FAN_EDITABLE
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        #define CONTROLLER_FAN_MENU
+      #endif
+    #endif
+  #else
   #define USE_CONTROLLER_FAN
   #define CONTROLLER_FAN_PIN       P2_06
   #define CONTROLLERFAN_IDLE_TIME     60
@@ -435,6 +448,7 @@
   #define CONTROLLER_FAN_EDITABLE
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     #define CONTROLLER_FAN_MENU
+    #endif
   #endif
 #endif
 
