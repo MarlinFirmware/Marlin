@@ -933,7 +933,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
         tool_change_prime();
         first_tool_is_primed = true;
-        toolchange_extruder_ready[old_tool] = true; // Primed and initialized
+        #if ENABLED(TOOLCHANGE_FS_INIT_BEFORE_SWAP)
+          toolchange_extruder_ready[old_tool] = true; // Primed and initialized
+        #endif
       }
     #endif
 
@@ -972,8 +974,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           else {
             #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
               // For first new tool, change without unloading the old. 'Just prime/init the new'
-              if (first_tool_is_primed)
+              if (first_tool_is_primed) {
+            #endif
                 unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+              }
               first_tool_is_primed = true; // The first new tool will be primed by toolchanging
             #endif
           }
