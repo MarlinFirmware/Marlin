@@ -63,17 +63,26 @@ Backlash backlash;
 void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const uint8_t dm, block_t * const block) {
   static uint8_t last_direction_bits;
   uint8_t changed_dir = last_direction_bits ^ dm;
-  // Ignore direction change if no steps are taken in that direction
-  #ifdef BACKLASH_COREXY
-    if ((da+db) == 0) CBI(changed_dir, A_AXIS); // Motor A direction  
-    if (CORESIGN(da - db) == 0) CBI(changed_dir, B_AXIS); // Motor B direction
-    if (dc == 0) CBI(changed_dir, Z_AXIS);
-  #else
-    if (da == 0) CBI(changed_dir, X_AXIS);
-    if (db == 0) CBI(changed_dir, Y_AXIS);
-    if (dc == 0) CBI(changed_dir, Z_AXIS);    
+  // Ignore direction change unless steps are taken in that direction
+  #if DISABLED(CORE_BACKLASH) || ENABLED(MARKFORGED_XY)
+    if (!da) CBI(changed_dir, X_AXIS);
+    if (!db) CBI(changed_dir, Y_AXIS);
+    if (!dc) CBI(changed_dir, Z_AXIS);
+  #elif CORE_IS_XY
+    if (!(da + db)) CBI(changed_dir, X_AXIS);
+    if (!(da - db)) CBI(changed_dir, Y_AXIS);
+    if (!dc)        CBI(changed_dir, Z_AXIS);
+  #elif CORE_IS_XZ
+    if (!(da + dc)) CBI(changed_dir, X_AXIS);
+    if (!(da - dc)) CBI(changed_dir, Z_AXIS);
+    if (!db)        CBI(changed_dir, Y_AXIS);
+  #elif CORE_IS_YZ
+    if (!(db + dc)) CBI(changed_dir, Y_AXIS);
+    if (!(db - dc)) CBI(changed_dir, Z_AXIS);
+    if (!da)        CBI(changed_dir, X_AXIS);
   #endif
   last_direction_bits ^= changed_dir;
+
   if (correction == 0) return;
 
   #ifdef BACKLASH_SMOOTHING_MM
@@ -110,37 +119,34 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
           // Take up a portion of the residual_error in this segment, but only when
           // the current segment travels in the same direction as the correction
           if (reversing == (error_correction < 0)) {
-            if (segment_proportion == 0)
-              segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
+            if (segment_proportion == 0) segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
             error_correction = CEIL(segment_proportion * error_correction);
           }
           else
             error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
         }
       #endif
-      // Making a correction reduces the residual error and adds block steps
+
+      // This correction reduces the residual error and adds block steps
       if (error_correction) {
-        #ifdef BACKLASH_COREXY
-        switch(axis)
-        {   
-          case A_AXIS: 
-            block->steps[axis] += ABS(error_correction);
-            //block->steps[B_AXIS] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[B_AXIS];
-            //SERIAL_ECHOLNPAIR("A_AXIS changed dir distance=", distance_mm[axis]," residerr=", residual_error[axis]," da=", da," db=", db, " block->steps[axis]=", block->steps[axis]," error_correction=", error_correction);
-            break;
-          case B_AXIS:
-            block->steps[axis] += ABS(error_correction);
-            //block->steps[A_AXIS] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[A_AXIS];;
-            //SERIAL_ECHOLNPAIR("B_AXIS changed dir distance=", distance_mm[axis]," residerr=", residual_error[axis]," da=", da," db=", db, " block->steps[axis]=", block->steps[axis]," error_correction=", error_correction);
-            break;
-          case Z_AXIS:
-            block->steps[axis] += ABS(error_correction);
-            break;
-        }
-        residual_error[axis] = 0;//  There is not needed residual_error for next block with corexy, I think...
-        #else
         block->steps[axis] += ABS(error_correction);
-        residual_error[axis] -= error_correction;
+        #if ENABLED(CORE_BACKLASH)
+          switch (axis) {
+            case CORE_AXIS_1:
+              //block->steps[CORE_AXIS_2] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[CORE_AXIS_2];
+              //SERIAL_ECHOLNPAIR("CORE_AXIS_1 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
+              //  " da=", da, " db=", db, " block->steps[axis]=", block->steps[axis], " err_corr=", error_correction);
+              break;
+            case CORE_AXIS_2:
+              //block->steps[CORE_AXIS_1] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[CORE_AXIS_1];;
+              //SERIAL_ECHOLNPAIR("CORE_AXIS_2 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
+              //  " da=", da, " db=", db, " block->steps[axis]=", block->steps[axis], " err_corr=", error_correction);
+              break;
+            case NORMAL_AXIS: break;
+          }
+          residual_error[axis] = 0; // No residual_error needed for next CORE block, I think...
+        #else
+          residual_error[axis] -= error_correction;
         #endif
       }
     }
