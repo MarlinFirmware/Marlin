@@ -418,10 +418,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
         }
         else if (kill_on_error && (!tool_sensor_disabled || disable)) {
           sensor_tries++;
-          if (sensor_tries > 10) {
-            std::string status = "TS error " + std::to_string(tool_index);
-            kill(status.c_str());
-          }
+          if (sensor_tries > 10) kill(PSTR("Tool Sensor error"));
           safe_delay(5);
         }
         else {
@@ -435,7 +432,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   #endif
 
   inline void switching_toolhead_lock(const bool locked) {
-    #if defined(SWITCHING_TOOLHEAD_SERVO_ANGLES)
+    #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
       MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
     #elif PIN_EXISTS(SWT_SOLENOID)
