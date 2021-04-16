@@ -85,8 +85,8 @@
   #define SDIO_CMD_PIN  PD2
 
   SD_HandleTypeDef hsd;  // create SDIO structure
-  // F4 support one dma for RX and another for TX.
-  // But Marlin will never do read and write at same time, so we use always one dma for both.
+  // F4 supports one DMA for RX and another for TX, but Marlin will never
+  // do read and write at same time, so we use the same DMA for both.
   DMA_HandleTypeDef hdma_sdio;
 
   /*
@@ -274,7 +274,7 @@
   }
 
   static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t *src, uint8_t *dst) {
-    if(HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) return false;
+    if (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) return false;
 
     TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 
@@ -296,10 +296,10 @@
       return false;
     }
 
-    uint32_t timeout = millis() + 500;
+    millis_t timeout = millis() + 500;
     // Wait the transfer
     while (hsd.State != HAL_SD_STATE_READY) {
-      if (millis() > timeout) {
+      if (ELAPSED(millis(), timeout)) {
         HAL_DMA_Abort_IT(&hdma_sdio);
         HAL_DMA_DeInit(&hdma_sdio);
         return false;
@@ -313,8 +313,7 @@
     HAL_DMA_DeInit(&hdma_sdio);
 
     timeout = millis() + 500;
-    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
-      if (millis() > timeout) return false;
+    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) if (ELAPSED(millis(), timeout)) return false;
 
     return true;
   }

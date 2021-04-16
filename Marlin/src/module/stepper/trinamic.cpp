@@ -158,7 +158,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -196,7 +196,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -517,7 +517,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -559,7 +559,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -617,7 +617,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -655,11 +655,8 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5160

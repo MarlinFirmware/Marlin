@@ -74,9 +74,9 @@ hotend_pid_t;
 #endif
 
 #define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
-#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, MFNAN)
-#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, MFNAN)
-#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, MFNAN)
+#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
+#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
+#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
 #if ENABLED(PIDTEMP)
   #define _PID_Kc(H) TERN(PID_EXTRUSION_SCALING, Temperature::temp_hotend[H].pid.Kc, 1)
   #define _PID_Kf(H) TERN(PID_FAN_SCALING,       Temperature::temp_hotend[H].pid.Kf, 0)
@@ -631,7 +631,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    FORCE_INLINE static float degHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -736,7 +736,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
-      FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+      FORCE_INLINE static celsius_t degProbe()        { return temp_probe.celsius; }
       FORCE_INLINE static bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
       FORCE_INLINE static bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
       static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
@@ -752,7 +752,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()      { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static float degChamber()              { return temp_chamber.celsius; }
+      FORCE_INLINE static celsius_t degChamber()          { return temp_chamber.celsius; }
       #if HAS_HEATED_CHAMBER
         FORCE_INLINE static celsius_t degTargetChamber()  { return temp_chamber.target; }
         FORCE_INLINE static bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
@@ -778,7 +778,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawCoolerTemp()     { return temp_cooler.raw; }
       #endif
-      FORCE_INLINE static float degCooler()             { return temp_cooler.celsius; }
+      FORCE_INLINE static celsius_t degCooler()         { return temp_cooler.celsius; }
       #if HAS_COOLER
         FORCE_INLINE static celsius_t degTargetCooler() { return temp_cooler.target; }
         FORCE_INLINE static bool isLaserHeating()       { return temp_cooler.target > temp_cooler.celsius; }
