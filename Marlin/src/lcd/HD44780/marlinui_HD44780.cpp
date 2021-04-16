@@ -1460,7 +1460,7 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));
@@ -1479,7 +1479,7 @@ void MarlinUI::draw_status_screen() {
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));

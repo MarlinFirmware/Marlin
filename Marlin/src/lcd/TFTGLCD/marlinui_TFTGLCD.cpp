@@ -943,7 +943,7 @@ void MarlinUI::draw_status_screen() {
       // Show the location value
       lcd.setCursor(_LCD_W_POS, 3); lcd_put_u8str_P(PSTR("Z:"));
 
-      if (!ISNAN(ubl.z_values[x_plot][y_plot]))
+      if (!isnan(ubl.z_values[x_plot][y_plot]))
         lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
       else
         lcd_put_u8str_P(PSTR(" -----"));
