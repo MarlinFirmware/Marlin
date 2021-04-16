@@ -610,7 +610,11 @@ void _menu_ubl_mesh_wizard() {
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
 
-  GCODES_ITEM(MSG_UBL_MESH_WIZARD, PSTR("M1004"));
+  #if HAS_HEATED_BED
+    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+  #endif
+
+  GCODES_ITEM(MSG_UBL_MESH_WIZARD, PSTR("M1004S%i"), custom_bed_temp);
 
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
