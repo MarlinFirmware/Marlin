@@ -258,10 +258,10 @@ bool unified_bed_leveling::sanity_check() {
  * M1004: UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
 void GcodeSuite::M1004() {
+  const int16_t temp = parser.celsiusval('S');
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
   #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
   #if HAS_HEATED_BED
-    //parser.celsiusval('S')
     process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE "M190S%i" PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
   #else
     process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
