@@ -1340,6 +1340,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #elif DISABLED(BLTOUCH_SET_5V_MODE) && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
       #error "BLTOUCH without BLTOUCH_SET_5V_MODE requires ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN or ENDSTOPPULLUP_ZMIN_PROBE."
+    #elif defined(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && defined(USE_PROBE_FOR_Z_HOMING) && (defined(Z_MIN_PROBE_PIN) && Z_MIN_PROBE_PIN != 32)
+      #warning "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN and USE_PROBE_FOR_Z_HOMING both defined with non-standard Z_MIN_PROBE_PIN. Verify this is intentional."
     #endif
   #endif
 
