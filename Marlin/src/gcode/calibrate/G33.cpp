@@ -387,6 +387,8 @@ static float auto_tune_a() {
  */
 void GcodeSuite::G33() {
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
     SERIAL_ECHOLNPGM("?(P)oints implausible (0-10).");
@@ -645,6 +647,8 @@ void GcodeSuite::G33() {
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
   ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // DELTA_AUTO_CALIBRATION
