@@ -30,7 +30,7 @@ using namespace Theme;
 using namespace ExtUI;
 
 constexpr static BedMeshEditScreenData &mydata = screen_data.BedMeshEditScreen;
-constexpr static float gaugeThickness = 0.25;
+constexpr static float gaugeThickness = 0.1;
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #define GRID_COLS 3
@@ -54,18 +54,27 @@ constexpr static float gaugeThickness = 0.25;
   #define SAVE_POS    BTN_POS(5,5), BTN_SIZE(1,1)
 #endif
 
+constexpr uint8_t NONE = 255;
+
 static float meshGetter(uint8_t x, uint8_t y, void*) {
   xy_uint8_t pos;
   pos.x = x;
   pos.y = y;
-  return ExtUI::getMeshPoint(pos) + (mydata.highlight.x != -1 && mydata.highlight == pos ? mydata.zAdjustment : 0);
+  return ExtUI::getMeshPoint(pos) + (mydata.highlight.x != NONE && mydata.highlight == pos ? mydata.zAdjustment : 0);
 }
 
 void BedMeshEditScreen::onEntry() {
   mydata.needSave = false;
-  mydata.highlight.x = -1;
+  mydata.highlight.x = NONE;
   mydata.zAdjustment = 0;
+  mydata.savedMeshLevelingState = ExtUI::getLevelingActive();
+  mydata.savedEndstopState = ExtUI::getSoftEndstopState();
   BaseScreen::onEntry();
+}
+
+void BedMeshEditScreen::onExit() {
+  ExtUI::setLevelingActive(mydata.savedMeshLevelingState);
+  ExtUI::setSoftEndstopState(mydata.savedEndstopState);
 }
 
 float BedMeshEditScreen::getHighlightedValue() {
@@ -80,12 +89,13 @@ void BedMeshEditScreen::setHighlightedValue(float value) {
 void BedMeshEditScreen::moveToHighlightedValue() {
   if (ExtUI::getMeshValid()) {
     ExtUI::setLevelingActive(true);
+    ExtUI::setSoftEndstopState(false);
     ExtUI::moveToMeshPoint(mydata.highlight, gaugeThickness + mydata.zAdjustment);
   }
 }
 
 void BedMeshEditScreen::adjustHighlightedValue(float increment) {
-  if(mydata.highlight.x != -1) {
+  if (mydata.highlight.x != NONE) {
     mydata.zAdjustment += increment;
     moveToHighlightedValue();
     mydata.needSave = true;
@@ -114,7 +124,7 @@ void BedMeshEditScreen::drawHighlightedPointValue() {
      .colors(normal_btn)
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
-  if(mydata.highlight.x != -1)
+  if (mydata.highlight.x != NONE)
     draw_adjuster(cmd, Z_VALUE_POS, 3, getHighlightedValue(), GET_TEXT_F(MSG_UNITS_MM), 4, 3);
   cmd.colors(mydata.needSave ? normal_btn : action_btn)
      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_BACK))

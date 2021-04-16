@@ -210,9 +210,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD)
-  #include "module/tool_change.h"
-#endif
+#include "module/tool_change.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
@@ -731,6 +729,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
 
+  // TODO: Still causing errors
+  (void)check_tool_sensor_stats(active_extruder, true);
+
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
 
@@ -757,7 +758,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(SDSUPPORT, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
+  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());

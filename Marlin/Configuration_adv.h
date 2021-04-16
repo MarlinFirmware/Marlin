@@ -163,7 +163,7 @@
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
   #if ENABLED(CHAMBER_FAN)
-    #define CHAMBER_FAN_MODE 2        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve.
+    #define CHAMBER_FAN_MODE 2        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
     #if CHAMBER_FAN_MODE == 0
       #define CHAMBER_FAN_BASE  255   // Chamber fan PWM (0-255)
     #elif CHAMBER_FAN_MODE == 1
@@ -172,6 +172,9 @@
     #elif CHAMBER_FAN_MODE == 2
       #define CHAMBER_FAN_BASE  128   // Minimum chamber fan PWM (0-255)
       #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C difference from target
+    #elif CHAMBER_FAN_MODE == 3
+      #define CHAMBER_FAN_BASE  128   // Base chamber fan PWM (0-255)
+      #define CHAMBER_FAN_FACTOR 25   // PWM increase per °C above target
     #endif
   #endif
 
@@ -1475,6 +1478,15 @@
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
 
+  // Multiple volume support - EXPERIMENTAL.
+  //#define MULTI_VOLUME
+  #if ENABLED(MULTI_VOLUME)
+    #define VOLUME_SD_ONBOARD
+    #define VOLUME_USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME SD_ONBOARD
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE
+  #endif
+
 #endif // SDSUPPORT
 
 /**
@@ -2103,6 +2115,15 @@
  */
 //#define EMERGENCY_PARSER
 
+/**
+ * Realtime Reporting
+ * Add support for commands S000 State, P000 Pause, and R000 Resume
+ */
+//#define REALTIME_REPORTING_COMMANDS
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+  //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
+#endif
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
@@ -2176,6 +2197,12 @@
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
   #endif
+
+  /**
+   * Tool Sensors detect when tools have been picked up or dropped.
+   * Requires the pins TOOL_SENSOR1_PIN, TOOL_SENSOR2_PIN, etc.
+   */
+  //#define TOOL_SENSOR
 
   /**
    * Retract and prime filament on tool-change to reduce
@@ -2653,22 +2680,22 @@
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
   #define CHOPPER_TIMING CHOPPER_DEFAULT_12V        // All axes (override below)
-  //#define CHOPPER_TIMING_X  CHOPPER_DEFAULT_12V   // For X Axes (override below)
-  //#define CHOPPER_TIMING_X2 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_Y  CHOPPER_DEFAULT_12V   // For Y Axes (override below)
-  //#define CHOPPER_TIMING_Y2 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_Z  CHOPPER_DEFAULT_12V   // For Z Axes (override below)
-  //#define CHOPPER_TIMING_Z2 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_Z3 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_Z4 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E  CHOPPER_DEFAULT_12V   // For Extruders (override below)
-  //#define CHOPPER_TIMING_E1 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E2 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E3 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E4 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E5 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E6 CHOPPER_DEFAULT_12V
-  //#define CHOPPER_TIMING_E7 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_X  CHOPPER_TIMING        // For X Axes (override below)
+  //#define CHOPPER_TIMING_X2 CHOPPER_TIMING_X
+  //#define CHOPPER_TIMING_Y  CHOPPER_TIMING        // For Y Axes (override below)
+  //#define CHOPPER_TIMING_Y2 CHOPPER_TIMING_Y
+  //#define CHOPPER_TIMING_Z  CHOPPER_TIMING        // For Z Axes (override below)
+  //#define CHOPPER_TIMING_Z2 CHOPPER_TIMING_Z
+  //#define CHOPPER_TIMING_Z3 CHOPPER_TIMING_Z
+  //#define CHOPPER_TIMING_Z4 CHOPPER_TIMING_Z
+  //#define CHOPPER_TIMING_E  CHOPPER_TIMING        // For Extruders (override below)
+  //#define CHOPPER_TIMING_E1 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E2 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E3 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E4 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E5 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E6 CHOPPER_TIMING_E
+  //#define CHOPPER_TIMING_E7 CHOPPER_TIMING_E
 
   /**
    * Monitor Trinamic drivers
@@ -3303,11 +3330,16 @@
  */
 //#define POWER_MONITOR_CURRENT   // Monitor the system current
 //#define POWER_MONITOR_VOLTAGE   // Monitor the system voltage
-#if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
-  #define POWER_MONITOR_VOLTS_PER_AMP   0.05000   // Input voltage to the MCU analog pin per amp  - DO NOT apply more than ADC_VREF!
-  #define POWER_MONITOR_CURRENT_OFFSET -1         // Offset value for current sensors with linear function output
-  #define POWER_MONITOR_VOLTS_PER_VOLT  0.11786   // Input voltage to the MCU analog pin per volt - DO NOT apply more than ADC_VREF!
+
+#if ENABLED(POWER_MONITOR_CURRENT)
+  #define POWER_MONITOR_VOLTS_PER_AMP    0.05000  // Input voltage to the MCU analog pin per amp  - DO NOT apply more than ADC_VREF!
+  #define POWER_MONITOR_CURRENT_OFFSET   0        // Offset (in amps) applied to the calculated current
   #define POWER_MONITOR_FIXED_VOLTAGE   13.6      // Voltage for a current sensor with no voltage sensor (for power display)
+#endif
+
+#if ENABLED(POWER_MONITOR_VOLTAGE)
+  #define POWER_MONITOR_VOLTS_PER_VOLT  0.077933  // Input voltage to the MCU analog pin per volt - DO NOT apply more than ADC_VREF!
+  #define POWER_MONITOR_VOLTAGE_OFFSET  0         // Offset (in volts) applied to the calculated voltage
 #endif
 
 /**

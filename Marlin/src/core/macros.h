@@ -187,13 +187,20 @@
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 
-#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
-#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
-#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
-#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
+#define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
+#define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
+#define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
 #define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)

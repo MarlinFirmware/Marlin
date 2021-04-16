@@ -114,9 +114,10 @@ public:
     const float x1 = index_to_xpos[ind.x], x2 = index_to_xpos[ind.x+1],
                 y1 = index_to_xpos[ind.y], y2 = index_to_xpos[ind.y+1],
                 z1 = calc_z0(pos.x, x1, z_values[ind.x][ind.y  ], x2, z_values[ind.x+1][ind.y  ]),
-                z2 = calc_z0(pos.x, x1, z_values[ind.x][ind.y+1], x2, z_values[ind.x+1][ind.y+1]);
+                z2 = calc_z0(pos.x, x1, z_values[ind.x][ind.y+1], x2, z_values[ind.x+1][ind.y+1]),
+                zf = calc_z0(pos.y, y1, z1, y2, z2);
 
-    return z_offset + calc_z0(pos.y, y1, z1, y2, z2) * factor;
+    return z_offset + zf * factor;
   }
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)

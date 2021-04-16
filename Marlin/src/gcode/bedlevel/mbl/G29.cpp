@@ -60,6 +60,8 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  */
 void GcodeSuite::G29() {
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   static int mbl_probe_index = -1;
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -187,6 +189,8 @@ void GcodeSuite::G29() {
   }
 
   report_current_position();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING
