@@ -569,7 +569,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
         // Show the location value
         lcd_put_u8str_P(74, LCD_PIXEL_HEIGHT, Z_LBL);
-        if (!ISNAN(ubl.z_values[x_plot][y_plot]))
+        if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
           lcd_put_u8str_P(PSTR(" -----"));

@@ -113,7 +113,7 @@ void GcodeSuite::G76() {
   auto g76_probe = [](const TempSensorID sid, uint16_t &targ, const xy_pos_t &nozpos) {
     do_z_clearance(5.0); // Raise nozzle before probing
     const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
-    if (ISNAN(measured_z))
+    if (isnan(measured_z))
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
     else {
       SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
@@ -208,7 +208,7 @@ void GcodeSuite::G76() {
         report_temps(next_temp_report);
 
       const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
-      if (ISNAN(measured_z) || target_bed > BED_MAX_TARGET) break;
+      if (isnan(measured_z) || target_bed > BED_MAX_TARGET) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
@@ -267,7 +267,7 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
-      if (ISNAN(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
+      if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
