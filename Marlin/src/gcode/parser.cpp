@@ -217,10 +217,10 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J': case 'R':
+        case 'I' ... 'J': 
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P' ... 'Q':
+      case 'Q':
         if (motion_mode_codenum != 5) return;
       case 'X' ... 'Z': case 'E' ... 'F':
         if (motion_mode_codenum < 0) return;
@@ -231,8 +231,37 @@ void GCodeParser::parse(char *p) {
       break;
     #endif // GCODE_MOTION_MODES
 
+    case 'R': {
+      #if ENABLED(GCODE_MOTION_MODES)
+        #if ENABLED(ARC_SUPPORT)
+          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
+        #endif
+      #endif
+      #if ENABLED(REALTIME_REPORTING_COMMANDS)
+        codenum = 0;                  // The only valid codenum is 0
+        uint8_t digits = 0;
+        while (*p++ == '0') digits++; // Count up '0' characters
+        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
+        return;
+      #endif
+    }
+
+    case 'P': {
+      #if ENABLED(GCODE_MOTION_MODES)
+        if (motion_mode_codenum != 5) return;
+      #endif
+      #if ENABLED(REALTIME_REPORTING_COMMANDS)
+        codenum = 0;                  // The only valid codenum is 0
+        uint8_t digits = 0;
+        while (*p++ == '0') digits++; // Count up '0' characters
+        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
+        return;
+      #endif
+      
+    }
+
     #if ENABLED(REALTIME_REPORTING_COMMANDS)
-      case 'S': case 'P': case 'R': {
+      case 'S': {
         codenum = 0;                  // The only valid codenum is 0
         uint8_t digits = 0;
         while (*p++ == '0') digits++; // Count up '0' characters
