@@ -33,6 +33,7 @@
 //#define CR10S5_V427_BOARD
 // NOTE: It is HIGHLY recommended to use an external bed MOSFET with the CR-10 series machines due to the high load the beds have.
 // While these boards work on 12V machines, they are designed for 24V printers that pull less current (specifically on the bed).
+// If you need a MOSFET, we carry one here: https://www.th3dstudio.com/product/high-amp-12v-24v-mosfet-heated-bed-or-hotend/
 
 //------------------------------ V4.3.1 Board -------------------------------
 //#define ENDER6_V431_BOARD
