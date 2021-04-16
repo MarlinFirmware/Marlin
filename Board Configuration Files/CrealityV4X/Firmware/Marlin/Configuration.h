@@ -21,6 +21,9 @@
 //#define ENDER3_V2_V422_BOARD
 //#define ENDER5_V422_BOARD
 
+// V4.2.2 TMC Driver Settings - Uncomment if you have TMC drivers on a 4.2.2 Board to set driver timings
+//#define V422_TMC220X_DRIVERS //"A" or "B" Code on SD Slot
+
 //------------------------------ V4.2.7 Board --------------------------------
 //#define ENDER3_V427_BOARD
 //#define ENDER3_MAX_V427_BOARD
@@ -38,14 +41,15 @@
 //------------------------------ V4.3.1 Board -------------------------------
 //#define ENDER6_V431_BOARD
 
-// V4.2.2 TMC Driver Settings - Uncomment if you have TMC drivers on a 4.2.2 Board to set driver timings
-//#define V422_TMC220X_DRIVERS //"A" or "B" Code on SD Slot
-
 // If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
 // and then uncomment the #define EZOUT_ENABLE line below.
 // Do NOT ever connect our filament sensor without the supplied adapter board.
 // Ender 3 V2 needs LCD converted to use an EZOut: https://support.th3dstudio.com/hc/guides/upgrades-printer-information/ender-3-v2-swapping-to-the-12864-creality-lcd-for-more-features/
 //#define EZOUT_ENABLE
+
+// Creality CR-10S Series Filament Sensor
+// Connect the stock sensor to the "J1" port and uncomment the below line to enable the filament sensor.
+//#define CR10S_STOCKFILAMENTSENSOR
 
 // EZABL Probe Mounts
 //#define CR10_OEM
@@ -478,14 +482,18 @@
     #define SPEAKER_KILL
   #endif
 
-  #if ENABLED(EZOUT_ENABLE)
+  #if ENABLED(EZOUT_ENABLE) || ENABLED(CR10S_STOCKFILAMENTSENSOR)
     #define FILAMENT_RUNOUT_SENSOR
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-    #define FIL_RUNOUT_STATE     LOW       // Pin state indicating that filament is NOT present.
+    #if ENABLED(EZOUT_ENABLE)
+      #define FIL_RUNOUT_STATE     LOW       // Pin state indicating that filament is NOT present.
+    #else
+      #define FIL_RUNOUT_STATE     HIGH       // Pin state indicating that filament is NOT present.
+    #endif
     #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
     //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
 

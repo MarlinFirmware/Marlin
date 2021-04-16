@@ -22,12 +22,13 @@
 //===========================================================================
 
 //#define ENDER3_SKR_E3_MINI
+//#define ENDER3_MAX_SKR_E3_MINI
 //#define ENDER5_SKR_E3_MINI
 
 //#define CR10_SKR_E3_MINI
 //#define CR10MINI_SKR_E3_MINI
 //#define CR10S4_SKR_E3_MINI
-#define CR10S5_SKR_E3_MINI
+//#define CR10S5_SKR_E3_MINI
 // NOTE: It is HIGHLY recommended to use an external bed MOSFET with the CR-10 series machines due to the high load the beds have.
 // While these boards work on 12V machines, they are designed for 24V printers that pull less current (specifically on the bed).
 // If you need a MOSFET, we carry one here: https://www.th3dstudio.com/product/high-amp-12v-24v-mosfet-heated-bed-or-hotend/
@@ -42,11 +43,17 @@
 // If you bought just the sensor from us and not the kit with the adapter PCB you will need to swap the red an white wires at one end of the plug to use it with these boards.
 // Failure to use our sensor with the EZOut adapter PCB OR without swapping the red and white wires will result in a short to ground.
 // Connect the EZOut sensor kit (or sensor only with wiring changed as per above) to the "E-Stop" port and uncomment the below line to enable the filament sensor.
+// Also works with the stock Ender 3 MAX sensor.
 //#define EZOUTV2_ENABLE
+
+// Creality CR-10S Series Filament Sensor
+// Connect the stock sensor to the "E-Stop" port and uncomment the below line to enable the filament sensor.
+//#define CR10S_STOCKFILAMENTSENSOR
 
 // EZABL Probe Mounts
 //#degine CR10_OEM
 //#define ENDER3_OEM
+//#define ENDER3_MAX_OEM
 //#define ENDER5_OEM
 //#define CUSTOM_PROBE
 
@@ -298,7 +305,7 @@
 #endif
  
  //Creality SKR E3 Mini Board Settings
-#if ENABLED(ENDER3_SKR_E3_MINI) || ENABLED(ENDER5_SKR_E3_MINI) || ENABLED(CR10_SKR_E3_MINI) || ENABLED(CR10MINI_SKR_E3_MINI) || ENABLED(CR10S4_SKR_E3_MINI) || ENABLED(CR10S5_SKR_E3_MINI)
+#if ENABLED(ENDER3_SKR_E3_MINI) || ENABLED(ENDER3_MAX_SKR_E3_MINI) || ENABLED(ENDER5_SKR_E3_MINI) || ENABLED(CR10_SKR_E3_MINI) || ENABLED(CR10MINI_SKR_E3_MINI) || ENABLED(CR10S4_SKR_E3_MINI) || ENABLED(CR10S5_SKR_E3_MINI)
   #define SERIAL_PORT -1
   #define SERIAL_PORT_2 2
   #define SKR_E3_MINI_BOARD
@@ -396,6 +403,12 @@
       #define Y_BED_SIZE 235
       #define Z_MAX_POS 250
     #endif
+  #endif
+  
+  #if ENABLED(ENDER3_MAX_SKR_E3_MINI)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 340
   #endif
   
   #if ENABLED(CR10_SKR_E3_MINI)
@@ -560,21 +573,21 @@
   #define Z_PROBE_OFFSET_RANGE_MIN -10
   #define Z_PROBE_OFFSET_RANGE_MAX 10
 
-  #if ENABLED(CUSTOM_PROBE) || ENABLED(ENDER5_OEM) || ENABLED(ENDER3_OEM)
-    #define ABL_ENABLE
-  #endif
-
-  #if ENABLED(ABL_ENABLE) || ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(CUSTOM_PROBE) || ENABLED(ENDER5_OEM) || ENABLED(ENDER3_OEM) || ENABLED(CR10_OEM) || ENABLED(ENDER3_MAX_OEM) || ENABLED(POWER_LOSS_RECOVERY)
     #define SPACE_SAVER
   #endif
 
-  #if ENABLED(EZOUTV2_ENABLE)
+  #if ENABLED(EZOUTV2_ENABLE) || ENABLED(CR10S_STOCKFILAMENTSENSOR)
     #define FILAMENT_RUNOUT_SENSOR
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-    #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+    #if ENABLED(EZOUTV2_ENABLE)
+      #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+    #else
+      #define FIL_RUNOUT_STATE     HIGH        // Pin state indicating that filament is NOT present.
+    #endif
     #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
     //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
 
