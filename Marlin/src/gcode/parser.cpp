@@ -231,6 +231,7 @@ void GCodeParser::parse(char *p) {
       break;
     #endif // GCODE_MOTION_MODES
 
+
     case 'R': {
       #if ENABLED(GCODE_MOTION_MODES)
         #if ENABLED(ARC_SUPPORT)

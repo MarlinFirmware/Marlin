@@ -134,7 +134,7 @@ void GcodeSuite::M48() {
 
   // Move to the first point, deploy, and probe
   const float t = probe.probe_at_point(test_position, raise_after, verbose_level);
-  bool probing_good = !ISNAN(t);
+  bool probing_good = !isnan(t);
 
   if (probing_good) {
     randomSeed(millis());
@@ -219,7 +219,7 @@ void GcodeSuite::M48() {
       const float pz = probe.probe_at_point(test_position, raise_after, 0);
 
       // Break the loop if the probe fails
-      probing_good = !ISNAN(pz);
+      probing_good = !isnan(pz);
       if (!probing_good) break;
 
       // Store the new sample
