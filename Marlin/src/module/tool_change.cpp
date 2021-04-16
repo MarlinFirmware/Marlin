@@ -928,13 +928,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // First tool priming. To prime again, reboot the machine.
-    #if BOTH(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_FS_PRIME_FIRST_USED)
+    #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
       static bool first_tool_is_primed = false;
       if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
         tool_change_prime();
         first_tool_is_primed = true;
-        toolchange_extruder_ready[old_tool] = true; // Primed and initialized
+        TERN_(TOOLCHANGE_FS_INIT_BEFORE_SWAP, toolchange_extruder_ready[old_tool] = true); // Primed and initialized
       }
+    #else
+      constexpr bool first_tool_is_primed = true;
     #endif
 
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
@@ -970,12 +972,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
           else {
-            #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-              // For first new tool, change without unloading the old. 'Just prime/init the new'
-              if (first_tool_is_primed)
-                unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-              first_tool_is_primed = true; // The first new tool will be primed by toolchanging
-            #endif
+            // For first new tool, change without unloading the old. 'Just prime/init the new'
+            if (first_tool_is_primed)
+              unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
+            TERN_(TOOLCHANGE_FS_PRIME_FIRST_USED, first_tool_is_primed = true); // The first new tool will be primed by toolchanging
           }
         }
       #endif
