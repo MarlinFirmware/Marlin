@@ -33,12 +33,15 @@
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
 
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
+
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 // Based on PWM timer usage, we have to use these timers and soft PWM for the fans
 // On STM32F103:

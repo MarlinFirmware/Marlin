@@ -25,11 +25,12 @@
 #if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "Longer3D"
-#define ALFAWISE_UX0                              // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG                           //  We still want to debug with STLINK...
 #define DISABLE_JTAG                              //  We free the jtag pins (PA15) but keep STLINK
@@ -90,9 +91,19 @@
 #define FAN_MAX_PWM                          255
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
-                                 // Can drive a PC Buzzer, if connected between PWM and 5V pins
+                                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
 
 #define LED_PIN                             PC2   // pin 17
+
+// Longer3D board mosfets are passing by default
+// Avoid nozzle heat and fan start before serial init
+#define BOARD_OPENDRAIN_MOSFETS
+
+#define BOARD_PREINIT() { \
+  OUT_WRITE_OD(HEATER_0_PIN, 0); \
+  OUT_WRITE_OD(HEATER_BED_PIN, 0); \
+  OUT_WRITE_OD(FAN_PIN, 0); \
+}
 
 //
 // PWM for a servo probe
@@ -106,19 +117,6 @@
   //#undef Z_MAX_PIN                              // Uncomment if using ZMAX connector (PE5)
 #endif
 
-/**
- * Note: Alfawise screens use various TFT controllers. Supported screens
- * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
- * init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
-
-#define LCD_RESET_PIN                       PC4   // pin 33
 #define TFT_RESET_PIN                       PC4   // pin 33
 #define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
@@ -131,13 +129,8 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-#define GRAPHICAL_TFT_UPSCALE                  2
-#define TFT_WIDTH                            320
-#define TFT_HEIGHT                           240
-#define TFT_PIXEL_OFFSET_X                    32
-#define TFT_PIXEL_OFFSET_Y                    32
-
-//#define TFT_DRIVER                     ILI9341
+// Buffer for Color UI
+#define TFT_BUFFER_SIZE                     3200
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer

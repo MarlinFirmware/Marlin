@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -87,8 +87,21 @@
     cmd.cmd(LINE_WIDTH(16)); \
   }
 
+// Routines for subdividing a grid within a box (x,y,w,h)
+
+#define SUB_GRID_W(W)     ((W)*w/SUB_COLS)
+#define SUB_GRID_H(H)     ((H)*h/SUB_ROWS)
+#define SUB_GRID_X(X)     (SUB_GRID_W((X)-1) + x)
+#define SUB_GRID_Y(Y)     (SUB_GRID_H((Y)-1) + y)
+#define SUB_X(X)          (SUB_GRID_X(X) + MARGIN_L)
+#define SUB_Y(Y)          (SUB_GRID_Y(Y) + MARGIN_T)
+#define SUB_W(W)          (SUB_GRID_W(W) - MARGIN_L - MARGIN_R)
+#define SUB_H(H)          (SUB_GRID_H(H) - MARGIN_T - MARGIN_B)
+#define SUB_POS(X,Y)      SUB_X(X), SUB_Y(Y)
+#define SUB_SIZE(W,H)     SUB_W(W), SUB_H(H)
+
 namespace FTDI {
-  #ifdef TOUCH_UI_PORTRAIT
+  #if ENABLED(TOUCH_UI_PORTRAIT)
     constexpr uint16_t display_width  = Vsize;
     constexpr uint16_t display_height = Hsize;
   #else

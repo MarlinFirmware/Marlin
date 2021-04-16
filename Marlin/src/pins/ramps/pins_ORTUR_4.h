@@ -91,7 +91,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#if IS_RRD_FG_SC
   #undef BEEPER_PIN
   #define BEEPER_PIN                          35
 

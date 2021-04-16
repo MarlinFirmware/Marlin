@@ -63,11 +63,9 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#if NOT_TARGET(__AVR_AT90USB1286__)
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#ifndef USBCON
+#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
   #error "USBCON should be defined by the platform for this board."
 #endif
 
@@ -143,7 +141,7 @@
 #endif // NO_EXTRUDRBOARD
 
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
-#define DAC_STEPPER_CURRENT
+#define HAS_MOTOR_CURRENT_DAC
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
 #ifndef DAC_MOTOR_CURRENT_DEFAULT

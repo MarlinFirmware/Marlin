@@ -84,7 +84,7 @@
 
 #define LEVELING_CONF_TITLE_T_CN        "機器參數>調平設置"
 #define LEVELING_PARA_CONF_T_CN         "調平設置"
-#define LEVELING_MANUAL_POS_T_CN        "手動調平坐標設置"
+#define TRAMMING_POS_T_CN               "手動調平坐標設置"
 #define LEVELING_AUTO_COMMAND_T_CN      "自動調平指令設置"
 #define LEVELING_AUTO_ZOFFSET_T_CN      "擠出頭與調平開關偏移設置"
 
@@ -99,6 +99,7 @@
 #define PROBE_Z_SPEED_T_CN              "探针Z方向移動速度"
 #define ENABLE_T_CN                     "是"
 #define DISABLE_T_CN                    "否"
+#define LOCKED_T_CN                     "否"
 #define Z_MIN_T_CN                      "ZMin"
 #define Z_MAX_T_CN                      "ZMax"
 
@@ -254,7 +255,7 @@
 
 #define TOOL_TEXT_T_CN                  "工具"
 #define PREHEAT_TEXT_T_CN               "預熱"
-#define  MOVE_TEXT_T_CN                 "移動"
+#define MOVE_TEXT_T_CN                  "移動"
 #define HOME_TEXT_T_CN                  "回零"
 #define PRINT_TEXT_T_CN                 "打印"
 #define EXTRUDE_TEXT_T_CN               "擠出"
@@ -262,6 +263,8 @@
 #define AUTO_LEVELING_TEXT_T_CN         "自動調平"
 #define SET_TEXT_T_CN                   "設置"
 #define MORE_TEXT_T_CN                  "更多"
+#define MORE_GCODE_T_CN                 "G-Code"
+#define MORE_ENTER_GCODE_T_CN           "Enter G-Code"
 
 #define ADD_TEXT_T_CN                   "增加"
 #define DEC_TEXT_T_CN                   "減少"
@@ -364,19 +367,12 @@
 #define FILAMENT_EXT1_TEXT_T_CN         "噴頭2"
 #define FILAMENT_HEAT_TEXT_T_CN         "預熱"
 #define FILAMENT_STOP_TEXT_T_CN         "停止"
-//#define FILAMENT_CHANGE_TEXT_T_CN     "準備換料"
 #define FILAMENT_TIPS2_TEXT_T_CN        "T:"
 #define FILAMENT_TIPS3_TEXT_T_CN        "正在進料"
 #define FILAMENT_TIPS4_TEXT_T_CN        "正在退料"
 #define FILAMENT_TIPS5_TEXT_T_CN        "溫度太低,請先預熱"
 #define FILAMENT_TIPS6_TEXT_T_CN        "換料完成"
-
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_T_CN "請按<進料>或<退料>進行換料!"
-  #define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,請按<進料>或<退料>進行換料!"
-#endif
-
-  #define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,\n請按<進料>或<退料>"
+#define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,\n請按<進料>或<退料>"
 
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_T_CN       "準備進料,正在加熱,請稍等"
 #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_T_CN     "準備退料,正在加熱,請稍等"
@@ -434,8 +430,8 @@
 #define TITLE_PRINTING_T_CN           "正在打印"
 #define TITLE_OPERATION_T_CN          "操作"
 #define TITLE_ADJUST_T_CN             "調整"
-#define  TITLE_WIRELESS_T_CN          "無線網絡"
-#define  TITLE_FILAMENT_T_CN          "換料"
+#define TITLE_WIRELESS_T_CN           "無線網絡"
+#define TITLE_FILAMENT_T_CN           "換料"
 #define TITLE_ABOUT_T_CN              "關於"
 #define TITLE_FAN_T_CN                "風扇"
 #define TITLE_LANGUAGE_T_CN           "語言"
@@ -459,7 +455,6 @@
 #define DIALOG_RETRY_T_CN             "重試"
 #define DIALOG_STOP_T_CN              "停止"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_T_CN "從斷點續打?"
-//#define DIALOG_UNBIND_PRINTER_T_CN    "解除綁定?"
 #define DIALOG_ERROR_TIPS1_T_CN       "錯誤:找不到文件,請插入sd卡/u盤!"
 #define DIALOG_ERROR_TIPS2_T_CN       "錯誤:通信失敗,請檢查波特率或主板硬件!"
 #define DIALOG_ERROR_TIPS3_T_CN       "錯誤:文件名或文件路徑太長!"
@@ -497,3 +492,10 @@
 #define EEPROM_STORE_TIPS_T_CN        "是否保存參數到EEPROM?"
 #define EEPROM_READ_TIPS_T_CN         "是否使用EEPROM參數?"
 #define EEPROM_REVERT_TIPS_T_CN       "是否恢復默認參數?"
+
+#define MORE_CUSTOM1_TEXT_T_CN  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_T_CN  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_T_CN  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_T_CN  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_T_CN  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_T_CN  MAIN_MENU_ITEM_6_DESC

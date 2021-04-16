@@ -40,7 +40,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Картата е поставена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Картата е извадена");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Изкл. двигатели");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Паркиране");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");
@@ -75,7 +75,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Движение по Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Премести с %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Премести с %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Премести с 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Премести с 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Премести с 10mm");
@@ -106,7 +106,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Нишка");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Диам. нишка");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Диам. нишка *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD контраст");

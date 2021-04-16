@@ -17,15 +17,14 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_DEVELOPER_MENU)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_STRESS_TEST_SCREEN
 
 #define STRESS_TEST_CHANGE_INTERVAL 6000
 
@@ -35,6 +34,8 @@
 using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
+
+constexpr static StressTestScreenData &mydata = screen_data.StressTestScreen;
 
 void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   CommandProcessor cmd;
@@ -47,8 +48,8 @@ void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) 
 }
 
 bool StressTestScreen::watchDogTestNow() {
-  return screen_data.StressTestScreen.next_watchdog_trigger &&
-         ELAPSED(millis(), screen_data.StressTestScreen.next_watchdog_trigger);
+  return mydata.next_watchdog_trigger &&
+         ELAPSED(millis(), mydata.next_watchdog_trigger);
 }
 
 void StressTestScreen::onRedraw(draw_mode_t) {
@@ -58,7 +59,7 @@ void StressTestScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .font(font_medium)
-     .text(BTN_POS(1,1), BTN_SIZE(4,1), progmem_str(screen_data.StressTestScreen.message));
+     .text(BTN_POS(1,1), BTN_SIZE(4,1), progmem_str(mydata.message));
 
   drawDots(BTN_POS(1,3), BTN_SIZE(4,4));
 
@@ -92,25 +93,23 @@ void StressTestScreen::startupCheck() {
 }
 
 void StressTestScreen::onEntry() {
-  screen_data.StressTestScreen.next_watchdog_trigger = millis() + 10000 + random(40000);
-  screen_data.StressTestScreen.message = PSTR("Test 1: Stress testing...");
+  mydata.next_watchdog_trigger = millis() + 10000 + random(40000);
+  mydata.message = PSTR("Test 1: Stress testing...");
 
   // Turn off heaters.
-  setTargetTemp_celsius(0, E0);
-  setTargetTemp_celsius(0, E1);
-  setTargetTemp_celsius(0, BED);
+  coolDown();
 
   runTestOnBootup(true);
 }
 
 void StressTestScreen::recursiveLockup() {
-  screen_data.StressTestScreen.message = PSTR("Test 2: Printer will restart.");
+  mydata.message = PSTR("Test 2: Printer will restart.");
   current_screen.onRefresh();
   recursiveLockup();
 }
 
 void StressTestScreen::iterativeLockup() {
-  screen_data.StressTestScreen.message = PSTR("Test 3: Printer will restart.");
+  mydata.message = PSTR("Test 3: Printer will restart.");
   for (;;) current_screen.onRefresh();
 }
 
@@ -120,7 +119,6 @@ void StressTestScreen::onIdle() {
 
   if (!commandsInQueue()) {
     if (!isPositionKnown()) {
-      extern const char G28_STR[];
       injectCommands_P(G28_STR);
     }
     else {
@@ -147,4 +145,4 @@ void StressTestScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_STRESS_TEST_SCREEN

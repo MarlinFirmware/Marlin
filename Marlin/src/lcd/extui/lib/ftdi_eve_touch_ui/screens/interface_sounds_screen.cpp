@@ -17,15 +17,14 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_INTERFACE_SOUNDS_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -84,7 +83,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       constexpr uint8_t w = 2;
     #else
       constexpr uint8_t w = 1;
@@ -157,4 +156,4 @@ void InterfaceSoundsScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_INTERFACE_SOUNDS_SCREEN

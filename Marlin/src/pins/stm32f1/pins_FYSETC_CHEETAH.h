@@ -21,18 +21,17 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "fysetc.com"
-// https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
+#define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
 
@@ -79,10 +78,26 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#define X_HARDWARE_SERIAL  MSerial2
-#define Y_HARDWARE_SERIAL  MSerial2
-#define Z_HARDWARE_SERIAL  MSerial2
-#define E0_HARDWARE_SERIAL MSerial2
+#if HAS_TMC_UART
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  1
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  2
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 3
+  #endif
+#endif
 
 //
 // Heaters / Fans
@@ -153,7 +168,7 @@
 
   //#define LCD_CONTRAST_INIT                190
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11
     #define BTN_ENC                         PC12

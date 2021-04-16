@@ -48,7 +48,7 @@
 #define MACHINE_TYPE_CNOFIG_EN      "Machine settings"
 #define MOTOR_CONFIG_EN             "Motor settings"
 #define MACHINE_LEVELING_CONFIG_EN  "Leveling settings"
-#define ADVANCE_CONFIG_EN           "Adavance settings"
+#define ADVANCE_CONFIG_EN           "Advanced settings"
 
 #define MACHINE_CONFIG_TITLE_EN     "Machine Settings"
 #define MACHINE_TYPE_EN             "Machine type"
@@ -82,9 +82,9 @@
 #define MIN_ENDSTOP_X_EN                "X-axis minimum Endstop"
 #define MIN_ENDSTOP_Y_EN                "Y-axis minimum Endstop"
 #define MIN_ENDSTOP_Z_EN                "Z-axis minimum Endstop"
-#define MAX_ENDSTOP_X_EN                "X axis maximum Endstop"
-#define MAX_ENDSTOP_Y_EN                "Y axis maximum Endstop"
-#define MAX_ENDSTOP_Z_EN                "Z axis maximum Endstop"
+#define MAX_ENDSTOP_X_EN                "X-axis maximum Endstop"
+#define MAX_ENDSTOP_Y_EN                "Y-axis maximum Endstop"
+#define MAX_ENDSTOP_Z_EN                "Z-axis maximum Endstop"
 #define ENDSTOP_FIL_EN                  "Filament sensor"
 #define ENDSTOP_LEVEL_EN                "Leveling sensor"
 #define ENDSTOP_OPENED_EN               "Open"
@@ -99,7 +99,7 @@
 
 #define LEVELING_CONF_TITLE_EN          "Machine Settings>Leveling settings"
 #define LEVELING_PARA_CONF_EN           "Leveling settings"
-#define LEVELING_MANUAL_POS_EN          "Manual leveling coordinate settings"
+#define TRAMMING_POS_EN                 "Manual leveling coordinate settings"
 #define LEVELING_AUTO_COMMAND_EN        "AutoLeveling command settings"
 #define LEVELING_AUTO_ZOFFSET_EN        "Nozzle-to-probe offsets settings"
 
@@ -107,13 +107,14 @@
 #define AUTO_LEVELING_ENABLE_EN         "Enable auto leveling"
 #define BLTOUCH_LEVELING_ENABLE_EN      "Enable BLtouch"
 #define PROBE_PORT_EN                   "Probe connector"
-#define PROBE_X_OFFSET_EN               "Probe x axis offset"
-#define PROBE_Y_OFFSET_EN               "Probe y axis offset"
-#define PROBE_Z_OFFSET_EN               "Probe z axis offset"
-#define PROBE_XY_SPEED_EN               "Probe xy axis speed"
-#define PROBE_Z_SPEED_EN                "Probe z axis speed"
+#define PROBE_X_OFFSET_EN               "Probe X-axis offset"
+#define PROBE_Y_OFFSET_EN               "Probe Y-axis offset"
+#define PROBE_Z_OFFSET_EN               "Probe Z-axis offset"
+#define PROBE_XY_SPEED_EN               "Probe XY-axis speed"
+#define PROBE_Z_SPEED_EN                "Probe Z-axis speed"
 #define ENABLE_EN                       "YES"
 #define DISABLE_EN                      "NO"
+#define LOCKED_EN                       "N/A"
 #define Z_MIN_EN                        "ZMin"
 #define Z_MAX_EN                        "ZMax"
 
@@ -162,11 +163,11 @@
 #define HOMEFEEDRATECONF_EN             "Home speed setting"
 
 #define MAXFEEDRATE_CONF_TITLE_EN       "Machine Settings>Maximum speed"
-#define X_MAXFEEDRATE_EN                "X axis maximum speed"
-#define Y_MAXFEEDRATE_EN                "Y axis maximum speed"
-#define Z_MAXFEEDRATE_EN                "Z axis maximum speed"
-#define E0_MAXFEEDRATE_EN               "E0 axis maximum speed"
-#define E1_MAXFEEDRATE_EN               "E1 axis maximum speed"
+#define X_MAXFEEDRATE_EN                "X-axis maximum speed"
+#define Y_MAXFEEDRATE_EN                "Y-axis maximum speed"
+#define Z_MAXFEEDRATE_EN                "Z-axis maximum speed"
+#define E0_MAXFEEDRATE_EN               "E0 maximum speed"
+#define E1_MAXFEEDRATE_EN               "E1 maximum speed"
 
 #define ACCELERATION_CONF_TITLE_EN      "Machine Settings>Acceleration"
 #define PRINT_ACCELERATION_EN           "Print acceleration"
@@ -175,49 +176,49 @@
 #define X_ACCELERATION_EN               "X-axis acceleration"
 #define Y_ACCELERATION_EN               "Y-axis acceleration"
 #define Z_ACCELERATION_EN               "Z-axis acceleration"
-#define E0_ACCELERATION_EN              "E0-axis acceleration"
-#define E1_ACCELERATION_EN              "E1-axis acceleration"
+#define E0_ACCELERATION_EN              "E0 acceleration"
+#define E1_ACCELERATION_EN              "E1 acceleration"
 
 #define JERK_CONF_TITLE_EN              "Machine Settings>Jerk speed"
 #define X_JERK_EN                       "X-axis jerk speed"
 #define Y_JERK_EN                       "Y-axis jerk speed"
-#define Z_JERK_EN                       "J-axis jerk speed"
-#define E_JERK_EN                       "E-axis jerk speed"
+#define Z_JERK_EN                       "Z-axis jerk speed"
+#define E_JERK_EN                       "Extruder jerk speed"
 
 #define STEPS_CONF_TITLE_EN             "Machine Settings>Steps settings"
 #define X_STEPS_EN                      "X-axis steps"
-#define Y_STEPS_EN                      "Y-axis stepS"
-#define Z_STEPS_EN                      "Z-axis stepS"
-#define E0_STEPS_EN                     "E0-axis steps"
-#define E1_STEPS_EN                     "E1-axis steps"
+#define Y_STEPS_EN                      "Y-axis steps"
+#define Z_STEPS_EN                      "Z-axis steps"
+#define E0_STEPS_EN                     "E0 steps"
+#define E1_STEPS_EN                     "E1 steps"
 
 #define TMC_CURRENT_CONF_TITLE_EN       "Machine Settings>TMC current settings"
-#define X_TMC_CURRENT_EN                "X axis current (mA)"
-#define Y_TMC_CURRENT_EN                "Y axis current (mA)"
-#define Z_TMC_CURRENT_EN                "Z axis current (mA)"
-#define E0_TMC_CURRENT_EN               "E0 axis current (mA)"
-#define E1_TMC_CURRENT_EN               "E1 axis current (mA)"
+#define X_TMC_CURRENT_EN                "X-axis current (mA)"
+#define Y_TMC_CURRENT_EN                "Y-axis current (mA)"
+#define Z_TMC_CURRENT_EN                "Z-axis current (mA)"
+#define E0_TMC_CURRENT_EN               "E0 current (mA)"
+#define E1_TMC_CURRENT_EN               "E1 current (mA)"
 
 #define TMC_MODE_CONF_TITLE_EN          "Machine Settings>TMC step mode settings"
-#define X_TMC_MODE_EN                   "Whether X axis enable stealthChop modes"
-#define Y_TMC_MODE_EN                   "Whether Y axis enable stealthChop modes"
-#define Z_TMC_MODE_EN                   "Whether Z axis enable stealthChop modes"
-#define E0_TMC_MODE_EN                  "Whether E0 axis enable stealthChop modes"
-#define E1_TMC_MODE_EN                  "Whether E1 axis enable stealthChop modes"
+#define X_TMC_MODE_EN                   "Whether X-axis enables stealthChop mode"
+#define Y_TMC_MODE_EN                   "Whether Y-axis enables stealthChop mode"
+#define Z_TMC_MODE_EN                   "Whether Z-axis enables stealthChop mode"
+#define E0_TMC_MODE_EN                  "Whether E0 enables stealthChop mode"
+#define E1_TMC_MODE_EN                  "Whether E1 enables stealthChop mode"
 
 #define MOTORDIR_CONF_TITLE_EN          "Machine Settings>Motor direction"
 #define X_MOTORDIR_EN                   "X-axis motor direction invert"
 #define Y_MOTORDIR_EN                   "Y-axis motor direction invert"
 #define Z_MOTORDIR_EN                   "Z-axis motor direction invert"
-#define E0_MOTORDIR_EN                  "E0-axis motor direction invert"
-#define E1_MOTORDIR_EN                  "E1-axis motor direction invert"
+#define E0_MOTORDIR_EN                  "E0 motor direction invert"
+#define E1_MOTORDIR_EN                  "E1 motor direction invert"
 #define INVERT_P_EN                     "YES"
 #define INVERT_N_EN                     "NO"
 
 #define HOMEFEEDRATE_CONF_TITLE_EN      "Machine Settings>Home speed"
-#define X_HOMESPEED_EN                  "XY-axis Home speed"
-#define Y_HOMESPEED_EN                  "Y-axis Home speed"
-#define Z_HOMESPEED_EN                  "Z-axis Home speed"
+#define X_HOMESPEED_EN                  "XY-axis home speed"
+#define Y_HOMESPEED_EN                  "Y-axis home speed"
+#define Z_HOMESPEED_EN                  "Z-axis home speed"
 
 #define ADVANCED_CONF_TITLE_EN          "Machine Settings>Advance"
 #define PWROFF_DECTION_EN               "power off dection module"
@@ -241,9 +242,9 @@
 #define E_ENABLE_PINS_INVERT_EN         "E_ENABLE_PIN_INVERT"
 
 #define PAUSE_POSITION_EN    "Printing pause position settings"
-#define PAUSE_POSITION_X_EN  "X axis position (Absolute position,-1 invalid)"
-#define PAUSE_POSITION_Y_EN  "Y axis position (Absolute position,-1 invalid)"
-#define PAUSE_POSITION_Z_EN  "Z axis position (Relative position,-1 invalid)"
+#define PAUSE_POSITION_X_EN  "X-axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Y_EN  "Y-axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Z_EN  "Z-axis position (Relative position,-1 invalid)"
 
 #define WIFI_SETTINGS_TITLE_EN    "Machine Settings>Wi-Fi Parameter"
 #define WIFI_SETTINGS_MODE_EN     "Wi-Fi Mode"
@@ -260,10 +261,10 @@
 #define OFFSET_Z_EN      "Z offset"
 
 #define HOMING_SENSITIVITY_CONF_TITLE_EN      "Machine Settings>Sensitivity"
-#define X_SENSITIVITY_EN                      "X Axis Sensitivity"
-#define Y_SENSITIVITY_EN                      "Y Axis Sensitivity"
-#define Z_SENSITIVITY_EN                      "Z Axis Sensitivity"
-#define Z2_SENSITIVITY_EN                     "Z2 Axis Sensitivity"
+#define X_SENSITIVITY_EN                      "X-axis sensitivity"
+#define Y_SENSITIVITY_EN                      "Y-axis sensitivity"
+#define Z_SENSITIVITY_EN                      "Z-axis sensitivity"
+#define Z2_SENSITIVITY_EN                     "Z2-axis sensitivity"
 
 #define ENCODER_CONF_TITLE_EN                 "Machine Settings>Rotary encoder settings"
 #define ENCODER_CONF_TEXT_EN                  "Is the encoder function used?"
@@ -278,6 +279,8 @@
 #define AUTO_LEVELING_TEXT_EN   "AutoLevel"
 #define SET_TEXT_EN             "Settings"
 #define MORE_TEXT_EN            "More"
+#define MORE_GCODE_EN           "G-Code"
+#define MORE_ENTER_GCODE_EN     "Enter G-Code"
 
 #define ADD_TEXT_EN             "Add"
 #define DEC_TEXT_EN             "Dec"
@@ -381,27 +384,11 @@
 #define FILAMENT_EXT1_TEXT_EN         "Extrusion2"
 #define FILAMENT_HEAT_TEXT_EN         "Preheat"
 #define FILAMENT_STOP_TEXT_EN         "Stop"
-//#define FILAMENT_CHANGE_TEXT_EN       "Filament replace"
 #define FILAMENT_TIPS2_TEXT_EN        "T:"
 #define FILAMENT_TIPS3_TEXT_EN        "Loading..."
 #define FILAMENT_TIPS4_TEXT_EN        "Unloading..."
 #define FILAMENT_TIPS5_TEXT_EN        "Temp is too low to go,please heat"
 #define FILAMENT_TIPS6_TEXT_EN        "Completed"
-
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_EN           "Please click <Load> or <unload> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_EN                 "Please click <Load> or <unload>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_EN       "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_EN     "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_EN   "Heat completed,please load filament to extruder,and click <confirm> for start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_EN   "Please load filament to extruder,and click <confirm> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_EN  "Heat completed,please click <confirm> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_EN         "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,click <confirm> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,click <confirm> for return!"
-#endif
-
 
 #define FILAMENT_CHANGE_TEXT_EN                 "Please click <Load> \nor <unload>,After \npinter pause."
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_EN       "Heating up the nozzle,\nplease wait..."
@@ -414,16 +401,11 @@
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
 
-
 #define PRE_HEAT_EXT_TEXT_EN            "E"
 #define PRE_HEAT_BED_TEXT_EN            "Bed"
 
 #define FILE_LOADING_EN                 "Loading......"
-#if 0
-  #define NO_FILE_AND_CHECK_EN          "No files found!Please insert SD card or U disk!"
-#else
-  #define NO_FILE_AND_CHECK_EN          "  No files found!\n            Check the file system configuration!"
-#endif
+#define NO_FILE_AND_CHECK_EN          "  No files found!\n            Check the file system configuration!"
 
 #define NO_FILE_EN                          "No files found!"
 
@@ -491,7 +473,6 @@
 #define DIALOG_RETRY_EN                     "Retry"
 #define DIALOG_STOP_EN                      "Stop"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_EN   "Reprint from breakpoint?"
-//#define DIALOG_UNBIND_PRINTER_EN          "Unbind the printer?"
 #define DIALOG_ERROR_TIPS1_EN               "Error:no file,please check it again."
 #define DIALOG_ERROR_TIPS2_EN               "Error:transaction failed.please check display baudrate \nwhether as the same as mainboard!"
 #define DIALOG_ERROR_TIPS3_EN               "Error:file name or path is too long!"
@@ -559,6 +540,7 @@
 #define USB_DRIVE_BACK_EN                 "< Back"
 #define FILE_PAGES_EN                     "%d/%d"
 #define FILE_NEXT_PAGE_EN                 "Next Page"
+#define MEDIA_SELECT_TITLE_EN             "Select Media"
 
 //BUILD PLATE
 #define PLATE_TITLE_EN                    "Build Plate"
@@ -691,33 +673,15 @@
 
 //manual ip
 #define MANUAL_IP_TITLE_EN          "Manual IP"
-#define MANUAL_IP_CANCEL_EN          "< Cancel"
+#define MANUAL_IP_CANCEL_EN         "< Cancel"
 #define MANUAL_IP_APPLY_EN          "Join >"
 #define MANUAL_IP_ADDRESS_EN        "IP Address"
 #define MANUAL_IP_MASK_EN           "Subnet Mask"
 #define MANUAL_IP_GATEWAY_EN        "Default Gateway"
 #define MANUAL_IP_SERVER_EN         "Name Server"
 #define MANUAL_IP_INIT_DATA_EN      "0.0.0.0"
-#define MANUAL_TEXT_POINT_EN         "."
+#define MANUAL_TEXT_POINT_EN        "."
 #define MANUAL_TEXT_ENTER_EN        "enter"
-
-//Wifi name
-//#define TEXT_WIFI_MENU_TITLE_EN "WI-FI"
-//#define TEXT_WIFI_SAPCE_EN  "space"
-//#define TEXT_WIFI_LETTER_EN  "abc"
-//#define TEXT_WIFI_DIGITAL_EN  "123"
-//#define TEXT_WIFI_SYMBOL_EN  "#+="
-//#define TEXT_WIFI_PASSWORD_EN "Password"
-
-//#define TEXT_WIFI_POINT_BOLD_EN "`"
-
-//#define TEXT_WIFI_JOINING_EN  "Joining\nNetwork..."
-//#define TEXT_WIFI_FAILED_JOIN_EN  "Failed to\nJoin Wi-Fi"
-//#define TEXT_WIFI_WIFI_CONECTED_EN "Wi-Fi\nConnected"
-
-//#define TEXT_BUTTON_DISCONECTED_EN "Disconnect"
-//#define TEXT_WIFI_FORGET_EN "Forget Network"
-//#define TEXT_DISCONECTED_EN "Wi-Fi Connected"
 
 #define TEXT_FORGET_TIPS_TITLE_EN "Forget Network"
 #define TEXT_FORGET_NETWORK_TIPS1_EN "Are you sure you want to\nforget this network?"
@@ -764,3 +728,10 @@
 #define EEPROM_STORE_TIPS_EN  "Store settings to EEPROM?"
 #define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
 #define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"
+
+#define MORE_CUSTOM1_TEXT_EN  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_EN  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_EN  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_EN  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_EN  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_EN  MAIN_MENU_ITEM_6_DESC

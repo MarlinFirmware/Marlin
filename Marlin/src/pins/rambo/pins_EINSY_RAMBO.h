@@ -25,9 +25,7 @@
  * Einsy-Rambo pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Einsy Rambo"
 
@@ -164,7 +162,7 @@
 
   #define KILL_PIN                            32
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS                     85
@@ -181,11 +179,16 @@
       #define LCD_PINS_D7                     71
       #define BTN_EN1                         14
       #define BTN_EN2                         72
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #define BTN_ENC                            9  // AUX-2
     #define BEEPER_PIN                        84  // AUX-4
     #define SD_DETECT_PIN                     15
 
-  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
+  #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD

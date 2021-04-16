@@ -32,9 +32,7 @@
  *           |
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RuRAMPS4Due v1.1"
 
@@ -202,7 +200,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if ANY(RADDS_DISPLAY, IS_RRD_SC, IS_RRD_FG_SC)
     #define BEEPER_PIN                        62
     #define LCD_PINS_D4                       48
     #define LCD_PINS_D5                       50
@@ -211,12 +209,12 @@
     #define SD_DETECT_PIN                     51
   #endif
 
-  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS                       63
     #define LCD_PINS_ENABLE                   64
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       52
     #define LCD_PINS_ENABLE                   53
@@ -265,10 +263,14 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                           44
     #define BTN_EN2                           42
     #define BTN_ENC                           40
+  #endif
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
 #endif // HAS_WIRED_LCD

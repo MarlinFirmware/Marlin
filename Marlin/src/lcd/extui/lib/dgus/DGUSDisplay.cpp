@@ -20,24 +20,20 @@
  *
  */
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
-
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_DGUS_LCD
 
 #if HOTENDS > 2
-  #error "More than 2 hotends not implemented on the Display UI design."
+  #warning "More than 2 hotends not implemented on DGUS Display UI."
 #endif
 
 #include "../../ui_api.h"
 
 #include "../../../../MarlinCore.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
-#include "../../../../sd/cardreader.h"
 #include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -47,6 +43,8 @@
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
+
+DGUSDisplay dgusdisplay;
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
 constexpr uint8_t DGUS_HEADER1 = 0x5A;
@@ -64,11 +62,15 @@ void DGUSDisplay::InitDisplay() {
     #define LCD_BAUDRATE 115200
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
-  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid()))
-    RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
+
+  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid())) {  // If no Power-Loss Recovery is needed...
+    TERN_(DGUS_LCD_UI_MKS, delay(LOGO_TIME_DELAY));     // Show the logo for a little while
+  }
+
+  RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
 }
 
-void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -84,12 +86,12 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
-  value = (value & 0xffU) << 8U | (value >> 8U);
+  value = (value & 0xFFU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, int16_t value) {
-  value = (value & 0xffU) << 8U | (value >> 8U);
+  value = (value & 0xFFU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 
@@ -101,18 +103,24 @@ void DGUSDisplay::WriteVariable(uint16_t adr, int8_t value) {
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(int8_t));
 }
 
+#if ENABLED(DGUS_LCD_UI_MKS)
+  void DGUSDisplay::MKS_WriteVariable(uint16_t adr, uint8_t value) {
+    WriteVariable(adr, static_cast<const void *>(&value), sizeof(uint8_t));
+  }
+#endif
+
 void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
-    union { long l; char lb[4]; } endian;
-    char tmp[4];
-    endian.l = value;
-    tmp[0] = endian.lb[3];
-    tmp[1] = endian.lb[2];
-    tmp[2] = endian.lb[1];
-    tmp[3] = endian.lb[0];
-    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
+  union { long l; char lb[4]; } endian;
+  char tmp[4];
+  endian.l = value;
+  tmp[0] = endian.lb[3];
+  tmp[1] = endian.lb[2];
+  tmp[2] = endian.lb[1];
+  tmp[3] = endian.lb[0];
+  WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
-void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   WriteHeader(adr, DGUS_CMD_WRITEVAR, valueslen);

@@ -25,9 +25,7 @@
  * MKS SGEN-L pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
@@ -189,7 +187,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -229,7 +227,7 @@
  *                _____                                            _____
  * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
  * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
- * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 0.9  (SD_MOSI)
+ * (LCD_D4) 0.15 | · ·   0.17 (LCD_D5)           (BTN_EN2)   3.26 | · ·   0.9  (SD_MOSI)
  * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
  *           GND | · · | 5V                                   GND | · · | NC
  *                -----                                            -----
@@ -248,6 +246,35 @@
 
     #define LCD_PINS_ENABLE                P1_22
     #define LCD_PINS_D4                    P0_17
+
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+    #define TFT_CS_PIN                     P1_00
+    #define TFT_A0_PIN                     P1_22
+    #define TFT_DC_PIN                     P1_22
+    #define TFT_MISO_PIN                   P0_08
+    #define TFT_BACKLIGHT_PIN              P0_18
+    #define TFT_RESET_PIN                  P0_16
+
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_INT_PIN                  P0_17
+    #define TOUCH_CS_PIN                   P0_15
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_RS                    -1
+
+    #ifndef TFT_BUFFER_SIZE
+      #define TFT_BUFFER_SIZE               1200
+    #endif
+    #ifndef TFT_QUEUE_SIZE
+      #define TFT_QUEUE_SIZE                6144
+    #endif
+
+    #define BTN_EN1                        P3_25
+    #define BTN_EN2                        P3_26
 
   #elif IS_TFTGLCD_PANEL
 
@@ -319,10 +346,15 @@
           #define DOGLCD_A0                P1_00
         #endif
 
-        #if ENABLED(ULTIPANEL)
+        #if IS_ULTIPANEL
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22
+
+          #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+            #define BTN_ENC_EN       LCD_PINS_D7  // Detect the presence of the encoder
+          #endif
+
         #endif
 
       #endif // !FYSETC_MINI_12864
@@ -341,13 +373,13 @@
 
 #if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
   #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN             ONBOARD_SD_CS_PIN
+    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #else
-    #define SS_PIN                         P0_28
+    #define SD_SS_PIN                      P0_28
   #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

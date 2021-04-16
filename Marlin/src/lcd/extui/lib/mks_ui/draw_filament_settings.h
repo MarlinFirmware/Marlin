@@ -25,8 +25,8 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_filament_settings(void);
-extern void lv_clear_filament_settings();
+void lv_draw_filament_settings();
+void lv_clear_filament_settings();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT SKR E3 Turbo"
 #endif
@@ -70,7 +72,9 @@
 #endif
 
 // LED driving pin
-#define NEOPIXEL_PIN                       P1_24
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                     P1_24
+#endif
 
 //
 // Power Loss Detection
@@ -161,7 +165,7 @@
 //
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
-//#define TEMP_2_PIN                       P1_30   // Onboard thermistor
+//#define TEMP_2_PIN                       P1_30  // Onboard thermistor
 #define TEMP_BED_PIN                       P0_25
 
 //
@@ -172,6 +176,10 @@
 #define HEATER_BED_PIN                     P2_05  // BED
 #define FAN_PIN                            P2_01
 #define FAN1_PIN                           P2_02
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN            FAN1_PIN
+#endif
 
 /**
  *                  _____
@@ -184,51 +192,51 @@
  *                   EXP
  */
 
-#define EXPA1_03_PIN                       P0_18
-#define EXPA1_04_PIN                       P0_17
-#define EXPA1_05_PIN                       P0_15
-#define EXPA1_06_PIN                       P0_20
-#define EXPA1_07_PIN                       -1
-#define EXPA1_08_PIN                       P0_19
-#define EXPA1_09_PIN                       P0_16
-#define EXPA1_10_PIN                       P2_08
+#define EXP1_03_PIN                        P0_18
+#define EXP1_04_PIN                        P0_17
+#define EXP1_05_PIN                        P0_15
+#define EXP1_06_PIN                        P0_20
+#define EXP1_07_PIN                        -1
+#define EXP1_08_PIN                        P0_19
+#define EXP1_09_PIN                        P0_16
+#define EXP1_10_PIN                        P2_08
 
 #if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define BEEPER_PIN              EXPA1_10_PIN
+    #define BEEPER_PIN               EXP1_10_PIN
 
-    #define BTN_EN1                 EXPA1_08_PIN
-    #define BTN_EN2                 EXPA1_06_PIN
-    #define BTN_ENC                 EXPA1_09_PIN
+    #define BTN_EN1                  EXP1_08_PIN
+    #define BTN_EN2                  EXP1_06_PIN
+    #define BTN_ENC                  EXP1_09_PIN
 
-    #define LCD_PINS_RS             EXPA1_04_PIN
-    #define LCD_PINS_ENABLE         EXPA1_03_PIN
-    #define LCD_PINS_D4             EXPA1_05_PIN
+    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_E3_TURBO.h' for details. Comment out this line to continue."
 
-    #define LCD_PINS_RS             EXPA1_05_PIN
-    #define LCD_PINS_ENABLE         EXPA1_09_PIN
-    #define LCD_PINS_D4             EXPA1_04_PIN
-    #define LCD_PINS_D5             EXPA1_06_PIN
-    #define LCD_PINS_D6             EXPA1_08_PIN
-    #define LCD_PINS_D7             EXPA1_10_PIN
+    #define LCD_PINS_RS              EXP1_05_PIN
+    #define LCD_PINS_ENABLE          EXP1_09_PIN
+    #define LCD_PINS_D4              EXP1_04_PIN
+    #define LCD_PINS_D5              EXP1_06_PIN
+    #define LCD_PINS_D6              EXP1_08_PIN
+    #define LCD_PINS_D7              EXP1_10_PIN
     #define ADC_KEYPAD_PIN                 P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    #define BTN_EN1                 EXPA1_08_PIN
-    #define BTN_EN2                 EXPA1_06_PIN
-    #define BTN_ENC                 EXPA1_09_PIN
+    #define BTN_EN1                  EXP1_08_PIN
+    #define BTN_EN2                  EXP1_06_PIN
+    #define BTN_ENC                  EXP1_09_PIN
 
-    #define DOGLCD_CS               EXPA1_04_PIN
-    #define DOGLCD_A0               EXPA1_05_PIN
-    #define DOGLCD_SCK              EXPA1_10_PIN
-    #define DOGLCD_MOSI             EXPA1_03_PIN
+    #define DOGLCD_CS                EXP1_04_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_10_PIN
+    #define DOGLCD_MOSI              EXP1_03_PIN
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN              -1
 
@@ -249,10 +257,10 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                    P2_00
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN                           P0_06
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define SD_SS_PIN                        P0_06
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR E3 Turbo."
 #endif

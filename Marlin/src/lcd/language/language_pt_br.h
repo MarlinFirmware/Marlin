@@ -51,7 +51,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Config. Avançada");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuração");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Início automático");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Início automático");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Desabilit. motores");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu Debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Testar Barra Progres");
@@ -103,7 +103,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comando customizado");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comando customizado");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Teste de sonda");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Ponto");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
@@ -214,7 +214,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Mover Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Mover Extrusor *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Extrus. mto fria");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
@@ -259,7 +259,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Extrusão em mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Extrusão em mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diâmetro Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diâmetro Fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Descarr. mm");
@@ -478,4 +478,11 @@ namespace Language_pt_br {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Clique p. finalizar"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Continuando..."));
   #endif
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Superior Esquerdo");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Inferior Esquerdo");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Superior Direto");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Inferior Direto");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibração Completa");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibração Falhou");
 }

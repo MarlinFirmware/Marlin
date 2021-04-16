@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, CALIBRATION_GCODE)
-
 #include "screens.h"
+
+#ifdef FTDI_CONFIRM_AUTO_CALIBRATION_DIALOG_BOX
 
 using namespace ExtUI;
 using namespace Theme;
@@ -45,4 +44,4 @@ bool ConfirmAutoCalibrationDialogBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_CONFIRM_AUTO_CALIBRATION_DIALOG_BOX
