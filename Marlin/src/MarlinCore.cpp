@@ -210,9 +210,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD)
-  #include "module/tool_change.h"
-#endif
+#include "module/tool_change.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
@@ -730,6 +728,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
+
+  // TODO: Still causing errors
+  (void)check_tool_sensor_stats(active_extruder, true);
 
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
