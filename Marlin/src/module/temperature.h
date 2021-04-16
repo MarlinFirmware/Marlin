@@ -117,8 +117,8 @@ struct NoPID {
   virtual float getKf() const { return 0; } virtual void setKf(float) {}
   void unscaleTo(PIDVec & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
   void unscaleTo(PIDVecL & o) const { unscaleTo((PIDVec&)o); o.Kc = getKc(); o.Kf = getKf(); }
-  void scaleFrom(PIDVec & o)        { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
-  void scaleFrom(PIDVecL & o)       { scaleFrom((PIDVec&)o); setKc(o.Kc); setKf(o.Kf); }
+  void scaleFrom(const PIDVec & o)  { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
+  void scaleFrom(const PIDVecL & o) { scaleFrom((PIDVec&)o); setKc(o.Kc); setKf(o.Kf); }
   virtual ~NoPID() {}
 };
 #define ACCESSOR(X) float get##X() const { return X; } void set##X(float v) { X = v; }
@@ -533,19 +533,19 @@ struct Temperature {
     #endif
 
     #if HAS_HOTEND
-      FORCE_INLINE static celsius_t analog_to_celsius_hotend(const int raw, const uint8_t e){ return get_heater(HotEndPos0 + e).analog_to_celsius(raw); }
+      static celsius_t analog_to_celsius_hotend(const int raw, const uint8_t e){ return get_heater(HotEndPos0 + e).analog_to_celsius(raw); }
     #endif
     #if HAS_TEMP_PROBE
-      FORCE_INLINE static celsius_t analog_to_celsius_probe(const int raw)                  { return get_heater(TempProbePos).analog_to_celsius(raw); }
+      static celsius_t analog_to_celsius_probe(const int raw)                  { return get_heater(TempProbePos).analog_to_celsius(raw); }
     #endif
     #if HAS_HEATED_BED
-      FORCE_INLINE static celsius_t analog_to_celsius_bed(const int raw)                    { return get_heater(HeatedBedPos).analog_to_celsius(raw); }
+      static celsius_t analog_to_celsius_bed(const int raw)                    { return get_heater(HeatedBedPos).analog_to_celsius(raw); }
     #endif
     #if HAS_TEMP_CHAMBER
-      FORCE_INLINE static celsius_t analog_to_celsius_chamber(const int raw)                { return get_heater(HeatedChamberPos).analog_to_celsius(raw); }
+      static celsius_t analog_to_celsius_chamber(const int raw)                { return get_heater(HeatedChamberPos).analog_to_celsius(raw); }
     #endif
     #if HAS_TEMP_COOLER
-      FORCE_INLINE static celsius_t analog_to_celsius_cooler(const int raw)                 { return get_heater(CoolerPos).analog_to_celsius(raw); }
+      static celsius_t analog_to_celsius_cooler(const int raw)                 { return get_heater(CoolerPos).analog_to_celsius(raw); }
     #endif
 
     #if HAS_FAN
@@ -692,7 +692,7 @@ struct Temperature {
 
       static void setTargetBed(const celsius_t celsius) {
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
-        get_heater(HeatedBedPos).set_target(_MIN(celsius, BED_MAX_TARGET));
+        get_heater(HeatedBedPos).set_target(_MIN(celsius, celsius_t(BED_MAX_TARGET)));
         start_watching_bed();
       }
 

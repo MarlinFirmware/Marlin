@@ -447,28 +447,28 @@ static Analog2Celsius convertionTable[] = {
 
   #if HAS_TEMP_PROBE
     TERN(TEMP_SENSOR_PROBE_IS_CUSTOM, UserThermistor<CTI_PROBE>{},
-      TERN(TEMP_SENSOR_PROBE_IS_THERMISTOR, ThermistorTable{TEMPTABLE_PROBE, TEMPTABLE_PROBE_LEN},
+      TERN(TEMP_SENSOR_PROBE_IS_THERMISTOR, (ThermistorTable{TEMPTABLE_PROBE, TEMPTABLE_PROBE_LEN}),
         TERN(TEMP_SENSOR_PROBE_IS_AD595, A2C<AD595>{},
           TERN0(TEMP_SENSOR_PROBE_IS_AD8495, A2C<AD8495>{})))),
   #endif
 
   #if HAS_HEATED_BED
     TERN(TEMP_SENSOR_BED_IS_CUSTOM, UserThermistor<CTI_BED>{},
-      TERN(TEMP_SENSOR_BED_IS_THERMISTOR, ThermistorTable{TEMPTABLE_BED, TEMPTABLE_BED_LEN},
+      TERN(TEMP_SENSOR_BED_IS_THERMISTOR, (ThermistorTable{TEMPTABLE_BED, TEMPTABLE_BED_LEN}),
         TERN(TEMP_SENSOR_BED_IS_AD595, A2C<AD595>{},
           TERN0(TEMP_SENSOR_BED_IS_AD8495, A2C<AD8495>{})))),
   #endif
 
   #if HAS_TEMP_CHAMBER
     TERN(TEMP_SENSOR_CHAMBER_IS_CUSTOM, UserThermistor<CTI_CHAMBER>{},
-      TERN(TEMP_SENSOR_CHAMBER_IS_THERMISTOR, ThermistorTable{TEMPTABLE_CHAMBER, TEMPTABLE_CHAMBER_LEN},
+      TERN(TEMP_SENSOR_CHAMBER_IS_THERMISTOR, (ThermistorTable{TEMPTABLE_CHAMBER, TEMPTABLE_CHAMBER_LEN}),
         TERN(TEMP_SENSOR_CHAMBER_IS_AD595, A2C<AD595>{},
           TERN0(TEMP_SENSOR_CHAMBER_IS_AD8495, A2C<AD8495>{}))))(),
   #endif
 
   #if HAS_TEMP_COOLER
     TERN(TEMP_SENSOR_COOLER_IS_CUSTOM, UserThermistor<CTI_COOLER>{},
-      TERN(TEMP_SENSOR_COOLER_IS_THERMISTOR, ThermistorTable{TEMPTABLE_COOLER, TEMPTABLE_COOLER_LEN},
+      TERN(TEMP_SENSOR_COOLER_IS_THERMISTOR, (ThermistorTable{TEMPTABLE_COOLER, TEMPTABLE_COOLER_LEN}),
         TERN(TEMP_SENSOR_COOLER_IS_AD595, A2C<AD595>{},
           TERN0(TEMP_SENSOR_COOLER_IS_AD8495, A2C<AD8495>{})))),
   #endif
@@ -843,37 +843,28 @@ celsius_t Heater::analog_to_celsius(const int raw) { return convertionTable[heat
 
 
 #if HAS_HEATED_BED
-  bed_info_t Temperature::temp_bed; // = { 0 }
   // Init min and max temp with extreme values to prevent false errors during startup
   int16_t Temperature::mintemp_raw_BED = TEMP_SENSOR_BED_RAW_LO_TEMP,
           Temperature::maxtemp_raw_BED = TEMP_SENSOR_BED_RAW_HI_TEMP;
-  TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
 #endif
 
 #if HAS_TEMP_CHAMBER
-  chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
     millis_t next_cool_check_ms_2 = 0;
     float old_temp = 9999;
     int16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
             Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
-    TERN_(WATCH_CHAMBER, chamber_watch_t Temperature::watch_chamber{0});
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
   #endif
 #endif
 
 #if HAS_TEMP_COOLER
-  cooler_info_t Temperature::temp_cooler; // = { 0 }
   #if HAS_COOLER
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
-    float previous_temp = 9999;
     int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP,
             Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
-    #if WATCH_COOLER
-      cooler_watch_t Temperature::watch_cooler{0};
-    #endif
     millis_t Temperature::next_cooler_check_ms, Temperature::cooler_fan_flush_ms;
   #endif
 #endif
@@ -999,10 +990,10 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
       if (false
         #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
-          || (heater.id == H_CHAMBER && desired_target > celsius_t(CHAMBER_MAX_TARGET))
+          || (heater.id == H_CHAMBER && target > celsius_t(CHAMBER_MAX_TARGET))
         #endif
         #if BOTH(THERMAL_PROTECTION_BED, PIDTEMPBED)
-          || (heater.id == H_BED && desired_target > celsius_t(BED_MAX_TARGET))
+          || (heater.id == H_BED && target > celsius_t(BED_MAX_TARGET))
         #endif
           || (target > temp_range[heater_id].maxtemp - celsius_t(HOTEND_OVERSHOOT))) {
         SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
@@ -2899,10 +2890,18 @@ void Temperature::tick() {
   // Must follow heaters' declaration here to allow looping
   static SoftPWM soft_pwms[] = {
     LIST_N(HOTENDS, {0}),
-    TERN_(HAS_TEMP_PROBE, ({0},)) // Useless but we must keep the heaters' declaration here
-    TERN_(HAS_HEATED_BED, ({0},))
-    TERN_(HAS_HEATED_CHAMBER, ({0},))
-    TERN_(HAS_COOLER, ({0},))
+    #if HAS_TEMP_PROBE
+      {}, // Useless but we must keep the heaters' declaration here
+    #endif
+    #if HAS_HEATED_BED
+      {},
+    #endif
+    #if HAS_HEATED_CHAMBER
+      {},
+    #endif
+    #if HAS_COOLER
+      {},
+    #endif
   };
 
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)

@@ -35,14 +35,14 @@
  *  D<dval> - Set the D value
  */
 void GcodeSuite::M304() {
+  PIDVec pid;
+  thermalManager.get_heater(HeatedBedPos).pid.unscaleTo(pid);
+  if (parser.seen('P')) pid.Kp = parser.value_float();
+  if (parser.seen('I')) pid.Ki = parser.value_float();
+  if (parser.seen('D')) pid.Kd = parser.value_float();
+  thermalManager.get_heater(HeatedBedPos).pid.scaleFrom(pid);
 
-  if (parser.seen('P')) thermalManager.temp_bed.pid.Kp = parser.value_float();
-  if (parser.seen('I')) thermalManager.temp_bed.pid.Ki = scalePID_i(parser.value_float());
-  if (parser.seen('D')) thermalManager.temp_bed.pid.Kd = scalePID_d(parser.value_float());
-
-  SERIAL_ECHO_MSG(" p:", thermalManager.temp_bed.pid.Kp,
-                  " i:", unscalePID_i(thermalManager.temp_bed.pid.Ki),
-                  " d:", unscalePID_d(thermalManager.temp_bed.pid.Kd));
+  SERIAL_ECHO_MSG(" p:", pid.Kp, " i:", pid.Ki, " d:", pid.Kd);
 
 }
 
