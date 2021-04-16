@@ -204,7 +204,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
                 y = r  * sin(RADIANS(a)),
                 rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
 
-    cartes = robot_offset + xyz_pos_t({ x, y, SQRT(rho2 - x * x - y * y) });
+    cartes = robot_offset + xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) });
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
