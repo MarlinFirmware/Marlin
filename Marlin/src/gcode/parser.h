@@ -364,7 +364,7 @@ public:
     #endif // HAS_LCD_MENU && !DISABLE_M503
 
     static inline celsius_t value_celsius() {
-      float f = value_float();
+      const float f = value_float();
       switch (input_temp_units) {
         default:
         case TEMPUNIT_C: return celsius_t(f);
@@ -374,7 +374,7 @@ public:
     }
 
     static inline celsius_t value_celsius_diff() {
-      float f = value_float();
+      const float f = value_float();
       switch (input_temp_units) {
         default:
         case TEMPUNIT_C:
