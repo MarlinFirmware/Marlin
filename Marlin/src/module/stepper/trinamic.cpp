@@ -45,7 +45,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 // SWHW = SW/SH UART selection
 
 #if ENABLED(USE_VREF_FOR_SCALING) 
-  #define TMC_EFFECTIVE_RSENSE(ST) (2.5 / ST##_VREF) * (ST##_RSENSE + 0.02) - 0.02
+  #define TMC_EFFECTIVE_RSENSE(ST) (2.5 * RECIPROCAL(ST##_VREF)) * (ST##_RSENSE + 0.02) - 0.02
 #else
   #define TMC_EFFECTIVE_RSENSE(ST) ST##_RSENSE
 #endif
