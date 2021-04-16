@@ -72,20 +72,23 @@ void MKS_reset_settings() {
 }
 
 xyz_pos_t position_before_pause;
+constexpr feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FEEDRATE, 100),
+                     park_speed_z  = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_Z_FEEDRATE,    5);
+
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
   destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
-  prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+  prepare_internal_move_to_destination(park_speed_z);
   destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
-  prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+  prepare_internal_move_to_destination(park_speed_xy);
 }
 
 void MKS_resume_print_move() {
   destination.set(position_before_pause.x, position_before_pause.y);
-  prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+  prepare_internal_move_to_destination(park_speed_xy);
   destination.z = position_before_pause.z;
-  prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+  prepare_internal_move_to_destination(park_speed_z);
 }
 
 float z_offset_add = 0;
