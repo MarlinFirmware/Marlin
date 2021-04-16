@@ -642,11 +642,14 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < TEXT_MODE_LCD_WIDTH) {
-        write_byte('.');                        // Always at 1+ spaces left, draw a dot
-        uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen;       // Amount of space left in characters
-        if (--chars) {                          // Draw a second dot if there's space
-          write_byte('.');
-          if (--chars) write_str(str, chars);   // Print a second copy of the message
+        uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen; // Amount of space left in characters
+        write_byte(' ');                        // Always at 1+ spaces left, draw a space
+        if (--chars) {                          // Draw a second space if there's room
+          write_byte(' ');
+          if (--chars) {                        // Draw a third space if there's room
+            write_byte(' ');
+            if (--chars) write_str(str, chars); // Print a second copy of the message
+          }
         }
       }
       ui.advance_status_scroll();
