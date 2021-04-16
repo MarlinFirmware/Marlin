@@ -461,10 +461,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       #endif
 
       if (check_tool_sensor_stats(0)) {
-        std::string status = "TC ERROR " + std::bitset<8>(poll_tool_sensor_pins()).to_string();
-        ui.set_status_P(status.c_str());
+        ui.set_status_P("TC error");
         switching_toolhead_lock(false);
-        do { /* nada */ } while (check_tool_sensor_stats(0));
+        while (check_tool_sensor_stats(0)) { /* nada */ }
         switching_toolhead_lock(true);
       }
       ui.set_status_P("TC Success");
