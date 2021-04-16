@@ -32,36 +32,36 @@
   #include "MarlinSerial_AGCM4.h"
 
   // Serial ports
-  typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-  typedef ForwardSerial0Type< decltype(Serial1) > DefaultSerial1;
-  typedef ForwardSerial0Type< decltype(Serial2) > DefaultSerial2;
-  typedef ForwardSerial0Type< decltype(Serial3) > DefaultSerial3;
-  typedef ForwardSerial0Type< decltype(Serial4) > DefaultSerial4;
-  extern DefaultSerial MSerial;
-  extern DefaultSerial1 MSerial1;
-  extern DefaultSerial2 MSerial2;
-  extern DefaultSerial3 MSerial3;
-  extern DefaultSerial4 MSerial4;
+  typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+  typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
+  typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
+  typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial4;
+  typedef ForwardSerial1Class< decltype(Serial4) > DefaultSerial5;
+  extern DefaultSerial1 MSerial0;
+  extern DefaultSerial2 MSerial1;
+  extern DefaultSerial3 MSerial2;
+  extern DefaultSerial4 MSerial3;
+  extern DefaultSerial5 MSerial4;
 
-  // MYSERIAL0 required before MarlinSerial includes!
+  // MYSERIAL1 required before MarlinSerial includes!
 
   #define __MSERIAL(X) MSerial##X
   #define _MSERIAL(X) __MSERIAL(X)
   #define MSERIAL(X) _MSERIAL(INCREMENT(X))
 
   #if SERIAL_PORT == -1
-    #define MYSERIAL0 MSerial
+    #define MYSERIAL1 MSerial0
   #elif WITHIN(SERIAL_PORT, 0, 3)
-    #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT)
   #else
     #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 
   #ifdef SERIAL_PORT_2
     #if SERIAL_PORT_2 == -1
-      #define MYSERIAL1 MSerial
+      #define MYSERIAL2 MSerial0
     #elif WITHIN(SERIAL_PORT_2, 0, 3)
-      #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+      #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
     #else
       #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
     #endif
@@ -69,7 +69,7 @@
 
   #ifdef MMU2_SERIAL_PORT
     #if MMU2_SERIAL_PORT == -1
-      #define MMU2_SERIAL MSerial
+      #define MMU2_SERIAL MSerial0
     #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
       #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
     #else
@@ -79,7 +79,7 @@
 
   #ifdef LCD_SERIAL_PORT
     #if LCD_SERIAL_PORT == -1
-      #define LCD_SERIAL MSerial
+      #define LCD_SERIAL MSerial0
     #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
       #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
     #else

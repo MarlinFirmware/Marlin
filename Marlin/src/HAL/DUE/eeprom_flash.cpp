@@ -135,11 +135,11 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
 #define DEBUG_OUT ENABLED(EE_EMU_DEBUG)
 #include "../../core/debug_out.h"
 
-static void ee_Dump(const int page, const void* data) {
+static void ee_Dump(const int page, const void *data) {
 
   #ifdef EE_EMU_DEBUG
 
-    const uint8_t* c = (const uint8_t*) data;
+    const uint8_t *c = (const uint8_t*) data;
     char buffer[80];
 
     sprintf_P(buffer, PSTR("Page: %d (0x%04x)\n"), page, page);
@@ -181,7 +181,7 @@ static void ee_Dump(const int page, const void* data) {
  * @param data    (pointer to the data buffer)
  */
 __attribute__ ((long_call, section (".ramfunc")))
-static bool ee_PageWrite(uint16_t page, const void* data) {
+static bool ee_PageWrite(uint16_t page, const void *data) {
 
   uint16_t i;
   uint32_t addrflash = uint32_t(getFlashStorage(page));
@@ -293,8 +293,8 @@ static bool ee_PageWrite(uint16_t page, const void* data) {
       ee_Dump(-page, data);
 
       // Calculate count of changed bits
-      uint32_t* p1 = (uint32_t*)addrflash;
-      uint32_t* p2 = (uint32_t*)data;
+      uint32_t *p1 = (uint32_t*)addrflash;
+      uint32_t *p2 = (uint32_t*)data;
       int count = 0;
       for (i =0; i<PageSize >> 2; i++) {
         if (p1[i] != p2[i]) {
@@ -470,7 +470,7 @@ static uint8_t ee_Read(uint32_t address, bool excludeRAMBuffer=false) {
   for (int page = curPage - 1; page >= 0; --page) {
 
     // Get a pointer to the flash page
-    uint8_t* pflash = (uint8_t*)getFlashStorage(page + curGroup * PagesPerGroup);
+    uint8_t *pflash = (uint8_t*)getFlashStorage(page + curGroup * PagesPerGroup);
 
     uint16_t i = 0;
     while (i <= (PageSize - 4)) { /* (PageSize - 4) because otherwise, there is not enough room for data and headers */
@@ -550,7 +550,7 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer=false) {
   for (int page = curPage - 1; page >= 0; --page) {
 
     // Get a pointer to the flash page
-    uint8_t* pflash = (uint8_t*)getFlashStorage(page + curGroup * PagesPerGroup);
+    uint8_t *pflash = (uint8_t*)getFlashStorage(page + curGroup * PagesPerGroup);
 
     uint16_t i = 0;
     while (i <= (PageSize - 4)) { /* (PageSize - 4) because otherwise, there is not enough room for data and headers */
@@ -589,7 +589,7 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer=false) {
 }
 
 static bool ee_IsPageClean(int page) {
-  uint32_t* pflash = (uint32_t*) getFlashStorage(page);
+  uint32_t *pflash = (uint32_t*) getFlashStorage(page);
   for (uint16_t i = 0; i < (PageSize >> 2); ++i)
     if (*pflash++ != 0xFFFFFFFF) return false;
   return true;
@@ -599,7 +599,7 @@ static bool ee_Flush(uint32_t overrideAddress = 0xFFFFFFFF, uint8_t overrideData
 
   // Check if RAM buffer has something to be written
   bool isEmpty = true;
-  uint32_t* p = (uint32_t*) &buffer[0];
+  uint32_t *p = (uint32_t*) &buffer[0];
   for (uint16_t j = 0; j < (PageSize >> 2); j++) {
     if (*p++ != 0xFFFFFFFF) {
       isEmpty = false;
@@ -976,14 +976,13 @@ bool PersistentStore::access_start()  { ee_Init();  return true; }
 bool PersistentStore::access_finish() { ee_Flush(); return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+  uint16_t written = 0;
   while (size--) {
     uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
-    // EEPROM has only ~100,000 write cycles,
-    // so only write bytes that have changed!
-    if (v != ee_Read(uint32_t(p))) {
+    if (v != ee_Read(uint32_t(p))) { // EEPROM has only ~100,000 write cycles, so only write bytes that have changed!
       ee_Write(uint32_t(p), v);
-      delay(2);
+      if (++written & 0x7F) delay(2); else safe_delay(2); // Avoid triggering watchdog during long EEPROM writes
       if (ee_Read(uint32_t(p)) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;

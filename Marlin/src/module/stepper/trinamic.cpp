@@ -158,7 +158,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -196,7 +196,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -517,7 +517,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -559,7 +559,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(0b111); // Clear
     delay(200);
@@ -617,7 +617,7 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ampl = 180;
     st.PWMCONF(pwmconf.sr);
 
-    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
 
     st.GSTAT(); // Clear GSTAT
   }
@@ -655,11 +655,8 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    st.set_pwm_thrs(TERN0(HYBRID_THRESHOLD, hyb_thrs)); UNUSED(hyb_thrs);
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5160
@@ -830,11 +827,11 @@ void reset_trinamic_drivers() {
   }
 
   constexpr bool sc_hw_done(size_t start, size_t end) { return start == end; }
-  constexpr bool sc_hw_skip(const char* port_name) { return !(*port_name); }
-  constexpr bool sc_hw_match(const char* port_name, uint32_t address, size_t start, size_t end) {
+  constexpr bool sc_hw_skip(const char *port_name) { return !(*port_name); }
+  constexpr bool sc_hw_match(const char *port_name, uint32_t address, size_t start, size_t end) {
     return !sc_hw_done(start, end) && !sc_hw_skip(port_name) && (address == sanity_tmc_hw_details[start].address && str_eq_ce(port_name, sanity_tmc_hw_details[start].port));
   }
-  constexpr int count_tmc_hw_serial_matches(const char* port_name, uint32_t address, size_t start, size_t end) {
+  constexpr int count_tmc_hw_serial_matches(const char *port_name, uint32_t address, size_t start, size_t end) {
     return sc_hw_done(start, end) ? 0 : ((sc_hw_skip(port_name) ? 0 : (sc_hw_match(port_name, address, start, end) ? 1 : 0)) + count_tmc_hw_serial_matches(port_name, address, start + 1, end));
   }
 

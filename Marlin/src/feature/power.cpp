@@ -61,6 +61,9 @@ bool Power::is_power_needed() {
   if (TERN0(AUTO_POWER_CHAMBER_FAN, thermalManager.chamberfan_speed))
     return true;
 
+  if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
+    return true;
+
   // If any of the drivers or the bed are enabled...
   if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
     #if HAS_X2_ENABLE
@@ -87,6 +90,10 @@ bool Power::is_power_needed() {
 
   #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
     if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
+  #endif
+
+  #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
+    if (thermalManager.degCooler() >= AUTO_POWER_COOLER_TEMP) return true;
   #endif
 
   return false;
