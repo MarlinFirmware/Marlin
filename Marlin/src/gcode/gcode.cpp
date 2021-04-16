@@ -289,7 +289,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
   #endif
 
-  // Handle a known G, M, or T
+  // Handle a known command or reply "unknown command"
 
   switch (parser.command_letter) {
 
