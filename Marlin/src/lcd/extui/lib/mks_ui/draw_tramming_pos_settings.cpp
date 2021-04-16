@@ -107,27 +107,27 @@ void lv_draw_tramming_pos_settings() {
   scr = lv_screen_create(MANUAL_LEVELING_POSIGION_UI, machine_menu.LevelingParaConfTitle);
 
   if (!uiCfg.para_ui_page) {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[0].x);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[0].y);
+    itoa(gCfgItems.trammingPos[0].x, public_buf_l, 10);
+    itoa(gCfgItems.trammingPos[0].y, buf2, 10);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position1, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y1, 0, buf2, ID_MANUAL_POS_X1, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[1].x);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[1].y);
+    itoa(gCfgItems.trammingPos[1].x, public_buf_l, 10);
+    itoa(gCfgItems.trammingPos[1].y, buf2, 10);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position2, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_MANUAL_POS_Y2, 1, buf2, ID_MANUAL_POS_X2, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[2].x);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[2].y);
+    itoa(gCfgItems.trammingPos[2].x, public_buf_l, 10);
+    itoa(gCfgItems.trammingPos[2].y, buf2, 10);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position3, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_MANUAL_POS_Y3, 2, buf2, ID_MANUAL_POS_X3, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[3].x);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[3].y);
+    itoa(gCfgItems.trammingPos[3].x, public_buf_l, 10);
+    itoa(gCfgItems.trammingPos[3].y, buf2, 10);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position4, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_MANUAL_POS_Y4, 3, buf2, ID_MANUAL_POS_X4, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_MANUAL_POS_DOWN, true);
   }
   else {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.trammingPos[4].x);
-    sprintf_P(buf2, PSTR("%d"), gCfgItems.trammingPos[4].y);
+    itoa(gCfgItems.trammingPos[4].x, public_buf_l, 10);
+    itoa(gCfgItems.trammingPos[4].y, buf2, 10);
     lv_screen_menu_item_2_edit(scr, leveling_menu.position4, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y5, 0, buf2, ID_MANUAL_POS_X5, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_MANUAL_POS_UP, true);

@@ -422,7 +422,7 @@ namespace ExtUI {
         #if AXIS_IS_TMC(Z2)
           case Z2: return stepperZ2.getMilliamps();
         #endif
-        default: return MFNAN;
+        default: return NAN;
       };
     }
 
@@ -452,7 +452,7 @@ namespace ExtUI {
         #if AXIS_IS_TMC(E7)
           case E7: return stepperE7.getMilliamps();
         #endif
-        default: return MFNAN;
+        default: return NAN;
       };
     }
 
