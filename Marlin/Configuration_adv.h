@@ -2199,6 +2199,12 @@
   #endif
 
   /**
+   * Tool Sensors detect when tools have been picked up or dropped.
+   * Requires the pins TOOL_SENSOR1_PIN, TOOL_SENSOR2_PIN, etc.
+   */
+  //#define TOOL_SENSOR
+
+  /**
    * Retract and prime filament on tool-change to reduce
    * ooze and stringing and to get cleaner transitions.
    */
@@ -2227,10 +2233,6 @@
     // Prime on the first T0 (If other, TOOLCHANGE_FS_INIT_BEFORE_SWAP applied)
     // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
     //#define TOOLCHANGE_FS_PRIME_FIRST_USED
-
-    // Enable if tools can sense when they're engaged or stowed.
-    // Requires the pins TOOL_SENSOR1_PIN, TOOL_SENSOR2_PIN, etc.
-    //#define TOOL_SENSOR
 
     /**
      * Tool Change Migration
