@@ -35,7 +35,7 @@
 extern bool wait_for_user, wait_for_heatup;
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
-  // motion.h cannot be included here
+  // From motion.h, which cannot be included here
   void report_current_position_moving();
   void quickpause_stepper();
   void quickresume_stepper();
