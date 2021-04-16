@@ -112,9 +112,6 @@
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
-#define MFNAN 999999.0f
-#define ISNAN(V) ((V) == MFNAN)
-
 // Macros to constrain values
 #ifdef __cplusplus
 

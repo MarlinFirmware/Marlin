@@ -229,7 +229,7 @@ void GcodeSuite::G34() {
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
           const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
-          if (ISNAN(z_probed_height)) {
+          if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
             err_break = true;

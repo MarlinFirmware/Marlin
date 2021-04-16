@@ -105,7 +105,7 @@ void GcodeSuite::G35() {
     do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, Z_CLEARANCE_BETWEEN_PROBES, 7));
     const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
-    if (ISNAN(z_probed_height)) {
+    if (isnan(z_probed_height)) {
       SERIAL_ECHOPAIR("G35 failed at point ", i, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
