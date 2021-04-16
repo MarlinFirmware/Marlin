@@ -2425,26 +2425,11 @@
    */
   #define INTERPOLATE      true
 
-  /**
-   * Use the VREF input voltage as reference for TMC22xx currents.
-   * Any voltage under 2.5V limits the maximum current the driver will deliver
-   * with this enabled, and gives higher resolution steps for current control
-   * from within Marlin.
-   * 
-   * If not enabled, the default reference of 2.5V within the driver is used.
-   */
-  #if HAS_I_SCALE_ANALOG
-    //#define USE_VREF_FOR_SCALING
-  #endif
-
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16        // 0..256
     #define X_RSENSE          0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(X)
-      #define X_VREF          2.5
-    #endif
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
   #endif
@@ -2454,9 +2439,6 @@
     #define X2_CURRENT_HOME X2_CURRENT
     #define X2_MICROSTEPS    X_MICROSTEPS
     #define X2_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(X2)
-      #define X2_VREF         2.5
-    #endif
     #define X2_CHAIN_POS     -1
     //#define X2_INTERPOLATE true
   #endif
@@ -2466,9 +2448,6 @@
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Y)
-      #define Y_VREF          2.5
-    #endif
     #define Y_CHAIN_POS      -1
     //#define Y_INTERPOLATE  true
   #endif
@@ -2478,9 +2457,6 @@
     #define Y2_CURRENT_HOME Y2_CURRENT
     #define Y2_MICROSTEPS    Y_MICROSTEPS
     #define Y2_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Y2)
-      #define Y2_VREF         2.5
-    #endif
     #define Y2_CHAIN_POS     -1
     //#define Y2_INTERPOLATE true
   #endif
@@ -2490,9 +2466,6 @@
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Z)
-      #define Z_VREF          2.5
-    #endif
     #define Z_CHAIN_POS      -1
     //#define Z_INTERPOLATE  true
   #endif
@@ -2502,9 +2475,6 @@
     #define Z2_CURRENT_HOME Z2_CURRENT
     #define Z2_MICROSTEPS    Z_MICROSTEPS
     #define Z2_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Z2)
-      #define Z2_VREF         2.5
-    #endif
     #define Z2_CHAIN_POS     -1
     //#define Z2_INTERPOLATE true
   #endif
@@ -2514,9 +2484,6 @@
     #define Z3_CURRENT_HOME Z3_CURRENT
     #define Z3_MICROSTEPS    Z_MICROSTEPS
     #define Z3_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Z3)
-      #define Z3_VREF         2.5
-    #endif
     #define Z3_CHAIN_POS     -1
     //#define Z3_INTERPOLATE true
   #endif
@@ -2526,9 +2493,6 @@
     #define Z4_CURRENT_HOME Z4_CURRENT
     #define Z4_MICROSTEPS    Z_MICROSTEPS
     #define Z4_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(Z4)
-      #define Z4_VREF         2.5
-    #endif
     #define Z4_CHAIN_POS     -1
     //#define Z4_INTERPOLATE true
   #endif
@@ -2537,9 +2501,6 @@
     #define E0_CURRENT      800
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E0)
-      #define E0_VREF         2.5
-    #endif
     #define E0_CHAIN_POS     -1
     //#define E0_INTERPOLATE true
   #endif
@@ -2548,9 +2509,6 @@
     #define E1_CURRENT      800
     #define E1_MICROSTEPS   E0_MICROSTEPS
     #define E1_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E1)
-      #define E1_VREF         2.5
-    #endif
     #define E1_CHAIN_POS     -1
     //#define E1_INTERPOLATE true
   #endif
@@ -2559,9 +2517,6 @@
     #define E2_CURRENT      800
     #define E2_MICROSTEPS   E0_MICROSTEPS
     #define E2_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E2)
-      #define E2_VREF         2.5
-    #endif
     #define E2_CHAIN_POS     -1
     //#define E2_INTERPOLATE true
   #endif
@@ -2570,9 +2525,6 @@
     #define E3_CURRENT      800
     #define E3_MICROSTEPS   E0_MICROSTEPS
     #define E3_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E3)
-      #define E3_VREF         2.5
-    #endif
     #define E3_CHAIN_POS     -1
     //#define E3_INTERPOLATE true
   #endif
@@ -2581,9 +2533,6 @@
     #define E4_CURRENT      800
     #define E4_MICROSTEPS   E0_MICROSTEPS
     #define E4_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E4)
-      #define E4_VREF         2.5
-    #endif
     #define E4_CHAIN_POS     -1
     //#define E4_INTERPOLATE true
   #endif
@@ -2592,9 +2541,6 @@
     #define E5_CURRENT      800
     #define E5_MICROSTEPS   E0_MICROSTEPS
     #define E5_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E5)
-      #define E5_VREF         2.5
-    #endif
     #define E5_CHAIN_POS     -1
     //#define E5_INTERPOLATE true
   #endif
@@ -2603,9 +2549,6 @@
     #define E6_CURRENT      800
     #define E6_MICROSTEPS   E0_MICROSTEPS
     #define E6_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E6)
-      #define E6_VREF         2.5
-    #endif
     #define E6_CHAIN_POS     -1
     //#define E6_INTERPOLATE true
   #endif
@@ -2614,9 +2557,6 @@
     #define E7_CURRENT      800
     #define E7_MICROSTEPS   E0_MICROSTEPS
     #define E7_RSENSE         0.11
-    #if AXIS_HAS_I_SCALE_ANALOG(E7)
-      #define E7_VREF         2.5
-    #endif
     #define E7_CHAIN_POS     -1
     //#define E7_INTERPOLATE true
   #endif
@@ -2687,6 +2627,39 @@
    * function through a communication line such as SPI or UART.
    */
   //#define SOFTWARE_DRIVER_ENABLE
+
+  /**
+   * VREF current scaling (TMC2208, TMC2209 only)
+   * 
+   * Use the VREF input voltage as reference for TMC22xx currents.
+   * Any voltage under 2.5V limits the maximum current the driver will deliver
+   * with this enabled, and gives higher resolution steps for current control
+   * from within Marlin.
+   * 
+   * If not enabled, the default reference of 2.5V within the driver is used.
+   */
+  #if HAS_I_SCALE_ANALOG
+    //#define USE_VREF_FOR_SCALING
+
+    #if ENABLED(USE_VREF_FOR_SCALING)
+      #define  X_VREF 2.5
+      #define  Y_VREF 2.5
+      #define  Z_VREF 2.5
+      #define X2_VREF 2.5
+      #define Y2_VREF 2.5
+      #define Z2_VREF 2.5
+      #define Z3_VREF 2.5
+      #define Z4_VREF 2.5
+      #define E0_VREF 2.5
+      #define E1_VREF 2.5
+      #define E2_VREF 2.5
+      #define E3_VREF 2.5
+      #define E4_VREF 2.5
+      #define E5_VREF 2.5
+      #define E6_VREF 2.5
+      #define E7_VREF 2.5
+    #endif
+  #endif
 
   /**
    * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
