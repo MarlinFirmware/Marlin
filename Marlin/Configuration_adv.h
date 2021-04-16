@@ -2115,6 +2115,15 @@
  */
 //#define EMERGENCY_PARSER
 
+/**
+ * Realtime Reporting
+ * Add support for commands S000 State, P000 Pause, and R000 Resume
+ */
+//#define REALTIME_REPORTING_COMMANDS
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+  //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
+#endif
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.

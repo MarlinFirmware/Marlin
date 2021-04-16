@@ -106,8 +106,10 @@ void GCodeParser::reset() {
 
 #endif
 
-// Populate all fields by parsing a single line of GCode
-// 58 bytes of SRAM are used to speed up seen/value
+/**
+ * Populate the command line state (command_letter, codenum, subcode, and string_arg)
+ * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
+ */
 void GCodeParser::parse(char *p) {
 
   reset(); // No codes to report
@@ -147,10 +149,12 @@ void GCodeParser::parse(char *p) {
     #define SIGNED_CODENUM 1
   #endif
 
-  // Bail if the letter is not G, M, or T
-  // (or a valid parameter for the current motion mode)
+  /**
+   * Screen for good command letters. G, M, and T are always accepted.
+   * With Motion Modes enabled any axis letter can come first.
+   * With Realtime Reporting, commands S000, P000, and R000 are allowed.
+   */
   switch (letter) {
-
     case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
@@ -226,6 +230,15 @@ void GCodeParser::parse(char *p) {
         p--; // Back up one character to use the current parameter
       break;
     #endif // GCODE_MOTION_MODES
+
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      case 'S': case 'P': case 'R': {
+        codenum = 0;                  // The only valid codenum is 0
+        uint8_t digits = 0;
+        while (*p++ == '0') digits++; // Count up '0' characters
+        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
+      } return;                       // No parameters, so return
+    #endif
 
     default: return;
   }
