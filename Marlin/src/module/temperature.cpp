@@ -56,6 +56,10 @@
   #include "../feature/host_actions.h"
 #endif
 
+#if HAS_TEMP_SENSOR
+  #include "../gcode/gcode.h"
+#endif
+
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
 #if LIB_USR_MAX31855
   #include <Adafruit_MAX31855.h>
@@ -255,6 +259,18 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   bool Temperature::adaptive_fan_slowing = true;
 #endif
 
+typedef
+  #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
+    PIDCF_t
+  #elif ENABLED(PID_EXTRUSION_SCALING)
+    PIDC_t
+  #elif ENABLED(PID_FAN_SCALING)
+    PIDF_t
+  #else
+    PID_t
+  #endif
+hotend_pid_t;
+
 #if WATCH_HOTENDS
   // Can it be terned with a comma ?
   #define WatchHE , celsius_t(WATCH_TEMP_INCREASE).raw(), WATCH_TEMP_PERIOD
@@ -265,10 +281,18 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 // The order of the declarations below must follow the heater_pos_t order
 static Heater heaters[] = {
   #if HAS_HOTEND
-    #define DeclareHotEnd(N) \
-      HeaterImpl<HEATER_## N ##_PIN, HEATER_## N ##_INVERTING, celsius_t(TEMP_HYSTERESIS).raw(), celsius_t(TEMP_WINDOW).raw(), celsius_t(MIN_COOLING_SLOPE_DEG).raw(), SEC_TO_MS(MIN_COOLING_SLOPE_TIME), SEC_TO_MS(TEMP_RESIDENCY_TIME), PIDMAX, TERN(PIDTEMP, hotend_pid_t, NoPID) WatchHE > (HotEndPos## N, H_E## N, HEATER_## N ##_MINTEMP, HEATER_## N ##_MAXTEMP)
+    #ifndef MIN_COOLING_SLOPE_DEG
+      #define MIN_COOLING_SLOPE_DEG 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME
+      #define MIN_COOLING_SLOPE_TIME 60
+    #endif
 
-    LIST_BY_HOTENDS(DeclareHotEnd(0), DeclareHotEnd(1), DeclareHotEnd(2), DeclareHotEnd(3), DeclareHotEnd(4), DeclareHotEnd(5), DeclareHotEnd(6), DeclareHotEnd(7)),
+
+    #define DeclareHotEnd(N) \
+      HeaterImpl<HEATER_## N ##_PIN, HEATER_## N ##_INVERTING, celsius_t(TEMP_HYSTERESIS).raw(), celsius_t(TEMP_WINDOW).raw(), celsius_t(MIN_COOLING_SLOPE_DEG).raw(), SEC_TO_MS(MIN_COOLING_SLOPE_TIME), SEC_TO_MS(TEMP_RESIDENCY_TIME), PID_MAX, TERN(PIDTEMP, hotend_pid_t, NoPID) WatchHE > (HotEndPos## N, H_E## N, HEATER_## N ##_MINTEMP, HEATER_## N ##_MAXTEMP)
+    // Parenthesis is required to avoid breaking on the comma when expanding the DeclareHotEnd macro
+    LIST_BY_HOTENDS((DeclareHotEnd(0)), (DeclareHotEnd(1)), (DeclareHotEnd(2)), (DeclareHotEnd(3)), (DeclareHotEnd(4)), (DeclareHotEnd(5)), (DeclareHotEnd(6)), (DeclareHotEnd(7))),
 
     #undef DeclareHotEnd
   #endif
@@ -349,9 +373,15 @@ struct Analog2Celsius {
 struct MaxTC0 {}; struct MaxTC1 {}; struct Quarter {}; struct AD595 {}; struct AD8495 {};
 
 template <typename Type> struct A2C: public Analog2Celsius { };
-template <uint8_t index> struct UserThermistor : public Analog2Celsius  { celsius_t get(int raw) { return user_thermistor_to_deg_c(index, raw); } };
-template<> struct A2C<MaxTC0>  : public Analog2Celsius  { celsius_t get(int raw) { return max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0); } };
-template<> struct A2C<MaxTC1>  : public Analog2Celsius  { celsius_t get(int raw) { return max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1); } };
+#if HAS_USER_THERMISTORS
+  template <uint8_t index> struct UserThermistor : public Analog2Celsius  { celsius_t get(int raw) { return Temperature::user_thermistor_to_deg_c(index, raw); } };
+#endif
+#if ENABLED(TEMP_SENSOR_0_IS_MAX31865)
+  template<> struct A2C<MaxTC0>  : public Analog2Celsius  { celsius_t get(int raw) { return max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0); } };
+#endif
+#if ENABLED(TEMP_SENSOR_1_IS_MAX31865)
+  template<> struct A2C<MaxTC1>  : public Analog2Celsius  { celsius_t get(int raw) { return max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1); } };
+#endif
 template<> struct A2C<Quarter> : public Analog2Celsius  { celsius_t get(int raw) { return raw * 0.25; } };
 #define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
 #define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
@@ -408,10 +438,10 @@ static Analog2Celsius convertionTable[] = {
   #if HAS_HOTEND
     #define DeclareA2CForHE(N)  \
       TERN(TEMP_SENSOR_## N ##_IS_CUSTOM, UserThermistor<CTI_HOTEND_## N>, \
-                    TERN(TEMP_SENSOR_## N ##_IS_MAX_TC, A2C<TERN(TEMP_SENSOR_## N ##_IS_MAX31865, MaxTC## N, Quarter)>, \
-                      TERN(TEMP_SENSOR_## N ##_IS_AD595, A2C<AD595>, \
-                        TERN(TEMP_SENSOR_## N ##_IS_AD8495, A2C<AD8495>, \
-                          TERN0(HAS_HOTEND_THERMISTOR, HEThermistorTable<N>))))()
+        TERN(TEMP_SENSOR_## N ##_IS_MAX_TC, A2C<TERN(TEMP_SENSOR_## N ##_IS_MAX31865, MaxTC## N, Quarter)>, \
+          TERN(TEMP_SENSOR_## N ##_IS_AD595, A2C<AD595>, \
+            TERN(TEMP_SENSOR_## N ##_IS_AD8495, A2C<AD8495>, \
+              TERN0(HAS_HOTEND_THERMISTOR, HEThermistorTable<N>)))))()
     LIST_BY_HOTENDS(DeclareA2CForHE(0), DeclareA2CForHE(1), DeclareA2CForHE(2), DeclareA2CForHE(3), DeclareA2CForHE(4), DeclareA2CForHE(5), DeclareA2CForHE(6), DeclareA2CForHE(7)),
   #endif
 
@@ -467,7 +497,7 @@ static Analog2Celsius convertionTable[] = {
   };
 #endif
 
-float Heater::get_pid_output(const float minPower, const float maxPower, const float bangMax = 0) {
+float Heater::get_pid_output(const float minPower, const float maxPower, const float bangMax) {
   const float bm = bangMax ? bangMax : maxPower;
   #if DISABLED(PIDTEMP)
       const bool is_idling = TERN0(HEATER_IDLE_HANDLER, timed_out);
@@ -614,7 +644,7 @@ bool Heater::wait_for_temperature(const uint8_t extruder, const bool no_wait_for
   #endif
 
   bool wants_to_cool = false;
-  celsius_t target_temp = -1.0f, old_temp = celsius_t::maxValue;
+  celsius_t target_temp = -1.0f, old_temp = maxCValue;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
   wait_for_heatup = true;
   do {
@@ -630,11 +660,11 @@ bool Heater::wait_for_temperature(const uint8_t extruder, const bool no_wait_for
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { // Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
-      print_heater_states(extruder);
+      Temperature::print_heater_states(extruder);
       if (residencyTime > 0) {
         SERIAL_ECHOPGM(" W:");
         if (residency_start_ms)
-          SERIAL_ECHO(long(residencyTime - (now - residency_start_ms)) / 1000UL));
+          SERIAL_ECHO(long(residencyTime - (now - residency_start_ms)) / 1000UL);
         else
           SERIAL_CHAR('?');
       }
@@ -950,7 +980,7 @@ volatile bool Temperature::raw_temps_ready = false;
     millis_t next_temp_ms = millis(), t1 = next_temp_ms, t2 = next_temp_ms;
     long t_high = 0, t_low = 0;
 
-    Serialization::PIDSS tune_pid; // Smaller
+    PIDVec tune_pid; // Smaller
     celsius_t maxT(0), minT(maxCValue);
 
     HEATER_LOOP() {
@@ -1083,8 +1113,8 @@ volatile bool Temperature::raw_temps_ready = false;
           next_temp_ms = ms + 2000UL;
 
           // Make sure heating is actually working
-          #if WATCH_PID
-            if (BOTH(WATCH_BED, WATCH_HOTENDS) || (heater.id == H_BED == DISABLED(WATCH_HOTENDS)) || heater.id == H_CHAMBER == DISABLED(WATCH_HOTENDS)) { // Yes this works, but it's not simple
+          #if HAS_WATCH_HEATER
+            if ((heater.id == H_BED && ENABLED(WATCH_BED)) || (heater.id == H_CHAMBER && ENABLED(WATCH_CHAMBER)) || (heater.id >= 0 && ENABLED(WATCH_HOTENDS))) {
               if (!heated) {                                            // If not yet reached target...
                 if (current_temp > next_watch_temp) {                   // Over the watch temp?
                   next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
@@ -1421,7 +1451,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 #endif
 
 #if HAS_HOTEND
-  float Temperature::get_pid_output_hotend(const uint8_t E_NAME) { return heaters[HotEndPos0 + E_NAME].get_pid_output(MIN_POWER, PID_MAX, BANG_MAX); }
+  float Temperature::get_pid_output_hotend(const uint8_t E_NAME) { return heaters[ HotEndPos0 + HOTEND_INDEX ].get_pid_output(MIN_POWER, PID_MAX, BANG_MAX); }
 
   void Temperature::setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
@@ -1946,7 +1976,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(TEMP_SENSOR_1_IS_MAX_TC, heaters[HotEndPos1].info.raw = READ_MAX_TC(1));
 
   for (int i = 0; i < HeatersCount; i++)
-    heaters[i].celsius = heaters[i].analog_to_celsius(heaters[i].info.raw);
+    heaters[i].info.celsius = heaters[i].analog_to_celsius(heaters[i].info.raw);
 
   TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
@@ -2315,51 +2345,6 @@ void Temperature::init() {
   TERN_(PROBING_HEATERS_OFF, paused = false);
 }
 
-#if WATCH_HOTENDS
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M104, M109)
-   */
-  void Temperature::start_watching_hotend(const uint8_t E_NAME) {
-    const uint8_t ee = HOTEND_INDEX;
-    get_heater(HotEndPos0 + ee).restart(degHotend(ee), degTargetHotend(ee));
-  }
-#endif
-
-#if WATCH_BED
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M140, M190)
-   */
-  void Temperature::start_watching_bed() {
-    watch_bed.restart(degBed(), degTargetBed());
-  }
-#endif
-
-#if WATCH_CHAMBER
-  /**
-   * Start Heating Sanity Check for chamber that is below
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M141, M191)
-   */
-  void Temperature::start_watching_chamber() {
-    watch_chamber.restart(degChamber(), degTargetChamber());
-  }
-#endif
-
-#if WATCH_COOLER
-  /**
-   * Start Cooling Sanity Check for cooler that is above
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M143, M193)
-   */
-  void Temperature::start_watching_cooler() {
-    watch_cooler.restart(degCooler(), degTargetCooler());
-  }
-#endif
-
 #if HAS_THERMAL_PROTECTION
 
   Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
@@ -2485,9 +2470,10 @@ void Temperature::disable_all_heaters() {
 
   bool Temperature::auto_job_over_threshold() {
     for (Heater & heater : heaters) {
-      celsius_t minTemp = (heater.id >= 0 ? celsius_t(EXTRUDE_MINTEMP / 2) : heater.minTemp;
+      celsius_t minTemp = heater.id >= 0 ? celsius_t(EXTRUDE_MINTEMP / 2) : heater.minTemp;
       if (heater.degTarget() > minTemp) return true;
     }
+    return false;
   }
 
   void Temperature::auto_job_check_timer(const bool can_start, const bool can_stop) {
@@ -2729,7 +2715,7 @@ static constexpr bool hasADC[] {
  * Update raw temperatures
  */
 void Temperature::update_raw_temperatures() {
-  for (int i = 0; i < COUNT(hasADC); i++) {
+  for (size_t i = 0; i < COUNT(hasADC); i++) {
     if (hasADC[i]) heaters[i].info.update();
   }
 
@@ -2911,12 +2897,12 @@ void Temperature::tick() {
   #endif
 
   // Must follow heaters' declaration here to allow looping
-  static SoftPWM soft_pwms[] {
-    TERN_(HAS_HOTEND, LIST_N(HOTENDS, {}),
-    TERN_(HAS_TEMP_PROBE, {}), // Useless but we must keep the heaters' declaration here
-    TERN_(HAS_HEATED_BED, {}),
-    TERN_(HAS_HEATED_CHAMBER, {}),
-    TERN_(HAS_COOLER, {}),
+  static SoftPWM soft_pwms[] = {
+    LIST_N(HOTENDS, {0}),
+    TERN_(HAS_TEMP_PROBE, ({0},)) // Useless but we must keep the heaters' declaration here
+    TERN_(HAS_HEATED_BED, ({0},))
+    TERN_(HAS_HEATED_CHAMBER, ({0},))
+    TERN_(HAS_COOLER, ({0},))
   };
 
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
@@ -2968,9 +2954,8 @@ void Temperature::tick() {
     }
     else {
       for (int i = 0; i < HeatersCount; i++)
-        if (soft_pwms[i].count <= pwm_count_tmp)
-          heaters[i].write(LOW);
-      }
+        if (soft_pwms[i].count <= pwm_count_tmp) heaters[i].write(LOW);
+
       // Ditto
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
@@ -3262,9 +3247,6 @@ void Temperature::tick() {
 }
 
 #if HAS_TEMP_SENSOR
-
-  #include "../gcode/gcode.h"
-
   static void print_heater_state(const celsius_t c, const celsius_t t
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
@@ -3389,14 +3371,6 @@ void Temperature::tick() {
   #endif
 
   #if HAS_TEMP_HOTEND
-
-    #ifndef MIN_COOLING_SLOPE_DEG
-      #define MIN_COOLING_SLOPE_DEG 1.50
-    #endif
-    #ifndef MIN_COOLING_SLOPE_TIME
-      #define MIN_COOLING_SLOPE_TIME 60
-    #endif
-
     bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/
       #if G26_CLICK_CAN_CANCEL
         , const bool click_to_cancel/*=false*/

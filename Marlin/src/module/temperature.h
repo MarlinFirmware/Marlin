@@ -105,11 +105,9 @@ enum ADCSensorState : char {
 
 
 // PID storage
-namespace Serialization {
-  // Used for serialization in settings.cpp only
-  struct PIDSS { float Kp, Ki, Kd; };
-  struct PIDSSL : public PIDSS { float Kc, Kf; };
-}
+// Used for serialization in settings.cpp only, made so it can be stored as-is via memcpy
+struct PIDVec { float Kp, Ki, Kd; };
+struct PIDVecL : public PIDVec { float Kc, Kf; };
 
 struct NoPID {
   virtual float getKp() const { return 0; } virtual void setKp(float) {}
@@ -117,10 +115,10 @@ struct NoPID {
   virtual float getKd() const { return 0; } virtual void setKd(float) {}
   virtual float getKc() const { return 0; } virtual void setKc(float) {}
   virtual float getKf() const { return 0; } virtual void setKf(float) {}
-  void unscaleTo(Serialization::PIDSS & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
-  void unscaleTo(Serialization::PIDSSL & o) const { unscaleTo((Serialization::PIDSS&)o); o.Kc = getKc(); o.Kf = getKf(); }
-  void scaleFrom(Serialization::PIDSS & o)        { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
-  void scaleFrom(Serialization::PIDSSL & o)       { scaleFrom((Serialization::PIDSS&)o); setKc(o.Kc); setKf(o.Kf); }
+  void unscaleTo(PIDVec & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
+  void unscaleTo(PIDVecL & o) const { unscaleTo((PIDVec&)o); o.Kc = getKc(); o.Kf = getKf(); }
+  void scaleFrom(PIDVec & o)        { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
+  void scaleFrom(PIDVecL & o)       { scaleFrom((PIDVec&)o); setKc(o.Kc); setKf(o.Kf); }
   virtual ~NoPID() {}
 };
 #define ACCESSOR(X) float get##X() const { return X; } void set##X(float v) { X = v; }
@@ -129,18 +127,6 @@ struct PIDC_t   : public PID_t   { float Kc = 1.0f;               ACCESSOR(Kc); 
 struct PIDF_t   : public PID_t   { float Kf = 0;                  ACCESSOR(Kf); };
 struct PIDCF_t  : public PIDF_t  { float Kc = 1.0f;               ACCESSOR(Kc); };
 #undef ACCESSOR
-
-typedef
-  #if BOTH(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-    PIDCF_t
-  #elif ENABLED(PID_EXTRUSION_SCALING)
-    PIDC_t
-  #elif ENABLED(PID_FAN_SCALING)
-    PIDF_t
-  #else
-    PID_t
-  #endif
-hotend_pid_t;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
@@ -201,13 +187,13 @@ struct Heater {
   // The heater information
   heater_info_t info;
   // The position of this heater in the heater's array
-  heater_pos_t heaterPos;
+  heater_pos_t  heaterPos;
   // The heater id
-  heater_id_t  id;
+  heater_id_t   id;
   // The heater pin
-  pin_t        pin;
+  pin_t         pin;
   // Inverting pin
-  bool         inverting;
+  bool          inverting;
 
   // HEATER SPECIFIC PARAMETERS BELOW
   // This heater defined hysteresis and window (set in the child class)
@@ -225,7 +211,7 @@ struct Heater {
   // Max PID power
   const uint8_t   maxPower;
   // The PID used
-  NoPID &   pid;
+  NoPID &         pid;
 
   inline bool temp_conditions(millis_t start, millis_t now, bool wants_to_cool) {
     if (residencyTime) return !start || PENDING(now, start + residencyTime);
@@ -239,6 +225,8 @@ struct Heater {
   inline celsius_t degTarget() { return info.target; }
   /** Get the maximum target temperature minus the (expected) overshoot */
   inline celsius_t maxTarget() const { return maxTemp - celsius_t(HOTEND_OVERSHOOT); }
+  /** Get the raw sensor value */
+  inline int16_t  raw() const { return info.raw; }
 
   #if ENABLED(SHOW_TEMP_ADC_VALUES)
     int16_t raw() { return info.raw; }
@@ -273,7 +261,7 @@ struct Heater {
 
   #if HAS_WATCH_HEATER
     celsius_t target;
-    millis_t next_ms;
+    millis_t  next_ms;
 
     celsius_t increase;
     int       period_ms;
@@ -649,11 +637,11 @@ struct Temperature {
 
     FORCE_INLINE static celsius_t degTargetHotend(const uint8_t E_NAME)  { return TERN0(HAS_HOTEND, get_heater(HotEndPos0 + HOTEND_INDEX).degTarget()); }
 
-    FORCE_INLINE static void start_watching_hotend(const uint8_t e = 0) { TERN_(HAS_HOTEND, get_heater(HotEndPos0 + e).start_watching()); }
+    FORCE_INLINE static void start_watching_hotend(const uint8_t E_NAME) { TERN_(HAS_HOTEND, get_heater(HotEndPos0 + HOTEND_INDEX).start_watching()); }
 
     #if HAS_HOTEND
 
-      static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) { return TERN0(HAS_HOTEND, get_heater(HotEndPos0 + HOTEND_INDEX).set_target(celsius)); }
+      static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME);
 
       FORCE_INLINE static bool isHeatingHotend(const uint8_t E_NAME) { return TERN0(HAS_HOTEND, get_heater(HotEndPos0 + HOTEND_INDEX).is_heating()); }
 
@@ -873,7 +861,7 @@ struct Temperature {
     static void checkExtruderAutoFans();
 
     #if ENABLED(HAS_HOTEND)
-      static float get_pid_output_hotend(const uint8_t e);
+      static float get_pid_output_hotend(const uint8_t E_NAME);
     #endif
     #if ENABLED(PIDTEMPBED)
       static float get_pid_output_bed();

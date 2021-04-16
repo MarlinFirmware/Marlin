@@ -2419,11 +2419,6 @@
  * Heater signal inversion defaults
  */
 
-struct HeaterPin {
-  pin_t pin;
-  bool  inverting;
-};
-
 #if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
   #define HEATER_0_INVERTING false
 #endif
@@ -2449,32 +2444,6 @@ struct HeaterPin {
   #define HEATER_7_INVERTING false
 #endif
 
-/**
- * Helper Macros for heaters and extruder fan
- */
-
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
-#if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
-  #if HOTENDS > 2
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
-    #if HOTENDS > 3
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
-      #if HOTENDS > 4
-        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
-        #if HOTENDS > 5
-          #define WRITE_HEATER_5(v) WRITE(HEATER_5_PIN, (v) ^ HEATER_5_INVERTING)
-          #if HOTENDS > 6
-            #define WRITE_HEATER_6(v) WRITE(HEATER_6_PIN, (v) ^ HEATER_6_INVERTING)
-            #if HOTENDS > 7
-              #define WRITE_HEATER_7(v) WRITE(HEATER_7_PIN, (v) ^ HEATER_7_INVERTING)
-            #endif // HOTENDS > 7
-          #endif // HOTENDS > 6
-        #endif // HOTENDS > 5
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#endif // HAS_MULTI_HOTEND || HEATERS_PARALLEL
 #if ENABLED(HEATERS_PARALLEL)
   #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
 #else
@@ -2498,7 +2467,6 @@ struct HeaterPin {
   #ifndef HEATER_BED_INVERTING
     #define HEATER_BED_INVERTING false
   #endif
-  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ HEATER_BED_INVERTING)
 #endif
 
 /**
@@ -2514,7 +2482,6 @@ struct HeaterPin {
   #ifndef HEATER_CHAMBER_INVERTING
     #define HEATER_CHAMBER_INVERTING false
   #endif
-  #define WRITE_HEATER_CHAMBER(v) WRITE(HEATER_CHAMBER_PIN, (v) ^ HEATER_CHAMBER_INVERTING)
 #endif
 
 /**
@@ -2527,7 +2494,6 @@ struct HeaterPin {
   #ifndef COOLER_INVERTING
     #define COOLER_INVERTING true
   #endif
-  #define WRITE_HEATER_COOLER(v) WRITE(COOLER_PIN, (v) ^ COOLER_INVERTING)
 #endif
 
 #if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER || HAS_COOLER

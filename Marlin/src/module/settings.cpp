@@ -898,7 +898,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        Serialization::PIDSSL pidcf; heater.pid.unscaleTo(pidcf);
+        PIDVecL pidcf; heater.pid.unscaleTo(pidcf);
         EEPROM_WRITE(pidcf);
       }
 
@@ -914,7 +914,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(bedPID);
-      Serialization::PIDSS bed_pid; thermalManager.get_heater(HeatedBedPos).pid.unscaleTo(bed_pid);
+      PIDVec bed_pid; thermalManager.get_heater(HeatedBedPos).pid.unscaleTo(bed_pid);
       EEPROM_WRITE(bed_pid);
     }
 
@@ -923,7 +923,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(chamberPID);
-      Serialization::PIDSS chambed_pid; thermalManager.get_heater(HeatedChamberPos).pid.unscaleTo(chamber_pid);
+      PIDVec chambed_pid; thermalManager.get_heater(HeatedChamberPos).pid.unscaleTo(chamber_pid);
       EEPROM_WRITE(chamber_pid);
     }
 
@@ -1752,7 +1752,7 @@ void MarlinSettings::postprocess() {
       //
       {
         HOTEND_LOOP() {
-          Serialization::PIDSSL pidcf;
+          PIDVecL pidcf;
           EEPROM_READ(pidcf);
           #if ENABLED(PIDTEMP)
             if (!validating && pidcf.Kp != 0)
@@ -1779,7 +1779,7 @@ void MarlinSettings::postprocess() {
       // Heated Bed PID
       //
       {
-        Serialization::PIDSS pid;
+        PIDVec pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
           if (!validating && pid.Kp != 0)
@@ -1793,7 +1793,7 @@ void MarlinSettings::postprocess() {
       // Heated Chamber PID
       //
       {
-        Serialization::PIDSS pid;
+        PIDVec pid;
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPCHAMBER)
           if (!validating && pid.Kp != 0)

@@ -59,6 +59,7 @@ struct kelvin_t {
     explicit constexpr celsius_t(T n) : fixp(Private::move(n)) {}
 
     constexpr celsius_t(int v) : fixp(Private::move(v)) {}
+    constexpr celsius_t(unsigned r, bool) : fixp(r, true) {} // Raw construction with no shift
 
     // Default construction
     constexpr celsius_t() {}
@@ -83,9 +84,11 @@ struct kelvin_t {
   struct celsius_t {
     float f;
     constexpr celsius_t(float f = 0): f(f) {}
+    constexpr celsius_t(unsigned f, bool): f(f) {}
     celsius_t(kelvin_t k) : f((float)k - 273.15f) {}
     celsius_t(fahrenheit_t f) : f(((float)f - 32) * 0.5555555556f) {}
     operator float() const { return f; }
+    constexpr unsigned raw() const { return (unsigned)f; }
   };
   constexpr static celsius_t minCValue = -273.15f;
   constexpr static celsius_t maxCValue = 32767.0f;
@@ -93,10 +96,12 @@ struct kelvin_t {
   struct celsius_t {
     int16_t f;
     constexpr celsius_t(int16_t f = 0): f(f) {}
+    constexpr celsius_t(unsigned f, bool): f(f) {}
     celsius_t(kelvin_t k) : f(static_cast<int16_t>((float)k - 273.15f + .5f)) {}
     celsius_t(fahrenheit_t f) : f(static_cast<int16_t>(((float)f - 32) * 0.5555555556f + .5f)) {}
     operator int16_t() const { return f; }
     explicit operator float() const { return f; }
+    constexpr unsigned raw() const { return (unsigned)f; }
   };
 
   constexpr static celsius_t minCValue = -274;
