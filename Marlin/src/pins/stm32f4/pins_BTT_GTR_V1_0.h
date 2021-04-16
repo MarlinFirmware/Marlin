@@ -38,16 +38,13 @@
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
-#define TP                                        // Enable to define servo / probe pins
 #define M5_EXTENDER                               // The M5 extender is attached
 
 //
 // Servos
 //
-#if ENABLED(TP)
-  #define SERVO0_PIN                        PB11  // BLTOUCH
-  #define SOL0_PIN                          PC7   // Toolchanger
-#endif
+#define SERVO0_PIN                          PB11  // BLTOUCH
+#define SOL0_PIN                            PC7   // Toolchanger
 
 #if ENABLED(TOOL_SENSOR)
   #define TOOL_SENSOR1_PIN                  PH6
@@ -117,7 +114,7 @@
   #define Z4_STOP_PIN                       PF6   // M5 M3_STOP
 #endif
 
-#if ENABLED(TP) && !defined(Z_MIN_PROBE_PIN)
+#ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PH11  // Z Probe must be PH11
 #endif
 
@@ -345,7 +342,7 @@
 #endif
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
 //

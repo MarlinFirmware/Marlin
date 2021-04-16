@@ -151,11 +151,11 @@
 
 #endif // SWITCHING_NOZZLE
 
-inline void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
+void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
   line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
 }
-inline void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.1f); }
-inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.4f); }
+void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.2f); }
+void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
 
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
 
@@ -374,7 +374,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       DEBUG_POS("PE Tool-Change done.", current_position);
       parking_extruder_set_parked(false);
     }
-    else if (do_solenoid_activation) { // && nomove
+    else if (do_solenoid_activation) {
       // Deactivate current extruder solenoid
       pe_solenoid_set_pin_state(active_extruder, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
       // Engage new extruder magnetic field
@@ -393,13 +393,28 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     return (0
       #if ENABLED(TOOL_SENSOR)
         #if PIN_EXISTS(TOOL_SENSOR1)
-          | (READ(TOOL_SENSOR1_PIN) ? _BV(0) : 0)
+          | (READ(TOOL_SENSOR1_PIN) << 0)
         #endif
         #if PIN_EXISTS(TOOL_SENSOR2)
-          | (READ(TOOL_SENSOR2_PIN) ? _BV(1) : 0)
+          | (READ(TOOL_SENSOR2_PIN) << 1)
         #endif
         #if PIN_EXISTS(TOOL_SENSOR3)
-          | (READ(TOOL_SENSOR3_PIN) ? _BV(2) : 0)
+          | (READ(TOOL_SENSOR3_PIN) << 2)
+        #endif
+        #if PIN_EXISTS(TOOL_SENSOR4)
+          | (READ(TOOL_SENSOR4_PIN) << 3)
+        #endif
+        #if PIN_EXISTS(TOOL_SENSOR5)
+          | (READ(TOOL_SENSOR5_PIN) << 4)
+        #endif
+        #if PIN_EXISTS(TOOL_SENSOR6)
+          | (READ(TOOL_SENSOR6_PIN) << 5)
+        #endif
+        #if PIN_EXISTS(TOOL_SENSOR7)
+          | (READ(TOOL_SENSOR7_PIN) << 6)
+        #endif
+        #if PIN_EXISTS(TOOL_SENSOR8)
+          | (READ(TOOL_SENSOR8_PIN) << 7)
         #endif
       #endif
     );
@@ -458,6 +473,21 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       #endif
       #if PIN_EXISTS(TOOL_SENSOR3)
         SET_INPUT_PULLUP(TOOL_SENSOR3_PIN);
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR4)
+        SET_INPUT_PULLUP(TOOL_SENSOR4_PIN);
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR5)
+        SET_INPUT_PULLUP(TOOL_SENSOR5_PIN);
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR6)
+        SET_INPUT_PULLUP(TOOL_SENSOR6_PIN);
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR7)
+        SET_INPUT_PULLUP(TOOL_SENSOR7_PIN);
+      #endif
+      #if PIN_EXISTS(TOOL_SENSOR8)
+        SET_INPUT_PULLUP(TOOL_SENSOR8_PIN);
       #endif
 
       if (check_tool_sensor_stats(0)) {
