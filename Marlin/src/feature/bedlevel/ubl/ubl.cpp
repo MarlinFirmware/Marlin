@@ -40,10 +40,6 @@ unified_bed_leveling ubl;
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-#if HAS_HEATED_BED
-  static int16_t custom_bed_temp = 50;
-#endif
-
 #include "math.h"
 
 void unified_bed_leveling::echo_name() { SERIAL_ECHOPGM("Unified Bed Leveling"); }
@@ -265,9 +261,10 @@ void GcodeSuite::M1004() {
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
   #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
   #if HAS_HEATED_BED
+    static int16_t custom_bed_temp = 50;
     process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE "M190S%i\n" PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"), custom_bed_temp);
   #else
-    process_subcommands_now_P(PSTR("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
+    process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
   #endif
 }
 
