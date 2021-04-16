@@ -23,3 +23,14 @@
 
 kelvin_t::kelvin_t(celsius_t c) : f((float)c + 273.15f) {}
 fahrenheit_t::fahrenheit_t(celsius_t c) : f((float)c * 0.5555555556f + 32) {}
+
+#if ENABLED(FIXED_POINT_CELSIUS)
+  celsius_t minCValue = celsius_t::_minValue;
+  celsius_t maxCValue = celsius_t::_maxValue;
+#elif ENABLED(FLOATING_POINT_CELSIUS)
+  celsius_t minCValue = -273.15f;
+  celsius_t maxCValue = 32767.0f;
+#else
+  celsius_t minCValue = -274;
+  celsius_t maxCValue = 32767;
+#endif

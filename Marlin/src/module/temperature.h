@@ -115,11 +115,11 @@ struct NoPID {
   virtual float getKd() const { return 0; } virtual void setKd(float) {}
   virtual float getKc() const { return 0; } virtual void setKc(float) {}
   virtual float getKf() const { return 0; } virtual void setKf(float) {}
-  void unscaleTo(PIDVec & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
-  void unscaleTo(PIDVecL & o) const { unscaleTo((PIDVec&)o); o.Kc = getKc(); o.Kf = getKf(); }
-  void scaleFrom(const PIDVec & o)  { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
-  void scaleFrom(const PIDVecL & o) { scaleFrom((PIDVec&)o); setKc(o.Kc); setKf(o.Kf); }
-  virtual ~NoPID() {}
+  NO_INLINE void unscaleTo(PIDVec & o)  const { o.Kp = getKp(); o.Ki = unscalePID_i(getKi()); o.Kd = unscalePID_d(getKd()); }
+  NO_INLINE void unscaleTo(PIDVecL & o) const { unscaleTo((PIDVec&)o); o.Kc = getKc(); o.Kf = getKf(); }
+  NO_INLINE void scaleFrom(const PIDVec & o)  { setKp(o.Kp); setKi(scalePID_i(o.Ki)); setKd(scalePID_d(o.Kd)); }
+  NO_INLINE void scaleFrom(const PIDVecL & o) { scaleFrom((PIDVec&)o); setKc(o.Kc); setKf(o.Kf); }
+//  virtual ~NoPID() {}
 };
 #define ACCESSOR(X) float get##X() const { return X; } void set##X(float v) { X = v; }
 struct PID_t    : public NoPID   { float Kp = 0, Ki = 0, Kd = 0;  ACCESSOR(Kp); ACCESSOR(Ki); ACCESSOR(Kd); };
@@ -213,32 +213,32 @@ struct Heater {
   // The PID used
   NoPID &         pid;
 
-  inline bool temp_conditions(millis_t start, millis_t now, bool wants_to_cool) {
+  bool temp_conditions(millis_t start, millis_t now, bool wants_to_cool) {
     if (residencyTime) return !start || PENDING(now, start + residencyTime);
     return wants_to_cool ? is_cooling() : is_heating();
   }
 
 
   /** Get the current temperature */
-  inline celsius_t deg() { return info.celsius; }
+  celsius_t deg() { return info.celsius; }
   /** Get the target temperature */
-  inline celsius_t degTarget() { return info.target; }
+  celsius_t degTarget() { return info.target; }
   /** Get the maximum target temperature minus the (expected) overshoot */
-  inline celsius_t maxTarget() const { return maxTemp - celsius_t(HOTEND_OVERSHOOT); }
+  celsius_t maxTarget() const { return maxTemp - celsius_t(HOTEND_OVERSHOOT); }
   /** Get the raw sensor value */
-  inline int16_t  raw() const { return info.raw; }
+  int16_t  raw() const { return info.raw; }
 
   #if ENABLED(SHOW_TEMP_ADC_VALUES)
     int16_t raw() { return info.raw; }
   #endif
   /** Set the target temperature */
-  inline void set_target(const celsius_t target) { info.target = target; }
+  void set_target(const celsius_t target) { info.target = target; }
   /** Check if the heater is heating */
-  inline bool is_heating() const { return info.celsius < info.target; }
+  bool is_heating() const { return info.celsius < info.target; }
   /** Check if the heater is cooling */
-  inline bool is_cooling() const { return info.celsius > info.target; }
+  bool is_cooling() const { return info.celsius > info.target; }
   /** Write the heater pin */
-  inline void write(bool value) const { if (pin >= 0) digitalWrite(pin, value ^ inverting); }
+  void write(bool value) const { if (pin >= 0) digitalWrite(pin, value ^ inverting); }
 
   // Generic method here cuts the binary size to avoid reproducing similar code
   /** Convert from analog value to celsius */
@@ -266,8 +266,8 @@ struct Heater {
     celsius_t increase;
     int       period_ms;
 
-    inline bool elapsed(const millis_t& ms = millis()) const { return next_ms && ELAPSED(ms, next_ms); }
-    inline void restart(const celsius_t curr, const celsius_t tgt) {
+    bool elapsed(const millis_t& ms = millis()) const { return next_ms && ELAPSED(ms, next_ms); }
+    void restart(const celsius_t curr, const celsius_t tgt) {
       if (tgt != celsius_t(0)) {
         const celsius_t newtarget = curr + increase;
         if (newtarget < tgt - hysteresis - 1) {
@@ -286,10 +286,10 @@ struct Heater {
   #if HEATER_IDLE_HANDLER
     millis_t timeout_ms;
     bool timed_out;
-    inline void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
-    inline void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
-    inline void reset() { timeout_ms = 0; timed_out = false; }
-    inline void expire() { start(0); }
+    void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
+    void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
+    void reset() { timeout_ms = 0; timed_out = false; }
+    void expire() { start(0); }
   #endif
 
   Heater(heater_pos_t pos, heater_id_t id, pin_t pin, bool inverting, NoPID & pid, const celsius_t hysteresis, const celsius_t window, const celsius_t minCoolingSlope, const uint16_t minCoolingPeriod, const celsius_t minTemp = minCValue, const celsius_t maxTemp = maxCValue, int residencyTime = 0, uint8_t maxPower = 255

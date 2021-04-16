@@ -53,34 +53,33 @@ void GcodeSuite::M301() {
 
   if (e < HOTENDS) { // catch bad input value
     Heater & heater = Temperature::get_heater(HotEndPos0 + e);
-    if (parser.seen('P')) heater.pid.setKp(parser.value_float());
-    if (parser.seen('I')) heater.pid.setKi(scalePID_i(parser.value_float()));
-    if (parser.seen('D')) heater.pid.setKd(scalePID_d(parser.value_float()));
+    PIDVecL pid; heater.pid.unscaleTo(pid);
+    if (parser.seen('P')) pid.Kp = parser.value_float();
+    if (parser.seen('I')) pid.Ki = parser.value_float();
+    if (parser.seen('D')) pid.Kd = parser.value_float();
     #if ENABLED(PID_EXTRUSION_SCALING)
-      if (parser.seen('C')) heater.pid.setKc(parser.value_float());
+      if (parser.seen('C')) pid.Kc = parser.value_float();
       if (parser.seenval('L')) thermalManager.lpq_len = parser.value_int();
       NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
       NOLESS(thermalManager.lpq_len, 0);
     #endif
 
     #if ENABLED(PID_FAN_SCALING)
-      if (parser.seen('F')) heater.pid.setKf(parser.value_float());
+      if (parser.seen('F')) pid.Kf = parser.value_float();
     #endif
-
+    heater.pid.scaleFrom(pid);
     thermalManager.updatePID();
 
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
     #endif
-    SERIAL_ECHOPAIR(" p:", heater.pid.getKp(),
-                    " i:", unscalePID_i(heater.pid.getKi()),
-                    " d:", unscalePID_d(heater.pid.getKd()));
+    SERIAL_ECHOPAIR(" p:", pid.Kp, " i:", pid.Ki, " d:", pid.Kd);
     #if ENABLED(PID_EXTRUSION_SCALING)
-      SERIAL_ECHOPAIR(" c:", heater.pid.getKc());
+      SERIAL_ECHOPAIR(" c:", pid.Kc);
     #endif
     #if ENABLED(PID_FAN_SCALING)
-      SERIAL_ECHOPAIR(" f:", heater.pid.getKf());
+      SERIAL_ECHOPAIR(" f:", pid.Kf);
     #endif
 
     SERIAL_EOL();

@@ -78,8 +78,6 @@ struct kelvin_t {
     constexpr explicit operator float()  const { return (float)data; }
     constexpr explicit operator double() const { return (double)data; }
   };
-  constexpr celsius_t minCValue = celsius_t::_minValue;
-  constexpr celsius_t maxCValue = celsius_t::_maxValue;
 #elif ENABLED(FLOATING_POINT_CELSIUS)
   struct celsius_t {
     float f;
@@ -90,8 +88,6 @@ struct kelvin_t {
     operator float() const { return f; }
     constexpr unsigned raw() const { return (unsigned)f; }
   };
-  constexpr static celsius_t minCValue = -273.15f;
-  constexpr static celsius_t maxCValue = 32767.0f;
 #else
   struct celsius_t {
     int16_t f;
@@ -103,7 +99,6 @@ struct kelvin_t {
     explicit operator float() const { return f; }
     constexpr unsigned raw() const { return (unsigned)f; }
   };
-
-  constexpr static celsius_t minCValue = -274;
-  constexpr static celsius_t maxCValue = 32767;
 #endif
+extern celsius_t minCValue;
+extern celsius_t maxCValue;
