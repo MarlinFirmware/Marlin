@@ -49,7 +49,6 @@
   #define SOL0_PIN                          PC7   // Toolchanger
 #endif
 
-//#define TOOL_SENSOR
 #if ENABLED(TOOL_SENSOR)
   #define TOOL_SENSOR1_PIN                  PH6
   #define TOOL_SENSOR2_PIN                  PI4

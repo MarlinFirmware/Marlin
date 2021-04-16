@@ -2228,6 +2228,10 @@
     // Enable it (M217 V[0/1]) before printing, to avoid unwanted priming on host connect
     //#define TOOLCHANGE_FS_PRIME_FIRST_USED
 
+    // Enable if tools can sense when they're engaged or stowed.
+    // Requires the pins TOOL_SENSOR1_PIN, TOOL_SENSOR2_PIN, etc.
+    //#define TOOL_SENSOR
+
     /**
      * Tool Change Migration
      * This feature provides G-code and LCD options to switch tools mid-print.
