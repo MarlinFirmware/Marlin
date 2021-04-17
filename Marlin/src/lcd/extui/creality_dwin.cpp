@@ -89,7 +89,7 @@ namespace ExtUI {
           CrealityDWIN.Confirm_Handler((char*)"Temp too high");
           break;
         case PID_TUNING_TIMEOUT:
-          CrealityDWIN.Confirm_Handler((char*)"PID Timout");
+          CrealityDWIN.Confirm_Handler((char*)"PID Timeout");
           break;
         case PID_DONE:
           CrealityDWIN.Confirm_Handler((char*)"PID Done");

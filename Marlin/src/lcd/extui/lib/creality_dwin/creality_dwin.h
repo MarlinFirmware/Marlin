@@ -32,7 +32,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, File, Popup, Confirm, Wait
+  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
 };
 
 enum popupID : uint8_t {
@@ -61,6 +61,7 @@ enum menuID : uint8_t {
         MaxJerk,
         Steps,
       Advanced,
+        ColorSettings,
       Info,
     ManualMesh,
     UBL,
@@ -205,20 +206,37 @@ enum menuID : uint8_t {
 #define font28x56 0x08
 #define font32x64 0x09
 
-#define Color_White       0xFFFF
-#define Color_Yellow      0xFF0F
-#define Color_Grey        0x18E3
-#define Color_Bg_Window   0x31E8  // Popup background color
-#define Color_Bg_Blue     0x1125  // Dark blue background color
-#define Color_Bg_Black    0x0841  // Black background color
-#define Color_Bg_Red      0xF00F  // Red background color
-#define Popup_Text_Color  0xD6BA  // Popup font background color
-#define Line_Color        0x3A6A  // Split line color
-#define Rectangle_Color   0xEE2F  // Blue square cursor color
-#define Percent_Color     0xFE29  // Percentage color
-#define BarFill_Color     0x10E4  // Fill color of progress bar
-#define Select_Color      0x33BB  // Selected color
-#define Check_Color       0x4E5C  // Check-box check color
+enum colorID : uint8_t {
+  Default, White, Green, Blue, Magenta, Red, Yellow, Brown
+};
+
+#define Custom_Colors       7
+#define Color_White         0xFFFF
+#define Color_Light_White   0xBDD7
+#define Color_Green         0x07E0
+#define Color_Light_Green   0x3460
+#define Color_Blue          0x015F
+#define Color_Light_Blue    0x3A6A
+#define Color_Magenta       0xF81F
+#define Color_Light_Magenta 0xF81F
+#define Color_Red           0xF800
+#define Color_Light_Red     0x8800
+#define Color_Yellow        0xFF0F
+#define Color_Light_Yellow  0x8BE0
+#define Color_Brown         0xCC27
+#define Color_Light_Brown   0x6204
+#define Color_Grey          0x18E3
+#define Color_Bg_Window     0x31E8  // Popup background color
+#define Color_Bg_Blue       0x1125  // Dark blue background color
+#define Color_Bg_Black      0x0841  // Black background color
+#define Color_Bg_Red        0xF00F  // Red background color
+#define Popup_Text_Color    0xD6BA  // Popup font background color
+#define Line_Color          0x3A6A  // Split line color
+#define Rectangle_Color     0xEE2F  // Blue square cursor color
+#define Percent_Color       0xFE29  // Percentage color
+#define BarFill_Color       0x10E4  // Fill color of progress bar
+#define Select_Color        0x33BB  // Selected color
+#define Check_Color         0x4E5C  // Check-box check color
 
 extern millis_t dwin_heat_time;
 
@@ -230,15 +248,28 @@ public:
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid_size : 3;
     #endif
+    uint8_t cursor_color : 3;
+    uint8_t menu_split_line : 3;
+    uint8_t highlight_box : 3;
+    uint8_t progress_percent : 3;
+    uint8_t progress_time : 3;
+    uint8_t status_bar_text : 3;
+    uint8_t status_area_text : 3;
+    uint8_t coordinates_text : 3;
   } eeprom_settings;
+
+  char *color_names[8] = {(char*)"Default",(char*)"White",(char*)"Green",(char*)"Blue",(char*)"Magenta",(char*)"Red",(char*)"Yellow",(char*)"Brown"};
 
   inline void Clear_Screen(uint8_t e=3);
   inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
+  inline void Draw_Option(uint8_t value, char** options, uint8_t row, bool selected=false, bool color=false);
+  inline uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
   inline void Draw_Checkbox(uint8_t row, bool value);
   inline void Draw_Title(char* title);
   inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label1=NULL, char * const label2=NULL, bool more=false, bool centered=false);
   inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
   inline void Redraw_Menu();
+  inline void Redraw_Screen();
 
 
   void Main_Menu_Icons();
@@ -255,13 +286,12 @@ public:
   void Draw_Status_Area(bool icons=false);
   void Draw_Popup(const char *line1, const char *line2, const char *line3, uint8_t mode, uint8_t icon=0);
   void Popup_Select();
-  void Update_Status_Bar();
+  void Update_Status_Bar(bool refresh=false);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
     void Set_Mesh_Viewer_Status();
   #endif
-
 
   char* Get_Menu_Title(uint8_t menu);
   int Get_Menu_Size(uint8_t menu);
@@ -275,6 +305,7 @@ public:
   inline void Main_Menu_Control();
   inline void Menu_Control();
   inline void Value_Control();
+  inline void Option_Control();
   inline void File_Control();
   inline void Print_Screen_Control();
   inline void Popup_Control();
@@ -287,6 +318,7 @@ public:
   void Modify_Value(uint16_t &value, float min, float max, float unit);
   void Modify_Value(int16_t &value, float min, float max, float unit);
   void Modify_Value(uint32_t &value, float min, float max, float unit);
+  void Modify_Option(uint8_t value, char** options, uint8_t max);
 
 
   void Update_Status(const char * const text);
