@@ -217,8 +217,9 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
-
   TERN_(PROBE_MANUALLY, static) G29_State abl;
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   reset_stepper_timeout();
 
@@ -287,11 +288,11 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rx = RAW_X_POSITION(parser.linearval('X', MFNAN)),
-                    ry = RAW_Y_POSITION(parser.linearval('Y', MFNAN));
+        const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
+                    ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
         int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
-        if (!ISNAN(rx) && !ISNAN(ry)) {
+        if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
           i = (rx - bilinear_start.x + 0.5 * abl.gridSpacing.x) / abl.gridSpacing.x;
           j = (ry - bilinear_start.y + 0.5 * abl.gridSpacing.y) / abl.gridSpacing.y;
@@ -608,7 +609,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
-      for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !ISNAN(abl.measured_z); PR_OUTER_VAR++) {
+      for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
 
         int8_t inStart, inStop, inInc;
 
@@ -644,7 +645,7 @@ G29_TYPE GcodeSuite::G29() {
 
           abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
-          if (ISNAN(abl.measured_z)) {
+          if (isnan(abl.measured_z)) {
             set_bed_leveling_enabled(abl.reenable);
             break; // Breaks out of both loops
           }
@@ -690,14 +691,14 @@ G29_TYPE GcodeSuite::G29() {
         // Retain the last probe position
         abl.probePos = points[i];
         abl.measured_z = faux ? 0.001 * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
-        if (ISNAN(abl.measured_z)) {
+        if (isnan(abl.measured_z)) {
           set_bed_leveling_enabled(abl.reenable);
           break;
         }
         points[i].z = abl.measured_z;
       }
 
-      if (!abl.dryrun && !ISNAN(abl.measured_z)) {
+      if (!abl.dryrun && !isnan(abl.measured_z)) {
         vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
         if (planeNormal.z < 0) planeNormal *= -1;
         planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
@@ -713,7 +714,7 @@ G29_TYPE GcodeSuite::G29() {
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {
       set_bed_leveling_enabled(abl.reenable);
-      abl.measured_z = MFNAN;
+      abl.measured_z = NAN;
     }
   }
   #endif // !PROBE_MANUALLY
@@ -736,7 +737,7 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   // Calculate leveling, print reports, correct the position
-  if (!ISNAN(abl.measured_z)) {
+  if (!isnan(abl.measured_z)) {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!abl.dryrun) extrapolate_unprobed_bed_level();
@@ -873,7 +874,7 @@ G29_TYPE GcodeSuite::G29() {
 
     // Auto Bed Leveling is complete! Enable if possible.
     planner.leveling_active = !abl.dryrun || abl.reenable;
-  } // !ISNAN(abl.measured_z)
+  } // !isnan(abl.measured_z)
 
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
@@ -897,7 +898,9 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
-  G29_RETURN(ISNAN(abl.measured_z));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+
+  G29_RETURN(isnan(abl.measured_z));
 }
 
 #endif // HAS_ABL_NOT_UBL
