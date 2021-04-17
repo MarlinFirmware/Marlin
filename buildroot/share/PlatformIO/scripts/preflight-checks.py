@@ -2,8 +2,14 @@
 # preflight-checks.py
 # Check for common issues prior to compiling
 #
-import os,re,sys
 Import("env")
+
+# Detect that 'vscode init' is running
+from SCons.Script import COMMAND_LINE_TARGETS
+if "idedata" in COMMAND_LINE_TARGETS:
+    env.Exit(0)
+
+import os,re,sys
 
 def get_envs_for_board(board):
 	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:

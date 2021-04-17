@@ -2,8 +2,13 @@
 # common-dependencies-post.py
 # Convenience script to add build flags for Marlin Enabled Features
 #
-
 Import("env")
+
+# Detect that 'vscode init' is running
+from SCons.Script import COMMAND_LINE_TARGETS
+if "idedata" in COMMAND_LINE_TARGETS:
+    env.Exit(0)
+
 Import("projenv")
 
 def apply_board_build_flags():
