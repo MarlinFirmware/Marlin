@@ -229,45 +229,23 @@ void GCodeParser::parse(char *p) {
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
       break;
-    #endif // GCODE_MOTION_MODES
-
-
-    case 'R': {
-      #if ENABLED(GCODE_MOTION_MODES)
-        #if ENABLED(ARC_SUPPORT)
-          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
-        #endif
-      #endif
-      #if ENABLED(REALTIME_REPORTING_COMMANDS)
-        codenum = 0;                  // The only valid codenum is 0
-        uint8_t digits = 0;
-        while (*p++ == '0') digits++; // Count up '0' characters
-        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
-        return;
-      #endif
-    }
-
-    case 'P': {
-      #if ENABLED(GCODE_MOTION_MODES)
-        if (motion_mode_codenum != 5) return;
-      #endif
-      #if ENABLED(REALTIME_REPORTING_COMMANDS)
-        codenum = 0;                  // The only valid codenum is 0
-        uint8_t digits = 0;
-        while (*p++ == '0') digits++; // Count up '0' characters
-        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
-        return;
-      #endif
-      
-    }
+    #endif
 
     #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      case 'P': case 'R': {
+        if (letter == 'R') {
+          #if ENABLED(GCODE_MOTION_MODES)
+            if (ENABLED(ARC_SUPPORT) && !WITHIN(motion_mode_codenum, 2, 3)) return;
+          #endif
+        }
+        else if (TERN0(GCODE_MOTION_MODES, motion_mode_codenum != 5)) return;
+      } // fall-thru
       case 'S': {
         codenum = 0;                  // The only valid codenum is 0
         uint8_t digits = 0;
         while (*p++ == '0') digits++; // Count up '0' characters
         command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
-      } return;                       // No parameters, so return
+      } return;                       // No parameters needed, so return now
     #endif
 
     default: return;
