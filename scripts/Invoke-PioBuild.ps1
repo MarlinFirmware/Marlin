@@ -6,6 +6,14 @@ Runs a Platform.IO build and optionally deploy it for immediate flashing to a lo
 PlatformIO executable must be in PATH (will be when running in the VSCode console)
 The Show-Menu PowerShell module must be installed (`Install-Package Show-Menu`)
 
+Add this to your PSProfile:
+
+function Invoke-PioBuild($ConfigName, $Drive = "Q:", [Switch]$NoReset, [Switch] $ForceClean, [Switch] $NoClean) {
+    $GitDir = $(git rev-parse --show-toplevel)
+    $ScriptFile = "$GitDir/scripts/Invoke-PioBuild.ps1"
+    & $ScriptFile -ConfigName $ConfigName -Drive $Drive -NoReset:$NoReset -ForceClean:$ForceClean -NoClean:$NoClean
+}
+
 .PARAMETER  ConfigName
 The configuration to run. The configuration is assumed to live in the 'configs' directory. 
 If the parameter is not provided, it is interactively asked.
