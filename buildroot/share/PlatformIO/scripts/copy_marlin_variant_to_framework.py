@@ -1,6 +1,13 @@
 #
 # copy_marlin_variant_to_framework.py
 #
+Import("env")
+
+# Detect that 'vscode init' is running
+from SCons.Script import COMMAND_LINE_TARGETS
+if "idedata" in COMMAND_LINE_TARGETS:
+    env.Exit(0)
+
 import os,shutil
 from SCons.Script import DefaultEnvironment
 from platformio import util
