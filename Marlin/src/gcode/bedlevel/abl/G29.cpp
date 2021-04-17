@@ -918,6 +918,7 @@ G29_TYPE GcodeSuite::G29() {
 #endif
 
   G29_RETURN(isnan(abl.measured_z));
+
 }
 
 #endif // HAS_ABL_NOT_UBL
