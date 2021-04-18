@@ -4613,7 +4613,7 @@ void CrealityDWINClass::Stop_Print() {
   printing = false;
   thermalManager.zero_fan_speeds();
   thermalManager.disable_all_heaters();
-  ui.set_progress(100);
+  ui.set_progress(100 * (PROGRESS_SCALE));
   ui.set_remaining_time(0);
   Draw_Print_confirm();
 }
