@@ -212,7 +212,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
       const xy_pos_t center{0};
       z_pt[CEN] += calibration_probe(center, stow_after_each);
-      if (ISNAN(z_pt[CEN])) return false;
+      if (isnan(z_pt[CEN])) return false;
     }
 
     if (_7p_calibration) { // probe extra center points
@@ -223,7 +223,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                     r = dcr * 0.1;
         const xy_pos_t vec = { cos(a), sin(a) };
         z_pt[CEN] += calibration_probe(vec * r, stow_after_each);
-        if (ISNAN(z_pt[CEN])) return false;
+        if (isnan(z_pt[CEN])) return false;
      }
       z_pt[CEN] /= float(_7p_2_intermediates ? 7 : probe_points);
     }
@@ -248,7 +248,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                       interpol = FMOD(rad, 1);
           const xy_pos_t vec = { cos(a), sin(a) };
           const float z_temp = calibration_probe(vec * r, stow_after_each);
-          if (ISNAN(z_temp)) return false;
+          if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
           z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
           z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
@@ -386,6 +386,8 @@ static float auto_tune_a() {
  *   E   Engage the probe for each point
  */
 void GcodeSuite::G33() {
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
@@ -645,6 +647,8 @@ void GcodeSuite::G33() {
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
   ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // DELTA_AUTO_CALIBRATION
