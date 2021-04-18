@@ -1760,7 +1760,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ANY(HAS_HOTEND, HAS_HEATED_BED)
           case TEMP_PID:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Step, (char*)"PID Autotune", NULL, true);
+              Draw_Menu_Item(row, ICON_Step, (char*)"PID", NULL, true);
             }
             else {
               Draw_Menu(PID);
