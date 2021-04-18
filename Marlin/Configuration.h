@@ -62,6 +62,8 @@
 // Enable this if you used a plug and play creality e3d or mosquito kit and kept the Creality thermistor
 //#define CrealityThermistor
 
+//#define SlicePT1000 // Enable this if you have a mosquito with the newer PT1000 sensor
+//#define PID50W //Set PID for 50W Heater
 /*
  * Select these if you have changed to a high performance extruder
  */
@@ -92,6 +94,7 @@
    Leave all disabled if no sensor is available
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
+//#define ABL_EZABL12MM
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
 //#define ABL_BLTOUCH
 //#define ABL_TOUCH_MI // Uncomment ABL_TOUCH_MI to use Touch-MI sensor by hotends.fr
@@ -349,6 +352,10 @@
   #define Bondtech
 #endif
 
+#if ENABLED(ABL_EZABL12MM)
+  #define ABL_EZABL
+#endif
+
 #if ENABLED(MachineCR10SPro)
   #define MachineCR10Std
   #if DISABLED(ABL_BLTOUCH, ABL_EZABL, ABL_TOUCH_MI)
@@ -404,7 +411,7 @@
   #define Z_STOP_PIN 19
 #endif
 
-#if ANY(MachineEnder2, MachineEnder3, MachineEnder5, MachineCR10, MachineMini) && NONE(Melzi_To_SBoardUpgrade, SKR13, SKRPRO11, SKRMiniE3V2)
+#if ANY(MachineEnder2, MachineEnder3, MachineEnder5, MachineCR10, MachineMini) &&NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, SKRMiniE3V2, Creality422, Creality427, Melzi_To_SBoardUpgrade)
   #define MachineCR10Orig
 #endif
 
@@ -907,6 +914,8 @@
  */
 #if ENABLED(ConfigurableThermistors)
   #define TEMP_SENSOR_0 1000
+#elif ENABLED(SlicePT1000)
+  #define TEMP_SENSOR_0 1047
 #elif ENABLED(HotendMosquito)
   #define TEMP_SENSOR_0 67
 #elif ENABLED(HotendE3D)
@@ -1042,7 +1051,7 @@
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-    #if ENABLED(HotendMosquito)
+    #if ANY(HotendMosquito, PID50W)
       #define DEFAULT_Kp 25.95
       #define DEFAULT_Ki 3.08
       #define DEFAULT_Kd 54.74
@@ -1816,7 +1825,33 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#if ENABLED(MachineCRXPro, HotendStock, ABL_BLTOUCH)
+#if ENABLED(DDXExtruderKit)
+  #if ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock)
+    #if ENABLED(ABL_EZABL12MM)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.625, 0.6, 0 }
+    #elif EITHER(ABL_EZABL, ABL_NCSW)
+      #define NOZZLE_TO_PROBE_OFFSET { -30.625, 0.6, 0 }
+    #elif ENABLED(ABL_BLTOUCH)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.625, -0.1, 0 }
+    #endif
+  #elif ENABLED(HotendStock)
+    #if ENABLED(ABL_EZABL12MM)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.66, -1.4, 0 }
+    #elif EITHER(ABL_EZABL, ABL_NCSW)
+      #define NOZZLE_TO_PROBE_OFFSET { -30.625, -1.4, 0 }
+    #elif ENABLED(ABL_BLTOUCH)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.625, -1.9, 0 }
+    #endif
+  #else
+    #if ENABLED(ABL_EZABL12MM)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.625, -0.5, 0 }
+    #elif EITHER(ABL_EZABL, ABL_NCSW)
+      #define NOZZLE_TO_PROBE_OFFSET { -30.625, -0.5, 0 }
+    #elif ENABLED(ABL_BLTOUCH)
+      #define NOZZLE_TO_PROBE_OFFSET { -27.625, 0.0, 0 }
+    #endif
+  #endif
+#elif ENABLED(MachineCRXPro, HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
 #elif ENABLED(MachineCRX, HotendStock)
    #if ENABLED(ABL_BLTOUCH)
