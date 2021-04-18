@@ -570,8 +570,16 @@
   #define SERIAL_PORT_2 2
 #elif BOTH(MachineEnder3V2, SKRE3Turbo)
   #define LCD_SERIAL_PORT 1
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL -1
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo)
   #define LCD_SERIAL_PORT 0
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL -1
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2)
+  #define LCD_SERIAL_PORT 2
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 0
 #elif ANY(MachineEnder3Pro422, MachineEnder3Pro427) && DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
 #endif

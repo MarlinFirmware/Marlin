@@ -117,7 +117,7 @@ namespace ExtUI {
 #elif defined(__STM32F1__)
   #define DWIN_SERIAL MSerial3
 #else
-  #define DWIN_SERIAL Serial2
+  #define DWIN_SERIAL LCD_SERIAL
 #endif
 
 /************struct**************/
