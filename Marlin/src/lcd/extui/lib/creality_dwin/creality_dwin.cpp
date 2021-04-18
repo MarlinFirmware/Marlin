@@ -106,6 +106,8 @@
   #define MIN_FAN_SPEED     0
 #endif
 
+#define MAX_XY_OFFSET 100
+
 #if HAS_ZOFFSET_ITEM
   #define MAX_Z_OFFSET 9.99
   #if HAS_BED_PROBE
@@ -2288,7 +2290,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case Motion:
 
       #define MOTION_BACK 0
-      #define MOTION_SPEED (MOTION_BACK + 1)
+      #define MOTION_HOMEOFFSETS (MOTION_BACK + 1)
+      #define MOTION_SPEED (MOTION_HOMEOFFSETS + 1)
       #define MOTION_ACCEL (MOTION_SPEED + 1)
       #define MOTION_JERK (MOTION_ACCEL + ENABLED(HAS_CLASSIC_JERK))
       #define MOTION_STEPS (MOTION_JERK + 1)
@@ -2302,6 +2305,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Control, CONTROL_MOTION);
+          }
+          break;
+        case MOTION_HOMEOFFSETS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_SetHome, (char*)"Home Offsets", NULL, true);
+          }
+          else {
+            Draw_Menu(HomeOffsets);
           }
           break;
         case MOTION_SPEED:
@@ -2349,6 +2360,42 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+      }
+      break;
+    case HomeOffsets:
+
+      #define HOMEOFFSETS_BACK 0
+      #define HOMEOFFSETS_XOFFSET (HOMEOFFSETS_BACK + 1)
+      #define HOMEOFFSETS_YOFFSET (HOMEOFFSETS_XOFFSET + 1)
+      #define HOMEOFFSETS_TOTAL HOMEOFFSETS_YOFFSET
+
+      switch (item) {
+        case HOMEOFFSETS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+          }
+          else {
+            Draw_Menu(Motion, MOTION_HOMEOFFSETS);
+          }
+          break;
+        case HOMEOFFSETS_XOFFSET:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_StepX, (char*)"X Offset");
+            Draw_Float(home_offset.x, row, false, 100);
+          }
+          else {
+            Modify_Value(home_offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+          }
+          break;
+        case HOMEOFFSETS_YOFFSET:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_StepY, (char*)"Y Offset");
+            Draw_Float(home_offset.y, row, false, 100);
+          }
+          else {
+            Modify_Value(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+          }
+          break;
       }
       break;
     case MaxSpeed:
@@ -2770,7 +2817,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(probe.offset.x, row, false, 10);
             }
             else {
-              Modify_Value(probe.offset.x, -100, 100, 10);
+              Modify_Value(probe.offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
             }
             break;
           case ADVANCED_YOFFSET:
@@ -2779,7 +2826,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Float(probe.offset.y, row, false, 10);
             }
             else {
-              Modify_Value(probe.offset.y, -100, 100, 10);
+              Modify_Value(probe.offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
             }
             break;
         #endif
@@ -3814,6 +3861,8 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #endif
     case Motion:
       return (char*)"Motion Settings";
+    case HomeOffsets:
+      return (char*)"Home Offsets";
     case MaxSpeed:
       return (char*)"Max Speed";
     case MaxAcceleration:
@@ -3916,6 +3965,8 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #endif
     case Motion:
       return MOTION_TOTAL;
+    case HomeOffsets:
+      return HOMEOFFSETS_TOTAL;
     case MaxSpeed:
       return SPEED_TOTAL;
     case MaxAcceleration:

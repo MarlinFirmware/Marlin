@@ -58,6 +58,7 @@ enum menuID : uint8_t {
         Preheat4,
         Preheat5,
       Motion,
+        HomeOffsets,
         MaxSpeed,
         MaxAcceleration,
         MaxJerk,
