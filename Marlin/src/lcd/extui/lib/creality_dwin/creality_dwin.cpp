@@ -1898,6 +1898,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_HotendTemp, (char*)"Autotune");
             }
             else {
+              Popup_Handler(PIDWait);
               char buf[30];
               sprintf(buf, "M303 E0 C%i S%i U1", PID_cycles, PID_e_temp);
               gcode.process_subcommands_now_P(buf);
@@ -1915,7 +1916,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case HOTENDPID_KP:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kp Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Kp, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_hotend[0].pid.Kp), row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].pid.Kp, 0, 5000, 100, thermalManager.updatePID);
@@ -1924,7 +1925,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case HOTENDPID_KI:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Ki Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Ki, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_hotend[0].pid.Ki), row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].pid.Ki, 0, 5000, 100, thermalManager.updatePID);
@@ -1933,7 +1934,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case HOTENDPID_KD:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kd Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Kd, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_hotend[0].pid.Kd), row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].pid.Kd, 0, 5000, 100, thermalManager.updatePID);
@@ -1969,6 +1970,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_HotendTemp, (char*)"Autotune");
             }
             else {
+              Popup_Handler(PIDWait);
               char buf[30];
               sprintf(buf, "M303 E-1 C%i S%i U1", PID_cycles, PID_bed_temp);
               gcode.process_subcommands_now_P(buf);
@@ -1977,37 +1979,37 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case BEDPID_TEMP:
             if (draw) {
               Draw_Menu_Item(row, ICON_Temperature, (char*)"Temperature");
-              Draw_Float(PID_e_temp, row, false, 1);
+              Draw_Float(PID_bed_temp, row, false, 1);
             }
             else {
-              Modify_Value(PID_e_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
+              Modify_Value(PID_bed_temp, MIN_BED_TEMP, MAX_BED_TEMP, 1);
             }
             break;
           case BEDPID_KP:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kp Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Kp, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_bed.pid.Kp), row, false, 100);
             }
             else {
-              Modify_Value(thermalManager.temp_hotend[0].pid.Kp, 0, 5000, 100, thermalManager.updatePID);
+              Modify_Value(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
             }
             break;
           case BEDPID_KI:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Ki Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Ki, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_bed.pid.Ki), row, false, 100);
             }
             else {
-              Modify_Value(thermalManager.temp_hotend[0].pid.Ki, 0, 5000, 100, thermalManager.updatePID);
+              Modify_Value(thermalManager.temp_bed.pid.Ki, 0, 5000, 100, thermalManager.updatePID);
             }
             break;
           case BEDPID_KD:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kd Value");
-              Draw_Float(thermalManager.temp_hotend[0].pid.Kd, row, false, 100);
+              Draw_Float(unscalePID_i(thermalManager.temp_bed.pid.Kd), row, false, 100);
             }
             else {
-              Modify_Value(thermalManager.temp_hotend[0].pid.Kd, 0, 5000, 100, thermalManager.updatePID);
+              Modify_Value(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
             }
             break;
         }
@@ -3972,6 +3974,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
     case Runout:
       Draw_Popup((char*)"Filament Runout", (char*)"", (char*)"", Wait, ICON_BLTouch);
       break;
+    case PIDWait:
+      Draw_Popup((char*)"PID Autotune", (char*)"in process", (char*)"Please wait until done.", Wait, ICON_BLTouch);
+      break;
   }
 }
 
@@ -4466,6 +4471,17 @@ inline void CrealityDWINClass::Confirm_Control() {
             Draw_SD_List();
             break;
           case Wait:
+            switch (last_popup) {
+              case Runout:
+                Draw_Print_Screen();
+                break;
+              case PIDWait:
+                Redraw_Menu();
+                break;
+              default:
+                Popup_Handler(last_popup);
+                break;
+            }
             if (last_popup == Runout)
               Draw_Print_Screen();
             else
@@ -4481,7 +4497,12 @@ inline void CrealityDWINClass::Confirm_Control() {
 /* In-Menu Value Modification */
 
 void CrealityDWINClass::Setup_Value(float value, float min, float max, float unit, uint8_t type) {
-  tempvalue = value * unit;
+  if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki || valuepointer == &thermalManager.temp_bed.pid.Ki) 
+    tempvalue = unscalePID_i(tempvalue) * unit;
+  if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd || valuepointer == &thermalManager.temp_bed.pid.Kd) 
+    tempvalue = unscalePID_d(tempvalue) * unit;
+  else
+    tempvalue = value * unit;
   valuemin = min;
   valuemax = max;
   valueunit = unit;
