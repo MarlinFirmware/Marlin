@@ -1954,7 +1954,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define BEDPID_KD (BEDPID_KI + 1)
         #define BEDPID_TOTAL BEDPID_KD
 
-        static uint16_t PID_bed_temp = 180;
+        static uint16_t PID_bed_temp = 60;
 
         switch (item) {
           case BEDPID_BACK:
