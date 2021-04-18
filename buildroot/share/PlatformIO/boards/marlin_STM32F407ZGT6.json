@@ -14,9 +14,7 @@
         "0x3748"
       ]
     ],
-    "mcu": "stm32f407zgt6",
-    "variant": "LERDGE",
-    "ldscript": "LERDGE.ld"
+    "mcu": "stm32f407zgt6"
   },
   "debug": {
     "jlink_device": "STM32F407ZG",
