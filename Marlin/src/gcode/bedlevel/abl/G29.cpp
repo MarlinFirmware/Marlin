@@ -901,6 +901,7 @@ G29_TYPE GcodeSuite::G29() {
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 
   G29_RETURN(isnan(abl.measured_z));
+
 }
 
 #endif // HAS_ABL_NOT_UBL

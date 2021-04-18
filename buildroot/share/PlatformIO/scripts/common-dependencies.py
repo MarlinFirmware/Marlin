@@ -2,6 +2,15 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
+Import("env")
+
+#print(env.Dump())
+
+# Detect that 'vscode init' is running
+from SCons.Script import COMMAND_LINE_TARGETS
+if "idedata" in COMMAND_LINE_TARGETS:
+    env.Exit(0)
+
 import subprocess,os,re
 
 PIO_VERSION_MIN = (5, 0, 3)
@@ -30,10 +39,6 @@ except:
 
 from platformio.package.meta import PackageSpec
 from platformio.project.config import ProjectConfig
-
-Import("env")
-
-#print(env.Dump())
 
 try:
 	verbose = int(env.GetProjectOption('custom_verbose'))
