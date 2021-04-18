@@ -1234,7 +1234,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
             ++abl_probe_index;
           }
           RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
-          injectCommands_P(PSTR(USER_GCODE_1));
+          injectCommands_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
           break;
         }
 
