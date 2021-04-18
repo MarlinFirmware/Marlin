@@ -26,8 +26,11 @@
 
 #include "power_monitor.h"
 
-#include "../lcd/marlinui.h"
-#include "../lcd/lcdprint.h"
+#if HAS_LCD_MENU
+  #include "../lcd/marlinui.h"
+  #include "../lcd/lcdprint.h"
+#endif
+
 #include "../libs/numtostr.h"
 
 uint8_t PowerMonitor::flags; // = 0
@@ -54,7 +57,7 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     }
   #endif
 
-  #if HAS_POWER_MONITOR_VREF
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
     void PowerMonitor::draw_voltage() {
       const float volts = getVolts();
       lcd_put_u8str(volts < 100 ? ftostr31ns(volts) : ui16tostr4rj((uint16_t)volts));

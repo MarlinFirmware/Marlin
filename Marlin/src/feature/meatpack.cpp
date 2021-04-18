@@ -205,7 +205,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) 
   handle_rx_char_inner(c);                // Other characters are passed on for MeatPack decoding
 }
 
-uint8_t MeatPack::get_result_char(char* const __restrict out) {
+uint8_t MeatPack::get_result_char(char * const __restrict out) {
   uint8_t res = 0;
   if (char_out_count) {
     res = char_out_count;

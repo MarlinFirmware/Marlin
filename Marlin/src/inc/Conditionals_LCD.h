@@ -501,11 +501,11 @@
 /**
  *  Multi-Material-Unit supported models
  */
-#define PRUSA_MMU1      1
-#define PRUSA_MMU2      2
-#define PRUSA_MMU2S     3
-#define SMUFF_EMU_MMU2  12
-#define SMUFF_EMU_MMU2S 13
+#define PRUSA_MMU1             1
+#define PRUSA_MMU2             2
+#define PRUSA_MMU2S            3
+#define EXTENDABLE_EMU_MMU2   12
+#define EXTENDABLE_EMU_MMU2S  13
 
 #ifdef MMU_MODEL
   #define HAS_MMU 1
@@ -517,16 +517,16 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
-    #define HAS_SMUFF 1
+  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+    #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
 
 #undef PRUSA_MMU1
 #undef PRUSA_MMU2
 #undef PRUSA_MMU2S
-#undef SMUFF_EMU_MMU2
-#undef SMUFF_EMU_MMU2S
+#undef EXTENDABLE_EMU_MMU2
+#undef EXTENDABLE_EMU_MMU2S
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -579,7 +579,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MMU1, MMU 2.0, MMUS 2.0 and SMuFF force SINGLENOZZLE
+// Průša MMU1, MMU(S) 2.0 and EXTENDABLE_EMU_MMU2(S) force SINGLENOZZLE
 #if HAS_MMU
   #define SINGLENOZZLE
 #endif
@@ -842,7 +842,7 @@
   #define ABL_PLANAR 1
 #endif
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
-  #define ABL_GRID 1
+  #define ABL_USES_GRID 1
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ABL_NOT_UBL 1
@@ -1119,6 +1119,10 @@
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
+#elif ENABLED(BIQU_BX_TFT70)        // RGB
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
+  #define TFT_RES_1024x600
+  #define TFT_INTERFACE_LTDC
 #elif ENABLED(TFT_GENERIC)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #if NONE(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320)
@@ -1141,9 +1145,13 @@
   #define TFT_WIDTH  480
   #define TFT_HEIGHT 320
   #define GRAPHICAL_TFT_UPSCALE 3
+#elif ENABLED(TFT_RES_1024x600)
+  #define TFT_WIDTH  1024
+  #define TFT_HEIGHT 600
+  #define GRAPHICAL_TFT_UPSCALE 4
 #endif
 
-// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
+// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi|ltdc).h
 #if ENABLED(TFT_INTERFACE_FSMC)
   #define HAS_FSMC_TFT 1
   #if TFT_SCALED_DOGLCD
@@ -1157,6 +1165,13 @@
     #define HAS_SPI_GRAPHICAL_TFT 1
   #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_SPI 1
+  #endif
+#elif ENABLED(TFT_INTERFACE_LTDC)
+  #define HAS_LTDC_TFT 1
+  #if TFT_SCALED_DOGLCD
+    #define HAS_LTDC_GRAPHICAL_TFT 1
+  #elif HAS_TFT_LVGL_UI
+    #define HAS_TFT_LVGL_UI_LTDC 1
   #endif
 #endif
 
@@ -1179,6 +1194,10 @@
     #elif ENABLED(TFT_INTERFACE_FSMC)
       #define TFT_480x272
     #endif
+  #elif TFT_HEIGHT == 600
+    #if ENABLED(TFT_INTERFACE_LTDC)
+      #define TFT_1024x600_LTDC
+    #endif
   #endif
 #endif
 
@@ -1188,9 +1207,13 @@
   #define HAS_UI_480x320 1
 #elif EITHER(TFT_480x272, TFT_480x272_SPI)
   #define HAS_UI_480x272 1
+#elif defined(TFT_1024x600_LTDC)
+  #define HAS_UI_1024x600 1
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+#elif HAS_UI_1024x600
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

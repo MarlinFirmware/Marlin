@@ -224,6 +224,11 @@
   #endif
 #endif
 
+#ifdef GRID_MAX_POINTS_X
+  #define GRID_MAX_CELLS_X (GRID_MAX_POINTS_X - 1)
+  #define GRID_MAX_CELLS_Y (GRID_MAX_POINTS_Y - 1)
+#endif
+
 /**
  * Host keep alive
  */
@@ -351,6 +356,15 @@
       #define SD_DETECT_STATE LOW
     #endif
   #endif
+
+  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+    #if ENABLED(SDIO_SUPPORT)
+      #define NEED_SD2CARD_SDIO 1
+    #else
+      #define NEED_SD2CARD_SPI 1
+    #endif
+  #endif
+
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)

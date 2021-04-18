@@ -188,7 +188,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPAIR(" homing ", axiscode);
+    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
     char buf[6] = "G28 X";
     buf[4] = axiscode;
     //DEBUG_ECHOPAIR(" ", buf);
@@ -199,7 +199,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
-    DEBUG_ECHOPAIR(" move ", axiscode);
+    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
     if (!relative_mode) {
       //DEBUG_ECHOPGM(" G91");
@@ -235,7 +235,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPAIR(" cannot move ", axiscode);
+    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 
