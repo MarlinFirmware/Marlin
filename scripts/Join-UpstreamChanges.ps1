@@ -61,5 +61,8 @@ if ($LASTEXITCODE -ne 0) {
     Write-FatalError "Failed to update config examples"
 }
 
+Write-Info "Running commit..."
+git commit -a
+
 Write-Info "Success"
 Exit 0
