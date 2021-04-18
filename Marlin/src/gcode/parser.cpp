@@ -151,7 +151,7 @@ void GCodeParser::parse(char *p) {
   // (or a valid parameter for the current motion mode)
   switch (letter) {
 
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
+    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) TERN_(DWIN_CREALITY_LCD, case 'C':)
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 

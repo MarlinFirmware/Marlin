@@ -164,6 +164,7 @@
 #define ICON_HomeOff              ICON_AdvSet
 #define ICON_HomeOffX             ICON_StepX
 #define ICON_HomeOffY             ICON_StepY
+#define ICON_HomeOffZ             ICON_StepZ
 #define ICON_ProbeOff             ICON_AdvSet
 #define ICON_ProbeOffX            ICON_StepX
 #define ICON_ProbeOffY            ICON_StepY

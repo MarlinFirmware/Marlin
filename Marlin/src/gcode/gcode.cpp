@@ -67,6 +67,11 @@ GcodeSuite gcode;
 
 #include "../MarlinCore.h" // for idle, kill
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
+
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
          GcodeSuite::max_inactive_time = 0,
@@ -289,7 +294,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
   #endif
 
-  // Handle a known G, M, or T
+  // Handle a known G, M, or T  // D for debug and C for Creality
   switch (parser.command_letter) {
     case 'G': switch (parser.codenum) {
 
@@ -993,6 +998,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
     #if ENABLED(MARLIN_DEV_MODE)
       case 'D': D(parser.codenum); break;                         // Dn: Debug codes
+    #endif
+
+    #if ENABLED(DWIN_CREALITY_LCD)
+      case 'C' : DWIN_Gcode(parser.codenum); break;               // Cn: Creality DWIN special Gcode
     #endif
 
     default:

@@ -77,6 +77,7 @@ enum processID : uint8_t {
   HomeOff,
   HomeOffX,
   HomeOffY,
+  HomeOffZ,
   ProbeOff,
   ProbeOffX,
   ProbeOffY,
@@ -91,10 +92,6 @@ enum processID : uint8_t {
   SelColor,
   GetColor,
   GetColor_value,
-
-  // Back Process ID
-  Back_Main,
-  Back_Print,
 
   // Date variable ID
   Move_X,
@@ -148,6 +145,7 @@ typedef struct {
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
   float Home_OffX_scaled  = 0;
   float Home_OffY_scaled  = 0;
+  float Home_OffZ_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
   float Park_PosX_scaled  = 0;
@@ -339,6 +337,7 @@ void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
 void DWIN_Setdatadefaults();
 void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component);
+void DWIN_Gcode(const int16_t codenum);
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   #include "../../../feature/pause.h"
