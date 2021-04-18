@@ -1615,9 +1615,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define CONTROL_BACK 0
       #define CONTROL_TEMP (CONTROL_BACK + 1)
       #define CONTROL_MOTION (CONTROL_TEMP + 1)
-      #define CONTROL_ADVANCED (CONTROL_MOTION + 1)
-      #define CONTROL_BACKLIGHT (CONTROL_ADVANCED + 1)
-      #define CONTROL_SAVE (CONTROL_BACKLIGHT + ENABLED(EEPROM_SETTINGS))
+      #define CONTROL_VISUAL (CONTROL_MOTION + 1)
+      #define CONTROL_ADVANCED (CONTROL_VISUAL + 1)
+      #define CONTROL_SAVE (CONTROL_ADVANCED + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESTORE (CONTROL_SAVE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESET (CONTROL_RESTORE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_INFO (CONTROL_RESET + 1)
@@ -1648,20 +1648,20 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu(Motion);
           }
           break;
+        case CONTROL_VISUAL:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_PrintSize, (char*)"Visual", NULL, true);
+          }
+          else {
+            Draw_Menu(Visual);
+          }
+          break;
         case CONTROL_ADVANCED:
           if (draw) {
             Draw_Menu_Item(row, ICON_Version, (char*)"Advanced", NULL, true);
           }
           else {
             Draw_Menu(Advanced);
-          }
-          break;
-        case CONTROL_BACKLIGHT:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_Brightness, (char*)"Display Off");
-          }
-          else {
-            ui.set_brightness(0);
           }
           break;
         #if ENABLED(EEPROM_SETTINGS)
@@ -1916,7 +1916,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case HOTENDPID_KP:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kp Value");
-              Draw_Float(unscalePID_i(thermalManager.temp_hotend[0].pid.Kp), row, false, 100);
+              Draw_Float(thermalManager.temp_hotend[0].pid.Kp, row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].pid.Kp, 0, 5000, 100, thermalManager.updatePID);
@@ -1934,7 +1934,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case HOTENDPID_KD:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kd Value");
-              Draw_Float(unscalePID_i(thermalManager.temp_hotend[0].pid.Kd), row, false, 100);
+              Draw_Float(unscalePID_d(thermalManager.temp_hotend[0].pid.Kd), row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].pid.Kd, 0, 5000, 100, thermalManager.updatePID);
@@ -1988,7 +1988,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case BEDPID_KP:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kp Value");
-              Draw_Float(unscalePID_i(thermalManager.temp_bed.pid.Kp), row, false, 100);
+              Draw_Float(thermalManager.temp_bed.pid.Kp, row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_bed.pid.Kp, 0, 5000, 100, thermalManager.updatePID);
@@ -2006,7 +2006,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case BEDPID_KD:
             if (draw) {
               Draw_Menu_Item(row, ICON_Version, (char*)"Kd Value");
-              Draw_Float(unscalePID_i(thermalManager.temp_bed.pid.Kd), row, false, 100);
+              Draw_Float(unscalePID_d(thermalManager.temp_bed.pid.Kd), row, false, 100);
             }
             else {
               Modify_Value(thermalManager.temp_bed.pid.Kd, 0, 5000, 100, thermalManager.updatePID);
@@ -2585,11 +2585,166 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif
       }
       break;
+
+    case Visual:
+
+      #define VISUAL_BACK 0
+      #define VISUAL_BACKLIGHT (VISUAL_BACK + 1)
+      #define VISUAL_BRIGHTNESS (VISUAL_BACKLIGHT + 1)
+      #define VISUAL_TIME_FORMAT (VISUAL_BRIGHTNESS + 1)
+      #define VISUAL_COLOR_THEMES (VISUAL_TIME_FORMAT + 1)
+      #define VISUAL_TOTAL VISUAL_COLOR_THEMES
+
+      switch (item) {
+        case VISUAL_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+          }
+          else {
+            Draw_Menu(Control, CONTROL_VISUAL);
+          }
+          break;
+        case VISUAL_BACKLIGHT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"Display Off");
+          }
+          else {
+            ui.set_brightness(0);
+          }
+          break;
+        case VISUAL_BRIGHTNESS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
+            Draw_Float(ui.brightness, row, false, 1);
+          }
+          else {
+            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1, ui.refresh_brightness);
+          }
+          break;
+        case VISUAL_TIME_FORMAT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_PrintTime, (char*)"Progress as __h__m");
+            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+          }
+          else {
+            eeprom_settings.time_format_textual = !eeprom_settings.time_format_textual;
+            Draw_Checkbox(row, eeprom_settings.time_format_textual);
+          }
+          break;
+        case VISUAL_COLOR_THEMES:
+        if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"UI Color Settings", NULL, true);
+          }
+          else {
+            Draw_Menu(ColorSettings);
+          }
+        break;  
+      }
+      break;
+
+
+    case ColorSettings:
+
+        #define COLORSETTINGS_BACK 0
+        #define COLORSETTINGS_CURSOR (COLORSETTINGS_BACK + 1)
+        #define COLORSETTINGS_SPLIT_LINE (COLORSETTINGS_CURSOR + 1)
+        #define COLORSETTINGS_HIGHLIGHT_BORDER (COLORSETTINGS_SPLIT_LINE + 1)
+        #define COLORSETTINGS_PROGRESS_PERCENT (COLORSETTINGS_HIGHLIGHT_BORDER + 1)
+        #define COLORSETTINGS_PROGRESS_TIME (COLORSETTINGS_PROGRESS_PERCENT + 1)
+        #define COLORSETTINGS_PROGRESS_STATUS_BAR (COLORSETTINGS_PROGRESS_TIME + 1)
+        #define COLORSETTINGS_PROGRESS_STATUS_AREA (COLORSETTINGS_PROGRESS_STATUS_BAR + 1)
+        #define COLORSETTINGS_PROGRESS_COORDINATES (COLORSETTINGS_PROGRESS_STATUS_AREA + 1)
+        #define COLORSETTINGS_TOTAL COLORSETTINGS_PROGRESS_COORDINATES
+
+        switch (item) {
+        case COLORSETTINGS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+          }
+          else {
+            Draw_Menu(Visual, VISUAL_COLOR_THEMES);
+          }
+          break;
+        case COLORSETTINGS_CURSOR:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Cursor");
+            Draw_Option(eeprom_settings.cursor_color, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.cursor_color, color_names, Custom_Colors);
+          }
+          break;
+        case COLORSETTINGS_SPLIT_LINE:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Menu Split Line");
+            Draw_Option(eeprom_settings.menu_split_line, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.menu_split_line, color_names, Custom_Colors);
+          }
+          break;  
+          case COLORSETTINGS_HIGHLIGHT_BORDER:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Highlight Box");
+            Draw_Option(eeprom_settings.highlight_box, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.highlight_box, color_names, Custom_Colors);
+          }
+          break; 
+          case COLORSETTINGS_PROGRESS_PERCENT:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Progress Percent");
+            Draw_Option(eeprom_settings.progress_percent, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.progress_percent, color_names, Custom_Colors);
+          }
+          break;  
+          case COLORSETTINGS_PROGRESS_TIME:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Progress Time");
+            Draw_Option(eeprom_settings.progress_time, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.progress_time, color_names, Custom_Colors);
+          }
+          break;           
+          case COLORSETTINGS_PROGRESS_STATUS_BAR:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Status Bar Text");
+            Draw_Option(eeprom_settings.status_bar_text, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.status_bar_text, color_names, Custom_Colors);
+          }
+          break;  
+          case COLORSETTINGS_PROGRESS_STATUS_AREA:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Status Area Text");
+            Draw_Option(eeprom_settings.status_area_text, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.status_area_text, color_names, Custom_Colors);
+          }
+          break;  
+          case COLORSETTINGS_PROGRESS_COORDINATES:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Coordinates Text");
+            Draw_Option(eeprom_settings.coordinates_text, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.coordinates_text, color_names, Custom_Colors);
+          }
+          break;                                       
+        }
+        break; 
+
+
     case Advanced:
 
       #define ADVANCED_BACK 0
-      #define ADVANCED_BRIGHTNESS (ADVANCED_BACK + 1)
-      #define ADVANCED_XOFFSET (ADVANCED_BRIGHTNESS + ENABLED(HAS_BED_PROBE))
+      #define ADVANCED_XOFFSET (ADVANCED_BACK + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
@@ -2597,9 +2752,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
       #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
-      #define ADVANCED_TIME_FORMAT (ADVANCED_POWER_LOSS + 1)
-      #define ADVANCED_COLOR_THEMES (ADVANCED_TIME_FORMAT + 1)
-      #define ADVANCED_TOTAL ADVANCED_COLOR_THEMES
+      #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
 
       switch (item) {
         case ADVANCED_BACK:
@@ -2608,15 +2761,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Control, CONTROL_ADVANCED);
-          }
-          break;
-        case ADVANCED_BRIGHTNESS:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
-            Draw_Float(ui.brightness, row, false, 1);
-          }
-          else {
-            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1, ui.refresh_brightness);
           }
           break;
         #if ENABLED(HAS_BED_PROBE)
@@ -2705,124 +2849,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Checkbox(row, recovery.enabled);
             }
             break;
-        #endif
-        case ADVANCED_TIME_FORMAT:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_PrintTime, (char*)"Progress as __h__m");
-            Draw_Checkbox(row, eeprom_settings.time_format_textual);
-          }
-          else {
-            eeprom_settings.time_format_textual = !eeprom_settings.time_format_textual;
-            Draw_Checkbox(row, eeprom_settings.time_format_textual);
-          }
-          break;
-        case ADVANCED_COLOR_THEMES:
-        if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"UI Color Settings", NULL, true);
-          }
-          else {
-            Draw_Menu(ColorSettings);
-          }
-        break;  
+        #endif 
       }
       break;
-
-    case ColorSettings:
-
-        #define COLORSETTINGS_BACK 0
-        #define COLORSETTINGS_CURSOR (COLORSETTINGS_BACK + 1)
-        #define COLORSETTINGS_SPLIT_LINE (COLORSETTINGS_CURSOR + 1)
-        #define COLORSETTINGS_HIGHLIGHT_BORDER (COLORSETTINGS_SPLIT_LINE + 1)
-        #define COLORSETTINGS_PROGRESS_PERCENT (COLORSETTINGS_HIGHLIGHT_BORDER + 1)
-        #define COLORSETTINGS_PROGRESS_TIME (COLORSETTINGS_PROGRESS_PERCENT + 1)
-        #define COLORSETTINGS_PROGRESS_STATUS_BAR (COLORSETTINGS_PROGRESS_TIME + 1)
-        #define COLORSETTINGS_PROGRESS_STATUS_AREA (COLORSETTINGS_PROGRESS_STATUS_BAR + 1)
-        #define COLORSETTINGS_PROGRESS_COORDINATES (COLORSETTINGS_PROGRESS_STATUS_AREA + 1)
-        #define COLORSETTINGS_TOTAL COLORSETTINGS_PROGRESS_COORDINATES
-
-        switch (item) {
-        case COLORSETTINGS_BACK:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_Back, (char*)"Back");
-          }
-          else {
-            Draw_Menu(Advanced, ADVANCED_COLOR_THEMES);
-          }
-          break;
-        case COLORSETTINGS_CURSOR:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Cursor");
-            Draw_Option(eeprom_settings.cursor_color, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.cursor_color, color_names, Custom_Colors);
-          }
-          break;
-        case COLORSETTINGS_SPLIT_LINE:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Menu Split Line");
-            Draw_Option(eeprom_settings.menu_split_line, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.menu_split_line, color_names, Custom_Colors);
-          }
-          break;  
-          case COLORSETTINGS_HIGHLIGHT_BORDER:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Highlight Box");
-            Draw_Option(eeprom_settings.highlight_box, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.highlight_box, color_names, Custom_Colors);
-          }
-          break; 
-          case COLORSETTINGS_PROGRESS_PERCENT:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Progress Percent");
-            Draw_Option(eeprom_settings.progress_percent, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.progress_percent, color_names, Custom_Colors);
-          }
-          break;  
-          case COLORSETTINGS_PROGRESS_TIME:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Progress Time");
-            Draw_Option(eeprom_settings.progress_time, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.progress_time, color_names, Custom_Colors);
-          }
-          break;           
-          case COLORSETTINGS_PROGRESS_STATUS_BAR:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Status Bar Text");
-            Draw_Option(eeprom_settings.status_bar_text, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.status_bar_text, color_names, Custom_Colors);
-          }
-          break;  
-          case COLORSETTINGS_PROGRESS_STATUS_AREA:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Status Area Text");
-            Draw_Option(eeprom_settings.status_area_text, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.status_area_text, color_names, Custom_Colors);
-          }
-          break;  
-          case COLORSETTINGS_PROGRESS_COORDINATES:
-           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Coordinates Text");
-            Draw_Option(eeprom_settings.coordinates_text, color_names, row, false, true);
-          }
-          else {
-            Modify_Option(eeprom_settings.coordinates_text, color_names, Custom_Colors);
-          }
-          break;                                       
-        }
-        break; 
 
     case InfoMain:
     case Info:
@@ -3795,6 +3824,8 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #endif
     case Steps:
       return (char*)"Steps/mm";
+    case Visual:
+      return (char*)"Visual Settings";
     case Advanced:
       return (char*)"Advanced Settings";
     case ColorSettings:
@@ -3895,6 +3926,8 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #endif
     case Steps:
       return STEPS_TOTAL;
+    case Visual:
+      return VISUAL_TOTAL;
     case Advanced:
       return ADVANCED_TOTAL;
     case Info:
@@ -4109,6 +4142,10 @@ inline void CrealityDWINClass::Value_Control() {
     tempvalue -= EncoderRate.encoderMoveValue;
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    process = Menu;
+    EncoderRate.enabled = false;
+    Draw_Float(tempvalue/valueunit, selection-scrollpos, false, valueunit);
+    DWIN_UpdateLCD();
     if (active_menu == ZOffset && liveadjust) {
       planner.synchronize();
       current_position.z += (tempvalue/valueunit - zoffsetvalue);
@@ -4132,10 +4169,6 @@ inline void CrealityDWINClass::Value_Control() {
       case 3: *(int16_t*)valuepointer = tempvalue/valueunit; break;
       case 4: *(uint32_t*)valuepointer = tempvalue/valueunit; break;
     }
-    process = Menu;
-    EncoderRate.enabled = false;
-    Draw_Float(tempvalue/valueunit, selection-scrollpos, false, valueunit);
-    DWIN_UpdateLCD();
     switch (active_menu) {
       case Move:
         planner.synchronize();
@@ -4494,9 +4527,9 @@ inline void CrealityDWINClass::Confirm_Control() {
 
 void CrealityDWINClass::Setup_Value(float value, float min, float max, float unit, uint8_t type) {
   if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki || valuepointer == &thermalManager.temp_bed.pid.Ki) 
-    tempvalue = unscalePID_i(tempvalue) * unit;
-  if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd || valuepointer == &thermalManager.temp_bed.pid.Kd) 
-    tempvalue = unscalePID_d(tempvalue) * unit;
+    tempvalue = unscalePID_i(value) * unit;
+  else if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd || valuepointer == &thermalManager.temp_bed.pid.Kd) 
+    tempvalue = unscalePID_d(value) * unit;
   else
     tempvalue = value * unit;
   valuemin = min;
