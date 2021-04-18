@@ -4482,10 +4482,6 @@ inline void CrealityDWINClass::Confirm_Control() {
                 Popup_Handler(last_popup);
                 break;
             }
-            if (last_popup == Runout)
-              Draw_Print_Screen();
-            else
-              Popup_Handler(last_popup);
             break;
         }
         wait_for_user = false;
