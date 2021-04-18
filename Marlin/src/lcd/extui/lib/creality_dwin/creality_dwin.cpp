@@ -89,7 +89,7 @@
 
 #define CORP_WEBSITE_E "github.com/Jyers"
 
-#define BUILD_NUMBER "1.2.2"
+#define BUILD_NUMBER "1.3.0"
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
@@ -364,7 +364,12 @@ inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uin
 }
 
 inline void CrealityDWINClass::Redraw_Menu() {
-  Draw_Menu(active_menu, selection, scrollpos);
+  if (active_menu == MainMenu) {
+    Draw_Main_Menu(selection);
+  }
+  else {
+    Draw_Menu(active_menu, selection, scrollpos);
+  }
 }
 
 /* Primary Menus and Screen Elements */
@@ -828,6 +833,7 @@ void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const ch
   else if (mode == Confirm) {
     DWIN_ICON_Show(ICON, ICON_Continue_E, 87, 283);
   }
+  ui.refresh_brightness();
 }
 
 void CrealityDWINClass::Popup_Select() {
@@ -1550,7 +1556,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define CONTROL_TEMP (CONTROL_BACK + 1)
       #define CONTROL_MOTION (CONTROL_TEMP + 1)
       #define CONTROL_ADVANCED (CONTROL_MOTION + 1)
-      #define CONTROL_SAVE (CONTROL_ADVANCED + ENABLED(EEPROM_SETTINGS))
+      #define CONTROL_BACKLIGHT (CONTROL_ADVANCED + 1)
+      #define CONTROL_SAVE (CONTROL_BACKLIGHT + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESTORE (CONTROL_SAVE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESET (CONTROL_RESTORE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_INFO (CONTROL_RESET + 1)
@@ -1587,6 +1594,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Advanced);
+          }
+          break;
+        case CONTROL_BACKLIGHT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"Display Off");
+          }
+          else {
+            ui.set_brightness(0);
           }
           break;
         #if ENABLED(EEPROM_SETTINGS)
@@ -1771,11 +1786,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HOTEND
             case PID_HOTEND:
               if (draw) {
-                Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend");
+                Draw_Menu_Item(row, ICON_HotendTemp, (char*)"Hotend");
               }
               else {
                 char buf[30];
-                sprintf(buf, "M303 E0 C%i S%i", PID_cycles, PID_e_temp);
+                sprintf(buf, "M303 E0 C%i S%i U1", PID_cycles, PID_e_temp);
                 gcode.process_subcommands_now_P(buf);
               }
               break;
@@ -1783,11 +1798,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HEATED_BED
             case PID_BED:
               if (draw) {
-                Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed");
+                Draw_Menu_Item(row, ICON_BedTemp, (char*)"Bed");
               }
               else {
                 char buf[30];
-                sprintf(buf, "M303 E-1 C%i S%i", PID_cycles, PID_bed_temp);
+                sprintf(buf, "M303 E-1 C%i S%i U1", PID_cycles, PID_bed_temp);
                 gcode.process_subcommands_now_P(buf);
               }
               break;
@@ -1795,7 +1810,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HOTEND
             case PID_E_TEMP:
               if (draw) {
-                Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Hotend Temp");
+                Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Hotend Temp");
                 Draw_Float(PID_e_temp, row, false, 1);
               }
               else {
@@ -1806,7 +1821,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           #if HAS_HEATED_BED
             case PID_BED_TEMP:
               if (draw) {
-                Draw_Menu_Item(row, ICON_FanSpeed, (char*)"Bed Temp");
+                Draw_Menu_Item(row, ICON_SetBedTemp, (char*)"Bed Temp");
                 Draw_Float(PID_bed_temp, row, false, 1);
               }
               else {
@@ -2399,7 +2414,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case Advanced:
 
       #define ADVANCED_BACK 0
-      #define ADVANCED_XOFFSET (ADVANCED_BACK + ENABLED(HAS_BED_PROBE))
+      #define ADVANCED_BRIGHTNESS (ADVANCED_BACK + 1)
+      #define ADVANCED_XOFFSET (ADVANCED_BRIGHTNESS + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
@@ -2417,6 +2433,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Control, CONTROL_ADVANCED);
+          }
+          break;
+        case ADVANCED_BRIGHTNESS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
+            Draw_Float(ui.brightness, row, false, 1);
+          }
+          else {
+            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1);
           }
           break;
         #if ENABLED(HAS_BED_PROBE)
@@ -3140,7 +3165,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define TUNE_ZDOWN (TUNE_ZUP + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_CHANGEFIL (TUNE_ZDOWN + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
       #define TUNE_FILSENSORENABLED (TUNE_CHANGEFIL + ENABLED(FILAMENT_RUNOUT_SENSOR))
-      #define TUNE_TOTAL TUNE_FILSENSORENABLED
+      #define TUNE_BACKLIGHT_OFF (TUNE_FILSENSORENABLED + 1)
+      #define TUNE_BACKLIGHT (TUNE_BACKLIGHT_OFF + 1)
+      #define TUNE_TOTAL TUNE_BACKLIGHT
 
       switch (item) {
         case TUNE_BACK:
@@ -3264,6 +3291,23 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+        case TUNE_BACKLIGHT_OFF:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"Display Off");
+          }
+          else {
+            ui.set_brightness(0);
+          }
+          break;
+        case TUNE_BACKLIGHT:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Brightness, (char*)"LCD Brightness");
+            Draw_Float(ui.brightness, row, false, 1);
+          }
+          else {
+            Modify_Value(ui.brightness, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, 1);
+          }
+          break;
       }
       break;
     case PreheatHotend:
@@ -3800,6 +3844,12 @@ inline void CrealityDWINClass::Value_Control() {
           break;
       #endif
     }
+    if (valuepointer == &ui.brightness) {
+      ui.refresh_brightness();
+    }
+    else if (valuepointer == &planner.flow_percentage[0]) {
+      planner.refresh_e_factor(0);
+    }
     return;
   }
   NOLESS(tempvalue, (valuemin * valueunit));
@@ -4064,6 +4114,9 @@ inline void CrealityDWINClass::Confirm_Control() {
     switch(popup) {
       case Complete:
         Draw_Main_Menu();
+        break;
+      case BacklightOff:
+        ui.refresh_brightness();
         break;
       case UI:
         switch(last_process) {
@@ -4358,5 +4411,21 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 }
 
 void CrealityDWINClass::SDCardInsert() { card.cdroot(); }
+
+uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+
+void MarlinUI::set_brightness(const uint8_t value) {
+  if (value == 0 && process != Confirm && process != Popup) {
+    last_process = process;
+    process = Confirm;
+    popup = BacklightOff;
+    DWIN_Backlight_SetLuminance(0);
+  }
+  else {
+    if (process == Confirm && popup == BacklightOff) process = last_process;
+    brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
+    DWIN_Backlight_SetLuminance(brightness);
+  }
+}
 
 #endif

@@ -127,7 +127,7 @@ bool DWIN_Handshake(void) {
 void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);
-  DWIN_Byte(i, _MAX(luminance, 0x1F));
+  DWIN_Byte(i, luminance);
   DWIN_Send(i);
 }
 
