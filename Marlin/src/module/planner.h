@@ -443,7 +443,7 @@ class Planner {
     /**
      * Limit where 64bit math is necessary for acceleration calculation
      */
-    static uint32_t cutoff_long;
+    static uint32_t acceleration_long_cutoff;
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       static float last_fade_z;
@@ -873,6 +873,13 @@ class Planner {
     // a Full Shutdown is required, or when endstops are hit)
     static void quick_stop();
 
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      // Force a quick pause of the machine (e.g., when a pause is required in the middle of move).
+      // NOTE: Hard-stops will lose steps so encoders are highly recommended if using these!
+      static void quick_pause();
+      static void quick_resume();
+    #endif
+
     // Called when an endstop is triggered. Causes the machine to stop inmediately
     static void endstop_triggered(const AxisEnum axis);
 
@@ -885,11 +892,9 @@ class Planner {
     // Wait for moves to finish and disable all steppers
     static void finish_and_disable();
 
-    // Periodic tick to handle cleaning timeouts
+    // Periodic handler to manage the cleaning buffer counter
     // Called from the Temperature ISR at ~1kHz
-    static void tick() {
-      if (cleaning_buffer_counter) --cleaning_buffer_counter;
-    }
+    static void isr() { if (cleaning_buffer_counter) --cleaning_buffer_counter; }
 
     /**
      * Does the buffer have any blocks queued?

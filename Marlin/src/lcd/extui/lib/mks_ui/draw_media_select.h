@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,29 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * G29.cpp - Unified Bed Leveling
- */
-
-#include "../../../inc/MarlinConfig.h"
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-
-#include "../../gcode.h"
-#include "../../../feature/bedlevel/bedlevel.h"
-
-#if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-  #include "../../../module/motion.h"
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-void GcodeSuite::G29() {
+extern void lv_draw_media_select();
+extern void lv_clear_media_select();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
-
-  ubl.G29();
-
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
-}
-
-#endif // AUTO_BED_LEVELING_UBL
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif

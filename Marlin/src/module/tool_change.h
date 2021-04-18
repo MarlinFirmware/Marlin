@@ -79,10 +79,9 @@
 
 #if ENABLED(PARKING_EXTRUDER)
 
-  #define PE_MAGNET_ON_STATE TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, !)PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
-
   void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state);
 
+  #define PE_MAGNET_ON_STATE TERN_(PARKING_EXTRUDER_SOLENOIDS_INVERT, !)PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
   inline void pe_solenoid_magnet_on(const uint8_t extruder_num)  { pe_solenoid_set_pin_state(extruder_num,  PE_MAGNET_ON_STATE); }
   inline void pe_solenoid_magnet_off(const uint8_t extruder_num) { pe_solenoid_set_pin_state(extruder_num, !PE_MAGNET_ON_STATE); }
 
@@ -113,6 +112,12 @@
   void est_init();
 #elif ENABLED(SWITCHING_TOOLHEAD)
   void swt_init();
+#endif
+
+#if ENABLED(TOOL_SENSOR)
+  uint8_t check_tool_sensor_stats(const uint8_t active_tool, const bool kill_on_error=false, const bool disable=false);
+#else
+  inline uint8_t check_tool_sensor_stats(const uint8_t, const bool=false, const bool=false) { return 0; }
 #endif
 
 /**

@@ -217,8 +217,9 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
-
   TERN_(PROBE_MANUALLY, static) G29_State abl;
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   reset_stepper_timeout();
 
@@ -897,7 +898,10 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+
   G29_RETURN(isnan(abl.measured_z));
+
 }
 
 #endif // HAS_ABL_NOT_UBL
