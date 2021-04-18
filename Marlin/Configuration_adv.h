@@ -2116,8 +2116,17 @@
 //#define EMERGENCY_PARSER
 
 /**
- * Realtime Reporting
- * Add support for commands S000 State, P000 Pause, and R000 Resume
+ * Realtime Reporting 
+ * 
+ * (requires EMERGENCY_PARSER)
+ * Reports position and state GRBL style of the machine. Autoreports position on long moves.
+ * Adds support for commands: 
+ * S000 :Instant report State and position while moving.
+ * P000 :Instant Pause/Hold while moving.
+ * R000 :Resume form Pause/Hold and continue moving.
+ * During Hold R000, M108, M112 (KILL), M410 (STOP), M876 are available.
+ * Relevant for CNC/LASER users.
+ * End state of moving commands will be reported when NANODLP_Z_SYNC and NANODLP_ALL_AXIS are enabled.
  */
 //#define REALTIME_REPORTING_COMMANDS
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
@@ -3935,3 +3944,9 @@
  * a crash from a remote location. Requires ~400 bytes of SRAM and 5Kb of flash.
  */
 //#define POSTMORTEM_DEBUGGING
+
+/**
+ * Resets the Processor automatically instead of locking it after a kill.
+ */
+#define DO_SOFT_RESET_ON_KILL
+#define INCLUDE_SOFT_RESET            // command KILL or ^X will soft reset the controller. Can be send from Host through Serial.
