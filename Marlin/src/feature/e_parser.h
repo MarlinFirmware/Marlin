@@ -41,9 +41,8 @@ extern bool wait_for_user, wait_for_heatup;
   void quickresume_stepper();
 #endif
 
-#if ENABLED(INCLUDE_SOFT_RESET)
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
   void soft_reset();
-  //void (*soft_reset)() = 0;      // Declare resetFunc() at address 0
 #endif
 
 class EmergencyParser {
@@ -67,9 +66,9 @@ public:
       EP_R, EP_R0, EP_R00, EP_GRBL_RESUME,
       EP_P, EP_P0, EP_P00, EP_GRBL_PAUSE,
     #endif
-    #if ENABLED(INCLUDE_SOFT_RESET)
+    #if ENABLED(SOFT_RESET_VIA_SERIAL)
       EP_ctrl,
-      EP_K,EP_KI,EP_KIL,EP_KILL,
+      EP_K, EP_KI, EP_KIL, EP_KILL,
     #endif
     EP_IGNORE // to '\n'
   };
@@ -98,7 +97,7 @@ public:
             case 'P': state = EP_P; break;
             case 'R': state = EP_R; break;
           #endif
-          #if ENABLED(INCLUDE_SOFT_RESET)
+          #if ENABLED(SOFT_RESET_VIA_SERIAL)
             case '^': state = EP_ctrl; break;
             case 'K': state = EP_K; break;
           #endif
@@ -133,11 +132,12 @@ public:
         case EP_P0:  state = (c == '0') ? EP_P00         : EP_IGNORE; break;
         case EP_P00: state = (c == '0') ? EP_GRBL_PAUSE  : EP_IGNORE; break;
       #endif
-      #if ENABLED(INCLUDE_SOFT_RESET)
-        case EP_ctrl:   state = (c == 'X') ? EP_KILL     : EP_IGNORE; break;
-        case EP_K:   state = (c == 'I') ? EP_KI          : EP_IGNORE; break;
-        case EP_KI:  state = (c == 'L') ? EP_KIL         : EP_IGNORE; break;
-        case EP_KIL: state = (c == 'L') ? EP_KILL        : EP_IGNORE; break;
+
+      #if ENABLED(SOFT_RESET_VIA_SERIAL)
+        case EP_ctrl: state = (c == 'X') ? EP_KILL : EP_IGNORE; break;
+        case EP_K:    state = (c == 'I') ? EP_KI   : EP_IGNORE; break;
+        case EP_KI:   state = (c == 'L') ? EP_KIL  : EP_IGNORE; break;
+        case EP_KIL:  state = (c == 'L') ? EP_KILL : EP_IGNORE; break;
       #endif
 
       case EP_M:
@@ -208,7 +208,7 @@ public:
               case EP_GRBL_PAUSE: quickpause_stepper(); break;
               case EP_GRBL_RESUME: quickresume_stepper(); break;
             #endif
-            #if ENABLED(INCLUDE_SOFT_RESET)
+            #if ENABLED(SOFT_RESET_VIA_SERIAL)
               case EP_KILL:  soft_reset();  break;
             #endif
             default: break;

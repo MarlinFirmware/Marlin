@@ -39,9 +39,8 @@ bool EmergencyParser::killed_by_M112, // = false
   uint8_t EmergencyParser::M876_reason; // = 0
 #endif
 
-#if ENABLED(INCLUDE_SOFT_RESET)
-  void soft_reset()
-  {
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
+  void soft_reset() {
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
   }

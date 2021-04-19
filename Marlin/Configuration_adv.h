@@ -2116,11 +2116,11 @@
 //#define EMERGENCY_PARSER
 
 /**
- * Realtime Reporting 
- * 
+ * Realtime Reporting
+ *
  * (requires EMERGENCY_PARSER)
  * Reports position and state GRBL style of the machine. Autoreports position on long moves.
- * Adds support for commands: 
+ * Adds support for commands:
  * S000 :Instant report State and position while moving.
  * P000 :Instant Pause/Hold while moving.
  * R000 :Resume form Pause/Hold and continue moving.
@@ -3946,7 +3946,7 @@
 //#define POSTMORTEM_DEBUGGING
 
 /**
- * Resets the Processor automatically instead of locking it after a kill.
+ * Reset the Processor automatically instead of locking it after a kill
  */
-#define DO_SOFT_RESET_ON_KILL
-#define INCLUDE_SOFT_RESET            // command KILL or ^X will soft reset the controller. Can be send from Host through Serial.
+//#define SOFT_RESET_ON_KILL
+//#define SOFT_RESET_VIA_SERIAL          // 'KILL' and '^X' commands will soft-reset the controller

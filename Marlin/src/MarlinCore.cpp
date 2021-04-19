@@ -863,23 +863,17 @@ void minkill(const bool steppers_off/*=false*/) {
   TERN_(HAS_SUICIDE, suicide());
 
   #if HAS_KILL
+    while (kill_state()) watchdog_refresh();  // Wait for kill to be released
+    while (!kill_state()) watchdog_refresh(); // Wait for kill to be pressed
+  #endif
 
-    // Wait for kill to be released
-    while (kill_state()) watchdog_refresh();
-
-    // Wait for kill to be pressed
-    while (!kill_state()) watchdog_refresh();
-
+  #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
+  #endif
 
-  #else
-    #if ENABLED(DO_SOFT_RESET_ON_KILL)
-      void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
-      resetFunc();                  // Jump to address 0
-    #endif
+  #if !HAS_KILL
     for (;;) watchdog_refresh();  // Wait for reset
-
   #endif
 }
 
