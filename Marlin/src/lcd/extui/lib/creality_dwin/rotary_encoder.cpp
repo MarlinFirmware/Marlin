@@ -41,6 +41,7 @@
 
 #if HAS_BUZZER
   #include "../../libs/buzzer.h"
+  #include "creality_dwin.h"
 #endif
 
 #include <stdlib.h>
@@ -54,9 +55,11 @@ ENCODER_Rate EncoderRate;
 // Buzzer
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    WRITE(BEEPER_PIN, HIGH);
-    delay(10);
-    WRITE(BEEPER_PIN, LOW);
+    if (CrealityDWIN.beeperenable) {
+      WRITE(BEEPER_PIN, HIGH);
+      delay(10);
+      WRITE(BEEPER_PIN, LOW);
+    }
   #endif
 }
 

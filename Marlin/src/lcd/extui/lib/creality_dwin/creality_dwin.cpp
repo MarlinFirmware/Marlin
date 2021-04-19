@@ -2791,7 +2791,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case Advanced:
 
       #define ADVANCED_BACK 0
-      #define ADVANCED_XOFFSET (ADVANCED_BACK + ENABLED(HAS_BED_PROBE))
+      #define ADVANCED_BEEPER (ADVANCED_BACK + 1)
+      #define ADVANCED_XOFFSET (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
@@ -2808,6 +2809,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Control, CONTROL_ADVANCED);
+          }
+          break;
+        case ADVANCED_BEEPER:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Version, (char*)"LCD Beeper");
+            Draw_Checkbox(row, beeperenable);
+          }
+          else {
+            beeperenable = !beeperenable;
+            Draw_Checkbox(row, beeperenable);
           }
           break;
         #if ENABLED(HAS_BED_PROBE)

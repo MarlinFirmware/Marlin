@@ -242,8 +242,6 @@ enum colorID : uint8_t {
 #define Select_Color        0x33BB  // Selected color
 #define Check_Color         0x4E5C  // Check-box check color
 
-extern millis_t dwin_heat_time;
-
 class CrealityDWINClass {
 
 public:
@@ -263,6 +261,8 @@ public:
   } eeprom_settings;
 
   char *color_names[8] = {(char*)"Default",(char*)"White",(char*)"Green",(char*)"Blue",(char*)"Magenta",(char*)"Red",(char*)"Yellow",(char*)"Brown"};
+
+  bool beeperenable = true;
 
   inline void Clear_Screen(uint8_t e=3);
   inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
