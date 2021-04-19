@@ -2394,16 +2394,16 @@ void Draw_HomeOff_Menu() {
 }
 
 #if HAS_ONESTEP_LEVELING
-void Draw_ProbeOff_Menu() {
-  Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_ZPROBE_OFFSETS));                 // Probe Offsets
-  Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, ICON_ProbeOffX, GET_TEXT(MSG_ZPROBE_XOFFSET));  // Probe X Offset
-  DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
-  Draw_Menu_Line(2, ICON_ProbeOffY, GET_TEXT(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
-  DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
-  if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+  void Draw_ProbeOff_Menu() {
+    Clear_Main_Window();
+    Draw_Title(GET_TEXT_F(MSG_ZPROBE_OFFSETS));                 // Probe Offsets
+    Draw_Back_First(select_item.now == 0);
+    Draw_Menu_Line(1, ICON_ProbeOffX, GET_TEXT(MSG_ZPROBE_XOFFSET));  // Probe X Offset
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
+    Draw_Menu_Line(2, ICON_ProbeOffY, GET_TEXT(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
+    if (select_item.now) Draw_Menu_Cursor(select_item.now);
+  }
 #endif
 
 #include "../../../libs/buzzer.h"
@@ -3486,72 +3486,73 @@ void HMI_HomeOffZ(){
 }
 
 #if HAS_ONESTEP_LEVELING
-/*Probe Offset */
-void HMI_ProbeOff() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  /*Probe Offset */
+  void HMI_ProbeOff() {
+    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_item.inc(1 + 2)) Move_Highlight(1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_item.dec()) Move_Highlight(-1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      switch (select_item.now) {
+        case 0: // Back
+          checkkey = AdvSet;
+          select_advset.set(ADVSET_CASE_PROBEOFF);
+          Draw_AdvSet_Menu();
+          break;
+        case 1: // Probe Offset X
+          checkkey = ProbeOffX;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
+          EncoderRate.enabled = true;
+          break;
+        case 2: // Probe Offset X
+          checkkey = ProbeOffY;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
+          EncoderRate.enabled = true;
+          break;
+      }
+    }
+    DWIN_UpdateLCD();
   }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_item.dec()) Move_Highlight(-1, select_item.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    switch (select_item.now) {
-      case 0: // Back
-        checkkey = AdvSet;
-        select_advset.set(ADVSET_CASE_PROBEOFF);
-        Draw_AdvSet_Menu();
-        break;
-      case 1: // Probe Offset X
-        checkkey = ProbeOffX;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Probe_OffX_scaled);
-        EncoderRate.enabled = true;
-        break;
-      case 2: // Probe Offset X
-        checkkey = ProbeOffY;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Probe_OffY_scaled);
-        EncoderRate.enabled = true;
-        break;
+
+  void HMI_ProbeOffX(){
+    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    if (encoder_diffState != ENCODER_DIFF_NO) {
+      if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffX_scaled)) {
+        checkkey = ProbeOff;
+        EncoderRate.enabled = false;
+        probe.offset.x = HMI_ValueStruct.Probe_OffX_scaled / 10;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
+        return;
+      }
+      NOMORE(HMI_ValueStruct.Probe_OffX_scaled, 500);
+      NOLESS(HMI_ValueStruct.Probe_OffX_scaled, -500);
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
     }
   }
-  DWIN_UpdateLCD();
-}
 
-void HMI_ProbeOffX(){
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffX_scaled)) {
-      checkkey = ProbeOff;
-      EncoderRate.enabled = false;
-      probe.offset.x = HMI_ValueStruct.Probe_OffX_scaled / 10;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
-      return;
+  void HMI_ProbeOffY(){
+    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    if (encoder_diffState != ENCODER_DIFF_NO) {
+      if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffY_scaled)) {
+        checkkey = ProbeOff;
+        EncoderRate.enabled = false;
+        probe.offset.y = HMI_ValueStruct.Probe_OffY_scaled / 10;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
+        return;
+      }
+      NOMORE(HMI_ValueStruct.Probe_OffY_scaled, 500);
+      NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
     }
-    NOMORE(HMI_ValueStruct.Probe_OffX_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffX_scaled, -500);
-    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffX_scaled);
   }
-}
-
-void HMI_ProbeOffY(){
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Probe_OffY_scaled)) {
-      checkkey = ProbeOff;
-      EncoderRate.enabled = false;
-      probe.offset.y = HMI_ValueStruct.Probe_OffY_scaled / 10;
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
-      return;
-    }
-    NOMORE(HMI_ValueStruct.Probe_OffY_scaled, 500);
-    NOLESS(HMI_ValueStruct.Probe_OffY_scaled, -500);
-    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), HMI_ValueStruct.Probe_OffY_scaled);
-  }
-}
 #endif
+
 /* Info */
 void HMI_Info() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -4066,9 +4067,9 @@ void DWIN_HandleScreen() {
     case HomeOffY:        HMI_HomeOffY(); break;
     case HomeOffZ:        HMI_HomeOffZ(); break;
     #if HAS_ONESTEP_LEVELING
-    case ProbeOff:        HMI_ProbeOff(); break;
-    case ProbeOffX:       HMI_ProbeOffX(); break;
-    case ProbeOffY:       HMI_ProbeOffY(); break;
+      case ProbeOff:        HMI_ProbeOff(); break;
+      case ProbeOffX:       HMI_ProbeOffX(); break;
+      case ProbeOffY:       HMI_ProbeOffY(); break;
     #endif
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
