@@ -33,23 +33,30 @@
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../ui_api.h"
 
+#if NONE(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
+  #define AUTO_DETECT_CHIRON_TFT 1
+#endif
+
 namespace Anycubic {
 
 class ChironTFT {
-  private:
-    static printer_state_t  printer_state;
-    static paused_state_t   pause_state;
-    static heater_state_t   hotend_state;
-    static heater_state_t   hotbed_state;
-    static xy_uint8_t       selectedmeshpoint;
-    static char             panel_command[MAX_CMND_LEN];
-    static uint8_t          command_len;
-    static char             selectedfile[MAX_PATH_LEN];
-    static float            live_Zoffset;
-    static file_menu_t      file_menu;
-
+  #if AUTO_DETECT_CHIRON_TFT
+    static panel_type_t panel_type;
+  #else
+    static constexpr panel_type_t panel_type = TERN(CHIRON_TFT_NEW, AC_panel_new, AC_panel_standard);
+  #endif
+  static last_error_t last_error;
+  static printer_state_t  printer_state;
+  static paused_state_t   pause_state;
+  static heater_state_t   hotend_state;
+  static heater_state_t   hotbed_state;
+  static xy_uint8_t       selectedmeshpoint;
+  static char             panel_command[MAX_CMND_LEN + 1];
+  static uint8_t          command_len;
+  static char             selectedfile[MAX_PATH_LEN + 1];
+  static float            live_Zoffset;
+  static file_menu_t      file_menu;
   public:
-    ChironTFT();
     static void Startup();
     static void IdleLoop();
     static void PrinterKilled(PGM_P,PGM_P);
@@ -59,12 +66,13 @@ class ChironTFT {
     static void ConfirmationRequest(const char * const );
     static void StatusChange(const char * const );
     static void PowerLossRecovery();
-
-  private:
+    static void PrintComplete();
     static void SendtoTFT(PGM_P);
     static void SendtoTFTLN(PGM_P);
+  private:
+    static void DetectPanelType();
     static bool ReadTFTCommand();
-    static int8_t Findcmndpos(const char *, char);
+    static int8_t FindToken(char);
     static void CheckHeaters();
     static void SendFileList(int8_t);
     static void SelectFile();
@@ -73,8 +81,9 @@ class ChironTFT {
     static void PanelInfo(uint8_t);
     static void PanelAction(uint8_t);
     static void PanelProcess(uint8_t);
+    static bool GetLastError();
 };
 
 extern ChironTFT Chiron;
 
-} // Anycubic
+} // Anycubic namespace
