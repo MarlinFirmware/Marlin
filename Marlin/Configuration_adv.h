@@ -2116,17 +2116,19 @@
 //#define EMERGENCY_PARSER
 
 /**
- * Realtime Reporting
+ * Realtime Reporting (requires EMERGENCY_PARSER)
  *
- * (requires EMERGENCY_PARSER)
- * Reports position and state GRBL style of the machine. Autoreports position on long moves.
+ * - Report position and state of the machine (like Grbl).
+ * - Auto-report position during long moves.
+ * - Useful for CNC/LASER.
+ *
  * Adds support for commands:
- * S000 :Instant report State and position while moving.
- * P000 :Instant Pause/Hold while moving.
- * R000 :Resume form Pause/Hold and continue moving.
- * During Hold R000, M108, M112 (KILL), M410 (STOP), M876 are available.
- * Relevant for CNC/LASER users.
- * End state of moving commands will be reported when NANODLP_Z_SYNC and NANODLP_ALL_AXIS are enabled.
+ *  S000 : Report State and Position while moving.
+ *  P000 : Instant Pause / Hold while moving.
+ *  R000 : Resume from Pause / Hold.
+ *
+ * - During Hold all Emergency Parser commands are available, as usual.
+ * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
  */
 //#define REALTIME_REPORTING_COMMANDS
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
@@ -3762,14 +3764,13 @@
 /**
  * NanoDLP Sync support
  *
- * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
- * string to enable synchronization with DLP projector exposure. This change will allow to use
- * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
+ * Support for Synchronized Z moves when used with NanoDLP. G0/G1 axis moves will
+ * output a "Z_move_comp" string to enable synchronization with DLP projector exposure.
+ * This feature allows you to use [[WaitForDoneMessage]] instead of M400 commands.
  */
 //#define NANODLP_Z_SYNC
 #if ENABLED(NANODLP_Z_SYNC)
-  //#define NANODLP_ALL_AXIS  // Enables "Z_move_comp" output on any axis move.
-                              // Default behavior is limited to Z axis only.
+  //#define NANODLP_ALL_AXIS  // Send a "Z_move_comp" report for any axis move (not just Z).
 #endif
 
 /**
@@ -3946,7 +3947,7 @@
 //#define POSTMORTEM_DEBUGGING
 
 /**
- * Reset the Processor automatically instead of locking it after a kill
+ * Reset the MCU automatically instead of locking it after a kill
  */
 //#define SOFT_RESET_ON_KILL
 //#define SOFT_RESET_VIA_SERIAL          // 'KILL' and '^X' commands will soft-reset the controller
