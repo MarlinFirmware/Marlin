@@ -1456,12 +1456,24 @@ void setup() {
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
-  #if MIXING_STEPPERS == 2 //load vtool presets for 2 steppers
-     queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P1\nM164 S1\nM163 S0 P0.50\nM163 S1 P0.50\nM164 S2\nM163 S0 P0.75\nM163 S1 P0.25\nM164 S3\nM163 S0 P0.25\nM163 S1 P0.75\nM164 S4\nM163 S0 P0.33\nM163 S1 P0.67\nM164 S5\nM163 S0 P0.67\nM163 S1 P0.33\nM164 S6\nM163 S0 P0.60\nM163 S1 P0.40\nM164 S7\nM163 S0 P1\nM163 S1 P0\nM164 S0"));
-  #elif MIXING_STEPPERS == 3 //load vtool presets for 3 steppers
-      queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P1\nM163 S2 P0\nM164 S1\nM163 S0 P0\nM163 S1 P0\nM163 S2 P1\nM164 S2\nM163 S0 P0.33\nM163 S1 P0.33\nM163 S2 P0.34\nM164 S3\nM163 S0 P0.25\nM163 S1 P0.75\nM163 S2 P0\nM164 S4\nM163 S0 P0\nM163 S1 P0.75\nM163 S2 P0.25\nM164 S5\nM163 S0 P0\nM163 S1 P0.50\nM163 S2 P0.50\nM164 S6\nM163 S0 P0.50\nM163 S1 P0.50\nM163 S2 P0\nM164 S7\nM163 S0 P1\nM163 S1 P0\nM163 S2 P0\nM164 S0"));
-  #else
-    
+  #if MIXING_STEPPERS == 2 //Vtool presets for 2 steppers
+     queue.inject_P(PSTR("M163 S0 P1\nM163 S1 P0\nM164 S0"));
+     queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P1\nM164 S1"));
+     queue.inject_P(PSTR("M163 S0 P0.50\nM163 S1 P0.50\nM164 S2"));
+     queue.inject_P(PSTR("M163 S0 P0.75\nM163 S1 P0.25\nM164 S3"));
+     queue.inject_P(PSTR("M163 S0 P0.25\nM163 S1 P0.75\nM164 S4"));
+     queue.inject_P(PSTR("M163 S0 P0.33\nM163 S1 P0.67\nM164 S5"));
+     queue.inject_P(PSTR("M163 S0 P0.67\nM163 S1 P0.33\nM164 S6"));
+     queue.inject_P(PSTR("M163 S0 P0.60\nM163 S1 P0.40\nM164 S7"));
+  #elif MIXING_STEPPERS == 3 // Vtool presets for 3 steppers
+    queue.inject_P(PSTR("M163 S0 P1\nM163 S1 P0\nM163 S2 P0\nM164 S0")); 
+    queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P1\nM163 S2 P0\nM164 S1"));  
+    queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P0\nM163 S2 P1\nM164 S2"));
+    queue.inject_P(PSTR("M163 S0 P0.33\nM163 S1 P0.33\nM163 S2 P0.34\nM164 S3"));
+    queue.inject_P(PSTR("M163 S0 P0.25\nM163 S1 P0.75\nM163 S2 P0\nM164 S4"));
+    queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P0.75\nM163 S2 P0.25\nM164 S5"));
+    queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P0.50\nM163 S2 P0.50\nM164 S6"));
+    queue.inject_P(PSTR("M163 S0 P0.50\nM163 S1 P0.50\nM163 S2 P0\nM164 S7")); 
   #endif
   
   #if ENABLED(HOST_PROMPT_SUPPORT)
