@@ -2141,8 +2141,19 @@
 //#define EMERGENCY_PARSER
 
 /**
- * Realtime Reporting
- * Add support for commands S000 State, P000 Pause, and R000 Resume
+ * Realtime Reporting (requires EMERGENCY_PARSER)
+ *
+ * - Report position and state of the machine (like Grbl).
+ * - Auto-report position during long moves.
+ * - Useful for CNC/LASER.
+ *
+ * Adds support for commands:
+ *  S000 : Report State and Position while moving.
+ *  P000 : Instant Pause / Hold while moving.
+ *  R000 : Resume from Pause / Hold.
+ *
+ * - During Hold all Emergency Parser commands are available, as usual.
+ * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
  */
 //#define REALTIME_REPORTING_COMMANDS
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
@@ -3778,14 +3789,13 @@
 /**
  * NanoDLP Sync support
  *
- * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
- * string to enable synchronization with DLP projector exposure. This change will allow to use
- * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
+ * Support for Synchronized Z moves when used with NanoDLP. G0/G1 axis moves will
+ * output a "Z_move_comp" string to enable synchronization with DLP projector exposure.
+ * This feature allows you to use [[WaitForDoneMessage]] instead of M400 commands.
  */
 //#define NANODLP_Z_SYNC
 #if ENABLED(NANODLP_Z_SYNC)
-  //#define NANODLP_ALL_AXIS  // Enables "Z_move_comp" output on any axis move.
-                              // Default behavior is limited to Z axis only.
+  //#define NANODLP_ALL_AXIS  // Send a "Z_move_comp" report for any axis move (not just Z).
 #endif
 
 /**
