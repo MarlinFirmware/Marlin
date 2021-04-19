@@ -54,7 +54,7 @@ static bool probe_single_point() {
   z_measured[tram_index] = z_probed_height;
   move_to_tramming_wait_pos();
 
-  return !ISNAN(z_probed_height);
+  return !isnan(z_probed_height);
 }
 
 static void _menu_single_probe(const uint8_t point) {
