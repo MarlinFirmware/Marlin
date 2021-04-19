@@ -32,7 +32,7 @@
 namespace FTDI {
   void draw_adjuster_value(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, float value, progmem_str units, int8_t width, uint8_t precision) {
     char str[width + precision + 10 + (units ? strlen_P((const char*) units) : 0)];
-    if (ISNAN(value))
+    if (isnan(value))
       strcpy_P(str, PSTR("-"));
     else
       dtostrf(value, width, precision, str);

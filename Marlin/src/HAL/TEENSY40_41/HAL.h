@@ -74,7 +74,7 @@ extern USBSerialType USBSerial;
   DECLARE_SERIAL(SERIAL_PORT);
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 8, or -1 for Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -85,7 +85,7 @@ extern USBSerialType USBSerial;
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -2 to 8. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 8, or -1 for Native USB, or -2 for Ethernet."
   #endif
 #endif
 

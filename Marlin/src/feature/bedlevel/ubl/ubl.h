@@ -196,7 +196,7 @@ public:
   #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
     #define _UBL_OUTER_Z_RAISE UBL_Z_RAISE_WHEN_OFF_MESH
   #else
-    #define _UBL_OUTER_Z_RAISE MFNAN
+    #define _UBL_OUTER_Z_RAISE NAN
   #endif
 
   /**
@@ -269,7 +269,7 @@ public:
     const float z2 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][my], mesh_index_to_xpos(cx + 1), z_values[mx][my]);
     float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
 
-    if (ISNAN(z0)) { // if part of the Mesh is undefined, it will show up as MFNAN
+    if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
       z0 = 0.0;      // in ubl.z_values[][] and propagate through the
                      // calculations. If our correction is NAN, we throw it out
                      // because part of the Mesh is undefined and we don't have the
@@ -301,7 +301,7 @@ public:
   #endif
 
   static inline bool mesh_is_valid() {
-    GRID_LOOP(x, y) if (ISNAN(z_values[x][y])) return false;
+    GRID_LOOP(x, y) if (isnan(z_values[x][y])) return false;
     return true;
   }
 
