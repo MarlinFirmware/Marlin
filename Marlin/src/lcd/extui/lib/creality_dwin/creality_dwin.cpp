@@ -1224,9 +1224,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y32.5"));
-            char buf[20];
-            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            char buf[80];
+            sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", 32.5f, 32.5f, mlev_z_pos);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
@@ -1238,9 +1237,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X32.5 Y197.5"));
-            char buf[20];
-            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            char buf[80];
+            sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", 32.5f, (Y_BED_SIZE + Y_MIN_POS) - 32.5f, mlev_z_pos);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
@@ -1252,9 +1250,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y197.5"));
-            char buf[20];
-            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            char buf[80];
+            sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS) - 32.5f, (Y_BED_SIZE + Y_MIN_POS) - 32.5f, mlev_z_pos);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
@@ -1266,9 +1263,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X197.5 Y32.5"));
-            char buf[20];
-            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            char buf[80];
+            sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS) - 32.5f, 32.5f, mlev_z_pos);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
@@ -1280,9 +1276,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            gcode.process_subcommands_now_P(PSTR("G0 F4000\nG0 Z10\nG0 X117.5 Y117.5"));
-            char buf[20];
-            sprintf(buf, "G0 F300 Z%f", mlev_z_pos);
+            char buf[80];
+            sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS)/2.0f, (Y_BED_SIZE + Y_MIN_POS)/2.0f, mlev_z_pos);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
             Redraw_Menu();
