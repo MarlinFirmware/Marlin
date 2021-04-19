@@ -76,6 +76,7 @@
 #include "draw_homing_sensitivity_settings.h"
 #include "draw_baby_stepping.h"
 #include "draw_keyboard.h"
+#include "draw_media_select.h"
 #include "draw_encoder_settings.h"
 
 #include "../../../../inc/MarlinConfigPre.h"
@@ -197,7 +198,7 @@ typedef struct {
   uint8_t   wifi_type;
   bool      cloud_enable,
             encoder_enable;
-  int       trammingPos[5][2]; // XY
+  xy_int_t  trammingPos[5];
   int       filamentchange_load_length,
             filamentchange_load_speed,
             filamentchange_unload_length,
@@ -289,7 +290,7 @@ typedef enum {
   TOOL_UI,
   HARDWARE_TEST_UI,
   WIFI_LIST_UI,
-  KEY_BOARD_UI,
+  KEYBOARD_UI,
   WIFI_TIPS_UI,
   MACHINE_PARA_UI,
   MACHINE_SETTINGS_UI,
@@ -327,6 +328,7 @@ typedef enum {
   ENCODER_SETTINGS_UI,
   TOUCH_CALIBRATION_UI,
   GCODE_UI,
+  MEDIA_SELECT_UI,
 } DISP_STATE;
 
 typedef struct {
@@ -442,28 +444,28 @@ extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 
-extern void gCfgItems_init();
-extern void ui_cfg_init();
-extern void tft_style_init();
+void gCfgItems_init();
+void ui_cfg_init();
+void tft_style_init();
 extern char *creat_title_text();
-extern void preview_gcode_prehandle(char *path);
-extern void update_spi_flash();
-extern void update_gcode_command(int addr,uint8_t *s);
-extern void get_gcode_command(int addr,uint8_t *d);
-extern void lv_serial_capt_hook(void *, uint8_t);
-extern void lv_eom_hook(void *);
+void preview_gcode_prehandle(char *path);
+void update_spi_flash();
+void update_gcode_command(int addr,uint8_t *s);
+void get_gcode_command(int addr,uint8_t *d);
+void lv_serial_capt_hook(void *, uint8_t);
+void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
-  extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+  void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
-extern void GUI_RefreshPage();
-extern void clear_cur_ui();
-extern void draw_return_ui();
-extern void sd_detection();
-extern void gCfg_to_spiFlah();
-extern void print_time_count();
+void GUI_RefreshPage();
+void clear_cur_ui();
+void draw_return_ui();
+void sd_detection();
+void gCfg_to_spiFlah();
+void print_time_count();
 
-extern void LV_TASK_HANDLER();
-extern void lv_ex_line(lv_obj_t *line, lv_point_t *points);
+void LV_TASK_HANDLER();
+void lv_ex_line(lv_obj_t *line, lv_point_t *points);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
@@ -482,7 +484,7 @@ void lv_btn_use_label_style(lv_obj_t *btn);
 void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
 
 // Create a screen
-lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title = nullptr);
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par);

@@ -76,7 +76,7 @@ uint16_t FilesScreen::getFileForTag(uint8_t tag) {
   #define GRID_ROWS (files_per_page + header_h + footer_h)
 #endif
 
-void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir, bool is_highlighted) {
+void FilesScreen::drawFileButton(const char *filename, uint8_t tag, bool is_dir, bool is_highlighted) {
   const uint8_t line = getLineForTag(tag)+1;
   CommandProcessor cmd;
   cmd.tag(tag);

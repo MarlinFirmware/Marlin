@@ -22,6 +22,8 @@
 
 #pragma once
 
+#if ENABLED(TOUCH_UI_FTDI_EVE)
+
 #include "../ftdi_eve_lib/ftdi_eve_lib.h"
 #include "../language/language.h"
 #include "../theme/theme.h"
@@ -59,7 +61,8 @@ enum {
       ZOFFSET_SCREEN_CACHE,
     #endif
     #if HAS_MESH
-      BED_MESH_SCREEN_CACHE,
+      BED_MESH_VIEW_SCREEN_CACHE,
+      BED_MESH_EDIT_SCREEN_CACHE,
     #endif
   #endif
   #if ENABLED(BABYSTEPPING)
@@ -204,7 +207,9 @@ enum {
     #include "z_offset_screen.h"
   #endif
   #if HAS_MESH
-    #include "bed_mesh_screen.h"
+    #include "bed_mesh_base.h"
+    #include "bed_mesh_view_screen.h"
+    #include "bed_mesh_edit_screen.h"
   #endif
 #endif
 
@@ -260,3 +265,5 @@ enum {
 #if NUM_LANGUAGES > 1
   #include "language_menu.h"
 #endif
+
+#endif // TOUCH_UI_FTDI_EVE

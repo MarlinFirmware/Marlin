@@ -76,7 +76,7 @@
   #define FONT_STATUSMENU_NAME MENU_FONT_NAME
 #endif
 
-U8G_CLASS u8g(U8G_PARAM);
+U8G_CLASS u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -252,6 +252,13 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
+
+  static bool did_init_u8g = false;
+  if (!did_init_u8g) {
+    u8g.init(U8G_PARAM);
+    did_init_u8g = true;
+  }
+
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
@@ -385,7 +392,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
                     pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
@@ -400,7 +407,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
@@ -529,7 +536,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;  // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;  // The origin is typically in the lower right corner.  We need to
                                                                     // invert the Y to get it to plot in the right location.
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
@@ -669,7 +676,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const float zvalue) {
+    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;

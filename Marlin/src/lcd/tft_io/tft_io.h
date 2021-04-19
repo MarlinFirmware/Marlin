@@ -23,14 +23,16 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
 
 #if HAS_SPI_TFT
   #include HAL_PATH(../../HAL, tft/tft_spi.h)
 #elif HAS_FSMC_TFT
   #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+#elif HAS_LTDC_TFT
+  #include HAL_PATH(../../HAL, tft/tft_ltdc.h)
 #else
-  #error "TFT IO only supports SPI or FSMC interface"
+  #error "TFT IO only supports SPI, FSMC or LTDC interface"
 #endif
 
 #define TFT_EXCHANGE_XY (1UL << 1)
@@ -91,6 +93,7 @@
   #define TOUCH_ORIENTATION     TOUCH_LANDSCAPE
 #endif
 
+#define LTDC_RGB        0xABAB
 #define SSD1963         0x5761
 #define ST7735          0x89F0
 #define ST7789          0x8552

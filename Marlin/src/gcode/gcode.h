@@ -1074,6 +1074,10 @@ private:
     static void M1001();
   #endif
 
+  #if ENABLED(DGUS_LCD_UI_MKS)
+    static void M1002();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
   #endif

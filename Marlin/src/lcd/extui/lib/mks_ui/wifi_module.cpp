@@ -53,7 +53,7 @@
 #define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk (char* path , uint8_t recu_level);
+extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -178,14 +178,14 @@ void changeFlashMode(const bool dmaMode) {
   }
 }
 
-static bool longName2DosName(const char *longName, uint8_t *dosName) {
+static bool longName2DosName(const char *longName, char *dosName) {
   uint8_t i;
   for (i = FILENAME_LENGTH; i--;) dosName[i] = '\0';
   while (*longName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
-      strcat_P((char *)dosName, PSTR(".GCO"));
+      strcat_P(dosName, PSTR(".GCO"));
       break;
     }
     else {
@@ -196,7 +196,7 @@ static bool longName2DosName(const char *longName, uint8_t *dosName) {
       dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
     }
     if (i >= 5) {
-      strcat_P((char *)dosName, PSTR("~1.GCO"));
+      strcat_P(dosName, PSTR("~1.GCO"));
       break;
     }
   }
@@ -566,7 +566,7 @@ static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
   return msgLen - cutLen;
 }
 
-uint8_t Explore_Disk(char* path , uint8_t recu_level) {
+uint8_t Explore_Disk(char *path , uint8_t recu_level) {
   char tmp[200];
   char Fstream[200];
 
@@ -680,7 +680,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                     strcat_P((char *)list_file.file_name[sel_id], PSTR("/"));
 
                   if (file_writer.fileTransfer == 1) {
-                    uint8_t dosName[FILENAME_LENGTH];
+                    char dosName[FILENAME_LENGTH];
                     uint8_t fileName[sizeof(list_file.file_name[sel_id])];
                     fileName[0] = '\0';
                     if (has_path_selected == 1) {
@@ -690,8 +690,8 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                     else strcat((char *)fileName, (char *)&tmpStr[index]);
                     if (!longName2DosName((const char *)fileName, dosName))
                       strcpy_P(list_file.file_name[sel_id], PSTR("notValid"));
-                    strcat((char *)list_file.file_name[sel_id], (char *)dosName);
-                    strcat((char *)list_file.long_name[sel_id], (char *)dosName);
+                    strcat((char *)list_file.file_name[sel_id], dosName);
+                    strcat((char *)list_file.long_name[sel_id], dosName);
                   }
                   else {
                     strcat((char *)list_file.file_name[sel_id], (char *)&tmpStr[index]);
@@ -883,11 +883,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             SEND_OK_TO_WIFI;
 
             char *outBuf = (char *)tempBuf;
-            char str_1[16], tbuf[34];
+            char tbuf[34];
 
-            dtostrf(thermalManager.degHotend(0), 1, 1, tbuf);
-            strcat_P(tbuf, PSTR(" /"));
-            strcat(tbuf, dtostrf(thermalManager.degTargetHotend(0), 1, 1, str_1));
+            sprintf_P(tbuf, PSTR("%d /%d"), (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0));
 
             const int tlen = strlen(tbuf);
 
@@ -897,9 +895,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcpy_P(outBuf, PSTR(" B:"));
             outBuf += 3;
             #if HAS_HEATED_BED
-              strcpy(outBuf, dtostrf(thermalManager.temp_bed.celsius, 1, 1, str_1));
-              strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.temp_bed.target, 1, 1, str_1));
+              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degBed(), (int)thermalManager.degTargetBed());
             #else
               strcpy_P(outBuf, PSTR("0 /0"));
             #endif
@@ -912,9 +908,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
             #if HAS_MULTI_HOTEND
-              strcat(outBuf, dtostrf(thermalManager.degHotend(1), 1, 1, str_1));
-              strcat_P(outBuf, PSTR(" /"));
-              strcat(outBuf, dtostrf(thermalManager.degTargetHotend(1), 1, 1, str_1));
+              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1));
             #else
               strcat_P(outBuf, PSTR("0 /0"));
             #endif
@@ -924,15 +918,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
-                (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target,
+                thermalManager.degBed(), thermalManager.degTargetBed(),
               #else
                 0, 0,
               #endif
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
+                thermalManager.degHotend(1), thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif
@@ -1148,7 +1142,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
   int8_t valid_name_num;
 
   if (msgLen <= 0) return;
-  if (disp_state == KEY_BOARD_UI) return;
+  if (disp_state == KEYBOARD_UI) return;
 
   wifi_list.getNameNum = msg[0];
 
@@ -1309,9 +1303,9 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
   #if ENABLED(SDSUPPORT)
 
-    uint8_t dosName[FILENAME_LENGTH];
+    char dosName[FILENAME_LENGTH];
 
-    if (!longName2DosName((const char *)file_writer.saveFileName,dosName)) {
+    if (!longName2DosName((const char *)file_writer.saveFileName, dosName)) {
       clear_cur_ui();
       upload_result = 2;
       wifiTransError.flag = 1;
@@ -1319,7 +1313,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
       lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
       return;
     }
-    sprintf_P((char *)saveFilePath, PSTR("%s"), dosName);
+    strcpy((char *)saveFilePath, dosName);
 
     card.cdroot();
     upload_file.close();
