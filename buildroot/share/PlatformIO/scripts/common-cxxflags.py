@@ -3,12 +3,6 @@
 # Convenience script to apply customizations to CPP flags
 #
 Import("env")
-
-# Detect that 'vscode init' is running
-from SCons.Script import COMMAND_LINE_TARGETS
-if "idedata" in COMMAND_LINE_TARGETS:
-    env.Exit(0)
-
 env.Append(CXXFLAGS=[
   "-Wno-register"
   #"-Wno-incompatible-pointer-types",
