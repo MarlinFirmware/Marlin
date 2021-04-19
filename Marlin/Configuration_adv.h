@@ -988,7 +988,7 @@
 // Increase the slowdown divisor for larger buffer sizes.
 #define SLOWDOWN
 #if ENABLED(SLOWDOWN)
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2)
+  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427)
     #define SLOWDOWN_DIVISOR 4
   #else
     #define SLOWDOWN_DIVISOR 2
@@ -1108,7 +1108,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427)
   #define ADAPTIVE_STEP_SMOOTHING
 #endif
 
@@ -1334,7 +1334,7 @@
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
-  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, SKR14Turbo, SKR14, , Creality422, Creality427)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, SKR14Turbo, SKR14, , Creality422, Creality427)
     #define SD_DETECT_STATE HIGH
   #endif
 
@@ -2149,7 +2149,7 @@
 
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2) || DISABLED(EXTENSIBLE_UI)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) || DISABLED(EXTENSIBLE_UI)
   #define BLOCK_BUFFER_SIZE 16
 #else
   #define BLOCK_BUFFER_SIZE 8
@@ -2159,7 +2159,7 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineEnder3V2) //melzi has more ram than a 2560
+#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) //melzi has more ram than a 2560
   #define BUFSIZE 16
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
   #define BUFSIZE 8
@@ -2218,7 +2218,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#if NONE(SKRPRO11, SKRMiniE3V2, MachineEnder3V2, MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427)
+#if NONE(SKRPRO11, SKRMiniE3V2)
   #define EMERGENCY_PARSER
 #endif
 
@@ -2276,7 +2276,7 @@
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  */
- #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2)
+ #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427)
   #define FWRETRACT
 #endif
 #if ENABLED(FWRETRACT)
@@ -4103,7 +4103,9 @@
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-//#define PINS_DEBUGGING
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427)
+  #define PINS_DEBUGGING
+#endif
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE

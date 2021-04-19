@@ -463,7 +463,7 @@
   #endif
 #endif
 
-#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427)
+#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
   #if NONE(BedAC, BedDC)
     #define BedDC
@@ -474,6 +474,12 @@
 #if ANY(MachineEnder3Pro422, MachineEnder3Pro427)
   #define MachineEnder3
   #define RET6_12864_LCD
+#endif
+
+#if ENABLED(MachineEnder3Pro422)
+  #define Creality422
+#elif ENABLED(MachineEnder3Pro427)
+  #define Creality427
 #endif
 
 #if EITHER(Creality422, Creality427) && DISABLED(MachineEnder3V2)
@@ -580,7 +586,7 @@
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
-#elif ANY(MachineEnder3Pro422, MachineEnder3Pro427) && DISABLED(MachineEnder3V2)
+#elif ANY(Creality422, Creality427) && DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
 #endif
 
