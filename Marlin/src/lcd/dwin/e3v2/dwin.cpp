@@ -255,11 +255,11 @@ void ICON_Leveling(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 226);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 226, 254, 325);
-    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 298);
+    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 298);
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 226);
-    DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 298);
+    DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 298);
   }
 }
 
@@ -2357,7 +2357,7 @@ void Draw_FilamentMan_Menu(){
 
 void Draw_ManualLev_Menu() {
   Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
+  Draw_Title(GET_TEXT_F(MSG_MANUAL_LEVELING));
   Draw_Back_First(select_item.now == 0);
   DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MANLEV_FL));
   DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FR));
