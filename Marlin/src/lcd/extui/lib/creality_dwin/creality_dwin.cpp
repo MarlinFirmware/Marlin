@@ -171,6 +171,7 @@ bool sdprint = false;
 
 int16_t pausetemp, pausebed, pausefan;
 
+bool livemove = false;
 bool liveadjust = false;
 bool bedonly = false;
 float zoffsetvalue = 0;
@@ -1110,7 +1111,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define MOVE_Z (MOVE_Y + 1)
       #define MOVE_E (MOVE_Z + ENABLED(HAS_HOTEND))
       #define MOVE_P (MOVE_E + ENABLED(HAS_BED_PROBE))
-      #define MOVE_TOTAL MOVE_P
+      #define MOVE_LIVE (MOVE_P + 1)
+      #define MOVE_TOTAL MOVE_LIVE
 
       switch (item) {
         case MOVE_BACK:
@@ -1190,7 +1192,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
-
+        case MOVE_LIVE:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Live Movement");
+            Draw_Checkbox(row, livemove);
+          }
+          else {
+            livemove = !livemove;
+            Draw_Checkbox(row, livemove);
+          }
+          break;
       }
       break;
     case ManualLevel:
@@ -4252,6 +4263,10 @@ inline void CrealityDWINClass::Value_Control() {
   NOMORE(tempvalue, (valuemax * valueunit));
   Draw_Float(tempvalue/valueunit, selection-scrollpos, true, valueunit);
   DWIN_UpdateLCD();
+  if (active_menu == Move && livemove) {
+    *(float*)valuepointer = tempvalue/valueunit;
+    planner.buffer_line(current_position, manual_feedrate_mm_s[selection-1], active_extruder);
+  }
 }
 
 inline void CrealityDWINClass::Option_Control() {
