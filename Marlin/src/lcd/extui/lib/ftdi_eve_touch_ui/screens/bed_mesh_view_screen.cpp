@@ -55,7 +55,7 @@ constexpr static float gaugeThickness = 0.25;
 static float meshGetter(uint8_t x, uint8_t y, void*) {
   xy_uint8_t pos;
   pos.x = x;
-  pos.y = y;  
+  pos.y = y;
   return ExtUI::getMeshPoint(pos);
 }
 
@@ -73,14 +73,14 @@ void BedMeshViewScreen::drawHighlightedPointValue() {
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
 
-  if(mydata.highlight.x != -1)
+  if (mydata.highlight.x != -1)
     draw_adjuster_value(cmd, Z_VALUE_POS, ExtUI::getMeshPoint(mydata.highlight), GET_TEXT_F(MSG_UNITS_MM), 4, 3);
 
   cmd.colors(action_btn)
      .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
-  if(mydata.message) cmd.text(MESSAGE_POS, mydata.message);
+  if (mydata.message) cmd.text(MESSAGE_POS, mydata.message);
 }
 
 void BedMeshViewScreen::onRedraw(draw_mode_t what) {
