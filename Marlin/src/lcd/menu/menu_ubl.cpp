@@ -603,6 +603,15 @@ void _menu_ubl_tools() {
 
 #endif
 
+void _lcd_ubl_mesh_wizard() {
+  char ubl_lcd_gcode[16];
+  #if HAS_HEATED_BED
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), custom_bed_temp);
+  #else
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004S0"));
+  #endif  
+  }
+
 /**
  * UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
@@ -613,8 +622,8 @@ void _menu_ubl_mesh_wizard() {
   #if HAS_HEATED_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
   #endif
-
-  GCODES_ITEM(MSG_UBL_MESH_WIZARD, PSTR("M1004S%i"));
+  
+  ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
 
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
