@@ -864,7 +864,7 @@ void minkill(const bool steppers_off/*=false*/) {
   TERN_(HAS_SUICIDE, suicide());
 
   #if HAS_KILL
-    while (kill_state()) watchdog_refresh();  // Wait for kill to be released
+    while ( kill_state()) watchdog_refresh();  // Wait for kill to be released
     while (!kill_state()) watchdog_refresh(); // Wait for kill to be pressed
   #endif
 
