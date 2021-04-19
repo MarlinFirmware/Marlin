@@ -22,12 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
+#ifdef FTDI_COCOA_STATUS_SCREEN
 
 #include "cocoa_press_ui.h"
 
@@ -87,10 +84,8 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
   int16_t x, y, h, v;
 
   if (what & BACKGROUND) {
-    cmd.cmd(COLOR_RGB(bg_color));
-
     cmd.cmd(COLOR_RGB(fluid_rgb));
-    cmd.font(font_medium);
+    cmd.font(font_medium).tag(10);
 
     ui.bounds(POLY(chocolate_label), x, y, h, v);
     cmd.text(x, y, h, v, GET_TEXT_F(MSG_CHOCOLATE));
@@ -120,7 +115,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     char str[15];
     cmd.cmd(COLOR_RGB(fluid_rgb));
 
-    cmd.font(font_large);
+    cmd.font(font_large).tag(10);
 
     format_temp(str, getActualTemp_celsius(E0));
     ui.bounds(POLY(h0_temp), x, y, h, v);
@@ -145,11 +140,8 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 }
 
 void StatusScreen::draw_syringe(draw_mode_t what) {
-  #if NUM_SERVOS < 2
-    // Note, this requires a new pin 108 to be added to to access ADC9
-    // "ArduinoAddons/arduino-1.8.5/packages/ultimachine/hardware/sam/1.6.9-b/variants/archim/variant.cpp"
-    const int val = analogRead(108);
-    const float fill_level = float(val) / 1024;
+  #if ENABLED(COCOA_PRESS_CHOCOLATE_LEVEL_SENSOR)
+    const float fill_level = get_chocolate_fill_level();
   #else
     constexpr float fill_level = 1.0f;
   #endif
@@ -193,15 +185,13 @@ void StatusScreen::draw_buttons(draw_mode_t what) {
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
 
-  ui.bounds(POLY(unload_cartridge_btn), x, y, h, v);
-
   cmd.font(font_medium).colors(normal_btn);
 
-  ui.bounds(POLY(unload_cartridge_btn), x, y, h, v);
-  cmd.tag(1).button(x, y, h, v, GET_TEXT_F(MSG_UNLOAD_CARTRIDGE));
+  ui.bounds(POLY(park_btn), x, y, h, v);
+  cmd.tag(1).button(x, y, h, v, GET_TEXT_F(MSG_FILAMENT_PARK_ENABLED));
 
   ui.bounds(POLY(load_chocolate_btn), x, y, h, v);
-  cmd.tag(2).button(x, y, h, v, GET_TEXT_F(MSG_LOAD_CHOCOLATE));
+  cmd.tag(2).button(x, y, h, v, GET_TEXT_F(MSG_LOAD_UNLOAD));
 
   ui.bounds(POLY(preheat_chocolate_btn), x, y, h, v);
   cmd.tag(3).button(x, y, h, v, GET_TEXT_F(MSG_PREHEAT_CHOCOLATE));
@@ -243,7 +233,7 @@ bool StatusScreen::onTouchStart(uint8_t) {
 
 bool StatusScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case  1: GOTO_SCREEN(UnloadCartridgeScreen); break;
+    case  1: SpinnerDialogBox::enqueueAndWait_P(F("G28 O\nG27")); break;
     case  2: GOTO_SCREEN(LoadChocolateScreen); break;
     case  3: GOTO_SCREEN(PreheatMenu); break;
     case  4: GOTO_SCREEN(MainMenu); break;
@@ -271,6 +261,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       PUSH_SCREEN(StatusScreen);
       break;
     case  9: GOTO_SCREEN(FilesScreen); break;
+    case 10: GOTO_SCREEN(TemperatureScreen); break;
     default: return false;
   }
   // If a passcode is enabled, the LockScreen will prevent the
@@ -281,8 +272,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 bool StatusScreen::onTouchHeld(uint8_t tag) {
   if (tag == 8 && !ExtUI::isMoving()) {
-    increment = 0.05;
-    MoveAxisScreen::setManualFeedrate(E0, increment);
+    LoadChocolateScreen::setManualFeedrateAndIncrement(1, increment);
     UI_INCREMENT(AxisPosition_mm, E0);
     current_screen.onRefresh();
   }
@@ -304,4 +294,4 @@ void StatusScreen::onIdle() {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_COCOA_STATUS_SCREEN

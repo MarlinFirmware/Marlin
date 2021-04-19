@@ -21,14 +21,15 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
 
+#ifdef FTDI_MOVE_AXIS_SCREEN
+
 using namespace FTDI;
 using namespace ExtUI;
+
+constexpr static MoveAxisScreenData &mydata = screen_data.MoveAxisScreen;
 
 void BaseMoveAxisScreen::onEntry() {
   // Since Marlin keeps only one absolute position for all the extruders,
@@ -37,7 +38,7 @@ void BaseMoveAxisScreen::onEntry() {
   // screen is entered.
 
   LOOP_L_N(i, ExtUI::extruderCount) {
-    screen_data.MoveAxis.e_rel[i] = 0;
+    mydata.e_rel[i] = 0;
   }
   BaseNumericAdjustmentScreen::onEntry();
 }
@@ -54,23 +55,26 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
 
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxis.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  mydata.e_rel[0], canMove(E0));
   #elif HAS_MULTI_EXTRUDER
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxis.e_rel[0], canMove(E0));
-    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxis.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), mydata.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), mydata.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxis.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), mydata.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxis.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), mydata.e_rel[3], canMove(E3));
     #endif
+  #endif
+  #if Z_HOME_DIR < 0
+    w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
   #endif
   w.increments();
 }
 
 bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
-  #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
-  #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
+  #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
+  #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
     case  2: UI_DECREMENT_AXIS(X); break;
@@ -80,30 +84,36 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
     case  6: UI_DECREMENT_AXIS(Z); break;
     case  7: UI_INCREMENT_AXIS(Z); break;
     // For extruders, also update relative distances.
-    case  8: UI_DECREMENT_AXIS(E0); screen_data.MoveAxis.e_rel[0] -= increment; break;
-    case  9: UI_INCREMENT_AXIS(E0); screen_data.MoveAxis.e_rel[0] += increment; break;
+    case  8: UI_DECREMENT_AXIS(E0); mydata.e_rel[0] -= increment; break;
+    case  9: UI_INCREMENT_AXIS(E0); mydata.e_rel[0] += increment; break;
     #if HAS_MULTI_EXTRUDER
-    case 10: UI_DECREMENT_AXIS(E1); screen_data.MoveAxis.e_rel[1] -= increment; break;
-    case 11: UI_INCREMENT_AXIS(E1); screen_data.MoveAxis.e_rel[1] += increment; break;
+    case 10: UI_DECREMENT_AXIS(E1); mydata.e_rel[1] -= increment; break;
+    case 11: UI_INCREMENT_AXIS(E1); mydata.e_rel[1] += increment; break;
     #endif
     #if EXTRUDERS > 2
-    case 12: UI_DECREMENT_AXIS(E2); screen_data.MoveAxis.e_rel[2] -= increment; break;
-    case 13: UI_INCREMENT_AXIS(E2); screen_data.MoveAxis.e_rel[2] += increment; break;
+    case 12: UI_DECREMENT_AXIS(E2); mydata.e_rel[2] -= increment; break;
+    case 13: UI_INCREMENT_AXIS(E2); mydata.e_rel[2] += increment; break;
     #endif
     #if EXTRUDERS > 3
-    case 14: UI_DECREMENT_AXIS(E3); screen_data.MoveAxis.e_rel[3] -= increment; break;
-    case 15: UI_INCREMENT_AXIS(E3); screen_data.MoveAxis.e_rel[3] += increment; break;
+    case 14: UI_DECREMENT_AXIS(E3); mydata.e_rel[3] -= increment; break;
+    case 15: UI_INCREMENT_AXIS(E3); mydata.e_rel[3] += increment; break;
     #endif
     case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28X")); break;
     case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28Y")); break;
     case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
-    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28"));   break;
+    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28")); break;
+    case 24: raiseZtoTop(); break;
     default:
       return false;
   }
   #undef UI_DECREMENT_AXIS
   #undef UI_INCREMENT_AXIS
   return true;
+}
+
+void BaseMoveAxisScreen::raiseZtoTop() {
+  constexpr xyze_feedrate_t homing_feedrate = HOMING_FEEDRATE_MM_M;
+  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate[Z_AXIS]);
 }
 
 float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
@@ -130,4 +140,4 @@ void MoveAxisScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_MOVE_AXIS_SCREEN

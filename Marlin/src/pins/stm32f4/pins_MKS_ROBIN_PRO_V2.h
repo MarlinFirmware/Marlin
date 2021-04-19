@@ -21,9 +21,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
 #endif
 
@@ -326,7 +327,8 @@
   //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
   #define LCD_PINS_ENABLE                   PD13
@@ -368,4 +370,5 @@
     #endif
 
   #endif // !MKS_MINI_12864
-#endif // HAS_SPI_LCD
+
+#endif // HAS_WIRED_LCD

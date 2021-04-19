@@ -196,7 +196,7 @@ class CLCD::CommandFifo {
     void execute();
 
     void cmd(uint32_t cmd32);
-    void cmd(void* data, uint16_t len);
+    void cmd(void *data, uint16_t len);
 
     void dlstart()      {cmd(FTDI::CMD_DLSTART);}
     void swap()         {cmd(FTDI::CMD_SWAP);}

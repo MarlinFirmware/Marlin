@@ -53,7 +53,7 @@
 // ------------------------
 
 #ifndef STM32_FLASH_SIZE
-  #if EITHER(MCU_STM32F103RE, MCU_STM32F103VE)
+  #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
@@ -61,11 +61,11 @@
 #endif
 
 #ifdef SERIAL_USB
-  typedef ForwardSerial0Type< USBSerial > DefaultSerial;
-  extern DefaultSerial MSerial;
+  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
 
   #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial MSerial
+    #define UsbSerial MSerial0
   #else
     #define UsbSerial MarlinCompositeSerial
   #endif
@@ -81,24 +81,30 @@
 #endif
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
+  #define MYSERIAL1 UsbSerial
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
-#elif NUM_UARTS == 5
-  #error "SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+  #define MYSERIAL1 MSERIAL(1) // dummy port
+  #if NUM_UARTS == 5
+    #error "SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
+  #else
+    #error "SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
+  #endif
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
+    #define MYSERIAL2 UsbSerial
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
-  #elif NUM_UARTS == 5
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 5. Please update your configuration."
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 3. Please update your configuration."
+    #define MYSERIAL2 MSERIAL(1) // dummy port
+    #if NUM_UARTS == 5
+      #error "SERIAL_PORT_2 must be from 1 to 5. You can also use -1 if the board supports Native USB."
+    #else
+      #error "SERIAL_PORT_2 must be from 1 to 3. You can also use -1 if the board supports Native USB."
+    #endif
   #endif
 #endif
 
@@ -107,10 +113,13 @@
     #define MMU2_SERIAL UsbSerial
   #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
-  #elif NUM_UARTS == 5
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #define MMU2_SERIAL MSERIAL(1) // dummy port
+    #if NUM_UARTS == 5
+      #error "MMU2_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
+    #else
+      #error "MMU2_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
+    #endif
   #endif
 #endif
 
@@ -119,10 +128,13 @@
     #define LCD_SERIAL UsbSerial
   #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #elif NUM_UARTS == 5
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #define LCD_SERIAL MSERIAL(1) // dummy port
+    #if NUM_UARTS == 5
+      #error "LCD_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
+    #else
+      #error "LCD_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
+    #endif
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()

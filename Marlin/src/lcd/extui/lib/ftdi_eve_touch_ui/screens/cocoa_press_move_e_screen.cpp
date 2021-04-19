@@ -22,31 +22,32 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_COCOA_MOVE_E_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
 
+constexpr static MoveAxisScreenData &mydata = screen_data.MoveAxisScreen;
+
 void MoveEScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(1);
+  w.precision(1, DEFAULT_MIDRANGE);
   w.units(GET_TEXT_F(MSG_UNITS_MM));
   w.heading(                           GET_TEXT_F(MSG_E_MOVE));
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxis.e_rel[0], canMove(E0));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  mydata.e_rel[0], canMove(E0));
   #elif HAS_MULTI_EXTRUDER
-    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxis.e_rel[0], canMove(E0));
-    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxis.e_rel[1], canMove(E1));
+    w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), mydata.e_rel[0], canMove(E0));
+    w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), mydata.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
-      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), screen_data.MoveAxis.e_rel[2], canMove(E2));
+      w.adjuster( 12, GET_TEXT_F(MSG_AXIS_E3), mydata.e_rel[2], canMove(E2));
     #endif
     #if EXTRUDERS > 3
-      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), screen_data.MoveAxis.e_rel[3], canMove(E3));
+      w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), mydata.e_rel[3], canMove(E3));
     #endif
   #endif
   w.increments();
@@ -59,4 +60,4 @@ void MoveEScreen::onIdle() {
   }
   BaseScreen::onIdle();
 }
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_COCOA_MOVE_E_SCREEN

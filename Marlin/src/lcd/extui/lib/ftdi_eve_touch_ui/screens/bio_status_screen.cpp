@@ -22,12 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
+#ifdef FTDI_BIO_STATUS_SCREEN
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
@@ -376,4 +373,4 @@ void StatusScreen::onIdle() {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BIO_STATUS_SCREEN

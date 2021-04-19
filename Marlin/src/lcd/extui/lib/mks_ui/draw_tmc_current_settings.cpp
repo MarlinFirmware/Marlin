@@ -101,7 +101,7 @@ void lv_draw_tmc_current_settings() {
     #else
       milliamps = -1;
     #endif
-    sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+    dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.X_Current, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_CURRENT_X, 0, public_buf_l);
 
     #if AXIS_IS_TMC(Y)
@@ -109,7 +109,7 @@ void lv_draw_tmc_current_settings() {
     #else
       milliamps = -1;
     #endif
-    sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+    dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.Y_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_CURRENT_Y, 1, public_buf_l);
 
     #if AXIS_IS_TMC(Z)
@@ -117,7 +117,7 @@ void lv_draw_tmc_current_settings() {
     #else
       milliamps = -1;
     #endif
-    sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+    dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.Z_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_CURRENT_Z, 2, public_buf_l);
 
     #if AXIS_IS_TMC(E0)
@@ -125,7 +125,7 @@ void lv_draw_tmc_current_settings() {
     #else
       milliamps = -1;
     #endif
-    sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+    dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E0_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_TMC_CURRENT_E0, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_CURRENT_DOWN, true);
@@ -136,7 +136,7 @@ void lv_draw_tmc_current_settings() {
     #else
       milliamps = -1;
     #endif
-    sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+    dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E1_Current, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_CURRENT_E1, 0, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_CURRENT_UP, true);

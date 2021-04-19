@@ -21,11 +21,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_INTERFACE_SOUNDS_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -93,7 +92,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     cmd.font(font_medium)
        .colors(ui_slider)
     #define EDGE_R 30
-       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettings.volume, 0xFF)
+       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume, 0xFF)
        .colors(ui_toggle)
        .tag(3).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
     #undef EDGE_R
@@ -108,7 +107,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
 }
 
 void InterfaceSoundsScreen::onEntry() {
-  screen_data.InterfaceSettings.volume = SoundPlayer::get_volume();
+  screen_data.InterfaceSettingsScreen.volume = SoundPlayer::get_volume();
   BaseScreen::onEntry();
 }
 
@@ -145,8 +144,8 @@ void InterfaceSoundsScreen::onIdle() {
     CommandProcessor cmd;
     switch (cmd.track_tag(value)) {
       case 2:
-        screen_data.InterfaceSettings.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettings.volume);
+        screen_data.InterfaceSettingsScreen.volume = value >> 8;
+        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
         SaveSettingsDialogBox::settingsChanged();
         break;
       default:
@@ -157,4 +156,4 @@ void InterfaceSoundsScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_INTERFACE_SOUNDS_SCREEN

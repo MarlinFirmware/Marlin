@@ -29,7 +29,7 @@
 inline void report_workspace_plane() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Workspace Plane ");
-  serialprintPGM(
+  SERIAL_ECHOPGM_P(
       gcode.workspace_plane == GcodeSuite::PLANE_YZ ? PSTR("YZ\n")
     : gcode.workspace_plane == GcodeSuite::PLANE_ZX ? PSTR("ZX\n")
                                                     : PSTR("XY\n")

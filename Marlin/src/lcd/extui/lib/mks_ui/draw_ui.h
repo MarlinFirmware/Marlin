@@ -69,13 +69,14 @@
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
 #include "draw_level_settings.h"
-#include "draw_manual_level_pos_settings.h"
+#include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
 #include "draw_filament_change.h"
 #include "draw_filament_settings.h"
 #include "draw_homing_sensitivity_settings.h"
 #include "draw_baby_stepping.h"
 #include "draw_keyboard.h"
+#include "draw_media_select.h"
 #include "draw_encoder_settings.h"
 
 #include "../../../../inc/MarlinConfigPre.h"
@@ -184,36 +185,34 @@ extern char public_buf_m[100];
 extern char public_buf_l[30];
 
 typedef struct {
-  uint32_t spi_flash_flag;
-  uint8_t disp_rotation_180;
-  bool multiple_language;
-  uint8_t language;
-  uint8_t leveling_mode;
-  bool from_flash_pic;
-  bool finish_power_off;
-  bool pause_reprint;
-  uint8_t wifi_mode_sel;
-  uint8_t fileSysType;
-  uint8_t wifi_type;
-  bool  cloud_enable,
-        encoder_enable;
-  int   levelingPos[5][2];
-  int   filamentchange_load_length,
-        filamentchange_load_speed,
-        filamentchange_unload_length,
-        filamentchange_unload_speed,
-        filament_limit_temper;
-  float pausePosX,
-        pausePosY,
-        pausePosZ;
-  uint32_t curFilesize;
+  uint32_t  spi_flash_flag;
+  uint8_t   disp_rotation_180;
+  bool      multiple_language;
+  uint8_t   language;
+  uint8_t   leveling_mode;
+  bool      from_flash_pic;
+  bool      finish_power_off;
+  bool      pause_reprint;
+  uint8_t   wifi_mode_sel;
+  uint8_t   fileSysType;
+  uint8_t   wifi_type;
+  bool      cloud_enable,
+            encoder_enable;
+  xy_int_t  trammingPos[5];
+  int       filamentchange_load_length,
+            filamentchange_load_speed,
+            filamentchange_unload_length,
+            filamentchange_unload_speed;
+  celsius_t filament_limit_temp;
+  float     pausePosX, pausePosY, pausePosZ;
+  uint32_t  curFilesize;
 } CFG_ITMES;
 
 typedef struct {
   uint8_t curTempType:1,
-          curSprayerChoose:3,
+          extruderIndex:3,
           stepHeat:4,
-          curSprayerChoose_bak:4;
+          extruderIndexBak:4;
   bool    leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
@@ -246,7 +245,7 @@ typedef struct {
            filament_loading_time_cnt,
            filament_unloading_time_cnt;
   float move_dist;
-  float desireSprayerTempBak;
+  celsius_t hotendTargetTempBak;
   float current_x_position_bak,
         current_y_position_bak,
         current_z_position_bak,
@@ -291,7 +290,7 @@ typedef enum {
   TOOL_UI,
   HARDWARE_TEST_UI,
   WIFI_LIST_UI,
-  KEY_BOARD_UI,
+  KEYBOARD_UI,
   WIFI_TIPS_UI,
   MACHINE_PARA_UI,
   MACHINE_SETTINGS_UI,
@@ -329,6 +328,7 @@ typedef enum {
   ENCODER_SETTINGS_UI,
   TOUCH_CALIBRATION_UI,
   GCODE_UI,
+  MEDIA_SELECT_UI,
 } DISP_STATE;
 
 typedef struct {
@@ -444,28 +444,28 @@ extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 
-extern void gCfgItems_init();
-extern void ui_cfg_init();
-extern void tft_style_init();
+void gCfgItems_init();
+void ui_cfg_init();
+void tft_style_init();
 extern char *creat_title_text();
-extern void preview_gcode_prehandle(char *path);
-extern void update_spi_flash();
-extern void update_gcode_command(int addr,uint8_t *s);
-extern void get_gcode_command(int addr,uint8_t *d);
-extern void lv_serial_capt_hook(void *, uint8_t);
-extern void lv_eom_hook(void *);
+void preview_gcode_prehandle(char *path);
+void update_spi_flash();
+void update_gcode_command(int addr,uint8_t *s);
+void get_gcode_command(int addr,uint8_t *d);
+void lv_serial_capt_hook(void *, uint8_t);
+void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW
-  extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+  void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
-extern void GUI_RefreshPage();
-extern void clear_cur_ui();
-extern void draw_return_ui();
-extern void sd_detection();
-extern void gCfg_to_spiFlah();
-extern void print_time_count();
+void GUI_RefreshPage();
+void clear_cur_ui();
+void draw_return_ui();
+void sd_detection();
+void gCfg_to_spiFlah();
+void print_time_count();
 
-extern void LV_TASK_HANDLER();
-extern void lv_ex_line(lv_obj_t *line, lv_point_t *points);
+void LV_TASK_HANDLER();
+void lv_ex_line(lv_obj_t *line, lv_point_t *points);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
@@ -484,7 +484,7 @@ void lv_btn_use_label_style(lv_obj_t *btn);
 void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
 
 // Create a screen
-lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title = nullptr);
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par);

@@ -21,11 +21,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
 
 using namespace FTDI;
 
@@ -51,10 +50,16 @@ bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-void ConfirmUserRequestAlertBox::show(const char* msg) {
+void ConfirmUserRequestAlertBox::onIdle() {
+  if (!ExtUI::awaitingUserConfirm()) {
+    hide();
+  }
+}
+
+void ConfirmUserRequestAlertBox::show(const char *msg) {
   drawMessage(msg);
   storeBackground();
-  screen_data.AlertDialog.isError = false;
+  screen_data.AlertDialogBox.isError = false;
   GOTO_SCREEN(ConfirmUserRequestAlertBox);
 }
 
@@ -63,4 +68,4 @@ void ConfirmUserRequestAlertBox::hide() {
     GOTO_PREVIOUS();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_CONFIRM_USER_REQUEST_ALERT_BOX

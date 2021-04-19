@@ -2,7 +2,7 @@
  * anycubic_i3mega_lcd.h  --- Support for Anycubic i3 Mega TFT
  * Created by Christian Hopp on 09.12.17.
  * Improved by David Ramiro
- * Converted to ext_iu by John BouAntoun 21 June 2020
+ * Converted to ExtUI by John BouAntoun 21 June 2020
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -48,49 +48,47 @@ enum AnycubicMediaPauseState {
 class AnycubicTFTClass {
 public:
   AnycubicTFTClass();
-  void OnSetup();
-  void OnCommandScan();
-  void OnKillTFT();
-  void OnSDCardStateChange(bool);
-  void OnSDCardError();
-  void OnFilamentRunout();
-  void OnUserConfirmRequired(const char *);
-  void OnPrintTimerStarted();
-  void OnPrintTimerPaused();
-  void OnPrintTimerStopped();
+  static void OnSetup();
+  static void OnCommandScan();
+  static void OnKillTFT();
+  static void OnSDCardStateChange(bool);
+  static void OnSDCardError();
+  static void OnFilamentRunout();
+  static void OnUserConfirmRequired(const char *);
+  static void OnPrintTimerStarted();
+  static void OnPrintTimerPaused();
+  static void OnPrintTimerStopped();
 
 private:
-  char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
-  int TFTbuflen=0;
-  int TFTbufindr = 0;
-  int TFTbufindw = 0;
-  char serial3_char;
-  int serial3_count = 0;
-  char *TFTstrchr_pointer;
-  uint8_t SpecialMenu = false;
-  AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-  AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+  static char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
+  static int TFTbuflen, TFTbufindr, TFTbufindw;
+  static char serial3_char;
+  static int serial3_count;
+  static char *TFTstrchr_pointer;
+  static uint8_t SpecialMenu;
+  static AnycubicMediaPrintState mediaPrintingState;
+  static AnycubicMediaPauseState mediaPauseState;
 
-  float CodeValue();
-  bool CodeSeen(char);
-  bool IsNozzleHomed();
-  void RenderCurrentFileList();
-  void RenderSpecialMenu(uint16_t);
-  void RenderCurrentFolder(uint16_t);
-  void GetCommandFromTFT();
-  void CheckSDCardChange();
-  void CheckPauseState();
-  void CheckPrintCompletion();
-  void HandleSpecialMenu();
-  void DoSDCardStateCheck();
-  void DoFilamentRunoutCheck();
-  void StartPrint();
-  void PausePrint();
-  void ResumePrint();
-  void StopPrint();
+  static float CodeValue();
+  static bool CodeSeen(char);
+  static bool IsNozzleHomed();
+  static void RenderCurrentFileList();
+  static void RenderSpecialMenu(uint16_t);
+  static void RenderCurrentFolder(uint16_t);
+  static void GetCommandFromTFT();
+  static void CheckSDCardChange();
+  static void CheckPauseState();
+  static void CheckPrintCompletion();
+  static void HandleSpecialMenu();
+  static void DoSDCardStateCheck();
+  static void DoFilamentRunoutCheck();
+  static void StartPrint();
+  static void PausePrint();
+  static void ResumePrint();
+  static void StopPrint();
 
-  char SelectedDirectory[30];
-  char SelectedFile[FILENAME_LENGTH];
+  static char SelectedDirectory[30];
+  static char SelectedFile[FILENAME_LENGTH];
 };
 
 extern AnycubicTFTClass AnycubicTFT;

@@ -58,7 +58,7 @@ void GcodeSuite::M851() {
       if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
         offs.x = x;
       else {
-        SERIAL_ECHOLNPAIR("?X out of range (-", int(X_BED_SIZE), " to ", int(X_BED_SIZE), ")");
+        SERIAL_ECHOLNPAIR("?X out of range (-", X_BED_SIZE, " to ", X_BED_SIZE, ")");
         ok = false;
       }
     #else
@@ -72,7 +72,7 @@ void GcodeSuite::M851() {
       if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
         offs.y = y;
       else {
-        SERIAL_ECHOLNPAIR("?Y out of range (-", int(Y_BED_SIZE), " to ", int(Y_BED_SIZE), ")");
+        SERIAL_ECHOLNPAIR("?Y out of range (-", Y_BED_SIZE, " to ", Y_BED_SIZE, ")");
         ok = false;
       }
     #else
@@ -85,7 +85,7 @@ void GcodeSuite::M851() {
     if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       offs.z = z;
     else {
-      SERIAL_ECHOLNPAIR("?Z out of range (", int(Z_PROBE_OFFSET_RANGE_MIN), " to ", int(Z_PROBE_OFFSET_RANGE_MAX), ")");
+      SERIAL_ECHOLNPAIR("?Z out of range (", Z_PROBE_OFFSET_RANGE_MIN, " to ", Z_PROBE_OFFSET_RANGE_MAX, ")");
       ok = false;
     }
   }

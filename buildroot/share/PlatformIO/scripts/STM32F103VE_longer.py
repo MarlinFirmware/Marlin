@@ -1,3 +1,7 @@
+#
+# STM32F103VE_longer.py
+# Customizations for env:STM32F103VE_longer
+#
 import os
 Import("env")
 
@@ -13,7 +17,6 @@ for i, flag in enumerate(env["LINKFLAGS"]):
         env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
     elif flag == "-T":
         env["LINKFLAGS"][i + 1] = custom_ld_script
-
 
 # Rename ${PROGNAME}.bin and save it as 'project.bin' (No encryption on the Longer3D)
 def encrypt(source, target, env):

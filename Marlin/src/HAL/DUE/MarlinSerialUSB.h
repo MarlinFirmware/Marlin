@@ -34,24 +34,23 @@
 
 
 struct MarlinSerialUSB {
-  static void begin(const long);
-  static void end();
-  static int peek();
-  static int read();
-  static void flush();
-  static void flushTX();
-  static bool available();
-  static size_t write(const uint8_t c);
+  void begin(const long);
+  void end();
+  int peek();
+  int read();
+  void flush();
+  int available();
+  size_t write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-    FORCE_INLINE static uint32_t dropped() { return 0; }
+    FORCE_INLINE uint32_t dropped() { return 0; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-    FORCE_INLINE static int rxMaxEnqueued() { return 0; }
+    FORCE_INLINE int rxMaxEnqueued() { return 0; }
   #endif
 };
-typedef Serial0Type<MarlinSerialUSB> MSerialT;
+typedef Serial1Class<MarlinSerialUSB> MSerialT;
 
 #if SERIAL_PORT == -1
   extern MSerialT customizedSerial1;
