@@ -25,9 +25,7 @@
  * Wanhao 0ne+ pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"

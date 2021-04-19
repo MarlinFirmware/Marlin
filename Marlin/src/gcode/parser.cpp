@@ -47,13 +47,13 @@ char *GCodeParser::command_ptr,
 char GCodeParser::command_letter;
 uint16_t GCodeParser::codenum;
 
-#if ENABLED(USE_GCODE_SUBCODES)
+#if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
 #endif
 
 #if ENABLED(GCODE_MOTION_MODES)
   int16_t GCodeParser::motion_mode_codenum = -1;
-  #if ENABLED(USE_GCODE_SUBCODES)
+  #if USE_GCODE_SUBCODES
     uint8_t GCodeParser::motion_mode_subcode;
   #endif
 #endif
@@ -106,8 +106,10 @@ void GCodeParser::reset() {
 
 #endif
 
-// Populate all fields by parsing a single line of GCode
-// 58 bytes of SRAM are used to speed up seen/value
+/**
+ * Populate the command line state (command_letter, codenum, subcode, and string_arg)
+ * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
+ */
 void GCodeParser::parse(char *p) {
 
   reset(); // No codes to report
@@ -147,10 +149,12 @@ void GCodeParser::parse(char *p) {
     #define SIGNED_CODENUM 1
   #endif
 
-  // Bail if the letter is not G, M, or T
-  // (or a valid parameter for the current motion mode)
+  /**
+   * Screen for good command letters. G, M, and T are always accepted.
+   * With Motion Modes enabled any axis letter can come first.
+   * With Realtime Reporting, commands S000, P000, and R000 are allowed.
+   */
   switch (letter) {
-
     case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
@@ -189,7 +193,7 @@ void GCodeParser::parse(char *p) {
       }
 
       // Allow for decimal point in command
-      #if ENABLED(USE_GCODE_SUBCODES)
+      #if USE_GCODE_SUBCODES
         if (*p == '.') {
           p++;
           while (NUMERIC(*p))
@@ -213,10 +217,10 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J': case 'R':
+        case 'I' ... 'J': 
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P' ... 'Q':
+      case 'Q':
         if (motion_mode_codenum != 5) return;
       case 'X' ... 'Z': case 'E' ... 'F':
         if (motion_mode_codenum < 0) return;
@@ -225,7 +229,24 @@ void GCodeParser::parse(char *p) {
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
       break;
-    #endif // GCODE_MOTION_MODES
+    #endif
+
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      case 'P': case 'R': {
+        if (letter == 'R') {
+          #if ENABLED(GCODE_MOTION_MODES)
+            if (ENABLED(ARC_SUPPORT) && !WITHIN(motion_mode_codenum, 2, 3)) return;
+          #endif
+        }
+        else if (TERN0(GCODE_MOTION_MODES, motion_mode_codenum != 5)) return;
+      } // fall-thru
+      case 'S': {
+        codenum = 0;                  // The only valid codenum is 0
+        uint8_t digits = 0;
+        while (*p++ == '0') digits++; // Count up '0' characters
+        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
+      } return;                       // No parameters needed, so return now
+    #endif
 
     default: return;
   }
@@ -307,7 +328,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got param ", param, " at index ", (int)(p - command_ptr - 1));
+          SERIAL_ECHOPAIR("Got param ", AS_CHAR(param), " at index ", p - command_ptr - 1);
           if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif
@@ -391,8 +412,8 @@ void GCodeParser::unknown_command_warning() {
             "\n   sec-ms: ", value_millis_from_seconds(),
             "\n      int: ", value_int(),
             "\n   ushort: ", value_ushort(),
-            "\n     byte: ", (int)value_byte(),
-            "\n     bool: ", (int)value_bool(),
+            "\n     byte: ", value_byte(),
+            "\n     bool: ", value_bool(),
             "\n   linear: ", value_linear_units(),
             "\n  celsius: ", value_celsius()
           );

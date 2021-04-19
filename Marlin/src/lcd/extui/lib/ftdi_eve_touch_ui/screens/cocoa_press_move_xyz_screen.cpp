@@ -1,6 +1,6 @@
-/************************************
+/***********************************
  * cocoa_press_move_xyz_screen.cpp *
- ************************************/
+ ***********************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -22,11 +22,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_COCOA_MOVE_XYZ_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -50,4 +49,4 @@ void MoveXYZScreen::onIdle() {
   }
   BaseScreen::onIdle();
 }
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_COCOA_MOVE_XYZ_SCREEN

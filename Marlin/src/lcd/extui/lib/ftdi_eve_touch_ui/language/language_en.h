@@ -140,11 +140,14 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_START  = u8"Release to begin screen calibration";
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
-  PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS         = u8"Level X Axis";
   PROGMEM Language_Str MSG_BED_MAPPING_DONE         = u8"Bed mapping finished";
   PROGMEM Language_Str MSG_BED_MAPPING_INCOMPLETE   = u8"Not all points probed";
   PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
-  PROGMEM Language_Str MSG_SHOW_MESH                = u8"Show Bed Mesh";
+  PROGMEM Language_Str MSG_AXIS_LEVELING            = u8"Axis Leveling";
+  PROGMEM Language_Str MSG_PROBE_BED                = u8"Probe Mesh";
+  PROGMEM Language_Str MSG_SHOW_MESH                = u8"View Mesh";
+  PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test";
+  PROGMEM Language_Str MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
 
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";
@@ -157,13 +160,13 @@ namespace Language_en {
 
   #ifdef TOUCH_UI_COCOA_PRESS
     PROGMEM Language_Str MSG_BODY                   = u8"Body";
-    PROGMEM Language_Str MSG_INTERNAL               = u8"Internal";
+    PROGMEM Language_Str MSG_SELECT_CHOCOLATE_TYPE  = u8"Select Chocolate Type";
     PROGMEM Language_Str MSG_EXTERNAL               = u8"External";
     PROGMEM Language_Str MSG_CHOCOLATE              = u8"Chocolate";
     PROGMEM Language_Str MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
-    PROGMEM Language_Str MSG_LOAD_CHOCOLATE         = u8"Load Chocolate";
-    PROGMEM Language_Str MSG_CARTRIDGE_IN           = u8"Cartridge In";
-    PROGMEM Language_Str MSG_CARTRIDGE_OUT          = u8"Cartridge Out";
+    PROGMEM Language_Str MSG_LOAD_UNLOAD            = u8"Load/Unload";
+    PROGMEM Language_Str MSG_FULL_LOAD              = u8"Full Load";
+    PROGMEM Language_Str MSG_FULL_UNLOAD            = u8"Full Unload";
     PROGMEM Language_Str MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     PROGMEM Language_Str MSG_PREHEAT_FINISHED       = u8"Preheat finished";
     PROGMEM Language_Str MSG_PREHEAT                = u8"Preheat";

@@ -61,10 +61,10 @@ void GcodeSuite::M575() {
 
       SERIAL_FLUSH();
 
-      if (set0) { MYSERIAL0.end(); MYSERIAL0.begin(baud); }
+      if (set0) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
 
       #if HAS_MULTI_SERIAL
-        if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
+        if (set1) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }
       #endif
 
     } break;

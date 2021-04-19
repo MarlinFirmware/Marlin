@@ -24,9 +24,9 @@
  * Creality 4.2.x (STM32F103RET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -132,8 +132,12 @@
 #define HEATER_0_PIN                        PA1   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PA0   // FAN
-#define FAN_SOFT_PWM
+#ifndef FAN_PIN
+  #define FAN_PIN                           PA0   // FAN
+#endif
+#if PIN_EXISTS(FAN)
+  #define FAN_SOFT_PWM
+#endif
 
 //
 // SD Card

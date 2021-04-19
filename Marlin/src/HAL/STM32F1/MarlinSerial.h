@@ -28,10 +28,6 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "../../core/serial_hook.h"
 
-#if HAS_TFT_LVGL_UI
-  extern "C" { extern char public_buf_m[100]; }
-#endif
-
 // Increase priority of serial interrupts, to reduce overflow errors
 #define UART_IRQ_PRIO 1
 
@@ -49,31 +45,9 @@ struct MarlinSerial : public HardwareSerial {
       nvic_irq_set_priority(c_dev()->irq_num, UART_IRQ_PRIO);
     }
   #endif
-
-  #if HAS_TFT_LVGL_UI
-    // Hook the serial write method to capture the output of GCode command sent via LCD
-    uint32_t current_wpos;
-    void (*line_callback)(void *, const char * msg);
-    void *user_pointer;
-
-    void set_hook(void (*hook)(void *, const char *), void * that) { line_callback = hook; user_pointer = that; current_wpos = 0; }
-
-    size_t write(uint8_t c) {
-      if (line_callback) {
-        if (c == '\n' || current_wpos == sizeof(public_buf_m) - 1) { // End of line, probably end of command anyway
-          public_buf_m[current_wpos] = 0;
-          line_callback(user_pointer, public_buf_m);
-          current_wpos = 0;
-        }
-        else
-          public_buf_m[current_wpos++] = c;
-      }
-      return HardwareSerial::write(c);
-    }
-  #endif
 };
 
-typedef Serial0Type<MarlinSerial> MSerialT;
+typedef Serial1Class<MarlinSerial> MSerialT;
 
 extern MSerialT MSerial1;
 extern MSerialT MSerial2;

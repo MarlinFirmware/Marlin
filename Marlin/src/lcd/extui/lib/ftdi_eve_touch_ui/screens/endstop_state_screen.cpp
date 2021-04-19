@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_ENDSTOP_STATE_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -149,4 +148,4 @@ void EndstopStatesScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_ENDSTOP_STATE_SCREEN

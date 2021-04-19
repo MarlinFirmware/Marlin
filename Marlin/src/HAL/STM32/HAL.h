@@ -40,8 +40,8 @@
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
-  typedef ForwardSerial0Type< decltype(SerialUSB) > DefaultSerial;
-  extern DefaultSerial MSerial;
+  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
 #endif
 
 // ------------------------
@@ -51,40 +51,40 @@
 #define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 MSerial
+  #define MYSERIAL1 MSerial0
 #elif WITHIN(SERIAL_PORT, 1, 6)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+  #error "SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 MSerial
+    #define MYSERIAL2 MSerial0
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 6. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL MSerial
+    #define MMU2_SERIAL MSerial0
   #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL MSerial
+    #define LCD_SERIAL MSerial0
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
@@ -194,6 +194,7 @@ void flashFirmware(const int16_t);
 typedef void (*systickCallback_t)(void);
 void systick_attach_callback(systickCallback_t cb);
 void HAL_SYSTICK_Callback();
+
 extern volatile uint32_t systick_uptime_millis;
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment

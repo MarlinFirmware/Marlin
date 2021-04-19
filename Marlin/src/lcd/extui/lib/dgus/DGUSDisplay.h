@@ -21,7 +21,9 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * lcd/extui/lib/dgus/DGUSDisplay.h
+ */
 
 #include "../../../../inc/MarlinConfigPre.h"
 
@@ -34,6 +36,7 @@
 
 enum DGUSLCD_Screens : uint8_t;
 
+//#define DEBUG_DGUSLCD
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../../core/debug_out.h"
 
@@ -53,13 +56,15 @@ public:
   static void InitDisplay();
 
   // Variable access.
-  static void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
-  static void WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
+  static void WriteVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
+  static void WriteVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
   static void WriteVariable(uint16_t adr, int16_t value);
   static void WriteVariable(uint16_t adr, uint16_t value);
   static void WriteVariable(uint16_t adr, uint8_t value);
   static void WriteVariable(uint16_t adr, int8_t value);
   static void WriteVariable(uint16_t adr, long value);
+  static void MKS_WriteVariable(uint16_t adr, uint8_t value);
+
 
   // Utility functions for bridging ui_api and dbus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
@@ -112,7 +117,7 @@ extern DGUSDisplay dgusdisplay;
 constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
-extern const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
+const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);
 
 /// Helper to populate a DGUS_VP_Variable for a given VP. Return false if not found.
-extern bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);
+bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy);

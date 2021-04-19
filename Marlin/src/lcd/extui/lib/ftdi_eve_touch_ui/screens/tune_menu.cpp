@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_TUNE_MENU
 
 #include "../../../../../feature/host_actions.h"
 
@@ -63,7 +62,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define FILAMENT_POS    BTN_POS(1,4), BTN_SIZE(1,1)
     #define CASE_LIGHT_POS  BTN_POS(2,4), BTN_SIZE(1,1)
     #define ADVANCED_SETTINGS_POS BTN_POS(1,5), BTN_SIZE(1,1)
-    #define BACK_POS        BTN_POS(2,5), BTN_SIZE(2,1)
+    #define BACK_POS        BTN_POS(2,5), BTN_SIZE(1,1)
   #endif
 
   if (what & FOREGROUND) {
@@ -153,4 +152,4 @@ void TuneMenu::resumePrint() {
   GOTO_SCREEN(StatusScreen);
 }
 
-#endif // TOUCH_UI_FTDI_EVE && !TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_TUNE_MENU

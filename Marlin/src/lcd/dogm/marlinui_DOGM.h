@@ -88,7 +88,8 @@
 
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
-  #if SMART_RAMPS || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
+
+  #if (SMART_RAMPS && defined(__SAM3X8E__)) || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
@@ -122,9 +123,10 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
   #endif
 
-#elif ENABLED(FYSETC_242_OLED_12864)
+#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+  // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
+  // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
 

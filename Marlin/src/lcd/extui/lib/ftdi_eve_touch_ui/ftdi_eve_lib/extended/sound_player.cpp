@@ -37,9 +37,7 @@ namespace FTDI {
   void SoundPlayer::play(effect_t effect, note_t note) {
 
     #if ENABLED(TOUCH_UI_DEBUG)
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR  ("Playing note ", int(note));
-      SERIAL_ECHOLNPAIR(", instrument ", int(effect));
+      SERIAL_ECHO_MSG("Playing note ", note, ", instrument ", effect);
     #endif
 
     // Play the note
@@ -64,7 +62,7 @@ namespace FTDI {
     timer.start();
   }
 
-  void SoundPlayer::play(const sound_t* seq, play_mode_t mode) {
+  void SoundPlayer::play(const sound_t *seq, play_mode_t mode) {
     sequence = seq;
     wait     = 250; // Adding this delay causes the note to not be clipped, not sure why.
     timer.start();

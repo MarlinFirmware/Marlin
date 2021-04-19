@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_DIALOG_BOX_BASE_CLASS
 
 using namespace FTDI;
 using namespace Theme;
@@ -84,4 +83,4 @@ void DialogBoxBaseClass::onIdle() {
   reset_menu_timeout();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_DIALOG_BOX_BASE_CLASS

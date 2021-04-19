@@ -21,10 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
+
+#ifdef FTDI_CONFIRM_ABORT_PRINT_DIALOG_BOX
 
 #include "../../../../../feature/host_actions.h"
 
@@ -50,4 +49,4 @@ bool ConfirmAbortPrintDialogBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_CONFIRM_ABORT_PRINT_DIALOG_BOX

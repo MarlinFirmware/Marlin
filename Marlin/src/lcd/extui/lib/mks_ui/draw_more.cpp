@@ -33,8 +33,6 @@
 extern lv_group_t * g;
 static lv_obj_t * scr;
 
-#define HAS_USER_ITEM(N) (ENABLED(CUSTOM_USER_MENUS) && defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-
 enum {
   ID_GCODE = 1,
   #if HAS_USER_ITEM(1)

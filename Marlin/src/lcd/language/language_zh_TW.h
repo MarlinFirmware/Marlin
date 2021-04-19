@@ -107,7 +107,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("索引 X");    //"Index X"
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("索引 Y");    //"Index Y"
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z 值");    //"Z Value"
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("自定命令");     // "Custom Commands"
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("自定命令");     // "Custom Commands"
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 探測測試");   //"M48 Probe Test"
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 探測點");    //"M48 Point"
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("偏差");    //"Deviation"

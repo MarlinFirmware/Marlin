@@ -13,11 +13,9 @@
 from __future__ import print_function
 from __future__ import division
 
-import subprocess
-import os
-import sys
+import subprocess,os,sys,platform
 from SCons.Script import DefaultEnvironment
-import platform
+
 current_OS = platform.system()
 
 env = DefaultEnvironment()
@@ -92,9 +90,9 @@ else:
       get_com_port('COM', 'Hardware ID:', 13)
 
   #    avrdude_conf_path =  env.get("PIOHOME_DIR") + '\\packages\\toolchain-atmelavr\\etc\\avrdude.conf'
-      avrdude_conf_path =  'buildroot\\share\\atom\\avrdude.conf'
+      avrdude_conf_path =  'buildroot\\share\\vscode\\avrdude.conf'
 
-      avrdude_exe_path =  'buildroot\\share\\atom\\avrdude_5.10.exe'
+      avrdude_exe_path =  'buildroot\\share\\vscode\\avrdude_5.10.exe'
 
   #    source_path = env.get("PROJECTBUILD_DIR") + '\\' + env.get("PIOENV") + '\\firmware.hex'
       source_path =  '.pio\\build\\' + env.get("PIOENV") + '\\firmware.hex'
