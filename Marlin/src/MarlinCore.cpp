@@ -872,8 +872,7 @@ void minkill(const bool steppers_off/*=false*/) {
   #endif
 
   #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
-    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
-    resetFunc();                  // Jump to address 0
+    HAL_reboot();
   #endif
 
   #if !HAS_KILL

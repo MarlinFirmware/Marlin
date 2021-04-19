@@ -41,9 +41,7 @@ extern bool wait_for_user, wait_for_heatup;
   void quickresume_stepper();
 #endif
 
-#if ENABLED(SOFT_RESET_VIA_SERIAL)
-  void soft_reset();
-#endif
+void HAL_reboot();
 
 class EmergencyParser {
 
@@ -209,7 +207,7 @@ public:
               case EP_GRBL_RESUME: quickresume_stepper(); break;
             #endif
             #if ENABLED(SOFT_RESET_VIA_SERIAL)
-              case EP_KILL:  soft_reset();  break;
+              case EP_KILL: HAL_reboot(); break;
             #endif
             default: break;
           }
