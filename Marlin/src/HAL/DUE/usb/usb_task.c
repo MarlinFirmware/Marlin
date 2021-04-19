@@ -322,7 +322,7 @@ void usb_task_init(void) {
       char *sptr;
 
       // Patch in the filament diameter
-      sprintf_P(diam, PSTR("%d"), (int)((DEFAULT_NOMINAL_FILAMENT_DIA) * 1000.0));
+      itoa((int)((DEFAULT_NOMINAL_FILAMENT_DIA) * 1000), diam, 10);
 
       // And copy it to the proper place, expanding it to unicode
       sptr = &diam[0];

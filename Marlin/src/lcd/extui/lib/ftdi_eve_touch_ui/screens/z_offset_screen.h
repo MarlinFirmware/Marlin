@@ -25,8 +25,16 @@
 #define FTDI_Z_OFFSET_SCREEN
 #define FTDI_Z_OFFSET_SCREEN_CLASS ZOffsetScreen
 
+struct ZOffsetScreenData : public BaseNumericAdjustmentScreenData {
+  float z;
+};
+
 class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
+  private:
+    static void move(float inc);
+    static void runWizard();
   public:
+    static void onEntry();
     static void onRedraw(draw_mode_t);
     static bool onTouchHeld(uint8_t tag);
 };
