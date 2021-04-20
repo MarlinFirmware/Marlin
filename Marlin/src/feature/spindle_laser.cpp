@@ -68,7 +68,7 @@ void SpindleLaser::init() {
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
     TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
   #endif
-  TERN_(AIR_EVACUATION, air_evac_disable());                          // Init Vacuum/Blower OFF
+  TERN_(AIR_EVACUATION, OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);); // Init Vacuum/Blower OFF
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
