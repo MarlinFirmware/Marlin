@@ -397,7 +397,10 @@ static void center_text_P(PGM_P pstart, uint8_t y) {
     center_text_P(PSTR(MARLIN_WEBSITE_URL), 4);
     picBits = ICON_LOGO;
     lcd.print_screen();
-    safe_delay(1500);
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
   }
 
 #endif // SHOW_BOOTSCREEN
