@@ -1,8 +1,11 @@
 #
-# lerdge.py
-# Customizations for Lerdge build environments
+# buildroot/share/PlatformIO/scripts/lerdge.py
+# Customizations for Lerdge build environments:
+#   env:LERDGEX  env:LERDGEX_usb_flash_drive
+#   env:LERDGES  env:LERDGES_usb_flash_drive
+#   env:LERDGEK  env:LERDGEK_usb_flash_drive
 #
-import os,sys
+import os,marlin
 Import("env")
 
 from SCons.Script import DefaultEnvironment
@@ -35,16 +38,16 @@ def encrypt_file(input, output_file, file_length):
 def encrypt(source, target, env):
     print("Encrypting to:", board.get("build.firmware"))
     firmware = open(target[0].path, "rb")
-    result = open(target[0].dir.path + "/" + board.get("build.firmware"), "wb")
+    renamed = open(target[0].dir.path + "/" + board.get("build.firmware"), "wb")
     length = os.path.getsize(target[0].path)
 
-    encrypt_file(firmware, result, length)
+    encrypt_file(firmware, renamed, length)
 
     firmware.close()
-    result.close()
+    renamed.close()
 
 if 'firmware' in board.get("build").keys():
-  env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
+  marlin.add_post_action(encrypt);
 else:
   print("You need to define output file via board_build.firmware = 'filename' parameter")
   exit(1);
