@@ -453,7 +453,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       already_shutdown_steppers = false;
   }
 
-  #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
+  #if ENABLED(PHOTO_GCODE) && PIN_EXISTS(CHDK)
+    // Check if CHDK should be set to LOW (after M240 set it HIGH)
     extern millis_t chdk_timeout;
     if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
       chdk_timeout = 0;
