@@ -110,12 +110,8 @@ namespace ExtUI {
   #define StatusMessageString 0x20E8
 #endif
 
-#if defined(MCU_LPC1769) || defined(MCU_LPC1768)
-  #define DWIN_SERIAL LCD_SERIAL
-#elif defined(TARGET_STM32F4)
+#if defined(TARGET_STM32F4)
   #define DWIN_SERIAL Serial1
-#elif defined(__STM32F1__)
-  #define DWIN_SERIAL MSerial3
 #else
   #define DWIN_SERIAL LCD_SERIAL
 #endif
