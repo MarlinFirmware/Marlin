@@ -160,14 +160,14 @@ bool MarlinUI::detected() { return true; }
           #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
-          if (frame_time) early_safe_delay(frame_time);
+          if (frame_time) safe_delay(frame_time);
         }
 
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
       #endif
       #if CUSTOM_BOOTSCREEN_TIMEOUT
-        early_safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
       #endif
     }
   #endif // SHOW_CUSTOM_BOOTSCREEN
@@ -225,7 +225,7 @@ bool MarlinUI::detected() { return true; }
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
-        if (frame_time) early_safe_delay(frame_time);
+        if (frame_time) safe_delay(frame_time);
       }
     #endif
   }
