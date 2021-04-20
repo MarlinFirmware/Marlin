@@ -2443,6 +2443,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "GRAPHICAL_TFT_UPSCALE must be 2, 3, or 4."
 #endif
 
+#if BOTH(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
+  #error "Please select only one of CHIRON_TFT_STANDARD or CHIRON_TFT_NEW."
+#endif
+
 /**
  * Some boards forbid the use of -1 Native USB
  */

@@ -56,7 +56,7 @@ extern DefaultSerial4 MSerial3;
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -65,7 +65,7 @@ extern DefaultSerial4 MSerial3;
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
@@ -73,7 +73,7 @@ extern DefaultSerial4 MSerial3;
   #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
-    #error "MMU2_SERIAL_PORT must be from 0 to 3. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from 0 to 3."
   #endif
 #endif
 
@@ -83,7 +83,7 @@ extern DefaultSerial4 MSerial3;
   #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
