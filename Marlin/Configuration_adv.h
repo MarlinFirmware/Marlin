@@ -3161,7 +3161,7 @@
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
   #define AIR_EVACUATION                       // Cutter Vacuum or Laser Blower motor control gcode support (M10,M11)
   #define AIR_EVACUATION_ACTIVE         LOW    // Set to "HIGH" if the on/off function is active HIGH 
-  #define AIR_EVACUATION_PIN            42     // Pin to control the Vacuum or Laser Blower motor 
+  #define AIR_EVACUATION_PIN            42     // Pin to control the Cutter Vacuum or Laser Blower motor 
 
   //#define SPINDLE_SERVO         // A servo converting an angle to spindle power
   #ifdef SPINDLE_SERVO
