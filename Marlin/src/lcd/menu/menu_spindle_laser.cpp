@@ -53,8 +53,7 @@
 
     #if ENABLED(AIR_EVACUATION)
       bool evac_state = cutter.air_evac_state();
-      editable.state = evac_state;
-      EDIT_ITEM(bool, MSG_CUTTER_EVAC(TOGGLE), &evac_state, []{ if (editable.state) cutter.air_evac_disable(); else cutter.air_evac_enable(); });
+      EDIT_ITEM(bool, MSG_CUTTER(EVAC_TOGGLE), &evac_state, cutter.air_evac_toggle);
     #endif
 
     #if ENABLED(SPINDLE_CHANGE_DIR)
