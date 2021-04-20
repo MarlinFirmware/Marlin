@@ -213,9 +213,12 @@ public:
   #endif
 
   #if ENABLED(AIR_EVACUATION)
-    static void air_evac_enable(void);                                                      // Turn On Vacuum or Blower motor
-    static void air_evac_disable(void);                                                     // Turn Off Vacuum or Blower motor    
-    static bool air_evac_state() { return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE); }  // Get current state
+    static void air_evac_enable();         // Turn On Cutter Vacuum or Laser Blower motor
+    static void air_evac_disable();        // Turn Off Cutter Vacuum or Laser Blower motor
+    static void air_evac_toggle();         // Toggle Cutter Vacuum or Laser Blower motor
+    static inline bool air_evac_state() {  // Get current state
+      return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
+    }
   #endif
 
   static inline void disable() { isReady = false; set_enabled(false); }

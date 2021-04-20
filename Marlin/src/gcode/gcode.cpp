@@ -433,8 +433,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
         case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
         #if ENABLED(AIR_EVACUATION)
-          case 10: M10(); break;                                   // M10: Vacuum or Blower motor ON
-          case 11: M11(); break;                                   // M11: Vacuum or Blower motor OFF
+          case 10: M10(); break;                                  // M10: Vacuum or Blower motor ON
+          case 11: M11(); break;                                  // M11: Vacuum or Blower motor OFF
         #endif
       #endif
 
