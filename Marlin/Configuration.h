@@ -582,10 +582,14 @@
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2, Creality422, Creality427)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && DISABLED(GraphicLCD)
+  #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 1
 #elif ANY(Creality422, Creality427) && DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 3
 #endif
