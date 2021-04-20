@@ -35,6 +35,15 @@
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
 
+#if ENABLED(AIR_EVACUATION)
+  #if ENABLED(SPINDLE_FEATURE)
+    #define _MSG_CUTTER_EVAC(M) MSG_SPINDLE_EVAC_##M
+  #else
+    #define _MSG_CUTTER_EVAC(M) MSG_LASER_EVAC_##M
+  #endif
+  #define MSG_CUTTER_EVAC(M) _MSG_CUTTER_EVAC(M)
+#endif
+
 typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
 
 #if CUTTER_UNIT_IS(RPM) && SPEED_POWER_MAX > 255

@@ -212,6 +212,12 @@ public:
     static bool is_reverse() { return false; }
   #endif
 
+  #if ENABLED(AIR_EVACUATION)
+    static void air_evac_enable(void);                                                      // Turn On Vacuum or Blower motor
+    static void air_evac_disable(void);                                                     // Turn Off Vacuum or Blower motor    
+    static bool air_evac_state() { return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE); }  // Get current state
+  #endif
+
   static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
