@@ -3972,7 +3972,7 @@
 //#define POSTMORTEM_DEBUGGING
 
 /**
- * Reset the MCU automatically instead of locking it after a kill
+ * Software Reset options
  */
-//#define SOFT_RESET_ON_KILL
-//#define SOFT_RESET_VIA_SERIAL          // 'KILL' and '^X' commands will soft-reset the controller
+//#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
+//#define SOFT_RESET_ON_KILL            // Use a digital button to soft-reset the controller after KILL

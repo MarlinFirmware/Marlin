@@ -2208,10 +2208,17 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * emergency-command parser
+ * Emergency Command Parser
  */
 #if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+/**
+ * Software Reset on Kill option
+ */
+#if ENABLED(SOFT_RESET_ON_KILL) && !BUTTON_EXISTS(ENC)
+  #error "An encoder button is required or SOFT_RESET_ON_KILL will reset the printer without notice!"
 #endif
 
 /**
