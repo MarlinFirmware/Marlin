@@ -281,11 +281,14 @@ void GcodeSuite::M1004() {
   }
 #endif
 
-  #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
-  #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
-  #if HAS_HEATED_BED
-    process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
-  #endif
+  #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
+  #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R255")
+    process_subcommands_now_P(PSTR ("G28"));
+    process_subcommands_now_P(PSTR (ALIGN_GCODE));
+    process_subcommands_now_P(PSTR (PROBE_GCODE));
+    process_subcommands_now_P(PSTR ("G29S0\nG29A"));
+    process_subcommands_now_P(PSTR ("G29F10\nM140S0"));
+    process_subcommands_now_P(PSTR ("M500"));
 }
 
 #endif // AUTO_BED_LEVELING_UBL
