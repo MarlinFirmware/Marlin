@@ -606,9 +606,11 @@ void _menu_ubl_tools() {
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[16];
   #if HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), custom_bed_temp);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004 S%i"), custom_bed_temp);
+    queue.inject(ubl_lcd_gcode);  
   #else
     sprintf_P(ubl_lcd_gcode, PSTR("M1004S0"));
+    queue.inject(ubl_lcd_gcode);  
   #endif  
   }
 
