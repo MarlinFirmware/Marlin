@@ -35,6 +35,7 @@ unified_bed_leveling ubl;
 #include "../../../module/planner.h"
 #include "../../../module/motion.h"
 #include "../../../module/probe.h"
+#include "../../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -258,13 +259,27 @@ bool unified_bed_leveling::sanity_check() {
  * M1004: UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
 void GcodeSuite::M1004() {
+  bool got_temp = false;
+  celsius_t temp = 0;
+  bool no_wait_for_cooling = false;
+  if (!got_temp) {
+    got_temp = parser.seenval('S');
+  if (got_temp) temp = parser.value_celsius();
+  }
+
+  if (!got_temp) {
+    no_wait_for_cooling = parser.seenval('S');
+    got_temp = no_wait_for_cooling;
+  }
+
+  if (got_temp) {
+    thermalManager.setTargetBed(temp);
+    thermalManager.wait_for_bed(no_wait_for_cooling);
+  }
+
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
   #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
   #if HAS_HEATED_BED
-    const int16_t temp = parser.celsiusval('S');
-    sprintf_P(PSTR("M190S%i"), temp);
-    process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
-  #else
     process_subcommands_now_P(PSTR ("G28\n" ALIGN_GCODE PROBE_GCODE "G29S0\nG29A\nG29F10\nM140S0\nM500"));
   #endif
 }
