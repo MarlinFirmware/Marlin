@@ -609,7 +609,7 @@ void _lcd_ubl_mesh_wizard() {
     sprintf_P(ubl_lcd_gcode, PSTR("M1004 S%i"), custom_bed_temp);
     queue.inject(ubl_lcd_gcode);  
   #else
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004S0"));
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004"));
     queue.inject(ubl_lcd_gcode);  
   #endif  
   }
