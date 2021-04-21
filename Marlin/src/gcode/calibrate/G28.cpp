@@ -118,7 +118,15 @@
 
 #if ENABLED(Z_SAFE_HOMING)
 
+#ifndef Z_SAFE_HOMING_OPT
+#define Z_SAFE_HOMING_OPT   (1)
+#endif
+
   inline void home_z_safely() {
+    if (!(Z_SAFE_HOMING_OPT)) {
+        homeaxis(Z_AXIS);
+        return;
+    }
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
