@@ -52,7 +52,7 @@ namespace ExtUI {
 
 #define ProbeOffset_X  0x1236
 #define ProbeOffset_Y  0x123A
-#define ProbeOffset_Z  0x123E
+#define ProbeOffset_Z  0x1026
 
 #define HotendPID_AutoTmp 0x1252
 #define BedPID_AutoTmp    0x1254
@@ -129,14 +129,6 @@ typedef struct DataBuf
     unsigned char reserv[4];
 } DB;
 
-typedef struct CardRecord
-{
-    char recordcount;
-    int Filesum;
-    unsigned long addr[FileNum];
-    char Cardshowfilename[FileNum][FileNameLen];
-    char Cardfilename[FileNum][FileNameLen];
-}CRec;
 
 class RTSSHOW {
   public:

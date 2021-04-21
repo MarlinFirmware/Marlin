@@ -34,7 +34,7 @@
 #define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path
 #define MAX_CMND_LEN                   16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command
 #define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
-#define DISPLAY_FILES                   5
+#define DISPLAY_FILES                   4
 
 using namespace ExtUI;
 
@@ -51,6 +51,7 @@ class FileNavigator {
     static uint16_t currentindex;
     static bool getIndexisDir(uint16_t);
     const char *getIndexName(uint16_t);
+    static uint16_t maxFiles();
   private:
     static FileList filelist;
     static char     currentfoldername[MAX_PATH_LEN];

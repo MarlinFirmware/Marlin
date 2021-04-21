@@ -71,8 +71,12 @@ const char *FileNavigator::getIndexName(uint16_t index){
   return filelist.shortFilename();
 }
 
+uint16_t FileNavigator::maxFiles() {
+  return filelist.count();
+}
+
 void FileNavigator::getFiles(uint16_t index) {
-  uint16_t files = DISPLAY_FILES, fseek = 0, fcnt  = 0;
+  uint16_t files = DISPLAY_FILES, fcnt  = 0;
   if (index == 0)
     currentindex = 0;
   else {
@@ -88,25 +92,57 @@ void FileNavigator::getFiles(uint16_t index) {
   }
   lastindex = index;
 
-  DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
+  // Clear currently drawn screen
+  for (int i = 0; i < DISPLAY_FILES; i++)
+  {
+    for (int j = 0; j < 20; j++)
+      rtscheck.RTS_SndData(0, SDFILE_ADDR + (i * 20) + j);
+  }
+
+  for (int j = 0; j < 10; j++)
+  {
+    rtscheck.RTS_SndData(0, Printfilename + j);  //clean screen.
+    rtscheck.RTS_SndData(0, Choosefilename + j); //clean filename
+  }
+  for (int j = 0; j < 8; j++)
+    rtscheck.RTS_SndData(0, FilenameCount + j);
+  for (int j = 1; j <= DISPLAY_FILES; j++)
+  {
+    rtscheck.RTS_SndData(10, FilenameIcon + j);
+    rtscheck.RTS_SndData(10, FilenameIcon1 + j);
+  }
+
+  SERIAL_ECHOLNPAIR("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
     files--;
-    rtscheck.RTS_SndData(filelist.shortFilename(), SDFILE_ADDR);
+    rtscheck.RTS_SndData("Up Directory", SDFILE_ADDR);
     fcnt++;
   }
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
+    SERIAL_ECHOLNPAIR("Seek", seek);
     if (filelist.seek(seek)) {
-      rtscheck.RTS_SndData(filelist.shortFilename(), (SDFILE_ADDR + (fcnt * 10)));
-      if (filelist.isDir())
-        rtscheck.RTS_SndData((unsigned long)0x1A2B, (FilenameNature + (fcnt * 16))); // Change BG of selected line to Light Green
+      SERIAL_ECHOLN("seek done");
+      const int filelen = strlen(filelist.filename());
+      if(filelen > 20)
+      {
+        SERIAL_ECHOLN("trunc");
+        char *buf = (char *)filelist.filename();
+        //char buf[filelen];
+        //strcpy(&buf[filelen], filelist.filename());
+        buf[18] = '\0'; // cutoff at screen edge
+        rtscheck.RTS_SndData(buf, (SDFILE_ADDR + (fcnt * 20)));
+      }
       else
-        rtscheck.RTS_SndData((unsigned long)0xFFFF, FilenameNature + fcnt * 16); // white
-      rtscheck.RTS_SndData(1, FilenameIcon + ++fcnt);
+        rtscheck.RTS_SndData(filelist.filename(), (SDFILE_ADDR + (fcnt * 20)));
+      if (filelist.isDir())
+        rtscheck.RTS_SndData((unsigned long)0x041F, (FilenameNature + ((1+fcnt) * 16))); // Change BG of selected line to Blue
+      else
+        rtscheck.RTS_SndData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
+      rtscheck.RTS_SndData(1, FilenameIcon + (fcnt+1));
+      SERIAL_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       fcnt++;
-      fseek = seek;
-      DEBUG_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
     }
   }
 }
