@@ -4,14 +4,14 @@ title: "[FR] (feature summary)"
 labels: 'T: Feature Request'
 issue_body: true
 body:
-  - type: markdown
+  - type: textarea
     attributes:
-      value: >
+      description:
         Do you want to ask a question? Are you looking for support? Please use one of the [support links](https://github.com/CR6Community/Marlin/issues/new/choose).
 
-  - type: markdown
+  - type: textarea
     attributes:
-      value: >
+      description:
         **Thank you for requesting a new CR-6 Community Firmware feature!**
 
         ## Before Requesting a Feature
@@ -39,7 +39,7 @@ body:
     validations:
       required: true
 
-  - type: markdown
+  - type: textarea
     attributes:
       value: >
         **Additional context**
