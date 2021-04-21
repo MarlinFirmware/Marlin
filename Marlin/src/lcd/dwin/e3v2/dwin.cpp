@@ -1698,34 +1698,24 @@ void SDCard_Folder(char * const dirname) {
 // Watch for media mount / unmount
 //
 
-void DWIN_MediaInserted() {
-  card.cdroot();
-  if (checkkey == SelectFile) Redraw_SD_List();    
-}
-
-void DWIN_MediaRemoved() {
-  // clean file icon
-  if (checkkey == SelectFile) {
-    Redraw_SD_List();
-  }
-  else if (sdprint && card.isPrinting() && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
-    card.flag.abort_sd_printing = true;
-    wait_for_heatup = wait_for_user = false;
-    dwin_abort_flag = true; // Reset feedrate, return to Home
-  }
-}
-
-
 void HMI_SDCardUpdate() {
   if (HMI_flag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
     //SERIAL_ECHOLNPAIR("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
-      DWIN_MediaInserted();
+      if (checkkey == SelectFile) Redraw_SD_List();    
     }
     else {
-      DWIN_MediaRemoved();
+      // clean file icon
+      if (checkkey == SelectFile) {
+        Redraw_SD_List();
+      }
+      else if (sdprint && card.isPrinting() && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
+        card.flag.abort_sd_printing = true;
+        wait_for_heatup = wait_for_user = false;
+        dwin_abort_flag = true; // Reset feedrate, return to Home
+      }
     }
     DWIN_UpdateLCD();
   }
