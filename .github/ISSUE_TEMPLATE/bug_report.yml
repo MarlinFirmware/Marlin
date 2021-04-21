@@ -1,6 +1,5 @@
 name: 🪲 Report a bug
 description: Create a bug report to help improve Marlin Firmware
-title: "[BUG] (bug summary)"
 body:
   - type: markdown
     attributes:
