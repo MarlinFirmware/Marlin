@@ -259,9 +259,12 @@ bool unified_bed_leveling::sanity_check() {
  * M1004: UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
 void GcodeSuite::M1004() {
+
+#if HAS_HEATED_BED
   bool got_temp = false;
   celsius_t temp = 0;
   bool no_wait_for_cooling = false;
+
   if (!got_temp) {
     got_temp = parser.seenval('S');
   if (got_temp) temp = parser.value_celsius();
@@ -276,6 +279,7 @@ void GcodeSuite::M1004() {
     thermalManager.setTargetBed(temp);
     thermalManager.wait_for_bed(no_wait_for_cooling);
   }
+#endif
 
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34\n", "")
   #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3\n", "G29P4R255\n")
