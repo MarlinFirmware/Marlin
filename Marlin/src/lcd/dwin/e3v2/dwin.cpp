@@ -56,6 +56,8 @@
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
 #include "../../../gcode/queue.h"
+#include "../../../gcode/gcode.h"
+
 
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -462,7 +464,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define ADVSET_CASE_HEPID     (ADVSET_CASE_PARKPOS + 1)
 #define ADVSET_CASE_BEDPID    (ADVSET_CASE_HEPID + 1)
 #define ADVSET_CASE_RUNOUT    (ADVSET_CASE_BEDPID + ENABLED(HAS_FILAMENT_SENSOR))
-#define ADVSET_CASE_PWRLOSSR  (ADVSET_CASE_RUNOUT + 1)
+#define ADVSET_CASE_PWRLOSSR  (ADVSET_CASE_RUNOUT + ENABLED(POWER_LOSS_RECOVERY))
 #define ADVSET_CASE_BRIGHTNESS (ADVSET_CASE_PWRLOSSR + 1)
 #define ADVSET_CASE_SCOLOR    (ADVSET_CASE_BRIGHTNESS + 1)   
 #define ADVSET_CASE_TOTAL     ADVSET_CASE_SCOLOR
@@ -2212,8 +2214,10 @@ void Draw_AdvSet_Menu() {
   #if HAS_FILAMENT_SENSOR
   if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Menu_Line(ASCROL(ADVSET_CASE_RUNOUT), ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), true);  // Runout Sensor >
   #endif 
+  #if ENABLED(POWER_LOSS_RECOVERY)
   if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, "Power-loss recovery", false);  // Power-loss recovery
   if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_PWRLOSSR),recovery.enabled);
+  #endif
   if (AVISI(ADVSET_CASE_BRIGHTNESS)) Draw_Menu_Line(ASCROL(ADVSET_CASE_BRIGHTNESS), ICON_Motion, "LCD Brightness", false);  // LCD brightness
   if (AVISI(ADVSET_CASE_BRIGHTNESS)) Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, ASCROL(ADVSET_CASE_BRIGHTNESS), 3, HMI_data.Brightness);
   if (AVISI(ADVSET_CASE_SCOLOR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SCOLOR), ICON_Scolor, "Select Colors", true);  // Select colors
@@ -3534,10 +3538,12 @@ void HMI_AdvSet() {
             Draw_Menu_Line(MROWS, ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), true);  // Runout Sensor >
             break;
           #endif
+          #if ENABLED(POWER_LOSS_RECOVERY)
           case ADVSET_CASE_PWRLOSSR : // Power-lost recovery
             Draw_Menu_Line(MROWS, ICON_Motion, "Power-loss recovery", false);  // Power-loss
             Draw_Chkb_Line(MROWS,recovery.enabled);
             break;
+          #endif  
           case ADVSET_CASE_BRIGHTNESS : // LCD Brightness
             Draw_Menu_Line(MROWS, ICON_Motion, "LCD Brightness", false);  // LCD brightness
             Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, MROWS, 3, HMI_data.Brightness);
@@ -3638,10 +3644,12 @@ void HMI_AdvSet() {
         Draw_Runout_Menu();
         break;
       #endif
+      #if ENABLED(POWER_LOSS_RECOVERY)
       case ADVSET_CASE_PWRLOSSR :  // Power-loss recovery
         recovery.enable(!recovery.enabled);
         Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset,recovery.enabled);
         break;
+      #endif
       case ADVSET_CASE_BRIGHTNESS : // LCD brightness
         checkkey = Brightness;
         HMI_ValueStruct.Brightness = HMI_data.Brightness;
