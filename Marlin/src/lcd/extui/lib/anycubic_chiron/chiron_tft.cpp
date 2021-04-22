@@ -466,7 +466,7 @@ void ChironTFT::SelectFile() {
 
 void ChironTFT::ProcessPanelRequest() {
   // Break these up into logical blocks // as its easier to navigate than one huge switch case!
-  const int8_t tpos = FindToken('A');
+  int8_t tpos = FindToken('A');
   // Panel request are 'A0' - 'A36'
   if (tpos != -1) {
     const int8_t req = atoi(&panel_command[tpos+1]);
