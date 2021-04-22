@@ -1073,7 +1073,7 @@ private:
     static void M1002();
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_WIZARD)
+  #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(MESH_WIZARD_UBL)
     static void M1004();
   #endif
 

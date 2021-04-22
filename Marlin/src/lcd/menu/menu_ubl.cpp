@@ -606,7 +606,7 @@ void _menu_ubl_tools() {
 /**
  * UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
-#if ENABLED(UBL_MESH_WIZARD)
+#if ENABLED(MESH_WIZARD_UBL)
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[16];
   #if HAS_HEATED_BED
