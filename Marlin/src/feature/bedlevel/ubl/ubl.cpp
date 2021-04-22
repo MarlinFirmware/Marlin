@@ -286,9 +286,11 @@ void GcodeSuite::M1004() {
     process_subcommands_now_P(PSTR ("G28"));
     process_subcommands_now_P(PSTR (ALIGN_GCODE));
     process_subcommands_now_P(PSTR (PROBE_GCODE));
+    process_subcommands_now_P(PSTR ("G29P3\nG29P3"));
     process_subcommands_now_P(PSTR ("G29S0\nG29A"));
     process_subcommands_now_P(PSTR ("G29F10\nM140S0"));
     process_subcommands_now_P(PSTR ("M500"));
 }
 
 #endif // AUTO_BED_LEVELING_UBL
+

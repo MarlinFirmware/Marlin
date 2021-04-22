@@ -626,10 +626,6 @@ void _menu_ubl_mesh_wizard() {
   #endif
   
   ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
-
-  #if HAS_BED_PROBE
-    GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3\nM500"));
-  #endif
   
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
