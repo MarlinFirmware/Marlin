@@ -380,10 +380,20 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 22.2
-  #define DEFAULT_Ki 1.08
-  #define DEFAULT_Kd 114
+  //#define DEFAULT_Kp 22.2
+  //#define DEFAULT_Ki 1.08
+  //#define DEFAULT_Kd 114
 
+  // Atuais utilizados no hotend personalizado (valores da Ultimaker)
+  //#define DEFAULT_Kp 22.2
+  //#define DEFAULT_Ki 1.08
+  //#define DEFAULT_Kd 114
+
+  //PIDs encontrados apos teste em 15/01/2021 as 19:36:00 para o hotend personalizado
+  #define DEFAULT_Kp 34.49
+  #define DEFAULT_Ki 3.86
+  #define DEFAULT_Kd 76.99
+  
   // MakerGear
   //#define DEFAULT_Kp 7.0
   //#define DEFAULT_Ki 0.1
@@ -445,16 +455,21 @@
   //PID encontrado apos teste em 06/05/2020 as 13:00:00
   //Recv:  Kp: 169.28 Ki: 17.81 Kd: 402.16
   //Recv: PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h
-  #define DEFAULT_bedKp 169.28
-  #define DEFAULT_bedKi 17.81
-  #define DEFAULT_bedKd 402.16
+  //#define DEFAULT_bedKp 169.28
+  //#define DEFAULT_bedKi 17.81
+  //#define DEFAULT_bedKd 402.16
 
   //PID encontrado apos teste em 24/05/2020 as 21:30:00
   //Recv: PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h
   //Recv: #define DEFAULT_bedKp 255.80
   //Recv: #define DEFAULT_bedKi 43.98
   //Recv: #define DEFAULT_bedKd 371.93
- 
+
+  //PIDs encontrados apos teste em 07/01/2021 as 11:53:00 para a mesa 250mm x 250mm
+  #define DEFAULT_bedKp 407.68
+  #define DEFAULT_bedKi 61.44
+  #define DEFAULT_bedKd 676.29
+
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define DEFAULT_bedKp 97.1
@@ -628,7 +643,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95.5 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 138.78 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -795,15 +810,15 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 43  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER -42  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -7  // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 30
+#define MIN_PROBE_EDGE 42
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 6000
+#define XY_PROBE_SPEED 8000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -874,7 +889,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true
+#define INVERT_E0_DIR false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -898,12 +913,12 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 214
-#define Y_BED_SIZE 214
+#define X_BED_SIZE 246
+#define Y_BED_SIZE 226
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -20
-#define Y_MIN_POS -10
+#define X_MIN_POS -4
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1300,7 +1315,8 @@
   // Specify a park position as { X, Y, Z }
   //#define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 } Valores originais
   //#define NOZZLE_PARK_POINT { (X_MIN_POS + 20), (Y_MAX_POS + 10), 20 } Valores alterados que corrigiram o erro de XYZ Home First
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 20), (Y_MIN_POS + 10), 20 }
+//#define NOZZLE_PARK_POINT { (X_MIN_POS + 20), (Y_MIN_POS + 10), 20 }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 3), (Y_MIN_POS), 20 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
@@ -1457,7 +1473,7 @@
  * This may be required to resolve "volume init" errors.
  */
 //#define SPI_SPEED SPI_HALF_SPEED
-//#define SPI_SPEED SPI_QUARTER_SPEED
+#define SPI_SPEED SPI_QUARTER_SPEED
 //#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
@@ -1682,8 +1698,8 @@
 
 //Ajustes para que o display não apresente os menus corrompidos
 #define ST7920_DELAY_1 DELAY_NS(0)
-#define ST7920_DELAY_2 DELAY_NS(350)
-#define ST7920_DELAY_3 DELAY_NS(350)
+#define ST7920_DELAY_2 DELAY_NS(250)
+#define ST7920_DELAY_3 DELAY_NS(250)
 
 //
 // ReprapWorld Graphical LCD
