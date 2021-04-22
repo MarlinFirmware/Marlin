@@ -59,7 +59,7 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_HEATING
 };
 
-#if M600_PURGEMORE_RESUME_ABLE
+#if M600_PURGE_MORE_RESUMABLE
   enum PauseMenuResponse : char {
     PAUSE_RESPONSE_WAIT_FOR,
     PAUSE_RESPONSE_EXTRUDE_MORE,
