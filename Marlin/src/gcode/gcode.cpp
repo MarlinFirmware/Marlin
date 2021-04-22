@@ -67,6 +67,11 @@ GcodeSuite gcode;
 
 #include "../MarlinCore.h" // for idle, kill
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
+
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
          GcodeSuite::max_inactive_time = 0,
@@ -999,6 +1004,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
     #if ENABLED(REALTIME_REPORTING_COMMANDS)
       case 'S': case 'P': case 'R': break;                        // Invalid S, P, R commands already filtered
+    #endif
+
+    #if ENABLED(DWIN_CREALITY_LCD)
+      case 'C' : DWIN_Gcode(parser.codenum); break;               // Cn: Creality DWIN special Gcode
     #endif
 
     default:

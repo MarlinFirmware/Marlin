@@ -71,6 +71,7 @@ enum processID : uint8_t {
   Back_Main,
   Back_Print,
 
+
   // Date variable ID
   Move_X,
   Move_Y,
@@ -227,6 +228,25 @@ enum processID : uint8_t {
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
 
+// Default UI Colors
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
+#define Def_Background_Color  Color_Bg_Black
+#define Def_Cursor_color      Rectangle_Color
+#define Def_TitleBg_color     Color_Bg_Blue
+#define Def_TitleTxt_color    Color_White
+#define Def_Text_Color        Color_White
+#define Def_Selected_Color    Select_Color
+#define Def_SplitLine_Color   Line_Color
+#define Def_Highlight_Color   Color_White
+#define Def_StatusBg_Color    RGB(0,20,20)
+#define Def_StatusTxt_Color   Color_Yellow
+#define Def_PopupBg_color     Color_Bg_Window
+#define Def_PopupTxt_Color    Popup_Text_Color
+#define Def_AlertBg_Color     Color_Bg_Red
+#define Def_AlertTxt_Color    Color_Yellow
+#define Def_PercentTxt_Color  Percent_Color
+#define Def_Barfill_Color     BarFill_Color
+
 extern uint8_t checkkey;
 extern float zprobe_zoffset;
 extern char print_filename[16];
@@ -256,7 +276,27 @@ typedef struct {
   #endif
   float offset_value      = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
+  int8_t Color[3];
 } HMI_value_t;
+
+typedef struct {
+  uint16_t Background_Color = Def_Background_Color;
+  uint16_t Cursor_color = Def_Cursor_color;
+  uint16_t TitleBg_color = Def_TitleBg_color;
+  uint16_t TitleTxt_color = Def_TitleTxt_color;
+  uint16_t Text_Color = Def_Text_Color;
+  uint16_t Selected_Color = Def_Selected_Color;
+  uint16_t SplitLine_Color = Def_SplitLine_Color;
+  uint16_t Highlight_Color = Def_Highlight_Color;
+  uint16_t StatusBg_Color = Def_StatusBg_Color;
+  uint16_t StatusTxt_Color = Def_StatusTxt_Color;
+  uint16_t PopupBg_color = Def_PopupBg_color;
+  uint16_t PopupTxt_Color = Def_PopupTxt_Color;
+  uint16_t AlertBg_Color = Def_AlertBg_Color;
+  uint16_t AlertTxt_Color = Def_AlertTxt_Color;
+  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
+  uint16_t Barfill_Color = Def_Barfill_Color;
+} HMI_data_t;
 
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
@@ -281,6 +321,7 @@ typedef struct {
 
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
+extern HMI_data_t HMI_data;
 
 // Show ICO
 void ICON_Print(bool show);
@@ -383,3 +424,5 @@ inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
+void DWIN_SetColorDefaults();
+void DWIN_Gcode(const int16_t codenum);
