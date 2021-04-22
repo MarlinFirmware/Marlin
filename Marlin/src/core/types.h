@@ -77,6 +77,7 @@ typedef float feedRate_t;
 // For more resolition (e.g., for a chocolate printer) this may later be changed to Celsius x 100
 //
 typedef int16_t celsius_t;
+typedef float celsius_high_precision_t;
 
 //
 // On AVR pointers are only 2 bytes so use 'const float &' for 'const float'
