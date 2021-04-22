@@ -1070,9 +1070,9 @@
   #else
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
     #if ANY(HotendMosquito, PID50W)
-      #define DEFAULT_Kp 25.95
-      #define DEFAULT_Ki 3.08
-      #define DEFAULT_Kd 54.74
+      #define DEFAULT_Kp 16.8
+      #define DEFAULT_Ki 1.2
+      #define DEFAULT_Kd 54.3
     #elif ENABLED(HotendStock)
       #if ANY(MachineCR10SPro, MachineCR10Max)
         #define DEFAULT_Kp 25.25

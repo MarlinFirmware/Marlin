@@ -21,14 +21,16 @@
  */
 
 /* ****************************************
- * lcd/extui/lib/nextion/FileNavigator.cpp
+ * lcd/extui/lib/Creality/FileNavigator.cpp
  * ****************************************
- * Extensible_UI implementation for Nextion
- * https://github.com/Skorpi08
+ * Extensible_UI implementation for Creality DWIN
+ * 10SPro, Max, CR10V2
+ * Based on implementations for Anycubic Chiron and Nextion by Nick Wells and Skorpi08
+ * Written by Insanity Automation
  * ***************************************/
 
 #include "../../../../inc/MarlinConfigPre.h"
-
+#if ENABLED(EXTENSIBLE_UI)
 
 
 #include "FileNavigator.h"
@@ -112,7 +114,7 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData(10, FilenameIcon1 + j);
   }
 
-  SERIAL_ECHOLNPAIR("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
+  DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
     files--;
@@ -121,13 +123,10 @@ void FileNavigator::getFiles(uint16_t index) {
   }
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
-    SERIAL_ECHOLNPAIR("Seek", seek);
     if (filelist.seek(seek)) {
-      SERIAL_ECHOLN("seek done");
       const int filelen = strlen(filelist.filename());
       if(filelen > 20)
       {
-        SERIAL_ECHOLN("trunc");
         char *buf = (char *)filelist.filename();
         //char buf[filelen];
         //strcpy(&buf[filelen], filelist.filename());
@@ -137,11 +136,16 @@ void FileNavigator::getFiles(uint16_t index) {
       else
         rtscheck.RTS_SndData(filelist.filename(), (SDFILE_ADDR + (fcnt * 20)));
       if (filelist.isDir())
+      {
+        rtscheck.RTS_SndData((uint8_t)4, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0x041F, (FilenameNature + ((1+fcnt) * 16))); // Change BG of selected line to Blue
+      }
       else
+      {
+        rtscheck.RTS_SndData((uint8_t)0, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
-      rtscheck.RTS_SndData(1, FilenameIcon + (fcnt+1));
-      SERIAL_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+      }
+      DEBUG_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       fcnt++;
     }
   }
@@ -178,3 +182,4 @@ void FileNavigator::upDIR() {
 }
 
 char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
+#endif

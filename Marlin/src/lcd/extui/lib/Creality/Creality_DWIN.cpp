@@ -86,7 +86,7 @@ void onStartup()
   #else
     rtscheck.RTS_SndData(MACHINE_NAME, MacVersion);
   #endif
-	rtscheck.RTS_SndData(DETAILED_BUILD_VERSION, SoftVersion);
+	rtscheck.RTS_SndData(SHORT_BUILD_VERSION, SoftVersion);
 	rtscheck.RTS_SndData(sizebuf, PrinterSize);
 	rtscheck.RTS_SndData(WEBSITE_URL, CorpWebsite);
 
@@ -262,22 +262,25 @@ void onIdle()
 				}
 				rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
 			}
-      else if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
-      {
-        rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-      }
-      else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
-			{
-				rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
-				PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
-			}
-			else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
-			{
-				rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
-				PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
-			}
       else
-        rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+      {
+        if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
+        {
+          rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+        }
+        else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
+        {
+          rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
+          PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
+        }
+        else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
+        {
+          rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
+          PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
+        }
+        else
+          rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+      }
 
 
 			rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
@@ -348,6 +351,20 @@ void onIdle()
 					AutoHomeIconNum = 0;
 			}
 	}
+
+  if(isMediaInserted())
+  {
+    uint16_t currPage;
+    if(fileIndex == 0)
+      currPage = 1;
+    else
+      currPage = CEIL((float)((float)fileIndex / (float)DISPLAY_FILES)) +1;
+
+    uint16_t maxPages = CEIL(((float)filenavigator.maxFiles() / (float)DISPLAY_FILES));
+    rtscheck.RTS_SndData(currPage, FilesCurentPage);
+    rtscheck.RTS_SndData(maxPages, FilesMaxPage);
+  }
+
   void yield();
 	if (rtscheck.RTS_RecData() > 0)
 		rtscheck.RTS_HandleData();
@@ -1768,7 +1785,7 @@ void onUserConfirmRequired(const char *const msg)
 }
 void onStatusChanged(const char *const statMsg)
 {
-  for (int j = 0; j < 40; j++) // Clear old message
+  for (int j = 0; j < 20; j++) // Clear old message
     rtscheck.RTS_SndData(' ', StatusMessageString+j);
   rtscheck.RTS_SndData(statMsg, StatusMessageString);
 }

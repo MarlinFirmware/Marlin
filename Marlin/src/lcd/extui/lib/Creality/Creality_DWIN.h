@@ -97,6 +97,8 @@ namespace ExtUI {
 #define	FilenameIcon			0x1200
 #define	FilenameIcon1		0x1220
 #define	Printfilename			0x2000
+#define	FilesCurentPage		0x1310
+#define	FilesMaxPage		0x1312
 #define	SDFILE_ADDR		0x200A
 #define	FilenamePlay			0x20D2
 #define	FilenameChs			0x20D3
@@ -104,11 +106,12 @@ namespace ExtUI {
 #define	FilenameCount		0x20DE
 #define	FilenameNature		0x6003
 
-#if ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay)
-  #define StatusMessageString 0x3000
-#else
-  #define StatusMessageString 0x20E8
-#endif
+//#if ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay)
+//  #define StatusMessageString 0x3000
+//#else
+//  #define StatusMessageString 0x20E8
+//#endif
+#define StatusMessageString 0x2064
 
 #if defined(TARGET_STM32F4)
   #define DWIN_SERIAL Serial1

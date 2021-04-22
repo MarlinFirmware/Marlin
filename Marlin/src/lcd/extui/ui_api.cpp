@@ -1067,6 +1067,8 @@ namespace ExtUI {
   void onStatusChanged_P(PGM_P const pstr) {
     char msg[strlen_P(pstr) + 1];
     strcpy_P(msg, pstr);
+    if(strlen(msg) > 20)
+      msg[20]="\0";
     onStatusChanged(msg);
   }
 

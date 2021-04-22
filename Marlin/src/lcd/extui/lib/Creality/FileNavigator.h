@@ -22,10 +22,12 @@
 #pragma once
 
 /* ****************************************
- * lcd/extui/lib/nextion/FileNavigator.cpp
+ * lcd/extui/lib/Creality/FileNavigator.cpp
  * ****************************************
- * Extensible_UI implementation for Nextion
- * https://github.com/Skorpi08
+ * Extensible_UI implementation for Creality DWIN
+ * 10SPro, Max, CR10V2
+ * Based on implementations for Anycubic Chiron and Nextion by Nick Wells and Skorpi08
+ * Written by Insanity Automation
  * ***************************************/
 
 #include "../../ui_api.h"
