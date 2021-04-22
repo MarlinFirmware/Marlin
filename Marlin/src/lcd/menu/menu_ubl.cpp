@@ -632,7 +632,7 @@ void _menu_ubl_mesh_wizard() {
   #endif
   
   #if HAS_BED_PROBE
-    GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3"));
+    GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3\nM500"));
   #endif
 
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
