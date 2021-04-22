@@ -1548,6 +1548,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
         if(filenavigator.currentindex == 0 && filenavigator.folderdepth > 0 && (fileIndex + recordcount) == 0) {
           filenavigator.upDIR();
           SERIAL_ECHOLNPGM_P(PSTR("GoUpDir"));
+          fileIndex = 0;
           filenavigator.getFiles(0);
           return;
         }
@@ -1565,6 +1566,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
 
         if(filenavigator.getIndexisDir(fileIndex + recordcount)) {
           SERIAL_ECHOLNPAIR("Is Dir ", (fileIndex + recordcount));
+          fileIndex = 0;
           filenavigator.changeDIR((char *)filenavigator.getIndexName(fileIndex + recordcount));
           filenavigator.getFiles(0);
           return;
