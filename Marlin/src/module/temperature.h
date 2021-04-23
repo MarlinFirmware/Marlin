@@ -635,6 +635,10 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
+    FORCE_INLINE static celsius_t wholeDegHotend(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, static_cast<celsius_t>(degHotend(HOTEND_INDEX) + 0.5f));
+    }
+
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       FORCE_INLINE static int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
@@ -702,6 +706,7 @@ class Temperature {
         FORCE_INLINE static int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
       FORCE_INLINE static celsius_float_t degBed()  { return temp_bed.celsius; }
+      FORCE_INLINE static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       FORCE_INLINE static celsius_t degTargetBed()  { return temp_bed.target; }
       FORCE_INLINE static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       FORCE_INLINE static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
@@ -736,7 +741,8 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
-      FORCE_INLINE static celsius_t degProbe()        { return temp_probe.celsius; }
+      FORCE_INLINE static celsius_float_t degProbe()  { return temp_probe.celsius; }
+      FORCE_INLINE static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       FORCE_INLINE static bool isProbeBelowTemp(const_celsius_float_t target_temp) { return temp_probe.celsius < target_temp; }
       FORCE_INLINE static bool isProbeAboveTemp(const_celsius_float_t target_temp) { return temp_probe.celsius > target_temp; }
       static bool wait_for_probe(const_celsius_float_t target_temp, bool no_wait_for_cooling=true);
@@ -752,7 +758,8 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawChamberTemp()      { return temp_chamber.raw; }
       #endif
-      FORCE_INLINE static celsius_t degChamber()          { return temp_chamber.celsius; }
+      FORCE_INLINE static celsius_float_t degChamber()    { return temp_chamber.celsius; }
+      FORCE_INLINE static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
         FORCE_INLINE static celsius_t degTargetChamber()  { return temp_chamber.target; }
         FORCE_INLINE static bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
@@ -778,7 +785,8 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawCoolerTemp()     { return temp_cooler.raw; }
       #endif
-      FORCE_INLINE static celsius_t degCooler()         { return temp_cooler.celsius; }
+      FORCE_INLINE static celsius_float_t degCooler()   { return temp_cooler.celsius; }
+      FORCE_INLINE static celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
         FORCE_INLINE static celsius_t degTargetCooler() { return temp_cooler.target; }
         FORCE_INLINE static bool isLaserHeating()       { return temp_cooler.target > temp_cooler.celsius; }

@@ -528,7 +528,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
@@ -557,7 +557,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
 #if HAS_COOLER
 FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
-  const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
+  const float t1 = thermalManager.wholeDegCooler(), t2 = thermalManager.degTargetCooler();
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
