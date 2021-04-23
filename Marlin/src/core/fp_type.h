@@ -40,6 +40,71 @@ namespace Private
 
   // Convert from one type to another. This is completely unsafe to use anywhere
   template <typename From, typename To> inline To convert(const From v) { return static_cast<To>(v); }
+
+  // A useful object splitter for floating point value.
+  // This is using undefined behavior for C++ to store in a union member and load from another member, but it's perfectly defined in C and most compiler will do correctly
+  union IEEE745 {
+    struct {
+      uint32_t fraction	: 23;
+      uint32_t exp_bias	: 8;
+      uint32_t sign		: 1;
+    } fields;
+
+    uint32_t dword;
+    float value;
+  };
+
+
+  // Convert from float to fixed point integer
+  // This is a faster than doing the obvious (int)(f * one) with one = (float)(1<<shiftAmount)
+  // It works because one is just a shift
+  int32_t f2i(const float value, const int32_t shiftAmount) {
+    IEEE745 number; number.value = value;
+  #if false
+    number.fields.exp_bias += shiftAmount;
+    return (int32_t)number.value;
+  #else
+    constexpr int IEEE745_BIAS = 127;
+    // The logic here is the following
+    // [ 1| exp | mantissa ] => number = [1,-1]sign * mantissa * 2^(exp-127)
+    // With a fixed point number, the output fixed point number is represented as
+    // fp_num = signed_mantissa * 2^shiftAmount
+    // Thus, the amount we want to shift about is 2^(exp-127 - 23 + shiftAmount)
+    const int32_t shift = number.fields.exp_bias + shiftAmount - IEEE745_BIAS - 23;
+
+    #if ENABLED(INFINITY_CHECK)
+      // After shifting nothing will be left, so exit early
+      if (shift < -23) return 0;
+
+      // Not representable value (shift would lead to higher than 32 bits number) ? Let's make +/- INF instead
+      if (shift > 7)   return number.fields.sign ? INT32_MIN : INT32_MAX;
+    #endif
+
+    // Shift should be between [-23 .. 7], account for implicit mantissa high bit
+    uint32_t out = number.fields.fraction | (1 << 23);
+
+    if (shift < 0)	    out >>= -shift;
+    else if (shift > 0) out <<= shift;
+
+    #if ENABLED(INFINITY_CHECK)
+      // We are flirting with the maximum value here, so let's clamp the output
+      if (shift == 7) {
+        if (number.fields.sign) {
+          if (out > (uint32_t)-INT32_MIN) return INT32_MIN;
+        } else {
+          if (out > INT32_MAX) return INT32_MAX;
+        }
+      }
+    #endif
+
+    return (number.fields.sign) ? -out : out;
+  #endif
+  }
+
+  // Convert from fixed point to float
+  float i2f(const int32_t value, const int32_t shiftAmount) {
+    return 0;
+  }
 }
 
 /** A fixed-point template class that should work like a floating-point object.
@@ -82,8 +147,8 @@ private:
   // Convert any type to our fixed-point value
   constexpr static support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
   constexpr static support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr static support_type from_unit(float && t) { return static_cast<support_type>(t * one); }
-  constexpr static support_type from_unit(double && t) { return static_cast<support_type>(t * one); }
+  constexpr static support_type from_unit(float && t) { return static_cast<support_type>(Private::f2i(t, fractional)); }
+  constexpr static support_type from_unit(double && t) { return static_cast<support_type>(Private::f2i((float)t, fractional)); }
   // Division using Egyptian algorithm, very slow, only used for large type or when DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
   void divide(fixp denom, fixp & quotient, fixp & remainder) {
     int sign = 0;
@@ -147,8 +212,8 @@ public:
   constexpr fixp operator-() const { return fixp(-data, true); }
   fixp& operator++() { data += one; return *this; }
   fixp& operator--() { data -= one; return *this; }
-  fixp& operator++(int) { constexpr const fixp t(*this); data += one; return t; }
-  fixp& operator--(int) { constexpr const fixp t(*this); data -= one; return t; }
+  fixp operator++(int) { const fixp t(*this); data += one; return t; }
+  fixp operator--(int) { const fixp t(*this); data -= one; return t; }
 
   // Bitwise and addition/subtraction operators
 public:
@@ -188,7 +253,7 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr fixp operator*(const fixp &n) { return fixp(*this) *= n; }
+  constexpr fixp operator*(const fixp &n) const { return fixp(*this) *= n; }
 
   fixp& operator/=(const fixp &n) {
     if (ENABLED(DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION) || !size2type::has_next) {
@@ -200,15 +265,15 @@ public:
     data = Private::convert<next_type, support_type>(t);
     return *this;
   }
-  constexpr fixp operator/(const fixp &n) { return fixp(*this) /= n; }
+  constexpr fixp operator/(const fixp &n) const { return fixp(*this) /= n; }
 
   // Shift operators
 public:
   fixp& operator>>=(const fixp &n) { data >>= (int)n; return *this; }
   fixp& operator<<=(const fixp &n) { data <<= (int)n; return *this; }
 
-  constexpr fixp operator<<(const fixp &n) { return fixp(*this) <<= n; }
-  constexpr fixp operator>>(const fixp &n) { return fixp(*this) >>= n; }
+  constexpr fixp operator<<(const fixp &n) const { return fixp(*this) <<= n; }
+  constexpr fixp operator>>(const fixp &n) const { return fixp(*this) >>= n; }
 
   // Conversion operators
 public:

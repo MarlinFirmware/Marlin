@@ -32,6 +32,8 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <chrono>
+
 
 
 #if defined(__linux__) || defined(__APPLE__)
@@ -153,5 +155,36 @@ namespace Test {
   #define DeclareTest__(A,L) A##L
   #define DeclareTest_(A,L) DeclareTest__(A,L)
   #define DeclareTest DeclareTest_(static ::Test::AutoRegisterTest test,__LINE__)
+
+  //!< A simple scope profiler
+  struct ScopeProfile {
+    std::chrono::time_point<std::chrono::steady_clock> start;
+    const char * name;
+
+    ScopeProfile(const char * name) : start(std::chrono::steady_clock::now()), name(name) {}
+    double checkpoint() {
+      auto stop = std::chrono::steady_clock::now();
+      std::chrono::duration<double> diff = stop - start;
+      return diff.count();
+    }
+    ~ScopeProfile() {
+      auto stop = std::chrono::steady_clock::now();
+      std::chrono::duration<double> diff = stop - start;
+      double duration = diff.count();
+      if (duration > 1)
+          fprintf(stdout, "  %s took: %gs\n", name, duration);
+      else if (duration > 0.001)
+          fprintf(stdout, "  %s took: %.3fms\n", name, duration * 1000);
+      else if (duration > 0.000001)
+          fprintf(stdout, "  %s took: %.3fus\n", name, duration * 1000000);
+      else
+          fprintf(stdout, "  %s took: %gs\n", name, duration);
+    }
+  };
+
+  double randomBetween(double a, double b) {
+    return (std::rand() * std::abs(a - b) / RAND_MAX) + a;
+  }
+
 
 } // namespace Test

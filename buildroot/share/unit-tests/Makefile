@@ -8,7 +8,7 @@ unitTest: TestVector.hpp TestVector.cpp $(TEST_OUT)
 
 %.tests.ut : %.tests.cpp
 	@echo "Building: $<"
-	@$(CXX) -std=c++14 -O0 -ggdb3 -include TestVector.hpp -include $< TestVector.cpp -o $@
+	@$(CXX) -std=c++14 -O3 -ggdb3 -include TestVector.hpp -include $< TestVector.cpp -o $@
 
 clean:
 	@-rm $(TEST_OUT) 2>/dev/null
