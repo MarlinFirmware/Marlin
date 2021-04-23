@@ -109,10 +109,10 @@ namespace ExtUI {
     void setTMCBumpSensitivity(const_float_t , const axis_t);
   #endif
 
-  float getActualTemp_celsius(const heater_t);
-  float getActualTemp_celsius(const extruder_t);
-  float getTargetTemp_celsius(const heater_t);
-  float getTargetTemp_celsius(const extruder_t);
+  celsius_t getActualTemp_celsius(const heater_t);
+  celsius_t getActualTemp_celsius(const extruder_t);
+  celsius_t getTargetTemp_celsius(const heater_t);
+  celsius_t getTargetTemp_celsius(const extruder_t);
   float getTargetFan_percent(const fan_t);
   float getActualFan_percent(const fan_t);
   float getAxisPosition_mm(const axis_t);

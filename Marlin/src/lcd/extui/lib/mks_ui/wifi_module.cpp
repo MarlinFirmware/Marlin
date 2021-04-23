@@ -885,7 +885,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             char *outBuf = (char *)tempBuf;
             char tbuf[34];
 
-            sprintf_P(tbuf, PSTR("%d /%d"), (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0));
+            sprintf_P(tbuf, PSTR("%d /%d"), thermalManager.degHotend(0), thermalManager.degTargetHotend(0));
 
             const int tlen = strlen(tbuf);
 
@@ -895,7 +895,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcpy_P(outBuf, PSTR(" B:"));
             outBuf += 3;
             #if HAS_HEATED_BED
-              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degBed(), (int)thermalManager.degTargetBed());
+              sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.degBed(), thermalManager.degTargetBed());
             #else
               strcpy_P(outBuf, PSTR("0 /0"));
             #endif
@@ -908,7 +908,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             strcat_P(outBuf, PSTR(" T1:"));
             outBuf += 4;
             #if HAS_MULTI_HOTEND
-              sprintf_P(outBuf, PSTR("%d /%d"), (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1));
+              sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
             #else
               strcat_P(outBuf, PSTR("0 /0"));
             #endif
@@ -918,15 +918,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
-                (int)thermalManager.degBed(), (int)thermalManager.degTargetBed(),
+                thermalManager.degBed(), thermalManager.degTargetBed(),
               #else
                 0, 0,
               #endif
-              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
+              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
+                thermalManager.degHotend(1), thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif

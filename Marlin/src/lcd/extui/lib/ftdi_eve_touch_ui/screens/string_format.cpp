@@ -25,37 +25,35 @@
 
 #include "screens.h"
 
-#define ROUND(val) uint16_t((val)+0.5)
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wno-format"
 
 /**
  * Formats a temperature string (e.g. "100°C")
  */
-void format_temp(char *str, float t1) {
-  sprintf_P(str, PSTR("%3d" S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C));
+void format_temp(char *str, celsius_t t1) {
+  sprintf_P(str, PSTR("%3d" S_FMT), t1, GET_TEXT(MSG_UNITS_C));
 }
 
 /**
  * Formats a temperature string for an idle heater (e.g. "100 °C / idle")
  */
-void format_temp_and_idle(char *str, float t1) {
-  sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
+void format_temp_and_idle(char *str, celsius_t t1) {
+  sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), t1, GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
 }
 
 /**
  * Formats a temperature string for an active heater (e.g. "100 / 200°C")
  */
-void format_temp_and_temp(char *str, float t1, float t2) {
-  sprintf_P(str, PSTR("%3d / %3d" S_FMT), ROUND(t1), ROUND(t2), GET_TEXT(MSG_UNITS_C));
+void format_temp_and_temp(char *str, celsius_t t1, celsius_t t2) {
+  sprintf_P(str, PSTR("%3d / %3d" S_FMT), t1, t2, GET_TEXT(MSG_UNITS_C));
 }
 
 /**
  * Formats a temperature string for a material (e.g. "100°C (PLA)")
  */
-void format_temp_and_material(char *str, float t1, const char *material) {
-  sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), ROUND(t1), GET_TEXT(MSG_UNITS_C), material);
+void format_temp_and_material(char *str, celsius_t t1, const char *material) {
+  sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), t1, GET_TEXT(MSG_UNITS_C), material);
 }
 
 /**

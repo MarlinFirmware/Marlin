@@ -33,10 +33,10 @@ enum TempSensorID : uint8_t {
 };
 
 typedef struct {
-  uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  float   temp_res,     // Resolution in °C between measurements
-          start_temp,   // Base measurement; z-offset == 0
-          end_temp;
+  uint8_t measurements;       // Max. number of measurements to be stored (35 - 80°C)
+  celsius_float_t temp_res,   // Resolution in °C between measurements
+                  start_temp, // Base measurement; z-offset == 0
+                  end_temp;
 } temp_calib_t;
 
 /**
@@ -81,10 +81,10 @@ typedef struct {
 #endif
 
 static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-    {  PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },       // Probe
-    {  BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },       // Bed
+  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END }, // Probe
+  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END }, // Bed
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    {  20,  5, 180, 180 +  5 * 20 }        // Extruder
+    { 20,  5, 180, 180 +  5 * 20 }                                        // Extruder
   #endif
 };
 
@@ -124,7 +124,7 @@ class ProbeTempComp {
     static void prepare_new_calibration(const_float_t init_meas_z);
     static void push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z);
     static bool finish_calibration(const TempSensorID tsi);
-    static void compensate_measurement(const TempSensorID tsi, const_float_t temp, float &meas_z);
+    static void compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z);
 
   private:
     static uint8_t calib_idx;
@@ -135,7 +135,7 @@ class ProbeTempComp {
      */
     static float init_measurement;
 
-    static float get_offset_for_temperature(const TempSensorID tsi, const_float_t temp);
+    static float get_offset_for_temperature(const TempSensorID tsi, const_celsius_float_t temp);
 
     /**
      * Fit a linear function in measured temperature offsets

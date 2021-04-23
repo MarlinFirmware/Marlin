@@ -631,7 +631,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    FORCE_INLINE static celsius_float_t degHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -701,7 +701,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static celsius_float_t degBed()  { return temp_bed.celsius; }
+      FORCE_INLINE static celsius_t degBed()        { return temp_bed.celsius; }
       FORCE_INLINE static celsius_t degTargetBed()  { return temp_bed.target; }
       FORCE_INLINE static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       FORCE_INLINE static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
@@ -737,9 +737,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static celsius_t degProbe()        { return temp_probe.celsius; }
-      FORCE_INLINE static bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
-      FORCE_INLINE static bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
+      FORCE_INLINE static bool isProbeBelowTemp(const_celsius_t target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const_celsius_t target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE

@@ -71,7 +71,7 @@ bool ProbeTempComp::set_offset(const TempSensorID tsi, const uint8_t idx, const 
 
 void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
-    float temp = cali_info[s].start_temp;
+    celsius_float_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
       SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
@@ -114,8 +114,8 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   }
 
   const uint8_t measurements = cali_info[tsi].measurements;
-  const float start_temp = cali_info[tsi].start_temp,
-                res_temp = cali_info[tsi].temp_res;
+  const celsius_float_t start_temp = cali_info[tsi].start_temp,
+                          res_temp = cali_info[tsi].temp_res;
   int16_t * const data = sensor_z_offsets[tsi];
 
   // Extrapolate
@@ -159,15 +159,15 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   return true;
 }
 
-void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const_float_t temp, float &meas_z) {
+void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
   if (WITHIN(temp, cali_info[tsi].start_temp, cali_info[tsi].end_temp))
     meas_z -= get_offset_for_temperature(tsi, temp);
 }
 
-float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const_float_t temp) {
+float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp) {
   const uint8_t measurements = cali_info[tsi].measurements;
-  const float start_temp = cali_info[tsi].start_temp,
-                res_temp = cali_info[tsi].temp_res;
+  const celsius_float_t start_temp = cali_info[tsi].start_temp,
+                          res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   auto point = [&](uint8_t i) {
@@ -207,17 +207,16 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
 
   if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
 
-  const float start_temp = cali_info[tsi].start_temp,
-                res_temp = cali_info[tsi].temp_res;
+  const celsius_float_t start_temp = cali_info[tsi].start_temp,
+                          res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
-  float sum_x = start_temp,
-        sum_x2 = sq(start_temp),
-        sum_xy = 0, sum_y = 0;
+  celsius_float_t sum_x = start_temp, sum_y = 0;
+  float sum_x2 = sq(start_temp), sum_xy = 0;
 
   LOOP_L_N(i, calib_idx) {
-    const float xi = start_temp + (i + 1) * res_temp,
-                yi = static_cast<float>(data[i]);
+    const celsius_float_t xi = start_temp + (i + 1) * res_temp,
+                          yi = static_cast<celsius_float_t>(data[i]);
     sum_x += xi;
     sum_x2 += sq(xi);
     sum_xy += xi * yi;

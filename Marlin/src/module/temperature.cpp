@@ -3557,12 +3557,12 @@ void Temperature::isr() {
       #endif
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        const float start_temp = degHotend(target_extruder);
+        const celsius_t start_temp = degHotend(target_extruder);
         printerEventLEDs.onHotendHeatingStart();
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1.0, old_temp = 9999.0;
+      celsius_t target_temp = -1.0, old_temp = 9999.0;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -3592,7 +3592,7 @@ void Temperature::isr() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float temp = degHotend(target_extruder);
+        const celsius_t temp = degHotend(target_extruder);
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from violet to red as nozzle heats up
@@ -3601,7 +3601,7 @@ void Temperature::isr() {
 
         #if TEMP_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
 
           if (!residency_start_ms) {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -3695,12 +3695,12 @@ void Temperature::isr() {
       #endif
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        const float start_temp = degBed();
+        const celsius_t start_temp = degBed();
         printerEventLEDs.onBedHeatingStart();
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, old_temp = 9999;
+      celsius_t target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -3730,7 +3730,7 @@ void Temperature::isr() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float temp = degBed();
+        const celsius_t temp = degBed();
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from blue to violet as bed heats up
@@ -3739,7 +3739,7 @@ void Temperature::isr() {
 
         #if TEMP_BED_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
 
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -3758,7 +3758,7 @@ void Temperature::isr() {
           // Break after MIN_COOLING_SLOPE_TIME_BED seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
           if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
-            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_BED)) break;
+            if (old_temp - temp < (MIN_COOLING_SLOPE_DEG_BED)) break;
             next_cool_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_BED);
             old_temp = temp;
           }
@@ -3806,7 +3806,7 @@ void Temperature::isr() {
       #define MIN_DELTA_SLOPE_TIME_PROBE 600
     #endif
 
-    bool Temperature::wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling/*=true*/) {
+    bool Temperature::wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling/*=true*/) {
 
       const bool wants_to_cool = isProbeAboveTemp(target_temp);
       const bool will_wait = !(wants_to_cool && no_wait_for_cooling);
@@ -3893,7 +3893,7 @@ void Temperature::isr() {
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, old_temp = 9999;
+      celsius_t target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -3923,11 +3923,11 @@ void Temperature::isr() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float temp = degChamber();
+        const celsius_t temp = degChamber();
 
         #if TEMP_CHAMBER_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
 
           if (!residency_start_ms) {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -3991,7 +3991,7 @@ void Temperature::isr() {
       #endif
 
       bool wants_to_cool = false;
-      float target_temp = -1, previous_temp = 9999;
+      celsius_t target_temp = -1, previous_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
       wait_for_heatup = true;
       do {
@@ -4021,11 +4021,11 @@ void Temperature::isr() {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
-        const float current_temp = degCooler();
+        const celsius_t current_temp = degCooler();
 
         #if TEMP_COOLER_RESIDENCY_TIME > 0
 
-          const float temp_diff = ABS(target_temp - temp);
+          const celsius_t temp_diff = ABS(target_temp - temp);
 
           if (!residency_start_ms) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.

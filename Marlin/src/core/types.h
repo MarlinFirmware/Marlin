@@ -88,6 +88,7 @@ typedef float celsius_float_t;
   typedef const float const_float_t;
 #endif
 typedef const_float_t const_feedRate_t;
+typedef const_celsius_float_t const_float_t;
 
 // Conversion macros
 #define MMM_TO_MMS(MM_M) feedRate_t(float(MM_M) / 60.0f)
