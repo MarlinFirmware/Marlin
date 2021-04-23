@@ -183,4 +183,7 @@
 #define CASE_LIGHT_PIN                      LED_CONTROL_PIN
 
 #define SUICIDE_PIN                         PC13
-#define SUICIDE_PIN_INVERTING               true
+
+#ifndef SUICIDE_PIN_INVERTING
+  #define SUICIDE_PIN_INVERTING               false
+#endif
