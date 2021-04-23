@@ -743,9 +743,9 @@ class Temperature {
       #endif
       static inline celsius_float_t degProbe()  { return temp_probe.celsius; }
       static inline celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
-      static inline bool isProbeBelowTemp(const_celsius_float_t target_temp) { return temp_probe.celsius < target_temp; }
-      static inline bool isProbeAboveTemp(const_celsius_float_t target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const_celsius_float_t target_temp, bool no_wait_for_cooling=true);
+      static inline bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
+      static inline bool isProbeAboveTemp(const celsius_t target_temp) { return wholeDegProbe() > target_temp; }
+      static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE

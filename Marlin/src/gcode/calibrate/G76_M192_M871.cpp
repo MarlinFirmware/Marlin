@@ -176,7 +176,7 @@ void GcodeSuite::G76() {
 
   if (do_bed_cal) {
 
-    celsius_t target_bed = static_cast<celsius_t>(cali_info_init[TSI_BED].start_temp),
+    celsius_t target_bed = cali_info_init[TSI_BED].start_temp,
             target_probe = temp_comp.bed_calib_probe_temp;
 
     say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
@@ -239,7 +239,7 @@ void GcodeSuite::G76() {
     const celsius_t target_bed = temp_comp.probe_calib_bed_temp;
     thermalManager.setTargetBed(target_bed);
 
-    celsius_t target_probe = static_cast<celsius_t>(cali_info_init[TSI_PROBE].start_temp);
+    celsius_t target_probe = cali_info_init[TSI_PROBE].start_temp;
 
     report_targets(target_bed, target_probe);
 
@@ -350,7 +350,7 @@ void GcodeSuite::M192() {
     return;
   }
 
-  const celsius_float_t target_temp = parser.value_celsius();
+  const celsius_t target_temp = parser.value_celsius();
   ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
