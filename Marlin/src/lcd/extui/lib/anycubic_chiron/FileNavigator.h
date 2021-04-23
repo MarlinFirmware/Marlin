@@ -38,6 +38,7 @@ namespace Anycubic {
 
 class FileNavigator {
   public:
+    FileNavigator();
     static void reset();
     static void getFiles(uint16_t, panel_type_t, uint8_t filesneeded=4);
     static void upDIR();
