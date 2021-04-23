@@ -75,7 +75,7 @@
 
 static xyze_pos_t resume_position;
 
-#if HAS_LCD_MENU
+#if M600_PURGE_MORE_RESUMABLE
   PauseMenuResponse pause_menu_response;
   PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
 #endif
@@ -257,18 +257,22 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
       TERN_(HOST_PROMPT_SUPPORT, filament_load_host_prompt()); // Initiate another host prompt.
 
-      #if HAS_LCD_MENU
+      #if M600_PURGE_MORE_RESUMABLE
         if (show_lcd) {
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          ui.pause_show_message(PAUSE_MESSAGE_OPTION);
+          #if HAS_LCD_MENU
+            ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
+          #else
+            pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+          #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (TERN0(HAS_LCD_MENU, show_lcd && pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
+    } while (TERN0(M600_PURGE_MORE_RESUMABLE, show_lcd && pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
 
   #endif
   TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
