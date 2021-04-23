@@ -195,8 +195,8 @@ namespace ExtUI {
     char* getFilamentUsed_str(char buffer[21]);
   #endif
 
-  void setTargetTemp_celsius(const_celsius_float_t, const heater_t);
-  void setTargetTemp_celsius(const_celsius_float_t, const extruder_t);
+  void setTargetTemp_celsius(const_float_t, const heater_t);
+  void setTargetTemp_celsius(const_float_t, const extruder_t);
   void setTargetFan_percent(const_float_t, const fan_t);
   void coolDown();
   void setAxisPosition_mm(const_float_t, const axis_t, const feedRate_t=0);
