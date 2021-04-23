@@ -700,13 +700,13 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             unsigned int tempvalue;
             if (CodeSeen('S')) {
               tempvalue = constrain(CodeValue(), 0, 275);
-              setTargetTemp_celsius(tempvalue, (extruder_t) E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
             else if (CodeSeen('C') && !isPrinting()) {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
               tempvalue = constrain(CodeValue(), 0, 275);
-              setTargetTemp_celsius(tempvalue, (extruder_t) E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
           }
           break;
@@ -832,8 +832,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t) BED);
-              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t) E0);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
               SENDLINE_PGM("OK");
             }
             break;
@@ -843,8 +843,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t) BED);
-              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t) E0);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
               SENDLINE_PGM("OK");
             }
             break;
