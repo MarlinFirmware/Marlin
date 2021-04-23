@@ -75,7 +75,7 @@ void FileNavigator::reset() {
   currentfolderdepth = 0;
   currentindex = 0;
   lastpanelindex = 0;
-  ZERO(currentfolderindex)
+  ZERO(currentfolderindex);
 
   // Start at root folder
   while (!filelist.isAtRootDir()) filelist.upDir();
@@ -108,7 +108,7 @@ void FileNavigator::upDIR() {
   if (currentfolderdepth == 0)
     currentfoldername[0] = '\0';
   else {
-    const char *pos = strchr(currentfoldername, '/');
+    char * const pos = strchr(currentfoldername, '/');
     *(pos + 1) = '\0';
   }
 }
