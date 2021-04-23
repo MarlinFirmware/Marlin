@@ -358,12 +358,8 @@ class Temperature {
       static bool allow_cold_extrude;
       static celsius_t extrude_min_temp;
       static inline bool tooCold(const celsius_t temp) { return allow_cold_extrude ? false : temp < extrude_min_temp - (TEMP_WINDOW); }
-      static inline bool tooColdToExtrude(const uint8_t E_NAME) {
-        return tooCold(degHotend(HOTEND_INDEX));
-      }
-      static inline bool targetTooColdToExtrude(const uint8_t E_NAME) {
-        return tooCold(degTargetHotend(HOTEND_INDEX));
-      }
+      static inline bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
+      static inline bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
     #else
       static inline bool tooColdToExtrude(const uint8_t) { return false; }
       static inline bool targetTooColdToExtrude(const uint8_t) { return false; }
@@ -691,11 +687,11 @@ class Temperature {
       #endif
 
       static inline bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-      static inline bool degHotendNear(const uint8_t e, const_celsius_float_t temp) {
-        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+      static inline bool degHotendNear(const uint8_t e, const celsius_t temp) {
+        return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
     #endif // HAS_HOTEND
@@ -731,8 +727,8 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      static inline bool degBedNear(const_celsius_float_t temp) {
-        return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
+      static inline bool degBedNear(const celsius_t temp) {
+        return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
     #endif // HAS_HEATED_BED
