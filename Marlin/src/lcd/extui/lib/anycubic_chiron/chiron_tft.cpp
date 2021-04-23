@@ -373,7 +373,7 @@ int8_t ChironTFT::FindToken(char c) {
 
 void ChironTFT::CheckHeaters() {
   uint8_t faultDuration = 0;
-  celsius_t temp = 0;
+  celsius_float_t temp = 0;
 
   // if the hotend temp is abnormal, confirm state before signalling panel
   temp = getActualTemp_celsius(E0);
@@ -414,7 +414,7 @@ void ChironTFT::CheckHeaters() {
 
   // Update panel with bed heater status
   if (hotbed_state != AC_heater_temp_reached) {
-    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -1, 1)) {
+    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5)) {
       SendtoTFTLN(AC_msg_bed_heating_done);
       hotbed_state = AC_heater_temp_reached;
     }

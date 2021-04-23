@@ -631,7 +631,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    FORCE_INLINE static celsius_t degHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -690,7 +690,7 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-      FORCE_INLINE static bool degHotendNear(const uint8_t e, const_float_t temp) {
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const_celsius_float_t temp) {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
@@ -701,7 +701,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static celsius_t degBed()        { return temp_bed.celsius; }
+      FORCE_INLINE static celsius_float_t degBed()  { return temp_bed.celsius; }
       FORCE_INLINE static celsius_t degTargetBed()  { return temp_bed.target; }
       FORCE_INLINE static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       FORCE_INLINE static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
@@ -726,7 +726,7 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      FORCE_INLINE static bool degBedNear(const_float_t temp) {
+      FORCE_INLINE static bool degBedNear(const_celsius_float_t temp) {
         return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
@@ -737,9 +737,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static celsius_t degProbe()        { return temp_probe.celsius; }
-      FORCE_INLINE static bool isProbeBelowTemp(const_celsius_t target_temp) { return temp_probe.celsius < target_temp; }
-      FORCE_INLINE static bool isProbeAboveTemp(const_celsius_t target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
+      FORCE_INLINE static bool isProbeBelowTemp(const_celsius_float_t target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const_celsius_float_t target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const_celsius_float_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -827,7 +827,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const_celsius_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
@@ -961,7 +961,7 @@ class Temperature {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
-        void run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

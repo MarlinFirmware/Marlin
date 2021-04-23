@@ -172,9 +172,9 @@ void process_lcd_eb_command(const char *command) {
 
       sprintf_P(message_buffer,
         PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}{TQ:%03i}{TT:%s}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        (int)thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed(),
+          (int)thermalManager.degBed(), thermalManager.degTargetBed(),
         #else
           0, 0,
         #endif
@@ -303,9 +303,9 @@ void process_lcd_s_command(const char *command) {
       // temperature information
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer, PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}"),
-        thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+        (int)thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          thermalManager.degBed(), thermalManager.degTargetBed()
+          (int)thermalManager.degBed(), thermalManager.degTargetBed()
         #else
           0, 0
         #endif

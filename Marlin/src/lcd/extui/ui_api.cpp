@@ -263,7 +263,7 @@ namespace ExtUI {
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
 
-  celsius_t getActualTemp_celsius(const heater_t heater) {
+  celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
@@ -275,11 +275,11 @@ namespace ExtUI {
     }
   }
 
-  celsius_t getActualTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getActualTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
-  celsius_t getTargetTemp_celsius(const heater_t heater) {
+  celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
@@ -291,7 +291,7 @@ namespace ExtUI {
     }
   }
 
-  celsius_t getTargetTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getTargetTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 

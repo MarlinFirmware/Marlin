@@ -52,7 +52,7 @@ const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
 
 constexpr xyz_pos_t ProbeTempComp::park_point;
 constexpr xy_pos_t ProbeTempComp::measure_point;
-constexpr int ProbeTempComp::probe_calib_bed_temp;
+constexpr celsius_t ProbeTempComp::probe_calib_bed_temp;
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
@@ -159,29 +159,29 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   return true;
 }
 
-void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
+void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const_celsius_float_t temp, float &meas_z) {
   if (WITHIN(temp, cali_info[tsi].start_temp, cali_info[tsi].end_temp))
     meas_z -= get_offset_for_temperature(tsi, temp);
 }
 
-float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp) {
+float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const_celsius_float_t temp) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_float_t start_temp = cali_info[tsi].start_temp,
                           res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   auto point = [&](uint8_t i) {
-    return xy_float_t({start_temp + i*res_temp, static_cast<float>(data[i])});
+    return xy_float_t({ start_temp + i * res_temp, static_cast<float>(data[i]) });
   };
 
-  auto linear_interp = [](float x, xy_float_t p1, xy_float_t p2) {
+  auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
     return (p2.y - p1.y) / (p2.x - p2.y) * (x - p1.x) + p1.y;
   };
 
   // Linear interpolation
   uint8_t idx = static_cast<uint8_t>((temp - start_temp) / res_temp);
 
-  // offset in um
+  // offset in µm
   float offset = 0.0f;
 
   #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0

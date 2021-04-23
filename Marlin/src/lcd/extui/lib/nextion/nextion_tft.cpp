@@ -595,23 +595,23 @@ void NextionTFT::PanelAction(uint8_t req) {
 void NextionTFT::UpdateOnChange() {
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
-  static celsius_t last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
-                   last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
+  static celsius__float_t last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
+                          last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
 
   // tmppage Temperature
-  if (last_degHotend0 != getActualTemp_celsius(E0) || last_degTargetHotend0 != getTargetTemp_celsius(E0)) {
+  if (!WITHIN(last_degHotend0 - getActualTemp_celsius(E0), -0.2, 0.2) || !WITHIN(last_degTargetHotend0 - getTargetTemp_celsius(E0), -0.5, 0.5)) {
     SEND_TEMP("tmppage.t0", ui8tostr3rj(getActualTemp_celsius(E0)), " / ", ui8tostr3rj(getTargetTemp_celsius(E0)));
     last_degHotend0 = getActualTemp_celsius(E0);
     last_degTargetHotend0 = getTargetTemp_celsius(E0);
   }
 
-  if (last_degHotend1 != getActualTemp_celsius(E1) || last_degTargetHotend1 != getTargetTemp_celsius(E1)) {
+  if (!WITHIN(last_degHotend1 - getActualTemp_celsius(E1), -0.2, 0.2) || !WITHIN(last_degTargetHotend1 - getTargetTemp_celsius(E1), -0.5, 0.5)) {
     SEND_TEMP("tmppage.t1", ui8tostr3rj(getActualTemp_celsius(E1)), " / ", ui8tostr3rj(getTargetTemp_celsius(E1)));
     last_degHotend1 = getActualTemp_celsius(E1);
     last_degTargetHotend1 = getTargetTemp_celsius(E1);
   }
 
-  if (last_degBed != getActualTemp_celsius(BED) || last_degTargetBed != getTargetTemp_celsius(BED)) {
+  if (!WITHIN(last_degBed - getActualTemp_celsius(BED), -0.2, 0.2) || !WITHIN(last_degTargetBed - getTargetTemp_celsius(BED), -0.5, 0.5)) {
     SEND_TEMP("tmppage.t2", ui8tostr3rj(getActualTemp_celsius(BED)), " / ", ui8tostr3rj(getTargetTemp_celsius(BED)));
     last_degBed = getActualTemp_celsius(BED);
     last_degTargetBed = getTargetTemp_celsius(BED);
