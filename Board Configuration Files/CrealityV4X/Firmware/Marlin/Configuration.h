@@ -72,11 +72,6 @@
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
 
-// Ender 6 - Expanded Print Area
-// If you want to set your print area to 265x265x400 instead of the 250x250x400 default, uncomment the below line
-// NOTE: This is ONLY recommended if your machine can move the extra 15mm on XY and you are NOT using the stock glass clips.
-//#define ENDER6_EXPANDED_PRINT_AREA
-
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
 //===========================================================================
@@ -564,15 +559,9 @@
 
   #define EXTRUDERS 1
 
-  #if ENABLED(ENDER6_EXPANDED_PRINT_AREA)
-    #define X_BED_SIZE 265
-    #define Y_BED_SIZE 265
-    #define Z_MAX_POS 400
-  #else
-    #define X_BED_SIZE 250
-    #define Y_BED_SIZE 250
-    #define Z_MAX_POS 400
-  #endif
+  #define X_BED_SIZE 250
+  #define Y_BED_SIZE 250
+  #define Z_MAX_POS 400
   
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_LOCATION
