@@ -636,7 +636,7 @@ class Temperature {
     }
 
     static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
-      return TERN0(HAS_HOTEND, static_cast<celsius_t>(degHotend(HOTEND_INDEX) + 0.5f));
+      return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
