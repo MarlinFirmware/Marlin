@@ -156,8 +156,8 @@ typedef struct {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   int16_t LoadLength      = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
   int16_t UnloadLength    = FILAMENT_CHANGE_UNLOAD_LENGTH;
-  int8_t Color[3];
 #endif
+  int8_t Color[3];
 } HMI_value_t;
 
 typedef struct {

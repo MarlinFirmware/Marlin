@@ -778,11 +778,11 @@ void Draw_Tune_Menu() {
 
   #if HAS_HOTEND
     if (TVISI(TUNE_CASE_TEMP)) Draw_Menu_Line(TUNE_CASE_TEMP, ICON_HotendTemp);
-    if (TVISI(TUNE_CASE_TEMP)) DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 216, TLINE(TUNE_CASE_TEMP), thermalManager.temp_hotend[0].target);
+    if (TVISI(TUNE_CASE_TEMP)) DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 216, TLINE(TUNE_CASE_TEMP), thermalManager.degTargetHotend(0));
   #endif
   #if HAS_HEATED_BED
     if (TVISI(TUNE_CASE_BED)) Draw_Menu_Line(TUNE_CASE_BED, ICON_BedTemp);
-    if (TVISI(TUNE_CASE_BED)) DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 216, TLINE(TUNE_CASE_BED), thermalManager.temp_bed.target);
+    if (TVISI(TUNE_CASE_BED)) DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 216, TLINE(TUNE_CASE_BED), thermalManager.degTargetBed());
   #endif
   #if HAS_FAN
     if (TVISI(TUNE_CASE_FAN)) Draw_Menu_Line(TUNE_CASE_FAN, ICON_FanSpeed);
@@ -3620,11 +3620,11 @@ void HMI_AdvSet() {
         break;
       #endif
       case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
-        thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
+        thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp,0);
         thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
         break;
       case ADVSET_CASE_BEDPID:   // Bed PID Autotune
-        thermalManager.temp_hotend[0].target = ui.material_preset[0].hotend_temp;
+        thermalManager.setTargetBed(ui.material_preset[0].hotend_temp);
         thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
         break;
       #if HAS_FILAMENT_SENSOR
@@ -4706,11 +4706,11 @@ void EachMomentUpdate() {
     HMI_flag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
       if (sdprint) {
-        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].target);
-        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.target);
+        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
+        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
       } else {
-        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.temp_hotend[0].celsius);
-        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.temp_bed.celsius);
+        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degHotend(0));
+        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degBed());
       }
       thermalManager.disable_all_heaters();
     #endif
@@ -5005,8 +5005,8 @@ void DWIN_Startup() {
 // Update Status line
 // Example ui.status_printf_P(0,  PSTR("Element: %i Color: %i"), E, C);
 void DWIN_StatusChanged(const char *text) {
-  DWIN_Draw_Rectangle(1, HMI_data.StatusBg_Color, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y+20);
-  DWIN_Draw_CenteredString(false, false, font8x16, HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, MENU_CHR_W, STATUS_Y+2, F(text));
+  DWIN_Draw_Rectangle(1, HMI_data.StatusBg_Color, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
+  DWIN_Draw_CenteredString(false, false, font8x16, HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, MENU_CHR_W, STATUS_Y + 2, F(text));
   DWIN_UpdateLCD();
 }
 
