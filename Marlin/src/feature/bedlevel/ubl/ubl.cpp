@@ -260,25 +260,47 @@ bool unified_bed_leveling::sanity_check() {
  */
 void GcodeSuite::M1004() {
 
+  bool got_temp_hotend = false,
+       got_temp_bed = false;
+  celsius_t hotend_temp = 0,
+            temp = 0;
+  bool no_wait_for_cooling_hotend = false,
+       no_wait_for_cooling_bed = false;
+
+#if HAS_HOTEND
+  if (!got_temp_hotend) {
+    got_temp_hotend = parser.seenval('H');
+  if (got_temp_hotend) hotend_temp = parser.value_celsius();
+  }
+
+  if (!got_temp_hotend) {
+    no_wait_for_cooling_hotend = parser.seenval('H');
+    got_temp_hotend = no_wait_for_cooling_hotend;
+  }
+
+  if (got_temp_hotend) {
+    thermalManager.setTargetHotend(hotend_temp, 0);
+    thermalManager.wait_for_hotend(no_wait_for_cooling_hotend);
+  }
+#endif
+
 #if HAS_HEATED_BED
-  bool got_temp = false;
-  celsius_t temp = 0;
-  bool no_wait_for_cooling = false;
 
-  if (!got_temp) {
-    got_temp = parser.seenval('S');
-  if (got_temp) temp = parser.value_celsius();
+  if (!got_temp_bed) {
+    got_temp_bed = parser.seenval('B');
+  if (got_temp_bed) temp = parser.value_celsius();
   }
 
-  if (!got_temp) {
-    no_wait_for_cooling = parser.seenval('S');
-    got_temp = no_wait_for_cooling;
+  if (!got_temp_bed) {
+    no_wait_for_cooling_bed = parser.seenval('B');
+    got_temp_bed = no_wait_for_cooling_bed;
   }
 
-  if (got_temp) {
+  if (got_temp_bed) {
     thermalManager.setTargetBed(temp);
-    thermalManager.wait_for_bed(no_wait_for_cooling);
+    thermalManager.wait_for_bed(no_wait_for_cooling_bed);
   }
+
 #endif
 
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")

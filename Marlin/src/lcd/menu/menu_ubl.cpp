@@ -609,7 +609,7 @@ void _menu_ubl_tools() {
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[16];
   #if HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004 S%i"), custom_bed_temp);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004 B%i H%i"), custom_bed_temp, custom_hotend_temp);
     queue.inject(ubl_lcd_gcode);  
   #else
     sprintf_P(ubl_lcd_gcode, PSTR("M1004"));
@@ -620,6 +620,10 @@ void _lcd_ubl_mesh_wizard() {
 void _menu_ubl_mesh_wizard() {
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
+
+  #if HAS_HOTEND
+    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+  #endif
 
   #if HAS_HEATED_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
