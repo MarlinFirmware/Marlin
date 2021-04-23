@@ -26,85 +26,53 @@
 // Stuff here are used to for making the type generic enough not to care about bit size and types
 namespace Private
 {
-  // Make a catalog of types that's converting from bit width to the minimum C type capable of holding it and relation to the other types
-  template <bool Signed, unsigned bitWidth> struct Size2Type {};
-  template <> struct Size2Type<false, 64>  { enum { width = 64, is_signed = 0, has_next = 0 }; typedef uint64_t type; typedef uint64_t next; }; // This is wrong for next, but we avoid the code paths that would use it
-  template <> struct Size2Type<false, 32>  { enum { width = 32, is_signed = 0, has_next = 1 }; typedef uint32_t type; typedef typename Size2Type<false, 64>::type next; };
-  template <> struct Size2Type<false, 16>  { enum { width = 16, is_signed = 0, has_next = 1 }; typedef uint16_t type; typedef typename Size2Type<false, 32>::type next; };
-  template <> struct Size2Type<false, 8>   { enum { width =  8, is_signed = 0, has_next = 1 }; typedef uint8_t  type; typedef typename Size2Type<false, 16>::type next; };
-
-  template <> struct Size2Type<true, 64>   { enum { width = 64, is_signed = 1, has_next = 0 }; typedef int64_t type; typedef int64_t next; }; // This is wrong for next, but we avoid the code paths that would use it
-  template <> struct Size2Type<true, 32>   { enum { width = 32, is_signed = 1, has_next = 1 }; typedef int32_t type; typedef typename Size2Type<true, 64>::type next; };
-  template <> struct Size2Type<true, 16>   { enum { width = 16, is_signed = 1, has_next = 1 }; typedef int16_t type; typedef typename Size2Type<true, 32>::type next; };
-  template <> struct Size2Type<true, 8>    { enum { width =  8, is_signed = 1, has_next = 1 }; typedef int8_t  type; typedef typename Size2Type<true, 16>::type next; };
-
-  // Convert from one type to another. This is completely unsafe to use anywhere
-  template <typename From, typename To> inline To convert(const From v) { return static_cast<To>(v); }
-
   // A useful object splitter for floating point value.
   // This is using undefined behavior for C++ to store in a union member and load from another member, but it's perfectly defined in C and most compiler will do correctly
   union IEEE745 {
     struct {
       uint32_t fraction	: 23;
       uint32_t exp_bias	: 8;
-      uint32_t sign		: 1;
+      uint32_t sign		  : 1;
     } fields;
 
-    uint32_t dword;
+    int32_t word;
     float value;
   };
-
 
   // Convert from float to fixed point integer
   // This is a faster than doing the obvious (int)(f * one) with one = (float)(1<<shiftAmount)
   // It works because one is just a shift
-  int32_t f2i(const float value, const int32_t shiftAmount) {
-    IEEE745 number; number.value = value;
-  #if false
-    number.fields.exp_bias += shiftAmount;
-    return (int32_t)number.value;
-  #else
-    constexpr int IEEE745_BIAS = 127;
-    // The logic here is the following
-    // [ 1| exp | mantissa ] => number = [1,-1]sign * mantissa * 2^(exp-127)
-    // With a fixed point number, the output fixed point number is represented as
-    // fp_num = signed_mantissa * 2^shiftAmount
-    // Thus, the amount we want to shift about is 2^(exp-127 - 23 + shiftAmount)
-    const int32_t shift = number.fields.exp_bias + shiftAmount - IEEE745_BIAS - 23;
-
-    #if ENABLED(INFINITY_CHECK)
-      // After shifting nothing will be left, so exit early
-      if (shift < -23) return 0;
-
-      // Not representable value (shift would lead to higher than 32 bits number) ? Let's make +/- INF instead
-      if (shift > 7)   return number.fields.sign ? INT32_MIN : INT32_MAX;
-    #endif
-
-    // Shift should be between [-23 .. 7], account for implicit mantissa high bit
-    uint32_t out = number.fields.fraction | (1 << 23);
-
-    if (shift < 0)	    out >>= -shift;
-    else if (shift > 0) out <<= shift;
-
-    #if ENABLED(INFINITY_CHECK)
-      // We are flirting with the maximum value here, so let's clamp the output
-      if (shift == 7) {
-        if (number.fields.sign) {
-          if (out > (uint32_t)-INT32_MIN) return INT32_MIN;
-        } else {
-          if (out > INT32_MAX) return INT32_MAX;
-        }
-      }
-    #endif
-
-    return (number.fields.sign) ? -out : out;
-  #endif
+  int32_t f2i_s(const float value, const int32_t shiftAmount) {
+    IEEE745 number; number.value = value;       // We want to manipulate float fields here
+    number.fields.exp_bias += shiftAmount;      // Fix exponent for our shift amount WARNING: This won't work for very big numbers, but we don't usually care don't we ?
+    return (int32_t)number.value;               // And convert back to int
   }
 
   // Convert from fixed point to float
-  float i2f(const int32_t value, const int32_t shiftAmount) {
-    return 0;
+  float i2f_s(const int32_t value, const int32_t shiftAmount) {
+    if (!value) return 0;                         // 0 is (the only) denormalized float so let's handle it correctly here
+    IEEE745 number; number.value = (float)value;  // Simple conversion first
+    number.fields.exp_bias -= shiftAmount;        // Fix exponent
+    return number.value;                          // We're done
   }
+
+  int64_t f2i_l(const double value, const int32_t shiftAmount)  { double one = (double)(1ULL<<shiftAmount);             return (int64_t)(value * one); }
+  float   i2f_l(const int64_t value, const int32_t shiftAmount) { double recipOne = 1.0 /  (double)(1ULL<<shiftAmount); return (double)value * recipOne; }
+
+  // Make a catalog of types that's converting from bit width to the minimum C type capable of holding it and relation to the other types
+  template <bool Signed, unsigned bitWidth> struct Size2Type {};
+  template <> struct Size2Type<false, 64>  { enum { width = 64, is_signed = 0, has_next = 0 }; typedef uint64_t type; static inline type f2i(double f, int32_t v) { return (type)f2i_l(f, v); } static inline double i2f(type t, int32_t v) { return i2f_l(t, v); } typedef uint64_t next; }; // This is wrong for next, but we avoid the code paths that would use it
+  template <> struct Size2Type<false, 32>  { enum { width = 32, is_signed = 0, has_next = 1 }; typedef uint32_t type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); } typedef typename Size2Type<false, 64>::type next; };
+  template <> struct Size2Type<false, 16>  { enum { width = 16, is_signed = 0, has_next = 1 }; typedef uint16_t type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); } typedef typename Size2Type<false, 32>::type next; };
+  template <> struct Size2Type<false, 8>   { enum { width =  8, is_signed = 0, has_next = 1 }; typedef uint8_t  type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); } typedef typename Size2Type<false, 16>::type next; };
+
+  template <> struct Size2Type<true, 64>   { enum { width = 64, is_signed = 1, has_next = 0 }; typedef int64_t type; static inline type f2i(double f, int32_t v) { return (type)f2i_l(f, v); } static inline double i2f(type t, int32_t v) { return i2f_l(t, v); } typedef int64_t next; }; // This is wrong for next, but we avoid the code paths that would use it
+  template <> struct Size2Type<true, 32>   { enum { width = 32, is_signed = 1, has_next = 1 }; typedef int32_t type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); }typedef typename Size2Type<true, 64>::type next; };
+  template <> struct Size2Type<true, 16>   { enum { width = 16, is_signed = 1, has_next = 1 }; typedef int16_t type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); }typedef typename Size2Type<true, 32>::type next; };
+  template <> struct Size2Type<true, 8>    { enum { width =  8, is_signed = 1, has_next = 1 }; typedef int8_t  type; static inline type f2i(float f, int32_t v)  { return (type)f2i_s(f, v); } static inline float i2f(type t, int32_t v)  { return i2f_s(t, v); }typedef typename Size2Type<true, 16>::type next; };
+
+  // Convert from one type to another. This is completely unsafe to use anywhere
+  template <typename From, typename To> inline To convert(const From v) { return static_cast<To>(v); }
 }
 
 /** A fixed-point template class that should work like a floating-point object.
@@ -147,8 +115,8 @@ private:
   // Convert any type to our fixed-point value
   constexpr static support_type from_unit(int && t) { return static_cast<support_type>(utype(t) << fractional); }
   constexpr static support_type from_unit(unsigned int && t) { return static_cast<support_type>(utype(t) << fractional); }
-  constexpr static support_type from_unit(float && t) { return static_cast<support_type>(Private::f2i(t, fractional)); }
-  constexpr static support_type from_unit(double && t) { return static_cast<support_type>(Private::f2i((float)t, fractional)); }
+  constexpr static support_type from_unit(float && t) { return size2type::f2i(t, fractional); }
+  constexpr static support_type from_unit(double && t) { return size2type::f2i(t, fractional); }
   // Division using Egyptian algorithm, very slow, only used for large type or when DONT_USE_LARGER_FP_TYPE_FOR_MULTIPLICATION
   void divide(fixp denom, fixp & quotient, fixp & remainder) {
     int sign = 0;
@@ -278,7 +246,7 @@ public:
   // Conversion operators
 public:
   constexpr explicit operator int() const { return data >> fractional; }
-  constexpr explicit operator float() const { return static_cast<float>(data) / one; }
-  constexpr explicit operator double() const { return static_cast<double>(data) / one; }
+  constexpr explicit operator float() const { return size2type::i2f(data, fractional); } // static_cast<float>(data) / one; }
+  constexpr explicit operator double() const { return size2type::i2f(data, fractional); } // static_cast<double>(data) / one; }
   constexpr support_type raw() const { return data; }
 };
