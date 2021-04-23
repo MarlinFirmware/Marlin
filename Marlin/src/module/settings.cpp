@@ -540,6 +540,9 @@ void MarlinSettings::postprocess() {
   // Various factors can change the current position
   if (oldpos != current_position)
     report_current_position();
+  #if ALL(EXTENSIBLE_UI,EXTUI_POSTPROCESS_SETINGS)
+    ExtUI::onPostprocessSettings();
+  #endif
 }
 
 #if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
