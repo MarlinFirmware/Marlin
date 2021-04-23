@@ -3644,12 +3644,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Change Filament");
             }
             else {
-              Popup_Handler(FilChange);
-              char buf[20];
-              sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-              gcode.process_subcommands_now_P(buf);
-              planner.synchronize();
-              Redraw_Menu();
+              Popup_Handler(ConfFilChange);
             }
             break;
         #endif
@@ -4044,6 +4039,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       break;
     case ConfLevel:
       Draw_Popup((char*)"Confirm Leveling", (char*)"", (char*)"", Popup);
+      break;
+    case ConfFilChange:
+      Draw_Popup((char*)"Confirm Filament Change", (char*)"", (char*)"", Popup);
       break;
     case SaveLevel:
       Draw_Popup((char*)"Leveling Complete", (char*)"Save to EEPROM?", (char*)"", Popup);
@@ -4530,6 +4528,27 @@ inline void CrealityDWINClass::Popup_Control() {
           Draw_Menu(PreheatHotend);
         }
         else {
+          Redraw_Menu();
+        }
+        break;
+      case ConfFilChange:
+        if (selection==0) {
+          if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp) {
+            Popup_Handler(ETemp);
+          }
+          else {
+            if (thermalManager.temp_hotend[0].celsius < thermalManager.temp_hotend[0].target-2) {
+              Popup_Handler(Heating);
+              thermalManager.wait_for_hotend(0);
+            }
+            Popup_Handler(FilChange);
+            char buf[20];
+            sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+            gcode.process_subcommands_now_P(buf);
+            planner.synchronize();
+            Redraw_Menu();
+          }
+        } else {
           Redraw_Menu();
         }
         break;
