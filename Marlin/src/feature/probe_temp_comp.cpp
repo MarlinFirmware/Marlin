@@ -211,12 +211,14 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
                     res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
-  celsius_float_t sum_x = start_temp, sum_y = 0;
-  float sum_x2 = sq(start_temp), sum_xy = 0;
+  float sum_x = start_temp,
+        sum_x2 = sq(start_temp),
+        sum_xy = 0, sum_y = 0;
 
+  float xi = static_cast<float>(start_temp);
   LOOP_L_N(i, calib_idx) {
-    const celsius_t xi = start_temp + (i + 1) * res_temp;
     const float yi = static_cast<float>(data[i]);
+    xi += res_temp;
     sum_x += xi;
     sum_x2 += sq(xi);
     sum_xy += xi * yi;
