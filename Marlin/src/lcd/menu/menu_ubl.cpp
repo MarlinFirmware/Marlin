@@ -37,7 +37,7 @@
 #include "../../feature/bedlevel/bedlevel.h"
 
 static int16_t ubl_storage_slot = 0,
-               custom_hotend_temp = 190,
+               custom_hotend_temp = 150,
                side_points = 3,
                ubl_fillin_amount = 5,
                ubl_height_amount = 1;
