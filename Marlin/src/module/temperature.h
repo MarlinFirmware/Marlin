@@ -179,7 +179,7 @@ enum ADCSensorState : char {
 typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
-  celsius_high_precision_t celsius;
+  celsius_float_t celsius;
   inline void reset() { acc = 0; }
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
@@ -505,7 +505,7 @@ class Temperature {
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
       static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
       static void reset_user_thermistors();
-      static celsius_high_precision_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
+      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
       static bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (!WITHIN(value, 1, 1000000)) return false;
@@ -533,19 +533,19 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-      static celsius_high_precision_t analog_to_celsius_hotend(const int raw, const uint8_t e);
+      static celsius_float_t analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static celsius_high_precision_t analog_to_celsius_bed(const int raw);
+      static celsius_float_t analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_PROBE
-      static celsius_high_precision_t analog_to_celsius_probe(const int raw);
+      static celsius_float_t analog_to_celsius_probe(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static celsius_high_precision_t analog_to_celsius_chamber(const int raw);
+      static celsius_float_t analog_to_celsius_chamber(const int raw);
     #endif
     #if HAS_TEMP_COOLER
-      static celsius_high_precision_t analog_to_celsius_cooler(const int raw);
+      static celsius_float_t analog_to_celsius_cooler(const int raw);
     #endif
 
     #if HAS_FAN
@@ -631,7 +631,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    FORCE_INLINE static celsius_high_precision_t degHotend(const uint8_t E_NAME) {
+    FORCE_INLINE static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -701,7 +701,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
-      FORCE_INLINE static celsius_high_precision_t degBed() { return temp_bed.celsius; }
+      FORCE_INLINE static celsius_float_t degBed()  { return temp_bed.celsius; }
       FORCE_INLINE static celsius_t degTargetBed()  { return temp_bed.target; }
       FORCE_INLINE static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       FORCE_INLINE static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
