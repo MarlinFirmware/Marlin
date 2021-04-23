@@ -918,15 +918,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_HEATED_BED
-                thermalManager.degBed(), thermalManager.degTargetBed(),
+                (int)thermalManager.degBed(), (int)thermalManager.degTargetBed(),
               #else
                 0, 0,
               #endif
-              thermalManager.degHotend(0), thermalManager.degTargetHotend(0),
+              (int)thermalManager.degHotend(0), (int)thermalManager.degTargetHotend(0),
               #if HAS_MULTI_HOTEND
-                thermalManager.degHotend(1), thermalManager.degTargetHotend(1)
+                (int)thermalManager.degHotend(1), (int)thermalManager.degTargetHotend(1)
               #else
                 0, 0
               #endif
