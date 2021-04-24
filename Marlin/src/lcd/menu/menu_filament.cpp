@@ -67,7 +67,7 @@ static void _change_filament_with_preset() {
 }
 
 static void _change_filament_with_custom() {
-  _change_filament_with_temp(thermalManager.temp_hotend[MenuItemBase::itemIndex].target);
+  _change_filament_with_temp(thermalManager.degTargetHotend(MenuItemBase::itemIndex));
 }
 
 //

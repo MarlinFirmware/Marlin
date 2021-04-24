@@ -636,7 +636,7 @@ static void drawAxisValue(AxisEnum axis) {
 static void moveAxis(AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  if (axis == E_AXIS && thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
+  if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
     drawMessage("Too cold");
     return;
   }
