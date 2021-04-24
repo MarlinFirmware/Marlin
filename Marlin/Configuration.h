@@ -109,7 +109,7 @@
  */
 
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
-//#define GraphicLCD //Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, or CR10SPro
+//#define GraphicLCD // 12864 Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, CR10SPro, or CR10Max
 //#define Big_UI // Lightweight status screen, saves CPU cycles
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
@@ -313,12 +313,6 @@
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
-#if ENABLED(MachineCR10SProV2)
-  #define MachineCR10SPro
-  #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
-    #define ABL_BLTOUCH
-  #endif
-#endif
 
 #if BOTH(PowerShutoffKit, EnclosureLight)
   #undef EnclosureLight
@@ -354,6 +348,13 @@
 
 #if ENABLED(ABL_EZABL12MM)
   #define ABL_EZABL
+#endif
+
+#if ENABLED(MachineCR10SProV2)
+  #define MachineCR10SPro
+  #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
+    #define ABL_BLTOUCH
+  #endif
 #endif
 
 #if ENABLED(MachineCR10SPro)

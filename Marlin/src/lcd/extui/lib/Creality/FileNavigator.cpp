@@ -94,6 +94,7 @@ void FileNavigator::getFiles(uint16_t index) {
   }
   lastindex = index;
 
+
   // Clear currently drawn screen
   for (int i = 0; i < DISPLAY_FILES; i++)
   {
@@ -121,6 +122,8 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData("Up Directory", SDFILE_ADDR);
     fcnt++;
   }
+  else if(currentindex == DISPLAY_FILES && folderdepth > 0)
+    currentindex--;
 
   for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
     if (filelist.seek(seek)) {
@@ -135,6 +138,7 @@ void FileNavigator::getFiles(uint16_t index) {
       }
       else
         rtscheck.RTS_SndData(filelist.filename(), (SDFILE_ADDR + (fcnt * 20)));
+
       if (filelist.isDir())
       {
         rtscheck.RTS_SndData((uint8_t)4, FilenameIcon + (fcnt+1));
@@ -145,7 +149,7 @@ void FileNavigator::getFiles(uint16_t index) {
         rtscheck.RTS_SndData((uint8_t)0, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
       }
-      DEBUG_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+      SERIAL_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       fcnt++;
     }
   }
