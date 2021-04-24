@@ -297,7 +297,7 @@ CrealityDWINClass CrealityDWIN;
 //  2=Menu area
 //  1=Title bar
 inline void CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
-  if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
+  if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
   if (e==2||e==3) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
   if (e==4) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
@@ -334,6 +334,9 @@ inline uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bo
     case Green:
       return (light) ? Color_Light_Green : Color_Green;
       break;
+    case Cyan:
+      return (light) ? Color_Light_Cyan : Color_Cyan;
+      break; 
     case Blue:
       return (light) ? Color_Light_Blue : Color_Blue;
       break;
@@ -342,19 +345,25 @@ inline uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bo
       break;
     case Red:
       return (light) ? Color_Light_Red : Color_Red;
+      break;
+    case Orange:
+      return (light) ? Color_Light_Orange : Color_Orange;
       break;  
     case Yellow:
       return (light) ? Color_Light_Yellow : Color_Yellow;
       break;
     case Brown:
       return (light) ? Color_Light_Brown : Color_Brown;
-      break;                           
+      break;          
+    case Black:
+      return Color_Black;
+      break;                             
   }
   return Color_White;
 }
 
 inline void CrealityDWINClass::Draw_Title(char *title) {
-  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, (DWIN_WIDTH - strlen(title) * STAT_CHR_W) / 2, 4, title);
+  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen(title) * STAT_CHR_W) / 2, 5, title);
 }
 
 inline void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, char *label1, char *label2, bool more/*=false*/, bool centered/*=false*/) {
@@ -846,7 +855,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
     x = -1;
     y = -1;
     z = -1;
-    DWIN_Draw_Rectangle(1, Line_Color, 0, 449, DWIN_WIDTH, 451);
+    DWIN_Draw_Line(GetColor(eeprom_settings.coordinates_split_line, Line_Color, true), 16, 450, 256, 450);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedX,   10, 456);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
@@ -900,8 +909,8 @@ void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const ch
 }
 
 void CrealityDWINClass::Popup_Select() {
-  const uint16_t c1 = (selection==0) ? Select_Color : Color_Bg_Window,
-                 c2 = (selection==0) ? Color_Bg_Window : Select_Color;
+  const uint16_t c1 = (selection==0) ? GetColor(eeprom_settings.highlight_box, Color_White) : Color_Bg_Window,
+                 c2 = (selection==0) ? Color_Bg_Window : GetColor(eeprom_settings.highlight_box, Color_White);
   DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
   DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
   DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
@@ -2701,13 +2710,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define COLORSETTINGS_BACK 0
         #define COLORSETTINGS_CURSOR (COLORSETTINGS_BACK + 1)
         #define COLORSETTINGS_SPLIT_LINE (COLORSETTINGS_CURSOR + 1)
-        #define COLORSETTINGS_HIGHLIGHT_BORDER (COLORSETTINGS_SPLIT_LINE + 1)
+        #define COLORSETTINGS_MENU_TOP_TXT (COLORSETTINGS_SPLIT_LINE + 1)
+        #define COLORSETTINGS_MENU_TOP_BG (COLORSETTINGS_MENU_TOP_TXT + 1)
+        #define COLORSETTINGS_HIGHLIGHT_BORDER (COLORSETTINGS_MENU_TOP_BG + 1)
         #define COLORSETTINGS_PROGRESS_PERCENT (COLORSETTINGS_HIGHLIGHT_BORDER + 1)
         #define COLORSETTINGS_PROGRESS_TIME (COLORSETTINGS_PROGRESS_PERCENT + 1)
         #define COLORSETTINGS_PROGRESS_STATUS_BAR (COLORSETTINGS_PROGRESS_TIME + 1)
         #define COLORSETTINGS_PROGRESS_STATUS_AREA (COLORSETTINGS_PROGRESS_STATUS_BAR + 1)
         #define COLORSETTINGS_PROGRESS_COORDINATES (COLORSETTINGS_PROGRESS_STATUS_AREA + 1)
-        #define COLORSETTINGS_TOTAL COLORSETTINGS_PROGRESS_COORDINATES
+        #define COLORSETTINGS_PROGRESS_COORDINATES_LINE (COLORSETTINGS_PROGRESS_COORDINATES + 1)
+        #define COLORSETTINGS_TOTAL COLORSETTINGS_PROGRESS_COORDINATES_LINE
 
         switch (item) {
         case COLORSETTINGS_BACK:
@@ -2727,13 +2739,31 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Modify_Option(eeprom_settings.cursor_color, color_names, Custom_Colors);
           }
           break;
-        case COLORSETTINGS_SPLIT_LINE:
+          case COLORSETTINGS_SPLIT_LINE:
            if (draw) {
             Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Menu Split Line");
             Draw_Option(eeprom_settings.menu_split_line, color_names, row, false, true);
           }
           else {
             Modify_Option(eeprom_settings.menu_split_line, color_names, Custom_Colors);
+          }
+          break;
+        case COLORSETTINGS_MENU_TOP_TXT:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Menu Header Text");
+            Draw_Option(eeprom_settings.menu_top_txt, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.menu_top_txt, color_names, Custom_Colors);
+          }
+          break;
+         case COLORSETTINGS_MENU_TOP_BG:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Menu Header Bg");
+            Draw_Option(eeprom_settings.menu_top_bg, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.menu_top_bg, color_names, Custom_Colors);
           }
           break;  
           case COLORSETTINGS_HIGHLIGHT_BORDER:
@@ -2789,7 +2819,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           else {
             Modify_Option(eeprom_settings.coordinates_text, color_names, Custom_Colors);
           }
-          break;                                       
+          break;     
+          case COLORSETTINGS_PROGRESS_COORDINATES_LINE:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_MaxSpeed, (char*)"Coordinates Line");
+            Draw_Option(eeprom_settings.coordinates_split_line, color_names, row, false, true);
+          }
+          else {
+            Modify_Option(eeprom_settings.coordinates_split_line, color_names, Custom_Colors);
+          }
+          break;                                              
         }
         break; 
 
@@ -4283,12 +4322,15 @@ inline void CrealityDWINClass::Option_Control() {
       switch(selection) {
         case COLORSETTINGS_CURSOR: eeprom_settings.cursor_color = tempvalue; break;
         case COLORSETTINGS_SPLIT_LINE: eeprom_settings.menu_split_line = tempvalue; break;
+        case COLORSETTINGS_MENU_TOP_BG: eeprom_settings.menu_top_bg = tempvalue; break;
+        case COLORSETTINGS_MENU_TOP_TXT: eeprom_settings.menu_top_txt = tempvalue; break;
         case COLORSETTINGS_HIGHLIGHT_BORDER: eeprom_settings.highlight_box = tempvalue; break;
         case COLORSETTINGS_PROGRESS_PERCENT: eeprom_settings.progress_percent = tempvalue; break;
         case COLORSETTINGS_PROGRESS_TIME: eeprom_settings.progress_time = tempvalue; break;      
         case COLORSETTINGS_PROGRESS_STATUS_BAR: eeprom_settings.status_bar_text = tempvalue; break;
         case COLORSETTINGS_PROGRESS_STATUS_AREA: eeprom_settings.status_area_text = tempvalue; break;
         case COLORSETTINGS_PROGRESS_COORDINATES: eeprom_settings.coordinates_text = tempvalue; break;
+        case COLORSETTINGS_PROGRESS_COORDINATES_LINE: eeprom_settings.coordinates_split_line = tempvalue; break;
       }
       Redraw_Screen();
     }
