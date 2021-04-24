@@ -406,7 +406,7 @@ void ChironTFT::CheckHeaters() {
 
   // Update panel with hotend heater status
   if (hotend_state != AC_heater_temp_reached) {
-    if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -1, 1)) {
+    if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -(TEMP_WINDOW), TEMP_WINDOW)) {
       SendtoTFTLN(AC_msg_nozzle_heating_done);
       hotend_state = AC_heater_temp_reached;
     }
@@ -414,7 +414,7 @@ void ChironTFT::CheckHeaters() {
 
   // Update panel with bed heater status
   if (hotbed_state != AC_heater_temp_reached) {
-    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5)) {
+    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -(TEMP_BED_WINDOW), TEMP_BED_WINDOW)) {
       SendtoTFTLN(AC_msg_bed_heating_done);
       hotbed_state = AC_heater_temp_reached;
     }
