@@ -486,7 +486,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
       #endif
     }
+  }
 
+  void MarlinUI::bootscreen_completion(const millis_t) {
     lcd.clear();
     safe_delay(100);
     set_custom_characters(CHARSET_INFO);
