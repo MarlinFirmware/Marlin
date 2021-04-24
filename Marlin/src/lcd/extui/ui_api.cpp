@@ -296,21 +296,13 @@ namespace ExtUI {
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanSpeedPercent(fan - FAN0);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.scaledFanSpeedPercent(fan - FAN0);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
   float getAxisPosition_mm(const axis_t axis) {

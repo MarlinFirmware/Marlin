@@ -700,7 +700,7 @@ void ChironTFT::PanelAction(uint8_t req) {
 
       if (!isPrinting()) { // Ignore request if printing
         char MoveCmnd[30];
-        sprintf_P(MoveCmnd, PSTR("G91\nG0 %s \nG90"), panel_command+3);
+        sprintf_P(MoveCmnd, PSTR("G91\nG0%s\nG90"), panel_command + 3);
         #if ACDEBUG(AC_ACTION)
           SERIAL_ECHOLNPAIR("Move: ", MoveCmnd);
         #endif

@@ -567,7 +567,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SHV(bias);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      const celsius_float_t start_temp = GHV(temp_chamber.celsius, temp_bed.celsius, temp_hotend[heater_id].celsius);
+      const celsius_float_t start_temp = GHV(degChamber(), degBed(), degHotend(heater_id));
       LEDColor color = ONHEATINGSTART();
     #endif
 
@@ -583,7 +583,7 @@ volatile bool Temperature::raw_temps_ready = false;
         updateTemperaturesFromRawValues();
 
         // Get the current temperature and constrain it
-        current_temp = GHV(temp_chamber.celsius, temp_bed.celsius, temp_hotend[heater_id].celsius);
+        current_temp = GHV(degChamber(), degBed(), degHotend(heater_id));
         NOLESS(maxT, current_temp);
         NOMORE(minT, current_temp);
 

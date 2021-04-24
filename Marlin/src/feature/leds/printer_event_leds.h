@@ -36,13 +36,7 @@ private:
     static bool leds_off_after_print;
   #endif
 
-  static inline void set_done() {
-    #if ENABLED(LED_COLOR_PRESETS)
-      leds.set_default();
-    #else
-      leds.set_off();
-    #endif
-  }
+  static inline void set_done() { TERN(LED_COLOR_PRESETS, leds.set_default(), leds.set_off()); }
 
 public:
   #if HAS_TEMP_HOTEND
