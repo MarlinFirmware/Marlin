@@ -81,7 +81,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       value = level_pos_y4;
       break;
     case ID_MANUAL_POS_X5:
-      value = level_pos_y5;
+      value = level_pos_x5;
       break;
     case ID_MANUAL_POS_Y5:
       value = level_pos_y5;
@@ -128,7 +128,7 @@ void lv_draw_tramming_pos_settings() {
   else {
     itoa(gCfgItems.trammingPos[4].x, public_buf_l, 10);
     itoa(gCfgItems.trammingPos[4].y, buf2, 10);
-    lv_screen_menu_item_2_edit(scr, leveling_menu.position4, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y5, 0, buf2, ID_MANUAL_POS_X5, public_buf_l);
+    lv_screen_menu_item_2_edit(scr, leveling_menu.position5, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MANUAL_POS_Y5, 0, buf2, ID_MANUAL_POS_X5, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_MANUAL_POS_UP, true);
   }
