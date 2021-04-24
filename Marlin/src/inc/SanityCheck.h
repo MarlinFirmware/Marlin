@@ -3299,6 +3299,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
+ * Sanity check for MIXING_EXTRUDER & DISTINCT_E_FACTORS these are not compatible
+ */
+#if ENABLED(MIXING_EXTRUDER) && ENABLED(DISTINCT_E_FACTORS)
+  #error "MIXING_EXTRUDER can't be used with DISTINCT_E_FACTORS. But you may use SINGLENOZZLE with DISTINCT_E_FACTORS."
+#endif
+
+/**
  * Sanity check for valid stepper driver types
  */
 #define _BAD_DRIVER(A) (defined(A##_DRIVER_TYPE) && !_DRIVER_ID(A##_DRIVER_TYPE))
