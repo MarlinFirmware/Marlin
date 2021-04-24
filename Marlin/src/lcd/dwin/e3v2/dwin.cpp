@@ -1612,7 +1612,7 @@ void _draw_xyz_position(const bool force) {
 void update_variable() {
   #if HAS_HOTEND
     static celsius_t _hotendtemp = 0, _hotendtarget = 0;
-    const celsius_t hc = thermalManager.degHotend(0),
+    const celsius_t hc = thermalManager.wholeDegHotend(0),
                     ht = thermalManager.degTargetHotend(0);
     const bool _new_hotend_temp = _hotendtemp != hc,
                _new_hotend_target = _hotendtarget != ht;
@@ -1621,7 +1621,7 @@ void update_variable() {
   #endif
   #if HAS_HEATED_BED
     static celsius_t _bedtemp = 0, _bedtarget = 0;
-    const celsius_t bc = thermalManager.degBed(),
+    const celsius_t bc = thermalManager.wholeDegBed(),
                     bt = thermalManager.degTargetBed();
     const bool _new_bed_temp = _bedtemp != bc,
                _new_bed_target = _bedtarget != bt;

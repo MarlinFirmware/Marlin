@@ -113,6 +113,10 @@ namespace ExtUI {
     InterfaceSettingsScreen::loadSettings(buff);
   }
 
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
+  }
+
   void onConfigurationStoreWritten(bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {
@@ -141,11 +145,11 @@ namespace ExtUI {
     void onMeshLevelingStart() {}
 
     void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) {
-      BedMeshScreen::onMeshUpdate(x, y, val);
+      BedMeshViewScreen::onMeshUpdate(x, y, val);
     }
 
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
-      BedMeshScreen::onMeshUpdate(x, y, state);
+      BedMeshViewScreen::onMeshUpdate(x, y, state);
     }
   #endif
 

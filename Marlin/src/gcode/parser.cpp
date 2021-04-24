@@ -28,146 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#ifdef __AVR__
-
-  static FORCE_INLINE uint32_t mult10(uint32_t val) {
-    uint32_t tmp = val;
-    __asm__ __volatile__ (
-       "add %A[tmp], %A[tmp]\n"
-       "adc %B[tmp], %B[tmp]\n"
-       "adc %C[tmp], %C[tmp]\n"
-       "adc %D[tmp], %D[tmp]\n"
-       "add %A[tmp], %A[tmp]\n"
-       "adc %B[tmp], %B[tmp]\n"
-       "adc %C[tmp], %C[tmp]\n"
-       "adc %D[tmp], %D[tmp]\n"
-       "add %A[val], %A[tmp]\n"
-       "adc %B[val], %B[tmp]\n"
-       "adc %C[val], %C[tmp]\n"
-       "adc %D[val], %D[tmp]\n"
-       "add %A[val], %A[val]\n"
-       "adc %B[val], %B[val]\n"
-       "adc %C[val], %C[val]\n"
-       "adc %D[val], %D[val]\n"
-        : [val] "+&r" (val),
-          [tmp] "+&r" (tmp)
-    );
-    return val;
-  }
-
-#else
-
-  static FORCE_INLINE uint32_t mult10(uint32_t val) { return val * 10; }
-
-#endif
-
-// cheap base-10 strto(u)l.
-// does not check for errors.
-int32_t parse_int32(const char *buf) {
-  char c;
-
-  // Get a char, skipping leading spaces
-  do { c = *buf++; } while (c == ' ');
-
-  // check for sign
-  bool is_negative = (c == '-');
-  if (is_negative || c == '+')
-    c = *buf++;
-
-  // optimization for first digit (no multiplication)
-  uint8_t uc = c - '0';
-  if (uc > 9) return 0;
-
-  // read unsigned value
-  uint32_t uval = uc;
-  while (true) {
-    c = *buf++;
-    uc = c - '0';
-    if (uc > 9) break;
-    uval = mult10(uval) + uc;
-  }
-
-  return is_negative ? -uval : uval;
-}
-
-// cheap strtof.
-// does not support nan/infinity or exponent notation.
-// does not check for errors.
-float parse_float(const char *buf) {
-  char c;
-
-  // Get a char, skipping leading spaces
-  do { c = *buf++; } while (c == ' ');
-
-  // check for sign
-  bool is_negative = (c == '-');
-  if (is_negative || c == '+')
-    c = *buf++;
-
-  // read unsigned value and decimal point
-  uint32_t uval;
-  uint8_t exp_dec;
-  uint8_t uc = c - '0';
-  if (uc <= 9) {
-    uval = uc;
-    exp_dec = 0;
-  }
-  else {
-    if (c != '.') return 0;
-    uval = 0;
-    exp_dec = 1;
-  }
-
-  int8_t exp = 0;
-  while (true) {
-    c = *buf++;
-    uc = c - '0';
-    if (uc <= 9) {
-      exp -= exp_dec;
-      uval = mult10(uval) + uc;
-      if (uval >= (UINT32_MAX - 9) / 10) {
-        // overflow. keep reading digits until decimal point.
-        while (exp_dec == 0) {
-          c = *buf++;
-          uc = c - '0';
-          if (uc > 9) break;
-          exp++;
-        }
-        goto overflow;
-      }
-    }
-    else {
-      if (c != '.' || exp_dec != 0) break;
-      exp_dec = 1;
-    }
-  }
-
-  // early return for 0
-  if (uval == 0) return 0;
-
-  overflow:
-
-  // convert to float and apply sign
-  float fval = uval;
-  if (is_negative) fval *= -1;
-
-  // apply exponent (up to 1e-15 / 1e+15)
-  if (exp < 0) {
-    if (exp <= -8) { fval *= 1e-8; exp += 8; }
-    if (exp <= -4) { fval *= 1e-4; exp += 4; }
-    if (exp <= -2) { fval *= 1e-2; exp += 2; }
-    if (exp <= -1) { fval *= 1e-1; exp += 1; }
-  }
-  else if (exp > 0) {
-    if (exp >= 8) { fval *= 1e+8; exp -= 8; }
-    if (exp >= 4) { fval *= 1e+4; exp -= 4; }
-    if (exp >= 2) { fval *= 1e+2; exp -= 2; }
-    if (exp >= 1) { fval *= 1e+1; exp -= 1; }
-  }
-
-  return fval;
-}
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
@@ -246,8 +106,10 @@ void GCodeParser::reset() {
 
 #endif
 
-// Populate all fields by parsing a single line of GCode
-// 58 bytes of SRAM are used to speed up seen/value
+/**
+ * Populate the command line state (command_letter, codenum, subcode, and string_arg)
+ * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
+ */
 void GCodeParser::parse(char *p) {
 
   reset(); // No codes to report
@@ -287,10 +149,12 @@ void GCodeParser::parse(char *p) {
     #define SIGNED_CODENUM 1
   #endif
 
-  // Bail if the letter is not G, M, or T
-  // (or a valid parameter for the current motion mode)
+  /**
+   * Screen for good command letters. G, M, and T are always accepted.
+   * With Motion Modes enabled any axis letter can come first.
+   * With Realtime Reporting, commands S000, P000, and R000 are allowed.
+   */
   switch (letter) {
-
     case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
@@ -353,10 +217,10 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J': case 'R':
+        case 'I' ... 'J': 
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P' ... 'Q':
+      case 'Q':
         if (motion_mode_codenum != 5) return;
       case 'X' ... 'Z': case 'E' ... 'F':
         if (motion_mode_codenum < 0) return;
@@ -365,7 +229,24 @@ void GCodeParser::parse(char *p) {
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
       break;
-    #endif // GCODE_MOTION_MODES
+    #endif
+
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      case 'P': case 'R': {
+        if (letter == 'R') {
+          #if ENABLED(GCODE_MOTION_MODES)
+            if (ENABLED(ARC_SUPPORT) && !WITHIN(motion_mode_codenum, 2, 3)) return;
+          #endif
+        }
+        else if (TERN0(GCODE_MOTION_MODES, motion_mode_codenum != 5)) return;
+      } // fall-thru
+      case 'S': {
+        codenum = 0;                  // The only valid codenum is 0
+        uint8_t digits = 0;
+        while (*p++ == '0') digits++; // Count up '0' characters
+        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
+      } return;                       // No parameters needed, so return now
+    #endif
 
     default: return;
   }
@@ -447,7 +328,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got param ", param, " at index ", p - command_ptr - 1);
+          SERIAL_ECHOPAIR("Got param ", AS_CHAR(param), " at index ", p - command_ptr - 1);
           if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif
