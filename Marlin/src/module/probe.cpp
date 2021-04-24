@@ -357,9 +357,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    *  - If a preheat input is higher than the current target, raise the target temperature.
    *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
-  void Probe::preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp) {
+  void Probe::preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp) {
     // Temperatures is MAX(current_target, settings_temp)
-    const uint16_t hotendPreheat = thermalManager.degTargetHotend(0) < hotend_temp ? hotend_temp : thermalManager.degTargetHotend(0),
+    const celsius_t hotendPreheat = thermalManager.degTargetHotend(0) < hotend_temp ? hotend_temp : thermalManager.degTargetHotend(0),
                       bedPreheat = thermalManager.degTargetBed()     < bed_temp    ? bed_temp    : thermalManager.degTargetBed();
     
     DEBUG_ECHOPGM("Preheating ");

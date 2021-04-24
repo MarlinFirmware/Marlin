@@ -143,7 +143,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
 
   // Allow interruption by Emergency Parser M108
   wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
-  while (wait_for_heatup && ABS(thermalManager.degHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > TEMP_WINDOW)
+  while (wait_for_heatup && ABS(thermalManager.wholeDegHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > (TEMP_WINDOW))
     idle();
   wait_for_heatup = false;
 
@@ -602,7 +602,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   if (!axes_should_home()) {
     // Move XY back to saved position
-    destination.set(resume_position.x, resume_position.y, current_position.z);
+    destination.set(resume_position.x, resume_position.y, current_position.z, current_position.e);
     prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
 
     // Move Z back to saved position

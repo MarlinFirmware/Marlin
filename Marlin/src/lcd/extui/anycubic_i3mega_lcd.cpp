@@ -79,6 +79,10 @@ namespace ExtUI {
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
+  }
+
   void onConfigurationStoreWritten(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.

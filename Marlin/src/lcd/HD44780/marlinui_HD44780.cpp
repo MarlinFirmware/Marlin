@@ -486,7 +486,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
       #endif
     }
+  }
 
+  void MarlinUI::bootscreen_completion(const millis_t) {
     lcd.clear();
     safe_delay(100);
     set_custom_characters(CHARSET_INFO);
@@ -525,10 +527,10 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
-    const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
@@ -557,11 +559,11 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
 #if HAS_COOLER
 FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
-  const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
+  const celsius_t t2 = thermalManager.degTargetCooler();
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1 + 0.5));
+  lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -574,7 +576,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
     }
     else
   #endif
-      lcd_put_u8str(i16tostr3left(t2 + 0.5));
+      lcd_put_u8str(i16tostr3left(t2));
 
   if (prefix >= 0) {
     lcd_put_wchar(LCD_STR_DEGREE[0]);
