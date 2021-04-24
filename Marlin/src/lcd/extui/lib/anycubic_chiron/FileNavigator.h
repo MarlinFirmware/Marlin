@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,7 @@
  * lcd/extui/lib/FileNavigator.h
  *
  * Extensible_UI implementation for Anycubic Chiron
- * Written By Nick Wells, 2021 [https://github.com/SwiftNick]
+ * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
  */
 
@@ -35,24 +35,26 @@
 using namespace ExtUI;
 
 namespace Anycubic {
-  class FileNavigator {
-    public:
-      FileNavigator();
-      void   reset();
-      void   getFiles(uint16_t, panel_type_t, uint8_t filesneeded = 4);
-      void   upDIR();
-      void   changeDIR(const char *);
-      void   sendFile(panel_type_t);
-      void   refresh();
-      void   skiptofileindex(uint16_t);
 
-      static FileList  filelist;
-    private:
-      static uint16_t  lastpanelindex;
-      static uint16_t  currentindex;
-      static uint8_t   currentfolderdepth;
-      static uint16_t  currentfolderindex[MAX_FOLDER_DEPTH];
-      static char      currentfoldername[MAX_PATH_LEN];
-  };
-  extern FileNavigator filenavigator;
+class FileNavigator {
+  public:
+    static void reset();
+    static void getFiles(uint16_t, panel_type_t, uint8_t filesneeded=4);
+    static void upDIR();
+    static void changeDIR(const char *);
+    static void sendFile(panel_type_t);
+    static void refresh();
+    static void skiptofileindex(uint16_t);
+
+    static FileList filelist;
+  private:
+    static uint16_t lastpanelindex;
+    static uint16_t currentindex;
+    static uint8_t  currentfolderdepth;
+    static uint16_t currentfolderindex[MAX_FOLDER_DEPTH];
+    static char     currentfoldername[MAX_PATH_LEN + 1];
+};
+
+extern FileNavigator filenavigator;
+
 }
