@@ -315,7 +315,6 @@
   #define SDIO_D3_PIN                       PC11
   #define SDIO_CK_PIN                       PC12
   #define SDIO_CMD_PIN                      PD2
-  #define SD_DETECT_PIN                     PC14
 
 #elif SD_CONNECTION_IS(LCD)
 
