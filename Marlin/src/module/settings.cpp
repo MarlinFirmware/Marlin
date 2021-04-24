@@ -533,6 +533,8 @@ void MarlinSettings::postprocess() {
 
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
+
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
