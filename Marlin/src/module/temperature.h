@@ -358,12 +358,8 @@ class Temperature {
       static bool allow_cold_extrude;
       static celsius_t extrude_min_temp;
       static inline bool tooCold(const celsius_t temp) { return allow_cold_extrude ? false : temp < extrude_min_temp - (TEMP_WINDOW); }
-      static inline bool tooColdToExtrude(const uint8_t E_NAME) {
-        return tooCold(degHotend(HOTEND_INDEX));
-      }
-      static inline bool targetTooColdToExtrude(const uint8_t E_NAME) {
-        return tooCold(degTargetHotend(HOTEND_INDEX));
-      }
+      static inline bool tooColdToExtrude(const uint8_t E_NAME)       { return tooCold(wholeDegHotend(HOTEND_INDEX)); }
+      static inline bool targetTooColdToExtrude(const uint8_t E_NAME) { return tooCold(degTargetHotend(HOTEND_INDEX)); }
     #else
       static inline bool tooColdToExtrude(const uint8_t) { return false; }
       static inline bool targetTooColdToExtrude(const uint8_t) { return false; }
@@ -635,6 +631,10 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
+    static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
+    }
+
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
@@ -687,11 +687,11 @@ class Temperature {
       #endif
 
       static inline bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
+        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-      static inline bool degHotendNear(const uint8_t e, const_float_t temp) {
-        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+      static inline bool degHotendNear(const uint8_t e, const celsius_t temp) {
+        return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
     #endif // HAS_HOTEND
@@ -702,6 +702,7 @@ class Temperature {
         static inline int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
       static inline celsius_t degBed()        { return temp_bed.celsius; }
+      static inline celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       static inline celsius_t degTargetBed()  { return temp_bed.target; }
       static inline bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       static inline bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
@@ -726,8 +727,8 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      static inline bool degBedNear(const_float_t temp) {
-        return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
+      static inline bool degBedNear(const celsius_t temp) {
+        return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
 
     #endif // HAS_HEATED_BED
@@ -737,9 +738,10 @@ class Temperature {
         static inline int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       static inline celsius_t degProbe()        { return temp_probe.celsius; }
-      static inline bool isProbeBelowTemp(const_float_t target_temp) { return temp_probe.celsius < target_temp; }
-      static inline bool isProbeAboveTemp(const_float_t target_temp) { return temp_probe.celsius > target_temp; }
-      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
+      static inline celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
+      static inline bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
+      static inline bool isProbeAboveTemp(const celsius_t target_temp) { return wholeDegProbe() > target_temp; }
+      static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -753,6 +755,7 @@ class Temperature {
         static inline int16_t rawChamberTemp()      { return temp_chamber.raw; }
       #endif
       static inline celsius_t degChamber()          { return temp_chamber.celsius; }
+      static inline celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
         static inline celsius_t degTargetChamber()  { return temp_chamber.target; }
         static inline bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
@@ -779,6 +782,7 @@ class Temperature {
         static inline int16_t rawCoolerTemp()     { return temp_cooler.raw; }
       #endif
       static inline celsius_t degCooler()         { return temp_cooler.celsius; }
+      static inline celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
         static inline celsius_t degTargetCooler() { return temp_cooler.target; }
         static inline bool isLaserHeating()       { return temp_cooler.target > temp_cooler.celsius; }
@@ -827,7 +831,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
