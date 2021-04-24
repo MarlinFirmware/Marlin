@@ -15,7 +15,7 @@
       ]
     ],
     "mcu": "stm32f401vet6",
-    "variant": "STEVAL_F401VE"
+    "variant": "MARLIN_STEVAL_F401VE"
   },
   "debug": {
     "jlink_device": "STM32F401VE",
