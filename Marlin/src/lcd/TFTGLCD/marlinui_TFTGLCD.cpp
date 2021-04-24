@@ -397,7 +397,10 @@ static void center_text_P(PGM_P pstart, uint8_t y) {
     center_text_P(PSTR(MARLIN_WEBSITE_URL), 4);
     picBits = ICON_LOGO;
     lcd.print_screen();
-    safe_delay(1500);
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
   }
 
 #endif // SHOW_BOOTSCREEN
@@ -434,10 +437,10 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
   uint8_t pic_hot_bits;
   #if HAS_HEATED_BED
     const bool isBed = heater_id < 0;
-    const celsius_t t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater_id)),
+    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed() : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   #if HOTENDS < 2
@@ -803,7 +806,7 @@ void MarlinUI::draw_status_screen() {
       if (!PanelDetected) return;
       lcd.setCursor((LCD_WIDTH - 14) / 2, row + 1);
       lcd.write(LCD_STR_THERMOMETER[0]); lcd_put_u8str_P(PSTR(" E")); lcd.write('1' + extruder); lcd.write(' ');
-      lcd.print(i16tostr3rj(thermalManager.degHotend(extruder)));       lcd.write(LCD_STR_DEGREE[0]); lcd.write('/');
+      lcd.print(i16tostr3rj(thermalManager.wholeDegHotend(extruder))); lcd.write(LCD_STR_DEGREE[0]); lcd.write('/');
       lcd.print(i16tostr3rj(thermalManager.degTargetHotend(extruder))); lcd.write(LCD_STR_DEGREE[0]);
       lcd.print_line();
     }

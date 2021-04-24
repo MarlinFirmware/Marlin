@@ -117,18 +117,18 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   celsius_t currentTemperature, targetTemperature;
 
   if (Heater >= 0) { // HotEnd
-    currentTemperature = thermalManager.degHotend(Heater);
+    currentTemperature = thermalManager.wholeDegHotend(Heater);
     targetTemperature = thermalManager.degTargetHotend(Heater);
   }
   #if HAS_HEATED_BED
     else if (Heater == H_BED) {
-      currentTemperature = thermalManager.degBed();
+      currentTemperature = thermalManager.wholeDegBed();
       targetTemperature = thermalManager.degTargetBed();
     }
   #endif
   #if HAS_TEMP_CHAMBER
     else if (Heater == H_CHAMBER) {
-      currentTemperature = thermalManager.degChamber();
+      currentTemperature = thermalManager.wholeDegChamber();
       #if HAS_HEATED_CHAMBER
         targetTemperature = thermalManager.degTargetChamber();
       #else
@@ -138,7 +138,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   #endif
   #if HAS_TEMP_COOLER
     else if (Heater == H_COOLER) {
-      currentTemperature = thermalManager.degCooler();
+      currentTemperature = thermalManager.wholeDegCooler();
       targetTemperature = TERN(HAS_COOLER, thermalManager.degTargetCooler(), ABSOLUTE_ZERO);
     }
   #endif
@@ -451,7 +451,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft_string.add('E');
     tft_string.add((char)('1' + extruder));
     tft_string.add(' ');
-    tft_string.add(i16tostr3rj(thermalManager.degHotend(extruder)));
+    tft_string.add(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));
     tft_string.add(LCD_STR_DEGREE);
     tft_string.add(" / ");
     tft_string.add(i16tostr3rj(thermalManager.degTargetHotend(extruder)));

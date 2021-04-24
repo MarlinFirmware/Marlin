@@ -58,6 +58,15 @@ void HAL_init() {
   #endif
 }
 
+void HAL_reboot() {
+  #if ENABLED(USE_WATCHDOG)
+    while (1) { /* run out the watchdog */ }
+  #else
+    void (*resetFunc)() = 0;  // Declare resetFunc() at address 0
+    resetFunc();              // Jump to address 0
+  #endif
+}
+
 #if ENABLED(SDSUPPORT)
 
   #include "../../sd/SdFatUtil.h"
