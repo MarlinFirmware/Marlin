@@ -2820,11 +2820,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         case ADVANCED_BEEPER:
           if (draw) {
             Draw_Menu_Item(row, ICON_Version, (char*)"LCD Beeper");
-            Draw_Checkbox(row, beeperenable);
+            Draw_Checkbox(row, eeprom_settings.beeperenable);
           }
           else {
-            beeperenable = !beeperenable;
-            Draw_Checkbox(row, beeperenable);
+            eeprom_settings.beeperenable = !eeprom_settings.beeperenable;
+            Draw_Checkbox(row, eeprom_settings.beeperenable);
           }
           break;
         #if ENABLED(HAS_BED_PROBE)

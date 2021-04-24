@@ -247,6 +247,7 @@ class CrealityDWINClass {
 public:
   struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
     bool time_format_textual : 1;
+    bool beeperenable : 1;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid_size : 3;
     #endif
@@ -262,7 +263,6 @@ public:
 
   char *color_names[8] = {(char*)"Default",(char*)"White",(char*)"Green",(char*)"Blue",(char*)"Magenta",(char*)"Red",(char*)"Yellow",(char*)"Brown"};
 
-  bool beeperenable = true;
 
   inline void Clear_Screen(uint8_t e=3);
   inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
