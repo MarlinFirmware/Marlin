@@ -89,7 +89,7 @@ static const uint8_t A15 = PIN_A15;
 
 #define digitalPinToPCICR(p)    ( (((p) >= 10) && ((p) <= 13)) || \
                                   (((p) >= 50) && ((p) <= 53)) || \
-                                  (((p) >= 62) && ((p) <= 69)) ? (&PCICR) : ((uint8_t *)0) )
+                                  (((p) >= 62) && ((p) <= 69)) ? (&PCICR) : nullptr )
 
 #define digitalPinToPCICRbit(p) ( (((p) >= 10) && ((p) <= 13)) || (((p) >= 50) && ((p) <= 53)) ? 0 : \
                                 ( (((p) >= 62) && ((p) <= 69)) ? 2 : \
@@ -97,7 +97,7 @@ static const uint8_t A15 = PIN_A15;
 
 #define digitalPinToPCMSK(p)    ( (((p) >= 10) && ((p) <= 13)) || (((p) >= 50) && ((p) <= 53)) ? (&PCMSK0) : \
                                 ( (((p) >= 62) && ((p) <= 69)) ? (&PCMSK2) : \
-                                ((uint8_t *)0) ) )
+                                nullptr ) )
 
 #define digitalPinToPCMSKbit(p) ( (((p) >= 10) && ((p) <= 13)) ? ((p) - 6) : \
                                 ( ((p) == 50) ? 3 : \

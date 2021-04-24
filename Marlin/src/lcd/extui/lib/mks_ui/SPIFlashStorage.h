@@ -77,21 +77,21 @@ public:
   // Write operation
   static void beginWrite(uint32_t startAddress);
   static void endWrite();
-  static void writeData(uint8_t* data, uint16_t size);
+  static void writeData(uint8_t *data, uint16_t size);
 
   // Read operation
   static void beginRead(uint32_t startAddress);
-  static void readData(uint8_t* data, uint16_t size);
+  static void readData(uint8_t *data, uint16_t size);
 
   static uint32_t getCurrentPage() { return m_currentPage; }
 
 private:
   static void flushPage();
-  static void savePage(uint8_t* buffer);
-  static void loadPage(uint8_t* buffer);
+  static void savePage(uint8_t *buffer);
+  static void loadPage(uint8_t *buffer);
   static void readPage();
-  static uint16_t inData(uint8_t* data, uint16_t size);
-  static uint16_t outData(uint8_t* data, uint16_t size);
+  static uint16_t inData(uint8_t *data, uint16_t size);
+  static uint16_t outData(uint8_t *data, uint16_t size);
 
   static uint8_t m_pageData[SPI_FLASH_PageSize];
   static uint32_t m_currentPage;

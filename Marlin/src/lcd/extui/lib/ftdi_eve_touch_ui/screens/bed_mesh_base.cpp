@@ -1,6 +1,6 @@
-/***********************
- * bed_mesh_screen.cpp *
- ***********************/
+/*********************
+ * bed_mesh_base.cpp *
+ *********************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2020                                        *
@@ -21,43 +21,18 @@
 
 #include "../config.h"
 #include "screens.h"
-#include "screen_data.h"
 
-#ifdef FTDI_BED_MESH_SCREEN
+#ifdef FTDI_BED_MESH_BASE
 
 using namespace FTDI;
-using namespace Theme;
-using namespace ExtUI;
 
-constexpr static BedMeshScreenData &mydata = screen_data.BedMeshScreen;
+void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t opts, float autoscale_max, uint8_t highlightedTag, mesh_getter_ptr func, void *data) {
+  constexpr uint8_t rows = GRID_MAX_POINTS_Y;
+  constexpr uint8_t cols = GRID_MAX_POINTS_X;
 
-#if ENABLED(TOUCH_UI_PORTRAIT)
-  #define GRID_COLS 2
-  #define GRID_ROWS 10
-
-  #define MESH_POS    BTN_POS(1, 2), BTN_SIZE(2,5)
-  #define MESSAGE_POS BTN_POS(1, 7), BTN_SIZE(2,1)
-  #define Z_LABEL_POS BTN_POS(1, 8), BTN_SIZE(1,1)
-  #define Z_VALUE_POS BTN_POS(2, 8), BTN_SIZE(1,1)
-  #define OKAY_POS    BTN_POS(1,10), BTN_SIZE(2,1)
-#else
-  #define GRID_COLS 5
-  #define GRID_ROWS 5
-
-  #define MESH_POS    BTN_POS(1,1), BTN_SIZE(3,5)
-  #define MESSAGE_POS BTN_POS(4,1), BTN_SIZE(2,1)
-  #define Z_LABEL_POS BTN_POS(4,2), BTN_SIZE(2,1)
-  #define Z_VALUE_POS BTN_POS(4,3), BTN_SIZE(2,1)
-  #define OKAY_POS    BTN_POS(4,5), BTN_SIZE(2,1)
-#endif
-
-void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max) {
-  constexpr uint8_t rows       = GRID_MAX_POINTS_Y;
-  constexpr uint8_t cols       = GRID_MAX_POINTS_X;
-
-  #define VALUE(X,Y)         (data ? data[X][Y] : 0)
-  #define ISVAL(X,Y)         (data ? !isnan(VALUE(X,Y)) : true)
-  #define HEIGHT(X,Y)        (ISVAL(X,Y) ? (VALUE(X,Y) - val_min) * scale_z : 0)
+  #define VALUE(X,Y)  (func ? func(X,Y,data) : 0)
+  #define ISVAL(X,Y)  (func ? !isnan(VALUE(X,Y)) : true)
+  #define HEIGHT(X,Y) (ISVAL(X,Y) ? (VALUE(X,Y) - val_min) * scale_z : 0)
 
   // Compute the mean, min and max for the points
 
@@ -66,7 +41,7 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
   float   val_min  =  INFINITY;
   uint8_t val_cnt  = 0;
 
-  if (data && (opts & USE_AUTOSCALE)) {
+  if (opts & USE_AUTOSCALE) {
     for (uint8_t y = 0; y < rows; y++) {
       for (uint8_t x = 0; x < cols; x++) {
         if (ISVAL(x,y)) {
@@ -139,7 +114,6 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
 
   const uint16_t basePointSize = min(w,h) / max(cols,rows);
 
-  CommandProcessor cmd;
   cmd.cmd(SAVE_CONTEXT())
      .cmd(TAG_MASK(false))
      .cmd(SAVE_CONTEXT());
@@ -166,10 +140,14 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
       for (uint8_t x = 0; x < cols; x++) {
         if (ISVAL(x,y)) {
           if (opts & USE_COLORS) {
-            const float   val_dev  = VALUE(x, y) - val_mean;
-            const uint8_t neg_byte = sq(val_dev) / (val_dev < 0 ? sq_min : sq_max) * 0xFF;
-            const uint8_t pos_byte = 255 - neg_byte;
-            cmd.cmd(COLOR_RGB(pos_byte, pos_byte, 0xFF));
+            const float val_dev = sq(VALUE(x, y) - val_mean);
+            uint8_t r = 0, b = 0;
+            //*(VALUE(x, y) < 0 ? &r : &b) = val_dev / sq_min * 0xFF;
+            if (VALUE(x, y) < 0)
+              r = val_dev / sq_min * 0xFF;
+            else
+              b = val_dev / sq_max * 0xFF;
+            cmd.cmd(COLOR_RGB(0xFF - b, 0xFF - b - r, 0xFF - r));
           }
           cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
         }
@@ -197,148 +175,45 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
   }
 
   if (opts & USE_HIGHLIGHT) {
-    const uint8_t tag = mydata.highlightedTag;
-    uint8_t x, y;
-    if (tagToPoint(tag, x, y)) {
+    const uint8_t tag = highlightedTag;
+    xy_uint8_t pt;
+    if (tagToPoint(tag, pt)) {
       cmd.cmd(COLOR_A(128))
          .cmd(POINT_SIZE(basePointSize * 6))
          .cmd(BEGIN(POINTS))
-         .tag(tag).cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
+         .tag(tag).cmd(VERTEX2F(TRANSFORM(pt.x, pt.y, HEIGHT(pt.x, pt.y))));
     }
   }
   cmd.cmd(END());
   cmd.cmd(RESTORE_CONTEXT());
 }
 
-uint8_t BedMeshScreen::pointToTag(uint8_t x, uint8_t y) {
-  return y * (GRID_MAX_POINTS_X) + x + 10;
+uint8_t BedMeshBase::pointToTag(uint8_t x, uint8_t y) {
+  return x >= 0 && x < GRID_MAX_POINTS_X && y >= 0 && y < GRID_MAX_POINTS_Y ? y * (GRID_MAX_POINTS_X) + x + 10 : 0;
 }
 
-bool BedMeshScreen::tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y) {
+bool BedMeshBase::tagToPoint(uint8_t tag, xy_uint8_t &pt) {
   if (tag < 10) return false;
-  x = (tag - 10) % (GRID_MAX_POINTS_X);
-  y = (tag - 10) / (GRID_MAX_POINTS_X);
+  pt.x = (tag - 10) % (GRID_MAX_POINTS_X);
+  pt.y = (tag - 10) / (GRID_MAX_POINTS_X);
   return true;
 }
 
-void BedMeshScreen::onEntry() {
-  mydata.highlightedTag = 0;
-  mydata.count = GRID_MAX_POINTS;
-  mydata.message = mydata.MSG_NONE;
-  BaseScreen::onEntry();
+void BedMeshBase::drawMeshBackground(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h) {
+  cmd.cmd(COLOR_RGB(Theme::bed_mesh_shadow_rgb));
+  _drawMesh(cmd, x, y, w, h, USE_POINTS | USE_TAGS, 0.1, 0, nullptr, nullptr);
 }
 
-float BedMeshScreen::getHightlightedValue() {
-  if (mydata.highlightedTag) {
-    xy_uint8_t pt;
-    tagToPoint(mydata.highlightedTag, pt.x, pt.y);
-    return ExtUI::getMeshPoint(pt);
-  }
-  return NAN;
+void BedMeshBase::drawMeshForeground(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, mesh_getter_ptr func, void *data, uint8_t highlightedTag, float progress) {
+  constexpr float autoscale_max_amplitude = 0.03;
+
+  cmd.cmd(COLOR_RGB(Theme::bed_mesh_lines_rgb));
+  _drawMesh(cmd, x, y, w, h,
+    USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (progress > 0.95 ? USE_COLORS : 0),
+    autoscale_max_amplitude * progress,
+    highlightedTag,
+    func, data
+  );
 }
 
-void BedMeshScreen::drawHighlightedPointValue() {
-  char str[16];
-  const float val = getHightlightedValue();
-  const bool isGood = !isnan(val);
-  if (isGood)
-    dtostrf(val, 5, 3, str);
-  else
-    strcpy_P(str, PSTR("-"));
-
-  CommandProcessor cmd;
-  cmd.font(Theme::font_medium)
-     .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
-     .text(Z_VALUE_POS, str)
-     .colors(action_btn)
-     .tag(1).button(OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
-     .tag(0);
-
-  switch (mydata.message) {
-    case mydata.MSG_MESH_COMPLETE:   cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE)); break;
-    case mydata.MSG_MESH_INCOMPLETE: cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE)); break;
-    default: break;
-  }
-}
-
-void BedMeshScreen::onRedraw(draw_mode_t what) {
-  #define _INSET_POS(x,y,w,h) x + min(w,h)/10, y + min(w,h)/10, w - min(w,h)/5, h - min(w,h)/5
-  #define INSET_POS(pos) _INSET_POS(pos)
-
-  if (what & BACKGROUND) {
-    CommandProcessor cmd;
-    cmd.cmd(CLEAR_COLOR_RGB(bg_color))
-       .cmd(CLEAR(true,true,true));
-
-    // Draw the shadow and tags
-    cmd.cmd(COLOR_RGB(Theme::bed_mesh_shadow_rgb));
-    BedMeshScreen::drawMesh(INSET_POS(MESH_POS), nullptr, USE_POINTS | USE_TAGS);
-    cmd.cmd(COLOR_RGB(bg_text_enabled));
-  }
-
-  if (what & FOREGROUND) {
-    constexpr float autoscale_max_amplitude = 0.03;
-    const bool gotAllPoints = mydata.count >= GRID_MAX_POINTS;
-    if (gotAllPoints) {
-      drawHighlightedPointValue();
-    }
-    CommandProcessor cmd;
-    cmd.cmd(COLOR_RGB(Theme::bed_mesh_lines_rgb));
-    const float levelingProgress = sq(float(mydata.count) / GRID_MAX_POINTS);
-    BedMeshScreen::drawMesh(INSET_POS(MESH_POS), ExtUI::getMeshArray(),
-      USE_POINTS | USE_HIGHLIGHT | USE_AUTOSCALE | (gotAllPoints ? USE_COLORS : 0),
-      autoscale_max_amplitude * levelingProgress
-    );
-  }
-}
-
-bool BedMeshScreen::onTouchStart(uint8_t tag) {
-  mydata.highlightedTag = tag;
-  return true;
-}
-
-bool BedMeshScreen::onTouchEnd(uint8_t tag) {
-  switch (tag) {
-    case 1:
-      GOTO_PREVIOUS();
-      return true;
-    default:
-      return false;
-  }
-}
-
-void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
-  if (AT_SCREEN(BedMeshScreen))
-    onRefresh();
-}
-
-void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
-  switch (state) {
-    case ExtUI::MESH_START:
-      mydata.count = 0;
-      mydata.message = mydata.MSG_NONE;
-      break;
-    case ExtUI::MESH_FINISH:
-      if (mydata.count == GRID_MAX_POINTS && ExtUI::getMeshValid())
-        mydata.message = mydata.MSG_MESH_COMPLETE;
-      else
-        mydata.message = mydata.MSG_MESH_INCOMPLETE;
-      mydata.count = GRID_MAX_POINTS;
-      break;
-    case ExtUI::PROBE_START:
-      mydata.highlightedTag = pointToTag(x, y);
-      break;
-    case ExtUI::PROBE_FINISH:
-      mydata.count++;
-      break;
-  }
-  BedMeshScreen::onMeshUpdate(x, y, 0);
-}
-
-void BedMeshScreen::startMeshProbe() {
-  GOTO_SCREEN(BedMeshScreen);
-  mydata.count = 0;
-  injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
-}
-
-#endif // FTDI_BED_MESH_SCREEN
+#endif // FTDI_BED_MESH_BASE

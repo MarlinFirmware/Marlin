@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,15 +19,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
-#endif
+#include "../../inc/MarlinConfig.h"
 
-extern void lv_draw_manual_level_pos_settings();
-extern void lv_clear_manual_level_pos_settings();
+#if ENABLED(AIR_EVACUATION)
 
-#ifdef __cplusplus
-  } /* C-declarations for C++ */
-#endif
+#include "../gcode.h"
+#include "../../module/planner.h"
+#include "../../feature/spindle_laser.h"
+
+/**
+ * M10: Vacuum or Blower On
+ */
+void GcodeSuite::M10() {
+  planner.synchronize();      // Wait for move to arrive (TODO: asynchronous)
+  cutter.air_evac_enable();   // Turn on Vacuum or Blower motor
+}
+
+/**
+ * M11: Vacuum or Blower OFF
+ */
+void GcodeSuite::M11() {
+  planner.synchronize();      // Wait for move to arrive (TODO: asynchronous)
+  cutter.air_evac_disable();  // Turn off Vacuum or Blower motor
+}
+
+#endif // AIR_EVACUATION

@@ -140,7 +140,7 @@ struct MarlinSerialCfg {
   static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
 
-#if SERIAL_PORT >= 0
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
   typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
   extern MSerialT customizedSerial1;
 #endif

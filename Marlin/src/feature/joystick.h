@@ -32,11 +32,19 @@
 class Joystick {
   friend class Temperature;
   private:
-    TERN_(HAS_JOY_ADC_X, static temp_info_t x);
-    TERN_(HAS_JOY_ADC_Y, static temp_info_t y);
-    TERN_(HAS_JOY_ADC_Z, static temp_info_t z);
+    #if ENABLED(HAS_JOY_ADC_X)
+      static temp_info_t x;
+    #endif
+    #if ENABLED(HAS_JOY_ADC_Y)
+      static temp_info_t y;
+    #endif
+    #if ENABLED(HAS_JOY_ADC_Z)
+      static temp_info_t z;
+    #endif
   public:
-    TERN_(JOYSTICK_DEBUG, static void report());
+    #if ENABLED(JOYSTICK_DEBUG)
+      static void report();
+    #endif
     static void calculate(xyz_float_t &norm_jog);
     static void inject_jog_moves();
 };

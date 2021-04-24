@@ -70,9 +70,15 @@ class TMCStorage {
     }
 
     struct {
-      TERN_(HAS_STEALTHCHOP, bool stealthChop_enabled = false);
-      TERN_(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0);
-      TERN_(USE_SENSORLESS, int16_t homing_thrs = 0);
+      #if ENABLED(HAS_STEALTHCHOP)
+        bool stealthChop_enabled = false;
+      #endif
+      #if ENABLED(HYBRID_THRESHOLD)
+        uint8_t hybrid_thrs = 0;
+      #endif
+      #if ENABLED(USE_SENSORLESS)
+        int16_t homing_thrs = 0;
+      #endif
     } stored;
 };
 
@@ -363,7 +369,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     struct slow_homing_t {
       xy_ulong_t acceleration;
-      TERN_(HAS_CLASSIC_JERK, xy_float_t jerk_xy);
+      #if ENABLED(HAS_CLASSIC_JERK)
+        xy_float_t jerk_xy;
+      #endif
     };
   #endif
 

@@ -137,7 +137,7 @@ size_t WebSocketSerial::write(const uint8_t c) {
   return ret;
 }
 
-size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
+size_t WebSocketSerial::write(const uint8_t *buffer, size_t size) {
   size_t written = 0;
   for (size_t i = 0; i < size; i++)
     written += write(buffer[i]);

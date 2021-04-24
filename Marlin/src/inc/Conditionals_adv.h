@@ -245,7 +245,7 @@
   #define _CUTTER_POWER_PERCENT 2
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
-  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
@@ -498,12 +498,9 @@
 // Power Monitor sensors
 #if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
   #define HAS_POWER_MONITOR 1
-#endif
-#if ENABLED(POWER_MONITOR_CURRENT) && defined(POWER_MONITOR_FIXED_VOLTAGE)
-  #define HAS_POWER_MONITOR_VREF 1
-#endif
-#if BOTH(HAS_POWER_MONITOR_VREF, POWER_MONITOR_CURRENT)
-  #define HAS_POWER_MONITOR_WATTS 1
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+    #define HAS_POWER_MONITOR_WATTS 1
+  #endif
 #endif
 
 // Flag if an EEPROM type is pre-selected
@@ -530,13 +527,7 @@
   #define NEED_LSF 1
 #endif
 
-// Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || \
-                         (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || \
-                         (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == (N)) || \
-                         (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
-
-#if ENABLED(CUSTOM_USER_MENUS)
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
   #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else

@@ -26,8 +26,6 @@
 
 #ifdef FTDI_BIO_STATUS_SCREEN
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
-
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
 #else

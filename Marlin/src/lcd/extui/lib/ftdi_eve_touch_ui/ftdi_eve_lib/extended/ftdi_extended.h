@@ -47,6 +47,9 @@
   #include "sound_player.h"
   #include "sound_list.h"
   #include "polygon.h"
+  #include "poly_ui.h"
   #include "text_box.h"
   #include "text_ellipsis.h"
+  #include "adjuster_widget.h"
+  #include "circular_progress.h"
 #endif

@@ -27,8 +27,6 @@
 
 #ifdef FTDI_COCOA_LOAD_CHOCOLATE_SCREEN
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
-
 #include "cocoa_press_ui.h"
 
 #define POLY(A) PolyUI::poly_reader_t(A, sizeof(A)/sizeof(A[0]))

@@ -61,7 +61,7 @@ public:
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
     static bool set_deployed(const bool deploy);
@@ -71,12 +71,12 @@ public:
       #if HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
-        static bool can_reach(const float &rx, const float &ry) {
+        static bool can_reach(const_float_t rx, const_float_t ry) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
               && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the nozzle also go near there?
         }
       #else
-        static bool can_reach(const float &rx, const float &ry) {
+        static bool can_reach(const_float_t rx, const_float_t ry) {
           return position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
@@ -90,7 +90,7 @@ public:
        * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
        *          nozzle must be be able to reach +10,-10.
        */
-      static bool can_reach(const float &rx, const float &ry) {
+      static bool can_reach(const_float_t rx, const_float_t ry) {
         return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
             && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
             && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
@@ -103,7 +103,7 @@ public:
         do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
       #endif
     }
-    static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
+    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
@@ -114,7 +114,7 @@ public:
 
     static bool set_deployed(const bool) { return false; }
 
-    static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
+    static bool can_reach(const_float_t rx, const_float_t ry) { return position_is_reachable(rx, ry); }
 
   #endif
 
@@ -185,10 +185,10 @@ public:
       );
     }
 
-    static float min_x() { return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float max_x() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float min_y() { return _min_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
-    static float max_y() { return _max_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
+    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
@@ -257,7 +257,7 @@ public:
   #endif
 
 private:
-  static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
+  static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
   static float run_z_probe(const bool sanity_check=true);
 };

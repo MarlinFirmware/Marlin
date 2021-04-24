@@ -174,6 +174,30 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             lv_clear_keyboard();
             // draw_return_ui is called in the end of message hook
             break;
+          case wifiConfig:
+            ZERO(uiCfg.wifi_name);
+            memcpy((void *)uiCfg.wifi_name, wifi_list.wifiName[wifi_list.nameIndex], 32);
+
+            ZERO(uiCfg.wifi_key);
+            memcpy((void *)uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_key));
+
+            gCfgItems.wifi_mode_sel = STA_MODEL;
+
+            package_to_wifi(WIFI_PARA_SET, nullptr, 0);
+
+            public_buf_l[0] = 0xA5;
+            public_buf_l[1] = 0x09;
+            public_buf_l[2] = 0x01;
+            public_buf_l[3] = 0x00;
+            public_buf_l[4] = 0x01;
+            public_buf_l[5] = 0xFC;
+            public_buf_l[6] = 0x00;
+            raw_send_to_wifi((uint8_t*)public_buf_l, 6);
+
+            last_disp_state = KEYBOARD_UI;
+            lv_clear_keyboard();
+            // draw_return_ui is called in the end of message hook
+            break;
           default: break;
         }
       }
@@ -221,7 +245,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  scr = lv_screen_create(KEY_BOARD_UI, "");
+  scr = lv_screen_create(KEYBOARD_UI, "");
 
   // Create styles for the keyboard
   static lv_style_t rel_style, pr_style;
