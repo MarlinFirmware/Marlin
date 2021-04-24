@@ -4,6 +4,8 @@
 #
 # Make a Version.h file to accompany CUSTOM_VERSION_FILE
 #
+# Authors: jbrazio, thinkyhead, InsanityAutomation, rfinnie
+#
 
 set -e
 
