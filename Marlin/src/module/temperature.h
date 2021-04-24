@@ -741,7 +741,7 @@ class Temperature {
       static inline celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static inline bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
       static inline bool isProbeAboveTemp(const celsius_t target_temp) { return wholeDegProbe() > target_temp; }
-      static bool wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling=true);
+      static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -831,7 +831,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const_float_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;

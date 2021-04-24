@@ -103,9 +103,9 @@ void GcodeSuite::G76() {
     return (timeout && ELAPSED(ms, timeout));
   };
 
-  auto wait_for_temps = [&](const float tb, const float tp, millis_t &ntr, const millis_t timeout=0) {
+  auto wait_for_temps = [&](const celsius_t tb, const celsius_t tp, millis_t &ntr, const millis_t timeout=0) {
     say_waiting_for(); SERIAL_ECHOLNPGM("bed and probe temperature.");
-    while (fabs(thermalManager.degBed() - tb) > 0.1f || thermalManager.degProbe() > tp)
+    while (thermalManager.wholeDegBed() != tb || thermalManager.wholeDegProbe() > tp)
       if (report_temps(ntr, timeout)) return true;
     return false;
   };
@@ -350,7 +350,7 @@ void GcodeSuite::M192() {
     return;
   }
 
-  const float target_temp = parser.value_celsius();
+  const celsius_t target_temp = parser.value_celsius();
   ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }

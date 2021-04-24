@@ -918,7 +918,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startPIDTune(const_float_t temp, extruder_t tool) {
+    void startPIDTune(const celsius_t temp, extruder_t tool) {
       thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
@@ -935,7 +935,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startBedPIDTune(const_float_t temp) {
+    void startBedPIDTune(const celsius_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
     }
   #endif
