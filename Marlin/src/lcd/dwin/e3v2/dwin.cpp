@@ -1814,10 +1814,10 @@ void Draw_SDItem(const uint16_t item, int16_t row=-1) {
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
-  void Draw_SDItem_Shifted(int8_t &shift) {
+  void Draw_SDItem_Shifted(uint8_t &shift) {
     // Limit to the number of chars past the cutoff
     const size_t len = strlen(shift_name);
-    NOMORE(shift, (signed) _MAX(len - MENU_CHAR_LIMIT, 0U));
+    NOMORE(shift, _MAX(len - MENU_CHAR_LIMIT, 0U));
 
     // Shorten to the available space
     const size_t lastchar = _MIN((signed)len, shift + MENU_CHAR_LIMIT);
@@ -2089,7 +2089,7 @@ void HMI_SelectFile() {
         if (ELAPSED(ms, shift_ms)) {
           const bool was_reset = shift_amt < 0;
           shift_ms = ms + 375UL + was_reset * 250UL;  // ms per character
-          int8_t shift_new = shift_amt + 1;           // Try to shift by...
+          uint8_t shift_new = shift_amt + 1;           // Try to shift by...
           Draw_SDItem_Shifted(shift_new);             // Draw the item
           if (!was_reset && shift_new == 0)           // Was it limited to 0?
             shift_ms = 0;                             // No scrolling needed
@@ -3421,7 +3421,7 @@ void HMI_AdvSet() {
 
 #if HAS_HOME_OFFSET
 
-  /*Home Offset */
+  /* Home Offset */
   void HMI_HomeOff() {
     ENCODER_DiffState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
