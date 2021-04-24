@@ -337,6 +337,7 @@ public:
         static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
+        static void bootscreen_completion(const millis_t sofar);
       #endif
 
       #if HAS_MARLINUI_U8GLIB
