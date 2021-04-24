@@ -60,6 +60,7 @@ void MarlinUI::tft_idle() {
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
+
   void MarlinUI::show_bootscreen() {
     tft.queue.reset();
 
@@ -81,9 +82,13 @@ void MarlinUI::tft_idle() {
     #endif
 
     tft.queue.sync();
-    safe_delay(BOOTSCREEN_TIMEOUT);
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
     clear_lcd();
   }
+
 #endif
 
 void MarlinUI::draw_kill_screen() {

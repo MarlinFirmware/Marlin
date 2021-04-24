@@ -389,6 +389,7 @@ namespace ExtUI {
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
+  void onPostprocessSettings();
   void onConfigurationStoreWritten(bool success);
   void onConfigurationStoreRead(bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)

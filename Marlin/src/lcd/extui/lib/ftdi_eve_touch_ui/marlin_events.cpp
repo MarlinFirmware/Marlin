@@ -113,6 +113,10 @@ namespace ExtUI {
     InterfaceSettingsScreen::loadSettings(buff);
   }
 
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
+  }
+
   void onConfigurationStoreWritten(bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
       if (success && InterfaceSettingsScreen::backupEEPROM()) {

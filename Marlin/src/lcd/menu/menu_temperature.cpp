@@ -147,7 +147,7 @@ void menu_temperature() {
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
     bool has_heat = false;
     #if HAS_TEMP_HOTEND
-      HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+      HOTEND_LOOP() if (thermalManager.degTargetHotend(HOTEND_INDEX)) { has_heat = true; break; }
     #endif
   #endif
 
@@ -271,7 +271,7 @@ void menu_temperature() {
     //
     // Cooldown
     //
-    if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
+    if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed())) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
   #endif
 

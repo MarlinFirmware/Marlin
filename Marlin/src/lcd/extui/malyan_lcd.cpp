@@ -519,6 +519,7 @@ namespace ExtUI {
   void onFactoryReset() {}
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
+  void onPostprocessSettings() {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
 

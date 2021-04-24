@@ -1251,7 +1251,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
+#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
   #error "Please enable only one of DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
 #endif
 
@@ -2208,10 +2208,17 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * emergency-command parser
+ * Emergency Command Parser
  */
 #if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+/**
+ * Software Reset on Kill option
+ */
+#if ENABLED(SOFT_RESET_ON_KILL) && !BUTTON_EXISTS(ENC)
+  #error "An encoder button is required or SOFT_RESET_ON_KILL will reset the printer without notice!"
 #endif
 
 /**
@@ -2846,7 +2853,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if HAS_MOTOR_CURRENT_I2C
   #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
-  #elif !MB(MKS_SBASE) \
+#elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
     && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
       #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
@@ -3289,6 +3296,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   _CLEAN_ASSERT(4); _CLEAN_ASSERT(5);
   _CLEAN_ASSERT(6); _CLEAN_ASSERT(7);
   #undef _CLEAN_ASSERT
+#endif
+
+/**
+ * Sanity check for MIXING_EXTRUDER & DISTINCT_E_FACTORS these are not compatible
+ */
+#if ENABLED(MIXING_EXTRUDER) && ENABLED(DISTINCT_E_FACTORS)
+  #error "MIXING_EXTRUDER can't be used with DISTINCT_E_FACTORS. But you may use SINGLENOZZLE with DISTINCT_E_FACTORS."
 #endif
 
 /**
