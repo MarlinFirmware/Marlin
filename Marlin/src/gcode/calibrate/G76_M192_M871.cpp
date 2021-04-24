@@ -180,7 +180,7 @@ void GcodeSuite::G76() {
             target_probe = temp_comp.bed_calib_probe_temp;
 
     say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
-    while (thermalManager.degBed() > target_bed || thermalManager.degProbe() > target_probe)
+    while (thermalManager.wholeDegBed() > target_bed || thermalManager.wholeDegProbe() > target_probe)
       report_temps(next_temp_report);
 
     // Disable leveling so it won't mess with us
@@ -204,7 +204,7 @@ void GcodeSuite::G76() {
       do_blocking_move_to(noz_pos_xyz);
       say_waiting_for_probe_heating();
       SERIAL_EOL();
-      while (thermalManager.degProbe() < target_probe)
+      while (thermalManager.wholeDegProbe() < target_probe)
         report_temps(next_temp_report);
 
       const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
