@@ -52,7 +52,7 @@ const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
 
 constexpr xyz_pos_t ProbeTempComp::park_point;
 constexpr xy_pos_t ProbeTempComp::measure_point;
-constexpr int ProbeTempComp::probe_calib_bed_temp;
+constexpr celsius_t ProbeTempComp::probe_calib_bed_temp;
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
@@ -126,7 +126,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
       SERIAL_ECHOPGM("Applying linear extrapolation");
       calib_idx--;
       for (; calib_idx < measurements; ++calib_idx) {
-        const float temp = start_temp + float(calib_idx) * res_temp;
+        const celsius_float_t temp = start_temp + float(calib_idx) * res_temp;
         data[calib_idx] = static_cast<int16_t>(k * temp + d);
       }
     }
@@ -174,7 +174,7 @@ float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const_fl
     return xy_float_t({start_temp + i*res_temp, static_cast<float>(data[i])});
   };
 
-  auto linear_interp = [](float x, xy_float_t p1, xy_float_t p2) {
+  auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
     return (p2.y - p1.y) / (p2.x - p2.y) * (x - p1.x) + p1.y;
   };
 

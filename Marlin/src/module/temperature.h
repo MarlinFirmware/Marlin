@@ -961,7 +961,7 @@ class Temperature {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
-        void run(const_float_t current, const_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
+        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

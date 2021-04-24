@@ -352,7 +352,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    *  - If a preheat input is higher than the current target, raise the target temperature.
    *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
-  void Probe::preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp) {
+  void Probe::preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp) {
     #if HAS_HOTEND && (PROBING_NOZZLE_TEMP || LEVELING_NOZZLE_TEMP)
       #define WAIT_FOR_NOZZLE_HEAT
     #endif
@@ -363,17 +363,17 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_ECHOPGM("Preheating ");
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
-      const int16_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
+      const celsius_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
       if (hotendPreheat) {
         DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
         thermalManager.setTargetHotend(hotendPreheat, 0);
       }
     #elif ENABLED(WAIT_FOR_BED_HEAT)
-      constexpr int16_t hotendPreheat = 0;
+      constexpr celsius_t hotendPreheat = 0;
     #endif
 
     #if ENABLED(WAIT_FOR_BED_HEAT)
-      const int16_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
+      const celsius_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
       if (bedPreheat) {
         if (hotendPreheat) DEBUG_ECHOPGM(" and ");
         DEBUG_ECHOPAIR("bed (", bedPreheat, ")");

@@ -100,8 +100,8 @@ class ProbeTempComp {
     static constexpr xy_pos_t measure_point    = PTC_PROBE_POS;     // Coordinates to probe
                             //measure_point    = { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
 
-    static constexpr int  probe_calib_bed_temp = BED_MAX_TARGET,  // Bed temperature while calibrating probe
-                          bed_calib_probe_temp = BTC_PROBE_TEMP;  // Probe temperature while calibrating bed
+    static constexpr celsius_t probe_calib_bed_temp = BED_MAX_TARGET,  // Bed temperature while calibrating probe
+                               bed_calib_probe_temp = BTC_PROBE_TEMP;  // Probe temperature while calibrating bed
 
     static int16_t *sensor_z_offsets[TSI_COUNT],
                    z_offsets_probe[cali_info_init[TSI_PROBE].measurements], // (µm)
