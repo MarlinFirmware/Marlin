@@ -373,10 +373,9 @@ int8_t ChironTFT::FindToken(char c) {
 
 void ChironTFT::CheckHeaters() {
   uint8_t faultDuration = 0;
-  float temp = 0;
 
   // if the hotend temp is abnormal, confirm state before signalling panel
-  temp = getActualTemp_celsius(E0);
+  celsius_float_t temp = getActualTemp_celsius(E0);
   while (!WITHIN(temp, HEATER_0_MINTEMP, HEATER_0_MAXTEMP)) {
     faultDuration++;
     if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {

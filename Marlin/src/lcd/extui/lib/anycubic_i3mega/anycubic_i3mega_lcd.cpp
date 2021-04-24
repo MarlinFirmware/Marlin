@@ -534,6 +534,8 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
   #endif
 }
 
+#define ROUND(val) int((val)+0.5f)
+
 void AnycubicTFTClass::GetCommandFromTFT() {
   char *starpos = nullptr;
   while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
@@ -560,26 +562,26 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
         switch (a_command) {
           case 0: { // A0 GET HOTEND TEMP
-            const float hotendActualTemp = getActualTemp_celsius(E0);
-            SEND_PGM_VAL("A0V ", int(hotendActualTemp + 0.5));
+            const celsius_float_t hotendActualTemp = getActualTemp_celsius(E0);
+            SEND_PGM_VAL("A0V ", ROUND(hotendActualTemp));
           }
           break;
 
           case 1: { // A1  GET HOTEND TARGET TEMP
-            const float hotendTargetTemp = getTargetTemp_celsius(E0);
-            SEND_PGM_VAL("A1V ", int(hotendTargetTemp + 0.5));
+            const celsius_float_t hotendTargetTemp = getTargetTemp_celsius(E0);
+            SEND_PGM_VAL("A1V ", ROUND(hotendTargetTemp));
           }
           break;
 
           case 2: { // A2 GET HOTBED TEMP
-            const float heatedBedActualTemp = getActualTemp_celsius(BED);
-            SEND_PGM_VAL("A2V ", int(heatedBedActualTemp + 0.5));
+            const celsius_float_t heatedBedActualTemp = getActualTemp_celsius(BED);
+            SEND_PGM_VAL("A2V ", ROUND(heatedBedActualTemp));
           }
           break;
 
           case 3: { // A3 GET HOTBED TARGET TEMP
-            const float heatedBedTargetTemp = getTargetTemp_celsius(BED);
-            SEND_PGM_VAL("A3V ", int(heatedBedTargetTemp + 0.5));
+            const celsius_float_t heatedBedTargetTemp = getTargetTemp_celsius(BED);
+            SEND_PGM_VAL("A3V ", ROUND(heatedBedTargetTemp));
           } break;
 
           case 4: { // A4 GET FAN SPEED

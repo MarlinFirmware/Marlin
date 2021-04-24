@@ -595,8 +595,8 @@ void NextionTFT::PanelAction(uint8_t req) {
 void NextionTFT::UpdateOnChange() {
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
-  static float last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
-               last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
+  static celsius_float_t last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
+                         last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
 
   // tmppage Temperature
   if (!WITHIN(last_degHotend0 - getActualTemp_celsius(E0), -0.2, 0.2) || !WITHIN(last_degTargetHotend0 - getTargetTemp_celsius(E0), -0.5, 0.5)) {
