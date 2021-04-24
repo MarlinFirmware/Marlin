@@ -1225,7 +1225,7 @@ void setup() {
   #endif
 
   #if PIN_EXISTS(SAFE_POWER)
-    #if ENABLED(HAS_DRIVER_SAFE_POWER_PROTECT)
+    #if HAS_DRIVER_SAFE_POWER_PROTECT
       SETUP_RUN(stepper_driver_backward_check());
     #else
       SETUP_LOG("SAFE_POWER");
