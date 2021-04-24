@@ -213,7 +213,7 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 
-     #if defined(MANUAL_PROBE_START_Z) && !defined(MESH_BED_LEVELING)
+    #if defined(MANUAL_PROBE_START_Z) && DISABLED(MESH_BED_LEVELING)
       constexpr float startz = _MAX(0, MANUAL_PROBE_START_Z);
       #if MANUAL_PROBE_HEIGHT > 0
         do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
