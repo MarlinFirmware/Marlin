@@ -447,7 +447,6 @@
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
-  #define Force10SProDisplay
 #endif
 
 #if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max )

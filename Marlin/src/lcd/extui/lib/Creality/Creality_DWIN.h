@@ -181,7 +181,7 @@ void RTSUpdate();
 void RTSInit();
 
 }
-#ifndef USER_GCODE_1
-  #define USER_GCODE_1 "G28"
+#ifndef MAIN_MENU_ITEM_1_GCODE
+  #define MAIN_MENU_ITEM_1_GCODE "G28"
 #endif
 #endif
