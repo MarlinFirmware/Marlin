@@ -121,6 +121,8 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+void HAL_reboot();
+
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 #if GCC_VERSION <= 50000

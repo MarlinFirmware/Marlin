@@ -39,7 +39,7 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
+#if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
 
