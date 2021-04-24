@@ -178,11 +178,7 @@ void process_lcd_eb_command(const char *command) {
         #else
           0, 0,
         #endif
-        #if ENABLED(SDSUPPORT)
-          done_pct,
-        #else
-          0,
-        #endif
+        TERN(SDSUPPORT, done_pct, 0),
         elapsed_buffer
       );
       write_to_lcd(message_buffer);

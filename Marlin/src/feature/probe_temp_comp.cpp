@@ -181,7 +181,7 @@ float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const_fl
   // Linear interpolation
   uint8_t idx = static_cast<uint8_t>((temp - start_temp) / res_temp);
 
-  // offset in um
+  // offset in µm
   float offset = 0.0f;
 
   #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0

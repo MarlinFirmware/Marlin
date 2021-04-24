@@ -81,10 +81,10 @@ typedef struct {
 #endif
 
 static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-    {  PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },       // Probe
-    {  BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },       // Bed
+  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END }, // Probe
+  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END }, // Bed
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    {  20,  5, 180, 180 +  5 * 20 }        // Extruder
+    { 20,  5, 180, 180 +  5 * 20 }                                        // Extruder
   #endif
 };
 
