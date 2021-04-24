@@ -486,7 +486,7 @@ void lv_draw_dialog(uint8_t type) {
 
 void filament_sprayer_temp() {
   char buf[20] = {0};
-  sprintf(buf, preheat_menu.value_state, thermalManager.degHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
+  sprintf(buf, preheat_menu.value_state, thermalManager.wholeDegHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
 
   strcpy(public_buf_l, uiCfg.extruderIndex < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
   strcat_P(public_buf_l, PSTR(": "));
@@ -522,7 +522,7 @@ void filament_dialog_handle() {
   }
 
   if (uiCfg.filament_load_heat_flg) {
-    const celsius_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
     if (abs(diff) < 2 || diff > 0) {
       uiCfg.filament_load_heat_flg = false;
       lv_clear_dialog();
@@ -538,7 +538,7 @@ void filament_dialog_handle() {
   }
 
   if (uiCfg.filament_unload_heat_flg) {
-    const celsius_t diff = thermalManager.degHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
+    const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
     if (abs(diff) < 2 || diff > 0) {
       uiCfg.filament_unload_heat_flg = false;
       lv_clear_dialog();

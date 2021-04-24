@@ -86,6 +86,8 @@
  * M7   - Turn mist coolant ON. (Requires COOLANT_CONTROL)
  * M8   - Turn flood coolant ON. (Requires COOLANT_CONTROL)
  * M9   - Turn coolant OFF. (Requires COOLANT_CONTROL)
+ * M10  - Turn Vacuum or Blower motor ON (Requires AIR_EVACUATION)
+ * M11  - Turn Vacuum or Blower motor OFF (Requires AIR_EVACUATION)
  * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M16  - Expected printer check. (Requires EXPECTED_PRINTER_CHECK)
  * M17  - Enable/Power all stepper motors
@@ -548,6 +550,10 @@ private:
   #if HAS_CUTTER
     static void M3_M4(const bool is_M4);
     static void M5();
+    #if ENABLED(AIR_EVACUATION)
+      static void M10();
+      static void M11();
+    #endif
   #endif
 
   #if ENABLED(COOLANT_CONTROL)

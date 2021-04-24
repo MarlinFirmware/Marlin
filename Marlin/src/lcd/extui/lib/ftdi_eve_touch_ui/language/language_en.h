@@ -147,6 +147,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBE_BED                = u8"Probe Mesh";
   PROGMEM Language_Str MSG_SHOW_MESH                = u8"View Mesh";
   PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test";
+  PROGMEM Language_Str MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
 
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";
