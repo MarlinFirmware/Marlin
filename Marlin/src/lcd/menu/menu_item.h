@@ -111,17 +111,17 @@ class TMenuEditItem : MenuEditItemBase {
 // These items call the Edit Item draw method passing the prepared string.
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
-#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, V...) \
+#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static inline float scale(const_float_t value)   { return value * (SCALE) + (V+0); } \
-    static inline float unscale(const_float_t value) { return value / (SCALE) + (V+0); } \
+    static inline float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+    static inline float unscale(const_float_t value) { return value / (SCALE) ETC; } \
     static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
-//                         NAME         TYPE      STRFUNC          SCALE         +ROUND
-DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, 0.5f);  // 100%   right-justified
+//                         NAME         TYPE      STRFUNC          SCALE         ROUND
+DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, +0.5f);  // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1     );   // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1     );   // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1     );   // 1234, -123 right-justified

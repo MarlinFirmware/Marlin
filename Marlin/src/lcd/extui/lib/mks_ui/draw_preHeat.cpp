@@ -216,12 +216,12 @@ void disp_desire_temp() {
 
   if (uiCfg.curTempType == 0) {
     strcat(public_buf_l, uiCfg.extruderIndex < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
-    sprintf(buf, preheat_menu.value_state, (int)thermalManager.degHotend(uiCfg.extruderIndex), (int)thermalManager.degTargetHotend(uiCfg.extruderIndex));
+    sprintf(buf, preheat_menu.value_state, thermalManager.wholeDegHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
   }
   else {
     #if HAS_HEATED_BED
       strcat(public_buf_l, preheat_menu.hotbed);
-      sprintf(buf, preheat_menu.value_state, (int)thermalManager.degBed(), (int)thermalManager.degTargetBed());
+      sprintf(buf, preheat_menu.value_state, thermalManager.wholeDegBed(), thermalManager.degTargetBed());
     #endif
   }
   strcat_P(public_buf_l, PSTR(": "));

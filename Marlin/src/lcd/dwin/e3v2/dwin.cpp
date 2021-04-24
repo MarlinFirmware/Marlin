@@ -1583,7 +1583,7 @@ void _draw_xyz_position(const bool force) {
 void update_variable() {
   #if HAS_HOTEND
     static celsius_t _hotendtemp = 0, _hotendtarget = 0;
-    const celsius_t hc = thermalManager.degHotend(0),
+    const celsius_t hc = thermalManager.wholeDegHotend(0),
                     ht = thermalManager.degTargetHotend(0);
     const bool _new_hotend_temp = _hotendtemp != hc,
                _new_hotend_target = _hotendtarget != ht;
@@ -1592,7 +1592,7 @@ void update_variable() {
   #endif
   #if HAS_HEATED_BED
     static celsius_t _bedtemp = 0, _bedtarget = 0;
-    const celsius_t bc = thermalManager.degBed(),
+    const celsius_t bc = thermalManager.wholeDegBed(),
                     bt = thermalManager.degTargetBed();
     const bool _new_bed_temp = _bedtemp != bc,
                _new_bed_target = _bedtarget != bt;
@@ -1880,7 +1880,7 @@ void Draw_Status_Area(const bool with_update) {
 
   #if HAS_HOTEND
     DWIN_ICON_Show(ICON, ICON_HotendTemp, 10, 383);
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.degHotend(0));
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 384, thermalManager.wholeDegHotend(0));
     DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 384, F("/"));
     DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 384, thermalManager.degTargetHotend(0));
 
@@ -1891,7 +1891,7 @@ void Draw_Status_Area(const bool with_update) {
 
   #if HAS_HEATED_BED
     DWIN_ICON_Show(ICON, ICON_BedTemp, 10, 416);
-    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.degBed());
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 28, 417, thermalManager.wholeDegBed());
     DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 25 + 3 * STAT_CHR_W + 5, 417, F("/"));
     DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 25 + 4 * STAT_CHR_W + 6, 417, thermalManager.degTargetBed());
   #endif
@@ -2709,7 +2709,7 @@ void HMI_AxisMove() {
           case 4: // Extruder
             // window tips
             #ifdef PREVENT_COLD_EXTRUSION
-              if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
+              if (thermalManager.wholeDegHotend(0) < (EXTRUDE_MINTEMP)) {
                 HMI_flag.ETempTooLow_flag = true;
                 Popup_Window_ETempTooLow();
                 DWIN_UpdateLCD();
