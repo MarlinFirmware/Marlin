@@ -179,7 +179,7 @@ enum ADCSensorState : char {
 typedef struct TempInfo {
   uint16_t acc;
   int16_t raw;
-  celsius_t celsius;
+  celsius_float_t celsius;
   inline void reset() { acc = 0; }
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
@@ -501,7 +501,7 @@ class Temperature {
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
       static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
       static void reset_user_thermistors();
-      static celsius_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
+      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
       static inline bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (!WITHIN(value, 1, 1000000)) return false;
@@ -529,19 +529,19 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-      static celsius_t analog_to_celsius_hotend(const int raw, const uint8_t e);
+      static celsius_float_t analog_to_celsius_hotend(const int raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static celsius_t analog_to_celsius_bed(const int raw);
+      static celsius_float_t analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_PROBE
-      static celsius_t analog_to_celsius_probe(const int raw);
+      static celsius_float_t analog_to_celsius_probe(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static celsius_t analog_to_celsius_chamber(const int raw);
+      static celsius_float_t analog_to_celsius_chamber(const int raw);
     #endif
     #if HAS_TEMP_COOLER
-      static celsius_t analog_to_celsius_cooler(const int raw);
+      static celsius_float_t analog_to_celsius_cooler(const int raw);
     #endif
 
     #if HAS_FAN
@@ -627,7 +627,7 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    static inline celsius_t degHotend(const uint8_t E_NAME) {
+    static inline celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
@@ -701,7 +701,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawBedTemp()    { return temp_bed.raw; }
       #endif
-      static inline celsius_t degBed()        { return temp_bed.celsius; }
+      static inline celsius_float_t degBed()  { return temp_bed.celsius; }
       static inline celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       static inline celsius_t degTargetBed()  { return temp_bed.target; }
       static inline bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
@@ -737,7 +737,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
-      static inline celsius_t degProbe()        { return temp_probe.celsius; }
+      static inline celsius_float_t degProbe()  { return temp_probe.celsius; }
       static inline celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static inline bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
       static inline bool isProbeAboveTemp(const celsius_t target_temp) { return wholeDegProbe() > target_temp; }
@@ -754,7 +754,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawChamberTemp()      { return temp_chamber.raw; }
       #endif
-      static inline celsius_t degChamber()          { return temp_chamber.celsius; }
+      static inline celsius_float_t degChamber()    { return temp_chamber.celsius; }
       static inline celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
         static inline celsius_t degTargetChamber()  { return temp_chamber.target; }
@@ -781,7 +781,7 @@ class Temperature {
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawCoolerTemp()     { return temp_cooler.raw; }
       #endif
-      static inline celsius_t degCooler()         { return temp_cooler.celsius; }
+      static inline celsius_float_t degCooler()   { return temp_cooler.celsius; }
       static inline celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
         static inline celsius_t degTargetCooler() { return temp_cooler.target; }
