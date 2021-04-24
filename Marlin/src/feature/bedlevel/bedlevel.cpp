@@ -213,23 +213,16 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 
-    #if defined(MANUAL_PROBE_START_Z) && DISABLED(MESH_BED_LEVELING)
-      constexpr float startz = _MAX(0, MANUAL_PROBE_START_Z);
-      #if MANUAL_PROBE_HEIGHT > 0
-        do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
-        do_blocking_move_to_z(startz);
-      #else
-        do_blocking_move_to_xy_z(pos, startz);
-      #endif
-    #elif MANUAL_PROBE_HEIGHT > 0
-      const float prev_z = current_position.z;
-      do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
-      do_blocking_move_to_z(prev_z);
-    #else
-      do_blocking_move_to_xy(pos);
-    #endif
+    const float startz = TERN(MESH_BED_LEVELING, current_position.z, _MAX(0, MANUAL_PROBE_START_Z));
 
-    current_position = pos;
+    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES);  // Move up to give clearance, then move over
+      do_blocking_move_to_z(startz);                          // Move down, ready to do manual adjustment
+    #elif ENABLED(MESH_BED_LEVELING)
+      do_blocking_move_to_xy(pos);                            // No Z_CLEARANCE_BETWEEN_MANUAL_PROBES given? For MBL just move in XY.
+    #else
+      do_blocking_move_to_xy_z(pos, startz);                  // ... For others move across, then down.
+    #endif
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }
