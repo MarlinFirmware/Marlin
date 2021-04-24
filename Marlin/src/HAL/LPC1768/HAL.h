@@ -218,4 +218,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();

@@ -30,6 +30,7 @@
   #include "../HAL/shared/eeprom_if.h"
   #include "../HAL/shared/Delay.h"
   #include "../sd/cardreader.h"
+  #include "../MarlinCore.h" // for kill
 
   extern void dump_delay_accuracy_check();
 
@@ -44,10 +45,14 @@
     switch (dcode) {
 
       case -1:
-        for (;;); // forever
+        for (;;) { /* loop forever (watchdog reset) */ }
 
       case 0:
         HAL_reboot();
+        break;
+
+      case 10:
+        kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen('P'));
         break;
 
       case 1: {

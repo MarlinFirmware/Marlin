@@ -863,20 +863,22 @@ void minkill(const bool steppers_off/*=false*/) {
 
   TERN_(HAS_SUICIDE, suicide());
 
-  #if HAS_KILL
+  #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
 
-    // Wait for kill to be released
-    while (kill_state()) watchdog_refresh();
+    // Wait for both KILL and ENC to be released
+    while (TERN0(HAS_KILL, !kill_state()) || TERN0(SOFT_RESET_ON_KILL, !ui.button_pressed()))
+      watchdog_refresh();
 
-    // Wait for kill to be pressed
-    while (!kill_state()) watchdog_refresh();
+    // Wait for either KILL or ENC press
+    while (TERN1(HAS_KILL, kill_state()) && TERN1(SOFT_RESET_ON_KILL, ui.button_pressed()))
+      watchdog_refresh();
 
-    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
-    resetFunc();                  // Jump to address 0
+    // Reboot the board
+    HAL_reboot();
 
   #else
 
-    for (;;) watchdog_refresh();  // Wait for reset
+    for (;;) watchdog_refresh();  // Wait for RESET button or power-cycle
 
   #endif
 }
