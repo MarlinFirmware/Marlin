@@ -93,8 +93,8 @@ exec_test $1 $2 "Teensy 3.5/3.6 COREXY" "$3"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
-opt_enable COREXZ
-exec_test $1 $2 "Teensy 3.5/3.6 COREXZ" "$3"
+opt_enable COREXZ BACKLASH_COMPENSATION BACKLASH_GCODE CORE_BACKLASH
+exec_test $1 $2 "Teensy 3.5/3.6 COREXZ | BACKLASH" "$3"
 
 #
 # Enable Dual Z with Dual Z endstops

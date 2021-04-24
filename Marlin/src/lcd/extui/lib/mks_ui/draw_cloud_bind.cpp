@@ -190,7 +190,7 @@ void display_qrcode(uint8_t *qrcode_data) {
 }
 
 void cloud_unbind() {
-  package_to_wifi(WIFI_CLOUD_UNBIND, (uint8_t *)0, 0);
+  package_to_wifi(WIFI_CLOUD_UNBIND, nullptr, 0);
   unbinding_flag = 1;
 }
 

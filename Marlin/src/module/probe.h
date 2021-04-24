@@ -61,7 +61,7 @@ public:
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
     static bool set_deployed(const bool deploy);
@@ -185,10 +185,10 @@ public:
       );
     }
 
-    static float min_x() { return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float max_x() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float min_y() { return _min_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
-    static float max_y() { return _max_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
+    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {

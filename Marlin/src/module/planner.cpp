@@ -207,7 +207,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 xyze_long_t Planner::position{0};
 
-uint32_t Planner::cutoff_long;
+uint32_t Planner::acceleration_long_cutoff;
 
 xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed_sqr;
@@ -1650,6 +1650,24 @@ void Planner::quick_stop() {
   stepper.quick_stop();
 }
 
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+
+  void Planner::quick_pause() {
+    // Suspend until quick_resume is called
+    // Don't empty buffers or queues
+    const bool did_suspend = stepper.suspend();
+    if (did_suspend)
+      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+  }
+
+  // Resume if suspended
+  void Planner::quick_resume() {
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(grbl_state_for_marlin_state()));
+    stepper.wake_up();
+  }
+
+#endif
+
 void Planner::endstop_triggered(const AxisEnum axis) {
   // Record stepper position and discard the current block
   stepper.endstop_triggered(axis);
@@ -2271,23 +2289,22 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
-  if (!block->steps.a && !block->steps.b && !block->steps.c) {
-    // convert to: acceleration steps/sec^2
-    accel = CEIL(settings.retract_acceleration * steps_per_mm);
-    TERN_(LIN_ADVANCE, block->use_advance_lead = false);
+  if (!block->steps.a && !block->steps.b && !block->steps.c) {    // Is this a retract / recover move?
+    accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
+    TERN_(LIN_ADVANCE, block->use_advance_lead = false);          // No linear advance for simple retract/recover
   }
   else {
     #define LIMIT_ACCEL_LONG(AXIS,INDX) do{ \
       if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS+INDX] < accel) { \
-        const uint32_t comp = max_acceleration_steps_per_s2[AXIS+INDX] * block->step_event_count; \
-        if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+        const uint32_t max_possible = max_acceleration_steps_per_s2[AXIS+INDX] * block->step_event_count / block->steps[AXIS]; \
+        NOMORE(accel, max_possible); \
       } \
     }while(0)
 
     #define LIMIT_ACCEL_FLOAT(AXIS,INDX) do{ \
       if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS+INDX] < accel) { \
-        const float comp = (float)max_acceleration_steps_per_s2[AXIS+INDX] * (float)block->step_event_count; \
-        if ((float)accel * (float)block->steps[AXIS] > comp) accel = comp / (float)block->steps[AXIS]; \
+        const float max_possible = float(max_acceleration_steps_per_s2[AXIS+INDX]) * float(block->step_event_count) / float(block->steps[AXIS]); \
+        NOMORE(accel, max_possible); \
       } \
     }while(0)
 
@@ -2336,7 +2353,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #endif
 
     // Limit acceleration per axis
-    if (block->step_event_count <= cutoff_long) {
+    if (block->step_event_count <= acceleration_long_cutoff) {
       LIMIT_ACCEL_LONG(A_AXIS, 0);
       LIMIT_ACCEL_LONG(B_AXIS, 0);
       LIMIT_ACCEL_LONG(C_AXIS, 0);
@@ -2352,7 +2369,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (4096.0f * 4096.0f / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (sq(4096.0f) / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
@@ -3020,7 +3037,7 @@ void Planner::reset_acceleration_rates() {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
-  cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
+  acceleration_long_cutoff = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
   TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 

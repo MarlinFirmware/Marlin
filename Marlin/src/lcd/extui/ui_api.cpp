@@ -263,7 +263,7 @@ namespace ExtUI {
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
 
-  float getActualTemp_celsius(const heater_t heater) {
+  celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
@@ -275,11 +275,11 @@ namespace ExtUI {
     }
   }
 
-  float getActualTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getActualTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
-  float getTargetTemp_celsius(const heater_t heater) {
+  celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
@@ -291,26 +291,18 @@ namespace ExtUI {
     }
   }
 
-  float getTargetTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getTargetTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
   float getAxisPosition_mm(const axis_t axis) {
@@ -870,19 +862,19 @@ namespace ExtUI {
           const feedRate_t old_feedrate = feedrate_mm_s;
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
-          if (x_target != current_position[X_AXIS] || y_target != current_position[Y_AXIS]) {
+          if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
             feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
             destination = current_position;
-            destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+            destination.z = Z_CLEARANCE_BETWEEN_PROBES;
             prepare_line_to_destination();
             feedrate_mm_s = XY_PROBE_FEEDRATE;
-            destination[X_AXIS] = x_target;
-            destination[Y_AXIS] = y_target;
+            destination.x = x_target;
+            destination.y = y_target;
             prepare_line_to_destination();
           }
           feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
-          destination[Z_AXIS] = z;
+          destination.z = z;
           prepare_line_to_destination();
           feedrate_mm_s = old_feedrate;
         #else
@@ -926,7 +918,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startPIDTune(const_float_t temp, extruder_t tool) {
+    void startPIDTune(const celsius_t temp, extruder_t tool) {
       thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
@@ -943,7 +935,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startBedPIDTune(const_float_t temp) {
+    void startBedPIDTune(const celsius_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
     }
   #endif

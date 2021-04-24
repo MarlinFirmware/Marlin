@@ -205,8 +205,8 @@ typedef struct {
         layer_height          = MESH_TEST_LAYER_HEIGHT,
         prime_length          = PRIME_LENGTH;
 
-  int16_t bed_temp            = MESH_TEST_BED_TEMP,
-          hotend_temp         = MESH_TEST_HOTEND_TEMP;
+  celsius_t bed_temp          = MESH_TEST_BED_TEMP,
+            hotend_temp       = MESH_TEST_HOTEND_TEMP;
 
   float nozzle                = MESH_TEST_NOZZLE_SIZE,
         filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA,
