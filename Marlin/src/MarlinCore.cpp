@@ -1459,7 +1459,7 @@ void setup() {
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
-#if ENABLED(MIXING_EXTRUDER)
+#if ENABLED(MIXING_EXTRUDER) && ENABLED (MIXING_PRESETS)
   #if MIXING_STEPPERS == 2 // Vtool presets for 2 steppers (Overriden by slicer)
      queue.inject_P(PSTR("M163 S0 P1\nM163 S1 P0\nM164 S0")); //Vtool0
      queue.inject_P(PSTR("M163 S0 P0\nM163 S1 P1\nM164 S1")); //Vtool1
