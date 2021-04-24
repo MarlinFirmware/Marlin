@@ -373,10 +373,9 @@ int8_t ChironTFT::FindToken(char c) {
 
 void ChironTFT::CheckHeaters() {
   uint8_t faultDuration = 0;
-  float temp = 0;
 
   // if the hotend temp is abnormal, confirm state before signalling panel
-  temp = getActualTemp_celsius(E0);
+  celsius_float_t temp = getActualTemp_celsius(E0);
   while (!WITHIN(temp, HEATER_0_MINTEMP, HEATER_0_MAXTEMP)) {
     faultDuration++;
     if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
@@ -406,7 +405,7 @@ void ChironTFT::CheckHeaters() {
 
   // Update panel with hotend heater status
   if (hotend_state != AC_heater_temp_reached) {
-    if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -1, 1)) {
+    if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -(TEMP_WINDOW), TEMP_WINDOW)) {
       SendtoTFTLN(AC_msg_nozzle_heating_done);
       hotend_state = AC_heater_temp_reached;
     }
@@ -414,7 +413,7 @@ void ChironTFT::CheckHeaters() {
 
   // Update panel with bed heater status
   if (hotbed_state != AC_heater_temp_reached) {
-    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5)) {
+    if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -(TEMP_BED_WINDOW), TEMP_BED_WINDOW)) {
       SendtoTFTLN(AC_msg_bed_heating_done);
       hotbed_state = AC_heater_temp_reached;
     }
@@ -466,7 +465,7 @@ void ChironTFT::SelectFile() {
 
 void ChironTFT::ProcessPanelRequest() {
   // Break these up into logical blocks // as its easier to navigate than one huge switch case!
-  const int8_t tpos = FindToken('A');
+  int8_t tpos = FindToken('A');
   // Panel request are 'A0' - 'A36'
   if (tpos != -1) {
     const int8_t req = atoi(&panel_command[tpos+1]);
@@ -701,7 +700,7 @@ void ChironTFT::PanelAction(uint8_t req) {
 
       if (!isPrinting()) { // Ignore request if printing
         char MoveCmnd[30];
-        sprintf_P(MoveCmnd, PSTR("G91\nG0 %s \nG90"), panel_command+3);
+        sprintf_P(MoveCmnd, PSTR("G91\nG0%s\nG90"), panel_command + 3);
         #if ACDEBUG(AC_ACTION)
           SERIAL_ECHOLNPAIR("Move: ", MoveCmnd);
         #endif

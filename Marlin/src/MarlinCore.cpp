@@ -600,7 +600,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
+    if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
@@ -1214,8 +1214,9 @@ void setup() {
     DWIN_UpdateLCD();     // Show bootscreen (first image)
   #else
     SETUP_RUN(ui.init());
-    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
+    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
       SETUP_RUN(ui.show_bootscreen());
+      const millis_t bootscreen_ms = millis();
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
@@ -1499,6 +1500,14 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    const millis_t elapsed = millis() - bootscreen_ms;
+    #if ENABLED(MARLIN_DEV_MODE)
+      SERIAL_ECHOLNPAIR("elapsed=", elapsed);
+    #endif
+    SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif
 
   #if ENABLED(PASSWORD_ON_STARTUP)
