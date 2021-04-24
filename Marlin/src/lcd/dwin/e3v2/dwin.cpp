@@ -3373,31 +3373,42 @@ void HMI_AdvSet() {
         index_control = CONTROL_CASE_ADVSET;
         Draw_Control_Menu();
         break;
-      case ADVSET_CASE_HOMEOFF:   // Home Offsets
-        checkkey = HomeOff;
-        select_item.reset();
-        HMI_ValueStruct.Home_OffX_scaled = home_offset[X_AXIS] * 10;
-        HMI_ValueStruct.Home_OffY_scaled = home_offset[Y_AXIS] * 10;
-        HMI_ValueStruct.Home_OffZ_scaled = home_offset[Z_AXIS] * 10;
-        Draw_HomeOff_Menu();
-        break;
-      #if HAS_ONESTEP_LEVELING
-      case ADVSET_CASE_PROBEOFF:   // Probe Offsets
-        checkkey = ProbeOff;
-        select_item.reset();
-        HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
-        HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
-        Draw_ProbeOff_Menu();
-        break;
+
+      #if HAS_HOME_OFFSET
+        case ADVSET_CASE_HOMEOFF:   // Home Offsets
+          checkkey = HomeOff;
+          select_item.reset();
+          HMI_ValueStruct.Home_OffX_scaled = home_offset[X_AXIS] * 10;
+          HMI_ValueStruct.Home_OffY_scaled = home_offset[Y_AXIS] * 10;
+          HMI_ValueStruct.Home_OffZ_scaled = home_offset[Z_AXIS] * 10;
+          Draw_HomeOff_Menu();
+          break;
       #endif
-      case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
-        thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
-        thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
-        break;
-      case ADVSET_CASE_BEDPID:  // Bed PID Autotune
-        thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
-        thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
-        break;
+
+      #if HAS_ONESTEP_LEVELING
+        case ADVSET_CASE_PROBEOFF:   // Probe Offsets
+          checkkey = ProbeOff;
+          select_item.reset();
+          HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
+          HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
+          Draw_ProbeOff_Menu();
+          break;
+      #endif
+
+      #if HAS_HOTEND
+        case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
+          thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
+          thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
+          break;
+      #endif
+
+      #if HAS_HEATED_BED
+        case ADVSET_CASE_BEDPID:  // Bed PID Autotune
+          thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+          thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
+          break;
+      #endif
+
       case ADVSET_CASE_PWRLOSSR:  // Power-loss recovery
         recovery.enable(!recovery.enabled);
         Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset, recovery.enabled);
@@ -3408,64 +3419,68 @@ void HMI_AdvSet() {
   DWIN_UpdateLCD();
 }
 
-/*Home Offset */
-void HMI_HomeOff() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
+#if HAS_HOME_OFFSET
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 3)) Move_Highlight(1, select_item.now);
+  /*Home Offset */
+  void HMI_HomeOff() {
+    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_item.inc(1 + 3)) Move_Highlight(1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_item.dec()) Move_Highlight(-1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      switch (select_item.now) {
+        case 0: // Back
+          checkkey = AdvSet;
+          select_advset.set(ADVSET_CASE_HOMEOFF);
+          Draw_AdvSet_Menu();
+          break;
+        case 1: // Home Offset X
+          checkkey = HomeOffX;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Home_OffX_scaled);
+          EncoderRate.enabled = true;
+          break;
+        case 2: // Home Offset Y
+          checkkey = HomeOffY;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Home_OffY_scaled);
+          EncoderRate.enabled = true;
+          break;
+        case 3: // Home Offset Z
+          checkkey = HomeOffZ;
+          DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Home_OffZ_scaled);
+          EncoderRate.enabled = true;
+          break;
+        default: break;
+      }
+    }
+    DWIN_UpdateLCD();
   }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_item.dec()) Move_Highlight(-1, select_item.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    switch (select_item.now) {
-      case 0: // Back
-        checkkey = AdvSet;
-        select_advset.set(ADVSET_CASE_HOMEOFF);
-        Draw_AdvSet_Menu();
-        break;
-      case 1: // Home Offset X
-        checkkey = HomeOffX;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Home_OffX_scaled);
-        EncoderRate.enabled = true;
-        break;
-      case 2: // Home Offset Y
-        checkkey = HomeOffY;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Home_OffY_scaled);
-        EncoderRate.enabled = true;
-        break;
-      case 3: // Home Offset Z
-        checkkey = HomeOffZ;
-        DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Home_OffZ_scaled);
-        EncoderRate.enabled = true;
-        break;
-      default: break;
+
+  void HMI_HomeOffN(float &posScaled, const_float_t lo, const_float_t hi) {
+    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    if (encoder_diffState != ENCODER_DIFF_NO) {
+      if (Apply_Encoder(encoder_diffState, posScaled)) {
+        checkkey = HomeOff;
+        EncoderRate.enabled = false;
+        set_home_offset(X_AXIS, posScaled / 10);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), posScaled);
+        return;
+      }
+      LIMIT(posScaled, lo, hi);
+      DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), posScaled);
     }
   }
-  DWIN_UpdateLCD();
-}
 
-void HMI_HomeOffN(float &posScaled, const_float_t lo, const_float_t hi) {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, posScaled)) {
-      checkkey = HomeOff;
-      EncoderRate.enabled = false;
-      set_home_offset(X_AXIS, posScaled / 10);
-      DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), posScaled);
-      return;
-    }
-    LIMIT(posScaled, lo, hi);
-    DWIN_Draw_Signed_Float(font8x16, Select_Color, 3, UNITFDIGITS, 216, MBASE(select_item.now), posScaled);
-  }
-}
+  void HMI_HomeOffX() { HMI_HomeOffN(HMI_ValueStruct.Home_OffX_scaled, -500, 500); }
+  void HMI_HomeOffY() { HMI_HomeOffN(HMI_ValueStruct.Home_OffY_scaled, -500, 500); }
+  void HMI_HomeOffZ() { HMI_HomeOffN(HMI_ValueStruct.Home_OffZ_scaled,  -20,  20); }
 
-void HMI_HomeOffX() { HMI_HomeOffN(HMI_ValueStruct.Home_OffX_scaled, -500, 500); }
-void HMI_HomeOffY() { HMI_HomeOffN(HMI_ValueStruct.Home_OffY_scaled, -500, 500); }
-void HMI_HomeOffZ() { HMI_HomeOffN(HMI_ValueStruct.Home_OffZ_scaled,  -20,  20); }
+#endif // HAS_HOME_OFFSET
 
 #if HAS_ONESTEP_LEVELING
   /*Probe Offset */
@@ -3520,7 +3535,7 @@ void HMI_HomeOffZ() { HMI_HomeOffN(HMI_ValueStruct.Home_OffZ_scaled,  -20,  20);
   void HMI_ProbeOffX() { HMI_ProbeOffN(HMI_ValueStruct.Probe_OffX_scaled, probe.offset.x); }
   void HMI_ProbeOffY() { HMI_ProbeOffN(HMI_ValueStruct.Probe_OffY_scaled, probe.offset.y); }
 
-#endif
+#endif // HAS_ONESTEP_LEVELING
 
 /* Info */
 void HMI_Info() {
@@ -4031,14 +4046,16 @@ void DWIN_HandleScreen() {
     case TemperatureID:   HMI_Temperature(); break;
     case Motion:          HMI_Motion(); break;
     case AdvSet:          HMI_AdvSet(); break;
-    case HomeOff:         HMI_HomeOff(); break;
-    case HomeOffX:        HMI_HomeOffX(); break;
-    case HomeOffY:        HMI_HomeOffY(); break;
-    case HomeOffZ:        HMI_HomeOffZ(); break;
+    #if HAS_HOME_OFFSET
+      case HomeOff:       HMI_HomeOff(); break;
+      case HomeOffX:      HMI_HomeOffX(); break;
+      case HomeOffY:      HMI_HomeOffY(); break;
+      case HomeOffZ:      HMI_HomeOffZ(); break;
+    #endif
     #if HAS_ONESTEP_LEVELING
-      case ProbeOff:        HMI_ProbeOff(); break;
-      case ProbeOffX:       HMI_ProbeOffX(); break;
-      case ProbeOffY:       HMI_ProbeOffY(); break;
+      case ProbeOff:      HMI_ProbeOff(); break;
+      case ProbeOffX:     HMI_ProbeOffX(); break;
+      case ProbeOffY:     HMI_ProbeOffY(); break;
     #endif
     case Info:            HMI_Info(); break;
     case Tune:            HMI_Tune(); break;
