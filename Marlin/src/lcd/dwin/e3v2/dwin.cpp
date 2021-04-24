@@ -3395,7 +3395,7 @@ void HMI_AdvSet() {
         thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
         break;
       case ADVSET_CASE_BEDPID:  // Bed PID Autotune
-        thermalManager.setTargetBed(ui.material_preset[0].bed_temp, 0);
+        thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
         thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
         break;
       case ADVSET_CASE_PWRLOSSR:  // Power-loss recovery
