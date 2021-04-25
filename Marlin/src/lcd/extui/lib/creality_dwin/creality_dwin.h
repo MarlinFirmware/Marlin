@@ -280,7 +280,7 @@ public:
   inline void Draw_Title(char* title);
   inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label1=NULL, char * const label2=NULL, bool more=false, bool centered=false);
   inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
-  inline void Redraw_Menu();
+  inline void Redraw_Menu(bool lastselection=false, bool lastmenu=false);
   inline void Redraw_Screen();
 
 

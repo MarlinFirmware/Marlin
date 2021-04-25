@@ -411,12 +411,12 @@ inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uin
   DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection-scrollpos) - 18, 14, MBASE(selection-scrollpos) + 33);
 }
 
-inline void CrealityDWINClass::Redraw_Menu() {
+inline void CrealityDWINClass::Redraw_Menu(bool lastselection/*=false*/, bool lastmenu/*=false*/) {
   if (active_menu == MainMenu) {
     Draw_Main_Menu(selection);
   }
   else {
-    Draw_Menu(active_menu, selection, scrollpos);
+    Draw_Menu((lastmenu) ? last_menu : active_menu, (lastselection) ? last_selection : selection, (lastmenu) ? 0 : scrollpos);
   }
 }
 
@@ -3738,7 +3738,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else {
               thermalManager.setTargetHotend(0, 0);
               thermalManager.set_fan_speed(0, 0);
-              Draw_Menu(last_menu, last_selection);
+              Redraw_Menu(true, true);
             }
             break;
           #if (PREHEAT_COUNT >= 1)
@@ -3844,7 +3844,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                     break;
                 #endif
               }
-              Draw_Menu(last_menu, last_selection);
+              Redraw_Menu(true, true);
             }
             break;
         }
@@ -4570,7 +4570,7 @@ inline void CrealityDWINClass::Popup_Control() {
           Draw_Menu(PreheatHotend);
         }
         else {
-          Redraw_Menu();
+          Redraw_Menu(true);
         }
         break;
       case ConfFilChange:
@@ -4588,10 +4588,10 @@ inline void CrealityDWINClass::Popup_Control() {
             sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
             gcode.process_subcommands_now_P(buf);
             planner.synchronize();
-            Redraw_Menu();
+            Redraw_Menu(true);
           }
         } else {
-          Redraw_Menu();
+          Redraw_Menu(true);
         }
         break;
       case ConfLevel:
