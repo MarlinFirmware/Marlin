@@ -214,7 +214,7 @@ enum colorID : uint8_t {
   Default, White, Green, Cyan, Blue, Magenta, Red, Orange, Yellow, Brown, Black
 };
 
-#define Custom_Colors       9
+#define Custom_Colors       10
 #define Color_White         0xFFFF
 #define Color_Light_White   0xBDD7
 #define Color_Green         0x07E0
