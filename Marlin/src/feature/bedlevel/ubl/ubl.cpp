@@ -311,10 +311,10 @@ void GcodeSuite::M1004() {
     process_subcommands_now_P(PSTR ("G29P3\nG29P3"));
 
   if (parser.seen('S')) { 
-  static int16_t SLOT_SELECT = 0;  
-  SLOT_SELECT = parser.seenval('S');  
+  static int16_t slot_select = 0;  
+  slot_select = parser.seenval('S');  
   char ubl_lcd_gcode[16];
-    sprintf_P(ubl_lcd_gcode, PSTR("G29 Si%"), SLOT_SELECT);
+    sprintf_P(ubl_lcd_gcode, PSTR("G29 Si%"), slot_select);
     queue.inject(ubl_lcd_gcode);    
   }
 
