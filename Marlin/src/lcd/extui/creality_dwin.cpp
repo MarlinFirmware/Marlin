@@ -50,11 +50,13 @@ namespace ExtUI {
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
+    CrealityDWIN.Save_Settings();
     memcpy(buff, &CrealityDWIN.eeprom_settings, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
   }
 
   void onLoadSettings(const char *buff) {
     memcpy(&CrealityDWIN.eeprom_settings, buff, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
+    CrealityDWIN.Load_Settings();
   }
 
   void onConfigurationStoreWritten(bool success) {}
@@ -87,7 +89,7 @@ namespace ExtUI {
           CrealityDWIN.Confirm_Handler((char*)"Temp too high");
           break;
         case PID_TUNING_TIMEOUT:
-          CrealityDWIN.Confirm_Handler((char*)"PID Timout");
+          CrealityDWIN.Confirm_Handler((char*)"PID Timeout");
           break;
         case PID_DONE:
           CrealityDWIN.Confirm_Handler((char*)"PID Done");
