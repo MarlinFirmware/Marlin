@@ -609,12 +609,15 @@ void _menu_ubl_tools() {
  */
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[32];
-  #if HAS_HEATED_BED
+  #if HAS_HEATED_BED && HAS_HOTEND
     sprintf_P(ubl_lcd_gcode, PSTR("M1004 B%i H%i S%i"), custom_bed_temp, custom_hotend_temp, umw_mesh_slot);
     queue.inject(ubl_lcd_gcode);  
+  #elif HAS_HOTEND
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004 H%i S%i"), custom_hotend_temp, umw_mesh_slot);
+    queue.inject(ubl_lcd_gcode); 
   #else
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004"));
-    queue.inject(ubl_lcd_gcode);  
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004 S%i"), umw_mesh_slot);
+    queue.inject(ubl_lcd_gcode);   
   #endif  
   }
 
