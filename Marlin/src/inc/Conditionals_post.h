@@ -2910,9 +2910,9 @@
     #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
   #endif
   #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
   #else
-    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_HOMING_HEIGHT
   #endif
   #ifndef Z_CLEARANCE_MULTI_PROBE
     #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
@@ -2922,8 +2922,14 @@
   #endif
 #endif
 
-#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
-  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+// Define a starting height for measuring manual probe points
+#ifndef MANUAL_PROBE_START_Z
+  #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+    // Leave MANUAL_PROBE_START_Z undefined so the prior Z height will be used.
+    // Note: If Z_CLEARANCE_BETWEEN_MANUAL_PROBES is 0 there will be no raise between points
+  #elif ENABLED(AUTO_BED_LEVELING_UBL) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+    #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+  #endif
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
