@@ -260,14 +260,14 @@ bool unified_bed_leveling::sanity_check() {
  */
 void GcodeSuite::M1004() {
 
-  bool got_temp_hotend = false,
-       got_temp_bed = false;
-  celsius_t hotend_temp = 0,
-            temp = 0;
-  bool no_wait_for_cooling_hotend = false,
-       no_wait_for_cooling_bed = false;
+  #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
+  #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R255")
 
-#if HAS_HOTEND
+  #if HAS_HOTEND
+  celsius_t hotend_temp = 0;      
+  bool no_wait_for_cooling_hotend = false;
+  bool got_temp_hotend = false;
+
   if (!got_temp_hotend) {
     got_temp_hotend = parser.seenval('H');
   if (got_temp_hotend) hotend_temp = parser.value_celsius();
@@ -282,9 +282,12 @@ void GcodeSuite::M1004() {
     thermalManager.setTargetHotend(hotend_temp, 0);
     thermalManager.wait_for_hotend(no_wait_for_cooling_hotend);
   }
-#endif
+  #endif
 
-#if HAS_HEATED_BED
+  #if HAS_HEATED_BED
+  celsius_t temp = 0;
+  bool no_wait_for_cooling_bed = false;
+  bool got_temp_bed = false;
 
   if (!got_temp_bed) {
     got_temp_bed = parser.seenval('B');
@@ -300,18 +303,23 @@ void GcodeSuite::M1004() {
     thermalManager.setTargetBed(temp);
     thermalManager.wait_for_bed(no_wait_for_cooling_bed);
   }
+  #endif
 
-#endif
-
-  #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
-  #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R255")
     process_subcommands_now_P(PSTR ("G28"));
     process_subcommands_now_P(PSTR (ALIGN_GCODE));
     process_subcommands_now_P(PSTR (PROBE_GCODE));
     process_subcommands_now_P(PSTR ("G29P3\nG29P3"));
-    process_subcommands_now_P(PSTR ("G29S0\nG29A"));
-    process_subcommands_now_P(PSTR ("G29F10\nM140S0"));
-    process_subcommands_now_P(PSTR ("M104S0\nM500"));
+
+  if (parser.seen('S')) { 
+  static int16_t SLOT_SELECT = 0;    
+  char ubl_lcd_gcode[16];
+    sprintf_P(ubl_lcd_gcode, PSTR("G29 Si%"), SLOT_SELECT);
+    queue.inject(ubl_lcd_gcode);    
+  }
+
+    process_subcommands_now_P(PSTR ("nG29A\nG29F10"));
+    process_subcommands_now_P(PSTR ("M140S0\nM104S0"));
+    process_subcommands_now_P(PSTR ("M500"));
 }
 
 #endif // AUTO_BED_LEVELING_UBL
