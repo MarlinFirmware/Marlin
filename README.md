@@ -60,7 +60,7 @@ respond typically within 1 working day. If you do not need anything printed or a
 
 All configuration options intended to be adjusted by end users have been placed in the top section of Configuration.h and have been documented there. There is typically a break line to segregate the standard
 configuration below. Anything aside from the upper options is intended for advanced users only.
-Please keep in mind when flashing the Creality 32 bit boards with the bin files that occasionally they will not accept particular filenames. This is most common with reflashing after an aborted flash. The machine stores the filename it was flashed with so renaming the file to simply firmware.bin/firmware1.bin  ect will typically resolve any issue with file names.
+Please keep in mind when flashing the Creality 32 bit boards with the binary files (.bin) that occasionally they will not accept particular filenames. This is most common with reflashing after an aborted flash. The machine stores the filename it was last flashed with, so renaming the file to something such as firmware.bin or firmware1.bin (anything different than what it is now) will typically resolve any issue with file names.
 
 ## Known Issues
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
