@@ -5,5 +5,6 @@
 Import("env")
 
 from datetime import datetime
-
-env['PROGNAME'] = datetime.now().strftime("firmware-%Y%m%d-%H%M%S")
+env_name = str(env["PIOENV"])
+env['PROGNAME'] = "firmware_%s_DW7.3" % (env_name)
+#env['PROGNAME'] .= datetime.now().strftime("-%Y%m%d-%H%M%S")
