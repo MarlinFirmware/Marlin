@@ -2,7 +2,7 @@
 #######################################
 #
 # Marlin 3D Printer Firmware
-# Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+# Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
 #
 # Based on Sprinter and grbl.
 # Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 #######################################
 
@@ -72,13 +72,12 @@
 from __future__ import print_function
 from __future__ import division
 
-import sys
-import os
+import sys,os
 
 pwd = os.getcwd()  # make sure we're executing from the correct directory level
 pwd = pwd.replace('\\', '/')
-if 0 <= pwd.find('buildroot/share/atom'):
-  pwd = pwd[:pwd.find('buildroot/share/atom')]
+if 0 <= pwd.find('buildroot/share/vscode'):
+  pwd = pwd[:pwd.find('buildroot/share/vscode')]
   os.chdir(pwd)
 print('pwd: ', pwd)
 
@@ -600,13 +599,13 @@ def get_env(board_name, ver_Marlin):
           target_env = 'DUE_USB'
         else:
           target_env = 'DUE'
-    elif env_A == 'STM32F103RC_bigtree' or env_A == 'STM32F103RE_bigtree':
-      if env_A == 'STM32F103RE_bigtree':
+    elif env_A == 'STM32F103RC_btt' or env_A == 'STM32F103RE_btt':
+      if env_A == 'STM32F103RE_btt':
         get_answer(board_name, 'MCU Type?', 'STM32F103RC', 'STM32F103RE')
         if 1 == get_answer_val:
-          env_A = 'STM32F103RC_bigtree'
+          env_A = 'STM32F103RC_btt'
       target_env = env_A
-      if env_A == 'STM32F103RC_bigtree':
+      if env_A == 'STM32F103RC_btt':
         get_answer(board_name, 'RCT6 Flash Size?', '512K', '256K')
         if 1 == get_answer_val:
           target_env += '_512K'

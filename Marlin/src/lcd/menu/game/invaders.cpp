@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -170,7 +170,7 @@ inline void update_invader_data() {
     uint8_t m = idat.bugs[y];
     if (m) idat.botmost = y + 1;
     inv_mask |= m;
-    for (uint8_t x = 0; x < INVADER_COLS; ++x)
+    LOOP_L_N(x, INVADER_COLS)
       if (TEST(m, x)) idat.shooters[sc++] = (y << 4) | x;
   }
   idat.leftmost = 0;
@@ -371,11 +371,11 @@ void InvadersGame::game_screen() {
   // Draw invaders
   if (PAGE_CONTAINS(idat.pos.y, idat.pos.y + idat.botmost * (INVADER_ROW_H) - 2 - 1)) {
     int8_t yy = idat.pos.y;
-    for (uint8_t y = 0; y < INVADER_ROWS; ++y) {
+    LOOP_L_N(y, INVADER_ROWS) {
       const uint8_t type = inv_type[y];
       if (PAGE_CONTAINS(yy, yy + INVADER_H - 1)) {
         int8_t xx = idat.pos.x;
-        for (uint8_t x = 0; x < INVADER_COLS; ++x) {
+        LOOP_L_N(x, INVADER_COLS) {
           if (TEST(idat.bugs[y], x))
             u8g.drawBitmapP(xx, yy, 2, INVADER_H, invader[type][idat.game_blink]);
           xx += INVADER_COL_W;

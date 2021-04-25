@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,13 +29,13 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -63,11 +63,8 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-#if HOTENDS > 1
+#if ENABLED(HAS_MULTI_HOTEND)
   const uint8_t old_tool_index = active_extruder;
-  #define AC_CLEANUP() ac_cleanup(old_tool_index)
-#else
-  #define AC_CLEANUP() ac_cleanup()
 #endif
 
 float lcd_probe_pt(const xy_pos_t &xy);
@@ -79,9 +76,7 @@ void ac_home() {
 }
 
 void ac_setup(const bool reset_bed) {
-  #if HOTENDS > 1
-    tool_change(0, true);
-  #endif
+  TERN_(HAS_MULTI_HOTEND, tool_change(0, true));
 
   planner.synchronize();
   remember_feedrate_scaling_off();
@@ -91,26 +86,16 @@ void ac_setup(const bool reset_bed) {
   #endif
 }
 
-void ac_cleanup(
-  #if HOTENDS > 1
-    const uint8_t old_tool_index
-  #endif
-) {
-  #if ENABLED(DELTA_HOME_TO_SAFE_ZONE)
-    do_blocking_move_to_z(delta_clip_start_height);
-  #endif
-  #if HAS_BED_PROBE
-    STOW_PROBE();
-  #endif
+void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+  TERN_(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
-  #if HOTENDS > 1
-    tool_change(old_tool_index, true);
-  #endif
+  TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
-void print_signed_float(PGM_P const prefix, const float &f) {
+void print_signed_float(PGM_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
-  serialprintPGM(prefix);
+  SERIAL_ECHOPGM_P(prefix);
   SERIAL_CHAR(':');
   if (f >= 0) SERIAL_CHAR('+');
   SERIAL_ECHO_F(f, 2);
@@ -190,7 +175,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
+    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true, false);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);
@@ -402,6 +387,8 @@ static float auto_tune_a() {
  */
 void GcodeSuite::G33() {
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
     SERIAL_ECHOLNPGM("?(P)oints implausible (0-10).");
@@ -465,8 +452,8 @@ void GcodeSuite::G33() {
   }
 
   // Report settings
-  PGM_P checkingac = PSTR("Checking... AC");
-  serialprintPGM(checkingac);
+  PGM_P const checkingac = PSTR("Checking... AC");
+  SERIAL_ECHOPGM_P(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status_P(checkingac);
@@ -488,7 +475,7 @@ void GcodeSuite::G33() {
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
-      return AC_CLEANUP();
+      return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
 
@@ -641,8 +628,8 @@ void GcodeSuite::G33() {
       }
     }
     else { // dry run
-      PGM_P enddryrun = PSTR("End DRY-RUN");
-      serialprintPGM(enddryrun);
+      PGM_P const enddryrun = PSTR("End DRY-RUN");
+      SERIAL_ECHOPGM_P(enddryrun);
       SERIAL_ECHO_SP(35);
       SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
 
@@ -659,7 +646,9 @@ void GcodeSuite::G33() {
   }
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
-  AC_CLEANUP();
+  ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // DELTA_AUTO_CALIBRATION

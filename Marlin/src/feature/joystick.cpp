@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,12 +32,11 @@
 
 #include "../inc/MarlinConfig.h"  // for pins
 #include "../module/planner.h"
-#include "../module/temperature.h"
 
 Joystick joystick;
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #if HAS_JOY_ADC_X
@@ -127,6 +126,11 @@ Joystick joystick;
     static bool injecting_now; // = false;
     if (injecting_now) return;
 
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+        return;
+    #endif
+
     static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag
                            seg_time = target_lag / QUEUE_DEPTH;          // 0.05 seconds, short segments inserted every 1/20th of a second
@@ -154,9 +158,7 @@ Joystick joystick;
     // Other non-joystick poll-based jogging could be implemented here
     // with "jogging" encapsulated as a more general class.
 
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::_joystick_update(norm_jog);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::_joystick_update(norm_jog));
 
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     xyz_float_t move_dist{0};
@@ -164,7 +166,7 @@ Joystick joystick;
     LOOP_XYZ(i) if (norm_jog[i]) {
       move_dist[i] = seg_time * norm_jog[i] *
         #if ENABLED(EXTENSIBLE_UI)
-          MMM_TO_MMS(manual_feedrate_mm_m[i]);
+          manual_feedrate_mm_s[i];
         #else
           planner.settings.max_feedrate_mm_s[i];
         #endif
@@ -173,6 +175,7 @@ Joystick joystick;
 
     if (!UNEAR_ZERO(hypot2)) {
       current_position += move_dist;
+      apply_motion_limits(current_position);
       const float length = sqrt(hypot2);
       injecting_now = true;
       planner.buffer_line(current_position, length / seg_time, active_extruder, length);

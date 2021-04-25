@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,8 +25,7 @@
  * Bulgarian
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
 #define DISPLAY_CHARSET_ISO10646_5
@@ -41,25 +40,28 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Картата е поставена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Картата е извадена");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Изкл. двигатели");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Паркиране");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Изходна точка");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Подгряване ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Настройки ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Подгряване ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Подгряване ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Подгряване ") PREHEAT_2_LABEL _UxGT(" Дюза");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Подгряване ") PREHEAT_2_LABEL _UxGT(" Дюза ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Подгр. ") PREHEAT_2_LABEL _UxGT(" Всички");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Подгр. ") PREHEAT_2_LABEL _UxGT(" Легло");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Настройки ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Подгряване ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Настройки ") PREHEAT_1_LABEL;
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Подгряване $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Подгряване $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Подгряване $ Дюза");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Подгряване $ Дюза ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Подгр. $ Всички");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Подгр. $ Легло");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Настройки $");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Охлаждане");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Вкл. захранване");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Изкл. захранване");
@@ -73,7 +75,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Движение по Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Премести с %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Премести с %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Премести с 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Премести с 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Премести с 10mm");
@@ -104,13 +106,13 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Нишка");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Диам. нишка");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Диам. нишка *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD контраст");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Запази в EPROM");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Зареди от EPROM");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Фабрични настройки");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Фабрични настройки");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("Обнови");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Преглед");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Действия");
@@ -136,7 +138,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Автоoткат");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Смяна нишка");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Смяна нишка *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Иниц. SD-Карта");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Иниц. SD-Карта");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Смяна SD-Карта");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z-сондата е извадена");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Z Отстояние");
@@ -149,5 +151,5 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Калибровка Y");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Калибровка Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Калибровка Център");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Неправилен принтер");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Неправилен принтер");
 }

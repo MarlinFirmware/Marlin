@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,10 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+#if !defined(__has_include)
+  #define __has_include(...) 1
+#endif
 
 #define ABCE 4
 #define XYZE 4
@@ -49,6 +53,7 @@
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
+#define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
 #define _O0          __attribute__((optimize("O0")))
 #define _Os          __attribute__((optimize("Os")))
@@ -56,12 +61,10 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
+#define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
+
 #ifndef UNUSED
-  #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-    #define UNUSED(X) (void)X
-  #else
-    #define UNUSED(x) ((void)(x))
-  #endif
+  #define UNUSED(x) ((void)(x))
 #endif
 
 // Clock speed factors
@@ -71,13 +74,6 @@
 
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
-
-// Macros to make sprintf_P read from PROGMEM (AVR extension)
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -91,29 +87,29 @@
 #define _BV(n) (1<<(n))
 #define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-
 #ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
+  #define SBI(A,B) (A |= _BV(B))
 #endif
-
 #ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
+  #define CBI(A,B) (A &= ~_BV(B))
 #endif
-
+#define TBI(N,B) (N ^= _BV(B))
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
+#define TBI32(N,B) (N ^= _BV32(B))
 
-#define cu(x)      ((x)*(x)*(x))
+#define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
-#define SIGN(a) ((a>0)-(a<0))
+#define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
@@ -133,31 +129,29 @@
 
 #else
 
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
   #define NOLESS(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n > v) v = _n; \
     }while(0)
 
   #define NOMORE(v, n) \
     do{ \
-      __typeof__(n) _n = (n); \
+      __typeof__(v) _n = (n); \
       if (_n < v) v = _n; \
     }while(0)
 
   #define LIMIT(v, n1, n2) \
     do{ \
-      __typeof__(n1) _n1 = (n1); \
-      __typeof__(n2) _n2 = (n2); \
+      __typeof__(v) _n1 = (n1); \
+      __typeof__(v) _n2 = (n2); \
       if (_n1 > v) v = _n1; \
       else if (_n2 < v) v = _n2; \
     }while(0)
 
 #endif
 
-// Macros to chain up to 12 conditions
+// Macros to chain up to 14 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
 #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
@@ -170,43 +164,70 @@
 #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
 #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
 #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+#define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
+#define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+#define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
-#define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
+#define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
 
 // Macros to support option testing
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
-#define _DIS_1(O)           !_ENA_1(O)
+
+#define _ISENA_     ~,1
+#define _ISENA_1    ~,1
+#define _ISENA_0x1  ~,1
+#define _ISENA_true ~,1
+#define _ISENA(V...)        IS_PROBE(V)
+
+#define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+#define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+#define COUNT_ENABLED(V...) DO(ENA,+,V)
+
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
+#define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
+#define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
+#define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
+
+#define IF_ENABLED          TERN_
+#define IF_DISABLED(O,A)    TERN(O,,A)
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
 #define ALL(V...)           ENABLED(V)
 #define BOTH(V1,V2)         ALL(V1,V2)
 #define EITHER(V1,V2)       ANY(V1,V2)
+#define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
+#define ISEOL(C)            ((C) == '\n' || (C) == '\r')
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
+#define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
@@ -241,6 +262,11 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
 #define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
@@ -257,7 +283,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.0000005f : 0.0000005f);})
 
 //
 // Maths macros that can be overridden by HAL
@@ -269,15 +295,10 @@
 #define RSQRT(x)    (1.0f / sqrtf(x))
 #define CEIL(x)     ceilf(x)
 #define FLOOR(x)    floorf(x)
+#define TRUNC(x)    truncf(x)
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
@@ -303,6 +324,93 @@
     }
 
   #endif
+
+  // Allow manipulating enumeration value like flags without ugly cast everywhere
+  #define ENUM_FLAGS(T) \
+    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
+    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+
+  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
+  namespace Private {
+    template<bool, typename _Tp = void> struct enable_if { };
+    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
+
+    template<typename T, typename U> struct is_same { enum { value = false }; };
+    template<typename T> struct is_same<T, T> { enum { value = true }; };
+
+    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
+    template <typename T> struct first_type_of<T> { typedef T type; };
+  }
+  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
+  #define HAS_MEMBER_IMPL(Member) \
+    namespace Private { \
+      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
+        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
+        template <typename C> static No& test(...); \
+        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+    }
+
+  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
+  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
+  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
+    HAS_MEMBER_IMPL(Method) \
+    namespace Private { \
+      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
+                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
+    }
+  #define CALL_IF_EXISTS(Return, That, Method, ...) \
+    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a specific character
+    constexpr bool contains(const char *str, const char ch) {
+      return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
+    }
+    // Find the last position of the specific character (should be called with findStringEnd)
+    constexpr const char* findLastPos(const char *str, const char ch) {
+      return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char *str) {
+      return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
+    }
+
+    // Find the first occurence of a character in a string (or return the last position in the string)
+    constexpr const char* findFirst(const char *str, const char ch) {
+      return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
+    }
+    // Compute the string length at compile time
+    constexpr unsigned stringLen(const char *str) {
+      return *str == 0 ? 0 : 1 + stringLen(str + 1);
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
+  /** Get the templated type name. This does not depends on RTTI, but on the preprocessor, so it should be quite safe to use even on old compilers.
+      WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
+      The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
+  template <typename T>
+  inline const char* gtn(T*) {
+    // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
+    constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
+    static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
+    __builtin_memcpy(templateType, __PRETTY_FUNCTION__ + verboseChatLen, sizeof(__PRETTY_FUNCTION__) - verboseChatLen - 2);
+    return templateType;
+  }
 
 #else
 
@@ -335,15 +443,22 @@
 #endif
 
 // Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
+#define INC_0   1
+#define INC_1   2
+#define INC_2   3
+#define INC_3   4
+#define INC_4   5
+#define INC_5   6
+#define INC_6   7
+#define INC_7   8
+#define INC_8   9
+#define INC_9  10
+#define INC_10 11
+#define INC_11 12
+#define INC_12 13
+#define INC_13 14
+#define INC_14 15
+#define INC_15 16
 #define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 
@@ -360,16 +475,22 @@
 #define ADD10(N) ADD5(ADD5(N))
 
 // Macros for subtracting
-#define DEC_0 0
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
+#define DEC_0   0
+#define DEC_1   0
+#define DEC_2   1
+#define DEC_3   2
+#define DEC_4   3
+#define DEC_5   4
+#define DEC_6   5
+#define DEC_7   6
+#define DEC_8   7
+#define DEC_9   8
+#define DEC_10  9
+#define DEC_11 10
+#define DEC_12 11
+#define DEC_13 12
+#define DEC_14 13
+#define DEC_15 14
 #define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
 
@@ -388,8 +509,9 @@
 //
 // Primitives supporting precompiler REPEAT
 //
-#define FIRST(a,...)    a
-#define SECOND(a,b,...) b
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
 
 // Defer expansion
 #define EMPTY()
@@ -430,6 +552,12 @@
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
 
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
+
 //
 // REPEAT core macros. Recurse N times with ascending I.
 //
@@ -457,3 +585,32 @@
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
 #define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+
+// See https://github.com/swansontec/map-macro
+#define MAP_OUT
+#define MAP_END(...)
+#define MAP_GET_END() 0, MAP_END
+#define MAP_NEXT0(test, next, ...) next MAP_OUT
+#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
+#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
+#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
+#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
+#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))

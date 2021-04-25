@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,7 +29,7 @@
   #include "../../../module/motion.h"
 
   #if ENABLED(EXTENSIBLE_UI)
-    #include "../../../lcd/extensible_ui/ui_api.h"
+    #include "../../../lcd/extui/ui_api.h"
   #endif
 
   mesh_bed_leveling mbl;
@@ -40,9 +40,9 @@
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
+    LOOP_L_N(i, GRID_MAX_POINTS_X)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
+    LOOP_L_N(i, GRID_MAX_POINTS_Y)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
@@ -51,9 +51,7 @@
     z_offset = 0;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-          ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
   }
 
@@ -63,18 +61,18 @@
      * Prepare a mesh-leveled linear move in a Cartesian setup,
      * splitting the move where it crosses mesh borders.
      */
-    void mesh_bed_leveling::line_to_destination(const feedRate_t &scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
+    void mesh_bed_leveling::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
       xy_int8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
-      NOMORE(scel.x, GRID_MAX_POINTS_X - 2);
-      NOMORE(scel.y, GRID_MAX_POINTS_Y - 2);
-      NOMORE(ecel.x, GRID_MAX_POINTS_X - 2);
-      NOMORE(ecel.y, GRID_MAX_POINTS_Y - 2);
+      NOMORE(scel.x, GRID_MAX_CELLS_X - 1);
+      NOMORE(scel.y, GRID_MAX_CELLS_Y - 1);
+      NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
+      NOMORE(ecel.y, GRID_MAX_CELLS_Y - 1);
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        line_to_destination(scaled_fr_mm_s);
         current_position = destination;
+        line_to_current_position(scaled_fr_mm_s);
         return;
       }
 
@@ -106,8 +104,8 @@
       else {
         // Must already have been split on these border(s)
         // This should be a rare case.
-        line_to_destination(scaled_fr_mm_s);
         current_position = destination;
+        line_to_current_position(scaled_fr_mm_s);
         return;
       }
 

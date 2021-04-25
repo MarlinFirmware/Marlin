@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -40,7 +40,7 @@
   #include "TMC26X.h"
 #endif
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
   #include "trinamic.h"
 #endif
 
@@ -185,18 +185,18 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #ifndef Z4_ENABLE_INIT
     #define Z4_ENABLE_INIT() SET_OUTPUT(Z4_ENABLE_PIN)
     #define Z4_ENABLE_WRITE(STATE) WRITE(Z4_ENABLE_PIN,STATE)
-    #define Z4_ENABLE_READ() READ(Z4_ENABLE_PIN)
+    #define Z4_ENABLE_READ() bool(READ(Z4_ENABLE_PIN))
   #endif
   #ifndef Z4_DIR_INIT
     #define Z4_DIR_INIT() SET_OUTPUT(Z4_DIR_PIN)
     #define Z4_DIR_WRITE(STATE) WRITE(Z4_DIR_PIN,STATE)
-    #define Z4_DIR_READ() READ(Z4_DIR_PIN)
+    #define Z4_DIR_READ() bool(READ(Z4_DIR_PIN))
   #endif
-  #define Z4_STEP_INIT SET_OUTPUT(Z4_STEP_PIN)
+  #define Z4_STEP_INIT() SET_OUTPUT(Z4_STEP_PIN)
   #ifndef Z4_STEP_WRITE
     #define Z4_STEP_WRITE(STATE) WRITE(Z4_STEP_PIN,STATE)
   #endif
-  #define Z4_STEP_READ READ(Z4_STEP_PIN)
+  #define Z4_STEP_READ() bool(READ(Z4_STEP_PIN))
 #else
   #define Z4_DIR_WRITE(STATE) NOOP
 #endif
@@ -417,12 +417,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(E ?  INVERT_E0_DIR : !INVERT_E0_DIR); }while(0)
     #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(E ? !INVERT_E0_DIR :  INVERT_E0_DIR); }while(0)
   #endif
-#elif ENABLED(PRUSA_MMU2)
+
+#elif HAS_PRUSA_MMU2
+
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
   #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
 
-#elif ENABLED(MK2_MULTIPLEXER) // One multiplexed stepper driver, reversed on odd index
+#elif HAS_PRUSA_MMU1  // One multiplexed stepper driver, reversed on odd index
+
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? !INVERT_E0_DIR:  INVERT_E0_DIR); }while(0)
   #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ?  INVERT_E0_DIR: !INVERT_E0_DIR); }while(0)
@@ -840,59 +843,54 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 //
 // Axis steppers enable / disable macros
 //
+#if ENABLED(SOFTWARE_DRIVER_ENABLE)
+  // Avoid expensive calls to enable / disable steppers
+  extern xyz_bool_t axis_sw_enabled;
+  #define SHOULD_ENABLE(N)  !axis_sw_enabled.N
+  #define SHOULD_DISABLE(N)  axis_sw_enabled.N
+  #define AFTER_CHANGE(N,TF) axis_sw_enabled.N = TF
+#else
+  #define SHOULD_ENABLE(N)   true
+  #define SHOULD_DISABLE(N)  true
+  #define AFTER_CHANGE(N,TF) NOOP
+#endif
 
-#define  ENABLE_AXIS_X() do{ ENABLE_STEPPER_X(); ENABLE_STEPPER_X2(); }while(0)
-#define DISABLE_AXIS_X() do{ DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); CBI(axis_known_position, X_AXIS); }while(0)
+#define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
+#define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+#define  ENABLE_AXIS_Y() if (SHOULD_ENABLE(y))  {  ENABLE_STEPPER_Y();  ENABLE_STEPPER_Y2(); AFTER_CHANGE(y, true); }
+#define DISABLE_AXIS_Y() if (SHOULD_DISABLE(y)) { DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); AFTER_CHANGE(y, false); set_axis_untrusted(Y_AXIS); }
+#define  ENABLE_AXIS_Z() if (SHOULD_ENABLE(z))  {  ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); AFTER_CHANGE(z, true); }
+#define DISABLE_AXIS_Z() if (SHOULD_DISABLE(z)) { DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); AFTER_CHANGE(z, false); set_axis_untrusted(Z_AXIS); Z_RESET(); }
 
-#define  ENABLE_AXIS_Y() do{ ENABLE_STEPPER_Y(); ENABLE_STEPPER_Y2(); }while(0)
-#define DISABLE_AXIS_Y() do{ DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); CBI(axis_known_position, Y_AXIS); }while(0)
-
-#define  ENABLE_AXIS_Z() do{ ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
-#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); }while(0)
+#ifdef Z_IDLE_HEIGHT
+  #define Z_RESET() do{ current_position.z = Z_IDLE_HEIGHT; sync_plan_position(); }while(0)
+#else
+  #define Z_RESET()
+#endif
 
 //
 // Extruder steppers enable / disable macros
 //
 
 #if ENABLED(MIXING_EXTRUDER)
-
   /**
    * Mixing steppers keep all their enable (and direction) states synchronized
    */
-  #if MIXING_STEPPERS > 7
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3();  ENABLE_STEPPER_E4();  ENABLE_STEPPER_E5();  ENABLE_STEPPER_E6();  ENABLE_STEPPER_E7(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); DISABLE_STEPPER_E3(); DISABLE_STEPPER_E4(); DISABLE_STEPPER_E5(); DISABLE_STEPPER_E6(); DISABLE_STEPPER_E7(); }
-  #elif MIXING_STEPPERS > 6
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3();  ENABLE_STEPPER_E4();  ENABLE_STEPPER_E5();  ENABLE_STEPPER_E6(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); DISABLE_STEPPER_E3(); DISABLE_STEPPER_E4(); DISABLE_STEPPER_E5(); DISABLE_STEPPER_E6(); }
-  #elif MIXING_STEPPERS > 5
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3();  ENABLE_STEPPER_E4();  ENABLE_STEPPER_E5(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); DISABLE_STEPPER_E3(); DISABLE_STEPPER_E4(); DISABLE_STEPPER_E5(); }
-  #elif MIXING_STEPPERS > 4
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3();  ENABLE_STEPPER_E4(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); DISABLE_STEPPER_E3(); DISABLE_STEPPER_E4(); }
-  #elif MIXING_STEPPERS > 3
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2();  ENABLE_STEPPER_E3(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); DISABLE_STEPPER_E3(); }
-  #elif MIXING_STEPPERS > 2
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1();  ENABLE_STEPPER_E2(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); DISABLE_STEPPER_E2(); }
-  #else
-    #define  ENABLE_AXIS_E0() { ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1(); }
-    #define DISABLE_AXIS_E0() { DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); }
-  #endif
-
-#endif // !MIXING_EXTRUDER
+  #define _CALL_ENA_E(N)  ENABLE_STEPPER_E##N () ;
+  #define _CALL_DIS_E(N) DISABLE_STEPPER_E##N () ;
+  #define  ENABLE_AXIS_E0() { RREPEAT(MIXING_STEPPERS, _CALL_ENA_E) }
+  #define DISABLE_AXIS_E0() { RREPEAT(MIXING_STEPPERS, _CALL_DIS_E) }
+#endif
 
 #ifndef ENABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
   #else
     #define  ENABLE_AXIS_E0() NOOP
   #endif
 #endif
 #ifndef DISABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_DISABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
   #else
     #define DISABLE_AXIS_E0() NOOP
@@ -907,7 +905,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E1
-  #if E_STEPPERS > 1 && HAS_E1_DISABLE
+  #if E_STEPPERS > 1 && HAS_E1_ENABLE
     #define DISABLE_AXIS_E1() DISABLE_STEPPER_E1()
   #else
     #define DISABLE_AXIS_E1() NOOP
@@ -922,7 +920,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E2
-  #if E_STEPPERS > 2 && HAS_E2_DISABLE
+  #if E_STEPPERS > 2 && HAS_E2_ENABLE
     #define DISABLE_AXIS_E2() DISABLE_STEPPER_E2()
   #else
     #define DISABLE_AXIS_E2() NOOP
@@ -937,7 +935,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E3
-  #if E_STEPPERS > 3 && HAS_E3_DISABLE
+  #if E_STEPPERS > 3 && HAS_E3_ENABLE
     #define DISABLE_AXIS_E3() DISABLE_STEPPER_E3()
   #else
     #define DISABLE_AXIS_E3() NOOP
@@ -952,7 +950,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E4
-  #if E_STEPPERS > 4 && HAS_E4_DISABLE
+  #if E_STEPPERS > 4 && HAS_E4_ENABLE
     #define DISABLE_AXIS_E4() DISABLE_STEPPER_E4()
   #else
     #define DISABLE_AXIS_E4() NOOP
@@ -967,7 +965,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E5
-  #if E_STEPPERS > 5 && HAS_E5_DISABLE
+  #if E_STEPPERS > 5 && HAS_E5_ENABLE
     #define DISABLE_AXIS_E5() DISABLE_STEPPER_E5()
   #else
     #define DISABLE_AXIS_E5() NOOP
@@ -982,7 +980,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E6
-  #if E_STEPPERS > 6 && HAS_E6_DISABLE
+  #if E_STEPPERS > 6 && HAS_E6_ENABLE
     #define DISABLE_AXIS_E6() DISABLE_STEPPER_E6()
   #else
     #define DISABLE_AXIS_E6() NOOP
@@ -997,7 +995,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 #ifndef DISABLE_AXIS_E7
-  #if E_STEPPERS > 7 && HAS_E7_DISABLE
+  #if E_STEPPERS > 7 && HAS_E7_ENABLE
     #define DISABLE_AXIS_E7() DISABLE_STEPPER_E7()
   #else
     #define DISABLE_AXIS_E7() NOOP

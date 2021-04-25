@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,16 +41,16 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHO(temp_buf);
     print_bin(sh.STATUS_AXIS_RAW);
     switch (sh.STATUS_AXIS_LAYOUT) {
-      case L6470_STATUS_LAYOUT: serialprintPGM(PSTR("   L6470")); break;
-      case L6474_STATUS_LAYOUT: serialprintPGM(PSTR("   L6474")); break;
-      case L6480_STATUS_LAYOUT: serialprintPGM(PSTR("   L6480/powerSTEP01")); break;
+      case L6470_STATUS_LAYOUT: SERIAL_ECHOPGM("   L6470"); break;
+      case L6474_STATUS_LAYOUT: SERIAL_ECHOPGM("   L6474"); break;
+      case L6480_STATUS_LAYOUT: SERIAL_ECHOPGM("   L6480/powerSTEP01"); break;
     }
   #endif
   SERIAL_ECHOPGM("\n...OUTPUT: ");
-  serialprintPGM(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
+  SERIAL_ECHOPGM_P(sh.STATUS_AXIS & STATUS_HIZ ? PSTR("OFF") : PSTR("ON "));
   SERIAL_ECHOPGM("   BUSY: "); echo_yes_no((sh.STATUS_AXIS & STATUS_BUSY) == 0);
   SERIAL_ECHOPGM("   DIR: ");
-  serialprintPGM((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
+  SERIAL_ECHOPGM_P((((sh.STATUS_AXIS & STATUS_DIR) >> 4) ^ L64xxManager.index_to_dir[axis]) ? PSTR("FORWARD") : PSTR("REVERSE"));
   if (sh.STATUS_AXIS_LAYOUT == L6480_STATUS_LAYOUT) {
     SERIAL_ECHOPGM("   Last Command: ");
     if (sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD) SERIAL_ECHOPGM("VALID");
@@ -67,7 +67,7 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHOPGM("   Last Command: ");
     if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("IN");
     SERIAL_ECHOPGM("VALID    ");
-    serialprintPGM(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
+    SERIAL_ECHOPGM_P(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
     SERIAL_ECHOPAIR("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
   }
   SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_OCD) == 0);
@@ -135,6 +135,12 @@ void GcodeSuite::M122() {
   #endif
   #if AXIS_IS_L64XX(E5)
     L6470_say_status(E5);
+  #endif
+  #if AXIS_IS_L64XX(E6)
+    L6470_say_status(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    L6470_say_status(E7);
   #endif
 
   L64xxManager.spi_active = false;   // done with all SPI transfers - clear handshake flags

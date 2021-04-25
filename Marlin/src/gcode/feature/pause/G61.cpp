@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,6 @@
 
 #if SAVED_POSITIONS
 
-#include "../../../core/language.h"
 #include "../../../module/planner.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
@@ -42,7 +41,7 @@ void GcodeSuite::G61(void) {
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
-      SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+      SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
       return;
     }
   #endif
@@ -50,22 +49,25 @@ void GcodeSuite::G61(void) {
   // No saved position? No axes being restored?
   if (!TEST(saved_slots[slot >> 3], slot & 0x07) || !parser.seen("XYZ")) return;
 
-  // Apply any given feedrate over 0.0
-  const float fr = parser.linearval('F');
-  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
-
-  SERIAL_ECHOPAIR(MSG_RESTORING_POS " S", int(slot));
+  SERIAL_ECHOPAIR(STR_RESTORING_POS " S", slot);
   LOOP_XYZ(i) {
-    destination[i] = parser.seen(axis_codes[i])
+    destination[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
       : current_position[i];
-    SERIAL_CHAR(' ', axis_codes[i]);
+    SERIAL_CHAR(' ', XYZ_CHAR(i));
     SERIAL_ECHO_F(destination[i]);
   }
   SERIAL_EOL();
 
+  // Apply any given feedrate over 0.0
+  feedRate_t saved_feedrate = feedrate_mm_s;
+  const float fr = parser.linearval('F');
+  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
+
   // Move to the saved position
-  prepare_move_to_destination();
+  prepare_line_to_destination();
+
+  feedrate_mm_s = saved_feedrate;
 }
 
 #endif // SAVED_POSITIONS

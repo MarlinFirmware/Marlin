@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -83,7 +83,7 @@ void MazeGame::game_screen() {
   if (PAGE_UNDER(HEADER_H)) lcd_put_int(0, HEADER_H - 1, score);
 
   // Draw the maze
-  // for (uint8_t n = 0; n < head_ind; ++n) {
+  // LOOP_L_N(n, head_ind) {
   //   const pos_t &p = maze_walls[n], &q = maze_walls[n + 1];
   //   if (p.x == q.x) {
   //     const int8_t y1 = GAMEY(_MIN(p.y, q.y)), y2 = GAMEY(_MAX(p.y, q.y));

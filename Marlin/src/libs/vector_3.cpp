@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -76,10 +76,8 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
             matrix.vectors[0][2] * _x + matrix.vectors[1][2] * _y + matrix.vectors[2][2] * _z };
 }
 
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
-
 void vector_3::debug(PGM_P const title) {
-  serialprintPGM(title);
+  SERIAL_ECHOPGM_P(title);
   SERIAL_ECHOPAIR_F_P(SP_X_STR, x, 6);
   SERIAL_ECHOPAIR_F_P(SP_Y_STR, y, 6);
   SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z, 6);
@@ -89,15 +87,15 @@ void vector_3::debug(PGM_P const title) {
  *  matrix_3x3
  */
 
-void apply_rotation_xyz(const matrix_3x3 &matrix, float &_x, float &_y, float &_z) {
-  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(matrix);
+void matrix_3x3::apply_rotation_xyz(float &_x, float &_y, float &_z) {
+  vector_3 vec = vector_3(_x, _y, _z); vec.apply_rotation(*this);
   _x = vec.x; _y = vec.y; _z = vec.z;
 }
 
 // Reset to identity. No rotate or translate.
 void matrix_3x3::set_to_identity() {
-  for (uint8_t i = 0; i < 3; i++)
-    for (uint8_t j = 0; j < 3; j++)
+  LOOP_L_N(i, 3)
+    LOOP_L_N(j, 3)
       vectors[i][j] = float(i == j);
 }
 
@@ -134,19 +132,16 @@ matrix_3x3 matrix_3x3::create_look_at(const vector_3 &target) {
 // Get a transposed copy of the matrix
 matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
   matrix_3x3 new_matrix;
-  for (uint8_t i = 0; i < 3; i++)
-    for (uint8_t j = 0; j < 3; j++)
+  LOOP_L_N(i, 3)
+    LOOP_L_N(j, 3)
       new_matrix.vectors[i][j] = original.vectors[j][i];
   return new_matrix;
 }
 
 void matrix_3x3::debug(PGM_P const title) {
-  if (title != nullptr) {
-    serialprintPGM(title);
-    SERIAL_EOL();
-  }
-  for (uint8_t i = 0; i < 3; i++) {
-    for (uint8_t j = 0; j < 3; j++) {
+  if (title) SERIAL_ECHOLNPGM_P(title);
+  LOOP_L_N(i, 3) {
+    LOOP_L_N(j, 3) {
       if (vectors[i][j] >= 0.0) SERIAL_CHAR('+');
       SERIAL_ECHO_F(vectors[i][j], 6);
       SERIAL_CHAR(' ');

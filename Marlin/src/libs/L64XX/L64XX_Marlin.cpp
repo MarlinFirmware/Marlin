@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,8 +37,6 @@ L64XX_Marlin L64xxManager;
 #include "../../module/planner.h"
 #include "../../HAL/shared/Delay.h"
 
-void echo_yes_no(const bool yes) { serialprintPGM(yes ? PSTR(" YES") : PSTR(" NO ")); }
-
 static const char str_X[] PROGMEM = "X ",  str_Y[] PROGMEM = "Y ",  str_Z[] PROGMEM = "Z ",
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
                  str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",
@@ -56,20 +54,17 @@ PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
 
+void echo_yes_no(const bool yes) { DEBUG_ECHOPGM_P(yes ? PSTR(" YES") : PSTR(" NO ")); UNUSED(yes); }
+
 uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction command for each driver
 
 const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
   INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR
-  , (INVERT_X_DIR)                            // X2
-    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-      ^ (INVERT_X2_VS_X_DIR)
-    #endif
-  , (INVERT_Y_DIR)                            // Y2
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      ^ (INVERT_Y2_VS_Y_DIR)
-    #endif
-  , INVERT_Z_DIR, INVERT_Z_DIR, INVERT_Z_DIR  // Z2,Z3,Z4
-
+  , (INVERT_X_DIR) ^ BOTH(X_DUAL_STEPPER_DRIVERS, INVERT_X2_VS_X_DIR) // X2
+  , (INVERT_Y_DIR) ^ BOTH(Y_DUAL_STEPPER_DRIVERS, INVERT_Y2_VS_Y_DIR) // Y2
+  , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z2_VS_Z_DIR) // Z2
+  , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z3_VS_Z_DIR) // Z3
+  , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z4_VS_Z_DIR) // Z4
   , INVERT_E0_DIR, INVERT_E1_DIR, INVERT_E2_DIR, INVERT_E3_DIR
   , INVERT_E4_DIR, INVERT_E5_DIR, INVERT_E6_DIR, INVERT_E7_DIR
 };
@@ -126,6 +121,12 @@ void L6470_populate_chain_array() {
   #endif
   #if AXIS_IS_L64XX(E5)
     _L6470_INIT_SPI(E5);
+  #endif
+  #if AXIS_IS_L64XX(E6)
+    _L6470_INIT_SPI(E6);
+  #endif
+  #if AXIS_IS_L64XX(E7)
+    _L6470_INIT_SPI(E7);
   #endif
 }
 
@@ -240,6 +241,12 @@ uint16_t L64XX_Marlin::get_status(const L64XX_axis_t axis) {
     #if AXIS_IS_L64XX(E5)
       case E5: return STATUS_L6470(E5);
     #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: return STATUS_L6470(E6);
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: return STATUS_L6470(E7);
+    #endif
   }
 
   return 0; // Not needed but kills a compiler warning
@@ -292,6 +299,12 @@ uint32_t L64XX_Marlin::get_param(const L64XX_axis_t axis, const uint8_t param) {
     #endif
     #if AXIS_IS_L64XX(E5)
       case E5: return GET_L6470_PARAM(E5);
+    #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: return GET_L6470_PARAM(E6);
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: return GET_L6470_PARAM(E7);
     #endif
   }
 
@@ -346,17 +359,23 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
     #if AXIS_IS_L64XX(E5)
       case E5: SET_L6470_PARAM(E5); break;
     #endif
+    #if AXIS_IS_L64XX(E6)
+      case E6: SET_L6470_PARAM(E6); break;
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      case E7: SET_L6470_PARAM(E7); break;
+    #endif
   }
 }
 
-inline void echo_min_max(const char a, const float &min, const float &max) {
+inline void echo_min_max(const char a, const_float_t min, const_float_t max) {
   DEBUG_CHAR(' '); DEBUG_CHAR(a);
   DEBUG_ECHOPAIR(" min = ", min);
   DEBUG_ECHOLNPAIR("  max = ", max);
 }
-inline void echo_oct_used(const float &oct, const uint8_t stall) {
+inline void echo_oct_used(const_float_t oct, const uint8_t stall) {
   DEBUG_ECHOPAIR("over_current_threshold used     : ", oct);
-  serialprintPGM(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
+  DEBUG_ECHOPGM_P(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
   DEBUG_ECHOLNPGM(" threshold)");
 }
 inline void err_out_of_bounds() { DEBUG_ECHOLNPGM("Test aborted - motion out of bounds"); }
@@ -427,10 +446,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = X_center + displacement;
       echo_min_max('X', position_min, position_max);
       if (false
-        #ifdef X_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (X_MIN_POS)
-        #endif
-        #ifdef X_MAX_POS
           || position_max > (X_MAX_POS)
         #endif
       ) {
@@ -444,10 +461,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = Y_center + displacement;
       echo_min_max('Y', position_min, position_max);
       if (false
-        #ifdef Y_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (Y_MIN_POS)
-        #endif
-        #ifdef Y_MAX_POS
           || position_max > (Y_MAX_POS)
         #endif
       ) {
@@ -461,10 +476,8 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_max = Z_center + displacement;
       echo_min_max('Z', position_min, position_max);
       if (false
-        #ifdef Z_MIN_POS
+        #if HAS_ENDSTOPS
           || position_min < (Z_MIN_POS)
-        #endif
-        #ifdef Z_MAX_POS
           || position_max > (Z_MAX_POS)
         #endif
       ) {
@@ -484,7 +497,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Work on the drivers
   //
 
-  for (uint8_t k = 0; k < driver_count; k++) {
+  LOOP_L_N(k, driver_count) {
     uint8_t not_found = true;
     for (j = 1; j <= L64XX::chain[0]; j++) {
       PGM_P const str = (PGM_P)pgm_read_ptr(&index_to_axis[L64XX::chain[j]]);
@@ -639,7 +652,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
   ) {
     say_axis(axis);
     DEBUG_ECHOPGM("  THERMAL: ");
-    serialprintPGM((status & _status_axis_th_sd) ? PSTR("SHUTDOWN") : (status & _status_axis_th_wrn) ? PSTR("WARNING ") : PSTR("OK      "));
+    DEBUG_ECHOPGM_P((status & _status_axis_th_sd) ? PSTR("SHUTDOWN") : (status & _status_axis_th_wrn) ? PSTR("WARNING ") : PSTR("OK      "));
     DEBUG_ECHOPGM("   OVERCURRENT: ");
     echo_yes_no((status & _status_axis_ocd) != 0);
     if (!(_status_axis_layout == L6474_STATUS_LAYOUT)) {  // L6474 doesn't have these bits
@@ -694,25 +707,31 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
       {  6, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z4)
-      {  6, 0, 0, 0, 0, 0, 0 },
-    #endif
-    #if AXIS_IS_L64XX(E0)
       {  7, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E1)
+    #if AXIS_IS_L64XX(E0)
       {  8, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E2)
+    #if AXIS_IS_L64XX(E1)
       {  9, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E3)
+    #if AXIS_IS_L64XX(E2)
       { 10, 0, 0, 0, 0, 0, 0 },
     #endif
-    #if AXIS_IS_L64XX(E4)
+    #if AXIS_IS_L64XX(E3)
       { 11, 0, 0, 0, 0, 0, 0 },
     #endif
+    #if AXIS_IS_L64XX(E4)
+      { 12, 0, 0, 0, 0, 0, 0 },
+    #endif
     #if AXIS_IS_L64XX(E5)
-      { 12, 0, 0, 0, 0, 0, 0 }
+      { 13, 0, 0, 0, 0, 0, 0 }
+    #endif
+    #if AXIS_IS_L64XX(E6)
+      { 14, 0, 0, 0, 0, 0, 0 }
+    #endif
+    #if AXIS_IS_L64XX(E7)
+      { 16, 0, 0, 0, 0, 0, 0 }
     #endif
   };
 
@@ -893,9 +912,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
           monitor_update(E5);
         #endif
 
-        #if ENABLED(L6470_DEBUG)
-          if (report_L6470_status) DEBUG_EOL();
-        #endif
+        if (TERN0(L6470_DEBUG, report_L6470_status)) DEBUG_EOL();
 
         spi_active = false;   // done with all SPI transfers - clear handshake flags
         spi_abort = false;

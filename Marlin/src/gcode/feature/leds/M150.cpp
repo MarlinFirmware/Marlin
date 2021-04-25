@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,6 +34,12 @@
  * Always sets all 3 or 4 components. If a component is left out, set to 0.
  *                                    If brightness is left out, no value changed
  *
+ * With NEOPIXEL_LED:
+ *  I<index>  Set the NeoPixel index to affect. Default: All
+ *
+ * With NEOPIXEL2_SEPARATE:
+ *  S<index>  The NeoPixel strip to set. Default is index 0.
+ *
  * Examples:
  *
  *   M150 R255       ; Turn LED red
@@ -43,15 +49,36 @@
  *   M150 W          ; Turn LED white using a white LED
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
+ *   M150 I1 R       ; Set NEOPIXEL index 1 to red
+ *   M150 S1 I1 R    ; Set SEPARATE index 1 to red
  */
+
 void GcodeSuite::M150() {
-  leds.set_color(MakeLEDColor(
+  #if ENABLED(NEOPIXEL_LED)
+    const uint8_t index = parser.intval('I', -1);
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      const uint8_t unit = parser.intval('S'),
+                    brightness = unit ? neo2.brightness() : neo.brightness();
+      *(unit ? &neo2.neoindex : &neo.neoindex) = index;
+    #else
+      const uint8_t brightness = neo.brightness();
+      neo.neoindex = index;
+    #endif
+  #endif
+
+  const LEDColor color = MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : neo.brightness()
-  ));
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness
+  );
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    if (unit == 1) { leds2.set_color(color); return; }
+  #endif
+
+  leds.set_color(color);
 }
 
 #endif // HAS_COLOR_LEDS

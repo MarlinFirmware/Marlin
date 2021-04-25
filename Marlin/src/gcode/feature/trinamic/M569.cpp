@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,8 +32,7 @@ template<typename TMC>
 void tmc_say_stealth_status(TMC &st) {
   st.printLabel();
   SERIAL_ECHOPGM(" driver mode:\t");
-  serialprintPGM(st.get_stealthChop_status() ? PSTR("stealthChop") : PSTR("spreadCycle"));
-  SERIAL_EOL();
+  SERIAL_ECHOLNPGM_P(st.get_stealthChop() ? PSTR("stealthChop") : PSTR("spreadCycle"));
 }
 template<typename TMC>
 void tmc_set_stealthChop(TMC &st, const bool enable) {
@@ -104,6 +103,12 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
           #if AXIS_HAS_STEALTHCHOP(E5)
             case 5: TMC_SET_STEALTH(E5); break;
           #endif
+          #if AXIS_HAS_STEALTHCHOP(E6)
+            case 6: TMC_SET_STEALTH(E6); break;
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E7)
+            case 7: TMC_SET_STEALTH(E7); break;
+          #endif
         }
       } break;
     }
@@ -154,6 +159,12 @@ static void say_stealth_status() {
   #endif
   #if AXIS_HAS_STEALTHCHOP(E5)
     TMC_SAY_STEALTH_STATUS(E5);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E6)
+    TMC_SAY_STEALTH_STATUS(E6);
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(E7)
+    TMC_SAY_STEALTH_STATUS(E7);
   #endif
 }
 
