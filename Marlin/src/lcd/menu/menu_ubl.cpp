@@ -610,7 +610,7 @@ void _menu_ubl_tools() {
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[32];
   #if HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004 B%i H%i Si%"), custom_bed_temp, custom_hotend_temp, umw_mesh_slot);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004 B%i H%i S%i"), custom_bed_temp, custom_hotend_temp, umw_mesh_slot);
     queue.inject(ubl_lcd_gcode);  
   #else
     sprintf_P(ubl_lcd_gcode, PSTR("M1004"));
