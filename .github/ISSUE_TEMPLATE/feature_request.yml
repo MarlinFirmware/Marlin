@@ -38,9 +38,7 @@ body:
     validations:
       required: true
 
-  - type: markdown
+  - type: textarea
     attributes:
-      value: >
-        **Additional context**
-
-        Add any other context or screenshots about the feature request here.
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here.

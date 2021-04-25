@@ -151,3 +151,7 @@ body:
         If you've made any other modifications to the firmware, please describe them in detail in the space provided.
 
         When pasting formatted text into the box below don't forget to put ` ``` ` (on its own line) before and after to make it readable.
+
+  - type: textarea
+    attributes:
+      label: Additional information & file uploads
