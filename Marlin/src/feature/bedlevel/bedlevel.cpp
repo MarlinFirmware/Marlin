@@ -213,15 +213,26 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 
-    const float startz = TERN(MESH_BED_LEVELING, current_position.z, _MAX(0, MANUAL_PROBE_START_Z));
-
-    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0
-      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES);  // Move up to give clearance, then move over
-      do_blocking_move_to_z(startz);                          // Move down, ready to do manual adjustment
-    #elif ENABLED(MESH_BED_LEVELING)
-      do_blocking_move_to_xy(pos);                            // No Z_CLEARANCE_BETWEEN_MANUAL_PROBES given? For MBL just move in XY.
+    /**
+     * Get the Z final position for the point measurement
+     * MBL will use the current Z position (again) if there's any raise or
+     * a Z safe homing height, otherwise it will move across without any raise.
+     */
+    #ifdef MANUAL_PROBE_START_Z
+      constexpr float finalz = _MAX(0, MANUAL_PROBE_START_Z);
     #else
-      do_blocking_move_to_xy_z(pos, startz);                  // ... For others move across, then down.
+      #warning "It's recommended to set some MANUAL_PROBE_START_Z value for manual leveling."
+      #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0
+        const float finalz = current_position.z;
+      #endif
+    #endif
+    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0 // Move up, over, and back down
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES);
+      do_blocking_move_to_z(finalz);
+    #elif defined(MANUAL_PROBE_START_Z)       // Move over and back down
+      do_blocking_move_to_xy_z(pos, finalz);
+    #else                                     // Move over
+      do_blocking_move_to_xy(pos);
     #endif
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
