@@ -40,6 +40,15 @@ There is a limitation with Windows systems and path depth so the file names need
 - NF = Noise filtering for machines with cable extensions - reduces homing accuracy!
 - LR = Stock runout replaced with Lerdge
 
+## Support
+
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain
+support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
+support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+
+3D Printing Discord - https://discord.gg/MZrsgVU
+Marlin Discord - https://discord.gg/n5NJ59y
+
 ## Primary notes for DW7.3
 - File browser rewritten to support paging as well as subdirectories
 -- New file browser has a limit of a 66 character directory depth. This can be expanded at the cost of more RAM if users find this more limiting.
@@ -65,15 +74,6 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 ## Known Issues
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
  - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
-
-## Support
-
-This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain
-support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
-support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
-
-3D Printing Discord - https://discord.gg/MZrsgVU
-Marlin Discord - https://discord.gg/n5NJ59y
 
 ## Future Goals
 
