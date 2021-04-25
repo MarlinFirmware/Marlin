@@ -222,11 +222,11 @@ void reset_bed_level() {
       constexpr float finalz = _MAX(0, MANUAL_PROBE_START_Z);
     #else
       #warning "It's recommended to set some MANUAL_PROBE_START_Z value for manual leveling."
-      #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0
-        const float finalz = current_position.z;
-      #endif
     #endif
     #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0 // Move up, over, and back down
+      #ifndef MANUAL_PROBE_START_Z
+        const float finalz = current_position.z;
+      #endif
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES);
       do_blocking_move_to_z(finalz);
     #elif defined(MANUAL_PROBE_START_Z)       // Move over and back down
