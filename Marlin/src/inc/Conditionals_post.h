@@ -2922,8 +2922,14 @@
   #endif
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
-  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+// Define a starting height for measuring manual probe points
+#ifndef MANUAL_PROBE_START_Z
+  #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+    // Leave MANUAL_PROBE_START_Z undefined so the prior Z height will be used.
+    // Note: If Z_CLEARANCE_BETWEEN_MANUAL_PROBES is 0 there will be no raise between points
+  #elif ENABLED(AUTO_BED_LEVELING_UBL) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+    #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+  #endif
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
