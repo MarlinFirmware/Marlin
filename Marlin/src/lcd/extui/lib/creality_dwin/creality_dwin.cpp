@@ -641,7 +641,7 @@ void CrealityDWINClass::Draw_Print_Screen() {
   DWIN_ICON_Show(ICON, ICON_RemainTime, 147, 169);
   DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, 41, 163, (char*)"Elapsed");
   DWIN_Draw_String(false, false, DWIN_FONT_MENU,  Color_White, Color_Bg_Black, 176, 163, (char*)"Remaining");
-  Update_Status_Bar();
+  Update_Status_Bar(true);
   Draw_Print_ProgressBar();
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
@@ -4556,7 +4556,7 @@ inline void CrealityDWINClass::Print_Screen_Control() {
     switch(selection) {
       case 0:
         Draw_Menu(Tune);
-        Update_Status_Bar();
+        Update_Status_Bar(true);
         break;
       case 1:
         if (paused) {
