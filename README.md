@@ -22,32 +22,24 @@ To build Marlin 2.0 you'll need [Building Marlin with PlatformIO for ReArm](http
 
 Released versions of this firmware can be found on the [Releases page](https://github.com/mriscoc/Marlin_Ender3v2/releases).
 
-## How to install the firmware
-
-1. Insert a blank and FAT32 formatted µSD in your PC/Mac
-2. Copy the .bin file to the root of the card
-3. Ensure that the name of the file was not previously used to update the printer.
-   If necessary, rename the file.
-4. Turn off the printer, disconnect any USB cable and insert the µSD card.
-5. Turn on the printer, the upgrade firmware process will start automatically.
-6. The display will be blank until the upgrade is finished (about of 15 seconds).
-7. If you are upgrading from the original firmware or other fork, please restore defaults.
-8. Make the PID adjust and put the other calibration parameters
-   
-If your display remains blank try with other µSD card, format it to FAT32 and put in a renamed .bin file.
-   
+## Wiki
+ - [How to install the firmware](https://github.com/mriscoc/Marlin_Ender3v2/wiki/How-to-install-the-firmware)
+ - [Installing a 3D/BLTouch](https://github.com/mriscoc/Marlin_Ender3v2/wiki/3D-BLTouch)
+ - [Color themes](https://github.com/mriscoc/Marlin_Ender3v2/wiki/Color-Themes)
+ - [How to use with Octoprint](https://github.com/mriscoc/Marlin_Ender3v2/wiki/Octoprint)
+  
 ## Credits
 
 This fork of Marlin firmware is maintained by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru
+This work would not be possible without the supporters, helpers and betatesters at the [Telegram group](https://t.me/Ender3v2_Firmware).
 
-The current Marlin dev team consists of:
-
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [Donate](https://www.thinkyhead.com/donate-to-marlin) / Flattr: [![Flattr Scott](https://api.flattr.com/button/flattr-badge-small.png)](https://flattr.com/submit/auto?user_id=thinkyhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+###The current Marlin dev team consists of:
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
  - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portugal
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands
 
 ## License
 
