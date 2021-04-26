@@ -2523,8 +2523,14 @@
     #define E0_CHAIN_POS     -1
   #endif
 
-  #if AXIS_IS_TMC(E1)
-    #define E1_CURRENT      800
+  #if AXIS_IS_TMC(E1) || ENABLED(DIY_TMCBOARD)
+    #if ENABLED(PANCAKE_STEPPER)
+      #define E1_CURRENT    600
+    #elif E0_MOTOR_CURRENT > 0
+      #define E1_CURRENT E1_MOTOR_CURRENT
+    #else
+      #define E1_CURRENT    800
+    #endif
     #define E1_MICROSTEPS    16
     #define E1_RSENSE         0.11
     #define E1_CHAIN_POS     -1
