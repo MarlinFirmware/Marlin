@@ -3306,36 +3306,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Sanity check for xyz_min_pos
- */
-#if X_MIN_POS < -1
-  #error X_MIN_POS must be a negative number
-#endif
-
-#if Y_MIN_POS < -1
-   #error Y_MIN_POS must be a negative number
-#endif
-
-#if Z_MIN_POS < -1
-   #error Z_MIN_POS must be a negative number
-#endif
-
-/**
- * Sanity check for xyz_max_pos
- */
-#if X_BED_SIZE > X_MAX_POS + 1
-  #error X_MAX_POS must be more then (XYZ)_BED_SIZE
-#endif
-
-#if Y_BED_SIZE > Y_MAX_POS + 1
-  #error Y_MAX_POS must be more then (XYZ)_BED_SIZE
-#endif
-
-#if Z_BED_SIZE > Z_MAX_POS + 1
-   #error Z_MAX_POS must be more then (XYZ)_BED_SIZE
-#endif
-
-/**
  * Sanity check for valid stepper driver types
  */
 #define _BAD_DRIVER(A) (defined(A##_DRIVER_TYPE) && !_DRIVER_ID(A##_DRIVER_TYPE))
