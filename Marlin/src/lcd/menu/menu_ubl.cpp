@@ -622,18 +622,19 @@ void _lcd_ubl_mesh_wizard() {
   }
 
 void _menu_ubl_mesh_wizard() {
+  int16_t total_slots = settings.calc_num_meshes()
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
-
+  
   #if HAS_HOTEND
-    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, 0, thermalManager.hotend_max_target(0));
   #endif
 
   #if HAS_HEATED_BED
-    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+    EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, 0, BED_MAX_TARGET);
   #endif
   
-  EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &umw_mesh_slot, 0, 255);
+  EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &umw_mesh_slot, 0, total_slots);
 
   ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
   
