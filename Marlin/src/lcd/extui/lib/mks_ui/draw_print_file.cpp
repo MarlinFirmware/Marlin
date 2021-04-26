@@ -66,8 +66,10 @@ uint8_t sel_id = 0;
     //root2.rewind();
     //SERIAL_ECHOLN(list_file.curDirPath);
 
-    if (curDirLever != 0) card.cd(list_file.curDirPath);
-    else card.cdroot(); // while(card.cdup());
+    if (curDirLever != 0)
+      card.cd(list_file.curDirPath);
+    else
+      card.cdroot();
 
     const uint16_t fileCnt = card.get_num_Files();
 
@@ -175,7 +177,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     }
     else {
       lv_clear_print_file();
-      lv_draw_ready_print();
+      TERN(MULTI_VOLUME, lv_draw_media_select(), lv_draw_ready_print());
     }
   }
   else {
@@ -246,6 +248,7 @@ static char test_public_buf_l[40];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
+  // TODO: set current media title?!
   scr = lv_screen_create(PRINT_FILE_UI, "");
 
   // Create image buttons

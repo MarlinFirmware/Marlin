@@ -104,6 +104,7 @@
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
+#define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
@@ -186,13 +187,20 @@
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 
-#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
-#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
-#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
-#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
+#define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
+#define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
+#define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
 #define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
@@ -317,6 +325,16 @@
 
   #endif
 
+  // Allow manipulating enumeration value like flags without ugly cast everywhere
+  #define ENUM_FLAGS(T) \
+    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
+    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
+
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
     template<bool, typename _Tp = void> struct enable_if { };
@@ -348,6 +366,51 @@
     }
   #define CALL_IF_EXISTS(Return, That, Method, ...) \
     static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
+
+  // Compile-time string manipulation
+  namespace CompileTimeString {
+    // Simple compile-time parser to find the position of the end of a string
+    constexpr const char* findStringEnd(const char *str) {
+      return *str ? findStringEnd(str + 1) : str;
+    }
+
+    // Check whether a string contains a specific character
+    constexpr bool contains(const char *str, const char ch) {
+      return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
+    }
+    // Find the last position of the specific character (should be called with findStringEnd)
+    constexpr const char* findLastPos(const char *str, const char ch) {
+      return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
+    }
+    // Compile-time evaluation of the last part of a file path
+    // Typically used to shorten the path to file in compiled strings
+    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
+    constexpr const char* baseName(const char *str) {
+      return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
+    }
+
+    // Find the first occurence of a character in a string (or return the last position in the string)
+    constexpr const char* findFirst(const char *str, const char ch) {
+      return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
+    }
+    // Compute the string length at compile time
+    constexpr unsigned stringLen(const char *str) {
+      return *str == 0 ? 0 : 1 + stringLen(str + 1);
+    }
+  }
+
+  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
+  /** Get the templated type name. This does not depends on RTTI, but on the preprocessor, so it should be quite safe to use even on old compilers.
+      WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
+      The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
+  template <typename T>
+  inline const char* gtn(T*) {
+    // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
+    constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
+    static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
+    __builtin_memcpy(templateType, __PRETTY_FUNCTION__ + verboseChatLen, sizeof(__PRETTY_FUNCTION__) - verboseChatLen - 2);
+    return templateType;
+  }
 
 #else
 

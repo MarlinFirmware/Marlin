@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT SKR E3 Turbo"
 #endif
@@ -244,8 +246,13 @@
 
   #endif
 
-#endif // HAS_WIRED_LCD
-
+#elif ENABLED(DWIN_CREALITY_LCD)
+  #define BEEPER_PIN               EXP1_10_PIN
+  #define BTN_EN1                  EXP1_08_PIN
+  #define BTN_EN2                  EXP1_06_PIN
+  #define BTN_ENC                  EXP1_09_PIN
+  #undef SPEAKER
+#endif
 //
 // SD Support
 //

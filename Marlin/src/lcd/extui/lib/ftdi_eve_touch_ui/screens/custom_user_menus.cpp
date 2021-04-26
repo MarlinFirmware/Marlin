@@ -30,8 +30,8 @@ using namespace ExtUI;
 using namespace Theme;
 
 #define _ITEM_TAG(N) (10+N)
-#define _USER_DESC(N) USER_DESC_##N
-#define _USER_GCODE(N) USER_GCODE_##N
+#define _USER_DESC(N) MAIN_MENU_ITEM_##N##_DESC
+#define _USER_GCODE(N) MAIN_MENU_ITEM_##N##_GCODE
 #define _USER_ITEM(N) .tag(_ITEM_TAG(N)).button(USER_ITEM_POS(N), _USER_DESC(N))
 #define _USER_ACTION(N) case _ITEM_TAG(N): injectCommands_P(PSTR(_USER_GCODE(N))); TERN_(USER_SCRIPT_RETURN, GOTO_SCREEN(StatusScreen)); break;
 

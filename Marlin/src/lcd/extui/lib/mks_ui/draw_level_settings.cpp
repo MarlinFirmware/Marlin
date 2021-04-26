@@ -46,7 +46,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       draw_return_ui();
       break;
     case ID_LEVEL_POSITION:
-      lv_draw_manual_level_pos_settings();
+      lv_draw_tramming_pos_settings();
       break;
     case ID_LEVEL_COMMAND:
       keyboard_value = autoLevelGcodeCommand;
@@ -62,7 +62,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_level_settings() {
   scr = lv_screen_create(LEVELING_PARA_UI, machine_menu.LevelingParaConfTitle);
-  lv_screen_menu_item(scr, machine_menu.LevelingManuPosConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_LEVEL_POSITION, 0);
+  lv_screen_menu_item(scr, machine_menu.TrammingPosConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_LEVEL_POSITION, 0);
   lv_screen_menu_item(scr, machine_menu.LevelingAutoCommandConf, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_LEVEL_COMMAND, 1);
   #if HAS_BED_PROBE
     lv_screen_menu_item(scr, machine_menu.LevelingAutoZoffsetConf, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_LEVEL_ZOFFSET, 2);

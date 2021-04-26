@@ -30,14 +30,25 @@ In the `Marlin/src/core/serial_hook.h` file, the different serial feature are de
 Since all the types above are using CRTP, it's possible to combine them to get the appropriate functionality.
 This is easily done via type definition of the feature.
 
-For example, to present a serial interface that's outputting to 2 serial port, the first one being hooked at runtime and the second one connected to a runtime switchable telnet client, you'll declare the type to use as:
+For example, to create a single serial interface with 2 serial outputs (one enabled at runtime and the other switchable):
 ```cpp
-typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial0Type;
+typedef MultiSerial< RuntimeSerial<Serial>, ConditionalSerial<TelnetClient> > Serial1Class;
 ```
 
+To send the same output to 4 serial ports you could nest `MultiSerial` like this:
+```cpp
+typedef MultiSerial< MultiSerial< BaseSerial<Serial>, BaseSerial<Serial1> >, MultiSerial< BaseSerial<Serial2>, BaseSerial<Serial3>, 2, 1>, 0, 2> Serial1Class;
+```
+The magical numbers here are the step and offset for computing the serial port. Simplifying the above monster a bit:
+```cpp
+MS< A = MS<a, b, offset=0, step=1>, B=MS<c, d, offset=2, step=1>, offset=0, step=2>
+```
+This means that the underlying multiserial A (with output to `a,b`) is available from offset = 0 to offset + step = 1 (default value).
+The multiserial B (with output to `c,d`) is available from offset = 2 (the next step from the root multiserial) to offset + step = 3.
+In practice, the root multiserial will redirect any index/mask `offset` to `offset + step - 1` to its first leaf, and any index/mask `offset + step` to `offset + 2*step - 1` to its second leaf.
+
 ## Emergency parser
-By default, the serial base interface provide an emergency parser that's only enable for serial classes that support it.
-Because of this condition, all underlying type takes a first `bool emergencyParserEnabled` argument to their constructor. You must take into account this parameter when defining the actual type used.
+By default, the serial base interface provide an emergency parser that's only enable for serial classes that support it. Because of this condition, all underlying types take a first `bool emergencyParserEnabled` argument to their constructor. You must take into account this parameter when defining the actual type used.
 
 ## SERIAL macros
 The following macros are defined (in `serial.h`) to output data to the serial ports:

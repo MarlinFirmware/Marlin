@@ -137,7 +137,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 
             gCfgItems.wifi_mode_sel = STA_MODEL;
 
-            package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
+            package_to_wifi(WIFI_PARA_SET, nullptr, 0);
 
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
@@ -148,7 +148,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             public_buf_l[6] = 0x00;
             raw_send_to_wifi((uint8_t*)public_buf_l, 6);
 
-            last_disp_state = KEY_BOARD_UI;
+            last_disp_state = KEYBOARD_UI;
             lv_clear_keyboard();
             wifi_tips_type = TIPS_TYPE_JOINING;
             lv_draw_wifi_tips();
@@ -162,9 +162,9 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           draw_return_ui();
           break;
         case GCodeCommand:
-          if (queue.length <= (BUFSIZE - 3)) {
+          if (!queue.ring_buffer.full(3)) {
             // Hook anything that goes to the serial port
-            MYSERIAL0.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
+            MYSERIAL1.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
             queue.enqueue_one_now(ret_ta_txt);
           }
           lv_clear_keyboard();
@@ -216,7 +216,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  scr = lv_screen_create(KEY_BOARD_UI, "");
+  scr = lv_screen_create(KEYBOARD_UI, "");
 
   // Create styles for the keyboard
   static lv_style_t rel_style, pr_style;

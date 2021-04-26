@@ -61,7 +61,8 @@ enum {
       ZOFFSET_SCREEN_CACHE,
     #endif
     #if HAS_MESH
-      BED_MESH_SCREEN_CACHE,
+      BED_MESH_VIEW_SCREEN_CACHE,
+      BED_MESH_EDIT_SCREEN_CACHE,
     #endif
   #endif
   #if ENABLED(BABYSTEPPING)
@@ -100,7 +101,6 @@ enum {
   #if ENABLED(TOUCH_UI_COCOA_PRESS)
     PREHEAT_MENU_CACHE,
     PREHEAT_TIMER_SCREEN_CACHE,
-    UNLOAD_CARTRIDGE_SCREEN_CACHE,
     LOAD_CHOCOLATE_SCREEN_CACHE,
     MOVE_XYZ_SCREEN_CACHE,
     MOVE_E_SCREEN_CACHE,
@@ -108,7 +108,7 @@ enum {
   #if ENABLED(SDSUPPORT)
     FILES_SCREEN_CACHE,
   #endif
-  #if ENABLED(CUSTOM_USER_MENUS)
+  #if ENABLED(CUSTOM_MENU_MAIN)
     CUSTOM_USER_MENUS_SCREEN_CACHE,
   #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -145,11 +145,11 @@ enum {
 #elif ENABLED(TOUCH_UI_COCOA_PRESS)
   #include "cocoa_press_status_screen.h"
   #include "cocoa_press_main_menu.h"
-  #include "cocoa_press_advanced_settings.h"
+  #include "cocoa_press_advanced_settings_menu.h"
   #include "cocoa_press_preheat_menu.h"
   #include "cocoa_press_preheat_screen.h"
-  #include "cocoa_press_unload_cartridge.h"
   #include "cocoa_press_load_chocolate.h"
+  #include "move_axis_screen.h"
   #include "cocoa_press_move_xyz_screen.h"
   #include "cocoa_press_move_e_screen.h"
   #include "tune_menu.h"
@@ -176,7 +176,6 @@ enum {
 #include "change_filament_screen.h"
 #include "move_axis_screen.h"
 #include "steps_screen.h"
-#include "stepper_current_screen.h"
 #include "feedrate_percent_screen.h"
 #include "max_velocity_screen.h"
 #include "max_acceleration_screen.h"
@@ -208,7 +207,9 @@ enum {
     #include "z_offset_screen.h"
   #endif
   #if HAS_MESH
-    #include "bed_mesh_screen.h"
+    #include "bed_mesh_base.h"
+    #include "bed_mesh_view_screen.h"
+    #include "bed_mesh_edit_screen.h"
   #endif
 #endif
 
@@ -250,7 +251,7 @@ enum {
   #include "files_screen.h"
 #endif
 
-#if ENABLED(CUSTOM_USER_MENUS)
+#if ENABLED(CUSTOM_MENU_MAIN)
   #include "custom_user_menus.h"
 #endif
 

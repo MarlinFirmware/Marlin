@@ -26,7 +26,6 @@
 
 #ifdef FTDI_BOOT_SCREEN
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
 #include "../archim2-flash/flash_storage.h"
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)

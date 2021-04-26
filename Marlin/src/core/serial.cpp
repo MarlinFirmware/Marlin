@@ -37,19 +37,22 @@ PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
+// Hook Meatpack if it's enabled on the first leaf
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
+  SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
+#endif
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
+  SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
+#endif
+
+// Step 2: For multiserial, handle the second serial port as well
 #if HAS_MULTI_SERIAL
-  #ifdef SERIAL_CATCHALL
-    SerialOutputT multiSerial(MYSERIAL, SERIAL_CATCHALL);
-  #else
-    #if HAS_ETHERNET
-      // Runtime checking of the condition variable
-      ConditionalSerial<decltype(MYSERIAL1)> serialOut1(ethernet.have_telnet_client, MYSERIAL1, false); // Takes reference here
-    #else
-      // Don't pay for runtime checking a true variable, instead use the output directly
-      #define serialOut1 MYSERIAL1
-    #endif
-    SerialOutputT multiSerial(MYSERIAL0, serialOut1);
+  #if HAS_ETHERNET
+    // We need a definition here
+    SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
+
+  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2);
 #endif
 
 void serialprintPGM(PGM_P str) {
@@ -88,7 +91,7 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   if (prefix) serialprintPGM(prefix);
   SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();

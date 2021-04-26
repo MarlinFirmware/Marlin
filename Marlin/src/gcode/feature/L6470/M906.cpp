@@ -132,7 +132,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
       SERIAL_ECHOPGM("   Vs_compensation: ");
-      serialprintPGM((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
+      SERIAL_ECHOPGM_P((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
       SERIAL_ECHOLNPAIR("   Compensation coefficient: ~", comp_coef * 0.01f);
 
       SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),

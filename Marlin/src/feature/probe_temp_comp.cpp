@@ -73,7 +73,7 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     float temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      serialprintPGM(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
           s == TSI_EXT ? PSTR("Extruder") :
         #endif
@@ -88,12 +88,12 @@ void ProbeTempComp::print_offsets() {
   }
 }
 
-void ProbeTempComp::prepare_new_calibration(const float &init_meas_z) {
+void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
   calib_idx = 0;
   init_measurement = init_meas_z;
 }
 
-void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const float &meas_z) {
+void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z) {
   switch (tsi) {
     case TSI_PROBE:
     case TSI_BED:
@@ -159,12 +159,12 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   return true;
 }
 
-void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const float &temp, float &meas_z) {
+void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const_float_t temp, float &meas_z) {
   if (WITHIN(temp, cali_info[tsi].start_temp, cali_info[tsi].end_temp))
     meas_z -= get_offset_for_temperature(tsi, temp);
 }
 
-float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const float &temp) {
+float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const_float_t temp) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const float start_temp = cali_info[tsi].start_temp,
                 res_temp = cali_info[tsi].temp_res;

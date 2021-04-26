@@ -49,15 +49,15 @@ typedef struct {
 } LIST_FILE;
 extern LIST_FILE list_file;
 
-extern void disp_gcode_icon(uint8_t file_num);
-extern void lv_draw_print_file();
-extern uint32_t lv_open_gcode_file(char *path);
-extern void lv_gcode_file_read(uint8_t *data_buf);
-extern void lv_close_gcode_file();
-extern void cutFileName(char *path, int len, int bytePerLine, char *outStr);
-extern int ascii2dec_test(char *ascii);
-extern void lv_clear_print_file();
-extern void lv_gcode_file_seek(uint32_t pos);
+void disp_gcode_icon(uint8_t file_num);
+void lv_draw_print_file();
+uint32_t lv_open_gcode_file(char *path);
+void lv_gcode_file_read(uint8_t *data_buf);
+void lv_close_gcode_file();
+void cutFileName(char *path, int len, int bytePerLine, char *outStr);
+int ascii2dec_test(char *ascii);
+void lv_clear_print_file();
+void lv_gcode_file_seek(uint32_t pos);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
