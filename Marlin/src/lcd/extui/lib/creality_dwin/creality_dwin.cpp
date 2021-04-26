@@ -181,17 +181,91 @@ bool probe_deployed = false;
 
 CrealityDWINClass CrealityDWIN;
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  struct UBL_Settings {
+#if HAS_MESH
+  struct Mesh_Settings {
     bool viewer_asymmetric_range = false;
     bool viewer_print_value = false;
-    uint8_t tilt_grid = 1;
     bool goto_mesh_value = false;
     bool mesh_step_warning = false;
     bool mesh_goto_zhop = true;
     bool drawing_mesh = false;
     uint8_t mesh_x = 0;
     uint8_t mesh_y = 0;
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      bed_mesh_t &z_values = ubl.z_values;
+      uint8_t tilt_grid = 1;
+
+      void manual_value_update(bool undefined=false) {
+        char buf[32];
+        sprintf(buf, "M421 I%i J%i Z%.3f %s", mesh_x, mesh_y, current_position.z, undefined ? "N" : "");
+        gcode.process_subcommands_now_P(buf);
+        planner.synchronize();
+      }
+
+      bool create_plane_from_mesh() {
+        struct linear_fit_data lsf_results;
+        incremental_LSF_reset(&lsf_results);
+        GRID_LOOP(x, y) {
+          if (!isnan(z_values[x][y])) {
+            xy_pos_t rpos;
+            rpos.x = ubl.mesh_index_to_xpos(x);
+            rpos.y = ubl.mesh_index_to_ypos(y);
+            incremental_LSF(&lsf_results, rpos, z_values[x][y]);
+          }
+        }
+        
+        if (finish_incremental_LSF(&lsf_results)) {
+          SERIAL_ECHOPGM("Could not complete LSF!");
+          return true;
+        }
+
+        ubl.set_all_mesh_points_to_value(0);
+
+        matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
+        GRID_LOOP(i, j) {
+          float mx = ubl.mesh_index_to_xpos(i),
+                my = ubl.mesh_index_to_ypos(j),
+                mz = z_values[i][j];
+
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("before rotation = [", mx, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(my, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(mz, 7);
+            DEBUG_ECHOPGM("]   ---> ");
+            DEBUG_DELAY(20);
+          }
+
+          rotation.apply_rotation_xyz(mx, my, mz);
+
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(my, 7);
+            DEBUG_CHAR(',');
+            DEBUG_ECHO_F(mz, 7);
+            DEBUG_ECHOLNPGM("]");
+            DEBUG_DELAY(20);
+          }
+
+          z_values[i][j] = mz - lsf_results.D;
+          ExtUI::onMeshUpdate(i, j, z_values[i][j]);
+        }
+        return false;
+      }
+
+    #else
+
+      void manual_value_update() {
+        char buf[32];
+        sprintf(buf, "G29 I%i J%i Z%.3f", mesh_x, mesh_y, current_position.z);
+        gcode.process_subcommands_now_P(buf);
+        planner.synchronize();
+      }
+
+    #endif
 
     void manual_move() {
       CrealityDWIN.Popup_Handler(MoveWait);
@@ -206,18 +280,11 @@ CrealityDWINClass CrealityDWIN;
       CrealityDWIN.Redraw_Menu();
     }
 
-    void manual_value_update(bool undefined=false) {
-      char buf[32];
-      sprintf(buf, "M421 I%i J%i Z%.3f %s", mesh_x, mesh_y, current_position.z, undefined ? "N" : "");
-      gcode.process_subcommands_now_P(buf);
-      planner.synchronize();
-    }
-
     float get_max_value() {
-    float max = __FLT_MIN__;
-    GRID_LOOP(x, y) {
-      if (!isnan(ubl.z_values[x][y]) && ubl.z_values[x][y] > max)
-        max = ubl.z_values[x][y];
+      float max = __FLT_MIN__;
+      GRID_LOOP(x, y) {
+        if (!isnan(z_values[x][y]) && z_values[x][y] > max)
+          max = z_values[x][y];
       }
       return max;
     }
@@ -225,69 +292,90 @@ CrealityDWINClass CrealityDWIN;
     float get_min_value() {
       float min = __FLT_MAX__;
       GRID_LOOP(x, y) {
-        if (!isnan(ubl.z_values[x][y]) && ubl.z_values[x][y] < min)
-          min = ubl.z_values[x][y];
+        if (!isnan(z_values[x][y]) && z_values[x][y] < min)
+          min = z_values[x][y];
       }
       return min;
     }
 
-    bool create_plane_from_mesh() {
-      struct linear_fit_data lsf_results;
-      incremental_LSF_reset(&lsf_results);
+    void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7) {
+      drawing_mesh = true;
+      const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
+      const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
+      const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
+      const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = max(v_min, v_max);
+
+      // Clear background from previous selection and select new square
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, max(0, padding_x - gridline_width), max(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
+      if (selected >= 0) {
+        const auto selected_y = selected / GRID_MAX_POINTS_X;
+        const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
+        const auto start_y_px = padding_y_top + selected_y * cell_height_px;
+        const auto start_x_px = padding_x + selected_x * cell_width_px;
+        DWIN_Draw_Rectangle(1, Color_White, max(0, start_x_px - gridline_width), max(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
+      }
+
+      // Draw value square grid
+      char buf[8];
       GRID_LOOP(x, y) {
-        if (!isnan(ubl.z_values[x][y])) {
-          xy_pos_t rpos;
-          rpos.x = ubl.mesh_index_to_xpos(x);
-          rpos.y = ubl.mesh_index_to_ypos(y);
-          incremental_LSF(&lsf_results, rpos, ubl.z_values[x][y]);
+        const auto start_x_px = padding_x + x * cell_width_px;
+        const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
+        const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
+        const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
+        DWIN_Draw_Rectangle(1,        // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
+          isnan(z_values[x][y]) ? Color_Grey : (                                                              // gray if undefined
+            (z_values[x][y] < 0 ? 
+              (uint16_t)round(0b11111  * -z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)round(0b111111 *  z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+                min(0b11111, (((uint8_t)abs(z_values[x][y]) / 10) * 4))),                                     // + blue stepping for every mm
+          start_x_px, start_y_px, end_x_px, end_y_px);
+        while (LCD_SERIAL.availableForWrite() < 32) { // wait for serial to be available without blocking and resetting the MCU 
+          gcode.process_subcommands_now_P("G4 P10");
+          planner.synchronize();
+        } 
+        // Draw value text on 
+        if (viewer_print_value) { 
+          gcode.process_subcommands_now_P("G4 P10");  // still fails without additional delay...
+          planner.synchronize();
+          int8_t offset_x, offset_y = cell_height_px / 2 - 6;
+          if (isnan(z_values[x][y])) {  // undefined
+            DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+          }
+          else {                          // has value
+            if (GRID_MAX_POINTS_X < 10) {
+              sprintf(buf, "%.2f", abs(z_values[x][y]));
+            }
+            else {
+              sprintf(buf, "%02i", (uint16_t)(abs(z_values[x][y] - (int16_t)z_values[x][y]) * 100));
+            }
+            offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
+            if (!(GRID_MAX_POINTS_X < 10))
+              DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px-2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
+            DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px+1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
+          }
         }
       }
-      
-      if (finish_incremental_LSF(&lsf_results)) {
-        SERIAL_ECHOPGM("Could not complete LSF!");
-        return true;
+    }
+
+    void Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
+      float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = max(v_min, v_max);
+      if (v_min > 3e+10F) v_min = 0.0000001;
+      if (v_max > 3e+10F) v_max = 0.0000001;
+      if (range > 3e+10F) range = 0.0000001;
+      char msg[32];
+      if (viewer_asymmetric_range) {
+        sprintf(msg, "Red %.3f..0..%.3f Green", -v_min, v_max);
       }
-
-      ubl.set_all_mesh_points_to_value(0);
-
-      matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
-      GRID_LOOP(i, j) {
-        float mx = ubl.mesh_index_to_xpos(i),
-              my = ubl.mesh_index_to_ypos(j),
-              mz = ubl.z_values[i][j];
-
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOPAIR_F("before rotation = [", mx, 7);
-          DEBUG_CHAR(',');
-          DEBUG_ECHO_F(my, 7);
-          DEBUG_CHAR(',');
-          DEBUG_ECHO_F(mz, 7);
-          DEBUG_ECHOPGM("]   ---> ");
-          DEBUG_DELAY(20);
-        }
-
-        rotation.apply_rotation_xyz(mx, my, mz);
-
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOPAIR_F("after rotation = [", mx, 7);
-          DEBUG_CHAR(',');
-          DEBUG_ECHO_F(my, 7);
-          DEBUG_CHAR(',');
-          DEBUG_ECHO_F(mz, 7);
-          DEBUG_ECHOLNPGM("]");
-          DEBUG_DELAY(20);
-        }
-
-        ubl.z_values[i][j] = mz - lsf_results.D;
-        ExtUI::onMeshUpdate(i, j, ubl.z_values[i][j]);
+      else {
+        sprintf(msg, "Red %.3f..0..%.3f Green", -range, range);
       }
-      return false;
+      CrealityDWIN.Update_Status(msg);
+      drawing_mesh = false;
     }
 
   };
-  UBL_Settings ubl_conf = UBL_Settings();
+  Mesh_Settings mesh_conf;
 #endif
-
 
 /* General Display Functions */
 
@@ -490,86 +578,6 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
   DWIN_ICON_Show(ICON, ICON_LOGO, 71, 72);
   Main_Menu_Icons();
 }
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #define WIDE_VIEWER_TEXT (GRID_MAX_POINTS_X < 10)
-
-  void CrealityDWINClass::Draw_Bed_Mesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=40 + 53 - 7*/) {
-    ubl_conf.drawing_mesh = true;
-    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-    const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
-    const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
-    const float v_max = abs(ubl_conf.get_max_value()), v_min = abs(ubl_conf.get_min_value()), range = max(v_min, v_max);
-
-    // Clear background from previous selection and select new square
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, max(0, padding_x - gridline_width), max(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
-    if (selected >= 0) {
-      const auto selected_y = selected / GRID_MAX_POINTS_X;
-      const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
-      const auto start_y_px = padding_y_top + selected_y * cell_height_px;
-      const auto start_x_px = padding_x + selected_x * cell_width_px;
-      DWIN_Draw_Rectangle(1, Color_White, max(0, start_x_px - gridline_width), max(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
-    }
-
-    // Draw value square grid
-    char buf[8];
-    GRID_LOOP(x, y) {
-      const auto start_x_px = padding_x + x * cell_width_px;
-      const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
-      const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
-      const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
-      DWIN_Draw_Rectangle(1,        // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
-        isnan(ubl.z_values[x][y]) ? Color_Grey : (                                                              // gray if undefined
-          (ubl.z_values[x][y] < 0 ? 
-            (uint16_t)round(0b11111  * -ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-            (uint16_t)round(0b111111 *  ubl.z_values[x][y] / (!ubl_conf.viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
-              min(0b11111, (((uint8_t)abs(ubl.z_values[x][y]) / 10) * 4))),                                     // + blue stepping for every mm
-        start_x_px, start_y_px, end_x_px, end_y_px);
-      while (LCD_SERIAL.availableForWrite() < 32) { // wait for serial to be available without blocking and resetting the MCU 
-        gcode.process_subcommands_now_P("G4 P10");
-        planner.synchronize();
-      } 
-      // Draw value text on 
-      if (ubl_conf.viewer_print_value) { 
-        gcode.process_subcommands_now_P("G4 P10");  // still fails without additional delay...
-        planner.synchronize();
-        int8_t offset_x, offset_y = cell_height_px / 2 - 6;
-        if (isnan(ubl.z_values[x][y])) {  // undefined
-          DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
-        }
-        else {                          // has value
-          if (WIDE_VIEWER_TEXT) {
-            sprintf(buf, "%.2f", abs(ubl.z_values[x][y]));
-          }
-          else {
-            sprintf(buf, "%02i", (uint16_t)(abs(ubl.z_values[x][y] - (int16_t)ubl.z_values[x][y]) * 100));
-          }
-          offset_x = cell_width_px / 2 - 3 * (strlen(buf)) - 2;
-          if (!WIDE_VIEWER_TEXT)
-            DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px-2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
-          DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px+1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
-        }
-        
-      }
-    }
-  }
-
-  void CrealityDWINClass::Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
-    float v_max = abs(ubl_conf.get_max_value()), v_min = abs(ubl_conf.get_min_value()), range = max(v_min, v_max);
-    if (v_min > 3e+10F) v_min = 0.0000001;
-    if (v_max > 3e+10F) v_max = 0.0000001;
-    if (range > 3e+10F) range = 0.0000001;
-    char msg[32];
-    if (ubl_conf.viewer_asymmetric_range) {
-      sprintf(msg, "Red %.3f..0..%.3f Green", -v_min, v_max);
-    }
-    else {
-      sprintf(msg, "Red %.3f..0..%.3f Green", -range, range);
-    }
-    Update_Status(msg);
-    ubl_conf.drawing_mesh = false;
-  }
-#endif // AUTO_BED_LEVELING_UBL
 
 void CrealityDWINClass::Print_Screen_Icons() {
   if (selection == 0) {
@@ -3059,8 +3067,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
                 Popup_Handler(Level);
                 char buf[10];
-                if (ubl_conf.tilt_grid > 1) {
-                  sprintf(buf, "G29 J%i", ubl_conf.tilt_grid);
+                if (mesh_conf.tilt_grid > 1) {
+                  sprintf(buf, "G29 J%i", mesh_conf.tilt_grid);
                 }
                 else {
                   sprintf(buf, "G29 J");
@@ -3115,8 +3123,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 thermalManager.wait_for_hotend(0);
                 thermalManager.wait_for_bed_heating();
               #endif
-              ubl_conf.mesh_step_warning = false;
-              ubl_conf.manual_move();
+              mesh_conf.mesh_step_warning = false;
+              mesh_conf.manual_move();
               Draw_Menu(UBLManual);
             }
             break;
@@ -3186,21 +3194,21 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case UBLVIEW_TEXT:
             if (draw) {
               Draw_Menu_Item(row, ICON_Contact, (char*)"Viewer Show Values");
-              Draw_Checkbox(row, ubl_conf.viewer_print_value);
+              Draw_Checkbox(row, mesh_conf.viewer_print_value);
             }
             else {
-              ubl_conf.viewer_print_value = !ubl_conf.viewer_print_value;
-              Draw_Checkbox(row, ubl_conf.viewer_print_value);
+              mesh_conf.viewer_print_value = !mesh_conf.viewer_print_value;
+              Draw_Checkbox(row, mesh_conf.viewer_print_value);
             }
             break;
           case UBLVIEW_ASYMMETRIC:
             if (draw) {
               Draw_Menu_Item(row, ICON_Axis, (char*)"Viewer Asymmetric");
-              Draw_Checkbox(row, ubl_conf.viewer_asymmetric_range);
+              Draw_Checkbox(row, mesh_conf.viewer_asymmetric_range);
             }
             else {
-              ubl_conf.viewer_asymmetric_range = !ubl_conf.viewer_asymmetric_range;
-              Draw_Checkbox(row, ubl_conf.viewer_asymmetric_range);
+              mesh_conf.viewer_asymmetric_range = !mesh_conf.viewer_asymmetric_range;
+              Draw_Checkbox(row, mesh_conf.viewer_asymmetric_range);
             }
             break;
         }
@@ -3238,10 +3246,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case UBLSETTINGS_TILT:
               if (draw) {
                 Draw_Menu_Item(row, ICON_Tilt, (char*)"Tilting Grid Size");
-                Draw_Float(ubl_conf.tilt_grid, row, false, 1);
+                Draw_Float(mesh_conf.tilt_grid, row, false, 1);
               }
               else {
-                Modify_Value(ubl_conf.tilt_grid, 1, 8, 1);
+                Modify_Value(mesh_conf.tilt_grid, 1, 8, 1);
               }
               break;
           case UBLSETTINGS_PLANE:
@@ -3249,7 +3257,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Convert Mesh to Plane");
               }
               else {
-                if (ubl_conf.create_plane_from_mesh()) {
+                if (mesh_conf.create_plane_from_mesh()) {
                   Confirm_Handler((char*)"Error: Couldn't create plane!");
                   break;
                 }
@@ -3285,11 +3293,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case MESHVIEW_BACK:
             if (draw) {
               Draw_Menu_Item(0, ICON_Back, (char*)"Back");
-              Draw_Bed_Mesh();
-              Set_Mesh_Viewer_Status();
+              mesh_conf.Draw_Bed_Mesh();
+              mesh_conf.Set_Mesh_Viewer_Status();
             }
             else {
-              if (!ubl_conf.drawing_mesh) {
+              if (!mesh_conf.drawing_mesh) {
                 Draw_Menu(UBLView, UBLVIEW_MESH);
                 Update_Status("");
               }
@@ -3323,24 +3331,24 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case UBLM_X:
             if (draw) {
               Draw_Menu_Item(row, ICON_MoveX, (char*)"Mesh Point X");
-              Draw_Float(ubl_conf.mesh_x, row, 0, 1);
+              Draw_Float(mesh_conf.mesh_x, row, 0, 1);
             }
             else {
-              Modify_Value(ubl_conf.mesh_x, 0, GRID_MAX_POINTS_X - 1, 1);
+              Modify_Value(mesh_conf.mesh_x, 0, GRID_MAX_POINTS_X - 1, 1);
             }
             break;
           case UBLM_Y:
             if (draw) {
               Draw_Menu_Item(row, ICON_MoveY, (char*)"Mesh Point Y");
-              Draw_Float(ubl_conf.mesh_y, row, 0, 1);
+              Draw_Float(mesh_conf.mesh_y, row, 0, 1);
             }
             else {
-              Modify_Value(ubl_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
+              Modify_Value(mesh_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
             }
             break;
           case UBLM_NEXT:
             {
-              bool more = ubl_conf.mesh_y * GRID_MAX_POINTS_X + ubl_conf.mesh_x < GRID_MAX_POINTS - 1;
+              bool more = mesh_conf.mesh_y * GRID_MAX_POINTS_X + mesh_conf.mesh_x < GRID_MAX_POINTS - 1;
               if (draw) {
                 if (more)
                   Draw_Menu_Item(row, ICON_More, (char*)"Next Point");
@@ -3349,11 +3357,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               else {
                 if (more) {
-                  if (++ubl_conf.mesh_x == GRID_MAX_POINTS_X) {
-                    ubl_conf.mesh_x = 0;
-                    ubl_conf.mesh_y++;
+                  if (++mesh_conf.mesh_x == GRID_MAX_POINTS_X) {
+                    mesh_conf.mesh_x = 0;
+                    mesh_conf.mesh_y++;
                   }
-                  ubl_conf.manual_move();
+                  mesh_conf.manual_move();
                 }
                 else {
                   gcode.process_subcommands_now_P(PSTR("G29 S0"));
@@ -3367,17 +3375,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case UBLM_OFFSET:
             if (draw) {
               Draw_Menu_Item(row, ICON_SetZOffset, (char*)"Point Z Offset");
-              Draw_Float(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], row, false, 100);
+              Draw_Float(ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row, false, 100);
             }
             else {
-              if (!ubl_conf.mesh_step_warning && !ubl_conf.goto_mesh_value) {
+              if (!mesh_conf.mesh_step_warning && !mesh_conf.goto_mesh_value) {
                 CrealityDWIN.Confirm_Handler((char*)"Z-value not in position");
-                ubl_conf.mesh_step_warning = true;
+                mesh_conf.mesh_step_warning = true;
               }
               else {
-                if (isnan(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y]))
-                  ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] = 0;
-                Modify_Value(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+                if (isnan(ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y]))
+                  ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] = 0;
+                Modify_Value(ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
               }
             }
             break;
@@ -3386,16 +3394,16 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Up");
             }
             else {
-              if (!ubl_conf.mesh_step_warning && !ubl_conf.goto_mesh_value) {
+              if (!mesh_conf.mesh_step_warning && !mesh_conf.goto_mesh_value) {
                 CrealityDWIN.Confirm_Handler((char*)"Z-value not in position");
-                ubl_conf.mesh_step_warning = true;
-              } else if (ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] < MAX_Z_OFFSET) {
-                ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] += 0.01;
+                mesh_conf.mesh_step_warning = true;
+              } else if (ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] < MAX_Z_OFFSET) {
+                ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
                 gcode.process_subcommands_now_P(PSTR("M290 Z0.01"));
                 planner.synchronize();
                 current_position.z += 0.01f;
                 sync_plan_position();
-                Draw_Float(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], row-1, false, 100);
+                Draw_Float(ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row-1, false, 100);
               }
             }
             break;
@@ -3404,45 +3412,45 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
             }
             else {
-              if (!ubl_conf.mesh_step_warning && !ubl_conf.goto_mesh_value) {
+              if (!mesh_conf.mesh_step_warning && !mesh_conf.goto_mesh_value) {
                 Confirm_Handler((char*)"Z-value not in position");
-                ubl_conf.mesh_step_warning = true;
-              } else if (ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] > MIN_Z_OFFSET) {
-                ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y] -= 0.01;
+                mesh_conf.mesh_step_warning = true;
+              } else if (ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
+                ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
                 gcode.process_subcommands_now_P(PSTR("M290 Z-0.01"));
                 planner.synchronize();
                 current_position.z -= 0.01f;
                 sync_plan_position();
-                Draw_Float(ubl.z_values[ubl_conf.mesh_x][ubl_conf.mesh_y], row-2, false, 100);
+                Draw_Float(ubl.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row-2, false, 100);
               }
             }
             break;
           case UBLM_GOTO_VALUE: 
             if (draw) {
               Draw_Menu_Item(row, ICON_StockConfiguraton, (char*)"Go to Mesh Z Value");
-              Draw_Checkbox(row, ubl_conf.goto_mesh_value);
+              Draw_Checkbox(row, mesh_conf.goto_mesh_value);
             }
             else {
-              if (!ubl_conf.goto_mesh_value) {
+              if (!mesh_conf.goto_mesh_value) {
                 set_bed_leveling_enabled();
                 if (!planner.leveling_active) {
                   Confirm_Handler((char*)"Error: Couldn't enable UBL!");
                   break;
                 }
               }
-              ubl_conf.goto_mesh_value = !ubl_conf.goto_mesh_value;
-              ubl_conf.manual_move();
+              mesh_conf.goto_mesh_value = !mesh_conf.goto_mesh_value;
+              mesh_conf.manual_move();
             }
             break;
           case UBLM_GOTO_ZHOP:
-            if (ubl_conf.goto_mesh_value) {
+            if (mesh_conf.goto_mesh_value) {
               if (draw) {
                 Draw_Menu_Item(row, ICON_Zoffset, (char*)"Z-hop When Moving");
-                Draw_Checkbox(row, ubl_conf.mesh_goto_zhop);
+                Draw_Checkbox(row, mesh_conf.mesh_goto_zhop);
               }
               else {
-                ubl_conf.mesh_goto_zhop = !ubl_conf.mesh_goto_zhop;
-                Draw_Checkbox(row, ubl_conf.mesh_goto_zhop);
+                mesh_conf.mesh_goto_zhop = !mesh_conf.mesh_goto_zhop;
+                Draw_Checkbox(row, mesh_conf.mesh_goto_zhop);
               }
               break;
             }
@@ -3451,7 +3459,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_ResumeEEPROM, (char*)"Clear Point Value");
             }
             else {
-              ubl_conf.manual_value_update(true);
+              mesh_conf.manual_value_update(true);
               Redraw_Menu();
             }
             break;
@@ -4055,7 +4063,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       case MeshViewer:
         return MESHVIEW_TOTAL;
       case UBLManual:
-        return UBLM_TOTAL - !ubl_conf.goto_mesh_value;
+        return UBLM_TOTAL - !mesh_conf.goto_mesh_value;
     #endif
     case Tune:
       return TUNE_TOTAL;
@@ -4291,7 +4299,7 @@ inline void CrealityDWINClass::Value_Control() {
         break;
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         case UBLManual:
-          ubl_conf.manual_move();
+          mesh_conf.manual_move();
           break;
       #endif
     }
@@ -4949,13 +4957,13 @@ void CrealityDWINClass::SDCardInsert() { card.cdroot(); }
 
 void CrealityDWINClass::Save_Settings() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    eeprom_settings.tilt_grid_size = ubl_conf.tilt_grid-1;
+    eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid-1;
   #endif
 }
 
 void CrealityDWINClass::Load_Settings() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ubl_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
+    mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
   #endif
   Redraw_Screen();
   queue.inject_P(PSTR("M1000 S"));
