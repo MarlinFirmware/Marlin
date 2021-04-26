@@ -310,18 +310,20 @@ void GcodeSuite::M1004() {
     process_subcommands_now_P(PSTR (PROBE_GCODE));
     process_subcommands_now_P(PSTR ("G29P3\nG29P3"));
 
-  if (parser.seen('S')) { 
   int16_t slot_select = 0;  
   bool got_value = false;
 
   if (!got_value) {
-    slot_select = 0;
+    got_value = parser.seenval('S');
   if (got_value) slot_select = parser.value_int(); 
   } 
+    
+  if (got_value){
     char umw_gcode[32];
     sprintf_P(umw_gcode, PSTR("G29S%i"), slot_select);
     queue.inject(umw_gcode);
   }
+
     process_subcommands_now_P(PSTR ("G29A\nG29F10"));
     process_subcommands_now_P(PSTR ("M140S0\nM104S0"));
     process_subcommands_now_P(PSTR ("M500"));
