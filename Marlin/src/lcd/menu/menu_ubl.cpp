@@ -622,7 +622,7 @@ void _lcd_ubl_mesh_wizard() {
   }
 
 void _menu_ubl_mesh_wizard() {
-  int16_t total_slots = settings.calc_num_meshes()
+  int16_t total_slots = settings.calc_num_meshes();
   START_MENU();
   BACK_ITEM(MSG_UBL_LEVEL_BED);
   
