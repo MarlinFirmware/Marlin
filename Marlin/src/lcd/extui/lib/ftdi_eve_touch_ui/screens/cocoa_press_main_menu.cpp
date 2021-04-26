@@ -29,7 +29,7 @@
 using namespace FTDI;
 using namespace Theme;
 
-#define GRID_ROWS 5
+#define GRID_ROWS 6
 #define GRID_COLS 2
 
 #define ZPROBE_ZOFFSET_POS    BTN_POS(1,1), BTN_SIZE(1,1)
@@ -37,11 +37,12 @@ using namespace Theme;
 #define TEMPERATURE_POS       BTN_POS(2,1), BTN_SIZE(1,1)
 #define MOVE_E_POS            BTN_POS(2,2), BTN_SIZE(1,1)
 #define SPEED_POS             BTN_POS(1,3), BTN_SIZE(1,1)
-#define ADVANCED_SETTINGS_POS BTN_POS(2,3), BTN_SIZE(1,1)
-#define DISABLE_STEPPERS_POS  BTN_POS(1,4), BTN_SIZE(1,1)
-#define LEVELING_POS          BTN_POS(2,4), BTN_SIZE(1,1)
-#define ABOUT_PRINTER_POS     BTN_POS(1,5), BTN_SIZE(1,1)
-#define BACK_POS              BTN_POS(2,5), BTN_SIZE(1,1)
+#define FLOW_POS              BTN_POS(2,3), BTN_SIZE(1,1)
+#define ADVANCED_SETTINGS_POS BTN_POS(1,4), BTN_SIZE(1,1)
+#define DISABLE_STEPPERS_POS  BTN_POS(2,4), BTN_SIZE(1,1)
+#define LEVELING_POS          BTN_POS(1,5), BTN_SIZE(1,1)
+#define ABOUT_PRINTER_POS     BTN_POS(2,5), BTN_SIZE(1,1)
+#define BACK_POS              BTN_POS(1,6), BTN_SIZE(2,1)
 
 void MainMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
@@ -60,11 +61,12 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .tag( 4).button(ZPROBE_ZOFFSET_POS,    GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
        .tag( 5).button(MOVE_E_POS,            GET_TEXT_F(MSG_E_MOVE))
        .tag( 6).button(SPEED_POS,             GET_TEXT_F(MSG_PRINT_SPEED))
-       .tag( 7).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
-       .tag( 8).button(DISABLE_STEPPERS_POS,  GET_TEXT_F(MSG_DISABLE_STEPPERS))
+       .tag( 7).button(FLOW_POS,              GET_TEXT_F(MSG_FLOW))
+       .tag( 8).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
+       .tag( 9).button(DISABLE_STEPPERS_POS,  GET_TEXT_F(MSG_DISABLE_STEPPERS))
        .enabled(HAS_LEVELING)
-       .tag( 9).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
-       .tag(10).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
+       .tag(10).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
+       .tag(11).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
        .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BACK));
   }
@@ -82,12 +84,13 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     #endif
     case  5: GOTO_SCREEN(MoveEScreen);                      break;
     case  6: GOTO_SCREEN(FeedratePercentScreen);            break;
-    case  7: GOTO_SCREEN(AdvancedSettingsMenu);             break;
-    case  8: injectCommands_P(PSTR("M84"));                 break;
+    case  7: GOTO_SCREEN(FlowPercentScreen);                break;
+    case  8: GOTO_SCREEN(AdvancedSettingsMenu);             break;
+    case  9: injectCommands_P(PSTR("M84"));                 break;
     #if HAS_LEVELING
-    case 9:  GOTO_SCREEN(LevelingMenu);                     break;
+    case 10:  GOTO_SCREEN(LevelingMenu);                     break;
     #endif
-    case 10: GOTO_SCREEN(AboutScreen);                      break;
+    case 11: GOTO_SCREEN(AboutScreen);                      break;
     default:
       return false;
   }

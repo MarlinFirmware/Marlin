@@ -40,8 +40,7 @@ using namespace Theme;
 #define DISPLAY_POS             BTN_POS(1,3), BTN_SIZE(1,1)
 #define INTERFACE_POS           BTN_POS(2,3), BTN_SIZE(1,1)
 #define ENDSTOPS_POS            BTN_POS(3,3), BTN_SIZE(1,1)
-#define CASE_LIGHT_POS          BTN_POS(1,4), BTN_SIZE(1,1)
-#define RESTORE_DEFAULTS_POS    BTN_POS(2,4), BTN_SIZE(1,1)
+#define RESTORE_DEFAULTS_POS    BTN_POS(1,4), BTN_SIZE(2,1)
 #define BACK_POS                BTN_POS(3,4), BTN_SIZE(1,1)
 
 void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
@@ -66,9 +65,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(8) .button(ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(9) .button(INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
       .tag(10).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
-      .enabled(ENABLED(CASE_LIGHT_ENABLE))
-      .tag(11).button(CASE_LIGHT_POS,         GET_TEXT_F(MSG_CASE_LIGHT))
-      .tag(12).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
+      .tag(11).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
       .colors(action_btn)
       .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BACK));
   }
@@ -90,10 +87,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case  8: GOTO_SCREEN(EndstopStatesScreen); break;
     case  9: GOTO_SCREEN(InterfaceSettingsScreen); LockScreen::check_passcode(); break;
     case 10: GOTO_SCREEN(DisplayTuningScreen); break;
-    #if ENABLED(CASE_LIGHT_ENABLE)
-    case 11: GOTO_SCREEN(CaseLightScreen); break;
-    #endif
-    case 12: GOTO_SCREEN(RestoreFailsafeDialogBox); LockScreen::check_passcode(); break;
+    case 11: GOTO_SCREEN(RestoreFailsafeDialogBox); LockScreen::check_passcode(); break;
     default: return false;
   }
   return true;
