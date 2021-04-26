@@ -311,7 +311,7 @@ void GcodeSuite::M1004() {
     process_subcommands_now_P(PSTR ("G29P3\nG29P3"));
 
   if (parser.seen('S')) { 
-  static int16_t slot_select = 0;  
+  int16_t slot_select = 0;  
   slot_select = parser.seenval('S'); 
    
   char umw_gcode[32];

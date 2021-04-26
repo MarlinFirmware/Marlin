@@ -44,7 +44,6 @@ static int16_t ubl_storage_slot = 0,
 
 static uint8_t n_edit_pts = 1;
 static int8_t x_plot = 0, y_plot = 0; // May be negative during move
- static int16_t umw_mesh_slot = 0;
 
 #if HAS_HEATED_BED
   static int16_t custom_bed_temp = 50;
@@ -610,13 +609,13 @@ void _menu_ubl_tools() {
 void _lcd_ubl_mesh_wizard() {
   char ubl_lcd_gcode[64];
   #if HAS_HEATED_BED && HAS_HOTEND
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004B%iH%iS%i"), custom_bed_temp, custom_hotend_temp, umw_mesh_slot);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004B%iH%iS%i"), custom_bed_temp, custom_hotend_temp, ubl_storage_slot);
     queue.inject(ubl_lcd_gcode);  
   #elif HAS_HOTEND
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004H%iS%i"), custom_hotend_temp, umw_mesh_slot);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004H%iS%i"), custom_hotend_temp, ubl_storage_slot);
     queue.inject(ubl_lcd_gcode); 
   #else
-    sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), umw_mesh_slot);
+    sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), ubl_storage_slot);
     queue.inject(ubl_lcd_gcode);   
   #endif  
   }
@@ -634,7 +633,7 @@ void _menu_ubl_mesh_wizard() {
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, 20, BED_MAX_TARGET);
   #endif
   
-  EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &umw_mesh_slot, 0, total_slots);
+  EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, total_slots);
 
   ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
   
