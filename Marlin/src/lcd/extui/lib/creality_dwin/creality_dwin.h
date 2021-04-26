@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, ConfLevel, ConfFilChange, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout, PIDWait
+  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout, PIDWait
 };
 
 enum menuID : uint8_t {
@@ -67,12 +67,13 @@ enum menuID : uint8_t {
         ColorSettings,
       Advanced,
       Info,
-    ManualMesh,
-    UBL,
-      UBLView,
+    Leveling,
+      LevelManual,
+      LevelView,
       MeshViewer,
-      UBLSettings,
-      UBLManual,
+      LevelSettings,
+      ManualMesh,
+      UBLMesh,
     InfoMain,
   Tune,
   PreheatHotend
