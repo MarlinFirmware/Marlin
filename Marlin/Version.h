@@ -34,7 +34,7 @@
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BLTouch, based on bugfix-2.0.x"       // M.A.R.C.
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION ", based on bugfix-2.0.x"       // M.A.R.C.
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
@@ -55,7 +55,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "github.com/mriscoc/Marlin_Ender3v2/tree/bugfix-2.0.x-BLTouch"      // M.A.R.C.
+#define SOURCE_CODE_URL "github.com/mriscoc/Marlin_Ender3v2"      // M.A.R.C.
 
 /**
  * Default generic printer UUID.
@@ -66,7 +66,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-//#define WEBSITE_URL "marlinfw.org"
+#define WEBSITE_URL "github.com/mriscoc/Marlin_Ender3v2/wiki"
 
 /**
  * Set the vendor info the serial USB interface, if changable
