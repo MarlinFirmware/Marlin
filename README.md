@@ -30,7 +30,8 @@ Released versions of this firmware can be found on the [Releases page](https://g
   
 ## Credits
 
-This fork of Marlin firmware is maintained by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru
+This fork of Marlin firmware is maintained by Miguel Risco-Castillo [[@mriscoc](https://github.com/mriscoc)] - Peru  
+
 This work would not be possible without the supporters, helpers and betatesters at the [Telegram group](https://t.me/Ender3v2_Firmware).
 
 ###The current Marlin dev team consists of:
