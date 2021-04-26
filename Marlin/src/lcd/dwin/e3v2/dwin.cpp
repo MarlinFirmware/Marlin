@@ -3461,13 +3461,13 @@ void HMI_AdvSet() {
     DWIN_UpdateLCD();
   }
 
-  void HMI_HomeOffN(float &posScaled, const_float_t lo, const_float_t hi) {
+  void HMI_HomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
       if (Apply_Encoder(encoder_diffState, posScaled)) {
         checkkey = HomeOff;
         EncoderRate.enabled = false;
-        set_home_offset(X_AXIS, posScaled / 10);
+        set_home_offset(axis, posScaled / 10);
         DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(select_item.now), posScaled);
         return;
       }
@@ -3476,9 +3476,9 @@ void HMI_AdvSet() {
     }
   }
 
-  void HMI_HomeOffX() { HMI_HomeOffN(HMI_ValueStruct.Home_OffX_scaled, -500, 500); }
-  void HMI_HomeOffY() { HMI_HomeOffN(HMI_ValueStruct.Home_OffY_scaled, -500, 500); }
-  void HMI_HomeOffZ() { HMI_HomeOffN(HMI_ValueStruct.Home_OffZ_scaled,  -20,  20); }
+  void HMI_HomeOffX() { HMI_HomeOffN(X_AXIS, HMI_ValueStruct.Home_OffX_scaled, -500, 500); }
+  void HMI_HomeOffY() { HMI_HomeOffN(Y_AXIS, HMI_ValueStruct.Home_OffY_scaled, -500, 500); }
+  void HMI_HomeOffZ() { HMI_HomeOffN(Z_AXIS, HMI_ValueStruct.Home_OffZ_scaled,  -20,  20); }
 
 #endif // HAS_HOME_OFFSET
 
