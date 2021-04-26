@@ -258,7 +258,6 @@ bool unified_bed_leveling::sanity_check() {
 /**
  * M1004: UBL Mesh Wizard - One-click mesh creation with or without a probe
  */
-#if ENABLED(UBL_MESH_WIZARD)
 void GcodeSuite::M1004() {
 
   #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
@@ -330,7 +329,6 @@ void GcodeSuite::M1004() {
       process_subcommands_now_P(PSTR ("M140S0\nM104S0")); // Turn off heaters
       process_subcommands_now_P(PSTR ("M500"));           // Store settings
     }
-  #endif
   #endif
 
 #endif // AUTO_BED_LEVELING_UBL
