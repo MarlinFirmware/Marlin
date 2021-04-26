@@ -316,7 +316,6 @@ void GcodeSuite::M1004() {
     sprintf_P(ubl_lcd_gcode, PSTR("G29S%i"), slot_select);
     queue.inject(ubl_lcd_gcode);    
   }
-  
 
     process_subcommands_now_P(PSTR ("G29A\nG29F10"));
     process_subcommands_now_P(PSTR ("M140S0\nM104S0"));
