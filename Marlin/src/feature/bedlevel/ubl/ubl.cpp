@@ -313,8 +313,8 @@ void GcodeSuite::M1004() {
   static int16_t slot_select = 0;  
   slot_select = parser.seenval('S');  
   char ubl_lcd_gcode[32];
-    sprintf_P(ubl_lcd_gcode, PSTR("G29S%i"), slot_select);
-    queue.inject(ubl_lcd_gcode);    
+    sprintf_P(umw_gcode, PSTR("G29S%i"), slot_select);
+    queue.inject(umw_gcode);    
   }
 
     process_subcommands_now_P(PSTR ("G29A\nG29F10"));
