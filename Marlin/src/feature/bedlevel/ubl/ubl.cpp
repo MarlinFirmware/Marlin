@@ -311,8 +311,9 @@ void GcodeSuite::M1004() {
 
   if (parser.seen('S')) { 
   static int16_t slot_select = 0;  
-  slot_select = parser.seenval('S');  
-  char ubl_lcd_gcode[32];
+  slot_select = parser.seenval('S'); 
+   
+  char umw_gcode[32];
     sprintf_P(umw_gcode, PSTR("G29S%i"), slot_select);
     queue.inject(umw_gcode);    
   }
