@@ -34,7 +34,7 @@ This fork of Marlin firmware is maintained by Miguel Risco-Castillo [[@mriscoc](
 
 This work would not be possible without the supporters, helpers and betatesters at the [Telegram group](https://t.me/Ender3v2_Firmware).
 
-###The current Marlin dev team consists of:
+### The current Marlin dev team consists of:
  - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
