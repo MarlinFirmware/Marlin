@@ -303,6 +303,7 @@ void GcodeSuite::M1004() {
     thermalManager.setTargetBed(temp);
     thermalManager.wait_for_bed(no_wait_for_cooling_bed);
   }
+  #endif
 
     process_subcommands_now_P(PSTR ("G28"));
     process_subcommands_now_P(PSTR (ALIGN_GCODE));
@@ -322,7 +323,6 @@ void GcodeSuite::M1004() {
     process_subcommands_now_P(PSTR ("M140S0\nM104S0"));
     process_subcommands_now_P(PSTR ("M500"));
  }
-  #endif
 
 #endif // AUTO_BED_LEVELING_UBL
 
