@@ -241,6 +241,9 @@ void MarlinUI::draw_status_screen() {
       #ifdef ITEM_CHAMBER
         case ITEM_CHAMBER: draw_heater_status(x, y, H_CHAMBER); break;
       #endif
+      #ifdef ITEM_COOLER
+        case ITEM_COOLER: draw_heater_status(x, y, H_COOLER); break;
+      #endif
       #ifdef ITEM_FAN
         case ITEM_FAN: draw_fan_status(x, y, blink); break;
       #endif
