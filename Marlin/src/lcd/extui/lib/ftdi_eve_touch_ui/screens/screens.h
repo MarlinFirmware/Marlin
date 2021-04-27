@@ -55,6 +55,7 @@ enum {
   MAX_VELOCITY_SCREEN_CACHE,
   MAX_ACCELERATION_SCREEN_CACHE,
   DEFAULT_ACCELERATION_SCREEN_CACHE,
+  FLOW_PERCENT_SCREEN_CACHE,
   #if HAS_LEVELING
     LEVELING_SCREEN_CACHE,
     #if HAS_BED_PROBE
@@ -150,6 +151,7 @@ enum {
   #include "cocoa_press_preheat_screen.h"
   #include "cocoa_press_load_chocolate.h"
   #include "move_axis_screen.h"
+  #include "flow_percent_screen.h"
   #include "cocoa_press_move_xyz_screen.h"
   #include "cocoa_press_move_e_screen.h"
   #include "tune_menu.h"

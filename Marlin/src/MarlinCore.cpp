@@ -232,6 +232,10 @@
   #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
+#if HAS_DRIVER_SAFE_POWER_PROTECT
+  #include "feature/stepper_driver_safety.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -1223,6 +1227,15 @@ void setup() {
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
+  #if PIN_EXISTS(SAFE_POWER)
+    #if HAS_DRIVER_SAFE_POWER_PROTECT
+      SETUP_RUN(stepper_driver_backward_check());
+    #else
+      SETUP_LOG("SAFE_POWER");
+      OUT_WRITE(SAFE_POWER_PIN, HIGH);
+    #endif
+  #endif
+
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
   #endif
@@ -1465,6 +1478,10 @@ void setup() {
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
     SETUP_RUN(test_tmc_connection(true, true, true, true));
+  #endif
+
+  #if HAS_DRIVER_SAFE_POWER_PROTECT
+    SETUP_RUN(stepper_driver_backward_report());
   #endif
 
   #if HAS_PRUSA_MMU2
