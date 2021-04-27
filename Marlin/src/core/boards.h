@@ -363,25 +363,26 @@
 #define BOARD_BLACK_STM32F407VE       4204  // BLACK_STM32F407VE
 #define BOARD_BLACK_STM32F407ZE       4205  // BLACK_STM32F407ZE
 #define BOARD_STEVAL_3DP001V1         4206  // STEVAL-3DP001V1 3D PRINTER BOARD
-#define BOARD_BTT_SKR_PRO_V1_1        4207  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
-#define BOARD_BTT_SKR_PRO_V1_2        4208  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
-#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VG)
+#define BOARD_BTT_SKR_PRO_V1_1        4207  // BigTreeTech SKR Pro v1.1 (STM32F407ZGT6)
+#define BOARD_BTT_SKR_PRO_V1_2        4208  // BigTreeTech SKR Pro v1.2 (STM32F407ZGT6)
+#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VGT6)
 #define BOARD_BTT_E3_RRF              4210  // BigTreeTech E3 RRF (STM32F407VGT6)
-#define BOARD_BTT_GTR_V1_0            4211  // BigTreeTech GTR v1.0 (STM32F407IGT)
-#define BOARD_LERDGE_K                4212  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_S                4213  // Lerdge S (STM32F407VE)
-#define BOARD_LERDGE_X                4214  // Lerdge X (STM32F407VE)
-#define BOARD_VAKE403D                4215  // VAkE 403D (STM32F446VET6)
-#define BOARD_FYSETC_S6               4216  // FYSETC S6 (STM32F446VET6)
-#define BOARD_FYSETC_S6_V2_0          4217  // FYSETC S6 v2.0 (STM32F446VET6)
-#define BOARD_FYSETC_SPIDER           4218  // FYSETC Spider (STM32F446VET6)
-#define BOARD_FLYF407ZG               4219  // FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4220  // MKS_ROBIN2 (STM32F407ZE)
-#define BOARD_MKS_ROBIN_PRO_V2        4221  // MKS Robin Pro V2 (STM32F407VE)
-#define BOARD_MKS_ROBIN_NANO_V3       4222  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_ANET_ET4                4223  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4224  // ANET ET4P V1.x (STM32F407VGT6)
-#define BOARD_FYSETC_CHEETAH_V20      4225  // FYSETC Cheetah V2.0
+#define BOARD_BTT_SKR_V2_0            4211  // BigTreeTech SKR v2.0 (STM32F407VGT6)
+#define BOARD_BTT_GTR_V1_0            4212  // BigTreeTech GTR v1.0 (STM32F407IGT)
+#define BOARD_LERDGE_K                4213  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_S                4214  // Lerdge S (STM32F407VE)
+#define BOARD_LERDGE_X                4215  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4216  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4217  // FYSETC S6 (STM32F446VET6)
+#define BOARD_FYSETC_S6_V2_0          4218  // FYSETC S6 v2.0 (STM32F446VET6)
+#define BOARD_FYSETC_SPIDER           4219  // FYSETC Spider (STM32F446VET6)
+#define BOARD_FLYF407ZG               4220  // FLYF407ZG (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4221  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_ROBIN_PRO_V2        4222  // MKS Robin Pro V2 (STM32F407VE)
+#define BOARD_MKS_ROBIN_NANO_V3       4223  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_ANET_ET4                4224  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4225 // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_FYSETC_CHEETAH_V20      4226  // FYSETC Cheetah V2.0
 
 //
 // ARM Cortex M7

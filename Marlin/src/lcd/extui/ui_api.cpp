@@ -691,7 +691,7 @@ namespace ExtUI {
   #endif
 
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
-  int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
+  int16_t getFlow_percent(const extruder_t extr)      { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
   feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
