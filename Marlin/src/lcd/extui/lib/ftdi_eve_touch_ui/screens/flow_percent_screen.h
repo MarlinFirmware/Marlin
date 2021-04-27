@@ -1,10 +1,9 @@
-/**********************
- * media_filereader.h *
- **********************/
+/*************************
+ * flow_percent_screen.h *
+ *************************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,27 +21,11 @@
 
 #pragma once
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#define FTDI_FLOW_PERCENT_SCREEN
+#define FTDI_FLOW_PERCENT_SCREEN_CLASS FlowPercentScreen
 
-#if ENABLED(SDSUPPORT)
-  #include "../../../../../sd/SdFile.h"
-  #include "../../../../../sd/cardreader.h"
-#endif
-
-class MediaFileReader {
-  private:
-    #if ENABLED(SDSUPPORT)
-      DiskIODriver_SPI_SD card;
-      SdVolume volume;
-      SdFile   root, file;
-    #endif
-
+class FlowPercentScreen : public BaseNumericAdjustmentScreen, public CachedScreen<FLOW_PERCENT_SCREEN_CACHE> {
   public:
-    bool open(const char *filename);
-    int16_t read(void *buff, size_t bytes);
-    uint32_t size();
-    void rewind();
-    void close();
-
-    static int16_t read(void *obj, void *buff, size_t bytes);
+    static void onRedraw(draw_mode_t);
+    static bool onTouchHeld(uint8_t tag);
 };
