@@ -1,21 +1,11 @@
 #
-# chitu_crypt.py
+# buildroot/share/PlatformIO/scripts/chitu_crypt.py
 # Customizations for Chitu boards
 #
-Import("env")
-import os,random,struct,uuid
+import os,random,struct,uuid,marlin
 
 # Relocate firmware from 0x08000000 to 0x08008800
-env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08008800"))
-
-custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/chitu_f103.ld")
-for i, flag in enumerate(env["LINKFLAGS"]):
-    if "-Wl,-T" in flag:
-        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
-    elif flag == "-T":
-        env["LINKFLAGS"][i + 1] = custom_ld_script
-
+marlin.relocate_firmware("0x08008800")
 
 def calculate_crc(contents, seed):
     accumulating_xor_value = seed;
@@ -43,7 +33,7 @@ def xor_block(r0, r1, block_number, block_size, file_key):
 
     for loop_counter in range(0, block_size):
         # meant to make sure different bits of the key are used.
-        xor_seed = int(loop_counter/key_length)
+        xor_seed = int(loop_counter / key_length)
 
         # IP is a scratch register / R12
         ip = loop_counter - (key_length * xor_seed)
@@ -68,7 +58,6 @@ def xor_block(r0, r1, block_number, block_size, file_key):
 
         #increment the loop_counter
         loop_counter = loop_counter + 1
-
 
 def encrypt_file(input, output_file, file_length):
     input_file = bytearray(input.read())
@@ -113,11 +102,10 @@ def encrypt_file(input, output_file, file_length):
     output_file.write(input_file)
     return
 
-
 # Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
 def encrypt(source, target, env):
     firmware = open(target[0].path, "rb")
-    update = open(target[0].dir.path +'/update.cbd', "wb")
+    update = open(target[0].dir.path + '/update.cbd', "wb")
     length = os.path.getsize(target[0].path)
 
     encrypt_file(firmware, update, length)
@@ -125,4 +113,4 @@ def encrypt(source, target, env):
     firmware.close()
     update.close()
 
-env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
+marlin.add_post_action(encrypt);

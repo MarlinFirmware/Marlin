@@ -706,6 +706,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Bottom Right");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibration Completed");
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibration Failed");
+
+  PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" driver backward");
 }
 
 #if FAN_COUNT == 1
