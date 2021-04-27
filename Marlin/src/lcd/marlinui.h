@@ -39,7 +39,7 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
+#if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
 
@@ -62,6 +62,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../feature/pause.h"
+  #include "dwin/e3v2/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
@@ -341,6 +342,7 @@ public:
         static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
+        static void bootscreen_completion(const millis_t sofar);
       #endif
 
       #if HAS_MARLINUI_U8GLIB

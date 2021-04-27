@@ -57,9 +57,7 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_HEATING
 };
 
-#include "../libs/nozzle.h"
-
-#if HAS_LCD_MENU
+#if M600_PURGE_MORE_RESUMABLE
   enum PauseMenuResponse : char {
     PAUSE_RESPONSE_WAIT_FOR,
     PAUSE_RESPONSE_EXTRUDE_MORE,

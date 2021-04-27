@@ -120,6 +120,8 @@ uint8_t HAL_get_reset_source() {
   return 0;
 }
 
+void HAL_reboot() { _reboot_Teensyduino_(); }
+
 #define __bss_end _ebss
 
 extern "C" {

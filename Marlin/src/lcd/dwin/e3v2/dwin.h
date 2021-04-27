@@ -55,13 +55,13 @@ enum processID : uint8_t {
   ManualLev,
   ManualMesh,
   MMeshMoveZ,
-  AdvSet,
   PidRunning,
   TemperatureID,
   Motion,
   Reboot,
   Info,
   Tune,
+  TuneFlow,
   #if HAS_PREHEAT
     PLAPreheat,
     ABSPreheat,
@@ -78,6 +78,8 @@ enum processID : uint8_t {
   HomeOffX,
   HomeOffY,
   HomeOffZ,
+  // Advance Settings
+  AdvSet,
   ProbeOff,
   ProbeOffX,
   ProbeOffY,

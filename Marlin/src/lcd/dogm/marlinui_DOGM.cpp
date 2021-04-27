@@ -160,20 +160,21 @@ bool MarlinUI::detected() { return true; }
           #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
-          if (frame_time) safe_delay(frame_time);
+          if (frame_time) early_safe_delay(frame_time);
         }
 
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
       #endif
       #if CUSTOM_BOOTSCREEN_TIMEOUT
-        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+        early_safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
       #endif
     }
   #endif // SHOW_CUSTOM_BOOTSCREEN
 
   // Two-part needed to display all info
   constexpr bool two_part = ((LCD_PIXEL_HEIGHT) - (START_BMPHEIGHT)) < ((MENU_FONT_ASCENT) * 2);
+  constexpr uint8_t bootscreen_pages = 1 + two_part;
 
   // Draw the static Marlin bootscreen from a u8g loop
   // or the animated boot screen within its own u8g loop
@@ -225,23 +226,26 @@ bool MarlinUI::detected() { return true; }
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
-        if (frame_time) safe_delay(frame_time);
+        if (frame_time) early_safe_delay(frame_time);
       }
     #endif
   }
 
   // Show the Marlin bootscreen, with the u8g loop and delays
   void MarlinUI::show_marlin_bootscreen() {
-    constexpr uint8_t pages = two_part ? 2 : 1;
-    for (uint8_t q = pages; q--;) {
+    for (uint8_t q = bootscreen_pages; q--;) {
       draw_marlin_bootscreen(q == 0);
-      safe_delay((BOOTSCREEN_TIMEOUT) / pages);
+      if (q) early_safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages);
     }
   }
 
   void MarlinUI::show_bootscreen() {
     TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
     show_marlin_bootscreen();
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) / bootscreen_pages > sofar) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages - sofar);
   }
 
 #endif // SHOW_BOOTSCREEN
@@ -324,7 +328,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
-      lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
+      lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));
       lcd_put_wchar('/');
 
       if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
