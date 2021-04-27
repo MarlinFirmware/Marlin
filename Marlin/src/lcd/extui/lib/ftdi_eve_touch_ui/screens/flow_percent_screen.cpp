@@ -1,10 +1,9 @@
-/**********************
- * media_filereader.h *
- **********************/
+/***************************
+ * flow_percent_screen.cpp *
+ ***************************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2021 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -20,29 +19,32 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#pragma once
+#include "../config.h"
+#include "screens.h"
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#ifdef FTDI_FLOW_PERCENT_SCREEN
 
-#if ENABLED(SDSUPPORT)
-  #include "../../../../../sd/SdFile.h"
-  #include "../../../../../sd/cardreader.h"
-#endif
+using namespace FTDI;
+using namespace ExtUI;
 
-class MediaFileReader {
-  private:
-    #if ENABLED(SDSUPPORT)
-      DiskIODriver_SPI_SD card;
-      SdVolume volume;
-      SdFile   root, file;
-    #endif
+void FlowPercentScreen::onRedraw(draw_mode_t what) {
+  widgets_t w(what);
+  w.precision(0).units(GET_TEXT_F(MSG_UNITS_PERCENT));
 
-  public:
-    bool open(const char *filename);
-    int16_t read(void *buff, size_t bytes);
-    uint32_t size();
-    void rewind();
-    void close();
+  w.heading(GET_TEXT_F(MSG_FLOW));
+  w.adjuster(4,  GET_TEXT_F(MSG_FLOW), getFlow_percent(E0));
+  w.increments();
+}
 
-    static int16_t read(void *obj, void *buff, size_t bytes);
-};
+bool FlowPercentScreen::onTouchHeld(uint8_t tag) {
+  const float increment = getIncrement();
+  switch (tag) {
+    case 4: UI_DECREMENT(Flow_percent, E0); break;
+    case 5: UI_INCREMENT(Flow_percent, E0); break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+#endif // FTDI_FLOW_PERCENT_SCREEN
