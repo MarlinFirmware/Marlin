@@ -20,9 +20,8 @@
  *
  */
 
-
 /**
- * Description: HAL for Teensy32 (MK20DX256)
+ * HAL for Teensy 3.2 (MK20DX256)
  */
 
 #ifdef __MK20DX256__
@@ -31,6 +30,13 @@
 #include "../shared/Delay.h"
 
 #include <Wire.h>
+
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#endif
+USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result;
 

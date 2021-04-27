@@ -25,9 +25,7 @@
  * Smoothieboard pin assignments
  */
 
-#ifndef MCU_LPC1769
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "Smoothieboard"
 #define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
@@ -109,9 +107,57 @@
   #define STAT_LED_RED_PIN                 P1_19
   #define STAT_LED_BLUE_PIN                P1_20
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
-  #error "Marlin's Smoothieboard support cannot drive your LCD."
+  /**
+   * SD Support
+   *
+   * For the RRD GLCD it CANNOT share the same SPI as the LCD so it must be
+   * hooked up to the onboard SDCard SPI and use a spare pin for the SDCS.
+   * Also note that an external SDCard sharing the SPI port with the
+   * onboard/internal SDCard must be ejected before rebooting as the bootloader
+   * does not like the external card. NOTE Smoothie will not boot if the external
+   * sdcard is inserted in the RRD LCD sdcard slot at boot time, it must be
+   * inserted after it has booted.
+   */
+  #define SD_DETECT_PIN                    P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
+
+  #define SD_MISO_PIN                      P0_08  // EXP2 Pin 1 (PB3, SD_MISO)
+  #define SD_SCK_PIN                       P0_07  // EXP2 Pin 2 (SD_SCK)
+  #define SD_SS_PIN                        P0_28  // EXP2 Pin 4 (SD_CSEL, SD_CS)
+  #define SD_MOSI_PIN                      P0_09  // EXP2 Pin 6 (PB2, SD_MOSI)
+
+  /**
+   * The Smoothieboard supports the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with either
+   * a custom cable with breakouts to the pins indicated below or the RRD GLCD Adapter board
+   * found at http://smoothieware.org/rrdglcdadapter
+   *
+   * Other links to information about setting up a display panel with Smoothieboard
+   * http://chibidibidiwah.wdfiles.com/local--files/panel/smoothieboard2sd.jpg
+   * http://smoothieware.org/panel
+   */
+  #if IS_RRD_FG_SC
+    //  EXP1 Pins
+    #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
+    #define BTN_ENC                        P1_30  // EXP1 Pin 2
+    #define LCD_PINS_ENABLE                P0_18  // EXP1 Pin 3 (MOSI)
+    #define LCD_PINS_RS                    P0_16  // EXP1 Pin 4 (CS)
+    #define LCD_PINS_D4                    P0_15  // EXP1 Pin 5 (SCK)
+    //  EXP2 Pins
+    #define BTN_EN2                        P3_26  // EXP2 Pin 3
+    #define BTN_EN1                        P3_25  // EXP2 Pin 5
+
+  #elif IS_TFTGLCD_PANEL
+
+    #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_26  // EXP2 Pin 3
+    #endif
+
+  #else
+    #error "Marlin's Smoothieboard support cannot drive your LCD."
+  #endif
 
 #endif
 
@@ -121,7 +167,7 @@
  * Set from 0 - 127 with stop bit.
  * (Ex. 3F << 1 | 1)
  */
-#define DIGIPOTS_I2C_SCL                   P0_0
+#define DIGIPOTS_I2C_SCL                   P0_00
 #define DIGIPOTS_I2C_SDA_X                 P0_04
 #define DIGIPOTS_I2C_SDA_Y                 P0_10
 #define DIGIPOTS_I2C_SDA_Z                 P0_19

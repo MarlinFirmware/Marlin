@@ -44,11 +44,7 @@ extern xyze_pos_t destination;
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
-void GcodeSuite::G0_G1(
-  #if IS_SCARA || defined(G0_FEEDRATE)
-    const bool fast_move/*=false*/
-  #endif
-) {
+void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
@@ -58,6 +54,7 @@ void GcodeSuite::G0_G1(
         | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )
     #endif
   ) {
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
     #ifdef G0_FEEDRATE
       feedRate_t old_feedrate;
@@ -120,6 +117,9 @@ void GcodeSuite::G0_G1(
         planner.synchronize();
         SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
       }
+      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+    #else
+      TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
     #endif
   }
 }

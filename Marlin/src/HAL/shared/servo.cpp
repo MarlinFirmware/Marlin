@@ -48,7 +48,6 @@
  * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
  * attached()            - Return true if a servo is attached.
  * detach()              - Stop an attached servo from pulsing its i/o pin.
- *
  */
 
 #include "../../inc/MarlinConfig.h"

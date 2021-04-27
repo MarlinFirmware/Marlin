@@ -36,7 +36,7 @@
 #define BOARD_INFO_NAME "Melzi (Creality)"
 
 // Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #endif
@@ -62,17 +62,21 @@
 #undef LCD_PINS_D6
 #undef LCD_PINS_D7
 
-#define LCD_SDSS                             31   // Smart Controller SD card reader (rather than the Melzi)
-#define LCD_PINS_RS                          28   // ST9720 CS
-#define LCD_PINS_ENABLE                      17   // ST9720 DAT
-#define LCD_PINS_D4                          30   // ST9720 CLK
+#define LCD_SDSS                              31  // Smart Controller SD card reader (rather than the Melzi)
+#define LCD_PINS_RS                           28  // ST9720 CS
+#define LCD_PINS_ENABLE                       17  // ST9720 DAT
+#define LCD_PINS_D4                           30  // ST9720 CLK
 
 #if ENABLED(BLTOUCH)
-  #define SERVO0_PIN                         27
-  #undef BEEPER_PIN
+  #ifndef SERVO0_PIN
+    #define SERVO0_PIN                        27
+  #endif
+  #if SERVO0_PIN == BEEPER_PIN
+    #undef BEEPER_PIN
+  #endif
 #elif ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN                   27
+    #define FIL_RUNOUT_PIN                    27
   #endif
   #if FIL_RUNOUT_PIN == BEEPER_PIN
     #undef BEEPER_PIN
@@ -81,7 +85,7 @@
 
 #if ENABLED(MINIPANEL)
   #undef DOGLCD_CS
-  #define DOGLCD_CS LCD_PINS_RS
+  #define DOGLCD_CS                  LCD_PINS_RS
 #endif
 
 /**
@@ -91,13 +95,13 @@
   PIN:   3   Port: B3        Z_STEP_PIN                  protected
   PIN:   4   Port: B4        AVR_SS_PIN                  protected
   .                          FAN_PIN                     protected
-  .                          SS_PIN                      protected
+  .                       SD_SS_PIN                      protected
   PIN:   5   Port: B5        AVR_MOSI_PIN                Output = 1
-  .                          MOSI_PIN                    Output = 1
+  .                       SD_MOSI_PIN                    Output = 1
   PIN:   6   Port: B6        AVR_MISO_PIN                Input  = 0    TIMER3A   PWM:     0    WGM: 1    COM3A: 0    CS: 3    TCCR3A: 1    TCCR3B: 3    TIMSK3: 0
-  .                          MISO_PIN                    Input  = 0
+  .                       SD_MISO_PIN                    Input  = 0
   PIN:   7   Port: B7        AVR_SCK_PIN                 Output = 0    TIMER3B   PWM:     0    WGM: 1    COM3B: 0    CS: 3    TCCR3A: 1    TCCR3B: 3    TIMSK3: 0
-  .                          SCK_PIN                     Output = 0
+  .                       SD_SCK_PIN                     Output = 0
   PIN:   8   Port: D0        RXD                         Input  = 1
   PIN:   9   Port: D1        TXD                         Input  = 0
   PIN:  10   Port: D2        BTN_EN2                     Input  = 1

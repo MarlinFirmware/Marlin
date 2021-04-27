@@ -83,17 +83,16 @@ bool PersistentStore::access_finish() {
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
   PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
   SERIAL_CHAR(' ');
-  serialprintPGM(rw_str);
-  SERIAL_ECHOLNPAIR("_data(", pos, ",", int(value), ",", int(size), ", ...)");
+  SERIAL_ECHOPGM_P(rw_str);
+  SERIAL_ECHOLNPAIR("_data(", pos, ",", value, ",", size, ", ...)");
   if (total) {
     SERIAL_ECHOPGM(" f_");
-    serialprintPGM(rw_str);
-    SERIAL_ECHOPAIR("()=", int(s), "\n size=", int(size), "\n bytes_");
-    serialprintPGM(write ? PSTR("written=") : PSTR("read="));
-    SERIAL_ECHOLN(total);
+    SERIAL_ECHOPGM_P(rw_str);
+    SERIAL_ECHOPAIR("()=", s, "\n size=", size, "\n bytes_");
+    SERIAL_ECHOLNPAIR_P(write ? PSTR("written=") : PSTR("read="), total);
   }
   else
-    SERIAL_ECHOLNPAIR(" f_lseek()=", int(s));
+    SERIAL_ECHOLNPAIR(" f_lseek()=", s);
 }
 
 // File function return codes for type FRESULT. This goes away soon, but
@@ -143,7 +142,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return bytes_written != size;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   if (!eeprom_file_open) return true;
   UINT bytes_read = 0;
   FRESULT s;

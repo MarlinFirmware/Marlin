@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#define PM_SAMPLE_RANGE 1024
+#define PM_SAMPLE_RANGE HAL_ADC_RANGE
 #define PM_K_VALUE      6
 #define PM_K_SCALE      6
 
@@ -35,7 +35,7 @@ struct pm_lpf_t {
     filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
   }
   void capture() {
-    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE)))) + (POWER_MONITOR_CURRENT_OFFSET);
+    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));
   }
   void reset(uint16_t reset_value = 0) {
     filter_buf = uint32_t(reset_value) << (K_VALUE + K_SCALE);
@@ -69,34 +69,32 @@ public:
   };
 
   #if ENABLED(POWER_MONITOR_CURRENT)
-    FORCE_INLINE static float getAmps() { return amps.value; }
+    FORCE_INLINE static float getAmps() { return amps.value + (POWER_MONITOR_CURRENT_OFFSET); }
     void add_current_sample(const uint16_t value) { amps.add_sample(value); }
   #endif
 
-  #if HAS_POWER_MONITOR_VREF
-    #if ENABLED(POWER_MONITOR_VOLTAGE)
-      FORCE_INLINE static float getVolts() { return volts.value; }
-    #else
-      FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }  // using a specified fixed valtage as the voltage measurement
-    #endif
-    #if ENABLED(POWER_MONITOR_VOLTAGE)
-      void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
-    #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    FORCE_INLINE static float getVolts() { return volts.value + (POWER_MONITOR_VOLTAGE_OFFSET); }
+    void add_voltage_sample(const uint16_t value) { volts.add_sample(value); }
+  #else
+    FORCE_INLINE static float getVolts() { return POWER_MONITOR_FIXED_VOLTAGE; }
   #endif
 
   #if HAS_POWER_MONITOR_WATTS
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
   #endif
 
-  #if HAS_SPI_LCD
-    FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+  #if HAS_WIRED_LCD
+    #if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
+      FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+    #endif
     #if ENABLED(POWER_MONITOR_CURRENT)
       static void draw_current();
       FORCE_INLINE static bool current_display_enabled() { return TEST(flags, PM_DISP_BIT_I); }
       FORCE_INLINE static void set_current_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_I, b); }
       FORCE_INLINE static void toggle_current_display() { TBI(flags, PM_DISP_BIT_I); }
     #endif
-    #if HAS_POWER_MONITOR_VREF
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
       static void draw_voltage();
       FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, PM_DISP_BIT_V); }
       FORCE_INLINE static void set_voltage_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_V, b); }

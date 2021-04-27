@@ -68,7 +68,7 @@
       const DualXMode previous_mode = dual_x_carriage_mode;
 
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
-      mirrored_duplication_mode = false;
+      idex_set_mirrored_mode(false);
 
       if (dual_x_carriage_mode == DXC_MIRRORED_MODE) {
         if (previous_mode != DXC_DUPLICATION_MODE) {
@@ -77,8 +77,7 @@
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           return;
         }
-        mirrored_duplication_mode = true;
-        stepper.set_directions();
+        idex_set_mirrored_mode(true);
         float x_jog = current_position.x - .1;
         for (uint8_t i = 2; --i;) {
           planner.buffer_line(x_jog, current_position.y, current_position.z, current_position.e, feedrate_mm_s, 0);
@@ -102,10 +101,12 @@
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           break;
       }
-      active_extruder_parked = false;
-      extruder_duplication_enabled = false;
-      stepper.set_directions();
-      delayed_move_time = 0;
+      idex_set_parked(false);
+      set_duplication_enabled(false);
+
+      #ifdef EVENT_GCODE_IDEX_AFTER_MODECHANGE
+        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_IDEX_AFTER_MODECHANGE));
+      #endif
     }
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
       dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
@@ -121,26 +122,26 @@
           case DXC_DUPLICATION_MODE:  DEBUG_ECHOPGM("DUPLICATION");  break;
           case DXC_MIRRORED_MODE:     DEBUG_ECHOPGM("MIRRORED");     break;
         }
-        DEBUG_ECHOPAIR("\nActive Ext: ", int(active_extruder));
+        DEBUG_ECHOPAIR("\nActive Ext: ", active_extruder);
         if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
         DEBUG_ECHOPGM(" parked.");
         DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position.x);
-        DEBUG_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
-        DEBUG_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
+        DEBUG_ECHOPAIR("\ninactive_extruder_x: ", inactive_extruder_x);
+        DEBUG_ECHOPAIR("\nextruder_duplication_enabled: ", extruder_duplication_enabled);
         DEBUG_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
         DEBUG_ECHOPAIR("\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset);
         DEBUG_ECHOPAIR("\ndelayed_move_time: ", delayed_move_time);
-        DEBUG_ECHOPAIR("\nX1 Home X: ", x_home_pos(0), "\nX1_MIN_POS=", int(X1_MIN_POS), "\nX1_MAX_POS=", int(X1_MAX_POS));
-        DEBUG_ECHOPAIR("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", int(X2_MIN_POS), "\nX2_MAX_POS=", int(X2_MAX_POS));
-        DEBUG_ECHOPAIR("\nX2_HOME_DIR=", int(X2_HOME_DIR), "\nX2_HOME_POS=", int(X2_HOME_POS));
+        DEBUG_ECHOPAIR("\nX1 Home X: ", x_home_pos(0), "\nX1_MIN_POS=", X1_MIN_POS, "\nX1_MAX_POS=", X1_MAX_POS);
+        DEBUG_ECHOPAIR("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", X2_MIN_POS, "\nX2_MAX_POS=", X2_MAX_POS);
+        DEBUG_ECHOPAIR("\nX2_HOME_DIR=", X2_HOME_DIR, "\nX2_HOME_POS=", X2_HOME_POS);
         DEBUG_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
         DEBUG_ECHOPAIR("\toolchange_settings.z_raise=", toolchange_settings.z_raise);
-        DEBUG_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", int(DEFAULT_DUPLICATION_X_OFFSET));
+        DEBUG_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", DEFAULT_DUPLICATION_X_OFFSET);
         DEBUG_EOL();
 
         HOTEND_LOOP() {
-          DEBUG_ECHOPAIR_P(SP_T_STR, int(e));
-          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", int(e), "].", XYZ_CHAR(a) | 0x20, "=", hotend_offset[e][a]);
+          DEBUG_ECHOPAIR_P(SP_T_STR, e);
+          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", e, "].", AS_CHAR(XYZ_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
@@ -166,7 +167,7 @@
       if (parser.seenval('P')) duplication_e_mask = parser.value_int();   // Set the mask directly
       else if (parser.seenval('E')) duplication_e_mask = pow(2, parser.value_int() + 1) - 1; // Set the mask by E index
       ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
-      extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
+      set_duplication_enabled(ena && (duplication_e_mask >= 3));
     }
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_DUPLICATION_MODE);

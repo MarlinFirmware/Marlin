@@ -28,13 +28,16 @@
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "Trigorilla Pro"
+
+#define BOARD_NO_NATIVE_USB
+
 #define DISABLE_JTAG
 
 //
@@ -53,10 +56,14 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN                           PG10
-#define Y_MAX_PIN                           PA12
-#define Z_MAX_PIN                           PA14
-#define Z_MIN_PIN                           PA13
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                         PA14
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                         PA13
+#endif
 
 //
 // Steppers
@@ -120,14 +127,37 @@
  * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
-#define LCD_RESET_PIN                       PF11
-#define LCD_BACKLIGHT_PIN                   PD13
-#define FSMC_CS_PIN                         PD7   // NE4
-#define FSMC_RS_PIN                         PD11  // A0
+#if HAS_FSMC_TFT
+  #define TFT_RESET_PIN                     PF11
+  #define TFT_BACKLIGHT_PIN                 PD13
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-#define FSMC_DMA_DEV                        DMA2
-#define FSMC_DMA_CHANNEL                 DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define ANYCUBIC_TFT35
+#else
+  #define LCD_RESET_PIN                     PF11
+  #define LCD_BACKLIGHT_PIN                 PD13
+#endif
+
+// XPT2046 Touch Screen calibration
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X           -17181
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            11434
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   501
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    -9
+  #endif
+#endif
 
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB7   // SPI2_NSS
@@ -137,20 +167,20 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN                           PB13  // SPI2 ok
-  #define MISO_PIN                          PB14  // SPI2 ok
-  #define MOSI_PIN                          PB15  // SPI2 ok
-  #define SS_PIN                            PC11  // PB12 is X- ok
+  #define SD_SCK_PIN                        PB13  // SPI2 ok
+  #define SD_MISO_PIN                       PB14  // SPI2 ok
+  #define SD_MOSI_PIN                       PB15  // SPI2 ok
+  #define SD_SS_PIN                         PC11  // PB12 is X- ok
   #define SD_DETECT_PIN                     -1    // SD_CD ok
 #else
   // SD as custom software SPI (SDIO pins)
-  #define SCK_PIN                           PC12
-  #define MISO_PIN                          PC8
-  #define MOSI_PIN                          PD2
-  #define SS_PIN                            -1
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1

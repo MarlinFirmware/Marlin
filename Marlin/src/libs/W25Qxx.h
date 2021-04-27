@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -21,11 +21,9 @@
  */
 #pragma once
 
-//#ifdef __cplusplus
-//extern "C" { /* C-declarations for C++ */
-//#endif
-
 #include <stdint.h>
+
+#include HAL_PATH(../HAL, MarlinSPI.h)
 
 #define W25X_WriteEnable        0x06
 #define W25X_WriteDisable       0x04
@@ -53,24 +51,24 @@
 #define SPI_FLASH_PerWritePageSize   256
 
 class W25QXXFlash {
+private:
+  static MarlinSPI mySPI;
 public:
   void init(uint8_t spiRate);
   static uint8_t spi_flash_Rec();
   static uint8_t spi_flash_read_write_byte(uint8_t data);
-  static void spi_flash_Read(uint8_t* buf, uint16_t nbyte);
+  static void spi_flash_Read(uint8_t *buf, uint16_t nbyte);
   static void spi_flash_Send(uint8_t b);
-  static void spi_flash_SendBlock(uint8_t token, const uint8_t* buf);
+  static void spi_flash_SendBlock(uint8_t token, const uint8_t *buf);
   static uint16_t W25QXX_ReadID(void);
   static void SPI_FLASH_WriteEnable(void);
   static void SPI_FLASH_WaitForWriteEnd(void);
   static void SPI_FLASH_SectorErase(uint32_t SectorAddr);
   static void SPI_FLASH_BlockErase(uint32_t BlockAddr);
   static void SPI_FLASH_BulkErase(void);
-  static void SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
-  static void SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
-  static void SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
+  static void SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
+  static void SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
+  static void SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 };
 
-//#ifdef __cplusplus
-//} /* C-declarations for C++ */
-//#endif
+extern W25QXXFlash W25QXX;

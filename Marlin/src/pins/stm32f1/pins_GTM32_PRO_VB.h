@@ -22,16 +22,20 @@
 #pragma once
 
 /**
- * 24 May 2018 - @chepo for STM32F103VET6
- * Schematic: https://github.com/chepo92/Smartto/blob/master/circuit_diagram/Rostock301/Hardware_GTM32_PRO_VB.pdf
+ * Geeetech GTM32 Pro VB board pin assignments
+ * http://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
+ *
+ * Also applies to GTM32 Pro VD
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME      "GTM32 Pro VB"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME    "GTM32 Pro VB"
+#endif
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG
 
@@ -135,9 +139,9 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if IS_RRD_SC
     //
     // LCD display on J2 FFC40
     // Geeetech's LCD2004A Control Panel is very much like
@@ -158,7 +162,7 @@
     //#define LCD_UART_RX                   PD9
   #endif
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
     #endif
@@ -170,9 +174,9 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   //
   // Geeetech's LCD2004A Control Panel is very much like
   // RepRapDiscount Smart Controller, but adds an FFC40 connector
@@ -214,23 +218,23 @@
   //
   // SD Card on RepRapDiscount Smart Controller (J2) or on SD_CARD connector
   //
-  #define SS_PIN                            PC11
-  #define SCK_PIN                           PC12
-  #define MOSI_PIN                          PD2
-  #define MISO_PIN                          PC8
+  #define SD_SS_PIN                         PC11
+  #define SD_SCK_PIN                        PC12
+  #define SD_MOSI_PIN                       PD2
+  #define SD_MISO_PIN                       PC8
   #define SD_DETECT_PIN                     PC7
 #else
   //
   // Use the on-board card socket labeled TF_CARD_SOCKET
   //
-  #define SS_PIN                            PA4
-  #define SCK_PIN                           PA5
-  #define MOSI_PIN                          PA7
-  #define MISO_PIN                          PA6
+  #define SD_SS_PIN                         PA4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MOSI_PIN                       PA7
+  #define SD_MISO_PIN                       PA6
   #define SD_DETECT_PIN                     -1    // Card detect is not connected
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 //
 // ESP WiFi can be soldered to J9 connector which is wired to USART2.

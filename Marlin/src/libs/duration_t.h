@@ -106,6 +106,11 @@ struct duration_t {
     return this->value;
   }
 
+  #if GCC_VERSION <= 50000
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wformat-overflow"
+  #endif
+
   /**
    * @brief Formats the duration as a string
    * @details String will be formated using a "full" representation of duration
@@ -127,7 +132,7 @@ struct duration_t {
         m = this->minute() % 60,
         s = this->second() % 60;
 
-    if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
+         if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
     else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
     else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
     else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
@@ -163,4 +168,8 @@ struct duration_t {
       return 6;
     }
   }
+
+  #if GCC_VERSION <= 50000
+    #pragma GCC diagnostic pop
+  #endif
 };

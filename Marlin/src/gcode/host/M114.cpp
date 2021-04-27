@@ -55,7 +55,6 @@
   }
 
   void report_current_position_detail() {
-
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
     report_xyz(current_position.asLogical());
@@ -81,11 +80,7 @@
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
-      #if IS_SCARA
-        SERIAL_ECHOPGM("ScaraK: ");
-      #else
-        SERIAL_ECHOPGM("DeltaK: ");
-      #endif
+      SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
       inverse_kinematics(leveled);  // writes delta[]
       report_xyz(delta);
     #endif
@@ -181,6 +176,8 @@
     const xyze_float_t diff = from_steppers - leveled;
     SERIAL_ECHOPGM("Diff:   ");
     report_xyze(diff);
+
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
 
 #endif // M114_DETAIL
@@ -216,4 +213,6 @@ void GcodeSuite::M114() {
 
   TERN_(M114_LEGACY, planner.synchronize());
   report_current_position_projected();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
 }

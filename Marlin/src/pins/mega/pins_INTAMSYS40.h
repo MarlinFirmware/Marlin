@@ -27,9 +27,7 @@
  * 2208 version exists and may or may not work
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Intamsys 4.0"
 
@@ -122,7 +120,7 @@
 
 #define BEEPER_PIN                            18
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         20
   #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         14
@@ -137,7 +135,6 @@
 ///////////////////// SPARE HEADERS //////////////
 
 /**
- *
  * J25
  * 1 D54
  * 2 D55

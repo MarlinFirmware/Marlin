@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -37,10 +37,10 @@ class MAX3421e {
     bool      start();
 
     void      regWr(uint8_t reg, uint8_t data);
-    uint8_t*  bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
+    uint8_t*  bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p);
     void      gpioWr(uint8_t data);
     uint8_t   regRd(uint8_t reg);
-    uint8_t*  bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p);
+    uint8_t*  bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p);
     uint8_t   gpioRd();
     bool      reset();
 

@@ -26,6 +26,7 @@
 
 #include "buzzer.h"
 #include "../module/temperature.h"
+#include "../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
@@ -44,6 +45,7 @@ Buzzer buzzer;
  * @param frequency Frequency of the tone in hertz
  */
 void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
+  if (!ui.buzzer_enabled) return;
   while (buffer.isFull()) {
     tick();
     thermalManager.manage_heater();
@@ -53,6 +55,7 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
 }
 
 void Buzzer::tick() {
+  if (!ui.buzzer_enabled) return;
   const millis_t now = millis();
 
   if (!state.endtime) {
@@ -62,12 +65,11 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(EXTENSIBLE_UI)
+      #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
         CRITICAL_SECTION_START();
         ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END();
-      #endif
-      #if ENABLED(SPEAKER) && (DISABLED(EXTENSIBLE_UI) || ENABLED(EXTUI_LOCAL_BEEPER))
+      #elif ENABLED(SPEAKER)
         CRITICAL_SECTION_START();
         ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END();

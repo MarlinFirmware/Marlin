@@ -78,16 +78,16 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define USB_CLASS_PRINTER               0x07    // Printer
 #define USB_CLASS_MASS_STORAGE          0x08    // Mass Storage
 #define USB_CLASS_HUB                   0x09    // Hub
-#define USB_CLASS_CDC_DATA              0x0a    // CDC-Data
-#define USB_CLASS_SMART_CARD            0x0b    // Smart-Card
-#define USB_CLASS_CONTENT_SECURITY      0x0d    // Content Security
-#define USB_CLASS_VIDEO                 0x0e    // Video
-#define USB_CLASS_PERSONAL_HEALTH       0x0f    // Personal Healthcare
-#define USB_CLASS_DIAGNOSTIC_DEVICE     0xdc    // Diagnostic Device
-#define USB_CLASS_WIRELESS_CTRL         0xe0    // Wireless Controller
-#define USB_CLASS_MISC                  0xef    // Miscellaneous
-#define USB_CLASS_APP_SPECIFIC          0xfe    // Application Specific
-#define USB_CLASS_VENDOR_SPECIFIC       0xff    // Vendor Specific
+#define USB_CLASS_CDC_DATA              0x0A    // CDC-Data
+#define USB_CLASS_SMART_CARD            0x0B    // Smart-Card
+#define USB_CLASS_CONTENT_SECURITY      0x0D    // Content Security
+#define USB_CLASS_VIDEO                 0x0E    // Video
+#define USB_CLASS_PERSONAL_HEALTH       0x0F    // Personal Healthcare
+#define USB_CLASS_DIAGNOSTIC_DEVICE     0xDC    // Diagnostic Device
+#define USB_CLASS_WIRELESS_CTRL         0xE0    // Wireless Controller
+#define USB_CLASS_MISC                  0xEF    // Miscellaneous
+#define USB_CLASS_APP_SPECIFIC          0xFE    // Application Specific
+#define USB_CLASS_VENDOR_SPECIFIC       0xFF    // Vendor Specific
 
 // Additional Error Codes
 #define USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED       0xD1
@@ -117,7 +117,7 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define HUB_PORT_RESET_DELAY    20      // hub port reset delay 10 ms recomended, can be up to 20 ms
 
 /* USB state machine states */
-#define USB_STATE_MASK                                      0xf0
+#define USB_STATE_MASK                                      0xF0
 
 #define USB_STATE_DETACHED                                  0x10
 #define USB_DETACHED_SUBSTATE_INITIALIZE                    0x11
@@ -132,7 +132,7 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define USB_STATE_ADDRESSING                                0x70
 #define USB_STATE_CONFIGURING                               0x80
 #define USB_STATE_RUNNING                                   0x90
-#define USB_STATE_ERROR                                     0xa0
+#define USB_STATE_ERROR                                     0xA0
 
 class USBDeviceConfig {
 public:
@@ -250,19 +250,19 @@ public:
   uint8_t setEpInfoEntry(uint8_t addr, uint8_t epcount, EpInfo* eprecord_ptr);
 
   /* Control requests */
-  uint8_t getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr);
-  uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr);
+  uint8_t getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *dataptr);
+  uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t *dataptr);
 
   uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint8_t conf, USBReadParser *p);
 
-  uint8_t getStrDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t* dataptr);
+  uint8_t getStrDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t *dataptr);
   uint8_t setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr);
   uint8_t setConf(uint8_t addr, uint8_t ep, uint8_t conf_value);
   /**/
-  uint8_t ctrlData(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr, bool direction);
+  uint8_t ctrlData(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *dataptr, bool direction);
   uint8_t ctrlStatus(uint8_t ep, bool direction, uint16_t nak_limit);
-  uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data, uint8_t bInterval = 0);
-  uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
+  uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval = 0);
+  uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *data);
   uint8_t dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit);
 
   void Task();
@@ -272,7 +272,7 @@ public:
   uint8_t ReleaseDevice(uint8_t addr);
 
   uint8_t ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bRequest, uint8_t wValLo, uint8_t wValHi,
-    uint16_t wInd, uint16_t total, uint16_t nbytes, uint8_t* dataptr, USBReadParser *p);
+    uint16_t wInd, uint16_t total, uint16_t nbytes, uint8_t *dataptr, USBReadParser *p);
 
 private:
   void init();
@@ -285,17 +285,17 @@ private:
 #if 0 //defined(USB_METHODS_INLINE)
 //get device descriptor
 
-inline uint8_t USB::getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr) {
+inline uint8_t USB::getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *dataptr) {
   return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, 0x00, USB_DESCRIPTOR_DEVICE, 0x0000, nbytes, dataptr));
 }
 //get configuration descriptor
 
-inline uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr) {
+inline uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t *dataptr) {
   return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, conf, USB_DESCRIPTOR_CONFIGURATION, 0x0000, nbytes, dataptr));
 }
 //get string descriptor
 
-inline uint8_t USB::getStrDescr(uint8_t addr, uint8_t ep, uint16_t nuint8_ts, uint8_t index, uint16_t langid, uint8_t* dataptr) {
+inline uint8_t USB::getStrDescr(uint8_t addr, uint8_t ep, uint16_t nuint8_ts, uint8_t index, uint16_t langid, uint8_t *dataptr) {
   return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, index, USB_DESCRIPTOR_STRING, langid, nuint8_ts, dataptr));
 }
 //set address
