@@ -855,7 +855,7 @@ void MarlinUI::update() {
     static bool wait_for_unclick; // = false
 
     auto do_click = [&]{
-      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
       lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
       wait_for_user = false;                          //  - Any click clears wait for user
       quick_feedback();                               //  - Always make a click sound
