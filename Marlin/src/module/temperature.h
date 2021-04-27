@@ -424,8 +424,8 @@ class Temperature {
     #endif
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static uint16_t redundant_temperature_raw;
-      static celsius_t redundant_temperature;
+      static int16_t redundant_temperature_raw;
+      static celsius_float_t redundant_temperature;
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
