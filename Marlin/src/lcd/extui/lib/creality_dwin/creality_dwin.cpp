@@ -2847,9 +2847,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
 
       #define ADVANCED_BACK 0
       #define ADVANCED_BEEPER (ADVANCED_BACK + 1)
-      #define ADVANCED_XOFFSET (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
-      #define ADVANCED_YOFFSET (ADVANCED_XOFFSET + ENABLED(HAS_BED_PROBE))
-      #define ADVANCED_LOAD (ADVANCED_YOFFSET + ENABLED(ADVANCED_PAUSE_FEATURE))
+      #define ADVANCED_PROBE (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
+      #define ADVANCED_LOAD (ADVANCED_PROBE + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
@@ -2877,22 +2876,12 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           break;
         #if ENABLED(HAS_BED_PROBE)
-          case ADVANCED_XOFFSET:
+          case ADVANCED_PROBE:
             if (draw) {
-              Draw_Menu_Item(row, ICON_StepX, (char*)"Probe X Offset");
-              Draw_Float(probe.offset.x, row, false, 10);
+              Draw_Menu_Item(row, ICON_StepX, (char*)"Probe", NULL, true);
             }
             else {
-              Modify_Value(probe.offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
-            }
-            break;
-          case ADVANCED_YOFFSET:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_StepY, (char*)"Probe Y Offset");
-              Draw_Float(probe.offset.y, row, false, 10);
-            }
-            else {
-              Modify_Value(probe.offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
+              Draw_Menu(ProbeMenu);
             }
             break;
         #endif
@@ -2965,6 +2954,69 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif 
       }
       break;
+    #if ENABLED(HAS_BED_PROBE)
+      case ProbeMenu:
+
+        #define PROBE_BACK 0
+        #define PROBE_XOFFSET (PROBE_BACK + 1)
+        #define PROBE_YOFFSET (PROBE_XOFFSET + 1)
+        #define PROBE_TEST (PROBE_YOFFSET + 1)
+        #define PROBE_TEST_COUNT (PROBE_TEST + 1)
+        #define PROBE_TOTAL PROBE_TEST_COUNT
+
+        static uint8_t testcount = 4;
+
+        switch (item) {
+          case PROBE_BACK:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+            }
+            else {
+              Draw_Menu(Advanced, ADVANCED_PROBE);
+            }
+            break;
+          
+            case PROBE_XOFFSET:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepX, (char*)"Probe X Offset");
+                Draw_Float(probe.offset.x, row, false, 10);
+              }
+              else {
+                Modify_Value(probe.offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
+              }
+              break;
+            case PROBE_YOFFSET:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepY, (char*)"Probe Y Offset");
+                Draw_Float(probe.offset.y, row, false, 10);
+              }
+              else {
+                Modify_Value(probe.offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 10);
+              }
+              break;
+            case PROBE_TEST:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepY, (char*)"M48 Probe Test");
+              }
+              else {
+                char buf[50];
+                sprintf(buf, "G28O\nM48 X%f Y%f P%i", (X_BED_SIZE + X_MIN_POS)/2.0f, (Y_BED_SIZE + Y_MIN_POS)/2.0f, testcount);
+                gcode.process_subcommands_now_P(buf);
+              }
+              break;
+            case PROBE_TEST_COUNT:
+              if (draw) {
+                Draw_Menu_Item(row, ICON_StepY, (char*)"Probe Test Count");
+                Draw_Float(testcount, row, false, 1);
+              }
+              else {
+                Modify_Value(testcount, 4, 50, 1);
+              }
+              break;
+        }
+        break;
+    #endif
+
     case InfoMain:
     case Info:
 
@@ -4040,6 +4092,8 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return (char*)"Visual Settings";
     case Advanced:
       return (char*)"Advanced Settings";
+    case ProbeMenu:
+      return (char*)"Probe Menu";
     case ColorSettings:
       return (char*)"UI Color Settings";
     case Info:
@@ -4148,6 +4202,8 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       return VISUAL_TOTAL;
     case Advanced:
       return ADVANCED_TOTAL;
+    case ProbeMenu:
+      return PROBE_TOTAL;
     case Info:
       return INFO_TOTAL;
     case InfoMain:
@@ -5029,6 +5085,7 @@ void CrealityDWINClass::Startup() {
     delay(20);
   }
   DWIN_JPG_CacheTo1(Language_English);
+  Redraw_Screen();
 }
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {

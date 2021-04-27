@@ -66,6 +66,7 @@ enum menuID : uint8_t {
       Visual,
         ColorSettings,
       Advanced,
+        ProbeMenu,
       Info,
     Leveling,
       LevelManual,
