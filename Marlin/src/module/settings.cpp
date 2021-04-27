@@ -900,7 +900,8 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(hotendPID);
       HOTEND_LOOP() {
-        PIDVecL pidcf= { NAN, NAN, NAN, NAN, NAN }; heater.pid.unscaleTo(pidcf);
+        PIDVecL pidcf = { NAN, NAN, NAN, NAN, NAN };
+        heater.pid.unscaleTo(pidcf);
         EEPROM_WRITE(pidcf);
       }
 
