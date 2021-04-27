@@ -321,8 +321,10 @@ class Temperature {
   public:
 
     #if HAS_HOTEND
-      #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
-      static hotend_info_t temp_hotend[HOTEND_TEMPS];
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        static temp_info_t temp_redundant;
+      #endif
+      static hotend_info_t temp_hotend[HOTENDS];
       static const celsius_t hotend_maxtemp[HOTENDS];
       static inline celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
@@ -421,11 +423,6 @@ class Temperature {
 
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
-    #endif
-
-    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static int16_t redundant_temperature_raw;
-      static celsius_float_t redundant_temperature;
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
@@ -631,6 +628,10 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      static inline celsius_float_t degHotendRedundant() { return temp_redundant.celsius; }
+    #endif
+
     static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
@@ -639,6 +640,9 @@ class Temperature {
       static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        static inline int16_t rawHotendTempRedundant() { return temp_redundant.raw; }
+      #endif
     #endif
 
     static inline celsius_t degTargetHotend(const uint8_t E_NAME) {
