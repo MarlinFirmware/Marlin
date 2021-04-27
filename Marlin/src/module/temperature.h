@@ -498,7 +498,7 @@ class Temperature {
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
       static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
       static void reset_user_thermistors();
-      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int raw);
+      static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw);
       static inline bool set_pull_up_res(int8_t t_index, float value) {
         //if (!WITHIN(t_index, 0, USER_THERMISTORS - 1)) return false;
         if (!WITHIN(value, 1, 1000000)) return false;
@@ -526,19 +526,19 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-      static celsius_float_t analog_to_celsius_hotend(const int raw, const uint8_t e);
+      static celsius_float_t analog_to_celsius_hotend(const int16_t raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static celsius_float_t analog_to_celsius_bed(const int raw);
+      static celsius_float_t analog_to_celsius_bed(const int16_t raw);
     #endif
     #if HAS_TEMP_PROBE
-      static celsius_float_t analog_to_celsius_probe(const int raw);
+      static celsius_float_t analog_to_celsius_probe(const int16_t raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static celsius_float_t analog_to_celsius_chamber(const int raw);
+      static celsius_float_t analog_to_celsius_chamber(const int16_t raw);
     #endif
     #if HAS_TEMP_COOLER
-      static celsius_float_t analog_to_celsius_cooler(const int raw);
+      static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
     #endif
 
     #if HAS_FAN
