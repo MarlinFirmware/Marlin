@@ -4058,7 +4058,7 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       case LevelManual:
         return (char*)"UBL Manual Tuning";
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
       case UBLMesh:
         return (char*)"UBL Bed Leveling";
     #endif
@@ -4152,7 +4152,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       return INFO_TOTAL;
     case InfoMain:
       return INFO_TOTAL;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
       case UBLMesh:
         return UBL_M_TOTAL;
     #endif
