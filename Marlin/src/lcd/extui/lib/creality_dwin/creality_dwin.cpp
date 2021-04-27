@@ -73,7 +73,7 @@
   #include "../../libs/vector_3.h"
 #endif
 
-#if ENABLED(HAS_BED_PROBE)
+#if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
 
@@ -2875,7 +2875,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Checkbox(row, eeprom_settings.beeperenable);
           }
           break;
-        #if ENABLED(HAS_BED_PROBE)
+        #if HAS_BED_PROBE
           case ADVANCED_PROBE:
             if (draw) {
               Draw_Menu_Item(row, ICON_StepX, (char*)"Probe", NULL, true);
@@ -2954,7 +2954,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif 
       }
       break;
-    #if ENABLED(HAS_BED_PROBE)
+    #if HAS_BED_PROBE
       case ProbeMenu:
 
         #define PROBE_BACK 0
@@ -4092,8 +4092,10 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return (char*)"Visual Settings";
     case Advanced:
       return (char*)"Advanced Settings";
-    case ProbeMenu:
-      return (char*)"Probe Menu";
+    #if HAS_BED_PROBE
+      case ProbeMenu:
+        return (char*)"Probe Menu";
+    #endif
     case ColorSettings:
       return (char*)"UI Color Settings";
     case Info:
@@ -4202,8 +4204,10 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       return VISUAL_TOTAL;
     case Advanced:
       return ADVANCED_TOTAL;
-    case ProbeMenu:
-      return PROBE_TOTAL;
+    #if HAS_BED_PROBE
+      case ProbeMenu:
+        return PROBE_TOTAL;
+    #endif
     case Info:
       return INFO_TOTAL;
     case InfoMain:
