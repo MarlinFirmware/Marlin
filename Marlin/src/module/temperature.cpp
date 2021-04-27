@@ -852,7 +852,7 @@ celsius_t Heater::analog_to_celsius(const int raw) { return convertionTable[heat
 #if HAS_TEMP_CHAMBER
   #if HAS_HEATED_CHAMBER
     millis_t next_cool_check_ms_2 = 0;
-    float old_temp = 9999;
+    celsius_float_t old_temp = 9999;
     int16_t Temperature::mintemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_LO_TEMP,
             Temperature::maxtemp_raw_CHAMBER = TEMP_SENSOR_CHAMBER_RAW_HI_TEMP;
     IF_DISABLED(PIDTEMPCHAMBER, millis_t Temperature::next_chamber_check_ms);
@@ -863,6 +863,7 @@ celsius_t Heater::analog_to_celsius(const int raw) { return convertionTable[heat
   #if HAS_COOLER
     bool flag_cooler_state;
     //bool flag_cooler_excess = false;
+    celsius_float_t previous_temp = 9999;
     int16_t Temperature::mintemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_LO_TEMP,
             Temperature::maxtemp_raw_COOLER = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
     millis_t Temperature::next_cooler_check_ms, Temperature::cooler_fan_flush_ms;
@@ -882,11 +883,6 @@ celsius_t Heater::analog_to_celsius(const int raw) { return convertionTable[heat
 
 #if EARLY_WATCHDOG
   bool Temperature::inited = false;
-#endif
-
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  celsius_t Temperature::redundant_temperature_raw = 0;
-  float Temperature::redundant_temperature = 0.0;
 #endif
 
 volatile bool Temperature::raw_temps_ready = false;
@@ -1498,12 +1494,12 @@ void Temperature::manage_heater() {
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_0_IS_MAX_TC
-      if (heaters[HotEndPos0].deg() > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
-      if (heaters[HotEndPos0].deg() < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
+      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
+      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
     #endif
     #if TEMP_SENSOR_1_IS_MAX_TC
-      if (heaters[HotEndPos1].deg() > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
-      if (heaters[HotEndPos1].deg() < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
+      if (TERN(TEMP_SENSOR_1_AS_REDUNDANT, degHotendRedundant(), degHotend(1)) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
+      if (TERN(TEMP_SENSOR_1_AS_REDUNDANT, degHotendRedundant(), degHotend(1)) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
     #endif
   #endif
 
@@ -1538,7 +1534,7 @@ void Temperature::manage_heater() {
 
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         // Make sure measured temperatures are close together
-        if (ABS(heater.deg() - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF)
+        if (ABS(heater.deg() - degHotendRedundant()) > MAX_REDUNDANT_TEMP_SENSOR_DIFF)
           _temp_error(H_E0, PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
       #endif
 
@@ -1912,7 +1908,7 @@ void Temperature::manage_heater() {
     SERIAL_EOL();
   }
 
-  celsius_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int raw) {
+  celsius_float_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw) {
     //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
     //  static uint32_t clocks_total = 0;
     //  static uint32_t calls = 0;
@@ -1966,12 +1962,11 @@ void Temperature::manage_heater() {
  */
 void Temperature::updateTemperaturesFromRawValues() {
   TERN_(TEMP_SENSOR_0_IS_MAX_TC, heaters[HotEndPos0].info.raw = READ_MAX_TC(0));
-  TERN_(TEMP_SENSOR_1_IS_MAX_TC, heaters[HotEndPos1].info.raw = READ_MAX_TC(1));
+  TERN_(TEMP_SENSOR_1_IS_MAX_TC, heaters[TERN(TEMP_SENSOR_1_AS_REDUNDANT, RedundantPos, HotEndPos1)].info.raw = READ_MAX_TC(1));
 
   for (int i = 0; i < HeatersCount; i++)
     heaters[i].info.celsius = heaters[i].analog_to_celsius(heaters[i].info.raw);
 
-  TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
   TERN_(HAS_POWER_MONITOR, power_monitor.capture_values());
 
@@ -2695,31 +2690,34 @@ void Temperature::disable_all_heaters() {
 
 // Same order as the heaters declaration
 static constexpr bool hasADC[] {
-  #define DeclareHEADC(N) TERN0(HAS_TEMP_ADC_## N, true)
-  LIST_N(HOTENDS, TERN0(HAS_TEMP_ADC_0 && !TEMP_SENSOR_0_IS_MAX_TC, true), false, DeclareHEADC(2), DeclareHEADC(3), DeclareHEADC(4), DeclareHEADC(5), DeclareHEADC(6), DeclareHEADC(7)),
-  #undef DeclareHEADC
-  TERN0(HAS_TEMP_ADC_PROBE, true),
-  TERN0(HAS_TEMP_ADC_BED, true),
-  TERN0(HAS_TEMP_ADC_CHAMBER, true),
-  TERN0(HAS_TEMP_ADC_COOLER, true),
+  #if HAS_HOTEND
+    #define DeclareHEADC(N) ENABLED(HAS_TEMP_ADC_## N)
+    LIST_N(HOTENDS, ENABLED(HAS_TEMP_ADC_0) && DISABLED(TEMP_SENSOR_0_IS_MAX_TC), false, DeclareHEADC(2), DeclareHEADC(3), DeclareHEADC(4), DeclareHEADC(5), DeclareHEADC(6), DeclareHEADC(7)),
+    #undef DeclareHEADC
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      ENABLED(HAS_TEMP_ADC_0) && DISABLED(TEMP_SENSOR_1_IS_MAX_TC),
+    #endif
+  #endif
+  #if HAS_TEMP_PROBE
+    ENABLED(HAS_TEMP_ADC_PROBE),
+  #endif
+  #if HAS_HEATED_BED
+    ENABLED(HAS_TEMP_ADC_BED),
+  #endif
+  #if HAS_HEATED_CHAMBER
+    ENABLED(HAS_TEMP_ADC_CHAMBER),
+  #endif
+  #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
+    ENABLED(HAS_TEMP_ADC_COOLER)
+  #endif
 };
 
 /**
  * Update raw temperatures
  */
 void Temperature::update_raw_temperatures() {
-  for (size_t i = 0; i < COUNT(hasADC); i++) {
+  for (uint8_t i = 0; i < HeatersCount; i++)
     if (hasADC[i]) heaters[i].info.update();
-  }
-
-  // Fix missing case for heater 1
-  #if HAS_TEMP_ADC_1
-    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      redundant_temperature_raw = heaters[HotEndPos1].info.acc;
-    #elif !TEMP_SENSOR_1_IS_MAX_TC
-      heaters[HotEndPos1].info.update();
-    #endif
-  #endif
 
   TERN_(HAS_JOY_ADC_X, joystick.x.update());
   TERN_(HAS_JOY_ADC_Y, joystick.y.update());
@@ -2738,10 +2736,6 @@ void Temperature::readings_ready() {
 
   for (int i = 0; i < HeatersCount; i++)
     heaters[i].info.reset();
-
-  #if HAS_HOTEND
-    TERN_(TEMP_SENSOR_1_AS_REDUNDANT, heaters[1].info.reset());
-  #endif
 
   TERN_(HAS_JOY_ADC_X, joystick.x.reset());
   TERN_(HAS_JOY_ADC_Y, joystick.y.reset());
@@ -3147,9 +3141,9 @@ void Temperature::isr() {
 
     case HeatersSampling:
       if (heater_index < HeatersCount) next_sensor_state = adc_sensor_state; // Each heater is sampled in sequence
-      if (sampling) {                                   // and it alternates between sampling
+      if (sampling)                                     // and it alternates between sampling
         HAL_START_ADC(heaters[heater_index].pin);
-      } else {                                          // and reading each call of the loop until all heaters are done
+      else {                                            // and reading each call of the loop until all heaters are done
         if (HAL_ADC_READY()) break;
         heaters[heater_index++].info.sample(HAL_READ_ADC());
       }
@@ -3248,6 +3242,18 @@ void Temperature::isr() {
 }
 
 #if HAS_TEMP_SENSOR
+
+  #include "../gcode/gcode.h"
+
+  /**
+   * Print a single heater state in the form:
+   *        Bed: " B:nnn.nn /nnn.nn"
+   *    Chamber: " C:nnn.nn /nnn.nn"
+   *      Probe: " P:nnn.nn /nnn.nn"
+   *     Cooler: " L:nnn.nn /nnn.nn"
+   *   Extruder: " T0:nnn.nn /nnn.nn"
+   *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
+   */
   static void print_heater_state(const celsius_t c, const celsius_t t
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       , const float r
@@ -3309,12 +3315,13 @@ void Temperature::isr() {
           #if ENABLED(SHOW_TEMP_ADC_VALUES)
             , heater.raw()
           #endif
-          , heater.id);
+          , heater.id
+        );
 
         #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-          if (include_r) print_heater_state(redundant_temperature, heater.degTarget()
+          if (include_r) print_heater_state(degHotendRedundant(), heater.degTarget()
             #if ENABLED(SHOW_TEMP_ADC_VALUES)
-              , redundant_temperature_raw
+              , rawHotendTempRedundant()
             #endif
             , H_REDUNDANT
           );
@@ -3378,9 +3385,9 @@ void Temperature::isr() {
       #endif
     ) {
       return heaters[HotEndPos0 + target_extruder].wait_for_temperature(target_extruder, no_wait_for_cooling
-      #if G26_CLICK_CAN_CANCEL
-        , click_to_cancel
-      #endif
+        #if G26_CLICK_CAN_CANCEL
+          , click_to_cancel
+        #endif
       );
     }
 
@@ -3413,9 +3420,9 @@ void Temperature::isr() {
       #endif
     ) {
       return heaters[HeatedBedPos].wait_for_temperature(active_extruder, no_wait_for_cooling
-      #if G26_CLICK_CAN_CANCEL
-        , click_to_cancel
-      #endif
+        #if G26_CLICK_CAN_CANCEL
+          , click_to_cancel
+        #endif
       );
     }
     // TODO: It's likely possible to make this generic as well
@@ -3431,10 +3438,11 @@ void Temperature::isr() {
   #endif // HAS_HEATED_BED
 
   #if HAS_TEMP_PROBE
+
     bool Temperature::wait_for_probe(const_float_t target_temp, bool no_wait_for_cooling/*=true*/) {
 
-      const bool wants_to_cool = isProbeAboveTemp(target_temp);
-      const bool will_wait = !(wants_to_cool && no_wait_for_cooling);
+      const bool wants_to_cool = isProbeAboveTemp(target_temp),
+                 will_wait = !(wants_to_cool && no_wait_for_cooling);
       if (will_wait)
         SERIAL_ECHOLNPAIR("Waiting for probe to ", (wants_to_cool ? PSTR("cool down") : PSTR("heat up")), " to ", target_temp, " degrees.");
 
@@ -3495,10 +3503,10 @@ void Temperature::isr() {
 
   #if HAS_HEATED_CHAMBER
     bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) { return heaters[HeatedChamberPos].wait_for_temperature(active_extruder, no_wait_for_cooling); }
-  #endif // HAS_HEATED_CHAMBER
+  #endif
 
   #if HAS_COOLER
     bool Temperature::wait_for_cooler(const bool no_wait_for_cooling/*=true*/) {  return heaters[HeatedChamberPos].wait_for_temperature(active_extruder, no_wait_for_cooling); }
-  #endif // HAS_COOLER
+  #endif
 
 #endif // HAS_TEMP_SENSOR

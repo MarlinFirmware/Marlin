@@ -87,9 +87,9 @@
 #else
   #define MYSERIAL1 MSERIAL(1) // dummy port
   #if NUM_UARTS == 5
-    #error "SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+    #error "SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
   #else
-    #error "SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #error "SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
@@ -101,9 +101,9 @@
   #else
     #define MYSERIAL2 MSERIAL(1) // dummy port
     #if NUM_UARTS == 5
-      #error "SERIAL_PORT_2 must be -1 or from 1 to 5. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 1 to 5. You can also use -1 if the board supports Native USB."
     #else
-      #error "SERIAL_PORT_2 must be -1 or from 1 to 3. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 1 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
 #endif
@@ -116,9 +116,9 @@
   #else
     #define MMU2_SERIAL MSERIAL(1) // dummy port
     #if NUM_UARTS == 5
-      #error "MMU2_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+      #error "MMU2_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
     #else
-      #error "MMU2_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+      #error "MMU2_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
 #endif
@@ -131,9 +131,9 @@
   #else
     #define LCD_SERIAL MSERIAL(1) // dummy port
     #if NUM_UARTS == 5
-      #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+      #error "LCD_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
     #else
-      #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+      #error "LCD_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
   #if HAS_DGUS_LCD
@@ -207,7 +207,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(const int delay);
 

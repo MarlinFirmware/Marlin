@@ -61,7 +61,7 @@ public:
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
     static bool set_deployed(const bool deploy);
