@@ -212,6 +212,15 @@ public:
     static bool is_reverse() { return false; }
   #endif
 
+  #if ENABLED(AIR_EVACUATION)
+    static void air_evac_enable();         // Turn On Cutter Vacuum or Laser Blower motor
+    static void air_evac_disable();        // Turn Off Cutter Vacuum or Laser Blower motor
+    static void air_evac_toggle();         // Toggle Cutter Vacuum or Laser Blower motor
+    static inline bool air_evac_state() {  // Get current state
+      return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
+    }
+  #endif
+
   static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
