@@ -535,7 +535,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-// #define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -552,9 +552,9 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   // Ender 3 V2
-  #define DEFAULT_bedKp 462.10
-  #define DEFAULT_bedKi  85.47
-  #define DEFAULT_bedKd 624.59
+  #define DEFAULT_bedKp 53.34
+  #define DEFAULT_bedKi 8.42
+  #define DEFAULT_bedKd 191.92
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
