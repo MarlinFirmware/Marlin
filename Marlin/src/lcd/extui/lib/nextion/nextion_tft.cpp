@@ -237,7 +237,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
       SEND_VALasTXT("tmppage.tool", getActiveTool());
       SEND_VALasTXT("tmppage.fan", ui8tostr3rj(getActualFan_percent(FAN0)));
       SEND_VALasTXT("tmppage.speed", getFeedrate_percent());
-      SEND_VALasTXT("tmppage.flow", getFlowPercentage(getActiveTool()));
+      SEND_VALasTXT("tmppage.flow", getFlow_percent(getActiveTool()));
       SEND_VALasTXT("tmppage.progress", ui8tostr3rj(getProgress_percent()));
       SEND_VALasTXT("tmppage.layer", layer);
       SEND_VALasTXT("tmppage.x", getAxisPosition_mm(X));
@@ -640,9 +640,9 @@ void NextionTFT::UpdateOnChange() {
 
   // tmppage Flow
   static uint8_t last_flow_speed = 99;
-  if (last_flow_speed != getFlowPercentage(getActiveTool())) {
-    SEND_VALasTXT("tmppage.flow", getFlowPercentage(getActiveTool()));
-    last_flow_speed = getFlowPercentage(getActiveTool());
+  if (last_flow_speed != getFlow_percent(getActiveTool())) {
+    SEND_VALasTXT("tmppage.flow", getFlow_percent(getActiveTool()));
+    last_flow_speed = getFlow_percent(getActiveTool());
   }
 
   // tmppage Progress + Layer + Time
