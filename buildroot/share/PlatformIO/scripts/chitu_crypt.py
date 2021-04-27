@@ -7,8 +7,6 @@ import os,random,struct,uuid,marlin
 # Relocate firmware from 0x08000000 to 0x08008800
 marlin.relocate_firmware("0x08008800")
 
-marlin.custom_ld_script("chitu_f103.ld")
-
 def calculate_crc(contents, seed):
     accumulating_xor_value = seed;
 

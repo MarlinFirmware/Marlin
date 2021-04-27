@@ -5,20 +5,11 @@
 # the appropriate framework variants folder, so that its contents
 # will be picked up by PlatformIO just like any other variant.
 #
-import os,shutil
+import os,shutil,marlin
 from SCons.Script import DefaultEnvironment
 from platformio import util
 
 env = DefaultEnvironment()
-
-def copytree(src, dst, symlinks=False, ignore=None):
-   for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 #
 # Get the platform name from the 'platform_packages' option,
@@ -60,4 +51,4 @@ if not os.path.isdir(variant_dir):
 source_dir = os.path.join("buildroot/share/PlatformIO/variants", variant)
 assert os.path.isdir(source_dir)
 
-copytree(source_dir, variant_dir)
+marlin.copytree(source_dir, variant_dir)
