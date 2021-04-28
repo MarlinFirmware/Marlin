@@ -933,7 +933,6 @@
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
 //#define PROBE_MANUALLY
-//#define MANUAL_PROBE_START_Z 0.2
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1222,7 +1221,7 @@
 
 // @section machine
 
-// The size of the print bed
+// The size of the printable area
 #define LOST_PRINT_SIZE 17 // We lose this in the Y direction
 
 #define X_BED_SIZE 240
@@ -1407,6 +1406,11 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 #define DEBUG_LEVELING_FEATURE
+
+#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
+  // Set a height for the start of manual adjustment
+  #define MANUAL_PROBE_START_Z 0.2  // (mm) Comment out to use the last-measured height
+#endif
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
