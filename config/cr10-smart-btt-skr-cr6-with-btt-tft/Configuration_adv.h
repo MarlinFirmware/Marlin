@@ -3376,7 +3376,7 @@
  */
 #define CANCEL_OBJECTS
 #if ENABLED(CANCEL_OBJECTS)
-  #define CANCEL_OBJECTS_REPORTING // Emit the current object as a status message
+  //#define CANCEL_OBJECTS_REPORTING // Emit the current object as a status message
 #endif
 
 /**
