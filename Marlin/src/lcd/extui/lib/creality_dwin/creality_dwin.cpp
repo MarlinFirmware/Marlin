@@ -3127,7 +3127,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               break;
           #endif
-          
           case LEVELING_GET_MESH:
             if (draw) {
               Draw_Menu_Item(row, ICON_Mesh, (char*)"Create New Mesh");
@@ -4759,18 +4758,20 @@ inline void CrealityDWINClass::Popup_Control() {
           Redraw_Menu(true);
         }
         break;
-      case SaveLevel:
-        if (selection==0) {
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            gcode.process_subcommands_now_P(PSTR("G29 S0"));
-            planner.synchronize();
-            AudioFeedback(true);
-          #else
-            AudioFeedback(settings.save());
-          #endif
-        }
-        Draw_Menu(Leveling, LEVELING_GET_MESH);
-        break;
+      #if HAS_MESH
+        case SaveLevel:
+          if (selection==0) {
+            #if ENABLED(AUTO_BED_LEVELING_UBL)
+              gcode.process_subcommands_now_P(PSTR("G29 S0"));
+              planner.synchronize();
+              AudioFeedback(true);
+            #else
+              AudioFeedback(settings.save());
+            #endif
+          }
+          Draw_Menu(Leveling, LEVELING_GET_MESH);
+          break;
+      #endif
     }
   DWIN_UpdateLCD();
 }
