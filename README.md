@@ -118,7 +118,7 @@ Mod Name | Mod Link
 ------------ | -------------
 BX Silent fan mod | https://gist.github.com/looxonline/2966862620b831a33cb36340ed73f644
 BX USB free pi integration | https://gist.github.com/looxonline/89e79b2554771eee8aa8b6492f30400d
-BX Pi safe, auto shutdown | COMING SOON
+BX Pi safe, auto shutdown | https://gist.github.com/looxonline/fd260bfc29c124f22fe7613311ae3a79
 
 B1 Mod list coming soon...
 
