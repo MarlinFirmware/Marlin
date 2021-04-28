@@ -1065,7 +1065,9 @@ namespace ExtUI {
   }
 
   void onStatusChanged_P(PGM_P const pstr) {
-    onStatusChanged(pstr);
+    char msg[strlen_P(pstr) + 1];
+    strcpy_P(msg, pstr);
+    onStatusChanged(msg);
   }
 
   FileList::FileList() { refresh(); }

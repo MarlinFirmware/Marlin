@@ -55,6 +55,14 @@ Marlin Discord - https://discord.gg/n5NJ59y
 -- Due to the above, the current recommendation is to try and limit folder depth to 3 subdirectories and keep names short if possible.
 - Base bumped to Marlin Bugfix as of 20210418
 
+# Changes for DW7.3.1
+- Added SD file refresh button for users with damaged SD Detect Pins
+- Modified print finish button action to raise z by 5mm and disable steppers rather than rehome XY
+- Solve rounding issue with babystepping below step precision by forcing always round up caused by recent upstream change
+- Modified babystepping resolution for fine adjustment to .02mm from .01mm
+- Force file pages to reset paging value on entry to screen to prevent incorrect scrolling
+- Additional string length buffer safeties
+
 The default build button is now a batch Build All! If you want to build a custom stock 2560 environment, use the env:megaatmega2560 environment.
 For SKR 1.3/1.4 boards use the LPC1768/9 environments as usual. For SKR Mini or Creality STM32F1 boards use the standard STM32 environments per vendor.
 
@@ -74,6 +82,7 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 ## Known Issues
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
  - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
+  - Thanks to Jarrett Wendt for finding that if you are experiencing distorted sounds, and use a Mac, the default Archive Utility on MacOS has been found to be corrupting the files. If you're on a Mac, try unzipping with The Unarchiver or Keka instead.
 
 ## Future Goals
 
