@@ -155,13 +155,34 @@
         current_position.set(dest);
       #endif
     }
+    float axis_value(const AxisEnum axis) {
+      return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
+    }
+    bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+      #if IS_KINEMATIC
+        float &valref = offset;
+        const float rmin = min - current_position[axis], rmax = max - current_position[axis];
+      #else
+        float &valref = current_position[axis];
+        const float rmin = min, rmax = max;
+      #endif
+      valref += diff;
+      const float pre = valref;
+      if (min != max) {
+        if (diff < 0)
+          NOLESS(valref, rmin);
+        else
+          NOMORE(valref, rmax);
+      }
+      return pre != valref;
+    }
     #if IS_KINEMATIC
       static bool processing;
     #else
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(AxisEnum axis
+    static void soon(const AxisEnum axis
       #if MULTI_MANUAL
         , const int8_t eindex=-1
       #endif
