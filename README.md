@@ -74,6 +74,7 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 ## Known Issues
  - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
  - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
+ - Thanks to Jarrett Wendt for finding that if you are experiencing distorted sounds, and use a Mac, the default Archive Utility on MacOS has been found to be corrupting the files. If you're on a Mac, try unzipping with The Unarchiver or Keka instead.
 
 ## Future Goals
 
