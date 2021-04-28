@@ -109,7 +109,7 @@
 
 // Print speed limit
 #define MIN_PRINT_SPEED  10
-#define MAX_PRINT_SPEED  999
+#define MAX_PRINT_SPEED 999
 
 // Print flow limit
 #define MIN_PRINT_FLOW   10
@@ -172,9 +172,9 @@ select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
 uint8_t index_file     = MROWS,
         index_prepare  = MROWS,
         index_control  = MROWS,
+        index_leveling = MROWS,
         index_tune     = MROWS,
         index_advset   = MROWS,
-        index_leveling = MROWS,
         index_selcolor = MROWS;
 
 bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
@@ -803,32 +803,32 @@ void Draw_Tune_Menu() {
   }
 }
 
-inline void draw_max_en(const uint16_t line) {
+void draw_max_en(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 245, 119, 270, 129, LBLX, line);   // "Max"  // M.A.R.C. Correct Label Max
 }
-inline void draw_max_accel_en(const uint16_t line) {
+void draw_max_accel_en(const uint16_t line) {
   draw_max_en(line);
   DWIN_Frame_AreaCopy(1, 1, 135, 79, 145, LBLX + 27, line); // "Acceleration"
 }
-inline void draw_speed_en(const uint16_t inset, const uint16_t line) {
+void draw_speed_en(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 184, 119, 224, 132, LBLX + inset, line); // "Speed"
 }
-inline void draw_jerk_en(const uint16_t line) {
+void draw_jerk_en(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 64, 119, 106, 129, LBLX + 27, line); // "Jerk"
 }
-inline void draw_steps_per_mm(const uint16_t line) {
+void draw_steps_per_mm(const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 1, 151, 118, 161, LBLX, line);   // "Steps-per-mm" // M.A.R.C. Correct Label Transmission ratio
 }
-inline void say_x(const uint16_t inset, const uint16_t line) {
+void say_x(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 95, 104, 102, 114, LBLX + inset, line); // "X"
 }
-inline void say_y(const uint16_t inset, const uint16_t line) {
+void say_y(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 104, 104, 110, 114, LBLX + inset, line); // "Y"
 }
-inline void say_z(const uint16_t inset, const uint16_t line) {
+void say_z(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 112, 104, 120, 114, LBLX + inset, line); // "Z"
 }
-inline void say_e(const uint16_t inset, const uint16_t line) {
+void say_e(const uint16_t inset, const uint16_t line) {
   DWIN_Frame_AreaCopy(1, 237, 119, 244, 129, LBLX + inset, line); // "E"
 }
 
@@ -893,9 +893,9 @@ void Clear_Popup_Area() {
 void DWIN_Popup_Window(uint8_t icon, const char *msg1, const char *msg2) {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
-  DWIN_ICON_Show(ICON, icon, 101, 105);
-  DWIN_Draw_CenteredString(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, 8, 210, F(msg1));
-  DWIN_Draw_CenteredString(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, 8, 240, F(msg2));
+  if (icon) DWIN_ICON_Show(ICON, icon, 101, 105);
+  if (msg1) DWIN_Draw_CenteredString(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, 8, 210, F(msg1));
+  if (msg2) DWIN_Draw_CenteredString(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, 8, 240, F(msg2));
 }
 
 void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2) {
@@ -1030,6 +1030,7 @@ void Draw_Main_Menu() {
 
 void Goto_Main_Menu() {
   checkkey = MainMenu;
+  DWIN_StatusChanged(nullptr);
   Draw_Main_Menu();
 }
 
@@ -1693,10 +1694,10 @@ void HMI_SDCardUpdate() {
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
     //SERIAL_ECHOLNPAIR("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
-    if (DWIN_lcd_sd_status) {
+    if (DWIN_lcd_sd_status) {  // Media inserted
       if (checkkey == SelectFile) Redraw_SD_List();    
     }
-    else {
+    else {    // Media removed
       // clean file icon
       if (checkkey == SelectFile) {
         Redraw_SD_List();
@@ -2071,14 +2072,14 @@ void HMI_Printing() {
         }
         else {
           HMI_flag.select_flag = true;
-          checkkey = Print_window;
+          checkkey = PauseOrStop;
           Popup_window_PauseOrStop();
         }
         break;
 
       case 2: // Stop
         HMI_flag.select_flag = true;
-        checkkey = Print_window;
+        checkkey = PauseOrStop;
         Popup_window_PauseOrStop();
         break;
 
@@ -2098,21 +2099,28 @@ void HMI_PauseOrStop() {
   else if (encoder_diffState == ENCODER_DIFF_CCW)
     Draw_Select_Highlight(true);
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (select_print.now == 1) { // pause window
-      if (HMI_flag.select_flag) {
+    if (select_print.now == 1) { // pause pressed
+      if (HMI_flag.select_flag) {  // confirm pause
         HMI_flag.pause_action = true;
-        ICON_Continue();
+        //ICON_Continue();
         #if ENABLED(POWER_LOSS_RECOVERY)
           if (recovery.enabled) recovery.save(true);
         #endif
-        queue.inject_P(PSTR("M25"));
+        // queue.inject_P(PSTR("M25"));
+        card.pauseSDPrint();
+        print_job_timer.pause();
+        //host_action_pause();
+        planner.synchronize();
+        nozzle.park(0, HMI_data.Park_point);
+        disable_e_stepper(active_extruder);
+        safe_delay(100);
       }
       else {
         // cancel pause
       }
       Goto_PrintProcess();
     }
-    else if (select_print.now == 2) { // stop window
+    else if (select_print.now == 2) { // stop pressed
       if (HMI_flag.select_flag) {
         checkkey = MainMenu;
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
@@ -2165,6 +2173,17 @@ void Draw_Move_Menu() {
 
   // Draw separators and icons
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MoveX + i);
+
+  // Draw values
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(1), current_position.x * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(2), current_position.y * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(3), current_position.z * MINUNITMULT);
+  #if HAS_HOTEND
+    HMI_ValueStruct.Move_E_scaled = current_position.e * MINUNITMULT;
+    DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
+  #endif
+
+  if (!all_axes_trusted()) DWIN_DrawStatusLine(HMI_data.AlertTxt_Color, HMI_data.AlertBg_Color, "WARNING: position is unknow");
 }
 
 void Draw_AdvSet_Menu() {
@@ -2176,9 +2195,9 @@ void Draw_AdvSet_Menu() {
   #else
     #define ASCROL(L) (L)
   #endif
-  
+
   #define AVISI(L)  WITHIN(ASCROL(L), 0, MROWS)
-  
+
   Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
 
   if (AVISI(0)) Draw_Back_First(select_advset.now == 0);
@@ -2488,14 +2507,6 @@ void HMI_Prepare() {
         checkkey = AxisMove;
         select_item.reset();
         Draw_Move_Menu();
-
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(1), current_position.x * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(2), current_position.y * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(3), current_position.z * MINUNITMULT);
-        #if HAS_HOTEND
-          HMI_ValueStruct.Move_E_scaled = current_position.e * MINUNITMULT;
-          DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scaled);
-        #endif
         break;
       case PREPARE_CASE_MLEV: // Manual leveling
         checkkey = ManualLev;
@@ -2753,10 +2764,10 @@ void HMI_Control() {
     if (select_control.inc(1 + CONTROL_CASE_TOTAL)) {
       if (select_control.now > MROWS && select_control.now > index_control) {
         index_control = select_control.now;
-        
+
         // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
-        
+
         switch (index_control) {  // Last menu items
           case CONTROL_CASE_REBOOT:  // Reset Printer
             Draw_Menu_Item(MROWS, ICON_Reboot, GET_TEXT(MSG_RESET_PRINTER));
@@ -2888,6 +2899,7 @@ void HMI_AxisMove() {
         checkkey = Prepare;
         select_prepare.set(PREPARE_CASE_MOVE);
         index_prepare = MROWS;
+        DWIN_StatusChanged(nullptr);
         Draw_Prepare_Menu();
         break;
       case 1: // X axis move
@@ -3323,7 +3335,7 @@ void HMI_Redraw_screen(uint8_t procID) {
     case Prepare      : Draw_Prepare_Menu(); break;
     case Control      : Draw_Control_Menu(); break;
     case PrintProcess : Draw_PrintProcess(); break;
-    case Print_window : Popup_window_PauseOrStop(); break;
+    case PauseOrStop  : Popup_window_PauseOrStop(); break;
     case FilamentMan  : Draw_FilamentMan_Menu(); break;
     case AxisMove     : Draw_Move_Menu(); break;
     case ManualLev    : Draw_ManualLev_Menu(); break;
@@ -3418,6 +3430,7 @@ void HMI_Redraw_screen(uint8_t procID) {
 void HMI_ReturnScreen() {
   checkkey = last_checkkey;
   HMI_Redraw_screen(checkkey);
+  DWIN_UpdateLCD();
   return;
 }
 
@@ -3502,7 +3515,8 @@ void HMI_Reboot() {
   planner.finish_and_disable();
   last_checkkey = MainMenu;
   checkkey = Popup_Window;
-  queue.inject_P(PSTR("M997"));
+  DWIN_RebootScreen();
+  HAL_reboot();
 }
 
 /* Advanced Settings */
@@ -4632,10 +4646,13 @@ void HMI_Step() {
   DWIN_UpdateLCD();
 }
 
-void HMI_Popup() {
+void HMI_PopupConfirm() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_ENTER) HMI_ReturnScreen();  
+  if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    wait_for_user = false;
+    HMI_ReturnScreen();  
+  } 
 }
 
 void HMI_Init() {
@@ -4813,7 +4830,7 @@ void DWIN_HandleScreen() {
     case Homing:          break;
     case Leveling:        break;
     case PrintProcess:    HMI_Printing(); break;
-    case Print_window:    HMI_PauseOrStop(); break;
+    case PauseOrStop:     HMI_PauseOrStop(); break;
     case FilamentMan:     HMI_FilamentMan(); break;
     case AxisMove:        HMI_AxisMove(); break;
     case ManualLev:       HMI_ManualLev(); break;
@@ -4889,7 +4906,7 @@ void DWIN_HandleScreen() {
     #endif
     case PrintSpeed:      HMI_PrintSpeed(); break;
     case PrintFlow:       HMI_PrintFlow(); break;
-    case Popup_Window:    HMI_Popup(); break;
+    case Popup_Window:    HMI_PopupConfirm(); break;
     default: break;
   }
 }
@@ -4996,12 +5013,16 @@ void DWIN_Startup() {
   DWIN_Init();
 }
 
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text) {
+  DWIN_Draw_Rectangle(1, bgcolor, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
+  if (text) DWIN_Draw_CenteredString(false, false, font8x16, color, bgcolor, MENU_CHR_W, STATUS_Y + 2, F(text));
+  DWIN_UpdateLCD();
+}
+
 // Update Status line
 // Example ui.status_printf_P(0,  PSTR("Element: %i Color: %i"), E, C);
 void DWIN_StatusChanged(const char *text) {
-  DWIN_Draw_Rectangle(1, HMI_data.StatusBg_Color, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
-  DWIN_Draw_CenteredString(false, false, font8x16, HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, MENU_CHR_W, STATUS_Y + 2, F(text));
-  DWIN_UpdateLCD();
+  DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, text);
 }
 
 // Start a Print Job
@@ -5089,7 +5110,7 @@ void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
 }
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-void DWIN_PauseShow(const PauseMessage message) {
+void DWIN_PauseShow(const char message) {
   switch (message) {
     case PAUSE_MESSAGE_PARKING:  DWIN_StatusChanged(GET_TEXT(MSG_PAUSE_PRINT_PARKING));    break;
     case PAUSE_MESSAGE_CHANGING: DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));   break;
@@ -5105,6 +5126,14 @@ void DWIN_PauseShow(const PauseMessage message) {
   }
 }
 #endif
+
+void DWIN_RebootScreen() {
+    DWIN_Frame_Clear(Color_Bg_Black);
+    DWIN_ICON_Show(ICON, ICON_LOGO, 71, 150);  // CREALITY logo
+    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, F("Please wait until reboot."));
+    DWIN_UpdateLCD();
+    delay(500);
+}
 
 void DWIN_Redraw_screen() {
   HMI_Redraw_screen(checkkey);
@@ -5130,5 +5159,16 @@ void DWIN_Gcode(const int16_t codenum) {
     default: break;
   }
 }
+
+void DWIN_Debug(const char *msg) {
+  DWIN_Popup_Window(0, "Debug", msg);
+  wait_for_user = true;
+  while (wait_for_user) {
+    idle_no_sleep();
+  }
+  HMI_Redraw_screen(checkkey);
+  DWIN_UpdateLCD();
+}
+
 
 #endif // DWIN_CREALITY_LCD

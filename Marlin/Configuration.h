@@ -2564,7 +2564,7 @@
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 #define DWIN_CREALITY_LCD
-
+#define HAS_E_STEPPER_ENABLE 1
 //
 // MarlinUI for Creality's DWIN display (and others)
 //

@@ -114,7 +114,7 @@ enum processID : uint8_t {
   PrintFlow,
 
   // Window ID
-  Print_window,
+  PauseOrStop,
   Popup_Window
 };
 
@@ -312,12 +312,12 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
-void HMI_Popup();
-
-void DWIN_Startup();
-void DWIN_Update();
+void HMI_PopupConfirm();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+void DWIN_Startup();
+void DWIN_Update();
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char *text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
@@ -339,9 +339,11 @@ void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
 void DWIN_Setdatadefaults();
 void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component);
+void DWIN_RebootScreen();
 void DWIN_Gcode(const int16_t codenum);
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  #include "../../../feature/pause.h"
-  void DWIN_PauseShow(const PauseMessage message);
+  void DWIN_PauseShow(const char message);
 #endif
+
+void DWIN_Debug(const char *msg);

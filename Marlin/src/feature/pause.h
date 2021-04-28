@@ -34,6 +34,8 @@ typedef struct {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
+#include "../libs/nozzle.h"
+
 enum PauseMode : char {
   PAUSE_MODE_SAME,
   PAUSE_MODE_PAUSE_PRINT,
