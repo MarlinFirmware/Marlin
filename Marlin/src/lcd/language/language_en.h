@@ -82,6 +82,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Leveling Done!");
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Fade Height");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Set Home Offsets");
+  PROGMEM Language_Str MSG_HOME_OFFSET_X                   = _UxGT("Home Offset X");
+  PROGMEM Language_Str MSG_HOME_OFFSET_Y                   = _UxGT("Home Offset Y");
+  PROGMEM Language_Str MSG_HOME_OFFSET_Z                   = _UxGT("Home Offset Z");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets Applied");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Set Origin");
   PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
@@ -709,6 +712,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Bottom Right");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibration Completed");
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibration Failed");
+
+  PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" driver backward");
 }
 
 #if FAN_COUNT == 1

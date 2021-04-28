@@ -14,21 +14,21 @@
         "0x3748"
       ]
     ],
-    "mcu": "stm32f407vgt6",
-    "variant": "BIGTREE_BTT002"
+    "mcu": "stm32f407zgt6",
+    "variant": "MARLIN_BIGTREE_GTR_V1"
   },
   "debug": {
-    "jlink_device": "STM32F407VG",
+    "jlink_device": "STM32F407ZG",
     "openocd_target": "stm32f4x",
     "svd_path": "STM32F40x.svd"
   },
   "frameworks": [
     "arduino"
   ],
-  "name": "STM32F407VG (192k RAM. 1024k Flash)",
+  "name": "STM32F407ZG (192k RAM. 1024k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 131072,
+    "maximum_ram_size": 196608,
     "maximum_size": 1048576,
     "protocol": "stlink",
     "protocols": [
@@ -41,6 +41,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f407vg.html",
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f407zg.html",
   "vendor": "Generic"
 }

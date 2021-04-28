@@ -81,6 +81,7 @@ jobs:
         - STM32F103RET6_creality
         - LERDGEX
         - mks_robin_nano35
+        - chitu_f103
 
         # Put lengthy tests last
 

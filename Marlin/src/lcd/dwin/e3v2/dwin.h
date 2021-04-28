@@ -63,9 +63,19 @@ enum processID : uint8_t {
   MaxJerk_value,
   Step,
   Step_value,
+  HomeOff,
+  HomeOffX,
+  HomeOffY,
+  HomeOffZ,
 
   // Last Process ID
   Last_Prepare,
+
+  // Advance Settings
+  AdvSet,
+  ProbeOff,
+  ProbeOffX,
+  ProbeOffY,
 
   // Back Process ID
   Back_Main,
@@ -197,6 +207,17 @@ enum processID : uint8_t {
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
+#define ICON_AdvSet               ICON_Language
+#define ICON_HomeOff              ICON_AdvSet
+#define ICON_HomeOffX             ICON_StepX
+#define ICON_HomeOffY             ICON_StepY
+#define ICON_HomeOffZ             ICON_StepZ
+#define ICON_ProbeOff             ICON_AdvSet
+#define ICON_ProbeOffX            ICON_StepX
+#define ICON_ProbeOffY            ICON_StepY
+#define ICON_PIDNozzle            ICON_SetEndTemp
+#define ICON_PIDbed               ICON_SetBedTemp
+
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
  * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28
@@ -256,6 +277,11 @@ typedef struct {
   #endif
   float offset_value      = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
+  float Home_OffX_scaled  = 0;
+  float Home_OffY_scaled  = 0;
+  float Home_OffZ_scaled  = 0;
+  float Probe_OffX_scaled = 0;
+  float Probe_OffY_scaled = 0;
 } HMI_value_t;
 
 #define DWIN_CHINESE 123
@@ -378,6 +404,7 @@ void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char *text);
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 

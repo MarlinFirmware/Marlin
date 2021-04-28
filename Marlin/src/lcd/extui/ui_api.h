@@ -129,9 +129,8 @@ namespace ExtUI {
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
   float getFeedrate_percent();
-  feedRate_t getFeedrate_mm_s();
+  int16_t getFlow_percent(const extruder_t);  feedRate_t getFeedrate_mm_s();
   void setFeedrate_mm_s(const feedRate_t fr);
-  int16_t getFlowPercentage(const extruder_t);
 
   inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
 

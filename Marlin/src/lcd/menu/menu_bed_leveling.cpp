@@ -63,16 +63,16 @@
   // and allow the command queue to be processed.
   //
   // When G29 finishes the last move:
-  // - Raise Z to the "manual probe height"
+  // - Raise Z to the "Z after probing" height
   // - Don't return until done.
   //
   // ** This blocks the command queue! **
   //
   void _lcd_level_bed_done() {
     if (!ui.wait_for_move) {
-      #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
+      #if Z_AFTER_PROBING > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
-        line_to_z(MANUAL_PROBE_HEIGHT);
+        line_to_z(Z_AFTER_PROBING);
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
