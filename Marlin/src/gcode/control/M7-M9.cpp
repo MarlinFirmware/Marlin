@@ -65,6 +65,7 @@ void GcodeSuite::M9() {
 #if ENABLED(AIR_ASSIST)
 
 #include "../gcode.h"
+#include "../../module/planner.h"
 #include "../../feature/spindle_laser.h"
 
 /**
