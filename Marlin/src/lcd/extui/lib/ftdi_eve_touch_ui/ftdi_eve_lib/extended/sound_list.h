@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -24,7 +24,7 @@
 class SoundList {
   private:
     static PROGMEM const struct list_t {
-      const char *const PROGMEM name;
+      const char * const PROGMEM name;
       const FTDI::SoundPlayer::sound_t* data;
     } list[];
   public:

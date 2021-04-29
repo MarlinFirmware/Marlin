@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -116,14 +116,14 @@ namespace FTDI {
 
     template<bulk_write_op byte_op>
     void spi_write_bulk(const void *data, uint16_t len, uint8_t padding) {
-      const uint8_t* p = (const uint8_t *)data;
+      const uint8_t *p = (const uint8_t *)data;
       while (len--)     spi_send(byte_op(p++));
       while (padding--) spi_send(0);
     }
 
     template<bulk_write_op byte_op>
     void spi_write_bulk(const void *data, uint16_t len) {
-      const uint8_t* p = (const uint8_t *)data;
+      const uint8_t *p = (const uint8_t *)data;
       while (len--) spi_send(byte_op(p++));
     }
 

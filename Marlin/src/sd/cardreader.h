@@ -23,9 +23,9 @@
 
 #include "../inc/MarlinConfig.h"
 
-#define IFSD(A,B) TERN(SDSUPPORT,A,B)
-
 #if ENABLED(SDSUPPORT)
+
+extern const char M23_STR[], M24_STR[];
 
 #if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
   #define SD_RESORT 1
@@ -42,6 +42,29 @@
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
 
 #include "SdFile.h"
+#include "disk_io_driver.h"
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#endif
+
+#if NEED_SD2CARD_SDIO
+  #include "Sd2Card_sdio.h"
+#elif NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+#endif
+
+#if ENABLED(MULTI_VOLUME)
+  #define SV_SD_ONBOARD      1
+  #define SV_USB_FLASH_DRIVE 2
+  #define _VOLUME_ID(N) _CAT(SV_, N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
+  #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+    #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+  #endif
+#else
+  #define SHARED_VOLUME_IS(...) 0
+#endif
 
 typedef struct {
   bool saving:1,
@@ -57,6 +80,10 @@ typedef struct {
     ;
 } card_flags_t;
 
+#if ENABLED(AUTO_REPORT_SD_STATUS)
+  #include "../libs/autoreport.h"
+#endif
+
 class CardReader {
 public:
   static card_flags_t flag;                         // Flags (above)
@@ -66,15 +93,17 @@ public:
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
     #if HAS_MULTI_SERIAL
-      static int8_t transfer_port_index;
+      static serial_index_t transfer_port_index;
     #else
-      static constexpr int8_t transfer_port_index = 0;
+      static constexpr serial_index_t transfer_port_index = 0;
     #endif
   #endif
 
   // // // Methods // // //
 
   CardReader();
+
+  static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
 
   static SdFile getroot() { return root; }
 
@@ -87,17 +116,19 @@ public:
   static void manage_media();
 
   // SD Card Logging
-  static void openLogFile(char * const path);
+  static void openLogFile(const char * const path);
   static void write_command(char * const buf);
 
-  // Auto-Start files
-  static int8_t autostart_index;                    // Index of autoX.g files
-  static void beginautostart();
-  static void checkautostart();
+  #if DISABLED(NO_SD_AUTOSTART)     // Auto-Start auto#.g file handling
+    static uint8_t autofile_index;  // Next auto#.g index to run, plus one. Ignored by autofile_check when zero.
+    static void autofile_begin();   // Begin check. Called automatically after boot-up.
+    static bool autofile_check();   // Check for the next auto-start file and run it.
+    static inline void autofile_cancel() { autofile_index = 0; }
+  #endif
 
   // Basic file ops
-  static void openFileRead(char * const path, const uint8_t subcall=0);
-  static void openFileWrite(char * const path);
+  static void openFileRead(const char * const path, const uint8_t subcall=0);
+  static void openFileWrite(const char * const path);
   static void closefile(const bool store_location=false);
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
@@ -116,7 +147,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char* const match);
+  static void selectFileByName(const char * const match);
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)
@@ -135,7 +166,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, SdFile* &curDir, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -159,22 +190,30 @@ public:
   static inline uint32_t getIndex() { return sdpos; }
   static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
-  static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
-  static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
-  static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
+  static inline int16_t read(void *buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
-  static Sd2Card& getSd2Card() { return sd2card; }
+  // TODO: rename to diskIODriver()
+  static DiskIODriver* diskIODriver() { return driver; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
-    static void auto_report_sd_status();
-    static inline void set_auto_report_interval(uint8_t v) {
-      TERN_(HAS_MULTI_SERIAL, auto_report_port = serial_port_index);
-      NOMORE(v, 60);
-      auto_report_sd_interval = v;
-      next_sd_report_ms = millis() + 1000UL * v;
-    }
+    //
+    // SD Auto Reporting
+    //
+    struct AutoReportSD { static void report() { report_status(); } };
+    static AutoReporter<AutoReportSD> auto_reporter;
+  #endif
+
+  #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    static DiskIODriver_USBFlash media_usbFlashDrive;
+  #endif
+  #if NEED_SD2CARD_SDIO
+    static DiskIODriver_SDIO media_sdio;
+  #elif NEED_SD2CARD_SPI
+    static DiskIODriver_SPI_SD media_sd_spi;
   #endif
 
 private:
@@ -232,7 +271,7 @@ private:
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static uint8_t *isDir;
         #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-          static uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+          static uint8_t isDir[(SDSORT_LIMIT + 7) >> 3];
         #endif
       #endif
 
@@ -240,31 +279,20 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static Sd2Card sd2card;
+  static DiskIODriver *driver;
   static SdVolume volume;
   static SdFile file;
 
-  static uint32_t filesize, sdpos;
+  static uint32_t filesize, // Total size of the current file, in bytes
+                  sdpos;    // Index most recently read (one behind file.getPos)
 
   //
   // Procedure calls to other files
   //
-  #ifndef SD_PROCEDURE_DEPTH
-    #define SD_PROCEDURE_DEPTH 1
-  #endif
-  static uint8_t file_subcall_ctr;
-  static uint32_t filespos[SD_PROCEDURE_DEPTH];
-  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
-
-  //
-  // SD Auto Reporting
-  //
-  #if ENABLED(AUTO_REPORT_SD_STATUS)
-    static uint8_t auto_report_sd_interval;
-    static millis_t next_sd_report_ms;
-    #if HAS_MULTI_SERIAL
-      static int8_t auto_report_port;
-    #endif
+  #if HAS_MEDIA_SUBCALLS
+    static uint8_t file_subcall_ctr;
+    static uint32_t filespos[SD_PROCEDURE_DEPTH];
+    static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   #endif
 
   //
@@ -282,7 +310,7 @@ private:
 };
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define IS_SD_INSERTED() Sd2Card::isInserted()
+  #define IS_SD_INSERTED() DiskIODriver_USBFlash::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
   #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else

@@ -53,11 +53,8 @@ void test_gpio_readlevel_L() {
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == 0);
     #endif
-    //mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 0);
     endstopx1_sta = (READ(X_MIN_PIN) == 0);
-    //endstopx2_sta = (READ(X_MAX_PIN) == 0);
     endstopy1_sta = (READ(Y_MIN_PIN) == 0);
-    //endstopy2_sta = (READ(Y_MAX_PIN) == 0);
     endstopz1_sta = (READ(Z_MIN_PIN) == 0);
     endstopz2_sta = (READ(Z_MAX_PIN) == 0);
   #endif
@@ -75,11 +72,8 @@ void test_gpio_readlevel_H() {
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == 1);
     #endif
-    //mt_det3_sta = (READ(MT_DET_3_PIN) == 1);
     endstopx1_sta = (READ(X_MIN_PIN) == 1);
-    //endstopx2_sta = (READ(X_MAX_PIN) == 1);
     endstopy1_sta = (READ(Y_MIN_PIN) == 1);
-    //endstopy2_sta = (READ(Y_MAX_PIN) == 1);
     endstopz1_sta = (READ(Z_MIN_PIN) == 1);
     endstopz2_sta = (READ(Z_MAX_PIN) == 1);
   #endif
@@ -88,9 +82,7 @@ void test_gpio_readlevel_H() {
 void init_test_gpio() {
   #ifdef MKS_TEST
     SET_INPUT_PULLUP(X_MIN_PIN);
-    //SET_INPUT_PULLUP(X_MAX_PIN);
     SET_INPUT_PULLUP(Y_MIN_PIN);
-    //SET_INPUT_PULLUP(Y_MAX_PIN);
     SET_INPUT_PULLUP(Z_MIN_PIN);
     SET_INPUT_PULLUP(Z_MAX_PIN);
 
@@ -100,7 +92,6 @@ void init_test_gpio() {
     #if PIN_EXISTS(MT_DET_2)
       SET_INPUT_PULLUP(MT_DET_2_PIN);
     #endif
-    //SET_INPUT_PULLUP(MT_DET_3_PIN);
 
     SET_INPUT_PULLUP(MKS_TEST_POWER_LOSS_PIN);
     SET_INPUT_PULLUP(MKS_TEST_PS_ON_PIN);
@@ -122,7 +113,6 @@ void init_test_gpio() {
     #if !MB(MKS_ROBIN_E3P)
       WRITE(E1_ENABLE_PIN, LOW);
     #endif
-    //WRITE(E2_ENABLE_PIN, LOW);
 
     #if MB(MKS_ROBIN_E3P)
       SET_INPUT_PULLUP(PA1);
@@ -167,15 +157,13 @@ void mks_gpio_test() {
         && (READ(PE6) == 0)
         && (READ(PE7) == 0)
       #endif
-    ) // &&(mt_det3_sta == 1))
+    )
       disp_det_ok();
     else
       disp_det_error();
 
     if ( (endstopx1_sta == 1)
-      //&& (endstopx2_sta == 1)
       && (endstopy1_sta == 1)
-      //&& (endstopy2_sta == 1)
       && (endstopz1_sta == 1)
       && (endstopz2_sta == 1)
     )
@@ -195,9 +183,7 @@ void mks_hardware_test() {
       #if !MB(MKS_ROBIN_E3P)
         WRITE(E1_DIR_PIN, LOW);
       #endif
-      //WRITE(E2_DIR_PIN, LOW);
       thermalManager.fan_speed[0] = 255;
-      //WRITE(HEATER_2_PIN, HIGH); // HE2
       #if !MB(MKS_ROBIN_E3P)
         WRITE(HEATER_1_PIN, HIGH); // HE1
       #endif
@@ -212,9 +198,7 @@ void mks_hardware_test() {
       #if !MB(MKS_ROBIN_E3P)
         WRITE(E1_DIR_PIN, HIGH);
       #endif
-      //WRITE(E2_DIR_PIN, HIGH);
       thermalManager.fan_speed[0] = 0;
-      //WRITE(HEATER_2_PIN, LOW); // HE2
       #if !MB(MKS_ROBIN_E3P)
         WRITE(HEATER_1_PIN, LOW); // HE1
       #endif
@@ -229,7 +213,6 @@ void mks_hardware_test() {
       // nothing here
     }
     else {
-      //mks_test_beeper();
     }
 
     if (disp_state == PRINT_READY_UI)
@@ -637,7 +620,6 @@ void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor
   }
 }
 
-//static lv_obj_t * scr_test;
 void disp_assets_update() {
   SPI_TFT.LCD_clear(0x0000);
   disp_string(100, 140, "Assets Updating...", 0xFFFF, 0x0000);

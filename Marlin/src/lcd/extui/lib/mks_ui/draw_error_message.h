@@ -29,10 +29,9 @@
   #define PGM_P const char *
 #endif
 
-extern void lv_draw_error_message(PGM_P const msg);
-extern void lv_clear_error_message();
+void lv_draw_error_message(PGM_P const msg);
+void lv_clear_error_message();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "compat.h"
@@ -71,7 +71,7 @@ namespace ExtUI {
     AlertDialogBox::showError(F("Unable to read media."));
   }
 
-  void onStatusChanged(const char* lcd_msg) {
+  void onStatusChanged(const char *lcd_msg) {
     StatusScreen::setStatusMessage(lcd_msg);
   }
 
@@ -87,8 +87,9 @@ namespace ExtUI {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FINISHED);
   }
 
-  void onPrintTimerPaused() {
-  }
+  void onPrintTimerPaused() {}
+
+  void onPrintFinished() {}
 
   void onFilamentRunout(const extruder_t extruder) {
     char lcd_msg[30];
@@ -96,6 +97,9 @@ namespace ExtUI {
     StatusScreen::setStatusMessage(lcd_msg);
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED, FTDI::PLAY_SYNCHRONOUS);
   }
+
+  void onHomingStart() {}
+  void onHomingComplete() {}
 
   void onFactoryReset() {
     InterfaceSettingsScreen::defaultSettings();
@@ -107,6 +111,10 @@ namespace ExtUI {
 
   void onLoadSettings(const char *buff) {
     InterfaceSettingsScreen::loadSettings(buff);
+  }
+
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
   }
 
   void onConfigurationStoreWritten(bool success) {
@@ -134,12 +142,14 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
-      BedMeshScreen::onMeshUpdate(x, y, val);
+    void onMeshLevelingStart() {}
+
+    void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) {
+      BedMeshViewScreen::onMeshUpdate(x, y, val);
     }
 
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
-      BedMeshScreen::onMeshUpdate(x, y, state);
+      BedMeshViewScreen::onMeshUpdate(x, y, state);
     }
   #endif
 
@@ -170,6 +180,9 @@ namespace ExtUI {
       GOTO_SCREEN(StatusScreen);
     }
   #endif // HAS_PID_HEATING
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // TOUCH_UI_FTDI_EVE

@@ -16,14 +16,14 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
 
-void format_temp(char *str, float t1);
-void format_temp_and_idle(char *str, float t1);
-void format_temp_and_temp(char *str, float t1, float t2);
-void format_temp_and_material(char *str, float t1, const char *material);
+void format_temp(char *str, const_celsius_float_t t1);
+void format_temp_and_idle(char *str, const_celsius_float_t t1);
+void format_temp_and_temp(char *str, const_celsius_float_t t1, const_celsius_float_t t2);
+void format_temp_and_material(char *str, const_celsius_float_t t1, const char *material);
 void format_position(char *str, float p, uint8_t decimals = 1);
 void format_position(char *str, float x, float y, float z);

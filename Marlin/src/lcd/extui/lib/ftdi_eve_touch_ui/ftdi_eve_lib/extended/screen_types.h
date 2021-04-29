@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -50,7 +50,11 @@ typedef enum {
 
 #define GET_METHOD(type, method) reinterpret_cast<method##_func_t*>(pgm_read_ptr_far(&functionTable[type].method##_ptr))
 #define SCREEN_TABLE             PROGMEM const ScreenRef::table_t ScreenRef::functionTable[] =
-#define SCREEN_TABLE_POST        const uint8_t ScreenRef::functionTableSize = sizeof(ScreenRef::functionTable)/sizeof(ScreenRef::functionTable[0]);
+#define SCREEN_TABLE_POST        size_t ScreenRef::tableSize() { \
+                                   constexpr size_t siz = sizeof(functionTable)/sizeof(functionTable[0]); \
+                                   static_assert(siz > 0, "The screen table is empty!"); \
+                                   return siz; \
+                                 }
 
 class ScreenRef {
   protected:
@@ -79,14 +83,12 @@ class ScreenRef {
 
     uint8_t type = 0;
     static PROGMEM const table_t functionTable[];
-    static const uint8_t functionTableSize;
 
   public:
-    uint8_t getType() {return type;}
+    static size_t tableSize();
 
-    void setType(uint8_t t) {
-      type = t;
-    }
+    uint8_t getType()       {return type;}
+    void setType(uint8_t t) {type = t;}
 
     uint8_t lookupScreen(onRedraw_func_t onRedraw_ptr);
 
@@ -158,7 +160,7 @@ class UncachedScreen {
       using namespace FTDI;
       CommandProcessor cmd;
       cmd.cmd(CMD_DLSTART);
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         load_utf8_bitmaps(cmd);
       #endif
 
@@ -199,7 +201,7 @@ class CachedScreen {
       CommandProcessor cmd;
 
       cmd.cmd(CMD_DLSTART);
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         load_utf8_bitmaps(cmd);
       #endif
       current_screen.onRedraw(BACKGROUND);
@@ -222,7 +224,7 @@ class CachedScreen {
         dlcache.append();
       }
       else {
-        #ifdef TOUCH_UI_USE_UTF8
+        #if ENABLED(TOUCH_UI_USE_UTF8)
           load_utf8_bitmaps(cmd);
         #endif
         current_screen.onRedraw(BACKGROUND);

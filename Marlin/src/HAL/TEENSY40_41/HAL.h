@@ -37,6 +37,10 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
+#if HAS_ETHERNET
+  #include "../../feature/ethernet.h"
+#endif
+
 //#define ST7920_DELAY_1 DELAY_NS(600)
 //#define ST7920_DELAY_2 DELAY_NS(750)
 //#define ST7920_DELAY_3 DELAY_NS(750)
@@ -51,25 +55,37 @@
   #define IS_TEENSY41 1
 #endif
 
-#define _MSERIAL(X) Serial##X
-#define MSERIAL(X) _MSERIAL(X)
+#include "../../core/serial_hook.h"
 #define Serial0 Serial
+#define _DECLARE_SERIAL(X) \
+  typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  extern DefaultSerial##X MSerial##X
+#define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
+
+typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
+  #define MYSERIAL1 SerialUSB
 #elif WITHIN(SERIAL_PORT, 0, 8)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  DECLARE_SERIAL(SERIAL_PORT);
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 8, or -1 for Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 usbSerial
+    #define MYSERIAL2 usbSerial
+  #elif SERIAL_PORT_2 == -2
+    #define MYSERIAL2 ethernet.telnetClient
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-      #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 8, or -1 for Native USB, or -2 for Ethernet."
   #endif
 #endif
 
@@ -90,20 +106,9 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
 // Don't place string constants in PROGMEM
 #undef PSTR
 #define PSTR(str) ({static const char *data = (str); &data[0];})
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
@@ -116,14 +121,20 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+void HAL_reboot();
+
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  uint32_t freeMemory();
-}
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" uint32_t freeMemory();
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 // ADC
 

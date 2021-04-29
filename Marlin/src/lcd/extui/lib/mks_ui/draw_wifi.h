@@ -26,13 +26,10 @@
 #endif
 
 
-extern void lv_draw_wifi(void);
-extern void lv_clear_wifi();
-extern void disp_wifi_state();
+void lv_draw_wifi();
+void lv_clear_wifi();
+void disp_wifi_state();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif
-
-
-

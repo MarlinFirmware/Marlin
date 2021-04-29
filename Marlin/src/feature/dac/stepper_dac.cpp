@@ -33,7 +33,7 @@
 
 bool dac_present = false;
 constexpr xyze_uint8_t dac_order = DAC_STEPPER_ORDER;
-xyze_uint8_t dac_channel_pct = DAC_MOTOR_CURRENT_DEFAULT;
+xyze_uint_t dac_channel_pct = DAC_MOTOR_CURRENT_DEFAULT;
 
 StepperDAC stepper_dac;
 
@@ -72,8 +72,8 @@ void StepperDAC::set_current_percent(const uint8_t channel, float val) {
   set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) / 100.0f);
 }
 
-static float dac_perc(int8_t n) { return 100.0 * mcp4728.getValue(dac_order[n]) * RECIPROCAL(DAC_STEPPER_MAX); }
-static float dac_amps(int8_t n) { return mcp4728.getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE); }
+static float dac_perc(int8_t n) { return mcp4728.getDrvPct(dac_order[n]); }
+static float dac_amps(int8_t n) { return mcp4728.getValue(dac_order[n]) * 0.125 * RECIPROCAL(DAC_STEPPER_SENSE * 1000); }
 
 uint8_t StepperDAC::get_current_percent(const AxisEnum axis) { return mcp4728.getDrvPct(dac_order[axis]); }
 void StepperDAC::set_current_percents(xyze_uint8_t &pct) {

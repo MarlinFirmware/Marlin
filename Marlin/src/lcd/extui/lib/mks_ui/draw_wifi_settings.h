@@ -28,8 +28,8 @@
 #define WIFI_AP_TEXT  "AP"
 #define WIFI_STA_TEXT "STA"
 
-extern void lv_draw_wifi_settings(void);
-extern void lv_clear_wifi_settings();
+void lv_draw_wifi_settings();
+void lv_clear_wifi_settings();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

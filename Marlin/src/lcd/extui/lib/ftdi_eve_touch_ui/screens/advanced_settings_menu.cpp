@@ -17,14 +17,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE) && !defined(TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
+
+#ifdef FTDI_ADVANCED_SETTINGS_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -37,7 +36,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
        .cmd(CLEAR(true,true,true));
   }
 
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
@@ -90,29 +89,29 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
       .enabled(ENABLED(HAS_BED_PROBE))
-      .tag(2) .button( ZPROBE_ZOFFSET_POS,     GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+      .tag(2) .button(ZPROBE_ZOFFSET_POS,     GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
       .enabled(ENABLED(CASE_LIGHT_ENABLE))
-      .tag(16).button( CASE_LIGHT_POS,         GET_TEXT_F(MSG_CASE_LIGHT))
-      .tag(3) .button( STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
+      .tag(16).button(CASE_LIGHT_POS,         GET_TEXT_F(MSG_CASE_LIGHT))
+      .tag(3) .button(STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
       .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
-      .tag(13).button( TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
+      .tag(13).button(TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
       .enabled(ENABLED(SENSORLESS_HOMING))
-      .tag(14).button( TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
+      .tag(14).button(TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .enabled(ENABLED(HAS_MULTI_HOTEND))
-      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
+      .tag(4) .button(OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
       .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
-      .tag(11).button( FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
-      .tag(12).button( ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
-      .tag(15).button( DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
-      .tag(9) .button( INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
-      .tag(10).button( RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
-      .tag(5) .button( VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
-      .tag(6) .button( ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
-      .tag(7) .button( JERK_POS,               GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
+      .tag(11).button(FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
+      .tag(12).button(ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
+      .tag(15).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
+      .tag(9) .button(INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
+      .tag(10).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
+      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_VELOCITY))
+      .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
+      .tag(7) .button(JERK_POS,               GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
       .enabled(ENABLED(BACKLASH_GCODE))
-      .tag(8).button( BACKLASH_POS,            GET_TEXT_F(MSG_BACKLASH))
+      .tag(8).button(BACKLASH_POS,            GET_TEXT_F(MSG_BACKLASH))
       .colors(action_btn)
-      .tag(1).button( BACK_POS,                GET_TEXT_F(MSG_BACK));
+      .tag(1).button(BACK_POS,                GET_TEXT_F(MSG_BACK));
   }
 }
 
@@ -152,4 +151,5 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   }
   return true;
 }
-#endif // TOUCH_UI_FTDI_EVE
+
+#endif // FTDI_ADVANCED_SETTINGS_MENU

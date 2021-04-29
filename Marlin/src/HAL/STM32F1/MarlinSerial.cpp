@@ -28,7 +28,7 @@
 
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
-static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MarlinSerial &serial) {
+static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MSerialT &serial) {
  /* Handle RXNEIE and TXEIE interrupts.
   * RXNE signifies availability of a byte in DR.
   *
@@ -60,7 +60,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
   }
   else if (srflags & USART_SR_ORE) {
     // overrun and empty data, just do a dummy read to clear ORE
-    // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
+    // and prevent a raise condition where a continuous interrupt stream (due to ORE set) occurs
     // (see chapter "Overrun error" ) in STM32 reference manual
     regs->DR;
   }
@@ -90,20 +90,20 @@ constexpr bool serial_handles_emergency(int port) {
   ;
 }
 
-#define DEFINE_HWSERIAL_MARLIN(name, n)   \
-  MarlinSerial name(USART##n,             \
-            BOARD_USART##n##_TX_PIN,      \
-            BOARD_USART##n##_RX_PIN,      \
-            serial_handles_emergency(n)); \
-  extern "C" void __irq_usart##n(void) {  \
+#define DEFINE_HWSERIAL_MARLIN(name, n)     \
+  MSerialT name(serial_handles_emergency(n),\
+            USART##n,                       \
+            BOARD_USART##n##_TX_PIN,        \
+            BOARD_USART##n##_RX_PIN);       \
+  extern "C" void __irq_usart##n(void) {    \
     my_usart_irq(USART##n->rb, USART##n->wb, USART##n##_BASE, MSerial##n); \
   }
 
 #define DEFINE_HWSERIAL_UART_MARLIN(name, n) \
-  MarlinSerial name(UART##n,                 \
+  MSerialT name(serial_handles_emergency(n), \
+          UART##n,                           \
           BOARD_USART##n##_TX_PIN,           \
-          BOARD_USART##n##_RX_PIN,           \
-          serial_handles_emergency(n));      \
+          BOARD_USART##n##_RX_PIN);          \
   extern "C" void __irq_usart##n(void) {     \
     my_usart_irq(UART##n->rb, UART##n->wb, UART##n##_BASE, MSerial##n); \
   }
@@ -111,7 +111,9 @@ constexpr bool serial_handles_emergency(int port) {
 // Instantiate all UARTs even if they are not needed
 // This avoids a bunch of logic to figure out every serial
 // port which may be in use on the system.
-DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
+#if DISABLED(MKS_WIFI_MODULE)
+  DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
+#endif
 DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
 DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
@@ -132,11 +134,11 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 // If you encounter this error, replace SerialX with MSerialX, for example MSerial3.
 
 // Non-TMC ports were already validated in HAL.h, so do not require verbose error messages.
-#ifdef MYSERIAL0
-  CHECK_CFG_SERIAL(MYSERIAL0);
-#endif
 #ifdef MYSERIAL1
   CHECK_CFG_SERIAL(MYSERIAL1);
+#endif
+#ifdef MYSERIAL2
+  CHECK_CFG_SERIAL(MYSERIAL2);
 #endif
 #ifdef LCD_SERIAL
   CHECK_CFG_SERIAL(LCD_SERIAL);

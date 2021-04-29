@@ -423,7 +423,7 @@ class Stepper {
     #endif
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
-    static bool is_block_busy(const block_t* const block);
+    static bool is_block_busy(const block_t * const block);
 
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
@@ -514,8 +514,14 @@ class Stepper {
       static void refresh_motor_power();
     #endif
 
-    // Set direction bits for all steppers
+    // Update direction states for all steppers
     static void set_directions();
+
+    // Set direction bits and update all stepper DIR states
+    static void set_directions(const uint8_t bits) {
+      last_direction_bits = bits;
+      set_directions();
+    }
 
   private:
 
@@ -523,7 +529,7 @@ class Stepper {
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
     FORCE_INLINE static void _set_position(const abce_long_t &spos) { _set_position(spos.a, spos.b, spos.c, spos.e); }
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t* loops) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       uint32_t timer;
 
       // Scale the frequency, as requested by the caller

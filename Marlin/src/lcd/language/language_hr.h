@@ -41,7 +41,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("SD kartica uklonjena");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto pokretanje");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto pokretanje");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Ugasi steppere");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Automatski homing");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home-aj X");
@@ -79,7 +79,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveliraj bed");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Miči X");
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Miči Y");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Miči %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Miči %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Miči 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Miči 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Miči 10mm");
@@ -94,7 +94,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Odaberi *");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperature");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Gibanje");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD-a");

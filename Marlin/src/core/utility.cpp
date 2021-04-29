@@ -35,6 +35,18 @@ void safe_delay(millis_t ms) {
   thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
+#if ENABLED(MARLIN_DEV_MODE)
+  void early_safe_delay(millis_t ms) {
+    while (ms > 50) {
+      ms -= 50;
+      delay(50);
+      watchdog_refresh();
+    }
+    delay(ms);
+    watchdog_refresh();
+  }
+#endif
+
 // A delay to provide brittle hosts time to receive bytes
 #if ENABLED(SERIAL_OVERRUN_PROTECTION)
 
@@ -92,9 +104,9 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Aligned With");
 
         if (probe.offset_xy.y > 0)
-          serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
+          SERIAL_ECHOPGM_P(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
         else if (probe.offset_xy.y < 0)
-          serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Proximal") : PSTR("-Front"));
+          SERIAL_ECHOPGM_P(ENABLED(IS_SCARA) ? PSTR("-Proximal") : PSTR("-Front"));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
@@ -102,7 +114,7 @@ void safe_delay(millis_t ms) {
 
       #endif
 
-      serialprintPGM(probe.offset.z < 0 ? PSTR("Below") : probe.offset.z > 0 ? PSTR("Above") : PSTR("Same Z as"));
+      SERIAL_ECHOPGM_P(probe.offset.z < 0 ? PSTR("Below") : probe.offset.z > 0 ? PSTR("Above") : PSTR("Same Z as"));
       SERIAL_ECHOLNPGM(" Nozzle)");
 
     #endif

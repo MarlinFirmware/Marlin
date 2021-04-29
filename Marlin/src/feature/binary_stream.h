@@ -29,29 +29,17 @@
   #include "../libs/heatshrink/heatshrink_decoder.h"
 #endif
 
-inline bool bs_serial_data_available(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.available();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.available();
-    #endif
-  }
-  return false;
+inline bool bs_serial_data_available(const serial_index_t index) {
+  return SERIAL_IMPL.available(index);
 }
 
-inline int bs_read_serial(const uint8_t index) {
-  switch (index) {
-    case 0: return MYSERIAL0.read();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.read();
-    #endif
-  }
-  return -1;
+inline int bs_read_serial(const serial_index_t index) {
+  return SERIAL_IMPL.read(index);
 }
 
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   static heatshrink_decoder hsd;
-  #ifdef BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
+  #if BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
     // STM32 requires a word-aligned buffer for SD card transfers via DMA
     static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
   #else
@@ -63,10 +51,10 @@ class SDFileTransferProtocol  {
 private:
   struct Packet {
     struct [[gnu::packed]] Open {
-      static bool validate(char* buffer, size_t length) {
+      static bool validate(char *buffer, size_t length) {
         return (length > sizeof(Open) && buffer[length - 1] == '\0');
       }
-      static Open& decode(char* buffer) {
+      static Open& decode(char *buffer) {
         data = &buffer[2];
         return *reinterpret_cast<Open*>(buffer);
       }
@@ -79,7 +67,7 @@ private:
     };
   };
 
-  static bool file_open(char* filename) {
+  static bool file_open(char *filename) {
     if (!dummy_transfer) {
       card.mount();
       card.openFileWrite(filename);
@@ -91,7 +79,7 @@ private:
     return true;
   }
 
-  static bool file_write(char* buffer, const size_t length) {
+  static bool file_write(char *buffer, const size_t length) {
     #if ENABLED(BINARY_STREAM_COMPRESSION)
       if (compression) {
         size_t total_processed = 0, processed_count = 0;
@@ -162,7 +150,7 @@ public:
     }
   }
 
-  static void process(uint8_t packet_type, char* buffer, const uint16_t length) {
+  static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
     transfer_timeout = millis() + TIMEOUT;
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
@@ -302,7 +290,7 @@ public:
     millis_t transfer_window = millis() + RX_TIMESLICE;
 
     #if ENABLED(SDSUPPORT)
-      PORT_REDIRECT(card.transfer_port_index);
+      PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
     #endif
 
     #pragma GCC diagnostic push
@@ -369,8 +357,7 @@ public:
               }
             }
             else {
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet header(", packet.header.sync, "?) corrupt");
+              SERIAL_ECHO_MSG("Packet header(", packet.header.sync, "?) corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -404,8 +391,7 @@ public:
               stream_state = StreamState::PACKET_PROCESS;
             }
             else {
-              SERIAL_ECHO_START();
-              SERIAL_ECHOLNPAIR("Packet(", packet.header.sync, ") payload corrupt");
+              SERIAL_ECHO_MSG("Packet(", packet.header.sync, ") payload corrupt");
               stream_state = StreamState::PACKET_RESEND;
             }
           }
@@ -423,8 +409,7 @@ public:
           if (packet_retries < MAX_RETRIES || MAX_RETRIES == 0) {
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
-            SERIAL_ECHO_START();
-            SERIAL_ECHOLNPAIR("Resend request ", int(packet_retries));
+            SERIAL_ECHO_MSG("Resend request ", packet_retries);
             SERIAL_ECHOLNPAIR("rs", sync);
           }
           else

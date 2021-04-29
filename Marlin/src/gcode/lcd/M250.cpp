@@ -25,7 +25,7 @@
 #if HAS_LCD_CONTRAST
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * M250: Read and optionally set the LCD contrast

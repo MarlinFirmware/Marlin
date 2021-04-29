@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -24,7 +24,7 @@
 class CommandProcessor;
 
 namespace FTDI {
-  #ifdef TOUCH_UI_USE_UTF8
+  #if ENABLED(TOUCH_UI_USE_UTF8)
     typedef uint16_t utf8_char_t;
 
     /**
@@ -47,19 +47,20 @@ namespace FTDI {
      * pointer to the next character */
 
     utf8_char_t get_utf8_char_and_inc(const char *&c);
+    utf8_char_t get_utf8_char_and_inc(char *&c);
 
     /* Returns the next character in a UTF8 string, without incrementing */
 
     inline utf8_char_t get_utf8_char(const char *c) {return get_utf8_char_and_inc(c);}
 
-    void load_utf8_data(uint16_t addr);
+    void load_utf8_data(uint32_t addr);
   #else
     typedef char utf8_char_t;
 
     inline utf8_char_t get_utf8_char_and_inc(const char *&c) {return *c++;}
     inline utf8_char_t get_utf8_char(const char *c) {return *c;}
 
-    inline void load_utf8_data(uint16_t) {}
+    inline void load_utf8_data(uint32_t) {}
   #endif
 
   void load_utf8_bitmaps(CommandProcessor& cmd);
@@ -74,14 +75,14 @@ namespace FTDI {
   // Similar to CLCD::FontMetrics, but can be used with UTF8 encoded strings.
 
   struct FontMetrics {
-    #ifdef TOUCH_UI_USE_UTF8
+    #if ENABLED(TOUCH_UI_USE_UTF8)
       font_size_t fs;
     #else
       CLCD::FontMetrics fm;
     #endif
 
     inline void load(uint8_t rom_font_size) {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         fs = font_size_t::from_romfont(rom_font_size);
       #else
         fm.load(rom_font_size);
@@ -89,7 +90,7 @@ namespace FTDI {
     }
 
     inline uint16_t get_char_width(utf8_char_t c) const {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         return get_utf8_char_width(c, fs);
       #else
         return fm.char_widths[(uint8_t)c];
@@ -97,7 +98,7 @@ namespace FTDI {
     }
 
     inline uint8_t get_height() const {
-      #ifdef TOUCH_UI_USE_UTF8
+      #if ENABLED(TOUCH_UI_USE_UTF8)
         return fs.get_height();
       #else
         return fm.height;

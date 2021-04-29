@@ -23,10 +23,11 @@
 
 #if HAS_TFT_LVGL_UI
 
+#include "tft_lvgl_configuration.h"
+
+#if ENABLED(MKS_WIFI_MODULE)
+
 #include "draw_ui.h"
-
-#if ENABLED(USE_WIFI_FUNCTION)
-
 #include "wifiSerial.h"
 
 #include <libmaple/libmaple.h>
@@ -44,26 +45,16 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-void __irq_usart1(void) {
-  WIFISERIAL.wifi_usart_irq(USART1_BASE);
-  if (wifi_link_state == WIFI_TRANS_FILE) {
-    if (WIFISERIAL.available() == (400)) WIFI_IO1_SET();
-    if (WIFISERIAL.wifi_rb_is_full()) {
-      if (esp_state == TRANSFER_IDLE) esp_state = TRANSFERING;
-      if (storeRcvData(UART_RX_BUFFER_SIZE)) {
-        if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
-      }
-      else {
-        WIFI_IO1_SET();
-        esp_state = TRANSFER_STORE;
-      }
-    }
-  }
+void __irq_usart1() {
+   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
+     WRITE(WIFI_IO1_PIN, HIGH);
+
+   WIFISERIAL.wifi_usart_irq(USART1_BASE);
 }
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

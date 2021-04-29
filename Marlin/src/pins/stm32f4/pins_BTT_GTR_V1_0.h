@@ -21,12 +21,12 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 8 || E_STEPPERS > 8
+#include "env_validate.h"
+
+#if HOTENDS > 8 || E_STEPPERS > 8
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
-#elif HOTENDS > MAX_EXTRUDERS || E_STEPPERS > MAX_EXTRUDERS
-  #error "Marlin extruder/hotends limit! Increase MAX_EXTRUDERS to continue."
+#elif HOTENDS > MAX_E_STEPPERS || E_STEPPERS > MAX_E_STEPPERS
+  #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
@@ -35,37 +35,86 @@
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
 
-#define TP                                        // Enable to define servo and probe pins
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
+#define M5_EXTENDER                               // The M5 extender is attached
 
 //
 // Servos
 //
-#if ENABLED(TP)
-  #define SERVO0_PIN                        PB11
+#define SERVO0_PIN                          PB11  // BLTOUCH
+#define SOL0_PIN                            PC7   // Toolchanger
+
+#if ENABLED(TOOL_SENSOR)
+  #define TOOL_SENSOR1_PIN                  PH6
+  #define TOOL_SENSOR2_PIN                  PI4
+  //#define TOOL_SENSOR3_PIN                PF4
+#else
+  #define PS_ON_PIN                         PH6
 #endif
 
-#define PS_ON_PIN                           PH6
+//
+// Trinamic Stallguard pins
+//
+#define X_DIAG_PIN                          PF2   // X-
+#define Y_DIAG_PIN                          PC13  // Y-
+#define Z_DIAG_PIN                          PE0   // Z-
+#define E0_DIAG_PIN                         PG14  // X+
+#define E1_DIAG_PIN                         PG9   // Y+
+#define E2_DIAG_PIN                         PD3   // Z+
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PF2
-#define X_MAX_PIN                           PG14
-#define Y_MIN_PIN                           PC13
-#define Y_MAX_PIN                           PG9
-#define Z_MIN_PIN                           PE0
-#define Z_MAX_PIN                           PD3
+#ifdef X_STALL_SENSITIVITY
+  #define X_STOP_PIN                  X_DIAG_PIN
+  #if X_HOME_DIR < 0
+    #define X_MAX_PIN                E0_DIAG_PIN  // X+
+  #else
+    #define X_MIN_PIN                E0_DIAG_PIN  // X+
+  #endif
+#else
+  #define X_MIN_PIN                   X_DIAG_PIN  // X-
+  #define X_MAX_PIN                  E0_DIAG_PIN  // X+
+#endif
+
+#ifdef Y_STALL_SENSITIVITY
+  #define Y_STOP_PIN                  Y_DIAG_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MAX_PIN                E1_DIAG_PIN  // Y+
+  #else
+    #define Y_MIN_PIN                E1_DIAG_PIN  // Y+
+  #endif
+#else
+  #define Y_MIN_PIN                   Y_DIAG_PIN  // Y-
+  #define Y_MAX_PIN                  E1_DIAG_PIN  // Y+
+#endif
+
+#ifdef Z_STALL_SENSITIVITY
+  #define Z_STOP_PIN                  Z_DIAG_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MAX_PIN                E2_DIAG_PIN  // Z+
+  #else
+    #define Z_MIN_PIN                E2_DIAG_PIN  // Z+
+  #endif
+#else
+  #define Z_MIN_PIN                   Z_DIAG_PIN  // Z-
+  #define Z_MAX_PIN                  E2_DIAG_PIN  // Z+
+#endif
 
 //
 // Pins on the extender
 //
-//#define X_MIN_PIN                         PI4
-//#define X2_MIN_PIN                        PF12
-//#define Y_MIN_PIN                         PF4
-//#define Y2_MIN_PIN                        PI7
-//#define Z_MIN_PIN                         PF6
+#if ENABLED(M5_EXTENDER)
+  #define X2_STOP_PIN                       PI4   // M5 M1_STOP
+  #define Y2_STOP_PIN                       PF12  // M5 M5_STOP
+  #define Z2_STOP_PIN                       PF4   // M5 M2_STOP
+  #define Z3_STOP_PIN                       PI7   // M5 M4_STOP
+  #define Z4_STOP_PIN                       PF6   // M5 M3_STOP
+#endif
 
-#if ENABLED(TP) && !defined(Z_MIN_PROBE_PIN)
+#ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PH11  // Z Probe must be PH11
 #endif
 
@@ -114,39 +163,43 @@
   #define E2_CS_PIN                         PC12
 #endif
 
-#define E3_STEP_PIN                         PF3
-#define E3_DIR_PIN                          PG3
-#define E3_ENABLE_PIN                       PF8
-#ifndef E3_CS_PIN
-  #define E3_CS_PIN                         PG4
-#endif
+#if ENABLED(M5_EXTENDER)
 
-#define E4_STEP_PIN                         PD14
-#define E4_DIR_PIN                          PD11
-#define E4_ENABLE_PIN                       PG2
-#ifndef E4_CS_PIN
-  #define E4_CS_PIN                         PE15
-#endif
+  #define E3_STEP_PIN                       PF3
+  #define E3_DIR_PIN                        PG3
+  #define E3_ENABLE_PIN                     PF8
+  #ifndef E3_CS_PIN
+    #define E3_CS_PIN                       PG4
+  #endif
 
-#define E5_STEP_PIN                         PE12
-#define E5_DIR_PIN                          PE10
-#define E5_ENABLE_PIN                       PF14
-#ifndef E5_CS_PIN
-  #define E5_CS_PIN                         PE7
-#endif
+  #define E4_STEP_PIN                       PD14
+  #define E4_DIR_PIN                        PD11
+  #define E4_ENABLE_PIN                     PG2
+  #ifndef E4_CS_PIN
+    #define E4_CS_PIN                       PE15
+  #endif
 
-#define E6_STEP_PIN                         PG0
-#define E6_DIR_PIN                          PG1
-#define E6_ENABLE_PIN                       PE8
-#ifndef E6_CS_PIN
-  #define E6_CS_PIN                         PF15
-#endif
+  #define E5_STEP_PIN                       PE12
+  #define E5_DIR_PIN                        PE10
+  #define E5_ENABLE_PIN                     PF14
+  #ifndef E5_CS_PIN
+    #define E5_CS_PIN                       PE7
+  #endif
 
-#define E7_STEP_PIN                         PH12
-#define E7_DIR_PIN                          PH15
-#define E7_ENABLE_PIN                       PI0
-#ifndef E7_CS_PIN
-  #define E7_CS_PIN                         PH14
+  #define E6_STEP_PIN                       PG0
+  #define E6_DIR_PIN                        PG1
+  #define E6_ENABLE_PIN                     PE8
+  #ifndef E6_CS_PIN
+    #define E6_CS_PIN                       PF15
+  #endif
+
+  #define E7_STEP_PIN                       PH12
+  #define E7_DIR_PIN                        PH15
+  #define E7_ENABLE_PIN                     PI0
+  #ifndef E7_CS_PIN
+    #define E7_CS_PIN                       PH14
+  #endif
+
 #endif
 
 //
@@ -180,11 +233,11 @@
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
   //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-  //#define E5_HARDWARE_SERIAL Serial1
-  //#define E6_HARDWARE_SERIAL Serial1
-  //#define E7_HARDWARE_SERIAL Serial1
+  //#define E3_HARDWARE_SERIAL Serial1  // M5 MOTOR 1
+  //#define E4_HARDWARE_SERIAL Serial1  // M5 MOTOR 2
+  //#define E5_HARDWARE_SERIAL Serial1  // M5 MOTOR 3
+  //#define E6_HARDWARE_SERIAL Serial1  // M5 MOTOR 4
+  //#define E7_HARDWARE_SERIAL Serial1  // M5 MOTOR 5
 
   //
   // Software serial
@@ -207,20 +260,22 @@
   #define E2_SERIAL_TX_PIN                  PC12
   #define E2_SERIAL_RX_PIN                  PC12
 
-  #define E3_SERIAL_TX_PIN                  PG4
-  #define E3_SERIAL_RX_PIN                  PG4
+  #if ENABLED(M5_EXTENDER)
+    #define E3_SERIAL_TX_PIN                PG4
+    #define E3_SERIAL_RX_PIN                PG4
 
-  #define E4_SERIAL_TX_PIN                  PE15
-  #define E4_SERIAL_RX_PIN                  PE15
+    #define E4_SERIAL_TX_PIN                PE15
+    #define E4_SERIAL_RX_PIN                PE15
 
-  #define E5_SERIAL_TX_PIN                  PE7
-  #define E5_SERIAL_RX_PIN                  PE7
+    #define E5_SERIAL_TX_PIN                PE7
+    #define E5_SERIAL_RX_PIN                PE7
 
-  #define E6_SERIAL_TX_PIN                  PF15
-  #define E6_SERIAL_RX_PIN                  PF15
+    #define E6_SERIAL_TX_PIN                PF15
+    #define E6_SERIAL_RX_PIN                PF15
 
-  #define E7_SERIAL_TX_PIN                  PH14
-  #define E7_SERIAL_RX_PIN                  PH14
+    #define E7_SERIAL_TX_PIN                PH14
+    #define E7_SERIAL_RX_PIN                PH14
+  #endif
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -233,11 +288,13 @@
 #define TEMP_1_PIN                          PC2   // T2 <-> E1
 #define TEMP_2_PIN                          PC3   // T3 <-> E2
 
-#define TEMP_3_PIN                          PA3   // T4 <-> E3
-#define TEMP_4_PIN                          PF9   // T5 <-> E4
-#define TEMP_5_PIN                          PF10  // T6 <-> E5
-#define TEMP_6_PIN                          PF7   // T7 <-> E6
-#define TEMP_7_PIN                          PF5   // T8 <-> E7
+#if ENABLED(M5_EXTENDER)
+  #define TEMP_3_PIN                        PA3   // M5 TEMP1
+  #define TEMP_4_PIN                        PF9   // M5 TEMP2
+  #define TEMP_5_PIN                        PF10  // M5 TEMP3
+  #define TEMP_6_PIN                        PF7   // M5 TEMP4
+  #define TEMP_7_PIN                        PF5   // M5 TEMP5
+#endif
 
 #define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
@@ -247,8 +304,8 @@
 
 #define THERMO_SCK_PIN                      PI1   // SCK
 #define THERMO_DO_PIN                       PI2   // MISO
-#define THERMO_CS1_PIN                      PH9   // CS1
-#define THERMO_CS2_PIN                      PH2   // CS2
+#define THERMO_CS1_PIN                      PH9   // GTR K-TEMP
+#define THERMO_CS2_PIN                      PH2   // M5 K-TEMP
 
 #define MAX6675_SS_PIN            THERMO_CS1_PIN
 #define MAX6675_SS2_PIN           THERMO_CS2_PIN
@@ -262,11 +319,13 @@
 #define HEATER_1_PIN                        PA1   // Heater1
 #define HEATER_2_PIN                        PB0   // Heater2
 
-#define HEATER_3_PIN                        PD15  // Heater3
-#define HEATER_4_PIN                        PD13  // Heater4
-#define HEATER_5_PIN                        PD12  // Heater5
-#define HEATER_6_PIN                        PE13  // Heater6
-#define HEATER_7_PIN                        PI6   // Heater7
+#if ENABLED(M5_EXTENDER)
+  #define HEATER_3_PIN                      PD15  // M5 HEAT1
+  #define HEATER_4_PIN                      PD13  // M5 HEAT2
+  #define HEATER_5_PIN                      PD12  // M5 HEAT3
+  #define HEATER_6_PIN                      PE13  // M5 HEAT4
+  #define HEATER_7_PIN                      PI6   // M5 HEAT5
+#endif
 
 #define HEATER_BED_PIN                      PA2   // Hotbed
 
@@ -274,11 +333,13 @@
 #define FAN1_PIN                            PE6   // Fan1
 #define FAN2_PIN                            PC8   // Fan2
 
-#define FAN3_PIN                            PI5   // Fan3
-#define FAN4_PIN                            PE9   // Fan4
-#define FAN5_PIN                            PE11  // Fan5
-//#define FAN6_PIN                          PC9   // Fan6
-//#define FAN7_PIN                          PE14  // Fan7
+#if ENABLED(M5_EXTENDER)
+  #define FAN3_PIN                          PI5   // M5 FAN1
+  #define FAN4_PIN                          PE9   // M5 FAN2
+  #define FAN5_PIN                          PE11  // M5 FAN3
+  //#define FAN6_PIN                        PC9   // M5 FAN4
+  //#define FAN7_PIN                        PE14  // M5 FAN5
+#endif
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
@@ -299,10 +360,10 @@
   // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
   #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
-  #define SS_PIN                            SDSS
-  #define SCK_PIN                           PA5
-  #define MISO_PIN                          PA6
-  #define MOSI_PIN                          PA7
+  #define SD_SS_PIN                         SDSS
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
   #define SD_DETECT_PIN                     PC4
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
@@ -381,14 +442,19 @@
           #define RGB_LED_B_PIN             PG5
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PF13
+        #define NEOPIXEL_PIN                PG7
       #endif
     #endif // !FYSETC_MINI_12864
 
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PG7
       #define LCD_PINS_D6                   PG6
       #define LCD_PINS_D7                   PG5
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif
@@ -409,3 +475,4 @@
 #endif // HAS_WIRED_LCD
 
 #undef TP
+#undef M5_EXTENDER

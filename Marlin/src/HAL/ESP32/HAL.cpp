@@ -40,6 +40,10 @@
   #endif
 #endif
 
+#if ENABLED(ESP3D_WIFISUPPORT)
+  DefaultSerial1 MSerial0(false, Serial2Socket);
+#endif
+
 // ------------------------
 // Externs
 // ------------------------
@@ -86,8 +90,6 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-void HAL_init() { i2s_init(); }
-
 void HAL_init_board() {
 
   #if ENABLED(ESP3D_WIFISUPPORT)
@@ -122,6 +124,10 @@ void HAL_init_board() {
     #endif
   #endif
 
+  // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
+  // The following initialization is performed after Serial1 and Serial2 are defined as
+  // their native pins might conflict with the i2s stream even when they are remapped.
+  TERN_(I2S_STEPPER_STREAM, i2s_init());
 }
 
 void HAL_idletask() {
@@ -134,6 +140,8 @@ void HAL_idletask() {
 void HAL_clear_reset_source() { }
 
 uint8_t HAL_get_reset_source() { return rtc_get_reset_reason(1); }
+
+void HAL_reboot() { ESP.restart(); }
 
 void _delay_ms(int delay_ms) { delay(delay_ms); }
 
@@ -179,6 +187,7 @@ void HAL_adc_init() {
   TERN_(HAS_TEMP_ADC_7, adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
   TERN_(HAS_HEATED_BED, adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_CHAMBER, adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_COOLER, adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
   TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.

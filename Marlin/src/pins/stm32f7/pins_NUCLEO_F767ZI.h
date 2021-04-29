@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef STM32F767xx
+#if NOT_TARGET(STM32F767xx)
   #error "Oops! Select an STM32F767 environment"
 #endif
 
@@ -36,12 +36,12 @@
   // Decrease delays and flash wear by spreading writes across the
   // 128 kB sector allocated for EEPROM emulation.
   // Not yet supported on F7 hardware
-  // #define FLASH_EEPROM_LEVELING
+  //#define FLASH_EEPROM_LEVELING
 #endif
 
 /**
  * Timer assignments
- * 
+ *
  * TIM1 -
  * TIM2 - Hardware PWM (Fan/Heater Pins)
  * TIM3 - Hardware PWM (Servo Pins)
@@ -55,18 +55,17 @@
  * TIM12 -
  * TIM13 -
  * TIM14 - TEMP_TIMER (Marlin)
- * 
+ *
  */
-#define STEP_TIMER 4
-#define TEMP_TIMER 14
-
+#define STEP_TIMER                             4
+#define TEMP_TIMER                            14
 
 /**
  * These pin assignments are arbitrary and intending for testing purposes.
  * Assignments may not be ideal, and not every assignment has been tested.
  * Proceed at your own risk.
  *                                                            _CN7_
- *                                              (X_STEP) PC6 | · · | PB8 (X_EN) 
+ *                                              (X_STEP) PC6 | · · | PB8 (X_EN)
  *                                              (X_DIR) PB15 | · · | PB9 (X_CS)
  *                                             (LCD_D4) PB13 | · · | AVDD
  *                 _CN8_                                PB12 | · · | GND
@@ -77,8 +76,8 @@
  *            +5V | · · | PC12                    (SDSS) PA4 | · · | PD15 (LCD_ENABLE)
  *            GND | · · | PD2               (SERVO0_PIN) PB4 | · · | PF12 (LCD_RS)
  *            GND | · · | PG2                                 ￣￣￣
- *            VIN | · · | PG3                                 
-_*                 ￣￣￣                                      _CN10
+ *            VIN | · · | PG3
+ *                 ￣￣￣                                      _CN10
  *                                                      AVDD | · · | PF13 (BTN_EN1)
  *                 _CN9_                                AGND | · · | PE9  (BTN_EN2)
  *   (TEMP_0) PA3 | · · | PD7                            GND | · · | PE11 (BTN_ENC)
@@ -140,7 +139,7 @@ _*                 ￣￣￣                                      _CN10
   #define Z_SERIAL_RX_PIN                   PE12
 
   #define E_SERIAL_TX_PIN                   PG9
-  #define E_SERIAL_RX_PIN                   PG9      
+  #define E_SERIAL_RX_PIN                   PG9
 #endif
 
 //
@@ -152,13 +151,13 @@ _*                 ￣￣￣                                      _CN10
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA15 // PWM Capable, TIM2_CH1
-#define HEATER_BED_PIN                      PB3  // PWM Capable, TIM2_CH2
+#define HEATER_0_PIN                        PA15  // PWM Capable, TIM2_CH1
+#define HEATER_BED_PIN                      PB3   // PWM Capable, TIM2_CH2
 
 #ifndef FAN_PIN
-  #define FAN_PIN                           PB10 // PWM Capable, TIM2_CH3
+  #define FAN_PIN                           PB10  // PWM Capable, TIM2_CH3
 #endif
-#define FAN1_PIN                            PB11 // PWM Capable, TIM2_CH4
+#define FAN1_PIN                            PB11  // PWM Capable, TIM2_CH4
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
@@ -167,33 +166,30 @@ _*                 ￣￣￣                                      _CN10
 //
 // Servos
 //
-#define SERVO0_PIN                          PB4 // PWM Capable, TIM3_CH1
-#define SERVO1_PIN                          PB5 // PWM Capable, TIM3_CH2
+#define SERVO0_PIN                          PB4   // PWM Capable, TIM3_CH1
+#define SERVO1_PIN                          PB5   // PWM Capable, TIM3_CH2
 
 // SPI for external SD Card (Not entirely sure this will work)
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
-#define SS_PIN                              PA4
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
+#define SD_SS_PIN                           PA4
 #define SDSS                                PA4
 
-#define LED_PIN                             LED_BLUE
+#define LED_PIN                         LED_BLUE
 
 //
 // LCD / Controller
 //
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define BEEPER_PIN                        PC7  // LCD_BEEPER
+#if IS_RRD_FG_SC
+  #define BEEPER_PIN                        PC7   // LCD_BEEPER
   #define BTN_ENC                           PE11  // BTN_ENC
   #define SD_DETECT_PIN                     PD14
   #define LCD_PINS_RS                       PF12  // LCD_RS
   #define LCD_PINS_ENABLE                   PD15  // LCD_EN
   #define LCD_PINS_D4                       PB13  // LCD_D4
-  // #define LCD_PINS_D5
-  // #define LCD_PINS_D6
-  // #define LCD_PINS_D7
   #define BTN_EN1                           PF13  // BTN_EN1
-  #define BTN_EN2                           PE9  // BTN_EN2
+  #define BTN_EN2                           PE9   // BTN_EN2
 
   #define BOARD_ST7920_DELAY_1  DELAY_NS(125)
   #define BOARD_ST7920_DELAY_2  DELAY_NS(63)

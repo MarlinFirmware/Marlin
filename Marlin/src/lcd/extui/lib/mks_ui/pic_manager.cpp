@@ -36,14 +36,13 @@
 #include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
-extern unsigned char bmp_public_buf[17 * 1024];
 
 #if ENABLED(SDSUPPORT)
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
 static const char assets[][LONG_FILENAME_LENGTH] = {
-  //homing screen
+  // Homing screen
   "bmp_zeroAll.bin",
   "bmp_zero.bin",
   "bmp_zeroX.bin",
@@ -51,33 +50,27 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_zeroZ.bin",
   "bmp_manual_off.bin",
 
-  //tool screen
+  // Tool screen
   "bmp_preHeat.bin",
   "bmp_extruct.bin",
   "bmp_mov.bin",
-  // "bmp_Zero.bin",
   "bmp_leveling.bin",
   "bmp_filamentchange.bin",
+  "bmp_more.bin",
 
-  //fan screen
+  // Fan screen
   "bmp_Add.bin",
   "bmp_Dec.bin",
   "bmp_speed255.bin",
   "bmp_speed127.bin",
   "bmp_speed0.bin",
 
-  //preheat screen
-  // "bmp_Add.bin",
-  // "bmp_Dec.bin",
-  "bmp_speed0.bin",
-  // "bmp_Extru2.bin",
-  // "bmp_Extru1.bin",
   "bmp_bed.bin",
   "bmp_step1_degree.bin",
   "bmp_step5_degree.bin",
   "bmp_step10_degree.bin",
 
-  //extrusion screen
+  // Extrusion screen
   "bmp_in.bin",
   "bmp_out.bin",
   "bmp_extru1.bin",
@@ -91,15 +84,15 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step5_mm.bin",
   "bmp_step10_mm.bin",
 
-  //select file screen
+  // Select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
   "bmp_back.bin", //TODO: why two back buttons? Why not just one? (return / back)
   "bmp_dir.bin",
   "bmp_file.bin",
 
-  //move motor screen
-  //TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
+  // Move motor screen
+  // TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
   "bmp_xAdd.bin",
   "bmp_xDec.bin",
   "bmp_yAdd.bin",
@@ -110,26 +103,24 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_step_move1.bin",
   "bmp_step_move10.bin",
 
-  //operation screen
+  // Operation screen
   "bmp_auto_off.bin",
   "bmp_speed.bin",
-  //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_manual_off.bin
   "bmp_fan.bin",
   "bmp_temp.bin",
   "bmp_extrude_opr.bin",
   "bmp_move_opr.bin",
 
-  //change speed screen
+  // Change speed screen
   "bmp_step1_percent.bin",
   "bmp_step5_percent.bin",
   "bmp_step10_percent.bin",
   "bmp_extruct_sel.bin",
   "bmp_mov_changespeed.bin",
-  // "bmp_extrude_opr.bin", equal to "bmp_Extruct.bin"
   "bmp_mov_sel.bin",
   "bmp_speed_extruct.bin",
 
-  //printing screen
+  // Printing screen
   "bmp_pause.bin",
   "bmp_resume.bin",
   "bmp_stop.bin",
@@ -143,7 +134,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_zpos_state.bin",
   "bmp_operate.bin",
 
-  //manual leval screen (only if disabled auto level)
+  // Manual Level screen (only if auto level is disabled)
   #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
     "bmp_leveling1.bin",
     "bmp_leveling2.bin",
@@ -152,7 +143,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_leveling5.bin",
   #endif
 
-  //lang select screen
+  // Language Select screen
   #if HAS_LANG_SELECT_SCREEN
     "bmp_language.bin",
     "bmp_simplified_cn.bin",
@@ -171,7 +162,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_italy_sel.bin",
   #endif // HAS_LANG_SELECT_SCREEN
 
-  // gcode preview
+  // G-code preview
   #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
     "bmp_preview.bin",
   #endif
@@ -180,23 +171,18 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_logo.bin",
   #endif
 
-  // settings screen
+  // Settings screen
   "bmp_about.bin",
-  //"bmp_Language.bin",
-  //"bmp_Fan.bin",
-  //"bmp_manual_off.bin",
-
-  //start screen
-  "bmp_printing.bin",
-  "bmp_set.bin",
-  "bmp_tool.bin",
-
-  // settings screen
   "bmp_eeprom_settings.bin",
   "bmp_machine_para.bin",
   "bmp_function1.bin",
 
-  // base icons
+  // Start screen
+  "bmp_printing.bin",
+  "bmp_set.bin",
+  "bmp_tool.bin",
+
+  // Base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
@@ -205,15 +191,32 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_enable.bin",
   "bmp_return.bin",
 
-  #if ENABLED(USE_WIFI_FUNCTION)
-    //wifi screen
+  #if ENABLED(MKS_WIFI_MODULE)
+    // Wifi screen
     "bmp_wifi.bin",
+    "bmp_cloud.bin",
   #endif
 
-  //babystep screen
+  #if ENABLED(MULTI_VOLUME)
+    "bmp_usb_disk.bin",
+    // "bmp_usb_disk_sel.bin",
+    "bmp_sd.bin",
+    // "bmp_sd_sel.bin",
+  #endif
+
+  // Babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
-  "bmp_baby_move0_1.bin"
+  "bmp_baby_move0_1.bin",
+
+  // More screen
+  "bmp_custom1.bin",
+  "bmp_custom2.bin",
+  "bmp_custom3.bin",
+  "bmp_custom4.bin",
+  "bmp_custom5.bin",
+  "bmp_custom6.bin",
+  "bmp_custom7.bin"
 };
 
 #if HAS_SPI_FLASH_FONT
@@ -247,14 +250,13 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
     } while (PIC.name[j++] != '\0');
 
     if ((strcasecmp((char*)Pname, (char*)PIC.name)) == 0) {
-      if ((DeviceCode == 0x9488) || (DeviceCode == 0x5761))
+      if (DeviceCode == 0x9488 || DeviceCode == 0x5761)
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
         addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
       return addr;
     }
   }
-
   return addr;
 }
 
@@ -373,11 +375,9 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   return Pic_SaveAddr;
 }
 
-uint8_t public_buf[512];
-
 #if ENABLED(SDSUPPORT)
 
-  static void dosName2LongName(const char dosName[11], char* longName) {
+  static void dosName2LongName(const char dosName[11], char *longName) {
     uint8_t j = 0;
     LOOP_L_N(i, 11) {
       if (i == 8) longName[j++] = '.';
@@ -387,7 +387,7 @@ uint8_t public_buf[512];
     longName[j] = '\0';
   }
 
-  static int8_t arrayFindStr(const char arr[][LONG_FILENAME_LENGTH], uint8_t arraySize, const char* str) {
+  static int8_t arrayFindStr(const char arr[][LONG_FILENAME_LENGTH], uint8_t arraySize, const char *str) {
     for (uint8_t a = 0; a < arraySize; a++) {
       if (strcasecmp(arr[a], str) == 0)
         return a;
@@ -488,6 +488,7 @@ uint8_t public_buf[512];
   }
 
   void UpdateAssets() {
+    if (!card.isMounted()) return;
     SdFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 

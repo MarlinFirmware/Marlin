@@ -18,9 +18,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "LERDGE S supports up to 2 hotends / E-steppers."
 #endif
 
@@ -32,64 +33,67 @@
 
 //#define I2C_EEPROM
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 //
 // Servos
 //
-#define SERVO0_PIN                          PD12  //confirmed
+#define SERVO0_PIN                          PD12
 //#define SERVO1_PIN                        -1
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PG9   //confirmed
-#define Y_MIN_PIN                           PG10  //confirmed
-#define Z_MIN_PIN                           PG11  //confirmed
+#define X_MIN_PIN                           PG9
+#define Y_MIN_PIN                           PG10
+#define Z_MIN_PIN                           PG11
 
-#define X_MAX_PIN                           PG12  //confirmed
-#define Y_MAX_PIN                           PG13  //confirmed
-#define Z_MAX_PIN                           PG14  //confirmed
+#define X_MAX_PIN                           PG12
+#define Y_MAX_PIN                           PG13
+#define Z_MAX_PIN                           PG14
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PC5   //confirmed
+#define FIL_RUNOUT_PIN                      PC5
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PG8   //confirmed
+  #define Z_MIN_PROBE_PIN                   PG8
 #endif
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PF7   //confirmed
-#define X_DIR_PIN                           PF8   //confirmed
-#define X_ENABLE_PIN                        PF6   //confirmed
+#define X_STEP_PIN                          PF7
+#define X_DIR_PIN                           PF8
+#define X_ENABLE_PIN                        PF6
 
-#define Y_STEP_PIN                          PF10  //confirmed
-#define Y_DIR_PIN                           PF11  //confirmed
-#define Y_ENABLE_PIN                        PF9   //confirmed
+#define Y_STEP_PIN                          PF10
+#define Y_DIR_PIN                           PF11
+#define Y_ENABLE_PIN                        PF9
 
-#define Z_STEP_PIN                          PF13  //confirmed
-#define Z_DIR_PIN                           PF14  //confirmed
-#define Z_ENABLE_PIN                        PF12  //confirmed
+#define Z_STEP_PIN                          PF13
+#define Z_DIR_PIN                           PF14
+#define Z_ENABLE_PIN                        PF12
 
-#define E0_STEP_PIN                         PG0   //confirmed
-#define E0_DIR_PIN                          PG1   //confirmed
-#define E0_ENABLE_PIN                       PF15  //confirmed
+#define E0_STEP_PIN                         PG0
+#define E0_DIR_PIN                          PG1
+#define E0_ENABLE_PIN                       PF15
 
-#define E1_STEP_PIN                         PG3   //confirmed
-#define E1_DIR_PIN                          PG4   //confirmed
-#define E1_ENABLE_PIN                       PG2   //confirmed
+#define E1_STEP_PIN                         PG3
+#define E1_DIR_PIN                          PG4
+#define E1_ENABLE_PIN                       PG2
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PC0   // See below for activation of thermistor readings
 #define TEMP_1_PIN                          PC1   // See below for activation of thermistor readings
-#define TEMP_BED_PIN                        PC3   //confirmed
+#define TEMP_BED_PIN                        PC3
 
 // Lergde-S can choose thermocouple/thermistor mode in software.
 // For use with thermistors, these pins must be OUT/LOW.
@@ -114,13 +118,13 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA0   //confirmed
-#define HEATER_1_PIN                        PA1   //confirmed
-#define HEATER_BED_PIN                      PA3   //confirmed
+#define HEATER_0_PIN                        PA0
+#define HEATER_1_PIN                        PA1
+#define HEATER_BED_PIN                      PA3
 
-#define FAN_PIN                             PA15  // heater 0 fan 1 //confirmed
-#define FAN1_PIN                            PB10  // heater 1 fan 2 //confirmed
-#define FAN2_PIN                            PF5   // heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together) //confirmed
+#define FAN_PIN                             PA15  // heater 0 fan 1
+#define FAN1_PIN                            PB10  // heater 1 fan 2
+#define FAN2_PIN                            PF5   // heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together)
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN                   PF5
@@ -136,19 +140,19 @@
 // LED / Lighting
 //
 //Lerdge-S board has two LED connectors (this is the one on the mainboard)
-#define CASE_LIGHT_PIN                      PC7   //confirmed
+#define CASE_LIGHT_PIN                      PC7
 
 //on the dual extrusion addon board is a RGB connector
-#define RGB_LED_R_PIN                       PC7   // Shared with the mainboard LED light connector (CASE_LIGHT_PIN), confirmed
-#define RGB_LED_G_PIN                       PB0   //confirmed
-#define RGB_LED_B_PIN                       PB1   //confirmed
+#define RGB_LED_R_PIN                       PC7   // Shared with the mainboard LED light connector (CASE_LIGHT_PIN)
+#define RGB_LED_G_PIN                       PB0
+#define RGB_LED_B_PIN                       PB1
 
 //
 // Misc. Functions
 //
 #define SDSS                                PC11  // SD is working using SDIO, not sure if this definition is needed?
-#define LED_PIN                             PC6   // Mainboard soldered green LED, confirmed
-#define PS_ON_PIN                           PB2   // Board has a power module connector, confirmed
+#define LED_PIN                             PC6   // Mainboard soldered green LED
+#define PS_ON_PIN                           PB2   // Board has a power module connector
 #define KILL_PIN                            -1    // There is no reset button on the LCD
 #define POWER_LOSS_PIN                      -1    // PB2 could be used for this as well
 
@@ -156,13 +160,14 @@
 // SD support
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4800000
 
-#define SCK_PIN                             PC12  //confirmed working
-#define MISO_PIN                            PC8   //confirmed working
-#define MOSI_PIN                            PD2   //confirmed working
-#define SS_PIN                              PC11  //confirmed working
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
 
-#define SD_DETECT_PIN                       PG15  //confirmed
+#define SD_DETECT_PIN                       PG15
 
 //
 // Persistent Storage
@@ -189,14 +194,14 @@
 //
 
 // The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD13  //confirmed
+#define BEEPER_PIN                          PD13
 
-#define BTN_EN1                             PC14  //confirmed
-#define BTN_EN2                             PC15  //confirmed
-#define BTN_ENC                             PC13  //confirmed
+#define BTN_EN1                             PC14
+#define BTN_EN2                             PC15
+#define BTN_ENC                             PC13
 
-#define TFT_RESET_PIN                       PD6   //confirmed
-#define TFT_BACKLIGHT_PIN                   PD3   //confirmed
+#define TFT_RESET_PIN                       PD6
+#define TFT_BACKLIGHT_PIN                   PD3
 
 #define TFT_CS_PIN                          PD7   // TFT works
 #define TFT_RS_PIN                          PD11  // TFT works

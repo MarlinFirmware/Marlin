@@ -34,8 +34,8 @@
 
 #include "../module/temperature.h"
 #include "../module/motion.h"
-#include "../lcd/ultralcd.h"
 #include "../module/planner.h"
+#include "../lcd/marlinui.h"
 
 extern HotendIdleProtection hotend_idle;
 
@@ -45,7 +45,7 @@ void HotendIdleProtection::check_hotends(const millis_t &ms) {
   bool do_prot = false;
   HOTEND_LOOP() {
     const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
-    if (thermalManager.degHotend(e) >= HOTEND_IDLE_MIN_TRIGGER && !busy) {
+    if (thermalManager.degHotend(e) >= (HOTEND_IDLE_MIN_TRIGGER) && !busy) {
       do_prot = true; break;
     }
   }

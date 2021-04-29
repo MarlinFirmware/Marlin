@@ -22,17 +22,23 @@
 
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
+#include "../queue.h"           // for getting the command port
+
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
-    serialprintPGM(name);
-    SERIAL_CHAR(':');
-    SERIAL_ECHOLN(int(ena ? 1 : 0));
+    SERIAL_ECHOPGM_P(name);
+    SERIAL_CHAR(':', '0' + ena);
+    SERIAL_EOL();
   }
 #endif
 
@@ -55,6 +61,9 @@ void GcodeSuite::M115() {
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
+    // The port that sent M115
+    serial_index_t port = queue.ring_buffer.command_port();
+
     // PAREN_COMMENTS
     TERN_(PAREN_COMMENTS, cap_line(PSTR("PAREN_COMMENTS"), true));
 
@@ -65,7 +74,7 @@ void GcodeSuite::M115() {
     cap_line(PSTR("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
 
     // BINARY_FILE_TRANSFER (M28 B1)
-    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER));
+    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
 
     // EEPROM (M500, M501)
     cap_line(PSTR("EEPROM"), ENABLED(EEPROM_SETTINGS));
@@ -102,7 +111,7 @@ void GcodeSuite::M115() {
 
     // TOGGLE_LIGHTS (M355)
     cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, PWM_PIN(CASE_LIGHT_PIN)));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, caselight.has_brightness()));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
@@ -112,6 +121,12 @@ void GcodeSuite::M115() {
 
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
+
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
+
+    // SD_WRITE (M928, M28, M29)
+    cap_line(PSTR("SD_WRITE"), ENABLED(SDSUPPORT) && DISABLED(SDCARD_READONLY));
 
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
@@ -133,6 +148,12 @@ void GcodeSuite::M115() {
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // COOLER_TEMPERATURE (M143, M193)
+    cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
+
+    // MEATPACK Compression
+    cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

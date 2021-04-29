@@ -81,8 +81,8 @@ void MarlinUI::save_previous_screen() {
 }
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
-  TERN(TURBO_BACK_MENU_ITEM,,constexpr bool is_back = false);
-  TERN_(HAS_TOUCH_XPT2046, on_edit_screen = false);
+  IF_DISABLED(TURBO_BACK_MENU_ITEM, constexpr bool is_back = false);
+  TERN_(HAS_TOUCH_BUTTONS, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -123,13 +123,13 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
  *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
-  TERN_(HAS_TOUCH_XPT2046, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
     draw_edit_screen(strfunc(ui.encoderPosition + minEditValue));
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
-    if (editValue != nullptr) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    if (editValue) loadfunc(editValue, ui.encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
     if (ui.use_click()) ui.goto_previous_screen();
   }
@@ -145,7 +145,7 @@ void MenuEditItemBase::goto_edit_screen(
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
 ) {
-  TERN_(HAS_TOUCH_XPT2046, ui.on_edit_screen = true);
+  TERN_(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
   ui.save_previous_screen();
   ui.refresh();
@@ -175,7 +175,7 @@ bool printer_busy() {
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
-    TERN_(HAS_TOUCH_XPT2046, repeat_delay = BUTTON_DELAY_MENU);
+    TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
     TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
 
@@ -188,8 +188,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known())
-          && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
+        if (BABYSTEP_ALLOWED())
           screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
@@ -206,8 +205,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     screen_items = items;
     if (on_status_screen()) {
       defer_status_screen(false);
+      clear_menu_history();
       TERN_(AUTO_BED_LEVELING_UBL, ubl.lcd_map_control = false);
-      screen_history_depth = 0;
     }
 
     clear_lcd();
@@ -290,7 +289,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_LINE_TO_Z
 
-  void line_to_z(const float &z) {
+  void line_to_z(const_float_t z) {
     current_position.z = z;
     line_to_current_position(manual_feedrate_mm_s.z);
   }

@@ -30,7 +30,7 @@ class Servo {
                    MAX_PULSE_WIDTH = 2400,  // Longest pulse sent to a servo
                    TAU_MSEC = 20,
                    TAU_USEC = (TAU_MSEC * 1000),
-                   MAX_COMPARE = ((1 << 16) - 1), // 65535
+                   MAX_COMPARE = _BV(16) - 1, // 65535
                    CHANNEL_MAX_NUM = 16;
 
 public:

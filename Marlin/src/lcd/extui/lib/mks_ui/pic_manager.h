@@ -95,9 +95,7 @@
   #define PIC_NAME_ADDR                 0x003000      // Pic information addr
   #define PIC_SIZE_ADDR                 0x007000      // Pic size information addr
   #define PIC_COUNTER_ADDR              0x008000      // Pic total number
-  //#define PER_PIC_SAVE_ADDR           0x009000      // Storage address of each picture
   #define PIC_LOGO_ADDR                 0x009000      // Logo addr
-  //#define PIC_DATA_ADDR               0x02F000      //
 
   // TFT35
   #define DEFAULT_VIEW_ADDR_TFT35       0xC5800
@@ -118,11 +116,11 @@
 #endif
 
 // Flash flag
-#define REFLSHE_FLGA_ADD                (0X800000-32)
+#define REFLSHE_FLGA_ADD                (0x800000-32)
 
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
-#define FLASH_INF_VALID_FLAG            0x20200831
+#define FLASH_INF_VALID_FLAG            0x20201118
 
 //Store some gcode commands, such as auto leveling commands
 #define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3*1024
@@ -156,14 +154,14 @@ typedef struct pic_msg PIC_MSG;
 #define PIC_SIZE_xM   6
 #define FONT_SIZE_xM  2
 
-extern void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
-extern void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
-extern void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
-extern uint32_t lv_get_pic_addr(uint8_t *Pname);
-extern void get_spi_flash_data(const char *rec_buf, int offset, int size);
-extern void spi_flash_read_test();
-extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
-extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
+void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
+void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
+void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
+uint32_t lv_get_pic_addr(uint8_t *Pname);
+void get_spi_flash_data(const char *rec_buf, int offset, int size);
+void spi_flash_read_test();
+void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
+void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

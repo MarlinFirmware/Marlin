@@ -17,25 +17,25 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_LOCK_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
 
 uint16_t LockScreen::passcode = 0;
+constexpr static LockScreenData &mydata = screen_data.LockScreen;
 
 void LockScreen::onEntry() {
-  const uint8_t siz = sizeof(screen_data.LockScreen.passcode);
-  memset(screen_data.LockScreen.passcode, '_', siz-1);
-  screen_data.LockScreen.passcode[siz-1] = '\0';
+  const uint8_t siz = sizeof(mydata.passcode);
+  memset(mydata.passcode, '_', siz-1);
+  mydata.passcode[siz-1] = '\0';
   BaseScreen::onEntry();
 }
 
@@ -50,7 +50,7 @@ void LockScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
       #define GRID_COLS 1
       #define GRID_ROWS 10
     #else
@@ -81,14 +81,14 @@ void LockScreen::onRedraw(draw_mode_t what) {
     const uint8_t pressed = EventLoop::get_pressed_tag();
 
     cmd.font(font_large)
-    #ifdef TOUCH_UI_PORTRAIT
+    #if ENABLED(TOUCH_UI_PORTRAIT)
        .text(BTN_POS(1,2), BTN_SIZE(1,1), message)
        .font(font_xlarge)
-       .text(BTN_POS(1,4), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
+       .text(BTN_POS(1,4), BTN_SIZE(1,1), mydata.passcode)
     #else
        .text(BTN_POS(1,1), BTN_SIZE(1,1), message)
        .font(font_xlarge)
-       .text(BTN_POS(1,2), BTN_SIZE(1,1), screen_data.LockScreen.passcode)
+       .text(BTN_POS(1,2), BTN_SIZE(1,1), mydata.passcode)
     #endif
        .font(font_large)
        .colors(normal_btn)
@@ -117,41 +117,38 @@ void LockScreen::onRedraw(draw_mode_t what) {
 char &LockScreen::message_style() {
   // We use the last byte of the passcode string as a flag to indicate,
   // which message to show.
-  constexpr uint8_t last_char = sizeof(screen_data.LockScreen.passcode)-1;
-  return screen_data.LockScreen.passcode[last_char];
+  constexpr uint8_t last_char = sizeof(mydata.passcode)-1;
+  return mydata.passcode[last_char];
 }
 
 void LockScreen::onPasscodeEntered() {
-  if (passcode == 0) {
-    // We are defining a passcode
+  if (passcode == 0) {                        // We are defining a passcode
     message_style() = 0;
     onRefresh();
     sound.play(twinkle, PLAY_SYNCHRONOUS);
     passcode = compute_checksum();
     GOTO_PREVIOUS();
-  } else {
-    // We are verifying a passcode
-    if (passcode == compute_checksum()) {
-      message_style() = 'g';
-      onRefresh();
-      sound.play(twinkle, PLAY_SYNCHRONOUS);
-      GOTO_PREVIOUS();
-    }
-    else {
-      message_style() = 'w';
-      onRefresh();
-      sound.play(sad_trombone, PLAY_SYNCHRONOUS);
-      current_screen.forget(); // Discard the screen the user was trying to go to.
-      GOTO_PREVIOUS();
-    }
+  }
+  else if (passcode == compute_checksum()) {  // We are verifying a passcode
+    message_style() = 'g';
+    onRefresh();
+    sound.play(twinkle, PLAY_SYNCHRONOUS);
+    GOTO_PREVIOUS();
+  }
+  else {
+    message_style() = 'w';
+    onRefresh();
+    sound.play(sad_trombone, PLAY_SYNCHRONOUS);
+    current_screen.forget(); // Discard the screen the user was trying to go to.
+    GOTO_PREVIOUS();
   }
 }
 
 bool LockScreen::onTouchEnd(uint8_t tag) {
-  char *c = strchr(screen_data.LockScreen.passcode,'_');
+  char *c = strchr(mydata.passcode,'_');
   if (c) {
     if (tag == '<') {
-      if (c != screen_data.LockScreen.passcode) {
+      if (c != mydata.passcode) {
         // Backspace deletes previous entered characters.
         *--c = '_';
       }
@@ -170,7 +167,7 @@ bool LockScreen::onTouchEnd(uint8_t tag) {
 
 uint16_t LockScreen::compute_checksum() {
   uint16_t checksum = 0;
-  const char* c = screen_data.LockScreen.passcode;
+  const char* c = mydata.passcode;
   while (*c) {
     checksum = (checksum << 2) ^ *c++;
   }
@@ -205,4 +202,4 @@ void LockScreen::enable() {
   GOTO_SCREEN(LockScreen);
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_LOCK_SCREEN

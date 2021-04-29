@@ -21,10 +21,11 @@
 #include "SPI.h"
 #include "fastio.h"
 
-#if HAS_SHARED_MEDIA
-  #ifndef ONBOARD_SPI_DEVICE
-    #define ONBOARD_SPI_DEVICE SPI_DEVICE
-  #endif
+#ifndef ONBOARD_SPI_DEVICE
+  #define ONBOARD_SPI_DEVICE SPI_DEVICE
+#endif
+
+#if HAS_SD_HOST_DRIVE
   #define ONBOARD_SD_SPI SPI
 #else
   SPIClass OnboardSPI(ONBOARD_SPI_DEVICE);

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_basic.h"
@@ -33,7 +33,7 @@ namespace FTDI {
       SPIClass EVE_SPI(CLCD_SPI_BUS);
     #endif
     #ifndef CLCD_HW_SPI_SPEED
-      #define CLCD_HW_SPI_SPEED 8000000 >> SPI_SPEED
+      #define CLCD_HW_SPI_SPEED 8000000 >> SD_SPI_SPEED
     #endif
     SPISettings SPI::spi_settings(CLCD_HW_SPI_SPEED, MSBFIRST, SPI_MODE0);
   #endif
@@ -103,12 +103,12 @@ namespace FTDI {
   #endif
 
   void SPI::spi_read_bulk(void *data, uint16_t len) {
-    uint8_t* p = (uint8_t *)data;
+    uint8_t *p = (uint8_t *)data;
     while (len--) *p++ = spi_recv();
   }
 
   bool SPI::spi_verify_bulk(const void *data, uint16_t len) {
-    const uint8_t* p = (const uint8_t *)data;
+    const uint8_t *p = (const uint8_t *)data;
     while (len--) if (*p++ != spi_recv()) return false;
     return true;
   }
