@@ -61,3 +61,26 @@ void GcodeSuite::M9() {
 }
 
 #endif // COOLANT_CONTROL
+
+#if ENABLED(AIR_ASSIST)
+
+#include "../gcode.h"
+#include "../../feature/spindle_laser.h"
+
+/**
+ * M8: Air Assist On
+ */
+void GcodeSuite::M8() {
+  planner.synchronize(); 
+  cutter.air_assist_enable();   // Turn on air assist pin
+}
+
+/**
+ * M9: Air Assist Off
+ */
+void GcodeSuite::M9() {
+  planner.synchronize(); 
+  cutter.air_assist_disable();  // Turn off air assist pin
+}
+
+#endif // AIR_ASSIST
