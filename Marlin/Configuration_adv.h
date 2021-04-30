@@ -3174,7 +3174,7 @@
  * M8 and M9 commands to turn air assist on and off.
  * Note: AIR_ASSIST_PIN must also be defined.
  */
-#define AIR_ASSIST
+//#define AIR_ASSIST
 #if ENABLED(AIR_ASSIST)
   #define AIR_ASSIST_ACTIVE     LOW   // Active state on air assist pin
   #define AIR_ASSIST_PIN        44    // Air assist pin assignment
