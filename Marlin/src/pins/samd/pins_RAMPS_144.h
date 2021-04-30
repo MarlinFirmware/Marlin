@@ -89,13 +89,6 @@
   #define Z_CS_PIN                            32
 #endif
 
-#define Z2_STEP_PIN                           36
-#define Z2_DIR_PIN                            34
-#define Z2_ENABLE_PIN                         30
-#ifndef Z2_CS_PIN
-  #define Z2_CS_PIN                           22
-#endif
-
 #define E0_STEP_PIN                           26
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
@@ -103,18 +96,33 @@
   #define E0_CS_PIN                           43
 #endif
 
+#define E1_STEP_PIN                           36
+#define E1_DIR_PIN                            34
+#define E1_ENABLE_PIN                         30
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                           22
+#endif
+
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                            13
-#define TEMP_BED_PIN                          14
+#if TEMP_SENSOR_BED
+  #define TEMP_BED_PIN                        14
+#else
+  #define TEMP_1_PIN                          14
+#endif
 #define TEMP_CHAMBER_PIN                      15
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                          10
-#define HEATER_BED_PIN                         8
+#if TEMP_SENSOR_BED
+  #define HEATER_BED_PIN                       8
+#else
+  #define HEATER_1_PIN                         8
+#endif
 #define FAN_PIN                                9
 #define FAN1_PIN                               7
 #define FAN2_PIN                              12
@@ -186,9 +194,6 @@
   //#define Z2_HARDWARE_SERIAL Serial1
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
 
   //
   // Software serial
@@ -244,42 +249,6 @@
   #endif
   #ifndef E1_SERIAL_RX_PIN
     #define E1_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E2_SERIAL_TX_PIN
-    #define E2_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E2_SERIAL_RX_PIN
-    #define E2_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E3_SERIAL_TX_PIN
-    #define E3_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E3_SERIAL_RX_PIN
-    #define E3_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E4_SERIAL_TX_PIN
-    #define E4_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E4_SERIAL_RX_PIN
-    #define E4_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E5_SERIAL_TX_PIN
-    #define E5_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E5_SERIAL_RX_PIN
-    #define E5_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E6_SERIAL_TX_PIN
-    #define E6_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E6_SERIAL_RX_PIN
-    #define E6_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E7_SERIAL_TX_PIN
-    #define E7_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E7_SERIAL_RX_PIN
-    #define E7_SERIAL_RX_PIN                  -1
   #endif
 #endif
 

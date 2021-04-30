@@ -68,6 +68,9 @@ void SpindleLaser::init() {
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
     TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
   #endif
+  #if ENABLED(AIR_EVACUATION)
+    OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);            // Init Vacuum/Blower OFF
+  #endif
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
@@ -133,6 +136,17 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
+#endif
+
+#if ENABLED(AIR_EVACUATION)
+
+  // Enable / disable Cutter Vacuum or Laser Blower motor
+  void SpindleLaser::air_evac_enable()  { WRITE(AIR_EVACUATION_PIN,  AIR_EVACUATION_ACTIVE); } // Turn ON
+
+  void SpindleLaser::air_evac_disable() { WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE); } // Turn OFF
+
+  void SpindleLaser::air_evac_toggle()  { TOGGLE(AIR_EVACUATION_PIN); } // Toggle state
+
 #endif
 
 #endif // HAS_CUTTER

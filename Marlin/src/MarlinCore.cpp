@@ -76,7 +76,6 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/dwin_lcd.h"
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
@@ -211,9 +210,7 @@
   #include "feature/fanmux.h"
 #endif
 
-#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD)
-  #include "module/tool_change.h"
-#endif
+#include "module/tool_change.h"
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
@@ -233,6 +230,10 @@
 
 #if ENABLED(DGUS_LCD_UI_MKS)
   #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
+#endif
+
+#if HAS_DRIVER_SAFE_POWER_PROTECT
+  #include "feature/stepper_driver_safety.h"
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
@@ -456,7 +457,8 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       already_shutdown_steppers = false;
   }
 
-  #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
+  #if ENABLED(PHOTO_GCODE) && PIN_EXISTS(CHDK)
+    // Check if CHDK should be set to LOW (after M240 set it HIGH)
     extern millis_t chdk_timeout;
     if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
       chdk_timeout = 0;
@@ -602,7 +604,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
+    if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
@@ -732,6 +734,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
 
+  // TODO: Still causing errors
+  (void)check_tool_sensor_stats(active_extruder, true);
+
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
 
@@ -758,7 +763,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(SDSUPPORT, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
+  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -862,20 +867,22 @@ void minkill(const bool steppers_off/*=false*/) {
 
   TERN_(HAS_SUICIDE, suicide());
 
-  #if HAS_KILL
+  #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
 
-    // Wait for kill to be released
-    while (kill_state()) watchdog_refresh();
+    // Wait for both KILL and ENC to be released
+    while (TERN0(HAS_KILL, !kill_state()) || TERN0(SOFT_RESET_ON_KILL, !ui.button_pressed()))
+      watchdog_refresh();
 
-    // Wait for kill to be pressed
-    while (!kill_state()) watchdog_refresh();
+    // Wait for either KILL or ENC press
+    while (TERN1(HAS_KILL, kill_state()) && TERN1(SOFT_RESET_ON_KILL, ui.button_pressed()))
+      watchdog_refresh();
 
-    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
-    resetFunc();                  // Jump to address 0
+    // Reboot the board
+    HAL_reboot();
 
   #else
 
-    for (;;) watchdog_refresh();  // Wait for reset
+    for (;;) watchdog_refresh();  // Wait for RESET button or power-cycle
 
   #endif
 }
@@ -889,8 +896,8 @@ void stop() {
 
   print_job_timer.stop();
 
-  #if ENABLED(PROBING_FANS_OFF)
-    if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
+  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
+    thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
   if (IsRunning()) {
@@ -953,23 +960,92 @@ inline void tmc_standby_setup() {
 }
 
 /**
- * Marlin entry-point: Set up before the program loop
- *  - Set up the kill pin, filament runout, power hold, custom user buttons
- *  - Start the serial port
+ * Marlin Firmware entry-point. Abandon Hope All Ye Who Enter Here.
+ * Setup before the program loop:
+ *
+ *  - Call any special pre-init set for the board
+ *  - Put TMC drivers into Low Power Standby mode
+ *  - Init the serial ports (so setup can be debugged)
+ *  - Set up the kill and suicide pins
+ *  - Prepare (disable) board JTAG and Debug ports
+ *  - Init serial for a connected MKS TFT with WiFi
+ *  - Install Marlin custom Exception Handlers, if set.
+ *  - Init Marlin's HAL interfaces (for SPI, i2c, etc.)
+ *  - Init some optional hardware and features:
+ *    • MAX Thermocouple pins
+ *    • Duet Smart Effector
+ *    • Filament Runout Sensor
+ *    • TMC220x Stepper Drivers (Serial)
+ *    • PSU control
+ *    • Power-loss Recovery
+ *    • L64XX Stepper Drivers (SPI)
+ *    • Stepper Driver Reset: DISABLE
+ *    • TMC Stepper Drivers (SPI)
+ *    • Run BOARD_INIT if defined
+ *    • ESP WiFi
+ *  - Get the Reset Reason and report it
  *  - Print startup messages and diagnostics
- *  - Get EEPROM or default settings
- *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
- *    • Max7219
+ *  - Calibrate the HAL DELAY for precise timing
+ *  - Init the buzzer, possibly a custom timer
+ *  - Init more optional hardware:
+ *    • Color LED illumination
+ *    • Neopixel illumination
+ *    • Controller Fan
+ *    • Creality DWIN LCD (show boot image)
+ *    • Tare the Probe if possible
+ *  - Mount the (most likely external) SD Card
+ *  - Load settings from EEPROM (or use defaults)
+ *  - Init the Ethernet Port
+ *  - Init Touch Buttons (for emulated DOGLCD)
+ *  - Adjust the (certainly wrong) current position by the home offset
+ *  - Init the Planner::position (steps) based on current (native) position
+ *  - Initialize more managers and peripherals:
+ *    • Temperatures
+ *    • Print Job Timer
+ *    • Endstops and Endstop Interrupts
+ *    • Stepper ISR - Kind of Important!
+ *    • Servos
+ *    • Servo-based Probe
+ *    • Photograph Pin
+ *    • Laser/Spindle tool Power / PWM
+ *    • Coolant Control
+ *    • Bed Probe
+ *    • Stepper Driver Reset: ENABLE
+ *    • Digipot I2C - Stepper driver current control
+ *    • Stepper DAC - Stepper driver current control
+ *    • Solenoid (probe, or for other use)
+ *    • Home Pin
+ *    • Custom User Buttons
+ *    • Red/Blue Status LEDs
+ *    • Case Light
+ *    • Prusa MMU filament changer
+ *    • Fan Multiplexer
+ *    • Mixing Extruder
+ *    • BLTouch Probe
+ *    • I2C Position Encoders
+ *    • Custom I2C Bus handlers
+ *    • Enhanced tools or extruders:
+ *      • Switching Extruder
+ *      • Switching Nozzle
+ *      • Parking Extruder
+ *      • Magnetic Parking Extruder
+ *      • Switching Toolhead
+ *      • Electromagnetic Switching Toolhead
+ *    • Watchdog Timer - Also Kind of Important!
+ *    • Closed Loop Controller
+ *  - Run Startup Commands, if defined
+ *  - Tell host to close Host Prompts
+ *  - Test Trinamic driver connections
+ *  - Init Prusa MMU2 filament changer
+ *  - Init and test BL24Cxx EEPROM
+ *  - Init Creality DWIN encoder, show faux progress bar
+ *  - Reset Status Message / Show Service Messages
+ *  - Init MAX7219 LED Matrix
+ *  - Init Direct Stepping (Klipper-style motion control)
+ *  - Init TFT LVGL UI (with 3D Graphics)
+ *  - Apply Password Lock - Hold for Authentication
+ *  - Open Touch Screen Calibration screen, if not calibrated
+ *  - Set Marlin to RUNNING State
  */
 void setup() {
   #ifdef BOARD_PREINIT
@@ -1144,10 +1220,20 @@ void setup() {
     DWIN_UpdateLCD();     // Show bootscreen (first image)
   #else
     SETUP_RUN(ui.init());
-    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
+    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
       SETUP_RUN(ui.show_bootscreen());
+      const millis_t bootscreen_ms = millis();
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
+
+  #if PIN_EXISTS(SAFE_POWER)
+    #if HAS_DRIVER_SAFE_POWER_PROTECT
+      SETUP_RUN(stepper_driver_backward_check());
+    #else
+      SETUP_LOG("SAFE_POWER");
+      OUT_WRITE(SAFE_POWER_PIN, HIGH);
+    #endif
   #endif
 
   #if ENABLED(PROBE_TARE)
@@ -1311,7 +1397,6 @@ void setup() {
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
-
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
@@ -1364,19 +1449,13 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    SETUP_RUN(mpe_settings_init());
-  #endif
-
   #if ENABLED(PARKING_EXTRUDER)
     SETUP_RUN(pe_solenoid_init());
-  #endif
-
-  #if ENABLED(SWITCHING_TOOLHEAD)
+  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    SETUP_RUN(mpe_settings_init());
+  #elif ENABLED(SWITCHING_TOOLHEAD)
     SETUP_RUN(swt_init());
-  #endif
-
-  #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
   #endif
 
@@ -1401,6 +1480,10 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
+  #if HAS_DRIVER_SAFE_POWER_PROTECT
+    SETUP_RUN(stepper_driver_backward_report());
+  #endif
+
   #if HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
@@ -1414,7 +1497,9 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
+    DWIN_JPG_CacheTo1(Language_English);
     HMI_StartFrame(true);
+    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
@@ -1434,6 +1519,14 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    const millis_t elapsed = millis() - bootscreen_ms;
+    #if ENABLED(MARLIN_DEV_MODE)
+      SERIAL_ECHOLNPAIR("elapsed=", elapsed);
+    #endif
+    SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif
 
   #if ENABLED(PASSWORD_ON_STARTUP)

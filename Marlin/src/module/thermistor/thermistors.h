@@ -44,7 +44,7 @@
 
 #define ANY_THERMISTOR_IS(n) (TEMP_SENSOR_0_THERMISTOR_ID == n || TEMP_SENSOR_1_THERMISTOR_ID == n || TEMP_SENSOR_2_THERMISTOR_ID == n || TEMP_SENSOR_3_THERMISTOR_ID == n || TEMP_SENSOR_4_THERMISTOR_ID == n || TEMP_SENSOR_5_THERMISTOR_ID == n || TEMP_SENSOR_6_THERMISTOR_ID == n || TEMP_SENSOR_7_THERMISTOR_ID == n || TEMP_SENSOR_BED_THERMISTOR_ID == n || TEMP_SENSOR_CHAMBER_THERMISTOR_ID == n || TEMP_SENSOR_COOLER_THERMISTOR_ID == n || TEMP_SENSOR_PROBE_THERMISTOR_ID == n)
 
-typedef struct { int16_t value, celsius; } temp_entry_t;
+typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //
@@ -335,7 +335,8 @@ static_assert(
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
 
-#define _TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
+#define __TT_REV(N)   REVERSE_TEMP_SENSOR_RANGE_##N
+#define _TT_REV(N)    __TT_REV(N)
 #define TT_REV(N)     _TT_REV(TEMP_SENSOR_##N##_THERMISTOR_ID)
 #define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
 #define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
@@ -343,72 +344,72 @@ static_assert(
 #ifdef TEMPTABLE_0
   #if TT_REV(0)
     #define TEMP_SENSOR_0_MINTEMP_IND 0
-    #define TEMPTABLE_0_MAXTEMP_IND HEATER_0_LEN - 1
+    #define TEMP_SENSOR_0_MAXTEMP_IND TEMPTABLE_0_LEN - 1
   #else
-    #define TEMPTABLE_0_MINTEMP_IND HEATER_0_LEN - 1
+    #define TEMP_SENSOR_0_MINTEMP_IND TEMPTABLE_0_LEN - 1
     #define TEMP_SENSOR_0_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_1
   #if TT_REV(1)
     #define TEMP_SENSOR_1_MINTEMP_IND 0
-    #define TEMPTABLE_1_MAXTEMP_IND HEATER_1_LEN - 1
+    #define TEMP_SENSOR_1_MAXTEMP_IND TEMPTABLE_1_LEN - 1
   #else
-    #define TEMPTABLE_1_MINTEMP_IND HEATER_1_LEN - 1
+    #define TEMP_SENSOR_1_MINTEMP_IND TEMPTABLE_1_LEN - 1
     #define TEMP_SENSOR_1_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_2
   #if TT_REV(2)
     #define TEMP_SENSOR_2_MINTEMP_IND 0
-    #define TEMPTABLE_2_MAXTEMP_IND HEATER_2_LEN - 1
+    #define TEMP_SENSOR_2_MAXTEMP_IND TEMPTABLE_2_LEN - 1
   #else
-    #define TEMPTABLE_2_MINTEMP_IND HEATER_2_LEN - 1
+    #define TEMP_SENSOR_2_MINTEMP_IND TEMPTABLE_2_LEN - 1
     #define TEMP_SENSOR_2_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_3
   #if TT_REV(3)
     #define TEMP_SENSOR_3_MINTEMP_IND 0
-    #define TEMPTABLE_3_MAXTEMP_IND HEATER_3_LEN - 1
+    #define TEMP_SENSOR_3_MAXTEMP_IND TEMPTABLE_3_LEN - 1
   #else
-    #define TEMPTABLE_3_MINTEMP_IND HEATER_3_LEN - 1
+    #define TEMP_SENSOR_3_MINTEMP_IND TEMPTABLE_3_LEN - 1
     #define TEMP_SENSOR_3_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_4
   #if TT_REV(4)
     #define TEMP_SENSOR_4_MINTEMP_IND 0
-    #define TEMPTABLE_4_MAXTEMP_IND HEATER_4_LEN - 1
+    #define TEMP_SENSOR_4_MAXTEMP_IND TEMPTABLE_4_LEN - 1
   #else
-    #define TEMPTABLE_4_MINTEMP_IND HEATER_4_LEN - 1
+    #define TEMP_SENSOR_4_MINTEMP_IND TEMPTABLE_4_LEN - 1
     #define TEMP_SENSOR_4_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_5
   #if TT_REV(5)
     #define TEMP_SENSOR_5_MINTEMP_IND 0
-    #define TEMPTABLE_5_MAXTEMP_IND HEATER_5_LEN - 1
+    #define TEMP_SENSOR_5_MAXTEMP_IND TEMPTABLE_5_LEN - 1
   #else
-    #define TEMPTABLE_5_MINTEMP_IND HEATER_5_LEN - 1
+    #define TEMP_SENSOR_5_MINTEMP_IND TEMPTABLE_5_LEN - 1
     #define TEMP_SENSOR_5_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_6
   #if TT_REV(6)
     #define TEMP_SENSOR_6_MINTEMP_IND 0
-    #define TEMPTABLE_6_MAXTEMP_IND HEATER_6_LEN - 1
+    #define TEMP_SENSOR_6_MAXTEMP_IND TEMPTABLE_6_LEN - 1
   #else
-    #define TEMPTABLE_6_MINTEMP_IND HEATER_6_LEN - 1
+    #define TEMP_SENSOR_6_MINTEMP_IND TEMPTABLE_6_LEN - 1
     #define TEMP_SENSOR_6_MAXTEMP_IND 0
   #endif
 #endif
 #ifdef TEMPTABLE_7
   #if TT_REV(7)
     #define TEMP_SENSOR_7_MINTEMP_IND 0
-    #define TEMPTABLE_7_MAXTEMP_IND HEATER_7_LEN - 1
+    #define TEMP_SENSOR_7_MAXTEMP_IND TEMPTABLE_7_LEN - 1
   #else
-    #define TEMPTABLE_7_MINTEMP_IND HEATER_7_LEN - 1
+    #define TEMP_SENSOR_7_MINTEMP_IND TEMPTABLE_7_LEN - 1
     #define TEMP_SENSOR_7_MAXTEMP_IND 0
   #endif
 #endif
@@ -522,6 +523,7 @@ static_assert(
   #endif
 #endif
 
+#undef __TT_REV
 #undef _TT_REV
 #undef TT_REV
 #undef _TT_REVRAW

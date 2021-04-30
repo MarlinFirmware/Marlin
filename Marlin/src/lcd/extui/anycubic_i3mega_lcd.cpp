@@ -79,6 +79,10 @@ namespace ExtUI {
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
+  }
+
   void onConfigurationStoreWritten(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
@@ -93,7 +97,7 @@ namespace ExtUI {
 
     void onMeshLevelingStart() {}
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float &zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
   #endif

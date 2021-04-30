@@ -110,7 +110,7 @@ uint8_t BulkStorage::Read(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t bl
 }
 
 uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t blocks, const uint8_t * buf) {
-  return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast <uint8_t*>(buf), blocks) != USBH_OK;
+  return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast<uint8_t*>(buf), blocks) != USBH_OK;
 }
 
 #endif // USE_OTG_USB_HOST && USBHOST

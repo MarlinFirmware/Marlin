@@ -68,8 +68,8 @@ void GcodeSuite::M420() {
                   y_min = probe.min_y(), y_max = probe.max_y();
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         bilinear_start.set(x_min, y_min);
-        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_POINTS_X - 1),
-                                  (y_max - y_min) / (GRID_MAX_POINTS_Y - 1));
+        bilinear_grid_spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
+                                  (y_max - y_min) / (GRID_MAX_CELLS_Y));
       #endif
       GRID_LOOP(x, y) {
         Z_VALUES(x, y) = 0.001 * random(-200, 200);
@@ -156,16 +156,16 @@ void GcodeSuite::M420() {
             GRID_LOOP(x, y) mesh_sum += Z_VALUES(x, y);
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
 
-          #else
+          #else // midrange
 
-            // Find the low and high mesh values
+            // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
             GRID_LOOP(x, y) {
               const float z = Z_VALUES(x, y);
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
             }
-            // Take the mean of the lowest and highest
+            // Get the midrange plus C value. (The median may be better.)
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
 
           #endif

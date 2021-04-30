@@ -55,14 +55,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT)
+#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT)
 
 #include "HAL_LCD_com_defines.h"
 #include "marlinui_DOGM.h"
 
 #include <string.h>
 
-#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+#if ANY(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI, HAS_LTDC_GRAPHICAL_TFT)
   #define HAS_LCD_IO 1
 #endif
 
@@ -83,7 +83,8 @@ TFT_IO tftio;
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
 
 #define COLOR_BLACK       0x0000  // #000000
 #define COLOR_WHITE       0xFFFF  // #FFFFFF
@@ -91,7 +92,7 @@ TFT_IO tftio;
 #define COLOR_GREY        0x7BEF  // #808080
 #define COLOR_DARKGREY    0x4208  // #404040
 #define COLOR_DARKGREY2   0x39E7  // #303030
-#define COLOR_DARK        0x0003  // Some dark color
+#define COLOR_DARK        0x0003  // #000019
 
 #define COLOR_RED         0xF800  // #FF0000
 #define COLOR_LIME        0x7E00  // #00FF00
@@ -311,7 +312,7 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
 
 // Used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
-  uint16_t* wptr = (uint16_t*)ptr;
+  uint16_t *wptr = (uint16_t*)ptr;
   for (size_t i = 0; i < cnt; i += 2) { *wptr = fill; wptr++; }
 }
 
@@ -346,7 +347,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
   #if HAS_LCD_IO
     static uint16_t bufferA[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)], bufferB[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)];
-    uint16_t* buffer = &bufferA[0];
+    uint16_t *buffer = &bufferA[0];
   #else
     uint16_t buffer[WIDTH * GRAPHICAL_TFT_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
@@ -404,7 +405,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
           tftio.WriteSequence(buffer, COUNT(bufferA));
         #else
-          uint8_t* bufptr = (uint8_t*) buffer;
+          uint8_t *bufptr = (uint8_t*) buffer;
           for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
             LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);

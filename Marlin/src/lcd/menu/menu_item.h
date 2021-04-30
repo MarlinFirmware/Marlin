@@ -77,8 +77,8 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float scale(const float value)      { return NAME::scale(value);            }
-    static inline float unscale(const float value)    { return NAME::unscale(value);          }
+    static inline float scale(const_float_t value)    { return NAME::scale(value);            }
+    static inline float unscale(const_float_t value)  { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
@@ -111,17 +111,17 @@ class TMenuEditItem : MenuEditItemBase {
 // These items call the Edit Item draw method passing the prepared string.
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
-#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, V...) \
+#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static inline float scale(const float value)   { return value * (SCALE) + (V+0); } \
-    static inline float unscale(const float value) { return value / (SCALE) + (V+0); } \
-    static inline const char* strfunc(const float value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    static inline float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+    static inline float unscale(const_float_t value) { return value / (SCALE) ETC; } \
+    static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
-//                         NAME         TYPE      STRFUNC          SCALE         +ROUND
-DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, 0.5f);  // 100%   right-justified
+//                         NAME         TYPE      STRFUNC          SCALE         ROUND
+DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, +0.5f);  // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1     );   // 100%   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1     );   // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1     );   // 1234, -123 right-justified
@@ -473,7 +473,7 @@ class MenuItem_bool : public MenuEditItemBase {
   #define _FAN_EDIT_ITEMS(F,L) do{ \
     editable.uint8 = thermalManager.fan_speed[F]; \
     EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
-    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.new_fan_speed[F], 3, 255); \
+    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.extra_fan_speed[F].speed, 3, 255); \
   }while(0)
 
   #if FAN_COUNT > 1

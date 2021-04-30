@@ -201,10 +201,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     #if EXTRUDERS
-      HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+      HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
-    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
+    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
 
     #if HAS_FAN
       COPY(info.fan_speed, thermalManager.fan_speed);
@@ -240,7 +240,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
-    void PrintJobRecovery::retract_and_lift(const float &zraise) {
+    void PrintJobRecovery::retract_and_lift(const_float_t zraise) {
       #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
 
         gcode.set_relative_mode(true);  // Use relative coordinates
@@ -343,7 +343,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   #if HAS_HEATED_BED
-    const int16_t bt = info.target_temperature_bed;
+    const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
       sprintf_P(cmd, PSTR("M190 S%i"), bt);
@@ -354,7 +354,7 @@ void PrintJobRecovery::resume() {
   // Restore all hotend temperatures
   #if HAS_HOTEND
     HOTEND_LOOP() {
-      const int16_t et = info.target_temperature[e];
+      const celsius_t et = info.target_temperature[e];
       if (et) {
         #if HAS_MULTI_HOTEND
           sprintf_P(cmd, PSTR("T%i S"), e);
@@ -612,7 +612,7 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
-        DEBUG_ECHOLNPAIR("dryrun: ", info.flag.dryrun);
+        DEBUG_ECHOLNPAIR("dryrun: ", AS_DIGIT(info.flag.dryrun));
         DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", info.flag.allow_cold_extrusion);
       }
       else

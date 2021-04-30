@@ -47,7 +47,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
   encoderAxis = axis;
   i2cAddress = address;
 
-  initialized++;
+  initialized = true;
 
   SERIAL_ECHOLNPAIR("Setting up encoder on ", AS_CHAR(axis_codes[encoderAxis]), " axis, addr = ", address);
 
@@ -209,8 +209,7 @@ void I2CPositionEncoder::set_homed() {
     delay(10);
 
     zeroOffset = get_raw_count();
-    homed++;
-    trusted++;
+    homed = trusted = true;
 
     #ifdef I2CPE_DEBUG
       SERIAL_CHAR(axis_codes[encoderAxis]);
