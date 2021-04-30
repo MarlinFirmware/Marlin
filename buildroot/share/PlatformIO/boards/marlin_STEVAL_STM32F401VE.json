@@ -1,16 +1,26 @@
 {
   "build": {
     "core": "stm32",
-    "cpu": "cortex-m7",
-    "extra_flags": "-DSTM32H743xx",
-    "f_cpu": "400000000L",
-    "mcu": "stm32h743iit6",
-    "variant": "BTT_SKR_SE_BX"
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32F401xx",
+    "f_cpu": "84000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x0483",
+        "0x3748"
+      ]
+    ],
+    "mcu": "stm32f401vet6",
+    "variant": "MARLIN_STEVAL_F401VE"
   },
   "debug": {
-    "jlink_device": "STM32H743II",
-    "openocd_target": "stm32h7x",
-    "svd_path": "STM32H7x3.svd",
+    "jlink_device": "STM32F401VE",
+    "openocd_target": "stm32f4x",
+    "svd_path": "STM32F40x.svd",
     "tools": {
       "stlink": {
         "server": {
@@ -20,7 +30,7 @@
             "-c",
             "transport select hla_swd",
             "-f",
-            "scripts/target/stm32h7x.cfg",
+            "scripts/target/stm32f4x.cfg",
             "-c",
             "reset_config none"
           ],
@@ -34,23 +44,21 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32H743II (1024k RAM. 2048k Flash)",
+  "name": "STM32F401VE (96k RAM. 512k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 1048576,
-    "maximum_size": 2097152,
+    "maximum_ram_size": 98304,
+    "maximum_size": 514288,
     "protocol": "stlink",
     "protocols": [
       "stlink",
       "dfu",
-      "jlink",
-      "cmsis-dap"
+      "jlink"
     ],
-    "offset_address": "0x8020000",
     "require_upload_port": true,
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32h743ii.html",
+  "url": "https://www.st.com/en/evaluation-tools/steval-3dp001v1.html",
   "vendor": "Generic"
 }
