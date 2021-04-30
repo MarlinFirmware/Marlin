@@ -31,6 +31,7 @@ BLTouch bltouch;
 bool BLTouch::last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
 
 #include "../module/servo.h"
+#include "../module/probe.h"
 
 void stop();
 
@@ -63,7 +64,7 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
   #else
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPAIR("last_written_mode - ", (int)last_written_mode);
+      DEBUG_ECHOLNPAIR("last_written_mode - ", last_written_mode);
       DEBUG_ECHOLNPGM("config mode - "
         #if ENABLED(BLTOUCH_SET_5V_MODE)
           "BLTOUCH_SET_5V_MODE"
@@ -90,15 +91,7 @@ void BLTouch::clear() {
   _stow();     // STOW to be ready for meaningful work. Could fail, don't care
 }
 
-bool BLTouch::triggered() {
-  return (
-    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING
-    #else
-      READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING
-    #endif
-  );
-}
+bool BLTouch::triggered() { return PROBE_TRIGGERED(); }
 
 bool BLTouch::deploy_proc() {
   // Do a DEPLOY
@@ -182,7 +175,7 @@ bool BLTouch::status_proc() {
   _set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
   const bool tr = triggered(); // If triggered in SW mode, the pin is up, it is STOWED
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", (int)tr);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", tr);
 
   if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
@@ -194,7 +187,7 @@ void BLTouch::mode_conv_proc(const bool M5V) {
    * BLTOUCH V3.0: This will set the mode (twice) and sadly, a STOW is needed at the end, because of the deploy
    * BLTOUCH V3.1: This will set the mode and store it in the eeprom. The STOW is not needed but does not hurt
    */
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch Set Mode - ", (int)M5V);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch Set Mode - ", M5V);
   _deploy();
   if (M5V) _set_5V_mode(); else _set_OD_mode();
   _mode_store();

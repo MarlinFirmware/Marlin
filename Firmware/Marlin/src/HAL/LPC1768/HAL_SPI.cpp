@@ -55,27 +55,33 @@
 #include <lpc17xx_pinsel.h>
 #include <lpc17xx_clkpwr.h>
 
+#include "../shared/HAL_SPI.h"
+
 // ------------------------
 // Public functions
 // ------------------------
 #if ENABLED(LPC_SOFTWARE_SPI)
 
-  #include <SoftwareSPI.h>
-
   // Software SPI
 
-  static uint8_t SPI_speed = 0;
+  #include <SoftwareSPI.h>
+
+  #ifndef HAL_SPI_SPEED
+    #define HAL_SPI_SPEED SPI_FULL_SPEED
+  #endif
+
+  static uint8_t SPI_speed = HAL_SPI_SPEED;
 
   static uint8_t spiTransfer(uint8_t b) {
-    return swSpiTransfer(b, SPI_speed, SCK_PIN, MISO_PIN, MOSI_PIN);
+    return swSpiTransfer(b, SPI_speed, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
   void spiBegin() {
-    swSpiBegin(SCK_PIN, MISO_PIN, MOSI_PIN);
+    swSpiBegin(SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
   }
 
   void spiInit(uint8_t spiRate) {
-    SPI_speed = swSpiInit(spiRate, SCK_PIN, MOSI_PIN);
+    SPI_speed = swSpiInit(spiRate, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
   uint8_t spiRec() { return spiTransfer(0xFF); }
@@ -87,12 +93,12 @@
 
   void spiSend(uint8_t b) { (void)spiTransfer(b); }
 
-  void spiSend(const uint8_t* buf, size_t nbyte) {
+  void spiSend(const uint8_t *buf, size_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       (void)spiTransfer(buf[i]);
   }
 
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);
@@ -100,14 +106,20 @@
 
 #else
 
-  void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
-    spiInit(SPI_SPEED);
-  }
+  #ifndef HAL_SPI_SPEED
+    #ifdef SD_SPI_SPEED
+      #define HAL_SPI_SPEED SD_SPI_SPEED
+    #else
+      #define HAL_SPI_SPEED SPI_FULL_SPEED
+    #endif
+  #endif
+
+  void spiBegin() { spiInit(HAL_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
-    #if MISO_PIN == BOARD_SPI1_MISO_PIN
+    #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
       SPI.setModule(1);
-    #elif MISO_PIN == BOARD_SPI2_MISO_PIN
+    #elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
       SPI.setModule(2);
     #endif
     SPI.setDataSize(DATA_SIZE_8BIT);
@@ -123,15 +135,13 @@
 
   void spiSend(uint8_t b) { doio(b); }
 
-  void spiSend(const uint8_t* buf, size_t nbyte) {
+  void spiSend(const uint8_t *buf, size_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++) doio(buf[i]);
   }
 
-  void spiSend(uint32_t chan, byte b) {
-  }
+  void spiSend(uint32_t chan, byte b) {}
 
-  void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
-  }
+  void spiSend(uint32_t chan, const uint8_t *buf, size_t nbyte) {}
 
   // Read single byte from SPI
   uint8_t spiRec() { return doio(0xFF); }
@@ -143,21 +153,18 @@
     for (uint16_t i = 0; i < nbyte; i++) buf[i] = doio(0xFF);
   }
 
-  uint8_t spiTransfer(uint8_t b) {
-    return doio(b);
-  }
+  uint8_t spiTransfer(uint8_t b) { return doio(b); }
 
   // Write from buffer to SPI
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
    (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);
   }
 
-  /** Begin SPI transaction, set clock, bit order, data mode */
+  // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-    // TODO: to be implemented
-
+    // TODO: Implement this method
   }
 
 #endif // LPC_SOFTWARE_SPI
@@ -199,6 +206,15 @@ SPIClass::SPIClass(uint8_t device) {
   // Init the GPDMA controller
   // TODO: call once in the constructor? or each time?
   GPDMA_Init();
+}
+
+SPIClass::SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel) {
+  #if BOARD_NR_SPI >= 1
+    if (mosi == BOARD_SPI1_MOSI_PIN) SPIClass(1);
+  #endif
+  #if BOARD_NR_SPI >= 2
+    if (mosi == BOARD_SPI2_MOSI_PIN) SPIClass(2);
+  #endif
 }
 
 void SPIClass::begin() {
@@ -263,8 +279,9 @@ uint16_t SPIClass::transfer16(const uint16_t data) {
 }
 
 void SPIClass::end() {
-  // SSP_Cmd(_currentSetting->spi_d, DISABLE);  // stop device or SSP_DeInit?
-  SSP_DeInit(_currentSetting->spi_d);
+  // Neither is needed for Marlin
+  //SSP_Cmd(_currentSetting->spi_d, DISABLE);
+  //SSP_DeInit(_currentSetting->spi_d);
 }
 
 void SPIClass::send(uint8_t data) {
@@ -330,25 +347,15 @@ void SPIClass::read(uint8_t *buf, uint32_t len) {
   for (uint16_t i = 0; i < len; i++) buf[i] = transfer(0xFF);
 }
 
-void SPIClass::setClock(uint32_t clock) {
-  _currentSetting->clock = clock;
-}
+void SPIClass::setClock(uint32_t clock) { _currentSetting->clock = clock; }
 
-void SPIClass::setModule(uint8_t device) {
-  _currentSetting = &_settings[device - 1];// SPI channels are called 1 2 and 3 but the array is zero indexed
-}
+void SPIClass::setModule(uint8_t device) { _currentSetting = &_settings[device - 1]; } // SPI channels are called 1, 2, and 3 but the array is zero-indexed
 
-void SPIClass::setBitOrder(uint8_t bitOrder) {
-  _currentSetting->bitOrder = bitOrder;
-}
+void SPIClass::setBitOrder(uint8_t bitOrder) { _currentSetting->bitOrder = bitOrder; }
 
-void SPIClass::setDataMode(uint8_t dataMode) {
-  _currentSetting->dataMode = dataMode;
-}
+void SPIClass::setDataMode(uint8_t dataMode) { _currentSetting->dataMode = dataMode; }
 
-void SPIClass::setDataSize(uint32_t ds) {
-  _currentSetting->dataSize = ds;
-}
+void SPIClass::setDataSize(uint32_t dataSize) { _currentSetting->dataSize = dataSize; }
 
 /**
  * Set up/tear down
@@ -356,8 +363,8 @@ void SPIClass::setDataSize(uint32_t ds) {
 void SPIClass::updateSettings() {
   //SSP_DeInit(_currentSetting->spi_d); //todo: need force de init?!
 
-  // divide PCLK by 2 for SSP0
-  CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+  // Divide PCLK by 2 for SSP0
+  //CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
 
   SSP_CFG_Type HW_SPI_init; // data structure to hold init values
   SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
@@ -396,9 +403,9 @@ void SPIClass::updateSettings() {
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
-#if MISO_PIN == BOARD_SPI1_MISO_PIN
+#if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
   SPIClass SPI(1);
-#elif MISO_PIN == BOARD_SPI2_MISO_PIN
+#elif SD_MISO_PIN == BOARD_SPI2_MISO_PIN
   SPIClass SPI(2);
 #endif
 

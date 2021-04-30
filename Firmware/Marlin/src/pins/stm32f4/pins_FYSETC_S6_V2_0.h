@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -29,7 +29,6 @@
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
   //#define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   #define I2C_EEPROM
 #endif
 

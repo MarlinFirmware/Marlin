@@ -18,9 +18,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "LERDGE K supports up to 2 hotends / E-steppers."
 #endif
 
@@ -28,6 +29,9 @@
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
 #define I2C_EEPROM
+
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //
 // Servos
@@ -92,6 +96,50 @@
 //  #define E1_CS_PIN                       PE4
 //#endif
 
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN                 PB2
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN                 PB2
+  #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PE2
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN                 PE2
+  #endif
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PE3
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN                 PE3
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PE4
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN                PE4
+  #endif
+  #ifndef E1_SERIAL_TX_PIN
+    #define E1_SERIAL_TX_PIN                PE1
+  #endif
+  #ifndef E1_SERIAL_RX_PIN
+    #define E1_SERIAL_RX_PIN                PE1
+  #endif
+  #ifndef EX_SERIAL_TX_PIN
+    #define E2_SERIAL_TX_PIN                PE0
+  #endif
+  #ifndef EX_SERIAL_RX_PIN
+    #define E2_SERIAL_RX_PIN                PE0
+  #endif
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+#endif
+
 //
 // Temperature Sensors
 //
@@ -142,6 +190,7 @@
 // SD support
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4800000
 
 //
 // Misc. Functions
@@ -152,10 +201,10 @@
 #define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
 
 #define SD_DETECT_PIN                       PA8
 #define BEEPER_PIN                          PC7

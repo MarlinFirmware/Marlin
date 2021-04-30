@@ -32,7 +32,7 @@ Ctrl_status sd_mmc_spi_test_unit_ready() {
 Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
   if (!IS_SD_INSERTED() || IS_SD_PRINTING() || IS_SD_FILE_OPEN() || !card.isMounted())
     return CTRL_NO_PRESENT;
-  *nb_sector = card.getSd2Card().cardSize() - 1;
+  *nb_sector = card.diskIODriver()->cardSize() - 1;
   return CTRL_GOOD;
 }
 
@@ -68,30 +68,30 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDRD: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif
 
   // Start reading
-  if (!card.getSd2Card().readStart(addr))
+  if (!card.diskIODriver()->readStart(addr))
     return CTRL_FAIL;
 
   // For each specified sector
   while (nb_sector--) {
 
     // Read a sector
-    card.getSd2Card().readData(sector_buf);
+    card.diskIODriver()->readData(sector_buf);
 
     // RAM -> USB
-    if (!udi_msc_trans_block(true, sector_buf, SD_MMC_BLOCK_SIZE, NULL)) {
-      card.getSd2Card().readStop();
+    if (!udi_msc_trans_block(true, sector_buf, SD_MMC_BLOCK_SIZE, nullptr)) {
+      card.diskIODriver()->readStop();
       return CTRL_FAIL;
     }
   }
 
   // Stop reading
-  card.getSd2Card().readStop();
+  card.diskIODriver()->readStop();
 
   // Done
   return CTRL_GOOD;
@@ -108,29 +108,29 @@ Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
   {
     char buffer[80];
     sprintf_P(buffer, PSTR("SDWR: %d @ 0x%08x\n"), nb_sector, addr);
-    PORT_REDIRECT(0);
+    PORT_REDIRECT(SERIAL_PORTMASK(0));
     SERIAL_ECHO(buffer);
   }
   #endif
 
-  if (!card.getSd2Card().writeStart(addr, nb_sector))
+  if (!card.diskIODriver()->writeStart(addr, nb_sector))
     return CTRL_FAIL;
 
   // For each specified sector
   while (nb_sector--) {
 
     // USB -> RAM
-    if (!udi_msc_trans_block(false, sector_buf, SD_MMC_BLOCK_SIZE, NULL)) {
-      card.getSd2Card().writeStop();
+    if (!udi_msc_trans_block(false, sector_buf, SD_MMC_BLOCK_SIZE, nullptr)) {
+      card.diskIODriver()->writeStop();
       return CTRL_FAIL;
     }
 
     // Write a sector
-    card.getSd2Card().writeData(sector_buf);
+    card.diskIODriver()->writeData(sector_buf);
   }
 
   // Stop writing
-  card.getSd2Card().writeStop();
+  card.diskIODriver()->writeStop();
 
   // Done
   return CTRL_GOOD;

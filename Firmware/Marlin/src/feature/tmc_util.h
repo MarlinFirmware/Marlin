@@ -22,7 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if HAS_TRINAMIC_CONFIG
 
@@ -70,9 +70,15 @@ class TMCStorage {
     }
 
     struct {
-      TERN_(HAS_STEALTHCHOP, bool stealthChop_enabled = false);
-      TERN_(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0);
-      TERN_(USE_SENSORLESS, int16_t homing_thrs = 0);
+      #if ENABLED(HAS_STEALTHCHOP)
+        bool stealthChop_enabled = false;
+      #endif
+      #if ENABLED(HYBRID_THRESHOLD)
+        uint8_t hybrid_thrs = 0;
+      #endif
+      #if ENABLED(USE_SENSORLESS)
+        int16_t homing_thrs = 0;
+      #endif
     } stored;
 };
 
@@ -103,9 +109,11 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     inline uint16_t get_microstep_counter() { return TMC::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return this->en_pwm_mode(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_pwm_mode(this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -170,9 +178,11 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     inline uint16_t get_microstep_counter() { return TMC2208Stepper::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -216,9 +226,11 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     inline uint16_t get_microstep_counter() { return TMC2209Stepper::MSCNT(); }
 
     #if HAS_STEALTHCHOP
-      inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop()                { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
+      inline void refresh_stepping_mode()          { this->en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
+      inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -357,7 +369,9 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 
     struct slow_homing_t {
       xy_ulong_t acceleration;
-      TERN_(HAS_CLASSIC_JERK, xy_float_t jerk_xy);
+      #if ENABLED(HAS_CLASSIC_JERK)
+        xy_float_t jerk_xy;
+      #endif
     };
   #endif
 

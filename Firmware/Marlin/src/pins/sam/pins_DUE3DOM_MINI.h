@@ -25,9 +25,7 @@
  * DUE3DOM MINI pin assignments
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "DUE3DOM MINI"
 
@@ -114,7 +112,7 @@
   #define LCD_PINS_D6                         46
   #define LCD_PINS_D7                         47
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if IS_RRD_SC
 
     #define BEEPER_PIN                        41
 
@@ -171,4 +169,9 @@
     #define DOGLCD_CS                         45
 
   #endif // SPARK_FULL_GRAPHICS
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
 #endif // HAS_WIRED_LCD

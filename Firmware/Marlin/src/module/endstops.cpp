@@ -27,10 +27,9 @@
 #include "endstops.h"
 #include "stepper.h"
 
-#include "../MarlinCore.h"
 #include "../sd/cardreader.h"
 #include "temperature.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include HAL_PATH(../HAL, endstop_interrupts.h)
@@ -46,6 +45,10 @@
 
 #if ENABLED(JOYSTICK)
   #include "../feature/joystick.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "probe.h"
 #endif
 
 Endstops endstops;
@@ -276,6 +279,12 @@ void Endstops::init() {
     #endif
   #endif
 
+  #if ENABLED(PROBE_ACTIVATION_SWITCH)
+    SET_INPUT(PROBE_ACTIVATION_SWITCH_PIN);
+  #endif
+
+  TERN_(PROBE_TARE, probe.tare());
+
   TERN_(ENDSTOP_INTERRUPTS_FEATURE, setup_endstop_interrupts());
 
   // Enable endstops
@@ -351,7 +360,7 @@ void Endstops::event_handler() {
   if (hit_state == prev_hit_state) return;
   prev_hit_state = hit_state;
   if (hit_state) {
-    #if HAS_WIRED_LCD
+    #if HAS_STATUS_MESSAGE
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -382,7 +391,7 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    TERN_(HAS_WIRED_LCD, ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP));
+    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP));
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
@@ -396,10 +405,9 @@ void Endstops::event_handler() {
 }
 
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
-  if (label) serialprintPGM(label);
+  if (label) SERIAL_ECHOPGM_P(label);
   SERIAL_ECHOPGM(": ");
-  serialprintPGM(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
-  SERIAL_EOL();
+  SERIAL_ECHOLNPGM_P(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
 }
 
 void _O2 Endstops::report_states() {
@@ -454,26 +462,28 @@ void _O2 Endstops::report_states() {
   #if HAS_Z4_MAX
     ES_REPORT(Z4_MAX);
   #endif
-  #if HAS_CUSTOM_PROBE_PIN
-    print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(STR_Z_PROBE));
+  #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
+    print_es_state(probe_switch_activated(), PSTR(STR_PROBE_EN));
   #endif
-  #if HAS_FILAMENT_SENSOR
-    #if NUM_RUNOUT_SENSORS == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
-    #else
-      #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
-      LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
-        pin_t pin;
-        switch (i) {
-          default: continue;
-          REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
-        }
-        SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
-        if (i > 1) SERIAL_CHAR(' ', '0' + i);
-        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_STATE);
+  #if HAS_CUSTOM_PROBE_PIN
+    print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
+  #endif
+  #if MULTI_FILAMENT_SENSOR
+    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
+    LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
+      pin_t pin;
+      uint8_t state;
+      switch (i) {
+        default: continue;
+        REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
       }
-      #undef _CASE_RUNOUT
-    #endif
+      SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
+      if (i > 1) SERIAL_CHAR(' ', '0' + i);
+      print_es_state(extDigitalRead(pin) != state);
+    }
+    #undef _CASE_RUNOUT
+  #elif HAS_FILAMENT_SENSOR
+    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());
@@ -577,7 +587,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_Z_MIN && !Z_SPI_SENSORLESS
+  #if HAS_Z_MIN && NONE(Z_SPI_SENSORLESS, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     UPDATE_ENDSTOP_BIT(Z, MIN);
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #if HAS_Z2_MIN
@@ -602,9 +612,10 @@ void Endstops::update() {
     #endif
   #endif
 
-  // When closing the gap check the enabled probe
-  #if HAS_CUSTOM_PROBE_PIN
-    UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+  #if HAS_BED_PROBE
+    // When closing the gap check the enabled probe
+    if (probe_switch_activated())
+      UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS
@@ -899,6 +910,9 @@ void Endstops::update() {
         hit = true;
       }
     #endif
+
+    if (TERN0(ENDSTOP_INTERRUPTS_FEATURE, hit)) update();
+
     return hit;
   }
 

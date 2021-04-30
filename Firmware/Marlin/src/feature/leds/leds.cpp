@@ -42,6 +42,10 @@
   #include "pca9533.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_USE_RGB_LED)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
@@ -85,8 +89,11 @@ void LEDLights::set_color(const LEDColor &incol
 
     #ifdef NEOPIXEL_BKGD_LED_INDEX
       if (NEOPIXEL_BKGD_LED_INDEX == nextLed) {
-        if (++nextLed >= neo.pixels()) nextLed = 0;
-        return;
+        neo.set_color_background();
+        if (++nextLed >= neo.pixels()) {
+          nextLed = 0;
+          return;
+        }
       }
     #endif
 
@@ -114,12 +121,13 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define UPDATE_RGBW(C,c) do {                       \
-      if (PWM_PIN(RGB_LED_##C##_PIN))                   \
-        analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
-      else                                              \
-        WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); \
+    #define _UPDATE_RGBW(C,c) do {                \
+      if (PWM_PIN(RGB_LED_##C##_PIN))             \
+        analogWrite(pin_t(RGB_LED_##C##_PIN), c); \
+      else                                        \
+        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW); \
     }while(0)
+    #define UPDATE_RGBW(C,c) _UPDATE_RGBW(C, TERN1(CASE_LIGHT_USE_RGB_LED, caselight.on) ? incol.c : 0)
     UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
     #if ENABLED(RGBW_LED)
       UPDATE_RGBW(W,w);
@@ -147,11 +155,13 @@ void LEDLights::set_color(const LEDColor &incol
   millis_t LEDLights::led_off_time; // = 0
 
   void LEDLights::update_timeout(const bool power_on) {
-    const millis_t ms = millis();
-    if (power_on)
-      reset_timeout(ms);
-    else if (ELAPSED(ms, led_off_time))
-      set_off();
+    if (lights_on) {
+      const millis_t ms = millis();
+      if (power_on)
+        reset_timeout(ms);
+      else if (ELAPSED(ms, led_off_time))
+        set_off();
+    }
   }
 
 #endif

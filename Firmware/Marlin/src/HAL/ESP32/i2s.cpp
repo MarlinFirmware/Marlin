@@ -139,7 +139,7 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
   I2S0.int_clr.val = I2S0.int_st.val; //clear pending interrupt
 }
 
-void stepperTask(void* parameter) {
+void stepperTask(void *parameter) {
   uint32_t remaining = 0;
 
   while (1) {
@@ -184,7 +184,7 @@ int i2s_init() {
 
   // Allocate the array of pointers to the buffers
   dma.buffers = (uint32_t **)malloc(sizeof(uint32_t*) * DMA_BUF_COUNT);
-  if (dma.buffers == nullptr) return -1;
+  if (!dma.buffers) return -1;
 
   // Allocate each buffer that can be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
@@ -194,7 +194,7 @@ int i2s_init() {
 
   // Allocate the array of DMA descriptors
   dma.desc = (lldesc_t**) malloc(sizeof(lldesc_t*) * DMA_BUF_COUNT);
-  if (dma.desc == nullptr) return -1;
+  if (!dma.desc) return -1;
 
   // Allocate each DMA descriptor that will be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {

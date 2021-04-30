@@ -58,7 +58,7 @@
 #define PCA9632_AUTOGLO     0xC0
 #define PCA9632_AUTOGI      0xE0
 
-// Red=LED0   Green=LED1   Blue=LED2
+// Red=LED0   Green=LED1   Blue=LED2  White=LED3
 #ifndef PCA9632_RED
   #define PCA9632_RED 0x00
 #endif
@@ -68,9 +68,12 @@
 #ifndef PCA9632_BLU
   #define PCA9632_BLU 0x04
 #endif
+#if HAS_WHITE_LED && !defined(PCA9632_WHT)
+  #define PCA9632_WHT 0x06
+#endif
 
 // If any of the color indexes are greater than 0x04 they can't use auto increment
-#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04)
+#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04 || PCA9632_WHT > 0x04)
   #define PCA9632_NO_AUTO_INC
 #endif
 
@@ -89,25 +92,28 @@ static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte
   Wire.endTransmission();
 }
 
-static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb) {
+static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb
+  #if ENABLED(PCA9632_RGBW)
+    , const byte vw
+  #endif
+) {
   #if DISABLED(PCA9632_NO_AUTO_INC)
-    uint8_t data[4], len = 4;
+    uint8_t data[4];
     data[0] = PCA9632_AUTO_IND | regadd;
     data[1 + (PCA9632_RED >> 1)] = vr;
     data[1 + (PCA9632_GRN >> 1)] = vg;
     data[1 + (PCA9632_BLU >> 1)] = vb;
+    Wire.beginTransmission(I2C_ADDRESS(addr));
+    Wire.write(data, sizeof(data));
+    Wire.endTransmission();
   #else
-    uint8_t data[6], len = 6;
-    data[0] = regadd + (PCA9632_RED >> 1);
-    data[1] = vr;
-    data[2] = regadd + (PCA9632_GRN >> 1);
-    data[3] = vg;
-    data[4] = regadd + (PCA9632_BLU >> 1);
-    data[5] = vb;
+    PCA9632_WriteRegister(addr, regadd + (PCA9632_RED >> 1), vr);
+    PCA9632_WriteRegister(addr, regadd + (PCA9632_GRN >> 1), vg);
+    PCA9632_WriteRegister(addr, regadd + (PCA9632_BLU >> 1), vb);
+    #if ENABLED(PCA9632_RGBW)
+      PCA9632_WriteRegister(addr, regadd + (PCA9632_WHT >> 1), vw);
+    #endif
   #endif
-  Wire.beginTransmission(I2C_ADDRESS(addr));
-  Wire.write(data, len);
-  Wire.endTransmission();
 }
 
 #if 0
@@ -130,9 +136,17 @@ void PCA9632_set_led_color(const LEDColor &color) {
 
   const byte LEDOUT = (color.r ? LED_PWM << PCA9632_RED : 0)
                     | (color.g ? LED_PWM << PCA9632_GRN : 0)
-                    | (color.b ? LED_PWM << PCA9632_BLU : 0);
+                    | (color.b ? LED_PWM << PCA9632_BLU : 0)
+                    #if ENABLED(PCA9632_RGBW)
+                      | (color.w ? LED_PWM << PCA9632_WHT : 0)
+                    #endif
+                    ;
 
-  PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b);
+  PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
+    #if ENABLED(PCA9632_RGBW)
+      , color.w
+    #endif
+  );
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
 

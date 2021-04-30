@@ -62,13 +62,11 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#if NOT_TARGET(__AVR_AT90USB1286__)
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME         "SAV MkI"
 #define DEFAULT_MACHINE_NAME    BOARD_INFO_NAME
-#define DEFAULT_SOURCE_CODE_URL "https://tinyurl.com/onru38b"
+#define DEFAULT_SOURCE_CODE_URL "tinyurl.com/onru38b"
 
 //
 // Servos

@@ -23,7 +23,7 @@
 
 #define CPU_32_BIT
 
-#define F_CPU 100000000
+#define F_CPU 100000000UL
 #define SystemCoreClock F_CPU
 #include <iostream>
 #include <stdint.h>
@@ -60,8 +60,8 @@ uint8_t _getc();
 
 #define SHARED_SERVOS HAS_SERVOS
 
-extern HalSerial usb_serial;
-#define MYSERIAL0 usb_serial
+extern MSerialT usb_serial;
+#define MYSERIAL1 usb_serial
 
 #define ST7920_DELAY_1 DELAY_NS(600)
 #define ST7920_DELAY_2 DELAY_NS(750)
@@ -79,10 +79,16 @@ extern HalSerial usb_serial;
 inline void HAL_init() {}
 
 // Utility functions
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 // ADC
 #define HAL_ADC_VREF           5.0
@@ -101,14 +107,9 @@ uint16_t HAL_adc_get_result();
 inline void HAL_clear_reset_source(void) {}
 inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot(); // Reset the application state and GPIO
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {
   Clock::delayCycles(x);
 }
-
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
-#endif
