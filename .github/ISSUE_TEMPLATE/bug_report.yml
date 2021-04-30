@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: 🐜 Report a bug
 description: Create a bug report to help improve the CR-6 Community Firmware
 title: "[BUG] (bug summary)"
@@ -8,6 +9,18 @@ body:
         Do you want to ask a question? Are you looking for support? Please use one of the [support links](https://github.com/CR6Community/Marlin/issues/new/choose).
 
   - type: textarea
+=======
+name: 🪲 Report a bug
+description: Create a bug report to help improve Marlin Firmware
+title: "[BUG] (bug summary)"
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Do you want to ask a question? Are you looking for support? Please use one of the [support links](https://github.com/MarlinFirmware/Marlin/issues/new/choose).
+
+  - type: markdown
+>>>>>>> upstream/2.0.x
     attributes:
       value: |
         **Thank you for reporting a bug in Marlin Firmware!**
@@ -16,6 +29,7 @@ body:
 
         - Read and understand Marlin's [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
 
+<<<<<<< HEAD
         - Test with the [`extui` branch](https://github.com/CR6Community/Marlin/archive/extui.zip) or [the latest prerelease](https://github.com/CR6Community/Marlin/releases/) to see whether the issue still exists.
 
         - Check if [the issue has been reported earlier](https://github.com/CR6Community/Marlin/issues?q=).
@@ -25,6 +39,13 @@ body:
         ## Instructions
 
         Please follow the instructions below. Failure to do so may result in your issue being closed. 
+=======
+        - Test with the [`bugfix-2.0.x` branch](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip) to see whether the issue still exists.
+
+        ## Instructions
+
+        Please follow the instructions below. Failure to do so may result in your issue being closed. See [Contributing to Marlin](https://github.com/MarlinFirmware/Marlin/blob/2.0.x/.github/contributing.md) for additional guidelines.
+>>>>>>> upstream/2.0.x
 
         1. Provide a good title starting with [BUG].
         2. Fill out all sections of this bug report form.
@@ -32,6 +53,7 @@ body:
 
   - type: dropdown
     attributes:
+<<<<<<< HEAD
       label: Did you test the latest `extui` code or prerelease?
       description: >-
         Always try the latest code to make sure the issue you are reporting is not already fixed. To download
@@ -45,6 +67,19 @@ body:
       required: true
 
   - type: textarea
+=======
+      label: Did you test the latest `bugfix-2.0.x` code?
+      description: >-
+        Always try the latest code to make sure the issue you are reporting is not already fixed. To download
+        the latest code just [click this link](https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip).
+      options:
+        - Yes, and the problem still exists.
+        - No, but I will test it now!
+    validations:
+      required: true
+
+  - type: markdown
+>>>>>>> upstream/2.0.x
     attributes:
       value: |
         # Bug Details
@@ -64,7 +99,11 @@ body:
   - type: input
     attributes:
       label: Bug Timeline
+<<<<<<< HEAD
       description: Is this a new bug or an old issue? When did it first start? Did this happen on the stock firmware as well?
+=======
+      description: Is this a new bug or an old issue? When did it first start?
+>>>>>>> upstream/2.0.x
 
   - type: textarea
     attributes:
@@ -89,13 +128,18 @@ body:
         2. [Second Step] ...
         3. [and so on] ...
 
+<<<<<<< HEAD
   - type: textarea
+=======
+  - type: markdown
+>>>>>>> upstream/2.0.x
     attributes:
       value: |
         # Your Setup
 
   - type: input
     attributes:
+<<<<<<< HEAD
       label: Version of CR6Community Firmware
       description: "See the Info Menu on the TFT or the output of `M115`. NOTE: For older releases we only patch critical bugs."
     validations:
@@ -144,11 +188,31 @@ body:
     attributes:
       label: Mods
       description: Different electronics, hot-end setup, extruder setup?
+=======
+      label: Version of Marlin Firmware
+      description: "See the About Menu on the LCD or the output of `M115`. NOTE: For older releases we only patch critical bugs."
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Printer model
+      description: Creality Ender 3, Prusa mini, or Kossel Delta?
+
+  - type: input
+    attributes:
+      label: Electronics
+      description: Stock electronics, upgrade board, or something else?
+>>>>>>> upstream/2.0.x
 
   - type: input
     attributes:
       label: Add-ons
+<<<<<<< HEAD
       description: Please list any other hardware add-ons that could be involved.
+=======
+      description: Please list any hardware add-ons that could be involved.
+>>>>>>> upstream/2.0.x
 
   - type: dropdown
     attributes:
@@ -168,13 +232,21 @@ body:
       description: Do you use OctoPrint, Repetier Host, Pronterface...?
       options:
         - SD Card (headless)
+<<<<<<< HEAD
+=======
+        - Repetier Host
+>>>>>>> upstream/2.0.x
         - OctoPrint
         - Pronterface
         - Cura
         - Same as my slicer
         - Other (explain below)
 
+<<<<<<< HEAD
   - type: textarea
+=======
+  - type: markdown
+>>>>>>> upstream/2.0.x
     attributes:
       value: >-
         ## Other things to include
@@ -189,4 +261,12 @@ body:
 
         If you've made any other modifications to the firmware, please describe them in detail in the space provided.
 
+<<<<<<< HEAD
         When pasting formatted text into the box below don't forget to put ` ``` ` (on its own line) before and after to make it readable.
+=======
+        When pasting formatted text into the box below don't forget to put ` ``` ` (on its own line) before and after to make it readable.
+
+  - type: textarea
+    attributes:
+      label: Additional information & file uploads
+>>>>>>> upstream/2.0.x
