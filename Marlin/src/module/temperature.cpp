@@ -1253,8 +1253,8 @@ void Temperature::manage_heater() {
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
-        if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
-          if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
+        if (watch_hotend[e].elapsed(ms)) {                // Time to check this extruder?
+          if (degHotend(e) < watch_hotend[e].target) {    // Failed to increase enough?
             TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
@@ -1296,12 +1296,12 @@ void Temperature::manage_heater() {
 
     #if WATCH_BED
       // Make sure temperature is increasing
-      if (watch_bed.elapsed(ms)) {        // Time to check the bed?
-        if (degBed() < watch_bed.target) {                              // Failed to increase enough?
+      if (watch_bed.elapsed(ms)) {            // Time to check the bed?
+        if (degBed() < watch_bed.target) {    // Failed to increase enough?
           TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
-        else                                                            // Start again if the target is still far off
+        else                                  // Start again if the target is still far off
           start_watching_bed();
       }
     #endif // WATCH_BED
