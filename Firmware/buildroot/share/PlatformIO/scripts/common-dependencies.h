@@ -26,8 +26,6 @@
  * Used by common-dependencies.py
  */
 
-#define NUM_SERIAL 1 // Normally provided by HAL/HAL.h
-
 #include "../../../../Marlin/src/inc/MarlinConfig.h"
 
 //
@@ -37,7 +35,9 @@
   // Feature checks for SR_LCD_3W_NL
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
   #define USES_LIQUIDTWI2
-#elif ANY(HAS_MARLINUI_HD44780, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+#elif ENABLED(LCD_I2C_TYPE_PCA8574)
+  #define USES_LIQUIDCRYSTAL_I2C
+#elif ANY(HAS_MARLINUI_HD44780, LCD_I2C_TYPE_PCF8575, SR_LCD_2W_NL, LCM1602)
   #define USES_LIQUIDCRYSTAL
 #endif
 
@@ -66,9 +66,6 @@
   #endif
   #if ENABLED(CANCEL_OBJECTS)
     #define HAS_MENU_CANCELOBJECT
-  #endif
-  #if ENABLED(CUSTOM_USER_MENUS)
-    #define HAS_MENU_CUSTOM
   #endif
   #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
     #define HAS_MENU_DELTA_CALIBRATE
@@ -108,6 +105,9 @@
   #endif
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     #define HAS_MENU_TOUCH_SCREEN
+  #endif
+  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+    #define HAS_MENU_TRAMMING
   #endif
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     #define HAS_MENU_UBL
