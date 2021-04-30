@@ -350,15 +350,13 @@ void menu_backlash();
 
 #if DISABLED(SLIM_LCD_MENUS)
 
-  #if ENABLED(DISTINCT_E_FACTORS)
-    inline void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) planner.reset_acceleration_rates(); }
-    inline void _planner_refresh_e_positioning(const uint8_t e) {
-      if (e == active_extruder)
-        planner.refresh_positioning();
-      else
-        planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
-    }
-  #endif
+  inline void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) planner.reset_acceleration_rates(); }
+  inline void _planner_refresh_e_positioning(const uint8_t e) {
+    if (e == active_extruder)
+      planner.refresh_positioning();
+    else
+      planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
+  }
 
   // M203 / M205 Velocity options
   void menu_advanced_velocity() {
@@ -515,17 +513,6 @@ void menu_backlash();
       END_MENU();
     }
   #endif
-
-#else  // !SLIM_LCD_MENUS           
-  #if ENABLED(DISTINCT_E_FACTORS)     
-    inline void _reset_e_acceleration_rate(const uint8_t e) { if (e == active_extruder) planner.reset_acceleration_rates(); }
-    inline void _planner_refresh_e_positioning(const uint8_t e) {
-      if (e == active_extruder)
-        planner.refresh_positioning();
-      else
-        planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
-    }
-  #endif 
 
 #endif // !SLIM_LCD_MENUS
 
