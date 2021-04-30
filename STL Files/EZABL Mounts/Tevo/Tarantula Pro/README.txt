@@ -1,0 +1,3 @@
+The Tevo Tarantula Pro uses a 3 pin endstop switch on all axis. These carry the Signal, 5V, and GND lines. The 5V line is there to light up the status LED on the endstop boards. This however is not needed and must be removed before connecting the EZABL control board to the endstop wiring. Due to the pin layout with the EZABL board it will short 5V to GND so it must be removed. This will not affect the function of the Z endstop switch at all if you choose to revert back to manual leveling. See the picture labeled "ENDSTOP MOD" to see how what wire to remove.
+
+Once the wire is clipped you can “peel” that clipped wire off the bundle of wires all the way back to the plug that connects to the Tevo Tarantula control board or just tape the end off with electrical tape.
