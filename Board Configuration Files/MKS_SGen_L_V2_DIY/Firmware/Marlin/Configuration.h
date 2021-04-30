@@ -78,13 +78,15 @@
  * INVERT_X_DIR - Changing from false to true changes the direction of the X axis
  * INVERT_Y_DIR - Changing from false to true changes the direction of the Y axis
  * INVERT_Z_DIR - Changing from false to true changes the direction of the Z axis
- * INVERT_E0_DIR - Changing from false to true changes the direction of the Extruder motor <- Hotend must be over 170C for the motor to move
+ * INVERT_E0_DIR - Changing from false to true changes the direction of the 1st Extruder motor <- Hotend must be over 170C for the motor to move
+ * INVERT_E1_DIR - Changing from false to true changes the direction of the 2nd Extruder motor <- Hotend must be over 170C for the motor to move
  */
 
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
 #define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
 
 /**
  * Endstop Logic Settings
@@ -118,10 +120,10 @@
  */
 
 // Steps per MM -------------------------------------------------------------
-#define X_STEPS_MM 80
-#define Y_STEPS_MM 80
-#define Z_STEPS_MM 400
-#define E_STEPS_MM 95
+#define X_STEPS_MM  80
+#define Y_STEPS_MM  80
+#define Z_STEPS_MM  400
+#define E0_STEPS_MM 95
 
 // Acceleration Settings ----------------------------------------------------
 #define DEFAULT_ACCELERATION          500
@@ -191,14 +193,17 @@
 #define Y_MOTOR_CURRENT 600
 #define Z_MOTOR_CURRENT 800
 #define E0_MOTOR_CURRENT 800
+#define E1_MOTOR_CURRENT 800
 
 // Motor Mode - If you want more torque on an axis change to spreadcycle ----
 //#define XY_SPREADCYCLE
 //#define Z_SPREADCYCLE
 
 // Filament Sensor Options --------------------------------------------------
-// If you are using our EZOut Sensor connect to the FIL SENSOR header with the RED wire lined up with the "5V" marking by the header and uncomment the below line.
+// If you are using our EZOut Sensor connect to the X+ header with the RED wire lined up with the "5V" marking by the header and uncomment the below line.
+// If you have 2, uncomment the EZOUTV2_DUAL_ENABLE instead of EZOUTV2_ENABLE. The 2nd sensor connects like the 1st, but to the Y+ header.
 //#define EZOUTV2_ENABLE
+//#define EZOUTV2_DUAL_ENABLE
 
 // If you are using the Creality CR-10S Sensor connect to the FIL SENSOR header with the RED wire lined up with the "5V" marking by the header and uncomment the below line.
 //#define CR10S_STOCKFILAMENTSENSOR
@@ -234,12 +239,25 @@
 
 // Extra Fan Outputs --------------------------------------------------------
 // If you want to use the 2nd hotend output (HE1) for your controller fan, uncomment the below line
-// This fan will turn on based on if your stepper drivers are enabled or not
+// This fan will turn on based on if your stepper drivers are enabled or not - not available if using 2 hotends
 #define MKS_SGENL_V2_HE1_FAN
 
 // If you want to use the FAN2 output for your hotend fan, uncomment the below line.
 // This fan will turn on when your hotend temperature is at 50C or higher
 #define MKS_SGENL_V2_FAN2
+
+// Dual Extrusion Settings --------------------------------------------------
+// Set your 2nd E Motor steps and uncommend the below line
+//#define E1_STEPS_MM 95
+
+// For Cyclops or any "multi-extruder" that shares a single nozzle.
+//#define SINGLENOZZLE
+
+// 2nd Hotend Nozzle Offset
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotend it is the distance from the extruder 0 hotend.
+//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
+//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -441,7 +459,19 @@
 
 #define DIY_TMCBOARD
   
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E_STEPS_MM }
+#ifdef E1_STEPS_MM
+  #define Z_PROBE_LOW_POINT -10
+  #define DISTINCT_E_FACTORS
+  #define EXTRUDERS 2
+#else
+  #define EXTRUDERS 1
+#endif
+  
+#ifdef E1_STEPS_MM
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E0_STEPS_MM, E1_STEPS_MM }
+#else
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { X_STEPS_MM, Y_STEPS_MM, Z_STEPS_MM, E0_STEPS_MM }
+#endif
   
 #define DEFAULT_MAX_FEEDRATE          { 200, 200, 15, 50 }
 #define DEFAULT_MAX_ACCELERATION      { MAX_X_ACCEL, MAX_Y_ACCEL, 500, 5000 }
@@ -449,8 +479,6 @@
 #define CLASSIC_JERK
 
 #define SHOW_BOOTSCREEN
-  
-#define EXTRUDERS 1
   
 #if ENABLED(HOME_ADJUST)
   #define X_MIN_POS X_HOME_LOCATION
@@ -476,7 +504,15 @@
   #endif
 #endif
   
-#define TEMP_SENSOR_1 0 
+#ifdef E1_STEPS_MM
+  #if DISABLED(SINGLENOZZLE)
+    #define TEMP_SENSOR_1 TEMP_SENSOR_0
+  #else
+    #define TEMP_SENSOR_1 0
+  #endif
+#else
+  #define TEMP_SENSOR_1 0 
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -514,13 +550,15 @@
 #define Y_DRIVER_TYPE  TMC2209
 #define Z_DRIVER_TYPE  TMC2209
 #define E0_DRIVER_TYPE TMC2209
+#ifdef E1_STEPS_MM
+  #define E1_DRIVER_TYPE TMC2209
+#endif
 
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
 #define E_ENABLE_ON 0
 
-#define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -547,6 +585,10 @@
 #define ENCODER_PULSES_PER_STEP 4
 #define ENCODER_STEPS_PER_MENU_ITEM 1
 
+#if ENABLED(EZOUTV2_DUAL_ENABLE)
+  #define EZOUTV2_ENABLE
+#endif
+
 #if ENABLED(EZOUTV2_ENABLE) || ENABLED(CR10S_STOCKFILAMENTSENSOR)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
@@ -554,7 +596,14 @@
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
-  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+  #if ENABLED(EZOUTV2_DUAL_ENABLE)
+    #define NUM_RUNOUT_SENSORS   2          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_RUNOUT_PIN P1_28
+    #define FIL_RUNOUT2_PIN P1_26
+  #else
+    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_RUNOUT_PIN P1_28
+  #endif
   
   #if ENABLED(EZOUTV2_ENABLE)
     #define FIL_RUNOUT_STATE LOW  // Pin state indicating that filament is NOT present.

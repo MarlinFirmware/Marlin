@@ -1,0 +1,4 @@
+NOTES:
+
+You will need 2x M3x12mm screws to use the OEM Mount.
+See here for an overview of how we installed the EZABL Pro on our CR-X: https://www.youtube.com/watch?v=T7CzxXCIwyM

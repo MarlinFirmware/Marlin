@@ -1,0 +1,1 @@
+This mounts on the left side of the hotend in front of the X endstop switch with 2x M3x15mm screws and nuts.

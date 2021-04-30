@@ -427,6 +427,19 @@
 #endif
 
 #if ENABLED(MKS_SGENL_V2_HE1_FAN)
+  #ifdef E1_STEPS_MM
+    #if ENABLED(SINGLENOZZLE)
+      #define USE_CONTROLLER_FAN
+      #define CONTROLLER_FAN_PIN       P2_06
+      #define CONTROLLERFAN_IDLE_TIME     60
+      #define CONTROLLERFAN_SPEED_MIN      0
+      #define CONTROLLERFAN_SPEED_ACTIVE 255
+      #define CONTROLLER_FAN_EDITABLE
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        #define CONTROLLER_FAN_MENU
+      #endif
+    #endif
+  #else
   #define USE_CONTROLLER_FAN
   #define CONTROLLER_FAN_PIN       P2_06
   #define CONTROLLERFAN_IDLE_TIME     60
@@ -435,6 +448,7 @@
   #define CONTROLLER_FAN_EDITABLE
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     #define CONTROLLER_FAN_MENU
+    #endif
   #endif
 #endif
 
@@ -2509,8 +2523,14 @@
     #define E0_CHAIN_POS     -1
   #endif
 
-  #if AXIS_IS_TMC(E1)
-    #define E1_CURRENT      800
+  #if AXIS_IS_TMC(E1) || ENABLED(DIY_TMCBOARD)
+    #if ENABLED(PANCAKE_STEPPER)
+      #define E1_CURRENT    600
+    #elif E0_MOTOR_CURRENT > 0
+      #define E1_CURRENT E1_MOTOR_CURRENT
+    #else
+      #define E1_CURRENT    800
+    #endif
     #define E1_MICROSTEPS    16
     #define E1_RSENSE         0.11
     #define E1_CHAIN_POS     -1

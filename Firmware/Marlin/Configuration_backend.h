@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.26"
+#define UNIFIED_VERSION "TH3D UFW 2.27"
 
 /**
  * TH3D Sanity Checks
@@ -331,7 +331,7 @@
   #define LEVELED_SEGMENT_LENGTH 5.0
   
   #undef Z_PROBE_OFFSET_RANGE_MIN
-  #define Z_PROBE_OFFSET_RANGE_MIN    -5
+  #define Z_PROBE_OFFSET_RANGE_MIN    -10
   #undef Z_PROBE_OFFSET_RANGE_MAX
   #define Z_PROBE_OFFSET_RANGE_MAX     1
   
