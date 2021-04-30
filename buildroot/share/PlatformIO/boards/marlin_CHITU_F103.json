@@ -15,8 +15,7 @@
       ]
     ],
     "mcu": "stm32f103zet6",
-    "variant": "CHITU_F103",
-    "ldscript": "chitu_f103.ld"
+    "variant": "marlin_CHITU_F103"
   },
   "debug": {
     "jlink_device": "STM32F103ZE",

@@ -1,6 +1,6 @@
 cls
-Write-Output 'Clean Up'
-Set-Location -Path 'D:\Users\Miguel\Documents\Trabajos\VSCode\Marlin_Ender3v2_Development'
+Write-Output 'Clean Up' 
+Set-Location -Path 'D:\Users\Miguel\Documents\Trabajos\VSCode\Marlin_Ender3v2-Development'
 Rename-Item -Path '.\.pio\build' -NewName 'build-' -Force
 Remove-Item '.\.pio\build-' -Recurse
 C:\Users\Miguel\.platformio\penv\Scripts\platformio run --target clean -e STM32F103RET6_creality

@@ -1,27 +1,16 @@
 {
   "build": {
     "core": "stm32",
-    "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F407xx",
-    "f_cpu": "168000000L",
-    "hwids": [
-      [
-        "0x1EAF",
-        "0x0003"
-      ],
-      [
-        "0x0483",
-        "0x3748"
-      ]
-    ],
-    "mcu": "stm32f407zgt6",
-    "variant": "LERDGE",
-    "ldscript": "LERDGE.ld"
+    "cpu": "cortex-m7",
+    "extra_flags": "-DSTM32H743xx",
+    "f_cpu": "400000000L",
+    "mcu": "stm32h743iit6",
+    "variant": "MARLIN_BTT_SKR_SE_BX"
   },
   "debug": {
-    "jlink_device": "STM32F407ZG",
-    "openocd_target": "stm32f4x",
-    "svd_path": "STM32F40x.svd",
+    "jlink_device": "STM32H743II",
+    "openocd_target": "stm32h7x",
+    "svd_path": "STM32H7x3.svd",
     "tools": {
       "stlink": {
         "server": {
@@ -31,7 +20,7 @@
             "-c",
             "transport select hla_swd",
             "-f",
-            "scripts/target/stm32f4x.cfg",
+            "scripts/target/stm32h7x.cfg",
             "-c",
             "reset_config none"
           ],
@@ -45,21 +34,23 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32F407ZGT6(192k RAM. 1024k Flash)",
+  "name": "STM32H743II (1024k RAM. 2048k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 196608,
-    "maximum_size": 1048576,
+    "maximum_ram_size": 1048576,
+    "maximum_size": 2097152,
     "protocol": "stlink",
     "protocols": [
       "stlink",
       "dfu",
-      "jlink"
+      "jlink",
+      "cmsis-dap"
     ],
+    "offset_address": "0x8020000",
     "require_upload_port": true,
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f407ZG.html",
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32h743ii.html",
   "vendor": "Generic"
 }

@@ -113,7 +113,6 @@ enum processID : uint8_t {
   PrintSpeed,
   PrintFlow,
 
-  // Window ID
   PauseOrStop,
   Popup_Window
 };
@@ -313,6 +312,8 @@ void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
 void HMI_PopupConfirm();
+void HMI_SaveProcessID(uint8_t id);
+void HMI_AudioFeedback(const bool success=true);
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_Startup();

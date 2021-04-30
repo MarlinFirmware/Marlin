@@ -620,7 +620,7 @@ void Draw_Prepare_Menu() {
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);        // Filament Management >
+    if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);        // Filament Management >
   #endif
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
   if (PVISI(PREPARE_CASE_MLEV)) Draw_Menu_Line(PSCROL(PREPARE_CASE_MLEV), ICON_ManualLev, GET_TEXT(MSG_MANUAL_LEVELING),true);  // Manual Leveling >
@@ -879,10 +879,12 @@ void Draw_Motion_Menu() {
 
 inline void Draw_Popup_Bkgd_60() {
   DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color, 14, 60, 258, 330);
+  DWIN_Draw_Rectangle(0, HMI_data.Selected_Color, 14, 60, 258, 330);
 }
 
 inline void Draw_Popup_Bkgd_105() {
   DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color, 14, 105, 258, 374);
+  DWIN_Draw_Rectangle(0, HMI_data.Selected_Color, 14, 105, 258, 374);
 }
 
 void Clear_Popup_Area() {
@@ -899,8 +901,7 @@ void DWIN_Popup_Window(uint8_t icon, const char *msg1, const char *msg2) {
 }
 
 void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2) {
-  last_checkkey = checkkey;
-  checkkey = Popup_Window;
+  HMI_SaveProcessID(Popup_Window);
   DWIN_Popup_Window(icon, msg1, msg2);  
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 280);
 }
@@ -2102,18 +2103,11 @@ void HMI_PauseOrStop() {
     if (select_print.now == 1) { // pause pressed
       if (HMI_flag.select_flag) {  // confirm pause
         HMI_flag.pause_action = true;
-        //ICON_Continue();
+        ICON_Continue();
         #if ENABLED(POWER_LOSS_RECOVERY)
           if (recovery.enabled) recovery.save(true);
         #endif
-        // queue.inject_P(PSTR("M25"));
-        card.pauseSDPrint();
-        print_job_timer.pause();
-        //host_action_pause();
-        planner.synchronize();
-        nozzle.park(0, HMI_data.Park_point);
-        disable_e_stepper(active_extruder);
-        safe_delay(100);
+        queue.inject_P(PSTR("M25"));
       }
       else {
         // cancel pause
@@ -2388,7 +2382,7 @@ void Draw_ManualMesh_Menu() {
 
 #include "../../../libs/buzzer.h"
 
-void HMI_AudioFeedback(const bool success=true) {
+void HMI_AudioFeedback(const bool success/*=true*/) {
   if (success) {
     buzzer.tone(100, 659);
     buzzer.tone(10, 0);
@@ -3513,8 +3507,6 @@ void HMI_Reboot() {
   wait_for_heatup = wait_for_user = false;    // Stop waiting for heating/user
   thermalManager.disable_all_heaters();
   planner.finish_and_disable();
-  last_checkkey = MainMenu;
-  checkkey = Popup_Window;
   DWIN_RebootScreen();
   HAL_reboot();
 }
@@ -4396,6 +4388,7 @@ void HMI_Tune() {
         break;
       #endif
       case TUNE_CASE_FCHNG:
+        Goto_PrintProcess;
         queue.inject_P(PSTR("M600 B2"));       
         break;
       case TUNE_CASE_FLOW: // Flow rate
@@ -4911,21 +4904,23 @@ void DWIN_HandleScreen() {
   }
 }
 
+void HMI_SaveProcessID(uint8_t id) {
+  if (checkkey!=id) {
+    last_checkkey=checkkey;
+    checkkey=id;
+  } 
+}
+
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
-  last_checkkey=checkkey;
-  checkkey=Homing;
+  HMI_SaveProcessID(Homing);
   DWIN_Popup_Window(ICON_BLTouch, "Homing XYZ", "Please wait until done.");
 }
 
 void DWIN_CompletedHoming() {
   HMI_flag.home_flag = false;
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
-  if (last_checkkey == Prepare) {
-    select_prepare.now = PREPARE_CASE_HOME;
-    index_prepare = MROWS;
-  }
-  else if (last_checkkey == MainMenu) {
+  if (dwin_abort_flag) {
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
     planner.finish_and_disable();
   }
@@ -4933,15 +4928,14 @@ void DWIN_CompletedHoming() {
 }
 
 void DWIN_MeshLevelingStart() {
-  last_checkkey = checkkey;
   #ifdef HAS_ONESTEP_LEVELING
-  checkkey = Leveling;
-  DWIN_Popup_Window(ICON_AutoLeveling, GET_TEXT(MSG_BED_LEVELING), "Please wait until done.");
+    HMI_SaveProcessID(Leveling);
+    DWIN_Popup_Window(ICON_AutoLeveling, GET_TEXT(MSG_BED_LEVELING), "Please wait until done.");
   #endif
   #ifdef MESH_BED_LEVELING 
-  checkkey = ManualMesh;
-  select_item.reset();
-  Draw_ManualMesh_Menu();
+    HMI_SaveProcessID(ManualMesh);
+    select_item.reset();
+    Draw_ManualMesh_Menu();
   #endif
 }
 
@@ -4961,13 +4955,11 @@ void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zva
 void DWIN_PidTuning(pidresult_t result){
   switch (result) {
     case PID_BED_START :
-      last_checkkey = checkkey;
-      checkkey = PidRunning;
+      HMI_SaveProcessID(PidRunning);
       DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for BED is running.");
       break;
     case PID_EXTR_START :
-      last_checkkey = checkkey;
-      checkkey = PidRunning;
+      HMI_SaveProcessID(PidRunning);
       DWIN_Popup_Window(ICON_TempTooHigh, GET_TEXT(MSG_PID_AUTOTUNE), "for Nozzle is running.");
       break;
     case PID_BAD_EXTRUDER_NUM :
@@ -5122,6 +5114,7 @@ void DWIN_PauseShow(const char message) {
     case PAUSE_MESSAGE_RESUME:   DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
     case PAUSE_MESSAGE_HEAT:     DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT));   break;
     case PAUSE_MESSAGE_HEATING:  DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING));break;
+    case PAUSE_MESSAGE_STATUS:
     default: break;
   }
 }
