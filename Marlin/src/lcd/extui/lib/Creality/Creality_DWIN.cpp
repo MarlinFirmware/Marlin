@@ -1,3 +1,36 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/* ****************************************
+ * lcd/extui/lib/Creality/Creality_DWIN.cpp
+ * ****************************************
+ * Extensible_UI implementation for Creality DWIN
+ * 10SPro, Max, CRX, and others
+ * Based original Creality release, ported to ExtUI for Marlin 2.0
+ * Written by Insanity Automation, sponsored by Tiny Machines 3D
+ *
+ * ***************************************/
+
+
 #include "Creality_DWIN.h"
 #include "FileNavigator.h"
 #include <HardwareSerial.h>
@@ -522,6 +555,7 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
 
 	if (len > 0)
 	{
+    if(len>20) len = 20; //databuf is 26 chars, loop adds 6 for header so limit data to 20
 		databuf[0] = FHONE;
 		databuf[1] = FHTWO;
 		databuf[2] = 3 + len;
@@ -653,6 +687,11 @@ void RTSSHOW::RTS_HandleData()
 	}
 
   switch(recdat.addr) {
+    case ProbeOffset_Z :
+      {
+        Checkkey = Zoffset_Value;
+        break;
+      }
     case Flowrate :
     case StepMM_X :
     case StepMM_Y :
@@ -660,7 +699,6 @@ void RTSSHOW::RTS_HandleData()
     case StepMM_E :
     case ProbeOffset_X :
     case ProbeOffset_Y :
-    case ProbeOffset_Z :
     case HotendPID_AutoTmp :
     case BedPID_AutoTmp :
     case HotendPID_P :
@@ -724,6 +762,8 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
         InforShowStatus = false;
         SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile Pre"));
         filenavigator.getFiles(0);
+        fileIndex = 0;
+        recordcount = 0;
         SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile Post"));
         RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
       }
@@ -873,21 +913,30 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
       {
         tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
       }
-
+      tmp_zprobe_offset = tmp_zprobe_offset; //Invert sign here so it follows below
+      SERIAL_ECHOLNPAIR("Requested Offset ", tmp_zprobe_offset);
       if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       {
-
-        smartAdjustAxis_steps(((getAxisSteps_per_mm(Z) * (getZOffset_mm() - tmp_zprobe_offset)) * -1), (axis_t)Z, false);
-        //babystepAxis_steps(((int)getAxisSteps_per_mm(Z) * (getZOffset_mm() - tmp_zprobe_offset) * -1), (axis_t)Z);
-        //setZOffset_mm(tmp_zprobe_offset);
+        int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, (axis_t)Z);
+        if(tmpSteps==0)
+        {
+          SERIAL_ECHOLNPGM_P(PSTR("Rounding to step"));
+          if(getZOffset_mm() < tmp_zprobe_offset)
+            tmpSteps = 1;
+          else
+            tmpSteps = -1;
+        }
+        smartAdjustAxis_steps(tmpSteps*-1, (axis_t)Z, false);
+        char zOffs[20], tmp1[11];
+        sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+        onStatusChanged(zOffs);
       }
       else
       {
+        onStatusChanged_P(PSTR("Requested Offset Beyond Limits"));
         RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
       }
-      char zOffs[20], tmp1[11];
-      sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-      onStatusChanged(zOffs);
+
       rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
       break;
 
@@ -1609,6 +1658,8 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           PrintStatue[1] = 0;
           PrinterStatusKey[0] = 1;
           PrinterStatusKey[1] = 3;
+          fileIndex = 0;
+          recordcount = 0;
         }
         else if(recdat.data[0] == 2) //Page Down
         {
@@ -1632,6 +1683,11 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
             //else
             filenavigator.getFiles(fileIndex);
           }
+        }
+        else if(recdat.data[0] == 4) //Page Up
+        {
+          SERIAL_ECHOLNPGM_P(PSTR("Refresh"));
+          injectCommands_P(PSTR("M22\nM21"));
         }
         else if (recdat.data[0] == 0) //	return to main page
         {
@@ -1682,6 +1738,8 @@ void onMediaInserted()
 	SERIAL_ECHOLNPGM_P(PSTR("***Initing card is OK***"));
   filenavigator.reset();
   filenavigator.getFiles(0);
+  fileIndex = 0;
+  recordcount = 0;
 }
 
 void onMediaError()
