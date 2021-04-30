@@ -34,8 +34,12 @@ if ($LASTEXITCODE -ne 0) {
     Write-FatalError "Error getting current revision"
 }
 
-Write-Info "Merging upstream..."
-git merge upstream/bugfix-2.0.x --no-ff
+[string] $CurrentBranch = $(git branch --show-current)
+$CurrentBranch = $CurrentBranch.Trim()
+$TargetBranch = if ($CurrentBranch -eq "extui") { "2.0.x" } else { "bugfix-2.0.x "}
+
+Write-Info "Merging upstream/$TargetBranch..."
+git merge "upstream/$TargetBranch" --no-ff
 
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "There appears to be merge conflicts. Opening merge tool."
