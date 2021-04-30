@@ -535,7 +535,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1));
+  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
