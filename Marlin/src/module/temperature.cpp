@@ -543,7 +543,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #define GTV(C,B,H) C_GTV(ischamber, C, B_GTV(isbed, B, H))
       const uint16_t watch_temp_period = GTV(WATCH_CHAMBER_TEMP_PERIOD, WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = GTV(WATCH_CHAMBER_TEMP_INCREASE, WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
-      const celsius_float_t watch_temp_target = celsius_float_t(target - watch_temp_increase + GTV(TEMP_CHAMBER_HYSTERESIS, TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
+      const celsius_float_t watch_temp_target = celsius_float_t(target - (watch_temp_increase + GTV(TEMP_CHAMBER_HYSTERESIS, TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1));
       millis_t temp_change_ms = next_temp_ms + SEC_TO_MS(watch_temp_period);
       celsius_float_t next_watch_temp = 0.0;
       bool heated = false;
@@ -1253,13 +1253,13 @@ void Temperature::manage_heater() {
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
-        if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
-          if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
+        if (watch_hotend[e].elapsed(ms)) {          // Enabled and time to check?
+          if (watch_hotend[e].check(degHotend(e)))  // Increased enough?
+            start_watching_hotend(e);               // If temp reached, turn off elapsed check
+          else {
             TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
-          else                                                                  // Start again if the target is still far off
-            start_watching_hotend(e);
         }
       #endif
 
@@ -1296,13 +1296,13 @@ void Temperature::manage_heater() {
 
     #if WATCH_BED
       // Make sure temperature is increasing
-      if (watch_bed.elapsed(ms)) {        // Time to check the bed?
-        if (degBed() < watch_bed.target) {                              // Failed to increase enough?
+      if (watch_bed.elapsed(ms)) {              // Time to check the bed?
+        if (watch_bed.check(degBed()))          // Increased enough?
+          start_watching_bed();                 // If temp reached, turn off elapsed check
+        else {
           TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
-        else                                                            // Start again if the target is still far off
-          start_watching_bed();
       }
     #endif // WATCH_BED
 
@@ -1377,11 +1377,11 @@ void Temperature::manage_heater() {
 
     #if WATCH_CHAMBER
       // Make sure temperature is increasing
-      if (watch_chamber.elapsed(ms)) {              // Time to check the chamber?
-        if (degChamber() < watch_chamber.target)    // Failed to increase enough?
-          _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+      if (watch_chamber.elapsed(ms)) {          // Time to check the chamber?
+        if (watch_chamber.check(degChamber()))  // Increased enough? Error below.
+          start_watching_chamber();             // If temp reached, turn off elapsed check.
         else
-          start_watching_chamber();                 // Start again if the target is still far off
+          _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
       }
     #endif
 
