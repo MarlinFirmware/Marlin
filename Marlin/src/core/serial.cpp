@@ -52,7 +52,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
     SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
 
-  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2);
+  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2, SERIAL_LEAF_3);
 #endif
 
 void serialprintPGM(PGM_P str) {
