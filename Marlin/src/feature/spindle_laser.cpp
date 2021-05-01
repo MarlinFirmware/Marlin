@@ -164,4 +164,3 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
 #endif // AIR_ASSIST
 
 #endif // HAS_CUTTER
-
