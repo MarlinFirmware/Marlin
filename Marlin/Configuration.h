@@ -932,13 +932,15 @@
  */
 #if ENABLED(ConfigurableThermistors)
   #define TEMP_SENSOR_0 1000
+#elif ENABLED(CrealityThermistor)
+  #define TEMP_SENSOR_0 1
 #elif ENABLED(SlicePT1000)
   #define TEMP_SENSOR_0 1047
 #elif ENABLED(HotendMosquito)
   #define TEMP_SENSOR_0 67
 #elif ENABLED(HotendE3D)
   #define TEMP_SENSOR_0 5
-#elif ANY(HotendStock, CrealityThermistor)
+#elif ENABLED(HotendStock)
   #define TEMP_SENSOR_0 1
 #endif
 
