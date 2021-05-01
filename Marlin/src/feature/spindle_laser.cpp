@@ -72,7 +72,7 @@ void SpindleLaser::init() {
     OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);            // Init Vacuum/Blower OFF
   #endif
   #if ENABLED(AIR_ASSIST)
-    OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);            // Init air assist off
+    OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
 }
 
