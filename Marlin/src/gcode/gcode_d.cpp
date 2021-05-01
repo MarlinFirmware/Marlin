@@ -216,7 +216,8 @@
         } break;
 
         case 102: { // D102 Test SD Read
-          card.openFileRead("test.gco");
+          char testfile[] = "test.gco";
+          card.openFileRead(testfile);
           if (!card.isFileOpen()) {
             SERIAL_ECHOLNPAIR("Failed to open test.gco to read.");
             return;
