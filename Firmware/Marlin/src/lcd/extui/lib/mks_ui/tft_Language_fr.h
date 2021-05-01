@@ -22,7 +22,7 @@
 #pragma once
 
 //*************法文****************************//
-#define TOOL_TEXT_FR                  "prêt"
+#define TOOL_TEXT_FR                  "Prêt"
 #define PREHEAT_TEXT_FR               "Préchauffe"
 #define MOVE_TEXT_FR                  "Déplace"
 #define HOME_TEXT_FR                  "Acceuil"
@@ -32,6 +32,8 @@
 #define AUTO_LEVELING_TEXT_FR         "AutoLevel"
 #define SET_TEXT_FR                   "Config"
 #define MORE_TEXT_FR                  "Plus"
+#define MORE_GCODE_FR                 "G-Code"
+#define MORE_ENTER_GCODE_FR           "Saisir G-Code"
 
 #define ADD_TEXT_FR                   "Ajouter"
 #define DEC_TEXT_FR                   "Réduire"
@@ -74,7 +76,7 @@
 #define PAGE_DOWN_TEXT_FR             "En bas"
 
 #define EXTRUDER_IN_TEXT_FR           "Insérer"
-#define EXTRUDER_OUT_TEXT_FR          "éjecter"
+#define EXTRUDER_OUT_TEXT_FR          "Éjecter"
 #define EXTRUDE_1MM_TEXT_FR           "1mm"
 #define EXTRUDE_5MM_TEXT_FR           "5mm"
 #define EXTRUDE_10MM_TEXT_FR          "10mm"
@@ -91,13 +93,13 @@
 #define FILESYS_TEXT_FR               "Fichier"
 #define WIFI_TEXT_FR                  "WiFi"
 #define FAN_TEXT_FR                   "Fan"
-#define ABOUT_TEXT_FR                 "A propos"
+#define ABOUT_TEXT_FR                 "À propos"
 #define BREAK_POINT_TEXT_FR           "Continuer"
 #define FILAMENT_TEXT_FR              "Remplacer"
 #define LANGUAGE_TEXT_FR              "Langue"
 #define MOTOR_OFF_TEXT_FR             "M-hors"
 #define MOTOR_OFF_XY_TEXT_FR          "M-hors-XY"
-#define SHUTDOWN_TEXT_FR              "Eteindre"
+#define SHUTDOWN_TEXT_FR              "Éteindre"
 #define MACHINE_PARA_FR               "Config"
 #define EEPROM_SETTINGS_FR            "Eeprom Set"
 
@@ -130,56 +132,35 @@
 #define FAN_TIPS2_TEXT_FR             "ventilateur\n0"
 
 #define FILAMENT_IN_TEXT_FR           "Insérer"
-#define FILAMENT_OUT_TEXT_FR          "éjecter"
+#define FILAMENT_OUT_TEXT_FR          "Éjecter"
 #define FILAMENT_EXT0_TEXT_FR         "Extr1"
 #define FILAMENT_EXT1_TEXT_FR         "Extr2"
 #define FILAMENT_HEAT_TEXT_FR         "Preheat"
 #define FILAMENT_STOP_TEXT_FR         "Arrêter"
-//#define FILAMENT_CHANGE_TEXT_FR     "Filament remplacer"
 #define FILAMENT_TIPS2_TEXT_FR        "T:"
 #define FILAMENT_TIPS3_TEXT_FR        "Insérer le filament..."
-#define FILAMENT_TIPS4_TEXT_FR        "éjecter le filament..."
+#define FILAMENT_TIPS4_TEXT_FR        "Éjecter le filament..."
 #define FILAMENT_TIPS5_TEXT_FR        "Température trop basse pour démarrer, chauffez svp"
 #define FILAMENT_TIPS6_TEXT_FR        "Terminé"
 
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_FR             "Please click <Insérer> or <éjecter> \nto replace filament!"
-  #define FILAMENT_CHANGE_TEXT_FR                   "Please click <Insérer> or <éjecter>,\nAfter pinter pause."
-  #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_FR         "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_FR       "Heating up the nozzle,please wait..."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_FR     "Heat completed,please load filament to extruder,and click <Confirmer> for start loading."
-  #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_FR     "Please load filament to extruder,and click <Confirmer> for start loading."
-  #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_FR    "Heat completed,please click <Confirmer> for start unloading.!"
-  #define FILAMENT_DIALOG_LOADING_TIPS_FR           "Is loading ,please wait!"
-  #define FILAMENT_DIALOG_UNLOADING_TIPS_FR         "Is unloading,please wait!"
-  #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_FR     "Load filament completed,click <Confirmer> for return!"
-  #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_FR   "Unload filament completed,click <Confirmer> for return!"
-#endif
-#define FILAMENT_CHANGE_TEXT_FR                   "Please click <Load> \nor <unload>,After \npinter pause."
-#define FILAMENT_DIALOG_LOAD_HEAT_TIPS_FR         "Heating up the nozzle,\nplease wait..."
-#define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_FR       "Heating up the nozzle,\nplease wait..."
-#define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_FR     "Heat completed,please load filament \nto extruder,and click <confirm> \nfor start loading."
-#define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_FR     "Please load filament to extruder,\nand click <confirm> for start loading."
-#define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_FR    "Heat completed,please \nclick <confirm> for start unloading.!"
-#define FILAMENT_DIALOG_LOADING_TIPS_FR           "Is loading ,please wait!"
-#define FILAMENT_DIALOG_UNLOADING_TIPS_FR         "Is unloading,please wait!"
-#define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_FR     "Load filament completed,\nclick <confirm> for return!"
-#define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_FR   "Unload filament completed,\nclick <confirm> for return!"
+#define FILAMENT_CHANGE_TEXT_FR                   "Veuillez presser <Load> \nou <unload>, après \nla pause."
+#define FILAMENT_DIALOG_LOAD_HEAT_TIPS_FR         "Chauffe de la tête\nPatientez SVP..."
+#define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_FR       "Chauffe de la tête\nPatientez SVP..."
+#define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_FR     "Tête chaude, veuillez charger le\nfilament dans l'extruder & <confirmer>\nle chargement."
+#define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_FR     "Veuillez charger le filament dans\nl'extruder & <confirmer> le chargement."
+#define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_FR    "Tête chaude, <confirmez>\npour le déchargement."
+#define FILAMENT_DIALOG_LOADING_TIPS_FR           "Chargement, patientez SVP."
+#define FILAMENT_DIALOG_UNLOADING_TIPS_FR         "Déchargement, patientez SVP."
+#define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_FR     "Chargement terminé,\n<confirmez> pour revenir!"
+#define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_FR   "Déchargement terminé,\n<confirmez> pour revenir!"
 
 
 #define PRE_HEAT_EXT_TEXT_FR          "E"
 #define PRE_HEAT_BED_TEXT_FR          "Bed"
 
 #define FILE_LOADING_FR               "Chargement......"
-#if 0
-  #define NO_FILE_AND_CHECK_FR        "Aucun fichier trouvé! Insérez une carte SD ou un disque U!"
-#else
-  #define NO_FILE_AND_CHECK_FR        "Aucun fichier,vérifiez à nouveau!"
-#endif
-
+#define NO_FILE_AND_CHECK_FR          "Aucun fichier, vérifiez à nouveau!"
 #define NO_FILE_FR                    "Pas de fichier!"
-
-
 
 #define EXTRUDER_TEMP_TEXT_FR         "Temper"
 #define EXTRUDER_E_LENGTH1_TEXT_FR    "Extruder1"
@@ -222,16 +203,16 @@
 #define TITLE_ADJUST_FR               "Réglage"
 #define TITLE_WIRELESS_FR             "Sans fil"
 #define TITLE_FILAMENT_FR             "Remplacer"
-#define TITLE_ABOUT_FR                "A propos"
+#define TITLE_ABOUT_FR                "À propos"
 #define TITLE_FAN_FR                  "Ventilateur"
 #define TITLE_LANGUAGE_FR             "Langue"
 #define TITLE_PAUSE_FR                "Pause"
-#define TITLE_CHANGESPEED_FR          "Speed"
+#define TITLE_CHANGESPEED_FR          "Vitesse"
 #define TITLE_CLOUD_TEXT_FR           "Cloud"
-#define TITLE_DIALOG_CONFIRM_FR       "Confirm"
+#define TITLE_DIALOG_CONFIRM_FR       "Confirmer"
 #define TITLE_FILESYS_FR              "FileSys"
 
-#define DIALOG_CLOSE_MACHINE_FR       "Closing machine......"
+#define DIALOG_CLOSE_MACHINE_FR       "Extinction..."
 
 #define AUTO_SHUTDOWN_FR              "Auto"
 #define MANUAL_SHUTDOWN_FR            "Manuel"
@@ -241,30 +222,29 @@
 #define DIALOG_OK_FR                  "OK"
 #define DIALOG_RESET_FR               "Réinitialiser"
 #define DIALOG_RETRY_FR               "Recommencez"
-#define DIALOG_DISABLE_FR             "Disable"
+#define DIALOG_DISABLE_FR             "Désactiver"
 #define DIALOG_PRINT_MODEL_FR         "Imprimer le fichier?"
 #define DIALOG_CANCEL_PRINT_FR        "Arrêter?"
 
 #define DIALOG_STOP_FR                "Arrêter"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_FR "Continuer?"
-//#define DIALOG_UNBIND_PRINTER_FR    "Non lié?"
 #define DIALOG_ERROR_TIPS1_FR         "Erreur:error:Aucun fichier, \nvérifiez à nouveau."
 #define DIALOG_ERROR_TIPS2_FR         "Erreur:La opération a échoué. \nVerifiez que le baudrate de l'écran et de \nla carte mère soient identique!"
 #define DIALOG_ERROR_TIPS3_FR         "Erreur: le nom du fichier ou le \nchemin d'accès est trop long."
-#define DIALOG_UNBIND_PRINTER_FR      "Unbind the printer?"
-#define DIALOG_FILAMENT_NO_PRESS_FR   "Filament detection switch is not pressed"
+#define DIALOG_UNBIND_PRINTER_FR      "Déconnecter l'imprimante?"
+#define DIALOG_FILAMENT_NO_PRESS_FR   "Détecteur de filament non pressé"
 #define DIALOG_PRINT_FINISH_FR        "L'impression est terminée!"
 #define DIALOG_PRINT_TIME_FR          "Temps d'impression: "
-#define DIALOG_REPRINT_FR             "Print again"
-#define DIALOG_WIFI_ENABLE_TIPS_FR    "The wifi module is being configured,\nplease wait a moment....."
+#define DIALOG_REPRINT_FR             "Réimprimer"
+#define DIALOG_WIFI_ENABLE_TIPS_FR    "Le module WIFI se charge\nAttendez SVP..."
 
 #define MESSAGE_PAUSING_FR        "Parking..."
 #define MESSAGE_CHANGING_FR       "Attente filament pour démarrer"
 #define MESSAGE_UNLOAD_FR         "Attente retrait du filament"
-#define MESSAGE_WAITING_FR        "Presser bouton,pour reprendre"
+#define MESSAGE_WAITING_FR        "Presser bouton, pour reprendre"
 #define MESSAGE_INSERT_FR         "Insérer filament et app. bouton pour continuer..."
 #define MESSAGE_LOAD_FR           "Attente chargement filament"
-#define MESSAGE_PURGE_FR          "Attente Purge filament"
+#define MESSAGE_PURGE_FR          "Attente purge filament"
 #define MESSAGE_RESUME_FR         "Attente reprise impression"
 #define MESSAGE_HEAT_FR           "Presser le bouton pour chauffer..."
 #define MESSAGE_HEATING_FR        "Buse en chauffe Patienter SVP..."
@@ -279,3 +259,10 @@
 #define EEPROM_STORE_TIPS_FR  "Stocker les paramètres dans l'EEPROM?"
 #define EEPROM_READ_TIPS_FR   "Lire les paramètres de l'EEPROM?"
 #define EEPROM_REVERT_TIPS_FR "Rétablir les paramètres par défaut d'usine?"
+
+#define MORE_CUSTOM1_TEXT_FR  MAIN_MENU_ITEM_1_DESC
+#define MORE_CUSTOM2_TEXT_FR  MAIN_MENU_ITEM_2_DESC
+#define MORE_CUSTOM3_TEXT_FR  MAIN_MENU_ITEM_3_DESC
+#define MORE_CUSTOM4_TEXT_FR  MAIN_MENU_ITEM_4_DESC
+#define MORE_CUSTOM5_TEXT_FR  MAIN_MENU_ITEM_5_DESC
+#define MORE_CUSTOM6_TEXT_FR  MAIN_MENU_ITEM_6_DESC

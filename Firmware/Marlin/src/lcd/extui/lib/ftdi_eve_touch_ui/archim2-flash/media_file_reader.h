@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -32,13 +32,13 @@
 class MediaFileReader {
   private:
     #if ENABLED(SDSUPPORT)
-      Sd2Card  card;
+      DiskIODriver_SPI_SD card;
       SdVolume volume;
       SdFile   root, file;
     #endif
 
   public:
-    bool open(const char* filename);
+    bool open(const char *filename);
     int16_t read(void *buff, size_t bytes);
     uint32_t size();
     void rewind();

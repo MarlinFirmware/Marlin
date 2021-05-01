@@ -1,9 +1,5 @@
 /**
- * THIS FILE CONTAINS BACKEND AND LOW LEVEL SETTINGS TO MAKE THE FIRMWARE WORK
- * DO NOT MODIFY ANYTHING IN THIS FILE UNLESS YOU ACTUALLY KNOW WHAT YOU ARE DOING
- * OR YOU WILL BREAK THE FIRMWARE.
- *
- * Based on Marlin 3D Printer Firmware
+ * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
@@ -1290,39 +1286,43 @@
 
 #endif // HAS_LCD_MENU
 
-// Scroll a longer status message into view
-#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
-  #define STATUS_MESSAGE_SCROLLING
+#if HAS_DISPLAY
+  // The timeout (in ms) to return to the status screen from sub-menus
+  #define LCD_TIMEOUT_TO_STATUS 10000
+
+  #if ENABLED(SHOW_BOOTSCREEN)
+    #define BOOTSCREEN_TIMEOUT 2000        // (ms) Total Duration to display the boot screen(s)
+    #if EITHER(HAS_MARLINUI_U8GLIB, TFT_COLOR_UI, SPACE_SAVER)
+      #define BOOT_MARLIN_LOGO_SMALL     // Show a smaller Marlin logo on the Boot Screen (saving lots of flash)
+    #endif
+  #endif
+
+  // Scroll a longer status message into view
+  #if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
+    #define STATUS_MESSAGE_SCROLLING
+  #endif
+
+  // On the Info Screen, display XY with one decimal place when possible
+  #if DISABLED(SPACE_SAVER) && DISABLED(SPACE_SAVER_2560)
+    #define LCD_DECIMAL_SMALL_XY
+  #endif
+  // Add an 'M73' G-code to set the current percentage
+  #if DISABLED(DWIN_CREALITY_LCD)
+    #define LCD_SET_PROGRESS_MANUALLY
+  #endif
+
+  // Show the E position (filament used) during printing
+  //#define LCD_SHOW_E_TOTAL
 #endif
 
-// On the Info Screen, display XY with one decimal place when possible
-#if DISABLED(SPACE_SAVER) && DISABLED(SPACE_SAVER_2560)
-  #define LCD_DECIMAL_SMALL_XY
-#endif
-
-// The timeout (in ms) to return to the status screen from sub-menus
-#define LCD_TIMEOUT_TO_STATUS 10000
-
-// Add an 'M73' G-code to set the current percentage
-#if DISABLED(DWIN_CREALITY_LCD)
-  #define LCD_SET_PROGRESS_MANUALLY
-#endif
-
-// Show the E position (filament used) during printing
-//#define LCD_SHOW_E_TOTAL
-
-#if ENABLED(SHOW_BOOTSCREEN)
-  #define BOOTSCREEN_TIMEOUT 2000        // (ms) Total Duration to display the boot screen(s)
-#endif
-
-#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY) && ANY(HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
+#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY) && ANY(HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, EXTENSIBLE_UI)
   //#define SHOW_REMAINING_TIME       // Display estimated time to completion
   #if ENABLED(SHOW_REMAINING_TIME)
     //#define USE_M73_REMAINING_TIME  // Use remaining time from M73 command instead of estimation
     //#define ROTATE_PROGRESS_DISPLAY // Display (P)rogress, (E)lapsed, and (R)emaining time
   #endif
 
-  #if HAS_MARLINUI_U8GLIB
+  #if EITHER(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI)
     //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
   #endif
 
@@ -1659,8 +1659,6 @@
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
-  //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  
   #if DISABLED(SPACE_SAVER) && DISABLED(KINGROON_KP3) && DISABLED(SPACE_SAVER_2560)
     #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
   #endif
@@ -2617,10 +2615,10 @@
       #if X_MOTOR_CURRENT > 0
         #define X_CURRENT X_MOTOR_CURRENT
       #else  
-        #define X_CURRENT       600        // (mA) RMS current. Multiply by 1.414 for peak current.
+        #define X_CURRENT       600      // (mA) RMS current. Multiply by 1.414 for peak current.
       #endif
       #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
-      #define X_MICROSTEPS     16    // 0..256
+      #define X_MICROSTEPS     16        // 0..256
       #define X_RSENSE          0.11
       #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
       //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
@@ -2629,10 +2627,10 @@
     #if AXIS_IS_TMC(X)
       #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
       #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
-      #define X_MICROSTEPS     16    // 0..256
+      #define X_MICROSTEPS     16        // 0..256
       #define X_RSENSE          0.11
-    #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
-    //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
+    #define X_CHAIN_POS      -1          // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
+    //#define X_INTERPOLATE  true        // Enable to override 'INTERPOLATE' for the X axis
   #endif
 
   #if AXIS_IS_TMC(X2)

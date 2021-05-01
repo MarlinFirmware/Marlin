@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -33,28 +33,28 @@
 /**
  * Formats a temperature string (e.g. "100°C")
  */
-void format_temp(char *str, float t1) {
+void format_temp(char *str, const_celsius_float_t t1) {
   sprintf_P(str, PSTR("%3d" S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C));
 }
 
 /**
  * Formats a temperature string for an idle heater (e.g. "100 °C / idle")
  */
-void format_temp_and_idle(char *str, float t1) {
+void format_temp_and_idle(char *str, const_celsius_float_t t1) {
   sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
 }
 
 /**
  * Formats a temperature string for an active heater (e.g. "100 / 200°C")
  */
-void format_temp_and_temp(char *str, float t1, float t2) {
+void format_temp_and_temp(char *str, const_celsius_float_t t1, const_celsius_float_t t2) {
   sprintf_P(str, PSTR("%3d / %3d" S_FMT), ROUND(t1), ROUND(t2), GET_TEXT(MSG_UNITS_C));
 }
 
 /**
  * Formats a temperature string for a material (e.g. "100°C (PLA)")
  */
-void format_temp_and_material(char *str, float t1, const char *material) {
+void format_temp_and_material(char *str, const_celsius_float_t t1, const char *material) {
   sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), ROUND(t1), GET_TEXT(MSG_UNITS_C), material);
 }
 

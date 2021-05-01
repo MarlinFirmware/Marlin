@@ -28,13 +28,12 @@
 #define MIN_EXT_SPEED_PERCENT    10
 #define MAX_EXT_SPEED_PERCENT   999
 
-extern void lv_draw_change_speed(void);
-extern void lv_clear_change_speed();
-extern void disp_speed_step();
-extern void disp_print_speed();
-extern void disp_speed_type();
+void lv_draw_change_speed();
+void lv_clear_change_speed();
+void disp_speed_step();
+void disp_print_speed();
+void disp_speed_type();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

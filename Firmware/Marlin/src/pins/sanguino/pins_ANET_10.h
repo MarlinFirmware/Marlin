@@ -152,7 +152,8 @@
 #if HAS_WIRED_LCD
 
   #define LCD_SDSS                            28
-  #if ENABLED(ADC_KEYPAD)
+
+  #if HAS_ADC_BUTTONS
     #if ENABLED(EZOUT_ENABLE)
       #define SERVO0_PIN     -1   // free for BLTouch/3D-Touch
       #define FIL_RUNOUT_PIN 27
@@ -166,29 +167,52 @@
     #define LCD_PINS_D6                       16
     #define LCD_PINS_D7                       17
     #define ADC_KEYPAD_PIN                     1
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
+  #elif IS_RRD_FG_SC
+
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
-    #if ENABLED(EZOUT_ENABLE)
-      #define SERVO0_PIN     -1   // free for BLTouch/3D-Touch
-      #define FIL_RUNOUT_PIN 29
+
+    #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+      #define SERVO0_PIN                      30
+      #define BEEPER_PIN                      27
+      #define LCD_PINS_RS                     29
+      #define LCD_PINS_ENABLE                 16
+      #define LCD_PINS_D4                     11
+      #define BTN_EN1                         28
+      #define BTN_EN2                         10
+      #define BTN_ENC                         17
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(250)
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(250)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(250)
     #else
-      #define SERVO0_PIN     29   // free for BLTouch/3D-Touch
-    #endif
-    #define BEEPER_PIN                        17
-    #define LCD_PINS_RS                       27
-    #define LCD_PINS_ENABLE                   28
-    #define LCD_PINS_D4                       30
-    #define BTN_EN1                           11
-    #define BTN_EN2                           10
-    #define BTN_ENC                           16
+      #if ENABLED(EZOUT_ENABLE)
+        #define SERVO0_PIN     -1   // free for BLTouch/3D-Touch
+        #define FIL_RUNOUT_PIN 29
+      #else
+        #define SERVO0_PIN     29   // free for BLTouch/3D-Touch
+      #endif
+      #define BEEPER_PIN                        17
+      #define LCD_PINS_RS                       27
+      #define LCD_PINS_ENABLE                   28
+      #define LCD_PINS_D4                       30
+      #define BTN_EN1                           11
+      #define BTN_EN2                           10
+      #define BTN_ENC                           16
       #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
   #endif
+
+  #endif
+
 #else
   #define SERVO0_PIN                          27
+#endif
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN              SERVO0_PIN
 #endif
 
 /**

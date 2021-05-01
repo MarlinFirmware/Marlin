@@ -49,7 +49,7 @@
 
 #include "ui_api.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/stepper.h"
@@ -118,7 +118,7 @@ void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
  *
  * the command portion begins after the :
  */
-void process_lcd_c_command(const char* command) {
+void process_lcd_c_command(const char *command) {
   const int target_val = command[1] ? atoi(command + 1) : -1;
   if (target_val < 0) {
     DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
@@ -153,7 +153,7 @@ void process_lcd_c_command(const char* command) {
  * time remaining (HH:MM:SS). The UI can't handle displaying a second hotend,
  * but the stock firmware always sends it, and it's always zero.
  */
-void process_lcd_eb_command(const char* command) {
+void process_lcd_eb_command(const char *command) {
   char elapsed_buffer[10];
   static uint8_t iteration = 0;
   duration_t elapsed;
@@ -172,17 +172,13 @@ void process_lcd_eb_command(const char* command) {
 
       sprintf_P(message_buffer,
         PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}{TQ:%03i}{TT:%s}"),
-        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
+        thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          int(thermalManager.degBed()), thermalManager.degTargetBed(),
+          thermalManager.wholeDegBed(), thermalManager.degTargetBed(),
         #else
           0, 0,
         #endif
-        #if ENABLED(SDSUPPORT)
-          done_pct,
-        #else
-          0,
-        #endif
+        TERN(SDSUPPORT, done_pct, 0),
         elapsed_buffer
       );
       write_to_lcd(message_buffer);
@@ -203,12 +199,12 @@ void process_lcd_eb_command(const char* command) {
  * X, Y, Z, A (extruder)
  */
 template<typename T>
-void j_move_axis(const char* command, const T axis) {
+void j_move_axis(const char *command, const T axis) {
   const float dist = atof(command + 1) / 10.0;
   ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
 };
 
-void process_lcd_j_command(const char* command) {
+void process_lcd_j_command(const char *command) {
   switch (command[0]) {
     case 'E': break;
     case 'A': j_move_axis<ExtUI::extruder_t>(command, ExtUI::extruder_t::E0); break;
@@ -241,7 +237,7 @@ void process_lcd_j_command(const char* command) {
  * T:-2537.4 E:0
  * Note only the curly brace stuff matters.
  */
-void process_lcd_p_command(const char* command) {
+void process_lcd_p_command(const char *command) {
 
   switch (command[0]) {
     case 'P':
@@ -301,15 +297,15 @@ void process_lcd_p_command(const char* command) {
  * {FILE:fcupdate.flg}
  * {SYS:OK}
  */
-void process_lcd_s_command(const char* command) {
+void process_lcd_s_command(const char *command) {
   switch (command[0]) {
     case 'I': {
       // temperature information
       char message_buffer[MAX_CURLY_COMMAND];
       sprintf_P(message_buffer, PSTR("{T0:%03i/%03i}{T1:000/000}{TP:%03i/%03i}"),
-        int(thermalManager.degHotend(0)), thermalManager.degTargetHotend(0),
+        thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
         #if HAS_HEATED_BED
-          int(thermalManager.degBed()), thermalManager.degTargetBed()
+          thermalManager.wholeDegBed(), thermalManager.degTargetBed()
         #else
           0, 0
         #endif
@@ -348,7 +344,7 @@ void process_lcd_s_command(const char* command) {
  * Currently {E:0} is not handled. Its function is unknown,
  * but it occurs during the temp window after a sys build.
  */
-void process_lcd_command(const char* command) {
+void process_lcd_command(const char *command) {
   const char *current = command;
 
   byte command_code = *current++;
@@ -414,8 +410,8 @@ void update_usb_status(const bool forceUpdate) {
   // This is mildly different than stock, which
   // appears to use the usb discovery status.
   // This is more logical.
-  if (last_usb_connected_status != MYSERIAL0 || forceUpdate) {
-    last_usb_connected_status = MYSERIAL0;
+  if (last_usb_connected_status != MYSERIAL1.connected() || forceUpdate) {
+    last_usb_connected_status = MYSERIAL1.connected();
     write_to_lcd_P(last_usb_connected_status ? PSTR("{R:UC}\r\n") : PSTR("{R:UD}\r\n"));
   }
 }
@@ -511,26 +507,34 @@ namespace ExtUI {
 
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
+  void onMediaInserted() {}
+  void onMediaError() {}
+  void onMediaRemoved() {}
   void onPlayTone(const uint16_t, const uint16_t) {}
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
   void onFactoryReset() {}
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
+  void onPostprocessSettings() {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
+    void onMeshLevelingStart() {}
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {}
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
   #endif
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // MALYAN_LCD

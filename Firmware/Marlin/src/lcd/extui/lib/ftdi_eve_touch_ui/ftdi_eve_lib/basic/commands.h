@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
   /****************************************************************************
@@ -115,6 +115,7 @@ class CLCD {
     static void     mem_write_8    (uint32_t reg_address, uint8_t w_data);
     static void     mem_write_16   (uint32_t reg_address, uint16_t w_data);
     static void     mem_write_32   (uint32_t reg_address, uint32_t w_data);
+    static void     mem_write_fill (uint32_t reg_address, uint8_t w_data, uint16_t len);
     static void     mem_write_bulk (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_pgm  (uint32_t reg_address, const void *data, uint16_t len, uint8_t padding = 0);
     static void     mem_write_bulk (uint32_t reg_address, progmem_str str, uint16_t len, uint8_t padding = 0);
@@ -195,7 +196,7 @@ class CLCD::CommandFifo {
     void execute();
 
     void cmd(uint32_t cmd32);
-    void cmd(void* data, uint16_t len);
+    void cmd(void *data, uint16_t len);
 
     void dlstart()      {cmd(FTDI::CMD_DLSTART);}
     void swap()         {cmd(FTDI::CMD_SWAP);}

@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -27,12 +27,6 @@
   #define COPYRIGHT_SIGN    u8"©"
 #else
   #define COPYRIGHT_SIGN    u8"(c)"
-#endif
-
-#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-  #define SUPERSCRIPT_TWO   u8"²"
-#else
-  #define SUPERSCRIPT_TWO   u8"^2"
 #endif
 
 #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
@@ -119,7 +113,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CAUTION                  = u8"Caution:";
   PROGMEM Language_Str MSG_HOT                      = u8"Hot!";
   PROGMEM Language_Str MSG_UNLOAD_FILAMENT          = u8"Unload/Retract";
-  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extruder";
+  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extrude";
   PROGMEM Language_Str MSG_MOMENTARY                = u8"Momentary";
   PROGMEM Language_Str MSG_CONTINUOUS               = u8"Continuous";
   PROGMEM Language_Str MSG_PLEASE_WAIT              = u8"Please wait...";
@@ -146,13 +140,16 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_START  = u8"Release to begin screen calibration";
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
-  PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS         = u8"Level X Axis";
   PROGMEM Language_Str MSG_BED_MAPPING_DONE         = u8"Bed mapping finished";
   PROGMEM Language_Str MSG_BED_MAPPING_INCOMPLETE   = u8"Not all points probed";
   PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
-  PROGMEM Language_Str MSG_SHOW_MESH                = u8"Show Bed Mesh";
+  PROGMEM Language_Str MSG_AXIS_LEVELING            = u8"Axis Leveling";
+  PROGMEM Language_Str MSG_PROBE_BED                = u8"Probe Mesh";
+  PROGMEM Language_Str MSG_SHOW_MESH                = u8"View Mesh";
+  PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test";
+  PROGMEM Language_Str MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
 
-  #ifdef TOUCH_UI_LULZBOT_BIO
+  #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";
     PROGMEM Language_Str MSG_RAISE_PLUNGER          = u8"Raise Plunger";
     PROGMEM Language_Str MSG_RELEASE_XY_AXIS        = u8"Release X and Y Axis";
@@ -162,9 +159,21 @@ namespace Language_en {
   #endif
 
   #ifdef TOUCH_UI_COCOA_PRESS
-    PROGMEM Language_Str MSG_ZONE_1                 = u8"Zone 1:";
-    PROGMEM Language_Str MSG_ZONE_2                 = u8"Zone 2:";
-    PROGMEM Language_Str MSG_ZONE_3                 = u8"Zone 3:";
+    PROGMEM Language_Str MSG_BODY                   = u8"Body";
+    PROGMEM Language_Str MSG_SELECT_CHOCOLATE_TYPE  = u8"Select Chocolate Type";
+    PROGMEM Language_Str MSG_EXTERNAL               = u8"External";
+    PROGMEM Language_Str MSG_CHOCOLATE              = u8"Chocolate";
+    PROGMEM Language_Str MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
+    PROGMEM Language_Str MSG_LOAD_UNLOAD            = u8"Load/Unload";
+    PROGMEM Language_Str MSG_FULL_LOAD              = u8"Full Load";
+    PROGMEM Language_Str MSG_FULL_UNLOAD            = u8"Full Unload";
+    PROGMEM Language_Str MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     PROGMEM Language_Str MSG_PREHEAT_FINISHED       = u8"Preheat finished";
+    PROGMEM Language_Str MSG_PREHEAT                = u8"Preheat";
+    PROGMEM Language_Str MSG_BUTTON_PAUSE           = u8"Pause";
+    PROGMEM Language_Str MSG_BUTTON_RESUME          = u8"Resume";
+    PROGMEM Language_Str MSG_ELAPSED_PRINT          = u8"Elapsed Print";
+    PROGMEM Language_Str MSG_XYZ_MOVE               = u8"XYZ Move";
+    PROGMEM Language_Str MSG_E_MOVE                 = u8"Extrusion Move";
   #endif
 }; // namespace Language_en

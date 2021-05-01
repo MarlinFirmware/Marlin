@@ -37,9 +37,7 @@
  *  RAMPS_PLUS_SF  (Spindle, Controller Fan)
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
- #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RAMPS 1.4 Plus"
 
@@ -73,7 +71,7 @@
 #undef E0_CS_PIN
 #undef E1_CS_PIN
 
-#if ENABLED(ULTRA_LCD) && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(NEWPANEL, PANEL_ONE)
+#if IS_ULTRA_LCD && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(IS_NEWPANEL, PANEL_ONE)
   #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     #undef LCD_PINS_RS
     #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42

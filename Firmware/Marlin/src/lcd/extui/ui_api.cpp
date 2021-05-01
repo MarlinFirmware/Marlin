@@ -38,14 +38,14 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -103,8 +103,12 @@
 namespace ExtUI {
   static struct {
     uint8_t printer_killed : 1;
-    TERN_(JOYSTICK, uint8_t jogging : 1);
-    TERN_(SDSUPPORT, uint8_t was_sd_printing : 1);
+    #if ENABLED(JOYSTICK)
+      uint8_t jogging : 1;
+    #endif
+    #if ENABLED(SDSUPPORT)
+      uint8_t was_sd_printing : 1;
+    #endif
   } flags;
 
   #ifdef __SAM3X8E__
@@ -123,7 +127,7 @@ namespace ExtUI {
       // Machine was killed, reinit SysTick so we are able to compute time without ISRs
       if (currTimeHI == 0) {
         // Get the last time the Arduino time computed (from CMSIS) and convert it to SysTick
-        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU / 8000)) >> 24);
+        currTimeHI = uint32_t((GetTickCount() * uint64_t(F_CPU / 8000)) >> 24);
 
         // Reinit the SysTick timer to maximize its period
         SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    // get the full range for the systick timer
@@ -148,9 +152,9 @@ namespace ExtUI {
     }
   #endif // __SAM3X8E__
 
-  void delay_us(unsigned long us) { DELAY_US(us); }
+  void delay_us(uint32_t us) { DELAY_US(us); }
 
-  void delay_ms(unsigned long ms) {
+  void delay_ms(uint32_t ms) {
     if (flags.printer_killed)
       DELAY_US(ms * 1000);
     else
@@ -175,7 +179,12 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return); // Chamber has no idle timer
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if ENABLED(HAS_COOLER)
+          case COOLER: return;  // Cooler has no idle timer
+        #endif
         default:
           TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
@@ -233,8 +242,12 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
-        TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
+        #if ENABLED(HAS_HEATED_BED)
+          case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
+        #endif
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return false; // Chamber has no idle timer
+        #endif
         default:
           return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
@@ -245,66 +258,66 @@ namespace ExtUI {
   }
 
   #ifdef TOUCH_UI_LCD_TEMP_SCALING
-    #define GET_TEMP_ADJUSTMENT(A) float(A)/TOUCH_UI_LCD_TEMP_SCALING
+    #define GET_TEMP_ADJUSTMENT(A) (float(A) / (TOUCH_UI_LCD_TEMP_SCALING))
   #else
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
 
-  float getActualTemp_celsius(const heater_t heater) {
+  celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
     }
   }
 
-  float getActualTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getActualTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
-  float getTargetTemp_celsius(const heater_t heater) {
+  celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      TERN_(HAS_HEATED_BED, case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed()));
-      TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber()));
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+        case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
+      #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
     }
   }
 
-  float getTargetTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getTargetTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.fan_speed[fan - FAN0]);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanPercent(thermalManager.scaledFanSpeed(fan - FAN0));
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN_(JOYSTICK, flags.jogging ? destination[axis] :) current_position[axis];
+    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN_(JOYSTICK, flags.jogging ? destination.e :) current_position.e;
+    const float epos = TERN0(JOYSTICK, flags.jogging) ? destination.e : current_position.e;
     setActiveTool(old_tool, true);
     return epos;
   }
 
-  void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
+  void setAxisPosition_mm(const_float_t position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
     // Get motion limit from software endstops, if any
     float min, max;
     soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
@@ -322,7 +335,7 @@ namespace ExtUI {
     line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
-  void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
+  void setAxisPosition_mm(const_float_t position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
@@ -340,8 +353,10 @@ namespace ExtUI {
     #endif
   }
 
-  extruder_t getActiveTool() {
-    switch (active_extruder) {
+  extruder_t getTool(const uint8_t extruder) {
+    switch (extruder) {
+      case 7:  return E7;
+      case 6:  return E6;
       case 5:  return E5;
       case 4:  return E4;
       case 3:  return E3;
@@ -351,14 +366,16 @@ namespace ExtUI {
     }
   }
 
+  extruder_t getActiveTool() { return getTool(active_extruder); }
+
   bool isMoving() { return planner.has_blocks_queued(); }
 
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return TEST(axis_homed, X_AXIS);
-        case Y: return TEST(axis_homed, Y_AXIS);
-        case Z: return TEST(axis_homed, Z_AXIS);
+        case X: return axis_should_home(X_AXIS);
+        case Y: return axis_should_home(Y_AXIS);
+        case Z: return axis_should_home(Z_AXIS);
       #else
         case X: case Y: case Z: return true;
       #endif
@@ -430,7 +447,7 @@ namespace ExtUI {
       };
     }
 
-    void  setAxisCurrent_mA(const float mA, const axis_t axis) {
+    void setAxisCurrent_mA(const_float_t mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
           case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
@@ -454,7 +471,7 @@ namespace ExtUI {
       };
     }
 
-    void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
+    void setAxisCurrent_mA(const_float_t mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
           case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
@@ -486,19 +503,35 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
-        TERN_(X_SENSORLESS,  case X:  return stepperX.homing_threshold());
-        TERN_(X2_SENSORLESS, case X2: return stepperX2.homing_threshold());
-        TERN_(Y_SENSORLESS,  case Y:  return stepperY.homing_threshold());
-        TERN_(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold());
-        TERN_(Z_SENSORLESS,  case Z:  return stepperZ.homing_threshold());
-        TERN_(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold());
-        TERN_(Z3_SENSORLESS, case Z3: return stepperZ3.homing_threshold());
-        TERN_(Z4_SENSORLESS, case Z4: return stepperZ4.homing_threshold());
+        #if ENABLED(X_SENSORLESS)
+          case X:  return stepperX.homing_threshold();
+        #endif
+        #if ENABLED(X2_SENSORLESS)
+          case X2: return stepperX2.homing_threshold();
+        #endif
+        #if ENABLED(Y_SENSORLESS)
+          case Y:  return stepperY.homing_threshold();
+        #endif
+        #if ENABLED(Y2_SENSORLESS)
+          case Y2: return stepperY2.homing_threshold();
+        #endif
+        #if ENABLED(Z_SENSORLESS)
+          case Z:  return stepperZ.homing_threshold();
+        #endif
+        #if ENABLED(Z2_SENSORLESS)
+          case Z2: return stepperZ2.homing_threshold();
+        #endif
+        #if ENABLED(Z3_SENSORLESS)
+          case Z3: return stepperZ3.homing_threshold();
+        #endif
+        #if ENABLED(Z4_SENSORLESS)
+          case Z4: return stepperZ4.homing_threshold();
+        #endif
         default: return 0;
       }
     }
 
-    void setTMCBumpSensitivity(const float value, const axis_t axis) {
+    void setTMCBumpSensitivity(const_float_t value, const axis_t axis) {
       switch (axis) {
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           #if X_SENSORLESS
@@ -542,12 +575,12 @@ namespace ExtUI {
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisSteps_per_mm(const float value, const axis_t axis) {
+  void setAxisSteps_per_mm(const_float_t value, const axis_t axis) {
     planner.settings.axis_steps_per_mm[axis] = value;
     planner.refresh_positioning();
   }
 
-  void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
+  void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
     planner.refresh_positioning();
@@ -580,15 +613,13 @@ namespace ExtUI {
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
-  void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
+  void setAxisMaxAcceleration_mm_s2(const_float_t value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
-    planner.reset_acceleration_rates();
   }
 
-  void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+  void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
-    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -599,7 +630,7 @@ namespace ExtUI {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
-      void setFilamentRunoutDistance_mm(const float value) { runout.set_runout_distance(constrain(value, 0, 999)); }
+      void setFilamentRunoutDistance_mm(const_float_t value) { runout.set_runout_distance(constrain(value, 0, 999)); }
     #endif
   #endif
 
@@ -610,9 +641,9 @@ namespace ExtUI {
       caselight.update_enabled();
     }
 
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+    #if CASELIGHT_USES_BRIGHTNESS
       float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
-      void setCaseLightBrightness_percent(const float value) {
+      void setCaseLightBrightness_percent(const_float_t value) {
          caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
          caselight.update_brightness();
       }
@@ -624,9 +655,9 @@ namespace ExtUI {
       return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
     }
 
-    void setLinearAdvance_mm_mm_s(const float value, const extruder_t extruder) {
+    void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 999);
+        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 10);
     }
   #endif
 
@@ -636,32 +667,31 @@ namespace ExtUI {
       return planner.junction_deviation_mm;
     }
 
-    void setJunctionDeviation_mm(const float value) {
+    void setJunctionDeviation_mm(const_float_t value) {
       planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
       TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
     }
 
   #else
+    float getAxisMaxJerk_mm_s(const axis_t axis) { return planner.max_jerk[axis]; }
+    float getAxisMaxJerk_mm_s(const extruder_t) { return planner.max_jerk.e; }
+    void setAxisMaxJerk_mm_s(const_float_t value, const axis_t axis) { planner.set_max_jerk((AxisEnum)axis, value); }
+    void setAxisMaxJerk_mm_s(const_float_t value, const extruder_t) { planner.set_max_jerk(E_AXIS, value); }
+  #endif
 
-    float getAxisMaxJerk_mm_s(const axis_t axis) {
-      return planner.max_jerk[axis];
-    }
+  #if ENABLED(DUAL_X_CARRIAGE)
+    uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
+  #endif
 
-    float getAxisMaxJerk_mm_s(const extruder_t) {
-      return planner.max_jerk.e;
-    }
-
-    void setAxisMaxJerk_mm_s(const float value, const axis_t axis) {
-      planner.set_max_jerk((AxisEnum)axis, value);
-    }
-
-    void setAxisMaxJerk_mm_s(const float value, const extruder_t) {
-      planner.set_max_jerk(E_AXIS, value);
-    }
+  #if PREHEAT_COUNT
+      uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+    #if HAS_HEATED_BED
+      uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
+    #endif
   #endif
 
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
-  int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
+  int16_t getFlow_percent(const extruder_t extr)      { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
   feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
@@ -671,11 +701,12 @@ namespace ExtUI {
   void setFlow_percent(const int16_t flow, const extruder_t extr) { planner.set_flow(extr, flow); }
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
-  void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
+  void setPrintingAcceleration_mm_s2(const_float_t acc) { planner.settings.acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const_float_t acc) { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const_float_t acc)  { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEPPING)
+
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
@@ -733,11 +764,12 @@ namespace ExtUI {
      * Converts a mm displacement to a number of whole number of
      * steps that is at least mm long.
      */
-    int16_t mmToWholeSteps(const float mm, const axis_t axis) {
+    int16_t mmToWholeSteps(const_float_t mm, const axis_t axis) {
       const float steps = mm / planner.steps_to_mm[axis];
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
-  #endif
+
+  #endif // BABYSTEPPING
 
   float getZOffset_mm() {
     return (0.0f
@@ -749,7 +781,7 @@ namespace ExtUI {
     );
   }
 
-  void setZOffset_mm(const float value) {
+  void setZOffset_mm(const_float_t value) {
     #if HAS_BED_PROBE
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
@@ -767,7 +799,7 @@ namespace ExtUI {
       return hotend_offset[extruder - E0][axis];
     }
 
-    void setNozzleOffset_mm(const float value, const axis_t axis, const extruder_t extruder) {
+    void setNozzleOffset_mm(const_float_t value, const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return;
       hotend_offset[extruder - E0][axis] = value;
     }
@@ -785,31 +817,23 @@ namespace ExtUI {
   #endif // HAS_HOTEND_OFFSET
 
   #if HAS_BED_PROBE
-    float getProbeOffset_mm(const axis_t axis) {
-      return probe.offset.pos[axis];
-    }
-    void setProbeOffset_mm(const float val, const axis_t axis) {
-      probe.offset.pos[axis] = val;
-    }
+    float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
+    void setProbeOffset_mm(const_float_t val, const axis_t axis) { probe.offset.pos[axis] = val; }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t axis)       { return backlash.distance_mm[axis]; }
-    void setAxisBacklash_mm(const float value, const axis_t axis)
+    void setAxisBacklash_mm(const_float_t value, const axis_t axis)
                                                       { backlash.distance_mm[axis] = constrain(value,0,5); }
 
     float getBacklashCorrection_percent()             { return ui8_to_percent(backlash.correction); }
-    void setBacklashCorrection_percent(const float value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
+    void setBacklashCorrection_percent(const_float_t value) { backlash.correction = map(constrain(value, 0, 100), 0, 100, 0, 255); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.smoothing_mm; }
-      void setBacklashSmoothing_mm(const float value) { backlash.smoothing_mm = constrain(value, 0, 999); }
+      void setBacklashSmoothing_mm(const_float_t value) { backlash.smoothing_mm = constrain(value, 0, 999); }
     #endif
   #endif
-
-  uint8_t getProgress_percent() {
-    return ui.get_progress_percent();
-  }
 
   uint32_t getProgress_seconds_elapsed() {
     const duration_t elapsed = print_job_timer.duration();
@@ -817,26 +841,58 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING
+
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     bool getMeshValid() { return leveling_is_valid(); }
+
     #if HAS_MESH
+
       bed_mesh_t& getMeshArray() { return Z_VALUES_ARR; }
       float getMeshPoint(const xy_uint8_t &pos) { return Z_VALUES(pos.x, pos.y); }
-      void setMeshPoint(const xy_uint8_t &pos, const float zoff) {
-        if (WITHIN(pos.x, 0, GRID_MAX_POINTS_X) && WITHIN(pos.y, 0, GRID_MAX_POINTS_Y)) {
+      void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
+        if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           Z_VALUES(pos.x, pos.y) = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
         }
       }
-    #endif
-  #endif
+
+      void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
+        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          const feedRate_t old_feedrate = feedrate_mm_s;
+          const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
+                      y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
+          if (x_target != current_position.x || y_target != current_position.y) {
+            // If moving across bed, raise nozzle to safe height over bed
+            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            destination = current_position;
+            destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+            prepare_line_to_destination();
+            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            destination.x = x_target;
+            destination.y = y_target;
+            prepare_line_to_destination();
+          }
+          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          destination.z = z;
+          prepare_line_to_destination();
+          feedrate_mm_s = old_feedrate;
+        #else
+          UNUSED(pos);
+          UNUSED(z);
+        #endif
+      }
+
+    #endif // HAS_MESH
+
+  #endif // HAS_LEVELING
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
   #endif
 
   #if ENABLED(PRINTCOUNTER)
+    char* getFailedPrints_str(char buffer[21])   { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints - print_job_timer.getStats().finishedPrints)); return buffer; }
     char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,i16tostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
     char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,i16tostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
     char* getTotalPrintTime_str(char buffer[21]) { return duration_t(print_job_timer.getStats().printTime).toString(buffer); }
@@ -855,14 +911,14 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t tool) { return unscalePID_i(PID_PARAM(Ki, tool)); }
     float getPIDValues_Kd(const extruder_t tool) { return unscalePID_d(PID_PARAM(Kd, tool)); }
 
-    void setPIDValues(const float p, const float i, const float d, extruder_t tool) {
+    void setPIDValues(const_float_t p, const_float_t i, const_float_t d, extruder_t tool) {
       thermalManager.temp_hotend[tool].pid.Kp = p;
       thermalManager.temp_hotend[tool].pid.Ki = scalePID_i(i);
       thermalManager.temp_hotend[tool].pid.Kd = scalePID_d(d);
       thermalManager.updatePID();
     }
 
-    void startPIDTune(const float temp, extruder_t tool) {
+    void startPIDTune(const celsius_t temp, extruder_t tool) {
       thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
@@ -872,14 +928,14 @@ namespace ExtUI {
     float getBedPIDValues_Ki() { return unscalePID_i(thermalManager.temp_bed.pid.Ki); }
     float getBedPIDValues_Kd() { return unscalePID_d(thermalManager.temp_bed.pid.Kd); }
 
-    void setBedPIDValues(const float p, const float i, const float d) {
+    void setBedPIDValues(const_float_t p, const_float_t i, const_float_t d) {
       thermalManager.temp_bed.pid.Kp = p;
       thermalManager.temp_bed.pid.Ki = scalePID_i(i);
       thermalManager.temp_bed.pid.Kd = scalePID_d(d);
       thermalManager.updatePID();
     }
 
-    void startBedPIDTune(const float temp) {
+    void startBedPIDTune(const celsius_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
     }
   #endif
@@ -889,9 +945,9 @@ namespace ExtUI {
 
   bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 
-  bool isAxisPositionKnown(const axis_t axis) { return TEST(axis_known_position, axis); }
-  bool isAxisPositionKnown(const extruder_t) { return TEST(axis_known_position, E_AXIS); }
-  bool isPositionKnown() { return all_axes_known(); }
+  bool isAxisPositionKnown(const axis_t axis) { return axis_is_trusted((AxisEnum)axis); }
+  bool isAxisPositionKnown(const extruder_t) { return axis_is_trusted(E_AXIS); }
+  bool isPositionKnown() { return all_axes_trusted(); }
   bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
@@ -899,41 +955,44 @@ namespace ExtUI {
     return firmware_name;
   }
 
-  void setTargetTemp_celsius(float value, const heater_t heater) {
+  void setTargetTemp_celsius(const_float_t inval, const heater_t heater) {
+    float value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     enableHeater(heater);
-    #if HAS_HEATED_CHAMBER
-      if (heater == CHAMBER)
-        thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAXTEMP - 10)));
-      else
-    #endif
-    #if HAS_HEATED_BED
-      if (heater == BED)
-        thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET)));
-      else
-    #endif
-      {
+    switch (heater) {
+      #if HAS_HEATED_CHAMBER
+        case CHAMBER: thermalManager.setTargetChamber(LROUND(constrain(value, 0, CHAMBER_MAX_TARGET))); break;
+      #endif
+      #if HAS_COOLER
+        case COOLER: thermalManager.setTargetCooler(LROUND(constrain(value, 0, COOLER_MAXTEMP))); break;
+      #endif
+      #if HAS_HEATED_BED
+        case BED: thermalManager.setTargetBed(LROUND(constrain(value, 0, BED_MAX_TARGET))); break;
+      #endif
+      default: {
         #if HAS_HOTEND
           const int16_t e = heater - H0;
-          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+          thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
         #endif
-      }
+      } break;
+    }
   }
 
-  void setTargetTemp_celsius(float value, const extruder_t extruder) {
+  void setTargetTemp_celsius(const_float_t inval, const extruder_t extruder) {
+    float value = inval;
     #ifdef TOUCH_UI_LCD_TEMP_SCALING
       value *= TOUCH_UI_LCD_TEMP_SCALING;
     #endif
     #if HAS_HOTEND
       const int16_t e = extruder - E0;
       enableHeater(extruder);
-      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT)), e);
+      thermalManager.setTargetHotend(LROUND(constrain(value, 0, thermalManager.hotend_max_target(e))), e);
     #endif
   }
 
-  void setTargetFan_percent(const float value, const fan_t fan) {
+  void setTargetFan_percent(const_float_t value, const fan_t fan) {
     #if HAS_FAN
       if (fan < FAN_COUNT)
         thermalManager.set_fan_speed(fan - FAN0, map(constrain(value, 0, 100), 0, 100, 0, 255));
@@ -943,21 +1002,27 @@ namespace ExtUI {
     #endif
   }
 
-  void setFeedrate_percent(const float value) {
-    feedrate_percentage = constrain(value, 10, 500);
+  void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
+
+  void coolDown() {
+    #if HAS_HOTEND
+      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
+    #endif
+    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
+    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  void setUserConfirmed() {
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
-  }
+  bool awaitingUserConfirm() { return wait_for_user; }
+
+  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   void printFile(const char *filename) {
     UNUSED(filename);
-    IFSD(card.openAndPrintFile(filename), NOOP);
+    TERN_(SDSUPPORT, card.openAndPrintFile(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return IFSD(isPrintingFromMedia() && !IS_SD_PRINTING(), false);
+    return TERN0(SDSUPPORT, isPrintingFromMedia() && !IS_SD_PRINTING());
   }
 
   bool isPrintingFromMedia() {
@@ -972,12 +1037,14 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || TERN0(SDSUPPORT, IS_SD_PRINTING())) || print_job_timer.isRunning() || print_job_timer.isPaused();
   }
 
-  bool isMediaInserted() {
-    return IFSD(IS_SD_INSERTED() && card.isMounted(), false);
+  bool isPrintingPaused() {
+    return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
+
+  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED() && card.isMounted()); }
 
   void pausePrint() { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
@@ -1012,27 +1079,27 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename[0] ? card.longFilename : card.filename, "");
+    return TERN(SDSUPPORT, card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
-    return IFSD(card.filename, "");
+    return TERN(SDSUPPORT, card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    return IFSD(card.longFilename, "");
+    return TERN(SDSUPPORT, card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    return IFSD(card.flag.filenameIsDir, false);
+    return TERN0(SDSUPPORT, card.flag.filenameIsDir);
   }
 
   uint16_t FileList::count() {
-    return IFSD((num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)), 0);
+    return TERN0(SDSUPPORT, (num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)));
   }
 
   bool FileList::isAtRootDir() {
-    return IFSD(card.flag.workDirIsRoot, true);
+    return TERN1(SDSUPPORT, card.flag.workDirIsRoot);
   }
 
   void FileList::upDir() {
@@ -1053,11 +1120,9 @@ namespace ExtUI {
 
 } // namespace ExtUI
 
-// At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
+// At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() {
-  ExtUI::onStartup();
-}
+void MarlinUI::init() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 

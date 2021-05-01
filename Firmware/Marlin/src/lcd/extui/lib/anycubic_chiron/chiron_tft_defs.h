@@ -30,7 +30,7 @@
 
 #pragma once
 #include "../../../../inc/MarlinConfigPre.h"
-//#define ACDEBUGLEVEL 255
+//#define ACDEBUGLEVEL 4
 
 #if ACDEBUGLEVEL
   // Bit-masks for selective debug:
@@ -54,7 +54,7 @@
 #define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
 
 #define AC_HEATER_FAULT_VALIDATION_TIME 5    // number of 1/2 second loops before signalling a heater fault
-#define AC_LOWEST_MESHPOINT_VAL        -7.00 // The lowest value you can set for a single mesh point offset
+#define AC_LOWEST_MESHPOINT_VAL         -10  // The lowest value you can set for a single mesh point offset
 
  // TFT panel commands
 #define  AC_msg_sd_card_inserted       PSTR("J00")
@@ -85,28 +85,44 @@
 #define  AC_msg_probing_complete       PSTR("J25")
 #define  AC_msg_start_probing          PSTR("J26")
 #define  AC_msg_version                PSTR("J27")
+#define  AC_msg_mesh_changes_abandoned PSTR("Mesh changes abandoned, previous mesh restored.")
+#define  AC_msg_mesh_changes_saved     PSTR("Mesh changes saved.")
+#define  AC_msg_old_panel_detected     PSTR("Standard TFT panel detected!")
+#define  AC_msg_new_panel_detected     PSTR("New TFT panel detected!")
+#define  AC_msg_powerloss_recovery     PSTR("Resuming from power outage! select the same SD file then press resume")
+// Error messages must not contain spaces
+#define  AC_msg_error_bed_temp         PSTR("Abnormal_bed_temp")
+#define  AC_msg_error_hotend_temp      PSTR("Abnormal_hotend_temp")
+#define  AC_msg_error_sd_card          PSTR("SD_card_error")
+#define  AC_msg_filament_out           PSTR("Filament_runout")
+#define  AC_msg_power_loss             PSTR("Power_failure")
+#define  AC_msg_eeprom_version         PSTR("EEPROM_ver_wrong")
 
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")
 #define MARLIN_msg_probing_failed      PSTR("Probing Failed")
-#define MARLIN_msg_ready               PSTR("3D Printer Ready.")
+#define MARLIN_msg_ready               PSTR(" Ready.")
 #define MARLIN_msg_print_paused        PSTR("Print Paused")
 #define MARLIN_msg_print_aborted       PSTR("Print Aborted")
 #define MARLIN_msg_extruder_heating    PSTR("E Heating...")
 #define MARLIN_msg_bed_heating         PSTR("Bed Heating...")
-
+#define MARLIN_msg_EEPROM_version      PSTR("EEPROM Version Error")
 #define MARLIN_msg_nozzle_parked       PSTR("Nozzle Parked")
 #define MARLIN_msg_heater_timeout      PSTR("Heater Timeout")
 #define MARLIN_msg_reheating           PSTR("Reheating...")
 #define MARLIN_msg_reheat_done         PSTR("Reheat finished.")
 #define MARLIN_msg_filament_purging    PSTR("Filament Purging...")
 #define MARLIN_msg_special_pause       PSTR("PB")
+
 #define AC_cmnd_auto_unload_filament   PSTR("M701")                    // Use Marlin unload routine
 #define AC_cmnd_auto_load_filament     PSTR("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
 
 #define AC_cmnd_manual_load_filament   PSTR("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
 #define AC_cmnd_manual_unload_filament PSTR("M83\nG1 E-50 F1200\nM82")
-#define AC_cmnd_enable_levelling       PSTR("M420 S1 V1")
-#define AC_cmnd_power_loss_recovery    PSTR("G28 X Y R5\nG28 Z")       // Lift, home X and Y then home Z when in 'safe' position
+#define AC_cmnd_enable_leveling        PSTR("M420SV")
+#define AC_cmnd_power_loss_recovery    PSTR("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
+
+#define AC_Test_for_OldPanel           PSTR("SIZE")                    // An old panel will respond with 'SXY 480 320' a new panel wont respond.
+#define AC_Test_for_NewPanel           PSTR("J200")                    // A new panel will respond with '[0]=0   [1]=0' to '[19]=0   '  an old panel wont respond
 
 namespace Anycubic {
   enum heater_state_t : uint8_t {
@@ -114,14 +130,13 @@ namespace Anycubic {
     AC_heater_temp_set,
     AC_heater_temp_reached
   };
-
   enum paused_state_t : uint8_t {
     AC_paused_heater_timed_out,
     AC_paused_purging_filament,
     AC_paused_idle
   };
-
   enum printer_state_t : uint8_t {
+    AC_printer_booting,
     AC_printer_idle,
     AC_printer_probing,
     AC_printer_printing,
@@ -130,13 +145,11 @@ namespace Anycubic {
     AC_printer_stopping,
     AC_printer_resuming_from_power_outage
   };
-
   enum timer_event_t : uint8_t {
     AC_timer_started,
     AC_timer_paused,
     AC_timer_stopped
   };
-
   enum media_event_t : uint8_t {
     AC_media_inserted,
     AC_media_removed,
@@ -148,4 +161,18 @@ namespace Anycubic {
     AC_menu_change_to_file,
     AC_menu_change_to_command
   };
-}
+  enum panel_type_t : uint8_t {
+    AC_panel_unknown,
+    AC_panel_standard,
+    AC_panel_new
+  };
+  enum last_error_t : uint8_t {
+    AC_error_none,
+    AC_error_abnormal_temp_t0,
+    AC_error_abnormal_temp_bed,
+    AC_error_noSD,
+    AC_error_powerloss,
+    AC_error_filament_runout,
+    AC_error_EEPROM
+  };
+}  // Anycubic namespace

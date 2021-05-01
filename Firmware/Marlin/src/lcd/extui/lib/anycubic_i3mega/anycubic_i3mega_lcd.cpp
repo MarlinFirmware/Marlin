@@ -2,7 +2,7 @@
  * anycubic_i3mega_lcd.cpp  --- Support for Anycubic i3 Mega TFT
  * Created by Christian Hopp on 09.12.17.
  * Improved by David Ramiro
- * Converted to ext_iu by John BouAntoun 21 June 2020
+ * Converted to ExtUI by John BouAntoun 21 June 2020
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,49 +27,51 @@
 #include "../../ui_api.h"
 
 #include "../../../../libs/numtostr.h"
-#include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
-#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
+#include "../../../../MarlinCore.h"     // for disable_steppers
 #include "../../../../inc/MarlinConfig.h"
 
 // command sending macro's with debugging capability
-#define SEND_PGM(x)                                 send_P(PSTR(x))
-#define SENDLINE_PGM(x)                             sendLine_P(PSTR(x))
-#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
-#define SEND(x)                                     send(x)
-#define SENDLINE(x)                                 sendLine(x)
+#define SEND_PGM(x)       send_P(PSTR(x))
+#define SENDLINE_PGM(x)   sendLine_P(PSTR(x))
+#define SEND_PGM_VAL(x,y) (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
+#define SEND(x)           send(x)
+#define SENDLINE(x)       sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
-  #define SENDLINE_DBG_PGM(x,y)                     (sendLine_P(PSTR(x)), SERIAL_ECHOLNPGM(y))
-  #define SENDLINE_DBG_PGM_VAL(x,y,z)               (sendLine_P(PSTR(x)), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
+  #define SENDLINE_DBG_PGM(x,y)       (sendLine_P(PSTR(x)), SERIAL_ECHOLNPGM(y))
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) (sendLine_P(PSTR(x)), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
 #else
-  #define SENDLINE_DBG_PGM(x,y)                     sendLine_P(PSTR(x))
-  #define SENDLINE_DBG_PGM_VAL(x,y,z)               sendLine_P(PSTR(x))
+  #define SENDLINE_DBG_PGM(x,y)       sendLine_P(PSTR(x))
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
 #endif
 
 AnycubicTFTClass AnycubicTFT;
 
-static void sendNewLine(void) {
-  LCD_SERIAL.write('\r');
-  LCD_SERIAL.write('\n');
-}
+char AnycubicTFTClass::TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
+int AnycubicTFTClass::TFTbuflen = 0,
+    AnycubicTFTClass::TFTbufindr = 0,
+    AnycubicTFTClass::TFTbufindw = 0;
+char AnycubicTFTClass::serial3_char;
+int AnycubicTFTClass::serial3_count = 0;
+char* AnycubicTFTClass::TFTstrchr_pointer;
+uint8_t AnycubicTFTClass::SpecialMenu = false;
+AnycubicMediaPrintState AnycubicTFTClass::mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+AnycubicMediaPauseState AnycubicTFTClass::mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
 
-static void send(const char *str) {
-  LCD_SERIAL.print(str);
-}
+char AnycubicTFTClass::SelectedDirectory[30];
+char AnycubicTFTClass::SelectedFile[FILENAME_LENGTH];
 
-static void sendLine(const char *str) {
-  send(str);
-  sendNewLine();
-}
-
+// Serial helpers
+static void sendNewLine(void) { LCD_SERIAL.write('\r'); LCD_SERIAL.write('\n'); }
+static void send(const char *str) { LCD_SERIAL.print(str); }
 static void send_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++))
     LCD_SERIAL.write(c);
 }
+static void sendLine(const char *str) { send(str); sendNewLine(); }
+static void sendLine_P(PGM_P str) { send_P(str); sendNewLine(); }
 
-static void sendLine_P(PGM_P str) {
-  send_P(str);
-  sendNewLine();
-}
+using namespace ExtUI;
 
 AnycubicTFTClass::AnycubicTFTClass() {}
 
@@ -80,14 +82,14 @@ void AnycubicTFTClass::OnSetup() {
   LCD_SERIAL.begin(LCD_BAUDRATE);
 
   SENDLINE_DBG_PGM("J17", "TFT Serial Debug: Main board reset... J17"); // J17 Main board reset
-  ExtUI::delay_ms(10);
+  delay_ms(10);
 
   // initialise the state of the key pins running on the tft
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+    SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
@@ -95,13 +97,13 @@ void AnycubicTFTClass::OnSetup() {
 
   // DoSDCardStateCheck();
   SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Ready... J12"); // J12 Ready
-  ExtUI::delay_ms(10);
+  delay_ms(10);
 
   DoFilamentRunoutCheck();
   SelectedFile[0] = 0;
 
   #if ENABLED(STARTUP_CHIME)
-    ExtUI::injectCommands_P(PSTR("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
+    injectCommands_P(PSTR("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
   #endif
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
     SERIAL_ECHOLNPGM("TFT Serial Debug: Finished startup");
@@ -119,8 +121,8 @@ void AnycubicTFTClass::OnCommandScan() {
       #endif
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-      ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
-      ExtUI::delay_ms(200);
+      injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
+      delay_ms(200);
       // tell printer to release resources of print to indicate it is done
       SENDLINE_DBG_PGM("J14", "TFT Serial Debug: SD Print Stopped... J14");
     }
@@ -141,9 +143,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnSDCardStateChange event triggered...");
-    SERIAL_ECHO(ui8tostr2(isInserted));
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
   #endif
   DoSDCardStateCheck();
 }
@@ -164,8 +164,7 @@ void AnycubicTFTClass::OnFilamentRunout() {
 
 void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ");
-    SERIAL_ECHOLN(msg);
+    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -218,17 +217,17 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
 }
 
 float AnycubicTFTClass::CodeValue() {
-  return (strtod(&TFTcmdbuffer[TFTbufindr][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindr] + 1], NULL));
+  return (strtod(&TFTcmdbuffer[TFTbufindr][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindr] + 1], nullptr));
 }
 
 bool AnycubicTFTClass::CodeSeen(char code) {
   TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindr], code);
-  return (TFTstrchr_pointer != NULL); // Return True if a character was found
+  return !!TFTstrchr_pointer; // Return True if a character was found
 }
 
 bool AnycubicTFTClass::IsNozzleHomed() {
-  const float xPosition = ExtUI::getAxisPosition_mm((ExtUI::axis_t) ExtUI::X);
-  const float yPosition = ExtUI::getAxisPosition_mm((ExtUI::axis_t) ExtUI::Y);
+  const float xPosition = getAxisPosition_mm((axis_t) X);
+  const float yPosition = getAxisPosition_mm((axis_t) Y);
   return WITHIN(xPosition, X_MIN_POS - 0.1, X_MIN_POS + 0.1) &&
          WITHIN(yPosition, Y_MIN_POS - 0.1, Y_MIN_POS + 0.1);
 }
@@ -249,48 +248,48 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '1': // "<01ZUp0.1>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Up 0.1");
-                ExtUI::injectCommands_P(PSTR("G91\nG1 Z+0.1\nG90"));
+                injectCommands_P(PSTR("G91\nG1 Z+0.1\nG90"));
                 break;
 
               case '2': // "<02ZUp0.02>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Up 0.02");
-                ExtUI::injectCommands_P(PSTR("G91\nG1 Z+0.02\nG90"));
+                injectCommands_P(PSTR("G91\nG1 Z+0.02\nG90"));
                 break;
 
               case '3': // "<03ZDn0.02>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Down 0.02");
-                ExtUI::injectCommands_P(PSTR("G91\nG1 Z-0.02\nG90"));
+                injectCommands_P(PSTR("G91\nG1 Z-0.02\nG90"));
                 break;
 
               case '4': // "<04ZDn0.1>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Down 0.1");
-                ExtUI::injectCommands_P(PSTR("G91\nG1 Z-0.1\nG90"));
+                injectCommands_P(PSTR("G91\nG1 Z-0.1\nG90"));
                 break;
 
               case '5': // "<05PrehtBed>"
                 SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
-                ExtUI::injectCommands_P(PSTR("M140 S65"));
+                injectCommands_P(PSTR("M140 S65"));
                 break;
 
               case '6': // "<06SMeshLvl>"
                 SERIAL_ECHOLNPGM("Special Menu: Start Mesh Leveling");
-                ExtUI::injectCommands_P(PSTR("G29 S1"));
+                injectCommands_P(PSTR("G29S1"));
                 break;
 
               case '7': // "<07MeshNPnt>"
                 SERIAL_ECHOLNPGM("Special Menu: Next Mesh Point");
-                ExtUI::injectCommands_P(PSTR("G29 S2"));
+                injectCommands_P(PSTR("G29S2"));
                 break;
 
               case '8': // "<08HtEndPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
                 // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-                ExtUI::injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
                 break;
 
               case '9': // "<09HtBedPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
-                ExtUI::injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
+                injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
                 break;
 
               default:
@@ -302,12 +301,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '0': // "<10FWDeflts>"
                 SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-                ExtUI::injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
                 break;
 
               case '1': // "<11SvEEPROM>"
                 SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-                ExtUI::injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
                 break;
 
               default:
@@ -319,38 +318,38 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '1': // "<01PrehtBed>"
                 SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
-                ExtUI::injectCommands_P(PSTR("M140 S65"));
+                injectCommands_P(PSTR("M140 S65"));
                 break;
 
               case '2': // "<02ABL>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Bed Leveling");
-                ExtUI::injectCommands_P(PSTR("G28\nG29"));
+                injectCommands_P(PSTR("G29N"));
                 break;
 
               case '3': // "<03HtendPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
                 // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-                ExtUI::injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
                 break;
 
               case '4': // "<04HtbedPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
-                ExtUI::injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
+                injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
                 break;
 
               case '5': // "<05FWDeflts>"
                 SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-                ExtUI::injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
                 break;
 
               case '6': // "<06SvEEPROM>"
                 SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-                ExtUI::injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
                 break;
 
               case '7': // <07SendM108>
                 SERIAL_ECHOLNPGM("Special Menu: Send User Confirmation");
-                ExtUI::injectCommands_P(PSTR("M108"));
+                injectCommands_P(PSTR("M108"));
                 break;
 
               default:
@@ -376,11 +375,11 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     uint16_t selectedNumber = 0;
     SelectedDirectory[0] = 0;
     SelectedFile[0] = 0;
-    ExtUI::FileList currentFileList;
+    FileList currentFileList;
 
     SENDLINE_PGM("FN "); // Filelist start
 
-    if (!ExtUI::isMediaInserted() && !SpecialMenu) {
+    if (!isMediaInserted() && !SpecialMenu) {
       SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
       SENDLINE_PGM("<Special_Menu>");
@@ -465,7 +464,7 @@ void AnycubicTFTClass::RenderSpecialMenu(uint16_t selectedNumber) {
 }
 
 void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
-  ExtUI::FileList currentFileList;
+  FileList currentFileList;
   uint16_t cnt = selectedNumber;
   uint16_t max_files;
   uint16_t dir_files = currentFileList.count();
@@ -517,7 +516,7 @@ void AnycubicTFTClass::OnPrintTimerStarted() {
 
 void AnycubicTFTClass::OnPrintTimerPaused() {
   #if ENABLED(SDSUPPORT)
-    if (ExtUI::isPrintingFromMedia()) {
+    if (isPrintingFromMedia()) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState    = AMPAUSESTATE_PARKING;
     }
@@ -535,8 +534,10 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
   #endif
 }
 
+#define ROUND(val) int((val)+0.5f)
+
 void AnycubicTFTClass::GetCommandFromTFT() {
-  char *starpos = NULL;
+  char *starpos = nullptr;
   while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
     serial3_char = LCD_SERIAL.read();
     if (serial3_char == '\n' ||
@@ -549,67 +550,60 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
       TFTcmdbuffer[TFTbufindw][serial3_count] = 0; // terminate string
 
-      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != NULL)) {
+      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != nullptr)) {
         int16_t a_command;
         TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindw], 'A');
-        a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], NULL))));
+        a_command = ((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], nullptr))));
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
-          if ((a_command > 7) && (a_command != 20)) { // No debugging of status polls, please!
-            SERIAL_ECHOPGM("TFT Serial Command: ");
-            SERIAL_ECHOLN(TFTcmdbuffer[TFTbufindw]);
-          }
+          if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
+            SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
         #endif
 
         switch (a_command) {
           case 0: { // A0 GET HOTEND TEMP
-            float hotendActualTemp = ExtUI::getActualTemp_celsius((ExtUI::extruder_t) (ExtUI::extruder_t) ExtUI::E0);
-            SEND_PGM_VAL("A0V ", int(hotendActualTemp + 0.5));
+            const celsius_float_t hotendActualTemp = getActualTemp_celsius(E0);
+            SEND_PGM_VAL("A0V ", ROUND(hotendActualTemp));
           }
           break;
 
           case 1: { // A1  GET HOTEND TARGET TEMP
-            float hotendTargetTemp = ExtUI::getTargetTemp_celsius((ExtUI::extruder_t) (ExtUI::extruder_t) ExtUI::E0);
-            SEND_PGM_VAL("A1V ", int(hotendTargetTemp + 0.5));
+            const celsius_float_t hotendTargetTemp = getTargetTemp_celsius(E0);
+            SEND_PGM_VAL("A1V ", ROUND(hotendTargetTemp));
           }
           break;
 
           case 2: { // A2 GET HOTBED TEMP
-            float heatedBedActualTemp = ExtUI::getActualTemp_celsius((ExtUI::heater_t) ExtUI::BED);
-            SEND_PGM_VAL("A2V ", int(heatedBedActualTemp + 0.5));
+            const celsius_float_t heatedBedActualTemp = getActualTemp_celsius(BED);
+            SEND_PGM_VAL("A2V ", ROUND(heatedBedActualTemp));
           }
           break;
 
           case 3: { // A3 GET HOTBED TARGET TEMP
-            float heatedBedTargetTemp = ExtUI::getTargetTemp_celsius((ExtUI::heater_t) ExtUI::BED);
-            SEND_PGM_VAL("A3V ", int(heatedBedTargetTemp + 0.5));
+            const celsius_float_t heatedBedTargetTemp = getTargetTemp_celsius(BED);
+            SEND_PGM_VAL("A3V ", ROUND(heatedBedTargetTemp));
           } break;
 
           case 4: { // A4 GET FAN SPEED
-            float fanPercent = ExtUI::getActualFan_percent(ExtUI::FAN0);
-            fanPercent = constrain(fanPercent, 0, 100);
-            SEND_PGM_VAL("A4V ", int(fanPercent));
+            SEND_PGM_VAL("A4V ", int(getActualFan_percent(FAN0)));
           } break;
 
           case 5: { // A5 GET CURRENT COORDINATE
-            float xPostition = ExtUI::getAxisPosition_mm(ExtUI::X);
-            float yPostition = ExtUI::getAxisPosition_mm(ExtUI::Y);
-            float zPostition = ExtUI::getAxisPosition_mm(ExtUI::Z);
-            SEND_PGM("A5V X: ");
-            LCD_SERIAL.print(xPostition);
-            SEND_PGM(" Y: ");
-            LCD_SERIAL.print(yPostition);
-            SEND_PGM(" Z: ");
-            LCD_SERIAL.print(zPostition);
+            const float xPosition = getAxisPosition_mm(X),
+                        yPosition = getAxisPosition_mm(Y),
+                        zPosition = getAxisPosition_mm(Z);
+            SEND_PGM("A5V X: "); LCD_SERIAL.print(xPosition);
+            SEND_PGM(   " Y: "); LCD_SERIAL.print(yPosition);
+            SEND_PGM(   " Z: "); LCD_SERIAL.print(zPosition);
             SENDLINE_PGM("");
           } break;
 
           case 6: // A6 GET SD CARD PRINTING STATUS
             #if ENABLED(SDSUPPORT)
-              if (ExtUI::isPrintingFromMedia()) {
+              if (isPrintingFromMedia()) {
                 SEND_PGM("A6V ");
-                if (ExtUI::isMediaInserted())
-                  SENDLINE(ui8tostr3rj(ExtUI::getProgress_percent()));
+                if (isMediaInserted())
+                  SENDLINE(ui8tostr3rj(getProgress_percent()));
                 else
                   SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
               }
@@ -619,7 +613,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 7: { // A7 GET PRINTING TIME
-            const uint32_t elapsedSeconds = ExtUI::getProgress_seconds_elapsed();
+            const uint32_t elapsedSeconds = getProgress_seconds_elapsed();
             SEND_PGM("A7V ");
             if (elapsedSeconds != 0) {  // print time
               const uint32_t elapsedMinutes = elapsedSeconds / 60;
@@ -642,14 +636,14 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 9: // A9 pause sd print
             #if ENABLED(SDSUPPORT)
-              if (ExtUI::isPrintingFromMedia())
+              if (isPrintingFromMedia())
                 PausePrint();
             #endif
             break;
 
           case 10: // A10 resume sd print
             #if ENABLED(SDSUPPORT)
-              if (ExtUI::isPrintingFromMediaPaused())
+              if (isPrintingFromMediaPaused())
                 ResumePrint();
             #endif
             break;
@@ -664,7 +658,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 13: // A13 SELECTION FILE
             #if ENABLED(SDSUPPORT)
-              if (ExtUI::isMediaInserted()) {
+              if (isMediaInserted()) {
                 starpos = (strchr(TFTstrchr_pointer + 4, '*'));
                 if (TFTstrchr_pointer[4] == '/') {
                   strcpy(SelectedDirectory, TFTstrchr_pointer + 5);
@@ -682,8 +676,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                 else {
                   SelectedDirectory[0] = 0;
 
-                  if (starpos != NULL)
-                    *(starpos - 1) = '\0';
+                  if (starpos) *(starpos - 1) = '\0';
 
                   strcpy(SelectedFile, TFTstrchr_pointer + 4);
                   SENDLINE_DBG_PGM_VAL("J20", "TFT Serial Debug: File Selected... J20 ", SelectedFile); // J20 File Selected
@@ -694,7 +687,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 14: // A14 START PRINTING
             #if ENABLED(SDSUPPORT)
-              if (!ExtUI::isPrinting() && strlen(SelectedFile) > 0)
+              if (!isPrinting() && strlen(SelectedFile) > 0)
                 StartPrint();
             #endif
             break;
@@ -707,13 +700,13 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             unsigned int tempvalue;
             if (CodeSeen('S')) {
               tempvalue = constrain(CodeValue(), 0, 275);
-              ExtUI::setTargetTemp_celsius(tempvalue, (ExtUI::extruder_t) ExtUI::E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
-            else if (CodeSeen('C') && !ExtUI::isPrinting()) {
-              if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10)
-                ExtUI::injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+            else if (CodeSeen('C') && !isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
               tempvalue = constrain(CodeValue(), 0, 275);
-              ExtUI::setTargetTemp_celsius(tempvalue, (ExtUI::extruder_t) ExtUI::E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
           }
           break;
@@ -722,7 +715,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             unsigned int tempbed;
             if (CodeSeen('S')) {
               tempbed = constrain(CodeValue(), 0, 100);
-              ExtUI::setTargetTemp_celsius(tempbed, (ExtUI::heater_t)ExtUI::BED);
+              setTargetTemp_celsius(tempbed, (heater_t)BED);
             }
           }
           break;
@@ -732,18 +725,18 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             if (CodeSeen('S')) {
               fanPercent = CodeValue();
               fanPercent = constrain(fanPercent, 0, 100);
-              ExtUI::setTargetFan_percent(fanPercent, ExtUI::FAN0);
+              setTargetFan_percent(fanPercent, FAN0);
             }
             else
               fanPercent = 100;
 
-            ExtUI::setTargetFan_percent(fanPercent, ExtUI::FAN0);
+            setTargetFan_percent(fanPercent, FAN0);
             SENDLINE_PGM("");
           }
           break;
 
           case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
-            if (!ExtUI::isPrinting()) {
+            if (!isPrinting()) {
               quickstop_stepper();
               disable_all_steppers();
             }
@@ -759,23 +752,23 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 21: // A21 all home
-            if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
+            if (!isPrinting() && !isPrintingFromMediaPaused()) {
               if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
                 if (CodeSeen('X'))
-                  ExtUI::injectCommands_P(PSTR("G28 X"));
+                  injectCommands_P(PSTR("G28X"));
                 if (CodeSeen('Y'))
-                  ExtUI::injectCommands_P(PSTR("G28 Y"));
+                  injectCommands_P(PSTR("G28Y"));
                 if (CodeSeen('Z'))
-                  ExtUI::injectCommands_P(PSTR("G28 Z"));
+                  injectCommands_P(PSTR("G28Z"));
               }
               else if (CodeSeen('C')) {
-                ExtUI::injectCommands_P(PSTR("G28"));
+                injectCommands_P(G28_STR);
               }
             }
             break;
 
           case 22: // A22 move X/Y/Z or extrude
-            if (!ExtUI::isPrinting()) {
+            if (!isPrinting()) {
               float coorvalue;
               unsigned int movespeed = 0;
               char commandStr[30];
@@ -828,38 +821,38 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                   SERIAL_ECHOPGM("TFT Serial Debug: A22 Move final request with gcode... ");
                   SERIAL_ECHOLN(fullCommandStr);
                 #endif
-                ExtUI::injectCommands(fullCommandStr);
+                injectCommands(fullCommandStr);
               }
             }
             SENDLINE_PGM("");
             break;
 
           case 23: // A23 preheat pla
-            if (!ExtUI::isPrinting()) {
-              if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10)
-                ExtUI::injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+            if (!isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              ExtUI::setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (ExtUI::heater_t) ExtUI::BED);
-              ExtUI::setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (ExtUI::extruder_t) ExtUI::E0);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
               SENDLINE_PGM("OK");
             }
             break;
 
           case 24:// A24 preheat abs
-            if (!ExtUI::isPrinting()) {
-              if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10)
-                ExtUI::injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+            if (!isPrinting()) {
+              if (getAxisPosition_mm(Z) < 10)
+                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              ExtUI::setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (ExtUI::heater_t) ExtUI::BED);
-              ExtUI::setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (ExtUI::extruder_t) ExtUI::E0);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
               SENDLINE_PGM("OK");
             }
             break;
 
           case 25: // A25 cool down
-            if (!ExtUI::isPrinting()) {
-              ExtUI::setTargetTemp_celsius(0, (ExtUI::heater_t) ExtUI::BED);
-              ExtUI::setTargetTemp_celsius(0, (ExtUI::extruder_t) ExtUI::E0);
+            if (!isPrinting()) {
+              setTargetTemp_celsius(0, (heater_t) BED);
+              setTargetTemp_celsius(0, (extruder_t) E0);
 
               SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Cooling down... J12"); // J12 cool down
             }
@@ -867,9 +860,9 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 26: // A26 refresh SD
             #if ENABLED(SDSUPPORT)
-              if (ExtUI::isMediaInserted()) {
+              if (isMediaInserted()) {
                 if (strlen(SelectedDirectory) > 0) {
-                  ExtUI::FileList currentFileList;
+                  FileList currentFileList;
                   if ((SelectedDirectory[0] == '.') && (SelectedDirectory[1] == '.')) {
                     currentFileList.upDir();
                   }
@@ -923,7 +916,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
 void AnycubicTFTClass::DoSDCardStateCheck() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    bool isInserted = ExtUI::isMediaInserted();
+    bool isInserted = isMediaInserted();
     if (isInserted)
       SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isInserted");
     else
@@ -934,12 +927,12 @@ void AnycubicTFTClass::DoSDCardStateCheck() {
 
 void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    // NOTE: ExtUI::getFilamentRunoutState() only returns the runout state if the job is printing
+    // NOTE: getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
-    if (READ(FIL_RUNOUT_PIN)) {
+    if (READ(FIL_RUNOUT1_PIN)) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
-        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
+        injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
 
         // tell the user that the filament has run out and wait
         SENDLINE_DBG_PGM("J23", "TFT Serial Debug: Blocking filament prompt... J23");
@@ -953,30 +946,30 @@ void AnycubicTFTClass::DoFilamentRunoutCheck() {
 
 void AnycubicTFTClass::StartPrint() {
   #if ENABLED(SDSUPPORT)
-    if (!ExtUI::isPrinting() && strlen(SelectedFile) > 0) {
+    if (!isPrinting() && strlen(SelectedFile) > 0) {
       #if ENABLED(ANYCUBIC_LCD_DEBUG)
         SERIAL_ECHOPGM("TFT Serial Debug: About to print file ... ");
-        SERIAL_ECHO(ExtUI::isPrinting());
+        SERIAL_ECHO(isPrinting());
         SERIAL_ECHOPGM(" ");
         SERIAL_ECHOLN(SelectedFile);
       #endif
       mediaPrintingState = AMPRINTSTATE_PRINTING;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
-      ExtUI::printFile(SelectedFile);
+      printFile(SelectedFile);
     }
   #endif // SDUPPORT
 }
 
 void AnycubicTFTClass::PausePrint() {
   #if ENABLED(SDSUPPORT)
-    if (ExtUI::isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
+    if (isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
       mediaPrintingState = AMPRINTSTATE_PAUSE_REQUESTED;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
       SENDLINE_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
 
       // for some reason pausing the print doesn't retract the extruder so force a manual one here
-      ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
-      ExtUI::pausePrint();
+      injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
+      pausePrint();
     }
   #endif
 }
@@ -984,7 +977,7 @@ void AnycubicTFTClass::PausePrint() {
 void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if (READ(FIL_RUNOUT_PIN)) {
+      if (READ(FIL_RUNOUT1_PIN)) {
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
         #endif
@@ -1005,14 +998,14 @@ void AnycubicTFTClass::ResumePrint() {
       // SENDLINE_DBG_PGM("J05", "TFT Serial Debug: Resume called with heater timeout... J05"); // J05 printing pause
 
       // reheat the nozzle
-      ExtUI::setUserConfirmed();
+      setUserConfirmed();
     }
     else {
       mediaPrintingState = AMPRINTSTATE_PRINTING;
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
 
       SENDLINE_DBG_PGM("J04", "TFT Serial Debug: SD print resumed... J04"); // J04 printing form sd card now
-      ExtUI::resumePrint();
+      resumePrint();
     }
   #endif
 }
@@ -1024,8 +1017,8 @@ void AnycubicTFTClass::StopPrint() {
     SENDLINE_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
 
     // for some reason stopping the print doesn't retract the extruder so force a manual one here
-    ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
-    ExtUI::stopPrint();
+    injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
+    stopPrint();
   #endif
 }
 

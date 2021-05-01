@@ -167,9 +167,8 @@ void SPIFlashStorage::endWrite() {
   #endif
 }
 
-void SPIFlashStorage::savePage(uint8_t* buffer) {
+void SPIFlashStorage::savePage(uint8_t *buffer) {
   W25QXX.SPI_FLASH_BufferWrite(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
-
   // Test env
   // char fname[256];
   // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
@@ -178,15 +177,13 @@ void SPIFlashStorage::savePage(uint8_t* buffer) {
   // fclose(fp);
 }
 
-void SPIFlashStorage::loadPage(uint8_t* buffer) {
+void SPIFlashStorage::loadPage(uint8_t *buffer) {
   W25QXX.SPI_FLASH_BufferRead(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
-
   // Test env
   // char fname[256];
-  // memset(buffer, 0, SPI_FLASH_PageSize);
   // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
   // FILE *fp = fopen(fname, "rb");
-  // if (fp != NULL) {
+  // if (fp) {
   //     fread(buffer, 1, SPI_FLASH_PageSize, fp);
   //     fclose(fp);
   // }
@@ -259,7 +256,7 @@ void SPIFlashStorage::readPage() {
   #endif
 }
 
-uint16_t SPIFlashStorage::inData(uint8_t* data, uint16_t size) {
+uint16_t SPIFlashStorage::inData(uint8_t *data, uint16_t size) {
   // Don't write more than we can
   NOMORE(size, pageDataFree());
   memcpy(m_pageData + m_pageDataUsed, data, size);
@@ -267,7 +264,7 @@ uint16_t SPIFlashStorage::inData(uint8_t* data, uint16_t size) {
   return size;
 }
 
-void SPIFlashStorage::writeData(uint8_t* data, uint16_t size) {
+void SPIFlashStorage::writeData(uint8_t *data, uint16_t size) {
   // Flush a page if needed
   if (pageDataFree() == 0) flushPage();
 
@@ -292,7 +289,7 @@ void SPIFlashStorage::beginRead(uint32_t startAddress) {
   #endif
 }
 
-uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size) {
+uint16_t SPIFlashStorage::outData(uint8_t *data, uint16_t size) {
   // Don't read more than we have
   NOMORE(size, pageDataFree());
   memcpy(data, m_pageData + m_pageDataUsed, size);
@@ -300,7 +297,7 @@ uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size) {
   return size;
 }
 
-void SPIFlashStorage::readData(uint8_t* data, uint16_t size) {
+void SPIFlashStorage::readData(uint8_t *data, uint16_t size) {
   // Read a page if needed
   if (pageDataFree() == 0) readPage();
 
