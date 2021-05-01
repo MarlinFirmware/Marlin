@@ -2,12 +2,12 @@ name: 🐜 Report a bug
 description: Create a bug report to help improve the CR-6 Community Firmware
 title: "[BUG] (bug summary)"
 body:
-  - type: textarea
+  - type: markdown
     attributes:
       value: >
         Do you want to ask a question? Are you looking for support? Please use one of the [support links](https://github.com/CR6Community/Marlin/issues/new/choose).
 
-  - type: textarea
+  - type: markdown
     attributes:
       value: |
         **Thank you for reporting a bug in Marlin Firmware!**
@@ -44,7 +44,7 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: markdown
     attributes:
       value: |
         # Bug Details
@@ -89,7 +89,7 @@ body:
         2. [Second Step] ...
         3. [and so on] ...
 
-  - type: textarea
+  - type: markdown
     attributes:
       value: |
         # Your Setup
@@ -174,7 +174,7 @@ body:
         - Same as my slicer
         - Other (explain below)
 
-  - type: textarea
+  - type: markdown
     attributes:
       value: >-
         ## Other things to include
