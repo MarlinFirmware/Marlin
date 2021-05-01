@@ -605,6 +605,10 @@
   #error "SERIAL_PORT must be defined."
 #elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT."
+#elif defined(SERIAL_PORT_3) && SERIAL_PORT_3 == SERIAL_PORT
+  #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT."
+#elif defined(SERIAL_PORT_3) && SERIAL_PORT_3 == SERIAL_PORT_2
+  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT_3."
 #endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
