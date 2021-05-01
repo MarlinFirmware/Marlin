@@ -372,7 +372,7 @@ class Temperature {
     static inline bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     static inline bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
-    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+    #if EITHER(SINGLENOZZLE_STANDBY_TEMP,SINGLENOZZLE_STANDBY_FAN)
       static celsius_t singlenozzle_temp[EXTRUDERS];
       #if HAS_FAN
         static uint8_t singlenozzle_fan_speed[EXTRUDERS];

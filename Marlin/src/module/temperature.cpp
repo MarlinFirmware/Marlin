@@ -464,7 +464,7 @@ volatile bool Temperature::raw_temps_ready = false;
           Temperature::soft_pwm_count_fan[FAN_COUNT];
 #endif
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+#if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
   celsius_t Temperature::singlenozzle_temp[EXTRUDERS];
   #if HAS_FAN
     uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
