@@ -35,7 +35,11 @@
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
+  #if HAS_WIRED_LCD
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
 #endif
 
 //
