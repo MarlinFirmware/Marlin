@@ -171,7 +171,7 @@ void menu_temperature() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 
   //

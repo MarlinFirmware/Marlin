@@ -466,9 +466,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   celsius_t Temperature::singlenozzle_temp[EXTRUDERS];
-  #if HAS_FAN
-    uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
-  #endif
+#endif
+#if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+  uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
@@ -2500,20 +2500,22 @@ void Temperature::disable_all_heaters() {
 
 #endif // PROBING_HEATERS_OFF
 
-#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+#if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
 
   void Temperature::singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool) {
-    #if HAS_FAN
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
       singlenozzle_fan_speed[old_tool] = fan_speed[0];
       fan_speed[0] = singlenozzle_fan_speed[new_tool];
     #endif
-    singlenozzle_temp[old_tool] = temp_hotend[0].target;
-    if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
-      setTargetHotend(singlenozzle_temp[new_tool], 0);
-      TERN_(AUTOTEMP, planner.autotemp_update());
-      TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
-      (void)wait_for_hotend(0, false);  // Wait for heating or cooling
-    }
+    #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+      singlenozzle_temp[old_tool] = temp_hotend[0].target;
+      if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
+        setTargetHotend(singlenozzle_temp[new_tool], 0);
+        TERN_(AUTOTEMP, planner.autotemp_update());
+        TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
+        (void)wait_for_hotend(0, false);  // Wait for heating or cooling
+      }
+    #endif
   }
 
 #endif
