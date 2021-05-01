@@ -1,6 +1,6 @@
 name: 🐜 Report a bug
 description: Create a bug report to help improve the CR-6 Community Firmware
-title: "[BUG] (bug summary)"
+title: "[BUG] (enter short bug summary here)"
 body:
   - type: markdown
     attributes:
@@ -10,17 +10,21 @@ body:
   - type: markdown
     attributes:
       value: |
-        **Thank you for reporting a bug in Marlin Firmware!**
+        **Thank you for reporting a bug in the CR-6 Community Firmware!**
 
         ## Before Reporting a Bug
 
-        - Read and understand Marlin's [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
+        - Read and understand the [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md). You are expected to comply with it, including treating everyone with respect.
 
-        - Test with the [`extui` branch](https://github.com/CR6Community/Marlin/archive/extui.zip) or [the latest prerelease](https://github.com/CR6Community/Marlin/releases/) to see whether the issue still exists.
+        - Test with [by building the `extui` branch](https://github.com/CR6Community/Marlin/archive/extui.zip) or [check the latest prerelease](https://github.com/CR6Community/Marlin/releases/) to see whether the issue still exists.
 
         - Check if [the issue has been reported earlier](https://github.com/CR6Community/Marlin/issues?q=).
 
+        - Check if [the issue is not an issue of upstream Marlin](https://github.com/MarlinFirmware/Marlin/issues?q=).
+
         - Check if resetting to factory settings helps the issue.
+
+        - Ensure the you don't have a hardware issue that causes the problem you'd like to report.
 
         ## Instructions
 
