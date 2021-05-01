@@ -89,7 +89,7 @@
 
 #define CORP_WEBSITE_E "github.com/Jyers"
 
-#define BUILD_NUMBER "1.3.1"
+#define BUILD_NUMBER "1.3.2"
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
