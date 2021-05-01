@@ -113,3 +113,5 @@ if (!$NoReset) {
     git checkout Marlin/Configuration.h
     git checkout Marlin/Configuration_adv.h
 }
+
+Write-Host "Completed build $ConfigName to $Drive" -ForegroundColor Green
