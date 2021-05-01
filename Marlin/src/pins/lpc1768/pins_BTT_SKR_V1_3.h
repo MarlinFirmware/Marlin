@@ -367,18 +367,6 @@
 
 #endif // HAS_WIRED_LCD
 
-//
-// SD Support
-//
-
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                  LCD
-#endif
-
-#if SD_CONNECTION_IS(LCD)
-  #define SD_SS_PIN                  EXP2_07_PIN
-#endif
-
 /**
  * Special pins
  *   P1_30  (37) (NOT 5V tolerant)
