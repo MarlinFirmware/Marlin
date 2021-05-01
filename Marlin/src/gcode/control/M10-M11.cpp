@@ -25,7 +25,6 @@
 #if ENABLED(AIR_EVACUATION)
 
 #include "../gcode.h"
-#include "../../module/planner.h"
 #include "../../feature/spindle_laser.h"
 
 /**
