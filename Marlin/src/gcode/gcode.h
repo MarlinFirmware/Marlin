@@ -1079,6 +1079,10 @@ private:
     static void M1002();
   #endif
 
+  #if ENABLED(UBL_MESH_WIZARD)
+    static void M1004();
+  #endif
+
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
   #endif
