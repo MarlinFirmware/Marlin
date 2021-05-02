@@ -4104,15 +4104,15 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return (char*)"Info";
     #if HAS_MESH
       case Leveling:
-        return (char*)"Unified Bed Leveling";
+        return (char*)"Leveling";
       case LevelView:
-        return (char*)"UBL View";
+        return (char*)"Mesh View";
       case LevelSettings:
-        return (char*)"UBL Settings";
+        return (char*)"Leveling Settings";
       case MeshViewer:
         return (char*)"Mesh Viewer";
       case LevelManual:
-        return (char*)"UBL Manual Tuning";
+        return (char*)"Manual Tuning";
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
       case UBLMesh:
