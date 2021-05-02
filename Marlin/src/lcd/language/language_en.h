@@ -166,6 +166,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Tilting Point");
   PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Manually Build Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_WIZARD                 = _UxGT("UBL Mesh Wizard");
   PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Place Shim & Measure");
   PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Measure");
   PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Remove & Measure Bed");
