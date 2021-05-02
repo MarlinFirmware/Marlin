@@ -365,6 +365,7 @@ constexpr uint16_t VP_PLR_TOGGLE_ICON = 0x230F;
 
 // Mesh leveling
 constexpr uint16_t VP_LEVELING_NAV_BUTTON = 0x238a;
+constexpr uint16_t VP_LEVELING_EDIT_NAV_BUTTON = 0x23A8;
 
 constexpr uint16_t VP_MESH_SCREEN_MESSAGE_ICON = 0x22cb;
 constexpr uint16_t MESH_SCREEN_MESSAGE_ICON_LEVELING = 5;
