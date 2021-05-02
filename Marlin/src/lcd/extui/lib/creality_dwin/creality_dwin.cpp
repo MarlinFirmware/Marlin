@@ -2396,7 +2396,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define HOMEOFFSETS_BACK 0
       #define HOMEOFFSETS_XOFFSET (HOMEOFFSETS_BACK + 1)
       #define HOMEOFFSETS_YOFFSET (HOMEOFFSETS_XOFFSET + 1)
-      #define HOMEOFFSETS_TOTAL HOMEOFFSETS_YOFFSET
+      #define HOMEOFFSETS_ZERO (HOMEOFFSETS_YOFFSET + 1)
+      #define HOMEOFFSETS_TOTAL HOMEOFFSETS_ZERO
 
       switch (item) {
         case HOMEOFFSETS_BACK:
@@ -2423,6 +2424,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Modify_Value(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+          }
+          break;
+        case HOMEOFFSETS_ZERO:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Set Zero Position");
+          }
+          else {
+            gcode.process_subcommands_now_P(PSTR("G92 X0 Y0 Z0"));
           }
           break;
       }
