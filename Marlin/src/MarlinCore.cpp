@@ -1526,6 +1526,7 @@ void setup() {
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPAIR("elapsed=", elapsed);
     #endif
+    watchdog_refresh(); // To avoid BOOTSCREEN_TIMEOUT trigger watchdog
     SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif
 
