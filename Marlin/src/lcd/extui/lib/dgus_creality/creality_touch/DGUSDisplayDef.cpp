@@ -612,7 +612,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Position Data
   VPHELPER(VP_X_POSITION, &current_position.x, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Y_POSITION, &current_position.y, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 
   VPHELPER(SP_X_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<X_AXIS>),
   VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
