@@ -424,9 +424,9 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
     const float old_fac = planner.e_factor[active_extruder];
     planner.e_factor[active_extruder] = 1.0f;
   #endif
-  
-  if (TERN0(IS_KINEMATIC, is_fast)) prepare_fast_move_to_destination();
 
+  //if (TERN0(IS_KINEMATIC, is_fast)) prepare_fast_move_to_destination();
+  if (TERN0(IS_KINEMATIC, is_fast)) prepare_internal_move_to_destination();
   prepare_line_to_destination();
 
   feedrate_mm_s = old_feedrate;
