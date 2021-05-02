@@ -106,8 +106,12 @@ void Power::check() {
     nextPowerCheck = ms + 2500UL;
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT)))
+    else if (!lastPowerOn)
       power_off();
+    #ifdef POWER_TIMEOUT
+      else if (ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT)))
+        power_off();
+    #endif
   }
 }
 
@@ -135,7 +139,11 @@ void Power::power_off() {
 
 void Power::power_off_soon() {
   #if POWER_OFF_DELAY
-    lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+    #ifdef POWER_TIMEOUT
+      lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+    #else
+      lastPowerOn = millis() + SEC_TO_MS(POWER_OFF_DELAY);
+    #endif
   #else
     power_off();
   #endif
