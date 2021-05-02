@@ -987,7 +987,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
       #endif
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(UBL_MESH_WIZARD)
         case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
       #endif
 
