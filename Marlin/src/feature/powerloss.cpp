@@ -147,7 +147,7 @@ void PrintJobRecovery::prepare() {
 /**
  * Save the current machine state to the power-loss recovery file
  */
-void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/) {
+void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/, const bool parked/*=false*/) {
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -181,6 +181,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     // Machine state
     info.current_position = current_position;
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
+
+    info.parked = parked;
     info.zraise = zraise;
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
@@ -378,9 +380,10 @@ void PrintJobRecovery::resume() {
   #else // "G92.9 E0 ..."
 
     // If a Z raise occurred at outage restore Z, otherwise raise Z now
-    sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
-    gcode.process_subcommands_now(cmd);
-
+    if (!info.parked) {
+      sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
+      gcode.process_subcommands_now(cmd);
+    }
     // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
@@ -490,12 +493,23 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
-  dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
+    dtostrf(info.current_position.z, 1, 3, str_1);
     sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
   #else
+    if (info.parked) {
+      dtostrf(info.zraise, 1, 3, str_1);
+    } 
+    else {
+      dtostrf(info.current_position.z, 1, 3, str_1);
+    }
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
     sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
+    if (info.parked) {
+      gcode.process_subcommands_now(cmd);
+      dtostrf(info.current_position.z, 1, 3, str_1);
+      sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+    }
   #endif
   gcode.process_subcommands_now(cmd);
 

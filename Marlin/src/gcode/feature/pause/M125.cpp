@@ -78,7 +78,13 @@ void GcodeSuite::M125() {
   // If possible, show an LCD prompt with the 'P' flag
   const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
 
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+  const float raised_z = _MAX(park_point.z, _MIN(Z_MAX_POS, current_position.z
+          #ifdef NOZZLE_PARK_Z_RAISE_MIN
+            + NOZZLE_PARK_Z_RAISE_MIN
+          #endif
+        ));
+
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, raised_z, true));
 
   if (pause_print(retract, park_point, 0, show_lcd)) {
     if (ENABLED(EXTENSIBLE_UI) || !sd_printing || show_lcd) {
