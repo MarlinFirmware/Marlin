@@ -200,9 +200,9 @@
 
 #if HOTENDS == 1
   #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN           TEMP_1_PIN
+    #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
-    #define TEMP_CHAMBER_PIN         TEMP_1_PIN
+    #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
 #endif
 
@@ -288,7 +288,7 @@
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION                  LCD
 #endif
 
 /**
