@@ -27,7 +27,7 @@ This firmware is and will always be free and open source. That being said, I am 
 
 [PayPal](https://www.paypal.com/paypalme/jyers)
 
-[Patreon](patreon.com/Jyers)
+[Patreon](https://www.patreon.com/jyers)
 
 # Marlin 3D Printer Firmware
 
