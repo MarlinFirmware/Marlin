@@ -316,7 +316,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
   );
 
   #if !BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-    constexpr float mix_multiplier = 1.0;
+    constexpr float mix_multiplier = 1.0f;
   #endif
 
   if (!ensure_safe_temperature(false, mode)) {
@@ -371,7 +371,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
  */
 uint8_t did_pause_print = 0;
 
-bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float_t unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
+bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const_float_t unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPAIR("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
@@ -439,8 +439,14 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float
   // Disable the Extruder for manual change
   disable_active_extruder();
 
-  // The saved XYZ will be the parked position, which is fine here
-  TERN_(POWER_LOSS_RECOVERY, if (was_sd_printing && recovery.enabled) recovery.save(true, current_position.z - resume_position.z, true));
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (was_sd_printing && recovery.enabled) {                  // For an SD print
+      const xyze_pos_t tmp = current_position;
+      current_position = resume_position;
+      recovery.save(true, tmp.z - resume_position.z, true);
+      current_position = tmp;
+    }
+  #endif
 
   return true;
 }
