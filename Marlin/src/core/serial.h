@@ -95,7 +95,7 @@ extern uint8_t marlin_debug_flags;
     #else
       // Don't create a useless instance here, directly use the existing instance
       #define _SERIAL_LEAF_2 MYSERIAL2
-      #ifdef SERIAL_PORT_3
+      #if ENABLED(SERIAL_PORT_3)
         #define _SERIAL_LEAF_3 MYSERIAL3
       #endif
     #endif
@@ -108,16 +108,17 @@ extern uint8_t marlin_debug_flags;
     #define SERIAL_LEAF_2 mpSerial2
   #else
     #define SERIAL_LEAF_2 _SERIAL_LEAF_2
-    #ifdef SERIAL_PORT_3
+    #if ENABLED(SERIAL_PORT_3)
       #define SERIAL_LEAF_3 _SERIAL_LEAF_3
     #endif
   #endif
 
-  #ifdef SERIAL_PORT_3
-    typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2), decltype(SERIAL_LEAF_3), 0> SerialOutputT;
-  #else
-    typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2), 0> SerialOutputT;
+  typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2)
+  #if ENABLED(SERIAL_PORT_3)
+    , decltype(SERIAL_LEAF_3)
   #endif
+  , 0> SerialOutputT;
+
   extern SerialOutputT        multiSerial;
   #define SERIAL_IMPL         multiSerial
 #else

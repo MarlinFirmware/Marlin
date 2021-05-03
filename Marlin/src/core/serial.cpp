@@ -51,11 +51,11 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
     // We need a definition here
     SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
-  #ifdef SERIAL_PORT_3
-    SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2, SERIAL_LEAF_3);
-  #else
-    SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2);
+  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2
+  #if ENABLED(SERIAL_PORT_3)
+    , SERIAL_LEAF_3
   #endif
+    );
 #endif
 
 void serialprintPGM(PGM_P str) {
