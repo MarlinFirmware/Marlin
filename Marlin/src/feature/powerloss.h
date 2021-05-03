@@ -52,6 +52,7 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+
   float zraise;
 
   // Repeat information
@@ -70,7 +71,6 @@ typedef struct {
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
-    bool volumetric_enabled;
     float filament_size[EXTRUDERS];
   #endif
 
@@ -111,15 +111,16 @@ typedef struct {
   // Relative axis modes
   uint8_t axis_relative;
 
-  // Parked
-  bool parked;
-
   // Misc. Marlin flags
   struct {
+    bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
     #if ENABLED(HAS_LEVELING)
-      bool leveling:1;
+      bool leveling:1;            // M420 S
+    #endif
+    #if DISABLED(NO_VOLUMETRICS)
+      bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
 
@@ -178,7 +179,7 @@ class PrintJobRecovery {
     static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0, const bool parked=false);
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {

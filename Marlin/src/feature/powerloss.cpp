@@ -147,7 +147,7 @@ void PrintJobRecovery::prepare() {
 /**
  * Save the current machine state to the power-loss recovery file
  */
-void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/, const bool parked/*=false*/) {
+void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/, const bool raised/*=false*/) {
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -182,8 +182,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     info.current_position = current_position;
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
 
-    info.parked = parked;
     info.zraise = zraise;
+    info.flag.raised = raised;
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
@@ -194,7 +194,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      info.volumetric_enabled = parser.volumetric_enabled;
+      info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
@@ -293,7 +293,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     // Save, including the limited Z raise
-    if (IS_SD_PRINTING()) save(true, zraise);
+    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
@@ -379,11 +379,10 @@ void PrintJobRecovery::resume() {
 
   #else // "G92.9 E0 ..."
 
-    // If a Z raise occurred at outage restore Z, otherwise raise Z now
-    if (!info.parked) {
-      sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
-      gcode.process_subcommands_now(cmd);
-    }
+    // If a Z raise occurred at outage set Z to the Z raise value (over zero), otherwise raise Z now
+    sprintf_P(cmd, info.flag.raised ? PSTR("G92.9 E0 Z%s") : PSTR("G92.9 E0 Z0\nG1Z%s"), dtostrf(info.zraise, 1, 3, str_1));
+    gcode.process_subcommands_now(cmd);
+
     // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
@@ -417,12 +416,12 @@ void PrintJobRecovery::resume() {
         sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
-      if (!info.volumetric_enabled) {
+      if (!info.flag.volumetric_enabled) {
         sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
         gcode.process_subcommands_now(cmd);
       }
     #else
-      if (info.volumetric_enabled) {
+      if (info.flag.volumetric_enabled) {
         sprintf_P(cmd, PSTR("M200 D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
@@ -493,15 +492,12 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Move back to the saved Z
+  dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    sprintf_P(cmd, PSTR("G1 Z%s F500"), dtostrf(info.current_position.z, 1, 3, str_1));
+    sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
-    sprintf_P(cmd, PSTR("G92.9 Z%s"), dtostrf(info.parked ? info.zraise : info.current_position.z, 1, 3, str_1));
-    if (info.parked) {
-      gcode.process_subcommands_now(cmd);
-      sprintf_P(cmd, PSTR("G1 Z%s F200"), dtostrf(info.current_position.z, 1, 3, str_1));
-    }
+    sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
   #endif
   gcode.process_subcommands_now(cmd);
 

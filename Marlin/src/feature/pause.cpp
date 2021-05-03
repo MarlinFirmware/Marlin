@@ -438,6 +438,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float
   // Disable the Extruder for manual change
   disable_active_extruder();
 
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, current_position.z - resume_position.z, true));
+
   return true;
 }
 
