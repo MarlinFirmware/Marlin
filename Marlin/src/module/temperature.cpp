@@ -1950,6 +1950,7 @@ void Temperature::updateTemperaturesFromRawValues() {
  * Initialize the temperature manager
  *
  * The manager is implemented by periodic calls to manage_heater()
+ *
  *  - Init (and disable) SPI thermocouples like MAX6675 and MAX31865
  *  - Disable RUMBA JTAG to accommodate a thermocouple extension
  *  - Read-enable thermistors with a read-enable pin
@@ -2277,51 +2278,6 @@ void Temperature::init() {
     while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAXTEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
   #endif
 }
-
-#if WATCH_HOTENDS
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M104, M109)
-   */
-  void Temperature::start_watching_hotend(const uint8_t E_NAME) {
-    const uint8_t ee = HOTEND_INDEX;
-    watch_hotend[ee].restart(degHotend(ee), degTargetHotend(ee));
-  }
-#endif
-
-#if WATCH_BED
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M140, M190)
-   */
-  void Temperature::start_watching_bed() {
-    watch_bed.restart(degBed(), degTargetBed());
-  }
-#endif
-
-#if WATCH_CHAMBER
-  /**
-   * Start Heating Sanity Check for chamber that is below
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M141, M191)
-   */
-  void Temperature::start_watching_chamber() {
-    watch_chamber.restart(degChamber(), degTargetChamber());
-  }
-#endif
-
-#if WATCH_COOLER
-  /**
-   * Start Cooling Sanity Check for cooler that is above
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M143, M193)
-   */
-  void Temperature::start_watching_cooler() {
-    watch_cooler.restart(degCooler(), degTargetCooler());
-  }
-#endif
 
 #if HAS_THERMAL_PROTECTION
 
