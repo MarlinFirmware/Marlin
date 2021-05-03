@@ -1259,6 +1259,8 @@ void setup() {
 
   sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
 
+  SETUP_RUN(thermalManager.init());   // Initialize temperature loop
+
   SETUP_RUN(print_job_timer.init());  // Initial setup of print job timer
 
   SETUP_RUN(endstops.init());         // Init endstops and pullups
@@ -1534,8 +1536,6 @@ void setup() {
   #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
     ui.check_touch_calibration();
   #endif
-
-  SETUP_RUN(thermalManager.init());   // Initialize temperature loop
 
   marlin_state = MF_RUNNING;
 

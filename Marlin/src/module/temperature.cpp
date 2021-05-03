@@ -2192,7 +2192,7 @@ void Temperature::init() {
   #endif
 
   // Wait for temperature measurement to settle
-  delay(250);
+  //delay(250);
 
   #if HAS_HOTEND
 
