@@ -115,7 +115,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Com. Personalizados");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Com. Personalizados");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probar Sonda");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punto");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Desviación");
@@ -265,16 +265,6 @@ namespace Language_es {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Apg");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Auto-ajuste");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Auto-ajuste *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seleccionar");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seleccionar *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Aceleración");

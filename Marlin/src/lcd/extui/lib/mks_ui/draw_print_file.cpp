@@ -49,7 +49,7 @@ int8_t curDirLever = 0;
 LIST_FILE list_file;
 DIR_OFFSET dir_offset[10];
 
-extern uint8_t public_buf[512];
+extern uint8_t public_buf[513];
 extern char public_buf_m[100];
 
 uint8_t sel_id = 0;
@@ -66,15 +66,16 @@ uint8_t sel_id = 0;
     //root2.rewind();
     //SERIAL_ECHOLN(list_file.curDirPath);
 
-    if (curDirLever != 0) card.cd(list_file.curDirPath);
-    else card.cdroot(); // while(card.cdup());
+    if (curDirLever != 0)
+      card.cd(list_file.curDirPath);
+    else
+      card.cdroot();
 
     const uint16_t fileCnt = card.get_num_Files();
 
     for (uint16_t i = 0; i < fileCnt; i++) {
       if (list_file.Sd_file_cnt == list_file.Sd_file_offset) {
-        const uint16_t nr = SD_ORDER(i, fileCnt);
-        card.getfilename_sorted(nr);
+        card.getfilename_sorted(SD_ORDER(i, fileCnt));
 
         list_file.IsFolder[valid_name_cnt] = card.flag.filenameIsDir;
         strcpy(list_file.file_name[valid_name_cnt], list_file.curDirPath);
@@ -176,7 +177,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     }
     else {
       lv_clear_print_file();
-      lv_draw_ready_print();
+      TERN(MULTI_VOLUME, lv_draw_media_select(), lv_draw_ready_print());
     }
   }
   else {
@@ -205,7 +206,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_print_file(void) {
+void lv_draw_print_file() {
   //uint8_t i;
   uint8_t file_count;
 
@@ -247,6 +248,7 @@ static char test_public_buf_l[40];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
+  // TODO: set current media title?!
   scr = lv_screen_create(PRINT_FILE_UI, "");
 
   // Create image buttons
@@ -298,8 +300,8 @@ void disp_gcode_icon(uint8_t file_num) {
           strcat(test_public_buf_l, list_file.file_name[i]);
           char *temp = strstr(test_public_buf_l, ".GCO");
           if (temp) strcpy(temp, ".bin");
-          lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), "", 0);
-          lv_imgbtn_set_src_both(buttonGcode[i], test_public_buf_l);
+          lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), test_public_buf_l, 0);
+          lv_imgbtn_set_src_both(buttonGcode[i], buttonGcode[i]->mks_pic_name);
           if (i < 3) {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, nullptr);
@@ -358,7 +360,7 @@ void disp_gcode_icon(uint8_t file_num) {
 uint32_t lv_open_gcode_file(char *path) {
   #if ENABLED(SDSUPPORT)
     uint32_t *ps4;
-    uint32_t pre_sread_cnt = 0;
+    uint32_t pre_sread_cnt = UINT32_MAX;
     char *cur_name;
 
     cur_name = strrchr(path, '/');
@@ -399,6 +401,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
     char temp_test[200];
     volatile uint16_t *p_index;
 
+    watchdog_refresh();
     memset(public_buf, 0, 200);
 
     while (card.isFileOpen()) {
@@ -416,12 +419,20 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       }
 
       uint16_t c = card.get();
-      // check if we have more data or finished the line (CR)
-      if (c == '\r') break;
-      card.setIndex(card.getIndex());
+      // check for more data or end of line (CR or LF)
+      if (ISEOL(c)) {
+        c = card.get(); // more eol?
+        if (!ISEOL(c)) card.setIndex(card.getIndex() - 1);
+        break;
+      }
+      card.setIndex(card.getIndex() - 1);
       k++;
       j = 0;
       ignore_start = false;
+      if (k > 1) {
+        card.closefile();
+        break;
+      }
     }
     #if HAS_TFT_LVGL_UI_SPI
       for (i = 0; i < 200;) {

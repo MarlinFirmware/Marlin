@@ -21,11 +21,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if ENABLED(TOUCH_UI_FTDI_EVE)
-
 #include "screens.h"
 #include "screen_data.h"
+
+#ifdef FTDI_INTERFACE_SOUNDS_SCREEN
 
 using namespace FTDI;
 using namespace Theme;
@@ -157,4 +156,4 @@ void InterfaceSoundsScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_INTERFACE_SOUNDS_SCREEN

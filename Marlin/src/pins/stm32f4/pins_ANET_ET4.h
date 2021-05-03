@@ -16,15 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -155,11 +157,6 @@
   #define TOUCH_INT_PIN                     PB1
 #endif
 
-// Touchscreen calibration does not work correctly with ANET_ET5_TFT35 or ANET_ET4_TFT28
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #undef TOUCH_SCREEN_CALIBRATION
-#endif
-
 #if ENABLED(ANET_ET5_TFT35)
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X            17125
@@ -215,9 +212,9 @@
   #if DISABLED(SDIO_SUPPORT)
     #define SOFTWARE_SPI
     #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SD_SCK_PIN               SDIO_CK_PIN
+    #define SD_MISO_PIN              SDIO_D0_PIN
+    #define SD_MOSI_PIN             SDIO_CMD_PIN
   #endif
 
   #ifndef SD_DETECT_PIN

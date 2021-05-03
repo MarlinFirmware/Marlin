@@ -32,7 +32,6 @@
 
 #include "../inc/MarlinConfig.h"  // for pins
 #include "../module/planner.h"
-#include "../module/temperature.h"
 
 Joystick joystick;
 

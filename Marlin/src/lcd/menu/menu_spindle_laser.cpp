@@ -51,6 +51,16 @@
     editable.state = is_enabled;
     EDIT_ITEM(bool, MSG_CUTTER(TOGGLE), &is_enabled, []{ if (editable.state) cutter.disable(); else cutter.enable_same_dir(); });
 
+    #if ENABLED(AIR_EVACUATION)
+      bool evac_state = cutter.air_evac_state();
+      EDIT_ITEM(bool, MSG_CUTTER(EVAC_TOGGLE), &evac_state, cutter.air_evac_toggle);
+    #endif
+
+    #if ENABLED(AIR_ASSIST)
+      bool air_assist_state = cutter.air_assist_state();
+      EDIT_ITEM(bool, MSG_CUTTER(ASSIST_TOGGLE), &air_assist_state, cutter.air_assist_toggle);
+    #endif
+
     #if ENABLED(SPINDLE_CHANGE_DIR)
       if (!is_enabled) {
         editable.state = is_rev;
@@ -58,8 +68,14 @@
       }
     #endif
 
+    #if ENABLED(LASER_FEATURE)
+      // Setup and fire a test pulse using the current PWM power level for for a duration of test_pulse_min to test_pulse_max ms.
+      EDIT_ITEM_FAST(CUTTER_MENU_PULSE_TYPE, MSG_LASER_PULSE_MS, &cutter.testPulse, LASER_TEST_PULSE_MIN, LASER_TEST_PULSE_MAX);
+      ACTION_ITEM(MSG_LASER_FIRE_PULSE, cutter.test_fire_pulse);
+    #endif
+
     #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
-      EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
+      EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 80000, cutter.refresh_frequency);
     #endif
 
     END_MENU();

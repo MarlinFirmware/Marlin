@@ -114,7 +114,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("İndeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("İndeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Değeri");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Özel Komutlar");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Özel Komutlar");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Prob Testi");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Nokta");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Sapma");
@@ -257,16 +257,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Kapalı");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Kalibrasyon");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Kalibrasyon *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seç");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seç *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("İvme");

@@ -29,4 +29,6 @@
   #define BOARD_INFO_NAME "Melzi"
 #endif
 
+#define IS_MELZI 1
+
 #include "pins_SANGUINOLOLU_12.h"

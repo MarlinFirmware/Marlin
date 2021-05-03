@@ -191,21 +191,15 @@
       #define BTN_EN1                         11
       #define BTN_EN2                         10
       #define BTN_ENC                         16
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
       #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
       #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
     #endif
 
   #endif
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
-  #endif
-
 #else
-
   #define SERVO0_PIN                          27
-
 #endif
 
 #ifndef FIL_RUNOUT_PIN

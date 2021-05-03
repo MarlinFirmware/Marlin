@@ -73,29 +73,13 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
 
     // Get the new position
     const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-    #if IS_KINEMATIC
-      ui.manual_move.offset += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(ui.manual_move.offset, min - current_position[axis]);
-      else
-        NOMORE(ui.manual_move.offset, max - current_position[axis]);
-    #else
-      current_position[axis] += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(current_position[axis], min);
-      else
-        NOMORE(current_position[axis], max);
-    #endif
-
+    (void)ui.manual_move.apply_diff(axis, diff, min, max);
     ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
-    const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
-      axis
-    );
+    const float pos = ui.manual_move.axis_value(axis);
     if (parser.using_inch_units()) {
       const float imp_pos = LINEAR_UNIT(pos);
       MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
@@ -130,8 +114,8 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
-          + TERN0(IS_KINEMATIC, ui.manual_move.offset)
-          - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
+          PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
+          MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
         )
       );
     } // should_draw
@@ -149,7 +133,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 
 screenFunc_t _manual_move_func_ptr;
 
-void _goto_manual_move(const float scale) {
+void _goto_manual_move(const_float_t scale) {
   ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
@@ -189,7 +173,6 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
 
       #if DISABLED(HAS_GRAPHICAL_TFT)
-        extern const char NUL_STR[];
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
         MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
         lcd_put_u8str(tmp);
@@ -365,8 +348,6 @@ void menu_motion() {
   //
   #if ENABLED(ASSISTED_TRAMMING_WIZARD)
     SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
-  #elif ENABLED(ASSISTED_TRAMMING_MENU_ITEM)
-    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
   #endif
 
   //
@@ -384,7 +365,7 @@ void menu_motion() {
   #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
     #if DISABLED(PROBE_MANUALLY)
-      GCODES_ITEM(MSG_LEVEL_BED, PSTR("G28\nG29"));
+      GCODES_ITEM(MSG_LEVEL_BED, PSTR("G29N"));
     #endif
 
     if (all_axes_homed() && leveling_is_valid()) {
@@ -404,7 +385,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-    GCODES_ITEM(MSG_M48_TEST, PSTR("G28 O\nM48 P10"));
+    GCODES_ITEM(MSG_M48_TEST, PSTR("G28O\nM48 P10"));
   #endif
 
   //

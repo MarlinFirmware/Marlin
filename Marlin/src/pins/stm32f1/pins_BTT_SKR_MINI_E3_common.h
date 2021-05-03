@@ -188,7 +188,7 @@
        *               Board                                      Display
        *               _____                                       _____
        *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-       * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)      (PA9)    GLCD_CS | 3 4 | SD_CS (PA10)
+       * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)      (PA9)     LCD_CS | 3 4 | SD_CS (PA10)
        * (FREE)   PB9 | 5 6 | PA10 (SD_CS)                 (FREE) | 5 6 | MOSI  (SPI1-MOSI)
        *        RESET | 7 8 | PA9  (MOD_RESET)   (PB5)     SD_DET | 7 8 | (FREE)
        * (BEEPER) PB6 | 9 10| PB5  (SD_DET)                   GND | 9 10| 5V
@@ -274,7 +274,7 @@
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN                     PB5
-  #define SS_PIN                            PA10
+  #define SD_SS_PIN                         PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif

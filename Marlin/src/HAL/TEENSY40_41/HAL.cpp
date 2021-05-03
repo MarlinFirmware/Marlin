@@ -32,6 +32,13 @@
 
 #include <Wire.h>
 
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#endif
+USBSerialType USBSerial(false, SerialUSB);
+
 uint16_t HAL_adc_result, HAL_adc_select;
 
 static const uint8_t pin2sc1a[] = {
@@ -112,6 +119,8 @@ uint8_t HAL_get_reset_source() {
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 #define __bss_end _ebss
 

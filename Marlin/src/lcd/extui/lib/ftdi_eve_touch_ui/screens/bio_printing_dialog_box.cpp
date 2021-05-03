@@ -21,12 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
 
-#include "../ftdi_eve_lib/extras/circular_progress.h"
+#ifdef FTDI_BIO_PRINTING_DIALOG_BOX
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -35,7 +32,7 @@ using namespace Theme;
 #define GRID_COLS 2
 #define GRID_ROWS 9
 
-void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char* message) {
+void BioPrintingDialogBox::draw_status_message(draw_mode_t what, const char *message) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(COLOR_RGB(bg_text_enabled))
@@ -114,7 +111,7 @@ void BioPrintingDialogBox::setStatusMessage(progmem_str message) {
   setStatusMessage(buff);
 }
 
-void BioPrintingDialogBox::setStatusMessage(const char* message) {
+void BioPrintingDialogBox::setStatusMessage(const char *message) {
   CommandProcessor cmd;
   cmd.cmd(CMD_DLSTART)
      .cmd(CLEAR_COLOR_RGB(bg_color))
@@ -127,8 +124,7 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
   storeBackground();
 
   #if ENABLED(TOUCH_UI_DEBUG)
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("New status message: ", message);
+    SERIAL_ECHO_MSG("New status message: ", message);
   #endif
 
   if (AT_SCREEN(BioPrintingDialogBox))
@@ -148,4 +144,4 @@ void BioPrintingDialogBox::show() {
   GOTO_SCREEN(BioPrintingDialogBox);
 }
 
-#endif // TOUCH_UI_FTDI_EVE && TOUCH_UI_LULZBOT_BIO
+#endif // FTDI_BIO_PRINTING_DIALOG_BOX

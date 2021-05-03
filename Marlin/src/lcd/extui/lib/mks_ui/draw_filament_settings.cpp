@@ -46,7 +46,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_FILAMENT_SET_RETURN:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_filament_settings();
       draw_return_ui();
       break;
@@ -76,38 +76,38 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_UP:
-      uiCfg.para_ui_page = 0;
+      uiCfg.para_ui_page = false;
       lv_clear_filament_settings();
       lv_draw_filament_settings();
       break;
     case ID_FILAMENT_SET_DOWN:
-      uiCfg.para_ui_page = 1;
+      uiCfg.para_ui_page = true;
       lv_clear_filament_settings();
       lv_draw_filament_settings();
       break;
   }
 }
 
-void lv_draw_filament_settings(void) {
+void lv_draw_filament_settings() {
   scr = lv_screen_create(FILAMENT_SETTINGS_UI, machine_menu.FilamentConfTitle);
 
-  if (uiCfg.para_ui_page != 1) {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_length);
+  if (!uiCfg.para_ui_page) {
+    itoa(gCfgItems.filamentchange_load_length, public_buf_l, 10);
     lv_screen_menu_item_1_edit(scr, machine_menu.InLength, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_IN_LENGTH, 0, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_speed);
+    itoa(gCfgItems.filamentchange_load_speed, public_buf_l, 10);
     lv_screen_menu_item_1_edit(scr, machine_menu.InSpeed, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_FILAMENT_SET_IN_SPEED, 1, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_length);
+    itoa(gCfgItems.filamentchange_unload_length, public_buf_l, 10);
     lv_screen_menu_item_1_edit(scr, machine_menu.OutLength, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_FILAMENT_SET_OUT_LENGTH, 2, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_speed);
+    itoa(gCfgItems.filamentchange_unload_speed, public_buf_l, 10);
     lv_screen_menu_item_1_edit(scr, machine_menu.OutSpeed, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_FILAMENT_SET_OUT_SPEED, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_DOWN, true);
   }
   else {
-    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filament_limit_temper);
+    itoa(gCfgItems.filament_limit_temp, public_buf_l, 10);
     lv_screen_menu_item_1_edit(scr, machine_menu.FilamentTemperature, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_TEMP, 0, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_UP, true);

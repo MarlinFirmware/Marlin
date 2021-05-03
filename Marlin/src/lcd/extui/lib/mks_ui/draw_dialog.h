@@ -33,7 +33,7 @@ enum {
   DIALOG_TYPE_M80_FAIL,
   DIALOG_TYPE_MESSAGE_ERR1,
 
-  DIALOG_TYPE_UPDATE_ESP_FIRMARE,
+  DIALOG_TYPE_UPDATE_ESP_FIRMWARE,
   DIALOG_TYPE_UPDATE_ESP_DATA,
   DIALOG_TYPE_UPLOAD_FILE,
   DIALOG_TYPE_UNBIND,
@@ -74,18 +74,12 @@ enum {
   DIALOG_TRANSFER_NO_DEVICE
 };
 
-#define BTN_OK_X      100
-#define BTN_OK_Y      180
-#define BTN_CANCEL_X  280
-#define BTN_CANCEL_Y  180
+void lv_draw_dialog(uint8_t type);
+void lv_clear_dialog();
+void filament_sprayer_temp();
+void filament_dialog_handle();
+void lv_filament_setbar();
 
-extern void lv_draw_dialog(uint8_t type);
-extern void lv_clear_dialog();
-extern void filament_sprayer_temp();
-extern void filament_dialog_handle();
-extern void lv_filament_setbar();
-
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

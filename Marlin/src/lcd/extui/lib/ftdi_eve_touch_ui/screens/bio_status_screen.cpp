@@ -22,12 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-
-#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
-
 #include "screens.h"
 
-#include "../ftdi_eve_lib/extras/poly_ui.h"
+#ifdef FTDI_BIO_STATUS_SCREEN
 
 #if ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
@@ -319,7 +316,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case  9: GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: GOTO_SCREEN(BioConfirmHomeE); break;
-    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28 Z")); break;
+    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
     case 16: fine_motion = !fine_motion; break;
     default: return false;
@@ -376,4 +373,4 @@ void StatusScreen::onIdle() {
   }
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // FTDI_BIO_STATUS_SCREEN

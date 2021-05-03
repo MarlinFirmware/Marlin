@@ -114,6 +114,10 @@
   #undef THERMAL_PROTECTION_CHAMBER
 #endif
 
+#if TEMP_SENSOR_COOLER == 0
+  #undef THERMAL_PROTECTION_COOLER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -128,8 +132,14 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
@@ -211,14 +221,18 @@
 #if DISABLED(Y_DUAL_STEPPER_DRIVERS)
   #undef Y2_DRIVER_TYPE
 #endif
-#if NUM_Z_STEPPER_DRIVERS < 2
-  #undef Z2_DRIVER_TYPE
-#endif
-#if NUM_Z_STEPPER_DRIVERS < 3
-  #undef Z3_DRIVER_TYPE
-#endif
+
 #if NUM_Z_STEPPER_DRIVERS < 4
   #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -231,7 +245,7 @@
   #define _CUTTER_POWER_PERCENT 2
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
-  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
@@ -356,11 +370,6 @@
   #endif
 #endif
 
-// If platform requires early initialization of watchdog to properly boot
-#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
-  #define EARLY_WATCHDOG 1
-#endif
-
 // Full Touch Screen needs 'tft/xpt2046'
 #if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
@@ -380,6 +389,14 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
 #endif
 
 /**
@@ -476,12 +493,9 @@
 // Power Monitor sensors
 #if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
   #define HAS_POWER_MONITOR 1
-#endif
-#if ENABLED(POWER_MONITOR_CURRENT) && defined(POWER_MONITOR_FIXED_VOLTAGE)
-  #define HAS_POWER_MONITOR_VREF 1
-#endif
-#if BOTH(HAS_POWER_MONITOR_VREF, POWER_MONITOR_CURRENT)
-  #define HAS_POWER_MONITOR_WATTS 1
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+    #define HAS_POWER_MONITOR_WATTS 1
+  #endif
 #endif
 
 // Flag if an EEPROM type is pre-selected
@@ -494,41 +508,30 @@
   #define NEED_HEX_PRINT 1
 #endif
 
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
 #endif
 
-// Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
-#if ANY_SERIAL_IS(-1)
-  #define USING_SERIAL_DEFAULT
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define HAS_USER_ITEM(V...) DO(HAS,||,V)
+#else
+  #define HAS_USER_ITEM(N) 0
 #endif
-#if ANY_SERIAL_IS(0)
-  #define USING_SERIAL_0 1
+
+#if !HAS_MULTI_SERIAL
+  #undef MEATPACK_ON_SERIAL_PORT_2
 #endif
-#if ANY_SERIAL_IS(1)
-  #define USING_SERIAL_1 1
+#if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
+  #define HAS_MEATPACK 1
 #endif
-#if ANY_SERIAL_IS(2)
-  #define USING_SERIAL_2 1
-#endif
-#if ANY_SERIAL_IS(3)
-  #define USING_SERIAL_3 1
-#endif
-#if ANY_SERIAL_IS(4)
-  #define USING_SERIAL_4 1
-#endif
-#if ANY_SERIAL_IS(5)
-  #define USING_SERIAL_5 1
-#endif
-#if ANY_SERIAL_IS(6)
-  #define USING_SERIAL_6 1
-#endif
-#if ANY_SERIAL_IS(7)
-  #define USING_SERIAL_7 1
-#endif
-#if ANY_SERIAL_IS(8)
-  #define USING_SERIAL_8 1
-#endif
-#undef ANY_SERIAL_IS

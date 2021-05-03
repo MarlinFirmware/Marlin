@@ -42,7 +42,9 @@
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-TERN_(HAS_LEVELING, bool leveling_was_active);
+#if ENABLED(HAS_LEVELING)
+  bool leveling_was_active;
+#endif
 
 inline void z_clearance_move() {
   do_z_clearance(
@@ -56,14 +58,14 @@ inline void z_clearance_move() {
   );
 }
 
-void set_offset_and_go_back(const float &z) {
+void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
 
-void _goto_manual_move_z(const float scale) {
+void _goto_manual_move_z(const_float_t scale) {
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(lcd_move_z);
 }
@@ -88,7 +90,6 @@ void probe_offset_wizard_menu() {
                          !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
     sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
     #if DISABLED(HAS_GRAPHICAL_TFT)
-      extern const char NUL_STR[];
       SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
       MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       lcd_put_u8str(tmp);
@@ -146,7 +147,7 @@ void prepare_for_probe_offset_wizard() {
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
   current_position += probe.offset_xy;
-  line_to_current_position(MMM_TO_MMS(XY_PROBE_SPEED));
+  line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
   ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 

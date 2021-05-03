@@ -51,13 +51,15 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 flushableSerial
+#define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #define MYSERIAL1 Serial2Socket
+    typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+    extern DefaultSerial1 MSerial0;
+    #define MYSERIAL2 MSerial0
   #else
-    #define MYSERIAL1 webSocketSerial
+    #define MYSERIAL2 webSocketSerial
   #endif
 #endif
 
@@ -66,10 +68,6 @@ extern portMUX_TYPE spinlock;
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
 
 // ------------------------
 // Types
@@ -90,13 +88,20 @@ extern uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
+//
+// Tone
+//
+void toneInit();
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
+void noTone(const pin_t _pin);
+
 // clear reset reason
 void HAL_clear_reset_source();
 
 // reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(int delay);
 
@@ -134,7 +139,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 #define HAL_IDLETASK 1
 #define BOARD_INIT() HAL_init_board();
 void HAL_idletask();
-void HAL_init();
+inline void HAL_init() {}
 void HAL_init_board();
 
 //

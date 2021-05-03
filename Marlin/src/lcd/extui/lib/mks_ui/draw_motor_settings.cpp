@@ -41,30 +41,26 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_motor_settings();
   switch (obj->mks_obj_id) {
     case ID_MOTOR_RETURN:
-      lv_clear_motor_settings();
       draw_return_ui();
       break;
     case ID_MOTOR_STEPS:
-      lv_clear_motor_settings();
       lv_draw_step_settings();
       break;
     #if USE_SENSORLESS
       case ID_HOME_SENSE:
-        lv_clear_motor_settings();
         lv_draw_homing_sensitivity_settings();
         break;
     #endif
 
     #if HAS_TRINAMIC_CONFIG
       case ID_MOTOR_TMC_CURRENT:
-        lv_clear_motor_settings();
         lv_draw_tmc_current_settings();
         break;
       #if HAS_STEALTHCHOP
         case ID_MOTOR_STEP_MODE:
-          lv_clear_motor_settings();
           lv_draw_tmc_step_mode_settings();
           break;
       #endif
@@ -72,7 +68,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_motor_settings(void) {
+void lv_draw_motor_settings() {
   int index = 0;
 
   scr = lv_screen_create(MOTOR_SETTINGS_UI, machine_menu.MotorConfTitle);

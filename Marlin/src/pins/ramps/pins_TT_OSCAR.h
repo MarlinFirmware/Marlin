@@ -20,9 +20,7 @@
  *
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
   #error "TTOSCAR supports up to 5 hotends / E-steppers. Comment out this line to continue."
@@ -342,10 +340,10 @@
     #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                     38
-      //#define SHIFT_LD                      42
-      //#define SHIFT_OUT                     40
-      //#define SHIFT_EN                      17
+      //#define SHIFT_CLK_PIN                 38
+      //#define SHIFT_LD_PIN                  42
+      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_EN_PIN                  17
     #endif
 
   #endif
@@ -491,9 +489,9 @@
 
       // Buttons are directly attached to AUX-2
       #if IS_RRW_KEYPAD
-        #define SHIFT_OUT                     40
-        #define SHIFT_CLK                     44
-        #define SHIFT_LD                      42
+        #define SHIFT_OUT_PIN                 40
+        #define SHIFT_CLK_PIN                 44
+        #define SHIFT_LD_PIN                  42
         #define BTN_EN1                       64
         #define BTN_EN2                       59
         #define BTN_ENC                       63

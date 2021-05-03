@@ -68,8 +68,12 @@
 #define LCD_PINS_D4                           30  // ST9720 CLK
 
 #if ENABLED(BLTOUCH)
-  #define SERVO0_PIN                          27
-  #undef BEEPER_PIN
+  #ifndef SERVO0_PIN
+    #define SERVO0_PIN                        27
+  #endif
+  #if SERVO0_PIN == BEEPER_PIN
+    #undef BEEPER_PIN
+  #endif
 #elif ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
     #define FIL_RUNOUT_PIN                    27
@@ -91,13 +95,13 @@
   PIN:   3   Port: B3        Z_STEP_PIN                  protected
   PIN:   4   Port: B4        AVR_SS_PIN                  protected
   .                          FAN_PIN                     protected
-  .                          SS_PIN                      protected
+  .                       SD_SS_PIN                      protected
   PIN:   5   Port: B5        AVR_MOSI_PIN                Output = 1
-  .                          MOSI_PIN                    Output = 1
+  .                       SD_MOSI_PIN                    Output = 1
   PIN:   6   Port: B6        AVR_MISO_PIN                Input  = 0    TIMER3A   PWM:     0    WGM: 1    COM3A: 0    CS: 3    TCCR3A: 1    TCCR3B: 3    TIMSK3: 0
-  .                          MISO_PIN                    Input  = 0
+  .                       SD_MISO_PIN                    Input  = 0
   PIN:   7   Port: B7        AVR_SCK_PIN                 Output = 0    TIMER3B   PWM:     0    WGM: 1    COM3B: 0    CS: 3    TCCR3A: 1    TCCR3B: 3    TIMSK3: 0
-  .                          SCK_PIN                     Output = 0
+  .                       SD_SCK_PIN                     Output = 0
   PIN:   8   Port: D0        RXD                         Input  = 1
   PIN:   9   Port: D1        TXD                         Input  = 0
   PIN:  10   Port: D2        BTN_EN2                     Input  = 1

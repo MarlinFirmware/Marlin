@@ -70,7 +70,7 @@ namespace ExtUI {
     // into buff.
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
   }
 
@@ -80,8 +80,12 @@ namespace ExtUI {
     // from buff
 
     // Example:
-    //  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
+    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+  }
+
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
   }
 
   void onConfigurationStoreWritten(bool success) {
@@ -97,11 +101,11 @@ namespace ExtUI {
   #if HAS_MESH
     void onMeshLevelingStart() {}
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
 
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
     }
   #endif

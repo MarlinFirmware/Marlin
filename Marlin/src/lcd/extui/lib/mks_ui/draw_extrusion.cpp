@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
@@ -58,38 +54,34 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_E_ADD:
-      if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-        queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
+      if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
+        sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+        queue.inject(public_buf_l);
         extrudeAmount += uiCfg.extruStep;
         disp_extru_amount();
       }
       break;
     case ID_E_DEC:
-      if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-        queue.enqueue_now_P(PSTR("G91"));
-        sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+      if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
+        sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
         queue.enqueue_one_now(public_buf_l);
-        queue.enqueue_now_P(PSTR("G90"));
         extrudeAmount -= uiCfg.extruStep;
         disp_extru_amount();
       }
       break;
     case ID_E_TYPE:
       if (ENABLED(HAS_MULTI_EXTRUDER)) {
-        if (uiCfg.curSprayerChoose == 0) {
-          uiCfg.curSprayerChoose = 1;
+        if (uiCfg.extruderIndex == 0) {
+          uiCfg.extruderIndex = 1;
           queue.inject_P(PSTR("T1"));
         }
         else {
-          uiCfg.curSprayerChoose = 0;
+          uiCfg.extruderIndex = 0;
           queue.inject_P(PSTR("T0"));
         }
       }
       else
-        uiCfg.curSprayerChoose = 0;
+        uiCfg.extruderIndex = 0;
 
       extrudeAmount = 0;
       disp_hotend_temp();
@@ -121,7 +113,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_extrusion(void) {
+void lv_draw_extrusion() {
   scr = lv_screen_create(EXTRUSION_UI);
   // Create image buttons
   lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);
@@ -161,7 +153,7 @@ void lv_draw_extrusion(void) {
 }
 
 void disp_ext_type() {
-  if (uiCfg.curSprayerChoose == 1) {
+  if (uiCfg.extruderIndex == 1) {
     lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
     if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, extrude_menu.ext2);
@@ -203,7 +195,7 @@ void disp_ext_speed() {
 
 void disp_hotend_temp() {
   char buf[20] = {0};
-  sprintf(buf, extrude_menu.temp_value, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
+  sprintf(buf, extrude_menu.temp_value, thermalManager.wholeDegHotend(uiCfg.extruderIndex), thermalManager.degTargetHotend(uiCfg.extruderIndex));
   strcpy(public_buf_l, extrude_menu.temper_text);
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText, public_buf_l);
@@ -221,7 +213,7 @@ void disp_extru_amount() {
     sprintf(buf1, extrude_menu.count_value_cm, extrudeAmount / 10);
   else
     sprintf(buf1, extrude_menu.count_value_m, extrudeAmount / 1000);
-  strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
+  strcat(public_buf_l, uiCfg.extruderIndex == 0 ? extrude_menu.ext1 : extrude_menu.ext2);
   strcat(public_buf_l, buf1);
 
   lv_label_set_text(ExtruText, public_buf_l);

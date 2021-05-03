@@ -112,7 +112,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comandos Personaliz.");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comandos Personaliz.");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probar Sonda");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punto");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Desviación");
@@ -266,16 +266,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Auto-Sint. fallida. Extrusor danado.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Auto-Sint. fallida. Temperatura moi alta.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Auto-Sint. fallida. Tempo excedido.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Escolla");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Escolla *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Acel");

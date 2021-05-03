@@ -26,8 +26,8 @@
   #include "media_file_reader.h"
 
   #if ENABLED(SDSUPPORT)
-    bool MediaFileReader::open(const char* filename) {
-      card.init(SPI_SPEED, SDSS);
+    bool MediaFileReader::open(const char *filename) {
+      card.init(SD_SPI_SPEED, SDSS);
       volume.init(&card);
       root.openRoot(&volume);
       return file.open(&root, filename, O_READ);

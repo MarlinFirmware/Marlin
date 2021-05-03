@@ -27,13 +27,10 @@
 #include "../../gcode.h"
 #include "../../parser.h"
 #include "../../../feature/pause.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
-#include "../../../sd/cardreader.h"
 #include "../../../module/printcounter.h"
-
-#if HAS_LCD_MENU
-  #include "../../../lcd/marlinui.h"
-#endif
+#include "../../../sd/cardreader.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
@@ -76,13 +73,14 @@ void GcodeSuite::M125() {
 
   const bool sd_printing = TERN0(SDSUPPORT, IS_SD_PRINTING());
 
-  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT));
+  ui.pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT);
 
   // If possible, show an LCD prompt with the 'P' flag
   const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
 
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+
   if (pause_print(retract, park_point, 0, show_lcd)) {
-    TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
     if (ENABLED(EXTENSIBLE_UI) || !sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, -retract, 0);

@@ -45,70 +45,60 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+
+  lv_clear_max_feedrate_settings();
   switch (obj->mks_obj_id) {
     case ID_FEED_RETURN:
-      uiCfg.para_ui_page = 0;
-      lv_clear_max_feedrate_settings();
+      uiCfg.para_ui_page = false;
       draw_return_ui();
-      break;
+      return;
     case ID_FEED_X:
       value = XMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_Y:
       value = YMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_Z:
       value = ZMaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_E0:
       value = E0MaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_E1:
       value = E1MaxFeedRate;
-      lv_clear_max_feedrate_settings();
-      lv_draw_number_key();
       break;
     case ID_FEED_UP:
-      uiCfg.para_ui_page = 0;
-      lv_clear_max_feedrate_settings();
+      uiCfg.para_ui_page = false;
       lv_draw_max_feedrate_settings();
-      break;
+      return;
     case ID_FEED_DOWN:
-      uiCfg.para_ui_page = 1;
-      lv_clear_max_feedrate_settings();
+      uiCfg.para_ui_page = true;
       lv_draw_max_feedrate_settings();
-      break;
+      return;
   }
+  lv_draw_number_key();
 }
 
-void lv_draw_max_feedrate_settings(void) {
+void lv_draw_max_feedrate_settings() {
   scr = lv_screen_create(MAXFEEDRATE_UI, machine_menu.MaxFeedRateConfTitle);
 
-  if (uiCfg.para_ui_page != 1) {
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[X_AXIS]);
+  if (!uiCfg.para_ui_page) {
+    dtostrf(planner.settings.max_feedrate_mm_s[X_AXIS], 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.XMaxFeedRate, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FEED_X, 0, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Y_AXIS]);
+    dtostrf(planner.settings.max_feedrate_mm_s[Y_AXIS], 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.YMaxFeedRate, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_FEED_Y, 1, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Z_AXIS]);
+    dtostrf(planner.settings.max_feedrate_mm_s[Z_AXIS], 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.ZMaxFeedRate, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_FEED_Z, 2, public_buf_l);
 
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS]);
+    dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS], 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E0MaxFeedRate, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_FEED_E0, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FEED_DOWN, true);
   }
   else {
-    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
+    dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E1MaxFeedRate, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FEED_E1, 0, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FEED_UP, true);

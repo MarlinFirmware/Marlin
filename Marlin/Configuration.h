@@ -44,30 +44,29 @@
 //===========================================================================
 
 /**
- * Here are some standard links for getting your machine calibrated:
+ * Here are some useful links to help get your machine configured and calibrated:
  *
- * https://reprap.org/wiki/Calibration
- * https://youtu.be/wAL9d7FgInk
- * http://calculator.josefprusa.cz
- * https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
- * https://www.thingiverse.com/thing:5573
- * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
- * https://www.thingiverse.com/thing:298812
+ * Example Configs:     https://github.com/MarlinFirmware/Configurations/branches/all
+ *
+ * Průša Calculator:    https://blog.prusaprinters.org/calculator_3416/
+ *
+ * Calibration Guides:  https://reprap.org/wiki/Calibration
+ *                      https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ *                      https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ *                      https://youtu.be/wAL9d7FgInk
+ *
+ * Calibration Objects: https://www.thingiverse.com/thing:5573
+ *                      https://www.thingiverse.com/thing:1278865
  */
 
 //===========================================================================
-//============================= DELTA Printer ===============================
+//========================== DELTA / SCARA / TPARA ==========================
 //===========================================================================
-// For a Delta printer, start with one of the configuration files in the config/examples/delta directory
-// from https://github.com/MarlinFirmware/Configurations/branches/all and customize for your machine.
 //
-
-//===========================================================================
-//============================= SCARA Printer ===============================
-//===========================================================================
-// For a SCARA printer, start with one of the configuration files in the config/examples/SCARA directory
-// from https://github.com/MarlinFirmware/Configurations/branches/all and customize for your machine.
+// Download configurations from the link above and customize for your machine.
+// Examples are located in config/examples/delta, .../SCARA, and .../TPARA.
 //
+//===========================================================================
 
 // @section info
 
@@ -163,11 +162,11 @@
  * Multi-Material Unit
  * Set to one of these predefined models:
  *
- *   PRUSA_MMU1      : Průša MMU1 (The "multiplexer" version)
- *   PRUSA_MMU2      : Průša MMU2
- *   PRUSA_MMU2S     : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
- *   SMUFF_EMU_MMU2  : Technik Gegg SMUFF (Průša MMU2 emulation mode)
- *   SMUFF_EMU_MMU2S : Technik Gegg SMUFF (Průša MMU2S emulation mode)
+ *   PRUSA_MMU1           : Průša MMU1 (The "multiplexer" version)
+ *   PRUSA_MMU2           : Průša MMU2
+ *   PRUSA_MMU2S          : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
+ *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * See additional options in Configuration_adv.h.
@@ -332,8 +331,10 @@
     #define AUTO_POWER_E_FANS
     #define AUTO_POWER_CONTROLLERFAN
     #define AUTO_POWER_CHAMBER_FAN
+    #define AUTO_POWER_COOLER_FAN
     //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU if any extruder is over this temperature
     //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) Turn on PSU if the cooler is over this temperature
     #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
     //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
   #endif
@@ -421,9 +422,10 @@
 #define TEMP_SENSOR_BED 1
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_COOLER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
-#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_998_VALUE  25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
@@ -437,13 +439,17 @@
 //#define TEMP_SENSOR_1_AS_REDUNDANT
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
-#define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_RESIDENCY_TIME         10  // (seconds) Time to wait for hotend to "settle" in M109
+#define TEMP_WINDOW                  1  // (°C) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS              3  // (°C) Temperature proximity considered "close enough" to the target
 
-#define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_RESIDENCY_TIME     10  // (seconds) Time to wait for bed to "settle" in M190
+#define TEMP_BED_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
+
+#define TEMP_CHAMBER_RESIDENCY_TIME 10  // (seconds) Time to wait for chamber to "settle" in M191
+#define TEMP_CHAMBER_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
+#define TEMP_CHAMBER_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -456,6 +462,7 @@
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
 #define BED_MINTEMP        5
+#define CHAMBER_MINTEMP    5
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -541,7 +548,51 @@
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
-#if EITHER(PIDTEMP, PIDTEMPBED)
+//===========================================================================
+//==================== PID > Chamber Temperature Control ====================
+//===========================================================================
+
+/**
+ * PID Chamber Heating
+ *
+ * If this option is enabled set PID constants below.
+ * If this option is disabled, bang-bang will be used and CHAMBER_LIMIT_SWITCHING will enable
+ * hysteresis.
+ *
+ * The PID frequency will be the same as the extruder PWM.
+ * If PID_dT is the default, and correct for the hardware/configuration, that means 7.689Hz,
+ * which is fine for driving a square wave into a resistive load and does not significantly
+ * impact FET heating. This also works fine on a Fotek SSR-10DA Solid State Relay into a 200W
+ * heater. If your configuration is significantly different than this and you don't understand
+ * the issues involved, don't use chamber PID until someone else verifies that your hardware works.
+ */
+//#define PIDTEMPCHAMBER
+//#define CHAMBER_LIMIT_SWITCHING
+
+/**
+ * Max Chamber Power
+ * Applies to all forms of chamber control (PID, bang-bang, and bang-bang with hysteresis).
+ * When set to any value below 255, enables a form of PWM to the chamber heater that acts like a divider
+ * so don't use it unless you are OK with PWM on your heater. (See the comment on enabling PIDTEMPCHAMBER)
+ */
+#define MAX_CHAMBER_POWER 255 // limits duty cycle to chamber heater; 255=full current
+
+#if ENABLED(PIDTEMPCHAMBER)
+  #define MIN_CHAMBER_POWER 0
+  //#define PID_CHAMBER_DEBUG // Sends debug data to the serial port.
+
+  // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
+  // and placed inside the small Creality printer enclosure tent.
+  //
+  #define DEFAULT_chamberKp 37.04
+  #define DEFAULT_chamberKi 1.40
+  #define DEFAULT_chamberKd 655.17
+  // M309 P37.04 I1.04 D655.17
+
+  // FIND YOUR OWN: "M303 E-2 C8 S50" to run autotune on the chamber at 50 degreesC for 8 cycles.
+#endif // PIDTEMPCHAMBER
+
+#if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -588,6 +639,7 @@
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
+#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -904,11 +956,6 @@
 //#define BLTOUCH
 
 /**
- * Pressure sensor with a BLTouch-like interface
- */
-//#define CREALITY_TOUCH
-
-/**
  * Touch-MI Probe by hotends.fr
  *
  * This probe is deployed and activated by moving the X-axis to a magnet at the edge of the bed.
@@ -1005,13 +1052,13 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (133*60)
+#define XY_PROBE_FEEDRATE (133*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST (4*60)
+#define Z_PROBE_FEEDRATE_FAST (4*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
 
 /**
  * Probe Activation Switch
@@ -1096,6 +1143,7 @@
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
+  //#define WAIT_FOR_HOTEND         // Wait for hotend to heat back up between probes (to improve accuracy & prevent cold extrude)
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
@@ -1152,7 +1200,13 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
 //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+
+/**
+ * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
+ *  - Use a low value (i.e., Z_MIN_POS) if the nozzle falls down to the bed.
+ *  - Use a large value (i.e., Z_MAX_POS) if the bed falls down, away from the nozzle.
+ */
+//#define Z_IDLE_HEIGHT Z_HOME_POS
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1229,6 +1283,8 @@
   #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+  //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
+                                          // This is automatically enabled for MIXING_EXTRUDERs.
 
   // Override individually if the runout sensors vary
   //#define FIL_RUNOUT1_STATE LOW
@@ -1263,8 +1319,9 @@
   //#define FIL_RUNOUT8_PULLUP
   //#define FIL_RUNOUT8_PULLDOWN
 
-  // Set one or more commands to execute on filament runout.
-  // (After 'M412 H' Marlin will ask the host to handle the process.)
+  // Commands to execute on filament runout.
+  // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
+  // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament
@@ -1348,6 +1405,11 @@
  */
 //#define DEBUG_LEVELING_FEATURE
 
+#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
+  // Set a height for the start of manual adjustment
+  #define MANUAL_PROBE_START_Z 0.2  // (mm) Comment out to use the last-measured height
+#endif
+
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
@@ -1369,10 +1431,11 @@
   //#define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
-    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
+    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
+    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
+    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
+    #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
     #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
@@ -1417,11 +1480,15 @@
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
+  //#define UBL_HILBERT_CURVE       // Use Hilbert distribution for less travel when probing multiple points
+
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
   //#define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // When the nozzle is off the mesh, this value is used
                                           // as the Z-Height correction value.
+
+  //#define UBL_MESH_WIZARD         // Run several commands in a row to get a complete mesh
 
 #elif ENABLED(MESH_BED_LEVELING)
 
@@ -1463,6 +1530,25 @@
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
     //#define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
+
+  /**
+   * Corner Leveling Order
+   *
+   * Set 2 or 4 points. When 2 points are given, the 3rd is the center of the opposite edge.
+   *
+   *  LF  Left-Front    RF  Right-Front
+   *  LB  Left-Back     RB  Right-Back
+   *
+   * Examples:
+   *
+   *      Default        {LF,RB,LB,RF}         {LF,RF}           {LB,LF}
+   *  LB --------- RB   LB --------- RB    LB --------- RB   LB --------- RB
+   *  |  4       3  |   | 3         2 |    |     <3>     |   | 1           |
+   *  |             |   |             |    |             |   |          <3>|
+   *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
+   *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
+   */
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
 
 /**
@@ -1606,7 +1692,9 @@
 
 // @section temperature
 
-// Preheat Constants
+//
+// Preheat Constants - Up to 5 are supported without changes
+//
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 195
 #define PREHEAT_1_TEMP_BED     60
@@ -1746,6 +1834,9 @@
  * View the current statistics with M78.
  */
 //#define PRINTCOUNTER
+#if ENABLED(PRINTCOUNTER)
+  #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print
+#endif
 
 /**
  * Password
@@ -1790,9 +1881,9 @@
  * Select the language to display on the LCD. These languages are available:
  *
  *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, hu, it,
- *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
+ *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, sv, tr, uk, vi, zh_CN, zh_TW
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
 #define LCD_LANGUAGE en
 
@@ -1834,16 +1925,6 @@
  * you must uncomment the following option or it won't work.
  */
 #define SDSUPPORT
-
-/**
- * SD CARD: SPI SPEED
- *
- * Enable one of the following items for a slower SPI transfer speed.
- * This may be required to resolve "volume init" errors.
- */
-//#define SPI_SPEED SPI_HALF_SPEED
-//#define SPI_SPEED SPI_QUARTER_SPEED
-//#define SPI_SPEED SPI_EIGHTH_SPEED
 
 /**
  * SD CARD: ENABLE CRC
@@ -1945,6 +2026,14 @@
 // Note: Usually sold with a white PCB.
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
+
+//
+// GT2560 (YHCB2004) LCD Display
+//
+// Requires Testato, Koepel softwarewire library and
+// Andriy Golovnya's LiquidCrystal_AIP31068 library.
+//
+//#define YHCB2004
 
 //
 // Original RADDS LCD Display+Encoder+SDCardReader
@@ -2097,6 +2186,11 @@
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
+// K.3D Full Graphic Smart Controller
+//
+//#define K3D_FULL_GRAPHIC_SMART_CONTROLLER
+
+//
 // ReprapWorld Graphical LCD
 // https://reprapworld.com/?products_details&products_id/1218
 //
@@ -2233,7 +2327,7 @@
 //#define OLED_PANEL_TINYBOY2
 
 //
-// MKS OLED 1.3" 128×64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128×64 Full Graphics Controller
 // https://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
@@ -2242,7 +2336,7 @@
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 //
-// Zonestar OLED 128×64 FULL GRAPHICS CONTROLLER
+// Zonestar OLED 128×64 Full Graphics Controller
 //
 //#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
@@ -2259,9 +2353,14 @@
 //#define OVERLORD_OLED
 
 //
-// FYSETC OLED 2.42" 128×64 FULL GRAPHICS CONTROLLER with WS2812 RGB
+// FYSETC OLED 2.42" 128×64 Full Graphics Controller with WS2812 RGB
 // Where to find : https://www.aliexpress.com/item/4000345255731.html
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
+
+//
+// K.3D SSD1309 OLED 2.42" 128×64 Full Graphics Controller
+//
+//#define K3D_242_OLED_CONTROLLER   // Software SPI
 
 //=============================================================================
 //========================== Extensible UI Displays ===========================
@@ -2275,6 +2374,11 @@
 //#define DGUS_LCD_UI_ORIGIN
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
+
+//#define DGUS_LCD_UI_MKS
+#if ENABLED(DGUS_LCD_UI_MKS)
+  #define USE_MKS_GREEN_UI
+#endif
 
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
@@ -2303,6 +2407,14 @@
 #if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
   #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
   //#define ANYCUBIC_LCD_DEBUG
+#endif
+
+//
+// 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
+//
+//#define NEXTION_TFT
+#if ENABLED(NEXTION_TFT)
+  #define LCD_SERIAL_PORT 1  // Default is 1 for Nextion
 #endif
 
 //
@@ -2391,6 +2503,11 @@
 //#define ANET_ET5_TFT35
 
 //
+// 1024x600, 7", RGB Stock Display from BIQU-BX
+//
+//#define BIQU_BX_TFT70
+
+//
 // Generic TFT with detailed options
 //
 //#define TFT_GENERIC
@@ -2421,6 +2538,10 @@
 //#define TFT_CLASSIC_UI
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
+
+#if ENABLED(TFT_LVGL_UI)
+  //#define MKS_WIFI_MODULE  // MKS WiFi module
+#endif
 
 /**
  * TFT Rotation. Set to one of the following values:
@@ -2455,6 +2576,11 @@
   //#define TOUCH_CALIBRATION_Y -8981
   //#define TOUCH_OFFSET_X        -43
   //#define TOUCH_OFFSET_Y        257
+  //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+
+  #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+    #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
+  #endif
 
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
@@ -2572,6 +2698,7 @@
   // Use a single NeoPixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
+  //#define NEOPIXEL_BKGD_ALWAYS_ON                  // Keep the backlight on when other NeoPixels are off
 #endif
 
 /**

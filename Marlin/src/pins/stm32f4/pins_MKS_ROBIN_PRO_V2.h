@@ -21,30 +21,41 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
 
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
 //#define SPI_MODULE                           2
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -54,8 +65,6 @@
 #define Z_DIAG_PIN                          PA11
 #define E0_DIAG_PIN                         PC4
 #define E1_DIAG_PIN                         PE7
-
-//
 
 #define X_STOP_PIN                          PA15
 #define Y_STOP_PIN                          PA12
@@ -159,7 +168,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -186,19 +195,18 @@
 //
 // Misc. Functions
 //
-// #define POWER_LOSS_PIN                      PA2   // PW_DET
-// #define PS_ON_PIN                           PA3   // PW_OFF
-// #define SUICIDE_PIN                         PB2     // Enable MKSPWC support
-// #define KILL_PIN                            PA2     // Enable MKSPWC support
-// #define KILL_PIN_INVERTING                  true     // Enable MKSPWC support
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
+//#define POWER_LOSS_PIN                    PA2   // PW_DET
+//#define PS_ON_PIN                         PA3   // PW_OFF
+//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support
+//#define KILL_PIN                          PA2   // Enable MKSPWC support
+//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-// #define USE_NEW_SPI_API 1
+//#define USE_NEW_SPI_API 1
 
 //
 // Onboard SD card
@@ -213,11 +221,11 @@
       #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)
     #else
       #define ENABLE_SPI3
-      #define SS_PIN                        -1
+      #define SD_SS_PIN                     -1
       #define SDSS                          PC9
-      #define SCK_PIN                       PC10
-      #define MISO_PIN                      PC11
-      #define MOSI_PIN                      PC12
+      #define SD_SCK_PIN                    PC10
+      #define SD_MISO_PIN                   PC11
+      #define SD_MOSI_PIN                   PC12
     #endif
     #define SD_DETECT_PIN                   PD12
   #endif
@@ -232,9 +240,9 @@
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
     #define SDSS                            PE10
-    #define SCK_PIN                         PA5
-    #define MISO_PIN                        PA6
-    #define MOSI_PIN                        PA7
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif
@@ -243,7 +251,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -316,10 +324,11 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  // #define TFT_DRIVER                      ST7796
+  //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
   #define LCD_PINS_ENABLE                   PD13
@@ -361,4 +370,5 @@
     #endif
 
   #endif // !MKS_MINI_12864
-#endif // HAS_SPI_LCD
+
+#endif // HAS_WIRED_LCD

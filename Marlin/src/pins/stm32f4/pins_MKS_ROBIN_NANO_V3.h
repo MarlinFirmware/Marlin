@@ -16,14 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 2 hotends / E-steppers."
 #elif HAS_FSMC_TFT
   #error "MKS Robin Nano V3 doesn't support FSMC-based TFT displays."
@@ -31,17 +32,29 @@
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
 
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
+
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER 10
+#define STEP_TIMER                            10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB6
+#define I2C_SDA_PIN                         PB7
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
 //
+//#define DISABLE_DEBUG
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH
 
 //
 // Limit Switches
@@ -98,8 +111,8 @@
 
 //
 // Software SPI pins for TMC2130 stepper drivers
+// This board only supports SW SPI for stepper drivers
 //
-// This board only support SW SPI for stepper drivers
 #if HAS_TMC_SPI
   #define TMC_USE_SW_SPI
 #endif
@@ -153,8 +166,8 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PB1   // FAN
-#define FAN1_PIN                            PC14  // FAN1
+#define FAN_PIN                             PC14  // FAN
+#define FAN1_PIN                            PB1   // FAN1
 
 //
 // Thermocouples
@@ -179,6 +192,7 @@
 
 #define POWER_LOSS_PIN                    PW_DET
 #define PS_ON_PIN                         PW_OFF
+
 //
 // Enable MKSPWC support
 //
@@ -186,14 +200,13 @@
 //#define KILL_PIN                          PA2
 //#define KILL_PIN_INVERTING                true
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 //#define LED_PIN                           PB2
 
 // Random Info
-#define USB_SERIAL                         -1  //Usb Serial
-#define WIFI_SERIAL                         3  //USART3
-#define MKS_WIFI_MODULE_SERIAL              1  //USART1
-#define MKS_WIFI_MODULE_SPI                 2  //SPI2
+#define USB_SERIAL              -1  // USB Serial
+#define WIFI_SERIAL              3  // USART3
+#define MKS_WIFI_MODULE_SERIAL   1  // USART1
+#define MKS_WIFI_MODULE_SPI      2  // SPI2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
@@ -207,11 +220,11 @@
   #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI3
-    #define SS_PIN                          -1
+    #define SD_SS_PIN                       -1
     #define SDSS                            PC9
-    #define SCK_PIN                         PC10
-    #define MISO_PIN                        PC11
-    #define MOSI_PIN                        PC12
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
     #define SD_DETECT_PIN                   PD12
   #endif
 #endif
@@ -224,9 +237,9 @@
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
     #define SDSS                            PE10
-    #define SCK_PIN                         PA5
-    #define MISO_PIN                        PA6
-    #define MOSI_PIN                        PA7
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif
@@ -309,7 +322,8 @@
 
   #define TFT_BUFFER_SIZE                  14400
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
   #define LCD_PINS_ENABLE                   PD13
@@ -331,7 +345,7 @@
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if ENABLED(ULTIPANEL)
@@ -345,6 +359,5 @@
     #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
-#endif // HAS_SPI_LCD
 
-#define HAS_OTG_USB_HOST_SUPPORT
+#endif // HAS_WIRED_LCD

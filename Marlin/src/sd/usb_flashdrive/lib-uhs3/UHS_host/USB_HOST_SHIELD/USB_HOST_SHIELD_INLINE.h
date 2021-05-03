@@ -76,7 +76,7 @@ void UHS_NI MAX3421E_HOST::regWr(uint8_t reg, uint8_t data) {
 /* multiple-byte write                            */
 
 /* returns a pointer to memory position after last written */
-uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
         SPIclass.beginTransaction(MAX3421E_SPI_Settings);
         MARLIN_UHS_WRITE_SS(LOW);
         SPIclass.transfer(reg | 0x02);
@@ -96,7 +96,7 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t* dat
 /* GPIO write                                           */
 /*GPIO byte is split between 2 registers, so two writes are needed to write one byte */
 
-/* GPOUT bits are in the low nibble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
+/* GPOUT bits are in the low nybble. 0-3 in IOPINS1, 4-7 in IOPINS2 */
 void UHS_NI MAX3421E_HOST::gpioWr(uint8_t data) {
         regWr(rIOPINS1, data);
         data >>= 4;
@@ -117,7 +117,7 @@ uint8_t UHS_NI MAX3421E_HOST::regRd(uint8_t reg) {
 /* multiple-byte register read  */
 
 /* returns a pointer to a memory position after last read   */
-uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
+uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t *data_p) {
         SPIclass.beginTransaction(MAX3421E_SPI_Settings);
         MARLIN_UHS_WRITE_SS(LOW);
         SPIclass.transfer(reg);
@@ -132,11 +132,11 @@ uint8_t* UHS_NI MAX3421E_HOST::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* dat
 
 /* GPIO read. See gpioWr for explanation */
 
-/* GPIN pins are in high nibbles of IOPINS1, IOPINS2    */
+/* GPIN pins are in high nybbles of IOPINS1, IOPINS2    */
 uint8_t UHS_NI MAX3421E_HOST::gpioRd() {
         uint8_t gpin = 0;
         gpin = regRd(rIOPINS2); //pins 4-7
-        gpin &= 0xF0; //clean lower nibble
+        gpin &= 0xF0; //clean lower nybble
         gpin |= (regRd(rIOPINS1) >> 4); //shift low bits and OR with upper from previous operation.
         return ( gpin);
 }
@@ -472,7 +472,7 @@ uint8_t UHS_NI MAX3421E_HOST::SetAddress(uint8_t addr, uint8_t ep, UHS_EpInfo **
  * @param data pointer to data buffer
  * @return 0 on success
  */
-uint8_t UHS_NI MAX3421E_HOST::InTransfer(UHS_EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t* data) {
+uint8_t UHS_NI MAX3421E_HOST::InTransfer(UHS_EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data) {
         uint8_t rcode = 0;
         uint8_t pktsize;
 
