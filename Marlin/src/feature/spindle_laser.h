@@ -221,6 +221,15 @@ public:
     }
   #endif
 
+  #if ENABLED(AIR_ASSIST)
+    static void air_assist_enable();         // Turn on air assist
+    static void air_assist_disable();        // Turn off air assist
+    static void air_assist_toggle();         // Toggle air assist
+    static inline bool air_assist_state() {  // Get current state
+      return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
+    }
+  #endif
+
   static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
