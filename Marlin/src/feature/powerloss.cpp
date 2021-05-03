@@ -494,21 +494,13 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved Z
   #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    dtostrf(info.current_position.z, 1, 3, str_1);
-    sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
+    sprintf_P(cmd, PSTR("G1 Z%s F500"), dtostrf(info.current_position.z, 1, 3, str_1));
   #else
-    if (info.parked) {
-      dtostrf(info.zraise, 1, 3, str_1);
-    } 
-    else {
-      dtostrf(info.current_position.z, 1, 3, str_1);
-    }
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
-    sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
+    sprintf_P(cmd, PSTR("G92.9 Z%s"), dtostrf(info.parked ? info.zraise : info.current_position.z, 1, 3, str_1));
     if (info.parked) {
       gcode.process_subcommands_now(cmd);
-      dtostrf(info.current_position.z, 1, 3, str_1);
-      sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+      sprintf_P(cmd, PSTR("G1 Z%s F200"), dtostrf(info.current_position.z, 1, 3, str_1));
     }
   #endif
   gcode.process_subcommands_now(cmd);
