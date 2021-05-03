@@ -394,7 +394,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
-    if (IS_SD_PRINTING()) {
+    const bool was_sd_printing = IS_SD_PRINTING();
+    if (was_sd_printing) {
       card.pauseSDPrint();
       ++did_pause_print; // Indicate SD pause also
     }
@@ -438,7 +439,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float
   // Disable the Extruder for manual change
   disable_active_extruder();
 
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, current_position.z - resume_position.z, true));
+  // The saved XYZ will be the parked position, which is fine here
+  TERN_(POWER_LOSS_RECOVERY, if (was_sd_printing && recovery.enabled) recovery.save(true, current_position.z - resume_position.z, true));
 
   return true;
 }
@@ -632,9 +634,6 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   // Set extruder to saved position
   planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
 
-  // Write PLR now to update the z axis value
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
-
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
 
   #ifdef ACTION_ON_RESUMED
@@ -647,8 +646,16 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("Resuming"), DISMISS_STR));
 
+  // Resume the print job timer if it was running
+  if (print_job_timer.isPaused()) print_job_timer.start();
+
   #if ENABLED(SDSUPPORT)
-    if (did_pause_print) { card.startFileprint(); --did_pause_print; }
+    if (did_pause_print) {
+      --did_pause_print;
+      card.startFileprint();
+      // Write PLR now to update the z axis value
+      TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+    }
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
@@ -656,9 +663,6 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   #endif
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-
-  // Resume the print job timer if it was running
-  if (print_job_timer.isPaused()) print_job_timer.start();
 
   TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
   TERN_(HAS_LCD_MENU, ui.return_to_status());
