@@ -379,8 +379,10 @@ void PrintJobRecovery::resume() {
 
   #else // "G92.9 E0 ..."
 
+    gcode.process_subcommands_now_P("G92.9E0Z0");
+
     // If a Z raise occurred at outage set Z to the Z raise value (over zero), otherwise raise Z now
-    sprintf_P(cmd, info.flag.raised ? PSTR("G92.9 E0 Z%s") : PSTR("G92.9 E0 Z0\nG1Z%s"), dtostrf(info.zraise, 1, 3, str_1));
+    sprintf_P(cmd, info.flag.raised ? PSTR("G92.9Z%s") : PSTR("G1Z%sF200"), dtostrf(info.zraise, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
     // Home safely with no Z raise
@@ -405,7 +407,7 @@ void PrintJobRecovery::resume() {
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
     // Now move to ZsavedPos + POWER_LOSS_ZRAISE
-    sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    sprintf_P(cmd, PSTR("G1 Z%s F500"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
