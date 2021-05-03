@@ -642,6 +642,8 @@ void _menu_ubl_tools() {
       SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
     #endif
 
+    ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
+    
     END_MENU();
   }
 
