@@ -618,7 +618,7 @@ void _menu_ubl_tools() {
       sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), ubl_storage_slot);
     #endif
     queue.inject(ubl_lcd_gcode);
-    ui.return_to_status;
+    ui.goto_previous_screen();
   }
 
   void _menu_ubl_mesh_wizard() {
