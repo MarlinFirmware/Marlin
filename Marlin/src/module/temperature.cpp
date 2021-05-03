@@ -447,11 +447,11 @@ volatile bool Temperature::raw_temps_ready = false;
   temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7);
 #endif
 
-#ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+#if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
 #endif
 
-#ifdef MILLISECONDS_PREHEAT_TIME
+#if MILLISECONDS_PREHEAT_TIME > 0
   millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
 #endif
 
@@ -472,7 +472,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
-  bool Temperature::paused;
+  bool Temperature::paused_for_probing;
 #endif
 
 // public:
@@ -1320,10 +1320,10 @@ void Temperature::manage_heater() {
 
       #if DISABLED(PIDTEMPBED)
         if (PENDING(ms, next_bed_check_ms)
-          && TERN1(PAUSE_CHANGE_REQD, paused == last_pause_state)
+          && TERN1(PAUSE_CHANGE_REQD, paused_for_probing == last_pause_state)
         ) break;
         next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-        TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused);
+        TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused_for_probing);
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
@@ -1958,9 +1958,30 @@ void Temperature::updateTemperaturesFromRawValues() {
 
 /**
  * Initialize the temperature manager
+ *
  * The manager is implemented by periodic calls to manage_heater()
+ *
+ *  - Init (and disable) SPI thermocouples like MAX6675 and MAX31865
+ *  - Disable RUMBA JTAG to accommodate a thermocouple extension
+ *  - Read-enable thermistors with a read-enable pin
+ *  - Init HEATER and COOLER pins for OUTPUT in OFF state
+ *  - Init the FAN pins as PWM or OUTPUT
+ *  - Init the SPI interface for SPI thermocouples
+ *  - Init ADC according to the HAL
+ *  - Set thermistor pins to analog inputs according to the HAL
+ *  - Start the Temperature ISR timer
+ *  - Init the AUTO FAN pins as PWM or OUTPUT
+ *  - Wait 250ms for temperatures to settle
+ *  - Init temp_range[], used for catching min/maxtemp
  */
 void Temperature::init() {
+
+  TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
+
+  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
+    last_e_position = 0;
+  #endif
+
   // Init (and disable) SPI thermocouples
   #if TEMP_SENSOR_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
     OUT_WRITE(MAX6675_CS_PIN, HIGH);
@@ -2015,10 +2036,6 @@ void Temperature::init() {
   #endif
   #if PIN_EXISTS(TEMP_1_TR_ENABLE)
     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(TEMP_SENSOR_1_IS_MAX_TC));
-  #endif
-
-  #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
-    last_e_position = 0;
   #endif
 
   #if HAS_HEATER_0
@@ -2276,54 +2293,7 @@ void Temperature::init() {
     while (analog_to_celsius_cooler(mintemp_raw_COOLER) > COOLER_MINTEMP) mintemp_raw_COOLER += TEMPDIR(COOLER) * (OVERSAMPLENR);
     while (analog_to_celsius_cooler(maxtemp_raw_COOLER) < COOLER_MAXTEMP) maxtemp_raw_COOLER -= TEMPDIR(COOLER) * (OVERSAMPLENR);
   #endif
-
-  TERN_(PROBING_HEATERS_OFF, paused = false);
 }
-
-#if WATCH_HOTENDS
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M104, M109)
-   */
-  void Temperature::start_watching_hotend(const uint8_t E_NAME) {
-    const uint8_t ee = HOTEND_INDEX;
-    watch_hotend[ee].restart(degHotend(ee), degTargetHotend(ee));
-  }
-#endif
-
-#if WATCH_BED
-  /**
-   * Start Heating Sanity Check for hotends that are below
-   * their target temperature by a configurable margin.
-   * This is called when the temperature is set. (M140, M190)
-   */
-  void Temperature::start_watching_bed() {
-    watch_bed.restart(degBed(), degTargetBed());
-  }
-#endif
-
-#if WATCH_CHAMBER
-  /**
-   * Start Heating Sanity Check for chamber that is below
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M141, M191)
-   */
-  void Temperature::start_watching_chamber() {
-    watch_chamber.restart(degChamber(), degTargetChamber());
-  }
-#endif
-
-#if WATCH_COOLER
-  /**
-   * Start Cooling Sanity Check for cooler that is above
-   * its target temperature by a configurable margin.
-   * This is called when the temperature is set. (M143, M193)
-   */
-  void Temperature::start_watching_cooler() {
-    watch_cooler.restart(degCooler(), degTargetCooler());
-  }
-#endif
 
 #if HAS_THERMAL_PROTECTION
 
@@ -2487,8 +2457,8 @@ void Temperature::disable_all_heaters() {
 #if ENABLED(PROBING_HEATERS_OFF)
 
   void Temperature::pause(const bool p) {
-    if (p != paused) {
-      paused = p;
+    if (p != paused_for_probing) {
+      paused_for_probing = p;
       if (p) {
         HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
         TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
@@ -2773,17 +2743,16 @@ void Temperature::readings_ready() {
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
-        const bool heater_on = (temp_hotend[e].target > 0
-          || TERN0(PIDTEMP, temp_hotend[e].soft_pwm_amount) > 0
-        );
         if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error((heater_id_t)e);
+
+        const bool heater_on = (temp_hotend[e].target > 0 || TERN0(PIDTEMP, temp_hotend[e].soft_pwm_amount > 0));
         if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
-          #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+          #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
             if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
           #endif
               min_temp_error((heater_id_t)e);
         }
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+        #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
           else
             consecutive_low_temperature_error[e] = 0;
         #endif
