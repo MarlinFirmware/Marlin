@@ -419,10 +419,6 @@ class Temperature {
 
   private:
 
-    #if ENABLED(EARLY_WATCHDOG)
-      static bool inited;   // If temperature controller is running
-    #endif
-
     static volatile bool raw_temps_ready;
 
     #if ENABLED(WATCH_HOTENDS)
