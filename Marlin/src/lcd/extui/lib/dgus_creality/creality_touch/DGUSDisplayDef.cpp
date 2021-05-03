@@ -170,7 +170,7 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 
   VP_X_POSITION,
   VP_Y_POSITION,
-  VP_Z_POSITION,
+  VP_Z_POSITION_PRECISION,
   VP_Z_OFFSET,
   VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
@@ -188,7 +188,7 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 const uint16_t VPList_PrintScreen[] PROGMEM = {
   VPList_CommonWithStatus,
 
-  VP_X_POSITION, VP_Y_POSITION, VP_Z_POSITION,
+  VP_X_POSITION, VP_Y_POSITION, VP_Z_POSITION, VP_Z_POSITION_PRECISION,
   SP_X_POSITION, SP_Y_POSITION, SP_Z_POSITION,
 
   VP_Flowrate_E0,
@@ -612,7 +612,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Position Data
   VPHELPER(VP_X_POSITION, &current_position.x, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   VPHELPER(VP_Y_POSITION, &current_position.y, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+  VPHELPER(VP_Z_POSITION, &current_position.z, ScreenHandler.HandlePositionChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  VPHELPER(VP_Z_POSITION_PRECISION, &current_position.z, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
   VPHELPER(SP_X_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<X_AXIS>),
   VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
