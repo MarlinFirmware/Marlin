@@ -471,7 +471,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static bool paused;
+      static bool paused_for_probing;
     #endif
 
   public:
@@ -856,7 +856,6 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause(const bool p);
-      static inline bool is_paused() { return paused; }
     #endif
 
     #if HEATER_IDLE_HANDLER
