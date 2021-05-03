@@ -626,7 +626,7 @@ void _menu_ubl_tools() {
     BACK_ITEM(MSG_UBL_LEVEL_BED);
 
     #if HAS_HOTEND
-      EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, HEATER_0_MINTEMP, thermalManager.hotend_max_target(0));
     #endif
 
     #if HAS_HEATED_BED
