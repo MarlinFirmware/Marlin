@@ -196,38 +196,58 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 };
 
 // A class that duplicates its output conditionally to 2 serial interfaces
-template <class Serial0T, class Serial1T, class Serial2T, const uint8_t offset = 0, const uint8_t step = 1>
-struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T ,offset, step> > {
-  typedef SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T ,offset, step> > BaseClassT;
+#ifdef SERIAL_PORT_3
+  template <class Serial0T, class Serial1T, class Serial2T, const uint8_t offset = 0, const uint8_t step = 1>
+#else
+  template <class Serial0T, class Serial1T, const uint8_t offset = 0, const uint8_t step = 1>
+#endif
+
+#ifdef SERIAL_PORT_3
+  struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T ,offset, step> > {
+    typedef SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T ,offset, step> > BaseClassT;
+#else
+  struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T,offset, step> > {
+    typedef SerialBase< MultiSerial<Serial0T, Serial1T,offset, step> > BaseClassT;
+#endif
 
   SerialMask portMask;
   Serial0T & serial0;
   Serial1T & serial1;
-  Serial2T & serial2;
+  #ifdef SERIAL_PORT_3
+    Serial2T & serial2;
+  #endif
 
   static constexpr uint8_t Usage         =  ((1 << step) - 1); // A bit mask containing as many bits as step
   static constexpr uint8_t FirstOutput   = (Usage << offset);
   static constexpr uint8_t SecondOutput  = (Usage << (offset + step));
-  static constexpr uint8_t ThirdOutput   = (Usage << (offset + step*2));
+  #ifdef SERIAL_PORT_3
+    static constexpr uint8_t ThirdOutput   = (Usage << (offset + step*2));
+  #endif
   static constexpr uint8_t Both          = FirstOutput | SecondOutput;
 
   NO_INLINE void write(uint8_t c) {
     if (portMask.enabled(FirstOutput))   serial0.write(c);
     if (portMask.enabled(SecondOutput))  serial1.write(c);
-    if (portMask.enabled(ThirdOutput))   serial2.write(c);
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   serial2.write(c);
+    #endif
   }
   NO_INLINE void msgDone() {
     if (portMask.enabled(FirstOutput))   serial0.msgDone();
     if (portMask.enabled(SecondOutput))  serial1.msgDone();
-    if (portMask.enabled(ThirdOutput))   serial2.msgDone();
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   serial2.msgDone();
+    #endif
   }
   int available(serial_index_t index) {
     if (index.within(0 + offset, step + offset - 1))
       return serial0.available(index);
     else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.available(index);
-    else if (index.within(step + offset, 4 * step + offset - 1))
-      return serial2.available(index);
+    #ifdef SERIAL_PORT_3
+      else if (index.within(step + offset, 4 * step + offset - 1))
+        return serial2.available(index);
+    #endif
     return false;
   }
   int read(serial_index_t index) {
@@ -235,25 +255,33 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T
       return serial0.read(index);
     else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.read(index);
-    else if (index.within(step + offset, 4 * step + offset - 1))
-      return serial2.read(index);
+    #ifdef SERIAL_PORT_3
+      else if (index.within(step + offset, 4 * step + offset - 1))
+        return serial2.read(index);
+    #endif
     return -1;
   }
   void begin(const long br) {
     if (portMask.enabled(FirstOutput))   serial0.begin(br);
     if (portMask.enabled(SecondOutput))  serial1.begin(br);
-    if (portMask.enabled(ThirdOutput))   serial2.begin(br);
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput)) serial2.begin(br);
+    #endif
   }
   void end() {
     if (portMask.enabled(FirstOutput))   serial0.end();
     if (portMask.enabled(SecondOutput))  serial1.end();
-    if (portMask.enabled(ThirdOutput))   serial2.end();
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   serial2.end();
+    #endif
   }
   bool connected() {
     bool ret = true;
     if (portMask.enabled(FirstOutput))   ret = CALL_IF_EXISTS(bool, &serial0, connected);
     if (portMask.enabled(SecondOutput))  ret = ret && CALL_IF_EXISTS(bool, &serial1, connected);
-    if (portMask.enabled(ThirdOutput))   ret = ret && CALL_IF_EXISTS(bool, &serial2, connected);
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   ret = ret && CALL_IF_EXISTS(bool, &serial2, connected);
+    #endif
     return ret;
   }
 
@@ -264,12 +292,16 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T
   NO_INLINE void flush()      {
     if (portMask.enabled(FirstOutput))   serial0.flush();
     if (portMask.enabled(SecondOutput))  serial1.flush();
-    if (portMask.enabled(ThirdOutput))   serial2.flush();
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   serial2.flush();
+    #endif
   }
   NO_INLINE void flushTX()    {
     if (portMask.enabled(FirstOutput))   CALL_IF_EXISTS(void, &serial0, flushTX);
     if (portMask.enabled(SecondOutput))  CALL_IF_EXISTS(void, &serial1, flushTX);
-    if (portMask.enabled(ThirdOutput))   CALL_IF_EXISTS(void, &serial2, flushTX);
+    #ifdef SERIAL_PORT_3
+      if (portMask.enabled(ThirdOutput))   CALL_IF_EXISTS(void, &serial2, flushTX);
+    #endif
   }
 
   // Forward feature queries
@@ -278,14 +310,24 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, Serial2T
       return serial0.features(index);
     else if (index.within(step + offset, 2 * step + offset - 1))
       return serial1.features(index);
-    else if (index.within(step + offset, 4 * step + offset - 1))
-      return serial2.features(index);
+    #ifdef SERIAL_PORT_3
+      else if (index.within(step + offset, 4 * step + offset - 1))
+        return serial2.features(index);
+    #endif
     return SerialFeature::None;
   }
 
-  MultiSerial(Serial0T & serial0, Serial1T & serial1, Serial2T & serial2, const SerialMask mask = Both, const bool e = false) :
+  #ifdef SERIAL_PORT_3
+    MultiSerial(Serial0T & serial0, Serial1T & serial1, Serial2T & serial2, const SerialMask mask = Both, const bool e = false) :
+  #else
+    MultiSerial(Serial0T & serial0, Serial1T & serial1, const SerialMask mask = Both, const bool e = false) :
+  #endif
     BaseClassT(e),
-    portMask(mask), serial0(serial0), serial1(serial1), serial2(serial2) {}
+    #ifdef SERIAL_PORT_3
+      portMask(mask), serial0(serial0), serial1(serial1), serial2(serial2) {}
+    #else
+      portMask(mask), serial0(serial0), serial1(serial1) {}
+    #endif
 };
 
 // Build the actual serial object depending on current configuration
