@@ -458,11 +458,11 @@ class Temperature {
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
-    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+    #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 
-    #ifdef MILLISECONDS_PREHEAT_TIME
+    #if MILLISECONDS_PREHEAT_TIME > 0
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
@@ -606,7 +606,7 @@ class Temperature {
     /**
      * Preheating hotends
      */
-    #ifdef MILLISECONDS_PREHEAT_TIME
+    #if MILLISECONDS_PREHEAT_TIME > 0
       static inline bool is_preheating(const uint8_t E_NAME) {
         return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
       }
@@ -659,7 +659,7 @@ class Temperature {
 
       static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
-        #ifdef MILLISECONDS_PREHEAT_TIME
+        #if MILLISECONDS_PREHEAT_TIME > 0
           if (celsius == 0)
             reset_preheat_time(ee);
           else if (temp_hotend[ee].target == 0)
