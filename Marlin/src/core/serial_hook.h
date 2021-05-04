@@ -67,7 +67,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 
   SerialFeature features(serial_index_t index) const { return CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
-  // We have 2 implementation of the same method in both base class, let's say which one we want
+  // Two implementations of the same method exist in both base classes so indicate the right one
   using SerialT::available;
   using SerialT::read;
   using SerialT::begin;
@@ -134,7 +134,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
 
-// A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
+// A class that can be hooked and unhooked at runtime, useful to capture the output of the serial interface
 template <class SerialT>
 struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public SerialT {
   typedef SerialBase< RuntimeSerial<SerialT> > BaseClassT;
@@ -195,58 +195,71 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   RuntimeSerial(const bool e, Args... args) : BaseClassT(e), SerialT(args...), writeHook(0), eofHook(0), userPointer(0) {}
 };
 
-#define _SERIAL_CLASS(N) class Serial##N##T,
-#define _SERIAL_T(N) Serial##N##T,
+#define _S_CLASS(N) class Serial##N##T,
+#define _S_NAME(N) Serial##N##T,
 
-template < REPEAT(NUM_SERIAL, _SERIAL_CLASS) const uint8_t offset=0, const uint8_t step=1 >
-struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _SERIAL_T) offset, step > > {
-  typedef SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _SERIAL_T) offset, step > > BaseClassT;
+template < REPEAT(NUM_SERIAL, _S_CLASS) const uint8_t offset=0, const uint8_t step=1 >
+struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME) offset, step > > {
+  typedef SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME) offset, step > > BaseClassT;
+
+  #undef _S_CLASS
+  #undef _S_NAME
 
   SerialMask portMask;
 
-  #define _DECL_SERIAL_T(N) Serial##N##T & serial##N;
-  REPEAT(NUM_SERIAL, _DECL_SERIAL_T);
+  #define _S_DECLARE(N) Serial##N##T & serial##N;
+  REPEAT(NUM_SERIAL, _S_DECLARE);
+  #undef _S_DECLARE
 
   static constexpr uint8_t Usage = _BV(step) - 1; // A bit mask containing 'step' bits
 
   #define _OUT_PORT(N) (Usage << (offset + (step * N))),
   static constexpr uint8_t output[] = { REPEAT(NUM_SERIAL, _OUT_PORT) };
+  #undef _OUT_PORT
 
   #define _OUT_MASK(N) | output[N]
   static constexpr uint8_t ALL = 0 REPEAT(NUM_SERIAL, _OUT_MASK);
+  #undef _OUT_MASK
 
   NO_INLINE void write(uint8_t c) {
     #define _S_WRITE(N) if (portMask.enabled(output[N])) serial##N.write(c);
     REPEAT(NUM_SERIAL, _S_WRITE);
+    #undef _S_WRITE
   }
   NO_INLINE void msgDone() {
     #define _S_DONE(N) if (portMask.enabled(output[N])) serial##N.msgDone();
     REPEAT(NUM_SERIAL, _S_DONE);
+    #undef _S_DONE
   }
   int available(serial_index_t index) {
-    #define _S_AVAILABLE(N) if (index.within(start, end)) return serial##N.available(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     int start = 0, end = offset - 1, shift = 0;
+    #define _S_AVAILABLE(N) if (index.within(start, end)) return serial##N.available(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     REPEAT(NUM_SERIAL, _S_AVAILABLE);
+    #undef _S_AVAILABLE
     return false;
   }
   int read(serial_index_t index) {
-    #define _S_READ(N) if (index.within(start, end)) return serial##N.read(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     int start = 0, end = offset - 1, shift = 0;
+    #define _S_READ(N) if (index.within(start, end)) return serial##N.read(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     REPEAT(NUM_SERIAL, _S_READ);
+    #undef _S_READ
     return -1;
   }
   void begin(const long br) {
     #define _S_BEGIN(N) if (portMask.enabled(output[N])) serial##N.begin(br);
     REPEAT(NUM_SERIAL, _S_BEGIN);
+    #undef _S_BEGIN
   }
   void end() {
     #define _S_END(N) if (portMask.enabled(output[N])) serial##N.end();
     REPEAT(NUM_SERIAL, _S_END);
+    #undef _S_END
   }
   bool connected() {
-    #define _S_CONNECTED(N) if (portMask.enabled(output[N]) && !CALL_IF_EXISTS(bool, &serial##N, connected)) ret = false;
     bool ret = true;
+    #define _S_CONNECTED(N) if (portMask.enabled(output[N]) && !CALL_IF_EXISTS(bool, &serial##N, connected)) ret = false;
     REPEAT(NUM_SERIAL, _S_CONNECTED);
+    #undef _S_CONNECTED
     return ret;
   }
 
@@ -257,25 +270,28 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _SERIAL_
   NO_INLINE void flush() {
     #define _S_FLUSH(N) if (portMask.enabled(output[N])) serial##N.flush();
     REPEAT(NUM_SERIAL, _S_FLUSH);
+    #undef _S_FLUSH
   }
   NO_INLINE void flushTX() {
     #define _S_FLUSHTX(N) if (portMask.enabled(output[N])) CALL_IF_EXISTS(void, &serial0, flushTX);
     REPEAT(NUM_SERIAL, _S_FLUSHTX);
+    #undef _S_FLUSHTX
   }
 
   // Forward feature queries
   SerialFeature features(serial_index_t index) const {
-    #define _S_FEATURES(N) if (index.within(start, end)) return serial##N.features(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     int start = 0, end = offset - 1, shift = 0;
+    #define _S_FEATURES(N) if (index.within(start, end)) return serial##N.features(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
     REPEAT(NUM_SERIAL, _S_FEATURES);
+    #undef _S_FEATURES
     return SerialFeature::None;
   }
 
-  #define _SERIAL_TREF(N) Serial##N##T & serial##N,
-  #define _SERIAL_INIT(N) ,serial##N (serial##N)
+  #define _S_REFS(N) Serial##N##T & serial##N,
+  #define _S_INIT(N) ,serial##N (serial##N)
 
-  MultiSerial(REPEAT(NUM_SERIAL, _SERIAL_TREF) const SerialMask mask = ALL, const bool e = false)
-    : BaseClassT(e), portMask(mask) REPEAT(NUM_SERIAL, _SERIAL_INIT) {}
+  MultiSerial(REPEAT(NUM_SERIAL, _S_REFS) const SerialMask mask = ALL, const bool e = false)
+    : BaseClassT(e), portMask(mask) REPEAT(NUM_SERIAL, _S_INIT) {}
 
 };
 
@@ -284,4 +300,7 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _SERIAL_
 #define ForwardSerial1Class TERN(SERIAL_RUNTIME_HOOK, RuntimeSerial, ForwardSerial)
 #ifdef HAS_MULTI_SERIAL
   #define Serial2Class ConditionalSerial
+  #if NUM_SERIAL >= 3
+    #define Serial3Class ConditionalSerial
+  #endif
 #endif

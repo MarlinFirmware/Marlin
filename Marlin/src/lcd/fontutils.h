@@ -14,6 +14,7 @@
 
 #include "../HAL/shared/Marduino.h"
 #include "../core/macros.h"
+#include "../HAL/shared/progmem.h" // PGM_P
 
 // read a byte from ROM or RAM
 typedef uint8_t (*read_byte_cb_t)(uint8_t * str);

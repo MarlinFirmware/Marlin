@@ -62,11 +62,11 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-// Step 1: Find what's the first serial leaf
+// Step 1: Find out what the first serial leaf is
 #if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
-  #define _SERIAL_LEAF_1  MYSERIAL
+  #define _SERIAL_LEAF_1 MYSERIAL
 #else
-  #define _SERIAL_LEAF_1  MYSERIAL1
+  #define _SERIAL_LEAF_1 MYSERIAL1
 #endif
 
 // Hook Meatpack if it's enabled on the first leaf
@@ -78,7 +78,8 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_LEAF_1 _SERIAL_LEAF_1
 #endif
 
-// Step 2: For multiserial, handle the second serial port as well
+// Step 2: For multiserial wrap all serial ports in a single
+//         interface with the ability to output to multiple serial ports.
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n,p)  RESTORE(n)
@@ -115,11 +116,15 @@ extern uint8_t marlin_debug_flags;
     #define SERIAL_LEAF_3 _SERIAL_LEAF_3
   #endif
 
-  #define ___DECL(N) decltype(SERIAL_LEAF_##N),
-  #define __DECL(N) ___DECL(N)
-  #define _DECL(N) __DECL(INCREMENT(N))
+  #define ___S_MULTI(N) decltype(SERIAL_LEAF_##N),
+  #define __S_MULTI(N) ___S_MULTI(N)
+  #define _S_MULTI(N) __S_MULTI(INCREMENT(N))
 
-  typedef MultiSerial<REPEAT(NUM_SERIAL, _DECL) 0> SerialOutputT;
+  typedef MultiSerial<REPEAT(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
+
+  #undef ___S_MULTI
+  #undef __S_MULTI
+  #undef _S_MULTI
 
   extern SerialOutputT        multiSerial;
   #define SERIAL_IMPL         multiSerial

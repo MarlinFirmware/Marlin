@@ -603,14 +603,16 @@
  */
 #ifndef SERIAL_PORT
   #error "SERIAL_PORT must be defined."
-#elif defined(SERIAL_PORT_3) && !defined(SERIAL_PORT_2)
-  #error "Use SERIAL_PORT_2 before using SERIAL_PORT_3"
 #elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT."
-#elif defined(SERIAL_PORT_3) && SERIAL_PORT_3 == SERIAL_PORT
-  #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT."
-#elif defined(SERIAL_PORT_3) && SERIAL_PORT_3 == SERIAL_PORT_2
-  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT_3."
+#elif defined(SERIAL_PORT_3)
+  #ifndef SERIAL_PORT_2
+    #error "Use SERIAL_PORT_2 before using SERIAL_PORT_3"
+  #elif SERIAL_PORT_3 == SERIAL_PORT
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT."
+  #elif SERIAL_PORT_3 == SERIAL_PORT_2
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT_2."
+  #endif
 #endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
@@ -2362,7 +2364,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
-  + (ENABLED(MKS_MINI_12864) && DISABLED(MKS_LCD12864)) \
+  + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \

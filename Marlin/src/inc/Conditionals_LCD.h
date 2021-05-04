@@ -944,12 +944,13 @@
 //
 // Serial Port Info
 //
-#ifdef SERIAL_PORT_3
-  #define NUM_SERIAL 3
+#ifdef SERIAL_PORT_2
   #define HAS_MULTI_SERIAL 1
-#elif defined(SERIAL_PORT_2)
-  #define NUM_SERIAL 2
-  #define HAS_MULTI_SERIAL 1
+  #ifdef SERIAL_PORT_3
+    #define NUM_SERIAL 3
+  #else
+    #define NUM_SERIAL 2
+  #endif
 #elif defined(SERIAL_PORT)
   #define NUM_SERIAL 1
 #else
