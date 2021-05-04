@@ -641,6 +641,16 @@
 #endif
 
 /**
+ * Disable unused SINGLENOZZLE sub-options
+ */
+#if DISABLED(SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_TEMP
+#endif
+#if !BOTH(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
+/**
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1

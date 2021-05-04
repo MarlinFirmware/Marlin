@@ -100,6 +100,10 @@ namespace ExtUI {
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
+
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {
+      // Called when any mesh points are updated
+    }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
