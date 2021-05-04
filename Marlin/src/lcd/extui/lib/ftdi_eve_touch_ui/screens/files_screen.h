@@ -60,7 +60,7 @@ class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, F
     inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
     static const char *getSelectedFilename(bool longName);
 
-    static void drawFileButton(const char* filename, uint8_t tag, bool is_dir, bool is_highlighted);
+    static void drawFileButton(const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
     static void drawFileList();
     static void drawHeader();
     static void drawFooter();

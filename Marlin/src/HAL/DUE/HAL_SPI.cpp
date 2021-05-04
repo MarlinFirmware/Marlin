@@ -56,8 +56,8 @@
   #pragma GCC optimize (3)
 
   typedef uint8_t (*pfnSpiTransfer)(uint8_t b);
-  typedef void    (*pfnSpiRxBlock)(uint8_t* buf, uint32_t nbyte);
-  typedef void    (*pfnSpiTxBlock)(const uint8_t* buf, uint32_t nbyte);
+  typedef void    (*pfnSpiRxBlock)(uint8_t *buf, uint32_t nbyte);
+  typedef void    (*pfnSpiTxBlock)(const uint8_t *buf, uint32_t nbyte);
 
   /* ---------------- Macros to be able to access definitions from asm */
   #define _PORT(IO) DIO ##  IO ## _WPORT
@@ -270,7 +270,7 @@
   static pfnSpiTransfer spiTransferTx = (pfnSpiTransfer)spiTransferX;
 
   // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
-  static void spiTxBlock0(const uint8_t* ptr, uint32_t todo) {
+  static void spiTxBlock0(const uint8_t *ptr, uint32_t todo) {
     uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(SD_MOSI_PIN)) + 0x30;  /* SODR of port */
     uint32_t MOSI_MASK = PIN_MASK(SD_MOSI_PIN);
     uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
@@ -349,7 +349,7 @@
     );
   }
 
-  static void spiRxBlock0(uint8_t* ptr, uint32_t todo) {
+  static void spiRxBlock0(uint8_t *ptr, uint32_t todo) {
     uint32_t bin = 0;
     uint32_t work = 0;
     uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
@@ -425,13 +425,13 @@
     );
   }
 
-  static void spiTxBlockX(const uint8_t* buf, uint32_t todo) {
+  static void spiTxBlockX(const uint8_t *buf, uint32_t todo) {
     do {
       (void)spiTransferTx(*buf++);
     } while (--todo);
   }
 
-  static void spiRxBlockX(uint8_t* buf, uint32_t todo) {
+  static void spiRxBlockX(uint8_t *buf, uint32_t todo) {
     do {
       *buf++ = spiTransferRx(0xFF);
     } while (--todo);
@@ -463,7 +463,7 @@
     return b;
   }
 
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte) {
       _SS_WRITE(LOW);
       WRITE(SD_MOSI_PIN, HIGH); // Output 1s 1
@@ -478,7 +478,7 @@
     _SS_WRITE(HIGH);
   }
 
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     _SS_WRITE(LOW);
     (void)spiTransferTx(token);
     spiTxBlock(buf, 512);
@@ -645,7 +645,7 @@
     }
 
     // Read from SPI into buffer
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
+    void spiRead(uint8_t *buf, uint16_t nbyte) {
       if (!nbyte) return;
       --nbyte;
       for (int i = 0; i < nbyte; i++) {
@@ -668,7 +668,7 @@
       //DELAY_US(1U);
     }
 
-    void spiSend(const uint8_t* buf, size_t nbyte) {
+    void spiSend(const uint8_t *buf, size_t nbyte) {
       if (!nbyte) return;
       --nbyte;
       for (size_t i = 0; i < nbyte; i++) {
@@ -689,7 +689,7 @@
       FLUSH_RX();
     }
 
-    void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {
+    void spiSend(uint32_t chan, const uint8_t *buf, size_t nbyte) {
       if (!nbyte) return;
       --nbyte;
       for (size_t i = 0; i < nbyte; i++) {
@@ -702,7 +702,7 @@
     }
 
     // Write from buffer to SPI
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    void spiSendBlock(uint8_t token, const uint8_t *buf) {
       SPI0->SPI_TDR = (uint32_t)token | SPI_PCS(SPI_CHAN);
       WHILE_TX(0);
       //WHILE_RX(0);
@@ -801,19 +801,19 @@
 
     uint8_t spiRec() { return (uint8_t)spiTransfer(0xFF); }
 
-    void spiRead(uint8_t* buf, uint16_t nbyte) {
+    void spiRead(uint8_t *buf, uint16_t nbyte) {
       for (int i = 0; i < nbyte; i++)
         buf[i] = spiTransfer(0xFF);
     }
 
     void spiSend(uint8_t data) { spiTransfer(data); }
 
-    void spiSend(const uint8_t* buf, size_t nbyte) {
+    void spiSend(const uint8_t *buf, size_t nbyte) {
       for (uint16_t i = 0; i < nbyte; i++)
         spiTransfer(buf[i]);
     }
 
-    void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    void spiSendBlock(uint8_t token, const uint8_t *buf) {
       spiTransfer(token);
       for (uint16_t i = 0; i < 512; i++)
         spiTransfer(buf[i]);

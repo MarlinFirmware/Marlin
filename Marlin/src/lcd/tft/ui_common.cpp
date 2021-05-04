@@ -131,7 +131,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, co
 }
 
 // Draw a menu item with a (potentially) editable value
-void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const data, const bool pgm) {
   menu_item(row, sel);
 
   tft_string.set(pstr, itemIndex, itemString);

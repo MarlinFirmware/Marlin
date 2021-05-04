@@ -53,7 +53,7 @@ public:
     min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
     max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
 
-  static const inline uint8_t pct_to_ocr(const float pct) { return uint8_t(PCT_TO_PWM(pct)); }
+  static const inline uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
 
@@ -212,10 +212,27 @@ public:
     static bool is_reverse() { return false; }
   #endif
 
+  #if ENABLED(AIR_EVACUATION)
+    static void air_evac_enable();         // Turn On Cutter Vacuum or Laser Blower motor
+    static void air_evac_disable();        // Turn Off Cutter Vacuum or Laser Blower motor
+    static void air_evac_toggle();         // Toggle Cutter Vacuum or Laser Blower motor
+    static inline bool air_evac_state() {  // Get current state
+      return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
+    }
+  #endif
+
+  #if ENABLED(AIR_ASSIST)
+    static void air_assist_enable();         // Turn on air assist
+    static void air_assist_disable();        // Turn off air assist
+    static void air_assist_toggle();         // Toggle air assist
+    static inline bool air_assist_state() {  // Get current state
+      return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
+    }
+  #endif
+
   static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
-
     static inline void enable_with_dir(const bool reverse) {
       isReady = true;
       const uint8_t ocr = TERN(SPINDLE_LASER_PWM, upower_to_ocr(menuPower), 255);
@@ -245,8 +262,8 @@ public:
        * If not set defaults to 80% power
        */
       static inline void test_fire_pulse() {
-        enable_forward();                  // Turn Laser on (Spindle speak but same funct)
         TERN_(USE_BEEPER, buzzer.tone(30, 3000));
+        enable_forward();                  // Turn Laser on (Spindle speak but same funct)
         delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
         disable();                         // Turn laser off
       }

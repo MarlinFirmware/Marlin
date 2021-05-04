@@ -454,7 +454,7 @@ void MarlinSerial<Cfg>::flush() {
 }
 
 template<typename Cfg>
-size_t MarlinSerial<Cfg>::write(const uint8_t c) {
+void MarlinSerial<Cfg>::write(const uint8_t c) {
   if (Cfg::TX_SIZE == 0) {
 
     _written = true;
@@ -480,7 +480,7 @@ size_t MarlinSerial<Cfg>::write(const uint8_t c) {
       // location". This makes sure flush() won't return until the bytes
       // actually got written
       B_TXC = 1;
-      return 1;
+      return;
     }
 
     const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
@@ -510,7 +510,6 @@ size_t MarlinSerial<Cfg>::write(const uint8_t c) {
     // Enable TX ISR - Non atomic, but it will eventually enable TX ISR
     B_UDRIE = 1;
   }
-  return 1;
 }
 
 template<typename Cfg>

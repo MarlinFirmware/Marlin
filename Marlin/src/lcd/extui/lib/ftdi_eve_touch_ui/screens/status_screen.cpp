@@ -316,15 +316,15 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
        .colors(has_media ? action_btn : normal_btn)
-       .enabled(has_media)
-       .tag(3).button(MEDIA_BTN_POS, isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA))
+       .enabled(has_media && !isPrinting())
+       .tag(3).button(MEDIA_BTN_POS, isPrinting() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA))
        .colors(!has_media ? action_btn : normal_btn)
        .tag(4).button(MENU_BTN_POS, GET_TEXT_F(MSG_BUTTON_MENU));
   }
   #undef  GRID_COLS
 }
 
-void StatusScreen::draw_status_message(draw_mode_t what, const char* message) {
+void StatusScreen::draw_status_message(draw_mode_t what, const char *message) {
   #define GRID_COLS 1
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
@@ -350,7 +350,7 @@ void StatusScreen::setStatusMessage(progmem_str message) {
   setStatusMessage((const char *) buff);
 }
 
-void StatusScreen::setStatusMessage(const char* message) {
+void StatusScreen::setStatusMessage(const char *message) {
   if (CommandProcessor::is_processing()) {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_MSG("Cannot update status message, command processor busy");

@@ -35,6 +35,7 @@ unified_bed_leveling ubl;
 #include "../../../module/planner.h"
 #include "../../../module/motion.h"
 #include "../../../module/probe.h"
+#include "../../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -102,7 +103,7 @@ void unified_bed_leveling::invalidate() {
   set_all_mesh_points_to_value(NAN);
 }
 
-void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
+void unified_bed_leveling::set_all_mesh_points_to_value(const_float_t value) {
   GRID_LOOP(x, y) {
     z_values[x][y] = value;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
@@ -115,7 +116,7 @@ void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
   constexpr int16_t Z_STEPS_NAN = INT16_MAX;
 
   void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
-    auto z_to_store = [](const float &z) {
+    auto z_to_store = [](const_float_t z) {
       if (isnan(z)) return Z_STEPS_NAN;
       const int32_t z_scaled = TRUNC(z * mesh_store_scaling);
       if (z_scaled == Z_STEPS_NAN || !WITHIN(z_scaled, INT16_MIN, INT16_MAX))
@@ -190,7 +191,7 @@ void unified_bed_leveling::display_map(const int map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = GRID_MAX_POINTS_Y - 1; j >= 0; j--) {
+  for (int8_t j = (GRID_MAX_POINTS_Y) - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -217,7 +218,7 @@ void unified_bed_leveling::display_map(const int map_type) {
         if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR('\t');
+      if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');
@@ -253,5 +254,49 @@ bool unified_bed_leveling::sanity_check() {
 
   return !!error_flag;
 }
+
+#if ENABLED(UBL_MESH_WIZARD)
+
+  /**
+   * M1004: UBL Mesh Wizard - One-click mesh creation with or without a probe
+   */
+  void GcodeSuite::M1004() {
+
+    #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
+    #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R255")
+
+    #if HAS_HOTEND
+      if (parser.seenval('H')) {                          // Handle H# parameter to set Hotend temp
+        const celsius_t hotend_temp = parser.value_int(); // Marlin never sends itself F or K, always C
+        thermalManager.setTargetHotend(hotend_temp, 0);
+        thermalManager.wait_for_hotend(false);
+      }
+    #endif
+
+    #if HAS_HEATED_BED
+      if (parser.seenval('B')) {                        // Handle B# parameter to set Bed temp
+        const celsius_t bed_temp = parser.value_int();  // Marlin never sends itself F or K, always C
+        thermalManager.setTargetBed(bed_temp);
+        thermalManager.wait_for_bed(false);
+      }
+    #endif
+
+    process_subcommands_now_P(G28_STR);               // Home
+    process_subcommands_now_P(PSTR(ALIGN_GCODE "\n"   // Align multi z axis if available
+                                   PROBE_GCODE "\n"   // Build mesh with available hardware
+                                   "G29P3\nG29P3"));  // Ensure mesh is complete by running smart fill twice
+
+    if (parser.seenval('S')) {
+      char umw_gcode[32];
+      sprintf_P(umw_gcode, PSTR("G29S%i"), parser.value_int());
+      queue.inject(umw_gcode);
+    }
+
+    process_subcommands_now_P(PSTR("G29A\nG29F10\n"   // Set UBL Active & Fade 10
+                                   "M140S0\nM104S0\n" // Turn off heaters
+                                   "M500"));          // Store settings
+  }
+
+#endif // UBL_MESH_WIZARD
 
 #endif // AUTO_BED_LEVELING_UBL

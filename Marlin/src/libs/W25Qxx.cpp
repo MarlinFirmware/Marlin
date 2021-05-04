@@ -106,7 +106,7 @@ uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
  *
  * @details Uses DMA
  */
-void W25QXXFlash::spi_flash_Read(uint8_t* buf, uint16_t nbyte) {
+void W25QXXFlash::spi_flash_Read(uint8_t *buf, uint16_t nbyte) {
   mySPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
 }
 
@@ -127,7 +127,7 @@ void W25QXXFlash::spi_flash_Send(uint8_t b) { mySPI.transfer(b); }
  *
  * @details Use DMA
  */
-void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
+void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t *buf) {
   mySPI.transfer(token);
   mySPI.dmaSend(const_cast<uint8_t*>(buf), 512);
 }
@@ -257,7 +257,7 @@ void W25QXXFlash::SPI_FLASH_BulkErase(void) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
   // Enable the write access to the FLASH
   SPI_FLASH_WriteEnable();
 
@@ -300,7 +300,7 @@ void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
   uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
   Addr = WriteAddr % SPI_FLASH_PageSize;
@@ -364,7 +364,7 @@ void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, ui
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
+void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
   // Select the FLASH: Chip Select low
   W25QXX_CS_L;
 

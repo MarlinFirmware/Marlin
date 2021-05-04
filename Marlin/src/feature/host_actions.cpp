@@ -149,13 +149,13 @@ void host_action(PGM_P const pstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+            #if BOTH(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR
