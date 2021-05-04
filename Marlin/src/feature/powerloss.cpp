@@ -149,6 +149,8 @@ void PrintJobRecovery::prepare() {
  */
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/, const bool raised/*=false*/) {
 
+  // We don't check IS_SD_PRINTING here so a save may occur during a pause
+
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
     millis_t ms = millis();
@@ -292,7 +294,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       constexpr float zraise = 0;
     #endif
 
-    // Save, including the limited Z raise
+    // Save the current position, distance that Z will be raised,
+    // and a flag whether the raise was already done here.
     if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Disable all heaters to reduce power loss
@@ -368,22 +371,29 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Reset E, raise Z, home XY...
+  //
+  // Home the axes that can safely be homed, and
+  // establish the current position as best we can
+  //
   #if Z_HOME_DIR > 0
 
-    // If Z homing goes to max, just reset E and home all
+    // If Z homing goes to max...
     gcode.process_subcommands_now_P(PSTR(
-      "G92.9 E0\n"
-      "G28R0"
+      "G92.9 E0\n"                          // Reset E to 0
+      "G28R0"                               // Home all axes (no raise)
     ));
 
   #else // "G92.9 E0 ..."
 
+    // Reset Z and E to 0
     gcode.process_subcommands_now_P("G92.9E0Z0");
 
-    // If a Z raise occurred at outage set Z to the Z raise value (over zero), otherwise raise Z now
-    sprintf_P(cmd, info.flag.raised ? PSTR("G92.9Z%s") : PSTR("G1Z%sF200"), dtostrf(info.zraise, 1, 3, str_1));
-    gcode.process_subcommands_now(cmd);
+    // Is there a "raise" value?
+    if (info.zraise) {
+      // If a Z raise occurred at outage set Z to the Z raise value, otherwise raise Z now
+      sprintf_P(cmd, info.flag.raised ? PSTR("G92.9Z%s") : PSTR("G1Z%sF500"), dtostrf(info.zraise, 1, 3, str_1));
+      gcode.process_subcommands_now(cmd);
+    }
 
     // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
@@ -395,19 +405,20 @@ void PrintJobRecovery::resume() {
 
   #endif
 
-  #ifdef POWER_LOSS_ZHOME_POS
-    // If defined move to a safe Z homing position that avoids the print
+  #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
+    // Move to a safe XY position where Z can home while avoiding the print.
+    // If Z_SAFE_HOMING is enabled, its position must also be outside the print area!
     constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
+    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
 
-  // Ensure that all axes are marked as homed
+  // Mark all axes as having been homed (no effect on current_position)
   set_all_homed();
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    // Now move to ZsavedPos + POWER_LOSS_ZRAISE
-    sprintf_P(cmd, PSTR("G1 Z%s F500"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    // Z was homed. Now move Z back up to the saved Z height, plus the POWER_LOSS_ZRAISE.
+    sprintf_P(cmd, PSTR("G1Z%sF500"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -447,7 +458,7 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Restore retract and hop state
+  // Restore retract and hop state from an active `G10` command
   #if ENABLED(FWRETRACT)
     LOOP_L_N(e, EXTRUDERS) {
       if (info.retract[e] != 0.0) {
@@ -462,7 +473,7 @@ void PrintJobRecovery::resume() {
     // Restore leveling state before 'G92 Z' to ensure
     // the Z stepper count corresponds to the native Z.
     if (info.fade || info.flag.leveling) {
-      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.flag.leveling), dtostrf(info.fade, 1, 1, str_1));
+      sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
     }
   #endif
@@ -472,11 +483,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Un-retract if there was a retract at outage
-  #if POWER_LOSS_RETRACT_LEN
+  #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
   #endif
 
-  // Additional purge if configured
+  // Additional purge on resume if configured
   #if POWER_LOSS_PURGE_LEN
     sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);

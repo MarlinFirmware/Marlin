@@ -89,14 +89,14 @@ extern uint8_t did_pause_print;
 bool pause_print(
   const_float_t   retract,                                    // (mm) Retraction length
   const xyz_pos_t &park_point,                                // Parking XY Position and Z Raise
-  const bool      show_lcd=false                              // Set LCD status messages?
-  const_float_t   unload_length=0,                            // (mm) Filament Change Unload Length - 0 to skip
+  const bool      show_lcd=false,                             // Set LCD status messages?
+  const_float_t   unload_length=0                             // (mm) Filament Change Unload Length - 0 to skip
   DXC_PARAMS                                                  // Dual-X-Carriage extruder index
 );
 
 void wait_for_confirmation(
   const bool      is_reload=false,                            // Reload Filament? (otherwise Resume Print)
-  const int8_t    max_beep_count=0,                           // Beep alert for attention
+  const int8_t    max_beep_count=0                            // Beep alert for attention
   DXC_PARAMS                                                  // Dual-X-Carriage extruder index
 );
 
