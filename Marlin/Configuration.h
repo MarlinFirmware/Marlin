@@ -2077,7 +2077,11 @@
 #elif ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2, SKRE3Turbo) && DISABLED(SKR_ReverseSteppers)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
-  #define INVERT_Z_DIR false
+  #if ANY(MachineEnder5Plus, MachineCR2020)
+    #define INVERT_Z_DIR true
+  #else
+    #define INVERT_Z_DIR false
+  #endif
   #if(ENABLED(E3DTitan))
     #define INVERT_E0_DIR false
     #define INVERT_E1_DIR true
