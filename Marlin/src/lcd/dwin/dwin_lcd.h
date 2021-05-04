@@ -236,6 +236,8 @@
 #define Def_AlertTxt_Color    Color_Yellow
 #define Def_PercentTxt_Color  Percent_Color
 #define Def_Barfill_Color     BarFill_Color
+#define Def_Indicator_Color   Color_White
+#define Def_Coordinate_Color   Color_White
 
 /*-------------------------------------- System variable function --------------------------------------*/
 

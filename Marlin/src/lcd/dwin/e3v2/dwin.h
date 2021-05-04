@@ -47,15 +47,12 @@ enum processID : uint8_t {
   SelectFile,
   Prepare,
   Control,
-  Homing,
-  Leveling,
   PrintProcess,
   FilamentMan,
   AxisMove,
   ManualLev,
   ManualMesh,
   MMeshMoveZ,
-  PidRunning,
   TemperatureID,
   Motion,
   Reboot,
@@ -113,8 +110,13 @@ enum processID : uint8_t {
   PrintSpeed,
   PrintFlow,
 
+  // Popup Windows
+  Homing,
+  Leveling,
   PauseOrStop,
-  Popup_Window
+  FilamentPurge,
+  WaitResponse,
+  NothingToDo,
 };
 
 extern uint8_t checkkey;
@@ -185,6 +187,8 @@ typedef struct {
   uint16_t AlertTxt_Color = Def_AlertTxt_Color;
   uint16_t PercentTxt_Color = Def_PercentTxt_Color;
   uint16_t Barfill_Color = Def_Barfill_Color;
+  uint16_t Indicator_Color = Def_Indicator_Color;
+  uint16_t Coordinate_Color = Def_Coordinate_Color;
 } HMI_data_t;
 
 #define DWIN_CHINESE 123
@@ -225,7 +229,8 @@ void ICON_Pause();
 void ICON_Continue();
 void ICON_Stop();
 
-void DWIN_Popup_Window(uint8_t icon, const char *msg1, const char *msg2);
+void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t button = 0);
+void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2);
 void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED
@@ -298,6 +303,7 @@ void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
+void Draw_Main_Area(uint8_t procID); // Redraw screen elements
 void HMI_ReturnScreen();// Return to previous menu
 
 #if HAS_PREHEAT
@@ -311,7 +317,7 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
-void HMI_PopupConfirm();
+void HMI_Popup();
 void HMI_SaveProcessID(uint8_t id);
 void HMI_AudioFeedback(const bool success=true);
 void EachMomentUpdate();
@@ -345,6 +351,12 @@ void DWIN_Gcode(const int16_t codenum);
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   void DWIN_PauseShow(const char message);
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Draw_Popup_FilamentPurge();
+  void DWIN_Popup_FilamentPurge();
+  void HMI_FilamentPurge();
 #endif
 
 void DWIN_Debug(const char *msg);

@@ -201,13 +201,11 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
-    TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_FILAMENTLOAD), GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE)));
 
     while (wait_for_user) {
       impatient_beep(max_beep_count);
       idle_no_sleep();
     }
-
   }
 
   if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_LOAD, mode);
@@ -271,6 +269,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           wait_for_user = false;
           #if HAS_LCD_MENU
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
+          #elif ENABLED(DWIN_CREALITY_LCD)
+            DWIN_Popup_FilamentPurge();
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
           #endif
@@ -422,7 +422,6 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const_float
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder)) {
     DEBUG_ECHOLNPAIR("... retract:", retract);
-    ui.set_status_P(GET_TEXT(MSG_RETRACT));  // M.A.R.C.
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
   }
 
@@ -496,8 +495,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_NOZZLE_PARKED), CONTINUE_STR));
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_NOZZLE_PARKED)));
-  TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_NOZZLE_PARKED), CONTINUE_STR));
-
+  
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     impatient_beep(max_beep_count);
@@ -514,7 +512,6 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_HEATER_TIMEOUT), GET_TEXT(MSG_REHEAT)));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_HEATER_TIMEOUT)));
-      TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_HEATER_TIMEOUT), GET_TEXT(MSG_REHEAT)));
 
       wait_for_user_response(0, true); // Wait for LCD click or M108
 
@@ -537,13 +534,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished.")));
-      TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
-
       wait_for_user = true;
       nozzle_timed_out = false;
 
       first_impatient_beep(max_beep_count);
     }
+
     idle_no_sleep();
   }
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -672,6 +668,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
   TERN_(HAS_LCD_MENU, ui.return_to_status());
+  TERN_(DWIN_CREALITY_LCD, HMI_ReturnScreen());
 }
 
 #endif // ADVANCED_PAUSE_FEATURE
