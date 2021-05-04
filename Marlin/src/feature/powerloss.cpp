@@ -151,6 +151,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
+  // We don't check IS_SD_PRINTING here so a save may occur during a pause
+
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
     millis_t ms = millis();
@@ -426,16 +428,16 @@ void PrintJobRecovery::resume() {
   #if DISABLED(NO_VOLUMETRICS)
     #if HAS_MULTI_EXTRUDER
       for (int8_t e = 0; e < EXTRUDERS; e++) {
-        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
+        sprintf_P(cmd, PSTR("M200T%iD%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
       if (!info.flag.volumetric_enabled) {
-        sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
+        sprintf_P(cmd, PSTR("M200T%iD0"), info.active_extruder);
         gcode.process_subcommands_now(cmd);
       }
     #else
       if (info.flag.volumetric_enabled) {
-        sprintf_P(cmd, PSTR("M200 D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
+        sprintf_P(cmd, PSTR("M200D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
     #endif
@@ -452,7 +454,7 @@ void PrintJobRecovery::resume() {
     FANS_LOOP(i) {
       const int f = info.fan_speed[i];
       if (f) {
-        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+        sprintf_P(cmd, PSTR("M106P%iS%i"), i, f);
         gcode.process_subcommands_now(cmd);
       }
     }
