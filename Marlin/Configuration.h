@@ -112,6 +112,13 @@
 //#define SERIAL_PORT_2 -1
 
 /**
+ * Select a third serial port on the board to use for communication with the host.
+ * Currently only supported for LPC1768
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
+//#define SERIAL_PORT_3 1
+
+/**
  * This setting determines the communication speed of the printer.
  *
  * 250000 works in most cases, but you might try a lower speed if
