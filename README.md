@@ -6,7 +6,7 @@ This branch adds support for the Creality touchscreen machines and was split off
 - [CR10S Pro V2](http://bit.ly/2rxZ6lP)
 - [CR10 Max](http://bit.ly/2L6wZRy)
 - [Ender 5 Plus](https://bit.ly/2SriM5I)
-- [CR-X](http://bit.ly/2L6xsmM)
+- [CR-X](https://bit.ly/33eZ5Ts)
 - [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
 - [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
 - [Ender 3 V2](https://bit.ly/3xmx4XI)
