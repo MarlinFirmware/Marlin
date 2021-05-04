@@ -323,7 +323,7 @@ void onIdle()
 
 
 			rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
-			rtscheck.RTS_SndData((unsigned int)(getFlowPercentage(E0)), Flowrate);
+			rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
@@ -2019,6 +2019,21 @@ void onHomingComplete()
 }
 
 void onSteppersDisabled()
+{
+
+}
+
+void onPostprocessSettings()
+{
+
+}
+
+void startPIDTune(float const& target, ExtUI::extruder_t e)
+{
+
+}
+
+void startBedPIDTune(float const& target)
 {
 
 }
