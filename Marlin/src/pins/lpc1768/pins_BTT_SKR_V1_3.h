@@ -266,9 +266,82 @@
   #elif HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
+#elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+
+    #define TFT_A0_PIN                EXP1_03_PIN
+    #define TFT_DC_PIN                EXP1_03_PIN
+    #define TFT_CS_PIN                EXP1_04_PIN
+    #define TFT_RESET_PIN             EXP1_07_PIN
+    #define TFT_BACKLIGHT_PIN         EXP1_08_PIN
+                                      
+    #define TFT_RST_PIN               EXP2_04_PIN
+    #define TFT_MOSI_PIN              EXP2_05_PIN
+    #define TFT_SCK_PIN               EXP2_09_PIN
+    #define TFT_MISO_PIN              EXP2_10_PIN
+
+    #define TOUCH_INT_PIN             EXP1_05_PIN
+    #define TOUCH_CS_PIN              EXP1_06_PIN
+
+    #define TOUCH_MOSI_PIN            EXP2_05_PIN
+    #define TOUCH_SCK_PIN             EXP2_09_PIN
+    #define TOUCH_MISO_PIN            EXP2_10_PIN
+
+    #define BTN_EN2                   EXP2_06_PIN
+    #define BTN_EN1                   EXP2_08_PIN
+    #define BTN_ENC                   EXP1_09_PIN
+
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_RS                    -1
+    #define TFT_BUFFER_SIZE                 2400
+
+  #ifndef TFT_WIDTH
+    #define TFT_WIDTH                        480
+  #endif
+  #ifndef TFT_HEIGHT
+    #define TFT_HEIGHT                       320
+  #endif
+
+  #define LCD_READ_ID                       0xD3
+  #define LCD_USE_DMA_SPI
+
+    // XPT2046 Touch Screen calibration
+    #if ENABLED(TFT_CLASSIC_UI)
+      #ifndef XPT2046_X_CALIBRATION
+        #define XPT2046_X_CALIBRATION     -11386
+      #endif
+      #ifndef XPT2046_Y_CALIBRATION
+        #define XPT2046_Y_CALIBRATION       8684
+      #endif
+      #ifndef XPT2046_X_OFFSET
+        #define XPT2046_X_OFFSET             689
+      #endif
+      #ifndef XPT2046_Y_OFFSET
+        #define XPT2046_Y_OFFSET            -273
+      #endif
+    #elif ENABLED(TFT_COLOR_UI)
+      #ifndef XPT2046_X_CALIBRATION
+        #define XPT2046_X_CALIBRATION     -16741
+      #endif
+      #ifndef XPT2046_Y_CALIBRATION
+        #define XPT2046_Y_CALIBRATION      11258
+      #endif
+      #ifndef XPT2046_X_OFFSET
+        #define XPT2046_X_OFFSET            1024
+      #endif
+      #ifndef XPT2046_Y_OFFSET
+        #define XPT2046_Y_OFFSET            -367
+      #endif
+
+      #define TFT_BUFFER_SIZE               2400
+    #endif
 
   #elif IS_TFTGLCD_PANEL
-
     #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS             EXP2_08_PIN
     #endif
