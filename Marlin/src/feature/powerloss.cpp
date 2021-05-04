@@ -151,8 +151,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
-  // We don't check IS_SD_PRINTING here so a save may occur during a pause
-
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
     millis_t ms = millis();
