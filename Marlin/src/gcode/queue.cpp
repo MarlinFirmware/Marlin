@@ -270,6 +270,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
   SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
+  ok_to_send();
 }
 
 static bool serial_data_available(serial_index_t index) {
