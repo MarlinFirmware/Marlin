@@ -122,29 +122,6 @@ tags
 .gcc-flags.json
 /lib/
 
-# Workaround for Deviot+platformio quirks
-Marlin/lib
-Marlin/platformio.ini
-Marlin/*/platformio.ini
-Marlin/*/*/platformio.ini
-Marlin/*/*/*/platformio.ini
-Marlin/*/*/*/*/platformio.ini
-Marlin/.travis.yml
-Marlin/*/.travis.yml
-Marlin/*/*/.travis.yml
-Marlin/*/*/*/.travis.yml
-Marlin/*/*/*/*/.travis.yml
-Marlin/.gitignore
-Marlin/*/.gitignore
-Marlin/*/*/.gitignore
-Marlin/*/*/*/.gitignore
-Marlin/*/*/*/*/.gitignore
-Marlin/readme.txt
-Marlin/*/readme.txt
-Marlin/*/*/readme.txt
-Marlin/*/*/*/readme.txt
-Marlin/*/*/*/*/readme.txt
-
 # Secure Credentials
 Configuration_Secure.h
 

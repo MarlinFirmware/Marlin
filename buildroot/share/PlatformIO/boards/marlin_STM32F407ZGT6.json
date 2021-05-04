@@ -2,8 +2,8 @@
   "build": {
     "core": "stm32",
     "cpu": "cortex-m4",
-    "extra_flags": "-DSTM32F401xx",
-    "f_cpu": "84000000L",
+    "extra_flags": "-DSTM32F407xx",
+    "f_cpu": "168000000L",
     "hwids": [
       [
         "0x1EAF",
@@ -14,12 +14,10 @@
         "0x3748"
       ]
     ],
-    "ldscript": "stm32f401xe.ld",
-    "mcu": "stm32f401vet6",
-    "variant": "STEVAL_F401VE"
+    "mcu": "stm32f407zgt6"
   },
   "debug": {
-    "jlink_device": "STM32F401VE",
+    "jlink_device": "STM32F407ZG",
     "openocd_target": "stm32f4x",
     "svd_path": "STM32F40x.svd",
     "tools": {
@@ -45,11 +43,11 @@
     "arduino",
     "stm32cube"
   ],
-  "name": "STM32F401VE (96k RAM. 512k Flash)",
+  "name": "STM32F407ZGT6(192k RAM. 1024k Flash)",
   "upload": {
     "disable_flushing": false,
-    "maximum_ram_size": 98304,
-    "maximum_size": 514288,
+    "maximum_ram_size": 196608,
+    "maximum_size": 1048576,
     "protocol": "stlink",
     "protocols": [
       "stlink",
@@ -60,6 +58,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/en/evaluation-tools/steval-3dp001v1.html",
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f407ZG.html",
   "vendor": "Generic"
 }

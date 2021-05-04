@@ -39,13 +39,13 @@ namespace Anycubic {
 class FileNavigator {
   public:
     FileNavigator();
-    void reset();
-    void getFiles(uint16_t, panel_type_t, uint8_t filesneeded=4);
-    void upDIR();
-    void changeDIR(const char *);
-    void sendFile(panel_type_t);
-    void refresh();
-    void skiptofileindex(uint16_t);
+    static void reset();
+    static void getFiles(uint16_t, panel_type_t, uint8_t filesneeded=4);
+    static void upDIR();
+    static void changeDIR(const char *);
+    static void sendFile(panel_type_t);
+    static void refresh();
+    static void skiptofileindex(uint16_t);
 
     static FileList filelist;
   private:
@@ -53,7 +53,7 @@ class FileNavigator {
     static uint16_t currentindex;
     static uint8_t  currentfolderdepth;
     static uint16_t currentfolderindex[MAX_FOLDER_DEPTH];
-    static char     currentfoldername[MAX_PATH_LEN];
+    static char     currentfoldername[MAX_PATH_LEN + 1];
 };
 
 extern FileNavigator filenavigator;

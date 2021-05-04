@@ -21,7 +21,7 @@
     "ldscript": "linker_scripts/gcc/flash.ld",
     "mcu": "at91sam3x8e",
     "usb_product": "Archim",
-    "variant": "archim"
+    "variant": "MARLIN_ARCHIM"
   },
   "connectivity": [
     "can"

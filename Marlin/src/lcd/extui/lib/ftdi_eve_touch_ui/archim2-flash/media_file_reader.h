@@ -32,7 +32,7 @@
 class MediaFileReader {
   private:
     #if ENABLED(SDSUPPORT)
-      Sd2Card  card;
+      DiskIODriver_SPI_SD card;
       SdVolume volume;
       SdFile   root, file;
     #endif
