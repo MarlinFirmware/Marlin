@@ -202,3 +202,30 @@
   #define BEEPER_PIN                        PA5
 
 #endif
+
+// Added this section for TMC2208 uart control - Requires hardware modification
+#if HAS_TMC_UART
+
+  #ifdef TMC_UART_PIN_E
+    #define E0_SERIAL_TX_PIN TMC_UART_PIN_E
+    #define E0_SERIAL_RX_PIN TMC_UART_PIN_E
+  #endif
+
+  #ifdef TMC_UART_PIN_X
+    #define X_SERIAL_TX_PIN TMC_UART_PIN_X
+    #define X_SERIAL_RX_PIN TMC_UART_PIN_X
+  #endif
+
+  #ifdef TMC_UART_PIN_Y
+    #define Y_SERIAL_TX_PIN TMC_UART_PIN_Y
+    #define Y_SERIAL_RX_PIN TMC_UART_PIN_Y
+  #endif
+
+  #ifdef TMC_UART_PIN_Z
+    #define Z_SERIAL_TX_PIN TMC_UART_PIN_Z
+    #define Z_SERIAL_RX_PIN TMC_UART_PIN_Z
+  #endif
+
+  #define TMC_BAUD_RATE 19600
+
+#endif
