@@ -107,7 +107,9 @@
   #define Y_STOP_PIN                          19
 #elif EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #define Y_STOP_PIN                          42
-  #define Z2_MIN_PIN                          43
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #define Z2_MIN_PIN                        43
+  #endif
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2
   #endif
