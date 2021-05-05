@@ -47,7 +47,11 @@ bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
     #ifdef CASE_LIGHT_DEFAULT_COLOR
       CASE_LIGHT_DEFAULT_COLOR
     #else
-      { 255, 255, 255, 255 }
+      { 255, 255, 255
+      #if HAS_WHITE_LED
+      , 255
+      #endif
+      }
     #endif
   ;
 #endif
@@ -78,8 +82,10 @@ void CaseLight::update(const bool sflag) {
   #if CASE_LIGHT_IS_COLOR_LED
 
     leds.set_color(
-      MakeLEDColor(color.r, color.g, color.b, color.w, n10ct),
-      false
+      MakeLEDColor(color.r, color.g, color.b, color.w, n10ct)
+      #if ENABLED(NEOPIXEL_LED)
+        , false
+      #endif
     );
 
   #else // !CASE_LIGHT_IS_COLOR_LED
