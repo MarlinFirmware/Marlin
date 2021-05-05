@@ -26,10 +26,11 @@
 
 #ifdef __IMXRT1062__
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include "../shared/Delay.h"
 #include "timers.h"
-
 #include <Wire.h>
 
 #define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
