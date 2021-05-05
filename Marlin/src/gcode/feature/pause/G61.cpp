@@ -27,6 +27,7 @@
 #include "../../../module/planner.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
+#include "../../../module/planner.h"
 
 #define DEBUG_OUT ENABLED(SAVED_POSITIONS_DEBUG)
 #include "../../../core/debug_out.h"
@@ -42,6 +43,8 @@
 void GcodeSuite::G61(void) {
 
   const uint8_t slot = parser.byteval('S');
+
+  #define SYNC_E(POINT) planner.set_e_position_mm((destination.e = current_position.e = (POINT)))
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
@@ -62,7 +65,7 @@ void GcodeSuite::G61(void) {
     DEBUG_ECHOLN("Default position restoring");
     do_blocking_move_to_xy(stored_position[slot].x, stored_position[slot].y, feedrate_mm_s);
     do_blocking_move_to_z(stored_position[slot].z, feedrate_mm_s);
-    current_position.e = stored_position[slot].e;
+    SYNC_E(stored_position[slot].e);
   } else {
     if (parser.seen("XYZ")) {
       DEBUG_ECHOPAIR(STR_RESTORING_POS " S", slot);
@@ -79,8 +82,7 @@ void GcodeSuite::G61(void) {
     }
     if (parser.seen_test('E')) {
       DEBUG_ECHOLNPAIR(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", stored_position[slot].e);
-      current_position.e = stored_position[slot].e;
-      destination.e = current_position.e;
+      SYNC_E(stored_position[slot].e);
     }
   }
 
