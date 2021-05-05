@@ -72,7 +72,7 @@ void GcodeSuite::M9() {
  * M8: Air Assist On
  */
 void GcodeSuite::M8() {
-  planner.synchronize(); 
+  planner.synchronize();
   cutter.air_assist_enable();   // Turn on Air Assist pin
 }
 
@@ -80,7 +80,7 @@ void GcodeSuite::M8() {
  * M9: Air Assist Off
  */
 void GcodeSuite::M9() {
-  planner.synchronize(); 
+  planner.synchronize();
   cutter.air_assist_disable();  // Turn off Air Assist pin
 }
 
