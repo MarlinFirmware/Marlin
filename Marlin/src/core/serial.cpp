@@ -59,7 +59,7 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
   #define __S_LEAF(N) ___S_LEAF(N)
   #define _S_LEAF(N) __S_LEAF(INCREMENT(N))
 
-  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(1, _S_LEAF) );
+  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(1, NUM_SERIAL, _S_LEAF) );
 
   #undef ___S_LEAF
   #undef __S_LEAF

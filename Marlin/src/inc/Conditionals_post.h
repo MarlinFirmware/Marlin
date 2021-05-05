@@ -1950,7 +1950,6 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
-#undef CONF_SERIAL_IS
 #undef ANY_SERIAL_IS
 
 //
