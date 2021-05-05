@@ -44,6 +44,9 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
   SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
 #endif
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
+  SerialLeafT3 mpSerial3(false, _SERIAL_LEAF_3);
+#endif
 
 // Step 2: For multiserial, handle the second serial port as well
 #if HAS_MULTI_SERIAL
@@ -51,11 +54,17 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
     // We need a definition here
     SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
-  SerialOutputT multiSerial(SERIAL_LEAF_1, SERIAL_LEAF_2
-    #ifdef SERIAL_PORT_3
-      , SERIAL_LEAF_3
-    #endif
-  );
+
+  #define ___S_LEAF(N) ,SERIAL_LEAF_##N
+  #define __S_LEAF(N) ___S_LEAF(N)
+  #define _S_LEAF(N) __S_LEAF(INCREMENT(N))
+
+  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(1, _S_LEAF) );
+
+  #undef ___S_LEAF
+  #undef __S_LEAF
+  #undef _S_LEAF
+
 #endif
 
 void serialprintPGM(PGM_P str) {
