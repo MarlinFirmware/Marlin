@@ -25,7 +25,7 @@
   #error "LERDGE K supports up to 2 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME      "Lerdge K v2.0.1"
+#define BOARD_INFO_NAME      "Lerdge K"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
 
@@ -189,7 +189,7 @@
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compability with real wires
+  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
 #ifndef RGB_LED_G_PIN
   #define RGB_LED_G_PIN                     PB7
