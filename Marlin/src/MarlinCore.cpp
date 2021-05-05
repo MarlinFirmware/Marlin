@@ -825,18 +825,19 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
 
-  SERIAL_ERROR_MSG(STR_ERR_KILLED);
+  // Echo the LCD message to serial for extra context
+  if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
 
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
-    UNUSED(lcd_error);
-    UNUSED(lcd_component);
+    UNUSED(lcd_error); UNUSED(lcd_component);
   #endif
 
-  #if HAS_TFT_LVGL_UI
-    lv_draw_error_message(lcd_error);
-  #endif
+  TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
+
+  // "Error:Printer halted. kill() called!"
+  SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #ifdef ACTION_ON_KILL
     host_action_kill();
