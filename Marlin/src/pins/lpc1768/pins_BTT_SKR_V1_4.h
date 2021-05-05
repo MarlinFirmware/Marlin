@@ -279,7 +279,7 @@
     #undef SPEAKER
   #endif
 
-#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
