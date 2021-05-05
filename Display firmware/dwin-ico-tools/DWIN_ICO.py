@@ -343,5 +343,11 @@ _iconNames = {
    201 : 'ICON_Checkbox_T',
    202 : 'ICON_Fade',
    203 : 'ICON_Mesh',
-   204 : 'ICON_Tilt'
+   204 : 'ICON_Tilt',
+   249 : 'ICON_AxisD',
+   250 : 'ICON_AxisBR',
+   251 : 'ICON_AxisTR',
+   252 : 'ICON_AxisBL',
+   253 : 'ICON_AxisTL',
+   254 : 'ICON_AxisC'
     }

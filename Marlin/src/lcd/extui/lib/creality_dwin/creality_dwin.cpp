@@ -1254,7 +1254,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_BL:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Left");
+            Draw_Menu_Item(row, ICON_AxisBL, (char*)"Bottom Left");
           }
           else {
             Popup_Handler(MoveWait);
@@ -1267,7 +1267,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_TL:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Top Left");
+            Draw_Menu_Item(row, ICON_AxisTL, (char*)"Top Left");
           }
           else {
             Popup_Handler(MoveWait);
@@ -1280,7 +1280,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_TR:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Top Right");
+            Draw_Menu_Item(row, ICON_AxisTR, (char*)"Top Right");
           }
           else {
             Popup_Handler(MoveWait);
@@ -1293,7 +1293,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_BR:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Bottom Right");
+            Draw_Menu_Item(row, ICON_AxisBR, (char*)"Bottom Right");
           }
           else {
             Popup_Handler(MoveWait);
@@ -1306,7 +1306,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case MLEVEL_C:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Center");
+            Draw_Menu_Item(row, ICON_AxisC, (char*)"Center");
           }
           else {
             Popup_Handler(MoveWait);
@@ -1428,7 +1428,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case ZOFFSET_DOWN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
+              Draw_Menu_Item(row, ICON_AxisD, (char*)"Microstep Down");
             }
             else {
               if (zoffsetvalue > MIN_Z_OFFSET) {
@@ -3472,7 +3472,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case LEVELING_M_DOWN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
+              Draw_Menu_Item(row, ICON_AxisD, (char*)"Microstep Down");
             }
             else {
               if (mesh_conf.mesh_z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] > MIN_Z_OFFSET) {
@@ -3697,7 +3697,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case MMESH_DOWN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Axis, (char*)"Microstep Down");
+              Draw_Menu_Item(row, ICON_AxisD, (char*)"Microstep Down");
             }
             else {
               if (current_position.z > MIN_Z_OFFSET) {
@@ -3839,7 +3839,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case TUNE_ZDOWN:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Axis, (char*)"Z-Offset Down");
+              Draw_Menu_Item(row, ICON_AxisD, (char*)"Z-Offset Down");
             }
             else {
               if (zoffsetvalue > MIN_Z_OFFSET) {
