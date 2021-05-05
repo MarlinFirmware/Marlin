@@ -25,10 +25,16 @@
   #error "LERDGE K supports up to 2 hotends / E-steppers."
 #endif
 
-#define BOARD_INFO_NAME      "Lerdge K"
+#define BOARD_INFO_NAME      "Lerdge K v2.0.1"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
+
+// EEPROM
 #define I2C_EEPROM
+#define SOFT_I2C_EEPROM //force the use of software i2c
+#define I2C_SCL_PIN                         PG14
+#define I2C_SDA_PIN                         PG13
+#define MARLIN_EEPROM_SIZE               0x10000
 
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
@@ -36,7 +42,7 @@
 //
 // Servos
 //
-//#define SERVO0_PIN                        PB11
+#define SERVO0_PIN                        PB11
 
 //
 // Limit Switches
@@ -163,12 +169,18 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PF7
 #endif
+
 #define FAN1_PIN                            PF6
-#define FAN2_PIN                            PF8
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PF6
+  #define E0_AUTO_FAN_PIN                   PB1
 #endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                   PB0
+#endif
+
+#define CONTROLLER_FAN_PIN                  PF8
 
 //
 // LED / Lighting
@@ -177,10 +189,10 @@
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                     PB7
+  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compability with real wires
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN                     PB8
+  #define RGB_LED_G_PIN                     PB7
 #endif
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                     PB9
@@ -197,7 +209,7 @@
 //
 #define SDSS                                PC11
 #define LED_PIN                             PA15  // Alive
-#define PS_ON_PIN                           -1
+#define PS_ON_PIN                           PA4
 #define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
