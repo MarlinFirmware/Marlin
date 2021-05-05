@@ -25,9 +25,10 @@
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-#include <stdint.h>
+#include "../../inc/MarlinConfig.h"
+#include "HAL.h"
+
 #include <libmaple/timer.h>
-#include "../../core/boards.h"
 
 // ------------------------
 // Defines
@@ -37,7 +38,6 @@
  * TODO: Check and confirm what timer we will use for each Temps and stepper driving.
  * We should probable drive temps with PWM.
  */
-#define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF

@@ -26,19 +26,16 @@
 
 #include "../DGUSScreenHandler.h"
 
+#include "../../../../../inc/MarlinConfig.h"
+
 #include "../../../../../MarlinCore.h"
-#include "../../../../../gcode/queue.h"
-#include "../../../../../libs/duration_t.h"
 #include "../../../../../module/settings.h"
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
 #include "../../../../../module/printcounter.h"
-#include "../../../../../sd/cardreader.h"
 
 #include "../../../../../gcode/gcode.h"
-#include "../../../../../pins/pins.h"
-#include "../../../../../libs/nozzle.h"
 
 #if ENABLED(HAS_STEALTHCHOP)
   #include "../../../../../module/stepper/trinamic.h"
