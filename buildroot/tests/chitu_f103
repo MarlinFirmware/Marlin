@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for chitu_f103 (STM32F103ZE)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+use_example_configs Tronxy/X5SA
+exec_test $1 $2 "Tronxy/X5SA" "$3"
+
+# clean up
+restore_configs

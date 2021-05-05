@@ -135,7 +135,7 @@ void HAL_init();
 inline void HAL_clear_reset_source() { MCUSR = 0; }
 inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 #if GCC_VERSION <= 50000
   #pragma GCC diagnostic push

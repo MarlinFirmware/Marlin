@@ -38,10 +38,15 @@ void menu_backlash() {
 
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
+  #if DISABLED(CORE_BACKLASH) || ENABLED(MARKFORGED_XY)
+    #define _CAN_CALI AXIS_CAN_CALIBRATE
+  #else
+    #define _CAN_CALI(A) true
+  #endif
   #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
-  if (AXIS_CAN_CALIBRATE(A)) EDIT_BACKLASH_DISTANCE(A);
-  if (AXIS_CAN_CALIBRATE(B)) EDIT_BACKLASH_DISTANCE(B);
-  if (AXIS_CAN_CALIBRATE(C)) EDIT_BACKLASH_DISTANCE(C);
+  if (_CAN_CALI(A)) EDIT_BACKLASH_DISTANCE(A);
+  if (_CAN_CALI(B)) EDIT_BACKLASH_DISTANCE(B);
+  if (_CAN_CALI(C)) EDIT_BACKLASH_DISTANCE(C);
 
   #ifdef BACKLASH_SMOOTHING_MM
     EDIT_ITEM_FAST(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);

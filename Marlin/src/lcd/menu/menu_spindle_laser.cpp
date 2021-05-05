@@ -51,6 +51,16 @@
     editable.state = is_enabled;
     EDIT_ITEM(bool, MSG_CUTTER(TOGGLE), &is_enabled, []{ if (editable.state) cutter.disable(); else cutter.enable_same_dir(); });
 
+    #if ENABLED(AIR_EVACUATION)
+      bool evac_state = cutter.air_evac_state();
+      EDIT_ITEM(bool, MSG_CUTTER(EVAC_TOGGLE), &evac_state, cutter.air_evac_toggle);
+    #endif
+
+    #if ENABLED(AIR_ASSIST)
+      bool air_assist_state = cutter.air_assist_state();
+      EDIT_ITEM(bool, MSG_CUTTER(ASSIST_TOGGLE), &air_assist_state, cutter.air_assist_toggle);
+    #endif
+
     #if ENABLED(SPINDLE_CHANGE_DIR)
       if (!is_enabled) {
         editable.state = is_rev;

@@ -60,8 +60,8 @@ extern MSerialT MSerial1;
 extern MSerialT MSerial2;
 extern MSerialT MSerial3;
 
-// Consequently, we can't use a RuntimeSerial either. The workaround would be to use a RuntimeSerial<ForwardSerial<MarlinSerial>> type here
-// Right now, let's ignore this until it's actually required.
+// Consequently, we can't use a RuntimeSerial either. The workaround would be to use
+// a RuntimeSerial<ForwardSerial<MarlinSerial>> type here. Ignore for now until it's actually required.
 #if ENABLED(SERIAL_RUNTIME_HOOK)
   #error "SERIAL_RUNTIME_HOOK is not yet supported for LPC176x."
 #endif

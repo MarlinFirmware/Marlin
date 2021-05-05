@@ -184,14 +184,16 @@ void Touch::touch(touch_control_t *control) {
       int8_t heater;
       heater = control->data;
       ui.clear_lcd();
-      if (heater >= 0) { // HotEnd
-        #if HOTENDS == 1
-          MenuItem_int3::action((const char *)GET_TEXT_F(MSG_NOZZLE), &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
-        #else
-          MenuItemBase::itemIndex = heater;
-          MenuItem_int3::action((const char *)GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
-        #endif
-      }
+      #if HAS_HOTEND
+        if (heater >= 0) { // HotEnd
+          #if HOTENDS == 1
+            MenuItem_int3::action((const char *)GET_TEXT_F(MSG_NOZZLE), &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
+          #else
+            MenuItemBase::itemIndex = heater;
+            MenuItem_int3::action((const char *)GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+          #endif
+        }
+      #endif
       #if HAS_HEATED_BED
         else if (heater == H_BED) {
           MenuItem_int3::action((const char *)GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);

@@ -46,13 +46,7 @@ char NextionTFT::selectedfile[MAX_PATH_LEN];
 char NextionTFT::nextion_command[MAX_CMND_LEN];
 uint8_t NextionTFT::command_len;
 
-bool last_homed = 0, last_homedX = 0, last_homedY = 0, last_homedZ = 0;
-float last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999, last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
-float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
-float last_extruder_advance_K = 999;
-uint8_t last_active_extruder = 99, last_fan_speed = 99, last_print_speed = 99, last_flow_speed = 99, last_progress = 99;
-uint8_t last_printer_state = 99, last_IDEX_Mode = 99;
-uint32_t layer = 0, last_layer = 99;
+uint32_t layer = 0;
 
 NextionTFT nextion;
 
@@ -243,7 +237,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
       SEND_VALasTXT("tmppage.tool", getActiveTool());
       SEND_VALasTXT("tmppage.fan", ui8tostr3rj(getActualFan_percent(FAN0)));
       SEND_VALasTXT("tmppage.speed", getFeedrate_percent());
-      SEND_VALasTXT("tmppage.flow", getFlowPercentage(getActiveTool()));
+      SEND_VALasTXT("tmppage.flow", getFlow_percent(getActiveTool()));
       SEND_VALasTXT("tmppage.progress", ui8tostr3rj(getProgress_percent()));
       SEND_VALasTXT("tmppage.layer", layer);
       SEND_VALasTXT("tmppage.x", getAxisPosition_mm(X));
@@ -601,6 +595,9 @@ void NextionTFT::PanelAction(uint8_t req) {
 void NextionTFT::UpdateOnChange() {
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
+  static celsius_float_t last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
+                         last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
+
   // tmppage Temperature
   if (!WITHIN(last_degHotend0 - getActualTemp_celsius(E0), -0.2, 0.2) || !WITHIN(last_degTargetHotend0 - getTargetTemp_celsius(E0), -0.5, 0.5)) {
     SEND_TEMP("tmppage.t0", ui8tostr3rj(getActualTemp_celsius(E0)), " / ", ui8tostr3rj(getTargetTemp_celsius(E0)));
@@ -621,27 +618,31 @@ void NextionTFT::UpdateOnChange() {
   }
 
   // tmppage Tool
+  static uint8_t last_active_extruder = 99;
   if (last_active_extruder != getActiveTool()) {
     SEND_VALasTXT("tmppage.tool", getActiveTool());
     last_active_extruder = getActiveTool();
   }
 
   // tmppage Fan Speed
+  static uint8_t last_fan_speed = 99;
   if (last_fan_speed != getActualFan_percent(FAN0)) {
     SEND_VALasTXT("tmppage.fan", ui8tostr3rj(getActualFan_percent(FAN0)));
     last_fan_speed = getActualFan_percent(FAN0);
   }
 
   // tmppage Print Speed
+  static uint8_t last_print_speed = 99;
   if (last_print_speed != getFeedrate_percent()) {
     SEND_VALasTXT("tmppage.speed", ui8tostr3rj(getFeedrate_percent()));
     last_print_speed = getFeedrate_percent();
   }
 
   // tmppage Flow
-  if (last_flow_speed != getFlowPercentage(getActiveTool())) {
-    SEND_VALasTXT("tmppage.flow", getFlowPercentage(getActiveTool()));
-    last_flow_speed = getFlowPercentage(getActiveTool());
+  static uint8_t last_flow_speed = 99;
+  if (last_flow_speed != getFlow_percent(getActiveTool())) {
+    SEND_VALasTXT("tmppage.flow", getFlow_percent(getActiveTool()));
+    last_flow_speed = getFlow_percent(getActiveTool());
   }
 
   // tmppage Progress + Layer + Time
@@ -661,6 +662,7 @@ void NextionTFT::UpdateOnChange() {
       SEND_VALasTXT("tmppage.elapsed", elapsed_str);
     }
 
+    static uint8_t last_progress = 99;
     if (last_progress != getProgress_percent()) {
       SEND_VALasTXT("tmppage.progress", ui8tostr3rj(getProgress_percent()));
       last_progress = getProgress_percent();
@@ -678,6 +680,8 @@ void NextionTFT::UpdateOnChange() {
   }
 
   // tmppage Axis
+  static float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
+
   if (!WITHIN(last_get_axis_position_mmX - getAxisPosition_mm(X), -0.1, 0.1)) {
     if (ELAPSED(ms, next_event_ms)) {
       next_event_ms = ms + 30;
@@ -700,6 +704,8 @@ void NextionTFT::UpdateOnChange() {
   }
 
   // tmppage homed
+  static bool last_homed = false, last_homedX = false, last_homedY = false, last_homedZ = false;
+
   if (last_homed != isPositionKnown()) {
     SEND_VAL("tmppage.homed", isPositionKnown());
     last_homed = isPositionKnown();
@@ -718,6 +724,7 @@ void NextionTFT::UpdateOnChange() {
   }
 
   // tmppage IDEX Mode
+  static uint8_t last_IDEX_Mode = 99;
   #if ENABLED(DUAL_X_CARRIAGE)
     if (last_IDEX_Mode != getIDEX_Mode()) {
       SEND_VAL("tmppage.idexmode", getIDEX_Mode());

@@ -18,7 +18,7 @@
       "ldscript": "stm32f103xc.ld"
     },
     "mcu": "stm32f103rct6",
-    "variant": "MEEB_3DP"
+    "variant": "marlin_MEEB_3DP"
   },
   "debug": {
     "jlink_device": "STM32F103RC",
