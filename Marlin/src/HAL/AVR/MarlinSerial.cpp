@@ -582,7 +582,8 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
   template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> >;
   MSerialT2 customizedSerial2(MSerialT2::HasEmergencyParser);
-#endif
+
+#endif // SERIAL_PORT_2
 
 #ifdef MMU2_SERIAL_PORT
 
@@ -596,7 +597,8 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
   template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
   MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
-#endif
+
+#endif // MMU2_SERIAL_PORT
 
 #ifdef LCD_SERIAL_PORT
 
@@ -622,7 +624,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
     }
   #endif
 
-#endif
+#endif // LCD_SERIAL_PORT
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
