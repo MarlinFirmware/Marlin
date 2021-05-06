@@ -19,30 +19,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "../../inc/MarlinConfig.h"
+#if HAS_TFT_LVGL_UI
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+#include "tft_lvgl_configuration.h"
 
-#include "../gcode.h"
+#if ENABLED(MKS_WIFI_MODULE)
 
-#if ENABLED(TFT_LVGL_UI)
-  #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
-#else
-  #include "../../lcd/menu/menu.h"
+#include "draw_ui.h"
+#include "wifiSerial.h"
+
+#include <libmaple/libmaple.h>
+#include <libmaple/gpio.h>
+#include <libmaple/timer.h>
+#include <libmaple/usart.h>
+#include <libmaple/ring_buffer.h>
+
+#include "../../../inc/MarlinConfig.h"
+
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-/**
- * M995: Touch screen calibration for TFT display
- */
-void GcodeSuite::M995() {
+#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
+#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-  #if ENABLED(TFT_LVGL_UI)
-    lv_draw_touch_calibration_screen();
-  #else
-    ui.goto_screen(touch_screen_calibration);
-  #endif
+void __irq_usart1() {
+   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
+     WRITE(WIFI_IO1_PIN, HIGH);
 
+   WIFISERIAL.wifi_usart_irq(USART1_BASE);
 }
 
-#endif // TOUCH_SCREEN_CALIBRATION
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif
+
+#endif // MKS_WIFI_MODULE
+#endif // HAS_TFT_LVGL_UI

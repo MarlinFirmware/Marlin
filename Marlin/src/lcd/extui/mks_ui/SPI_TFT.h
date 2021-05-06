@@ -19,30 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../tft_io/tft_io.h"
+#include <stdint.h>
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+class TFT {
+public:
+  TFT_IO tftio;
+  void spi_init(uint8_t spiRate);
+  void SetPoint(uint16_t x, uint16_t y, uint16_t point);
+  void setWindow(uint16_t x, uint16_t y, uint16_t with, uint16_t height);
+  void LCD_init();
+  void LCD_clear(uint16_t color);
+  void LCD_Draw_Logo();
+};
 
-#include "../gcode.h"
-
-#if ENABLED(TFT_LVGL_UI)
-  #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
-#else
-  #include "../../lcd/menu/menu.h"
-#endif
-
-/**
- * M995: Touch screen calibration for TFT display
- */
-void GcodeSuite::M995() {
-
-  #if ENABLED(TFT_LVGL_UI)
-    lv_draw_touch_calibration_screen();
-  #else
-    ui.goto_screen(touch_screen_calibration);
-  #endif
-
-}
-
-#endif // TOUCH_SCREEN_CALIBRATION
+extern TFT SPI_TFT;

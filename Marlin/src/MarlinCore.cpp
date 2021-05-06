@@ -68,9 +68,9 @@
 #endif
 
 #if HAS_TFT_LVGL_UI
-  #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
-  #include "lcd/extui/lib/mks_ui/draw_ui.h"
-  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
+  #include "lcd/extui/mks_ui/draw_ui.h"
+  #include "lcd/extui/mks_ui/mks_hardware_test.h"
   #include <lvgl.h>
 #endif
 
@@ -229,7 +229,7 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
+  #include "lcd/extui/dgus/DGUSScreenHandler.h"
 #endif
 
 #if HAS_DRIVER_SAFE_POWER_PROTECT
