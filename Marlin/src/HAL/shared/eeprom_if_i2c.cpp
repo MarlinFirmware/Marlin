@@ -31,11 +31,11 @@
 
 #include "eeprom_if.h"
 
-#if ENABLED(I2C_EEPROM) && DISABLED(SOFT_I2C_EEPROM)
-  #include <Wire.h> //use Wire library
-#elif ENABLED(SOFT_I2C_EEPROM)
-  #include <SlowSoftWire.h> //instead, use this softi2c to Wire wrapper
+#if ENABLED(SOFT_I2C_EEPROM)
+  #include <SlowSoftWire.h>
   SlowSoftWire Wire = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
+#else
+  #include <Wire.h>
 #endif
 
 void eeprom_init() {
