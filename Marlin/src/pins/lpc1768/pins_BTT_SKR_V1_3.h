@@ -266,29 +266,30 @@
   #elif HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
-#elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
-    #define TFT_A0_PIN                EXP1_03_PIN
-    #define TFT_DC_PIN                EXP1_03_PIN
-    #define TFT_CS_PIN                EXP1_04_PIN
-    #define TFT_RESET_PIN             EXP1_07_PIN
-    #define TFT_BACKLIGHT_PIN         EXP1_08_PIN
-                                      
-    #define TFT_RST_PIN               EXP2_04_PIN
-    #define TFT_MOSI_PIN              EXP2_05_PIN
-    #define TFT_SCK_PIN               EXP2_09_PIN
-    #define TFT_MISO_PIN              EXP2_10_PIN
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
-    #define TOUCH_INT_PIN             EXP1_05_PIN
-    #define TOUCH_CS_PIN              EXP1_06_PIN
+    #define TFT_A0_PIN               EXP1_03_PIN
+    #define TFT_DC_PIN               EXP1_03_PIN
+    #define TFT_CS_PIN               EXP1_04_PIN
+    #define TFT_RESET_PIN            EXP1_07_PIN
+    #define TFT_BACKLIGHT_PIN        EXP1_08_PIN
 
-    #define TOUCH_MOSI_PIN            EXP2_05_PIN
-    #define TOUCH_SCK_PIN             EXP2_09_PIN
-    #define TOUCH_MISO_PIN            EXP2_10_PIN
+    #define TFT_RST_PIN              EXP2_04_PIN
+    #define TFT_MOSI_PIN             EXP2_05_PIN
+    #define TFT_SCK_PIN              EXP2_09_PIN
+    #define TFT_MISO_PIN             EXP2_10_PIN
 
-    #define BTN_EN2                   EXP2_06_PIN
-    #define BTN_EN1                   EXP2_08_PIN
-    #define BTN_ENC                   EXP1_09_PIN
+    #define TOUCH_INT_PIN            EXP1_05_PIN
+    #define TOUCH_CS_PIN             EXP1_06_PIN
+
+    #define TOUCH_MOSI_PIN           EXP2_05_PIN
+    #define TOUCH_SCK_PIN            EXP2_09_PIN
+    #define TOUCH_MISO_PIN           EXP2_10_PIN
+
+    #define BTN_EN2                  EXP2_06_PIN
+    #define BTN_EN1                  EXP2_08_PIN
+    #define BTN_ENC                  EXP1_09_PIN
 
     #define LCD_USE_DMA_SPI
 
@@ -300,15 +301,15 @@
     #define LCD_PINS_RS                    -1
     #define TFT_BUFFER_SIZE                 2400
 
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH                        480
-  #endif
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                       320
-  #endif
+    #ifndef TFT_WIDTH
+      #define TFT_WIDTH                      480
+    #endif
+    #ifndef TFT_HEIGHT
+      #define TFT_HEIGHT                     320
+    #endif
 
-  #define LCD_READ_ID                       0xD3
-  #define LCD_USE_DMA_SPI
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
 
     // XPT2046 Touch Screen calibration
     #if ENABLED(TFT_CLASSIC_UI)
