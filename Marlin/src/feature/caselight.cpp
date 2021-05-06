@@ -28,10 +28,6 @@
 
 CaseLight caselight;
 
-#if CASE_LIGHT_IS_COLOR_LED
-  #include "leds/leds.h"
-#endif
-
 #if CASELIGHT_USES_BRIGHTNESS && !defined(CASE_LIGHT_DEFAULT_BRIGHTNESS)
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 0 // For use on PWM pin as non-PWM just sets a default
 #endif
@@ -43,15 +39,12 @@ CaseLight caselight;
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
 #if CASE_LIGHT_IS_COLOR_LED
+  #include "leds/leds.h"
   LEDColor CaseLight::color =
     #ifdef CASE_LIGHT_DEFAULT_COLOR
       CASE_LIGHT_DEFAULT_COLOR
     #else
-      { 255, 255, 255
-      #if HAS_WHITE_LED
-      , 255
-      #endif
-      }
+      { 255, 255, 255, TERN_(HAS_WHITE_LED, 255) }
     #endif
   ;
 #endif

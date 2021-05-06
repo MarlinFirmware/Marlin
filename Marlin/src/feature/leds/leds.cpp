@@ -53,7 +53,7 @@
   );
 #endif
 
-#if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_ENABLE)
+#if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
   LEDColor LEDLights::color;
   bool LEDLights::lights_on;
 #endif
