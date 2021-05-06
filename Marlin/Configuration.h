@@ -113,7 +113,7 @@
 
 /**
  * Select a third serial port on the board to use for communication with the host.
- * Currently only supported for LPC1768
+ * Currently only supported for LPC1768 and AVR
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 //#define SERIAL_PORT_3 1
