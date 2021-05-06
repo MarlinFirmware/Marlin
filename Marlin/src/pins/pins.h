@@ -596,8 +596,10 @@
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(BTT_E3_RRF)
   #include "stm32f4/pins_BTT_E3_RRF.h"          // STM32F4                                env:BIGTREE_E3_RRF
-#elif MB(BTT_SKR_V2_0)
-  #include "stm32f4/pins_BTT_SKR_V2_0.h"        // STM32F4                                env:BIGTREE_SKR_2
+#elif MB(BTT_SKR_V2_0_REV_A)
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2
+#elif MB(BTT_SKR_V2_0_REV_B)
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)
@@ -706,6 +708,7 @@
   #define BOARD_RUMBA32_AUS3D           -1019
   #define BOARD_RAMPS_DAGOMA            -1020
   #define BOARD_RAMPS_LONGER3D_LK4PRO   -1021
+  #define BOARD_BTT_SKR_V2_0            -1022
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -753,6 +756,8 @@
     #error "BOARD_RAMPS_DAGOMA is now BOARD_DAGOMA_F5. Please update your configuration."
   #elif MB(RAMPS_LONGER3D_LK4PRO)
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
+  #elif MB(BTT_SKR_V2_0)
+    #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -779,6 +784,7 @@
   #undef BOARD_RUMBA32_AUS3D
   #undef BOARD_RAMPS_DAGOMA
   #undef BOARD_RAMPS_LONGER3D_LK4PRO
+  #undef BOARD_BTT_SKR_V2_0
 
 #endif
 
