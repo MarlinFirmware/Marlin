@@ -51,7 +51,7 @@
  *    Y<pos>    = Override park position Y
  *    Z<linear> = Override Z raise
  *
- *  With an LCD menu:
+ *  With an LCD menu or both EMERGENCY_PARSER and HOST_PROMPT_SUPPORT:
  *    P<bool>   = Always show a prompt and await a response
  */
 void GcodeSuite::M125() {
