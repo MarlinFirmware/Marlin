@@ -560,6 +560,8 @@
   #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
 #elif defined(CUSTOM_USER_MENUS)
   #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
+#elif defined(MKS_LCD12864)
+  #error "MKS_LCD12864 is now MKS_LCD12864A or MKS_LCD12864B."
 #endif
 
 /**
