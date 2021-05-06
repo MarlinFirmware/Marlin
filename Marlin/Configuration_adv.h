@@ -2306,7 +2306,7 @@
  * Adds the GCode M600 for initiating filament change.
  * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
  *
- * Requires an LCD display.
+ * Requires an LCD display or EMERGENCY_PARSER.
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
