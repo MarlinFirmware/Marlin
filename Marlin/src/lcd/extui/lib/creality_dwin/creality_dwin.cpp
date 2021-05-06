@@ -276,7 +276,7 @@ CrealityDWINClass CrealityDWIN;
       else {
         char buf[20];
         CrealityDWIN.Popup_Handler(MoveWait);
-        sprintf(buf, "G0 F300 Z%.3f", (double)Z_CLEARANCE_BETWEEN_PROBES);
+        sprintf(buf, "G0 F300 Z%.3f", (float)Z_CLEARANCE_BETWEEN_PROBES);
         gcode.process_subcommands_now_P(buf);
         sprintf(buf, "G42 F4000 I%i J%i", mesh_x, mesh_y);
         gcode.process_subcommands_now_P(buf);
@@ -1363,8 +1363,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Popup_Handler(MoveWait);
               #if ENABLED(Z_SAFE_HOMING)
                 planner.synchronize();
-                char buf[20];
-                sprintf(buf, "G0 F4000 X%i Y%i", Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+                char buf[50];
+                sprintf(buf, "G0 F4000 X%f Y%f", (float)Z_SAFE_HOMING_X_POINT, (float)Z_SAFE_HOMING_Y_POINT);
                 gcode.process_subcommands_now_P(buf);
               #else
                 gcode.process_subcommands_now_P(PSTR("G0 F4000 X117.5 Y117.5"));
@@ -1388,8 +1388,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Popup_Handler(MoveWait);
                 #if ENABLED(Z_SAFE_HOMING)
                   planner.synchronize();
-                  char buf[20];
-                  sprintf(buf, "G0 F4000 X%i Y%i", Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+                  char buf[50];
+                  sprintf(buf, "G0 F4000 X%f Y%f", (float)Z_SAFE_HOMING_X_POINT, (float)Z_SAFE_HOMING_Y_POINT);
                   gcode.process_subcommands_now_P(buf);
                 #else
                   gcode.process_subcommands_now_P(PSTR("G0 F4000 X117.5 Y117.5"));
