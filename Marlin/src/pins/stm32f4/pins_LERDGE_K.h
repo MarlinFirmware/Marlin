@@ -28,13 +28,14 @@
 #define BOARD_INFO_NAME      "Lerdge K"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-
 // EEPROM
-#define I2C_EEPROM
-#define SOFT_I2C_EEPROM //force the use of software i2c
-#define I2C_SCL_PIN                         PG14
-#define I2C_SDA_PIN                         PG13
-#define MARLIN_EEPROM_SIZE               0x10000
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM                         //force the use of software i2c
+  #define I2C_SCL_PIN                       PG14
+  #define I2C_SDA_PIN                       PG13
+  #define MARLIN_EEPROM_SIZE             0x10000
+#endif
 
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
@@ -42,7 +43,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                        PB11
+#define SERVO0_PIN                          PB11
 
 //
 // Limit Switches
@@ -225,17 +226,21 @@
 // LCD / Controller
 //
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+#if HAS_SPI_TFT
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD11
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD11
 
-#define TOUCH_CS_PIN                        PG15
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
 
-#define BTN_EN1                             PG10
-#define BTN_EN2                             PG11
-#define BTN_ENC                             PG9
+#if IS_ULTIPANEL
+  #define BTN_EN1                           PG10
+  #define BTN_EN2                           PG11
+  #define BTN_ENC                           PG9
+#endif
