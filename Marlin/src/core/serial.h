@@ -62,11 +62,11 @@ extern uint8_t marlin_debug_flags;
 //
 // Serial redirection
 //
-// Step 1: Find what's the first serial leaf
+// Step 1: Find out what the first serial leaf is
 #if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
-  #define _SERIAL_LEAF_1  MYSERIAL
+  #define _SERIAL_LEAF_1 MYSERIAL
 #else
-  #define _SERIAL_LEAF_1  MYSERIAL1
+  #define _SERIAL_LEAF_1 MYSERIAL1
 #endif
 
 // Hook Meatpack if it's enabled on the first leaf
@@ -78,7 +78,8 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_LEAF_1 _SERIAL_LEAF_1
 #endif
 
-// Step 2: For multiserial, handle the second serial port as well
+// Step 2: For multiserial wrap all serial ports in a single
+//         interface with the ability to output to multiple serial ports.
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n,p)  RESTORE(n)

@@ -26,8 +26,8 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// MKS_LCD12864 is a variant of MKS_MINI_12864
-#if ENABLED(MKS_LCD12864)
+// MKS_LCD12864A/B is a variant of MKS_MINI_12864
+#if EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define MKS_MINI_12864
 #endif
 
@@ -638,6 +638,16 @@
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
+#endif
+
+/**
+ * Disable unused SINGLENOZZLE sub-options
+ */
+#if DISABLED(SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_TEMP
+#endif
+#if !BOTH(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
 #endif
 
 /**

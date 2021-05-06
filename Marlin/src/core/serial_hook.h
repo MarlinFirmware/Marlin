@@ -67,7 +67,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 
   SerialFeature features(serial_index_t index) const { return CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
-  // We have 2 implementation of the same method in both base class, let's say which one we want
+  // Two implementations of the same method exist in both base classes so indicate the right one
   using SerialT::available;
   using SerialT::read;
   using SerialT::begin;
@@ -134,7 +134,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
 
-// A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
+// A class that can be hooked and unhooked at runtime, useful to capture the output of the serial interface
 template <class SerialT>
 struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public SerialT {
   typedef SerialBase< RuntimeSerial<SerialT> > BaseClassT;

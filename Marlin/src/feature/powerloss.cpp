@@ -149,6 +149,8 @@ void PrintJobRecovery::prepare() {
  */
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/) {
 
+  // We don't check IS_SD_PRINTING here so a save may occur during a pause
+
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
     millis_t ms = millis();
@@ -192,7 +194,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      info.volumetric_enabled = parser.volumetric_enabled;
+      info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
@@ -366,13 +368,16 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Reset E, raise Z, home XY...
+  //
+  // Home the axes that can safely be homed, and
+  // establish the current position as best we can
+  //
   #if Z_HOME_DIR > 0
 
-    // If Z homing goes to max, just reset E and home all
+    // If Z homing goes to max...
     gcode.process_subcommands_now_P(PSTR(
-      "G92.9 E0\n"
-      "G28R0"
+      "G92.9 E0\n"                          // Reset E to 0
+      "G28R0"                               // Home all axes (no raise)
     ));
 
   #else // "G92.9 E0 ..."
@@ -391,19 +396,20 @@ void PrintJobRecovery::resume() {
 
   #endif
 
-  #ifdef POWER_LOSS_ZHOME_POS
-    // If defined move to a safe Z homing position that avoids the print
+  #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
+    // Move to a safe XY position where Z can home while avoiding the print.
+    // If Z_SAFE_HOMING is enabled, its position must also be outside the print area!
     constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
+    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
 
-  // Ensure that all axes are marked as homed
+  // Mark all axes as having been homed (no effect on current_position)
   set_all_homed();
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    // Now move to ZsavedPos + POWER_LOSS_ZRAISE
-    sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    // Z was homed. Now move Z back up to the saved Z height, plus the POWER_LOSS_ZRAISE.
+    sprintf_P(cmd, PSTR("G1Z%sF500"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -411,16 +417,16 @@ void PrintJobRecovery::resume() {
   #if DISABLED(NO_VOLUMETRICS)
     #if HAS_MULTI_EXTRUDER
       for (int8_t e = 0; e < EXTRUDERS; e++) {
-        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
+        sprintf_P(cmd, PSTR("M200T%iD%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
-      if (!info.volumetric_enabled) {
-        sprintf_P(cmd, PSTR("M200 T%i D0"), info.active_extruder);
+      if (!info.flag.volumetric_enabled) {
+        sprintf_P(cmd, PSTR("M200T%iD0"), info.active_extruder);
         gcode.process_subcommands_now(cmd);
       }
     #else
-      if (info.volumetric_enabled) {
-        sprintf_P(cmd, PSTR("M200 D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
+      if (info.flag.volumetric_enabled) {
+        sprintf_P(cmd, PSTR("M200D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
     #endif
@@ -437,13 +443,13 @@ void PrintJobRecovery::resume() {
     FANS_LOOP(i) {
       const int f = info.fan_speed[i];
       if (f) {
-        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+        sprintf_P(cmd, PSTR("M106P%iS%i"), i, f);
         gcode.process_subcommands_now(cmd);
       }
     }
   #endif
 
-  // Restore retract and hop state
+  // Restore retract and hop state from an active `G10` command
   #if ENABLED(FWRETRACT)
     LOOP_L_N(e, EXTRUDERS) {
       if (info.retract[e] != 0.0) {
@@ -458,7 +464,7 @@ void PrintJobRecovery::resume() {
     // Restore leveling state before 'G92 Z' to ensure
     // the Z stepper count corresponds to the native Z.
     if (info.fade || info.flag.leveling) {
-      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.flag.leveling), dtostrf(info.fade, 1, 1, str_1));
+      sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
     }
   #endif
@@ -468,11 +474,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Un-retract if there was a retract at outage
-  #if POWER_LOSS_RETRACT_LEN
+  #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
   #endif
 
-  // Additional purge if configured
+  // Additional purge on resume if configured
   #if POWER_LOSS_PURGE_LEN
     sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
