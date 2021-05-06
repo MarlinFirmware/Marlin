@@ -50,14 +50,20 @@ struct MarlinSerialUSB {
     FORCE_INLINE int rxMaxEnqueued() { return 0; }
   #endif
 };
-typedef Serial1Class<MarlinSerialUSB> MSerialT;
 
 #if SERIAL_PORT == -1
+  typedef Serial1Class<MarlinSerialUSB> MSerialT;
   extern MSerialT customizedSerial1;
 #endif
 
 #if SERIAL_PORT_2 == -1
-  extern MSerialT customizedSerial2;
+  typedef Serial1Class<MarlinSerialUSB> MSerialT2;
+  extern MSerialT2 customizedSerial2;
+#endif
+
+#if SERIAL_PORT_3 == -1
+  typedef Serial1Class<MarlinSerialUSB> MSerialT3;
+  extern MSerialT3 customizedSerial3;
 #endif
 
 #endif // HAS_USB_SERIAL
