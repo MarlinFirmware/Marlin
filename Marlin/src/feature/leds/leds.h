@@ -187,7 +187,7 @@ public:
     static inline LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
-  #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
+  #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #endif
