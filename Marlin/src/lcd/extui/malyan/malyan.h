@@ -19,30 +19,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-
-#include "../gcode.h"
-
-#if ENABLED(TFT_LVGL_UI)
-  #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
-#else
-  #include "../../lcd/menu/menu.h"
-#endif
+#pragma once
 
 /**
- * M995: Touch screen calibration for TFT display
+ * lcd/extui/malyan/malyan.h
  */
-void GcodeSuite::M995() {
 
-  #if ENABLED(TFT_LVGL_UI)
-    lv_draw_touch_calibration_screen();
-  #else
-    ui.goto_screen(touch_screen_calibration);
-  #endif
+#include "../../../HAL/shared/Marduino.h"
 
-}
+// Track incoming command bytes from the LCD
+extern uint16_t inbound_count;
 
-#endif // TOUCH_SCREEN_CALIBRATION
+// For sending print completion messages
+extern bool last_printing_status;
+
+void write_to_lcd_P(PGM_P const message);
+void write_to_lcd(const char * const message);
+
+void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr);
+
+void process_lcd_c_command(const char *command);
+void process_lcd_eb_command(const char *command);
+
+template<typename T>
+void j_move_axis(const char *command, const T axis);
+
+void process_lcd_j_command(const char *command);
+void process_lcd_p_command(const char *command);
+void process_lcd_s_command(const char *command);
+void process_lcd_command(const char *command);
+
+void parse_lcd_byte(const byte b);
+void update_usb_status(const bool forceUpdate);
