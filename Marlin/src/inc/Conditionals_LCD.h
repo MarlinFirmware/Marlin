@@ -967,7 +967,7 @@
   #define NUM_SERIAL 0
   #undef BAUD_RATE_GCODE
 #endif
-#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_2 == -1
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
 #endif
 #if SERIAL_PORT_2 == -2
