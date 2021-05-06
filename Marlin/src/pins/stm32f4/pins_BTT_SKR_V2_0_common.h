@@ -23,8 +23,6 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "BTT SKR V2.0"
-
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
