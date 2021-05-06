@@ -402,10 +402,6 @@
     #define SD_MISO_PIN              EXP2_10_PIN
     #define SD_MOSI_PIN              EXP2_05_PIN
 
-    // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
-    #define LCD_PINS_RS                    -1
-
     #define TFT_BUFFER_SIZE                 2400
 
   #elif IS_TFTGLCD_PANEL

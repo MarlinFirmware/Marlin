@@ -291,14 +291,9 @@
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_ENC                  EXP1_09_PIN
 
-    #define LCD_USE_DMA_SPI
-
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
-    // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
-    #define LCD_PINS_RS                    -1
     #define TFT_BUFFER_SIZE                 2400
 
     #ifndef TFT_WIDTH
