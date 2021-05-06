@@ -367,8 +367,8 @@
 #define BOARD_BTT_SKR_PRO_V1_2        4208  // BigTreeTech SKR Pro v1.2 (STM32F407ZGT6)
 #define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VGT6)
 #define BOARD_BTT_E3_RRF              4210  // BigTreeTech E3 RRF (STM32F407VGT6)
-#define BOARD_BTT_SKR_V2_0_REV_A      4211  // BigTreeTech SKR v2.0 Rev. A (STM32F407VGT6)
-#define BOARD_BTT_SKR_V2_0_REV_B      4212  // BigTreeTech SKR v2.0 Rev. B (STM32F407VGT6)
+#define BOARD_BTT_SKR_V2_0_REV_A      4211  // BigTreeTech SKR v2.0 Rev A (STM32F407VGT6)
+#define BOARD_BTT_SKR_V2_0_REV_B      4212  // BigTreeTech SKR v2.0 Rev B (STM32F407VGT6)
 #define BOARD_BTT_GTR_V1_0            4213  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_LERDGE_K                4214  // Lerdge K (STM32F407ZG)
 #define BOARD_LERDGE_S                4215  // Lerdge S (STM32F407VE)
@@ -382,7 +382,7 @@
 #define BOARD_MKS_ROBIN_PRO_V2        4223  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4224  // MKS Robin Nano V3 (STM32F407VG)
 #define BOARD_ANET_ET4                4225  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4226 // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4226  // ANET ET4P V1.x (STM32F407VGT6)
 #define BOARD_FYSETC_CHEETAH_V20      4227  // FYSETC Cheetah V2.0
 
 //
