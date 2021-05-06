@@ -1983,48 +1983,56 @@
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
-#if _HAS_STOP(X,STOP)
-  #define HAS_X_STOP 1
+#if ENABLED(X_DUAL_ENDSTOPS)
+  #if PIN_EXISTS(X2_MIN) && X_HOME_DIR < 0
+    #define HAS_X2_MIN 1
+  #endif
+  #if PIN_EXISTS(X2_MAX) && X_HOME_DIR > 0
+    #define HAS_X2_MAX 1
+  #endif
 #endif
-#if _HAS_STOP(Y,STOP)
-  #define HAS_Y_STOP 1
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  #if PIN_EXISTS(Y2_MIN) && Y_HOME_DIR < 0
+    #define HAS_Y2_MIN 1
+  #endif
+  #if PIN_EXISTS(Y2_MAX) && Y_HOME_DIR > 0
+    #define HAS_Y2_MAX 1
+  #endif
 #endif
-#if _HAS_STOP(Z,STOP)
-  #define HAS_Z_STOP 1
+#if ENABLED(Z_MULTI_ENDSTOPS)
+  #if PIN_EXISTS(Z2_MIN) && Z_HOME_DIR < 0
+    #define HAS_Z2_MIN 1
+  #endif
+  #if PIN_EXISTS(Z2_MAX) && Z_HOME_DIR > 0
+    #define HAS_Z2_MAX 1
+  #endif
+  #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if PIN_EXISTS(Z3_MIN) && Z_HOME_DIR < 0
+      #define HAS_Z3_MIN 1
+    #endif
+    #if PIN_EXISTS(Z3_MAX) && Z_HOME_DIR > 0
+      #define HAS_Z3_MAX 1
+    #endif
+  #endif
+  #if NUM_Z_STEPPER_DRIVERS >= 4
+    #if PIN_EXISTS(Z4_MIN) && Z_HOME_DIR < 0
+      #define HAS_Z4_MIN 1
+    #endif
+    #if PIN_EXISTS(Z4_MAX) && Z_HOME_DIR > 0
+      #define HAS_Z4_MAX 1
+    #endif
+  #endif
 #endif
-#if PIN_EXISTS(X2_MIN)
-  #define HAS_X2_MIN 1
-#endif
-#if PIN_EXISTS(X2_MAX)
-  #define HAS_X2_MAX 1
-#endif
-#if PIN_EXISTS(Y2_MIN)
-  #define HAS_Y2_MIN 1
-#endif
-#if PIN_EXISTS(Y2_MAX)
-  #define HAS_Y2_MAX 1
-#endif
-#if PIN_EXISTS(Z2_MIN)
-  #define HAS_Z2_MIN 1
-#endif
-#if PIN_EXISTS(Z2_MAX)
-  #define HAS_Z2_MAX 1
-#endif
-#if PIN_EXISTS(Z3_MIN)
-  #define HAS_Z3_MIN 1
-#endif
-#if PIN_EXISTS(Z3_MAX)
-  #define HAS_Z3_MAX 1
-#endif
-#if PIN_EXISTS(Z4_MIN)
-  #define HAS_Z4_MIN 1
-#endif
-#if PIN_EXISTS(Z4_MAX)
-  #define HAS_Z4_MAX 1
-#endif
-#if HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
+#if BOTH(HAS_BED_PROBE, HAS_CUSTOM_PROBE_PIN) && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
+
+#undef IS_PROBE_PIN
+#undef IS_X2_ENDSTOP
+#undef IS_Y2_ENDSTOP
+#undef IS_Z2_ENDSTOP
+#undef IS_Z3_ENDSTOP
+#undef IS_Z4_ENDSTOP
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
