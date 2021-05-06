@@ -40,13 +40,8 @@ bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
 #if CASE_LIGHT_IS_COLOR_LED
   #include "leds/leds.h"
-  LEDColor CaseLight::color =
-    #ifdef CASE_LIGHT_DEFAULT_COLOR
-      CASE_LIGHT_DEFAULT_COLOR
-    #else
-      { 255, 255, 255, TERN_(HAS_WHITE_LED, 255) }
-    #endif
-  ;
+  constexpr uint8_t init_case_light[] = CASE_LIGHT_DEFAULT_COLOR;
+  LEDColor CaseLight::color = { init_case_light[0], init_case_light[1], init_case_light[2], TERN_(HAS_WHITE_LED, init_case_light[3]) };
 #endif
 
 #ifndef INVERT_CASE_LIGHT
