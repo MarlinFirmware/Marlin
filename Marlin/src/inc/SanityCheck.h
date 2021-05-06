@@ -1728,11 +1728,23 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Case Light requirements
  */
-#if NEED_CASE_LIGHT_PIN
-  #if !PIN_EXISTS(CASE_LIGHT)
-    #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
-  #elif CASE_LIGHT_PIN == FAN_PIN
-    #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if NEED_CASE_LIGHT_PIN
+    #if !PIN_EXISTS(CASE_LIGHT)
+      #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
+    #elif CASE_LIGHT_PIN == FAN_PIN
+      #error "CASE_LIGHT_PIN conflicts with FAN_PIN. Resolve before continuing."
+    #endif
+  #endif
+  #ifdef CASE_LIGHT_DEFAULT_COLOR
+    #if HAS_WHITE_LED
+      #define _NRCHAN 4
+    #else
+      #define _NRCHAN 3
+    #endif
+    constexpr int _colr[] = CASE_LIGHT_DEFAULT_COLOR;
+    static_assert(COUNT(_colr) == _NRCHAN, "CASE_LIGHT_DEFAULT_COLOR must have exactly " STRINGIFY(_NRCHAN) " elements");
+    #undef _NRCHAN
   #endif
 #endif
 
