@@ -42,15 +42,15 @@ protected:
   usart_rx_callback_t _rx_callback;
 };
 
-typedef Serial1Class<MarlinSerial> MSerialT1;
-extern MSerialT1 MSerial1;
-extern MSerialT1 MSerial2;
-extern MSerialT1 MSerial3;
-extern MSerialT1 MSerial4;
-extern MSerialT1 MSerial5;
-extern MSerialT1 MSerial6;
-extern MSerialT1 MSerial7;
-extern MSerialT1 MSerial8;
-extern MSerialT1 MSerial9;
-extern MSerialT1 MSerial10;
-extern MSerialT1 MSerialLP1;
+typedef Serial1Class<MarlinSerial> MSerialT;
+extern MSerialT MSerial1;
+extern MSerialT MSerial2;
+extern MSerialT MSerial3;
+extern MSerialT MSerial4;
+extern MSerialT MSerial5;
+extern MSerialT MSerial6;
+extern MSerialT MSerial7;
+extern MSerialT MSerial8;
+extern MSerialT MSerial9;
+extern MSerialT MSerial10;
+extern MSerialT MSerialLP1;
