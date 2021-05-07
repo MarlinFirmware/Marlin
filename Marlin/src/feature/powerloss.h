@@ -42,6 +42,8 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#define OUTAGE_NOISE_THRESHOLD	2;	// POWER_LOSS_PIN read count to eliminate noise
+
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
@@ -179,8 +181,11 @@ class PrintJobRecovery {
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {
-        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-          _outage();
+        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) {
+		  uint8_t outage_poll_count = OUTAGE_NOISE_THRESHOLD;
+		  while (--outage_poll_count && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) safe_delay(1);
+          if (!outage_poll_count) _outage();
+		}
       }
     #endif
 
