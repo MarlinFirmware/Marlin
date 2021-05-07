@@ -3163,7 +3163,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   level_state = planner.leveling_active;
                   set_bed_leveling_enabled(false);
                   mesh_conf.goto_mesh_value = true;
-                  gridpoint = 1;
                   mesh_conf.mesh_x = mesh_conf.mesh_y = 0;
                   Popup_Handler(MoveWait);
                   mesh_conf.manual_move();;
@@ -3403,7 +3402,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define LEVELING_M_BACK 0
         #define LEVELING_M_X (LEVELING_M_BACK + 1)
         #define LEVELING_M_Y (LEVELING_M_X + 1)
-        #define LEVELING_M_OFFSET (LEVELING_M_Y + 1)
+        #define LEVELING_M_NEXT (LEVELING_M_Y + 1)
+        #define LEVELING_M_OFFSET (LEVELING_M_NEXT + 1)
         #define LEVELING_M_UP (LEVELING_M_OFFSET + 1)
         #define LEVELING_M_DOWN (LEVELING_M_UP + 1)
         #define LEVELING_M_GOTO_VALUE (LEVELING_M_DOWN + 1)
@@ -3439,6 +3439,25 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Modify_Value(mesh_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
+            }
+            break;
+          case LEVELING_M_NEXT:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_More, (char*)"Next Point");
+            }
+            else {
+              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X-1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y-1)) {
+                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X-1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1)) {
+                  mesh_conf.mesh_y++;
+                }
+                else if (mesh_conf.mesh_y % 2 == 0) {
+                  mesh_conf.mesh_x++;
+                }
+                else {
+                  mesh_conf.mesh_x--;
+                }
+                mesh_conf.manual_move();
+              }
             }
             break;
           case LEVELING_M_OFFSET:
@@ -3531,14 +3550,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case UBL_M_NEXT:
             if (draw) {
-              if (gridpoint < GRID_MAX_POINTS)
+              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X-1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y-1))
                 Draw_Menu_Item(row, ICON_More, (char*)"Next Point");
               else
                 Draw_Menu_Item(row, ICON_More, (char*)"Save Mesh");
             }
             else {
-              if (gridpoint < GRID_MAX_POINTS) {
-                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X-1) || mesh_conf.mesh_x == 0) && gridpoint % GRID_MAX_POINTS_X == 0) {
+              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X-1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y-1)) {
+                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X-1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1)) {
                   mesh_conf.mesh_y++;
                 }
                 else if (mesh_conf.mesh_y % 2 == 0) {
@@ -3547,7 +3566,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 else {
                   mesh_conf.mesh_x--;
                 }
-                gridpoint++;
                 mesh_conf.manual_move();
               }
               else {
@@ -3563,8 +3581,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_More, (char*)"Previous Point");
             }
             else {
-              if (gridpoint > 1) {
-                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X-1) || mesh_conf.mesh_x == 0) && gridpoint % GRID_MAX_POINTS_X != 0) {
+              if (mesh_conf.mesh_x != 0 || mesh_conf.mesh_y != 0) {
+                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X-1) && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0)) {
                   mesh_conf.mesh_y--;
                 }
                 else if (mesh_conf.mesh_y % 2 == 0) {
@@ -3573,7 +3591,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 else {
                   mesh_conf.mesh_x++;
                 }
-                gridpoint--;
                 mesh_conf.manual_move();
               }
             }
