@@ -160,7 +160,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 161
+  #line 164
 
 };
 
