@@ -65,9 +65,9 @@
   extern DefaultSerial1 MSerial0;
 
   #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial MSerial0
+    #define USBSERIAL MSerial0
   #else
-    #define UsbSerial MarlinCompositeSerial
+    #define USBSERIAL MarlinCompositeSerial
   #endif
 #endif
 
@@ -81,7 +81,7 @@
 #endif
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL1 UsbSerial
+  #define MYSERIAL1 USBSERIAL
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
@@ -95,7 +95,7 @@
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL2 UsbSerial
+    #define MYSERIAL2 USBSERIAL
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
@@ -110,7 +110,7 @@
 
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL UsbSerial
+    #define MMU2_SERIAL USBSERIAL
   #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
@@ -125,7 +125,7 @@
 
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL UsbSerial
+    #define LCD_SERIAL USBSERIAL
   #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else

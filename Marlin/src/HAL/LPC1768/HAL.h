@@ -60,7 +60,7 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
-typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
+typedef ForwardSerial1Class< decltype(USBSERIAL) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;
 
 #define _MSERIAL(X) MSerial##X
