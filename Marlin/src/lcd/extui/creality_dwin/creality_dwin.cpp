@@ -3119,10 +3119,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Tilt, (char*)"Autotilt Current Mesh");
               }
               else {
-                if (axes_should_home()) {
-                  Popup_Handler(Home);
-                  gcode.home_all_axes(true);
-                }
+                Popup_Handler(Home);
+                gcode.home_all_axes(true);
                 Popup_Handler(Level);
                 char buf[10];
                 if (mesh_conf.tilt_grid > 1) {
@@ -3142,10 +3140,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Mesh, (char*)"Create New Mesh");
             }
             else {
-              if (axes_should_home()) {
-                Popup_Handler(Home);
-                gcode.home_all_axes(true);
-              }
+              Popup_Handler(Home);
+              gcode.home_all_axes(true);
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   Popup_Handler(Heating);
