@@ -90,7 +90,7 @@ if [[ $ACTION == "init" ]]; then
   git checkout init-repo -b BASE || exit
 
   # Copy all config files into place
-  echo "- Copying configs from Marlin..."
+  echo "- Copying all configs from fresh $IMPORT..."
   cp -R "$TEMP/config" .
 
   # Delete anything that's not a Configuration file

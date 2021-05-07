@@ -57,7 +57,7 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  enum result_t   : uint8_t { PID_STARTED, PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -102,17 +102,17 @@ namespace ExtUI {
   #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t);
     float getAxisCurrent_mA(const extruder_t);
-    void  setAxisCurrent_mA(const_float_t , const axis_t);
-    void  setAxisCurrent_mA(const_float_t , const extruder_t);
+    void  setAxisCurrent_mA(const_float_t, const axis_t);
+    void  setAxisCurrent_mA(const_float_t, const extruder_t);
 
      int getTMCBumpSensitivity(const axis_t);
-    void setTMCBumpSensitivity(const_float_t , const axis_t);
+    void setTMCBumpSensitivity(const_float_t, const axis_t);
   #endif
 
-  float getActualTemp_celsius(const heater_t);
-  float getActualTemp_celsius(const extruder_t);
-  float getTargetTemp_celsius(const heater_t);
-  float getTargetTemp_celsius(const extruder_t);
+  celsius_float_t getActualTemp_celsius(const heater_t);
+  celsius_float_t getActualTemp_celsius(const extruder_t);
+  celsius_float_t getTargetTemp_celsius(const heater_t);
+  celsius_float_t getTargetTemp_celsius(const extruder_t);
   float getTargetFan_percent(const fan_t);
   float getActualFan_percent(const fan_t);
   float getAxisPosition_mm(const axis_t);
@@ -129,7 +129,7 @@ namespace ExtUI {
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
   float getFeedrate_percent();
-  int16_t getFlowPercentage(const extruder_t);
+  int16_t getFlow_percent(const extruder_t);
 
   inline uint8_t getProgress_percent() { return ui.get_progress_percent(); }
 
@@ -195,18 +195,18 @@ namespace ExtUI {
     char* getFilamentUsed_str(char buffer[21]);
   #endif
 
-  void setTargetTemp_celsius(const_float_t , const heater_t);
-  void setTargetTemp_celsius(const_float_t , const extruder_t);
-  void setTargetFan_percent(const_float_t , const fan_t);
+  void setTargetTemp_celsius(const_float_t, const heater_t);
+  void setTargetTemp_celsius(const_float_t, const extruder_t);
+  void setTargetFan_percent(const_float_t, const fan_t);
   void coolDown();
-  void setAxisPosition_mm(const_float_t , const axis_t, const feedRate_t=0);
-  void setAxisPosition_mm(const_float_t , const extruder_t, const feedRate_t=0);
-  void setAxisSteps_per_mm(const_float_t , const axis_t);
-  void setAxisSteps_per_mm(const_float_t , const extruder_t);
+  void setAxisPosition_mm(const_float_t, const axis_t, const feedRate_t=0);
+  void setAxisPosition_mm(const_float_t, const extruder_t, const feedRate_t=0);
+  void setAxisSteps_per_mm(const_float_t, const axis_t);
+  void setAxisSteps_per_mm(const_float_t, const extruder_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const extruder_t);
-  void setAxisMaxAcceleration_mm_s2(const_float_t , const axis_t);
-  void setAxisMaxAcceleration_mm_s2(const_float_t , const extruder_t);
+  void setAxisMaxAcceleration_mm_s2(const_float_t, const axis_t);
+  void setAxisMaxAcceleration_mm_s2(const_float_t, const extruder_t);
   void setFeedrate_mm_s(const feedRate_t);
   void setMinFeedrate_mm_s(const feedRate_t);
   void setMinTravelFeedrate_mm_s(const feedRate_t);
@@ -220,7 +220,7 @@ namespace ExtUI {
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
-    void setLinearAdvance_mm_mm_s(const_float_t , const extruder_t);
+    void setLinearAdvance_mm_mm_s(const_float_t, const extruder_t);
   #endif
 
   #if HAS_JUNCTION_DEVIATION
@@ -229,8 +229,8 @@ namespace ExtUI {
   #else
     float getAxisMaxJerk_mm_s(const axis_t);
     float getAxisMaxJerk_mm_s(const extruder_t);
-    void setAxisMaxJerk_mm_s(const_float_t , const axis_t);
-    void setAxisMaxJerk_mm_s(const_float_t , const extruder_t);
+    void setAxisMaxJerk_mm_s(const_float_t, const axis_t);
+    void setAxisMaxJerk_mm_s(const_float_t, const extruder_t);
   #endif
 
   extruder_t getTool(const uint8_t extruder);
@@ -246,7 +246,7 @@ namespace ExtUI {
 
   #if HAS_HOTEND_OFFSET
     float getNozzleOffset_mm(const axis_t, const extruder_t);
-    void setNozzleOffset_mm(const_float_t , const axis_t, const extruder_t);
+    void setNozzleOffset_mm(const_float_t, const axis_t, const extruder_t);
     void normalizeNozzleOffset(const axis_t axis);
   #endif
 
@@ -255,12 +255,12 @@ namespace ExtUI {
 
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
-    void setProbeOffset_mm(const_float_t , const axis_t);
+    void setProbeOffset_mm(const_float_t, const axis_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
     float getAxisBacklash_mm(const axis_t);
-    void setAxisBacklash_mm(const_float_t , const axis_t);
+    void setAxisBacklash_mm(const_float_t, const axis_t);
 
     float getBacklashCorrection_percent();
     void setBacklashCorrection_percent(const_float_t );
@@ -297,15 +297,15 @@ namespace ExtUI {
     float getPIDValues_Kp(const extruder_t);
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
-    void setPIDValues(const_float_t , const_float_t , const_float_t , extruder_t);
-    void startPIDTune(const_float_t , extruder_t);
+    void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
+    void startPIDTune(const_float_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
     float getBedPIDValues_Kp();
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
-    void setBedPIDValues(const_float_t , const_float_t , const_float_t );
+    void setBedPIDValues(const_float_t, const_float_t , const_float_t );
     void startBedPIDTune(const_float_t );
   #endif
 
@@ -389,6 +389,7 @@ namespace ExtUI {
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
+  void onPostprocessSettings();
   void onConfigurationStoreWritten(bool success);
   void onConfigurationStoreRead(bool success);
   #if ENABLED(POWER_LOSS_RECOVERY)

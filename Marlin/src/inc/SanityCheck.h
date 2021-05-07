@@ -560,6 +560,8 @@
   #error "MEATPACK is now enabled with MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2, etc."
 #elif defined(CUSTOM_USER_MENUS)
   #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
+#elif defined(MKS_LCD12864)
+  #error "MKS_LCD12864 is now MKS_LCD12864A or MKS_LCD12864B."
 #endif
 
 /**
@@ -605,6 +607,14 @@
   #error "SERIAL_PORT must be defined."
 #elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT."
+#elif defined(SERIAL_PORT_3)
+  #ifndef SERIAL_PORT_2
+    #error "Use SERIAL_PORT_2 before using SERIAL_PORT_3"
+  #elif SERIAL_PORT_3 == SERIAL_PORT
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT."
+  #elif SERIAL_PORT_3 == SERIAL_PORT_2
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT_2."
+  #endif
 #endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
@@ -1251,7 +1261,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
+#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY)
   #error "Please enable only one of DELTA, MORGAN_SCARA, AXEL_TPARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
 #endif
 
@@ -2101,105 +2111,28 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 // Dual/multiple endstops requirements
 #if ENABLED(X_DUAL_ENDSTOPS)
-  #if !X2_USE_ENDSTOP
-    #error "You must set X2_USE_ENDSTOP with X_DUAL_ENDSTOPS."
-  #elif X2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _XMIN_."
-  #elif X2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _XMAX_."
-  #elif X2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _YMIN_."
-  #elif X2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _YMAX_."
-  #elif X2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _ZMIN_."
-  #elif X2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _ZMAX_."
-  #elif !HAS_X2_MIN && !HAS_X2_MAX
-    #error "X2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-  #elif ENABLED(DELTA)
+  #if ENABLED(DELTA)
     #error "X_DUAL_ENDSTOPS is not compatible with DELTA."
+  #elif !X2_USE_ENDSTOP
+    #error "X2_USE_ENDSTOP must be set with X_DUAL_ENDSTOPS."
   #endif
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  #if !Y2_USE_ENDSTOP
-    #error "You must set Y2_USE_ENDSTOP with Y_DUAL_ENDSTOPS."
-  #elif Y2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _XMIN_."
-  #elif Y2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _XMAX_."
-  #elif Y2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _YMIN_."
-  #elif Y2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _YMAX_."
-  #elif Y2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _ZMIN_."
-  #elif Y2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _ZMAX_."
-  #elif !HAS_Y2_MIN && !HAS_Y2_MAX
-    #error "Y2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-  #elif ENABLED(DELTA)
+  #if ENABLED(DELTA)
     #error "Y_DUAL_ENDSTOPS is not compatible with DELTA."
+  #elif !Y2_USE_ENDSTOP
+    #error "Y2_USE_ENDSTOP must be set with Y_DUAL_ENDSTOPS."
   #endif
 #endif
-
 #if ENABLED(Z_MULTI_ENDSTOPS)
-  #if !Z2_USE_ENDSTOP
-    #error "You must set Z2_USE_ENDSTOP with Z_MULTI_ENDSTOPS when NUM_Z_STEPPER_DRIVERS >= 2."
-  #elif Z2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _XMIN_."
-  #elif Z2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _XMAX_."
-  #elif Z2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _YMIN_."
-  #elif Z2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _YMAX_."
-  #elif Z2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _ZMIN_."
-  #elif Z2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _ZMAX_."
-  #elif !HAS_Z2_MIN && !HAS_Z2_MAX
-    #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-  #elif ENABLED(DELTA)
+  #if ENABLED(DELTA)
     #error "Z_MULTI_ENDSTOPS is not compatible with DELTA."
-  #endif
-  #if NUM_Z_STEPPER_DRIVERS >= 3
-    #if !Z3_USE_ENDSTOP
-      #error "You must set Z3_USE_ENDSTOP with Z_MULTI_ENDSTOPS when NUM_Z_STEPPER_DRIVERS >= 3."
-    #elif Z3_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
-      #error "USE_XMIN_PLUG is required when Z3_USE_ENDSTOP is _XMIN_."
-    #elif Z3_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
-      #error "USE_XMAX_PLUG is required when Z3_USE_ENDSTOP is _XMAX_."
-    #elif Z3_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
-      #error "USE_YMIN_PLUG is required when Z3_USE_ENDSTOP is _YMIN_."
-    #elif Z3_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
-      #error "USE_YMAX_PLUG is required when Z3_USE_ENDSTOP is _YMAX_."
-    #elif Z3_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
-      #error "USE_ZMIN_PLUG is required when Z3_USE_ENDSTOP is _ZMIN_."
-    #elif Z3_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
-      #error "USE_ZMAX_PLUG is required when Z3_USE_ENDSTOP is _ZMAX_."
-    #elif !HAS_Z3_MIN && !HAS_Z3_MAX
-      #error "Z3_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-    #endif
-  #endif
-  #if NUM_Z_STEPPER_DRIVERS >= 4
-    #if !Z4_USE_ENDSTOP
-      #error "You must set Z4_USE_ENDSTOP with Z_MULTI_ENDSTOPS when NUM_Z_STEPPER_DRIVERS >= 4."
-    #elif Z4_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
-      #error "USE_XMIN_PLUG is required when Z4_USE_ENDSTOP is _XMIN_."
-    #elif Z4_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
-      #error "USE_XMAX_PLUG is required when Z4_USE_ENDSTOP is _XMAX_."
-    #elif Z4_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
-      #error "USE_YMIN_PLUG is required when Z4_USE_ENDSTOP is _YMIN_."
-    #elif Z4_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
-      #error "USE_YMAX_PLUG is required when Z4_USE_ENDSTOP is _YMAX_."
-    #elif Z4_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
-      #error "USE_ZMIN_PLUG is required when Z4_USE_ENDSTOP is _ZMIN_."
-    #elif Z4_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
-      #error "USE_ZMAX_PLUG is required when Z4_USE_ENDSTOP is _ZMAX_."
-    #elif !HAS_Z4_MIN && !HAS_Z4_MAX
-      #error "Z4_USE_ENDSTOP has been assigned to a nonexistent endstop!"
-    #endif
+  #elif !Z2_USE_ENDSTOP
+    #error "Z2_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS."
+  #elif !Z3_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 3
+    #error "Z3_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 3."
+  #elif !Z4_USE_ENDSTOP && NUM_Z_STEPPER_DRIVERS >= 4
+    #error "Z4_USE_ENDSTOP must be set with Z_MULTI_ENDSTOPS and NUM_Z_STEPPER_DRIVERS >= 4."
   #endif
 #endif
 
@@ -2208,10 +2141,20 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * emergency-command parser
+ * Emergency Command Parser
  */
 #if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+/**
+ * Software Reset options
+ */
+#if ENABLED(SOFT_RESET_VIA_SERIAL) && DISABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is required to activate SOFT_RESET_VIA_SERIAL."
+#endif
+#if ENABLED(SOFT_RESET_ON_KILL) && !BUTTON_EXISTS(ENC)
+  #error "An encoder button is required or SOFT_RESET_ON_KILL will reset the printer without notice!"
 #endif
 
 /**
@@ -2349,7 +2292,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
   + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
-  + (ENABLED(MKS_MINI_12864) && DISABLED(MKS_LCD12864)) \
+  + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
@@ -2380,7 +2323,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MAKRPANEL) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(NEXTION_TFT) \
-  + ENABLED(MKS_LCD12864) \
+  + ENABLED(MKS_LCD12864A) \
+  + ENABLED(MKS_LCD12864B) \
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(OVERLORD_OLED) \
   + ENABLED(PANEL_ONE) \
@@ -2441,6 +2385,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 4)
   #error "GRAPHICAL_TFT_UPSCALE must be 2, 3, or 4."
+#endif
+
+#if BOTH(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
+  #error "Please select only one of CHIRON_TFT_STANDARD or CHIRON_TFT_NEW."
 #endif
 
 /**
@@ -2842,7 +2790,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if HAS_MOTOR_CURRENT_I2C
   #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
-  #elif !MB(MKS_SBASE) \
+#elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
     && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
       #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
@@ -3023,8 +2971,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
                   "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " on a MarkForged system.");
   #elif IS_CORE
     constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
-    static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
+    #ifndef CORE_BACKLASH
+      static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
                   "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " with your CORE system.");
+    #endif
   #endif
 #endif
 
@@ -3285,6 +3235,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   _CLEAN_ASSERT(4); _CLEAN_ASSERT(5);
   _CLEAN_ASSERT(6); _CLEAN_ASSERT(7);
   #undef _CLEAN_ASSERT
+#endif
+
+/**
+ * Sanity check for MIXING_EXTRUDER & DISTINCT_E_FACTORS these are not compatible
+ */
+#if ENABLED(MIXING_EXTRUDER) && ENABLED(DISTINCT_E_FACTORS)
+  #error "MIXING_EXTRUDER can't be used with DISTINCT_E_FACTORS. But you may use SINGLENOZZLE with DISTINCT_E_FACTORS."
 #endif
 
 /**

@@ -149,7 +149,7 @@ void GcodeSuite::M600() {
     #endif
   );
 
-  if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
+  if (pause_print(retract, park_point, true, unload_length DXC_PASS)) {
     #if ENABLED(MMU2_MENUS)
       mmu2_M600();
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
