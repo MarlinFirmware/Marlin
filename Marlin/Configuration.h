@@ -112,6 +112,13 @@
 //#define SERIAL_PORT_2 -1
 
 /**
+ * Select a third serial port on the board to use for communication with the host.
+ * Currently only supported for AVR, DUE, LPC1768/9 and STM32/STM32F1
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
+//#define SERIAL_PORT_3 1
+
+/**
  * This setting determines the communication speed of the printer.
  *
  * 250000 works in most cases, but you might try a lower speed if
@@ -2260,7 +2267,8 @@
 // MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
 // https://www.aliexpress.com/item/33018110072.html
 //
-//#define MKS_LCD12864
+//#define MKS_LCD12864A
+//#define MKS_LCD12864B
 
 //
 // FYSETC variant of the MINI12864 graphic controller with SD support
