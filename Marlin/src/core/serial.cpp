@@ -55,13 +55,11 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
     SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
 
-  #define ___S_LEAF(N) ,SERIAL_LEAF_##N
-  #define __S_LEAF(N) ___S_LEAF(N)
-  #define _S_LEAF(N) __S_LEAF(INCREMENT(N))
+  #define __S_LEAF(N) ,SERIAL_LEAF_##N
+  #define _S_LEAF(N) __S_LEAF(N)
 
-  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(1, NUM_SERIAL, _S_LEAF) );
+  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(2, INCREMENT(NUM_SERIAL), _S_LEAF) );
 
-  #undef ___S_LEAF
   #undef __S_LEAF
   #undef _S_LEAF
 
