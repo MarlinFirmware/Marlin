@@ -42,7 +42,7 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "../../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+  #include "../../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
 #include "../../MarlinCore.h" // for startOrResumeJob

@@ -154,8 +154,8 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "../lcd/extui/lib/dgus/DGUSScreenHandler.h"
-  #include "../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+  #include "../lcd/extui/dgus/DGUSScreenHandler.h"
+  #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
