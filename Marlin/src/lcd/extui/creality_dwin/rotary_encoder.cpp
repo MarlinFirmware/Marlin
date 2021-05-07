@@ -33,10 +33,10 @@
 #if ENABLED(CREALITY_DWIN_EXTUI)
 
 #include "rotary_encoder.h"
-#include "../../../buttons.h"
+#include "../../buttons.h"
 
 #include "../../MarlinCore.h"
-#include "../../../marlinui.h"
+#include "../../marlinui.h"
 #include "../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER

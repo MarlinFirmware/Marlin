@@ -30,15 +30,16 @@
 #if ENABLED(CREALITY_DWIN_EXTUI)
 
 #include "creality_dwin.h"
-#include "../../ui_api.h"
+#include "../ui_api.h"
 
-#include "../../../marlinui.h"
+#include "../../marlinui.h"
 #include "../../MarlinCore.h"
 
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 #include "../../module/settings.h"
 #include "../../libs/buzzer.h"
+#include "../../inc/Conditionals_post.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"

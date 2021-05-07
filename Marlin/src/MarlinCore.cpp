@@ -80,8 +80,8 @@
 #endif
 
 #if ENABLED(CREALITY_DWIN_EXTUI)
-  #include "lcd/extui/lib/creality_dwin/dwin.h"
-  #include "lcd/extui/lib/creality_dwin/rotary_encoder.h"
+  #include "lcd/extui/creality_dwin/dwin.h"
+  #include "lcd/extui/creality_dwin/rotary_encoder.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)

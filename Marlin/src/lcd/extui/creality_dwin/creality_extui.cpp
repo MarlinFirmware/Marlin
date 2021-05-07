@@ -25,8 +25,8 @@
 
 #if BOTH(CREALITY_DWIN_EXTUI, EXTENSIBLE_UI)
 
-#include "lib/creality_dwin/creality_dwin.h"
-#include "ui_api.h"
+#include "creality_dwin.h"
+#include "../ui_api.h"
 
 namespace ExtUI {
   void onStartup() { CrealityDWIN.Startup(); }
@@ -57,6 +57,10 @@ namespace ExtUI {
   void onLoadSettings(const char *buff) {
     memcpy(&CrealityDWIN.eeprom_settings, buff, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
     CrealityDWIN.Load_Settings();
+  }
+
+  void onPostprocessSettings() {
+    // Called after loading or resetting stored settings
   }
 
   void onConfigurationStoreWritten(bool success) {}
@@ -92,6 +96,8 @@ namespace ExtUI {
           break;
         case PID_DONE:
           CrealityDWIN.Confirm_Handler((char*)"PID Done");
+          break;
+        case PID_STARTED:
           break;
       }
     }
