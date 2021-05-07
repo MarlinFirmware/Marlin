@@ -2298,9 +2298,6 @@ void HMI_PauseOrStop() {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
         ICON_Continue();
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          if (recovery.enabled) recovery.save(true);
-        #endif
         queue.inject_P(PSTR("M25"));
       }
       else {
