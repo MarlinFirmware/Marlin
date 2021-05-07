@@ -31,16 +31,16 @@
  * This library allows full folder traversal or flat file display and supports both standerd and new style panels.
  *
  * ## Old Style TFT panel
- * Supported chars	{}[]-+=_"$%^&*()~<>|
- * Max display length 22 chars
- * Max path len 29 chars
+ * Supported chars     {}[]-+=_"$%^&*()~<>|
+ * Max display length  22 chars
+ * Max path len        29 chars
  * (DOS 8.3 filepath max 29chars)
  * (long filepath Max 22)
  *
  * ## New TFT Panel Format file display format
- * Supported chars	{}[]-+=_!"$%^&*()~<>\|
- * Max display length 26 chars
- * Max path len 29 chars
+ * Supported chars     {}[]-+=_!"$%^&*()~<>\|
+ * Max display length  26 chars
+ * Max path len        29 chars
  * (DOS 8.3 filepath must end '.GCO')
  * (long filepath must end '.gcode')
  *
