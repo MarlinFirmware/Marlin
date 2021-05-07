@@ -232,15 +232,15 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME)
     #undef _S_DONE
   }
   int available(serial_index_t index) {
-    int start = offset, end = offset + step - 1;
-    #define _S_AVAILABLE(N) if (index.within(start, end)) return serial##N.available(index); else { start += step; end += step; }
+    uint8_t pos = offset;
+    #define _S_AVAILABLE(N) if (index.within(pos, pos + step - 1)) return serial##N.available(index); else pos += step;
     REPEAT(NUM_SERIAL, _S_AVAILABLE);
     #undef _S_AVAILABLE
     return false;
   }
   int read(serial_index_t index) {
-    int start = offset, end = offset + step - 1;
-    #define _S_READ(N) if (index.within(start, end)) return serial##N.read(index); else { start += step; end += step; }
+    uint8_t pos = offset;
+    #define _S_READ(N) if (index.within(pos, pos + step - 1)) return serial##N.read(index); else pos += step;
     REPEAT(NUM_SERIAL, _S_READ);
     #undef _S_READ
     return -1;
@@ -280,8 +280,8 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME)
 
   // Forward feature queries
   SerialFeature features(serial_index_t index) const {
-    int start = 0, end = offset - 1, shift = 0;
-    #define _S_FEATURES(N) if (index.within(start, end)) return serial##N.features(index); else { shift++; start = end + 1; end = offset + (step << shift) - 1; }
+    uint8_t pos = offset;
+    #define _S_FEATURES(N) if (index.within(pos, pos + step - 1)) return serial##N.features(index); else pos += step;
     REPEAT(NUM_SERIAL, _S_FEATURES);
     #undef _S_FEATURES
     return SerialFeature::None;
