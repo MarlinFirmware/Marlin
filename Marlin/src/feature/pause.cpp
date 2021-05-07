@@ -419,10 +419,15 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
   }
 
-  // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
   float park_raise = 0;
   if (!axes_should_home()) {
     park_raise = nozzle.park_mode_0_height(park_point.z) - current_position.z;
+  }
+  // Save PLR info in case the power goes out while parked
+  TERN_(POWER_LOSS_RECOVERY, if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, true));
+
+  // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
+  if (!axes_should_home()) {
     nozzle.park(0, park_point);
   }
 
@@ -441,9 +446,6 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Disable the Extruder for manual change
   disable_active_extruder();
-
-  // Save PLR info in case the power goes out while parked
-  TERN_(POWER_LOSS_RECOVERY, if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, true));
 
   return true;
 }
