@@ -134,6 +134,9 @@ size_t MarlinSerialUSB::write(const uint8_t c) {
 #if SERIAL_PORT_2 == -1
   MSerialT2 customizedSerial2(TERN0(EMERGENCY_PARSER, true));
 #endif
+#if SERIAL_PORT_3 == -1
+  MSerialT3 customizedSerial3(TERN0(EMERGENCY_PARSER, true));
+#endif
 
 #endif // HAS_USB_SERIAL
 #endif // ARDUINO_ARCH_SAM

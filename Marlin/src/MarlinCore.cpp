@@ -1075,6 +1075,11 @@ void setup() {
     MYSERIAL2.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #ifdef SERIAL_PORT_3
+      MYSERIAL3.begin(BAUDRATE);
+      serial_connect_timeout = millis() + 1000UL;
+      while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #endif
   #endif
   SERIAL_ECHOLNPGM("start");
 

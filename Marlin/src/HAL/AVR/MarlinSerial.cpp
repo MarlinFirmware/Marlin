@@ -585,6 +585,22 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
 
 #endif // SERIAL_PORT_2
 
+#ifdef SERIAL_PORT_3
+
+  // Hookup ISR handlers
+  ISR(SERIAL_REGNAME(USART, SERIAL_PORT_3, _RX_vect)) {
+    MarlinSerial<MarlinSerialCfg<SERIAL_PORT_3>>::store_rxd_char();
+  }
+
+  ISR(SERIAL_REGNAME(USART, SERIAL_PORT_3, _UDRE_vect)) {
+    MarlinSerial<MarlinSerialCfg<SERIAL_PORT_3>>::_tx_udr_empty_irq();
+  }
+
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> >;
+  MSerialT3 customizedSerial3(MSerialT3::HasEmergencyParser);
+
+#endif // SERIAL_PORT_3
+
 #ifdef MMU2_SERIAL_PORT
 
   ISR(SERIAL_REGNAME(USART, MMU2_SERIAL_PORT, _RX_vect)) {
