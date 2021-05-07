@@ -27,11 +27,9 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-#if HAS_USB_SERIAL
-
-#include <WString.h>
 #include "../../core/serial_hook.h"
 
+#include <WString.h>
 
 struct MarlinSerialUSB {
   void begin(const long);
@@ -65,5 +63,3 @@ struct MarlinSerialUSB {
   typedef Serial1Class<MarlinSerialUSB> MSerialT3;
   extern MSerialT3 customizedSerial3;
 #endif
-
-#endif // HAS_USB_SERIAL

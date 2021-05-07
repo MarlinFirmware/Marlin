@@ -19,13 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifdef ARDUINO_ARCH_SAM
 
 /**
  * MarlinSerial_Due.cpp - Hardware serial library for Arduino DUE
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  * Based on MarlinSerial for AVR, copyright (c) 2006 Nicholas Zambetti.  All right reserved.
  */
-#ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
 

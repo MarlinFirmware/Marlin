@@ -29,7 +29,7 @@
   #include "watchdog.h"
 #endif
 
-DefaultSerial1 USBSerial(false, USBSERIAL);
+DefaultSerial1 USBSerial(false, UsbSerial);
 
 uint32_t HAL_adc_reading = 0;
 

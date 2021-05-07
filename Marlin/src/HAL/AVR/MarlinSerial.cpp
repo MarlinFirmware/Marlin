@@ -612,7 +612,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
   }
 
   template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
-  MSerialT3 mmuSerial(MSerialT3::HasEmergencyParser);
+  MSerialMMU mmuSerial(MSerialMMU::HasEmergencyParser);
 
 #endif // MMU2_SERIAL_PORT
 
@@ -627,7 +627,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
   }
 
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
-  MSerialT4 lcdSerial(MSerialT4::HasEmergencyParser);
+  MSerialLCD lcdSerial(MSerialLCD::HasEmergencyParser);
 
   #if HAS_DGUS_LCD
     template<typename Cfg>
@@ -646,7 +646,7 @@ MSerialT customizedSerial1(MSerialT::HasEmergencyParser);
 
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  MSerialT5 bluetoothSerial(false);
+  MSerialBT bluetoothSerial(false);
 #endif
 
 #endif // __AVR__
