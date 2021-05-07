@@ -602,7 +602,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
   FORCE_INLINE void _draw_ammeter_status() {
     lcd_put_u8str(" ");
     ammeter.read();
-    if (ammeter.current <= .1) {
+    if (ammeter.current <= .999) {
       lcd_put_u8str(ftostr3ns(ammeter.current));
       lcd_put_u8str("mA");
     } else {
