@@ -267,8 +267,8 @@
     static constexpr bool RX_OVERRUNS       = false;
   };
 
-  typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialMMU;
-  extern MSerialMMU mmuSerial;
+  typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialMMU2;
+  extern MSerialMMU2 mmuSerial;
 #endif
 
 #ifdef LCD_SERIAL_PORT
