@@ -692,10 +692,10 @@ void MarlinUI::draw_status_screen() {
 
     // Laser Ammeter
     #if DO_DRAW_AMMETER
-      const uint8_t ammetery = STATUS_AMMETER_Y(status_ammeter_bmp1),
-                    ammeterh = STATUS_AMMETER_HEIGHT(status_ammeter_bmp1);
+      const uint8_t ammetery = STATUS_AMMETER_Y(status_ammeter_bmp_mA),
+                    ammeterh = STATUS_AMMETER_HEIGHT(status_ammeter_bmp_mA);
        if (PAGE_CONTAINS(ammetery, ammetery + ammeterh - 1))
-        u8g.drawBitmapP(STATUS_AMMETER_X, ammetery, STATUS_AMMETER_BYTEWIDTH, ammeterh, status_ammeter_bmp1);
+        u8g.drawBitmapP(STATUS_AMMETER_X, ammetery, STATUS_AMMETER_BYTEWIDTH, ammeterh, (ammeter.current < .1) ? status_ammeter_bmp_mA : status_ammeter_bmp_A);
     #endif
 
     // Heated Bed
