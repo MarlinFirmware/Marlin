@@ -68,6 +68,16 @@ extern DefaultSerial4 MSerial3;
   #endif
 #endif
 
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1 || ENABLED(EMERGENCY_PARSER)
+    #define MYSERIAL3 customizedSerial3
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+  #endif
+#endif
+
 #ifdef MMU2_SERIAL_PORT
   #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)

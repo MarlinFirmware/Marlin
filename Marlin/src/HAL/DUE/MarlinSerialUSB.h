@@ -59,3 +59,7 @@ struct MarlinSerialUSB {
   extern MSerialT2 customizedSerial2;
 #endif
 
+#if SERIAL_PORT_3 == -1
+  typedef Serial1Class<MarlinSerialUSB> MSerialT3;
+  extern MSerialT3 customizedSerial3;
+#endif

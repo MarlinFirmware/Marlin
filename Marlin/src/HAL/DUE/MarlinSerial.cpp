@@ -486,4 +486,9 @@ void MarlinSerial<Cfg>::flushTX() {
   MSerialT2 customizedSerial2(MarlinSerialCfg<SERIAL_PORT_2>::EMERGENCYPARSER);
 #endif
 
+#if defined(SERIAL_PORT_3) && SERIAL_PORT_3 >= 0
+  template class MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> >;
+  MSerialT3 customizedSerial3(MarlinSerialCfg<SERIAL_PORT_3>::EMERGENCYPARSER);
+#endif
+
 #endif // ARDUINO_ARCH_SAM

@@ -103,6 +103,13 @@ typedef int8_t pin_t;
     #endif
     #define MYSERIAL2 customizedSerial2
   #endif
+
+  #ifdef SERIAL_PORT_3
+    #if !WITHIN(SERIAL_PORT_3, -1, 3)
+      #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+    #endif
+    #define MYSERIAL3 customizedSerial3
+  #endif
 #endif
 
 #ifdef MMU2_SERIAL_PORT

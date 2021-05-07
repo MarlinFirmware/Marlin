@@ -246,6 +246,11 @@
     extern MSerialT2 customizedSerial2;
   #endif
 
+  #ifdef SERIAL_PORT_3
+    typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> > > MSerialT3;
+    extern MSerialT3 customizedSerial3;
+  #endif
+
 #endif // !USBCON
 
 #ifdef MMU2_SERIAL_PORT

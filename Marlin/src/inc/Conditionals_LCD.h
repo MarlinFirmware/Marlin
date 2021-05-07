@@ -955,15 +955,19 @@
 // Serial Port Info
 //
 #ifdef SERIAL_PORT_2
-  #define NUM_SERIAL 2
   #define HAS_MULTI_SERIAL 1
+  #ifdef SERIAL_PORT_3
+    #define NUM_SERIAL 3
+  #else
+    #define NUM_SERIAL 2
+  #endif
 #elif defined(SERIAL_PORT)
   #define NUM_SERIAL 1
 #else
   #define NUM_SERIAL 0
   #undef BAUD_RATE_GCODE
 #endif
-#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
 #endif
 #if SERIAL_PORT_2 == -2
