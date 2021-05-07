@@ -112,25 +112,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if PREHEAT_COUNT
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
   PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
-    #ifdef PREHEAT_1_LABEL
-      static PGMSTR(preheat_0_label, PREHEAT_1_LABEL);
-    #endif
-    #ifdef PREHEAT_2_LABEL
-      static PGMSTR(preheat_1_label, PREHEAT_2_LABEL);
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      static PGMSTR(preheat_2_label, PREHEAT_3_LABEL);
-    #endif
-    #ifdef PREHEAT_4_LABEL
-      static PGMSTR(preheat_3_label, PREHEAT_4_LABEL);
-    #endif
-    #ifdef PREHEAT_5_LABEL
-      static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
-    #endif
-
+    #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
     #define _PLBL(N) preheat_##N##_label,
-    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
-
+    REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PDEF);
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PLBL) };
     return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
   }
 #endif
@@ -772,7 +757,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   //
   // Tell ui.update() to start a move to current_position after a short delay.
   //
-  void ManualMove::soon(AxisEnum move_axis
+  void ManualMove::soon(const AxisEnum move_axis
     #if MULTI_MANUAL
       , const int8_t eindex/*=-1*/
     #endif
@@ -870,7 +855,7 @@ void MarlinUI::update() {
     static bool wait_for_unclick; // = false
 
     auto do_click = [&]{
-      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
       lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
       wait_for_user = false;                          //  - Any click clears wait for user
       quick_feedback();                               //  - Always make a click sound

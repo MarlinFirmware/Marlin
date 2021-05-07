@@ -319,6 +319,7 @@ void PrintCounter::reset() {
   }
 
   bool PrintCounter::needsService(const int index) {
+    if (!loaded) loadStats();
     switch (index) {
       #if SERVICE_INTERVAL_1 > 0
         case 1: return data.nextService1 == 0;
