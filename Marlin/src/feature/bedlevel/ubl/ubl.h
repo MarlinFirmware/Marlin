@@ -32,7 +32,7 @@
 #define UBL_OK false
 #define UBL_ERR true
 
-enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
+enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 // External references
 
