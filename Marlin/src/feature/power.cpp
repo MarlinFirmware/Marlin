@@ -85,19 +85,23 @@ bool Power::is_power_needed() {
   if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
-    HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
+    HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
   #endif
 
   #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
-    if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
+    if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
   #endif
 
   #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
-    if (thermalManager.degCooler() >= AUTO_POWER_COOLER_TEMP) return true;
+    if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
   #endif
 
   return false;
 }
+
+#ifndef POWER_TIMEOUT
+  #define POWER_TIMEOUT 0
+#endif
 
 void Power::check() {
   static millis_t nextPowerCheck = 0;
@@ -106,7 +110,7 @@ void Power::check() {
     nextPowerCheck = ms + 2500UL;
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT)))
+    else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
       power_off();
   }
 }

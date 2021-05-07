@@ -67,7 +67,7 @@ void flashFirmware(const int16_t) {
   delay(500);          // Give OS time to disconnect
   USB_Connect(false);  // USB clear connection
   delay(1000);         // Give OS time to notice
-  NVIC_SystemReset();
+  HAL_reboot();
 }
 
 void HAL_clear_reset_source(void) {
@@ -80,5 +80,7 @@ uint8_t HAL_get_reset_source(void) {
   #endif
   return RST_POWER_ON;
 }
+
+void HAL_reboot() { NVIC_SystemReset(); }
 
 #endif // TARGET_LPC1768

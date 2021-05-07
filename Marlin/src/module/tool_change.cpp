@@ -1092,7 +1092,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           }
           else {
             // For first new tool, change without unloading the old. 'Just prime/init the new'
-            if (first_tool_is_primed)
+            if (TERN1(TOOLCHANGE_FS_PRIME_FIRST_USED, first_tool_is_primed))
               unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
             TERN_(TOOLCHANGE_FS_PRIME_FIRST_USED, first_tool_is_primed = true); // The first new tool will be primed by toolchanging
           }
@@ -1196,7 +1196,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        TERN_(SINGLENOZZLE_STANDBY_TEMP, thermalManager.singlenozzle_change(old_tool, new_tool));
+        #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+          thermalManager.singlenozzle_change(old_tool, new_tool);
+        #endif
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
@@ -1383,7 +1385,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the temperature to the new hotend
     #if HAS_MULTI_HOTEND
-      thermalManager.setTargetHotend(thermalManager.temp_hotend[active_extruder].target, migration_extruder);
+      thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
       TERN_(AUTOTEMP, planner.autotemp_update());
       TERN_(HAS_STATUS_MESSAGE, thermalManager.set_heating_message(0));
       thermalManager.wait_for_hotend(active_extruder);

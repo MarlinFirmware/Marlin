@@ -43,8 +43,6 @@
   extern DefaultSerial4 MSerial3;
   extern DefaultSerial5 MSerial4;
 
-  // MYSERIAL1 required before MarlinSerial includes!
-
   #define __MSERIAL(X) MSerial##X
   #define _MSERIAL(X) __MSERIAL(X)
   #define MSERIAL(X) _MSERIAL(INCREMENT(X))
@@ -109,7 +107,7 @@ typedef int8_t pin_t;
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 //
 // ADC

@@ -97,6 +97,14 @@ public:
     int abl_probe_index;
   #endif
 
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    int abl_points;
+  #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+    static constexpr int abl_points = 3;
+  #elif ABL_USES_GRID
+    static constexpr int abl_points = GRID_MAX_POINTS;
+  #endif
+
   #if ABL_USES_GRID
 
     xy_int8_t meshCount;
@@ -111,14 +119,6 @@ public:
       xy_uint8_t          grid_points;
     #else // Bilinear
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      int abl_points;
-    #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-      static constexpr int abl_points = 3;
-    #else
-      static constexpr int abl_points = GRID_MAX_POINTS;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)

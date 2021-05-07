@@ -73,29 +73,13 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
 
     // Get the new position
     const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-    #if IS_KINEMATIC
-      ui.manual_move.offset += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(ui.manual_move.offset, min - current_position[axis]);
-      else
-        NOMORE(ui.manual_move.offset, max - current_position[axis]);
-    #else
-      current_position[axis] += diff;
-      if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(current_position[axis], min);
-      else
-        NOMORE(current_position[axis], max);
-    #endif
-
+    (void)ui.manual_move.apply_diff(axis, diff, min, max);
     ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
-    const float pos = NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], ui.manual_move.offset),
-      axis
-    );
+    const float pos = ui.manual_move.axis_value(axis);
     if (parser.using_inch_units()) {
       const float imp_pos = LINEAR_UNIT(pos);
       MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));

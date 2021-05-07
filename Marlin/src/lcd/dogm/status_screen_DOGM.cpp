@@ -186,10 +186,14 @@
 #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
-  const char *str = i16tostr3rj(temp);
-  const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
-  lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
-  lcd_put_wchar(LCD_STR_DEGREE[0]);
+  if (temp < 0)
+    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, "err");
+  else {
+    const char *str = i16tostr3rj(temp);
+    const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
+    lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
+  }
 }
 
 #if DO_DRAW_FLOWMETER
@@ -213,7 +217,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
     const uint8_t tx = STATUS_HOTEND_TEXT_X(heater_id);
 
-    const celsius_t temp = thermalManager.degHotend(heater_id),
+    const celsius_t temp = thermalManager.wholeDegHotend(heater_id),
                   target = thermalManager.degTargetHotend(heater_id);
 
     #if DISABLED(STATUS_HOTEND_ANIM)
@@ -310,7 +314,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
     const uint8_t tx = STATUS_BED_TEXT_X;
 
-    const celsius_t temp = thermalManager.degBed(),
+    const celsius_t temp = thermalManager.wholeDegBed(),
                   target = thermalManager.degTargetBed();
 
     #if ENABLED(STATUS_HEAT_PERCENT) || DISABLED(STATUS_BED_ANIM)
@@ -380,14 +384,21 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
         _draw_centered_temp(thermalManager.degTargetChamber(), STATUS_CHAMBER_TEXT_X, 7);
     #endif
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(thermalManager.degChamber(), STATUS_CHAMBER_TEXT_X, 28);
+      _draw_centered_temp(thermalManager.wholeDegChamber(), STATUS_CHAMBER_TEXT_X, 28);
   }
 #endif
 
 #if DO_DRAW_COOLER
   FORCE_INLINE void _draw_cooler_status() {
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(thermalManager.degCooler(), STATUS_COOLER_TEXT_X, 28);
+      _draw_centered_temp(thermalManager.wholeDegCooler(), STATUS_COOLER_TEXT_X, 28);
+  }
+#endif
+
+#if DO_DRAW_FLOWMETER
+  FORCE_INLINE void _draw_flowmeter_status() {
+    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+      _draw_centered_flowrate(cooler.flowrate, STATUS_FLOWMETER_TEXT_X, 28);
   }
 #endif
 

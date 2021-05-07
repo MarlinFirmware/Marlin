@@ -32,8 +32,47 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, File, Popup, Confirm, Wait
-};
+  // Process ID
+  MainMenu,
+  SelectFile,
+  Prepare,
+  Control,
+  Leveling,
+  PrintProcess,
+  AxisMove,
+  TemperatureID,
+  Motion,
+  Info,
+  Tune,
+  #if HAS_PREHEAT
+    PLAPreheat,
+    ABSPreheat,
+  #endif
+  MaxSpeed,
+  MaxSpeed_value,
+  MaxAcceleration,
+  MaxAcceleration_value,
+  MaxJerk,
+  MaxJerk_value,
+  Step,
+  Step_value,
+  HomeOff,
+  HomeOffX,
+  HomeOffY,
+  HomeOffZ,
+
+  // Last Process ID
+  Last_Prepare,
+
+  // Advance Settings
+  AdvSet,
+  ProbeOff,
+  ProbeOffX,
+  ProbeOffY,
+
+  // Back Process ID
+  Back_Main,
+  Back_Print,
 
 enum popupID : uint8_t {
   Pause, Stop, Resume, SaveLevel, ETemp, Level, Home, MoveWait, Complete, M600, FilLoad, FilChange
@@ -168,6 +207,22 @@ enum menuID : uint8_t {
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
+#define ICON_AdvSet               ICON_Language
+#define ICON_HomeOff              ICON_AdvSet
+#define ICON_HomeOffX             ICON_StepX
+#define ICON_HomeOffY             ICON_StepY
+#define ICON_HomeOffZ             ICON_StepZ
+#define ICON_ProbeOff             ICON_AdvSet
+#define ICON_ProbeOffX            ICON_StepX
+#define ICON_ProbeOffY            ICON_StepY
+#define ICON_PIDNozzle            ICON_SetEndTemp
+#define ICON_PIDbed               ICON_SetBedTemp
+
+/**
+ * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
+ * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28
+ * 0x05=16*32  0x06=20*40  0x07=24*48  0x08=28*56  0x09=32*64
+ */
 #define font6x12  0x00
 #define font8x16  0x01
 #define font10x20 0x02
@@ -195,11 +250,35 @@ enum menuID : uint8_t {
 
 extern millis_t dwin_heat_time;
 
-inline void Clear_Screen(uint8_t e=3);
-inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
-inline void Draw_Title(char* title);
-inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label=(char*)"", bool more=false);
-inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
+typedef struct {
+  #if ENABLED(HAS_HOTEND)
+    celsius_t E_Temp = 0;
+  #endif
+  #if ENABLED(HAS_HEATED_BED)
+    celsius_t Bed_Temp = 0;
+  #endif
+  #if ENABLED(HAS_FAN)
+    int16_t Fan_speed = 0;
+  #endif
+  int16_t print_speed     = 100;
+  float Max_Feedspeed     = 0;
+  float Max_Acceleration  = 0;
+  float Max_Jerk_scaled   = 0;
+  float Max_Step_scaled   = 0;
+  float Move_X_scaled     = 0;
+  float Move_Y_scaled     = 0;
+  float Move_Z_scaled     = 0;
+  #if HAS_HOTEND
+    float Move_E_scaled   = 0;
+  #endif
+  float offset_value      = 0;
+  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
+  float Home_OffX_scaled  = 0;
+  float Home_OffY_scaled  = 0;
+  float Home_OffZ_scaled  = 0;
+  float Probe_OffX_scaled = 0;
+  float Probe_OffY_scaled = 0;
+} HMI_value_t;
 
 
 void Main_Menu_Icons();
@@ -251,9 +330,12 @@ void Host_Print_Text(char * const text);
 void Start_Print(bool sd);
 void Stop_Print();
 void DWIN_Update();
-void Variable_Update();
-void Screen_Update();
-void HMI_Init();
-void HMI_StartFrame(const bool with_update);
-void AudioFeedback(const bool success=true);
-inline void HMI_SDCardInit();
+void EachMomentUpdate();
+void DWIN_HandleScreen();
+void DWIN_StatusChanged(const char *text);
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
+
+inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+
+void DWIN_CompletedHoming();
+void DWIN_CompletedLeveling();
