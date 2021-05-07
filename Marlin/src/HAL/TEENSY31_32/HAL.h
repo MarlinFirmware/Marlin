@@ -68,6 +68,8 @@ extern USBSerialType USBSerial;
 #elif WITHIN(SERIAL_PORT, 0, 3)
   DECLARE_SERIAL(SERIAL_PORT);
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#else
+  #error "The required SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
 #endif
 
 #define HAL_SERVO_LIB libServo
