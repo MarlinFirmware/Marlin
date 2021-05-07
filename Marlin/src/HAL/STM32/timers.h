@@ -21,14 +21,11 @@
  */
 #pragma once
 
-#include <stdint.h>
 #include "../../inc/MarlinConfig.h"
 
 // ------------------------
 // Defines
 // ------------------------
-
-#define FORCE_INLINE __attribute__((always_inline)) inline
 
 // STM32 timers may be 16 or 32 bit. Limiting HAL_TIMER_TYPE_MAX to 16 bits
 // avoids issues with STM32F0 MCUs, which seem to pause timers if UINT32_MAX

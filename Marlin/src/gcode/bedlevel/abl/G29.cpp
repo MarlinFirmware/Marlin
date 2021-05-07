@@ -97,6 +97,14 @@ public:
     int abl_probe_index;
   #endif
 
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    int abl_points;
+  #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+    static constexpr int abl_points = 3;
+  #elif ABL_USES_GRID
+    static constexpr int abl_points = GRID_MAX_POINTS;
+  #endif
+
   #if ABL_USES_GRID
 
     xy_int8_t meshCount;
@@ -111,14 +119,6 @@ public:
       xy_uint8_t          grid_points;
     #else // Bilinear
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      int abl_points;
-    #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-      static constexpr int abl_points = 3;
-    #else
-      static constexpr int abl_points = GRID_MAX_POINTS;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -217,8 +217,9 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
-
   TERN_(PROBE_MANUALLY, static) G29_State abl;
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   reset_stepper_timeout();
 
@@ -897,7 +898,10 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+
   G29_RETURN(isnan(abl.measured_z));
+
 }
 
 #endif // HAS_ABL_NOT_UBL

@@ -230,6 +230,50 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
+#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+
+  M_StateEnum M_State_grbl = M_INIT;
+
+  /**
+   * Output the current grbl compatible state to serial while moving
+   */
+  void report_current_grblstate_moving() { SERIAL_ECHOLNPAIR("S_XYZ:", int(M_State_grbl)); }
+
+  /**
+   * Output the current position (processed) to serial while moving
+   */
+  void report_current_position_moving() {
+
+    get_cartesian_from_steppers();
+    const xyz_pos_t lpos = cartes.asLogical();
+    SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+
+    stepper.report_positions();
+    #if IS_SCARA
+      scara_report_positions();
+    #endif
+
+    report_current_grblstate_moving();
+  }
+
+  /**
+   * Set a Grbl-compatible state from the current marlin_state
+   */
+  M_StateEnum grbl_state_for_marlin_state() {
+    switch (marlin_state) {
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
+    }
+  }
+
+#endif
+
 /**
  * Run out the planner buffer and re-sync the current
  * position from the last-updated stepper positions.
@@ -240,6 +284,20 @@ void quickstop_stepper() {
   set_current_from_steppers_for_axis(ALL_AXES);
   sync_plan_position();
 }
+
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
+
+  void quickpause_stepper() {
+    planner.quick_pause();
+    //planner.synchronize();
+  }
+
+  void quickresume_stepper() {
+    planner.quick_resume();
+    //planner.synchronize();
+  }
+
+#endif
 
 /**
  * Set the planner/stepper positions directly from current_position with
@@ -367,12 +425,10 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
     planner.e_factor[active_extruder] = 1.0f;
   #endif
 
-  #if IS_KINEMATIC
-    if (is_fast)
-      prepare_fast_move_to_destination();
-    else
-  #endif
-      prepare_line_to_destination();
+  if (TERN0(IS_KINEMATIC, is_fast))
+    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
+  else
+    prepare_line_to_destination();
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
@@ -382,7 +438,12 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 }
 
 /**
- * Plan a move to (X, Y, Z) and set the current_position
+ * Plan a move to (X, Y, Z) with separation of the XY and Z components.
+ *
+ * - If Z is moving up, the Z move is done before XY.
+ * - If Z is moving down, the Z move is done after XY.
+ * - Delta may lower Z first to get into the free motion zone.
+ * - Before returning, wait for the planner buffer to empty.
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const_feedRate_t fr_mm_s/*=0.0*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
@@ -391,20 +452,21 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const_f
   const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS),
                   xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
 
+  #if EITHER(DELTA, IS_SCARA)
+    if (!position_is_reachable(rx, ry)) return;
+    destination = current_position;          // sync destination at the start
+  #endif
+
   #if ENABLED(DELTA)
 
-    if (!position_is_reachable(rx, ry)) return;
-
     REMEMBER(fr, feedrate_mm_s, xy_feedrate);
-
-    destination = current_position;          // sync destination at the start
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("destination = current_position", destination);
 
     // when in the danger zone
     if (current_position.z > delta_clip_start_height) {
-      if (rz > delta_clip_start_height) {   // staying in the danger zone
-        destination.set(rx, ry, rz);        // move directly (uninterpolated)
+      if (rz > delta_clip_start_height) {                     // staying in the danger zone
+        destination.set(rx, ry, rz);                          // move directly (uninterpolated)
         prepare_internal_fast_move_to_destination();          // set current_position from destination
         if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         return;
@@ -431,10 +493,6 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const_f
     }
 
   #elif IS_SCARA
-
-    if (!position_is_reachable(rx, ry)) return;
-
-    destination = current_position;
 
     // If Z needs to raise, do it before moving XY
     if (destination.z < rz) {
