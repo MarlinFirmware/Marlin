@@ -37,6 +37,9 @@
 
 #include <stdint.h>
 
+//
+// Serial Ports
+//
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
@@ -44,9 +47,6 @@
   extern DefaultSerial1 MSerial0;
 #endif
 
-// ------------------------
-// Defines
-// ------------------------
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
