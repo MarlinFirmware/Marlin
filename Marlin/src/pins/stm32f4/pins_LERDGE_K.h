@@ -233,17 +233,21 @@
 // LCD / Controller
 //
 
-#define TFT_RESET_PIN                     PD6
-#define TFT_BACKLIGHT_PIN                 PD3
+#if HAS_FSMC_TFT
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define TFT_CS_PIN                        PD7
-#define TFT_RS_PIN                        PD11
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD11
 
-#define TOUCH_CS_PIN                      PG15
-#define TOUCH_SCK_PIN                     PB3
-#define TOUCH_MOSI_PIN                    PB5
-#define TOUCH_MISO_PIN                    PB4
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
 
-#define BTN_EN1                           PG10
-#define BTN_EN2                           PG11
-#define BTN_ENC                           PG9
+#if IS_NEWPANEL
+  #define BTN_EN1                           PG10
+  #define BTN_EN2                           PG11
+  #define BTN_ENC                           PG9
+#endif
