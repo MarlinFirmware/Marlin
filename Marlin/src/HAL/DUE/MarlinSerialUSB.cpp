@@ -65,7 +65,7 @@ int MarlinSerialUSB::peek() {
 
   pending_char = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, (char)pending_char));
+  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT1*>(this)->emergency_state, (char)pending_char));
 
   return pending_char;
 }
@@ -87,7 +87,7 @@ int MarlinSerialUSB::read() {
 
   int c = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, (char)c));
+  TERN_(EMERGENCY_PARSER, emergency_parser.update(static_cast<MSerialT1*>(this)->emergency_state, (char)c));
 
   return c;
 }
@@ -129,7 +129,7 @@ size_t MarlinSerialUSB::write(const uint8_t c) {
 
 // Preinstantiate
 #if SERIAL_PORT == -1
-  MSerialT customizedSerial1(TERN0(EMERGENCY_PARSER, true));
+  MSerialT1 customizedSerial1(TERN0(EMERGENCY_PARSER, true));
 #endif
 #if SERIAL_PORT_2 == -1
   MSerialT2 customizedSerial2(TERN0(EMERGENCY_PARSER, true));

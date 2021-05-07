@@ -34,7 +34,7 @@
 
 #define DECLARE_SERIAL_PORT(ser_num) \
   void _rx_complete_irq_ ## ser_num (serial_t * obj); \
-  MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
+  MSerialT1 MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
   void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
 
 #if USING_HW_SERIAL1
@@ -96,7 +96,7 @@ void MarlinSerial::_rx_complete_irq(serial_t *obj) {
     }
 
     #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(static_cast<MSerialT*>(this)->emergency_state, c);
+      emergency_parser.update(static_cast<MSerialT1*>(this)->emergency_state, c);
     #endif
   }
 }

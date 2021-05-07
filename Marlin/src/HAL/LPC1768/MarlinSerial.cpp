@@ -27,22 +27,22 @@
 
 #if USING_HW_SERIAL0
   MarlinSerial _MSerial(LPC_UART0);
-  MSerialT MSerial0(true, _MSerial);
+  MSerialT1 MSerial0(true, _MSerial);
   extern "C" void UART0_IRQHandler() { _MSerial.IRQHandler(); }
 #endif
 #if USING_HW_SERIAL1
   MarlinSerial _MSerial1((LPC_UART_TypeDef *) LPC_UART1);
-  MSerialT MSerial1(true, _MSerial1);
+  MSerialT1 MSerial1(true, _MSerial1);
   extern "C" void UART1_IRQHandler() { _MSerial1.IRQHandler(); }
 #endif
 #if USING_HW_SERIAL2
   MarlinSerial _MSerial2(LPC_UART2);
-  MSerialT MSerial2(true, _MSerial2);
+  MSerialT1 MSerial2(true, _MSerial2);
   extern "C" void UART2_IRQHandler() { _MSerial2.IRQHandler(); }
 #endif
 #if USING_HW_SERIAL3
   MarlinSerial _MSerial3(LPC_UART3);
-  MSerialT MSerial3(true, _MSerial3);
+  MSerialT1 MSerial3(true, _MSerial3);
   extern "C" void UART3_IRQHandler() { _MSerial3.IRQHandler(); }
 #endif
 

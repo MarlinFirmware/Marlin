@@ -115,4 +115,4 @@ struct HalSerial {
   volatile bool host_connected;
 };
 
-typedef Serial1Class<HalSerial> MSerialT;
+typedef Serial1Class<HalSerial> MSerialT1;

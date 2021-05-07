@@ -47,12 +47,12 @@ struct MarlinSerial : public HardwareSerial {
   #endif
 };
 
-typedef Serial1Class<MarlinSerial> MSerialT;
+typedef Serial1Class<MarlinSerial> MSerialT1;
 
-extern MSerialT MSerial1;
-extern MSerialT MSerial2;
-extern MSerialT MSerial3;
+extern MSerialT1 MSerial1;
+extern MSerialT1 MSerial2;
+extern MSerialT1 MSerial3;
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  extern MSerialT MSerial4;
-  extern MSerialT MSerial5;
+  extern MSerialT1 MSerial4;
+  extern MSerialT1 MSerial5;
 #endif
