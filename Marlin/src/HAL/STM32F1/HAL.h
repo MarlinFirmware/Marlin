@@ -98,6 +98,17 @@
   #endif
 #endif
 
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 UsbSerial
+  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #define MYSERIAL3 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
+
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == -1
     #define MMU2_SERIAL UsbSerial
