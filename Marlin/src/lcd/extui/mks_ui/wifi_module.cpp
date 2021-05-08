@@ -1789,18 +1789,14 @@ void get_wifi_commands() {
         char* command = wifi_line_buffer;
         while (*command == ' ') command++; // skip any leading spaces
 
-          // Movement commands alert when stopped
-          if (IsStopped()) {
+        // Movement commands alert when stopped
+        if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
-              #if ENABLED(ARC_SUPPORT)
-                case 2 ... 3:
-              #endif
-              #if ENABLED(BEZIER_CURVE_SUPPORT)
-                case 5:
-              #endif
+              TERN_(ARC_SUPPORT, case 2 ... 3:)
+              TERN_(BEZIER_CURVE_SUPPORT, case 5:)
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
