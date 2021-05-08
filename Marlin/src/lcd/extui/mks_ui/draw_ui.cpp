@@ -645,9 +645,7 @@ char *creat_title_text() {
         gcode_preview_over = false;
 
         card.closefile();
-        char *cur_name;
-
-        cur_name = strrchr(list_file.file_name[sel_id], '/');
+        char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file;
         SdFile *curDir;
