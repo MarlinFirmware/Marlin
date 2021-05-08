@@ -379,7 +379,7 @@ void CardReader::ls() {
 //
 // Echo the DOS 8.3 filename (and long filename, if any)
 //
-void CardReader::printFilename() {
+void CardReader::printSelectedFilename() {
   if (file.isOpen()) {
     char dosFilename[FILENAME_LENGTH];
     file.getDosName(dosFilename);
@@ -489,7 +489,7 @@ void CardReader::release() {
   if (IS_SD_PRINTING())
     abortFilePrintSoon();
   else
-    endFilePrint();
+    endFilePrintNow();
 
   flag.mounted = false;
   flag.workDirIsRoot = true;
@@ -516,7 +516,7 @@ void CardReader::openAndPrintFile(const char *name) {
  * since you cannot browse files during active printing.
  * Used by M24 and anywhere Start / Resume applies.
  */
-void CardReader::startFileprint() {
+void CardReader::startOrResumeFilePrinting() {
   if (isMounted()) {
     flag.sdprinting = true;
     flag.sdprintdone = false;
@@ -527,7 +527,7 @@ void CardReader::startFileprint() {
 //
 // Run tasks upon finishing or aborting a file print.
 //
-void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
+void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
   TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
@@ -537,7 +537,7 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
 
 void CardReader::abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   flag.sdprinting = flag.sdprintdone = false;
-  endFilePrint(TERN_(SD_RESORT, re_sort));
+  endFilePrintNow(TERN_(SD_RESORT, re_sort));
 }
 
 void CardReader::openLogFile(const char * const path) {
@@ -548,7 +548,7 @@ void CardReader::openLogFile(const char * const path) {
 //
 // Get the root-relative DOS path of the selected file
 //
-void CardReader::getAbsFilename(char *dst) {
+void CardReader::getAbsFilenameInCWD(char *dst) {
   *dst++ = '/';
   uint8_t cnt = 1;
 
@@ -614,7 +614,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
         }
 
         // Store current filename (based on workDirParents) and position
-        getAbsFilename(proc_filenames[file_subcall_ctr]);
+        getAbsFilenameInCWD(proc_filenames[file_subcall_ctr]);
         filespos[file_subcall_ctr] = sdpos;
 
         // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
@@ -862,6 +862,9 @@ uint16_t CardReader::countFilesInWorkDir() {
 /**
  * Dive to the given DOS 8.3 file path, with optional echo of the dive paths.
  *
+ * On entry:
+ *  - The workDir points to the last-set navigation target by cd, cdup, cdroot, or diveToFile(true, ...)
+ *
  * On exit:
  *  - Your curDir pointer contains an SdFile reference to the file's directory.
  *  - If update_cwd was 'true' the workDir now points to the file's directory.
@@ -871,6 +874,8 @@ uint16_t CardReader::countFilesInWorkDir() {
  * A nullptr result indicates an unrecoverable error.
  */
 const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, const char * const path, const bool echo/*=false*/) {
+  DEBUG_SECTION(est, "diveToFile", true);
+
   // Track both parent and subfolder
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;
@@ -878,12 +883,12 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
   // Parsing the path string
   const char *item_name_adr = path;
 
-  DEBUG_ECHOLNPAIR("diveToFile: path = '", path, "'");
+  DEBUG_ECHOLNPAIR(" path = '", path, "'");
 
   if (path[0] == '/') {               // Starting at the root directory?
     diveDir = &root;
     item_name_adr++;
-    DEBUG_ECHOLNPAIR("diveToFile: CWD to root: ", hex_address((void*)diveDir));
+    DEBUG_ECHOLNPAIR(" CWD to root: ", hex_address((void*)diveDir));
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
@@ -891,7 +896,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
   startDir = diveDir;
 
-  DEBUG_ECHOLNPAIR("diveToFile: startDir = ", hex_address((void*)startDir));
+  DEBUG_ECHOLNPAIR(" startDir = ", hex_address((void*)startDir));
 
   while (item_name_adr) {
     // Find next subdirectory delimiter
@@ -908,7 +913,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
-    DEBUG_ECHOLNPAIR("diveToFile: sub = ", hex_address((void*)sub));
+    DEBUG_ECHOLNPAIR(" sub = ", hex_address((void*)sub));
 
     // Open diveDir (closing first)
     sub->close();
@@ -920,24 +925,24 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
     // Close diveDir if not at starting-point
     if (diveDir != startDir) {
-      DEBUG_ECHOLNPAIR("diveToFile: closing diveDir: ", hex_address((void*)diveDir));
+      DEBUG_ECHOLNPAIR(" closing diveDir: ", hex_address((void*)diveDir));
       diveDir->close();
     }
 
     // diveDir now subDir
     diveDir = sub;
-    DEBUG_ECHOLNPAIR("diveToFile: diveDir = sub: ", hex_address((void*)diveDir));
+    DEBUG_ECHOLNPAIR(" diveDir = sub: ", hex_address((void*)diveDir));
 
     // Update workDirParents and workDirDepth
     if (update_cwd) {
-      DEBUG_ECHOLNPAIR("diveToFile: update_cwd");
+      DEBUG_ECHOLNPAIR(" update_cwd");
       if (workDirDepth < MAX_DIR_DEPTH)
         workDirParents[workDirDepth++] = *diveDir;
     }
 
     // Point sub at the other scratch object
     sub = (diveDir != &newDir1) ? &newDir1 : &newDir2;
-    DEBUG_ECHOLNPAIR("diveToFile: swapping sub = ", hex_address((void*)sub));
+    DEBUG_ECHOLNPAIR(" swapping sub = ", hex_address((void*)sub));
 
     // Next path atom address
     item_name_adr = name_end + 1;
@@ -945,11 +950,12 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
   if (update_cwd) {
     workDir = *diveDir;
-    DEBUG_ECHOLNPAIR("diveToFile: final workDir = ", hex_address((void*)diveDir));
+    DEBUG_ECHOLNPAIR(" final workDir = ", hex_address((void*)diveDir));
     flag.workDirIsRoot = (workDirDepth == 0);
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
 
+  DEBUG_ECHOLNPAIR(" returning string ", item_name_adr ?: "nullptr");
   return item_name_adr;
 }
 
@@ -1237,12 +1243,12 @@ void CardReader::fileHasFinished() {
       file_subcall_ctr--;
       openFileRead(proc_filenames[file_subcall_ctr], 2); // 2 = Returning from sub-procedure
       setIndex(filespos[file_subcall_ctr]);
-      startFileprint();
+      startOrResumeFilePrinting();
       return;
     }
   #endif
 
-  endFilePrint(TERN_(SD_RESORT, true));
+  endFilePrintNow(TERN_(SD_RESORT, true));
 
   flag.sdprintdone = true;        // Stop getting bytes from the SD card
   marlin_state = MF_SD_COMPLETE;  // Tell Marlin to enqueue M1001 soon

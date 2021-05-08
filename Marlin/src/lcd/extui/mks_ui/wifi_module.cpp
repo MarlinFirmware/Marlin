@@ -752,7 +752,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                       planner.flow_percentage[1] = 100;
                       planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
                     #endif
-                    card.startFileprint();
+                    card.startOrResumeFilePrinting();
                     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                     once_flag = false;
                   }

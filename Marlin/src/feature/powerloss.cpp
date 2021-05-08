@@ -137,7 +137,7 @@ void PrintJobRecovery::load() {
  * Set info fields that won't change
  */
 void PrintJobRecovery::prepare() {
-  card.getAbsFilename(info.sd_filename);  // SD filename
+  card.getAbsFilenameInCWD(info.sd_filename);  // SD filename
   cmd_sdpos = 0;
 }
 

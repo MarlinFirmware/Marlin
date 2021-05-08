@@ -108,7 +108,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
             planner.flow_percentage[1] = 100;
             planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
           #endif
-          card.startFileprint();
+          card.startOrResumeFilePrinting();
           #if ENABLED(POWER_LOSS_RECOVERY)
             recovery.prepare();
           #endif
