@@ -87,17 +87,16 @@ extern uint8_t marlin_debug_flags;
   // If we have a catchall, use that directly
   #ifdef SERIAL_CATCHALL
     #define _SERIAL_LEAF_2 SERIAL_CATCHALL
+  #elif HAS_ETHERNET
+    typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;  // We need to create an instance here
+    extern SerialLeafT2 msSerial2;
+    #define _SERIAL_LEAF_2 msSerial2
   #else
-    #if HAS_ETHERNET
-      // We need to create an instance here
-      typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;
-      extern SerialLeafT2 msSerial2;
-      #define _SERIAL_LEAF_2 msSerial2
-    #else
-      // Don't create a useless instance here, directly use the existing instance
-      #define _SERIAL_LEAF_2 MYSERIAL2
-    #endif
+    #define _SERIAL_LEAF_2 MYSERIAL2 // Don't create a useless instance here, directly use the existing instance
   #endif
+
+  // Nothing complicated here
+  #define _SERIAL_LEAF_3 MYSERIAL3
 
   // Hook Meatpack if it's enabled on the second leaf
   #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
@@ -108,7 +107,23 @@ extern uint8_t marlin_debug_flags;
     #define SERIAL_LEAF_2 _SERIAL_LEAF_2
   #endif
 
-  typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2), 0> SerialOutputT;
+  // Hook Meatpack if it's enabled on the third leaf
+  #if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
+    typedef MeatpackSerial<decltype(_SERIAL_LEAF_3)> SerialLeafT3;
+    extern SerialLeafT3 mpSerial3;
+    #define SERIAL_LEAF_3 mpSerial3
+  #else
+    #define SERIAL_LEAF_3 _SERIAL_LEAF_3
+  #endif
+
+  #define __S_MULTI(N) decltype(SERIAL_LEAF_##N),
+  #define _S_MULTI(N) __S_MULTI(N)
+
+  typedef MultiSerial< REPEAT_1(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
+
+  #undef __S_MULTI
+  #undef _S_MULTI
+
   extern SerialOutputT        multiSerial;
   #define SERIAL_IMPL         multiSerial
 #else

@@ -30,11 +30,17 @@
 #if ENABLED(I2C_EEPROM)
 
 #include "eeprom_if.h"
-#include <Wire.h>
+
+#if ENABLED(SOFT_I2C_EEPROM)
+  #include <SlowSoftWire.h>
+  SlowSoftWire Wire = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
+#else
+  #include <Wire.h>
+#endif
 
 void eeprom_init() {
   Wire.begin(
-    #if PINS_EXIST(I2C_SCL, I2C_SDA)
+    #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
       uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
     #endif
   );

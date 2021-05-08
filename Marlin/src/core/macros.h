@@ -581,6 +581,7 @@
 // Repeat a macro passing S...N-1.
 #define REPEAT_S(S,N,OP)        EVAL(_REPEAT(S,SUB##S(N),OP))
 #define REPEAT(N,OP)            REPEAT_S(0,N,OP)
+#define REPEAT_1(N,OP)          REPEAT_S(1,INCREMENT(N),OP)
 
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))

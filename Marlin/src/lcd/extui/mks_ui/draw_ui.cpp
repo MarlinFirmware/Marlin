@@ -638,21 +638,18 @@ char *creat_title_text() {
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
       #endif
       row++;
+      card.abortFilePrintNow();
       if (row >= 200) {
         size = 809;
         row  = 0;
 
         gcode_preview_over = false;
 
-        card.closefile();
-        char *cur_name;
-
-        cur_name = strrchr(list_file.file_name[sel_id], '/');
+        char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file;
         SdFile *curDir;
-        card.endFilePrint();
-        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();
@@ -669,13 +666,12 @@ char *creat_title_text() {
             planner.flow_percentage[1] = 100;
             planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
           #endif
-          card.startFileprint();
+          card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
         return;
       }
-      card.closefile();
     #endif // SDSUPPORT
   }
 
