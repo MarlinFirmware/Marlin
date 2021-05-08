@@ -649,7 +649,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   #if ENABLED(SDSUPPORT)
     if (did_pause_print) {
       --did_pause_print;
-      card.startFileprint();
+      card.startOrResumeFilePrinting();
       // Write PLR now to update the z axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
     }
