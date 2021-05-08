@@ -419,8 +419,6 @@ class Temperature {
 
   private:
 
-    static volatile bool raw_temps_ready;
-
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
@@ -880,9 +878,19 @@ class Temperature {
     #endif
 
   private:
+
+    // Reading raw temperatures and converting to Celsius when ready
+    static volatile bool raw_temps_ready;
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
+    static inline bool updateTemperaturesIfReady() {
+      if (!raw_temps_ready) return false;
+      updateTemperaturesFromRawValues();
+      raw_temps_ready = false;
+      return true;
+    }
 
+    // MAX Thermocouples
     #if HAS_MAX_TC
       #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
       #if MAX_TC_COUNT > 1
