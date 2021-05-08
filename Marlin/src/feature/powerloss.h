@@ -42,6 +42,10 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
+
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
@@ -179,7 +183,7 @@ class PrintJobRecovery {
     static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0, const bool raised=false);
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {

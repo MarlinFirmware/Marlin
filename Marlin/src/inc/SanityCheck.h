@@ -2903,6 +2903,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
   #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+  #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR > 0
+    #error "POWER_LOSS_RECOVER_ZHOME is not needed on a machine that homes to ZMAX."
   #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR < 0 && !defined(POWER_LOSS_ZHOME_POS)
     #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
   #endif
