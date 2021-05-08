@@ -649,7 +649,7 @@ char *creat_title_text() {
 
         SdFile file;
         SdFile *curDir;
-        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();

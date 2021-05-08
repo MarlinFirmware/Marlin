@@ -92,7 +92,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
 
         SdFile file, *curDir;
         card.abortFilePrintNow();
-        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();
