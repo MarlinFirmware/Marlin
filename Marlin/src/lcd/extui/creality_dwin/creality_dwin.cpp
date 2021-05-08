@@ -1036,12 +1036,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case PREPARE_HOME:
           if (draw) {
-            Draw_Menu_Item(row, ICON_SetHome, (char*)"Auto Home");
+            Draw_Menu_Item(row, ICON_SetHome, (char*)"Homing", NULL, true);
           }
           else {
-            Popup_Handler(Home);
-            gcode.home_all_axes(true);
-            Redraw_Menu();
+            Draw_Menu(HomeMenu);
           }
           break;
         case PREPARE_MANUALLEVEL:
@@ -1125,6 +1123,77 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+      }
+      break;
+
+    case HomeMenu:
+
+      #define HOME_BACK 0
+      #define HOME_ALL (HOME_BACK + 1)
+      #define HOME_X (HOME_ALL + 1)
+      #define HOME_Y (HOME_X + 1)
+      #define HOME_Z (HOME_Y + 1)
+      #define HOME_SET (HOME_Z + 1)
+      #define HOME_TOTAL HOME_SET
+
+      switch(item) {
+        case HOME_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, (char*)"Back");
+          }
+          else {
+            Draw_Menu(Prepare, PREPARE_HOME);
+          }
+          break;
+        case HOME_ALL:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Home All");
+          }
+          else {
+            Popup_Handler(Home);
+            gcode.home_all_axes(true);
+            Redraw_Menu();
+          }
+          break;
+        case HOME_X:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Home X");
+          }
+          else {
+            Popup_Handler(Home);
+            homeaxis(X_AXIS);
+            Redraw_Menu();
+          }
+          break;
+        case HOME_Y:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Home Y");
+          }
+          else {
+            Popup_Handler(Home);
+            homeaxis(Y_AXIS);
+            Redraw_Menu();
+          }
+          break;
+        case HOME_Z:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Axis, (char*)"Home Z");
+          }
+          else {
+            Popup_Handler(Home);
+            homeaxis(Z_AXIS);
+            Redraw_Menu();
+          }
+          break;
+        case HOME_SET:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_SetHome, (char*)"Set Home Position");
+          }
+          else {
+            gcode.process_subcommands_now_P(PSTR("G92 X0 Y0 Z0"));
+            AudioFeedback();
+          }
+          break;
       }
       break;
     case Move:
@@ -2397,8 +2466,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define HOMEOFFSETS_BACK 0
       #define HOMEOFFSETS_XOFFSET (HOMEOFFSETS_BACK + 1)
       #define HOMEOFFSETS_YOFFSET (HOMEOFFSETS_XOFFSET + 1)
-      #define HOMEOFFSETS_ZERO (HOMEOFFSETS_YOFFSET + 1)
-      #define HOMEOFFSETS_TOTAL HOMEOFFSETS_ZERO
+      #define HOMEOFFSETS_TOTAL HOMEOFFSETS_YOFFSET
 
       switch (item) {
         case HOMEOFFSETS_BACK:
@@ -2425,14 +2493,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Modify_Value(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
-          }
-          break;
-        case HOMEOFFSETS_ZERO:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Set Zero Position");
-          }
-          else {
-            gcode.process_subcommands_now_P(PSTR("G92 X0 Y0 Z0"));
           }
           break;
       }
@@ -4045,6 +4105,8 @@ char* CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return (char*)"Main Menu";
     case Prepare:
       return (char*)"Prepare";
+    case HomeMenu:
+      return (char*)"Homing Menu";
     case Move:
       return (char*)"Move";
     case ManualLevel:
@@ -4157,6 +4219,8 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
   switch(menu) {
     case Prepare:
       return PREPARE_TOTAL;
+    case Home:
+      return HOME_TOTAL;
     case Move:
       return MOVE_TOTAL;
     case ManualLevel:

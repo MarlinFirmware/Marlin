@@ -43,6 +43,7 @@ enum menuID : uint8_t {
   MainMenu,
     Prepare,
       Move,
+      HomeMenu,
       ManualLevel,
       ZOffset,
       Preheat,
