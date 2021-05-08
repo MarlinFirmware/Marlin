@@ -186,8 +186,14 @@ class PrintJobRecovery {
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {
-        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-          _outage();
+        static constexpr uint8_t OUTAGE_THRESHOLD = 3;
+        static uint8_t outage_counter = 0;
+        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) {
+          outage_counter++;
+          if (outage_counter >= OUTAGE_THRESHOLD) _outage();
+        }
+        else
+          outage_counter = 0;
       }
     #endif
 
