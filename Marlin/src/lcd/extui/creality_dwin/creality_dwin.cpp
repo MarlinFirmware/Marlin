@@ -4219,7 +4219,7 @@ int CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
   switch(menu) {
     case Prepare:
       return PREPARE_TOTAL;
-    case Home:
+    case HomeMenu:
       return HOME_TOTAL;
     case Move:
       return MOVE_TOTAL;
