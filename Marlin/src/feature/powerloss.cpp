@@ -373,12 +373,6 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
-  #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
-    #define HOMING_Z_DOWN 1
-  #elif Z_HOME_DIR < 0
-    #define HOME_XY_ONLY 1
-  #endif
-
   gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_DIR > 0
@@ -388,12 +382,18 @@ void PrintJobRecovery::resume() {
     // If Z homing goes to max then just move back to the "raised" position
     gcode.process_subcommands_now_P(PSTR(
         "G28R0\n"     // Home all axes (no raise)
-        "G1Z%s"       // Move Z down to (raised) height
+        "G1Z%sF1200"   // Move Z down to (raised) height
       ),
       dtostrf(z_now, 1, 3, str_1)
     );
 
   #else
+
+    #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
+      #define HOMING_Z_DOWN 1
+    #else
+      #define HOME_XY_ONLY 1
+    #endif
 
     float z_now = info.flag.raised ? z_raised : z_print;
 
@@ -405,8 +405,8 @@ void PrintJobRecovery::resume() {
 
     // Does Z need to be raised now? It should be raised before homing XY.
     if (z_raised > z_now) {
-      TERN_(HOME_XY_ONLY, z_now = z_raised);
-      sprintf_P(cmd, PSTR("G1Z%sF500"), dtostrf(z_raised, 1, 3, str_1));
+      z_now = z_raised;
+      sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     }
 
@@ -425,22 +425,15 @@ void PrintJobRecovery::resume() {
   // Mark all axes as having been homed (no effect on current_position)
   set_all_homed();
 
-  // Leveling may already be enabled due to the ENABLE_LEVELING_AFTER_G28 option.
-  // TODO: Add a G28 parameter to not re-enable leveling.
-  z_now = current_position.z;
-
   #if HAS_LEVELING
-    //
     // Restore Z fade and possibly re-enable bed leveling compensation.
-    // - Z at this time might be the freshly-homed Z, in which
-    //   case all the XYZ moves should end up in the right place.
-    // - If Z has not been moved then leveling was enabled with Z
-    //   still in the compensated position, so a G29.9 is needed
-    //   to undo the correction made by M420S1.
-    //
+    // Leveling may already be enabled due to the ENABLE_LEVELING_AFTER_G28 option.
+    // TODO: Add a G28 parameter to leave leveling disabled.
     sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
     gcode.process_subcommands_now(cmd);
+
     #if HOME_XY_ONLY
+      // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G29.9.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
@@ -449,7 +442,7 @@ void PrintJobRecovery::resume() {
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
     // Z was homed down to the bed, so move up to the raised height.
     z_now = z_raised;
-    sprintf_P(cmd, PSTR("G1Z%sF500"), dtostrf(z_now, 1, 3, str_1));
+    sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -527,7 +520,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Move back down to the saved Z for printing
-  sprintf_P(cmd, PSTR("G1Z%sF400"), dtostrf(z_print, 1, 3, str_1));
+  sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_print, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   // Restore the feedrate
