@@ -1037,7 +1037,7 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || TERN0(SDSUPPORT, IS_SD_PRINTING())) || print_job_timer.isRunning() || print_job_timer.isPaused();
+    return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || print_job_timer.isPaused();
   }
 
   bool isPrintingPaused() {
