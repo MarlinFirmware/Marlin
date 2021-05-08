@@ -426,6 +426,11 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
   #endif
 
+  // Save PLR info in case the power goes out while parked
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (IS_SD_PRINTING() && recovery.enabled) recovery.save(true, park_raise, do_park);
+  #endif
+
   // If axes don't need to home then the nozzle can park
   if (do_park)
     nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
@@ -434,11 +439,6 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     set_duplication_enabled(false, DXC_ext);
-  #endif
-
-  // Save PLR info in case the power goes out while parked
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    if (IS_SD_PRINTING() && recovery.enabled) recovery.save(true, park_raise, do_park);
   #endif
 
   // Unload the filament, if specified

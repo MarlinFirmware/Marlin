@@ -179,24 +179,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Machine state
     info.current_position = current_position;
-    info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
-
-    // Homing Z on recovery?
-    #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-      if (raised) info.current_position.z -= zraise;
-      info.zraise = 0;
-    #else
-      info.flag.raised = raised;      // Save the 'raise' value and whether saved Z is already raised
-      info.zraise = zraise;
-    #endif
+    info.flag.raised = raised;                      // Was Z raised before power-off?
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
-
-    #if HAS_MULTI_EXTRUDER
-      info.active_extruder = active_extruder;
-    #endif
+    TERN_(HAS_MULTI_EXTRUDER, info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
@@ -297,6 +285,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       constexpr float zraise = 0;
     #endif
 
+    // Save the current position, distance that Z was (or should be) raised,
+    // and a flag whether the raise was already done here.
+    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
+
     // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
 
@@ -306,10 +298,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       // With backup power a retract and raise can be done now
       retract_and_lift(zraise);
     #endif
-
-    // Save the current position, distance that Z was (or should be) raised,
-    // and a flag whether the raise was already done here.
-    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
@@ -375,8 +363,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float raise_before = info.flag.raised ? info.zraise : 0.0f,
-              z_print = info.current_position.z - raise_before,
+  const float z_print = info.current_position.z,
               z_raised = z_print + info.zraise;
 
   //
