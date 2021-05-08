@@ -3310,7 +3310,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_ReadEEPROM, (char*)"Load Mesh");
             }
             else {
-              gcode.process_subcommands_now_P(PSTR("G29 L0"));
+              gcode.process_subcommands_now_P(PSTR("G29 L"));
               planner.synchronize();
               AudioFeedback(true);
             }
@@ -3320,7 +3320,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_WriteEEPROM, (char*)"Save Mesh");
             }
             else {
-              gcode.process_subcommands_now_P(PSTR("G29 S0"));
+              gcode.process_subcommands_now_P(PSTR("G29 S"));
               planner.synchronize();
               AudioFeedback(true);
             }
@@ -3379,6 +3379,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
 
         #define LEVELING_SETTINGS_BACK 0
         #define LEVELING_SETTINGS_FADE (LEVELING_SETTINGS_BACK + 1)
+        #define LEVELING_SETTINGS_SLOT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_TILT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_PLANE (LEVELING_SETTINGS_TILT + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_ZERO (LEVELING_SETTINGS_PLANE + ENABLED(AUTO_BED_LEVELING_UBL))
@@ -3406,6 +3407,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               break;
           #if ENABLED(AUTO_BED_LEVELING_UBL)
+            case LEVELING_SETTINGS_SLOT:
+                if (draw) {
+                  Draw_Menu_Item(row, ICON_PrintSize, (char*)"Mesh Slot");
+                  Draw_Float(ubl.storage_slot, row, false, 1);
+                }
+                else {
+                  Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes(), 1);
+                }
+                break;
             case LEVELING_SETTINGS_TILT:
                 if (draw) {
                   Draw_Menu_Item(row, ICON_Tilt, (char*)"Tilting Grid Size");
@@ -3641,7 +3651,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 mesh_conf.manual_move();
               }
               else {
-                gcode.process_subcommands_now_P(PSTR("G29 S0"));
+                gcode.process_subcommands_now_P(PSTR("G29 S"));
                 planner.synchronize();
                 AudioFeedback(true);
                 Draw_Menu(Leveling, LEVELING_GET_MESH);
@@ -4862,7 +4872,7 @@ inline void CrealityDWINClass::Popup_Control() {
         case SaveLevel:
           if (selection==0) {
             #if ENABLED(AUTO_BED_LEVELING_UBL)
-              gcode.process_subcommands_now_P(PSTR("G29 S0"));
+              gcode.process_subcommands_now_P(PSTR("G29 S"));
               planner.synchronize();
               AudioFeedback(true);
             #else
