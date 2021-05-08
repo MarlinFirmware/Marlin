@@ -1890,7 +1890,7 @@ void HMI_SDCardUpdate() {
       else if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
-        card.flag.abort_sd_printing = true;
+        card.abortFilePrintSoon();
         wait_for_heatup = wait_for_user = false;
         dwin_abort_flag = true; // Reset feedrate, return to Home
       }
@@ -2310,7 +2310,7 @@ void HMI_PauseOrStop() {
         checkkey = Back_Main;
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
         wait_for_heatup = wait_for_user = false;       // Stop waiting for heating/user
-        card.flag.abort_sd_printing = true;            // Let the main loop handle SD abort
+        card.abortFilePrintSoon();                     // Let the main loop handle SD abort
         dwin_abort_flag = true;                        // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
           host_action_cancel();

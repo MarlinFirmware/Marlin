@@ -70,6 +70,7 @@ typedef struct {
   bool saving:1,
        logging:1,
        sdprinting:1,
+       sdprintdone:1,
        mounted:1,
        filenameIsDir:1,
        workDirIsRoot:1,
@@ -156,14 +157,20 @@ public:
   static void printFilename();
   static void startFileprint();
   static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
+  static void abortFilePrintSoon() { flag.abort_sd_printing = true; }
+  static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
   static inline bool isPrinting() { return flag.sdprinting; }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
-    static inline uint16_t permyriadDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0; }
+    static inline uint16_t permyriadDone() {
+      return flag.sdprintdone ? 10000 : (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0;
+    }
   #endif
-  static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
+  static inline uint8_t percentDone() {
+    return flag.sdprintdone ? 100 : (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0;
+  }
 
   // Helper for open and remove
   static const char* diveToFile(const bool update_cwd, SdFile* &curDir, const char * const path, const bool echo=false);
@@ -318,7 +325,8 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
-#define IS_SD_PRINTING()  card.flag.sdprinting
+#define IS_SD_PRINTING()  (card.flag.sdprinting && !card.flag.abort_sd_printing)
+#define IS_SD_FETCHING()  (!card.flag.sdprintdone && IS_SD_PRINTING())
 #define IS_SD_PAUSED()    card.isPaused()
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
@@ -327,6 +335,7 @@ extern CardReader card;
 #else // !SDSUPPORT
 
 #define IS_SD_PRINTING()  false
+#define IS_SD_FETCHING()  false
 #define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
 

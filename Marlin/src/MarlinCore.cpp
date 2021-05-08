@@ -363,7 +363,7 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    card.endFilePrint(TERN_(SD_RESORT, true));
+    card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
     queue.clear();
     quickstop_stepper();

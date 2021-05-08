@@ -161,7 +161,7 @@ CardReader::CardReader() {
     #endif
   #endif
 
-  flag.sdprinting = flag.mounted = flag.saving = flag.logging = false;
+  flag.sdprinting = flag.sdprintdone = flag.mounted = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
 
   TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
@@ -487,7 +487,7 @@ void CardReader::manage_media() {
 void CardReader::release() {
   // Card removed while printing? Abort!
   if (IS_SD_PRINTING())
-    card.flag.abort_sd_printing = true;
+    abortFilePrintSoon();
   else
     endFilePrint();
 
@@ -519,6 +519,7 @@ void CardReader::openAndPrintFile(const char *name) {
 void CardReader::startFileprint() {
   if (isMounted()) {
     flag.sdprinting = true;
+    flag.sdprintdone = false;
     TERN_(SD_RESORT, flush_presort());
   }
 }
@@ -529,9 +530,14 @@ void CardReader::startFileprint() {
 void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
   TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
-  flag.sdprinting = flag.abort_sd_printing = false;
+  flag.abort_sd_printing = false;
   if (isFileOpen()) file.close();
   TERN_(SD_RESORT, if (re_sort) presort());
+}
+
+void CardReader::abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
+  flag.sdprinting = flag.sdprintdone = false;
+  endFilePrint(TERN_(SD_RESORT, re_sort));
 }
 
 void CardReader::openLogFile(const char * const path) {
@@ -623,7 +629,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
     #endif
   }
 
-  endFilePrint();
+  abortFilePrintNow();
 
   SdFile *diveDir;
   const char * const fname = diveToFile(true, diveDir, path);
@@ -659,7 +665,7 @@ void CardReader::openFileWrite(const char * const path) {
   announceOpen(2, path);
   TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
-  endFilePrint();
+  abortFilePrintNow();
 
   SdFile *diveDir;
   const char * const fname = diveToFile(false, diveDir, path);
@@ -712,7 +718,7 @@ bool CardReader::fileExists(const char * const path) {
 void CardReader::removeFile(const char * const name) {
   if (!isMounted()) return;
 
-  //endFilePrint();
+  //abortFilePrintNow();
 
   SdFile *curDir;
   const char * const fname = diveToFile(false, curDir, name);
@@ -1225,9 +1231,7 @@ uint16_t CardReader::get_num_Files() {
 // Return from procedure or close out the Print Job
 //
 void CardReader::fileHasFinished() {
-  planner.synchronize();
   file.close();
-
   #if HAS_MEDIA_SUBCALLS
     if (file_subcall_ctr > 0) { // Resume calling file after closing procedure
       file_subcall_ctr--;
@@ -1239,7 +1243,9 @@ void CardReader::fileHasFinished() {
   #endif
 
   endFilePrint(TERN_(SD_RESORT, true));
-  marlin_state = MF_SD_COMPLETE;
+
+  flag.sdprintdone = true;        // Stop getting bytes from the SD card
+  marlin_state = MF_SD_COMPLETE;  // Tell Marlin to enqueue M1001 soon
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

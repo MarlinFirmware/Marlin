@@ -1487,7 +1487,7 @@ void MarlinUI::update() {
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
-      card.flag.abort_sd_printing = true;
+      card.abortFilePrintSoon();
     #endif
     #ifdef ACTION_ON_CANCEL
       host_action_cancel();

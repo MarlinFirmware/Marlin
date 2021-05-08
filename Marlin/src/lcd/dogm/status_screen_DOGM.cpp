@@ -41,7 +41,7 @@
 #include "../../gcode/parser.h" // for units (and volumetric)
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
-  #include "../../MarlinCore.h" // for printingIsActive(), marlin_state and MF_SD_COMPLETE
+  #include "../../MarlinCore.h" // for printingIsActive()
 #endif
 
 #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -462,7 +462,7 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif
 
-  const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+  const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
   // At the first page, generate new display values
   if (first_page) {

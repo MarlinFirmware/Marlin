@@ -732,11 +732,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 if (!gcode_preview_over) {
                   char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-                  card.endFilePrint();
-
                   SdFile file;
                   SdFile *curDir;
-                  card.endFilePrint();
+                  card.abortFilePrintNow();
                   const char * const fname = card.diveToFile(true, curDir, cur_name);
                   if (!fname) return;
                   if (file.open(curDir, fname, O_READ)) {
@@ -814,7 +812,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             clear_cur_ui();
             #if ENABLED(SDSUPPORT)
               uiCfg.print_state = IDLE;
-              card.flag.abort_sd_printing = true;
+              card.abortFilePrintSoon();
             #endif
 
             lv_draw_ready_print();
