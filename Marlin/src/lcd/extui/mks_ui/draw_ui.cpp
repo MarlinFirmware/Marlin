@@ -638,20 +638,17 @@ char *creat_title_text() {
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
       #endif
       row++;
+      card.abortFilePrint();
       if (row >= 200) {
         size = 809;
         row  = 0;
 
         gcode_preview_over = false;
 
-        card.closefile();
-        char *cur_name;
-
-        cur_name = strrchr(list_file.file_name[sel_id], '/');
+        char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file;
         SdFile *curDir;
-        card.endFilePrint();
         const char * const fname = card.diveToFile(true, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
@@ -675,7 +672,6 @@ char *creat_title_text() {
         }
         return;
       }
-      card.closefile();
     #endif // SDSUPPORT
   }
 

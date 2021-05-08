@@ -732,11 +732,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                 if (!gcode_preview_over) {
                   char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-                  card.endFilePrint();
-
                   SdFile file;
                   SdFile *curDir;
-                  card.endFilePrint();
+                  card.abortFilePrint();
                   const char * const fname = card.diveToFile(true, curDir, cur_name);
                   if (!fname) return;
                   if (file.open(curDir, fname, O_READ)) {
