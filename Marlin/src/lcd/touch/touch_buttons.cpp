@@ -24,10 +24,10 @@
 #include "touch_buttons.h"
 #include "../scaled_tft.h"
 
-#if ENABLED(RES_TOUCH_SCREEN)
+#if ENABLED(TOUCH_SCREEN_RESISTIVE)
   #include HAL_PATH(../../HAL, tft/xpt2046.h)
   XPT2046 touchIO;
-#elif ENABLED(CAP_TOUCH_SCREEN)
+#elif ENABLED(TOUCH_SCREEN_CAPACITIVE)
   #include HAL_PATH(../../HAL, tft/gt911.h)
   GT911 touchIO;
 #endif

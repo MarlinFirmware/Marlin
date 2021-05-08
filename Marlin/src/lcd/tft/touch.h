@@ -30,10 +30,10 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#if ENABLED(RES_TOUCH_SCREEN)
+#if ENABLED(TOUCH_SCREEN_RESISTIVE)
   #include HAL_PATH(../../HAL, tft/xpt2046.h)
   #define TOUCH_DRIVER XPT2046
-#elif ENABLED(CAP_TOUCH_SCREEN)
+#elif ENABLED(TOUCH_SCREEN_CAPACITIVE)
   #include HAL_PATH(../../HAL, tft/gt911.h)
   #define TOUCH_DRIVER GT911
 #endif

@@ -3182,31 +3182,20 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Touch Screen
  */
-#if ENABLED(TOUCH_SCREEN)
-  #if ENABLED(RES_TOUCH_SCREEN) && ENABLED(CAP_TOUCH_SCREEN)
-    #error "Only one of RES_TOUCH_SCREEN and CAP_TOUCH_SCREEN can be selected"
-  #endif
-  #if DISABLED(RES_TOUCH_SCREEN) && DISABLED(CAP_TOUCH_SCREEN)
-    #error "Must specify a touch screen type(RES_TOUCH_SCREEN or CAP_TOUCH_SCREENcan)"
+#if EITHER(TOUCH_SCREEN, HAS_TOUCH_BUTTONS)
+  #if BOTH(TOUCH_SCREEN_RESISTIVE, TOUCH_SCREEN_CAPACITIVE)
+    #error "Enable only one of TOUCH_SCREEN_RESISTIVE or TOUCH_SCREEN_CAPACITIVE."
+  #elif NONE(TOUCH_SCREEN_RESISTIVE, TOUCH_SCREEN_CAPACITIVE)
+    #error "You must specify the touch device type with TOUCH_SCREEN_RESISTIVE or TOUCH_SCREEN_CAPACITIVE."
   #endif
 #endif
 
 /**
  * Touch Buttons
  */
-#if ENABLED(RES_TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)
-  #ifndef TOUCH_CALIBRATION_X
-    #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #error "TOUCH_CALIBRATION_Y must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #error "TOUCH_OFFSET_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #error "TOUCH_OFFSET_Y must be defined with TOUCH_SCREEN."
-  #endif
+#if ENABLED(TOUCH_SCREEN_RESISTIVE) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+    && (!defined(TOUCH_CALIBRATION_X) || !defined(TOUCH_CALIBRATION_Y) || !defined(TOUCH_OFFSET_X) || !defined(TOUCH_OFFSET_Y))
+  #error "You must define TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] with TOUCH_SCREEN_RESISTIVE if TOUCH_SCREEN_CALIBRATION is disabled."
 #endif
 
 /**

@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(CAP_TOUCH_SCREEN) || CAP_TOUCH_BUTTONS
+#if ENABLED(TOUCH_SCREEN_CAPACITIVE) || CAP_TOUCH_BUTTONS
 
 #include "gt911.h"
 #include "pinconfig.h"
@@ -204,5 +204,5 @@ bool GT911::getPoint(int16_t *x, int16_t *y) {
   return touched;
 }
 
-#endif // CAP_TOUCH_SCREEN || CAP_TOUCH_BUTTONS
+#endif // TOUCH_SCREEN_CAPACITIVE || CAP_TOUCH_BUTTONS
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

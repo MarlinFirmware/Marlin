@@ -2571,17 +2571,17 @@
 //#define DWIN_CREALITY_LCD
 
 //
-// Touch Screen Settings(Resistance screen or Capacitance screen)
+// Touch Screen Settings (Resistive or Capacitive)
 //
 //#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
-  #define RES_TOUCH_SCREEN // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
-  //#define CAP_TOUCH_SCREEN // GT911 Capacitive touch screen such as BIQU_BX_TFT70
+  //#define TOUCH_SCREEN_RESISTIVE  // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
+  //#define TOUCH_SCREEN_CAPACITIVE // GT911 Capacitive touch screen such as BIQU_BX_TFT70
 
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-  #if ENABLED(RES_TOUCH_SCREEN)
+  #if ENABLED(TOUCH_SCREEN_RESISTIVE)
     #define TOUCH_SCREEN_CALIBRATION
 
     //#define TOUCH_CALIBRATION_X 12316
