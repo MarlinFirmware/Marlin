@@ -23,13 +23,12 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(TOUCH_SCREEN_CAPACITIVE) || CAP_TOUCH_BUTTONS
+#if EITHER(TOUCH_SCREEN_CAPACITIVE, HAS_CAP_TOUCH_BUTTONS)
 
 #include "gt911.h"
 #include "pinconfig.h"
 
-SW_IIC::SW_IIC(uint16_t sda, uint16_t scl)
-{
+SW_IIC::SW_IIC(uint16_t sda, uint16_t scl) {
   scl_pin = scl;
   sda_pin = sda;
 }
@@ -73,7 +72,6 @@ void SW_IIC::send_ack(bool ack) {
 // Software I2C read ACK or NACK signal
 bool SW_IIC::read_ack() {
   bool error = 0;
-
   set_sda_in();
 
   iic_delay(2);
@@ -86,7 +84,6 @@ bool SW_IIC::read_ack() {
   write_scl(LOW);  // SCL = 0
 
   set_sda_out();
-
   return error;
 }
 
@@ -112,10 +109,7 @@ uint8_t SW_IIC::read_byte(bool ack) {
     write_scl(HIGH); // SCL = 1
     iic_delay(1);
     data <<= 1;
-    if(read_sda())
-    {
-      data++;
-    }
+    if (read_sda()) data++;
     write_scl(LOW); // SCL = 0
     iic_delay(2);
   }
@@ -162,7 +156,7 @@ void GT911::read_reg(uint16_t reg, uint8_t reg_len, uint8_t* r_data, uint8_t r_l
 
 void GT911::Init() {
   OUT_WRITE(GT911_RST_PIN, LOW);
-  OUT_WRITE(GT911_INT_PIN,LOW);
+  OUT_WRITE(GT911_INT_PIN, LOW);
   delay(20);
   WRITE(GT911_RST_PIN, HIGH);
   SET_INPUT(GT911_INT_PIN);
@@ -204,5 +198,5 @@ bool GT911::getPoint(int16_t *x, int16_t *y) {
   return touched;
 }
 
-#endif // TOUCH_SCREEN_CAPACITIVE || CAP_TOUCH_BUTTONS
+#endif // TOUCH_SCREEN_CAPACITIVE || HAS_CAP_TOUCH_BUTTONS
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

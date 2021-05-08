@@ -377,7 +377,7 @@
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if EITHER(HAS_TFT_XPT2046, RES_TOUCH_BUTTONS)
+#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
   #define NEED_TOUCH_PINS 1
 #endif
 

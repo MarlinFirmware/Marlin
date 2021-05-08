@@ -1230,9 +1230,9 @@
   #if ENABLED(TFT_CLASSIC_UI)
     #define HAS_TOUCH_BUTTONS 1
     #if ENABLED(TOUCH_SCREEN_RESISTIVE)
-      #define RES_TOUCH_BUTTONS 1
+      #define HAS_RES_TOUCH_BUTTONS 1
     #elif ENABLED(TOUCH_SCREEN_CAPACITIVE)
-      #define CAP_TOUCH_BUTTONS 1
+      #define HAS_CAP_TOUCH_BUTTONS 1
     #endif
   #endif
 #endif
