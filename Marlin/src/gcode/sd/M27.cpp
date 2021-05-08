@@ -35,7 +35,7 @@
 void GcodeSuite::M27() {
   if (parser.seen('C')) {
     SERIAL_ECHOPGM("Current file: ");
-    card.printFilename();
+    card.printSelectedFilename();
     return;
   }
 

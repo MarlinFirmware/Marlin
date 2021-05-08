@@ -395,7 +395,7 @@ void Endstops::event_handler() {
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.endFilePrint();
+        card.abortFilePrintNow();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();
