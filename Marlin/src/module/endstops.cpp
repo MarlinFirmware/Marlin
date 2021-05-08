@@ -475,7 +475,7 @@ void _O2 Endstops::report_states() {
       uint8_t state;
       switch (i) {
         default: continue;
-        REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
+        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
       SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);

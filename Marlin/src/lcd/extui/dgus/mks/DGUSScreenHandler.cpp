@@ -1477,7 +1477,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
 
 void DGUSScreenHandler::DGUS_RunoutInit(void) {
   #if PIN_EXISTS(MT_DET_1)
-    pinMode(MT_DET_1_PIN, INPUT_PULLUP);
+    SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
   runout_mks.de_count      = 0;
   runout_mks.de_times      = 10;
@@ -1496,7 +1496,7 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         GotoScreen(MKSLCD_SCREEN_PAUSE);
 
         sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please change filament!"), nullptr, true, true, true, true);
-        // SetupConfirmAction(nullptr);
+        //SetupConfirmAction(nullptr);
         GotoScreen(DGUSLCD_SCREEN_POPUP);
         break;
 
