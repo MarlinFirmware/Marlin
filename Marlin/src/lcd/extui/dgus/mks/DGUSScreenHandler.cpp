@@ -1442,8 +1442,7 @@ bool DGUSScreenHandler::loop() {
     }
 
     #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-      if (booted && (printJobOngoing() || printingIsPaused()))
-        DGUS_Runout_Idle();
+      if (booted && printingIsActive()) DGUS_Runout_Idle();
     #endif
   #endif // SHOW_BOOTSCREEN
 

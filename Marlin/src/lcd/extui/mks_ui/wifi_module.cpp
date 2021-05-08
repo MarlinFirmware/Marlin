@@ -505,7 +505,7 @@ int write_to_file(char *buf, int len) {
 
       if (res == -1) {
         upload_file.close();
-        const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
+        const char * const fname = card.diveToFile(false, upload_curDir, saveFilePath);
 
         if (upload_file.open(upload_curDir, fname, O_WRITE)) {
           upload_file.setpos(&pos);
@@ -734,8 +734,8 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
                   SdFile file;
                   SdFile *curDir;
-                  card.abortFilePrint();
-                  const char * const fname = card.diveToFile(true, curDir, cur_name);
+                  card.abortFilePrintNow();
+                  const char * const fname = card.diveToFile(false, curDir, cur_name);
                   if (!fname) return;
                   if (file.open(curDir, fname, O_READ)) {
                     gCfgItems.curFilesize = file.fileSize();
@@ -752,7 +752,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                       planner.flow_percentage[1] = 100;
                       planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
                     #endif
-                    card.startFileprint();
+                    card.startOrResumeFilePrinting();
                     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                     once_flag = false;
                   }
@@ -812,7 +812,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             clear_cur_ui();
             #if ENABLED(SDSUPPORT)
               uiCfg.print_state = IDLE;
-              card.flag.abort_sd_printing = true;
+              card.abortFilePrintSoon();
             #endif
 
             lv_draw_ready_print();
@@ -1315,7 +1315,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
     card.cdroot();
     upload_file.close();
-    const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
+    const char * const fname = card.diveToFile(false, upload_curDir, saveFilePath);
 
     if (!upload_file.open(upload_curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       clear_cur_ui();
@@ -1368,7 +1368,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       int res = upload_file.write(public_buf, file_writer.write_index);
       if (res == -1) {
         upload_file.close();
-        const char * const fname = card.diveToFile(true, upload_curDir, saveFilePath);
+        const char * const fname = card.diveToFile(false, upload_curDir, saveFilePath);
         if (upload_file.open(upload_curDir, fname, O_WRITE)) {
           upload_file.setpos(&pos);
           res = upload_file.write(public_buf, file_writer.write_index);
@@ -1376,7 +1376,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       }
       upload_file.close();
       SdFile file, *curDir;
-      const char * const fname = card.diveToFile(true, curDir, saveFilePath);
+      const char * const fname = card.diveToFile(false, curDir, saveFilePath);
       if (file.open(curDir, fname, O_RDWR)) {
         gCfgItems.curFilesize = file.fileSize();
         file.close();
@@ -1742,7 +1742,7 @@ void mks_wifi_firmware_update() {
     if (wifi_upload(0) >= 0) {
       card.removeFile((char *)ESP_FIRMWARE_FILE_RENAME);
       SdFile file, *curDir;
-      const char * const fname = card.diveToFile(true, curDir, ESP_FIRMWARE_FILE);
+      const char * const fname = card.diveToFile(false, curDir, ESP_FIRMWARE_FILE);
       if (file.open(curDir, fname, O_READ)) {
         file.rename(curDir, (char *)ESP_FIRMWARE_FILE_RENAME);
         file.close();
