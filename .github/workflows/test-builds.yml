@@ -86,6 +86,7 @@ jobs:
         - FLYF407ZG
         - rumba32
         - LERDGEX
+        - LERDGEK
         - mks_robin_nano35_stm32
         - NUCLEO_F767ZI
         - REMRAM_V1
