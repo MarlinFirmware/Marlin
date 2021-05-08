@@ -550,7 +550,8 @@ void GCodeQueue::get_serial_commands() {
   inline void GCodeQueue::get_sdcard_commands() {
     static uint8_t sd_input_state = PS_NORMAL;
 
-    if (!IS_SD_PRINTING()) return;
+    // Get commands if there are more in the file
+    if (!IS_SD_FETCHING()) return;
 
     int sd_count = 0;
     while (!ring_buffer.full() && !card.eof()) {

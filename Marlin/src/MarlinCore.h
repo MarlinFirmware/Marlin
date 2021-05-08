@@ -70,6 +70,7 @@ inline bool IsRunning() { return marlin_state >= MF_RUNNING; }
 inline bool IsStopped() { return marlin_state == MF_STOPPED; }
 
 bool printingIsActive();
+bool printJobOngoing();
 bool printingIsPaused();
 void startOrResumeJob();
 
