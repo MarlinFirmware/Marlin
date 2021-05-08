@@ -501,13 +501,9 @@ void GCodeQueue::get_serial_commands() {
           char* gpos = strchr(command, 'G');
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
-              case 0: case 1:
-              #if ENABLED(ARC_SUPPORT)
-                case 2: case 3:
-              #endif
-              #if ENABLED(BEZIER_CURVE_SUPPORT)
-                case 5:
-              #endif
+              case 0 ... 1:
+              TERN_(ARC_SUPPORT, case 2 ... 3:)
+              TERN_(BEZIER_CURVE_SUPPORT, case 5:)
                 PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);

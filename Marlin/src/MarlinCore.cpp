@@ -331,18 +331,14 @@ void disable_all_steppers() {
 }
 
 /**
- * A Print Job exists when the timer is running or SD printing
+ * A Print Job exists when the timer is running or SD is printing
  */
 bool printJobOngoing() {
   return print_job_timer.isRunning() || IS_SD_PRINTING();
 }
 
 /**
- * Printing is active when the print job timer is running
  */
-bool printingIsActive() {
-  return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
-}
 
 /**
  * Printing is paused according to SD or host indicators

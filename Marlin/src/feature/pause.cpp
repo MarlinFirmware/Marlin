@@ -419,14 +419,17 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
   }
 
-  // For PLR we'll need to save the raise distance
+  // Will the nozzle be parking?
+  const bool do_park = !axes_should_home();
+
+  // For PLR we'll need to supply a raise distance
   #if ENABLED(POWER_LOSS_RECOVERY)
-    const float park_raise = nozzle.park_mode_0_height(park_point.z) - current_position.z;
+    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
   #endif
 
-  // If axes don't need to home...
-  const bool do_park = !axes_should_home();
-  if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
+  // If axes don't need to home then the nozzle can park
+  if (do_park)
+    nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
@@ -435,7 +438,9 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   #endif
 
   // Save PLR info in case the power goes out while parked
-  TERN_(POWER_LOSS_RECOVERY, if (was_sd_printing && recovery.enabled) recovery.save(true, do_park ? park_raise : POWER_LOSS_ZRAISE, do_park));
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, do_park);
+  #endif
 
   // Unload the filament, if specified
   if (unload_length)
