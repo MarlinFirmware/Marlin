@@ -280,13 +280,6 @@
     #define TFT_SCK_PIN              EXP2_09_PIN
     #define TFT_MISO_PIN             EXP2_10_PIN
 
-    #define TOUCH_INT_PIN            EXP1_05_PIN
-    #define TOUCH_CS_PIN             EXP1_06_PIN
-
-    #define TOUCH_MOSI_PIN           EXP2_05_PIN
-    #define TOUCH_SCK_PIN            EXP2_09_PIN
-    #define TOUCH_MISO_PIN           EXP2_10_PIN
-
     #define BTN_EN2                  EXP2_06_PIN
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_ENC                  EXP1_09_PIN
@@ -433,6 +426,14 @@
   #endif // !CR10_STOCKDISPLAY
 
 #endif // HAS_WIRED_LCD
+
+#if NEED_TOUCH_PINS
+  #define TOUCH_CS_PIN               EXP1_06_PIN
+  #define TOUCH_SCK_PIN              EXP2_09_PIN
+  #define TOUCH_MOSI_PIN             EXP2_05_PIN
+  #define TOUCH_MISO_PIN             EXP2_10_PIN
+  #define TOUCH_INT_PIN              EXP1_05_PIN
+#endif
 
 /**
  * Special pins
