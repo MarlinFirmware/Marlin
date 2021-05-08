@@ -234,6 +234,8 @@
 //
 
 #if HAS_FSMC_TFT
+  //#define TFT_DRIVER             LERDGE_ST7796
+
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
