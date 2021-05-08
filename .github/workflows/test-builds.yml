@@ -80,6 +80,7 @@ jobs:
         - mks_robin_pro
         - STM32F103RET6_creality
         - LERDGEX
+        - LERDGEK
         - mks_robin_nano35
 
         # Put lengthy tests last
