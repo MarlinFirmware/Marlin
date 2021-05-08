@@ -394,8 +394,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
-    const bool was_sd_printing = IS_SD_PRINTING();
-    if (was_sd_printing) {
+    if (IS_SD_PRINTING()) {
       card.pauseSDPrint();
       ++did_pause_print; // Indicate SD pause also
     }
@@ -439,7 +438,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Save PLR info in case the power goes out while parked
   #if ENABLED(POWER_LOSS_RECOVERY)
-    if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, do_park);
+    if (IS_SD_PRINTING() && recovery.enabled) recovery.save(true, park_raise, do_park);
   #endif
 
   // Unload the filament, if specified

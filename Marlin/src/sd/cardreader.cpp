@@ -536,7 +536,7 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
 }
 
 void CardReader::abortFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
-  flag.sdprinting = false;
+  flag.sdprinting = flag.sdprintdone = false;
   endFilePrint(TERN_(SD_RESORT, re_sort));
 }
 
