@@ -748,7 +748,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if (printJobOngoing()) recovery.outage();
+    if (IS_SD_PRINTING()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
