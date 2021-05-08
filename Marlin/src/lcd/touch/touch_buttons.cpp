@@ -24,8 +24,13 @@
 #include "touch_buttons.h"
 #include "../scaled_tft.h"
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
-XPT2046 touchIO;
+#if ENABLED(RES_TOUCH_SCREEN)
+  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  XPT2046 touchIO;
+#elif ENABLED(CAP_TOUCH_SCREEN)
+  #include HAL_PATH(../../HAL, tft/gt911.h)
+  GT911 touchIO;
+#endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../tft_io/touch_calibration.h"

@@ -30,9 +30,13 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
-#define TOUCH_DRIVER XPT2046
-
+#if ENABLED(RES_TOUCH_SCREEN)
+  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #define TOUCH_DRIVER XPT2046
+#elif ENABLED(CAP_TOUCH_SCREEN)
+  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #define TOUCH_DRIVER GT911
+#endif
 // Menu Navigation
 extern int8_t encoderTopLine, encoderLine, screen_items;
 
