@@ -42,6 +42,10 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
+
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
@@ -52,6 +56,7 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+
   float zraise;
 
   // Repeat information
