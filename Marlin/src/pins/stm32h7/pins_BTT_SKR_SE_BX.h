@@ -56,6 +56,14 @@
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5
 
+//
+// GT911
+//
+#define GT911_RST_PIN                       PE4
+#define GT911_INT_PIN                       PE3
+#define GT911_SW_I2C_SCL_PIN                PE2
+#define GT911_SW_I2C_SDA_PIN                PE6
+
 #define SAFE_POWER_PIN                      PI11
 #define SERVO0_PIN                          PA2
 

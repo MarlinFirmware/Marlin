@@ -3172,6 +3172,18 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
+ * Touch Screen
+ */
+#if ENABLED(TOUCH_SCREEN)
+  #if ENABLED(RES_TOUCH_SCREEN) && ENABLED(CAP_TOUCH_SCREEN)
+    #error "Only one of RES_TOUCH_SCREEN and CAP_TOUCH_SCREEN can be selected"
+  #endif
+  #if DISABLED(RES_TOUCH_SCREEN) && DISABLED(CAP_TOUCH_SCREEN)
+    #error "Must specify a touch screen type(RES_TOUCH_SCREEN or CAP_TOUCH_SCREENcan)"
+  #endif
+#endif
+
+/**
  * Touch Buttons
  */
 #if ENABLED(RES_TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)

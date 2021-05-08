@@ -24,10 +24,6 @@
 #include "../../../inc/MarlinConfig.h"
 
 #define GT911_SLAVE_ADDRESS   0xBA
-#define GT911_RST_PIN         PE4
-#define GT911_INT_PIN         PE3
-#define GT911_SW_I2C_SCL_PIN  PE2
-#define GT911_SW_I2C_SDA_PIN  PE6
 
 #if !PIN_EXISTS(GT911_RST)
   #error "GT911_RST_PIN is not defined."
