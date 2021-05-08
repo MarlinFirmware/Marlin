@@ -2918,7 +2918,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_BACK 0
       #define ADVANCED_BEEPER (ADVANCED_BACK + 1)
       #define ADVANCED_PROBE (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
-      #define ADVANCED_LOAD (ADVANCED_PROBE + ENABLED(ADVANCED_PAUSE_FEATURE))
+      #define ADVANCED_LA (ADVANCED_PROBE + ENABLED(LIN_ADVANCE))
+      #define ADVANCED_LOAD (ADVANCED_LA + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
@@ -2952,6 +2953,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Draw_Menu(ProbeMenu);
+            }
+            break;
+        #endif
+        #if ENABLED(LIN_ADVANCE)
+          case ADVANCED_LA:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_MaxAccelerated, (char*)"Lin Advance Kp");
+              Draw_Float(planner.extruder_advance_K[0], row, false, 100);
+            }
+            else {
+              Modify_Value(planner.extruder_advance_K[0], 0, 10, 100);
             }
             break;
         #endif
