@@ -179,6 +179,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Machine state
     info.current_position = current_position;
+    info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
+    info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);

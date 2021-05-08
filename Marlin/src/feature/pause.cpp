@@ -394,7 +394,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
-    if (IS_SD_PRINTING()) {
+    const bool was_sd_printing = IS_SD_PRINTING();
+    if (was_sd_printing) {
       card.pauseSDPrint();
       ++did_pause_print; // Indicate SD pause also
     }
@@ -404,6 +405,15 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Save current position
   resume_position = current_position;
+
+  // Will the nozzle be parking?
+  const bool do_park = !axes_should_home();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Save PLR info in case the power goes out while parked
+    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
+    if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, do_park);
+  #endif
 
   // Wait for buffered blocks to complete
   planner.synchronize();
@@ -418,22 +428,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
   }
 
-  // Will the nozzle be parking?
-  const bool do_park = !axes_should_home();
-
-  // For PLR we'll need to supply a raise distance
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
-  #endif
-
-  // Save PLR info in case the power goes out while parked
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    if (IS_SD_PRINTING() && recovery.enabled) recovery.save(true, park_raise, do_park);
-  #endif
-
   // If axes don't need to home then the nozzle can park
-  if (do_park)
-    nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
+  if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
