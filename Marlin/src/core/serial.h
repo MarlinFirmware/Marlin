@@ -119,7 +119,7 @@ extern uint8_t marlin_debug_flags;
   #define __S_MULTI(N) decltype(SERIAL_LEAF_##N),
   #define _S_MULTI(N) __S_MULTI(N)
 
-  typedef MultiSerial< REPEAT_S(1, INCREMENT(NUM_SERIAL), _S_MULTI) 0> SerialOutputT;
+  typedef MultiSerial< REPEAT_1(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
 
   #undef __S_MULTI
   #undef _S_MULTI
