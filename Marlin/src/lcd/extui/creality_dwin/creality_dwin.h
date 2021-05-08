@@ -345,6 +345,7 @@ public:
   void Modify_Value(uint16_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Value(int16_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Value(uint32_t &value, float min, float max, float unit, void (*f)()=NULL);
+  void Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Option(uint8_t value, char** options, uint8_t max);
 
 

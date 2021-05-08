@@ -3380,7 +3380,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define LEVELING_SETTINGS_BACK 0
         #define LEVELING_SETTINGS_FADE (LEVELING_SETTINGS_BACK + 1)
         #define LEVELING_SETTINGS_SLOT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
-        #define LEVELING_SETTINGS_TILT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
+        #define LEVELING_SETTINGS_TILT (LEVELING_SETTINGS_SLOT + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_PLANE (LEVELING_SETTINGS_TILT + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_ZERO (LEVELING_SETTINGS_PLANE + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_UNDEF (LEVELING_SETTINGS_ZERO + ENABLED(AUTO_BED_LEVELING_UBL))
@@ -4544,6 +4544,7 @@ inline void CrealityDWINClass::Value_Control() {
       case 2: *(uint16_t*)valuepointer = tempvalue/valueunit; break;
       case 3: *(int16_t*)valuepointer = tempvalue/valueunit; break;
       case 4: *(uint32_t*)valuepointer = tempvalue/valueunit; break;
+      case 5: *(int8_t*)valuepointer = tempvalue/valueunit; break;
     }
     switch (active_menu) {
       case Move:
@@ -4971,6 +4972,12 @@ void CrealityDWINClass::Modify_Value(uint32_t &value, float min, float max, floa
   funcpointer = f;
   Setup_Value((float)value, min, max, unit, 4);
 }
+void CrealityDWINClass::Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()/*=NULL*/) {
+  valuepointer = &value;
+  funcpointer = f;
+  Setup_Value((float)value, min, max, unit, 5);
+}
+
 
 void CrealityDWINClass::Modify_Option(uint8_t value, char** options, uint8_t max) {
   tempvalue = value;
