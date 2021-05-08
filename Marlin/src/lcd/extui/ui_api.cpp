@@ -54,6 +54,7 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
+#include "../../MarlinCore.h"
 #include "../../sd/cardreader.h"
 
 #if ENABLED(PRINTCOUNTER)
@@ -1017,12 +1018,11 @@ namespace ExtUI {
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   void printFile(const char *filename) {
-    UNUSED(filename);
-    TERN_(SDSUPPORT, card.openAndPrintFile(filename));
+    TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, isPrintingFromMedia() && !IS_SD_PRINTING());
+    return TERN0(SDSUPPORT, isPrintingFromMedia() && printingIsPaused());
   }
 
   bool isPrintingFromMedia() {
@@ -1037,7 +1037,7 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || TERN0(SDSUPPORT, IS_SD_PRINTING())) || print_job_timer.isRunning() || print_job_timer.isPaused();
+    return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
   }
 
   bool isPrintingPaused() {
