@@ -49,9 +49,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       && !homing_needed_error(
-          (parser.seen('X') ? _BV(X_AXIS) : 0)
-        | (parser.seen('Y') ? _BV(Y_AXIS) : 0)
-        | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )
+          (parser.seen_test('X') ? _BV(X_AXIS) : 0)
+        | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0)
+        | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0) )
     #endif
   ) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));

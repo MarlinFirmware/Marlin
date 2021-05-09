@@ -223,7 +223,7 @@ G29_TYPE GcodeSuite::G29() {
 
   reset_stepper_timeout();
 
-  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
+  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -235,7 +235,7 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
-  const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
+  const bool seenA = TERN0(PROBE_MANUALLY, parser.seen_test('A')),
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
 
@@ -245,7 +245,7 @@ G29_TYPE GcodeSuite::G29() {
   }
 
   // Send 'N' to force homing before G29 (internal only)
-  if (parser.seen('N'))
+  if (parser.seen_test('N'))
     process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
 
   // Don't allow auto-leveling without homing first
@@ -275,7 +275,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      const bool seen_w = parser.seen('W');
+      const bool seen_w = parser.seen_test('W');
       if (seen_w) {
         if (!leveling_is_valid()) {
           SERIAL_ERROR_MSG("No bilinear grid");
@@ -308,7 +308,7 @@ G29_TYPE GcodeSuite::G29() {
           if (abl.reenable) report_current_position();
         }
         G29_RETURN(false);
-      } // parser.seen('W')
+      } // parser.seen_test('W')
 
     #else
 
@@ -317,7 +317,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Jettison bed leveling data
-    if (!seen_w && parser.seen('J')) {
+    if (!seen_w && parser.seen_test('J')) {
       reset_bed_level();
       G29_RETURN(false);
     }
