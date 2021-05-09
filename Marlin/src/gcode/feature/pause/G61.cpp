@@ -31,6 +31,7 @@
 
 #define DEBUG_OUT ENABLED(SAVED_POSITIONS_DEBUG)
 #include "../../../core/debug_out.h"
+
 /**
  * G61: Return to saved position
  *
@@ -38,7 +39,8 @@
  *   S<slot>  - Slot # (0-based) to restore from (default 0).
  *   X Y Z    - Axes to restore. At least one is required.
  *   E - Restore extruder position
- *   if no params XYZE sets - default position restoring: xy, then z, then e
+ *
+ *   If XYZE are not given, default restore uses the smart blocking move.
  */
 void GcodeSuite::G61(void) {
 
@@ -62,9 +64,8 @@ void GcodeSuite::G61(void) {
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
   if (!parser.seen_axis()) {
-    DEBUG_ECHOLNPGM("Default position restoring");
-    do_blocking_move_to_xy(stored_position[slot].x, stored_position[slot].y, feedrate_mm_s);
-    do_blocking_move_to_z(stored_position[slot].z, feedrate_mm_s);
+    DEBUG_ECHOLNPGM("Default position restore");
+    do_blocking_move_to(stored_position[slot], feedrate_mm_s);
     SYNC_E(stored_position[slot].e);
   }
   else {
