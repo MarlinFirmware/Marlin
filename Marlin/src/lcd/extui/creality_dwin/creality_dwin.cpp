@@ -1161,7 +1161,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(Home);
-            homeaxis(X_AXIS);
+            gcode.process_subcommands_now_P(PSTR("G28 X"));
+            planner.synchronize();
             Redraw_Menu();
           }
           break;
@@ -1171,7 +1172,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(Home);
-            homeaxis(Y_AXIS);
+            gcode.process_subcommands_now_P(PSTR("G28 Y"));
+            planner.synchronize();
             Redraw_Menu();
           }
           break;
@@ -1181,7 +1183,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(Home);
-            homeaxis(Z_AXIS);
+            gcode.process_subcommands_now_P(PSTR("G28 Z"));
+            planner.synchronize();
             Redraw_Menu();
           }
           break;
