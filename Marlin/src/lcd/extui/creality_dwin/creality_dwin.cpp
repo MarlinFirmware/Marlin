@@ -1145,7 +1145,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case HOME_ALL:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Home All");
+            Draw_Menu_Item(row, ICON_Homing, (char*)"Home All");
           }
           else {
             Popup_Handler(Home);
@@ -1155,7 +1155,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case HOME_X:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Home X");
+            Draw_Menu_Item(row, ICON_MoveX, (char*)"Home X");
           }
           else {
             Popup_Handler(Home);
@@ -1166,7 +1166,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case HOME_Y:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Home Y");
+            Draw_Menu_Item(row, ICON_MoveY, (char*)"Home Y");
           }
           else {
             Popup_Handler(Home);
@@ -1177,7 +1177,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
         case HOME_Z:
           if (draw) {
-            Draw_Menu_Item(row, ICON_Axis, (char*)"Home Z");
+            Draw_Menu_Item(row, ICON_MoveZ, (char*)"Home Z");
           }
           else {
             Popup_Handler(Home);
