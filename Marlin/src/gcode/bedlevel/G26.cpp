@@ -648,12 +648,12 @@ void GcodeSuite::G26() {
   #if HAS_LCD_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
   #else
-    if (!parser.seen('R')) {
+    if (parser.seen('R'))
+      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    else {
       SERIAL_ECHOLNPGM("?(R)epeat must be specified when not using an LCD.");
       return;
     }
-    else
-      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
   #endif
   if (g26_repeats < 1) {
     SERIAL_ECHOLNPGM("?(R)epeat value not plausible; must be at least 1.");
@@ -671,7 +671,7 @@ void GcodeSuite::G26() {
   /**
    * Wait until all parameters are verified before altering the state!
    */
-  set_bed_leveling_enabled(!parser.seen('D'));
+  set_bed_leveling_enabled(!parser.seen_test('D'));
 
   do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
