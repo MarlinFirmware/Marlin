@@ -395,7 +395,7 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool towers_set = !parser.seen('T');
+  const bool towers_set = !parser.seen_test('T');
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
@@ -415,7 +415,7 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool stow_after_each = parser.seen('E');
+  const bool stow_after_each = parser.seen_test('E');
 
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,
