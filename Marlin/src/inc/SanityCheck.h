@@ -3180,7 +3180,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Touch Screen
+ * Touch Screen and Touch Buttons
  */
 #if EITHER(TOUCH_SCREEN, HAS_TOUCH_BUTTONS)
   #if BOTH(TOUCH_SCREEN_RESISTIVE, TOUCH_SCREEN_CAPACITIVE)
@@ -3191,7 +3191,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Touch Buttons
+ * Touch Screen Calibration
  */
 #if ENABLED(TOUCH_SCREEN_RESISTIVE) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
     && (!defined(TOUCH_CALIBRATION_X) || !defined(TOUCH_CALIBRATION_Y) || !defined(TOUCH_OFFSET_X) || !defined(TOUCH_OFFSET_Y))
