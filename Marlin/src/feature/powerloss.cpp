@@ -349,10 +349,10 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Restore all hotend temperatures
+  // Heat hotend enough to soften material
   #if HAS_HOTEND
     HOTEND_LOOP() {
-      const celsius_t et = info.target_temperature[e];
+      const celsius_t et = _MAX(info.target_temperature[e], 180);
       if (et) {
         #if HAS_MULTI_HOTEND
           sprintf_P(cmd, PSTR("T%iS"), e);
@@ -382,7 +382,7 @@ void PrintJobRecovery::resume() {
     // If Z homing goes to max then just move back to the "raised" position
     gcode.process_subcommands_now_P(PSTR(
         "G28R0\n"     // Home all axes (no raise)
-        "G1Z%sF1200"   // Move Z down to (raised) height
+        "G1Z%sF1200"  // Move Z down to (raised) height
       ),
       dtostrf(z_now, 1, 3, str_1)
     );
@@ -433,7 +433,7 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now(cmd);
 
     #if HOME_XY_ONLY
-      // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G29.9.
+      // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
@@ -465,8 +465,23 @@ void PrintJobRecovery::resume() {
     #endif
   #endif
 
-  // Select the previously active tool (with no_move)
-  #if HAS_MULTI_EXTRUDER
+  // Restore all hotend temperatures
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      const celsius_t et = info.target_temperature[e];
+      if (et) {
+        #if HAS_MULTI_HOTEND
+          sprintf_P(cmd, PSTR("T%iS"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109S%i"), et);
+        gcode.process_subcommands_now(cmd);
+      }
+    }
+  #endif
+
+  // Restore the previously active tool (with no_move)
+  #if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
