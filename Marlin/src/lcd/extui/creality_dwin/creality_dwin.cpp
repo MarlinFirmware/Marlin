@@ -1116,8 +1116,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   char buf[20];
                   sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
                   gcode.process_subcommands_now_P(buf);
-                  planner.synchronize();
-                  Redraw_Menu();
                 }
               #endif
             }
@@ -1706,8 +1704,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 char buf[20];
                 sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
                 gcode.process_subcommands_now_P(buf);
-                planner.synchronize();
-                Redraw_Menu();
               }
             }
             break;
@@ -4090,7 +4086,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   char buf[20];
                   sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
                   gcode.process_subcommands_now_P(buf);
-                  planner.synchronize();
                   break;
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   case ChangeFilament:
@@ -4099,24 +4094,24 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                         Popup_Handler(FilLoad);
                         gcode.process_subcommands_now_P("M701");
                         planner.synchronize();
+                        Redraw_Menu(true, true);
                         break;
                       case CHANGEFIL_UNLOAD:
                         Popup_Handler(FilLoad, true);
                         gcode.process_subcommands_now_P("M702");
                         planner.synchronize();
+                        Redraw_Menu(true, true);
                         break;
                       case CHANGEFIL_CHANGE:
                         Popup_Handler(FilChange);
                         char buf[20];
                         sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
                         gcode.process_subcommands_now_P(buf);
-                        planner.synchronize();
                         break;
                     }
                     break;
                 #endif
               }
-              Redraw_Menu(true, true);
             }
             break;
         }
@@ -4370,6 +4365,9 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
       break;
     case ConfFilChange:
       Draw_Popup((char*)"Confirm Filament Change", (char*)"", (char*)"", Popup);
+      break;
+    case PurgeMore:
+      Draw_Popup((char*)"Purge more filament?", (char*)"(Cancel to finish process)", (char*)"", Popup);
       break;
     case SaveLevel:
       Draw_Popup((char*)"Leveling Complete", (char*)"Save to EEPROM?", (char*)"", Popup);
@@ -4865,11 +4863,18 @@ inline void CrealityDWINClass::Popup_Control() {
             char buf[20];
             sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
             gcode.process_subcommands_now_P(buf);
-            planner.synchronize();
-            Redraw_Menu(true);
           }
         } else {
           Redraw_Menu(true);
+        }
+        break;
+      case PurgeMore:
+        if (selection==0) {
+          pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+          Popup_Handler(FilChange);
+        } else {
+          pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+          Redraw_Menu(true, (active_menu==PreheatHotend));
         }
         break;
       #if HAS_MESH
@@ -5237,22 +5242,6 @@ void CrealityDWINClass::Load_Settings() {
   #endif
   Redraw_Screen();
   queue.inject_P(PSTR("M1000 S"));
-}
-
-
-uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
-bool MarlinUI::backlight = true;
-
-void MarlinUI::set_brightness(const uint8_t value) {
-  if (value == 0) {
-    backlight = false;
-    DWIN_Backlight_SetLuminance(0);
-  }
-  else {
-    backlight = true;
-    brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
-    DWIN_Backlight_SetLuminance(brightness);
-  }
 }
 
 #endif
