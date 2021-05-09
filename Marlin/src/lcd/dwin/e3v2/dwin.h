@@ -296,15 +296,16 @@ void HMI_Leveling();    // Level the page
 void HMI_AxisMove();    // Axis movement menu
 void HMI_ManualLev();   // Manual Leveling menu
 #if ENABLED(MESH_BED_LEVELING)
-void HMI_ManualMesh();  // Manual Mesh menu
-void HMI_MMeshMoveZ();  // Manual Mesh move Z
+  void HMI_ManualMesh();  // Manual Mesh menu
+  void HMI_MMeshMoveZ();  // Manual Mesh move Z
 #endif
 void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
-void Draw_Main_Area(uint8_t procID); // Redraw screen elements
-void HMI_ReturnScreen();// Return to previous menu
+void Draw_Main_Area(uint8_t procID); // Redraw main area;
+void DWIN_Redraw_screen();  // Redraw all screen elements
+void HMI_ReturnScreen();// Return to previous screen before popups
 
 #if HAS_PREHEAT
   void HMI_PLAPreheatSetting(); // PLA warm-up setting
@@ -329,7 +330,7 @@ void DWIN_StatusChanged(const char *text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)
-void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+  void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
 #endif
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
@@ -337,7 +338,8 @@ void DWIN_PidTuning(pidresult_t result);
 void DWIN_Start_Print(bool sd);
 void DWIN_Stop_Print();
 #if HAS_FILAMENT_SENSOR
-void DWIN_FilamentRunout(const uint8_t extruder);
+  void DWIN_FilamentRunout(const uint8_t extruder);
+  void DWIN_SetRunoutState();
 #endif
 void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
 void DWIN_Print_Header(const char *text);

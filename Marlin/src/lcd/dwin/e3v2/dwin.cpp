@@ -3895,6 +3895,7 @@ void HMI_AdvSet() {
           runout.enabled = false;
           Draw_Chkb_Line(1,runout.enabled);
           HMI_data.Runout_active_state = !HMI_data.Runout_active_state;
+          DWIN_SetRunoutState();
           DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 216, MBASE(2), 216 + 4 * MENU_CHR_W, MBASE(2)+20);
           DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
           break;
@@ -4734,7 +4735,7 @@ void EachMomentUpdate() {
     else if (HMI_flag.pause_flag != printingIsPaused()) {
       // print status update
       HMI_flag.pause_flag = printingIsPaused();
-      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
+//      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
     }
   }
 
@@ -4754,8 +4755,8 @@ void EachMomentUpdate() {
     #if DISABLED(PARK_HEAD_ON_PAUSE)
       char buf[32];
       sprintf(buf, "G0 F1200 X%.1f Y%.1f", HMI_data.Park_point.x, HMI_data.Park_point.y);
-      queue.inject(buf);
       planner.synchronize();
+      queue.inject(buf);
     #endif
   }
 
@@ -5119,11 +5120,24 @@ void DWIN_SetColorDefaults() {
   HMI_data.Coordinate_Color = Def_Coordinate_Color;
 }
 
+#if HAS_FILAMENT_SENSOR
+  void DWIN_SetRunoutState() {
+    #include "../../HAL/STM32F1/fastio.h"
+    if (HMI_data.Runout_active_state) {
+      SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
+    } else {
+      SET_INPUT_PULLDOWN(FIL_RUNOUT1_PIN);
+    }
+  }
+#endif
+
 void DWIN_Setdatadefaults() {
 #if HAS_FILAMENT_SENSOR
   HMI_data.Runout_active_state = FIL_RUNOUT1_STATE;
+  DWIN_SetRunoutState();
 #endif
   HMI_data.Brightness = 127;
+  DWIN_LCD_Brightness(HMI_data.Brightness);
 #if ENABLED(NOZZLE_PARK_FEATURE)
   HMI_data.Park_point = (xyz_pos_t) NOZZLE_PARK_POINT;
 #endif
@@ -5139,6 +5153,9 @@ void DWIN_LoadSettings(const char *buff) {
   DWIN_LCD_Brightness(_MAX(10,HMI_data.Brightness));
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_data.Text_Color == 0) DWIN_SetColorDefaults();
+#if HAS_FILAMENT_SENSOR
+  DWIN_SetRunoutState();
+#endif
 }
 
 void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
@@ -5163,7 +5180,7 @@ void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
       case PAUSE_MESSAGE_RESUME:   DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
       case PAUSE_MESSAGE_HEAT:     DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT), ICON_Continue_E);   break;
       case PAUSE_MESSAGE_HEATING:  DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_STATUS:
+      case PAUSE_MESSAGE_STATUS:   HMI_ReturnScreen(); break;
       default: break;
     }
   }
