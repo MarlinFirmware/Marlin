@@ -66,9 +66,6 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_PURGE_LEN
   #define POWER_LOSS_PURGE_LEN 0
 #endif
-#ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2     // Move on loss with backup power, or on resume without it
-#endif
 
 #if DISABLED(BACKUP_POWER_SUPPLY)
   #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
@@ -140,7 +137,7 @@ void PrintJobRecovery::load() {
  * Set info fields that won't change
  */
 void PrintJobRecovery::prepare() {
-  card.getAbsFilename(info.sd_filename);  // SD filename
+  card.getAbsFilenameInCWD(info.sd_filename);  // SD filename
   cmd_sdpos = 0;
 }
 
@@ -256,7 +253,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
           // Raise the Z axis now
           if (zraise) {
             char cmd[20], str_1[16];
-            sprintf_P(cmd, PSTR("G0 Z%s"), dtostrf(zraise, 1, 3, str_1));
+            sprintf_P(cmd, PSTR("G0Z%s"), dtostrf(zraise, 1, 3, str_1));
             gcode.process_subcommands_now(cmd);
           }
         #else
@@ -348,7 +345,7 @@ void PrintJobRecovery::resume() {
     const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), bt);
+      sprintf_P(cmd, PSTR("M190S%i"), bt);
       gcode.process_subcommands_now(cmd);
     }
   #endif
@@ -359,10 +356,10 @@ void PrintJobRecovery::resume() {
       const celsius_t et = info.target_temperature[e];
       if (et) {
         #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%i S"), e);
+          sprintf_P(cmd, PSTR("T%iS"), e);
           gcode.process_subcommands_now(cmd);
         #endif
-        sprintf_P(cmd, PSTR("M109 S%i"), et);
+        sprintf_P(cmd, PSTR("M109S%i"), et);
         gcode.process_subcommands_now(cmd);
       }
     }
@@ -370,7 +367,7 @@ void PrintJobRecovery::resume() {
 
   //
   // Home the axes that can safely be homed, and
-  // establish the current position as best we can
+  // establish the current position as best we can.
   //
   #if Z_HOME_DIR > 0
 
@@ -380,7 +377,7 @@ void PrintJobRecovery::resume() {
       "G28R0"                               // Home all axes (no raise)
     ));
 
-  #else // "G92.9 E0 ..."
+  #else
 
     // If a Z raise occurred at outage restore Z, otherwise raise Z now
     sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
@@ -475,7 +472,7 @@ void PrintJobRecovery::resume() {
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
+    gcode.process_subcommands_now_P(PSTR("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
   #endif
 
   // Additional purge on resume if configured
@@ -488,8 +485,8 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("G12"));
   #endif
 
-  // Move back to the saved XY
-  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
+  // Move back over to the saved XY
+  sprintf_P(cmd, PSTR("G1X%sY%sF3000"),
     dtostrf(info.current_position.x, 1, 3, str_1),
     dtostrf(info.current_position.y, 1, 3, str_2)
   );
@@ -506,11 +503,11 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Restore the feedrate
-  sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
+  sprintf_P(cmd, PSTR("G1F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
 
   // Restore E position with G92.9
-  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
+  sprintf_P(cmd, PSTR("G92.9E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
@@ -535,7 +532,7 @@ void PrintJobRecovery::resume() {
   char *fn = info.sd_filename;
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
+  sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
 
   TERN_(DEBUG_POWER_LOSS_RECOVERY, marlin_debug_flags = old_flags);

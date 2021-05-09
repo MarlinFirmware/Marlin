@@ -1859,6 +1859,7 @@
 // Flag the indexed hardware serial ports in use
 #define CONF_SERIAL_IS(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
                           || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
+                          || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
                           || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
                           || (defined(LCD_SERIAL_PORT)  && LCD_SERIAL_PORT == N) )
 
@@ -1949,7 +1950,6 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
-#undef CONF_SERIAL_IS
 #undef ANY_SERIAL_IS
 
 //

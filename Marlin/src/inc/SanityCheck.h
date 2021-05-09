@@ -607,6 +607,14 @@
   #error "SERIAL_PORT must be defined."
 #elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT."
+#elif defined(SERIAL_PORT_3)
+  #ifndef SERIAL_PORT_2
+    #error "Use SERIAL_PORT_2 before using SERIAL_PORT_3"
+  #elif SERIAL_PORT_3 == SERIAL_PORT
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT."
+  #elif SERIAL_PORT_3 == SERIAL_PORT_2
+    #error "SERIAL_PORT_3 cannot be the same as SERIAL_PORT_2."
+  #endif
 #endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
@@ -3172,21 +3180,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Touch Buttons
+ * Touch Screen Calibration
  */
-#if ENABLED(TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)
-  #ifndef TOUCH_CALIBRATION_X
-    #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #error "TOUCH_CALIBRATION_Y must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #error "TOUCH_OFFSET_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #error "TOUCH_OFFSET_Y must be defined with TOUCH_SCREEN."
-  #endif
+#if ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+    && (!defined(TOUCH_CALIBRATION_X) || !defined(TOUCH_CALIBRATION_Y) || !defined(TOUCH_OFFSET_X) || !defined(TOUCH_OFFSET_Y))
+  #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
 /**
