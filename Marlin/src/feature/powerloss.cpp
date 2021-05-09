@@ -573,7 +573,15 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPAIR("zraise: ", info.zraise);
+        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
+
+        DEBUG_ECHOLNPAIR("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
+
+        #if ENABLED(GCODE_REPEAT_MARKERS)
+          DEBUG_ECHOLNPAIR("repeat index: ", info.stored_repeat.index);
+          LOOP_L_N(i, info.stored_repeat.index)
+            DEBUG_ECHOLNPAIR("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
+        #endif
 
         #if HAS_HOME_OFFSET
           DEBUG_ECHOPGM("home_offset: ");
@@ -593,10 +601,14 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
         #endif
 
-        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
-
         #if HAS_MULTI_EXTRUDER
           DEBUG_ECHOLNPAIR("active_extruder: ", info.active_extruder);
+        #endif
+
+        #if DISABLED(NO_VOLUMETRICS)
+          DEBUG_ECHOPGM("filament_size:");
+          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPAIR(" ", info.filament_size[i]);
+          DEBUG_EOL();
         #endif
 
         #if HAS_HOTEND
@@ -622,8 +634,9 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling, " fade: ", info.fade);
+          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
         #endif
+
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
           for (int8_t e = 0; e < EXTRUDERS; e++) {
@@ -633,11 +646,28 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
           DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
+
+        // Mixing extruder and gradient
+        #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
+          DEBUG_ECHOLNPAIR("gradient: ", info.gradient.enabled ? "ON" : "OFF");
+        #endif
+
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
-        DEBUG_ECHOLNPAIR("dryrun: ", AS_DIGIT(info.flag.dryrun));
-        DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", info.flag.allow_cold_extrusion);
+
+        DEBUG_ECHOPGM("axis_relative:");
+        if (TEST(info.axis_relative, REL_X)) DEBUG_ECHOPGM(" REL_X");
+        if (TEST(info.axis_relative, REL_Y)) DEBUG_ECHOPGM(" REL_Y");
+        if (TEST(info.axis_relative, REL_Z)) DEBUG_ECHOPGM(" REL_Z");
+        if (TEST(info.axis_relative, REL_E)) DEBUG_ECHOPGM(" REL_E");
+        if (TEST(info.axis_relative, E_MODE_ABS)) DEBUG_ECHOPGM(" E_MODE_ABS");
+        if (TEST(info.axis_relative, E_MODE_REL)) DEBUG_ECHOPGM(" E_MODE_REL");
+        DEBUG_EOL();
+
+        DEBUG_ECHOLNPAIR("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
+        DEBUG_ECHOLNPAIR("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
+        DEBUG_ECHOLNPAIR("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");
