@@ -312,7 +312,7 @@ void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uin
   uint16_t offline = TFT_WIDTH - (ex - sx);
   uint32_t addr = (uint32_t)&framebuffer[(TFT_WIDTH * sy) + sx];
 
-  CBI(DMA2D->CR, 0)
+  CBI(DMA2D->CR, 0);
   DMA2D->CR = 0 << 16;
   DMA2D->FGPFCCR = 0X02;
   DMA2D->FGOR = 0;
