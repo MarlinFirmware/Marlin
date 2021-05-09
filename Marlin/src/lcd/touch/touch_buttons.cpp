@@ -24,12 +24,14 @@
 #include "touch_buttons.h"
 #include "../scaled_tft.h"
 
-#if ENABLED(TOUCH_SCREEN_RESISTIVE)
-  #include HAL_PATH(../../HAL, tft/xpt2046.h)
-  XPT2046 touchIO;
-#elif ENABLED(TOUCH_SCREEN_CAPACITIVE)
+#if ENABLED(TFT_TOUCH_DEVICE_GT911)
   #include HAL_PATH(../../HAL, tft/gt911.h)
   GT911 touchIO;
+#elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  XPT2046 touchIO;
+#else
+  #error "Unknown Touch Screen Type."
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)

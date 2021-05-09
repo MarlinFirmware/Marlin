@@ -3180,22 +3180,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Touch Screen and Touch Buttons
- */
-#if EITHER(TOUCH_SCREEN, HAS_TOUCH_BUTTONS)
-  #if BOTH(TOUCH_SCREEN_RESISTIVE, TOUCH_SCREEN_CAPACITIVE)
-    #error "Enable only one of TOUCH_SCREEN_RESISTIVE or TOUCH_SCREEN_CAPACITIVE."
-  #elif NONE(TOUCH_SCREEN_RESISTIVE, TOUCH_SCREEN_CAPACITIVE)
-    #error "You must specify the touch device type with TOUCH_SCREEN_RESISTIVE or TOUCH_SCREEN_CAPACITIVE."
-  #endif
-#endif
-
-/**
  * Touch Screen Calibration
  */
-#if ENABLED(TOUCH_SCREEN_RESISTIVE) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+#if ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
     && (!defined(TOUCH_CALIBRATION_X) || !defined(TOUCH_CALIBRATION_Y) || !defined(TOUCH_OFFSET_X) || !defined(TOUCH_OFFSET_Y))
-  #error "You must define TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] with TOUCH_SCREEN_RESISTIVE if TOUCH_SCREEN_CALIBRATION is disabled."
+  #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
 /**

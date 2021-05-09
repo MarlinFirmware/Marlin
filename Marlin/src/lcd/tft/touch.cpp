@@ -257,7 +257,7 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
 }
 
 bool Touch::get_point(int16_t *x, int16_t *y) {
-  #if ENABLED(TOUCH_SCREEN_RESISTIVE)
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
 
@@ -270,7 +270,7 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
       *x = uint16_t((uint32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
       *y = uint16_t((uint32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
     #endif
-  #elif ENABLED(TOUCH_SCREEN_CAPACITIVE)
+  #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
     bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
   #endif
 

@@ -2575,24 +2575,19 @@
 //
 //#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
-  //#define TOUCH_SCREEN_RESISTIVE  // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
-  //#define TOUCH_SCREEN_CAPACITIVE // GT911 Capacitive touch screen such as BIQU_BX_TFT70
-
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-  #if ENABLED(TOUCH_SCREEN_RESISTIVE)
-    #define TOUCH_SCREEN_CALIBRATION
+  #define TOUCH_SCREEN_CALIBRATION
 
-    //#define TOUCH_CALIBRATION_X 12316
-    //#define TOUCH_CALIBRATION_Y -8981
-    //#define TOUCH_OFFSET_X        -43
-    //#define TOUCH_OFFSET_Y        257
-    //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+  //#define TOUCH_CALIBRATION_X 12316
+  //#define TOUCH_CALIBRATION_Y -8981
+  //#define TOUCH_OFFSET_X        -43
+  //#define TOUCH_OFFSET_Y        257
+  //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
 
-    #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
-      #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
-    #endif
+  #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+    #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
   #endif
 
   #if ENABLED(TFT_COLOR_UI)
