@@ -48,6 +48,7 @@ enum processID : uint8_t {
   Prepare,
   Control,
   PrintProcess,
+  PrintDone,
   FilamentMan,
   AxisMove,
   ManualLev,
@@ -199,7 +200,6 @@ typedef struct {
   bool pause_flag:1;
   bool pause_action:1;
   bool print_finish:1;
-  bool done_confirm_flag:1;
   bool select_flag:1;
   bool home_flag:1;  // Homing
   bool heat_flag:1;  // 0: heating done  1: during heating

@@ -1021,6 +1021,15 @@ void Goto_PrintProcess() {
   Draw_PrintProcess();
 }
 
+void Draw_PrintDone() {
+  // show percent bar and value
+  _percent_done = 100;
+  Draw_Print_ProgressBar();
+  // show print done confirm
+  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 240, DWIN_WIDTH - 1, STATUS_Y-1);
+  DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 273);
+}
+
 void Draw_Main_Menu() {
   Clear_Main_Window();
 
@@ -2013,16 +2022,6 @@ HMI_SelectFileExit:
 void HMI_Printing() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-
-  if (HMI_flag.done_confirm_flag) { // End print screen confirm
-    if (encoder_diffState == ENCODER_DIFF_ENTER) {
-      HMI_flag.done_confirm_flag = false;
-      dwin_abort_flag = true; // Reset feedrate, return to Home
-      Goto_Main_Menu(); // Return to Main menu after print done
-    }
-    return;
-  }
-
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
     if (select_print.inc(3)) {
@@ -2097,6 +2096,16 @@ void HMI_Printing() {
     }
   }
   DWIN_UpdateLCD();
+}
+
+/* Print done */
+void HMI_PrintDone() {
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    dwin_abort_flag = true; // Reset feedrate, return to Home
+    Goto_Main_Menu(); // Return to Main menu after print done
+  }
 }
 
 /* Pause and Stop window */
@@ -3337,6 +3346,7 @@ void Draw_Main_Area(uint8_t procID) {
     case Prepare      : Draw_Prepare_Menu(); break;
     case Control      : Draw_Control_Menu(); break;
     case PrintProcess : Draw_PrintProcess(); break;
+    case PrintDone    : Draw_PrintDone(); break;
     case PauseOrStop  : Popup_window_PauseOrStop(); break;
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentPurge: Draw_Popup_FilamentPurge(); break;
@@ -4716,26 +4726,17 @@ void EachMomentUpdate() {
 
   if (checkkey == PrintProcess) {
     // if print done
-    if (HMI_flag.print_finish && !HMI_flag.done_confirm_flag) {
+    if (HMI_flag.print_finish) {
       HMI_flag.print_finish = false;
-      HMI_flag.done_confirm_flag = true;
-
       TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
-
       planner.finish_and_disable();
-
-      // show percent bar and value
-      _percent_done = 100;
-      Draw_Print_ProgressBar();
-
-      // show print done confirm
-      DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 240, DWIN_WIDTH - 1, STATUS_Y-1);
-      DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 273);
+      checkkey = PrintDone;
+      Draw_PrintDone();
     }
     else if (HMI_flag.pause_flag != printingIsPaused()) {
       // print status update
       HMI_flag.pause_flag = printingIsPaused();
-//      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
+      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
     }
   }
 
@@ -4863,6 +4864,7 @@ void DWIN_HandleScreen() {
     case Homing:          break;
     case Leveling:        break;
     case PrintProcess:    HMI_Printing(); break;
+    case PrintDone:       HMI_PrintDone(); break;
     case PauseOrStop:     HMI_PauseOrStop(); break;
     case FilamentMan:     HMI_FilamentMan(); break;
     case AxisMove:        HMI_AxisMove(); break;
@@ -5076,7 +5078,6 @@ void DWIN_Stop_Print() {
     thermalManager.disable_all_heaters();
     thermalManager.zero_fan_speeds();
     HMI_flag.print_finish = true;
-    HMI_flag.done_confirm_flag = false;
     Goto_PrintProcess();
   }
 }
@@ -5166,6 +5167,7 @@ void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void DWIN_Popup_Pause(const char *msg, uint8_t button = 0) {
     DWIN_Draw_Popup(ICON_BLTouch, "Advanced Pause", msg, button);
+    DWIN_StatusChanged(nullptr);
   }
 
   void DWIN_PauseShow(const char message) {
