@@ -2571,7 +2571,7 @@
 //#define DWIN_CREALITY_LCD
 
 //
-// Touch Screen Settings (Resistive or Capacitive)
+// Touch Screen Settings
 //
 //#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
