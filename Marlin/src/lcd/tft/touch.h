@@ -32,10 +32,10 @@
 
 #if ENABLED(TFT_TOUCH_DEVICE_GT911)
   #include HAL_PATH(../../HAL, tft/gt911.h)
-  #define TOUCH_DRIVER GT911
+  #define TOUCH_DRIVER_CLASS GT911
 #elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
   #include HAL_PATH(../../HAL, tft/xpt2046.h)
-  #define TOUCH_DRIVER XPT2046
+  #define TOUCH_DRIVER_CLASS XPT2046
 #else
   #error "Unknown Touch Screen Type."
 #endif
@@ -92,7 +92,7 @@ typedef struct __attribute__((__packed__)) {
 
 class Touch {
   private:
-    static TOUCH_DRIVER io;
+    static TOUCH_DRIVER_CLASS io;
     static int16_t x, y;
     static bool enabled;
 
