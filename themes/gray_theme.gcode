@@ -16,5 +16,6 @@ C11 E14 R30 G0 B15   ;Alert Background
 C11 E15 R31 G56 B15  ;Alert Text
 C11 E16 R31 G63 B31  ;Percent Text
 C11 E17 R10 G20 B10  ;Bar Fill
-;
+C11 E18 R26 G52 B26  ;Indicator value
+C11 E19 R26 G52 B26  ;Coordinate value;
 C11 E0  ;Preview changes
