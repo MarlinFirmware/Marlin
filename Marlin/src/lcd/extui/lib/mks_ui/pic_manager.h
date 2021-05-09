@@ -154,14 +154,14 @@ typedef struct pic_msg PIC_MSG;
 #define PIC_SIZE_xM   6
 #define FONT_SIZE_xM  2
 
-extern void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
-extern void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
-extern void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
-extern uint32_t lv_get_pic_addr(uint8_t *Pname);
-extern void get_spi_flash_data(const char *rec_buf, int offset, int size);
-extern void spi_flash_read_test();
-extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
-extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
+void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
+void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
+void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
+uint32_t lv_get_pic_addr(uint8_t *Pname);
+void get_spi_flash_data(const char *rec_buf, int offset, int size);
+void spi_flash_read_test();
+void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
+void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

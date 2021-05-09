@@ -55,27 +55,27 @@
 #endif
 
 bool DGUSAutoTurnOff = false;
-uint8_t DGUSLanguageSwitch = 0; // Switch language for MKS DGUS
+uint8_t mks_language_index; // Initialized by settings.load()
 
 // endianness swap
 uint32_t swap32(const uint32_t value) { return (value & 0x000000FFU) << 24U | (value & 0x0000FF00U) << 8U | (value & 0x00FF0000U) >> 8U | (value & 0xFF000000U) >> 24U; }
 
 #if 0
-void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t* line1, const uint16_t* line2, const uint16_t* line3, const uint16_t* line4) {
+void DGUSScreenHandler::sendinfoscreen_ch_mks(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_en_mks(const char* line1, const char* line2, const char* line3, const char* line4) {
+void DGUSScreenHandler::sendinfoscreen_en_mks(const char *line1, const char *line2, const char *line3, const char *line4) {
   dgusdisplay.WriteVariable(VP_MSGSTR1, line1, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR2, line2, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR3, line3, 32, true);
   dgusdisplay.WriteVariable(VP_MSGSTR4, line4, 32, true);
 }
 
-void DGUSScreenHandler::sendinfoscreen_mks(const void* line1, const void* line2, const void* line3, const void* line4, uint16_t language) {
+void DGUSScreenHandler::sendinfoscreen_mks(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language) {
   if (language == MKS_English)
     DGUSScreenHandler::sendinfoscreen_en_mks((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
@@ -125,11 +125,11 @@ void DGUSScreenHandler::DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variable &var) {
-  if (DGUSLanguageSwitch == MKS_English) {
+  if (mks_language_index == MKS_English) {
     char *tmp = (char*) var.memadr;
     dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
   }
-  else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+  else if (mks_language_index == MKS_SimpleChinese) {
     uint16_t *tmp = (uint16_t *)var.memadr;
     dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
   }
@@ -138,15 +138,15 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variabl
 void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #if ENABLED(SENSORLESS_HOMING)
     #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_x_step = stepperX.homing_threshold();
+      tmc_step.x = stepperX.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_y_step = stepperY.homing_threshold();
+      tmc_step.y = stepperY.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_z_step = stepperZ.homing_threshold();
+      tmc_step.z = stepperZ.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
   #endif
@@ -270,6 +270,11 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     GotoScreen(MKSLCD_SCREEN_PrintDone);
   }
 
+#else
+  void DGUSScreenHandler::PrintReturn(DGUS_VP_Variable& var, void *val_ptr) {
+    uint16_t value = swap16(*(uint16_t*)val_ptr);
+    if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
+  }
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
@@ -329,7 +334,7 @@ void DGUSScreenHandler::ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("ctrl turn off\n");
+  DEBUG_ECHOLNPGM("GetTurnOffCtrl\n");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
   switch (value) {
     case 0 ... 1: DGUSAutoTurnOff = (bool)value; break;
@@ -338,15 +343,15 @@ void DGUSScreenHandler::GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) {
 }
 
 void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("MinExtrudeTempChange DistanceChange");
+  DEBUG_ECHOLNPGM("GetMinExtrudeTemp");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
   thermalManager.extrude_min_temp = value;
-  min_ex_temp = value;
+  mks_min_extrusion_temp = value;
   settings.save();
 }
 
 void DGUSScreenHandler::GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("Zoffset DistanceChange");
+  DEBUG_ECHOLNPGM("GetZoffsetDistance");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
   float val_distance = 0;
   switch (value) {
@@ -360,7 +365,7 @@ void DGUSScreenHandler::GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr)
 }
 
 void DGUSScreenHandler::GetManualMovestep(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("\nMove DistanceChange");
+  DEBUG_ECHOLNPGM("\nGetManualMovestep");
   *(uint16_t *)var.memadr = swap16(*(uint16_t *)val_ptr);
 }
 
@@ -414,14 +419,14 @@ void DGUSScreenHandler::LanguageChange_MKS(DGUS_VP_Variable &var, void *val_ptr)
   switch (lag_flag) {
     case MKS_SimpleChinese:
       DGUS_LanguageDisplay(MKS_SimpleChinese);
-      DGUSLanguageSwitch = MKS_SimpleChinese;
+      mks_language_index = MKS_SimpleChinese;
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
       settings.save();
       break;
     case MKS_English:
       DGUS_LanguageDisplay(MKS_English);
-      DGUSLanguageSwitch = MKS_English;
+      mks_language_index = MKS_English;
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_NoChoose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_Choose);
       settings.save();
@@ -454,11 +459,11 @@ void DGUSScreenHandler::Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr) {
 
         mesh_point_count = GRID_MAX_POINTS;
 
-        if (DGUSLanguageSwitch == MKS_English) {
+        if (mks_language_index == MKS_English) {
           const char level_buf_en[] = "Start Level";
           dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en, 32, true);
         }
-        else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+        else if (mks_language_index == MKS_SimpleChinese) {
           const uint16_t level_buf_ch[] = {0xAABF, 0xBCCA, 0xF7B5, 0xBDC6, 0x2000};
           dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch, 32, true);
         }
@@ -532,15 +537,17 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
 
       case 2:
-        if (mesh_point_count == GRID_MAX_POINTS) { // 第1个点
+        if (mesh_point_count == GRID_MAX_POINTS) { // The first point
+
+          queue.enqueue_now_P(PSTR("G28"));
           queue.enqueue_now_P(PSTR("G29S1"));
           mesh_point_count--;
 
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en1[] = "Next Point";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en1, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch1[] = {0xC2CF, 0xBBD2, 0xE3B5, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch1, 32, true);
           }
@@ -548,11 +555,11 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         else if (mesh_point_count > 1) {                              // 倒数第二个点
           queue.enqueue_now_P(PSTR("G29S2"));
           mesh_point_count--;
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Next Point";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en2, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch2[] = {0xC2CF, 0xBBD2, 0xE3B5, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch2, 32, true);
           }
@@ -560,11 +567,11 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         else if (mesh_point_count == 1) {
           queue.enqueue_now_P(PSTR("G29S2"));
           mesh_point_count--;
-          if (DGUSLanguageSwitch == MKS_English) {
+          if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Level Finsh";
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_en2, 32, true);
           }
-          else if (DGUSLanguageSwitch == MKS_SimpleChinese) {
+          else if (mks_language_index == MKS_SimpleChinese) {
             const uint16_t level_buf_ch2[] = {0xF7B5, 0xBDC6, 0xEACD, 0xC9B3, 0x2000};
             dgusdisplay.WriteVariable(VP_AutoLevel_1_Dis, level_buf_ch2, 32, true);
           }
@@ -597,85 +604,52 @@ void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
 void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_ptr) {
   const int16_t point_value = swap16(*(uint16_t *)val_ptr);
 
-  int16_t level_x_pos, level_y_pos;
-  char buf_level[32] = {0};
-  unsigned int level_speed = 1500;
+  // Insist on leveling first time at this screen
   static bool first_level_flag = false;
-
-  if (!first_level_flag)
+  if (!first_level_flag || point_value == 0x0001) {
     queue.enqueue_now_P(G28_STR);
+    first_level_flag = true;
+  }
+
+  constexpr uint16_t level_speed = 1500;
+
+  auto enqueue_corner_move = [](int16_t lx, int16_t ly, uint16_t fr) {
+    char buf_level[32];
+    sprintf_P(buf_level, "G0X%dY%dF%d", lx, ly, fr);
+    queue.enqueue_one_now(buf_level);
+  };
+
+  if (WITHIN(point_value, 0x0001, 0x0005))
+    queue.enqueue_now_P(PSTR("G1Z10"));
 
   switch (point_value) {
     case 0x0001:
-      if (first_level_flag)
-        queue.enqueue_now_P(G28_STR);
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-      //level_x_pos = X_MIN_POS + 20;
-      //level_y_pos = Y_MIN_POS + 20;
-      level_x_pos = X_MIN_POS + abs(level_1_x_point);
-      level_y_pos = Y_MIN_POS + abs(level_1_y_point);
-
-      memset(buf_level, 0, sizeof(buf_level));
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      queue.enqueue_now_P(PSTR("G28 Z"));
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[0].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[0].y), level_speed);
+      queue.enqueue_now_P(PSTR("G28Z"));
       break;
     case 0x0002:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MAX_POS - 20;
-      //level_y_pos = Y_MIN_POS + 20;
-
-      level_x_pos = X_MAX_POS - abs(level_2_x_point);
-      level_y_pos = Y_MIN_POS + abs(level_2_y_point);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //queue.enqueue_now_P(PSTR("G28Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[1].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[1].y), level_speed);
       break;
     case 0x0003:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MAX_POS - 20;
-      //level_y_pos = Y_MAX_POS - 20;
-
-      level_x_pos = X_MAX_POS - abs(level_3_x_point);
-      level_y_pos = Y_MAX_POS - abs(level_3_y_point);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //sprintf_P(buf_level, PSTR("G28 Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[2].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[2].y), level_speed);
       break;
     case 0x0004:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-
-      //level_x_pos = X_MIN_POS + 20;
-      //level_y_pos = Y_MAX_POS - 20;
-      level_x_pos = X_MIN_POS + abs(level_4_x_point);
-      level_y_pos = Y_MAX_POS - abs(level_4_y_point);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      //sprintf_P(buf_level, PSTR("G28 Z"));
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[3].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[3].y), level_speed);
       break;
     case 0x0005:
-      queue.enqueue_now_P(PSTR("G1 Z10"));
-      //level_x_pos = (uint16_t)(X_MAX_POS / 2);
-      //level_y_pos = (uint16_t)(Y_MAX_POS / 2);
-      level_x_pos = abs(level_5_x_point);
-      level_y_pos = abs(level_5_y_point);
-
-      sprintf_P(buf_level, "G0 X%d Y%d F%d", level_x_pos, level_y_pos, level_speed);
-      queue.enqueue_one_now(buf_level);
-      queue.enqueue_now_P(PSTR("G1 Z-10"));
+      enqueue_corner_move(abs(mks_corner_offsets[4].x),
+                          abs(mks_corner_offsets[4].y), level_speed);
       break;
   }
 
-  // Only once
-  first_level_flag = true;
+  if (WITHIN(point_value, 0x0002, 0x0005)) {
+    //queue.enqueue_now_P(PSTR("G28Z"));
+    queue.enqueue_now_P(PSTR("G1Z-10"));
+  }
 }
 
 #define mks_min(a, b) ((a) < (b)) ? (a) : (b)
@@ -691,7 +665,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(X)
           stepperX.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_x_step = stepperX.homing_threshold();
+          //tmc_step.x = stepperX.homing_threshold();
         #endif
       #endif
       break;
@@ -700,7 +674,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(Y)
           stepperY.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_y_step = stepperY.homing_threshold();
+          //tmc_step.y = stepperY.homing_threshold();
         #endif
       #endif
       break;
@@ -709,7 +683,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
         #if AXIS_HAS_STEALTHCHOP(Z)
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
-          //tmc_z_step = stepperZ.homing_threshold();
+          //tmc_step.z = stepperZ.homing_threshold();
         #endif
       #endif
       break;
@@ -767,13 +741,13 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   }
   #if USE_SENSORLESS
     #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_x_step = stepperX.homing_threshold();
+      tmc_step.x = stepperX.homing_threshold();
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_y_step = stepperY.homing_threshold();
+      tmc_step.y = stepperY.homing_threshold();
     #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_z_step = stepperZ.homing_threshold();
+      tmc_step.z = stepperZ.homing_threshold();
     #endif
   #endif
 }
@@ -784,9 +758,9 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   int16_t movevalue = swap16(*(uint16_t*)val_ptr);
 
   // Choose Move distance
-       if (distanceMove == 0x01) distanceMove =   10;
-  else if (distanceMove == 0x02) distanceMove =  100;
-  else if (distanceMove == 0x03) distanceMove = 1000;
+       if (manualMoveStep == 0x01) manualMoveStep =   10;
+  else if (manualMoveStep == 0x02) manualMoveStep =  100;
+  else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
   DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
 
@@ -853,20 +827,20 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOPAIR("movevalue = ", movevalue);
   if (movevalue != 0 && movevalue != 5) { // get move distance
     switch (movevalue) {
-      case 0x0001: movevalue =  distanceMove; break;
-      case 0x0002: movevalue = -distanceMove; break;
+      case 0x0001: movevalue =  manualMoveStep; break;
+      case 0x0002: movevalue = -manualMoveStep; break;
       default:     movevalue = 0; break;
     }
   }
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPAIR(" homing ", axiscode);
+    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
     char buf[6];
-    sprintf(buf,"G28 %c",axiscode);
+    sprintf(buf, "G28 %c", axiscode);
     //DEBUG_ECHOPAIR(" ", buf);
     queue.enqueue_one_now(buf);
     //DEBUG_ECHOLNPGM(" ✓");
@@ -876,14 +850,14 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (movevalue == 5) {
     DEBUG_ECHOPAIR("send M84");
     char buf[6];
-    snprintf_P(buf,6,PSTR("M84 %c"),axiscode);
+    snprintf_P(buf,6,PSTR("M84 %c"), axiscode);
     queue.enqueue_one_now(buf);
     ForceCompleteUpdate();
     return;
   }
   else {
     // movement
-    DEBUG_ECHOPAIR(" move ", axiscode);
+    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -921,7 +895,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPAIR(" cannot move ", axiscode);
+    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 
@@ -929,16 +903,16 @@ void DGUSScreenHandler::GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr) {
   const int16_t value_pos = swap16(*(int16_t*)val_ptr);
 
   switch (var.VP) {
-    case VP_X_PARK_POS: x_park_pos = value_pos; break;
-    case VP_Y_PARK_POS: y_park_pos = value_pos; break;
-    case VP_Z_PARK_POS: z_park_pos = value_pos; break;
+    case VP_X_PARK_POS: mks_park_pos.x = value_pos; break;
+    case VP_Y_PARK_POS: mks_park_pos.y = value_pos; break;
+    case VP_Z_PARK_POS: mks_park_pos.z = value_pos; break;
     default: break;
   }
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
 void DGUSScreenHandler::HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleStepPerMMChanged");
+  DEBUG_ECHOLNPGM("HandleChangeLevelPoint_MKS");
 
   const int16_t value_raw = swap16(*(int16_t*)val_ptr);
   DEBUG_ECHOLNPAIR_F("value_raw:", value_raw);
@@ -950,7 +924,7 @@ void DGUSScreenHandler::HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *
 }
 
 void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleStepPerMMChanged");
+  DEBUG_ECHOLNPGM("HandleStepPerMMChanged_MKS");
 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
@@ -972,7 +946,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
 }
 
 void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged");
+  DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged_MKS");
 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
@@ -1019,7 +993,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
 }
 
 void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleMaxSpeedChange_MKS");
+  DEBUG_ECHOLNPGM("HandleExtruderMaxSpeedChange_MKS");
 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
@@ -1044,7 +1018,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
 }
 
 void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleMaxSpeedChange_MKS");
+  DEBUG_ECHOLNPGM("HandleMaxAccChange_MKS");
 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
@@ -1066,7 +1040,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
 }
 
 void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleMaxSpeedChange_MKS");
+  DEBUG_ECHOLNPGM("HandleExtruderAccChange_MKS");
 
   uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   DEBUG_ECHOLNPAIR("value_raw:", value_raw);
@@ -1199,7 +1173,7 @@ void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_
 #endif // BABYSTEPPING
 
 void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleGetFilament");
+  DEBUG_ECHOLNPGM("GetManualFilament");
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
@@ -1212,13 +1186,13 @@ void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleGetFilamentSpeed");
+  DEBUG_ECHOLNPGM("GetManualFilamentSpeed");
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("FilamentSpeed value:", value_len);
+  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
 
-  FilamentSpeed = value_len;
+  filamentSpeed_mm_s = value_len;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1226,7 +1200,10 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
     uint8_t swap_tool = 0;
+  #else
+    constexpr uint8_t swap_tool = 1; // T0 (or none at all)
   #endif
+
   #if HAS_HOTEND
     uint8_t hotend_too_cold = 0;
   #endif
@@ -1234,13 +1211,18 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
 
-  char buf[40];
   const uint16_t val_t = swap16(*(uint16_t*)val_ptr);
   switch (val_t) {
     default: break;
     case 0:
       #if HAS_HOTEND
-        if (thermalManager.tooColdToExtrude(0)) hotend_too_cold = 1; else swap_tool = 1;
+        if (thermalManager.tooColdToExtrude(0))
+          hotend_too_cold = 1;
+        else {
+          #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+            swap_tool = 1;
+          #endif
+        }
       #endif
       break;
     case 1:
@@ -1261,24 +1243,50 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
     }
   #endif
 
+  if (swap_tool) {
+    char buf[30];
+    snprintf_P(buf, 30
+      #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+        , PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
+      #else
+        , PSTR("M1002E%dF%d")
+      #endif
+      , (int)distanceFilament * filamentDir, filamentSpeed_mm_s * 60
+    );
+    queue.inject(buf);
+  }
+}
+
+/**
+ * M1002: Do a tool-change and relative move for MKS_FilamentLoadUnload
+ *        within the G-code execution window for best concurrency.
+ */
+void GcodeSuite::M1002() {
   #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
-    if (swap_tool) {
-      queue.enqueue_now_P(swap_tool == 2 ? PSTR("T1") : PSTR("T0"));
-      queue.enqueue_now_P(PSTR("G91"));
-      snprintf_P(buf, 40, PSTR("G1 E%d F%d"), (int)distanceFilament * filamentDir, FilamentSpeed * 60);
-      queue.enqueue_one_now(buf);
-      queue.enqueue_now_P(PSTR("G90"));
-    }
+  {
+    char buf[3];
+    sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));
+    process_subcommands_now(buf);
+  }
   #endif
+
+  const uint8_t old_axis_relative = axis_relative;
+  set_e_relative(); // M83
+  {
+    char buf[20];
+    snprintf_P(buf, 20, PSTR("G1E%dF%d"), parser.intval('E'), parser.intval('F'));
+    process_subcommands_now(buf);
+  }
+  axis_relative = old_axis_relative;
 }
 
 void DGUSScreenHandler::MKS_FilamentLoad(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("Load Filament");
+  DEBUG_ECHOLNPGM("MKS_FilamentLoad");
    MKS_FilamentLoadUnload(var, val_ptr, 1);
 }
 
 void DGUSScreenHandler::MKS_FilamentUnLoad(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("UnLoad Filament");
+  DEBUG_ECHOLNPGM("MKS_FilamentUnLoad");
   MKS_FilamentLoadUnload(var, val_ptr, -1);
 }
 
@@ -1403,7 +1411,7 @@ bool DGUSScreenHandler::loop() {
 
   if (language_times != 0) {
     LanguagePInit();
-    DGUS_LanguageDisplay(DGUSLanguageSwitch);
+    DGUS_LanguageDisplay(mks_language_index);
     language_times--;
   }
 
@@ -1413,18 +1421,18 @@ bool DGUSScreenHandler::loop() {
       booted = true;
       #if USE_SENSORLESS
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_x_step = stepperX.homing_threshold();
+          tmc_step.x = stepperX.homing_threshold();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_y_step = stepperY.homing_threshold();
+          tmc_step.y = stepperY.homing_threshold();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_z_step = stepperZ.homing_threshold();
+          tmc_step.z = stepperZ.homing_threshold();
         #endif
       #endif
 
-      if (min_ex_temp != 0)
-        thermalManager.extrude_min_temp = min_ex_temp;
+      if (mks_min_extrusion_temp != 0)
+        thermalManager.extrude_min_temp = mks_min_extrusion_temp;
 
       DGUS_ExtrudeLoadInit();
 
@@ -1446,7 +1454,7 @@ bool DGUSScreenHandler::loop() {
 }
 
 void DGUSScreenHandler::LanguagePInit() {
-  switch (DGUSLanguageSwitch) {
+  switch (mks_language_index) {
     case MKS_SimpleChinese:
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE1, MKS_Language_Choose);
       dgusdisplay.MKS_WriteVariable(VP_LANGUAGE_CHANGE2, MKS_Language_NoChoose);
@@ -1463,7 +1471,7 @@ void DGUSScreenHandler::LanguagePInit() {
 void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
-  ex_filament.ex_need_time        = FilamentSpeed;
+  ex_filament.ex_need_time        = filamentSpeed_mm_s;
   ex_filament.ex_speed            = 0;
   ex_filament.ex_status           = EX_NONE;
   ex_filament.ex_tick_end         = 0;
@@ -1705,10 +1713,10 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     const char Printing_buf_en[] = "Printing";
     dgusdisplay.WriteVariable(VP_Printing_Dis, Printing_buf_en, 32, true);
 
-    const char Info_EEPROM_1_buf_en[] = "Store setting？";
+    const char Info_EEPROM_1_buf_en[] = "Store setting?";
     dgusdisplay.WriteVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_en, 32, true);
 
-    const char Info_EEPROM_2_buf_en[] = "Revert setting？";
+    const char Info_EEPROM_2_buf_en[] = "Revert setting?";
     dgusdisplay.WriteVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_en, 32, true);
 
     const char Info_PrinfFinsh_1_buf_en[] = "Print Done";
@@ -1963,7 +1971,7 @@ void DGUSScreenHandler::DGUS_LanguageDisplay(uint8_t var) {
     const uint16_t Info_EEPROM_1_buf_ch[] = { 0xC7CA, 0xF1B7, 0xA3B1, 0xE6B4, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
     dgusdisplay.WriteVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_ch, 32, true);
 
-    const uint16_t Info_EEPROM_2_buf_ch[] = { 0xC7CA, 0xF1B7, 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0x2000 };
+    const uint16_t Info_EEPROM_2_buf_ch[] = { 0xC7CA, 0xF1B7, 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
     dgusdisplay.WriteVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_ch, 32, true);
 
     const uint16_t TMC_X_Step_buf_ch[] = { 0x2058, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };

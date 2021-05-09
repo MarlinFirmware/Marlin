@@ -177,7 +177,7 @@ float delta_safe_distance_from_top() {
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics(const float &z1, const float &z2, const float &z3) {
+void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3) {
   // Create a vector in old coordinates along x axis of new coordinate
   const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
 
@@ -248,7 +248,7 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position.z = (delta_height + 10 - TERN0(HAS_BED_PROBE, probe.offset.z));
+  current_position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
 

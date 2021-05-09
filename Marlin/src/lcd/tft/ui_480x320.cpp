@@ -326,7 +326,7 @@ void MarlinUI::draw_status_screen() {
 }
 
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
   TERN_(TOUCH_SCREEN, touch.clear());
 
@@ -462,12 +462,12 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.set_background(COLOR_BACKGROUND);
     tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_WHITE);
 
-    for (uint16_t x = 0; x < GRID_MAX_POINTS_X ; x++)
-      for (uint16_t y = 0; y < GRID_MAX_POINTS_Y ; y++)
+    for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
+      for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
         if (position_is_reachable({ ubl.mesh_index_to_xpos(x), ubl.mesh_index_to_ypos(y) }))
-          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 2, 2, COLOR_UBL);
+          tft.add_bar(1 + (x * 2 + 1) * (GRID_WIDTH - 4) / (GRID_MAX_POINTS_X) / 2, GRID_HEIGHT - 3 - ((y * 2 + 1) * (GRID_HEIGHT - 4) / (GRID_MAX_POINTS_Y) / 2), 2, 2, COLOR_UBL);
 
-    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / GRID_MAX_POINTS_X / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / GRID_MAX_POINTS_Y / 2), 6, 6, COLOR_UBL);
+    tft.add_rectangle((x_plot * 2 + 1) * (GRID_WIDTH - 4) / (GRID_MAX_POINTS_X) / 2 - 1, GRID_HEIGHT - 5 - ((y_plot * 2 + 1) * (GRID_HEIGHT - 4) / (GRID_MAX_POINTS_Y) / 2), 6, 6, COLOR_UBL);
 
     const xy_pos_t pos = { ubl.mesh_index_to_xpos(x_plot), ubl.mesh_index_to_ypos(y_plot) },
                    lpos = pos.asLogical();
@@ -512,9 +512,9 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     #if ENABLED(TOUCH_SCREEN)
       touch.clear();
       draw_menu_navigation = false;
-      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + CONTROL_OFFSET,                    UBL,   ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgUp);
-      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + GRID_HEIGHT - CONTROL_OFFSET - 32, UBL, - ENCODER_STEPS_PER_MENU_ITEM * GRID_MAX_POINTS_X, imgDown);
-      add_control(GRID_OFFSET_X + CONTROL_OFFSET,                   GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL, - ENCODER_STEPS_PER_MENU_ITEM, imgLeft);
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + CONTROL_OFFSET,                    UBL,  (ENCODER_STEPS_PER_MENU_ITEM) * (GRID_MAX_POINTS_X), imgUp);
+      add_control(GRID_OFFSET_X + GRID_WIDTH + CONTROL_OFFSET,      GRID_OFFSET_Y + GRID_HEIGHT - CONTROL_OFFSET - 32, UBL, -(ENCODER_STEPS_PER_MENU_ITEM) * (GRID_MAX_POINTS_X), imgDown);
+      add_control(GRID_OFFSET_X + CONTROL_OFFSET,                   GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL, -(ENCODER_STEPS_PER_MENU_ITEM), imgLeft);
       add_control(GRID_OFFSET_X + GRID_WIDTH - CONTROL_OFFSET - 32, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET,      UBL,   ENCODER_STEPS_PER_MENU_ITEM, imgRight);
       add_control(320, GRID_OFFSET_Y + GRID_HEIGHT + CONTROL_OFFSET, CLICK, imgLeveling);
       add_control(224, TFT_HEIGHT - 34, BACK, imgBack);
@@ -610,7 +610,7 @@ static void drawAxisValue(AxisEnum axis) {
       probe.offset.z :
     #endif
     NATIVE_TO_LOGICAL(
-      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      ui.manual_move.processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], ui.manual_move.offset),
       axis
     );
   xy_int_t pos;
@@ -779,7 +779,7 @@ static void disable_steppers() {
   queue.inject_P(PSTR("M84"));
 }
 
-static void drawBtn(int x, int y, const char* label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
+static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
 
