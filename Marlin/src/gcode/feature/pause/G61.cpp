@@ -62,11 +62,12 @@ void GcodeSuite::G61(void) {
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
   if (!parser.seen_axis()) {
-    DEBUG_ECHOLN("Default position restoring");
+    DEBUG_ECHOLNPGM("Default position restoring");
     do_blocking_move_to_xy(stored_position[slot].x, stored_position[slot].y, feedrate_mm_s);
     do_blocking_move_to_z(stored_position[slot].z, feedrate_mm_s);
     SYNC_E(stored_position[slot].e);
-  } else {
+  }
+  else {
     if (parser.seen("XYZ")) {
       DEBUG_ECHOPAIR(STR_RESTORING_POS " S", slot);
       LOOP_XYZ(i) {
