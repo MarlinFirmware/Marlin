@@ -3880,8 +3880,8 @@ void MarlinSettings::reset() {
         say_M603(forReplay);
         SERIAL_ECHOLNPAIR("L", LINEAR_UNIT(fc_settings[0].load_length), " U", LINEAR_UNIT(fc_settings[0].unload_length));
       #else
-        #define _ECHO_603(N) do{ say_M603(forReplay); SERIAL_ECHOLNPAIR("T" STRINGIFY(N) " L", LINEAR_UNIT(fc_settings[N].load_length), " U", LINEAR_UNIT(fc_settings[N].unload_length)); }while(0);
-        REPEAT(EXTRUDERS, _ECHO_603)
+        auto echo_603 = [](const bool f, const uint8_t n) { say_M603(f); SERIAL_ECHOLNPAIR("T", n, " L", LINEAR_UNIT(fc_settings[n].load_length), " U", LINEAR_UNIT(fc_settings[n].unload_length)); };
+        LOOP_L_N(i, EXTRUDERS) echo_603(forReplay, i);
       #endif
     #endif
 
