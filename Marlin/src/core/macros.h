@@ -418,31 +418,19 @@
 
 #else
 
-  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
-  #define MIN_3(a,V...)   MIN_2(a,MIN_2(V))
-  #define MIN_4(a,V...)   MIN_2(a,MIN_3(V))
-  #define MIN_5(a,V...)   MIN_2(a,MIN_4(V))
-  #define MIN_6(a,V...)   MIN_2(a,MIN_5(V))
-  #define MIN_7(a,V...)   MIN_2(a,MIN_6(V))
-  #define MIN_8(a,V...)   MIN_2(a,MIN_7(V))
-  #define MIN_9(a,V...)   MIN_2(a,MIN_8(V))
-  #define MIN_10(a,V...)  MIN_2(a,MIN_9(V))
   #define __MIN_N(N,V...) MIN_##N(V)
   #define _MIN_N(N,V...)  __MIN_N(N,V)
-  #define _MIN(V...)      _MIN_N(NUM_ARGS(V), V)
+  #define _MIN_N_REF()    _MIN_N
+  #define _MIN(V...)      EVAL(_MIN_N(TWO_ARGS(V),V))
+  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
+  #define MIN_3(a,V...)   MIN_2(a,DEFER2(_MIN_N_REF)()(TWO_ARGS(V),V))
 
-  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
-  #define MAX_3(a,V...)   MAX_2(a,MAX_2(V))
-  #define MAX_4(a,V...)   MAX_2(a,MAX_3(V))
-  #define MAX_5(a,V...)   MAX_2(a,MAX_4(V))
-  #define MAX_6(a,V...)   MAX_2(a,MAX_5(V))
-  #define MAX_7(a,V...)   MAX_2(a,MAX_6(V))
-  #define MAX_8(a,V...)   MAX_2(a,MAX_7(V))
-  #define MAX_9(a,V...)   MAX_2(a,MAX_8(V))
-  #define MAX_10(a,V...)  MAX_2(a,MAX_9(V))
   #define __MAX_N(N,V...) MAX_##N(V)
   #define _MAX_N(N,V...)  __MAX_N(N,V)
-  #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
+  #define _MAX_N_REF()    _MAX_N
+  #define _MAX(V...)      EVAL(_MAX_N(TWO_ARGS(V),V))
+  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
+  #define MAX_3(a,V...)   MAX_2(a,DEFER2(_MAX_N_REF)()(TWO_ARGS(V),V))
 
 #endif
 
