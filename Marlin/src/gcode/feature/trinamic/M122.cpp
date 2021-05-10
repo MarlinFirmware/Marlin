@@ -48,7 +48,7 @@ void GcodeSuite::M122() {
       tmc_set_report_interval(interval);
     #endif
 
-    if (parser.seen('V'))
+    if (parser.seen_test('V'))
       tmc_get_registers(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
     else
       tmc_report_all(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
