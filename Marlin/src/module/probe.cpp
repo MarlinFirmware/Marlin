@@ -497,6 +497,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
     stealth_states.z = tmc_enable_stallguard(stepperZ);
     endstops.enable(true);
+    probe.current_homing_on();
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
@@ -523,6 +524,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     tmc_disable_stallguard(stepperZ, stealth_states.z);
+    probe.current_homing_off();
   #endif
 
   if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
@@ -814,4 +816,136 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
+//Lujsensorless_probing  Definimos todas las funciones necesarias para SENSORLESS_PROBING
+#if ENABLED(SENSORLESS_PROBING)  
+  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+    slow_homing_t begin_slow_probe() {
+      slow_homing_t slow_probe{0};
+      slow_probe.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
+                                  planner.settings.max_acceleration_mm_per_s2[Y_AXIS],
+                                  planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);      //lujsensorless añadido tras declarar jerk_xyz
+      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
+      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
+      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);  //Lujhoming añadido para Z_AXIS
+      #if HAS_CLASSIC_JERK
+        slow_probe.jerk_xyz = planner.max_jerk;
+        TERN(DELTA, planner.max_jerk.set(0, 0, 0), planner.max_jerk.set(0, 0));  //lujsensorless antes solo cambiaba xy a 0.
+      #endif
+      planner.reset_acceleration_rates();
+      return slow_probe;
+    }
+
+    slow_homing_t slow_probe;
+    void end_slow_probe(const slow_homing_t &slow_probe) {
+      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_probe.acceleration.x;
+      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_probe.acceleration.y;   
+      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_probe.acceleration.z);  //lujsensorless añadido tras declarar jerk_xyz
+      TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_probe.jerk_xyz);
+      planner.reset_acceleration_rates();
+    }
+  #endif // IMPROVE_HOMING_RELIABILITY
+
+	/**
+	 * Disable stealthChop if used. Enable diag1 pin on driver.
+	 */
+  sensorless_t stealth_states { false };
+	void Probe::enable_stallguard_diag1() {
+		#if ENABLED(DELTA)
+		  stealth_states.x = tmc_enable_stallguard(stepperX);
+		  stealth_states.y = tmc_enable_stallguard(stepperY);
+		#endif
+		stealth_states.z = tmc_enable_stallguard(stepperZ);
+		endstops.enable(true);
+	}
+  	/**
+	 * Re-enable stealthChop if used. Disable diag1 pin on driver.
+	 */
+	void Probe::disable_stallguard_diag1() {
+		endstops.not_homing();
+		#if ENABLED(DELTA)
+		  tmc_disable_stallguard(stepperX, stealth_states.x);
+		  tmc_disable_stallguard(stepperY, stealth_states.y);
+		#endif
+		tmc_disable_stallguard(stepperZ, stealth_states.z);
+	}
+  	/**
+	 * Cambia current TMC steppers a _CURRENT_HOME, guardando la corriente.
+	 */
+  static int16_t save_current_X;
+  static int16_t save_current_Y;
+  static int16_t save_current_Z;
+  
+	void Probe::current_homing_on() {
+		#define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
+		#if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
+		  #define HAS_HOMING_CURRENT 1
+		#endif
+
+		#if HAS_HOMING_CURRENT
+		  auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
+			DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current_on probe: ", a, " -> ", b);
+		  };
+		  #if ENABLED(DELTA)
+        #if HAS_CURRENT_HOME(X)
+          save_current_X = stepperX.getMilliamps();
+          stepperX.rms_current(X_CURRENT_HOME);                 
+          if (DEBUGGING(LEVELING)) {debug_current(PSTR("X"), save_current_X, X_CURRENT_HOME);
+          SERIAL_ECHOLNPGM("CURRENT_HOME_X");
+          }
+        #endif
+
+        #if HAS_CURRENT_HOME(Y)
+          save_current_Y = stepperY.getMilliamps();
+          stepperY.rms_current(Y_CURRENT_HOME);
+          if (DEBUGGING(LEVELING)) {debug_current(PSTR("Y"), save_current_Y, Y_CURRENT_HOME);
+          SERIAL_ECHOLNPGM("CURRENT_HOME_Y");
+          }
+        #endif
+      #endif
+		  
+		  #if HAS_CURRENT_HOME(Z)
+        save_current_Z = stepperZ.getMilliamps();
+        stepperZ.rms_current(Z_CURRENT_HOME);
+        if (DEBUGGING(LEVELING)) {debug_current(PSTR("Z"), save_current_Z, Z_CURRENT_HOME);
+        SERIAL_ECHOLNPGM("CURRENT_HOME_Z");
+        }
+		  #endif 
+      TERN_(IMPROVE_HOMING_RELIABILITY, slow_probe = begin_slow_probe());
+		#endif
+	}
+  	/**
+	 * Regresa a la corriente guardarda antes del cambio a_CURRENT_HOME.
+	 */
+	void Probe::current_homing_off() {
+		#if HAS_HOMING_CURRENT
+		  auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
+			DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current_off probe: ", a, " -> ", b);
+		  };    
+		  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current probe...");
+		  #if ENABLED(DELTA)
+        #if HAS_CURRENT_HOME(X)
+          stepperX.rms_current(save_current_X);
+          if (DEBUGGING(LEVELING)) {debug_current(PSTR("X"), X_CURRENT_HOME, save_current_X);
+          SERIAL_ECHOLNPGM("CURRENT_X");
+          }
+        #endif
+
+        #if HAS_CURRENT_HOME(Y)
+          stepperY.rms_current(save_current_X);
+          if (DEBUGGING(LEVELING)) {debug_current(PSTR("Y"), Y_CURRENT_HOME, save_current_Y);
+          SERIAL_ECHOLNPGM("CURRENT_Y");
+          }
+        #endif
+      #endif
+
+		  #if HAS_CURRENT_HOME(Z)      
+        stepperZ.rms_current(save_current_X);
+        if (DEBUGGING(LEVELING)) {debug_current(PSTR("Z"), Z_CURRENT_HOME, save_current_Z);
+        SERIAL_ECHOLNPGM("CURRENT_Z");
+        }
+		  #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_probe(slow_probe));
+		#endif
+	}
+#endif
 #endif // HAS_BED_PROBE
