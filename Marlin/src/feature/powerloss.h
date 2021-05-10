@@ -42,6 +42,10 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
+
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
@@ -52,6 +56,7 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+
   float zraise;
 
   // Repeat information
@@ -70,7 +75,6 @@ typedef struct {
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
-    bool volumetric_enabled;
     float filament_size[EXTRUDERS];
   #endif
 
@@ -116,7 +120,10 @@ typedef struct {
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
     #if ENABLED(HAS_LEVELING)
-      bool leveling:1;
+      bool leveling:1;            // M420 S
+    #endif
+    #if DISABLED(NO_VOLUMETRICS)
+      bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
 
@@ -179,8 +186,14 @@ class PrintJobRecovery {
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {
-        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-          _outage();
+        static constexpr uint8_t OUTAGE_THRESHOLD = 3;
+        static uint8_t outage_counter = 0;
+        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) {
+          outage_counter++;
+          if (outage_counter >= OUTAGE_THRESHOLD) _outage();
+        }
+        else
+          outage_counter = 0;
       }
     #endif
 

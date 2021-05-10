@@ -81,8 +81,8 @@ void GcodeSuite::M600() {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     int8_t DXC_ext = target_extruder;
-    if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
-                              // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
+    if (!parser.seen_test('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
+                                   // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if MULTI_FILAMENT_SENSOR
         if (idex_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
@@ -110,7 +110,7 @@ void GcodeSuite::M600() {
   #endif
 
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
+  const float retract = -ABS(parser.axisunitsval('E', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
 
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
@@ -132,15 +132,11 @@ void GcodeSuite::M600() {
                     fast_load_length = 0.0f;
   #else
     // Unload filament
-    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
-                                                      : fc_settings[active_extruder].unload_length);
-
+    const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
     // Slow load filament
     constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-
     // Fast load filament
-    const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                        : fc_settings[active_extruder].load_length);
+    const float fast_load_length = ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length));
   #endif
 
   const int beep_count = parser.intval('B', -1
@@ -149,7 +145,7 @@ void GcodeSuite::M600() {
     #endif
   );
 
-  if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
+  if (pause_print(retract, park_point, true, unload_length DXC_PASS)) {
     #if ENABLED(MMU2_MENUS)
       mmu2_M600();
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);

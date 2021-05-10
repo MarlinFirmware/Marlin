@@ -815,8 +815,6 @@ void Draw_Control_Menu() {
 
   if (CVISI(CONTROL_CASE_ADVSET)) {
     DWIN_Draw_Label(CLINE(CONTROL_CASE_ADVSET), GET_TEXT_F(MSG_ADVANCED_SETTINGS));  // Advanced Settings
-    Draw_More_Icon(CSCROL(CONTROL_CASE_ADVSET));
-    Draw_Menu_Line(CSCROL(CONTROL_CASE_ADVSET), ICON_AdvSet);
   }
 
   if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
@@ -825,23 +823,26 @@ void Draw_Control_Menu() {
     Draw_Menu_Cursor(CSCROL(select_control.now));
 
   // Draw icons and lines
-  uint8_t i = 0;
-  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_Temperature + (N) - 1); }while(0)
+  #define _TEMP_ICON(N, I, M) do { \
+    if (CVISI(N)) { \
+      Draw_Menu_Line(CSCROL(N), I); \
+      if (M) { \
+        Draw_More_Icon(CSCROL(N)); \
+      } \
+    } \
+  } while(0)
 
-  _TEMP_ICON(CONTROL_CASE_TEMP);
-  if (CVISI(i)) Draw_More_Icon(CSCROL(i));
-
-  _TEMP_ICON(CONTROL_CASE_MOVE);
-  Draw_More_Icon(CSCROL(i));
+  _TEMP_ICON(CONTROL_CASE_TEMP, ICON_Temperature, true);
+  _TEMP_ICON(CONTROL_CASE_MOVE, ICON_Motion, true);
 
   #if ENABLED(EEPROM_SETTINGS)
-    _TEMP_ICON(CONTROL_CASE_SAVE);
-    _TEMP_ICON(CONTROL_CASE_LOAD);
-    _TEMP_ICON(CONTROL_CASE_RESET);
+    _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
   #endif
 
-  _TEMP_ICON(CONTROL_CASE_INFO);
-  if (CVISI(CONTROL_CASE_INFO)) Draw_More_Icon(CSCROL(i));
+  _TEMP_ICON(CONTROL_CASE_ADVSET, ICON_AdvSet, true);
+  _TEMP_ICON(CONTROL_CASE_INFO, ICON_Info, true);
 }
 
 void Draw_Tune_Menu() {
@@ -1890,7 +1891,7 @@ void HMI_SDCardUpdate() {
       else if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
-        card.flag.abort_sd_printing = true;
+        card.abortFilePrintSoon();
         wait_for_heatup = wait_for_user = false;
         dwin_abort_flag = true; // Reset feedrate, return to Home
       }
@@ -2298,9 +2299,6 @@ void HMI_PauseOrStop() {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
         ICON_Continue();
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          if (recovery.enabled) recovery.save(true);
-        #endif
         queue.inject_P(PSTR("M25"));
       }
       else {
@@ -2313,7 +2311,7 @@ void HMI_PauseOrStop() {
         checkkey = Back_Main;
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
         wait_for_heatup = wait_for_user = false;       // Stop waiting for heating/user
-        card.flag.abort_sd_printing = true;            // Let the main loop handle SD abort
+        card.abortFilePrintSoon();                     // Let the main loop handle SD abort
         dwin_abort_flag = true;                        // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
           host_action_cancel();
@@ -2656,11 +2654,12 @@ void HMI_Control() {
         Scroll_Menu(DWIN_SCROLL_UP);
 
         switch (index_control) {  // Last menu items
-          case CONTROL_CASE_ADVSET:  // Advance Settings >
+          case CONTROL_CASE_ADVSET:  // Advanced Settings >
             Draw_Menu_Item(MROWS, ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), true);
             break;
           case CONTROL_CASE_INFO:    // Info >
-            Draw_Menu_Item(MROWS, ICON_Info, GET_TEXT(MSG_INFO_SCREEN), true);
+            Item_Control_Info(MBASE(MROWS));
+            Draw_Menu_Icon(MROWS, ICON_Info);
             break;
           default: break;
         }
@@ -2724,7 +2723,7 @@ void HMI_Control() {
           HMI_AudioFeedback();
           break;
       #endif
-      case CONTROL_CASE_ADVSET: // Advance Settings
+      case CONTROL_CASE_ADVSET: // Advanced Settings
         checkkey = AdvSet;
         select_advset.reset();
         Draw_AdvSet_Menu();

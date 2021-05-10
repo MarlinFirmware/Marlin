@@ -755,7 +755,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink)
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && printingIsActive();
     if (show_remain) {
       #if ENABLED(USE_M73_REMAINING_TIME)
         duration_t remaining = ui.get_remaining_time();
@@ -889,7 +889,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)

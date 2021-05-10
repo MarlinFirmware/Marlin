@@ -371,7 +371,7 @@ public:
         case TEMPUNIT_K: f -= 273.15f;
         case TEMPUNIT_F: f = (f - 32) * 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
     static inline celsius_t value_celsius_diff() {
@@ -382,7 +382,7 @@ public:
         case TEMPUNIT_K: break;
         case TEMPUNIT_F: f *= 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
   #else // !TEMPERATURE_UNITS_SUPPORT
@@ -408,6 +408,8 @@ public:
   static inline int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
   static inline uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
   static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
+  static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
+                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
   static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)
