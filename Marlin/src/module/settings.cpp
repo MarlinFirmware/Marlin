@@ -1072,7 +1072,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(tmc_stepper_current);
 
-      tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+      tmc_stepper_current_t tmc_stepper_current{0};
 
       #if HAS_TRINAMIC_CONFIG
         #if AXIS_IS_TMC(X)
@@ -1134,7 +1134,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(tmc_hybrid_threshold);
 
       #if ENABLED(HYBRID_THRESHOLD)
-       tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        tmc_hybrid_threshold_t tmc_hybrid_threshold{0};
         #if AXIS_HAS_STEALTHCHOP(X)
           tmc_hybrid_threshold.X = stepperX.get_pwm_thrs();
         #endif
@@ -1538,7 +1538,7 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(dummyf);
           #endif
         #else
-          for (uint8_t q = 4; q--;) EEPROM_READ(dummyf);
+          for (uint8_t q = XYZE; q--;) EEPROM_READ(dummyf);
         #endif
 
         EEPROM_READ(TERN(CLASSIC_JERK, dummyf, planner.junction_deviation_mm));
@@ -2256,7 +2256,7 @@ void MarlinSettings::postprocess() {
           const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
           const uint8_t &backlash_correction = backlash.correction;
         #else
-          float backlash_distance_mm[XYZ];
+          xyz_float_t backlash_distance_mm;
           uint8_t backlash_correction;
         #endif
         #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)

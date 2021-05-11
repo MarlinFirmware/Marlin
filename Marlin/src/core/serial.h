@@ -210,7 +210,7 @@ void serialprintPGM(PGM_P str);
 #define _SEP_N_P_REF()            _SEP_N_P
 #define _SEP_1_P(s)               serialprintPGM(s);
 #define _SEP_2_P(s,v)             serial_echopair_PGM(s,v);
-#define _SEP_3_P(s,v,V...)        _SEP_2_P(s,v); DEFER(_SEP_N_P_REF)()(TWO_ARGS(V),V);
+#define _SEP_3_P(s,v,V...)        _SEP_2_P(s,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPAIR_P(V...)   do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
 // Print up to 20 pairs of values followed by newline. Odd elements must be PSTR pointers.
@@ -219,7 +219,7 @@ void serialprintPGM(PGM_P str);
 #define _SELP_N_P_REF()           _SELP_N_P
 #define _SELP_1_P(s)              { serialprintPGM(s); SERIAL_EOL(); }
 #define _SELP_2_P(s,v)            { serial_echopair_PGM(s,v); SERIAL_EOL(); }
-#define _SELP_3_P(s,v,V...)       { _SEP_2_P(s,v); DEFER(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
+#define _SELP_3_P(s,v,V...)       { _SEP_2_P(s,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
 #define SERIAL_ECHOLNPAIR_P(V...) do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
 
 #ifdef AllowDifferentTypeInList
