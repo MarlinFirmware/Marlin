@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
@@ -37,7 +36,7 @@ void watchdogSetup() {
   #if ENABLED(USE_WATCHDOG)
 
     // 4 seconds timeout
-    uint32_t timeout = 4000;
+    uint32_t timeout = TERN(WATCHDOG_DURATION_8S, 8000, 4000);
 
     // Calculate timeout value in WDT counter ticks: This assumes
     // the slow clock is running at 32.768 kHz watchdog

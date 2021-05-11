@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -62,9 +62,7 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#ifndef __AVR_AT90USB1286__
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Printrboard"
 
@@ -124,7 +122,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
@@ -166,4 +164,4 @@
 
   #endif
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL

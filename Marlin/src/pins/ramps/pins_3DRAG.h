@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,7 +34,7 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL
-  #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+  #define DEFAULT_SOURCE_CODE_URL "3dprint.elettronicain.it"
 #endif
 
 //
@@ -44,7 +44,9 @@
 #define RAMPS_D9_PIN                           8
 #define MOSFET_D_PIN                          12
 
-#define CASE_LIGHT_PIN                        -1  // Hardware PWM but one is not available on expansion header
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
+#endif
 
 #include "pins_RAMPS.h"
 
@@ -76,7 +78,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
   #undef BEEPER_PIN
 
   #undef LCD_PINS_RS
@@ -104,7 +106,7 @@
 
   #define BEEPER_PIN                          33
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL
 
 /**
  *  M3/M4/M5 - Spindle/Laser Control
@@ -155,7 +157,7 @@
     #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
     #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
     #define SPINDLE_DIR_PIN                   48
-  #elif !BOTH(ULTRA_LCD, NEWPANEL)                // use expansion header if no LCD in use
+  #elif !BOTH(IS_ULTRA_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
     #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
     #define SPINDLE_DIR_PIN                   17
   #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
 #include "../../queue.h"
 
 #include "../../../libs/buzzer.h"
-#include "../../../lcd/ultralcd.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 
@@ -57,14 +57,12 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
- *
  */
 void GcodeSuite::G29() {
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   static int mbl_probe_index = -1;
-  #if HAS_SOFTWARE_ENDSTOPS
-    static bool saved_soft_endstops_state;
-  #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
@@ -89,7 +87,7 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(G28_L0_ENSURES_LEVELING_OFF, "L0", "") "\nG29S2") : PSTR("G29S2"));
         return;
       }
       state = MeshNext;
@@ -101,40 +99,42 @@ void GcodeSuite::G29() {
       }
       // For each G29 S2...
       if (mbl_probe_index == 0) {
-        #if HAS_SOFTWARE_ENDSTOPS
-          // For the initial G29 S2 save software endstop state
-          saved_soft_endstops_state = soft_endstops_enabled;
-        #endif
         // Move close to the bed before the first point
-        do_blocking_move_to_z(0);
+        do_blocking_move_to_z(0.4f
+          #ifdef MANUAL_PROBE_START_Z
+            + (MANUAL_PROBE_START_Z) - 0.4f
+          #endif
+        );
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = saved_soft_endstops_state;
-        #endif
+        SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_MAX_POINTS) {
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
-
+      if (mbl_probe_index < (GRID_MAX_POINTS)) {
+        // Disable software endstops to allow manual adjustment
+        // If G29 is left hanging without completion they won't be re-enabled!
+        SET_SOFT_ENDSTOP_LOOSE(true);
         mbl.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
-        // One last "return to the bed" (as originally coded) at completion
-        current_position.z = MANUAL_PROBE_HEIGHT;
+        // Move to the after probing position
+        current_position.z = (
+          #ifdef Z_AFTER_PROBING
+            Z_AFTER_PROBING
+          #else
+            Z_CLEARANCE_BETWEEN_MANUAL_PROBES
+          #endif
+        );
         line_to_current_position();
         planner.synchronize();
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
+        TERN_(HAS_STATUS_MESSAGE, ui.set_status(GET_TEXT(MSG_MESH_DONE)));
         BUZZ(100, 659);
         BUZZ(100, 698);
 
@@ -147,18 +147,15 @@ void GcodeSuite::G29() {
           planner.synchronize();
         #endif
 
-        #if ENABLED(LCD_BED_LEVELING)
-          ui.wait_for_move = false;
-        #endif
+        TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
       }
       break;
 
     case MeshSet:
       if (parser.seenval('I')) {
         ix = parser.value_int();
-        if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_ECHOPAIR("I out of range (0-", int(GRID_MAX_POINTS_X - 1));
-          SERIAL_ECHOLNPGM(")");
+        if (!WITHIN(ix, 0, (GRID_MAX_POINTS_X) - 1)) {
+          SERIAL_ECHOLNPAIR("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
           return;
         }
       }
@@ -167,9 +164,8 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
-        if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_ECHOPAIR("J out of range (0-", int(GRID_MAX_POINTS_Y - 1));
-          SERIAL_ECHOLNPGM(")");
+        if (!WITHIN(iy, 0, (GRID_MAX_POINTS_Y) - 1)) {
+          SERIAL_ECHOLNPAIR("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
           return;
         }
       }
@@ -178,9 +174,7 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');
@@ -200,11 +194,13 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
-    SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
+    SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING

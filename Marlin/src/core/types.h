@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -72,17 +72,34 @@ struct IF<true, L, R> { typedef L type; };
 //
 typedef float feedRate_t;
 
+//
+// celsius_t is the native unit of temperature. Signed to handle a disconnected thermistor value (-14).
+// For more resolition (e.g., for a chocolate printer) this may later be changed to Celsius x 100
+//
+typedef int16_t celsius_t;
+typedef float celsius_float_t;
+
+//
+// On AVR pointers are only 2 bytes so use 'const float &' for 'const float'
+//
+#ifdef __AVR__
+  typedef const float & const_float_t;
+#else
+  typedef const float const_float_t;
+#endif
+typedef const_float_t const_feedRate_t;
+typedef const_float_t const_celsius_float_t;
+
 // Conversion macros
-#define MMM_TO_MMS(MM_M) feedRate_t(float(MM_M) / 60.0f)
-#define MMS_TO_MMM(MM_S) (float(MM_S) * 60.0f)
-#define MMS_SCALED(V)    ((V) * 0.01f * feedrate_percentage)
+#define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
+#define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
 //
 // Coordinates structures for XY, XYZ, XYZE...
 //
 
 // Helpers
-#define _RECIP(N) ((N) ? 1.0f / float(N) : 0.0f)
+#define _RECIP(N) ((N) ? 1.0f / static_cast<float>(N) : 0.0f)
 #define _ABS(N) ((N) < 0 ? -(N) : (N))
 #define _LS(N)  (N = (T)(uint32_t(N) << v))
 #define _RS(N)  (N = (T)(uint32_t(N) >> v))
@@ -199,8 +216,8 @@ struct XYval {
   FI XYval<int32_t>   asLong()                    const { return { int32_t(x), int32_t(y) }; }
   FI XYval<int32_t>   ROUNDL()                          { return { int32_t(LROUND(x)), int32_t(LROUND(y)) }; }
   FI XYval<int32_t>   ROUNDL()                    const { return { int32_t(LROUND(x)), int32_t(LROUND(y)) }; }
-  FI XYval<float>    asFloat()                          { return {   float(x),   float(y) }; }
-  FI XYval<float>    asFloat()                    const { return {   float(x),   float(y) }; }
+  FI XYval<float>    asFloat()                          { return { static_cast<float>(x), static_cast<float>(y) }; }
+  FI XYval<float>    asFloat()                    const { return { static_cast<float>(x), static_cast<float>(y) }; }
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
   FI XYval<float>  asLogical()                    const { XYval<float> o = asFloat(); toLogical(o); return o; }
   FI XYval<float>   asNative()                    const { XYval<float> o = asFloat(); toNative(o);  return o; }
@@ -310,8 +327,8 @@ struct XYZval {
   FI XYZval<int32_t>  asLong()                   const { return { int32_t(x), int32_t(y), int32_t(z) }; }
   FI XYZval<int32_t>  ROUNDL()                         { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
   FI XYZval<int32_t>  ROUNDL()                   const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
-  FI XYZval<float>   asFloat()                         { return {   float(x),   float(y),   float(z) }; }
-  FI XYZval<float>   asFloat()                   const { return {   float(x),   float(y),   float(z) }; }
+  FI XYZval<float>   asFloat()                         { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
+  FI XYZval<float>   asFloat()                   const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
   FI XYZval<float> reciprocal()                  const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z) }; }
   FI XYZval<float> asLogical()                   const { XYZval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZval<float>  asNative()                   const { XYZval<float> o = asFloat(); toNative(o);  return o; }
@@ -347,14 +364,14 @@ struct XYZval {
   FI XYZval<T>  operator* (const XYZEval<T> &rs)       { XYZval<T> ls = *this; ls.x *= rs.x; ls.y *= rs.y; ls.z *= rs.z; return ls; }
   FI XYZval<T>  operator/ (const XYZEval<T> &rs) const { XYZval<T> ls = *this; ls.x /= rs.x; ls.y /= rs.y; ls.z /= rs.z; return ls; }
   FI XYZval<T>  operator/ (const XYZEval<T> &rs)       { XYZval<T> ls = *this; ls.x /= rs.x; ls.y /= rs.y; ls.z /= rs.z; return ls; }
-  FI XYZval<T>  operator* (const float &v)       const { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= z;    return ls; }
-  FI XYZval<T>  operator* (const float &v)             { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= z;    return ls; }
-  FI XYZval<T>  operator* (const int &v)         const { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= z;    return ls; }
-  FI XYZval<T>  operator* (const int &v)               { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= z;    return ls; }
-  FI XYZval<T>  operator/ (const float &v)       const { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= z;    return ls; }
-  FI XYZval<T>  operator/ (const float &v)             { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= z;    return ls; }
-  FI XYZval<T>  operator/ (const int &v)         const { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= z;    return ls; }
-  FI XYZval<T>  operator/ (const int &v)               { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= z;    return ls; }
+  FI XYZval<T>  operator* (const float &v)       const { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= v;    return ls; }
+  FI XYZval<T>  operator* (const float &v)             { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= v;    return ls; }
+  FI XYZval<T>  operator* (const int &v)         const { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= v;    return ls; }
+  FI XYZval<T>  operator* (const int &v)               { XYZval<T> ls = *this; ls.x *= v;    ls.y *= v;    ls.z *= v;    return ls; }
+  FI XYZval<T>  operator/ (const float &v)       const { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= v;    return ls; }
+  FI XYZval<T>  operator/ (const float &v)             { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= v;    return ls; }
+  FI XYZval<T>  operator/ (const int &v)         const { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= v;    return ls; }
+  FI XYZval<T>  operator/ (const int &v)               { XYZval<T> ls = *this; ls.x /= v;    ls.y /= v;    ls.z /= v;    return ls; }
   FI XYZval<T>  operator>>(const int &v)         const { XYZval<T> ls = *this; _RS(ls.x); _RS(ls.y); _RS(ls.z); return ls; }
   FI XYZval<T>  operator>>(const int &v)               { XYZval<T> ls = *this; _RS(ls.x); _RS(ls.y); _RS(ls.z); return ls; }
   FI XYZval<T>  operator<<(const int &v)         const { XYZval<T> ls = *this; _LS(ls.x); _LS(ls.y); _LS(ls.z); return ls; }
@@ -421,8 +438,8 @@ struct XYZEval {
   FI XYZEval<int32_t>  asLong()                         const { return { int32_t(x), int32_t(y), int32_t(z), int32_t(e) }; }
   FI XYZEval<int32_t>  ROUNDL()                               { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
   FI XYZEval<int32_t>  ROUNDL()                         const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
-  FI XYZEval<float>   asFloat()                               { return {   float(x),   float(y),   float(z),   float(e) }; }
-  FI XYZEval<float>   asFloat()                         const { return {   float(x),   float(y),   float(z),   float(e) }; }
+  FI XYZEval<float>   asFloat()                               { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }; }
+  FI XYZEval<float>   asFloat()                         const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }; }
   FI XYZEval<float> reciprocal()                        const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(e) }; }
   FI XYZEval<float> asLogical()                         const { XYZEval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZEval<float>  asNative()                         const { XYZEval<float> o = asFloat(); toNative(o);  return o; }
@@ -501,4 +518,4 @@ struct XYZEval {
 #undef FI
 
 const xyze_char_t axis_codes { 'X', 'Y', 'Z', 'E' };
-#define XYZ_CHAR(A) ('X' + char(A))
+#define XYZ_CHAR(A) ((char)('X' + A))

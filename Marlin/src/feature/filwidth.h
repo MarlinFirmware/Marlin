@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -78,7 +78,7 @@ public:
   static inline void update_measured_mm() { measured_mm = raw_to_mm(); }
 
   // Update ring buffer used to delay filament measurements
-  static inline void advance_e(const float &e_move) {
+  static inline void advance_e(const_float_t e_move) {
 
     // Increment counters with the E distance
     e_count += e_move;

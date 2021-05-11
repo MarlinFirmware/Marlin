@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,7 @@
  * MegaTronics pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Megatronics"
 //
@@ -98,14 +96,17 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
-#define CASE_LIGHT_PIN                         2
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       2
+#endif
 
 //
 // LCD / Controller
 //
 #define BEEPER_PIN                            33
 
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                         16
   #define LCD_PINS_ENABLE                     17
@@ -121,7 +122,7 @@
 
   #define SD_DETECT_PIN                       -1  // RAMPS doesn't use this
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control

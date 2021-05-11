@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,7 +31,7 @@
 
 inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
   if (IsRunning()) {
-    forward_kinematics_SCARA(delta_a, delta_b);
+    forward_kinematics(delta_a, delta_b);
     do_blocking_move_to_xy(cartes);
     return true;
   }

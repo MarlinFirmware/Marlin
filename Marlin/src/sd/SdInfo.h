@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,7 +39,7 @@
 // Version 3.01
 // May 18, 2010
 //
-// http://www.sdcard.org/developers/tech/sdcard/pls/simplified_specs
+// https://www.sdcard.org/downloads/pls/index.html
 
 // SD card commands
 uint8_t const CMD0 = 0x00,    // GO_IDLE_STATE - init card in spi mode if CS low

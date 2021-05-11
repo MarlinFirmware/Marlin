@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@ class Servo {
                    MAX_PULSE_WIDTH = 2400,  // Longest pulse sent to a servo
                    TAU_MSEC = 20,
                    TAU_USEC = (TAU_MSEC * 1000),
-                   MAX_COMPARE = ((1 << 16) - 1), // 65535
+                   MAX_COMPARE = _BV(16) - 1, // 65535
                    CHANNEL_MAX_NUM = 16;
 
 public:

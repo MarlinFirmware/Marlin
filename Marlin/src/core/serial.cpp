@@ -16,34 +16,70 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "serial.h"
-#include "language.h"
+#include "../inc/MarlinConfig.h"
+
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
-static const char errormagic[] PROGMEM = "Error:";
-static const char echomagic[]  PROGMEM = "echo:";
+// Commonly-used strings in serial output
+PGMSTR(NUL_STR,   "");   PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
+PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
+PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
+PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
+PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
-#if NUM_SERIAL > 1
-  int8_t serial_port_index = 0;
+// Hook Meatpack if it's enabled on the first leaf
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
+  SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
+#endif
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
+  SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
+#endif
+#if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
+  SerialLeafT3 mpSerial3(false, _SERIAL_LEAF_3);
+#endif
+
+// Step 2: For multiserial, handle the second serial port as well
+#if HAS_MULTI_SERIAL
+  #if HAS_ETHERNET
+    // We need a definition here
+    SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
+  #endif
+
+  #define __S_LEAF(N) ,SERIAL_LEAF_##N
+  #define _S_LEAF(N) __S_LEAF(N)
+
+  SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(2, INCREMENT(NUM_SERIAL), _S_LEAF) );
+
+  #undef __S_LEAF
+  #undef _S_LEAF
+
 #endif
 
 void serialprintPGM(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
-void serial_echo_start()  { serialprintPGM(echomagic); }
-void serial_error_start() { serialprintPGM(errormagic); }
 
+void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
+void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
+
+void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
 void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
+void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+void serial_echopair_PGM(PGM_P const s_P, unsigned char v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
@@ -65,10 +101,8 @@ void print_bin(uint16_t val) {
   }
 }
 
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
-
-void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
-  serialprintPGM(prefix);
+void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+  if (prefix) serialprintPGM(prefix);
   SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }

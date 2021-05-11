@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
 
 //#define MIXER_NORMALIZER_DEBUG
 
-#ifndef __AVR__ // || DUAL_MIXING_EXTRUDER
+#ifndef __AVR__ // || HAS_DUAL_MIXING
   // Use 16-bit (or fastest) data for the integer mix factors
   typedef uint_fast16_t mixer_comp_t;
   typedef uint_fast16_t mixer_accu_t;
@@ -48,29 +48,20 @@ typedef int8_t mixer_perc_t;
 #endif
 
 enum MixTool {
-  FIRST_USER_VIRTUAL_TOOL = 0,
-  LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1,
-  NR_USER_VIRTUAL_TOOLS,
-  MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS,
-  #if ENABLED(RETRACT_SYNC_MIXING)
-    MIXER_AUTORETRACT_TOOL,
+    FIRST_USER_VIRTUAL_TOOL = 0
+  , LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1
+  , NR_USER_VIRTUAL_TOOLS
+  , MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS
+  #if HAS_MIXER_SYNC_CHANNEL
+    , MIXER_AUTORETRACT_TOOL
   #endif
-  NR_MIXING_VIRTUAL_TOOLS
+  , NR_MIXING_VIRTUAL_TOOLS
 };
 
-#if ENABLED(RETRACT_SYNC_MIXING)
-  #define MAX_VTOOLS 254
-#else
-  #define MAX_VTOOLS 255
-#endif
+#define MAX_VTOOLS TERN(HAS_MIXER_SYNC_CHANNEL, 254, 255)
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
 
-#define MIXER_STEPPER_LOOP(VAR) \
-  for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
-
-#define MIXER_BLOCK_FIELD       mixer_comp_t b_color[MIXING_STEPPERS]
-#define MIXER_POPULATE_BLOCK()  mixer.populate_block(block->b_color)
-#define MIXER_STEPPER_SETUP()   mixer.stepper_setup(current_block->b_color)
+#define MIXER_STEPPER_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #if ENABLED(GRADIENT_MIX)
 
@@ -79,7 +70,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
     mixer_comp_t color[MIXING_STEPPERS];  // The current gradient color
     float start_z, end_z;                 // Region for gradient
     int8_t start_vtool, end_vtool;        // Start and end virtual tools
-    mixer_perc_t start_mix[MIXING_STEPPERS],   // Start and end mixes from those tools
+    mixer_perc_t start_mix[MIXING_STEPPERS],  // Start and end mixes from those tools
                  end_mix[MIXING_STEPPERS];
     #if ENABLED(GRADIENT_VTOOL)
       int8_t vtool_index;                 // Use this virtual tool number as index
@@ -112,12 +103,8 @@ class Mixer {
 
   FORCE_INLINE static void T(const uint_fast8_t c) {
     selected_vtool = c;
-    #if ENABLED(GRADIENT_VTOOL)
-      refresh_gradient();
-    #endif
-    #if DUAL_MIXING_EXTRUDER
-      update_mix_from_vtool();
-    #endif
+    TERN_(GRADIENT_VTOOL, refresh_gradient());
+    TERN_(HAS_DUAL_MIXING, update_mix_from_vtool());
   }
 
   // Used when dealing with blocks
@@ -135,7 +122,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
+  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
@@ -151,9 +138,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOPGM(" ] to Color [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(tcolor[0]), int(tcolor[1]), int(tcolor[2]), int(tcolor[3]), int(tcolor[4]), int(tcolor[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }
@@ -165,29 +152,27 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot);
 
       #ifdef MIXER_NORMALIZER_DEBUG
-        SERIAL_ECHOPAIR("V-tool ", int(j), " [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(color[j][0]), int(color[j][1]), int(color[j][2]), int(color[j][3]), int(color[j][4]), int(color[j][5]));
+        SERIAL_ECHOPAIR("V-tool ", j, " [ ");
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]);
         SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }
 
-  #endif // DUAL_MIXING_EXTRUDER || GRADIENT_MIX
+  #endif // HAS_DUAL_MIXING || GRADIENT_MIX
 
-  #if DUAL_MIXING_EXTRUDER
+  #if HAS_DUAL_MIXING
 
     // Update the virtual tool from an edited mix
     static inline void update_vtool_from_mix() {
       copy_mix_to_color(color[selected_vtool]);
-      #if ENABLED(GRADIENT_MIX)
-        refresh_gradient();
-      #endif
+      TERN_(GRADIENT_MIX, refresh_gradient());
       // MIXER_STEPPER_LOOP(i) collector[i] = mix[i];
       // normalize();
     }
 
-  #endif // DUAL_MIXING_EXTRUDER
+  #endif // HAS_DUAL_MIXING
 
   #if ENABLED(GRADIENT_MIX)
 
@@ -195,9 +180,9 @@ class Mixer {
     static float prev_z;
 
     // Update the current mix from the gradient for a given Z
-    static void update_gradient_for_z(const float z);
+    static void update_gradient_for_z(const_float_t z);
     static void update_gradient_for_planner_z();
-    static inline void gradient_control(const float z) {
+    static inline void gradient_control(const_float_t z) {
       if (gradient.enabled) {
         if (z >= gradient.end_z)
           T(gradient.end_vtool);
@@ -213,9 +198,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("Gradient [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(gradient.color[0]), int(gradient.color[1]), int(gradient.color[2]), int(gradient.color[3]), int(gradient.color[4]), int(gradient.color[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]);
         SERIAL_ECHOPGM(" ] to Mix [ ");
-        SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(mix[0]), int(mix[1]), int(mix[2]), int(mix[3]), int(mix[4]), int(mix[5]));
+        SERIAL_ECHOLIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]);
         SERIAL_ECHOLNPGM(" ]");
       #endif
     }

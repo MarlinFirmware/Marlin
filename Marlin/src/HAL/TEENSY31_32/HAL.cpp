@@ -16,13 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-
 /**
- * Description: HAL for Teensy32 (MK20DX256)
+ * HAL for Teensy 3.2 (MK20DX256)
  */
 
 #ifdef __MK20DX256__
@@ -31,6 +30,15 @@
 #include "../shared/Delay.h"
 
 #include <Wire.h>
+
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#else
+  #error "SERIAL_PORT must be from 0 to 3."
+#endif
+USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result;
 
@@ -69,6 +77,8 @@ uint8_t HAL_get_reset_source() {
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 extern "C" {
   extern char __bss_end;

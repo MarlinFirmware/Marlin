@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,6 +27,8 @@
 #include "twibus.h"
 
 #include <Wire.h>
+
+TWIBus i2c;
 
 TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
@@ -81,7 +83,7 @@ void TWIBus::send() {
 // static
 void TWIBus::echoprefix(uint8_t bytes, const char pref[], uint8_t adr) {
   SERIAL_ECHO_START();
-  serialprintPGM(pref);
+  SERIAL_ECHOPGM_P(pref);
   SERIAL_ECHOPAIR(": from:", adr, " bytes:", bytes, " data:");
 }
 
@@ -104,8 +106,8 @@ bool TWIBus::request(const uint8_t bytes) {
   debug(PSTR("request"), bytes);
 
   // requestFrom() is a blocking function
-  if (Wire.requestFrom(addr, bytes) == 0) {
-    debug("request fail", addr);
+  if (Wire.requestFrom(I2C_ADDRESS(addr), bytes) == 0) {
+    debug("request fail", I2C_ADDRESS(addr));
     return false;
   }
 
@@ -155,6 +157,14 @@ void TWIBus::flush() {
     reset();
   }
 
+  void i2c_on_receive(int bytes) { // just echo all bytes received to serial
+    i2c.receive(bytes);
+  }
+
+  void i2c_on_request() {          // just send dummy data for now
+    i2c.reply("Hello World!\n");
+  }
+
 #endif
 
 #if ENABLED(DEBUG_TWIBUS)
@@ -162,7 +172,7 @@ void TWIBus::flush() {
   // static
   void TWIBus::prefix(const char func[]) {
     SERIAL_ECHOPGM("TWIBus::");
-    serialprintPGM(func);
+    SERIAL_ECHOPGM_P(func);
     SERIAL_ECHOPGM(": ");
   }
   void TWIBus::debug(const char func[], uint32_t adr) {

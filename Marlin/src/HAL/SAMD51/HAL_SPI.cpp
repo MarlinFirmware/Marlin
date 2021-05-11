@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -103,7 +103,7 @@
    * @param  nbyte Number of bytes to receive.
    * @return Nothing
    */
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
     sdSPI.beginTransaction(spiConfig);
@@ -132,7 +132,7 @@
    *
    * @details Uses DMA
    */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(token);
     sdSPI.transfer((uint8_t*)buf, nullptr, 512);

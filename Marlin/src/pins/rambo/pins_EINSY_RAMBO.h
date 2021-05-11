@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,11 +25,12 @@
  * Einsy-Rambo pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "Einsy Rambo"
+#define BOARD_INFO_NAME       "Einsy Rambo"
+#define DEFAULT_MACHINE_NAME  "Prusa MK3"
+
+//#define MK3_FAN_PINS
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
@@ -81,6 +82,13 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      62
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                            37
@@ -109,6 +117,7 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans
@@ -117,11 +126,19 @@
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              8
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                            6
+  #else
+    #define FAN_PIN                            8
+  #endif
 #endif
 
 #ifndef FAN1_PIN
-  #define FAN1_PIN                             6
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                           -1
+  #else
+    #define FAN_PIN                            6
+  #endif
 #endif
 
 //
@@ -129,7 +146,10 @@
 //
 #define SDSS                                  77
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                         9
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       9
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
@@ -149,11 +169,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN                            32
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS                     85
@@ -170,11 +190,18 @@
       #define LCD_PINS_D7                     71
       #define BTN_EN1                         14
       #define BTN_EN2                         72
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #define BTN_ENC                            9  // AUX-2
     #define BEEPER_PIN                        84  // AUX-4
     #define SD_DETECT_PIN                     15
 
-  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
-#endif // HAS_SPI_LCD
+  #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
+#endif // HAS_WIRED_LCD
+
+#undef MK3_FAN_PINS

@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,96 +29,77 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
+#include "Servo.h"
 #include "watchdog.h"
+#include "MarlinSerial.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
 #include <stdint.h>
 
+//
+// Serial Ports
+//
 #ifdef USBCON
   #include <USBSerial.h>
+  #include "../../core/serial_hook.h"
+  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
 #endif
 
-// ------------------------
-// Defines
-// ------------------------
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
 
-#if SERIAL_PORT == 0
-  #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-#elif SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
-#elif SERIAL_PORT == 4
-  #define MYSERIAL0 Serial4
-#elif SERIAL_PORT == 5
-  #define MYSERIAL0 Serial5
-#elif SERIAL_PORT == 6
-  #define MYSERIAL0 Serial6
+#if SERIAL_PORT == -1
+  #define MYSERIAL1 MSerial0
+#elif WITHIN(SERIAL_PORT, 1, 6)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
+  #error "SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == 0
-    #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
-    #define MYSERIAL1 SerialUSB
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
-  #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 Serial4
-  #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 Serial5
-  #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 Serial6
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL2 MSerial0
+  #elif WITHIN(SERIAL_PORT_2, 1, 6)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 6. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
-#else
-  #define NUM_SERIAL 1
 #endif
 
-#if HAS_DGUS_LCD
-  #if DGUS_SERIAL_PORT == 0
-    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL SerialUSB
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL Serial1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL Serial2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL Serial3
-  #elif DGUS_SERIAL_PORT == 4
-    #define DGUS_SERIAL Serial4
-  #elif DGUS_SERIAL_PORT == 5
-    #define DGUS_SERIAL Serial5
-  #elif DGUS_SERIAL_PORT == 6
-    #define DGUS_SERIAL Serial6
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 MSerial0
+  #elif WITHIN(SERIAL_PORT_3, 1, 6)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
+    #error "SERIAL_PORT_3 must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
-
-  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
-#include "timers.h"
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL MSerial0
+  #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL MSerial0
+  #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+  #else
+    #error "LCD_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
+  #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -138,14 +119,6 @@
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
-
 // ------------------------
 // Types
 // ------------------------
@@ -153,6 +126,8 @@
 typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB libServo
+#define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+#define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // ------------------------
 // Public Variables
@@ -170,12 +145,16 @@ extern uint16_t HAL_adc_result;
 
 // Enable hooks into  setup for HAL
 void HAL_init();
+#define HAL_IDLETASK 1
+void HAL_idletask();
 
 // Clear reset reason
 void HAL_clear_reset_source();
 
 // Reset reason
 uint8_t HAL_get_reset_source();
+
+void HAL_reboot();
 
 void _delay_ms(const int delay);
 
@@ -192,27 +171,18 @@ static inline int freeMemory() {
 #pragma GCC diagnostic pop
 
 //
-// EEPROM
-//
-
-// Wire library should work for i2c EEPROMs
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
-
-//
 // ADC
 //
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-inline void HAL_adc_init() {}
-
+#define HAL_ADC_VREF         3.3
+#define HAL_ADC_RESOLUTION  ADC_RESOLUTION // 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
+
+inline void HAL_adc_init() { analogReadResolution(HAL_ADC_RESOLUTION); }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
@@ -222,5 +192,34 @@ uint16_t HAL_adc_get_result();
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
+#ifdef STM32F1xx
+  #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
+  #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
+#endif
+
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+// Maple Compatibility
+typedef void (*systickCallback_t)(void);
+void systick_attach_callback(systickCallback_t cb);
+void HAL_SYSTICK_Callback();
+
+extern volatile uint32_t systick_uptime_millis;
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Timer PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

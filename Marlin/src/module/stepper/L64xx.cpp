@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -195,6 +195,9 @@ void L64XX_Marlin::init_to_defaults() {
   #endif
   #if AXIS_IS_L64XX(Z3)
     L6470_INIT_CHIP(Z3);
+  #endif
+  #if AXIS_IS_L64XX(Z4)
+    L6470_INIT_CHIP(Z4);
   #endif
   #if AXIS_IS_L64XX(E0)
     L6470_INIT_CHIP(E0);

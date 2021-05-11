@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -62,7 +62,7 @@ void PCA9533_setOff() {
   PCA9533_writeRegister(PCA9533_REG_SEL, 0);
 }
 
-void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue) {
+void PCA9533_set_rgb(uint8_t red, uint8_t green, uint8_t blue) {
   uint8_t r_pwm0 = 0; // Register data - PWM value
   uint8_t r_pwm1 = 0; // Register data - PWM value
 

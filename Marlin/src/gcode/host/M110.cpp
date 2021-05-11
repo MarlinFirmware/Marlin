@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,5 +27,8 @@
  * M110: Set Current Line Number
  */
 void GcodeSuite::M110() {
-  if (parser.seenval('N')) queue.last_N = parser.value_long();
+
+  if (parser.seenval('N'))
+    queue.set_current_line_number(parser.value_long());
+
 }

@@ -13,29 +13,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "LERDGE K supports up to 2 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge K"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define I2C_EEPROM
+// EEPROM
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PG14
+  #define I2C_SDA_PIN                       PG13
+  #define MARLIN_EEPROM_SIZE             0x10000
+#endif
 
-// Ignore temp readings during develpment.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //
 // Servos
 //
-//#define SERVO0_PIN                        PD12
+#define SERVO0_PIN                          PB11
 
 //
 // Limit Switches
@@ -48,14 +56,14 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 //#ifndef Z_MIN_PROBE_PIN
-//  #define Z_MIN_PROBE_PIN  PB15
+//  #define Z_MIN_PROBE_PIN                 PG6
 //#endif
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PE6
-#define FIL_RUNOUT2_PIN                     PE7
+#define FIL_RUNOUT_PIN                      PE5
+#define FIL_RUNOUT2_PIN                     PE6
 
 //
 // Steppers
@@ -64,36 +72,87 @@
 #define X_DIR_PIN                           PB10
 #define X_ENABLE_PIN                        PG0
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN       PE0
+//  #define X_CS_PIN                        PE0
 //#endif
 
 #define Y_STEP_PIN                          PF14
 #define Y_DIR_PIN                           PF15
 #define Y_ENABLE_PIN                        PF13
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN       PE1
+//  #define Y_CS_PIN                        PE1
 //#endif
 
 #define Z_STEP_PIN                          PF11
 #define Z_DIR_PIN                           PF12
 #define Z_ENABLE_PIN                        PC5
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN       PE2
+//  #define Z_CS_PIN                        PE2
 //#endif
 
 #define E0_STEP_PIN                         PC14
 #define E0_DIR_PIN                          PC13
 #define E0_ENABLE_PIN                       PC15
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN      PE3
+//  #define E0_CS_PIN                       PE3
 //#endif
 
 #define E1_STEP_PIN                         PF1
 #define E1_DIR_PIN                          PF0
 #define E1_ENABLE_PIN                       PF2
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN      PE4
+//  #define E1_CS_PIN                       PE4
 //#endif
+
+//#define E2_STEP_PIN                       PF4  // best guess
+//#define E2_DIR_PIN                        PF3  // best guess
+//#define E2_ENABLE_PIN                     PF5  // best guess
+//#ifndef E2_CS_PIN
+//  #define E2_CS_PIN                       PB2  // best guess
+//#endif
+
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN                 PB2
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN                 PB2
+  #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PE2
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN                 PE2
+  #endif
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PE3
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN                 PE3
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PE4
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN                PE4
+  #endif
+  #ifndef E1_SERIAL_TX_PIN
+    #define E1_SERIAL_TX_PIN                PE1
+  #endif
+  #ifndef E1_SERIAL_RX_PIN
+    #define E1_SERIAL_RX_PIN                PE1
+  #endif
+  #ifndef EX_SERIAL_TX_PIN
+    #define E2_SERIAL_TX_PIN                PE0
+  #endif
+  #ifndef EX_SERIAL_RX_PIN
+    #define E2_SERIAL_RX_PIN                PE0
+  #endif
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+#endif
 
 //
 // Temperature Sensors
@@ -101,6 +160,12 @@
 #define TEMP_0_PIN                          PC1   // Analog Input
 #define TEMP_1_PIN                          PC2   // Analog Input
 #define TEMP_BED_PIN                        PC0   // Analog Input
+
+// Lergde-K can choose thermocouple/thermistor mode in software.
+// For use with thermistors, these pins must be OUT/LOW.
+// This is done automatically.
+#define TEMP_0_TR_ENABLE_PIN                PF10
+#define TEMP_1_TR_ENABLE_PIN                PF9
 
 //
 // Heaters / Fans
@@ -110,12 +175,20 @@
 #define HEATER_BED_PIN                      PA2
 
 #ifndef FAN_PIN
-  #define FAN_PIN                           PC15
+  #define FAN_PIN                           PF7
 #endif
-#define FAN1_PIN                            PF6
-#define FAN2_PIN                            PF7
 
-#define ORIG_E0_AUTO_FAN_PIN            FAN1_PIN  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#define FAN1_PIN                            PF6
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PB1
+#endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                   PB0
+#endif
+
+#define CONTROLLER_FAN_PIN                  PF8
 
 //
 // LED / Lighting
@@ -123,55 +196,60 @@
 //#define CASE_LIGHT_PIN_CI                 -1
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
-
-//
-// Prusa i3 MK2 Multi-Material Multiplexer Support
-//
-//#define E_MUX0_PIN                        -1
-//#define E_MUX1_PIN                        -1
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN                     PB7
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN                     PB9
+#endif
 
 //
 // SD support
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4800000
 
 //
 // Misc. Functions
 //
 #define SDSS                                PC11
-#define LED_PIN                             PC7   // Alive
-#define PS_ON_PIN                           -1
+#define LED_PIN                             PA15  // Alive
+#define PS_ON_PIN                           PA4
 #define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      -1    // Power-loss / nAC_FAULT
+#define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
+
+#define SD_DETECT_PIN                       PA8
+#define BEEPER_PIN                          PC7
 
 //
 // LCD / Controller
 //
 
-// TODO: Replace these with the correct FSMC pins, once known
-#define SD_DETECT_PIN                       -1
-#define BEEPER_PIN                          PD12
-#define LCD_PINS_RS                         -1
-#define LCD_PINS_ENABLE                     -1
-#define LCD_PINS_D4                         -1
-#define LCD_PINS_D5                         -1
-#define LCD_PINS_D6                         -1
-#define LCD_PINS_D7                         -1
+#if HAS_FSMC_TFT
+  //#define TFT_DRIVER             LERDGE_ST7796
 
-#define BTN_EN1                             PE3
-#define BTN_EN2                             PE4
-#define BTN_ENC                             PE2
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-//
-// ST7920 Delays
-//
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD11
+
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
+
+#if IS_NEWPANEL
+  #define BTN_EN1                           PG10
+  #define BTN_EN2                           PG11
+  #define BTN_ENC                           PG9
 #endif

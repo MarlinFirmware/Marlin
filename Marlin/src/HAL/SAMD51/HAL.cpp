@@ -15,85 +15,51 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __SAMD51__
 
 #include "../../inc/MarlinConfig.h"
 #include <Adafruit_ZeroDMA.h>
 #include <wiring_private.h>
 
+#ifdef ADAFRUIT_GRAND_CENTRAL_M4
+  #if USING_HW_SERIALUSB
+    DefaultSerial1 MSerial0(false, Serial);
+  #endif
+  #if USING_HW_SERIAL0
+    DefaultSerial2 MSerial1(false, Serial1);
+  #endif
+  #if USING_HW_SERIAL1
+    DefaultSerial3 MSerial2(false, Serial2);
+  #endif
+  #if USING_HW_SERIAL2
+    DefaultSerial4 MSerial3(false, Serial3);
+  #endif
+  #if USING_HW_SERIAL3
+    DefaultSerial5 MSerial4(false, Serial4);
+  #endif
+#endif
+
 // ------------------------
 // Local defines
 // ------------------------
 
-#if HAS_TEMP_ADC_0
-  #define GET_TEMP_0_ADC()          PIN_TO_ADC(TEMP_0_PIN)
-#else
-  #define GET_TEMP_0_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_1
-  #define GET_TEMP_1_ADC()          PIN_TO_ADC(TEMP_1_PIN)
-#else
-  #define GET_TEMP_1_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_2
-  #define GET_TEMP_2_ADC()          PIN_TO_ADC(TEMP_2_PIN)
-#else
-  #define GET_TEMP_2_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_3
-  #define GET_TEMP_3_ADC()          PIN_TO_ADC(TEMP_3_PIN)
-#else
-  #define GET_TEMP_3_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_4
-  #define GET_TEMP_4_ADC()          PIN_TO_ADC(TEMP_4_PIN)
-#else
-  #define GET_TEMP_4_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_5
-  #define GET_TEMP_5_ADC()          PIN_TO_ADC(TEMP_5_PIN)
-#else
-  #define GET_TEMP_5_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_6
-  #define GET_TEMP_6_ADC()          PIN_TO_ADC(TEMP_6_PIN)
-#else
-  #define GET_TEMP_6_ADC()          -1
-#endif
-#if HAS_TEMP_ADC_7
-  #define GET_TEMP_7_ADC()          PIN_TO_ADC(TEMP_7_PIN)
-#else
-  #define GET_TEMP_7_ADC()          -1
-#endif
-#if HAS_TEMP_PROBE
-  #define GET_PROBE_ADC()           PIN_TO_ADC(TEMP_PROBE_PIN)
-#else
-  #define GET_PROBE_ADC()           -1
-#endif
-#if HAS_TEMP_ADC_BED
-  #define GET_BED_ADC()             PIN_TO_ADC(TEMP_BED_PIN)
-#else
-  #define GET_BED_ADC()             -1
-#endif
-#if HAS_TEMP_ADC_CHAMBER
-  #define GET_CHAMBER_ADC()         PIN_TO_ADC(TEMP_CHAMBER_PIN)
-#else
-  #define GET_CHAMBER_ADC()         -1
-#endif
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define GET_FILAMENT_WIDTH_ADC()  PIN_TO_ADC(FILWIDTH_PIN)
-#else
-  #define GET_FILAMENT_WIDTH_ADC()  -1
-#endif
-#if HAS_ADC_BUTTONS
-  #define GET_BUTTONS_ADC()         PIN_TO_ADC(ADC_KEYPAD_PIN)
-#else
-  #define GET_BUTTONS_ADC()         -1
-#endif
+#define GET_TEMP_0_ADC()          TERN(HAS_TEMP_ADC_0,        PIN_TO_ADC(TEMP_0_PIN),       -1)
+#define GET_TEMP_1_ADC()          TERN(HAS_TEMP_ADC_1,        PIN_TO_ADC(TEMP_1_PIN),       -1)
+#define GET_TEMP_2_ADC()          TERN(HAS_TEMP_ADC_2,        PIN_TO_ADC(TEMP_2_PIN),       -1)
+#define GET_TEMP_3_ADC()          TERN(HAS_TEMP_ADC_3,        PIN_TO_ADC(TEMP_3_PIN),       -1)
+#define GET_TEMP_4_ADC()          TERN(HAS_TEMP_ADC_4,        PIN_TO_ADC(TEMP_4_PIN),       -1)
+#define GET_TEMP_5_ADC()          TERN(HAS_TEMP_ADC_5,        PIN_TO_ADC(TEMP_5_PIN),       -1)
+#define GET_TEMP_6_ADC()          TERN(HAS_TEMP_ADC_6,        PIN_TO_ADC(TEMP_6_PIN),       -1)
+#define GET_TEMP_7_ADC()          TERN(HAS_TEMP_ADC_7,        PIN_TO_ADC(TEMP_7_PIN),       -1)
+#define GET_PROBE_ADC()           TERN(HAS_TEMP_PROBE,        PIN_TO_ADC(TEMP_PROBE_PIN),   -1)
+#define GET_BED_ADC()             TERN(HAS_TEMP_ADC_BED,      PIN_TO_ADC(TEMP_BED_PIN),     -1)
+#define GET_CHAMBER_ADC()         TERN(HAS_TEMP_ADC_CHAMBER,  PIN_TO_ADC(TEMP_CHAMBER_PIN), -1)
+#define GET_COOLER_ADC()          TERN(HAS_TEMP_ADC_COOLER,   PIN_TO_ADC(TEMP_COOLER_PIN),  -1)
+#define GET_FILAMENT_WIDTH_ADC()  TERN(FILAMENT_WIDTH_SENSOR, PIN_TO_ADC(FILWIDTH_PIN),     -1)
+#define GET_BUTTONS_ADC()         TERN(HAS_ADC_BUTTONS,       PIN_TO_ADC(ADC_KEYPAD_PIN),   -1)
 
 #define IS_ADC_REQUIRED(n) ( \
      GET_TEMP_0_ADC() == n || GET_TEMP_1_ADC() == n || GET_TEMP_2_ADC() == n || GET_TEMP_3_ADC() == n \
@@ -101,25 +67,27 @@
   || GET_PROBE_ADC() == n          \
   || GET_BED_ADC() == n            \
   || GET_CHAMBER_ADC() == n        \
+  || GET_COOLER_ADC() == n         \
   || GET_FILAMENT_WIDTH_ADC() == n \
   || GET_BUTTONS_ADC() == n        \
 )
 
-#define ADC0_IS_REQUIRED    IS_ADC_REQUIRED(0)
-#define ADC1_IS_REQUIRED    IS_ADC_REQUIRED(1)
-#define ADC_IS_REQUIRED     (ADC0_IS_REQUIRED || ADC1_IS_REQUIRED)
-#if ADC0_IS_REQUIRED
+#if IS_ADC_REQUIRED(0)
+  #define ADC0_IS_REQUIRED 1
   #define FIRST_ADC     0
 #else
   #define FIRST_ADC     1
 #endif
-#if ADC1_IS_REQUIRED
+#if IS_ADC_REQUIRED(1)
+  #define ADC1_IS_REQUIRED 1
   #define LAST_ADC      1
 #else
   #define LAST_ADC      0
 #endif
-
-#define DMA_IS_REQUIRED     ADC_IS_REQUIRED
+#if ADC0_IS_REQUIRED || ADC1_IS_REQUIRED
+  #define ADC_IS_REQUIRED 1
+  #define DMA_IS_REQUIRED 1
+#endif
 
 // ------------------------
 // Types
@@ -178,6 +146,9 @@ uint16_t HAL_adc_result;
     #if GET_CHAMBER_ADC() == 0
       TEMP_CHAMBER_PIN,
     #endif
+    #if GET_COOLER_ADC() == 0
+      TEMP_COOLER_PIN,
+    #endif
     #if GET_FILAMENT_WIDTH_ADC() == 0
       FILWIDTH_PIN,
     #endif
@@ -217,6 +188,9 @@ uint16_t HAL_adc_result;
     #endif
     #if GET_CHAMBER_ADC() == 1
       TEMP_CHAMBER_PIN,
+    #endif
+    #if GET_COOLER_ADC() == 1
+      TEMP_COOLER_PIN,
     #endif
     #if GET_FILAMENT_WIDTH_ADC() == 1
       FILWIDTH_PIN,
@@ -265,6 +239,9 @@ uint16_t HAL_adc_result;
       #endif
       #if GET_CHAMBER_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_CHAMBER_PIN) },
+      #endif
+      #if GET_COOLER_ADC() == 0
+        { PIN_TO_INPUTCTRL(TEMP_COOLER_PIN) },
       #endif
       #if GET_FILAMENT_WIDTH_ADC() == 0
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
@@ -315,6 +292,9 @@ uint16_t HAL_adc_result;
       #if GET_CHAMBER_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_CHAMBER_PIN) },
       #endif
+      #if GET_COOLER_ADC() == 1
+        { PIN_TO_INPUTCTRL(TEMP_COOLER_PIN) },
+      #endif
       #if GET_FILAMENT_WIDTH_ADC() == 1
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
       #endif
@@ -352,7 +332,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc0DMAProgram.startJob();
       }
@@ -389,7 +369,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc1DMAProgram.startJob();
       }
@@ -423,9 +403,7 @@ uint16_t HAL_adc_result;
 
 // HAL initialization task
 void HAL_init() {
-  #if DMA_IS_REQUIRED
-    dma_init();
-  #endif
+  TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
     #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
       SET_INPUT_PULLUP(SD_DETECT_PIN);
@@ -457,6 +435,8 @@ uint8_t HAL_get_reset_source() {
   return 0;
 }
 #pragma pop_macro("WDT")
+
+void HAL_reboot() { NVIC_SystemReset(); }
 
 extern "C" {
   void * _sbrk(int incr);

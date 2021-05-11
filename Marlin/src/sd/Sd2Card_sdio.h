@@ -16,24 +16,40 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
+#include "SdInfo.h"
+#include "disk_io_driver.h"
 
 bool SDIO_Init();
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
-class Sd2Card {
+class DiskIODriver_SDIO : public DiskIODriver {
   public:
-    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
-    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
-    bool writeBlock(uint32_t block, const uint8_t *src) { return SDIO_WriteBlock(block, src); }
-};
+    bool init(const uint8_t sckRateID=0, const pin_t chipSelectPin=0) override { return SDIO_Init(); }
 
-#endif // SDIO_SUPPORT
+    bool readCSD(csd_t *csd)                              override { return false; }
+
+    bool readStart(const uint32_t block)                  override { return false; }
+    bool readData(uint8_t *dst)                           override { return false; }
+    bool readStop()                                       override { return false; }
+
+    bool writeStart(const uint32_t block, const uint32_t) override { return false; }
+    bool writeData(const uint8_t *src)                    override { return false; }
+    bool writeStop()                                      override { return false; }
+
+    bool readBlock(uint32_t block, uint8_t *dst)          override { return SDIO_ReadBlock(block, dst); }
+    bool writeBlock(uint32_t block, const uint8_t *src)   override { return SDIO_WriteBlock(block, src); }
+
+    uint32_t cardSize()                                   override { return 0; }
+
+    bool isReady()                                        override { return true; }
+
+    void idle()                                           override {}
+};

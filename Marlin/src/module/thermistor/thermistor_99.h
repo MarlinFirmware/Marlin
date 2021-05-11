@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,7 @@
 
 // 100k bed thermistor with a 10K pull-up resistor - made by $ buildroot/share/scripts/createTemperatureLookupMarlin.py --rp=10000
 
-const short temptable_99[][2] PROGMEM = {
+const temp_entry_t temptable_99[] PROGMEM = {
   { OV(  5.81), 350 }, // v=0.028   r=    57.081  res=13.433 degC/count
   { OV(  6.54), 340 }, // v=0.032   r=    64.248  res=11.711 degC/count
   { OV(  7.38), 330 }, // v=0.036   r=    72.588  res=10.161 degC/count

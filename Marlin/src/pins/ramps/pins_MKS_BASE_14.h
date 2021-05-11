@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,7 +38,7 @@
 #define FAN_PIN                                9  // PH6 ** Pin18 ** PWM9
 
 // Other Mods
-#define CASE_LIGHT_PIN                        11  // PB5 ** Pin24 ** PWM11
+
 #define SERVO3_PIN                            12  // PB6 ** Pin25 ** D12
 #define PS_ON_PIN                              2  // X+ // PE4 ** Pin6  ** PWM2       **MUST BE HARDWARE PWM
 #define FILWIDTH_PIN                          15  // Y+ // PJ0 ** Pin63 ** USART3_RX  **Pin should have a pullup!
@@ -52,6 +52,10 @@
 #endif
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_B_PIN                       52
+#endif
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      11  // PB5 ** Pin24 ** PWM11
 #endif
 
 #include "pins_MKS_BASE_common.h"

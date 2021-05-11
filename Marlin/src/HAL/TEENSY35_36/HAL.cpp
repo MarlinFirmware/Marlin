@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * Description: HAL for Teensy35 (MK64FX512)
+ * HAL for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  */
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
@@ -30,6 +30,14 @@
 #include "../shared/Delay.h"
 
 #include <Wire.h>
+
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#endif
+
+USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result, HAL_adc_select;
 
@@ -77,6 +85,8 @@ uint8_t HAL_get_reset_source() {
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 extern "C" {
   extern char __bss_end;

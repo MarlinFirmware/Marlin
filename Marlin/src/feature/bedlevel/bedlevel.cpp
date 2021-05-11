@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,7 +36,7 @@
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
-  #include "../../lcd/ultralcd.h"
+  #include "../../lcd/marlinui.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -47,17 +47,9 @@
 #endif
 
 bool leveling_is_valid() {
-  return
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.has_mesh()
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      !!bilinear_grid_spacing.x
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.mesh_is_valid()
-    #else // 3POINT, LINEAR
-      true
-    #endif
-  ;
+  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
+      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bilinear_grid_spacing.x)
+      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
 }
 
 /**
@@ -69,11 +61,7 @@ bool leveling_is_valid() {
  */
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    const bool can_change = (!enable || leveling_is_valid());
-  #else
-    constexpr bool can_change = true;
-  #endif
+  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
 
   if (can_change && enable != planner.leveling_active) {
 
@@ -110,7 +98,7 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
+  void set_z_fade_height(const_float_t zfh, const bool do_report/*=true*/) {
 
     if (planner.z_fade_height == zfh) return;
 
@@ -145,9 +133,7 @@ void reset_bed_level() {
       bilinear_grid_spacing.reset();
       GRID_LOOP(x, y) {
         z_values[x][y] = NAN;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, 0);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
       }
     #elif ABL_PLANAR
       planner.bed_level_matrix.set_to_identity();
@@ -174,7 +160,7 @@ void reset_bed_level() {
     #ifndef SCAD_MESH_OUTPUT
       LOOP_L_N(x, sx) {
         serial_spaces(precision + (x < 10 ? 3 : 2));
-        SERIAL_ECHO(int(x));
+        SERIAL_ECHO(x);
       }
       SERIAL_EOL();
     #endif
@@ -186,7 +172,7 @@ void reset_bed_level() {
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO(int(y));
+        SERIAL_ECHO(y);
       #endif
       LOOP_L_N(x, sx) {
         SERIAL_CHAR(' ');
@@ -210,7 +196,7 @@ void reset_bed_level() {
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_CHAR(' ', ']');            // close sub-array
+        SERIAL_ECHOPGM(" ]");            // close sub-array
         if (y < sy - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
@@ -227,29 +213,27 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 
+    // Get the resting Z position for after the XY move
     #ifdef MANUAL_PROBE_START_Z
-      constexpr float startz = _MAX(0, MANUAL_PROBE_START_Z);
-      #if MANUAL_PROBE_HEIGHT > 0
-        do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
-        do_blocking_move_to_z(startz);
-      #else
-        do_blocking_move_to_xy_z(pos, startz);
-      #endif
-    #elif MANUAL_PROBE_HEIGHT > 0
-      const float prev_z = current_position.z;
-      do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
-      do_blocking_move_to_z(prev_z);
+      constexpr float finalz = _MAX(0, MANUAL_PROBE_START_Z); // If a MANUAL_PROBE_START_Z value is set, always respect it
     #else
-      do_blocking_move_to_xy(pos);
+      #warning "It's recommended to set some MANUAL_PROBE_START_Z value for manual leveling."
+    #endif
+    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0     // A probe/obstacle clearance exists so there is a raise:
+      #ifndef MANUAL_PROBE_START_Z
+        const float finalz = current_position.z;  // - Use the current Z for starting-Z if no MANUAL_PROBE_START_Z was provided
+      #endif
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES); // - Raise Z, then move to the new XY
+      do_blocking_move_to_z(finalz);              // - Lower down to the starting Z height, ready for adjustment!
+    #elif defined(MANUAL_PROBE_START_Z)           // A starting-Z was provided, but there's no raise:
+      do_blocking_move_to_xy_z(pos, finalz);      // - Move in XY then down to the starting Z height, ready for adjustment!
+    #else                                         // Zero raise and no starting Z height either:
+      do_blocking_move_to_xy(pos);                // - Move over with no raise, ready for adjustment!
     #endif
 
-    current_position = pos;
-
-    #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_move = false;
-    #endif
+    TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }
 
-#endif
+#endif // MESH_BED_LEVELING || PROBE_MANUALLY
 
 #endif // HAS_LEVELING

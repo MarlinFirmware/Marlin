@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,6 @@
 
 #include "../inc/MarlinConfig.h"  // for pins
 #include "../module/planner.h"
-#include "../module/temperature.h"
 
 Joystick joystick;
 
@@ -127,6 +126,11 @@ Joystick joystick;
     static bool injecting_now; // = false;
     if (injecting_now) return;
 
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+        return;
+    #endif
+
     static constexpr int QUEUE_DEPTH = 5;                                // Insert up to this many movements
     static constexpr float target_lag = 0.25f,                           // Aim for 1/4 second lag
                            seg_time = target_lag / QUEUE_DEPTH;          // 0.05 seconds, short segments inserted every 1/20th of a second
@@ -154,9 +158,7 @@ Joystick joystick;
     // Other non-joystick poll-based jogging could be implemented here
     // with "jogging" encapsulated as a more general class.
 
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::_joystick_update(norm_jog);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::_joystick_update(norm_jog));
 
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     xyz_float_t move_dist{0};

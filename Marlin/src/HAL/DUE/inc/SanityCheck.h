@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -40,7 +40,7 @@
  * Usually the hardware SPI pins are only available to the LCD. This makes the DUE hard SPI used at the same time
  * as the TMC2130 soft SPI the most common setup.
  */
-#define _IS_HW_SPI(P) (defined(TMC_SW_##P) && (TMC_SW_##P == MOSI_PIN || TMC_SW_##P == MISO_PIN || TMC_SW_##P == SCK_PIN))
+#define _IS_HW_SPI(P) (defined(TMC_SW_##P) && (TMC_SW_##P == SD_MOSI_PIN || TMC_SW_##P == SD_MISO_PIN || TMC_SW_##P == SD_SCK_PIN))
 
 #if ENABLED(SDSUPPORT) && HAS_DRIVER(TMC2130)
   #if ENABLED(TMC_USE_SW_SPI)
@@ -52,10 +52,10 @@
   #endif
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on DUE."
 #endif
 
 #if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on this platform."
+  #error "TMC220x Software Serial is not supported on the DUE platform."
 #endif
