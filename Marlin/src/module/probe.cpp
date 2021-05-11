@@ -497,6 +497,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
     stealth_states.z = tmc_enable_stallguard(stepperZ);
     endstops.enable(true);
+  //Luj cambiamos la corriente de los TMCstepper al valor de homing antes del test Z.
+    probe.current_homing_on();
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
@@ -523,6 +525,8 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     tmc_disable_stallguard(stepperZ, stealth_states.z);
+  //Luj cambiamos la corriente de los TMCstepper a su valor anterior al test Z.
+    probe.current_homing_off();
   #endif
 
   if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
@@ -814,7 +818,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-<<<<<<< HEAD
 //Lujsensorless_probing  Definimos todas las funciones necesarias para SENSORLESS_PROBING
 #if ENABLED(SENSORLESS_PROBING)  
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -945,6 +948,4 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 		#endif
 	}
 #endif
-=======
->>>>>>> parent of 58bf83a6f0 (Mejora SENSORLESS en DELTA)
 #endif // HAS_BED_PROBE
