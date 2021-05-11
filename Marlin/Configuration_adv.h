@@ -3782,12 +3782,14 @@
 #endif
 
 /**
- * Instant freeze/unfreeze functionality
+ * Instant freeze / unfreeze functionality
  * Specified pin has pullup and connecting to ground will instantly pause motion.
  * Potentially useful for emergency stop that allows being resumed.
  */
-//#define KILL_PIN -1    // optional repurpose of KILL_PIN
-//#define FREEZE_PIN 41
+//#define FREEZE_FEATURE
+#if ENABLED(FREEZE_FEATURE)
+  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
+#endif
 
 /**
  * MAX7219 Debug Matrix
