@@ -5205,7 +5205,7 @@ void CrealityDWINClass::Startup() {
   delay(800);
   SERIAL_ECHOPGM("\nDWIN handshake ");
   if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-  DWIN_Frame_SetDir(0); // Orientation 90°
+  DWIN_Frame_SetDir(1); // Orientation 90°
   DWIN_UpdateLCD();     // Show bootscreen (first image)
   Encoder_Configuration();
   for (uint16_t t = 0; t <= 100; t += 2) {
