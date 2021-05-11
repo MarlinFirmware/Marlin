@@ -82,7 +82,7 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
+        if (parser.boolval('P', true)) mod_probe_offset(offs);
       #endif
     }
   #endif
