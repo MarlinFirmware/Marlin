@@ -497,7 +497,6 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
     stealth_states.z = tmc_enable_stallguard(stepperZ);
     endstops.enable(true);
-  //Luj cambiamos la corriente de los TMCstepper al valor de homing antes del test Z.
     probe.current_homing_on();
   #endif
 
@@ -525,7 +524,6 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     tmc_disable_stallguard(stepperZ, stealth_states.z);
-  //Luj cambiamos la corriente de los TMCstepper a su valor anterior al test Z.
     probe.current_homing_off();
   #endif
 
@@ -818,20 +816,29 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-//Lujsensorless_probing  Definimos todas las funciones necesarias para SENSORLESS_PROBING
+/**
+ * - begin_slow_probe()
+ * - end_slow_probe()
+ * - enable_stallguard_diag1()
+ * - disable_stallguard_diag1()
+ * - current_homing_on()
+ * - current_homing_off()
+ * All are recurring routines necessary for optimal performance in DELTA 
+ * with SENSORLESS_HOMING and SENSORLESS_PROBING enabled.
+ */
 #if ENABLED(SENSORLESS_PROBING)  
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     slow_homing_t begin_slow_probe() {
       slow_homing_t slow_probe{0};
       slow_probe.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
                                   planner.settings.max_acceleration_mm_per_s2[Y_AXIS],
-                                  planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);      //lujsensorless añadido tras declarar jerk_xyz
+                                  planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);      
       planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
       planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
-      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);  //Lujhoming añadido para Z_AXIS
+      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);  
       #if HAS_CLASSIC_JERK
         slow_probe.jerk_xyz = planner.max_jerk;
-        TERN(DELTA, planner.max_jerk.set(0, 0, 0), planner.max_jerk.set(0, 0));  //lujsensorless antes solo cambiaba xy a 0.
+        TERN(DELTA, planner.max_jerk.set(0, 0, 0), planner.max_jerk.set(0, 0)); 
       #endif
       planner.reset_acceleration_rates();
       return slow_probe;
@@ -841,7 +848,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     void end_slow_probe(const slow_homing_t &slow_probe) {
       planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_probe.acceleration.x;
       planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_probe.acceleration.y;   
-      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_probe.acceleration.z);  //lujsensorless añadido tras declarar jerk_xyz
+      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_probe.acceleration.z);  
       TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_probe.jerk_xyz);
       planner.reset_acceleration_rates();
     }
@@ -870,13 +877,13 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 		#endif
 		tmc_disable_stallguard(stepperZ, stealth_states.z);
 	}
-  	/**
-	 * Cambia current TMC steppers a _CURRENT_HOME, guardando la corriente.
-	 */
+  
   static int16_t save_current_X;
   static int16_t save_current_Y;
   static int16_t save_current_Z;
-  
+  	/**
+	 * Change the current in the TMC drivers to N##_CURRENT_HOME. And we keep its current value.
+	 */
 	void Probe::current_homing_on() {
 		#define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
 		#if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
@@ -915,7 +922,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 		#endif
 	}
   	/**
-	 * Regresa a la corriente guardarda antes del cambio a_CURRENT_HOME.
+	 * Return to the current value before HOMING/PROBING.
 	 */
 	void Probe::current_homing_off() {
 		#if HAS_HOMING_CURRENT

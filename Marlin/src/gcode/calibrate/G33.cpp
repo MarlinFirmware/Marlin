@@ -71,9 +71,9 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(SENSORLESS_PROBING, probe.current_homing_on());   //Lujsensorless_probing  Reducción de la tension antes del homing.
+  TERN_(SENSORLESS_PROBING, probe.current_homing_on());   
   home_delta();
-  TERN_(SENSORLESS_PROBING, probe.current_homing_off());  //Lujsensorless_probing  Regresamos a la tension tras hacer homing.
+  TERN_(SENSORLESS_PROBING, probe.current_homing_off());  
   endstops.not_homing();
 }
 

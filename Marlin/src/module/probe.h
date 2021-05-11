@@ -256,7 +256,7 @@ public:
     static bool tare();
   #endif
 
-  //Lujsensorless  Creamos funciones basicas para SENSORLESS_PROBING
+  //Basic functions for SENSORLESS_HOMING and SENSORLESS_PROBING.
   #if ENABLED(SENSORLESS_PROBING)    
     static void enable_stallguard_diag1();
     static void disable_stallguard_diag1();
