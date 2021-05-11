@@ -893,7 +893,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           SERIAL_ECHOLNPGM("CURRENT_HOME_X");
           }
         #endif
-
         #if HAS_CURRENT_HOME(Y)
           save_current_Y = stepperY.getMilliamps();
           stepperY.rms_current(Y_CURRENT_HOME);
@@ -929,7 +928,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           SERIAL_ECHOLNPGM("CURRENT_X");
           }
         #endif
-
         #if HAS_CURRENT_HOME(Y)
           stepperY.rms_current(save_current_X);
           if (DEBUGGING(LEVELING)) {debug_current(PSTR("Y"), Y_CURRENT_HOME, save_current_Y);
