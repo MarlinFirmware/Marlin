@@ -2783,7 +2783,7 @@ void HMI_Control() {
           case CONTROL_CASE_REBOOT:  // Reset Printer
             Draw_Menu_Item(MROWS, ICON_Reboot, GET_TEXT(MSG_RESET_PRINTER));
             break;
-          case CONTROL_CASE_ADVSET:  // Advance Settings >
+          case CONTROL_CASE_ADVSET:  // Advanced Settings >
             Draw_Menu_Item(MROWS, ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), true);
             break;
           case CONTROL_CASE_INFO:    // Info >
@@ -2860,7 +2860,7 @@ void HMI_Control() {
         checkkey = Reboot;
         HMI_AudioFeedback();
         break;
-      case CONTROL_CASE_ADVSET: // Advance Settings
+      case CONTROL_CASE_ADVSET: // Advanced Settings
         checkkey = AdvSet;
         select_advset.reset();
         Draw_AdvSet_Menu();
