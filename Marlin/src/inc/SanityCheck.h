@@ -2804,23 +2804,30 @@ constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
 
 #define _ARR_TEST(N,I) (sanity_arr_##N[_MIN(I,int(COUNT(sanity_arr_##N))-1)] > 0)
+#if HAS_MULTI_EXTRUDER
+  #define _EXTRA_NOTE " (Did you forget to enable DISTINCT_E_FACTORS?)"
+#elif EXTRUDERS == 0
+  #define _EXTRA_NOTE " (Note: EXTRUDERS is set to 0.)"
+#else
+  #define _EXTRA_NOTE ""
+#endif
 
 static_assert(COUNT(sanity_arr_1) >= XYZE,   "DEFAULT_AXIS_STEPS_PER_UNIT requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(1,0) && _ARR_TEST(1,1) && _ARR_TEST(1,2)
               && _ARR_TEST(1,3) && _ARR_TEST(1,4) && _ARR_TEST(1,5)
               && _ARR_TEST(1,6) && _ARR_TEST(1,7) && _ARR_TEST(1,8),
               "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
 
 static_assert(COUNT(sanity_arr_2) >= XYZE,   "DEFAULT_MAX_FEEDRATE requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(2,0) && _ARR_TEST(2,1) && _ARR_TEST(2,2)
               && _ARR_TEST(2,3) && _ARR_TEST(2,4) && _ARR_TEST(2,5)
               && _ARR_TEST(2,6) && _ARR_TEST(2,7) && _ARR_TEST(2,8),
               "DEFAULT_MAX_FEEDRATE values must be positive.");
 
 static_assert(COUNT(sanity_arr_3) >= XYZE,   "DEFAULT_MAX_ACCELERATION requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
               && _ARR_TEST(3,3) && _ARR_TEST(3,4) && _ARR_TEST(3,5)
               && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
@@ -2863,6 +2870,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 #undef _ARR_TEST
+#undef _EXTRA_NOTE
 
 #if BOTH(CNC_COORDINATE_SYSTEMS, NO_WORKSPACE_OFFSETS)
   #error "CNC_COORDINATE_SYSTEMS is incompatible with NO_WORKSPACE_OFFSETS."
@@ -2903,6 +2911,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
   #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
+  #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR > 0
+    #error "POWER_LOSS_RECOVER_ZHOME is not needed on a machine that homes to ZMAX."
   #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR < 0 && !defined(POWER_LOSS_ZHOME_POS)
     #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
   #endif
@@ -3180,21 +3190,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Touch Buttons
+ * Touch Screen Calibration
  */
-#if ENABLED(TOUCH_SCREEN) && DISABLED(TOUCH_SCREEN_CALIBRATION)
-  #ifndef TOUCH_CALIBRATION_X
-    #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #error "TOUCH_CALIBRATION_Y must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #error "TOUCH_OFFSET_X must be defined with TOUCH_SCREEN."
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #error "TOUCH_OFFSET_Y must be defined with TOUCH_SCREEN."
-  #endif
+#if ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
+    && (!defined(TOUCH_CALIBRATION_X) || !defined(TOUCH_CALIBRATION_Y) || !defined(TOUCH_OFFSET_X) || !defined(TOUCH_OFFSET_Y))
+  #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
 /**

@@ -193,7 +193,7 @@
 void GcodeSuite::M114() {
 
   #if ENABLED(M114_DETAIL)
-    if (parser.seen('D')) {
+    if (parser.seen_test('D')) {
       #if DISABLED(M114_LEGACY)
         planner.synchronize();
       #endif
@@ -201,14 +201,14 @@ void GcodeSuite::M114() {
       report_current_position_detail();
       return;
     }
-    if (parser.seen('E')) {
+    if (parser.seen_test('E')) {
       SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
       return;
     }
   #endif
 
   #if ENABLED(M114_REALTIME)
-    if (parser.seen('R')) { report_real_position(); return; }
+    if (parser.seen_test('R')) { report_real_position(); return; }
   #endif
 
   TERN_(M114_LEGACY, planner.synchronize());

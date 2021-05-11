@@ -39,6 +39,10 @@
   #include "../../../../module/stepper/trinamic.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../../../feature/powerloss.h"
+#endif
+
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 10;
 #endif
@@ -78,8 +82,13 @@ constexpr feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FE
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
+
+  // Save the current position, the raise amount, and 'already raised'
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, mks_park_pos.z, true));
+
   destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
   prepare_internal_move_to_destination(park_speed_z);
+
   destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
   prepare_internal_move_to_destination(park_speed_xy);
 }
@@ -89,6 +98,7 @@ void MKS_resume_print_move() {
   prepare_internal_move_to_destination(park_speed_xy);
   destination.z = position_before_pause.z;
   prepare_internal_move_to_destination(park_speed_z);
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 }
 
 float z_offset_add = 0;
