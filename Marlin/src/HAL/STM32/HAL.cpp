@@ -100,7 +100,7 @@ void HAL_init() {
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
-    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
 
