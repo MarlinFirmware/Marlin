@@ -1091,7 +1091,7 @@
 #define INVERT_E6_DIR false
 #define INVERT_E7_DIR false
 
-//For direct direction change on M168 just used with CNC_5X
+// For direct direction change on M168 just used with CNC_5X
 #define INVERT_EA_DIR true
 #define INVERT_EB_DIR true
 

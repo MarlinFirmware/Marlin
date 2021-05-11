@@ -74,8 +74,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-extern double OA_5, OC_5;
-extern int HomeDir5x, Home5x;
+#if ENABLED(CNC_5X)
+  extern double OA_5, OC_5;
+  extern int HomeDir5x, Home5x;
+#endif
 
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
@@ -92,7 +94,7 @@ xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS
   #else
     , Z_HOME_POS
   #endif
-  , E_HOME_POS
+  , TERN(CNC_5X, E_HOME_POS, 0)
 };
 
 /**
@@ -199,7 +201,12 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_A_LBL, OA_5, SP_C_LBL, OA_5, SP_E_LBL, lpos.e);
+  #if ENABLED(CNC_5X)
+    #define CNC_AXES SP_A_LBL, OA_5, SP_C_LBL, OA_5,
+  #else
+    #define CNC_AXES
+  #endif
+  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, CNC_AXES SP_E_LBL, lpos.e);
 }
 
 // Report the real current position according to the steppers.
@@ -1640,16 +1647,17 @@ void prepare_line_to_destination() {
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Move Away: ", -bump, "mm");
 
-
-      if (Home5x == 1) {
-        if (HomeDir5x == 0 || HomeDir5x == 2) OUT_WRITE(EA_DIR_PIN, INVERT_EA_DIR); else OUT_WRITE(EA_DIR_PIN, !INVERT_EA_DIR);
-        if (HomeDir5x == 0 || HomeDir5x == 1) OUT_WRITE(EB_DIR_PIN, INVERT_EB_DIR); else OUT_WRITE(EB_DIR_PIN, !INVERT_EB_DIR);
-        do_homing_move(axis, bump);
-        if (HomeDir5x == 0 || HomeDir5x == 2) OUT_WRITE(EA_DIR_PIN, !INVERT_EA_DIR); else OUT_WRITE(EA_DIR_PIN, INVERT_EA_DIR);
-        if (HomeDir5x == 0 || HomeDir5x == 1) OUT_WRITE(EB_DIR_PIN, !INVERT_EB_DIR); else OUT_WRITE(EB_DIR_PIN, INVERT_EB_DIR);
-      }
-      else
-        do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
+      #if ENABLED(CNC_5X)
+        if (TERN0(CNC_5X, Home5x == 1)) {
+          if (HomeDir5x == 0 || HomeDir5x == 2) OUT_WRITE(EA_DIR_PIN, INVERT_EA_DIR); else OUT_WRITE(EA_DIR_PIN, !INVERT_EA_DIR);
+          if (HomeDir5x == 0 || HomeDir5x == 1) OUT_WRITE(EB_DIR_PIN, INVERT_EB_DIR); else OUT_WRITE(EB_DIR_PIN, !INVERT_EB_DIR);
+          do_homing_move(axis, bump);
+          if (HomeDir5x == 0 || HomeDir5x == 2) OUT_WRITE(EA_DIR_PIN, !INVERT_EA_DIR); else OUT_WRITE(EA_DIR_PIN, INVERT_EA_DIR);
+          if (HomeDir5x == 0 || HomeDir5x == 1) OUT_WRITE(EB_DIR_PIN, !INVERT_EB_DIR); else OUT_WRITE(EB_DIR_PIN, INVERT_EB_DIR);
+        }
+        else
+      #endif
+          do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
         // Check for a broken endstop

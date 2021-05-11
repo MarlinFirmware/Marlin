@@ -43,8 +43,8 @@ inline void idle_no_sleep() { idle(TERN_(ADVANCED_PAUSE_FEATURE, true)); }
 #endif
 
 #if ENABLED(CNC_5X)
-  extern uint8_t M167_move;          // Flag to tell the ISR that M167 is in progress, and the type
-  extern bool M167_did_trigger;      // Flag from the ISR to indicate the endstop changed
+  extern uint8_t M167_move;         // Flag to tell the ISR that M167 is in progress, and the type
+  extern bool M167_did_trigger;     // Flag from the ISR to indicate the endstop changed
 #endif
 
 /**

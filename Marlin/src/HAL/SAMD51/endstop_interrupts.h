@@ -118,14 +118,14 @@
 #else
   #define MATCH_Z_MIN_M167_EILINE(P) false
 #endif
-#define AVAILABLE_EILINE(P)     (PIN_TO_EILINE(P) != -1                                 \
-                                 && !MATCH_X_MAX_EILINE(P) && !MATCH_X_MIN_EILINE(P)    \
-                                 && !MATCH_Y_MAX_EILINE(P) && !MATCH_Y_MIN_EILINE(P)    \
-                                 && !MATCH_Z_MAX_EILINE(P) && !MATCH_Z_MIN_EILINE(P)    \
-                                 && !MATCH_Z2_MAX_EILINE(P) && !MATCH_Z2_MIN_EILINE(P)  \
-                                 && !MATCH_Z3_MAX_EILINE(P) && !MATCH_Z3_MIN_EILINE(P)  \
-                                 && !MATCH_Z4_MAX_EILINE(P) && !MATCH_Z4_MIN_EILINE(P)  \
-                                 && !MATCH_Z_MIN_PROBE_EILINE(P)) && !MATCH_Z_MIN_M167_EILINE(P))
+#define AVAILABLE_EILINE(P) (PIN_TO_EILINE(P) != -1                                 \
+                             && !MATCH_X_MAX_EILINE(P) && !MATCH_X_MIN_EILINE(P)    \
+                             && !MATCH_Y_MAX_EILINE(P) && !MATCH_Y_MIN_EILINE(P)    \
+                             && !MATCH_Z_MAX_EILINE(P) && !MATCH_Z_MIN_EILINE(P)    \
+                             && !MATCH_Z2_MAX_EILINE(P) && !MATCH_Z2_MIN_EILINE(P)  \
+                             && !MATCH_Z3_MAX_EILINE(P) && !MATCH_Z3_MIN_EILINE(P)  \
+                             && !MATCH_Z4_MAX_EILINE(P) && !MATCH_Z4_MIN_EILINE(P)  \
+                             && !MATCH_Z_MIN_PROBE_EILINE(P) && !MATCH_Z_MIN_M167_EILINE(P))
 
 // One ISR for all EXT-Interrupts
 void endstop_ISR() { endstops.update(); }
