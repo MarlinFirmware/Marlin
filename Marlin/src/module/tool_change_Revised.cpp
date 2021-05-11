@@ -21,6 +21,9 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
+
+#if 0
+
 #include "tool_change.h"
 #include "probe.h"
 #include "motion.h"
@@ -773,7 +776,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     #undef TOOLCHANGE_FS_WIPE_RETRACT
     #define TOOLCHANGE_FS_WIPE_RETRACT 0
   #endif
-  
+
   //Define any variables required
   static uint8_t extruder_did_first_prime = 0; // Store whether 1st priming has been performed on each tool -> Required various logic statements
   static uint8_t extruder_was_primed = 0; //Store all extruder primed status. Set to 1 if primed, 0 if retracted / not yet primed
@@ -794,7 +797,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   // check if too cold to move extruder
   bool too_cold(uint8_t toolID){
-    if ( TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID ) ) ) 
+    if ( TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID ) ) )
     {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true ;
@@ -804,10 +807,10 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   } //too_cold
 
   // Unretract/Prime selected extruder
-  void extruder_prime(const uint8_t toolID) {  
+  void extruder_prime(const uint8_t toolID) {
     float fr = toolchange_settings.unretract_speed; // Set default speed for unretract
 
-    /*  
+    /*
     * Converted this functionality to enabled by default to avoid accidental breakage on very first initiailizion of each extruder
     * This comment block can be removed if changes are accepted. This is mostly explaining the changes.
     * This 'if' statement makes these two #defines in configuration_adv.h unneccessary:
@@ -816,7 +819,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     * M217 V1 can be converted to set/reset this functionality if desired
     */
     // Perform first unretract movement at the slower Prime_Speed to avoid breakage on first prime
-    if ( enable_first_prime && !TEST(extruder_did_first_prime, toolID)) { 
+    if ( enable_first_prime && !TEST(extruder_did_first_prime, toolID)) {
       SBI(extruder_did_first_prime, toolID);   // Log 1st prime complete
       fr = toolchange_settings.prime_speed;    // Set speed
       unscaled_e_move(0, MMM_TO_MMS(fr));      // Init planner with 0 length move
@@ -831,22 +834,22 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     }
 
     SBI(extruder_was_primed, toolID);    // Log that this extruder has been primed
-    
+
     // Cutting retraction
     #if TOOLCHANGE_FS_WIPE_RETRACT
-      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));   
+      unscaled_e_move(-(TOOLCHANGE_FS_WIPE_RETRACT), MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
 
-    filament_swap_cooling(); // Cool down with fan    
+    filament_swap_cooling(); // Cool down with fan
   } //extruder_prime routine
-  
+
   // Perform Swap Length retract on current extruder
-  inline void extruder_retract() { 
+  inline void extruder_retract() {
     unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
   }
 
-  /* 
-  * Cutting recover 
+  /*
+  * Cutting recover
   * Occurs after moving back to printed part
   * Cut occurs at end of extruder_prime function
   */
@@ -854,7 +857,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     unscaled_e_move(toolchange_settings.extra_resume + TOOLCHANGE_FS_WIPE_RETRACT, MMM_TO_MMS(toolchange_settings.unretract_speed));
     current_position.e = 0;
     sync_plan_position_e(); // New extruder primed and set to 0
-  } 
+  }
 
     void tool_change_prime() {
     if (toolchange_settings.extra_prime > 0
@@ -906,7 +909,7 @@ inline void tool_return() {
       do_blocking_move_to(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
     #endif
   #endif
-} 
+}
 
 
 --------------------------
@@ -1019,8 +1022,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         const bool should_swap = can_move_away && toolchange_settings.swap_length;
         if (should_swap) {
           if ( too_cold(old_tool) ) {
-            if (ENABLED(SINGLENOZZLE)) { active_extruder = toolID;};     
-          
+            if (ENABLED(SINGLENOZZLE)) { active_extruder = toolID;};
+
           } else if ( TEST(extruder_was_primed, old_tool) ) {
               //Only perform retraction for this nozzle if it has been primed
               extruder_retract();
@@ -1312,3 +1315,5 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE
+
+#endif
