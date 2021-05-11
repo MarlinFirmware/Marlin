@@ -32,7 +32,8 @@
  * M122: Debug TMC drivers
  */
 void GcodeSuite::M122() {
-  xyze_bool_t print_axis = { false, false, false, false };
+  xyze_bool_t print_axis = ARRAY_N_1(XYZE, false);
+
   bool print_all = true;
   LOOP_XYZE(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
 
