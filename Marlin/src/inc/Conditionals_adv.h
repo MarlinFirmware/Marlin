@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,6 +25,55 @@
  * Conditionals_adv.h
  * Defines that depend on advanced configuration.
  */
+
+#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+  #define SWITCHING_NOZZLE_TWO_SERVOS 1
+#endif
+
+// Determine NUM_SERVOS if none was supplied
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS 0
+  #if ANY(HAS_Z_SERVO_PROBE, CHAMBER_VENT, SWITCHING_TOOLHEAD, SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SPINDLE_SERVO)
+    #if NUM_SERVOS <= Z_PROBE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_E1_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_E1_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_E23_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SPINDLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
+    #endif
+  #endif
+#endif
+
+// Convenience override for a BLTouch alone
+#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 50 }
+#endif
 
 #if EXTRUDERS == 0
   #define NO_VOLUMETRICS
@@ -56,6 +105,19 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
+#if TEMP_SENSOR_COOLER == 0
+  #undef THERMAL_PROTECTION_COOLER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -70,6 +132,15 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
+  #endif
 #endif
 
 // Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
@@ -81,8 +152,16 @@
   #undef SD_FINISHED_RELEASECOMMAND
 #endif
 
+#if ENABLED(NO_SD_AUTOSTART)
+  #undef MENU_ADDAUTOSTART
+#endif
+
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+  #define HAS_MEDIA_SUBCALLS 1
 #endif
 
 #if HAS_PRINT_PROGRESS && EITHER(PRINT_PROGRESS_SHOW_DECIMALS, SHOW_REMAINING_TIME)
@@ -91,7 +170,7 @@
 
 #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
   #define HAS_GAMES 1
-  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+  #if MANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
     #define HAS_GAME_MENU 1
   #endif
 #endif
@@ -106,7 +185,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS)
+#if ANY(EXTENSIBLE_UI, IS_NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -118,7 +197,16 @@
 #endif
 
 #if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
-  #define HAS_I2C_DIGIPOT 1
+  #define HAS_MOTOR_CURRENT_I2C 1
+#endif
+
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
 #endif
 
 // Multiple Z steppers
@@ -126,11 +214,25 @@
   #define NUM_Z_STEPPER_DRIVERS 1
 #endif
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  #undef Z_STEPPER_ALIGN_AMP
+// Fallback Stepper Driver types that depend on Configuration_adv.h
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #undef X2_DRIVER_TYPE
 #endif
-#ifndef Z_STEPPER_ALIGN_AMP
-  #define Z_STEPPER_ALIGN_AMP 1.0
+#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
+  #undef Y2_DRIVER_TYPE
+#endif
+
+#if NUM_Z_STEPPER_DRIVERS < 4
+  #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -139,11 +241,11 @@
 //
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define HAS_CUTTER 1
-  #define _CUTTER_DISP_PWM255  1
-  #define _CUTTER_DISP_PERCENT 2
-  #define _CUTTER_DISP_RPM     3
-  #define _CUTTER_DISP(V)      _CAT(_CUTTER_DISP_, V)
-  #define CUTTER_DISPLAY_IS(V) (_CUTTER_DISP(CUTTER_POWER_DISPLAY) == _CUTTER_DISP(V))
+  #define _CUTTER_POWER_PWM255  1
+  #define _CUTTER_POWER_PERCENT 2
+  #define _CUTTER_POWER_RPM     3
+  #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
@@ -184,6 +286,9 @@
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
   #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
+  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
@@ -205,7 +310,7 @@
   #endif
 #endif
 
-#if ENABLED(FYSETC_MINI_12864_2_1)
+#if EITHER(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
   #define LED_CONTROL_MENU
   #define LED_USER_PRESET_STARTUP
   #define LED_COLOR_PRESETS
@@ -243,9 +348,37 @@
   #endif
 #endif
 
-// If platform requires early initialization of watchdog to properly boot
-#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
-  #define EARLY_WATCHDOG 1
+#if BOTH(LED_CONTROL_MENU, NEOPIXEL2_SEPARATE)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
+// Full Touch Screen needs 'tft/xpt2046'
+#if EITHER(TFT_TOUCH_DEVICE_XPT2046, HAS_TFT_LVGL_UI)
+  #define HAS_TFT_XPT2046 1
+#endif
+
+// Touch Screen or "Touch Buttons" need XPT2046 pins
+// but they use different components
+#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
+  #define NEED_TOUCH_PINS 1
 #endif
 
 // Extensible UI pin mapping for RepRapDiscount
@@ -256,6 +389,14 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
 #endif
 
 /**
@@ -349,7 +490,48 @@
   #define SD_CONNECTION_IS(...) 0
 #endif
 
+// Power Monitor sensors
+#if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+  #define HAS_POWER_MONITOR 1
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+    #define HAS_POWER_MONITOR_WATTS 1
+  #endif
+#endif
+
 // Flag if an EEPROM type is pre-selected
 #if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
   #define NO_EEPROM_SELECTED 1
+#endif
+
+// Flag whether hex_print.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
+  #define NEED_HEX_PRINT 1
+#endif
+
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
+// Flag whether least_squares_fit.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #define NEED_LSF 1
+#endif
+
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define HAS_USER_ITEM(V...) DO(HAS,||,V)
+#else
+  #define HAS_USER_ITEM(N) 0
+#endif
+
+#if !HAS_MULTI_SERIAL
+  #undef MEATPACK_ON_SERIAL_PORT_2
+#endif
+#if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
+  #define HAS_MEATPACK 1
 #endif

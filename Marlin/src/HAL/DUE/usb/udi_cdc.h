@@ -41,7 +41,7 @@
  *
  */
 /*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
  */
 
 #ifndef _UDI_CDC_H_
@@ -675,11 +675,11 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  *   - \code // Waits and gets a value on CDC line
 	int udi_cdc_getc(void);
 	// Reads a RAM buffer on CDC line
-	iram_size_t udi_cdc_read_buf(int* buf, iram_size_t size);
+	iram_size_t udi_cdc_read_buf(int *buf, iram_size_t size);
 	// Puts a byte on CDC line
 	int udi_cdc_putc(int value);
 	// Writes a RAM buffer on CDC line
-	iram_size_t udi_cdc_write_buf(const int* buf, iram_size_t size); \endcode
+	iram_size_t udi_cdc_write_buf(const int *buf, iram_size_t size); \endcode
  *
  * \section udi_cdc_use_cases Advanced use cases
  * For more advanced use of the UDI CDC module, see the following use cases:
@@ -701,7 +701,7 @@ iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t s
  * another "Composite Device" module, like "USB HID Mouse (Composite Device)".
  *
  * Also, you can refer to application note
- * <A href="http://www.atmel.com/dyn/resources/prod_documents/doc8445.pdf">
+ * <A href="https://www.atmel.com/dyn/resources/prod_documents/doc8445.pdf">
  * AVR4902 ASF - USB Composite Device</A>.
  *
  * \section udi_cdc_use_case_composite_setup Setup steps

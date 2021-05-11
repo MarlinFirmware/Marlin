@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,7 +37,6 @@
 #include "../../../core/debug_out.h"
 
 /**
- *
  * M916: increase KVAL_HOLD until get thermal warning
  *       NOTE - on L6474 it is TVAL that is used
  *
@@ -62,7 +61,6 @@
  *
  * D - time (in seconds) to run each setting of KVAL_HOLD/TVAL
  *     optional - defaults to zero (runs each setting once)
- *
  */
 
 /**
@@ -121,7 +119,7 @@ void GcodeSuite::M916() {
     M91x_counter_max = 256;  // KVAL_HOLD is 8 bits
 
   uint8_t M91x_delay_s = parser.byteval('D');   // get delay in seconds
-  millis_t M91x_delay_ms = M91x_delay_s * 60 * 1000;
+  millis_t M91x_delay_ms = SEC_TO_MS(M91x_delay_s * 60);
   millis_t M91x_delay_end;
 
   DEBUG_ECHOLNPGM(".\n.");
@@ -187,7 +185,6 @@ void GcodeSuite::M916() {
 }
 
 /**
- *
  * M917: Find minimum current thresholds
  *
  *   Decrease OCD current until overcurrent error
@@ -214,7 +211,6 @@ void GcodeSuite::M916() {
  *
  * K - value for KVAL_HOLD (0 - 255) (ignored for L6474)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M917() {
 
@@ -312,8 +308,8 @@ void GcodeSuite::M917() {
             L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
-        watchdog_refresh();;   // beat the dog
+        gcode.reset_stepper_timeout(); // keep steppers powered
+        watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
@@ -522,7 +518,6 @@ void GcodeSuite::M917() {
 }
 
 /**
- *
  * M918: increase speed until error or max feedrate achieved (as shown in configuration.h))
  *
  * J - select which driver(s) to monitor on multi-driver axis
@@ -543,7 +538,6 @@ void GcodeSuite::M917() {
  *
  * M - value for microsteps (1 - 128) (optional)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M918() {
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
  */
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
   nozzle.park(parser.ushortval('P'));
 }
 

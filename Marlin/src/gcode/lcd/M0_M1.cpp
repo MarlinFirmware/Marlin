@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,7 @@
 #include "../../MarlinCore.h"     // for wait_for_user_response()
 
 #if HAS_LCD_MENU
-  #include "../../lcd/ultralcd.h"
+  #include "../../lcd/marlinui.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #endif

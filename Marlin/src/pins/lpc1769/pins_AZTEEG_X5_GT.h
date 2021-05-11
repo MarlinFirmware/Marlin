@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,7 @@
  * Azteeg X5 GT pin assignments
  */
 
-#ifndef MCU_LPC1769
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "Azteeg X5 GT"
 #define BOARD_WEBSITE_URL "tinyurl.com/yx8tdqa3"

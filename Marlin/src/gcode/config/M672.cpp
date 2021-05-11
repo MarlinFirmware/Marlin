@@ -16,25 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+#if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
 
 #include "../gcode.h"
 #include "../../HAL/shared/Delay.h"
 #include "../parser.h"
-
-/**
- * M672 - Set/reset Duet Smart Effector sensitivity
- *
- *  One of these is required:
- *    S<sensitivity> - 0-255
- *    R              - Flag to reset sensitivity to default
- */
 
 /**
  * The Marlin format for the M672 command is different than shown in the Duet Smart Effector
@@ -51,8 +43,8 @@
  *   Marlin: M672 R
  */
 
-#define M672_PROGBYTE    105								// magic byte to start programming custom sensitivity
-#define M672_ERASEBYTE   131								// magic byte to clear custom sensitivity
+#define M672_PROGBYTE    105                // magic byte to start programming custom sensitivity
+#define M672_ERASEBYTE   131                // magic byte to clear custom sensitivity
 
 //
 // Smart Effector byte send protocol:
@@ -77,6 +69,13 @@ void M672_send(uint8_t b) {    // bit rate requirement: 1KHz +/- 30%
   }
 }
 
+/**
+ * M672 - Set/reset Duet Smart Effector sensitivity
+ *
+ *  One of these is required:
+ *    S<sensitivity> - 0-255
+ *    R              - Flag to reset sensitivity to default
+ */
 void GcodeSuite::M672() {
   if (parser.seen('R')) {
     M672_send(M672_ERASEBYTE);
@@ -96,4 +95,4 @@ void GcodeSuite::M672() {
   OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);  // Keep Smart Effector in NORMAL mode
 }
 
-#endif // SMART_EFFECTOR && SMART_EFFECTOR_MOD_PIN
+#endif // DUET_SMART_EFFECTOR && SMART_EFFECTOR_MOD_PIN

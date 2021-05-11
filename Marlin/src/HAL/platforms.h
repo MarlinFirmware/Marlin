@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,12 +31,12 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/TEENSY31_32/NAME)
 #elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/TEENSY35_36/NAME)
+#elif defined(__IMXRT1062__)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/TEENSY40_41/NAME)
 #elif defined(TARGET_LPC1768)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LPC1768/NAME)
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32F1/NAME)
-#elif defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
-  #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32_F4_F7/NAME)
 #elif defined(ARDUINO_ARCH_STM32)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32/NAME)
 #elif defined(ARDUINO_ARCH_ESP32)

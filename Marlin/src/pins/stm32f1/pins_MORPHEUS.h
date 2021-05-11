@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@
  * MORPHEUS Board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -89,3 +89,5 @@
 //
 #define LED_PIN                             PC13
 #define SDSS                                PA3
+#define TFTGLCD_CS                          PA4
+#define SD_DETECT_PIN                       PC14

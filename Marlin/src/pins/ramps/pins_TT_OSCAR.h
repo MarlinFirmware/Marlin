@@ -16,13 +16,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #if HOTENDS > 5 || E_STEPPERS > 5
   #error "TTOSCAR supports up to 5 hotends / E-steppers. Comment out this line to continue."
@@ -271,7 +269,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -282,7 +280,7 @@
     #define LCD_PINS_ENABLE                   51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
     #define LCD_PINS_ENABLE                   42
@@ -309,7 +307,7 @@
       #define LCD_PINS_ENABLE                 29
       #define LCD_PINS_D4                     25
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         #define BEEPER_PIN                    37
       #endif
 
@@ -333,29 +331,33 @@
 
       #define LCD_PINS_D7                     29
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         #define BEEPER_PIN                    33
       #endif
 
     #endif
 
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                     38
-      //#define SHIFT_LD                      42
-      //#define SHIFT_OUT                     40
-      //#define SHIFT_EN                      17
+      //#define SHIFT_CLK_PIN                 38
+      //#define SHIFT_LD_PIN                  42
+      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_EN_PIN                  17
     #endif
 
+  #endif
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
   //
   // LCD Display input pins
   //
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                      37
 
@@ -392,7 +394,7 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1                         22  // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN1                         22  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       #define BTN_EN2                          7  // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC                         -1
 
@@ -486,10 +488,10 @@
       #define BEEPER_PIN                      33
 
       // Buttons are directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
-        #define SHIFT_OUT                     40
-        #define SHIFT_CLK                     44
-        #define SHIFT_LD                      42
+      #if IS_RRW_KEYPAD
+        #define SHIFT_OUT_PIN                 40
+        #define SHIFT_CLK_PIN                 44
+        #define SHIFT_LD_PIN                  42
         #define BTN_EN1                       64
         #define BTN_EN2                       59
         #define BTN_ENC                       63
@@ -510,6 +512,6 @@
 
     #endif
 
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 
 #endif

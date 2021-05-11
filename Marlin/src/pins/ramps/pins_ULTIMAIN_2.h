@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,13 +33,12 @@
  *    case light
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME         "Ultimaker 2.x"
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
-#define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#define DEFAULT_SOURCE_CODE_URL "github.com/Ultimaker/Marlin"
 
 //
 // Limit Switches

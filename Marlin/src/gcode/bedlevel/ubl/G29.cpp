@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,6 +31,17 @@
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
-void GcodeSuite::G29() { ubl.G29(); }
+#if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+  #include "../../../module/motion.h"
+#endif
+
+void GcodeSuite::G29() {
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
+  ubl.G29();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+}
 
 #endif // AUTO_BED_LEVELING_UBL

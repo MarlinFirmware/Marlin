@@ -16,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
-#include "../../dogm/ultralcd_DOGM.h"
+#include "../../dogm/marlinui_DOGM.h"
 #include "../../lcdprint.h"
-#include "../../ultralcd.h"
+#include "../../marlinui.h"
 
 //#define MUTE_GAMES
 
@@ -53,10 +53,18 @@
 
 // Pool game data to save SRAM
 union MarlinGameData {
-  TERN_(MARLIN_BRICKOUT, brickout_data_t brickout);
-  TERN_(MARLIN_INVADERS, invaders_data_t invaders);
-  TERN_(MARLIN_SNAKE, snake_data_t snake);
-  TERN_(MARLIN_MAZE, maze_data_t maze);
+  #if ENABLED(MARLIN_BRICKOUT)
+    brickout_data_t brickout;
+  #endif
+  #if ENABLED(MARLIN_INVADERS)
+    invaders_data_t invaders;
+  #endif
+  #if ENABLED(MARLIN_SNAKE)
+    snake_data_t snake;
+  #endif
+  #if ENABLED(MARLIN_MAZE)
+    maze_data_t maze;
+  #endif
 };
 
 extern MarlinGameData marlin_game_data;

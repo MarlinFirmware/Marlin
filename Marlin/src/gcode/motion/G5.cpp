@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,7 +29,7 @@
 
 /**
  * Parameters interpreted according to:
- * http://linuxcnc.org/docs/2.6/html/gcode/parser.html#sec:G5-Cubic-Spline
+ * https://linuxcnc.org/docs/2.7/html/gcode/g-code.html#gcode:g5
  * However I, J omission is not supported at this point; all
  * parameters can be omitted and default to zero.
  */

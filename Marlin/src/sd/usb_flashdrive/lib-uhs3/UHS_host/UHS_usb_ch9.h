@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
+Web      :  https://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -108,12 +108,12 @@ e-mail   :  support@circuitsathome.com
 #define              USB_DESCRIPTOR_OTHER_SPEED 0x07    // bDescriptorType for a Other Speed Configuration.
 #define          USB_DESCRIPTOR_INTERFACE_POWER 0x08    // bDescriptorType for Interface Power.
 #define                      USB_DESCRIPTOR_OTG 0x09    // bDescriptorType for an OTG Descriptor.
-#define                    USB_DESCRIPTOR_DEBUG 0x0a
-#define    USB_DESCRIPTOR_INTERFACE_ASSOCIATION 0x0b
-#define                 USB_DESCRIPTOR_SECURITY 0x0c
-#define                      USB_DESCRIPTOR_KEY 0x0d
-#define          USB_DESCRIPTOR_ENCRYPTION_TYPE 0x0e
-#define                      USB_DESCRIPTOR_BOS 0x0f
+#define                    USB_DESCRIPTOR_DEBUG 0x0A
+#define    USB_DESCRIPTOR_INTERFACE_ASSOCIATION 0x0B
+#define                 USB_DESCRIPTOR_SECURITY 0x0C
+#define                      USB_DESCRIPTOR_KEY 0x0D
+#define          USB_DESCRIPTOR_ENCRYPTION_TYPE 0x0E
+#define                      USB_DESCRIPTOR_BOS 0x0F
 #define        USB_DESCRIPTOR_DEVICE_CAPABILITY 0x10
 #define   USB_DESCRIPTOR_WIRELESS_ENDPOINT_COMP 0x11
 #define             USB_DESCRIPTOR_WIRE_ADAPTER 0x21
@@ -164,7 +164,7 @@ typedef struct {
         uint8_t iProduct; // Index of String Descriptor describing the product.
         uint8_t iSerialNumber; // Index of String Descriptor with the device's serial number.
         uint8_t bNumConfigurations; // Number of possible configurations.
-} __attribute__((packed)) USB_DEVICE_DESCRIPTOR;
+} __attribute__((packed)) USB_FD_DEVICE_DESCRIPTOR;
 
 /* Configuration descriptor structure */
 typedef struct {
@@ -176,7 +176,7 @@ typedef struct {
         uint8_t iConfiguration; // Index of String Descriptor describing the configuration.
         uint8_t bmAttributes; // Configuration characteristics.
         uint8_t bMaxPower; // Maximum power consumed by this configuration.
-} __attribute__((packed)) USB_CONFIGURATION_DESCRIPTOR;
+} __attribute__((packed)) USB_FD_CONFIGURATION_DESCRIPTOR;
 
 /* Interface descriptor structure */
 typedef struct {
@@ -189,7 +189,7 @@ typedef struct {
         uint8_t bInterfaceSubClass; // Subclass code (assigned by the USB-IF).
         uint8_t bInterfaceProtocol; // Protocol code (assigned by the USB-IF).  0xFF-Vendor specific.
         uint8_t iInterface; // Index of String Descriptor describing the interface.
-} __attribute__((packed)) USB_INTERFACE_DESCRIPTOR;
+} __attribute__((packed)) USB_FD_INTERFACE_DESCRIPTOR;
 
 /* Endpoint descriptor structure */
 typedef struct {
@@ -199,7 +199,7 @@ typedef struct {
         uint8_t bmAttributes; // Endpoint transfer type.
         uint16_t wMaxPacketSize; // Maximum packet size.
         uint8_t bInterval; // Polling interval in frames.
-} __attribute__((packed)) USB_ENDPOINT_DESCRIPTOR;
+} __attribute__((packed)) USB_FD_ENDPOINT_DESCRIPTOR;
 
 /* HID descriptor */
 /*

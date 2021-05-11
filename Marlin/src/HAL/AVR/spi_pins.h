@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -51,15 +51,15 @@
   #define AVR_SS_PIN   16
 #endif
 
-#ifndef SCK_PIN
-  #define SCK_PIN  AVR_SCK_PIN
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN  AVR_SCK_PIN
 #endif
-#ifndef MISO_PIN
-  #define MISO_PIN AVR_MISO_PIN
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN AVR_MISO_PIN
 #endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN AVR_MOSI_PIN
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN AVR_MOSI_PIN
 #endif
-#ifndef SS_PIN
-  #define SS_PIN   AVR_SS_PIN
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN   AVR_SS_PIN
 #endif

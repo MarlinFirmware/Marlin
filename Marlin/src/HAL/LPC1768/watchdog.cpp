@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -27,6 +27,8 @@
 
 #include <lpc17xx_wdt.h>
 #include "watchdog.h"
+
+#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
 
 void watchdog_init() {
   #if ENABLED(WATCHDOG_RESET_MANUAL)
@@ -52,7 +54,7 @@ void watchdog_init() {
   #else
     WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
   #endif
-  WDT_Start(WDT_TIMEOUT);
+  WDT_Start(WDT_TIMEOUT_US);
 }
 
 void HAL_watchdog_refresh() {

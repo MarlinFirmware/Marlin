@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,8 +27,6 @@
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
-#include "HAL.h"
-#include "timers.h"
 
 // ------------------------
 // Local defines
@@ -49,7 +47,10 @@
  * TODO: Calculate Timer prescale value, so we get the 32bit to adjust
  */
 
-void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+
+
+
+void timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority) {
   nvic_irq_num irq_num;
   switch (timer_num) {
     case 1: irq_num = NVIC_TIMER1_CC; break;
@@ -66,9 +67,14 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
        * This should never happen. Add a Sanitycheck for timer number.
        * Should be a general timer since basic timers have no CC channels.
        */
-      break;
+      return;
   }
 
+  nvic_irq_set_priority(irq_num, priority);
+}
+
+
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   /**
    * Give the Stepper ISR a higher priority (lower number)
    * so it automatically preempts the Temperature ISR.
@@ -85,7 +91,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, _MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (STEPPER_TIMER_RATE) / frequency));
       timer_no_ARR_preload_ARPE(STEP_TIMER_DEV); // Need to be sure no preload on ARR register
       timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
-      nvic_irq_set_priority(irq_num, STEP_TIMER_IRQ_PRIO);
+      timer_set_interrupt_priority(STEP_TIMER_NUM, STEP_TIMER_IRQ_PRIO);
       timer_generate_update(STEP_TIMER_DEV);
       timer_resume(STEP_TIMER_DEV);
       break;
@@ -97,7 +103,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
       timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, _MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (F_CPU) / (TEMP_TIMER_PRESCALE) / frequency));
       timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
-      nvic_irq_set_priority(irq_num, TEMP_TIMER_IRQ_PRIO);
+      timer_set_interrupt_priority(TEMP_TIMER_NUM, TEMP_TIMER_IRQ_PRIO);
       timer_generate_update(TEMP_TIMER_DEV);
       timer_resume(TEMP_TIMER_DEV);
       break;

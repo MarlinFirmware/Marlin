@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -84,9 +84,9 @@
 
     public:
       /**
-       * @brief Class constructor
+       * @brief Init Buzzer
        */
-      Buzzer() {
+      static inline void init() {
         SET_OUTPUT(BEEPER_PIN);
         reset();
       }
@@ -118,6 +118,7 @@
 #elif HAS_BUZZER
 
   // Buzz indirectly via the MarlinUI instance
+  #include "../lcd/marlinui.h"
   #define BUZZ(d,f) ui.buzz(d,f)
 
 #else

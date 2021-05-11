@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 #define OVM(V) OV((V)*(0.327/0.327))
 
 // R25 = 100 kOhm, beta25 = 4092 K, 4.7 kOhm pull-up, bed thermistor
-const short temptable_332[][2] PROGMEM = {
+const temp_entry_t temptable_332[] PROGMEM = {
   { OVM( 268), 150 },
   { OVM( 293), 145 },
   { OVM( 320), 141 },

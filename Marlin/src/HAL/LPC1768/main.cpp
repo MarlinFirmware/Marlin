@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -31,21 +31,22 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-extern "C" {
-  #include <debug_frmwrk.h>
-}
-
-#include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
-#include "HAL.h"
-#include "timers.h"
+
+#include "../../sd/cardreader.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
-extern "C" int isLPC1769();
-extern "C" void disk_timerproc();
+
+extern "C" {
+  #include <debug_frmwrk.h>
+  extern "C" int isLPC1769();
+  extern "C" void disk_timerproc();
+}
 
 void SysTick_Callback() { disk_timerproc(); }
+
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 void HAL_init() {
 
@@ -91,11 +92,11 @@ void HAL_init() {
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialize the SD card chip select pins as soon as possible
-  #if PIN_EXISTS(SS)
-    OUT_WRITE(SS_PIN, HIGH);
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
 
-  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SS_PIN
+  #if PIN_EXISTS(ONBOARD_SD_CS) && ONBOARD_SD_CS_PIN != SD_SS_PIN
     OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH);
   #endif
 
@@ -116,17 +117,15 @@ void HAL_init() {
     PinCfg.Pinmode = 2;    // no pull-up/pull-down
     PINSEL_ConfigPin(&PinCfg);
     // now set CLKOUT_EN bit
-    LPC_SC->CLKOUTCFG |= (1<<8);
+    SBI(LPC_SC->CLKOUTCFG, 8);
   #endif
 
   USB_Init();                               // USB Initialization
-  USB_Connect(FALSE);                       // USB clear connection
+  USB_Connect(false);                       // USB clear connection
   delay(1000);                              // Give OS time to notice
-  USB_Connect(TRUE);
+  USB_Connect(true);
 
-  #if !BOTH(SHARED_SD_CARD, INIT_SDCARD_ON_BOOT) && DISABLED(NO_SD_HOST_DRIVE)
-    MSC_SD_Init(0);                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
@@ -138,11 +137,13 @@ void HAL_init() {
   }
 
   HAL_timer_init();
+
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 // HAL idle task
 void HAL_idletask() {
-  #if ENABLED(SHARED_SD_CARD)
+  #if HAS_SHARED_MEDIA
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -55,8 +55,13 @@
 #else
   #define _X_MS3
 #endif
+#if PIN_EXISTS(X_ENABLE)
+  #define _X_ENABLE_PIN X_ENABLE_PIN,
+#else
+  #define _X_ENABLE_PIN
+#endif
 
-#define _X_PINS X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
+#define _X_PINS X_STEP_PIN, X_DIR_PIN, _X_ENABLE_PIN _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
 
 #if PIN_EXISTS(Y_MIN)
   #define _Y_MIN Y_MIN_PIN,
@@ -88,8 +93,13 @@
 #else
   #define _Y_MS3
 #endif
+#if PIN_EXISTS(Y_ENABLE)
+  #define _Y_ENABLE_PIN Y_ENABLE_PIN,
+#else
+  #define _Y_ENABLE_PIN
+#endif
 
-#define _Y_PINS Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, _Y_MIN _Y_MAX _Y_MS1 _Y_MS2 _Y_MS3 _Y_CS
+#define _Y_PINS Y_STEP_PIN, Y_DIR_PIN, _Y_ENABLE_PIN _Y_MIN _Y_MAX _Y_MS1 _Y_MS2 _Y_MS3 _Y_CS
 
 #if PIN_EXISTS(Z_MIN)
   #define _Z_MIN Z_MIN_PIN,
@@ -121,8 +131,13 @@
 #else
   #define _Z_MS3
 #endif
+#if PIN_EXISTS(Z_ENABLE)
+  #define _Z_ENABLE_PIN Z_ENABLE_PIN,
+#else
+  #define _Z_ENABLE_PIN
+#endif
 
-#define _Z_PINS Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, _Z_MIN _Z_MAX _Z_MS1 _Z_MS2 _Z_MS3 _Z_CS
+#define _Z_PINS Z_STEP_PIN, Z_DIR_PIN, _Z_ENABLE_PIN _Z_MIN _Z_MAX _Z_MS1 _Z_MS2 _Z_MS3 _Z_CS
 
 //
 // Extruder Chip Select, Digital Micro-steps
@@ -354,7 +369,7 @@
     #endif
   #endif
 
-#elif EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+#elif EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
 
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, _E1_CS _E1_MS1 _E1_MS2 _E1_MS3
@@ -383,7 +398,7 @@
     #endif // EXTRUDERS > 3 || MIXING_EXTRUDER > 3
   #endif // EXTRUDERS > 2 || MIXING_EXTRUDER > 2
 
-#endif // EXTRUDERS > 1 || MIXING_EXTRUDER
+#endif // HAS_MULTI_EXTRUDER || MIXING_EXTRUDER
 
 //
 // Heaters, Fans, Temp Sensors
@@ -614,12 +629,6 @@
   #define _Z_M167
 #endif
 
-#if TEMP_SENSOR_BED && PIN_EXISTS(HEATER_BED)
-  #define _HEATER_BED HEATER_BED_PIN,
-#else
-  #define _HEATER_BED
-#endif
-
 #if PIN_EXISTS(FAN)
   #define _FAN0 FAN_PIN,
 #else
@@ -666,21 +675,44 @@
   #define _FANC
 #endif
 
-#if PIN_EXISTS(HEATER_BED) && PIN_EXISTS(TEMP_BED)
+#if TEMP_SENSOR_BED && PINS_EXIST(TEMP_BED, HEATER_BED)
   #define _BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
 #else
   #define _BED_PINS
 #endif
 
-#if PIN_EXISTS(TEMP_CHAMBER)
-  #define __CHAMBER_PINS CHAMBER_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_CHAMBER_PIN),
+#if TEMP_SENSOR_CHAMBER && PIN_EXISTS(TEMP_CHAMBER)
+  #define _CHAMBER_TEMP analogInputToDigitalPin(TEMP_CHAMBER_PIN),
 #else
-  #define __CHAMBER_PINS
+  #define _CHAMBER_TEMP
 #endif
-#if PIN_EXISTS(HEATER_CHAMBER)
-  #define _CHAMBER_PINS __CHAMBER_PINS HEATER_CHAMBER_PIN,
+#if TEMP_SENSOR_CHAMBER && PINS_EXIST(TEMP_CHAMBER, HEATER_CHAMBER)
+  #define _CHAMBER_HEATER HEATER_CHAMBER_PIN,
 #else
-  #define _CHAMBER_PINS
+  #define _CHAMBER_HEATER
+#endif
+#if TEMP_SENSOR_CHAMBER && PINS_EXIST(TEMP_CHAMBER, CHAMBER_AUTO_FAN)
+  #define _CHAMBER_FAN CHAMBER_AUTO_FAN_PIN,
+#else
+  #define _CHAMBER_FAN
+#endif
+
+#if TEMP_SENSOR_COOLER && PIN_EXISTS(TEMP_COOLER)
+  #define _COOLER_TEMP analogInputToDigitalPin(TEMP_COOLER_PIN),
+#else
+  #define _COOLER_TEMP
+#endif
+
+#if TEMP_SENSOR_COOLER && PIN_EXISTS(COOLER)
+  #define _COOLER COOLER_PIN,
+#else
+  #define _COOLER
+#endif
+
+#if TEMP_SENSOR_COOLER && PINS_EXIST(TEMP_COOLER, COOLER_AUTO_FAN)
+  #define _COOLER_FAN COOLER_AUTO_FAN_PIN,
+#else
+  #define _COOLER_FAN
 #endif
 
 #ifndef HAL_SENSITIVE_PINS
@@ -691,6 +723,6 @@
   _X_PINS _Y_PINS _Z_PINS _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE _Z_M167 \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \
-  _PS_ON _HEATER_BED _FAN0 _FAN1 _FAN2 _FAN3 _FAN4 _FAN5 _FAN6 _FAN7 _FANC \
-  _BED_PINS _CHAMBER_PINS HAL_SENSITIVE_PINS \
+  _PS_ON _FAN0 _FAN1 _FAN2 _FAN3 _FAN4 _FAN5 _FAN6 _FAN7 _FANC \
+  _BED_PINS _COOLER _CHAMBER_TEMP _CHAMBER_HEATER _CHAMBER_FAN HAL_SENSITIVE_PINS \
 }
