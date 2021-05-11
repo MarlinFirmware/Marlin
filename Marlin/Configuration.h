@@ -970,10 +970,10 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -35, 8, -3.65}
+#define NOZZLE_TO_PROBE_OFFSET { -35, 8, -3.90} //-3.65
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define MIN_PROBE_EDGE 100 //70 //85 //45 //10
+#define MIN_PROBE_EDGE 70 //100 //70 //85 //45 //10
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000   //E16 6000
@@ -1262,7 +1262,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3  //7
+  #define GRID_MAX_POINTS_X 3 //7
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
