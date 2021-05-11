@@ -14,13 +14,13 @@ bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
 
 usage() {
   echo "
-Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
+Usage: mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
        mftest [-a|--autobuild]
        mftest [-r|--rebuild]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
 OPTIONS
-  -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
+  -t --env         The environment to apply / run, or the menu index number.
   -n --num         The index of the test to run. (In file order.)
   -m --make        Use the make / Docker method for the build.
   -y --build       Skip 'Do you want to build this test?' and assume YES.
@@ -28,6 +28,7 @@ OPTIONS
   -a --autobuild   PIO Build using the MOTHERBOARD environment.
   -u --autoupload  PIO Upload using the MOTHERBOARD environment.
   -v --verbose     Extra output for debugging.
+  -s --silent      Silence build output from PlatformIO.
 
 env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
 "
@@ -62,6 +63,7 @@ while getopts 'abhmruvyn:t:-:' OFLAG; do
        esac
        ;;
     r) REBUILD=1         ; bugout "Rebuilding previous..." ;;
+    s) SILENT_FLAG="-s" ;;
     t) TESTENV="$OPTARG" ; bugout "Got a target: $TESTENV" ;;
     u) AUTO_BUILD=2      ; bugout "Auto-Upload target..." ;;
     v) DEBUG=1           ; bugout "Debug ON" ;;
@@ -105,8 +107,8 @@ if ((REBUILD)); then
   # Build with the last-built env
   [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
-  pio run -s -d . -e $TESTENV
-  exit
+  pio run $SILENT_FLAG -d . -e $TESTENV
+  exit 0
 fi
 
 case $TESTENV in
@@ -189,12 +191,12 @@ if ((AUTO_BUILD)); then
 
   if ((AUTO_BUILD == 2)); then
     echo "Uploading environment $TARGET for board $MB ($BNUM)..." ; echo
-    pio run -t upload -e $TARGET
+    pio run $SILENT_FLAG -t upload -e $TARGET
   else
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
-    pio run -s -e $TARGET
+    pio run $SILENT_FLAG -e $TARGET
   fi
-  exit
+  exit 0
 fi
 
 #
@@ -306,6 +308,6 @@ fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
   ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
-  ((USE_MAKE)) || pio run -s -d . -e $TESTENV
+  ((USE_MAKE)) || pio run $SILENT_FLAG -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }

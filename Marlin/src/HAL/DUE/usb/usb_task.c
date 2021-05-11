@@ -264,7 +264,7 @@ bool usb_task_extra_string(void) {
 ** Handle device requests that the ASF stack doesn't
 */
 bool usb_task_other_requests(void) {
-  uint8_t* ptr = 0;
+  uint8_t *ptr = 0;
   uint16_t size = 0;
 
   if (Udd_setup_type() == USB_REQ_TYPE_VENDOR) {
@@ -322,7 +322,7 @@ void usb_task_init(void) {
       char *sptr;
 
       // Patch in the filament diameter
-      sprintf_P(diam, PSTR("%d"), (int)((DEFAULT_NOMINAL_FILAMENT_DIA) * 1000.0));
+      itoa((int)((DEFAULT_NOMINAL_FILAMENT_DIA) * 1000), diam, 10);
 
       // And copy it to the proper place, expanding it to unicode
       sptr = &diam[0];

@@ -103,7 +103,7 @@ public:
                 return (current_state == usb_task_state);
         };
 
-        virtual UHS_EpInfo * UHS_NI ctrlReqOpen(NOTUSED(uint8_t addr), NOTUSED(uint64_t Request), NOTUSED(uint8_t* dataptr)) {
+        virtual UHS_EpInfo * UHS_NI ctrlReqOpen(NOTUSED(uint8_t addr), NOTUSED(uint64_t Request), NOTUSED(uint8_t *dataptr)) {
                 return NULL;
         };
 
@@ -213,17 +213,17 @@ public:
 
         uint8_t UHS_NI EPClearHalt(uint8_t addr, uint8_t ep);
 
-        uint8_t UHS_NI ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbytes, uint8_t* dataptr);
+        uint8_t UHS_NI ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbytes, uint8_t *dataptr);
 
-        uint8_t UHS_NI getDevDescr(uint8_t addr, uint16_t nbytes, uint8_t* dataptr);
+        uint8_t UHS_NI getDevDescr(uint8_t addr, uint16_t nbytes, uint8_t *dataptr);
 
-        uint8_t UHS_NI getConfDescr(uint8_t addr, uint16_t nbytes, uint8_t conf, uint8_t* dataptr);
+        uint8_t UHS_NI getConfDescr(uint8_t addr, uint16_t nbytes, uint8_t conf, uint8_t *dataptr);
 
         uint8_t UHS_NI setAddr(uint8_t oldaddr, uint8_t newaddr);
 
         uint8_t UHS_NI setConf(uint8_t addr, uint8_t conf_value);
 
-        uint8_t UHS_NI getStrDescr(uint8_t addr, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t* dataptr);
+        uint8_t UHS_NI getStrDescr(uint8_t addr, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t *dataptr);
 
         void UHS_NI ReleaseDevice(uint8_t addr);
 
@@ -262,8 +262,8 @@ public:
         uint8_t enumerateInterface(ENUMERATION_INFO *ei);
         uint8_t getNextInterface(ENUMERATION_INFO *ei, UHS_EpInfo *pep, uint8_t data[], uint16_t *left, uint16_t *read, uint8_t *offset);
         uint8_t initDescrStream(ENUMERATION_INFO *ei, USB_FD_CONFIGURATION_DESCRIPTOR *ucd, UHS_EpInfo *pep, uint8_t *data, uint16_t *left, uint16_t *read, uint8_t *offset);
-        uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
-        uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data);
+        uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *data);
+        uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data);
         uint8_t doSoftReset(uint8_t parent, uint8_t port, uint8_t address);
         uint8_t getone(UHS_EpInfo *pep, uint16_t *left, uint16_t *read, uint8_t *dataptr, uint8_t *offset);
         uint8_t eat(UHS_EpInfo *pep, uint16_t *left, uint16_t *read, uint8_t *dataptr, uint8_t *offset, uint16_t *yum);

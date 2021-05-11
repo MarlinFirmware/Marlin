@@ -536,7 +536,9 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  TERN_(HAS_HEATED_BED, bool bed_show_target : 1);
+  #if ENABLED(HAS_HEATED_BED)
+    bool bed_show_target : 1;
+  #endif
 } display_state = {
   true, true, TERN_(HAS_HEATED_BED, true)
 };
@@ -640,11 +642,14 @@ void ST7920_Lite_Status_Screen::draw_status_message() {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < TEXT_MODE_LCD_WIDTH) {
-        write_byte('.');                        // Always at 1+ spaces left, draw a dot
-        uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen;       // Amount of space left in characters
-        if (--chars) {                          // Draw a second dot if there's space
-          write_byte('.');
-          if (--chars) write_str(str, chars);   // Print a second copy of the message
+        uint8_t chars = TEXT_MODE_LCD_WIDTH - rlen; // Amount of space left in characters
+        write_byte(' ');                        // Always at 1+ spaces left, draw a space
+        if (--chars) {                          // Draw a second space if there's room
+          write_byte(' ');
+          if (--chars) {                        // Draw a third space if there's room
+            write_byte(' ');
+            if (--chars) write_str(str, chars); // Print a second copy of the message
+          }
         }
       }
       ui.advance_status_scroll();
@@ -691,15 +696,15 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // We only add the target temperatures to the checksum
   // because the actual temps fluctuate so by updating
   // them only during blinks we gain a bit of stability.
-  const bool       blink             = ui.get_blink();
-  const uint16_t   feedrate_perc     = feedrate_percentage;
-  const uint16_t   fs                = thermalManager.scaledFanSpeed(0);
-  const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
+  const bool blink = ui.get_blink();
+  const uint16_t feedrate_perc = feedrate_percentage;
+  const uint16_t fs = thermalManager.scaledFanSpeed(0);
+  const celsius_t extruder_1_target = thermalManager.degTargetHotend(0);
   #if HAS_MULTI_HOTEND
-    const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
+    const celsius_t extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
   #if HAS_HEATED_BED
-    const int16_t  bed_target        = thermalManager.degTargetBed();
+    const celsius_t bed_target = thermalManager.degTargetBed();
   #endif
   static uint16_t last_checksum = 0;
   const uint16_t checksum = blink ^ feedrate_perc ^ fs ^ extruder_1_target
@@ -712,33 +717,31 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
 
 void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
-    const bool       blink             = ui.get_blink();
-    const duration_t elapsed           = print_job_timer.duration();
-    duration_t       remaining         = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
-    const uint16_t   feedrate_perc     = feedrate_percentage;
-    const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
-                     extruder_1_target = thermalManager.degTargetHotend(0);
+    const bool       blink              = ui.get_blink();
+    const duration_t elapsed            = print_job_timer.duration();
+    duration_t       remaining          = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
+    const uint16_t   feedrate_perc      = feedrate_percentage;
+    const celsius_t  extruder_1_temp    = thermalManager.wholeDegHotend(0),
+                     extruder_1_target  = thermalManager.degTargetHotend(0);
     #if HAS_MULTI_HOTEND
-      const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
-                     extruder_2_target = thermalManager.degTargetHotend(1);
+      const celsius_t extruder_2_temp   = thermalManager.wholeDegHotend(1),
+                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
     #if HAS_HEATED_BED
-      const int16_t  bed_temp          = thermalManager.degBed(),
-                     bed_target        = thermalManager.degTargetBed();
+      const celsius_t bed_temp          = thermalManager.wholeDegBed(),
+                      bed_target        = thermalManager.degTargetBed();
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
     TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
     TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
-    uint16_t spd = thermalManager.fan_speed[0];
-
+    uint8_t spd = thermalManager.fan_speed[0];
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink && thermalManager.fan_speed_scaler[0] < 128)
         spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
-
-    draw_fan_speed(thermalManager.fanPercent(spd));
+    draw_fan_speed(thermalManager.pwmToPercent(spd));
 
     // Draw elapsed/remaining time
     const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);

@@ -76,7 +76,7 @@
   #define FONT_STATUSMENU_NAME MENU_FONT_NAME
 #endif
 
-U8G_CLASS u8g(U8G_PARAM);
+U8G_CLASS u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -174,6 +174,7 @@ bool MarlinUI::detected() { return true; }
 
   // Two-part needed to display all info
   constexpr bool two_part = ((LCD_PIXEL_HEIGHT) - (START_BMPHEIGHT)) < ((MENU_FONT_ASCENT) * 2);
+  constexpr uint8_t bootscreen_pages = 1 + two_part;
 
   // Draw the static Marlin bootscreen from a u8g loop
   // or the animated boot screen within its own u8g loop
@@ -232,16 +233,19 @@ bool MarlinUI::detected() { return true; }
 
   // Show the Marlin bootscreen, with the u8g loop and delays
   void MarlinUI::show_marlin_bootscreen() {
-    constexpr uint8_t pages = two_part ? 2 : 1;
-    for (uint8_t q = pages; q--;) {
+    for (uint8_t q = bootscreen_pages; q--;) {
       draw_marlin_bootscreen(q == 0);
-      safe_delay((BOOTSCREEN_TIMEOUT) / pages);
+      if (q) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages);
     }
   }
 
   void MarlinUI::show_bootscreen() {
     TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
     show_marlin_bootscreen();
+  }
+
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) / bootscreen_pages > sofar) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages - sofar);
   }
 
 #endif // SHOW_BOOTSCREEN
@@ -252,6 +256,13 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
+
+  static bool did_init_u8g = false;
+  if (!did_init_u8g) {
+    u8g.init(U8G_PARAM);
+    did_init_u8g = true;
+  }
+
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
@@ -317,7 +328,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
-      lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
+      lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));
       lcd_put_wchar('/');
 
       if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
@@ -385,7 +396,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
                     pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
@@ -400,7 +411,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
+  void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
@@ -529,7 +540,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;  // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;  // The origin is typically in the lower right corner.  We need to
                                                                     // invert the Y to get it to plot in the right location.
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
@@ -573,6 +584,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   #endif // AUTO_BED_LEVELING_UBL
 
   #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+
+    //
+    // Draw knob rotation => Z motion key for:
+    //  - menu.cpp:lcd_babystep_zoffset
+    //  - menu_ubl.cpp:_lcd_mesh_fine_tune
+    //
 
     const unsigned char cw_bmp[] PROGMEM = {
       B00000000,B11111110,B00000000,
@@ -663,7 +680,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const float zvalue) {
+    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;
@@ -672,28 +689,23 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         old_zvalue = zvalue;
       }
 
-      #if ENABLED(OVERLAY_GFX_REVERSE)
-        const unsigned char *rot_up = ccw_bmp, *rot_down = cw_bmp;
-      #else
-        const unsigned char *rot_up = cw_bmp, *rot_down = ccw_bmp;
-      #endif
+      const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),
+                        *rot_down = TERN(OVERLAY_GFX_REVERSE,  cw_bmp, ccw_bmp);
 
-      #if ENABLED(USE_BIG_EDIT_FONT)
-        const int left = 0, right = 45, nozzle = 95;
-      #else
-        const int left = 5, right = 90, nozzle = 60;
-      #endif
+      const int left = TERN(USE_BIG_EDIT_FONT,  0,  5),
+               right = TERN(USE_BIG_EDIT_FONT, 45, 90),
+              nozzle = TERN(USE_BIG_EDIT_FONT, 95, 60);
 
-      // Draw a representation of the nozzle
-      if (PAGE_CONTAINS(3, 16))  u8g.drawBitmapP(nozzle + 6, 4 - dir, 2, 12, nozzle_bmp);
-      if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20, 3, 1, offset_bedline_bmp);
+      // Draw nozzle lowered or raised according to direction moved
+      if (PAGE_CONTAINS( 3, 16)) u8g.drawBitmapP(nozzle + 6,  4 - dir, 2, 12, nozzle_bmp);
+      if (PAGE_CONTAINS(20, 20)) u8g.drawBitmapP(nozzle + 0, 20      , 3,  1, offset_bedline_bmp);
 
       // Draw cw/ccw indicator and up/down arrows.
       if (PAGE_CONTAINS(47, 62)) {
-        u8g.drawBitmapP(right + 0, 48 - dir, 2, 13, up_arrow_bmp);
-        u8g.drawBitmapP(left  + 0, 49 - dir, 2, 13, down_arrow_bmp);
-        u8g.drawBitmapP(left  + 13, 47, 3, 16, rot_down);
-        u8g.drawBitmapP(right + 13, 47, 3, 16, rot_up);
+        u8g.drawBitmapP(right +  0, 48 - dir, 2, 13, up_arrow_bmp);
+        u8g.drawBitmapP(left  +  0, 49 - dir, 2, 13, down_arrow_bmp);
+        u8g.drawBitmapP(left  + 13, 47      , 3, 16, rot_down);
+        u8g.drawBitmapP(right + 13, 47      , 3, 16, rot_up);
       }
     }
 

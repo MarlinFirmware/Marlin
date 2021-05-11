@@ -27,14 +27,16 @@
   #include "leds/leds.h" // for LEDColor
 #endif
 
-#if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+#if NONE(CASE_LIGHT_NO_BRIGHTNESS, CASE_LIGHT_IS_COLOR_LED) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
   #define CASELIGHT_USES_BRIGHTNESS 1
 #endif
 
 class CaseLight {
 public:
   static bool on;
-  TERN_(CASELIGHT_USES_BRIGHTNESS, static uint8_t brightness);
+  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+    static uint8_t brightness;
+  #endif
 
   static bool pin_is_pwm() { return TERN0(NEED_CASE_LIGHT_PIN, PWM_PIN(CASE_LIGHT_PIN)); }
   static bool has_brightness() { return TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, pin_is_pwm())); }
@@ -50,8 +52,10 @@ public:
   static inline void update_brightness() { update(false); }
   static inline void update_enabled()    { update(true);  }
 
-private:
-  TERN_(CASE_LIGHT_IS_COLOR_LED, static LEDColor color);
+  #if ENABLED(CASE_LIGHT_IS_COLOR_LED)
+    private:
+      static LEDColor color;
+  #endif
 };
 
 extern CaseLight caselight;
