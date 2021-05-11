@@ -117,6 +117,7 @@ typedef struct {
 
   // Misc. Marlin flags
   struct {
+    bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
     #if ENABLED(HAS_LEVELING)
@@ -182,7 +183,7 @@ class PrintJobRecovery {
     static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {
