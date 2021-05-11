@@ -301,8 +301,12 @@
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
-#define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define _NUM_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define NUM_ARGS(V...) _NUM_ARGS(0,V,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+// Use TWO_ARGS(__VA_ARGS__) to get whether there are 1, 2, or >2 arguments
+#define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
 
 #ifdef __cplusplus
 
@@ -414,31 +418,19 @@
 
 #else
 
-  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
-  #define MIN_3(a,V...)   MIN_2(a,MIN_2(V))
-  #define MIN_4(a,V...)   MIN_2(a,MIN_3(V))
-  #define MIN_5(a,V...)   MIN_2(a,MIN_4(V))
-  #define MIN_6(a,V...)   MIN_2(a,MIN_5(V))
-  #define MIN_7(a,V...)   MIN_2(a,MIN_6(V))
-  #define MIN_8(a,V...)   MIN_2(a,MIN_7(V))
-  #define MIN_9(a,V...)   MIN_2(a,MIN_8(V))
-  #define MIN_10(a,V...)  MIN_2(a,MIN_9(V))
   #define __MIN_N(N,V...) MIN_##N(V)
   #define _MIN_N(N,V...)  __MIN_N(N,V)
-  #define _MIN(V...)      _MIN_N(NUM_ARGS(V), V)
+  #define _MIN_N_REF()    _MIN_N
+  #define _MIN(V...)      EVAL(_MIN_N(TWO_ARGS(V),V))
+  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
+  #define MIN_3(a,V...)   MIN_2(a,DEFER2(_MIN_N_REF)()(TWO_ARGS(V),V))
 
-  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
-  #define MAX_3(a,V...)   MAX_2(a,MAX_2(V))
-  #define MAX_4(a,V...)   MAX_2(a,MAX_3(V))
-  #define MAX_5(a,V...)   MAX_2(a,MAX_4(V))
-  #define MAX_6(a,V...)   MAX_2(a,MAX_5(V))
-  #define MAX_7(a,V...)   MAX_2(a,MAX_6(V))
-  #define MAX_8(a,V...)   MAX_2(a,MAX_7(V))
-  #define MAX_9(a,V...)   MAX_2(a,MAX_8(V))
-  #define MAX_10(a,V...)  MAX_2(a,MAX_9(V))
   #define __MAX_N(N,V...) MAX_##N(V)
   #define _MAX_N(N,V...)  __MAX_N(N,V)
-  #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
+  #define _MAX_N_REF()    _MAX_N
+  #define _MAX(V...)      EVAL(_MAX_N(TWO_ARGS(V),V))
+  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
+  #define MAX_3(a,V...)   MAX_2(a,DEFER2(_MAX_N_REF)()(TWO_ARGS(V),V))
 
 #endif
 
