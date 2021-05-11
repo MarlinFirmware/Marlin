@@ -584,7 +584,7 @@ void Endstops::update() {
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
-    #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !(CORE_IS_XY || CORE_IS_XZ)
+  #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !CORE_IS_XY && !CORE_IS_XZ
     if (M167_move) UPDATE_ENDSTOP_BIT(Z, MIN_M167);
   #endif
 
@@ -845,7 +845,7 @@ void Endstops::update() {
     }
   #endif
 
-  #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !(CORE_IS_XY || CORE_IS_XZ)
+  #if ENABLED(CNC_5X) && PIN_EXISTS(Z_MIN_M167) && !CORE_IS_XY && !CORE_IS_XZ
 
       #define _M167_OPEN_STATE LOW
 
