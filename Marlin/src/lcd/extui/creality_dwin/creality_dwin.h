@@ -321,7 +321,7 @@ public:
   #endif
 
   char* Get_Menu_Title(uint8_t menu);
-  int Get_Menu_Size(uint8_t menu);
+  uint8_t Get_Menu_Size(uint8_t menu);
   void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
 
