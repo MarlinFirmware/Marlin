@@ -62,6 +62,15 @@ jobs:
         - STM32F103RC_meeb
         - jgaurora_a5s_a1
         - STM32F103VE_longer
+        - mks_robin
+        - mks_robin_lite
+        - mks_robin_pro
+        - STM32F103RET6_creality
+        - mks_robin_nano35
+
+        # STM32 (ST) Environments
+
+        - STM32F103RC_btt_stm32
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
