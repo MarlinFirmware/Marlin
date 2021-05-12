@@ -51,14 +51,16 @@ void MarlinUI::set_brightness(const uint8_t value) {
   }
 }
 
-void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
-  switch(message) {
-    case PAUSE_MESSAGE_OPTION:
-      CrealityDWIN.Popup_Handler(PurgeMore);
-      break;
-    default:
-      break;
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    switch(message) {
+      case PAUSE_MESSAGE_OPTION:
+        CrealityDWIN.Popup_Handler(PurgeMore);
+        break;
+      default:
+        break;
+    }
   }
-}
+#endif
 
 #endif
