@@ -72,6 +72,7 @@ jobs:
 
         # STM32 (ST) Environments
 
+        - STM32F103RC_btt_stm32
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
