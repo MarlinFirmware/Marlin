@@ -330,7 +330,7 @@ void DWIN_StatusChanged(const char *text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)
-  void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
 #endif
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();

@@ -1722,7 +1722,7 @@ void HMI_SDCardUpdate() {
         Redraw_SD_List();
       }
       else if (sdprint && card.isPrinting() && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
-        card.flag.abort_sd_printing = true;
+        card.abortFilePrintSoon();
         wait_for_heatup = wait_for_user = false;
         dwin_abort_flag = true; // Reset feedrate, return to Home
       }
@@ -2134,7 +2134,7 @@ void HMI_PauseOrStop() {
         checkkey = MainMenu;
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
         wait_for_heatup = wait_for_user = false;       // Stop waiting for heating/user
-        card.flag.abort_sd_printing = true;            // Let the main loop handle SD abort
+        card.abortFilePrintSoon();                     // Let the main loop handle SD abort
         dwin_abort_flag = true;                        // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
           host_action_cancel();
@@ -2572,7 +2572,7 @@ void HMI_Prepare() {
           break;
       #endif
       case PREPARE_CASE_LANG: // Toggle Language
-        DWIN_Popup_Confirm(ICON_BLTouch,"Sorry,", "No other language implemented");
+        DWIN_Popup_Confirm(ICON_BLTouch,"Sorry,", "No other language is implemented");
         break;
       default: break;
     }
@@ -3674,9 +3674,9 @@ void HMI_AdvSet() {
       #endif
 
       #if ENABLED(POWER_LOSS_RECOVERY)
-        case ADVSET_CASE_PWRLOSSR :  // Power-loss recovery
+        case ADVSET_CASE_PWRLOSSR:  // Power-loss recovery
           recovery.enable(!recovery.enabled);
-          Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset,recovery.enabled);
+          Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset, recovery.enabled);
           break;
       #endif
 
@@ -4990,7 +4990,7 @@ void DWIN_CompletedLeveling() {
 }
 
 #if ENABLED(MESH_BED_LEVELING)
-void DWIN_ManualMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
   char msg[33];
   sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%.2f"), GET_TEXT(MSG_PROBING_MESH),xpos, ypos, zval);
   DWIN_StatusChanged(msg);

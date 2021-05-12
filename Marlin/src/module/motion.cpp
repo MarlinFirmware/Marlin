@@ -426,7 +426,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   #endif
 
   if (TERN0(IS_KINEMATIC, is_fast))
-    TERN(IS_KINEMATIC, NOOP, prepare_line_to_destination());
+    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
   else
     prepare_line_to_destination();
 

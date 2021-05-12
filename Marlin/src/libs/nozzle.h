@@ -87,12 +87,13 @@ class Nozzle {
 
   #if ENABLED(NOZZLE_PARK_FEATURE)
 
-
-  #if ENABLED(DWIN_CREALITY_LCD)
-    static void park(const uint8_t z_action, const xyz_pos_t &park=HMI_data.Park_point) _Os;
-  #else
-    static void park(const uint8_t z_action, const xyz_pos_t &park=NOZZLE_PARK_POINT) _Os;
-  #endif
+    static float park_mode_0_height(const_float_t park_z) _Os;
+    
+    #if ENABLED(DWIN_CREALITY_LCD)
+      static void park(const uint8_t z_action, const xyz_pos_t &park=HMI_data.Park_point) _Os;
+    #else
+      static void park(const uint8_t z_action, const xyz_pos_t &park=NOZZLE_PARK_POINT) _Os;
+    #endif
 
 
   #endif

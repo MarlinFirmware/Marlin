@@ -279,7 +279,7 @@
     #undef SPEAKER
   #endif
 
-#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
@@ -327,13 +327,13 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                BEFORE                     AFTER
-    *                _____                      _____
-    *           GND | 1 2 | 5V              5V | 1 2 | GND
-    *            CS | 3 4 | BTN_EN2         CS | 3 4 | BTN_EN2
-    *           SID | 5 6   BTN_EN1        SID | 5 6   BTN_EN1
-    *          open | 7 8 | BTN_ENC        CLK | 7 8 | BTN_ENC
-    *           CLK | 9 10| Beeper        open | 9 10| Beeper
-    *                -----                      -----
+    *                ______                     ______
+    *           GND | 1  2 | 5V             5V | 1  2 | GND
+    *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+    *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+    *          open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
+    *           CLK | 9 10 | Beeper       open | 9 10 | Beeper
+    *                ------                     ------
     *                 LCD                        LCD
     */
 
@@ -361,13 +361,13 @@
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   _____
-     *               5V | 1 2 | GND
-     *      (MOSI) 1.23 | 3 4 | 1.22 (LCD_RS)
-     *    (LCD_A0) 1.21 | 5 6   1.20 (BTN_EN2)
-     *       RESET 1.19 | 7 8 | 1.18 (BTN_EN1)
-     *   (BTN_ENC) 0.28 | 9 10| 1.30  (SCK)
-     *                   -----
+     *                   ______
+     *               5V | 1  2 | GND
+     *      (MOSI) 1.23 | 3  4 | 1.22 (LCD_RS)
+     *    (LCD_A0) 1.21 | 5  6   1.20 (BTN_EN2)
+     *       RESET 1.19 | 7  8 | 1.18 (BTN_EN1)
+     *   (BTN_ENC) 0.28 | 9 10 | 1.30  (SCK)
+     *                   ------
      *                    EXP1
      */
 
@@ -401,10 +401,6 @@
     #define SD_SCK_PIN               EXP2_09_PIN
     #define SD_MISO_PIN              EXP2_10_PIN
     #define SD_MOSI_PIN              EXP2_05_PIN
-
-    // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
-    #define LCD_PINS_RS                    -1
 
     #define TFT_BUFFER_SIZE                 2400
 
