@@ -216,10 +216,9 @@ void GCodeParser::parse(char *p) {
       break;
 
     #if ENABLED(GCODE_MOTION_MODES)
-      #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J':
-          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
-      #endif
+      case 'I' ... 'J':
+        if (motion_mode_codenum != 5 && \
+            TERN1(ARC_SUPPORT, motion_mode_codenum != 2 && motion_mode_codenum != 3)) return;
       case 'Q':
         if (motion_mode_codenum != 5) return;
       case 'X' ... 'Z': case 'E' ... 'F':
