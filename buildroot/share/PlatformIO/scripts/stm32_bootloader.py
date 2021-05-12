@@ -19,8 +19,11 @@ def noencrypt(source, target, env):
 #
 if 'offset' in board.get("build").keys():
 	LD_FLASH_OFFSET = board.get("build.offset")
-
 	marlin.relocate_vtab(LD_FLASH_OFFSET)
+
+	# Flash size
+	maximum_flash_size = int(board.get("upload.maximum_size") / 1024)
+	marlin.replace_define('STM32_FLASH_SIZE', maximum_flash_size)
 
 	# Get upload.maximum_ram_size (defined by /buildroot/share/PlatformIO/boards/VARIOUS.json)
 	maximum_ram_size = board.get("upload.maximum_ram_size")
@@ -35,6 +38,6 @@ if 'offset' in board.get("build").keys():
 # Only copy the file if there's no encrypt
 #
 board_keys = board.get("build").keys()
-if 'firmware' in board_keys and not 'encrypt' in board_keys:
+if 'firmware' in board_keys and ('encrypt' not in board_keys or board.get("build.encrypt") == 'No'):
 	import marlin
 	marlin.add_post_action(noencrypt)

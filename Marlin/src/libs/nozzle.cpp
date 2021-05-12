@@ -249,8 +249,8 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
-          #ifdef NOZZLE_PARK_Z_RAISE_MIN
-        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
+      default: // Raise by NOZZLE_PARK_Z_RAISE_MIN, use park.z as a minimum height
+        do_blocking_move_to_z(park_mode_0_height(park.z), fr_z);
         break;
     }
 
