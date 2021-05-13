@@ -1917,7 +1917,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #if CORE_IS_XY
     if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
     if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
+    #if HAS_Z_AXIS
     if (dc < 0) SBI(dm, Z_AXIS);
+    #endif
     if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
     if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
   #elif CORE_IS_XZ
@@ -2017,7 +2019,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #if CORE_IS_XY
       steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
       steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
+      #if HAS_Z_AXIS
       steps_dist_mm.z      = dc * mm_per_step[Z_AXIS];
+      #endif
       steps_dist_mm.a      = (da + db) * mm_per_step[A_AXIS];
       steps_dist_mm.b      = CORESIGN(da - db) * mm_per_step[B_AXIS];
     #elif CORE_IS_XZ
@@ -2163,7 +2167,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       stepper.enable_axis(X_AXIS);
       stepper.enable_axis(Y_AXIS);
     }
-    #if DISABLED(Z_LATE_ENABLE)
+    #if DISABLED(Z_LATE_ENABLE) && HAS_Z_AXIS
       if (block->steps.z) stepper.enable_axis(Z_AXIS);
     #endif
   #elif CORE_IS_XZ

@@ -76,7 +76,9 @@ struct vector_3 {
   vector_3 operator*(const float &v)    { return vector_3(x * v, y * v, z * v); }
 
   operator xy_float_t() { return xy_float_t({ x, y }); }
+  #ifdef HAS_Z_AXIS
   operator xyz_float_t() { return xyz_float_t({ x, y, z }); }
+  #endif
 
   void debug(PGM_P const title);
 };

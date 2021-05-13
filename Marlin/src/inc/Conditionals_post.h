@@ -2150,10 +2150,10 @@
 #if _HAS_STOP(Y,MAX)
   #define HAS_Y_MAX 1
 #endif
-#if _HAS_STOP(Z,MIN)
+#if HAS_Z_AXIS && _HAS_STOP(Z,MIN)
   #define HAS_Z_MIN 1
 #endif
-#if _HAS_STOP(Z,MAX)
+#if HAS_Z_AXIS && _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
 #if _HAS_STOP(I,MIN)
