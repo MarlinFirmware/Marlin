@@ -349,6 +349,8 @@
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #undef SD_DETECT_STATE
+  #define SD_DETECT_STATE                   HIGH
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
 
