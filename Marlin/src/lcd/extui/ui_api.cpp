@@ -1122,16 +1122,16 @@ namespace ExtUI {
 
 // At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() { ExtUI::onStartup(); }
+//void MarlinUI::init() { ExtUI::onStartup(); }
 
-void MarlinUI::update() { ExtUI::onIdle(); }
+//void MarlinUI::update() { ExtUI::onIdle(); }
 
-void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
-  using namespace ExtUI;
-  if (!flags.printer_killed) {
-    flags.printer_killed = true;
-    onPrinterKilled(error, component);
-  }
-}
+//void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
+//  using namespace ExtUI;
+//  if (!flags.printer_killed) {
+//    flags.printer_killed = true;
+//    onPrinterKilled(error, component);
+//  }
+//}
 
 #endif // EXTENSIBLE_UI

@@ -265,6 +265,7 @@ enum colorID : uint8_t {
 class CrealityDWINClass {
 
 public:
+  static constexpr size_t eeprom_data_size = 48;
   struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
     bool time_format_textual : 1;
     bool beeperenable : 1;
@@ -354,11 +355,9 @@ public:
   void Stop_Print();
   void Update();
   void Screen_Update();
-  void Startup();
   void AudioFeedback(const bool success=true);
-  void SDCardInsert();
-  void Save_Settings();
-  void Load_Settings();
+  void Save_Settings(char *buff);
+  void Load_Settings(const char *buff);
 
 };
 

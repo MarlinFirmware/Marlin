@@ -50,6 +50,10 @@ MarlinUI ui;
   #include "dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  #include "extui/creality_dwin/creality_dwin.h"
+#endif
+
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
   #define BASIC_PROGRESS_BAR 1
 #endif
@@ -1456,6 +1460,7 @@ void MarlinUI::update() {
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+    TERN_(CREALITY_DWIN_EXTUI, CrealityDWIN.Update_Status(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)

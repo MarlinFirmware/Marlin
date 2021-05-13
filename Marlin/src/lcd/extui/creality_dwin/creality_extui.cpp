@@ -29,19 +29,19 @@
 #include "../ui_api.h"
 
 namespace ExtUI {
-  void onStartup() { CrealityDWIN.Startup(); }
-  void onIdle() { CrealityDWIN.Update(); }
-  void onPrinterKilled(PGM_P const error, PGM_P const component) { CrealityDWIN.Draw_Popup((char*)"Printer Kill Reason:", error, (char*)"Restart Required", Wait, ICON_BLTouch); }
-  void onMediaInserted() { CrealityDWIN.SDCardInsert(); }
+  void onStartup() {}
+  void onIdle() {}
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
+  void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
-  void onPrintTimerStarted() { CrealityDWIN.Start_Print(isPrintingFromMedia()); }
+  void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
-  void onPrintTimerStopped() { CrealityDWIN.Stop_Print(); }
-  void onFilamentRunout(const extruder_t extruder) { CrealityDWIN.Popup_Handler(Runout); }
-  void onUserConfirmRequired(const char * const msg) { CrealityDWIN.Confirm_Handler(msg); }
-  void onStatusChanged(const char * const msg) { CrealityDWIN.Update_Status(msg); }
+  void onPrintTimerStopped() {}
+  void onFilamentRunout(const extruder_t extruder) {}
+  void onUserConfirmRequired(const char * const msg) {}
+  void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
   void onHomingComplete() {}
@@ -50,13 +50,9 @@ namespace ExtUI {
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
-    CrealityDWIN.Save_Settings();
-    memcpy(buff, &CrealityDWIN.eeprom_settings, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
   }
 
   void onLoadSettings(const char *buff) {
-    memcpy(&CrealityDWIN.eeprom_settings, buff, min(sizeof(CrealityDWIN.eeprom_settings), eeprom_data_size));
-    CrealityDWIN.Load_Settings();
   }
 
   void onPostprocessSettings() {
@@ -84,22 +80,6 @@ namespace ExtUI {
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
-      switch (rst) {
-        case PID_BAD_EXTRUDER_NUM:
-          CrealityDWIN.Confirm_Handler((char*)"Bad extruder number");
-          break;
-        case PID_TEMP_TOO_HIGH:
-          CrealityDWIN.Confirm_Handler((char*)"Temp too high");
-          break;
-        case PID_TUNING_TIMEOUT:
-          CrealityDWIN.Confirm_Handler((char*)"PID Timeout");
-          break;
-        case PID_DONE:
-          CrealityDWIN.Confirm_Handler((char*)"PID Done");
-          break;
-        case PID_STARTED:
-          break;
-      }
     }
   #endif
 

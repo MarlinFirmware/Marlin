@@ -73,6 +73,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(CREALITY_DWIN_EXTUI)
+  #include "../lcd/extui/creality_dwin/creality_dwin.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -431,6 +435,13 @@ typedef struct SettingsDataStruct {
   #if ENABLED(EXTENSIBLE_UI)
     // This is a significant hardware change; don't reserve space when not present
     uint8_t extui_data[ExtUI::eeprom_data_size];
+  #endif
+
+  //
+  // EXTENSIBLE_UI
+  //
+  #if ENABLED(CREALITY_DWIN_EXTUI)
+    uint8_t creality_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
   //
@@ -1393,6 +1404,18 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Creality UI Settings
+    //
+    #if ENABLED(CREALITY_DWIN_EXTUI)
+        {
+          char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+          CrealityDWIN.Save_Settings(dwin_settings);
+          _FIELD_TEST(dwin_settings);
+          EEPROM_WRITE(dwin_settings);
+        }
+      #endif
+
+    //
     // Case Light Brightness
     //
     #if CASELIGHT_USES_BRIGHTNESS
@@ -2313,6 +2336,18 @@ void MarlinSettings::postprocess() {
           _FIELD_TEST(extui_data);
           EEPROM_READ(extui_data);
           if (!validating) ExtUI::onLoadSettings(extui_data);
+        }
+      #endif
+
+      //
+      // Creality UI Settings
+      //
+      #if ENABLED(CREALITY_DWIN_EXTUI)
+        {
+          const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+          _FIELD_TEST(dwin_settings);
+          EEPROM_READ(dwin_settings);
+          if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
         }
       #endif
 
