@@ -349,6 +349,11 @@
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
+  #ifndef SD_DETECT_STATE
+    #define SD_DETECT_STATE HIGH
+  #elif SD_DETECT_STATE == LOW
+    #error "BOARD_BTT_OCTOPUS_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
+  #endif
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
 
