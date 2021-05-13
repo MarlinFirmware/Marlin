@@ -723,9 +723,9 @@ void NextionTFT::UpdateOnChange() {
     last_homedZ = isAxisPositionKnown(Z);
   }
 
-  // tmppage IDEX Mode
-  static uint8_t last_IDEX_Mode = 99;
   #if ENABLED(DUAL_X_CARRIAGE)
+    // tmppage IDEX Mode
+    static uint8_t last_IDEX_Mode = 99;
     if (last_IDEX_Mode != getIDEX_Mode()) {
       SEND_VAL("tmppage.idexmode", getIDEX_Mode());
       last_IDEX_Mode = getIDEX_Mode();
