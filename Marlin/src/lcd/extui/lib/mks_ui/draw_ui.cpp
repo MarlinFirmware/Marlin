@@ -374,7 +374,7 @@ void tft_style_init() {
   style_sel_text.body.grad_color  = LV_COLOR_BACKGROUND;
   style_sel_text.text.color       = LV_COLOR_YELLOW;
   style_sel_text.text.sel_color   = LV_COLOR_YELLOW;
-  style_sel_text.text.font        = &gb2312_puhui32;
+  style_sel_text.text.font        = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_sel_text.line.width       = 0;
   style_sel_text.text.letter_space  = 0;
   style_sel_text.text.line_space    = -5;
