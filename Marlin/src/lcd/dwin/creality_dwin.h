@@ -285,16 +285,16 @@ public:
     uint8_t coordinates_split_line : 4;
   } eeprom_settings;
 
-  const char * const color_names[11] = {"Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black"};
+  char *color_names[11] = {(char*)"Default",(char*)"White",(char*)"Green",(char*)"Cyan",(char*)"Blue",(char*)"Magenta",(char*)"Red",(char*)"Orange",(char*)"Yellow",(char*)"Brown",(char*)"Black"};
 
 
   inline void Clear_Screen(uint8_t e=3);
   inline void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
-  inline void Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected=false, bool color=false);
+  inline void Draw_Option(uint8_t value, char** options, uint8_t row, bool selected=false, bool color=false);
   inline uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
   inline void Draw_Checkbox(uint8_t row, bool value);
-  inline void Draw_Title(const char * title);
-  inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, const char * const label1=NULL, const char * const label2=NULL, bool more=false, bool centered=false);
+  inline void Draw_Title(char* title);
+  inline void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label1=NULL, char * const label2=NULL, bool more=false, bool centered=false);
   inline void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
   inline void Redraw_Menu(bool lastselection=false, bool lastmenu=false);
   inline void Redraw_Screen();
@@ -312,7 +312,7 @@ public:
   void Draw_SD_Item(uint8_t item, uint8_t row);
   void Draw_SD_List(bool removed=false);
   void Draw_Status_Area(bool icons=false);
-  void Draw_Popup(const char * line1, const char * line2, const char * line3, uint8_t mode, uint8_t icon=0);
+  void Draw_Popup(const char *line1, const char *line2, const char *line3, uint8_t mode, uint8_t icon=0);
   void Popup_Select();
   void Update_Status_Bar(bool refresh=false);
 
@@ -321,7 +321,7 @@ public:
     void Set_Mesh_Viewer_Status();
   #endif
 
-  const char * Get_Menu_Title(uint8_t menu);
+  char* Get_Menu_Title(uint8_t menu);
   uint8_t Get_Menu_Size(uint8_t menu);
   void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 
@@ -347,7 +347,7 @@ public:
   void Modify_Value(int16_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Value(uint32_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()=NULL);
-  void Modify_Option(uint8_t value, const char * const * options, uint8_t max);
+  void Modify_Option(uint8_t value, char** options, uint8_t max);
 
 
   void Update_Status(const char * const text);
