@@ -882,7 +882,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   static int16_t save_current_Y;
   static int16_t save_current_Z;
   	/**
-	 * Change the current in the TMC drivers to N##_CURRENT_HOME. And we keep its current value.
+	 * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
 	 */
 	void Probe::current_homing_on() {
 		#define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
