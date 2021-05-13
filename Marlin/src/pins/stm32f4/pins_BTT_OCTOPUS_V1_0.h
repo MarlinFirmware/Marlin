@@ -492,7 +492,7 @@
     #define BOARD_ST7920_DELAY_1   DELAY_NS(120)  // DELAY_NS(96)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(80)  // DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_2   DELAY_NS(80)   // DELAY_NS(48)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3   DELAY_NS(580)  // DELAY_NS(600)
