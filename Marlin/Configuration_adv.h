@@ -526,6 +526,14 @@
   //#define USE_OCR2A_AS_TOP
 #endif
 
+/**
+ * Enable a second fan for part cooling
+ */
+//#define DUAL_PART_COOLING_FANS
+#if ENABLED(DUAL_PART_COOLING_FANS)
+  #define DUAL_PART_COOLING_FAN 2 // Define the number of the fan to use, eg FAN2 set 2, FAN1 set 1
+#endif
+
 // @section extruder
 
 /**
