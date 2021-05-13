@@ -391,13 +391,13 @@ CrealityDWINClass CrealityDWIN;
 //  3=Title bar and Menu area (default)
 //  2=Menu area
 //  1=Title bar
-inline void CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
+void CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
   if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
   if (e==2||e==3) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
   if (e==4) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-inline void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selected/*=false*/, uint8_t minunit/*=10*/) {
+void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selected/*=false*/, uint8_t minunit/*=10*/) {
   uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black;
   if (isnan(value)) {
     DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_White, bColor, 196, MBASE(row), F(" NaN"));
@@ -411,14 +411,14 @@ inline void CrealityDWINClass::Draw_Float(float value, uint8_t row, bool selecte
   }
 }
 
-inline void CrealityDWINClass::Draw_Option(uint8_t value, char** options, uint8_t row, bool selected/*=false*/, bool color/*=false*/) {
+void CrealityDWINClass::Draw_Option(uint8_t value, char** options, uint8_t row, bool selected/*=false*/, bool color/*=false*/) {
   uint16_t bColor = (selected) ? Select_Color : Color_Bg_Black;
   uint16_t tColor = (color) ? GetColor(value, Color_White, false) : Color_White;
   DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
   DWIN_Draw_String(false, false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
-inline uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
+uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
   switch (color){
     case Default:
       return original;
@@ -457,11 +457,11 @@ inline uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bo
   return Color_White;
 }
 
-inline void CrealityDWINClass::Draw_Title(char *title) {
+void CrealityDWINClass::Draw_Title(char *title) {
   DWIN_Draw_String(false, false, DWIN_FONT_HEAD, GetColor(eeprom_settings.menu_top_txt, Color_White, false), Color_Bg_Blue, (DWIN_WIDTH - strlen(title) * STAT_CHR_W) / 2, 5, title);
 }
 
-inline void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, char *label1, char *label2, bool more/*=false*/, bool centered/*=false*/) {
+void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, char *label1, char *label2, bool more/*=false*/, bool centered/*=false*/) {
   const uint8_t label_offset_y = !(label1 && label2) ? 0 : MENU_CHR_H * 3 / 5;
   const uint8_t label1_offset_x = !centered ? LBLX : LBLX * 4/5 + max(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2);
   const uint8_t label2_offset_x = !centered ? LBLX : LBLX * 4/5 + max(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
@@ -472,7 +472,7 @@ inline void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, c
   DWIN_Draw_Line(GetColor(eeprom_settings.menu_split_line, Line_Color, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
 }
 
-inline void CrealityDWINClass::Draw_Checkbox(uint8_t row, bool value) {
+void CrealityDWINClass::Draw_Checkbox(uint8_t row, bool value) {
   #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS) // Draw appropriate checkbox icon
     DWIN_ICON_Show(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3); 
   #else                                         // Draw a basic checkbox using rectangles and lines
@@ -489,7 +489,7 @@ inline void CrealityDWINClass::Draw_Checkbox(uint8_t row, bool value) {
   #endif
 }
 
-inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uint8_t scroll/*=0*/) {
+void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uint8_t scroll/*=0*/) {
   if (active_menu!=menu) {
     last_menu = active_menu;
     if (process == Menu) last_selection = selection;
@@ -506,7 +506,7 @@ inline void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uin
   DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection-scrollpos) - 18, 14, MBASE(selection-scrollpos) + 33);
 }
 
-inline void CrealityDWINClass::Redraw_Menu(bool lastselection/*=false*/, bool lastmenu/*=false*/) {
+void CrealityDWINClass::Redraw_Menu(bool lastselection/*=false*/, bool lastmenu/*=false*/) {
   if (active_menu == MainMenu) {
     Draw_Main_Menu(selection);
   }
@@ -515,7 +515,7 @@ inline void CrealityDWINClass::Redraw_Menu(bool lastselection/*=false*/, bool la
   }
 }
 
-inline void CrealityDWINClass::Redraw_Screen() {
+void CrealityDWINClass::Redraw_Screen() {
   Redraw_Menu();
   Draw_Status_Area(true);
   Update_Status_Bar(true);
@@ -4444,7 +4444,7 @@ void CrealityDWINClass::Confirm_Handler(const char * const msg) {
 
 /* Navigation and Control */
 
-inline void CrealityDWINClass::Main_Menu_Control() {
+void CrealityDWINClass::Main_Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < 3) {
@@ -4478,7 +4478,7 @@ inline void CrealityDWINClass::Main_Menu_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::Menu_Control() {
+void CrealityDWINClass::Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < Get_Menu_Size(active_menu)) {
@@ -4506,7 +4506,7 @@ inline void CrealityDWINClass::Menu_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::Value_Control() {
+void CrealityDWINClass::Value_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW) {
@@ -4579,7 +4579,7 @@ inline void CrealityDWINClass::Value_Control() {
   }
 }
 
-inline void CrealityDWINClass::Option_Control() {
+void CrealityDWINClass::Option_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW) {
@@ -4617,7 +4617,7 @@ inline void CrealityDWINClass::Option_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::File_Control() {
+void CrealityDWINClass::File_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   static uint8_t filescrl = 0;
   if (encoder_diffState == ENCODER_DIFF_NO) {
@@ -4709,7 +4709,7 @@ inline void CrealityDWINClass::File_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::Print_Screen_Control() {
+void CrealityDWINClass::Print_Screen_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < 2) {
@@ -4763,7 +4763,7 @@ inline void CrealityDWINClass::Print_Screen_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::Popup_Control() {
+void CrealityDWINClass::Popup_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_CW && selection < 1) {
@@ -4894,7 +4894,7 @@ inline void CrealityDWINClass::Popup_Control() {
   DWIN_UpdateLCD();
 }
 
-inline void CrealityDWINClass::Confirm_Control() {
+void CrealityDWINClass::Confirm_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
