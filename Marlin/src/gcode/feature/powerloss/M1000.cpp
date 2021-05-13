@@ -31,9 +31,6 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #endif
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/dwin/e3v2/dwin.h"
-#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../../../core/debug_out.h"
@@ -65,8 +62,6 @@ void GcodeSuite::M1000() {
     if (parser.seen('S')) {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
-      #elif ENABLED(DWIN_CREALITY_LCD)
-        Popup_Handler(Resume);
       #elif ENABLED(EXTENSIBLE_UI)
         ExtUI::onPowerLossResume();
       #else

@@ -27,14 +27,14 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(CREALITY_DWIN_EXTUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"
 #endif
 
 #include "creality_dwin.h"
-#include "../../marlinui.h"
+#include "../marlinui.h"
 
 uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
 bool MarlinUI::backlight = true;
@@ -54,8 +54,14 @@ void MarlinUI::set_brightness(const uint8_t value) {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch(message) {
+      case PAUSE_MESSAGE_INSERT:
+        CrealityDWIN.Confirm_Handler(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT));
+        break;
       case PAUSE_MESSAGE_OPTION:
         CrealityDWIN.Popup_Handler(PurgeMore);
+        break;
+      case PAUSE_MESSAGE_HEAT:
+        CrealityDWIN.Confirm_Handler(GET_TEXT(MSG_HEATER_TIMEOUT));
         break;
       default:
         break;

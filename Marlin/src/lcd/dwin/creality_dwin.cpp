@@ -27,12 +27,11 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(CREALITY_DWIN_EXTUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #include "creality_dwin.h"
-#include "../ui_api.h"
 
-#include "../../marlinui.h"
+#include "../marlinui.h"
 #include "../../MarlinCore.h"
 
 #include "../../module/temperature.h"
@@ -474,7 +473,7 @@ inline void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, c
 }
 
 inline void CrealityDWINClass::Draw_Checkbox(uint8_t row, bool value) {
-  #if ENABLED(CREALITY_DWIN_EXTUI_CUSTOM_ICONS) // Draw appropriate checkbox icon
+  #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS) // Draw appropriate checkbox icon
     DWIN_ICON_Show(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3); 
   #else                                         // Draw a basic checkbox using rectangles and lines
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);

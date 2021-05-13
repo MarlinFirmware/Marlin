@@ -183,7 +183,7 @@
   #define BTN_EN1                           PB10
   #define BTN_EN2                           PA6
 
-#elif ANY(DWIN_CREALITY_LCD, CREALITY_DWIN_EXTUI)
+#elif ENABLED(DWIN_CREALITY_LCD)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14

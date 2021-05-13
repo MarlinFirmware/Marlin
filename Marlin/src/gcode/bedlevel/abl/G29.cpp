@@ -60,10 +60,6 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/dwin/e3v2/dwin.h"
-#endif
-
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif

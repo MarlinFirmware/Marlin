@@ -73,8 +73,8 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(CREALITY_DWIN_EXTUI)
-  #include "../lcd/extui/creality_dwin/creality_dwin.h"
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/creality_dwin.h"
 #endif
 
 #if HAS_SERVOS
@@ -440,7 +440,7 @@ typedef struct SettingsDataStruct {
   //
   // EXTENSIBLE_UI
   //
-  #if ENABLED(CREALITY_DWIN_EXTUI)
+  #if ENABLED(DWIN_CREALITY_LCD)
     uint8_t creality_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
@@ -1406,7 +1406,7 @@ void MarlinSettings::postprocess() {
     //
     // Creality UI Settings
     //
-    #if ENABLED(CREALITY_DWIN_EXTUI)
+    #if ENABLED(DWIN_CREALITY_LCD)
         {
           char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
           CrealityDWIN.Save_Settings(dwin_settings);
@@ -2342,7 +2342,7 @@ void MarlinSettings::postprocess() {
       //
       // Creality UI Settings
       //
-      #if ENABLED(CREALITY_DWIN_EXTUI)
+      #if ENABLED(DWIN_CREALITY_LCD)
         {
           const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
           _FIELD_TEST(dwin_settings);

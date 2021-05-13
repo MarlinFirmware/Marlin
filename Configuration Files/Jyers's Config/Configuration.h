@@ -2373,18 +2373,6 @@
 //#define DWIN_CREALITY_TOUCHLCD
 
 //
-// Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
-//
-#define CREALITY_DWIN_EXTUI
-#if ENABLED(CREALITY_DWIN_EXTUI)
-  //
-  // Enable custom icons
-  // NB: Requires Ender-3 v2 OEM display firmware update, or you will get blank icons!
-  //
-  //#define CREALITY_DWIN_EXTUI_CUSTOM_ICONS
-#endif
-
-//
 // Touch-screen LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
@@ -2420,7 +2408,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#define EXTENSIBLE_UI
+//#define EXTENSIBLE_UI
 
 #if ENABLED(EXTENSIBLE_UI)
   #define EXTUI_LOCAL_BEEPER // Enables use of local Beeper pin with external display
@@ -2550,7 +2538,14 @@
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
-//#define DWIN_CREALITY_LCD
+#define DWIN_CREALITY_LCD
+#if ENABLED(DWIN_CREALITY_LCD)
+  //
+  // Enable custom icons
+  // Requires Ender-3 v2 OEM display firmware update, or you will get blank icons!
+  //
+  //#define DWIN_CREALITY_LCD_CUSTOM_ICONS
+#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8

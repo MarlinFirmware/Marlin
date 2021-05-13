@@ -75,13 +75,8 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/e3v2/rotary_encoder.h"
-#endif
-
-#if ENABLED(CREALITY_DWIN_EXTUI)
-  #include "lcd/extui/creality_dwin/dwin.h"
-  #include "lcd/extui/creality_dwin/rotary_encoder.h"
+  #include "lcd/dwin/creality_dwin.h"
+  #include "lcd/dwin/rotary_encoder.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -780,7 +775,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(USE_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+  ui.update();
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1223,20 +1218,12 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  #if ANY(DWIN_CREALITY_LCD)
-    delay(800);   // Required delay (since boot?)
-    SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-    DWIN_Frame_SetDir(1); // Orientation 90°
-    DWIN_UpdateLCD();     // Show bootscreen (first image)
-  #else
-    SETUP_RUN(ui.init());
-    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
-      SETUP_RUN(ui.show_bootscreen());
-      const millis_t bootscreen_ms = millis();
-    #endif
-    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  SETUP_RUN(ui.init());
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    SETUP_RUN(ui.show_bootscreen());
+    const millis_t bootscreen_ms = millis();
   #endif
+  SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1505,15 +1492,7 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    Encoder_Configuration();
-    HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
-    HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
-  #endif
-
-  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+  #if HAS_SERVICE_INTERVALS
     ui.reset_status(true);  // Show service messages or keep current status
   #endif
 
