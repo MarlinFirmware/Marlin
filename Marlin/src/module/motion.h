@@ -45,7 +45,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
-  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+  extern xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // Scratch space for a cartesian result
