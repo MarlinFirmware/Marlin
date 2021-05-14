@@ -213,6 +213,9 @@
 #if HAS_FSMC_TFT
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
@@ -221,8 +224,15 @@
   #define TFT_RESET_PIN            LCD_RESET_PIN
   #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
+  #define TFT_BUFFER_SIZE                  14400
+
   #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PA7
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
+    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #else
     #define BEEPER_PIN                      PC5
     #define BTN_ENC                         PG2
