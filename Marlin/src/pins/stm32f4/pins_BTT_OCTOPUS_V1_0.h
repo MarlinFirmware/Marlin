@@ -36,6 +36,9 @@
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
+// Avoid conflict with TIMER_TONE
+#define STEP_TIMER                            10
+
 //
 // Servos
 #define SERVO0_PIN                          PB6
