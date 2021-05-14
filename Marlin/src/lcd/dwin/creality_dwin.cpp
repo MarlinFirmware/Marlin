@@ -5045,11 +5045,6 @@ void CrealityDWINClass::State_Update() {
     else Stop_Print();
     delay(500);
   }
-  static bool ranout = false;
-  if (runout.filament_ran_out != ranout) {
-    ranout = runout.filament_ran_out;
-    if (ranout) Popup_Handler(Runout);
-  }
   if (print_job_timer.isPaused() != paused) {
     paused = print_job_timer.isPaused();
     if (process == Print) Print_Screen_Icons();
@@ -5058,6 +5053,13 @@ void CrealityDWINClass::State_Update() {
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused()) {
     Confirm_Handler(UserInput);
   }
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    static bool ranout = false;
+    if (runout.filament_ran_out != ranout) {
+      ranout = runout.filament_ran_out;
+      if (ranout) Popup_Handler(Runout);
+    }
+  #endif
 }
 
 void CrealityDWINClass::Screen_Update() {
