@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
 // ANENG AN8009 DMM with a K-type probe used for measurements.
 
 // R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, bqh2 stock thermistor
-const short temptable_70[][2] PROGMEM = {
+const temp_entry_t temptable_70[] PROGMEM = {
   { OV(  18), 270 },
   { OV(  27), 248 },
   { OV(  34), 234 },

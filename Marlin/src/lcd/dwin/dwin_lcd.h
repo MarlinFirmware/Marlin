@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -42,70 +42,172 @@
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
 
-/*接收数据解析 返回值:true,接收到数据;false,未接收到数据*/
-bool DWIN_ReceiveAnalyze(void);
+/*-------------------------------------- System variable function --------------------------------------*/
 
-/*发送当前BUF中的数据以及包尾数据 len:整包数据长度*/
-void DWIN_Send_BufTail(const uint8_t len);
-
-/*----------------------------------------------系统变量函数----------------------------------------------*/
-/*握手 1: 握手成功  2: 握手失败*/
+// Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void);
 
-/*设定背光亮度 luminance:亮度(0x00~0xFF)*/
+// Common DWIN startup
+void DWIN_Startup(void);
+
+// Set the backlight luminance
+//  luminance: (0x00-0xFF)
 void DWIN_Backlight_SetLuminance(const uint8_t luminance);
 
-/*设定画面显示方向 dir:0,0°; 1,90°; 2,180°; 3,270°*/
+// Set screen display direction
+//  dir: 0=0°, 1=90°, 2=180°, 3=270°
 void DWIN_Frame_SetDir(uint8_t dir);
 
-/*更新显示*/
+// Update display
 void DWIN_UpdateLCD(void);
 
-/*----------------------------------------------绘图相关函数----------------------------------------------*/
-/*画面清屏 color:清屏颜色*/
+/*---------------------------------------- Drawing functions ----------------------------------------*/
+
+// Clear screen
+//  color: Clear screen color
 void DWIN_Frame_Clear(const uint16_t color);
 
-/*画面画线 color:线段颜色 xStart:X起始坐标 yStart:Y起始坐标 xEnd:X终止坐标 yEnd:Y终止坐标*/
+// Draw a point
+//  width: point width   0x01-0x0F
+//  height: point height 0x01-0x0F
+//  x,y: upper left point
+void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+
+// Draw a line
+//  color: Line segment color
+//  xStart/yStart: Start point
+//  xEnd/yEnd: End point
 void DWIN_Draw_Line(uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
-/*画面画矩形 mode:0,外框;1,填充;2,异或填充 color:颜色 xStart/yStart:矩形左上坐标 xEnd/yEnd:矩形右下坐标*/
+// Draw a Horizontal line
+//  color: Line segment color
+//  xStart/yStart: Start point
+//  xLength: Line Length
+inline void DWIN_Draw_HLine(uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xLength) {
+  DWIN_Draw_Line(color, xStart, yStart, xStart + xLength - 1, yStart);
+}
+
+// Draw a Vertical line
+//  color: Line segment color
+//  xStart/yStart: Start point
+//  yLength: Line Length
+inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t yLength) {
+  DWIN_Draw_Line(color, xStart, yStart, xStart, yStart + yLength - 1);
+}
+
+// Draw a rectangle
+//  mode: 0=frame, 1=fill, 2=XOR fill
+//  color: Rectangle color
+//  xStart/yStart: upper left point
+//  xEnd/yEnd: lower right point
 void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
                          uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
-/*画面区域移动 mode:0,环移;1,平移 dir:0,向左移动;1,向右移动;2,向上移动;3,向下移动 dis:移动距离
-                color:填充颜色 xStart/yStart:选定区域左上坐标 xEnd/yEnd:选定区域右下坐标*/
+// Draw a box
+//  mode: 0=frame, 1=fill, 2=XOR fill
+//  color: Rectangle color
+//  xStart/yStart: upper left point
+//  xSize/ySize: box size
+inline void DWIN_Draw_Box(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xSize, uint16_t ySize) {
+  DWIN_Draw_Rectangle(mode, color, xStart, yStart, xStart + xSize - 1, yStart + ySize - 1);
+}
+
+// Move a screen area
+//  mode: 0, circle shift; 1, translation
+//  dir: 0=left, 1=right, 2=up, 3=down
+//  dis: Distance
+//  color: Fill color
+//  xStart/yStart: upper left point
+//  xEnd/yEnd: bottom right point
 void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
                          uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
-/*----------------------------------------------文本相关函数----------------------------------------------*/
-/*画面显示字符串 widthAdjust:true,自调整字符宽度;false,不调整字符宽度 bShow:true,显示背景色;false,不显示背景色 size:字号大小
-                  color:字符颜色 bColor:背景颜色 x/y:字符串左上坐标 *string:字符串*/
+/*---------------------------------------- Text related functions ----------------------------------------*/
+
+// Draw a string
+//  widthAdjust: true=self-adjust character width; false=no adjustment
+//  bShow: true=display background color; false=don't display background color
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  x/y: Upper-left coordinate of the string
+//  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
 
-/*画面显示正整数 bShow:true,显示背景色;false,不显示背景色 zeroFill:true,补零;false,不补零 zeroMode:1,无效0显示为0; 0,无效0显示为空格 size:字号大小
-                  color:字符颜色 bColor:背景颜色 iNum:位数 x/y:变量左上坐标 value:整型变量*/
+class __FlashStringHelper;
+
+inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
+}
+
+// Draw a positive integer
+//  bShow: true=display background color; false=don't display background color
+//  zeroFill: true=zero fill; false=no zero fill
+//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of digits
+//  x/y: Upper-left coordinate
+//  value: Integer value
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value);
 
-/*画面显示浮点数 bShow:true,显示背景色;false,不显示背景色 zeroFill:true,补零;false,不补零 zeroMode:1,无效0显示为0; 0,无效0显示为空格 size:字号大小
-                  color:字符颜色 bColor:背景颜色 iNum:整数位数 fNum:小数位数 x/y:变量左上坐标 value:浮点数变量*/
+// Draw a floating point number
+//  bShow: true=display background color; false=don't display background color
+//  zeroFill: true=zero fill; false=no zero fill
+//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
-/*----------------------------------------------图片相关函数----------------------------------------------*/
-/*jpg图片显示并缓存在#0虚拟显示区 id:图片ID*/
+/*---------------------------------------- Picture related functions ----------------------------------------*/
+
+// Draw JPG and cached in #0 virtual display area
+// id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id);
 
-/*图标显示 libID:图标库ID picID:图标ID x/y:图标左上坐标*/
+// Draw an Icon
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
 void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
 
-/*jpg图片解压到#1虚拟显示区 id:图片ID*/
+// Unzip the JPG picture to a virtual display area
+//  n: Cache index
+//  id: Picture ID
 void DWIN_JPG_CacheToN(uint8_t n, uint8_t id);
 
-/*jpg图片解压到#1虚拟显示区 id:图片ID*/
+// Unzip the JPG picture to virtual display area #1
+//  id: Picture ID
 inline void DWIN_JPG_CacheTo1(uint8_t id) { DWIN_JPG_CacheToN(1, id); }
 
-/*从虚拟显示区复制区域至当前画面 cacheID:虚拟区号 xStart/yStart:虚拟区左上坐标 xEnd/yEnd:虚拟区右下坐标 x/y:当前画面粘贴坐标*/
+// Copy area from virtual display area to current screen
+//  cacheID: virtual area number
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
 void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Animate a series of icons
+//  animID: Animation ID  up to 16
+//  animate: animation on or off
+//  libID: Icon library ID
+//  picIDs: Icon starting ID
+//  picIDe: Icon ending ID
+//  x/y: Upper-left point
+//  interval: Display time interval, unit 10mS
+void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t picIDs,
+                         uint8_t picIDe, uint16_t x, uint16_t y, uint16_t interval);
+
+// Animation Control
+//  state: 16 bits, each bit is the state of an animation id
+void DWIN_ICON_AnimationControl(uint16_t state);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,19 +32,7 @@
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
-
-#include "../../module/motion.h"
-#include "../../lcd/ultralcd.h"
-
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
-
-#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
+#include "../../lcd/marlinui.h"
 
 /**
  * M141: Set chamber temperature
@@ -60,7 +48,7 @@ void GcodeSuite::M141() {
        * temperatures need to be set below mintemp. Order of M140, M104, and M141
        * at the end of the print does not matter.
        */
-      thermalManager.check_timer_autostart(false, true);
+      thermalManager.auto_job_check_timer(false, true);
     #endif
   }
 }
@@ -75,7 +63,7 @@ void GcodeSuite::M191() {
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
     thermalManager.setTargetChamber(parser.value_celsius());
-    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.check_timer_autostart(true, false));
+    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(true, false));
   }
   else return;
 

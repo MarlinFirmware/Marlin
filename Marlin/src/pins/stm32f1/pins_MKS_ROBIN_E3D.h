@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin E3D supports up to 1 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin E3D only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME

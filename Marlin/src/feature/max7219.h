@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -99,6 +99,13 @@ public:
 
   // Update a single native line on just one unit
   static void refresh_unit_line(const uint8_t line);
+
+  #if ENABLED(MAX7219_NUMERIC)
+    // Draw an integer with optional leading zeros and optional decimal point
+    void print(const uint8_t start, int16_t value, uint8_t size, const bool leadzero=false, bool dec=false);
+    // Draw a float with a decimal point and optional digits
+    void print(const uint8_t start, const_float_t value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false);
+  #endif
 
   // Set a single LED by XY coordinate
   static void led_set(const uint8_t x, const uint8_t y, const bool on);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * MALYAN M200 pin assignments
  */
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 
@@ -33,19 +33,22 @@
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
 
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
+
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 // Based on PWM timer usage, we have to use these timers and soft PWM for the fans
 // On STM32F103:
 // PB3, PB6, PB7, and PB8 can be used with pwm, which rules out TIM2 and TIM4.
 // On STM32F070, 16 and 17 are in use, but 1 and 3 are available.
-#define STEP_TIMER 1
-#define TEMP_TIMER 3
+#define STEP_TIMER                             1
+#define TEMP_TIMER                             3
 
 //
 // Limit Switches

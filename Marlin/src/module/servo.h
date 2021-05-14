@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -112,4 +112,4 @@
 #define MOVE_SERVO(I, P) servo[I].move(P)
 
 extern HAL_SERVO_LIB servo[NUM_SERVOS];
-extern void servo_init();
+void servo_init();

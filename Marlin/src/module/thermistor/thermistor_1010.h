@@ -16,13 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
+#define REVERSE_TEMP_SENSOR_RANGE_1010 1
+
 // Pt1000 with 1k0 pullup
-const short temptable_1010[][2] PROGMEM = {
+const temp_entry_t temptable_1010[] PROGMEM = {
   PtLine(  0, 1000, 1000),
   PtLine( 25, 1000, 1000),
   PtLine( 50, 1000, 1000),

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,12 +25,10 @@
  * PRINTRBOARD_G2
  */
 
-#ifndef __SAM3X8E__
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "PRINTRBOARD_G2"
+  #define BOARD_INFO_NAME "Printrboard G2"
 #endif
 
 //
@@ -147,13 +145,13 @@
 
 #define FET_SAFETY_PIN                        31  // PA7  must be pulsed low every 50 mS or FETs are turned off
 #define FET_SAFETY_DELAY                      50  // 50 mS delay between pulses
-#define FET_SAFETY_INVERTED true                  // true - negative going pulse of 2 uS
+#define FET_SAFETY_INVERTED                 true  // true - negative going pulse of 2 uS
 
 /////////////////////////////////////////////////////////
 
-#define MISO_PIN                              68  // set to unused pins for now
-#define MOSI_PIN                              69  // set to unused pins for now
-#define SCK_PIN                               70  // set to unused pins for now
+#define SD_MISO_PIN                           68  // set to unused pins for now
+#define SD_MOSI_PIN                           69  // set to unused pins for now
+#define SD_SCK_PIN                            70  // set to unused pins for now
 #define SDSS                                  71  // set to unused pins for now
 
 /**
@@ -170,5 +168,4 @@
  * None of these are in the arduino_due_x variant so digitalWrite and digitalRead can't be used on them.
  *
  * They can be accessed via FASTIO functions WRITE, READ, OUT_WRITE, OUTPUT, ...
- *
  */

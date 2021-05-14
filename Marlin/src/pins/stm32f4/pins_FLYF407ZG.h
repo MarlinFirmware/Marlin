@@ -16,14 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 6 || E_STEPPERS > 6
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 6 || E_STEPPERS > 6
   #error "FLYF407ZG supports up to 6 hotends / E-steppers."
 #endif
 
@@ -31,7 +32,30 @@
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+// Avoid conflict with fans and TIMER_TONE
+#define TEMP_TIMER 3
+#define STEP_TIMER 5
+
+//
+// EEPROM Emulation
+//
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  //#define SRAM_EEPROM_EMULATION
+  //#define I2C_EEPROM
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across
+  // the 128kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#elif ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
+#endif
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+#endif
 
 //
 // Servos
@@ -139,14 +163,14 @@
 #define HEATER_2_PIN                        PE6
 #define HEATER_3_PIN                        PE5
 #define HEATER_4_PIN                        PE4
-#define HEATER_5_PIN                        PA2
+#define HEATER_5_PIN                        PE3
 #define HEATER_BED_PIN                      PE2
 
 #ifndef FAN_PIN
   #define FAN_PIN                           PF8
 #endif
 #define FAN1_PIN                            PF9
-#define FAN2_PIN                            PE3
+#define FAN2_PIN                            PA2
 #define FAN3_PIN                            PA1
 #define FAN4_PIN                            PE13
 #define FAN5_PIN                            PB11
@@ -168,15 +192,24 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
+  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SD_SCK_PIN               SDIO_CK_PIN
+    #define SD_MISO_PIN              SDIO_D0_PIN
+    #define SD_MOSI_PIN             SDIO_CMD_PIN
   #endif
+
+#elif SD_CONNECTION_IS(LCD)
+
+  #define SD_SCK_PIN                        PB13
+  #define SD_MISO_PIN                       PB14
+  #define SD_MOSI_PIN                       PB15
+  #define SDSS                              PF11
+  #define SD_DETECT_PIN                     PB2
+
 #endif
 
 //
@@ -232,11 +265,7 @@
 //
 // LCD / Controller
 //
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SDSS                                PF11
-#define SD_DETECT_PIN                       PB2
+
 #define BEEPER_PIN                          PB10
 #define LCD_PINS_RS                         PE12
 #define LCD_PINS_ENABLE                     PE14

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -48,10 +48,11 @@ void GcodeSuite::G60() {
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
     const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHOPAIR_F(STR_SAVED_POS " S", slot);
+    DEBUG_ECHOPAIR(STR_SAVED_POS " S", slot);
     DEBUG_ECHOPAIR_F(" : X", pos.x);
     DEBUG_ECHOPAIR_F_P(SP_Y_STR, pos.y);
-    DEBUG_ECHOLNPAIR_F_P(SP_Z_STR, pos.z);
+    DEBUG_ECHOPAIR_F_P(SP_Z_STR, pos.z);
+    DEBUG_ECHOLNPAIR_F_P(SP_E_STR, pos.e);
   #endif
 }
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,6 +28,8 @@
  *
  * Applies to PICA, PICA_REVB
  */
+
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
@@ -41,10 +43,6 @@
   AD8 = 62;   AD9 = 63;   AD10 = 64;  AD11 = 65;
   AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 */
-
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
-#endif
 
 //
 // Servos
@@ -137,7 +135,7 @@
 //
 #define BEEPER_PIN                            29
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         33
   #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         35

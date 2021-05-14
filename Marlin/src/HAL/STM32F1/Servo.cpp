@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __STM32F1__
@@ -45,7 +45,7 @@ uint8_t ServoCount = 0;
  *
  * This uses the smallest prescaler that allows an overflow < 2^16.
  */
-#define MAX_OVERFLOW    UINT16_MAX //((1 << 16) - 1)
+#define MAX_OVERFLOW    UINT16_MAX // _BV(16) - 1
 #define CYC_MSEC        (1000 * CYCLES_PER_MICROSECOND)
 #define TAU_MSEC        20
 #define TAU_USEC        (TAU_MSEC * 1000)
@@ -74,6 +74,7 @@ void libServo::servoWrite(uint8_t inPin, uint16_t duty_cycle) {
 
 libServo::libServo() {
   servoIndex = ServoCount < MAX_SERVOS ? ServoCount++ : INVALID_SERVO;
+  timer_set_interrupt_priority(SERVO0_TIMER_NUM, SERVO0_TIMER_IRQ_PRIO);
 }
 
 bool libServo::attach(const int32_t inPin, const int32_t inMinAngle, const int32_t inMaxAngle) {

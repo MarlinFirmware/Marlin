@@ -10,14 +10,17 @@
  * (at your option) any later version.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include <USBComposite.h>
 
+#include "../../inc/MarlinConfigPre.h"
+#include "../../core/serial_hook.h"
+
 extern USBMassStorage MarlinMSC;
-extern USBCompositeSerial MarlinCompositeSerial;
+extern Serial1Class<USBCompositeSerial> MarlinCompositeSerial;
 
 void MSC_SD_init();

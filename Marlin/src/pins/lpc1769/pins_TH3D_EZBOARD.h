@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,7 @@
  * TH3D EZBoard pin assignments
  */
 
-#ifndef MCU_LPC1769
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
@@ -89,7 +87,7 @@
   #define E0_SERIAL_RX_PIN                 P0_21
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -141,11 +139,11 @@
 
 #define SDCARD_CONNECTION                ONBOARD
 
-#define SCK_PIN                            P0_07
-#define MISO_PIN                           P0_08
-#define MOSI_PIN                           P0_09
+#define SD_SCK_PIN                         P0_07
+#define SD_MISO_PIN                        P0_08
+#define SD_MOSI_PIN                        P0_09
 #define ONBOARD_SD_CS_PIN                  P0_06
-#define SS_PIN                 ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 
 //
 // LCD / Controller
@@ -155,7 +153,7 @@
  *                  _____
  *              5V | · · | GND
  *  (LCD_EN) P0_18 | · · | P0_16 (LCD_RS)
- *  (LCD_D4) P0_15 | · · | P3_25 (BTN_EN2)
+ *  (LCD_D4) P0_15 | · ·   P3_25 (BTN_EN2)
  *   (RESET) P2_11 | · · | P3_26 (BTN_EN1)
  * (BTN_ENC) P1_30 | · · | P1_31 (BEEPER)
  *                  -----
@@ -166,7 +164,6 @@
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
- *
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)
@@ -178,6 +175,6 @@
   #define LCD_PINS_ENABLE                  P0_18
   #define LCD_PINS_D4                      P0_15
   #define KILL_PIN                         P2_11
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
   #error "Only the CR10_STOCKDISPLAY is supported with TH3D EZBoard."
 #endif

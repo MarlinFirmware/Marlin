@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,10 +33,10 @@
 #if NO_EEPROM_SELECTED
   #if MB(RUMBA32_V1_0)
     #define FLASH_EEPROM_EMULATION
-    #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+    #define MARLIN_EEPROM_SIZE            0x1000  // 4KB
   #elif MB(RUMBA32_V1_1)
     #define I2C_EEPROM
-    #define MARLIN_EEPROM_SIZE 0x2000             // 8KB (24LC64T-I/OT)
+    #define MARLIN_EEPROM_SIZE            0x2000  // 8KB (24LC64T-I/OT)
   #endif
 #endif
 

@@ -13,10 +13,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+/**
+ * HAL Pins Debugging for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin

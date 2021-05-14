@@ -16,14 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(__STM32F1__) && !defined(__STM32F4__)
-  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 2017 Victor Perez Marlin for stm32f1 test
@@ -32,11 +30,13 @@
 #define BOARD_INFO_NAME      "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
+#define BOARD_NO_NATIVE_USB
+
 // Enable I2C_EEPROM for testing
 //#define I2C_EEPROM
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Steppers
@@ -120,13 +120,13 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define LCD_PINS_RS                     PD1   // 49  // CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE                 PD3   // 51  // SID (MOSI)
     #define LCD_PINS_D4                     PD4   // 52  // SCK (CLK) clock
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
     #define LCD_PINS_RS                     PB8
     #define LCD_PINS_ENABLE                 PD2
     #define LCD_PINS_D4                     PB12
@@ -140,20 +140,20 @@
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
     #define LCD_PINS_D7                     PB15
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       #define BEEPER_PIN                    PC1   // 33
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                   PC6   // 38
-      //#define SHIFT_LD                    PC10  // 42
-      //#define SHIFT_OUT                   PC8   // 40
-      //#define SHIFT_EN                    PA1   // 17
+      //#define SHIFT_CLK_PIN               PC6   // 38
+      //#define SHIFT_LD_PIN                PC10  // 42
+      //#define SHIFT_OUT_PIN               PC8   // 40
+      //#define SHIFT_EN_PIN                PA1   // 17
     #endif
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                    PC5
 
@@ -186,7 +186,7 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1                       PB6   // 22   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN1                       PB6   // 22   // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       #define BTN_EN2                       PA7   //  7   // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
 
       #define BTN_ENC                       -1
@@ -254,13 +254,13 @@
       #define BEEPER_PIN                    PC1   // 33
 
       // Buttons directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         #define BTN_EN1                     PE0   // 64
         #define BTN_EN2                     PD11  // 59
         #define BTN_ENC                     PD15  // 63
-        #define SHIFT_OUT                   PC8   // 40
-        #define SHIFT_CLK                   PC12  // 44
-        #define SHIFT_LD                    PC10  // 42
+        #define SHIFT_OUT_PIN               PC8   // 40
+        #define SHIFT_CLK_PIN               PC12  // 44
+        #define SHIFT_LD_PIN                PC10  // 42
       #elif ENABLED(PANEL_ONE)
         #define BTN_EN1                     PD11  // 59   // AUX2 PIN 3
         #define BTN_EN2                     PD15  // 63   // AUX2 PIN 4
@@ -279,6 +279,10 @@
       #endif
 
     #endif
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 
-#endif // HAS_SPI_LCD
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD

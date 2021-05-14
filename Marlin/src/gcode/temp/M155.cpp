@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,7 +36,7 @@ void GcodeSuite::M155() {
     autoreport.position = parser.value_bool();
 
   if (parser.seenval('S'))
-    thermalManager.set_auto_report_interval(parser.value_byte());
+    thermalManager.auto_reporter.set_interval(parser.value_byte());
 
 }
 

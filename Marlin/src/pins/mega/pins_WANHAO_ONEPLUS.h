@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,13 +25,11 @@
  * Wanhao 0ne+ pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "Wanhao i3 Mini 0ne+"
 #define DEFAULT_MACHINE_NAME "i3 Mini"
-#define BOARD_WEBSITE_URL    "https://tinyurl.com/yyxw7se7"
+#define BOARD_WEBSITE_URL    "tinyurl.com/yyxw7se7"
 
 //
 // Limit Switches
@@ -82,7 +80,7 @@
 //
 // SD Card
 //
-#define SD_DETECT_PIN                         -1
+#define SD_DETECT_PIN                         83
 #define SDSS                                  53
 
 //

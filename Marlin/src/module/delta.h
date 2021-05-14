@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,11 +32,12 @@ extern float delta_height;
 extern abc_float_t delta_endstop_adj;
 extern float delta_radius,
              delta_diagonal_rod,
-             delta_segments_per_second;
+             segments_per_second;
 extern abc_float_t delta_tower_angle_trim;
 extern xy_float_t delta_tower[ABC];
 extern abc_float_t delta_diagonal_rod_2_tower;
 extern float delta_clip_start_height;
+extern abc_float_t delta_diagonal_rod_trim;
 
 /**
  * Recalculate factors used for delta kinematics whenever
@@ -119,10 +120,10 @@ float delta_safe_distance_from_top();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
+void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(const abc_float_t &point) {
-  forward_kinematics_DELTA(point.a, point.b, point.c);
+FORCE_INLINE void forward_kinematics(const abc_float_t &point) {
+  forward_kinematics(point.a, point.b, point.c);
 }
 
 void home_delta();

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Ported sys0724 & Vynt
  */
@@ -32,9 +32,7 @@
  *           |
  */
 
-#ifndef __SAM3X8E__
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RuRAMPS4Due v1.3"
 
@@ -172,7 +170,7 @@
 //
 // EEPROM
 //
-#define MARLIN_EEPROM_SIZE 0x8000                 // 32Kb (24lc256)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32Kb (24lc256)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
@@ -186,9 +184,9 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-  #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if ANY(RADDS_DISPLAY, IS_RRD_SC, IS_RRD_FG_SC)
     #define BEEPER_PIN                        62
     #define LCD_PINS_D4                       48
     #define LCD_PINS_D5                       50
@@ -197,17 +195,17 @@
     #define SD_DETECT_PIN                     51
   #endif
 
-  #if EITHER(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if EITHER(RADDS_DISPLAY, IS_RRD_SC)
 
     #define LCD_PINS_RS                       63
     #define LCD_PINS_ENABLE                   64
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       52
     #define LCD_PINS_ENABLE                   53
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BEEPER_PIN                        62
     #define LCD_SDSS                          10
@@ -247,10 +245,14 @@
 
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                           44
     #define BTN_EN2                           42
     #define BTN_ENC                           40
   #endif
 
-#endif // HAS_SPI_LCD
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD
