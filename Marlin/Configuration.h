@@ -2722,6 +2722,7 @@
  */
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define PRINTER_EVENT_LEDS
+  #define AUTO_WHITE //Set to white on startup
 #endif
 
 /**

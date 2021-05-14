@@ -1209,6 +1209,7 @@ void setup() {
   // Set up LEDs early
   #if HAS_COLOR_LEDS
     SETUP_RUN(leds.setup());
+    TERN_(AUTO_WHITE, leds.set_white());
   #endif
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
