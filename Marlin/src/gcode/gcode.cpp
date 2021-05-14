@@ -82,7 +82,7 @@ uint8_t GcodeSuite::axis_relative = (
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
-  GcodeSuite::autoreport_t GcodeSuite::autoreport{0};
+  bool GcodeSuite::autoreport_paused; // = false
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -559,6 +559,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_COOLER
         case 143: M143(); break;                                  // M143: Set cooler temperature
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
+      #endif
+
+      #if ENABLED(AUTO_REPORT_POSITION)
+        case 154: M154(); break;                                  // M155: Set position auto-report interval
       #endif
 
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
@@ -1094,7 +1098,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
     static millis_t next_busy_signal_ms = 0;
-    if (!autoreport.paused && host_keepalive_interval && busy_state != NOT_BUSY) {
+    if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
       PORT_REDIRECT(SerialMask::All);
       switch (busy_state) {

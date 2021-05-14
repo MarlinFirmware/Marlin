@@ -3468,7 +3468,6 @@ void Temperature::isr() {
     void Temperature::AutoReportTemp::report() {
       print_heater_states(active_extruder);
       SERIAL_EOL();
-      if (gcode.autoreport.position) report_current_position_projected();
     }
   #endif
 

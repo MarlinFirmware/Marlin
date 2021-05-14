@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,21 +20,21 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+#if ENABLED(AUTO_REPORT_POSITION)
 
 #include "../gcode.h"
-#include "../../module/temperature.h"
+#include "../../module/motion.h"
 
 /**
- * M155: Set temperature auto-report interval. M155 S<seconds>
+ * M154: Set position auto-report interval. M154 S<seconds>
  */
-void GcodeSuite::M155() {
+void GcodeSuite::M154() {
 
   if (parser.seenval('S'))
-    thermalManager.auto_reporter.set_interval(parser.value_byte());
+    position_auto_reporter.set_interval(parser.value_byte());
 
 }
 
-#endif // AUTO_REPORT_TEMPERATURES && HAS_TEMP_SENSOR
+#endif // AUTO_REPORT_POSITION

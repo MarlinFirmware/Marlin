@@ -159,6 +159,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue> W<white> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, PCA9533, or PCA9632).
+ * M154 - Auto-report position with interval of S<seconds>. (Requires AUTO_REPORT_POSITION)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
@@ -381,21 +382,15 @@ public:
     process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
-  typedef struct {
-    bool paused:1;
-    bool position:1;
-  } autoreport_t;
-
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
-    static autoreport_t autoreport;
-  
+    static bool autoreport_paused;
     static inline bool set_autoreport_paused(const bool p) {
-      const bool was = autoreport.paused;
-      autoreport.paused = p;
+      const bool was = autoreport_paused;
+      autoreport_paused = p;
       return was;
     }
   #else
-    static constexpr autoreport_t{false};
+    static constexpr bool autoreport_paused = false;
     static inline bool set_autoreport_paused(const bool) { return false; }
   #endif
 
@@ -725,6 +720,10 @@ private:
 
   #if ENABLED(HAS_COLOR_LEDS)
     static void M150();
+  #endif
+
+  #if ENABLED(AUTO_REPORT_POSITION)
+    static void M154();
   #endif
 
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
