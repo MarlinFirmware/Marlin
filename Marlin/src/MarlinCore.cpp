@@ -483,6 +483,10 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     }
   #endif
 
+  #if HAS_FREEZE_PIN
+    Stepper::frozen = !READ(FREEZE_PIN);
+  #endif
+
   #if HAS_HOME
     // Handle a standalone HOME button
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
@@ -1087,6 +1091,10 @@ void setup() {
     #else
       SET_INPUT_PULLUP(KILL_PIN);
     #endif
+  #endif
+
+  #if HAS_FREEZE_PIN
+    SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
 
   #if HAS_SUICIDE
