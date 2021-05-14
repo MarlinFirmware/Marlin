@@ -36,7 +36,9 @@ enum processID : uint8_t {
 };
 
 enum popupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, Level, Home, MoveWait, Heating, Complete, FilLoad, FilChange, UI, TempWarn, Runout, PIDWait
+  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore,
+  Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming,
+  FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete
 };
 
 enum menuID : uint8_t {
@@ -296,7 +298,7 @@ public:
   void Draw_Title(char* title);
   void Draw_Menu_Item(uint8_t row, uint8_t icon=0, char * const label1=NULL, char * const label2=NULL, bool more=false, bool centered=false);
   void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
-  void Redraw_Menu(bool lastselection=false, bool lastmenu=false);
+  void Redraw_Menu(bool lastprocess=true, bool lastselection=false, bool lastmenu=false);
   void Redraw_Screen();
 
 
@@ -327,7 +329,7 @@ public:
 
 
   void Popup_Handler(uint8_t popupid, bool option = false);
-  void Confirm_Handler(const char * const msg);
+  void Confirm_Handler(uint8_t popupid);
 
 
   void Main_Menu_Control();
@@ -354,6 +356,7 @@ public:
   void Start_Print(bool sd);
   void Stop_Print();
   void Update();
+  void State_Update();
   void Screen_Update();
   void AudioFeedback(const bool success=true);
   void Save_Settings(char *buff);

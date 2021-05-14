@@ -55,13 +55,13 @@ void MarlinUI::set_brightness(const uint8_t value) {
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch(message) {
       case PAUSE_MESSAGE_INSERT:
-        CrealityDWIN.Confirm_Handler(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT));
+        CrealityDWIN.Confirm_Handler(FilInsert);
         break;
       case PAUSE_MESSAGE_OPTION:
         CrealityDWIN.Popup_Handler(PurgeMore);
         break;
       case PAUSE_MESSAGE_HEAT:
-        CrealityDWIN.Confirm_Handler(GET_TEXT(MSG_HEATER_TIMEOUT));
+        CrealityDWIN.Confirm_Handler(HeaterTime);
         break;
       default:
         break;

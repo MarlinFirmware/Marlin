@@ -506,17 +506,25 @@ void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uint8_t sc
   DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.cursor_color, Rectangle_Color), 0, MBASE(selection-scrollpos) - 18, 14, MBASE(selection-scrollpos) + 33);
 }
 
-void CrealityDWINClass::Redraw_Menu(bool lastselection/*=false*/, bool lastmenu/*=false*/) {
-  if (active_menu == MainMenu) {
-    Draw_Main_Menu(selection);
-  }
-  else {
-    Draw_Menu((lastmenu) ? last_menu : active_menu, (lastselection) ? last_selection : selection, (lastmenu) ? 0 : scrollpos);
+void CrealityDWINClass::Redraw_Menu(bool lastprocess/*=true*/, bool lastselection/*=false*/, bool lastmenu/*=false*/) {
+  switch((lastprocess) ? last_process : process) {
+    case Menu:
+      Draw_Menu((lastmenu) ? last_menu : active_menu, (lastselection) ? last_selection : selection, (lastmenu) ? 0 : scrollpos);
+      break;
+    case Main:
+      Draw_Main_Menu((lastselection) ? last_selection : selection);
+      break;
+    case Print:
+      Draw_Print_Screen();
+      break;
+    case File:
+      Draw_SD_List();
+      break;
   }
 }
 
 void CrealityDWINClass::Redraw_Screen() {
-  Redraw_Menu();
+  Redraw_Menu(false);
   Draw_Status_Area(true);
   Update_Status_Bar(true);
 }
@@ -895,6 +903,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
 }
 
 void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const char *line3, uint8_t mode, uint8_t icon/*=0*/) {
+  if (process != Confirm && process != Popup && process != Wait) last_process = process;
   if (process == Menu && mode == Popup) last_selection = selection;
   process = mode;
   Clear_Screen();
@@ -2000,6 +2009,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               char buf[30];
               sprintf(buf, "M303 E0 C%i S%i U1", PID_cycles, PID_e_temp);
               gcode.process_subcommands_now_P(buf);
+              planner.synchronize();
+              Redraw_Menu();
             }
             break;
           case HOTENDPID_TEMP:
@@ -2072,6 +2083,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               char buf[30];
               sprintf(buf, "M303 E-1 C%i S%i U1", PID_cycles, PID_bed_temp);
               gcode.process_subcommands_now_P(buf);
+              planner.synchronize();
+              Redraw_Menu();
             }
             break;
           case BEDPID_TEMP:
@@ -3172,7 +3185,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (!planner.leveling_active) {
                 set_bed_leveling_enabled(!planner.leveling_active);
                 if (!planner.leveling_active) {
-                  Confirm_Handler((char*)"Couldn't enable Leveling");
+                  Confirm_Handler(LevelError);
                   break;
                 }
               }
@@ -3260,7 +3273,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else {
               #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
                 if (!leveling_is_valid()) {
-                  Confirm_Handler((char*)"Invalid Mesh");
+                  Confirm_Handler(InvalidMesh);
                   break;
                 }
               #endif
@@ -3428,7 +3441,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 }
                 else {
                   if (mesh_conf.create_plane_from_mesh()) {
-                    Confirm_Handler((char*)"Error: Couldn't create plane!");
                     break;
                   }
                   gcode.process_subcommands_now_P(PSTR("M420 S1"));
@@ -3599,7 +3611,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               mesh_conf.manual_value_update(true);
-              Redraw_Menu();
+              Redraw_Menu(false);
             }
             break;
           #endif
@@ -4003,7 +4015,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else {
               thermalManager.setTargetHotend(0, 0);
               thermalManager.set_fan_speed(0, 0);
-              Redraw_Menu(true, true);
+              Redraw_Menu(false, true, true);
             }
             break;
           #if (PREHEAT_COUNT >= 1)
@@ -4091,13 +4103,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                         Popup_Handler(FilLoad);
                         gcode.process_subcommands_now_P("M701");
                         planner.synchronize();
-                        Redraw_Menu(true, true);
+                        Redraw_Menu(true, true, true);
                         break;
                       case CHANGEFIL_UNLOAD:
                         Popup_Handler(FilLoad, true);
                         gcode.process_subcommands_now_P("M702");
                         planner.synchronize();
-                        Redraw_Menu(true, true);
+                        Redraw_Menu(true, true, true);
                         break;
                       case CHANGEFIL_CHANGE:
                         Popup_Handler(FilChange);
@@ -4399,46 +4411,30 @@ void CrealityDWINClass::Popup_Handler(uint8_t popupid, bool option/*=false*/) {
     case PIDWait:
       Draw_Popup((char*)"PID Autotune", (char*)"in process", (char*)"Please wait until done.", Wait, ICON_BLTouch);
       break;
+    case Resuming:
+      Draw_Popup((char*)"Resuming Print", (char*)"Please wait until done.", (char*)"", Wait, ICON_BLTouch);
+      break;
   }
 }
 
-void CrealityDWINClass::Confirm_Handler(const char * const msg) {
-  if (process != Confirm) last_process = process;
-  popup = UI;
-  if (strcmp_P(msg, GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)) == 0) {
-    Draw_Popup((char*)"Insert Filament", (char*)"Press to Continue", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, GET_TEXT(MSG_HEATER_TIMEOUT)) == 0) {
-    Draw_Popup((char*)"Heater Timed Out", (char*)"Press to Reheat", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"Reheat finished.") == 0) {
-    Draw_Popup((char*)"Reheat Finished", (char*)"Press to Continue", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, GET_TEXT(MSG_USERWAIT)) == 0) {
-    Draw_Popup((char*)"Waiting for Input", (char*)"Press to Continue", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, GET_TEXT(MSG_NOZZLE_PARKED)) == 0) {
-  } 
-  else if (strcmp_P(msg, (char*)"Couldn't enable Leveling") == 0) {
-    Draw_Popup((char*)"Couldn't enable Leveling", (char*)"(Valid mesh must exist)", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"Invalid Mesh") == 0) {
-    Draw_Popup((char*)"Valid mesh must exist", (char*)"before tuning can be", (char*)"performed", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"Bad extruder number") == 0) {
-    Draw_Popup((char*)"PID Autotune failed", (char*)"Bad extruder number", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"Temp too high") == 0) {
-    Draw_Popup((char*)"PID Autotune failed", (char*)"Temp too high!", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"PID Timeout") == 0) {
-    Draw_Popup((char*)"PID Autotune failed", (char*)"Timeout!", (char*)"", Confirm);
-  }
-  else if (strcmp_P(msg, (char*)"PID Done") == 0) {
-    Draw_Popup((char*)"PID tuning done", (char*)"", (char*)"", Confirm);
-  }
-  else {
-    Draw_Popup(msg, (char*)"Press to Continue", (char*)"", Confirm);
+void CrealityDWINClass::Confirm_Handler(uint8_t popupid) {
+  popup = popupid;
+  switch (popupid) {
+    case FilInsert:
+      Draw_Popup((char*)"Insert Filament", (char*)"Press to Continue", (char*)"", Confirm);
+      break;
+    case HeaterTime:
+      Draw_Popup((char*)"Heater Timed Out", (char*)"Press to Reheat", (char*)"", Confirm);
+      break;
+    case UserInput:
+      Draw_Popup((char*)"Waiting for Input", (char*)"Press to Continue", (char*)"", Confirm);
+      break;
+    case LevelError:
+      Draw_Popup((char*)"Couldn't enable Leveling", (char*)"(Valid mesh must exist)", (char*)"", Confirm);
+      break;
+    case InvalidMesh:
+      Draw_Popup((char*)"Valid mesh must exist", (char*)"before tuning can be", (char*)"performed", Confirm);
+      break;
   }
 }
 
@@ -4702,7 +4698,6 @@ void CrealityDWINClass::File_Control() {
       }
       else {
         card.openAndPrintFile(card.filename);
-        Start_Print(true);
       }
     }
   }
@@ -4729,11 +4724,9 @@ void CrealityDWINClass::Print_Screen_Control() {
       case 1:
         if (paused) {
           if (sdprint) {
-            paused = false;
             wait_for_user = false;
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               card.startFileprint();
-              startOrResumeJob();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
               char cmnd[20];
@@ -4779,7 +4772,6 @@ void CrealityDWINClass::Popup_Control() {
       case Pause:
         if (selection==0) {
           if (sdprint) {
-            paused = true;
             #if ENABLED(POWER_LOSS_RECOVERY)
               if (recovery.enabled) recovery.save(true);
             #endif
@@ -4788,7 +4780,6 @@ void CrealityDWINClass::Popup_Control() {
               #if ENABLED(SDSUPPORT)
                 if (IS_SD_PRINTING()) card.pauseSDPrint();
               #endif
-              print_job_timer.pause();
               planner.synchronize();
               queue.inject_P(PSTR("M125"));
               planner.synchronize();
@@ -4803,7 +4794,6 @@ void CrealityDWINClass::Popup_Control() {
           }
           else {
             #if ENABLED(HOST_ACTION_COMMANDS)
-              paused = true;
               host_action_pause();
             #endif
           }
@@ -4843,7 +4833,7 @@ void CrealityDWINClass::Popup_Control() {
           Draw_Menu(PreheatHotend);
         }
         else {
-          Redraw_Menu(true);
+          Redraw_Menu(true, true, false);
         }
         break;
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -4863,7 +4853,7 @@ void CrealityDWINClass::Popup_Control() {
               gcode.process_subcommands_now_P(buf);
             }
           } else {
-            Redraw_Menu(true);
+            Redraw_Menu(true, true, false);
           }
           break;
         case PurgeMore:
@@ -4872,7 +4862,7 @@ void CrealityDWINClass::Popup_Control() {
             Popup_Handler(FilChange);
           } else {
             pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-            Redraw_Menu(true, (active_menu==PreheatHotend));
+            if (printing) Popup_Handler(Resuming);
           }
           break;
       #endif
@@ -4902,35 +4892,14 @@ void CrealityDWINClass::Confirm_Control() {
       case Complete:
         Draw_Main_Menu();
         break;
-      case UI:
-        switch(last_process) {
-          case Menu:
-            Redraw_Menu();
-            break;
-          case Main:
-            Draw_Main_Menu();
-            break;
-          case Print:
-            Draw_Print_Screen();
-            break;
-          case File:
-            Draw_SD_List();
-            break;
-          case Wait:
-            switch (last_popup) {
-              case Runout:
-                Draw_Print_Screen();
-                break;
-              case PIDWait:
-                Redraw_Menu();
-                break;
-              default:
-                Popup_Handler(last_popup);
-                break;
-            }
-            break;
-        }
+      case FilInsert:
+        Popup_Handler(FilChange);
         wait_for_user = false;
+        break;
+      default:
+        Redraw_Menu(true, true, false);
+        wait_for_user = false;
+        break;
     }
   }
   DWIN_UpdateLCD();
@@ -5039,11 +5008,7 @@ void CrealityDWINClass::Stop_Print() {
 }
 
 void CrealityDWINClass::Update() {
-  if (print_job_timer.isRunning() != printing) {
-    if (!printing) Start_Print(card.isFileOpen());
-    else Stop_Print();
-  }
-
+  State_Update();
   Screen_Update();
 
   switch(process) {
@@ -5074,6 +5039,27 @@ void CrealityDWINClass::Update() {
   }
 }
 
+void CrealityDWINClass::State_Update() {
+  if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
+    if (!printing) Start_Print(card.isFileOpen());
+    else Stop_Print();
+    delay(500);
+  }
+  static bool ranout = false;
+  if (runout.filament_ran_out != ranout) {
+    ranout = runout.filament_ran_out;
+    if (ranout) Popup_Handler(Runout);
+  }
+  if (print_job_timer.isPaused() != paused) {
+    paused = print_job_timer.isPaused();
+    if (process == Print) Print_Screen_Icons();
+    if (process == Wait && !paused) Redraw_Menu(true, true);
+  }
+  if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused()) {
+    Confirm_Handler(UserInput);
+  }
+}
+
 void CrealityDWINClass::Screen_Update() {
   static millis_t scrltime = 0;
   if (ELAPSED(millis(), scrltime)) {
@@ -5096,10 +5082,6 @@ void CrealityDWINClass::Screen_Update() {
       Draw_Print_ProgressBar();
       Draw_Print_ProgressElapsed();
       Draw_Print_ProgressRemain();
-      if (print_job_timer.isPaused() != paused) {
-        paused = print_job_timer.isPaused();
-        Print_Screen_Icons();
-      }
     }
   }
 
