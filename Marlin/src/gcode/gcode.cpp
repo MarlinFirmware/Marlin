@@ -211,7 +211,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
+#if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
@@ -222,6 +222,10 @@ void GcodeSuite::dwell(millis_t time) {
       process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
     #endif
   }
+
+  #if ENABLED(G29_HALT_ON_FAILURE)
+    #include "../lcd/marlinui.h"
+  #endif
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
@@ -262,7 +266,7 @@ void GcodeSuite::dwell(millis_t time) {
     #endif
   }
 
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+#endif // G29_RETRY_AND_RECOVER
 
 /**
  * Process the parsed command and dispatch it to its handler
