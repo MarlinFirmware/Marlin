@@ -140,63 +140,6 @@ public:
 #endif
 
 /**
- * When G29_RETRY_AND_RECOVER is enabled, call G29() in
- * a loop with recovery and retry handling.
- */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
-
-  void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
-    #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
-    #endif
-    #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-    #endif
-  }
-
-  void GcodeSuite::event_probe_failure() {
-    #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
-    #endif
-    #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
-    #endif
-    #if ENABLED(G29_HALT_ON_FAILURE)
-      #ifdef ACTION_ON_CANCEL
-        host_action_cancel();
-      #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
-    #endif
-  }
-
-  #ifndef G29_MAX_RETRIES
-    #define G29_MAX_RETRIES 0
-  #endif
-
-  void GcodeSuite::G29_with_retry() {
-    uint8_t retries = G29_MAX_RETRIES;
-    while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries) {
-        event_probe_recover();
-        --retries;
-      }
-      else {
-        event_probe_failure();
-        return;
-      }
-    }
-
-    TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
-
-    #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
-    #endif
-  }
-
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
-
-/**
  * G29: Detailed Z probe, probes the bed at 3 or more points.
  *      Will fail if the printer has not been homed with G28.
  *
