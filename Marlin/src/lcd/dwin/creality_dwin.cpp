@@ -3824,7 +3824,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               mesh_x = GRID_MAX_POINTS_X - mesh_x - 1;
             }
 
-            const float currval = mesh_z_values[mesh_x][mesh_y];
+            const float currval = mesh_conf.mesh_z_values[mesh_x][mesh_y];
 
             if (draw) {
               Draw_Menu_Item(row, ICON_Zoffset, (char*)"Goto Mesh Value");
