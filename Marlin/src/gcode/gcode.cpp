@@ -565,6 +565,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
       #endif
 
+      #if ENABLED(AUTO_REPORT_POSITION)
+        case 154: M154(); break;                                  // M155: Set position auto-report interval
+      #endif
+
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
