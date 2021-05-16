@@ -294,12 +294,12 @@ void menu_main() {
 
       if (card_detected) {
         if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
           #if PIN_EXISTS(SD_DETECT)
             GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
         }
       }
       else {
