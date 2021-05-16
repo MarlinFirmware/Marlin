@@ -31,9 +31,10 @@
 // The TONE timer is not present here, as it currently cannot be set programmatically. It is set
 // by defining TIM_IRQ_PRIO in the variant.h or platformio.ini file, which adjusts the default
 // priority for STM32 HardwareTimer objects.
-#define SWSERIAL_TIMER_IRQ_PRIO_DEFAULT  1 // Requires tight bit timing to communicate reliably with TMC drivers
-#define SERVO_TIMER_IRQ_PRIO_DEFAULT     1 // Requires tight PWM timing to control a BLTouch reliably
-#define STEP_TIMER_IRQ_PRIO_DEFAULT      2
+// Let the serial interrupt have the highest priority (1) to avoid lost characters.
+#define SWSERIAL_TIMER_IRQ_PRIO_DEFAULT  2 // Requires tight bit timing to communicate reliably with TMC drivers
+#define SERVO_TIMER_IRQ_PRIO_DEFAULT     2 // Requires tight PWM timing to control a BLTouch reliably
+#define STEP_TIMER_IRQ_PRIO_DEFAULT      8
 #define TEMP_TIMER_IRQ_PRIO_DEFAULT     14 // Low priority avoids interference with other hardware and timers
 
 #ifndef STEP_TIMER_IRQ_PRIO
