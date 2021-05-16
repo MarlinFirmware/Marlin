@@ -266,6 +266,10 @@ class Stepper {
       static constexpr uint8_t last_moved_extruder = 0;
     #endif
 
+    #if HAS_FREEZE_PIN
+      static bool frozen;                   // Set this flag to instantly freeze motion
+    #endif
+
   private:
 
     static block_t* current_block;          // A pointer to the block currently being traced

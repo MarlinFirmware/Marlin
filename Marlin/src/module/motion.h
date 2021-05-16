@@ -211,6 +211,12 @@ void report_real_position();
 void report_current_position();
 void report_current_position_projected();
 
+#if ENABLED(AUTO_REPORT_POSITION)
+  #include "../libs/autoreport.h"
+  struct PositionReport { static void report() { report_current_position_projected(); } };
+  extern AutoReporter<PositionReport> position_auto_reporter;
+#endif
+
 #if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**

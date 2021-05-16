@@ -645,6 +645,9 @@ void NextionTFT::UpdateOnChange() {
     last_flow_speed = getFlow_percent(getActiveTool());
   }
 
+  // tmppage Axis
+  static float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
+
   // tmppage Progress + Layer + Time
   if (isPrinting()) {
 
@@ -678,9 +681,6 @@ void NextionTFT::UpdateOnChange() {
       SEND_VALasTXT("tmppage.layer", layer);
     }
   }
-
-  // tmppage Axis
-  static float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
 
   if (!WITHIN(last_get_axis_position_mmX - getAxisPosition_mm(X), -0.1, 0.1)) {
     if (ELAPSED(ms, next_event_ms)) {
@@ -723,9 +723,9 @@ void NextionTFT::UpdateOnChange() {
     last_homedZ = isAxisPositionKnown(Z);
   }
 
-  // tmppage IDEX Mode
-  static uint8_t last_IDEX_Mode = 99;
   #if ENABLED(DUAL_X_CARRIAGE)
+    // tmppage IDEX Mode
+    static uint8_t last_IDEX_Mode = 99;
     if (last_IDEX_Mode != getIDEX_Mode()) {
       SEND_VAL("tmppage.idexmode", getIDEX_Mode());
       last_IDEX_Mode = getIDEX_Mode();
