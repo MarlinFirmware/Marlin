@@ -281,7 +281,7 @@ void menu_main() {
   }
   else {
 
-    #if !HAS_ENCODER_WHEEL
+    #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
       #define MEDIA_MENU_AT_TOP
     #endif
 
