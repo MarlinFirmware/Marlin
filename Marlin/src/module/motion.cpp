@@ -230,6 +230,11 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
+#if ENABLED(AUTO_REPORT_POSITION)
+  //struct PositionReport { void report() { report_current_position_projected(); } };
+  AutoReporter<PositionReport> position_auto_reporter;
+#endif
+
 #if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
 
   M_StateEnum M_State_grbl = M_INIT;
