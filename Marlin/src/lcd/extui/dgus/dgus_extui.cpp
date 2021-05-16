@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if ENABLED(DGUS_LCD_UI_CLASSIC)
 
 #include "../ui_api.h"
 #include "DGUSDisplay.h"
