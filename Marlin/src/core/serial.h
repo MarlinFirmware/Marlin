@@ -87,17 +87,16 @@ extern uint8_t marlin_debug_flags;
   // If we have a catchall, use that directly
   #ifdef SERIAL_CATCHALL
     #define _SERIAL_LEAF_2 SERIAL_CATCHALL
+  #elif HAS_ETHERNET
+    typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;  // We need to create an instance here
+    extern SerialLeafT2 msSerial2;
+    #define _SERIAL_LEAF_2 msSerial2
   #else
-    #if HAS_ETHERNET
-      // We need to create an instance here
-      typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;
-      extern SerialLeafT2 msSerial2;
-      #define _SERIAL_LEAF_2 msSerial2
-    #else
-      // Don't create a useless instance here, directly use the existing instance
-      #define _SERIAL_LEAF_2 MYSERIAL2
-    #endif
+    #define _SERIAL_LEAF_2 MYSERIAL2 // Don't create a useless instance here, directly use the existing instance
   #endif
+
+  // Nothing complicated here
+  #define _SERIAL_LEAF_3 MYSERIAL3
 
   // Hook Meatpack if it's enabled on the second leaf
   #if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
@@ -108,7 +107,23 @@ extern uint8_t marlin_debug_flags;
     #define SERIAL_LEAF_2 _SERIAL_LEAF_2
   #endif
 
-  typedef MultiSerial<decltype(SERIAL_LEAF_1), decltype(SERIAL_LEAF_2), 0> SerialOutputT;
+  // Hook Meatpack if it's enabled on the third leaf
+  #if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
+    typedef MeatpackSerial<decltype(_SERIAL_LEAF_3)> SerialLeafT3;
+    extern SerialLeafT3 mpSerial3;
+    #define SERIAL_LEAF_3 mpSerial3
+  #else
+    #define SERIAL_LEAF_3 _SERIAL_LEAF_3
+  #endif
+
+  #define __S_MULTI(N) decltype(SERIAL_LEAF_##N),
+  #define _S_MULTI(N) __S_MULTI(N)
+
+  typedef MultiSerial< REPEAT_1(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
+
+  #undef __S_MULTI
+  #undef _S_MULTI
+
   extern SerialOutputT        multiSerial;
   #define SERIAL_IMPL         multiSerial
 #else
@@ -167,139 +182,45 @@ inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
 // Print a single PROGMEM string to serial
 void serialprintPGM(PGM_P str);
 
-// SERIAL_ECHOPAIR / SERIAL_ECHOPAIR_P is used to output a key value pair. The key must be a string and the value can be anything
-// Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
-#define __SEP_N(N,V...)   _SEP_##N(V)
-#define _SEP_N(N,V...)    __SEP_N(N,V)
-#define _SEP_1(PRE)       SERIAL_ECHOPGM(PRE)
-#define _SEP_2(PRE,V)     serial_echopair_PGM(PSTR(PRE),V)
-#define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
-#define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
-#define _SEP_5(a,b,V...)  do{ _SEP_2(a,b); _SEP_3(V); }while(0)
-#define _SEP_6(a,b,V...)  do{ _SEP_2(a,b); _SEP_4(V); }while(0)
-#define _SEP_7(a,b,V...)  do{ _SEP_2(a,b); _SEP_5(V); }while(0)
-#define _SEP_8(a,b,V...)  do{ _SEP_2(a,b); _SEP_6(V); }while(0)
-#define _SEP_9(a,b,V...)  do{ _SEP_2(a,b); _SEP_7(V); }while(0)
-#define _SEP_10(a,b,V...) do{ _SEP_2(a,b); _SEP_8(V); }while(0)
-#define _SEP_11(a,b,V...) do{ _SEP_2(a,b); _SEP_9(V); }while(0)
-#define _SEP_12(a,b,V...) do{ _SEP_2(a,b); _SEP_10(V); }while(0)
-#define _SEP_13(a,b,V...) do{ _SEP_2(a,b); _SEP_11(V); }while(0)
-#define _SEP_14(a,b,V...) do{ _SEP_2(a,b); _SEP_12(V); }while(0)
-#define _SEP_15(a,b,V...) do{ _SEP_2(a,b); _SEP_13(V); }while(0)
-#define _SEP_16(a,b,V...) do{ _SEP_2(a,b); _SEP_14(V); }while(0)
-#define _SEP_17(a,b,V...) do{ _SEP_2(a,b); _SEP_15(V); }while(0)
-#define _SEP_18(a,b,V...) do{ _SEP_2(a,b); _SEP_16(V); }while(0)
-#define _SEP_19(a,b,V...) do{ _SEP_2(a,b); _SEP_17(V); }while(0)
-#define _SEP_20(a,b,V...) do{ _SEP_2(a,b); _SEP_18(V); }while(0)
-#define _SEP_21(a,b,V...) do{ _SEP_2(a,b); _SEP_19(V); }while(0)
-#define _SEP_22(a,b,V...) do{ _SEP_2(a,b); _SEP_20(V); }while(0)
-#define _SEP_23(a,b,V...) do{ _SEP_2(a,b); _SEP_21(V); }while(0)
-#define _SEP_24(a,b,V...) do{ _SEP_2(a,b); _SEP_22(V); }while(0)
+//
+// SERIAL_ECHOPAIR... macros are used to output string-value pairs.
+//
 
-#define SERIAL_ECHOPAIR(V...) _SEP_N(NUM_ARGS(V),V)
+// Print up to 20 pairs of values. Odd elements must be literal strings.
+#define __SEP_N(N,V...)           _SEP_##N(V)
+#define _SEP_N(N,V...)            __SEP_N(N,V)
+#define _SEP_N_REF()              _SEP_N
+#define _SEP_1(s)                 SERIAL_ECHOPGM(s);
+#define _SEP_2(s,v)               serial_echopair_PGM(PSTR(s),v);
+#define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
+#define SERIAL_ECHOPAIR(V...)     do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 12 pairs of values. Odd elements must be PSTR pointers.
-#define __SEP_N_P(N,V...)   _SEP_##N##_P(V)
-#define _SEP_N_P(N,V...)    __SEP_N_P(N,V)
-#define _SEP_1_P(PRE)       serialprintPGM(PRE)
-#define _SEP_2_P(PRE,V)     serial_echopair_PGM(PRE,V)
-#define _SEP_3_P(a,b,c)     do{ _SEP_2_P(a,b); serialprintPGM(c); }while(0)
-#define _SEP_4_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_2_P(V); }while(0)
-#define _SEP_5_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_3_P(V); }while(0)
-#define _SEP_6_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_4_P(V); }while(0)
-#define _SEP_7_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_5_P(V); }while(0)
-#define _SEP_8_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_6_P(V); }while(0)
-#define _SEP_9_P(a,b,V...)  do{ _SEP_2_P(a,b); _SEP_7_P(V); }while(0)
-#define _SEP_10_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_8_P(V); }while(0)
-#define _SEP_11_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_9_P(V); }while(0)
-#define _SEP_12_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_10_P(V); }while(0)
-#define _SEP_13_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_11_P(V); }while(0)
-#define _SEP_14_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_12_P(V); }while(0)
-#define _SEP_15_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_13_P(V); }while(0)
-#define _SEP_16_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_14_P(V); }while(0)
-#define _SEP_17_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_15_P(V); }while(0)
-#define _SEP_18_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_16_P(V); }while(0)
-#define _SEP_19_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_17_P(V); }while(0)
-#define _SEP_20_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_18_P(V); }while(0)
-#define _SEP_21_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_19_P(V); }while(0)
-#define _SEP_22_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_20_P(V); }while(0)
-#define _SEP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_21_P(V); }while(0)
-#define _SEP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SEP_22_P(V); }while(0)
+// Print up to 20 pairs of values followed by newline. Odd elements must be literal strings.
+#define __SELP_N(N,V...)          _SELP_##N(V)
+#define _SELP_N(N,V...)           __SELP_N(N,V)
+#define _SELP_N_REF()             _SELP_N
+#define _SELP_1(s)                SERIAL_ECHOLNPGM(s);
+#define _SELP_2(s,v)              serial_echopair_PGM(PSTR(s),v); SERIAL_EOL();
+#define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
+#define SERIAL_ECHOLNPAIR(V...)   do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
 
-// SERIAL_ECHOPAIR_P is used to output a key value pair. Unlike SERIAL_ECHOPAIR, the key must be a PGM string already and the value can be anything
-#define SERIAL_ECHOPAIR_P(V...) _SEP_N_P(NUM_ARGS(V),V)
+// Print up to 20 pairs of values. Odd elements must be PSTR pointers.
+#define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
+#define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
+#define _SEP_N_P_REF()            _SEP_N_P
+#define _SEP_1_P(s)               serialprintPGM(s);
+#define _SEP_2_P(s,v)             serial_echopair_PGM(s,v);
+#define _SEP_3_P(s,v,V...)        _SEP_2_P(s,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
+#define SERIAL_ECHOPAIR_P(V...)   do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 12 pairs of values followed by newline
-#define __SELP_N(N,V...)   _SELP_##N(V)
-#define _SELP_N(N,V...)    __SELP_N(N,V)
-#define _SELP_1(PRE)       SERIAL_ECHOLNPGM(PRE)
-#define _SELP_2(PRE,V)     do{ serial_echopair_PGM(PSTR(PRE),V); SERIAL_EOL(); }while(0)
-#define _SELP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
-#define _SELP_4(a,b,V...)  do{ _SEP_2(a,b); _SELP_2(V); }while(0)
-#define _SELP_5(a,b,V...)  do{ _SEP_2(a,b); _SELP_3(V); }while(0)
-#define _SELP_6(a,b,V...)  do{ _SEP_2(a,b); _SELP_4(V); }while(0)
-#define _SELP_7(a,b,V...)  do{ _SEP_2(a,b); _SELP_5(V); }while(0)
-#define _SELP_8(a,b,V...)  do{ _SEP_2(a,b); _SELP_6(V); }while(0)
-#define _SELP_9(a,b,V...)  do{ _SEP_2(a,b); _SELP_7(V); }while(0)
-#define _SELP_10(a,b,V...) do{ _SEP_2(a,b); _SELP_8(V); }while(0)
-#define _SELP_11(a,b,V...) do{ _SEP_2(a,b); _SELP_9(V); }while(0)
-#define _SELP_12(a,b,V...) do{ _SEP_2(a,b); _SELP_10(V); }while(0)
-#define _SELP_13(a,b,V...) do{ _SEP_2(a,b); _SELP_11(V); }while(0)
-#define _SELP_14(a,b,V...) do{ _SEP_2(a,b); _SELP_12(V); }while(0)
-#define _SELP_15(a,b,V...) do{ _SEP_2(a,b); _SELP_13(V); }while(0)
-#define _SELP_16(a,b,V...) do{ _SEP_2(a,b); _SELP_14(V); }while(0)
-#define _SELP_17(a,b,V...) do{ _SEP_2(a,b); _SELP_15(V); }while(0)
-#define _SELP_18(a,b,V...) do{ _SEP_2(a,b); _SELP_16(V); }while(0)
-#define _SELP_19(a,b,V...) do{ _SEP_2(a,b); _SELP_17(V); }while(0)
-#define _SELP_20(a,b,V...) do{ _SEP_2(a,b); _SELP_18(V); }while(0)
-#define _SELP_21(a,b,V...) do{ _SEP_2(a,b); _SELP_19(V); }while(0)
-#define _SELP_22(a,b,V...) do{ _SEP_2(a,b); _SELP_20(V); }while(0)
-#define _SELP_23(a,b,V...) do{ _SEP_2(a,b); _SELP_21(V); }while(0)
-#define _SELP_24(a,b,V...) do{ _SEP_2(a,b); _SELP_22(V); }while(0)
-#define _SELP_25(a,b,V...) do{ _SEP_2(a,b); _SELP_23(V); }while(0)
-#define _SELP_26(a,b,V...) do{ _SEP_2(a,b); _SELP_24(V); }while(0)
-#define _SELP_27(a,b,V...) do{ _SEP_2(a,b); _SELP_25(V); }while(0)
-#define _SELP_28(a,b,V...) do{ _SEP_2(a,b); _SELP_26(V); }while(0)
-#define _SELP_29(a,b,V...) do{ _SEP_2(a,b); _SELP_27(V); }while(0)
-#define _SELP_30(a,b,V...) do{ _SEP_2(a,b); _SELP_28(V); }while(0) // Eat two args, pass the rest up
-
-#define SERIAL_ECHOLNPAIR(V...) _SELP_N(NUM_ARGS(V),V)
-
-// Print up to 12 pairs of values followed by newline
-#define __SELP_N_P(N,V...)   _SELP_##N##_P(V)
-#define _SELP_N_P(N,V...)    __SELP_N_P(N,V)
-#define _SELP_1_P(PRE)       serialprintPGM(PRE)
-#define _SELP_2_P(PRE,V)     do{ serial_echopair_PGM(PRE,V); SERIAL_EOL(); }while(0)
-#define _SELP_3_P(a,b,c)     do{ _SEP_2_P(a,b); serialprintPGM(c); }while(0)
-#define _SELP_4_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_2_P(V); }while(0)
-#define _SELP_5_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_3_P(V); }while(0)
-#define _SELP_6_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_4_P(V); }while(0)
-#define _SELP_7_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_5_P(V); }while(0)
-#define _SELP_8_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_6_P(V); }while(0)
-#define _SELP_9_P(a,b,V...)  do{ _SEP_2_P(a,b); _SELP_7_P(V); }while(0)
-#define _SELP_10_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_8_P(V); }while(0)
-#define _SELP_11_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_9_P(V); }while(0)
-#define _SELP_12_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_10_P(V); }while(0)
-#define _SELP_13_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_11_P(V); }while(0)
-#define _SELP_14_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_12_P(V); }while(0)
-#define _SELP_15_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_13_P(V); }while(0)
-#define _SELP_16_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_14_P(V); }while(0)
-#define _SELP_17_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_15_P(V); }while(0)
-#define _SELP_18_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_16_P(V); }while(0)
-#define _SELP_19_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_17_P(V); }while(0)
-#define _SELP_20_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_18_P(V); }while(0)
-#define _SELP_21_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_19_P(V); }while(0)
-#define _SELP_22_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_20_P(V); }while(0)
-#define _SELP_23_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_21_P(V); }while(0)
-#define _SELP_24_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_22_P(V); }while(0)
-#define _SELP_25_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_23_P(V); }while(0)
-#define _SELP_26_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_24_P(V); }while(0)
-#define _SELP_27_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_25_P(V); }while(0)
-#define _SELP_28_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_26_P(V); }while(0)
-#define _SELP_29_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_27_P(V); }while(0)
-#define _SELP_30_P(a,b,V...) do{ _SEP_2_P(a,b); _SELP_28_P(V); }while(0) // Eat two args, pass the rest up
-
-#define SERIAL_ECHOLNPAIR_P(V...) _SELP_N_P(NUM_ARGS(V),V)
+// Print up to 20 pairs of values followed by newline. Odd elements must be PSTR pointers.
+#define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
+#define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
+#define _SELP_N_P_REF()           _SELP_N_P
+#define _SELP_1_P(s)              { serialprintPGM(s); SERIAL_EOL(); }
+#define _SELP_2_P(s,v)            { serial_echopair_PGM(s,v); SERIAL_EOL(); }
+#define _SELP_3_P(s,v,V...)       { _SEP_2_P(s,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
+#define SERIAL_ECHOLNPAIR_P(V...) do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
 
 #ifdef AllowDifferentTypeInList
 

@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 020008
+#define CONFIGURATION_ADV_H_VERSION 02000801
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -1486,8 +1486,8 @@
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME SD_ONBOARD
-    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME SV_SD_ONBOARD
+    #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
   #endif
 
 #endif // SDSUPPORT
@@ -2301,14 +2301,15 @@
 #endif // HAS_MULTI_EXTRUDER
 
 /**
- * Advanced Pause
- * Experimental feature for filament change support and for parking the nozzle when paused.
- * Adds the GCode M600 for initiating filament change.
- * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
+ * Advanced Pause for Filament Change
+ *  - Adds the G-code M600 Filament Change to initiate a filament change.
+ *  - This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  *
- * Requires an LCD display.
- * Requires NOZZLE_PARK_FEATURE.
- * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
+ * Requirements:
+ *  - For Filament Change parking enable and configure NOZZLE_PARK_FEATURE.
+ *  - For user interaction enable an LCD display, HOST_PROMPT_SUPPORT, or EMERGENCY_PARSER.
+ *
+ * Enable PARK_HEAD_ON_PAUSE to add the G-code M125 Pause and Park.
  */
 //#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -3416,6 +3417,11 @@
 #define AUTO_REPORT_TEMPERATURES
 
 /**
+ * Auto-report position with M154 S<seconds>
+ */
+//#define AUTO_REPORT_POSITION
+
+/**
  * Include capabilities in M115 output
  */
 #define EXTENDED_CAPABILITIES_REPORT
@@ -3484,7 +3490,7 @@
 #define PROPORTIONAL_FONT_RATIO 1.0
 
 /**
- * Spend 28 bytes of SRAM to optimize the GCode parser
+ * Spend 28 bytes of SRAM to optimize the G-code parser
  */
 #define FASTER_GCODE_PARSER
 
@@ -3778,6 +3784,16 @@
   //#define GANTRY_CALIBRATION_XY_PARK_FEEDRATE 3000  // XY Park Feedrate - MMM
   //#define GANTRY_CALIBRATION_COMMANDS_PRE   ""
   #define GANTRY_CALIBRATION_COMMANDS_POST  "G28"     // G28 highly recommended to ensure an accurate position
+#endif
+
+/**
+ * Instant freeze / unfreeze functionality
+ * Specified pin has pullup and connecting to ground will instantly pause motion.
+ * Potentially useful for emergency stop that allows being resumed.
+ */
+//#define FREEZE_FEATURE
+#if ENABLED(FREEZE_FEATURE)
+  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
 #endif
 
 /**

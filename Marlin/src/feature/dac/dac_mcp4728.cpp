@@ -66,7 +66,7 @@ uint8_t MCP4728::analogWrite(const uint8_t channel, const uint16_t value) {
 }
 
 /**
- * Write all input resistor values to EEPROM using SequencialWrite method.
+ * Write all input resistor values to EEPROM using SequentialWrite method.
  * This will update both input register and EEPROM value
  * This will also write current Vref, PowerDown, Gain settings to EEPROM
  */
