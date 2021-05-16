@@ -281,7 +281,7 @@ void menu_main() {
   }
   else {
 
-    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+    #if ENABLED(MEDIA_MENU_ON_TOP) || (DISABLED(HAS_ENCODER_WHEEL) && ENABLED(SDSUPPORT))
 
       // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
 
@@ -310,7 +310,7 @@ void menu_main() {
         #endif
       }
 
-    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
+    #endif // ENABLED(MEDIA_MENU_ON_TOP) || (DISABLED(HAS_ENCODER_WHEEL) && ENABLED(SDSUPPORT))
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
@@ -387,7 +387,7 @@ void menu_main() {
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
+  #if DISABLED(MEDIA_MENU_ON_TOP) && (ENABLED(HAS_ENCODER_WHEEL) && ENABLED(SDSUPPORT))
 
     if (!busy) {
 
@@ -419,7 +419,7 @@ void menu_main() {
       }
     }
 
-  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+  #endif // DISABLED(MEDIA_MENU_ON_TOP) && (ENABLED(HAS_ENCODER_WHEEL) && ENABLED(SDSUPPORT))
 
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {
