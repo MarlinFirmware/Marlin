@@ -196,6 +196,9 @@
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN                            80
+  #ifndef KILL_PIN_STATE
+    #define KILL_PIN_STATE                  HIGH
+  #endif
 
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
