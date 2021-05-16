@@ -211,7 +211,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if ENABLED(G29_RETRY_AND_RECOVER)
+#if ENABLED(G29_RETRY_AND_RECOVER) && HAS_LEVELING
 
   void GcodeSuite::event_probe_recover() {
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
