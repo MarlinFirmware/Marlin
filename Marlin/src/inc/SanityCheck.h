@@ -1572,7 +1572,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif ENABLED(MESH_BED_LEVELING)
     #error "G29_RETRY_AND_RECOVER is not compatible with MESH_BED_LEVELING."
   #elif !HAS_LEVELING
-    #error "G29_RETRY_AND_RECOVER requires Bed Leveling."
+    #warning "G29_RETRY_AND_RECOVER requires Bed Leveling. G29_RETRY_AND_RECOVER is disabled."
   #endif
 #endif
 
