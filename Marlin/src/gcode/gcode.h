@@ -74,7 +74,7 @@
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G81  - Drilling Cycles - drilling (Requires DRILLING_CANNED_CYCLES)
  * G82  - Drilling Cycles - spot drill (Requires DRILLING_CANNED_CYCLES)
- * G83  - Drilling Cycles - pecking (Requires DRILLING_CANNED_CYCLES)																			  
+ * G83  - Drilling Cycles - pecking (Requires DRILLING_CANNED_CYCLES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
@@ -162,7 +162,6 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue> W<white> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, PCA9533, or PCA9632).
- * M154 - Auto-report position with interval of S<seconds>. (Requires AUTO_REPORT_POSITION)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
@@ -732,10 +731,6 @@ private:
     static void M150();
   #endif
 
-  #if ENABLED(AUTO_REPORT_POSITION)
-    static void M154();
-  #endif
-
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
     static void M155();
   #endif
@@ -750,9 +745,9 @@ private:
       static void M166();
     #endif
     #if ENABLED(CNC_5X)
-    static void M167();
-    static void M168();
-    #endif	
+      static void M167();
+      static void M168();
+    #endif
   #endif
 
   static void M200();

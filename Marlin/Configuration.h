@@ -1212,6 +1212,8 @@
 #define INVERT_EA_DIR true
 #define INVERT_EB_DIR true
 
+// @section homing
+
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
 //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
 

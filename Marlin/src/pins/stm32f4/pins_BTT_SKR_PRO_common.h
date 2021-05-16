@@ -78,7 +78,11 @@
   #endif
 #else
   #define X_MIN_PIN                         PB10  // X-
-  #define X_MAX_PIN                         PE15  // E0
+  #if ENABLED(CNC_5X)
+    #define E_MIN_PIN                       PE15  // E0
+  #else
+    #define X_MAX_PIN                       PE15
+  #endif
 #endif
 
 #ifdef Y_STALL_SENSITIVITY
@@ -90,7 +94,12 @@
   #endif
 #else
   #define Y_MIN_PIN                         PE12  // Y-
-  #define Y_MAX_PIN                         PE10  // E1
+  #if ENABLED(CNC_5X)
+    #define Z_MIN_M167_PIN                  PE10
+    #define E_MAX_PIN                       PE6   // Fan2
+  #else
+    #define Y_MAX_PIN                       PE10  // E1
+  #endif
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
@@ -150,14 +159,24 @@
 #endif
 
 #define E0_STEP_PIN                         PE14
-#define E0_DIR_PIN                          PA0
+#if ENABLED(CNC_5X)
+  #define E0_DIR_PIN                        PD14  // Heater1 PIN for Workaround
+  #define EA_DIR_PIN                        PA0   // PIN for direct direction change on M168
+#else
+  #define E0_DIR_PIN                        PA0
+#endif
 #define E0_ENABLE_PIN                       PC3
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PB3
 #endif
 
 #define E1_STEP_PIN                         PD15
-#define E1_DIR_PIN                          PE7
+#if ENABLED(CNC_5X)
+  #define E1_DIR_PIN                        PB0   // Heater2 PIN for Workaround
+  #define EB_DIR_PIN                        PE7   // PIN for direct direction change on M168
+#else
+  #define E1_DIR_PIN                        PE7
+#endif
 #define E1_ENABLE_PIN                       PA3
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PG15
@@ -241,12 +260,16 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PB1   // Heater0
-#define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#if DISABLED(CNC_5X)
+  #define HEATER_1_PIN                      PD14  // Heater1
+  #define HEATER_2_PIN                      PB0   // Heater2
+#endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
+#if DISABLED(CNC_5X)
+  #define FAN2_PIN                          PE6
+#endif
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
