@@ -102,7 +102,7 @@ xyze_pos_t destination; // {0}
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
-  xyz_pos_t stored_position[SAVED_POSITIONS];
+  xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -229,6 +229,11 @@ void report_current_position_projected() {
   report_logical_position(current_position);
   stepper.report_a_position(planner.position);
 }
+
+#if ENABLED(AUTO_REPORT_POSITION)
+  //struct PositionReport { void report() { report_current_position_projected(); } };
+  AutoReporter<PositionReport> position_auto_reporter;
+#endif
 
 #if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
 

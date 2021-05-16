@@ -164,12 +164,7 @@ Joystick joystick;
     xyz_float_t move_dist{0};
     float hypot2 = 0;
     LOOP_XYZ(i) if (norm_jog[i]) {
-      move_dist[i] = seg_time * norm_jog[i] *
-        #if ENABLED(EXTENSIBLE_UI)
-          manual_feedrate_mm_s[i];
-        #else
-          planner.settings.max_feedrate_mm_s[i];
-        #endif
+      move_dist[i] = seg_time * norm_jog[i] * TERN(EXTENSIBLE_UI, manual_feedrate_mm_s, planner.settings.max_feedrate_mm_s)[i];
       hypot2 += sq(move_dist[i]);
     }
 

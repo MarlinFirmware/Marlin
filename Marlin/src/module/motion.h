@@ -45,7 +45,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
-  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+  extern xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // Scratch space for a cartesian result
@@ -210,6 +210,12 @@ inline float home_bump_mm(const AxisEnum axis) {
 void report_real_position();
 void report_current_position();
 void report_current_position_projected();
+
+#if ENABLED(AUTO_REPORT_POSITION)
+  #include "../libs/autoreport.h"
+  struct PositionReport { static void report() { report_current_position_projected(); } };
+  extern AutoReporter<PositionReport> position_auto_reporter;
+#endif
 
 #if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
