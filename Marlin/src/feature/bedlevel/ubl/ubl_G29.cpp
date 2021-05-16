@@ -1761,11 +1761,6 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
     SERIAL_EOL();
 
-    #if HAS_KILL
-      SERIAL_ECHOLNPAIR("Kill pin on :", KILL_PIN, "  state:", kill_state());
-    #endif
-
-    SERIAL_EOL();
     serial_delay(50);
 
     #if ENABLED(UBL_DEVEL_DEBUGGING)
