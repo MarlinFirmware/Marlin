@@ -1,14 +1,9 @@
 #
 # stm32_serialbuffer.py
 #
-from os.path import join, isfile
-import shutil
-from pprint import pprint
-
 Import("env")
 
-# Set the buffer size according to the configuration file
-# or 64 if too small or absent.
+# Set the buffer size according to the configuration file or 64 if too small or absent.
 mf = env["MARLIN_FEATURES"]
 rxBuf = str(max(64, int(mf["RX_BUFFER_SIZE"]) if "RX_BUFFER_SIZE" in mf else 0))
 txBuf = str(max(64, int(mf["TX_BUFFER_SIZE"]) if "TX_BUFFER_SIZE" in mf else 0))
