@@ -68,9 +68,9 @@
 #endif
 
 #if HAS_TFT_LVGL_UI
-  #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
-  #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
+  #include "lcd/extui/lib/mks_ui/draw_ui.h"
+  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
   #include <lvgl.h>
 #endif
 
@@ -229,7 +229,7 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "lcd/extui/dgus/DGUSScreenHandler.h"
+  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
 #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -331,14 +331,18 @@ void disable_all_steppers() {
 }
 
 /**
- * A Print Job exists when the timer is running or SD is printing
+ * A Print Job exists when the timer is running or SD printing
  */
-bool printJobOngoing() { return print_job_timer.isRunning() || IS_SD_PRINTING(); }
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
 
 /**
- * Printing is active when a job is underway but not paused
+ * Printing is active when the print job timer is running
  */
-bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool printingIsActive() {
+  return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
+}
 
 /**
  * Printing is paused according to SD or host indicators
@@ -363,7 +367,7 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    card.abortFilePrintNow(TERN_(SD_RESORT, true));
+    card.endFilePrint(TERN_(SD_RESORT, true));
 
     queue.clear();
     quickstop_stepper();
@@ -386,8 +390,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001"))) { // Keep trying until it gets queued
-      marlin_state = MF_RUNNING;              // Signal to stop trying
+    if (queue.enqueue_one_P(PSTR("M1001"))) {
+      marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
@@ -481,10 +485,6 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       SERIAL_ERROR_MSG(STR_KILL_BUTTON);
       kill();
     }
-  #endif
-
-  #if HAS_FREEZE_PIN
-    Stepper::frozen = !READ(FREEZE_PIN);
   #endif
 
   #if HAS_HOME
@@ -748,7 +748,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if (IS_SD_PRINTING()) recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -796,7 +796,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-      TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
     }
   #endif
 
@@ -902,7 +901,7 @@ void stop() {
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
-  if (!IsStopped()) {
+  if (IsRunning()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -1076,11 +1075,6 @@ void setup() {
     MYSERIAL2.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #ifdef SERIAL_PORT_3
-      MYSERIAL3.begin(BAUDRATE);
-      serial_connect_timeout = millis() + 1000UL;
-      while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #endif
   #endif
   SERIAL_ECHOLNPGM("start");
 
@@ -1092,10 +1086,6 @@ void setup() {
     #else
       SET_INPUT_PULLUP(KILL_PIN);
     #endif
-  #endif
-
-  #if HAS_FREEZE_PIN
-    SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
 
   #if HAS_SUICIDE
