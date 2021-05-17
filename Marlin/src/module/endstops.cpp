@@ -51,6 +51,10 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
 Endstops endstops;
 
 // private:
@@ -395,7 +399,7 @@ void Endstops::event_handler() {
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.endFilePrint();
+        card.abortFilePrintNow();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();
@@ -475,7 +479,7 @@ void _O2 Endstops::report_states() {
       uint8_t state;
       switch (i) {
         default: continue;
-        REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
+        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
       SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
@@ -483,7 +487,11 @@ void _O2 Endstops::report_states() {
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    #if ENABLED(DWIN_CREALITY_LCD)
+      print_es_state(READ(FIL_RUNOUT1_PIN) != HMI_data.Runout_active_state, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    #else
+      print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    #endif 
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

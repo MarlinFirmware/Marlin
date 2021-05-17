@@ -295,8 +295,8 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static inline float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
@@ -314,16 +314,16 @@ public:
       return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
     }
 
-    static inline float linear_value_to_mm(const float v)                    { return v * linear_unit_factor; }
+    static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
     static inline float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
     static inline float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
 
-    static inline float mm_to_linear_unit(const float mm)     { return mm; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm; }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float linear_value_to_mm(const_float_t v)             { return v; }
     static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
     static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 
@@ -371,7 +371,7 @@ public:
         case TEMPUNIT_K: f -= 273.15f;
         case TEMPUNIT_F: f = (f - 32) * 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
     static inline celsius_t value_celsius_diff() {
@@ -382,7 +382,7 @@ public:
         case TEMPUNIT_K: break;
         case TEMPUNIT_F: f *= 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
   #else // !TEMPERATURE_UNITS_SUPPORT
@@ -408,6 +408,8 @@ public:
   static inline int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
   static inline uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
   static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
+  static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
+                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
   static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)

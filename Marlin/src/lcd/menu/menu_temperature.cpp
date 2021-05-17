@@ -35,7 +35,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if HAS_COOLER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
 #endif
 
@@ -147,7 +147,7 @@ void menu_temperature() {
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
     bool has_heat = false;
     #if HAS_TEMP_HOTEND
-      HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+      HOTEND_LOOP() if (thermalManager.degTargetHotend(HOTEND_INDEX)) { has_heat = true; break; }
     #endif
   #endif
 
@@ -171,7 +171,7 @@ void menu_temperature() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 
   //
@@ -192,9 +192,17 @@ void menu_temperature() {
   // Cooler:
   //
   #if HAS_COOLER
-    editable.state = cooler.is_enabled();
-    EDIT_ITEM(bool, MSG_COOLER(TOGGLE), &cooler.state, []{ if (editable.state) cooler.disable(); else cooler.enable(); });
+    bool cstate = cooler.enabled;
+    EDIT_ITEM(bool, MSG_COOLER_TOGGLE, &cstate, cooler.toggle);
     EDIT_ITEM_FAST(int3, MSG_COOLER, &thermalManager.temp_cooler.target, COOLER_MIN_TARGET, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
+  #endif
+
+  //
+  // Flow Meter Safety Shutdown:
+  //
+  #if ENABLED(FLOWMETER_SAFETY)
+    bool fstate = cooler.flowsafety_enabled;
+    EDIT_ITEM(bool, MSG_FLOWMETER_SAFETY, &fstate, cooler.flowsafety_toggle);
   #endif
 
   //
@@ -263,7 +271,7 @@ void menu_temperature() {
     //
     // Cooldown
     //
-    if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
+    if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed())) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
   #endif
 

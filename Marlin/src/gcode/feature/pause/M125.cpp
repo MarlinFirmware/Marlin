@@ -36,6 +36,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 /**
  * M125: Store current position and move to parking position.
  *       Called on pause (by M25) to prevent material leaking onto the
@@ -56,9 +60,13 @@
  */
 void GcodeSuite::M125() {
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
+  const float retract = -ABS(parser.axisunitsval('L', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
 
-  xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #if ENABLED(DWIN_CREALITY_LCD)
+    xyz_pos_t park_point = HMI_data.Park_point;
+  #else
+    xyz_pos_t park_point = NOZZLE_PARK_POINT;
+  #endif
 
   // Move XY axes to filament change position or given position
   if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
@@ -78,9 +86,8 @@ void GcodeSuite::M125() {
   // If possible, show an LCD prompt with the 'P' flag
   const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
 
-  if (pause_print(retract, park_point, 0, show_lcd)) {
-    TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
-    if (ENABLED(EXTENSIBLE_UI) || !sd_printing || show_lcd) {
+  if (pause_print(retract, park_point, show_lcd, 0)) {
+    if (ENABLED(EXTENSIBLE_UI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT) || !sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, -retract, 0);
     }

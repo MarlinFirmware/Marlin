@@ -68,7 +68,7 @@ void GcodeSuite::M106() {
       if (t > 0) return thermalManager.set_temp_fan_speed(pfan, t);
     #endif
 
-    const uint16_t dspeed = parser.seen('A') ? thermalManager.fan_speed[active_extruder] : 255;
+    const uint16_t dspeed = parser.seen_test('A') ? thermalManager.fan_speed[active_extruder] : 255;
 
     uint16_t speed = dspeed;
 

@@ -38,6 +38,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/e3v2/dwin.h"
+#endif
+
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
 #ifndef FILAMENT_RUNOUT_THRESHOLD
   #define FILAMENT_RUNOUT_THRESHOLD 5
@@ -101,12 +105,12 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       static inline float& runout_distance() { return response.runout_distance_mm; }
-      static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
+      static inline void set_runout_distance(const_float_t mm) { response.runout_distance_mm = mm; }
     #endif
 
     // Handle a block completion. RunoutResponseDelayed uses this to
     // add up the length of filament moved while the filament is out.
-    static inline void block_completed(const block_t* const b) {
+    static inline void block_completed(const block_t * const b) {
       if (enabled) {
         response.block_completed(b);
         sensor.block_completed(b);
@@ -177,7 +181,11 @@ class FilamentSensorBase {
       #define _INIT_RUNOUT_PIN(P,S,U,D) do{ if (ENABLED(U)) SET_INPUT_PULLUP(P); else if (ENABLED(D)) SET_INPUT_PULLDOWN(P); else SET_INPUT(P); }while(0)
       #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN)
       #if NUM_RUNOUT_SENSORS >= 1
-        INIT_RUNOUT_PIN(1);
+        #if ENABLED(DWIN_CREALITY_LCD)
+          DWIN_SetRunoutState();
+        #else
+          INIT_RUNOUT_PIN(1);
+        #endif  
       #endif
       #if NUM_RUNOUT_SENSORS >= 2
         INIT_RUNOUT_PIN(2);
@@ -207,7 +215,7 @@ class FilamentSensorBase {
     // Return a bitmask of runout pin states
     static inline uint8_t poll_runout_pins() {
       #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
-      return (0 REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _OR_RUNOUT));
+      return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
       #undef _OR_RUNOUT
     }
 
@@ -215,7 +223,11 @@ class FilamentSensorBase {
     static inline uint8_t poll_runout_states() {
       return poll_runout_pins() ^ uint8_t(0
         #if NUM_RUNOUT_SENSORS >= 1
+          #if ENABLED(DWIN_CREALITY_LCD)
+          | (HMI_data.Runout_active_state ? 0 : _BV(1 - 1))
+          #else
           | (FIL_RUNOUT1_STATE ? 0 : _BV(1 - 1))
+          #endif      
         #endif
         #if NUM_RUNOUT_SENSORS >= 2
           | (FIL_RUNOUT2_STATE ? 0 : _BV(2 - 1))
@@ -273,7 +285,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const b) {
+      static inline void block_completed(const block_t * const b) {
         // If the sensor wheel has moved since the last call to
         // this method reset the runout counter for the extruder.
         if (TEST(motion_detected, b->extruder))
@@ -307,7 +319,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const) {}
+      static inline void block_completed(const block_t * const) {}
 
       static inline void run() {
         LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
@@ -368,7 +380,7 @@ class FilamentSensorBase {
         runout_mm_countdown[extruder] = runout_distance_mm;
       }
 
-      static inline void block_completed(const block_t* const b) {
+      static inline void block_completed(const block_t * const b) {
         if (b->steps.x || b->steps.y || b->steps.z || did_pause_print) { // Allow pause purge move to re-trigger runout state
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
@@ -403,7 +415,7 @@ class FilamentSensorBase {
         return runout_flags;
       }
 
-      static inline void block_completed(const block_t* const) { }
+      static inline void block_completed(const block_t * const) { }
 
       static inline void filament_present(const uint8_t extruder) {
         runout_count[extruder] = runout_threshold;

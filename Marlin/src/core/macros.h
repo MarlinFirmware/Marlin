@@ -187,13 +187,20 @@
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 
-#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
-#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
-#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
-#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
+#define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
+#define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
+#define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
 
 #define IF_ENABLED          TERN_
 #define IF_DISABLED(O,A)    TERN(O,,A)
@@ -230,6 +237,38 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
+#define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
+#define CODE_8( A,B,C,D,E,F,G,H,...) A; B; C; D; E; F; G; H
+#define CODE_7( A,B,C,D,E,F,G,...) A; B; C; D; E; F; G
+#define CODE_6( A,B,C,D,E,F,...) A; B; C; D; E; F
+#define CODE_5( A,B,C,D,E,...) A; B; C; D; E
+#define CODE_4( A,B,C,D,...) A; B; C; D
+#define CODE_3( A,B,C,...) A; B; C
+#define CODE_2( A,B,...) A; B
+#define CODE_1( A,...) A
+#define _CODE_N(N,V...) CODE_##N(V)
+#define CODE_N(N,V...) _CODE_N(N,V)
+
+#define GANG_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A B C D E F G H I J K L M N O P
+#define GANG_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A B C D E F G H I J K L M N O
+#define GANG_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A B C D E F G H I J K L M N
+#define GANG_13(A,B,C,D,E,F,G,H,I,J,K,L,M...) A B C D E F G H I J K L M
+#define GANG_12(A,B,C,D,E,F,G,H,I,J,K,L...) A B C D E F G H I J K L
+#define GANG_11(A,B,C,D,E,F,G,H,I,J,K,...) A B C D E F G H I J K
+#define GANG_10(A,B,C,D,E,F,G,H,I,J,...) A B C D E F G H I J
+#define GANG_9( A,B,C,D,E,F,G,H,I,...) A B C D E F G H I
+#define GANG_8( A,B,C,D,E,F,G,H,...) A B C D E F G H
+#define GANG_7( A,B,C,D,E,F,G,...) A B C D E F G
+#define GANG_6( A,B,C,D,E,F,...) A B C D E F
+#define GANG_5( A,B,C,D,E,...) A B C D E
+#define GANG_4( A,B,C,D,...) A B C D
+#define GANG_3( A,B,C,...) A B C
+#define GANG_2( A,B,...) A B
+#define GANG_1( A,...) A
+#define _GANG_N(N,V...) GANG_##N(V)
+#define GANG_N(N,V...) _GANG_N(N,V)
+#define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
+
 // Macros for initializing arrays
 #define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
 #define LIST_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O
@@ -247,10 +286,13 @@
 #define LIST_3( A,B,C,...) A,B,C
 #define LIST_2( A,B,...) A,B
 #define LIST_1( A,...) A
+#define LIST_0(...)
 
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
+#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
+#define ARRAY_N_1(N,K)  { LIST_N_1(N,K) }
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
@@ -294,8 +336,12 @@
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
-#define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define _NUM_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define NUM_ARGS(V...) _NUM_ARGS(0,V,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+// Use TWO_ARGS(__VA_ARGS__) to get whether there are 1, 2, or >2 arguments
+#define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
 
 #ifdef __cplusplus
 
@@ -317,6 +363,16 @@
     }
 
   #endif
+
+  // Allow manipulating enumeration value like flags without ugly cast everywhere
+  #define ENUM_FLAGS(T) \
+    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
+    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
+    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
+    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
+    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
 
   // C++11 solution that is standard compliant. <type_traits> is not available on all platform
   namespace Private {
@@ -357,51 +413,59 @@
       return *str ? findStringEnd(str + 1) : str;
     }
 
-    // Check whether a string contains a slash
-    constexpr bool containsSlash(const char *str) {
-      return *str == '/' ? true : (*str ? containsSlash(str + 1) : false);
+    // Check whether a string contains a specific character
+    constexpr bool contains(const char *str, const char ch) {
+      return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
     }
-    // Find the last position of the slash
-    constexpr const char* findLastSlashPos(const char* str) {
-      return *str == '/' ? (str + 1) : findLastSlashPos(str - 1);
+    // Find the last position of the specific character (should be called with findStringEnd)
+    constexpr const char* findLastPos(const char *str, const char ch) {
+      return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
     }
     // Compile-time evaluation of the last part of a file path
     // Typically used to shorten the path to file in compiled strings
     // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-    constexpr const char* baseName(const char* str) {
-      return containsSlash(str) ? findLastSlashPos(findStringEnd(str)) : str;
+    constexpr const char* baseName(const char *str) {
+      return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
+    }
+
+    // Find the first occurence of a character in a string (or return the last position in the string)
+    constexpr const char* findFirst(const char *str, const char ch) {
+      return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
+    }
+    // Compute the string length at compile time
+    constexpr unsigned stringLen(const char *str) {
+      return *str == 0 ? 0 : 1 + stringLen(str + 1);
     }
   }
 
   #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
+  /** Get the templated type name. This does not depends on RTTI, but on the preprocessor, so it should be quite safe to use even on old compilers.
+      WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
+      The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
+  template <typename T>
+  inline const char* gtn(T*) {
+    // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
+    constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
+    static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
+    __builtin_memcpy(templateType, __PRETTY_FUNCTION__ + verboseChatLen, sizeof(__PRETTY_FUNCTION__) - verboseChatLen - 2);
+    return templateType;
+  }
 
 #else
 
-  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
-  #define MIN_3(a,V...)   MIN_2(a,MIN_2(V))
-  #define MIN_4(a,V...)   MIN_2(a,MIN_3(V))
-  #define MIN_5(a,V...)   MIN_2(a,MIN_4(V))
-  #define MIN_6(a,V...)   MIN_2(a,MIN_5(V))
-  #define MIN_7(a,V...)   MIN_2(a,MIN_6(V))
-  #define MIN_8(a,V...)   MIN_2(a,MIN_7(V))
-  #define MIN_9(a,V...)   MIN_2(a,MIN_8(V))
-  #define MIN_10(a,V...)  MIN_2(a,MIN_9(V))
   #define __MIN_N(N,V...) MIN_##N(V)
   #define _MIN_N(N,V...)  __MIN_N(N,V)
-  #define _MIN(V...)      _MIN_N(NUM_ARGS(V), V)
+  #define _MIN_N_REF()    _MIN_N
+  #define _MIN(V...)      EVAL(_MIN_N(TWO_ARGS(V),V))
+  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
+  #define MIN_3(a,V...)   MIN_2(a,DEFER2(_MIN_N_REF)()(TWO_ARGS(V),V))
 
-  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
-  #define MAX_3(a,V...)   MAX_2(a,MAX_2(V))
-  #define MAX_4(a,V...)   MAX_2(a,MAX_3(V))
-  #define MAX_5(a,V...)   MAX_2(a,MAX_4(V))
-  #define MAX_6(a,V...)   MAX_2(a,MAX_5(V))
-  #define MAX_7(a,V...)   MAX_2(a,MAX_6(V))
-  #define MAX_8(a,V...)   MAX_2(a,MAX_7(V))
-  #define MAX_9(a,V...)   MAX_2(a,MAX_8(V))
-  #define MAX_10(a,V...)  MAX_2(a,MAX_9(V))
   #define __MAX_N(N,V...) MAX_##N(V)
   #define _MAX_N(N,V...)  __MAX_N(N,V)
-  #define _MAX(V...)      _MAX_N(NUM_ARGS(V), V)
+  #define _MAX_N_REF()    _MAX_N
+  #define _MAX(V...)      EVAL(_MAX_N(TWO_ARGS(V),V))
+  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
+  #define MAX_3(a,V...)   MAX_2(a,DEFER2(_MAX_N_REF)()(TWO_ARGS(V),V))
 
 #endif
 
@@ -436,6 +500,9 @@
 #define ADD8(N)  ADD4(ADD4(N))
 #define ADD9(N)  ADD4(ADD5(N))
 #define ADD10(N) ADD5(ADD5(N))
+#define SUM(A,B) _CAT(ADD,A)(B)
+#define DOUBLE_(n) ADD##n(n)
+#define DOUBLE(n) DOUBLE_(n)
 
 // Macros for subtracting
 #define DEC_0   0
@@ -544,6 +611,7 @@
 // Repeat a macro passing S...N-1.
 #define REPEAT_S(S,N,OP)        EVAL(_REPEAT(S,SUB##S(N),OP))
 #define REPEAT(N,OP)            REPEAT_S(0,N,OP)
+#define REPEAT_1(N,OP)          REPEAT_S(1,INCREMENT(N),OP)
 
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))

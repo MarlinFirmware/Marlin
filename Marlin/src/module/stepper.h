@@ -250,7 +250,7 @@ class Stepper {
         #ifndef PWM_MOTOR_CURRENT
           #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
         #endif
-        #define MOTOR_CURRENT_COUNT 3
+        #define MOTOR_CURRENT_COUNT XYZ
       #elif HAS_MOTOR_CURRENT_SPI
         static constexpr uint32_t digipot_count[] = DIGIPOT_MOTOR_CURRENT;
         #define MOTOR_CURRENT_COUNT COUNT(Stepper::digipot_count)
@@ -264,6 +264,10 @@ class Stepper {
       static uint8_t last_moved_extruder;
     #else
       static constexpr uint8_t last_moved_extruder = 0;
+    #endif
+
+    #if HAS_FREEZE_PIN
+      static bool frozen;                   // Set this flag to instantly freeze motion
     #endif
 
   private:
@@ -423,7 +427,7 @@ class Stepper {
     #endif
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
-    static bool is_block_busy(const block_t* const block);
+    static bool is_block_busy(const block_t * const block);
 
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
@@ -529,7 +533,7 @@ class Stepper {
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
     FORCE_INLINE static void _set_position(const abce_long_t &spos) { _set_position(spos.a, spos.b, spos.c, spos.e); }
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t* loops) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       uint32_t timer;
 
       // Scale the frequency, as requested by the caller
