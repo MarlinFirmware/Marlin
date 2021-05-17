@@ -27,10 +27,7 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 #include "../../module/printcounter.h"
-
-#if DISABLED(NO_SD_AUTOSTART)
-  #include "../../sd/cardreader.h"
-#endif
+#include "../../sd/cardreader.h"
 
 #ifdef SD_FINISHED_RELEASECOMMAND
   #include "../queue.h"

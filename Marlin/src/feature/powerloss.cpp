@@ -380,12 +380,11 @@ void PrintJobRecovery::resume() {
     float z_now = z_raised;
 
     // If Z homing goes to max then just move back to the "raised" position
-    gcode.process_subcommands_now_P(PSTR(
-        "G28R0\n"     // Home all axes (no raise)
-        "G1Z%sF1200"  // Move Z down to (raised) height
-      ),
-      dtostrf(z_now, 1, 3, str_1)
-    );
+    sprintf_P(cmd, PSTR(
+            "G28R0\n"     // Home all axes (no raise)
+            "G1Z%sF1200"  // Move Z down to (raised) height
+          ), dtostrf(z_now, 1, 3, str_1));
+    gcode.process_subcommands_now(cmd);
 
   #else
 
