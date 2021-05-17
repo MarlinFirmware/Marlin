@@ -2186,9 +2186,13 @@ void MarlinSettings::postprocess() {
              = DIGIPOT_MOTOR_CURRENT
           #endif
         ;
-        DEBUG_ECHOLNPGM("DIGIPOTS Loading");
+        #if HAS_MOTOR_CURRENT_SPI
+          DEBUG_ECHOLNPGM("DIGIPOTS Loading");
+        #endif
         EEPROM_READ(motor_current_setting);
-        DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
+        #if HAS_MOTOR_CURRENT_SPI
+          DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
+        #endif
         #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
