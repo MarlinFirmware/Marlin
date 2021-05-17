@@ -17,7 +17,7 @@ if 'firmware' in board.get("build").keys():
 
 	# Encrypt ${PROGNAME}.bin and save it as build.firmware
 	def encrypt(source, target, env):
-		marlin.encrypt_mks(source, target, env, "build.firmware")
+		marlin.encrypt_mks(source, target, env, board.get("build.firmware"))
 
 	marlin.add_post_action(encrypt);
 
