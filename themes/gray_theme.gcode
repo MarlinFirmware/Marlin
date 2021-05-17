@@ -7,7 +7,7 @@ C11 E5  R31 G63 B31  ;Title Text
 C11 E6  R26 G52 B26  ;Text
 C11 E7  R10 G20 B10  ;Selected
 C11 E8  R20 G40 B20  ;Split Line
-C11 E9  R20 G40 B20  ;Highlight
+C11 E9  R31 G63 B31  ;Highlight
 C11 E10 R10 G20 B10  ;Status Background
 C11 E11 R31 G63 B31  ;Status Text
 C11 E12 R6 G15 B8    ;Popup Background
