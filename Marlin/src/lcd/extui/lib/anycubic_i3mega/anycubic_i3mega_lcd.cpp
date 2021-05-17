@@ -534,8 +534,6 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
   #endif
 }
 
-#define ROUND(val) int((val)+0.5f)
-
 void AnycubicTFTClass::GetCommandFromTFT() {
   char *starpos = nullptr;
   while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
@@ -562,30 +560,31 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
         switch (a_command) {
           case 0: { // A0 GET HOTEND TEMP
-            const celsius_float_t hotendActualTemp = getActualTemp_celsius(E0);
-            SEND_PGM_VAL("A0V ", ROUND(hotendActualTemp));
+            const float hotendActualTemp = getActualTemp_celsius(E0);
+            SEND_PGM_VAL("A0V ", int(hotendActualTemp + 0.5));
           }
           break;
 
           case 1: { // A1  GET HOTEND TARGET TEMP
-            const celsius_float_t hotendTargetTemp = getTargetTemp_celsius(E0);
-            SEND_PGM_VAL("A1V ", ROUND(hotendTargetTemp));
+            const float hotendTargetTemp = getTargetTemp_celsius(E0);
+            SEND_PGM_VAL("A1V ", int(hotendTargetTemp + 0.5));
           }
           break;
 
           case 2: { // A2 GET HOTBED TEMP
-            const celsius_float_t heatedBedActualTemp = getActualTemp_celsius(BED);
-            SEND_PGM_VAL("A2V ", ROUND(heatedBedActualTemp));
+            const float heatedBedActualTemp = getActualTemp_celsius(BED);
+            SEND_PGM_VAL("A2V ", int(heatedBedActualTemp + 0.5));
           }
           break;
 
           case 3: { // A3 GET HOTBED TARGET TEMP
-            const celsius_float_t heatedBedTargetTemp = getTargetTemp_celsius(BED);
-            SEND_PGM_VAL("A3V ", ROUND(heatedBedTargetTemp));
+            const float heatedBedTargetTemp = getTargetTemp_celsius(BED);
+            SEND_PGM_VAL("A3V ", int(heatedBedTargetTemp + 0.5));
           } break;
 
           case 4: { // A4 GET FAN SPEED
-            SEND_PGM_VAL("A4V ", int(getActualFan_percent(FAN0)));
+            const float fanPercent = getActualFan_percent(FAN0);
+            SEND_PGM_VAL("A4V ", int(LIMIT(fanPercent, 0, 100)));
           } break;
 
           case 5: { // A5 GET CURRENT COORDINATE
@@ -700,13 +699,13 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             unsigned int tempvalue;
             if (CodeSeen('S')) {
               tempvalue = constrain(CodeValue(), 0, 275);
-              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t) E0);
             }
             else if (CodeSeen('C') && !isPrinting()) {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
               tempvalue = constrain(CodeValue(), 0, 275);
-              setTargetTemp_celsius(tempvalue, (extruder_t)E0);
+              setTargetTemp_celsius(tempvalue, (extruder_t) E0);
             }
           }
           break;
@@ -832,8 +831,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
-              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t) BED);
+              setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t) E0);
               SENDLINE_PGM("OK");
             }
             break;
@@ -843,8 +842,8 @@ void AnycubicTFTClass::GetCommandFromTFT() {
               if (getAxisPosition_mm(Z) < 10)
                 injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
 
-              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
-              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t) BED);
+              setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t) E0);
               SENDLINE_PGM("OK");
             }
             break;

@@ -34,6 +34,7 @@
 #include "fastio.h"
 #include "watchdog.h"
 
+
 #include <stdint.h>
 
 #define ST7920_DELAY_1 DELAY_NS(600)
@@ -92,7 +93,7 @@ void HAL_clear_reset_source();
 // Get the reason for the reset
 uint8_t HAL_get_reset_source();
 
-void HAL_reboot();
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 

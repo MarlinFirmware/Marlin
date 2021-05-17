@@ -88,17 +88,9 @@ void GcodeSuite::M701() {
       tool_change(target_extruder, false);
   #endif
 
-  auto move_z_by = [](const_float_t zdist) {
-    if (zdist) {
-      destination = current_position;
-      destination.z += zdist;
-      prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
-    }
-  };
-
-  // Raise the Z axis (with max limit)
-  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
-  move_z_by(park_raise);
+  // Lift Z axis
+  if (park_point.z > 0)
+    do_blocking_move_to_z(_MIN(current_position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   // Load filament
   #if HAS_PRUSA_MMU2
@@ -121,7 +113,8 @@ void GcodeSuite::M701() {
   #endif
 
   // Restore Z axis
-  move_z_by(-park_raise);
+  if (park_point.z > 0)
+    do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed

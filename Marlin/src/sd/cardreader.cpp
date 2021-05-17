@@ -120,16 +120,7 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  DiskIODriver_USBFlash CardReader::media_usbFlashDrive;
-#endif
-#if NEED_SD2CARD_SDIO
-  DiskIODriver_SDIO CardReader::media_sdio;
-#elif NEED_SD2CARD_SPI
-  DiskIODriver_SPI_SD CardReader::media_sd_spi;
-#endif
-
-DiskIODriver* CardReader::driver = nullptr;
+Sd2Card CardReader::sd2card;
 SdVolume CardReader::volume;
 SdFile CardReader::file;
 
@@ -142,16 +133,6 @@ SdFile CardReader::file;
 uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
-  changeMedia(&
-    #if SHARED_VOLUME_IS(SD_ONBOARD)
-      media_sd_spi
-    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-      media_usbFlashDrive
-    #else
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
-    #endif
-  );
-
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
@@ -406,12 +387,12 @@ void CardReader::mount() {
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
-  if (!driver->init(SD_SPI_SPEED, SDSS)
+  if (!sd2card.init(SD_SPI_SPEED, SDSS)
     #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !driver->init(SD_SPI_SPEED, LCD_SDSS)
+      && !sd2card.init(SD_SPI_SPEED, LCD_SDSS)
     #endif
   ) SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
-  else if (!volume.init(driver))
+  else if (!volume.init(&sd2card))
     SERIAL_ERROR_MSG(STR_SD_VOL_INIT_FAIL);
   else if (!root.openRoot(&volume))
     SERIAL_ERROR_MSG(STR_SD_OPENROOT_FAIL);
@@ -538,7 +519,7 @@ void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(SD_RESORT, if (re_sort) presort());
 }
 
-void CardReader::openLogFile(const char * const path) {
+void CardReader::openLogFile(char * const path) {
   flag.logging = DISABLED(SDCARD_READONLY);
   IF_DISABLED(SDCARD_READONLY, openFileWrite(path));
 }
@@ -588,7 +569,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
 //   - 1 : (no file open) Opening a macro (M98).
 //   - 2 : Resuming from a sub-procedure
 //
-void CardReader::openFileRead(const char * const path, const uint8_t subcall_type/*=0*/) {
+void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*/) {
   if (!isMounted()) return;
 
   switch (subcall_type) {
@@ -657,7 +638,7 @@ inline void echo_write_to_file(const char * const fname) {
 //
 // Open a file by DOS path for write
 //
-void CardReader::openFileWrite(const char * const path) {
+void CardReader::openFileWrite(char * const path) {
   if (!isMounted()) return;
 
   announceOpen(2, path);
@@ -746,9 +727,9 @@ void CardReader::report_status() {
 }
 
 void CardReader::write_command(char * const buf) {
-  char *begin = buf,
-       *npos = nullptr,
-       *end = buf + strlen(buf) - 1;
+  char* begin = buf;
+  char* npos = nullptr;
+  char* end = buf + strlen(buf) - 1;
 
   file.writeError = false;
   if ((npos = strchr(buf, 'N'))) {
@@ -870,7 +851,7 @@ uint16_t CardReader::countFilesInWorkDir() {
  *
  * A nullptr result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, const char * const path, const bool echo/*=false*/) {
+const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, const char * const path, const bool echo/*=false*/) {
   // Track both parent and subfolder
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;

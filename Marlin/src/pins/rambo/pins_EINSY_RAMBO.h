@@ -27,10 +27,7 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME       "Einsy Rambo"
-#define DEFAULT_MACHINE_NAME  "Prusa MK3"
-
-//#define MK3_FAN_PINS
+#define BOARD_INFO_NAME "Einsy Rambo"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
@@ -126,19 +123,11 @@
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #ifdef MK3_FAN_PINS
-    #define FAN_PIN                            6
-  #else
-    #define FAN_PIN                            8
-  #endif
+  #define FAN_PIN                              8
 #endif
 
 #ifndef FAN1_PIN
-  #ifdef MK3_FAN_PINS
-    #define FAN_PIN                           -1
-  #else
-    #define FAN_PIN                            6
-  #endif
+  #define FAN1_PIN                             6
 #endif
 
 //
@@ -203,5 +192,3 @@
 
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD
-
-#undef MK3_FAN_PINS

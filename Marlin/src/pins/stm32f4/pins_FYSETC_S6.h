@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #if HOTENDS > 3 || E_STEPPERS > 3
-  #error "FYSETC S6 supports up to 3 hotends / E-steppers."
+  #error "RUMBA32 supports up to 3 hotends / E-steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -168,18 +168,10 @@
 //
 // Heaters / Fans
 //
-#ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                      PB3
-#endif
-#ifndef HEATER_1_PIN
-  #define HEATER_1_PIN                      PB4
-#endif
-#ifndef HEATER_2_PIN
-  #define HEATER_2_PIN                      PB15
-#endif
-#ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                    PC8
-#endif
+#define HEATER_0_PIN                        PB3
+#define HEATER_1_PIN                        PB4
+#define HEATER_2_PIN                        PB15
+#define HEATER_BED_PIN                      PC8
 
 #define FAN_PIN                             PB0
 #define FAN1_PIN                            PB1

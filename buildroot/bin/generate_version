@@ -4,35 +4,47 @@
 #
 # Make a Version.h file to accompany CUSTOM_VERSION_FILE
 #
-# Authors: jbrazio, thinkyhead, InsanityAutomation, rfinnie
-#
 
-set -e
+DIR=${1:-"Marlin"}
 
-DIR="${1:-Marlin}"
-READ_FILE="${READ_FILE:-${DIR}/Version.h}"
-WRITE_FILE="${WRITE_FILE:-${READ_FILE}}"
+# MRCC3=$( git merge-base HEAD upstream/bugfix-2.0.x 2>/dev/null )
+# MRCC2=$( git merge-base HEAD upstream/bugfix-1.1.x 2>/dev/null )
+# MRCC1=$( git merge-base HEAD upstream/1.1.x 2>/dev/null )
 
-BRANCH="$(git -C "${DIR}" symbolic-ref -q --short HEAD 2>/dev/null || true)"
-VERSION="$(git -C "${DIR}" describe --tags --first-parent 2>/dev/null || true)"
+# BASE='?'
+# if [[ -n $MRCC3 && $MRCC3 != $MRCC2 ]]; then
+#   BASE=bugfix-2.0.x
+# elif [[ -n $MRCC2 ]]; then
+#   BASE=bugfix-1.1.x
+# elif [[ -n $MRCC1 ]]; then
+#   BASE=1.1.x
+# fi
 
-STRING_DISTRIBUTION_DATE="${STRING_DISTRIBUTION_DATE:-$(date '+%Y-%m-%d %H:%M')}"
-SHORT_BUILD_VERSION="${SHORT_BUILD_VERSION:-${BRANCH}}"
-DETAILED_BUILD_VERSION="${DETAILED_BUILD_VERSION:-${BRANCH}-${VERSION}}"
+BUILDATE=$(date '+%s')
+DISTDATE=$(date '+%Y-%m-%d %H:%M')
+
+BRANCH=$(git -C "${DIR}" symbolic-ref -q --short HEAD)
+VERSION=$(git -C "${DIR}" describe --tags --first-parent 2>/dev/null)
+
+[ -z "${BRANCH}" ] && BRANCH=$(echo "${TRAVIS_BRANCH}")
+[ -z "${VERSION}" ] && VERSION=$(git -C "${DIR}" describe --tags --first-parent --always 2>/dev/null)
+
+SHORT_BUILD_VERSION=$(echo "${BRANCH}")
+DETAILED_BUILD_VERSION=$(echo "${BRANCH}-${VERSION}")
 
 # Gets some misc options from their defaults
-DEFAULT_MACHINE_UUID="${DEFAULT_MACHINE_UUID:-$(awk -F'"' \
-  '/#define DEFAULT_MACHINE_UUID/{ print $2 }' < "${READ_FILE}")}"
-MACHINE_NAME="${MACHINE_NAME:-$(awk -F'"' \
-  '/#define MACHINE_NAME/{ print $2 }' < "${READ_FILE}")}"
-PROTOCOL_VERSION="${PROTOCOL_VERSION:-$(awk -F'"' \
-  '/#define PROTOCOL_VERSION/{ print $2 }' < "${READ_FILE}")}"
-SOURCE_CODE_URL="${SOURCE_CODE_URL:-$(awk -F'"' \
-  '/#define SOURCE_CODE_URL/{ print $2 }' < "${READ_FILE}")}"
-WEBSITE_URL="${WEBSITE_URL:-$(awk -F'"' \
-  '/#define WEBSITE_URL/{ print $2 }' < "${READ_FILE}")}"
+DEFAULT_MACHINE_UUID=$(awk -F'"' \
+  '/#define DEFAULT_MACHINE_UUID/{ print $2 }' < "${DIR}/Version.h")
+MACHINE_NAME=$(awk -F'"' \
+  '/#define MACHINE_NAME/{ print $2 }' < "${DIR}/Version.h")
+PROTOCOL_VERSION=$(awk -F'"' \
+  '/#define PROTOCOL_VERSION/{ print $2 }' < "${DIR}/Version.h")
+SOURCE_CODE_URL=$(awk -F'"' \
+  '/#define SOURCE_CODE_URL/{ print $2 }' < "${DIR}/Version.h")
+WEBSITE_URL=$(awk -F'"' \
+  '/#define WEBSITE_URL/{ print $2 }' < "${DIR}/Version.h")
 
-cat > "${WRITE_FILE}" <<EOF
+cat > "${DIR}/Version.h" <<EOF
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -85,7 +97,7 @@ cat > "${WRITE_FILE}" <<EOF
   * version was tagged.
   */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "${STRING_DISTRIBUTION_DATE}"
+  #define STRING_DISTRIBUTION_DATE "${DISTDATE}"
 #endif
 
 /**

@@ -34,7 +34,6 @@ class BaseMoveAxisScreen : public BaseNumericAdjustmentScreen {
   private:
     static float getManualFeedrate(uint8_t axis, float increment_mm);
   public:
-    static void raiseZtoTop();
     static void setManualFeedrate(ExtUI::axis_t, float increment_mm);
     static void setManualFeedrate(ExtUI::extruder_t, float increment_mm);
 

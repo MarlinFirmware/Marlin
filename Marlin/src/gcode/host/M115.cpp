@@ -22,8 +22,6 @@
 
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
-#include "../queue.h"           // for getting the command port
-
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
@@ -61,9 +59,6 @@ void GcodeSuite::M115() {
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
-    // The port that sent M115
-    serial_index_t port = queue.ring_buffer.command_port();
-
     // PAREN_COMMENTS
     TERN_(PAREN_COMMENTS, cap_line(PSTR("PAREN_COMMENTS"), true));
 
@@ -74,7 +69,7 @@ void GcodeSuite::M115() {
     cap_line(PSTR("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
 
     // BINARY_FILE_TRANSFER (M28 B1)
-    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
+    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER));
 
     // EEPROM (M500, M501)
     cap_line(PSTR("EEPROM"), ENABLED(EEPROM_SETTINGS));
@@ -153,7 +148,7 @@ void GcodeSuite::M115() {
     cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
 
     // MEATPACK Compression
-    cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
+    cap_line(PSTR("MEATPACK"), ENABLED(HAS_MEATPACK));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

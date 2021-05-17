@@ -32,13 +32,13 @@
 class MediaFileReader {
   private:
     #if ENABLED(SDSUPPORT)
-      DiskIODriver_SPI_SD card;
+      Sd2Card  card;
       SdVolume volume;
       SdFile   root, file;
     #endif
 
   public:
-    bool open(const char *filename);
+    bool open(const char* filename);
     int16_t read(void *buff, size_t bytes);
     uint32_t size();
     void rewind();

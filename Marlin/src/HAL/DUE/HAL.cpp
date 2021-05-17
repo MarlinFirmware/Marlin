@@ -77,8 +77,6 @@ uint8_t HAL_get_reset_source() {
   }
 }
 
-void HAL_reboot() { rstc_start_software_reset(RSTC); }
-
 void _delay_ms(const int delay_ms) {
   // Todo: port for Due?
   delay(delay_ms);
@@ -108,16 +106,16 @@ uint16_t HAL_adc_get_result() {
 }
 
 // Forward the default serial ports
-#if USING_HW_SERIAL0
+#if ANY_SERIAL_IS(0)
   DefaultSerial1 MSerial0(false, Serial);
 #endif
-#if USING_HW_SERIAL1
+#if ANY_SERIAL_IS(1)
   DefaultSerial2 MSerial1(false, Serial1);
 #endif
-#if USING_HW_SERIAL2
+#if ANY_SERIAL_IS(2)
   DefaultSerial3 MSerial2(false, Serial2);
 #endif
-#if USING_HW_SERIAL3
+#if ANY_SERIAL_IS(3)
   DefaultSerial4 MSerial3(false, Serial3);
 #endif
 

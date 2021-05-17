@@ -25,8 +25,8 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-void lv_draw_number_key();
-void lv_clear_number_key();
+extern void lv_draw_number_key();
+extern void lv_clear_number_key();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

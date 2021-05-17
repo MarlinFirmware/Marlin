@@ -26,233 +26,139 @@
  * Extensible_UI implementation for Anycubic Chiron
  * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
  *  (not affiliated with Anycubic, Ltd.)
- *
- * The AC panel wants files in block of 4 and can only display a flat list
- * This library allows full folder traversal or flat file display and supports both standerd and new style panels.
- *
- * ## Old Style TFT panel
- * Supported chars	{}[]-+=_"$%^&*()~<>|
- * Max display length 22 chars
- * Max path len 29 chars
- * (DOS 8.3 filepath max 29chars)
- * (long filepath Max 22)
- *
- * ## New TFT Panel Format file display format
- * Supported chars	{}[]-+=_!"$%^&*()~<>\|
- * Max display length 26 chars
- * Max path len 29 chars
- * (DOS 8.3 filepath must end '.GCO')
- * (long filepath must end '.gcode')
- *
  */
+
+/***************************************************************************
+ * The AC panel wants files in block of 4 and can only display a flat list *
+ * This library allows full folder traversal.                              *
+ ***************************************************************************/
 
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
+
 #include "FileNavigator.h"
 #include "chiron_tft.h"
 
 using namespace ExtUI;
 
-#define DEBUG_OUT ACDEBUG(AC_FILE)
-#include "../../../../core/debug_out.h"
-
 namespace Anycubic {
 
-FileNavigator filenavigator;
-FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
-uint16_t  FileNavigator::lastpanelindex;
-uint16_t  FileNavigator::currentindex;                      // override the panel request
-uint8_t   FileNavigator::currentfolderdepth;
-uint16_t  FileNavigator::currentfolderindex[MAX_FOLDER_DEPTH];   // track folder pos for iteration
-char      FileNavigator::currentfoldername[MAX_PATH_LEN + 1];   // Current folder path
+  FileNavigator filenavigator;
 
-FileNavigator::FileNavigator() { reset(); }
+  FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
+  char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
+  uint16_t  FileNavigator::lastindex;
+  uint8_t   FileNavigator::folderdepth;
+  uint16_t  FileNavigator::currentindex;                      // override the panel request
 
-void FileNavigator::reset() {
-  DEBUG_ECHOLNPGM("reset()");
-  currentfoldername[0] = '\0';
-  currentfolderdepth = 0;
-  currentindex = 0;
-  lastpanelindex = 0;
-  ZERO(currentfolderindex);
+  FileNavigator::FileNavigator() { reset(); }
 
-  // Start at root folder
-  while (!filelist.isAtRootDir()) filelist.upDir();
-  refresh();
-}
-
-void FileNavigator::refresh() { filelist.refresh(); }
-
-void FileNavigator::changeDIR(const char *folder) {
-  if (currentfolderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
-  DEBUG_ECHOLNPAIR("FD:" , folderdepth, " FP:",currentindex, " currentfolder:", currentfoldername, " enter:", folder);
-  currentfolderindex[currentfolderdepth] = currentindex;
-  strcat(currentfoldername, folder);
-  strcat(currentfoldername, "/");
-  filelist.changeDir(folder);
-  currentfolderdepth++;
-  currentindex = 0;
-}
-
-void FileNavigator::upDIR() {
-  DEBUG_ECHOLNPAIR("upDIR() from D:", currentfolderdepth, " N:", currentfoldername);
-  if (!filelist.isAtRootDir()) {
-    filelist.upDir();
-    currentfolderdepth--;
-    currentindex = currentfolderindex[currentfolderdepth]; // restore last position in the folder
-    filelist.seek(currentindex); // restore file information
-  }
-
-  // Remove the child folder from the stored path
-  if (currentfolderdepth == 0)
+  void FileNavigator::reset() {
     currentfoldername[0] = '\0';
-  else {
-    char * const pos = strchr(currentfoldername, '/');
-    *(pos + 1) = '\0';
+    folderdepth  = 0;
+    currentindex = 0;
+    lastindex    = 0;
+    // Start at root folder
+    while (!filelist.isAtRootDir()) filelist.upDir();
+    refresh();
   }
-}
 
-void FileNavigator::skiptofileindex(uint16_t skip) {
-  if (skip == 0) return;
-  while (skip > 0) {
-    if (filelist.seek(currentindex)) {
-      DEBUG_ECHOLNPAIR("CI:", currentindex, " FD:", currentfolderdepth, " N:", skip, " ", filelist.longFilename());
-      if (!filelist.isDir()) {
-        skip--;
-        currentindex++;
-      }
-      else
-        changeDIR(filelist.shortFilename());
-    } // valid file
-    if (currentindex == filelist.count()) {
-      if (currentfolderdepth > 0) {
-        upDIR();
-        currentindex++;
-      }
-      else break; // end of root folder
-    } // end of folder
-  } // files needed
-  // No more files available.
-}
+  void FileNavigator::refresh() { filelist.refresh(); }
 
-#if ENABLED(AC_SD_FOLDER_VIEW) // SD Folder navigation
-
-  void FileNavigator::getFiles(uint16_t index, panel_type_t paneltype, uint8_t filesneeded) {
+  void FileNavigator::getFiles(uint16_t index) {
+    uint8_t files = 4;
     if (index == 0) currentindex = 0;
+
     // Each time we change folder we reset the file index to 0 and keep track
-    // of the current position, since the TFT panel isn't aware of folder trees.
+    // of the current position as the TFT panel isnt aware of folders trees.
     if (index > 0) {
-      --currentindex; // go back a file to take account of the .. we added to the root.
-      if (index > lastpanelindex)
-        currentindex += filesneeded;
+      --currentindex; // go back a file to take account of the .. added to the root.
+      if (index > lastindex)
+        currentindex += files;
       else
-        currentindex = currentindex < 4 ? 0 : currentindex - filesneeded;
+        currentindex = currentindex < 4 ? 0 : currentindex - files;
     }
-    lastpanelindex = index;
+    lastindex = index;
 
-    DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
+    #if ACDEBUG(AC_FILE)
+      SERIAL_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
+    #endif
 
-    if (currentindex == 0 && currentfolderdepth > 0) { // Add a link to go up a folder
-      // The new panel ignores entries that don't end in .GCO or .gcode so add and pad them.
-      if (paneltype == AC_panel_new) {
-        TFTSer.println("<<.GCO");
-        Chiron.SendtoTFTLN(PSTR("..                  .gcode"));
-      }
-      else {
-        TFTSer.println("<<");
-        TFTSer.println("..");
-      }
-      filesneeded--;
+    if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
+      TFTSer.println("<<");
+      TFTSer.println("..");
+      files--;
     }
 
-    for (uint16_t seek = currentindex; seek < currentindex + filesneeded; seek++) {
+    for (uint16_t seek = currentindex; seek < currentindex + files; seek++) {
       if (filelist.seek(seek)) {
-        sendFile(paneltype);
-        DEBUG_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'");
+        sendFile();
+        #if ACDEBUG(AC_FILE)
+          SERIAL_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+        #endif
       }
     }
   }
 
-  void FileNavigator::sendFile(panel_type_t paneltype) {
+  void FileNavigator::sendFile() {
+    // send the file and folder info to the panel
+    // this info will be returned when the file is selected
+    // Permitted special characters in file name -_*#~
+    // Panel can display 22 characters per line
     if (filelist.isDir()) {
-      // Add mandatory tags for new panel otherwise lines are ignored.
-      if (paneltype == AC_panel_new) {
-        TFTSer.print(filelist.shortFilename());
-        TFTSer.println(".GCO");
-        TFTSer.print(filelist.shortFilename());
-        TFTSer.write('/');
-        // Make sure we fill all 29 chars of the display line to clear the text buffer otherwise the last line is still visible
-        for (int8_t i = strlen(filelist.shortFilename()); i < 19; i++)
-          TFTSer.write(' ');
-        TFTSer.println(".gcode");
-      }
-      else {
-        TFTSer.println(filelist.shortFilename());
-        TFTSer.print(filelist.shortFilename());
-        TFTSer.write('/');
-        TFTSer.println();
-      }
-    }
-    else { // Not DIR
-      TFTSer.write('/');
-      if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
+      //TFTSer.print(currentfoldername);
       TFTSer.println(filelist.shortFilename());
-      TFTSer.print(filelist.longFilename());
-
-      // Make sure we fill all 29 chars of the display line to clear the text buffer otherwise the last line is still visible
-      if (paneltype == AC_panel_new)
-        for (int8_t i = strlen(filelist.longFilename()); i < 26; i++)
-          TFTSer.write(' ');
-
-      TFTSer.println();
+      TFTSer.print(filelist.shortFilename());
+      TFTSer.println("/");
     }
-  }  // AC_SD_FOLDER_VIEW
+    else {
+      // Logical Name
+      TFTSer.write('/');
+      if (folderdepth > 0) TFTSer.print(currentfoldername);
 
-#else // Flat file list
+      TFTSer.println(filelist.shortFilename());
 
-  void FileNavigator::getFiles(uint16_t index, panel_type_t paneltype, uint8_t filesneeded) {
-    DEBUG_ECHOLNPAIR("getFiles() I:", index," L:", lastpanelindex);
-    // if we're searching backwards, jump back to start and search forward
-    if (index < lastpanelindex) {
+      // Display Name
+      TFTSer.println(filelist.longFilename());
+    }
+  }
+  void FileNavigator::changeDIR(char *folder) {
+    #if ACDEBUG(AC_FILE)
+      SERIAL_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
+    #endif
+    if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
+    strcat(currentfoldername, folder);
+    strcat(currentfoldername, "/");
+    filelist.changeDir(folder);
+    refresh();
+    folderdepth++;
+    currentindex = 0;
+  }
+
+  void FileNavigator::upDIR() {
+    filelist.upDir();
+    refresh();
+    folderdepth--;
+    currentindex = 0;
+    // Remove the last child folder from the stored path
+    if (folderdepth == 0) {
+      currentfoldername[0] = '\0';
       reset();
-      skiptofileindex(index);
     }
-    lastpanelindex = index;
+    else {
+      char *pos = nullptr;
+      for (uint8_t f = 0; f < folderdepth; f++)
+        pos = strchr(currentfoldername, '/');
 
-    while (filesneeded > 0) {
-      if (filelist.seek(currentindex)) {
-        if (!filelist.isDir()) {
-          sendFile(paneltype);
-          filesneeded--;
-          currentindex++;
-        }
-        else
-          changeDIR(filelist.shortFilename());
-      } // valid file
-
-      if (currentindex == filelist.count()) {
-        if (currentfolderdepth > 0) {
-          upDIR();
-          currentindex++;
-        }
-        else break; // end of root folder
-      } // end of folder
-    } // files needed
-    // No more files available.
+      *(pos + 1) = '\0';
+    }
+    #if ACDEBUG(AC_FILE)
+      SERIAL_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
+    #endif
   }
 
-  void FileNavigator::sendFile(panel_type_t paneltype) {
-    TFTSer.write('/');
-    if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
-    TFTSer.println(filelist.shortFilename());
-    if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
-    TFTSer.println(filelist.longFilename());
-    DEBUG_ECHOLNPAIR("/", currentfoldername, "", filelist.shortFilename(), " ", filelist.longFilename());
-  }
-
-#endif // Flat file list
-
-} // Anycubic namespace
+  char* FileNavigator::getCurrentFolderName() { return currentfoldername; }
+}
 
 #endif // ANYCUBIC_LCD_CHIRON

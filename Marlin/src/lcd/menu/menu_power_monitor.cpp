@@ -42,7 +42,7 @@ void menu_power_monitor() {
   }
   #endif
 
-  #if ENABLED(POWER_MONITOR_VOLTAGE)
+  #if HAS_POWER_MONITOR_VREF
   {
     bool ena = power_monitor.voltage_display_enabled();
     EDIT_ITEM(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display);

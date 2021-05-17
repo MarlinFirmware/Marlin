@@ -28,6 +28,7 @@
 #ifndef USART4
   #define USART4 UART4
 #endif
+
 #ifndef USART5
   #define USART5 UART5
 #endif
@@ -37,38 +38,22 @@
   MSerialT MSerial ## ser_num (true, USART ## ser_num, &_rx_complete_irq_ ## ser_num); \
   void _rx_complete_irq_ ## ser_num (serial_t * obj) { MSerial ## ser_num ._rx_complete_irq(obj); }
 
-#if USING_HW_SERIAL1
-  DECLARE_SERIAL_PORT(1)
+#define DECLARE_SERIAL_PORT_EXP(ser_num) DECLARE_SERIAL_PORT(ser_num)
+
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(SERIAL_PORT)
 #endif
-#if USING_HW_SERIAL2
-  DECLARE_SERIAL_PORT(2)
+
+#if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
+  DECLARE_SERIAL_PORT_EXP(SERIAL_PORT_2)
 #endif
-#if USING_HW_SERIAL3
-  DECLARE_SERIAL_PORT(3)
+
+#if defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(MMU2_SERIAL_PORT)
 #endif
-#if USING_HW_SERIAL4
-  DECLARE_SERIAL_PORT(4)
-#endif
-#if USING_HW_SERIAL5
-  DECLARE_SERIAL_PORT(5)
-#endif
-#if USING_HW_SERIAL6
-  DECLARE_SERIAL_PORT(6)
-#endif
-#if USING_HW_SERIAL7
-  DECLARE_SERIAL_PORT(7)
-#endif
-#if USING_HW_SERIAL8
-  DECLARE_SERIAL_PORT(8)
-#endif
-#if USING_HW_SERIAL9
-  DECLARE_SERIAL_PORT(9)
-#endif
-#if USING_HW_SERIAL10
-  DECLARE_SERIAL_PORT(10)
-#endif
-#if USING_HW_SERIALLP1
-  DECLARE_SERIAL_PORT(LP1)
+
+#if defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT >= 0
+  DECLARE_SERIAL_PORT_EXP(LCD_SERIAL_PORT)
 #endif
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {

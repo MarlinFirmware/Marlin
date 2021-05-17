@@ -177,17 +177,8 @@ const char* i16tostr4signrj(const int16_t i) {
   return &conv[3];
 }
 
-// Convert unsigned float to string with 1.1 format
-const char* ftostr11ns(const_float_t f) {
-  const long i = UINTFLOAT(f, 1);
-  conv[4] = DIGIMOD(i, 10);
-  conv[5] = '.';
-  conv[6] = DIGIMOD(i, 1);
-  return &conv[4];
-}
-
 // Convert unsigned float to string with 1.23 format
-const char* ftostr12ns(const_float_t f) {
+const char* ftostr12ns(const float &f) {
   const long i = UINTFLOAT(f, 2);
   conv[3] = DIGIMOD(i, 100);
   conv[4] = '.';
@@ -197,7 +188,7 @@ const char* ftostr12ns(const_float_t f) {
 }
 
 // Convert unsigned float to string with 12.3 format
-const char* ftostr31ns(const_float_t f) {
+const char* ftostr31ns(const float &f) {
   const long i = UINTFLOAT(f, 1);
   conv[3] = DIGIMOD(i, 100);
   conv[4] = DIGIMOD(i, 10);
@@ -207,7 +198,7 @@ const char* ftostr31ns(const_float_t f) {
 }
 
 // Convert unsigned float to string with 123.4 format
-const char* ftostr41ns(const_float_t f) {
+const char* ftostr41ns(const float &f) {
   const long i = UINTFLOAT(f, 1);
   conv[2] = DIGIMOD(i, 1000);
   conv[3] = DIGIMOD(i, 100);
@@ -218,7 +209,7 @@ const char* ftostr41ns(const_float_t f) {
 }
 
 // Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
-const char* ftostr42_52(const_float_t f) {
+const char* ftostr42_52(const float &f) {
   if (f <= -10 || f >= 100) return ftostr52(f); // -23.45 / 123.45
   long i = INTFLOAT(f, 2);
   conv[2] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
@@ -230,7 +221,7 @@ const char* ftostr42_52(const_float_t f) {
 }
 
 // Convert signed float to fixed-length string with 023.45 / -23.45 format
-const char* ftostr52(const_float_t f) {
+const char* ftostr52(const float &f) {
   long i = INTFLOAT(f, 2);
   conv[1] = MINUSOR(i, DIGIMOD(i, 10000));
   conv[2] = DIGIMOD(i, 1000);
@@ -242,7 +233,7 @@ const char* ftostr52(const_float_t f) {
 }
 
 // Convert signed float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
-const char* ftostr53_63(const_float_t f) {
+const char* ftostr53_63(const float &f) {
   if (f <= -10 || f >= 100) return ftostr63(f); // -23.456 / 123.456
   long i = INTFLOAT(f, 3);
   conv[1] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 10000));
@@ -255,7 +246,7 @@ const char* ftostr53_63(const_float_t f) {
 }
 
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
-const char* ftostr63(const_float_t f) {
+const char* ftostr63(const float &f) {
   long i = INTFLOAT(f, 3);
   conv[0] = MINUSOR(i, DIGIMOD(i, 100000));
   conv[1] = DIGIMOD(i, 10000);
@@ -270,7 +261,7 @@ const char* ftostr63(const_float_t f) {
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
 
   // Convert float to rj string with 1234, _123, -123, _-12, 12.3, _1.2, or -1.2 format
-  const char* ftostr4sign(const_float_t f) {
+  const char* ftostr4sign(const float &f) {
     const int i = INTFLOAT(f, 1);
     if (!WITHIN(i, -99, 999)) return i16tostr4signrj((int)f);
     const bool neg = i < 0;
@@ -285,7 +276,7 @@ const char* ftostr63(const_float_t f) {
 #endif
 
 // Convert float to fixed-length string with +12.3 / -12.3 format
-const char* ftostr31sign(const_float_t f) {
+const char* ftostr31sign(const float &f) {
   int i = INTFLOAT(f, 1);
   conv[2] = MINUSOR(i, '+');
   conv[3] = DIGIMOD(i, 100);
@@ -296,7 +287,7 @@ const char* ftostr31sign(const_float_t f) {
 }
 
 // Convert float to fixed-length string with +123.4 / -123.4 format
-const char* ftostr41sign(const_float_t f) {
+const char* ftostr41sign(const float &f) {
   int i = INTFLOAT(f, 1);
   conv[1] = MINUSOR(i, '+');
   conv[2] = DIGIMOD(i, 1000);
@@ -308,7 +299,7 @@ const char* ftostr41sign(const_float_t f) {
 }
 
 // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
-const char* ftostr43sign(const_float_t f, char plus/*=' '*/) {
+const char* ftostr43sign(const float &f, char plus/*=' '*/) {
   long i = INTFLOAT(f, 3);
   conv[1] = i ? MINUSOR(i, plus) : ' ';
   conv[2] = DIGIMOD(i, 1000);
@@ -320,7 +311,7 @@ const char* ftostr43sign(const_float_t f, char plus/*=' '*/) {
 }
 
 // Convert signed float to string (5 digit) with -1.2345 / _0.0000 / +1.2345 format
-const char* ftostr54sign(const_float_t f, char plus/*=' '*/) {
+const char* ftostr54sign(const float &f, char plus/*=' '*/) {
   long i = INTFLOAT(f, 4);
   conv[0] = i ? MINUSOR(i, plus) : ' ';
   conv[1] = DIGIMOD(i, 10000);
@@ -333,13 +324,13 @@ const char* ftostr54sign(const_float_t f, char plus/*=' '*/) {
 }
 
 // Convert unsigned float to rj string with 12345 format
-const char* ftostr5rj(const_float_t f) {
+const char* ftostr5rj(const float &f) {
   const long i = UINTFLOAT(f, 0);
   return ui16tostr5rj(i);
 }
 
 // Convert signed float to string with +1234.5 format
-const char* ftostr51sign(const_float_t f) {
+const char* ftostr51sign(const float &f) {
   long i = INTFLOAT(f, 1);
   conv[0] = MINUSOR(i, '+');
   conv[1] = DIGIMOD(i, 10000);
@@ -352,7 +343,7 @@ const char* ftostr51sign(const_float_t f) {
 }
 
 // Convert signed float to string with +123.45 format
-const char* ftostr52sign(const_float_t f) {
+const char* ftostr52sign(const float &f) {
   long i = INTFLOAT(f, 2);
   conv[0] = MINUSOR(i, '+');
   conv[1] = DIGIMOD(i, 10000);
@@ -365,7 +356,7 @@ const char* ftostr52sign(const_float_t f) {
 }
 
 // Convert signed float to string with +12.345 format
-const char* ftostr53sign(const_float_t f) {
+const char* ftostr53sign(const float &f) {
   long i = INTFLOAT(f, 3);
   conv[0] = MINUSOR(i, '+');
   conv[1] = DIGIMOD(i, 10000);
@@ -378,7 +369,7 @@ const char* ftostr53sign(const_float_t f) {
 }
 
 // Convert unsigned float to string with ____4.5, __34.5, _234.5, 1234.5 format
-const char* ftostr51rj(const_float_t f) {
+const char* ftostr51rj(const float &f) {
   const long i = UINTFLOAT(f, 1);
   conv[0] = ' ';
   conv[1] = RJDIGIT(i, 10000);
@@ -391,7 +382,7 @@ const char* ftostr51rj(const_float_t f) {
 }
 
 // Convert signed float to space-padded string with -_23.4_ format
-const char* ftostr52sp(const_float_t f) {
+const char* ftostr52sp(const float &f) {
   long i = INTFLOAT(f, 2);
   uint8_t dig;
   conv[0] = MINUSOR(i, ' ');

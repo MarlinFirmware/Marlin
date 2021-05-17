@@ -98,7 +98,7 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-  void set_z_fade_height(const_float_t zfh, const bool do_report/*=true*/) {
+  void set_z_fade_height(const float &zfh, const bool do_report/*=true*/) {
 
     if (planner.z_fade_height == zfh) return;
 
@@ -213,27 +213,27 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const xy_pos_t &pos) {
 
-    // Get the resting Z position for after the XY move
     #ifdef MANUAL_PROBE_START_Z
-      constexpr float finalz = _MAX(0, MANUAL_PROBE_START_Z); // If a MANUAL_PROBE_START_Z value is set, always respect it
-    #else
-      #warning "It's recommended to set some MANUAL_PROBE_START_Z value for manual leveling."
-    #endif
-    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0     // A probe/obstacle clearance exists so there is a raise:
-      #ifndef MANUAL_PROBE_START_Z
-        const float finalz = current_position.z;  // - Use the current Z for starting-Z if no MANUAL_PROBE_START_Z was provided
+      constexpr float startz = _MAX(0, MANUAL_PROBE_START_Z);
+      #if MANUAL_PROBE_HEIGHT > 0
+        do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
+        do_blocking_move_to_z(startz);
+      #else
+        do_blocking_move_to_xy_z(pos, startz);
       #endif
-      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES); // - Raise Z, then move to the new XY
-      do_blocking_move_to_z(finalz);              // - Lower down to the starting Z height, ready for adjustment!
-    #elif defined(MANUAL_PROBE_START_Z)           // A starting-Z was provided, but there's no raise:
-      do_blocking_move_to_xy_z(pos, finalz);      // - Move in XY then down to the starting Z height, ready for adjustment!
-    #else                                         // Zero raise and no starting Z height either:
-      do_blocking_move_to_xy(pos);                // - Move over with no raise, ready for adjustment!
+    #elif MANUAL_PROBE_HEIGHT > 0
+      const float prev_z = current_position.z;
+      do_blocking_move_to_xy_z(pos, MANUAL_PROBE_HEIGHT);
+      do_blocking_move_to_z(prev_z);
+    #else
+      do_blocking_move_to_xy(pos);
     #endif
+
+    current_position = pos;
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }
 
-#endif // MESH_BED_LEVELING || PROBE_MANUALLY
+#endif
 
 #endif // HAS_LEVELING

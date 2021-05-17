@@ -86,8 +86,6 @@ uint8_t HAL_get_reset_source() {
   return 0;
 }
 
-void HAL_reboot() { _reboot_Teensyduino_(); }
-
 extern "C" {
   extern char __bss_end;
   extern char __heap_start;

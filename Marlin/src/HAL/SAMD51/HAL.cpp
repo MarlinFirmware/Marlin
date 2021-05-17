@@ -25,19 +25,19 @@
 #include <wiring_private.h>
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
-  #if USING_HW_SERIALUSB
+  #if ANY_SERIAL_IS(-1)
     DefaultSerial1 MSerial0(false, Serial);
   #endif
-  #if USING_HW_SERIAL0
+  #if ANY_SERIAL_IS(0)
     DefaultSerial2 MSerial1(false, Serial1);
   #endif
-  #if USING_HW_SERIAL1
+  #if ANY_SERIAL_IS(1)
     DefaultSerial3 MSerial2(false, Serial2);
   #endif
-  #if USING_HW_SERIAL2
+  #if ANY_SERIAL_IS(2)
     DefaultSerial4 MSerial3(false, Serial3);
   #endif
-  #if USING_HW_SERIAL3
+  #if ANY_SERIAL_IS(3)
     DefaultSerial5 MSerial4(false, Serial4);
   #endif
 #endif
@@ -435,8 +435,6 @@ uint8_t HAL_get_reset_source() {
   return 0;
 }
 #pragma pop_macro("WDT")
-
-void HAL_reboot() { NVIC_SystemReset(); }
 
 extern "C" {
   void * _sbrk(int incr);

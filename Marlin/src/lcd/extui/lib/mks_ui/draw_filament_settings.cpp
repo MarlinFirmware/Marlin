@@ -92,22 +92,22 @@ void lv_draw_filament_settings() {
   scr = lv_screen_create(FILAMENT_SETTINGS_UI, machine_menu.FilamentConfTitle);
 
   if (!uiCfg.para_ui_page) {
-    itoa(gCfgItems.filamentchange_load_length, public_buf_l, 10);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_length);
     lv_screen_menu_item_1_edit(scr, machine_menu.InLength, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_IN_LENGTH, 0, public_buf_l);
 
-    itoa(gCfgItems.filamentchange_load_speed, public_buf_l, 10);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_speed);
     lv_screen_menu_item_1_edit(scr, machine_menu.InSpeed, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_FILAMENT_SET_IN_SPEED, 1, public_buf_l);
 
-    itoa(gCfgItems.filamentchange_unload_length, public_buf_l, 10);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_length);
     lv_screen_menu_item_1_edit(scr, machine_menu.OutLength, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_FILAMENT_SET_OUT_LENGTH, 2, public_buf_l);
 
-    itoa(gCfgItems.filamentchange_unload_speed, public_buf_l, 10);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_speed);
     lv_screen_menu_item_1_edit(scr, machine_menu.OutSpeed, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_FILAMENT_SET_OUT_SPEED, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_DOWN, true);
   }
   else {
-    itoa(gCfgItems.filament_limit_temp, public_buf_l, 10);
+    sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filament_limit_temp);
     lv_screen_menu_item_1_edit(scr, machine_menu.FilamentTemperature, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_FILAMENT_SET_TEMP, 0, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_FILAMENT_SET_UP, true);

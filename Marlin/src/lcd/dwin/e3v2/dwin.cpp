@@ -2191,7 +2191,7 @@ void Draw_AdvSet_Menu() {
   if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Menu_Line(ASCROL(ADVSET_CASE_RUNOUT), ICON_Runout, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
   if (AVISI(ADVSET_CASE_RUNOUT)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_RUNOUT),runout.enabled);
   #endif 
-  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, GET_TEXT(MSG_RUNOUT_SENSOR), false);  // Runout Sensor
+  if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, "Power-loss recovery", false);  // Power-loss recovery
   if (AVISI(ADVSET_CASE_PWRLOSSR)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_PWRLOSSR),recovery.enabled);
   if (select_advSet.now  && AVISI(select_advSet.now)) Draw_Menu_Cursor(ASCROL(select_advSet.now));
 }

@@ -3,6 +3,16 @@
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import subprocess,os,re
+try:
+	import configparser
+except ImportError:
+	import ConfigParser as configparser
+try:
+	# PIO < 4.4
+	from platformio.managers.package import PackageManager
+except ImportError:
+	# PIO >= 4.4
+	from platformio.package.meta import PackageSpec as PackageManager
 
 PIO_VERSION_MIN = (5, 0, 3)
 try:
@@ -28,9 +38,6 @@ except SystemExit:
 except:
 	print("Can't detect PlatformIO Version")
 
-from platformio.package.meta import PackageSpec
-from platformio.project.config import ProjectConfig
-
 Import("env")
 
 #print(env.Dump())
@@ -40,9 +47,16 @@ try:
 except:
 	verbose = 0
 
-def blab(str,level=1):
-	if verbose >= level:
-		print("[deps] %s" % str)
+def blab(str):
+	if verbose:
+		print(str)
+
+def parse_pkg_uri(spec):
+	if PackageManager.__name__ == 'PackageSpec':
+		return PackageManager(spec).name
+	else:
+		name, _, _ = PackageManager.parse_pkg_uri(spec)
+		return name
 
 FEATURE_CONFIG = {}
 
@@ -65,17 +79,16 @@ def add_to_feat_cnf(feature, flines):
 		name = parts.pop(0)
 		if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
 			feat[name] = '='.join(parts)
-			blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
 		else:
-			for dep in re.split(r",\s*", line):
+			for dep in line.split(','):
 				lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
 				lib_re = re.compile('(?!^' + lib_name + '\\b)')
 				feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
-				blab("[%s] lib_deps = %s" % (feature, dep), 3)
 
 def load_config():
-	blab("========== Gather [features] entries...")
-	items = ProjectConfig().items('features')
+	config = configparser.ConfigParser()
+	config.read("platformio.ini")
+	items = config.items('features')
 	for key in items:
 		feature = key[0].upper()
 		if not feature in FEATURE_CONFIG:
@@ -83,20 +96,16 @@ def load_config():
 		add_to_feat_cnf(feature, key[1])
 
 	# Add options matching custom_marlin.MY_OPTION to the pile
-	blab("========== Gather custom_marlin entries...")
 	all_opts = env.GetProjectOptions()
 	for n in all_opts:
-		key = n[0]
-		mat = re.match(r'custom_marlin\.(.+)', key)
+		mat = re.match(r'custom_marlin\.(.+)', n[0])
 		if mat:
 			try:
-				val = env.GetProjectOption(key)
+				val = env.GetProjectOption(n[0])
 			except:
 				val = None
 			if val:
-				opt = mat.group(1).upper()
-				blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ))
-				add_to_feat_cnf(opt, val)
+				add_to_feat_cnf(mat.group(1).upper(), val)
 
 def get_all_known_libs():
 	known_libs = []
@@ -105,14 +114,16 @@ def get_all_known_libs():
 		if not 'lib_deps' in feat:
 			continue
 		for dep in feat['lib_deps']:
-			known_libs.append(PackageSpec(dep).name)
+			name = parse_pkg_uri(dep)
+			known_libs.append(name)
 	return known_libs
 
 def get_all_env_libs():
 	env_libs = []
 	lib_deps = env.GetProjectOption('lib_deps')
 	for dep in lib_deps:
-		env_libs.append(PackageSpec(dep).name)
+		name = parse_pkg_uri(dep)
+		env_libs.append(name)
 	return env_libs
 
 def set_env_field(field, value):
@@ -131,7 +142,6 @@ def force_ignore_unused_libs():
 
 def apply_features_config():
 	load_config()
-	blab("========== Apply enabled features...")
 	for feature in FEATURE_CONFIG:
 		if not env.MarlinFeatureIsEnabled(feature):
 			continue
@@ -139,25 +149,25 @@ def apply_features_config():
 		feat = FEATURE_CONFIG[feature]
 
 		if 'lib_deps' in feat and len(feat['lib_deps']):
-			blab("========== Adding lib_deps for %s... " % feature, 2)
+			blab("Adding lib_deps for %s... " % feature)
 
 			# feat to add
 			deps_to_add = {}
 			for dep in feat['lib_deps']:
-				deps_to_add[PackageSpec(dep).name] = dep
-				blab("==================== %s... " % dep, 2)
+				name = parse_pkg_uri(dep)
+				deps_to_add[name] = dep
 
 			# Does the env already have the dependency?
 			deps = env.GetProjectOption('lib_deps')
 			for dep in deps:
-				name = PackageSpec(dep).name
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
 			# Are there any libraries that should be ignored?
 			lib_ignore = env.GetProjectOption('lib_ignore')
 			for dep in deps:
-				name = PackageSpec(dep).name
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
@@ -168,16 +178,16 @@ def apply_features_config():
 
 		if 'build_flags' in feat:
 			f = feat['build_flags']
-			blab("========== Adding build_flags for %s: %s" % (feature, f), 2)
+			blab("Adding build_flags for %s: %s" % (feature, f))
 			new_flags = env.GetProjectOption('build_flags') + [ f ]
 			env.Replace(BUILD_FLAGS=new_flags)
 
 		if 'extra_scripts' in feat:
-			blab("Running extra_scripts for %s... " % feature, 2)
+			blab("Running extra_scripts for %s... " % feature)
 			env.SConscript(feat['extra_scripts'], exports="env")
 
 		if 'src_filter' in feat:
-			blab("========== Adding src_filter for %s... " % feature, 2)
+			blab("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall(r'[+-](<.*?>)', feat['src_filter'])
@@ -191,7 +201,7 @@ def apply_features_config():
 			env.Replace(SRC_FILTER=src_filter)
 
 		if 'lib_ignore' in feat:
-			blab("========== Adding lib_ignore for %s... " % feature, 2)
+			blab("Adding lib_ignore for %s... " % feature)
 			lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
 			set_env_field('lib_ignore', lib_ignore)
 
@@ -209,6 +219,7 @@ def search_compiler():
 		pass
 
 	if os.path.exists(GCC_PATH_CACHE):
+		blab("Getting g++ path from cache")
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
@@ -235,6 +246,7 @@ def search_compiler():
 			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
+				blab("Caching g++ for current env")
 				with open(GCC_PATH_CACHE, 'w+') as f:
 					f.write(filepath)
 
@@ -269,7 +281,7 @@ def load_marlin_features():
 
 	cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
 	cmd = ' '.join(cmd)
-	blab(cmd, 4)
+	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
 	marlin_features = {}
 	for define in define_list:

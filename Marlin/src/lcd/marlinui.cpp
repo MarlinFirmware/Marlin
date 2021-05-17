@@ -114,10 +114,25 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if PREHEAT_COUNT
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
   PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
-    #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
+    #ifdef PREHEAT_1_LABEL
+      static PGMSTR(preheat_0_label, PREHEAT_1_LABEL);
+    #endif
+    #ifdef PREHEAT_2_LABEL
+      static PGMSTR(preheat_1_label, PREHEAT_2_LABEL);
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      static PGMSTR(preheat_2_label, PREHEAT_3_LABEL);
+    #endif
+    #ifdef PREHEAT_4_LABEL
+      static PGMSTR(preheat_3_label, PREHEAT_4_LABEL);
+    #endif
+    #ifdef PREHEAT_5_LABEL
+      static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
+    #endif
+
     #define _PLBL(N) preheat_##N##_label,
-    REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PDEF);
-    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PLBL) };
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
+
     return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
   }
 #endif
@@ -748,7 +763,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         // For Cartesian / Core motion simply move to the current_position
         planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
 
-        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
+        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", axis, " at FR ", fr_mm_s);
 
         axis = NO_AXIS;
 
@@ -759,7 +774,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   //
   // Tell ui.update() to start a move to current_position after a short delay.
   //
-  void ManualMove::soon(const AxisEnum move_axis
+  void ManualMove::soon(AxisEnum move_axis
     #if MULTI_MANUAL
       , const int8_t eindex/*=-1*/
     #endif
@@ -769,7 +784,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
-    //SERIAL_ECHOLNPAIR("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
+    //SERIAL_ECHOLNPAIR("Post Move with Axis ", axis, " soon.");
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -857,7 +872,7 @@ void MarlinUI::update() {
     static bool wait_for_unclick; // = false
 
     auto do_click = [&]{
-      wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
+      wait_for_unclick = true;                        //  - Set debounce flag to ignore continous clicks
       lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
       wait_for_user = false;                          //  - Any click clears wait for user
       quick_feedback();                               //  - Always make a click sound
@@ -1500,12 +1515,6 @@ void MarlinUI::update() {
     IF_DISABLED(SDSUPPORT, print_job_timer.stop());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
-    TERN_(HAS_LCD_MENU, return_to_status());
-  }
-
-  void MarlinUI::flow_fault() {
-    LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
-    TERN_(HAS_BUZZER, buzz(1000, 440));
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 

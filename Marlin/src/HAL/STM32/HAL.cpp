@@ -133,8 +133,6 @@ uint8_t HAL_get_reset_source() {
   ;
 }
 
-void HAL_reboot() { NVIC_SystemReset(); }
-
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 extern "C" {
@@ -149,8 +147,8 @@ extern "C" {
 void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
-// Reset the system to initiate a firmware flash
-void flashFirmware(const int16_t) { HAL_reboot(); }
+// Reset the system (to initiate a firmware flash)
+void flashFirmware(const int16_t) { NVIC_SystemReset(); }
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;

@@ -22,16 +22,14 @@
 #pragma once
 
 /**
- * Geeetech GT2560 3.0/3.1 pin assignments
- *
- * Also GT2560 RevB and GT2560 4.0/4.1
+ * Geeetech GT2560 RevB + GT2560 3.0/3.1 + GT2560 4.0/4.1 pin assignments
  */
 
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "GT2560 3.x"
+  #define BOARD_INFO_NAME "GT2560 RevB/3.x/4.x"
 #endif
 
 //
@@ -82,9 +80,6 @@
 #endif
 #ifndef FIL_RUNOUT2_PIN
   #define FIL_RUNOUT2_PIN                     67
-#endif
-#ifndef FIL_RUNOUT3_PIN
-  #define FIL_RUNOUT3_PIN                     54
 #endif
 
 //
@@ -162,16 +157,13 @@
 
 #if ENABLED(YHCB2004)
   #ifndef YHCB2004_CLK
-    #define YHCB2004_CLK                       5
-    #define DIO52                   YHCB2004_CLK
+    #define YHCB2004_CLK                      5
   #endif
   #ifndef YHCB2004_MOSI
     #define YHCB2004_MOSI                     21
-    #define DIO50                  YHCB2004_MOSI
   #endif
   #ifndef YHCB2004_MISO
     #define YHCB2004_MISO                     36
-    #define DIO51                  YHCB2004_MISO
   #endif
 #elif HAS_WIRED_LCD
   #ifndef LCD_PINS_RS

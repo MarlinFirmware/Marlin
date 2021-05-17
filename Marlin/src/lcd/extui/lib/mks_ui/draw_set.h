@@ -25,8 +25,8 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-void lv_draw_set();
-void lv_clear_set();
+extern void lv_draw_set();
+extern void lv_clear_set();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

@@ -53,7 +53,7 @@
 // ------------------------
 
 #ifndef STM32_FLASH_SIZE
-  #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
+  #if EITHER(MCU_STM32F103RE, MCU_STM32F103VE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
@@ -84,13 +84,10 @@
   #define MYSERIAL1 UsbSerial
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#elif NUM_UARTS == 5
+  #error "SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
 #else
-  #define MYSERIAL1 MSERIAL(1) // dummy port
-  #if NUM_UARTS == 5
-    #error "SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-  #else
-    #error "SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-  #endif
+  #error "SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -98,13 +95,10 @@
     #define MYSERIAL2 UsbSerial
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
+  #elif NUM_UARTS == 5
+    #error "SERIAL_PORT_2 must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #define MYSERIAL2 MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "SERIAL_PORT_2 must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "SERIAL_PORT_2 must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    #error "SERIAL_PORT_2 must be -1 or from 1 to 3. Please update your configuration."
   #endif
 #endif
 
@@ -113,13 +107,10 @@
     #define MMU2_SERIAL UsbSerial
   #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #elif NUM_UARTS == 5
+    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #define MMU2_SERIAL MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "MMU2_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "MMU2_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
 #endif
 
@@ -128,13 +119,10 @@
     #define LCD_SERIAL UsbSerial
   #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+  #elif NUM_UARTS == 5
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #define LCD_SERIAL MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "LCD_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "LCD_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
@@ -207,7 +195,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-void HAL_reboot();
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 void _delay_ms(const int delay);
 
