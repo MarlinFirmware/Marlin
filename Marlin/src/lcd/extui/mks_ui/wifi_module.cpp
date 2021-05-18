@@ -621,9 +621,9 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             if (tmpStr == 0) {
               gCfgItems.fileSysType = FILE_SYS_SD;
-              send_to_wifi((uint8_t *)"Begin file list\r\n", strlen("Begin file list\r\n"));
+              send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
               get_file_list((char *)"0:/");
-              send_to_wifi((uint8_t *)"End file list\r\n", strlen("End file list\r\n"));
+              send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
               SEND_OK_TO_WIFI;
               break;
             }
@@ -634,7 +634,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
               char *path = (char *)tempBuf;
 
               if (strlen((char *)&tmpStr[index]) < 80) {
-                send_to_wifi((uint8_t *)"Begin file list\r\n", strlen("Begin file list\r\n"));
+                send_to_wifi((uint8_t *)(STR_BEGIN_FILE_LIST "\r\n"), strlen(STR_BEGIN_FILE_LIST "\r\n"));
 
                 if (strncmp((char *)&tmpStr[index], "1:", 2) == 0)
                   gCfgItems.fileSysType = FILE_SYS_SD;
@@ -643,7 +643,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
                 strcpy((char *)path, (char *)&tmpStr[index]);
                 get_file_list(path);
-                send_to_wifi((uint8_t *)"End file list\r\n", strlen("End file list\r\n"));
+                send_to_wifi((uint8_t *)(STR_END_FILE_LIST "\r\n"), strlen(STR_END_FILE_LIST "\r\n"));
               }
               SEND_OK_TO_WIFI;
             }
