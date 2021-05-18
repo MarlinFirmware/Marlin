@@ -34,7 +34,7 @@
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - prerelease XYZ (based on Marlin 2.0.8)"
+#define DETAILED_BUILD_VERSION "CR-6 community firmware - release 6.1 - prerelease 4 (based on Marlin 2.0.8.1)"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
