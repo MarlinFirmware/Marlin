@@ -4863,6 +4863,7 @@ void CrealityDWINClass::Popup_Control() {
           } else {
             pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
             if (printing) Popup_Handler(Resuming);
+            else Redraw_Menu(true, true, (active_menu==PreheatHotend));
           }
           break;
       #endif
@@ -5043,7 +5044,6 @@ void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
     if (!printing) Start_Print(card.isFileOpen());
     else Stop_Print();
-    delay(500);
   }
   if (print_job_timer.isPaused() != paused) {
     paused = print_job_timer.isPaused();
