@@ -96,6 +96,7 @@ bool hasPrintTimer = false;
     ui.progress_reset();
 #endif
 
+    ScreenHandler.SetViewMeshLevelState();
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
   }
 

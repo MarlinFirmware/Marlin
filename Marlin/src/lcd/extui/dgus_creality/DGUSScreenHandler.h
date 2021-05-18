@@ -387,6 +387,7 @@ public:
 
   static void SetSynchronousOperationStart();
   static void SetSynchronousOperationFinish();
+  static bool HasCurrentSynchronousOperation() { return HasSynchronousOperation; }
   static void SendBusyState(DGUS_VP_Variable &var);
 
   static void SetViewMeshLevelState();

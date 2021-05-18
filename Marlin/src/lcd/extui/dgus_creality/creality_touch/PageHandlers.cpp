@@ -141,7 +141,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 void LevelingHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_BEDLEVELKEY:
-            if (!ScreenHandler.HasSynchronousOperation) {
+            if (!ScreenHandler.HasCurrentSynchronousOperation()) {
                 ScreenHandler.PopToOldScreen();
             } else {
                 ScreenHandler.setstatusmessagePGM("Wait for leveling completion...");
